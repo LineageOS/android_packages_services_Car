@@ -17,33 +17,33 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"കാർ വിവരങ്ങൾ"</string>
-    <string name="car_permission_desc" msgid="37967366937946700">"നിങ്ങളുടെ കാർ വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക."</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"നിങ്ങളുടെ കാർ വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_cabin" msgid="7737204489497269651">"കാർ ക്യാബിൻ"</string>
-    <string name="car_permission_desc_cabin" msgid="5658746726474282714">"വിൻഡോകൾ, സീറ്റുകൾ, കണ്ണാടികൾ, ഡോറുകൾ ഉൾപ്പെടെയുള്ള നിങ്ങളുടെ കാറിന്റെ ഘടകഭാഗങ്ങൾ ആക്‌സസ് ചെയ്യുക."</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"വിൻഡോകൾ, സീറ്റുകൾ, കണ്ണാടികൾ, ഡോറുകൾ ഉൾപ്പെടെയുള്ള നിങ്ങളുടെ കാറിന്റെ ഘടകഭാഗങ്ങൾ ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_camera" msgid="608969838109034886">"കാറിന്റെ ക്യാമറ"</string>
-    <string name="car_permission_desc_camera" msgid="7177565584644606387">"നിങ്ങളുടെ കാറിന്റെ ക്യാമറ(കൾ) ആക്‌സസ് ചെയ്യുക."</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"നിങ്ങളുടെ കാറിന്റെ ക്യാമറ(കൾ) ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_energy" msgid="3398092932402178393">"കാർ എനർജി"</string>
-    <string name="car_permission_desc_energy" msgid="2925098075119509004">"കാറിന്റെ എനർജി വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക."</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"നിങ്ങളുടെ കാറിന്റെ എനർജി വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_hvac" msgid="8047274427463154164">"കാർ Hvac"</string>
-    <string name="car_permission_desc_hvac" msgid="7837686458309247154">"നിങ്ങളുടെ കാറിന്റെ hvac ആക്‌സസ് ചെയ്യുക."</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"നിങ്ങളുടെ കാറിന്റെ hvac ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_mileage" msgid="811821331694754443">"കാറിന്റെ മൈലേജ്"</string>
-    <string name="car_permission_desc_mileage" msgid="261946195057016914">"നിങ്ങളുടെ കാറിന്റെ മൈലേജ് വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക."</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"നിങ്ങളുടെ കാറിന്റെ മൈലേജ് വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_speed" msgid="7315924371063443241">"കാറിന്റെ വേഗത"</string>
-    <string name="car_permission_desc_speed" msgid="4394638712070011650">"നിങ്ങളുടെ കാറിന്റെ വേഗത ആക്‌സസ് ചെയ്യുക."</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"നിങ്ങളുടെ കാറിന്റെ വേഗത ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"വാഹനത്തിന്റെ ചലനാത്മക നില"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="2458601597024393569">"നിങ്ങളുടെ കാറിന്റെ ചലനാത്മക നില ആക്‌സസ് ചെയ്യുക"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"നിങ്ങളുടെ കാറിന്റെ ചലനാത്മക നില ആക്‌സസ് ചെയ്യുക"</string>
     <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"കാർ വെൻഡർ ചാനൽ"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="7223384502421767491">"കാർ-നിർദ്ദിഷ്‌ട വിവരം മാറ്റാൻ കൈമാറാൻ കാറിന്റെ വെൻഡർ ചാനൽ ആക്‌സസ് ചെയ്യുക."</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"കാർ-നിർദ്ദിഷ്‌ട വിവരം മാറ്റാൻ കൈമാറാൻ കാറിന്റെ വെൻഡർ ചാനൽ ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_radio" msgid="4768692394049267617">"കാർ റേഡിയോ"</string>
-    <string name="car_permission_desc_radio" msgid="3544198603152937942">"നിങ്ങളുടെ കാർ റേഡിയോ ആക്‌സസ് ചെയ്യുക."</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"നിങ്ങളുടെ കാർ റേഡിയോ ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_projection" msgid="7830068427803303154">"കാർ പ്രൊജക്ഷൻ"</string>
     <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"കാറിന്റെ ഓഡിയോ വോളിയം"</string>
     <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"കാറിന്റെ ഓഡിയോ ക്രമീകരണം"</string>
     <string name="car_permission_desc_projection" msgid="2680001094361534439">"കാർ പ്രദർശനത്തിൽ, ഫോൺ ഇന്റർഫേസ് പ്രൊജക്റ്റ് ചെയ്യുക."</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"വാഹന HAL എമുലേറ്റ് ചെയ്യുക"</string>
-    <string name="car_permission_desc_mock_vehicle_hal" msgid="3549687008625373417">"ആന്തരിക പരിശോധനയ്ക്കായി, നിങ്ങളുടെ കാറിന്റെ വാഹന HAL എമുലേറ്റ് ചെയ്യുക."</string>
-    <string name="car_permission_desc_audio_volume" msgid="7484628324723179580">"നിങ്ങളുടെ കാറിന്റെ ഓഡിയോ വോളിയം നിയന്ത്രിക്കുക."</string>
-    <string name="car_permission_desc_audio_settings" msgid="2871870084988702516">"നിങ്ങളുടെ കാറിന്റെ ഓഡിയോ ക്രമീകരണം നിയന്ത്രിക്കുക."</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"ആന്തരിക പരിശോധനയ്ക്കായി, നിങ്ങളുടെ കാറിന്റെ വാഹന HAL എമുലേറ്റ് ചെയ്യുക."</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"നിങ്ങളുടെ കാറിന്റെ ഓഡിയോ വോളിയം നിയന്ത്രിക്കുക."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"നിങ്ങളുടെ കാറിന്റെ ഓഡിയോ ക്രമീകരണം നിയന്ത്രിക്കുക."</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"ആപ്പ് ബ്ലോക്ക് ചെയ്യൽ"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"ഡ്രൈവ് ചെയ്യുമ്പോൾ ആപ്പ് ബ്ലോക്ക് ചെയ്യുന്നത് നിയന്ത്രിക്കുക."</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"നാവിഗേഷൻ മാനേജർ"</string>
@@ -60,9 +60,10 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ഇൻപുട്ട് ഇവന്റുകൾ കൈകാര്യം ചെയ്യുക"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ബസ് പരാജയപ്പെട്ടു"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ബസ് പ്രതികരിക്കുന്നില്ല. ഹെഡ്‌യൂണിറ്റ് ബോക്‌സ്, അൺപ്ലഗ് ചെയ്‌ത്, വീണ്ടും പ്ലഗ് ചെയ്‌ത്, കാർ റീസ്‌റ്റാർട്ട് ചെയ്യുക"</string>
-    <string name="activity_blocked_text" msgid="7117775117422916032">"നിങ്ങളുടെ സുരക്ഷയ്ക്കായി, ഡ്രൈവ് ചെയ്യുമ്പോൾ, ഈ ആക്റ്റിവിറ്റി ലഭ്യമല്ല"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"നിങ്ങളുടെ സുരക്ഷയ്ക്ക്, ഡ്രൈവ് ചെയ്യുമ്പോൾ ഈ ആക്റ്റിവിറ്റി ലഭ്യമല്ല.\nതുടരാൻ, നിങ്ങൾ പാർക്ക് ചെയ്യുന്നതുവരെ കാത്തിരിക്കുക."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"സുരക്ഷിതമായ ആപ്പ് ഫീച്ചറുകൾ ഉപയോഗിച്ച് പുനരാരംഭിക്കാൻ, <xliff:g id="EXIT_BUTTON">%s</xliff:g> തിരഞ്ഞെടുക്കുക."</string>
+    <string name="exit_button" msgid="5829638404777671253">"മടങ്ങുക"</string>
     <string name="debug_button_text" msgid="6395881820644544676">"ഡീബഗ് വിവരം"</string>
-    <string name="exit_button" msgid="626660628135437972">"ആപ്പ് റീസ്‌റ്റാർട്ട് ചെയ്യുക"</string>
     <string name="car_permission_label_diag_read" msgid="2539365760945541902">"പ്രശ്‌നനിർണ്ണയ ഡാറ്റ"</string>
     <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"കാറിൽ നിന്ന് പ്രശ്‌നനിർണ്ണയ ഡാറ്റ വായിക്കുക"</string>
     <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"പ്രശ്‌നനിർണ്ണയ ഡാറ്റ"</string>
@@ -76,19 +77,19 @@
     <string name="car_permission_label_driving_state" msgid="6069696010591163256">"ഡ്രൈവിംഗ് നില"</string>
     <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"ഡ്രൈവിംഗ് നിലയിലെ മാറ്റങ്ങൾ ശ്രദ്ധിക്കുക"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"എഞ്ചിൻ വിശദാംശങ്ങൾ നൽകിയിരിക്കുന്നു"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="7360817472577625295">"നിങ്ങളുടെ കാറിന്റെ വിശദമായ എഞ്ചിൻ വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"നിങ്ങളുടെ കാറിന്റെ വിശദമായ എഞ്ചിൻ വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക"</string>
     <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"എനർജി പോർട്ടുകൾ"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"എനർജി പോർട്ടുകൾ ആക്‌സസ് ചെയ്യുക"</string>
     <string name="car_permission_label_car_identification" msgid="1729154715508060432">"കാറിന്റെ ഐഡന്റിഫിക്കേഷൻ"</string>
-    <string name="car_permission_desc_car_identification" msgid="3446202891279037295">"കാറിന്റെ ഐഡന്റിഫിക്കേഷൻ ആക്‌സസ് ചെയ്യുക"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"കാറിന്റെ ഐഡന്റിഫിക്കേഷൻ ആക്‌സസ് ചെയ്യുക"</string>
     <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"കാറിന്റെ ഡോറുകൾ"</string>
-    <string name="car_permission_desc_control_car_doors" msgid="438796526924485694">"കാറിന്റെ ഡോറുകൾ നിയന്ത്രിക്കുക"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"കാറിന്റെ ഡോറുകൾ നിയന്ത്രിക്കുക"</string>
     <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"കാർ വിൻഡോകൾ"</string>
-    <string name="car_permission_desc_control_car_windows" msgid="7191531366203590752">"കാറിന്റെ വിൻഡോകൾ നിയന്ത്രിക്കുക"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"കാറിന്റെ വിൻഡോകൾ നിയന്ത്രിക്കുക"</string>
     <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"കാറിന്റെ കണ്ണാടികൾ"</string>
-    <string name="car_permission_desc_control_car_mirrors" msgid="1329068133900689986">"കാറിന്റെ കണ്ണാടികൾ നിയന്ത്രിക്കുക"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"കാറിന്റെ കണ്ണാടികളെ നിയന്ത്രിക്കുക"</string>
     <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"കാറിന്റെ സീറ്റുകൾ"</string>
-    <string name="car_permission_desc_control_car_seats" msgid="5319108612196099191">"കാറിന്റെ സീറ്റുകൾ നിയന്ത്രിക്കുക"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"കാറിന്റെ സീറ്റുകൾ നിയന്ത്രിക്കുക"</string>
     <string name="car_permission_label_car_info" msgid="5638680944359440535">"കാറിന്റെ അടിസ്ഥാന വിവരങ്ങൾ"</string>
     <string name="car_permission_desc_car_info" msgid="1697298888275875496">"കാറിന്റെ അടിസ്ഥാന വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"കാറിന്റെ പുറംഭാഗത്തെ ലൈറ്റുകൾ"</string>

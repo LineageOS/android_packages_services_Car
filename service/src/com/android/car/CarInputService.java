@@ -18,6 +18,7 @@ package com.android.car;
 import static android.hardware.input.InputManager.INJECT_INPUT_EVENT_MODE_ASYNC;
 import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK;
 
+import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.input.CarInputHandlingService;
 import android.car.input.CarInputHandlingService.InputFilter;
@@ -30,10 +31,11 @@ import android.hardware.input.InputManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.CallLog.Calls;
 import android.telecom.TelecomManager;
@@ -42,84 +44,126 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.android.car.hal.InputHalService;
+import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;
 import com.android.internal.app.IVoiceInteractionSessionShowCallback;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.function.Supplier;
 
 public class CarInputService implements CarServiceBase, InputHalService.InputListener {
 
+    /** An interface to receive {@link KeyEvent}s as they occur. */
     public interface KeyEventListener {
-        boolean onKeyEvent(KeyEvent event);
+        /** Called when a key event occurs. */
+        void onKeyEvent(KeyEvent event);
     }
 
     private static final class KeyPressTimer {
-        private static final long LONG_PRESS_TIME_MS = 1000;
-
+        private final Handler mHandler;
+        private final Runnable mLongPressRunnable;
+        private final Runnable mCallback = this::onTimerExpired;
+        @GuardedBy("this")
         private boolean mDown = false;
-        private long mDuration = -1;
+        @GuardedBy("this")
+        private boolean mLongPress = false;
 
+        KeyPressTimer(Handler handler, Runnable longPressRunnable) {
+            mHandler = handler;
+            mLongPressRunnable = longPressRunnable;
+        }
+
+        /** Marks that a key was pressed, and starts the long-press timer. */
         synchronized void keyDown() {
             mDown = true;
-            mDuration = SystemClock.elapsedRealtime();
+            mLongPress = false;
+            mHandler.removeCallbacks(mCallback);
+            mHandler.postDelayed(mCallback, LONG_PRESS_TIME_MS);
         }
 
-        synchronized void keyUp() {
-            if (!mDown) {
-                throw new IllegalStateException("key can't go up without being down");
-            }
-            mDuration = SystemClock.elapsedRealtime() - mDuration;
+        /**
+         * Marks that a key was released, and stops the long-press timer.
+         *
+         * Returns true if the press was a long-press.
+         */
+        synchronized boolean keyUp() {
+            mHandler.removeCallbacks(mCallback);
             mDown = false;
+            return mLongPress;
         }
 
-        synchronized boolean isLongPress() {
-            if (mDown) {
-                throw new IllegalStateException("can't query press length during key down");
+        private void onTimerExpired() {
+            synchronized (this) {
+                // If the timer expires after key-up, don't retroactively make the press long.
+                if (!mDown) {
+                    return;
+                }
+                mLongPress = true;
             }
-            return mDuration >= LONG_PRESS_TIME_MS;
+
+            mLongPressRunnable.run();
         }
     }
 
-    private IVoiceInteractionSessionShowCallback mShowCallback =
+    private final IVoiceInteractionSessionShowCallback mShowCallback =
             new IVoiceInteractionSessionShowCallback.Stub() {
-        @Override
-        public void onFailed() {
-            Log.w(CarLog.TAG_INPUT, "Failed to show VoiceInteractionSession");
-        }
+                @Override
+                public void onFailed() {
+                    Log.w(CarLog.TAG_INPUT, "Failed to show VoiceInteractionSession");
+                }
 
-        @Override
-        public void onShown() {
-            if (DBG) {
-                Log.d(CarLog.TAG_INPUT, "IVoiceInteractionSessionShowCallback onShown()");
-            }
-        }
-    };
+                @Override
+                public void onShown() {
+                    if (DBG) {
+                        Log.d(CarLog.TAG_INPUT, "IVoiceInteractionSessionShowCallback onShown()");
+                    }
+                }
+            };
 
     private static final boolean DBG = false;
-    private static final String EXTRA_CAR_PUSH_TO_TALK =
+    @VisibleForTesting
+    static final String EXTRA_CAR_PUSH_TO_TALK =
             "com.android.car.input.EXTRA_CAR_PUSH_TO_TALK";
+
+    private static final int LONG_PRESS_TIME_MS = 1000;
 
     private final Context mContext;
     private final InputHalService mInputHalService;
     private final TelecomManager mTelecomManager;
-    private final InputManager mInputManager;
     private final AssistUtils mAssistUtils;
+    // The ComponentName of the CarInputListener service. Can be changed via resource overlay,
+    // or overridden directly for testing.
+    @Nullable
+    private final ComponentName mCustomInputServiceComponent;
+    // The default handler for main-display input events. By default, injects the events into
+    // the input queue via InputManager, but can be overridden for testing.
+    private final KeyEventListener mMainDisplayHandler;
+    // The supplier for the last-called number. By default, gets the number from the call log.
+    // May be overridden for testing.
+    private final Supplier<String> mLastCalledNumberSupplier;
 
-    private KeyEventListener mVoiceAssistantKeyListener;
-    private KeyEventListener mLongVoiceAssistantKeyListener;
+    @GuardedBy("this")
+    private Runnable mVoiceAssistantKeyListener;
+    @GuardedBy("this")
+    private Runnable mLongVoiceAssistantKeyListener;
 
-    private final KeyPressTimer mVoiceKeyTimer = new KeyPressTimer();
-    private final KeyPressTimer mCallKeyTimer = new KeyPressTimer();
+    private final KeyPressTimer mVoiceKeyTimer;
+    private final KeyPressTimer mCallKeyTimer;
 
+    @GuardedBy("this")
     private KeyEventListener mInstrumentClusterKeyListener;
 
-    private ICarInputListener mCarInputListener;
+    @GuardedBy("this")
+    @VisibleForTesting
+    ICarInputListener mCarInputListener;
+
+    @GuardedBy("this")
     private boolean mCarInputListenerBound = false;
-    private final Map<Integer, Set<Integer>> mHandledKeys = new HashMap<>();
+
+    // Maps display -> keycodes handled.
+    @GuardedBy("this")
+    private final SetMultimap<Integer, Integer> mHandledKeys = new SetMultimap<>();
 
     private final Binder mCallback = new Binder() {
         @Override
@@ -144,14 +188,18 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
                 Log.d(CarLog.TAG_INPUT, "onServiceConnected, name: "
                         + name + ", binder: " + binder);
             }
-            mCarInputListener = ICarInputListener.Stub.asInterface(binder);
+            synchronized (this) {
+                mCarInputListener = ICarInputListener.Stub.asInterface(binder);
+            }
 
             try {
                 binder.linkToDeath(() -> CarServiceUtils.runOnMainSync(() -> {
                     Log.w(CarLog.TAG_INPUT, "Input service died. Trying to rebind...");
-                    mCarInputListener = null;
-                    // Try to rebind with input service.
-                    mCarInputListenerBound = bindCarInputService();
+                    synchronized (this) {
+                        mCarInputListener = null;
+                        // Try to rebind with input service.
+                        mCarInputListenerBound = bindCarInputService();
+                    }
                 }), 0);
             } catch (RemoteException e) {
                 Log.e(CarLog.TAG_INPUT, e.getMessage(), e);
@@ -161,29 +209,56 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(CarLog.TAG_INPUT, "onServiceDisconnected, name: " + name);
-            mCarInputListener = null;
-            // Try to rebind with input service.
-            mCarInputListenerBound = bindCarInputService();
+            synchronized (this) {
+                mCarInputListener = null;
+                // Try to rebind with input service.
+                mCarInputListenerBound = bindCarInputService();
+            }
         }
     };
 
-    public CarInputService(Context context, InputHalService inputHalService) {
-        mContext = context;
-        mInputHalService = inputHalService;
-        mTelecomManager = context.getSystemService(TelecomManager.class);
-        mInputManager = context.getSystemService(InputManager.class);
-        mAssistUtils = new AssistUtils(context);
+    @Nullable
+    private static ComponentName getDefaultInputComponent(Context context) {
+        String carInputService = context.getString(R.string.inputService);
+        if (TextUtils.isEmpty(carInputService)) {
+            return null;
+        }
+
+        return ComponentName.unflattenFromString(carInputService);
     }
 
-    private synchronized void setHandledKeys(InputFilter[] handledKeys) {
+    public CarInputService(Context context, InputHalService inputHalService) {
+        this(context, inputHalService, new Handler(Looper.getMainLooper()),
+                context.getSystemService(TelecomManager.class), new AssistUtils(context),
+                event ->
+                        context.getSystemService(InputManager.class)
+                                .injectInputEvent(event, INJECT_INPUT_EVENT_MODE_ASYNC),
+                () -> Calls.getLastOutgoingCall(context),
+                getDefaultInputComponent(context));
+    }
+
+    @VisibleForTesting
+    CarInputService(Context context, InputHalService inputHalService, Handler handler,
+            TelecomManager telecomManager, AssistUtils assistUtils,
+            KeyEventListener mainDisplayHandler, Supplier<String> lastCalledNumberSupplier,
+            @Nullable ComponentName customInputServiceComponent) {
+        mContext = context;
+        mInputHalService = inputHalService;
+        mTelecomManager = telecomManager;
+        mAssistUtils = assistUtils;
+        mMainDisplayHandler = mainDisplayHandler;
+        mLastCalledNumberSupplier = lastCalledNumberSupplier;
+        mCustomInputServiceComponent = customInputServiceComponent;
+
+        mVoiceKeyTimer = new KeyPressTimer(handler, this::handleVoiceAssistLongPress);
+        mCallKeyTimer = new KeyPressTimer(handler, this::handleCallLongPress);
+    }
+
+    @VisibleForTesting
+    synchronized void setHandledKeys(InputFilter[] handledKeys) {
         mHandledKeys.clear();
         for (InputFilter handledKey : handledKeys) {
-            Set<Integer> displaySet = mHandledKeys.get(handledKey.mTargetDisplay);
-            if (displaySet == null) {
-                displaySet = new HashSet<Integer>();
-                mHandledKeys.put(handledKey.mTargetDisplay, displaySet);
-            }
-            displaySet.add(handledKey.mKeyCode);
+            mHandledKeys.put(handledKey.mTargetDisplay, handledKey.mKeyCode);
         }
     }
 
@@ -191,9 +266,8 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
      * Set listener for listening voice assistant key event. Setting to null stops listening.
      * If listener is not set, default behavior will be done for short press.
      * If listener is set, short key press will lead into calling the listener.
-     * @param listener
      */
-    public void setVoiceAssistantKeyListener(KeyEventListener listener) {
+    public void setVoiceAssistantKeyListener(Runnable listener) {
         synchronized (this) {
             mVoiceAssistantKeyListener = listener;
         }
@@ -203,9 +277,8 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
      * Set listener for listening long voice assistant key event. Setting to null stops listening.
      * If listener is not set, default behavior will be done for long press.
      * If listener is set, short long press will lead into calling the listener.
-     * @param listener
      */
-    public void setLongVoiceAssistantKeyListener(KeyEventListener listener) {
+    public void setLongVoiceAssistantKeyListener(Runnable listener) {
         synchronized (this) {
             mLongVoiceAssistantKeyListener = listener;
         }
@@ -228,7 +301,9 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
 
 
         mInputHalService.setInputListener(this);
-        mCarInputListenerBound = bindCarInputService();
+        synchronized (this) {
+            mCarInputListenerBound = bindCarInputService();
+        }
     }
 
     @Override
@@ -247,9 +322,13 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     @Override
     public void onKeyEvent(KeyEvent event, int targetDisplay) {
         // Give a car specific input listener the opportunity to intercept any input from the car
-        if (mCarInputListener != null && isCustomEventHandler(event, targetDisplay)) {
+        ICarInputListener carInputListener;
+        synchronized (this) {
+            carInputListener = mCarInputListener;
+        }
+        if (carInputListener != null && isCustomEventHandler(event, targetDisplay)) {
             try {
-                mCarInputListener.onKeyEvent(event, targetDisplay);
+                carInputListener.onKeyEvent(event, targetDisplay);
             } catch (RemoteException e) {
                 Log.e(CarLog.TAG_INPUT, "Error while calling car input service", e);
             }
@@ -273,56 +352,77 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         if (targetDisplay == InputHalService.DISPLAY_INSTRUMENT_CLUSTER) {
             handleInstrumentClusterKey(event);
         } else {
-            handleMainDisplayKey(event);
+            mMainDisplayHandler.onKeyEvent(event);
         }
     }
 
     private synchronized boolean isCustomEventHandler(KeyEvent event, int targetDisplay) {
-        Set<Integer> displaySet = mHandledKeys.get(targetDisplay);
-        if (displaySet == null) {
-            return false;
-        }
-        return displaySet.contains(event.getKeyCode());
+        return mHandledKeys.containsEntry(targetDisplay, event.getKeyCode());
     }
 
     private void handleVoiceAssistKey(KeyEvent event) {
         int action = event.getAction();
-        if (action == KeyEvent.ACTION_DOWN) {
+        if (action == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
             mVoiceKeyTimer.keyDown();
         } else if (action == KeyEvent.ACTION_UP) {
-            mVoiceKeyTimer.keyUp();
-            final KeyEventListener listener;
+            if (mVoiceKeyTimer.keyUp()) {
+                // Long press already handled by handleVoiceAssistLongPress(), nothing more to do.
+                return;
+            }
 
+            final Runnable listener;
             synchronized (this) {
-                listener = (mVoiceKeyTimer.isLongPress()
-                    ? mLongVoiceAssistantKeyListener : mVoiceAssistantKeyListener);
+                listener = mVoiceAssistantKeyListener;
             }
 
             if (listener != null) {
-                listener.onKeyEvent(event);
+                listener.run();
             } else {
                 launchDefaultVoiceAssistantHandler();
             }
         }
     }
 
+    private void handleVoiceAssistLongPress() {
+        Runnable listener;
+
+        synchronized (this) {
+            listener = mLongVoiceAssistantKeyListener;
+        }
+
+        if (listener != null) {
+            listener.run();
+        } else {
+            launchDefaultVoiceAssistantHandler();
+        }
+    }
+
     private void handleCallKey(KeyEvent event) {
         int action = event.getAction();
-        if (action == KeyEvent.ACTION_DOWN) {
+        if (action == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
             mCallKeyTimer.keyDown();
         } else if (action == KeyEvent.ACTION_UP) {
-            mCallKeyTimer.keyUp();
-
-            // Handle a phone call regardless of press length.
-            if (mTelecomManager != null && mTelecomManager.isRinging()) {
-                Log.i(CarLog.TAG_INPUT, "call key while ringing. Answer the call!");
-                mTelecomManager.acceptRingingCall();
-            } else if (mCallKeyTimer.isLongPress()) {
-                dialLastCallHandler();
-            } else {
-                launchDialerHandler();
+            if (mCallKeyTimer.keyUp()) {
+                // Long press already handled by handleCallLongPress(), nothing more to do.
+                return;
             }
+
+            if (acceptCallIfRinging()) {
+                // Ringing call answered, nothing more to do.
+                return;
+            }
+
+            launchDialerHandler();
         }
+    }
+
+    private void handleCallLongPress() {
+        // Long-press answers call if ringing, same as short-press.
+        if (acceptCallIfRinging()) {
+            return;
+        }
+
+        dialLastCallHandler();
     }
 
     private void launchDialerHandler() {
@@ -334,13 +434,23 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     private void dialLastCallHandler() {
         Log.i(CarLog.TAG_INPUT, "call key, dialing last call");
 
-        String lastNumber = Calls.getLastOutgoingCall(mContext);
-        if (lastNumber != null && !lastNumber.isEmpty()) {
+        String lastNumber = mLastCalledNumberSupplier.get();
+        if (!TextUtils.isEmpty(lastNumber)) {
             Intent callLastNumberIntent = new Intent(Intent.ACTION_CALL)
                     .setData(Uri.fromParts("tel", lastNumber, null))
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mContext.startActivityAsUser(callLastNumberIntent, null, UserHandle.CURRENT_OR_SELF);
         }
+    }
+
+    private boolean acceptCallIfRinging() {
+        if (mTelecomManager != null && mTelecomManager.isRinging()) {
+            Log.i(CarLog.TAG_INPUT, "call key while ringing. Answer the call!");
+            mTelecomManager.acceptRingingCall();
+            return true;
+        }
+
+        return false;
     }
 
     private void launchDefaultVoiceAssistantHandler() {
@@ -369,31 +479,26 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         listener.onKeyEvent(event);
     }
 
-    private void handleMainDisplayKey(KeyEvent event) {
-        mInputManager.injectInputEvent(event, INJECT_INPUT_EVENT_MODE_ASYNC);
-    }
-
     @Override
-    public void dump(PrintWriter writer) {
+    public synchronized void dump(PrintWriter writer) {
         writer.println("*Input Service*");
         writer.println("mCarInputListenerBound:" + mCarInputListenerBound);
         writer.println("mCarInputListener:" + mCarInputListener);
     }
 
     private boolean bindCarInputService() {
-        String carInputService = mContext.getString(R.string.inputService);
-        if (TextUtils.isEmpty(carInputService)) {
+        if (mCustomInputServiceComponent == null) {
             Log.i(CarLog.TAG_INPUT, "Custom input service was not configured");
             return false;
         }
 
-        Log.d(CarLog.TAG_INPUT, "bindCarInputService, component: " + carInputService);
+        Log.d(CarLog.TAG_INPUT, "bindCarInputService, component: " + mCustomInputServiceComponent);
 
         Intent intent = new Intent();
         Bundle extras = new Bundle();
         extras.putBinder(CarInputHandlingService.INPUT_CALLBACK_BINDER_KEY, mCallback);
         intent.putExtras(extras);
-        intent.setComponent(ComponentName.unflattenFromString(carInputService));
+        intent.setComponent(mCustomInputServiceComponent);
         return mContext.bindService(intent, mInputServiceConnection, Context.BIND_AUTO_CREATE);
     }
 }

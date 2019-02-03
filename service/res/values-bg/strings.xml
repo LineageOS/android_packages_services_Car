@@ -17,33 +17,33 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Информация за автомобила"</string>
-    <string name="car_permission_desc" msgid="37967366937946700">"Достъп до информацията за автомобила ви."</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"Достъп до информацията за автомобила ви."</string>
     <string name="car_permission_label_cabin" msgid="7737204489497269651">"Купе на автомобила"</string>
-    <string name="car_permission_desc_cabin" msgid="5658746726474282714">"Достъп до аксесоарите на автомобила ви, включително врати, огледала, седалки и прозорци."</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Достъп до аксесоарите на автомобила ви, включително врати, огледала, седалки и прозорци."</string>
     <string name="car_permission_label_camera" msgid="608969838109034886">"Камера на автомобила"</string>
-    <string name="car_permission_desc_camera" msgid="7177565584644606387">"Достъп до камерата или съответно камерите на автомобила ви."</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"Достъп до камерата или съответно камерите на автомобила ви."</string>
     <string name="car_permission_label_energy" msgid="3398092932402178393">"Енергия на автомобила"</string>
-    <string name="car_permission_desc_energy" msgid="2925098075119509004">"Достъп до информацията за енергията на автомобила ви."</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Достъп до информацията за енергията на автомобила."</string>
     <string name="car_permission_label_hvac" msgid="8047274427463154164">"ОВК система на автомобила"</string>
-    <string name="car_permission_desc_hvac" msgid="7837686458309247154">"Достъп до ОВК системата на автомобила."</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Достъп до ОВК системата на автомобила."</string>
     <string name="car_permission_label_mileage" msgid="811821331694754443">"Километраж на автомобила"</string>
-    <string name="car_permission_desc_mileage" msgid="261946195057016914">"Достъп до информацията за километража на автомобила ви."</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Достъп до информацията за километража на автомобила ви."</string>
     <string name="car_permission_label_speed" msgid="7315924371063443241">"Скорост на автомобила"</string>
-    <string name="car_permission_desc_speed" msgid="4394638712070011650">"Достъп до данните за скоростта на автомобила."</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Достъп до данните за скоростта на автомобила ви."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Състояние на динамичните компоненти на превозното средство"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="2458601597024393569">"Достъп до състоянието на динамичните компоненти на автомобила"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"Достъп до състоянието на динамичните компоненти на автомобила"</string>
     <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Канал на автомобилния производител"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="7223384502421767491">"Достъп до канала на производителя с цел обмен на конкретна информация за автомобила ви."</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Достъп до канала на производителя с цел обмен на конкретна информация за автомобила ви."</string>
     <string name="car_permission_label_radio" msgid="4768692394049267617">"Радио на автомобила"</string>
-    <string name="car_permission_desc_radio" msgid="3544198603152937942">"Достъп до радиото на автомобила."</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"Достъп до радиото на автомобила."</string>
     <string name="car_permission_label_projection" msgid="7830068427803303154">"Прожектиране в автомобила"</string>
     <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Сила на звука на автомобилната аудиосистема"</string>
     <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Звукови настройки на автомобила"</string>
     <string name="car_permission_desc_projection" msgid="2680001094361534439">"Прожектиране на интерфейса на телефона на автомобилния екран."</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"Емулиране на HAL интерфейса на превозното средство"</string>
-    <string name="car_permission_desc_mock_vehicle_hal" msgid="3549687008625373417">"Емулиране на HAL интерфейса на автомобила ви с цел вътрешно тестване."</string>
-    <string name="car_permission_desc_audio_volume" msgid="7484628324723179580">"Контролиране на силата на звука на автомобилната аудиосистема."</string>
-    <string name="car_permission_desc_audio_settings" msgid="2871870084988702516">"Контролиране на звуковите настройки на автомобила."</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Емулиране на HAL интерфейса на автомобила ви с цел вътрешно тестване."</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Контролиране на силата на звука на автомобилната аудиосистема."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Контролиране на звуковите настройки на автомобила."</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Блокиране на приложения"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Контролиране на блокирането на приложения при шофиране."</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Навигационен мениджър"</string>
@@ -60,9 +60,10 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Обработване на входящи събития"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Грешка в CAN шината"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN шината не реагира. Изключете и включете отново захранването на основното устройство и рестартирайте автомобила"</string>
-    <string name="activity_blocked_text" msgid="7117775117422916032">"От съображения за безопасност тази функция не е достъпна при шофиране"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"От съображения за безопасност тази функция не е достъпна при шофиране.\nЗа да продължите, трябва първо да паркирате."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"За да рестартирате приложението и безопасните му функции, изберете „<xliff:g id="EXIT_BUTTON">%s</xliff:g>“."</string>
+    <string name="exit_button" msgid="5829638404777671253">"Назад"</string>
     <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
-    <string name="exit_button" msgid="626660628135437972">"Прил.: Рестарт."</string>
     <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Диагностични данни"</string>
     <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Четене на диагностични данни от автомобила"</string>
     <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Диагностични данни"</string>
@@ -76,19 +77,19 @@
     <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Състояние при шофиране"</string>
     <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Слушане за промени в състоянието на шофиране"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Подробни данни за двигателя"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="7360817472577625295">"Достъп до подробна информация за двигателя на автомобила"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"Достъп до подробна информация за двигателя на автомобила"</string>
     <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Портове за зареждане"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Достъп до портовете за зареждане"</string>
     <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Идентификационни данни на автомобила"</string>
-    <string name="car_permission_desc_car_identification" msgid="3446202891279037295">"Достъп до идентификационните данни на автомобила"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"Достъп до идентификационните данни на автомобила"</string>
     <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Врати на автомобила"</string>
-    <string name="car_permission_desc_control_car_doors" msgid="438796526924485694">"Контролиране на вратите на автомобила"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"Контролиране на вратите на автомобила"</string>
     <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Прозорци на автомобила"</string>
-    <string name="car_permission_desc_control_car_windows" msgid="7191531366203590752">"Контролиране на прозорците на автомобила"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"Контролиране на прозорците на автомобила"</string>
     <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"Огледала на автомобила"</string>
-    <string name="car_permission_desc_control_car_mirrors" msgid="1329068133900689986">"Контролиране на огледалата на автомобила"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"Контролиране на огледалата на автомобила"</string>
     <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Седалки на автомобила"</string>
-    <string name="car_permission_desc_control_car_seats" msgid="5319108612196099191">"Контролиране на седалките на автомобила"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Контролиране на седалките на автомобила"</string>
     <string name="car_permission_label_car_info" msgid="5638680944359440535">"Основна информация за автомобила"</string>
     <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Достъп до основна информация за автомобила"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Външни светлини на автомобила"</string>

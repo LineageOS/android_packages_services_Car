@@ -239,7 +239,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     }
 
     @Override
-    public boolean onKeyEvent(KeyEvent event) {
+    public void onKeyEvent(KeyEvent event) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "InstrumentClusterService#onKeyEvent: " + event);
         }
@@ -252,7 +252,6 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
                 Log.e(TAG, "onKeyEvent", e);
             }
         }
-        return true;
     }
 
     private IInstrumentCluster getInstrumentClusterRendererService() {

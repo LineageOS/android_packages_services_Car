@@ -33,8 +33,9 @@
         <item name="colorPrimaryDark">@color/primary_device_default_dark</item>
         <item name="colorForeground">@color/car_card_light</item>
         <item name="editTextColor">@color/car_body1</item>
+        <item name="listPreferredItemHeightSmall">@dimen/car_single_line_list_item_height</item>
         <item name="textColorHint">@color/car_body2</item>
-        <item name="textColorPrimary">@color/car_body1</item>
+        <item name="textColorPrimary">@color/primary_text</item>
         <item name="textColorSecondary">@color/car_body2</item>
         <item name="textColorHint">@color/car_grey_400</item>
         <item name="toastFrameBackground">@drawable/toast_frame</item>

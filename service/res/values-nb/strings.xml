@@ -17,33 +17,33 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Informasjon om bilen"</string>
-    <string name="car_permission_desc" msgid="37967366937946700">"Tilgang til informasjon om bilen."</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"Tilgang til informasjon om bilen."</string>
     <string name="car_permission_label_cabin" msgid="7737204489497269651">"Kupé"</string>
-    <string name="car_permission_desc_cabin" msgid="5658746726474282714">"Tilgang til bildeler, inkludert dørene, speilene, setene og vinduene."</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Tilgang til bildeler, inkludert dørene, speilene, setene og vinduene."</string>
     <string name="car_permission_label_camera" msgid="608969838109034886">"Bilkamera"</string>
-    <string name="car_permission_desc_camera" msgid="7177565584644606387">"Tilgang til bilens kamera(er)."</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"Tilgang til bilens kamera(er)."</string>
     <string name="car_permission_label_energy" msgid="3398092932402178393">"Bilens energibruk"</string>
-    <string name="car_permission_desc_energy" msgid="2925098075119509004">"Tilgang til informasjon om bilens energibruk."</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Tilgang til informasjon om bilens energibruk."</string>
     <string name="car_permission_label_hvac" msgid="8047274427463154164">"Bilens klimaanlegg"</string>
-    <string name="car_permission_desc_hvac" msgid="7837686458309247154">"Tilgang til bilens klimaanlegg."</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Tilgang til bilens klimaanlegg."</string>
     <string name="car_permission_label_mileage" msgid="811821331694754443">"Bilens kjørelengde"</string>
-    <string name="car_permission_desc_mileage" msgid="261946195057016914">"Tilgang til informasjon om bilens kjørelengde."</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Tilgang til informasjon om bilens kjørelengde."</string>
     <string name="car_permission_label_speed" msgid="7315924371063443241">"Bilens hastighet"</string>
-    <string name="car_permission_desc_speed" msgid="4394638712070011650">"Tilgang til bilens hastighet."</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Tilgang til bilens hastighet."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Kjøretøyets dynamiske tilstand"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="2458601597024393569">"Tilgang til bilens dynamiske tilstand"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"Tilgang til bilens dynamiske status"</string>
     <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Billeverandør"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="7223384502421767491">"Tilgang til billeverandøren for utveksling av informasjon som er spesifikk for bilen."</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Tilgang til billeverandøren for utveksling av informasjon som er spesifikk for bilen."</string>
     <string name="car_permission_label_radio" msgid="4768692394049267617">"Bilradio"</string>
-    <string name="car_permission_desc_radio" msgid="3544198603152937942">"Tilgang til bilradioen."</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"Tilgang til bilradioen."</string>
     <string name="car_permission_label_projection" msgid="7830068427803303154">"Speiling i bilen"</string>
     <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Lydvolumet i bilen"</string>
     <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Lydinnstillinger i bilen"</string>
     <string name="car_permission_desc_projection" msgid="2680001094361534439">"Speiling av telefongrensesnittet på skjermen i bilen."</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"Emulering av kjøretøys-HAL"</string>
-    <string name="car_permission_desc_mock_vehicle_hal" msgid="3549687008625373417">"Emulering av bilens kjøretøys-HAL for intern testing."</string>
-    <string name="car_permission_desc_audio_volume" msgid="7484628324723179580">"Styring av lydvolumet i bilen."</string>
-    <string name="car_permission_desc_audio_settings" msgid="2871870084988702516">"Styring av lydinnstillingene i bilen."</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Emulering av bilens kjøretøys-HAL for intern testing."</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Styring av lydvolumet i bilen."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Styring av lydinnstillingene i bilen."</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Appblokkering"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Styring av appblokkering mens du kjører."</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Navigeringsadministrering"</string>
@@ -60,9 +60,10 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Behandling av inndatahendelser"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-bus mislyktes"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-bus svarer ikke. Koble bilens hovedenhet ut og inn igjen, og start bilen på nytt"</string>
-    <string name="activity_blocked_text" msgid="7117775117422916032">"Av sikkerhetshensyn er denne aktiviteten utilgjengelig når du kjører"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"Av sikkerhetshensyn er denne aktiviteten utilgjengelig når du kjører.\nDu kan ikke fortsette før du stopper bilen."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"For å starte på nytt med sikre appfunksjoner, velg <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
+    <string name="exit_button" msgid="5829638404777671253">"Tilbake"</string>
     <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
-    <string name="exit_button" msgid="626660628135437972">"Omstart appen"</string>
     <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Diagnostikkdata"</string>
     <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Avlesing av diagnostikkdata fra bilen"</string>
     <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Diagnostikkdata"</string>
@@ -76,19 +77,19 @@
     <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Kjøretilstand"</string>
     <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Lytting etter endringer i kjøretilstanden"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Motordetaljer"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="7360817472577625295">"Tilgang til detaljert informasjon om bilmotoren"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"Tilgang til detaljert informasjon om bilmotoren"</string>
     <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Energiporter"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Tilgang til energiporten(e)"</string>
     <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Bilidentifikasjon"</string>
-    <string name="car_permission_desc_car_identification" msgid="3446202891279037295">"Tilgang til bilens identifikasjon"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"Tilgang til bilens identifikasjon"</string>
     <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Bildører"</string>
-    <string name="car_permission_desc_control_car_doors" msgid="438796526924485694">"Styring av bildørene"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"Styring av bildørene"</string>
     <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Bilvinduer"</string>
-    <string name="car_permission_desc_control_car_windows" msgid="7191531366203590752">"Styring av bilvinduene"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"Styring av bilvinduene"</string>
     <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"Bilens speil"</string>
-    <string name="car_permission_desc_control_car_mirrors" msgid="1329068133900689986">"Styring av bilens speil"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"Styring av bilens speil"</string>
     <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Bilseter"</string>
-    <string name="car_permission_desc_control_car_seats" msgid="5319108612196099191">"Styring av bilsetene"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Styring av bilsetene"</string>
     <string name="car_permission_label_car_info" msgid="5638680944359440535">"Grunnleggende informasjon om bilen"</string>
     <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Tilgang til grunnleggende informasjon om bilen"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Bilens utvendige lys"</string>
