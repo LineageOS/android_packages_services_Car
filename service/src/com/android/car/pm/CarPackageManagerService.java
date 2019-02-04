@@ -487,7 +487,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     boolean isInstalledPackageMatching(AppBlockingPackageInfo info) {
-        PackageInfo packageInfo = null;
+        PackageInfo packageInfo;
         try {
             packageInfo = mPackageManager.getPackageInfo(info.packageName,
                     PackageManager.GET_SIGNATURES);
@@ -501,8 +501,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if ((info.flags & AppBlockingPackageInfo.FLAG_SYSTEM_APP) == 0 ||
                 (!packageInfo.applicationInfo.isSystemApp() &&
                         !packageInfo.applicationInfo.isUpdatedSystemApp())) {
-            Signature[] signatires = packageInfo.signatures;
-            if (!isAnySignatureMatching(signatires, info.signatures)) {
+            Signature[] signatures = packageInfo.signatures;
+            if (!isAnySignatureMatching(signatures, info.signatures)) {
                 return false;
             }
         }
@@ -961,7 +961,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 return;
             }
         }
-        if (DBG_POLICY_CHECK) {
+        if (DBG_POLICY_ENFORCEMENT) {
             Log.i(CarLog.TAG_PACKAGE, "Current activity " + topTask.topActivity +
                     " not allowed, will block, number of tasks in stack:" +
                     topTask.stackInfo.taskIds.length);
@@ -1273,7 +1273,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
         @Override
         public void onUxRestrictionsChanged(CarUxRestrictions restrictions) {
-            if (DBG_POLICY_CHECK) {
+            if (DBG_POLICY_ENFORCEMENT) {
                 Log.d(CarLog.TAG_PACKAGE, "Received uxr restrictions: "
                         + restrictions.isRequiresDistractionOptimization()
                         + " : " + restrictions.getActiveRestrictions());
@@ -1299,7 +1299,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     shouldCheck = true;
                 }
             }
-            if (DBG_POLICY_CHECK) {
+            if (DBG_POLICY_ENFORCEMENT) {
                 Log.d(CarLog.TAG_PACKAGE, "block?: " + shouldCheck);
             }
             if (shouldCheck) {
