@@ -16,6 +16,7 @@
 
 package android.car;
 
+import android.bluetooth.BluetoothDevice;
 import android.car.ICarProjectionCallback;
 import android.content.Intent;
 import android.os.Messenger;
@@ -60,4 +61,12 @@ interface ICarProjection {
      * Stops previously requested Wi-Fi access point.
      */
     void stopProjectionAccessPoint(in IBinder binder) = 5;
+
+    /** Disconnect a Bluetooth profile, and prevent it from reconnecting. */
+    boolean requestBluetoothProfileInhibit(
+            in BluetoothDevice device, in int profile, in IBinder token) = 6;
+
+    /** Undo the effects of requestBluetoothProfileInhibit. */
+    boolean releaseBluetoothProfileInhibit(
+            in BluetoothDevice device, in int profile, in IBinder token) = 7;
 }

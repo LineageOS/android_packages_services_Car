@@ -17,6 +17,7 @@
 package android.car;
 
 import android.annotation.SystemApi;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
 import android.os.Binder;
@@ -232,6 +233,46 @@ public final class CarProjectionManager implements CarManagerBase {
         try {
             mService.stopProjectionAccessPoint(mAccessPointProxyToken);
         } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Request to disconnect the given profile on the given device, and prevent it from reconnecting
+     * until either the request is released, or the process owning the given token dies.
+     *
+     * @param device  The device on which to inhibit a profile.
+     * @param profile The {@link android.bluetooth.BluetoothProfile} to inhibit.
+     * @param token   A {@link IBinder} to be used as an identity for the request. If the process
+     *                owning the token dies, the request will automatically be released.
+     * @return True if the profile was successfully inhibited, false if an error occurred.
+     */
+    public boolean requestBluetoothProfileInhibit(
+            BluetoothDevice device, int profile, IBinder token) {
+        try {
+            return mService.requestBluetoothProfileInhibit(device, profile, token);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "requestBluetoothProfileInhibit failed", e);
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Release an inhibit request made by {@link #requestBluetoothProfileInhibit}, and reconnect the
+     * profile if no other inhibit requests are active.
+     *
+     * @param device  The device on which to release the inhibit request.
+     * @param profile The profile on which to release the inhibit request.
+     * @param token   The token provided in the original call to
+     *                {@link #requestBluetoothProfileInhibit}.
+     * @return True if the request was released, false if an error occurred.
+     */
+    public boolean releaseBluetoothProfileInhibit(
+            BluetoothDevice device, int profile, IBinder token) {
+        try {
+            return mService.releaseBluetoothProfileInhibit(device, profile, token);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "releaseBluetoothProfileInhibit failed", e);
             throw e.rethrowFromSystemServer();
         }
     }
