@@ -19,25 +19,25 @@
 <resources>
 
     <!-- The background color for the container of notification actions. -->
-    <color name="notification_action_list">@color/car_colorSecondary</color>
+    <color name="notification_action_list">@*android:color/car_colorSecondary</color>
 
     <!-- The primary text color if the text is on top of a light background. -->
-    <color name="notification_primary_text_color_light">@color/car_body1</color>
+    <color name="notification_primary_text_color_light">@*android:color/car_body1</color>
 
     <!-- The primary text color if the text is on top of a dark background. -->
-    <color name="notification_primary_text_color_dark">@color/car_body1</color>
+    <color name="notification_primary_text_color_dark">@*android:color/car_body1</color>
 
     <!-- The secondary text color if the text is on top of a light background. -->
-    <color name="notification_secondary_text_color_light">@color/car_body2</color>
+    <color name="notification_secondary_text_color_light">@*android:color/car_body2</color>
 
     <!-- The secondary text color if the text is on top of a dark background. -->
-    <color name="notification_secondary_text_color_dark">@color/car_body2</color>
+    <color name="notification_secondary_text_color_dark">@*android:color/car_body2</color>
 
     <!-- The background color of a notification card. -->
-    <color name="notification_material_background_color">@color/car_colorPrimary</color>
+    <color name="notification_material_background_color">@*android:color/car_colorPrimary</color>
 
     <!-- The default color for text in a notification. This color is also the default color for
          icons. -->
-    <color name="notification_default_color">@color/car_accent</color>
+    <color name="notification_default_color">@*android:color/car_accent</color>
 
 </resources>

@@ -44,7 +44,7 @@
     <dimen name="notification_header_separating_margin">6dp</dimen>
 
     <!-- The margins before the start of the app name in the header. -->
-    <dimen name="notification_header_app_name_margin_start">@dimen/notification_header_separating_margin</dimen>
+    <dimen name="notification_header_app_name_margin_start">@*android:dimen/notification_header_separating_margin</dimen>
 
     <!-- The padding at the top of the notification header. -->
     <dimen name="notification_header_padding_top">0dp</dimen>
@@ -56,7 +56,7 @@
     <dimen name="notification_header_margin_bottom">0dp</dimen>
 
     <!-- The absolute height for the header in a media notification. -->
-    <dimen name="media_notification_header_height">@dimen/notification_header_height</dimen>
+    <dimen name="media_notification_header_height">@*android:dimen/notification_header_height</dimen>
 
     <!-- Top margin to accommodate for the header before the notification content. This value
          is 8dp smaller than the notification_header_height to bring the text closer. Otherwise,
@@ -71,7 +71,7 @@
 
     <!-- The margin on the end of the content view. Keep in sync with
          notification_content_plus_picture_margin! -->
-    <dimen name="notification_content_margin_end">@dimen/notification_content_margin_start</dimen>
+    <dimen name="notification_content_margin_end">@*android:dimen/notification_content_margin_start</dimen>
 
     <!-- The margin on the end of the content view with a picture. This value is the size of
          the right icon (64dp) + notification_content_margin_end + 16dp. -->
@@ -89,7 +89,7 @@
 
     <!-- Size of smaller notification text (see TextAppearance.StatusBar.EventContent.Line2,
          Info, Time). -->
-    <dimen name="notification_subtext_size">@dimen/notification_text_size</dimen>
+    <dimen name="notification_subtext_size">@*android:dimen/notification_text_size</dimen>
 
     <!-- The margin on top of the text of the notification. -->
     <dimen name="notification_text_margin_top">0dp</dimen>

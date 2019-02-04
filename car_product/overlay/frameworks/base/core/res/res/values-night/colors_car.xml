@@ -18,13 +18,13 @@
 -->
 <resources>
 
-    <color name="car_colorPrimary">@color/car_grey_958</color>
-    <color name="car_tint_light">@color/car_grey_300</color>
+    <color name="car_colorPrimary">@*android:color/car_grey_958</color>
+    <color name="car_tint_light">@*android:color/car_grey_300</color>
 
-    <color name="car_colorSecondary">@color/car_grey_972</color>
-    <color name="car_colorPrimaryDark">@color/car_grey_958</color>
+    <color name="car_colorSecondary">@*android:color/car_grey_972</color>
+    <color name="car_colorPrimaryDark">@*android:color/car_grey_958</color>
 
-    <color name="car_body1_light">@color/car_grey_300</color>
-    <color name="car_body1">@color/car_body1_light</color>
+    <color name="car_body1_light">@*android:color/car_grey_300</color>
+    <color name="car_body1">@*android:color/car_body1_light</color>
 
 </resources>
