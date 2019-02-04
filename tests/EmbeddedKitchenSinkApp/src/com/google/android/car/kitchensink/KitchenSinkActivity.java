@@ -204,6 +204,23 @@ public class KitchenSinkActivity extends DrawerActivity {
         return mSensorManager;
     }
 
+    /* Open any tab directly:
+     * adb shell am force-stop com.google.android.car.kitchensink
+     * adb shell am start -n com.google.android.car.kitchensink/.KitchenSinkActivity \
+     *     --es "select" "connectivity"
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.i(TAG, "onNewIntent");
+        Bundle extras = intent.getExtras();
+        String select = (extras == null) ? null : extras.getString("select");
+        if (select != null) {
+            mMenuEntries.stream().filter(me -> select.equals(me.getText()))
+                    .findAny().ifPresent(me -> me.onClick());
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -215,6 +232,8 @@ public class KitchenSinkActivity extends DrawerActivity {
         }
         Log.i(TAG, "onCreate");
         getDrawerController().setRootAdapter(new DrawerAdapter());
+
+        onNewIntent(getIntent());
     }
 
     private void initCarApi() {
