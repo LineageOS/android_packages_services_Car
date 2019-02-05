@@ -124,8 +124,12 @@ public class ICarImpl extends ICar.Stub {
         mCarPackageManagerService = new CarPackageManagerService(serviceContext,
                 mCarUXRestrictionsService,
                 mSystemActivityMonitoringService);
+        mPerUserCarServiceHelper = new PerUserCarServiceHelper(serviceContext);
+        mCarBluetoothService = new CarBluetoothService(serviceContext, mCarPropertyService,
+                mPerUserCarServiceHelper, mCarUXRestrictionsService);
         mCarInputService = new CarInputService(serviceContext, mHal.getInputHal());
-        mCarProjectionService = new CarProjectionService(serviceContext, mCarInputService);
+        mCarProjectionService = new CarProjectionService(
+                serviceContext, mCarInputService, mCarBluetoothService);
         mGarageModeService = new GarageModeService(mContext);
         mAppFocusService = new AppFocusService(serviceContext, mSystemActivityMonitoringService);
         mCarAudioService = new CarAudioService(serviceContext);
@@ -134,9 +138,6 @@ public class ICarImpl extends ICar.Stub {
                 mAppFocusService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(
                 serviceContext, mCarAudioService, this);
-        mPerUserCarServiceHelper = new PerUserCarServiceHelper(serviceContext);
-        mCarBluetoothService = new CarBluetoothService(serviceContext, mCarPropertyService,
-                mPerUserCarServiceHelper, mCarUXRestrictionsService);
         mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
         mVmsPublisherService = new VmsPublisherService(serviceContext, mHal.getVmsHal());
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
@@ -162,11 +163,11 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarAudioService);
         allServices.add(mCarNightService);
         allServices.add(mInstrumentClusterService);
-        allServices.add(mCarProjectionService);
         allServices.add(mSystemStateControllerService);
-        allServices.add(mCarBluetoothService);
-        allServices.add(mCarDiagnosticService);
         allServices.add(mPerUserCarServiceHelper);
+        allServices.add(mCarBluetoothService);
+        allServices.add(mCarProjectionService);
+        allServices.add(mCarDiagnosticService);
         allServices.add(mCarStorageMonitoringService);
         allServices.add(mCarConfigurationService);
         allServices.add(mVmsSubscriberService);

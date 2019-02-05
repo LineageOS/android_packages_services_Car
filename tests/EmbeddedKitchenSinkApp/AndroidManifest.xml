@@ -46,6 +46,7 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CONNECTIVITY_USE_RESTRICTED_NETWORKS" />
     <uses-permission android:name="android.permission.INJECT_EVENTS" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <application android:label="@string/app_title"
         android:icon="@drawable/ic_launcher">
@@ -55,7 +56,8 @@
         <!-- This is for embedded mode. -->
         <activity android:name=".KitchenSinkActivity"
             android:theme="@style/KitchenSinkActivityTheme"
-            android:label="@string/app_title">
+            android:label="@string/app_title"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

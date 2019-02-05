@@ -206,7 +206,7 @@ public class CarSettings {
          * Read and written by {@link com.android.car.BluetoothDeviceConnectionPolicy}.
          * @hide
          */
-        public static final String KEY_BLUETOOTH_TEMPORARY_DISCONNECTS =
-                "android.car.BLUETOOTH_TEMPORARY_DISCONNECTS";
+        public static final String KEY_BLUETOOTH_PROFILES_INHIBITED =
+                "android.car.BLUETOOTH_PROFILES_INHIBITED";
     }
 }

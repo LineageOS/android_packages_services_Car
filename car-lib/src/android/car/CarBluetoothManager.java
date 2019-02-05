@@ -128,48 +128,6 @@ public final class CarBluetoothManager implements CarManagerBase {
         }
     }
 
-    /**
-     * Request to disconnect the given profile on the given device, and prevent it from reconnecting
-     * until either the request is released, or the process owning the given token dies.
-     *
-     * @param device The device on which to disconnect a profile.
-     * @param profile The {@link android.bluetooth.BluetoothProfile} to disconnect.
-     * @param token A {@link IBinder} to be used as an identity for the request. If the process
-     *     owning the token dies, the request will automatically be released.
-     * @return True if the profile was successfully disconnected, false if an error occurred.
-     */
-    @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
-    public boolean requestTemporaryProfileDisconnect(
-            BluetoothDevice device, int profile, IBinder token) throws CarNotConnectedException {
-        try {
-            return mService.requestTemporaryDisconnect(device, profile, token);
-        } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "requestTemporaryDisconnect failed", e);
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    /**
-     * Undo a previous call to {@link #requestTemporaryProfileDisconnect} with the same parameters,
-     * and reconnect the profile if no other requests are active.
-     *
-     * @param device The device on which to release the disconnect request.
-     * @param profile The profile on which to release the disconnect request.
-     * @param token The token provided in the original call to
-     *              {@link #requestTemporaryProfileDisconnect}.
-     *
-     * @return True if the request was released, false if an error occurred.
-     */
-    @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
-    public boolean releaseTemporaryProfileDisconnect(
-            BluetoothDevice device, int profile, IBinder token) throws CarNotConnectedException {
-        try {
-            return mService.releaseTemporaryDisconnect(device, profile, token);
-        } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "requestTemporaryDisconnect failed", e);
-            throw new CarNotConnectedException(e);
-        }
-    }
 
     /** @hide */
     public CarBluetoothManager(IBinder service, Context context) {

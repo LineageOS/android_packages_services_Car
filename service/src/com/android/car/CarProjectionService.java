@@ -28,6 +28,7 @@ import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLING;
 
 import android.annotation.Nullable;
+import android.bluetooth.BluetoothDevice;
 import android.car.CarProjectionManager;
 import android.car.CarProjectionManager.ProjectionAccessPointCallback;
 import android.car.ICarProjection;
@@ -78,6 +79,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
     private final ProjectionCallbackHolder mProjectionCallbacks;
     private final CarInputService mCarInputService;
+    private final CarBluetoothService mCarBluetoothService;
     private final Context mContext;
     private final WifiManager mWifiManager;
     private final Handler mHandler;
@@ -137,10 +139,12 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     private boolean mBound;
     private Intent mRegisteredService;
 
-    CarProjectionService(Context context, CarInputService carInputService) {
+    CarProjectionService(Context context, CarInputService carInputService,
+            CarBluetoothService carBluetoothService) {
         mContext = context;
         mHandler = new Handler();
         mCarInputService = carInputService;
+        mCarBluetoothService = carBluetoothService;
         mProjectionCallbacks = new ProjectionCallbackHolder(this);
         mWifiManager = context.getSystemService(WifiManager.class);
         mProjectionWifiConfiguration = createWifiConfiguration(context);
@@ -257,6 +261,70 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
         if (shouldReleaseAp) {
             stopAccessPoint();
+        }
+    }
+
+    /**
+     * Request to disconnect the given profile on the given device, and prevent it from reconnecting
+     * until either the request is released, or the process owning the given token dies.
+     *
+     * @param device  The device on which to inhibit a profile.
+     * @param profile The {@link android.bluetooth.BluetoothProfile} to inhibit.
+     * @param token   A {@link IBinder} to be used as an identity for the request. If the process
+     *                owning the token dies, the request will automatically be released.
+     * @return True if the profile was successfully inhibited, false if an error occurred.
+     */
+    @Override
+    public boolean requestBluetoothProfileInhibit(
+            BluetoothDevice device, int profile, IBinder token) {
+        if (DBG) {
+            Log.d(TAG, "requestBluetoothProfileInhibit device=" + device + " profile=" + profile
+                    + " from uid " + Binder.getCallingUid());
+        }
+        try {
+            if (device == null) {
+                // Will be caught by AIDL and thrown to caller.
+                throw new NullPointerException("Device must not be null");
+            }
+            if (token == null) {
+                throw new NullPointerException("Token must not be null");
+            }
+            return mCarBluetoothService.requestProfileInhibit(device, profile, token);
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Error in requestBluetoothProfileInhibit", e);
+            throw e;
+        }
+    }
+
+    /**
+     * Release an inhibit request made by {@link #requestBluetoothProfileInhibit}, and reconnect the
+     * profile if no other inhibit requests are active.
+     *
+     * @param device  The device on which to release the inhibit request.
+     * @param profile The profile on which to release the inhibit request.
+     * @param token   The token provided in the original call to
+     *                {@link #requestBluetoothProfileInhibit}.
+     * @return True if the request was released, false if an error occurred.
+     */
+    @Override
+    public boolean releaseBluetoothProfileInhibit(
+            BluetoothDevice device, int profile, IBinder token) {
+        if (DBG) {
+            Log.d(TAG, "releaseBluetoothProfileInhibit device=" + device + " profile=" + profile
+                    + " from uid " + Binder.getCallingUid());
+        }
+        try {
+            if (device == null) {
+                // Will be caught by AIDL and thrown to caller.
+                throw new NullPointerException("Device must not be null");
+            }
+            if (token == null) {
+                throw new NullPointerException("Token must not be null");
+            }
+            return mCarBluetoothService.releaseProfileInhibit(device, profile, token);
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Error in releaseBluetoothProfileInhibit", e);
+            throw e;
         }
     }
 

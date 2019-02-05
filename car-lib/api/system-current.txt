@@ -46,6 +46,8 @@ package android.car {
     method public void onCarDisconnected();
     method public void registerProjectionListener(android.car.CarProjectionManager.CarProjectionListener, int) throws android.car.CarNotConnectedException;
     method public void registerProjectionRunner(android.content.Intent) throws android.car.CarNotConnectedException;
+    method public boolean releaseBluetoothProfileInhibit(android.bluetooth.BluetoothDevice, int, android.os.IBinder);
+    method public boolean requestBluetoothProfileInhibit(android.bluetooth.BluetoothDevice, int, android.os.IBinder);
     method public void startProjectionAccessPoint(android.car.CarProjectionManager.ProjectionAccessPointCallback);
     method public void stopProjectionAccessPoint();
     method public void unregisterProjectionListener();

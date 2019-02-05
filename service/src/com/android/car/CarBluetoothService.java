@@ -31,7 +31,6 @@ import android.car.CarBluetoothManager;
 import android.car.ICarBluetooth;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Binder;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
@@ -155,60 +154,28 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      * Request to disconnect the given profile on the given device, and prevent it from reconnecting
      * until either the request is released, or the process owning the given token dies.
      *
-     * @param device The device on which to disconnect a profile.
-     * @param profile The {@link android.bluetooth.BluetoothProfile} to disconnect.
-     * @param token A {@link IBinder} to be used as an identity for the request. If the process
-     *     owning the token dies, the request will automatically be released.
-     * @return True if the profile was successfully disconnected, false if an error occurred.
+     * @param device  The device on which to inhibit a profile.
+     * @param profile The {@link android.bluetooth.BluetoothProfile} to inhibit.
+     * @param token   A {@link IBinder} to be used as an identity for the request. If the process
+     *                owning the token dies, the request will automatically be released.
+     * @return True if the profile was successfully inhibited, false if an error occurred.
      */
-    @Override
-    public boolean requestTemporaryDisconnect(BluetoothDevice device, int profile, IBinder token) {
-        if (DBG) {
-            Log.d(TAG, "requestTemporaryDisconnect device=" + device + " profile=" + profile
-                    + " from uid " + Binder.getCallingUid());
-        }
-        try {
-            enforceBluetoothAdminPermission();
-            if (device == null) {
-                // Will be caught by AIDL and thrown to caller.
-                throw new NullPointerException("Null device in requestTemporaryDisconnect");
-            }
-            return mBluetoothDeviceConnectionPolicy
-                .requestProfileDisconnect(device, profile, token);
-        } catch (RuntimeException e) {
-            Log.e(TAG, "Error in requestTemporaryDisconnect", e);
-            throw e;
-        }
+    boolean requestProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
+        return mBluetoothDeviceConnectionPolicy.requestProfileInhibit(device, profile, token);
     }
 
     /**
-     * Undo a previous call to {@link #requestProfileDisconnect} with the same parameters,
-     * and reconnect the profile if no other requests are active.
+     * Release an inhibit request made by {@link #requestProfileInhibit}, and reconnect the
+     * profile if no other inhibit requests are active.
      *
-     * @param device The device on which to release the disconnect request.
-     * @param profile The profile on which to release the disconnect request.
-     * @param token The token provided in the original call to {@link #requestTemporaryDisconnect}.
-     *
+     * @param device  The device on which to release the inhibit request.
+     * @param profile The profile on which to release the inhibit request.
+     * @param token   The token provided in the original call to
+     *                {@link #requestProfileInhibit}.
      * @return True if the request was released, false if an error occurred.
      */
-    @Override
-    public boolean releaseTemporaryDisconnect(BluetoothDevice device, int profile, IBinder token) {
-        if (DBG) {
-            Log.d(TAG, "releaseTemporaryDisconnect device=" + device + " profile=" + profile
-                    + " from uid " + Binder.getCallingUid());
-        }
-        try {
-            enforceBluetoothAdminPermission();
-            if (device == null) {
-                // Will be caught by AIDL and thrown to caller.
-                throw new NullPointerException("Null device in releaseTemporaryDisconnect");
-            }
-            return mBluetoothDeviceConnectionPolicy
-                .releaseProfileDisconnect(device, profile, token);
-        } catch (RuntimeException e) {
-            Log.e(TAG, "Error in releaseTemporaryDisconnect", e);
-            throw e;
-        }
+    boolean releaseProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
+        return mBluetoothDeviceConnectionPolicy.releaseProfileInhibit(device, profile, token);
     }
 
     /**
