@@ -542,16 +542,20 @@ public class ConnectivityFragment extends Fragment {
     private void startTethering() {
         mTetheringStatus.setText("starting...");
 
-        mConnectivityManager.startTethering(ConnectivityManager.TETHERING_WIFI, false,
+        ConnectivityManager.OnStartTetheringCallback cb =
                 new ConnectivityManager.OnStartTetheringCallback() {
-                public void onTetheringStarted() {
-                    mTetheringStatus.setText("started");
-                }
+            public void onTetheringStarted() {
+                WifiConfiguration config = mWifiManager.getWifiApConfiguration();
+                mTetheringStatus.setText("started ("
+                        + config.SSID + "/" + config.preSharedKey + ")");
+            }
 
-                public void onTetheringFailed() {
-                    mTetheringStatus.setText("failed");
-                }
-            });
+            public void onTetheringFailed() {
+                mTetheringStatus.setText("failed");
+            }
+        };
+
+        mConnectivityManager.startTethering(ConnectivityManager.TETHERING_WIFI, false, cb);
     }
 
     private void stopTethering() {
@@ -572,7 +576,7 @@ public class ConnectivityFragment extends Fragment {
             mLocalOnlyStatus.setText("location enabled; starting...");
         }
 
-        mWifiManager.startLocalOnlyHotspot(new WifiManager.LocalOnlyHotspotCallback() {
+        WifiManager.LocalOnlyHotspotCallback cb = new WifiManager.LocalOnlyHotspotCallback() {
             public void onStarted(WifiManager.LocalOnlyHotspotReservation reservation) {
                 mLocalOnlyReservation = reservation;
                 WifiConfiguration config = reservation.getWifiConfiguration();
@@ -587,7 +591,13 @@ public class ConnectivityFragment extends Fragment {
             public void onFailed(int reason) {
                 mLocalOnlyStatus.setText("failed " + reason);
             };
-        }, null);
+        };
+
+        try {
+            mWifiManager.startLocalOnlyHotspot(cb, null);
+        } catch (IllegalStateException ex) {
+            mLocalOnlyStatus.setText(ex.getMessage());
+        }
     }
 
     private void stopLocalOnly() {
