@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 #
-
 LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
@@ -42,3 +41,9 @@ LOCAL_STATIC_ANDROID_LIBRARIES += \
     car-arch-common
 
 include $(BUILD_PACKAGE)
+
+# Use the following include to make our test apk.
+ifeq (,$(ONE_SHOT_MAKEFILE))
+include $(call all-makefiles-under,$(LOCAL_PATH))
+endif
+

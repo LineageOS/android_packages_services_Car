@@ -92,7 +92,7 @@ public class NavStateController {
         mSegment.setText(getSegmentString(state.getCurrentSegment()));
         mCue.setRichText(step != null ? step.getCue() : null);
 
-        if (step.getLanes().size() > 0) {
+        if (step != null && step.getLanes().size() > 0) {
             mLane.setLanes(step.getLanes());
             mLane.setVisibility(View.VISIBLE);
         } else {
