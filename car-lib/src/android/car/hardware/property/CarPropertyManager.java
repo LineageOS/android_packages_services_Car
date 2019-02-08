@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import static java.lang.Integer.toHexString;
 
 import android.annotation.Nullable;
-import android.car.CarApiUtil;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.car.hardware.CarPropertyConfig;
@@ -141,10 +140,8 @@ public class CarPropertyManager implements CarManagerBase {
             throws CarNotConnectedException {
         try {
             mService.registerListener(propertyId, rate, mCarPropertyEventToService);
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
         return true;
     }
@@ -211,7 +208,7 @@ public class CarPropertyManager implements CarManagerBase {
                 try {
                     mService.unregisterListener(propertyId, mCarPropertyEventToService);
                 } catch (RemoteException e) {
-                    //ignore
+                    throw e.rethrowFromSystemServer();
                 }
                 mActivePropertyListener.remove(propertyId);
             } else if (needsServerUpdate) {
@@ -259,8 +256,7 @@ public class CarPropertyManager implements CarManagerBase {
             String permission = mService.getReadPermission(propId);
             return permission;
         } catch (RemoteException e) {
-            Log.e(mTag, "getReadPermission failed with " + e.toString(), e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -278,8 +274,7 @@ public class CarPropertyManager implements CarManagerBase {
             String permission = mService.getWritePermission(propId);
             return permission;
         } catch (RemoteException e) {
-            Log.e(mTag, "getWritePermission failed with " + e.toString(), e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -294,9 +289,7 @@ public class CarPropertyManager implements CarManagerBase {
             return (propValue != null)
                     && (propValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE);
         } catch (RemoteException e) {
-            Log.e(mTag, "isPropertyAvailable failed with " + e.toString()
-                    + ", propId: 0x" + toHexString(propId) + ", area: 0x" + toHexString(area), e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -372,9 +365,7 @@ public class CarPropertyManager implements CarManagerBase {
             }
             return propVal;
         } catch (RemoteException e) {
-            Log.e(mTag, "getProperty failed with " + e.toString()
-                    + ", propId: 0x" + toHexString(propId) + ", area: 0x" + toHexString(area), e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -385,9 +376,7 @@ public class CarPropertyManager implements CarManagerBase {
             CarPropertyValue<E> propVal = mService.getProperty(propId, area);
             return propVal;
         } catch (RemoteException e) {
-            Log.e(mTag, "getProperty failed with " + e.toString()
-                    + ", propId: 0x" + toHexString(propId) + ", area: 0x" + toHexString(area), e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -401,8 +390,7 @@ public class CarPropertyManager implements CarManagerBase {
         try {
             mService.setProperty(new CarPropertyValue<>(propId, area, val));
         } catch (RemoteException e) {
-            Log.e(mTag, "setProperty failed with " + e.toString(), e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 

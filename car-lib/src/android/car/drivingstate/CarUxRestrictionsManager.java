@@ -109,11 +109,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
             // register to the Service to listen for changes.
             mUxRService.registerUxRestrictionsChangeListener(mListenerToService);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not register a listener to CarUxRestrictionsManagerService " + e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Could not register a listener to CarUxRestrictionsManagerService " + e);
-            Car.checkCarNotConnectedExceptionFromCarService(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -137,8 +133,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         try {
             return mUxRService.saveUxRestrictionsConfigurationForNextBoot(config);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not save new UX restrictions configuration", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -157,8 +152,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
             mUxRService.unregisterUxRestrictionsChangeListener(mListenerToService);
             mUxRListener = null;
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not unregister listener from Driving State Service " + e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -173,8 +167,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         try {
             return mUxRService.getCurrentUxRestrictions();
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not get current UX restrictions " + e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -196,8 +189,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         try {
             return mUxRService.getStagedConfig();
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not get staged UX restrictions staged configuration " + e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -216,8 +208,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         try {
             return mUxRService.getConfig();
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not get production UX restrictions prod configuration" + e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 

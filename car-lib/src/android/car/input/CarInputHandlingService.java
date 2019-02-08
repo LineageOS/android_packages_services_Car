@@ -101,7 +101,7 @@ public abstract class CarInputHandlingService extends Service {
         try {
             callbackBinder.transact(INPUT_CALLBACK_BINDER_CODE, dataIn, null, IBinder.FLAG_ONEWAY);
         } catch (RemoteException e) {
-            Log.e(TAG, "doCallbackIfPossible: callback failed", e);
+            throw e.rethrowFromSystemServer();
         }
     }
 

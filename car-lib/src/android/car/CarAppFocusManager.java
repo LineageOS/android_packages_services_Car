@@ -149,7 +149,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         try {
             mService.registerFocusListener(binder, appType);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -170,7 +170,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         try {
             mService.unregisterFocusListener(binder, appType);
         } catch (RemoteException e) {
-            //ignore
+            throw e.rethrowFromSystemServer();
         }
         synchronized (this) {
             binder.removeAppType(appType);
@@ -199,7 +199,7 @@ public final class CarAppFocusManager implements CarManagerBase {
                 mService.unregisterFocusListener(binder, appType);
             }
         } catch (RemoteException e) {
-            //ignore
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -212,7 +212,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         try {
             return mService.getActiveAppTypes();
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -234,7 +234,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         try {
             return mService.isOwningFocus(binder, appType);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -268,7 +268,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         try {
             return mService.requestAppFocus(binder, appType);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -294,7 +294,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         try {
             mService.abandonAppFocus(binder, appType);
         } catch (RemoteException e) {
-            //ignore
+            throw e.rethrowFromSystemServer();
         }
         synchronized (this) {
             binder.removeAppType(appType);
@@ -323,7 +323,7 @@ public final class CarAppFocusManager implements CarManagerBase {
                 mService.abandonAppFocus(binder, appType);
             }
         } catch (RemoteException e) {
-            //ignore
+            throw e.rethrowFromSystemServer();
         }
     }
 

@@ -20,7 +20,6 @@ import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.Car;
-import android.car.CarApiUtil;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
@@ -189,7 +188,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
                     mService.unregisterDiagnosticListener(frameType,
                         mListenerToService);
                 } catch (RemoteException e) {
-                    //ignore
+                    throw e.rethrowFromSystemServer();
                 }
                 mActiveListeners.remove(frameType);
             } else if (needsServerUpdate) {
@@ -206,12 +205,9 @@ public final class CarDiagnosticManager implements CarManagerBase {
         throws CarNotConnectedException {
         try {
             return mService.registerOrUpdateDiagnosticListener(frameType, rate, mListenerToService);
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return false;
     }
 
     // ICarDiagnostic forwards
@@ -226,12 +222,9 @@ public final class CarDiagnosticManager implements CarManagerBase {
     CarDiagnosticEvent getLatestLiveFrame() throws CarNotConnectedException {
         try {
             return mService.getLatestLiveFrame();
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return null;
     }
 
     /**
@@ -247,12 +240,9 @@ public final class CarDiagnosticManager implements CarManagerBase {
     public long[] getFreezeFrameTimestamps() throws CarNotConnectedException {
         try {
             return mService.getFreezeFrameTimestamps();
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return new long[]{};
     }
 
     /**
@@ -270,12 +260,9 @@ public final class CarDiagnosticManager implements CarManagerBase {
         throws CarNotConnectedException {
         try {
             return mService.getFreezeFrame(timestamp);
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return null;
     }
 
     /**
@@ -292,12 +279,9 @@ public final class CarDiagnosticManager implements CarManagerBase {
     public boolean clearFreezeFrames(long... timestamps) throws CarNotConnectedException {
         try {
             return mService.clearFreezeFrames(timestamps);
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return false;
     }
 
     /**
@@ -308,12 +292,9 @@ public final class CarDiagnosticManager implements CarManagerBase {
     public boolean isLiveFrameSupported() throws CarNotConnectedException {
         try {
             return mService.isLiveFrameSupported();
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return false;
     }
 
     /**
@@ -324,12 +305,9 @@ public final class CarDiagnosticManager implements CarManagerBase {
     public boolean isFreezeFrameNotificationSupported() throws CarNotConnectedException {
         try {
             return mService.isFreezeFrameNotificationSupported();
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return false;
     }
 
     /**
@@ -340,12 +318,9 @@ public final class CarDiagnosticManager implements CarManagerBase {
     public boolean isGetFreezeFrameSupported() throws CarNotConnectedException {
         try {
             return mService.isGetFreezeFrameSupported();
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return false;
     }
 
     /**
@@ -362,12 +337,9 @@ public final class CarDiagnosticManager implements CarManagerBase {
     public boolean isClearFreezeFramesSupported() throws CarNotConnectedException {
         try {
             return mService.isClearFreezeFramesSupported();
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return false;
     }
 
     /**
@@ -384,12 +356,9 @@ public final class CarDiagnosticManager implements CarManagerBase {
     public boolean isSelectiveClearFreezeFramesSupported() throws CarNotConnectedException {
         try {
             return mService.isSelectiveClearFreezeFramesSupported();
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return false;
     }
 
     private static class CarDiagnosticEventListenerToService

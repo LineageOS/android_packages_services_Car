@@ -84,8 +84,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.isDynamicRoutingEnabled();
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "isDynamicRoutingEnabled failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -114,8 +113,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             mService.setGroupVolume(zoneId, groupId, index, flags);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "setGroupVolume failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -140,8 +138,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getGroupMaxVolume(zoneId, groupId);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getGroupMaxVolume failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -166,8 +163,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getGroupMinVolume(zoneId, groupId);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getGroupMinVolume failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -195,8 +191,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getGroupVolume(zoneId, groupId);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getGroupVolume failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -213,8 +208,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             mService.setFadeTowardFront(value);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "setFadeTowardFront failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -231,8 +225,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             mService.setBalanceTowardRight(value);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "setBalanceTowardRight failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -252,8 +245,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getExternalSources();
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getExternalSources failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -282,8 +274,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.createAudioPatch(sourceAddress, usage, gainInMillibels);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "createAudioPatch failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -301,8 +292,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             mService.releaseAudioPatch(patch);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "releaseAudioPatch failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -326,8 +316,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getVolumeGroupCount(zoneId);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getVolumeGroupCount failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -354,8 +343,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getVolumeGroupIdForUsage(zoneId, usage);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getVolumeGroupIdForUsage failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -381,8 +369,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getUsagesForVolumeGroupId(zoneId, groupId);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getUsagesForVolumeGroupId failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -393,7 +380,7 @@ public final class CarAudioManager implements CarManagerBase {
             try {
                 mService.unregisterVolumeCallback(mCarVolumeCallbackImpl.asBinder());
             } catch (RemoteException e) {
-                Log.e(CarLibLog.TAG_CAR, "unregisterVolumeCallback failed", e);
+                throw e.rethrowFromSystemServer();
             }
         }
     }

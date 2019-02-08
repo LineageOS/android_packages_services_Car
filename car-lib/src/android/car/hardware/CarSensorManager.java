@@ -19,8 +19,6 @@ package android.car.hardware;
 import android.annotation.IntDef;
 import android.annotation.RequiresPermission;
 import android.car.Car;
-import android.car.CarApiUtil;
-import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.car.VehiclePropertyType;
@@ -29,7 +27,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.Log;
 
@@ -321,17 +318,12 @@ public final class CarSensorManager implements CarManagerBase {
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public int[] getSupportedSensors() throws CarNotConnectedException {
-        try {
-            List<CarPropertyConfig> carPropertyConfigList = getPropertyList();
-            int[] supportedSensors = new int[carPropertyConfigList.size()];
-            for (int i = 0; i < supportedSensors.length; i++) {
-                supportedSensors[i] = carPropertyConfigList.get(i).getPropertyId();
-            }
-            return supportedSensors;
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
+        List<CarPropertyConfig> carPropertyConfigList = getPropertyList();
+        int[] supportedSensors = new int[carPropertyConfigList.size()];
+        for (int i = 0; i < supportedSensors.length; i++) {
+            supportedSensors[i] = carPropertyConfigList.get(i).getPropertyId();
         }
-        return new int[0];
+        return supportedSensors;
     }
 
     /**
@@ -467,21 +459,8 @@ public final class CarSensorManager implements CarManagerBase {
      */
     public CarSensorEvent getLatestSensorEvent(@SensorType int type)
             throws CarNotConnectedException {
-        try {
-            CarPropertyValue propertyValue = mCarPropertyMgr.getProperty(type, 0);
-            return createCarSensorEvent(propertyValue);
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
-        }
-        return null;
-    }
-
-    private void handleCarServiceRemoteExceptionAndThrow(RemoteException e)
-            throws CarNotConnectedException {
-        if (Log.isLoggable(CarLibLog.TAG_SENSOR, Log.INFO)) {
-            Log.i(CarLibLog.TAG_SENSOR, "RemoteException from car service:" + e.getMessage());
-        }
-        throw new CarNotConnectedException();
+        CarPropertyValue propertyValue = mCarPropertyMgr.getProperty(type, 0);
+        return createCarSensorEvent(propertyValue);
     }
 
     private CarSensorEvent createCarSensorEvent(CarPropertyValue propertyValue) {

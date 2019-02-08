@@ -19,22 +19,16 @@ package android.car.vms;
 import android.annotation.CallbackExecutor;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
-import android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback;
-import android.os.Handler;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
-import java.lang.ref.WeakReference;
 import java.util.concurrent.Executor;
 
 /**
@@ -135,8 +129,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         try {
             mVmsSubscriberService.addVmsSubscriberToNotifications(mSubscriberManagerClient);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -153,8 +146,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         try {
             mVmsSubscriberService.removeVmsSubscriberToNotifications(mSubscriberManagerClient);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         } finally {
             synchronized (mClientCallbackLock) {
                 mClientCallback = null;
@@ -171,11 +163,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         try {
             return mVmsSubscriberService.getPublisherInfo(publisherId);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
-            throw new IllegalStateException(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -187,11 +175,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         try {
             return mVmsSubscriberService.getAvailableLayers();
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
-            throw new IllegalStateException(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -208,10 +192,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             mVmsSubscriberService.addVmsSubscriber(mSubscriberManagerClient, layer);
             VmsOperationRecorder.get().subscribe(layer);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -230,10 +211,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
                     mSubscriberManagerClient, layer, publisherId);
             VmsOperationRecorder.get().subscribe(layer, publisherId);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -243,10 +221,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             mVmsSubscriberService.addVmsSubscriberPassive(mSubscriberManagerClient);
             VmsOperationRecorder.get().startMonitoring();
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -263,10 +238,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             mVmsSubscriberService.removeVmsSubscriber(mSubscriberManagerClient, layer);
             VmsOperationRecorder.get().unsubscribe(layer);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to clear subscriber", e);
-            // ignore
-        } catch (IllegalStateException ex) {
-            Car.hideCarNotConnectedExceptionFromCarService(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -284,10 +256,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
                     mSubscriberManagerClient, layer, publisherId);
             VmsOperationRecorder.get().unsubscribe(layer, publisherId);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to clear subscriber", e);
-            // ignore
-        } catch (IllegalStateException ex) {
-            Car.hideCarNotConnectedExceptionFromCarService(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -296,10 +265,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             mVmsSubscriberService.removeVmsSubscriberPassive(mSubscriberManagerClient);
             VmsOperationRecorder.get().stopMonitoring();
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to clear subscriber ", e);
-            // ignore
-        } catch (IllegalStateException ex) {
-            Car.hideCarNotConnectedExceptionFromCarService(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 

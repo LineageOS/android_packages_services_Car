@@ -15,7 +15,6 @@
  */
 package android.car.navigation;
 
-import android.car.CarApiUtil;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
@@ -54,11 +53,8 @@ public final class CarNavigationStatusManager implements CarManagerBase {
     public void sendEvent(int eventType, Bundle bundle) throws CarNotConnectedException {
         try {
             mService.onEvent(eventType, bundle);
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Illegal state sending event " + eventType, e);
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            handleCarServiceRemoteExceptionAndThrow(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -74,14 +70,7 @@ public final class CarNavigationStatusManager implements CarManagerBase {
         try {
             return mService.getInstrumentClusterInfo();
         } catch (RemoteException e) {
-            handleCarServiceRemoteExceptionAndThrow(e);
+            throw e.rethrowFromSystemServer();
         }
-        return null;
-    }
-
-    private void handleCarServiceRemoteExceptionAndThrow(RemoteException e)
-            throws CarNotConnectedException {
-        Log.e(TAG, "RemoteException from car service:" + e);
-        throw new CarNotConnectedException(e);
     }
 }

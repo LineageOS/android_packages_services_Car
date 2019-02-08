@@ -127,8 +127,7 @@ public class CarPowerManager implements CarManagerBase {
         try {
             mService.requestShutdownOnNextSuspend();
         } catch (RemoteException e) {
-            Log.e(TAG, "Exception in requestShutdownOnNextSuspend", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -141,8 +140,7 @@ public class CarPowerManager implements CarManagerBase {
         try {
             mService.scheduleNextWakeupTime(seconds);
         } catch (RemoteException e) {
-            Log.e(TAG, "Exception while scheduling next wakeup time", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -177,11 +175,8 @@ public class CarPowerManager implements CarManagerBase {
                 try {
                     mService.registerListener(listenerToService);
                     mListenerToService = listenerToService;
-                } catch (RemoteException ex) {
-                    Log.e(TAG, "Could not connect: ", ex);
-                    throw new CarNotConnectedException(ex);
-                } catch (IllegalStateException ex) {
-                    Car.checkCarNotConnectedExceptionFromCarService(ex);
+                } catch (RemoteException e) {
+                    throw e.rethrowFromSystemServer();
                 }
             }
         }
@@ -207,11 +202,8 @@ public class CarPowerManager implements CarManagerBase {
 
         try {
             mService.unregisterListener(listenerToService);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to unregister listener", ex);
-            //ignore
-        } catch (IllegalStateException ex) {
-            Car.hideCarNotConnectedExceptionFromCarService(ex);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -234,7 +226,7 @@ public class CarPowerManager implements CarManagerBase {
                 try {
                     mService.finished(mListenerToService, token);
                 } catch (RemoteException e) {
-                    Log.e(TAG, "RemoteException while calling CPMS.finished()", e);
+                    throw e.rethrowFromSystemServer();
                 }
             });
         }

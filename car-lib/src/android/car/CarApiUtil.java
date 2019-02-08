@@ -24,32 +24,6 @@ import android.car.settings.CarSettings;
  */
 public final class CarApiUtil {
 
-    /**
-     * CarService throws IllegalStateException with this message is re-thrown as
-     * {@link CarNotConnectedException}.
-     *
-     * @hide
-     */
-    public static final String CAR_NOT_CONNECTED_EXCEPTION_MSG = "CarNotConnected";
-
-    /**
-     * Re-throw IllegalStateException from CarService with
-     * {@link #CAR_NOT_CONNECTED_EXCEPTION_MSG} message as {@link CarNotConnectedException}.
-     * exception.
-     *
-     * @param e exception from CarService
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
-     * @hide
-     */
-    public static void checkCarNotConnectedExceptionFromCarService(IllegalStateException e)
-            throws CarNotConnectedException {
-        if (e.getMessage().equals(CAR_NOT_CONNECTED_EXCEPTION_MSG)) {
-            throw new CarNotConnectedException();
-        } else {
-            throw e;
-        }
-    }
-
     /** do not use */
     private CarApiUtil() {};
 

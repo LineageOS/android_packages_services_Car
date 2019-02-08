@@ -20,7 +20,6 @@ import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 
 /**
  * Manager that exposes car configuration values that are stored on the system.
@@ -45,8 +44,7 @@ public class CarConfigurationManager implements CarManagerBase {
         try {
             return mConfigurationService.getSpeedBumpConfiguration();
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not retrieve SpeedBumpConfiguration", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 

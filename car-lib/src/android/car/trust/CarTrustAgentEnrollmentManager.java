@@ -116,7 +116,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         try {
             mEnrollmentService.startEnrollmentAdvertising();
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -128,7 +128,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         try {
             mEnrollmentService.stopEnrollmentAdvertising();
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -144,7 +144,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         try {
             mEnrollmentService.initiateEnrollmentHandshake(device);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -157,7 +157,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         try {
             mEnrollmentService.enrollmentHandshakeAccepted();
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -169,7 +169,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         try {
             mEnrollmentService.terminateEnrollmentHandshake();
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -183,7 +183,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         try {
             mEnrollmentService.activateToken(handle);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -197,7 +197,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         try {
             mEnrollmentService.revokeTrust(handle);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -224,7 +224,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
                     mEnrollmentService.registerEnrollmentCallback(mListenerToEnrollmentService);
                     mEnrollmentCallback = callback;
                 } catch (RemoteException e) {
-                    throw new CarNotConnectedException(e);
+                    throw e.rethrowFromSystemServer();
                 }
             }
         }
@@ -236,7 +236,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
                 try {
                     mEnrollmentService.unregisterEnrollmentCallback(mListenerToEnrollmentService);
                 } catch (RemoteException e) {
-                    throw new CarNotConnectedException(e);
+                    throw e.rethrowFromSystemServer();
                 }
                 mEnrollmentCallback = null;
             }
@@ -266,7 +266,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
                     mEnrollmentService.registerBleCallback(mListenerToBleService);
                     mBleCallback = callback;
                 } catch (RemoteException e) {
-                    throw new CarNotConnectedException(e);
+                    throw e.rethrowFromSystemServer();
                 }
             }
         }
@@ -278,7 +278,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
                 try {
                     mEnrollmentService.unregisterBleCallback(mListenerToBleService);
                 } catch (RemoteException e) {
-                    throw new CarNotConnectedException(e);
+                    throw e.rethrowFromSystemServer();
                 }
                 mBleCallback = null;
             }
@@ -299,7 +299,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
                     mEnrollmentService.getEnrollmentHandlesForUser(uid)).boxed().collect(
                     Collectors.toList());
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 

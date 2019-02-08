@@ -120,7 +120,7 @@ public final class CarProjectionManager implements CarManagerBase {
                 try {
                     mService.registerProjectionListener(mBinderListener, voiceSearchFilter);
                 } catch (RemoteException e) {
-                    throw new CarNotConnectedException(e);
+                    throw e.rethrowFromSystemServer();
                 }
             }
             mListener = listener;
@@ -146,7 +146,7 @@ public final class CarProjectionManager implements CarManagerBase {
             try {
                 mService.unregisterProjectionListener(mBinderListener);
             } catch (RemoteException e) {
-                //ignore
+                throw e.rethrowFromSystemServer();
             }
             mListener = null;
             mVoiceSearchFilter = 0;
@@ -167,7 +167,7 @@ public final class CarProjectionManager implements CarManagerBase {
             try {
                 mService.registerProjectionRunner(serviceIntent);
             } catch (RemoteException e) {
-                throw new CarNotConnectedException(e);
+                throw e.rethrowFromSystemServer();
             }
         }
     }
@@ -186,7 +186,7 @@ public final class CarProjectionManager implements CarManagerBase {
             try {
                 mService.unregisterProjectionRunner(serviceIntent);
             } catch (RemoteException e) {
-                //ignore
+                throw e.rethrowFromSystemServer();
             }
         }
     }
@@ -252,7 +252,6 @@ public final class CarProjectionManager implements CarManagerBase {
         try {
             return mService.requestBluetoothProfileInhibit(device, profile, token);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "requestBluetoothProfileInhibit failed", e);
             throw e.rethrowFromSystemServer();
         }
     }
@@ -272,7 +271,6 @@ public final class CarProjectionManager implements CarManagerBase {
         try {
             return mService.releaseBluetoothProfileInhibit(device, profile, token);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "releaseBluetoothProfileInhibit failed", e);
             throw e.rethrowFromSystemServer();
         }
     }

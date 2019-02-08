@@ -19,10 +19,8 @@ package android.car.drivingstate;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
-import android.car.drivingstate.ICarDrivingState;
 import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
@@ -30,6 +28,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
+
 import java.lang.ref.WeakReference;
 
 /**
@@ -103,11 +102,7 @@ public final class CarDrivingStateManager implements CarManagerBase {
             // register to the Service for getting notified
             mDrivingService.registerDrivingStateChangeListener(mListenerToService);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not register a listener to Driving State Service " + e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Could not register a listener to Driving State Service " + e);
-            Car.checkCarNotConnectedExceptionFromCarService(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -128,8 +123,7 @@ public final class CarDrivingStateManager implements CarManagerBase {
             mDrvStateEventListener = null;
             mListenerToService = null;
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not unregister listener from Driving State Service " + e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -144,8 +138,7 @@ public final class CarDrivingStateManager implements CarManagerBase {
         try {
             return mDrivingService.getCurrentDrivingState();
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not get current driving state " + e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 

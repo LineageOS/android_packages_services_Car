@@ -23,14 +23,14 @@ import android.car.CarNotConnectedException;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+
 import com.android.car.internal.SingleMessageHandler;
+
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static android.car.CarApiUtil.checkCarNotConnectedExceptionFromCarService;
 
 /**
  * API for retrieving information and metrics about the flash storage.
@@ -112,12 +112,9 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
     public int getPreEolIndicatorStatus() throws CarNotConnectedException {
         try {
             return mService.getPreEolIndicatorStatus();
-        } catch (IllegalStateException e) {
-            checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return PRE_EOL_INFO_UNKNOWN;
     }
 
     /**
@@ -133,12 +130,9 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
     public WearEstimate getWearEstimate() throws CarNotConnectedException {
         try {
             return mService.getWearEstimate();
-        } catch (IllegalStateException e) {
-            checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return WearEstimate.UNKNOWN_ESTIMATE;
     }
 
     /**
@@ -156,12 +150,9 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
     public List<WearEstimateChange> getWearEstimateHistory() throws CarNotConnectedException {
         try {
             return mService.getWearEstimateHistory();
-        } catch (IllegalStateException e) {
-            checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return Collections.emptyList();
     }
 
     /**
@@ -178,12 +169,9 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
     public List<IoStatsEntry> getBootIoStats() throws CarNotConnectedException {
         try {
             return mService.getBootIoStats();
-        } catch (IllegalStateException e) {
-            checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return Collections.emptyList();
     }
 
     /**
@@ -211,12 +199,9 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
     public long getShutdownDiskWriteAmount() throws CarNotConnectedException {
         try {
             return mService.getShutdownDiskWriteAmount();
-        } catch (IllegalStateException e) {
-            checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return SHUTDOWN_COST_INFO_MISSING;
     }
 
     /**
@@ -231,12 +216,9 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
     public List<IoStatsEntry> getAggregateIoStats() throws CarNotConnectedException {
         try {
             return mService.getAggregateIoStats();
-        } catch (IllegalStateException e) {
-            checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return Collections.emptyList();
     }
 
     /**
@@ -254,12 +236,9 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
     public List<IoStats> getIoStatsDeltas() throws CarNotConnectedException {
         try {
             return mService.getIoStatsDeltas();
-        } catch (IllegalStateException e) {
-            checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
-        return Collections.emptyList();
     }
 
     /**
@@ -280,10 +259,8 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
                 mService.registerListener(mListenerToService);
             }
             mListeners.add(listener);
-        } catch (IllegalStateException e) {
-            checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -300,10 +277,8 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
                 mService.unregisterListener(mListenerToService);
                 mListenerToService = null;
             }
-        } catch (IllegalStateException e) {
-            checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+            throw e.rethrowFromSystemServer();
         }
     }
 }
