@@ -160,12 +160,6 @@ public class CarLocationService extends BroadcastReceiver implements
     }
 
     @Override
-    public void onStateChanged(int state) {
-        throw new UnsupportedOperationException(
-                "Should not be here. This API obsolete and is not used.");
-    }
-
-    @Override
     public void onStateChanged(int state, CompletableFuture<Void> future) {
         logd("onStateChanged: " + state);
         switch (state) {

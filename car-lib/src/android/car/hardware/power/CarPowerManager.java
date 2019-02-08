@@ -48,27 +48,6 @@ public class CarPowerManager implements CarManagerBase {
     private final Object mLock = new Object();
 
     /**
-     * Deleted! Don't use.
-     */
-    public static final int BOOT_REASON_USER_POWER_ON = 1;
-    /**
-     * Deleted! Don't use.
-     */
-    public static final int BOOT_REASON_DOOR_UNLOCK = 2;
-    /**
-     * Deleted! Don't use.
-     */
-    public static final int BOOT_REASON_TIMER = 3;
-    /**
-     * Deleted! Don't use.
-     */
-    public static final int BOOT_REASON_DOOR_OPEN = 4;
-    /**
-     * Deleted! Don't use.
-     */
-    public static final int BOOT_REASON_REMOTE_START = 5;
-
-    /**
      *  Applications set a {@link CarPowerStateListener} for power state event updates.
      */
     public interface CarPowerStateListener {
@@ -78,44 +57,41 @@ public class CarPowerManager implements CarManagerBase {
          */
 
         /**
-         * Shutdown is cancelled, return to normal state.
-         */
-        int SHUTDOWN_CANCELLED = 0;
-        /**
-         * Enter shutdown state.  CPMS is switching to WAIT_FOR_FINISHED state.
-         */
-        int SHUTDOWN_ENTER = 1;
-        /**
          * Android is up, but vendor is controlling the audio / display
          * @hide
          */
-        int WAIT_FOR_VHAL = 2;
+        int WAIT_FOR_VHAL = 1;
         /**
          * Enter suspend state.  CPMS is switching to WAIT_FOR_FINISHED state.
          * @hide
          */
-        int SUSPEND_ENTER = 3;
+        int SUSPEND_ENTER = 2;
         /**
          * Wake up from suspend.
          * @hide
          */
-        int SUSPEND_EXIT = 4;
+        int SUSPEND_EXIT = 3;
+        /**
+         * Enter shutdown state.  CPMS is switching to WAIT_FOR_FINISHED state.
+         * @hide
+         */
+        int SHUTDOWN_ENTER = 5;
         /**
          * On state
          * @hide
          */
-        int ON = 5;
+        int ON = 6;
         /**
          * State where system is getting ready for shutdown or suspend.  Application is expected to
          * cleanup and be ready to suspend
          * @hide
          */
-        int SHUTDOWN_PREPARE = 6;
-        
+        int SHUTDOWN_PREPARE = 7;
         /**
-         * Deleted! Don't use.
+         * Shutdown is cancelled, return to normal state.
+         * @hide
          */
-        void onStateChanged(int state);
+        int SHUTDOWN_CANCELLED = 8;
 
         /**
          *  Called when power state changes
