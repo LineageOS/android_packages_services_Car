@@ -38,14 +38,15 @@ import java.util.concurrent.CompletableFuture;
 public class CarPowerManager implements CarManagerBase {
     private final static boolean DBG = false;
     private final static String TAG = "CarPowerManager";
-    private CarPowerStateListener mListener;
-    private final ICarPower mService;
-    private CompletableFuture<Void> mFuture;
 
+    private final Object mLock = new Object();
+    private final ICarPower mService;
+
+    private CarPowerStateListener mListener;
+    private CompletableFuture<Void> mFuture;
     @GuardedBy("mLock")
     private ICarPowerStateListener mListenerToService;
 
-    private final Object mLock = new Object();
 
     /**
      * Deleted! Don't use.
@@ -184,6 +185,12 @@ public class CarPowerManager implements CarManagerBase {
     public void setListener(CarPowerStateListener listener) throws
             CarNotConnectedException, IllegalStateException {
         synchronized(mLock) {
+            if (mListener == null) {
+                // Update listener
+                mListener = listener;
+            } else {
+                throw new IllegalStateException("Listener must be cleared first");
+            }
             if (mListenerToService == null) {
                 ICarPowerStateListener listenerToService = new ICarPowerStateListener.Stub() {
                     @Override
@@ -200,12 +207,6 @@ public class CarPowerManager implements CarManagerBase {
                 } catch (IllegalStateException ex) {
                     Car.checkCarNotConnectedExceptionFromCarService(ex);
                 }
-            }
-            if (mListener == null) {
-                // Update listener
-                mListener = listener;
-            } else {
-                throw new IllegalStateException("Listener must be cleared first");
             }
         }
     }
