@@ -70,6 +70,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private HandlerThread mHandlerThread;
     @GuardedBy("this")
     private PowerHandler mHandler;
+    @GuardedBy("this")
+    private boolean mTimerActive;
     private int mNextWakeupSec = 0;
     private int mTokenValue = 1;
     private boolean mShutdownOnFinish = false;
@@ -312,10 +314,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @GuardedBy("this")
     private void releaseTimerLocked() {
-        if (mTimer != null) {
-            mTimer.cancel();
+        synchronized (this) {
+            if (mTimer != null) {
+                mTimer.cancel();
+            }
+            mTimer = null;
+            mTimerActive = false;
         }
-        mTimer = null;
     }
 
     private void doHandlePreprocessing() {
@@ -326,6 +331,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mProcessingStartTime = SystemClock.elapsedRealtime();
             releaseTimerLocked();
             mTimer = new Timer();
+            mTimerActive = true;
             mTimer.scheduleAtFixedRate(
                     new ShutdownProcessingTimerTask(pollingCount),
                     0 /*delay*/,
@@ -650,16 +656,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
         @Override
         public void run() {
-            mCurrentCount++;
-            if (mCurrentCount > mExpirationCount) {
-                PowerHandler handler;
-                synchronized (CarPowerManagementService.this) {
+            synchronized (this) {
+                if (!mTimerActive) {
+                    // Ignore timer expiration since we got cancelled
+                    return;
+                }
+                mCurrentCount++;
+                if (mCurrentCount > mExpirationCount) {
+                    PowerHandler handler;
                     releaseTimerLocked();
                     handler = mHandler;
+                    handler.handleProcessingComplete();
+                } else {
+                    mHal.sendShutdownPostpone(SHUTDOWN_EXTEND_MAX_MS);
                 }
-                handler.handleProcessingComplete();
-            } else {
-                mHal.sendShutdownPostpone(SHUTDOWN_EXTEND_MAX_MS);
             }
         }
     }
