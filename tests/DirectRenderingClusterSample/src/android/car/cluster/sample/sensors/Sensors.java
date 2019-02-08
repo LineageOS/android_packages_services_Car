@@ -72,7 +72,7 @@ public class Sensors {
             value -> (Float) value.getValue());
     /** Current gear of the car */
     public static final Sensor<Gear> SENSOR_GEAR = registerSensor(
-            "Gear", VehiclePropertyIds.CURRENT_GEAR, GLOBAL_AREA_ID, VehiclePropertyType.INT32,
+            "Gear", VehiclePropertyIds.GEAR_SELECTION, GLOBAL_AREA_ID, VehiclePropertyType.INT32,
             value -> {
                 if (value == null) {
                     return null;
