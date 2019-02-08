@@ -19,7 +19,7 @@
     <string name="car_permission_label" msgid="2215078736675564541">"Көлік туралы ақпарат"</string>
     <string name="car_permission_desc" msgid="162499818870052725">"Көлік туралы ақпаратты көруге болады."</string>
     <string name="car_permission_label_cabin" msgid="7737204489497269651">"Көлік салоны"</string>
-    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Көліктің есіктері, айналары, орындықтары және терезелері сияқты керек-жарақтарын пайдалануға болады."</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Көліктің есіктері, айналары, орындықтары және терезелері сияқты керек-жарақтарын басқаруға болады."</string>
     <string name="car_permission_label_camera" msgid="608969838109034886">"Көлік камерасы"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Көліктің камераларын пайдалануға болады."</string>
     <string name="car_permission_label_energy" msgid="3398092932402178393">"Көліктің қуаты"</string>
@@ -92,9 +92,9 @@
     <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Көліктің орындықтарын басқаруға болады"</string>
     <string name="car_permission_label_car_info" msgid="5638680944359440535">"Көлік туралы негізгі ақпарат"</string>
     <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Көлік туралы негізгі ақпаратты көруге болады"</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Көліктің сыртқы шамдарын басқаруға болады"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Көліктің сыртқы шамдары"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"Көліктің сыртқы шамдарының күйін көруге болады"</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"Көліктің сыртқы шамдарын басқаруға болады"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"Көліктің сыртқы шамдары"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"Көліктің сыртқы шамдарын басқаруға болады"</string>
     <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"Көлік сыртындағы температура"</string>
     <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"Көлік сыртындағы температура өзгерісін көруге болады"</string>

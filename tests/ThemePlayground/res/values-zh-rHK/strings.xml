@@ -18,20 +18,20 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="9186040863360456501">"AAE Theme Playground"</string>
-    <string name="text_elements" msgid="6678400827142549036">"Text Elements"</string>
-    <string name="panel_elements" msgid="9161555672590928319">"Color Panels"</string>
-    <string name="dialog_elements" msgid="6396215643762839537">"Dialogs"</string>
+    <string name="text_elements" msgid="6678400827142549036">"文字元素"</string>
+    <string name="panel_elements" msgid="9161555672590928319">"色盤"</string>
+    <string name="dialog_elements" msgid="6396215643762839537">"對話"</string>
     <string name="toggle_theme" msgid="7848492095193989051">"Change configuration(Day/Night)"</string>
-    <string name="apply" msgid="7165796721764564035">"Apply"</string>
+    <string name="apply" msgid="7165796721764564035">"套用"</string>
     <string name="widgets" msgid="2335373195144254853">"Widgets"</string>
-    <string name="paged_list_view" msgid="5049677197420640692">"Paged List View"</string>
+    <string name="paged_list_view" msgid="5049677197420640692">"分頁清單檢視"</string>
     <string name="widget_checkbox" msgid="4242511776930245432">"Checkbox"</string>
     <string name="toggle_switch" msgid="1631707268585200186">"Toggle Switch"</string>
     <string name="reset" msgid="8400557536601938969">"Reset"</string>
-    <string name="progress_bar" msgid="6376805274151741928">"Progress Bar"</string>
-    <string name="background_name" msgid="2753485007335630418">"Set background color :"</string>
+    <string name="progress_bar" msgid="6376805274151741928">"進度列"</string>
+    <string name="background_name" msgid="2753485007335630418">"設定背景顏色："</string>
     <string name="default_themes" msgid="6668869906906304331">"Apply Themes"</string>
-    <string name="theme_name" msgid="8750875004662195520">"Theme Name:"</string>
-    <string name="multiple_intent" msgid="1681121328768447099">"Chooser Activity"</string>
+    <string name="theme_name" msgid="8750875004662195520">"主題背景名稱："</string>
+    <string name="multiple_intent" msgid="1681121328768447099">"選擇器活動"</string>
     <string name="default_background_color" msgid="3761355404069320575">"#90CAF9"</string>
 </resources>
