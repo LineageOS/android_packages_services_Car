@@ -15,21 +15,21 @@
   ~ limitations under the License
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" translable="false">AAE Theme Playground</string>
-    <string name="text_elements" translable="false">Text Elements</string>
-    <string name="panel_elements" translable="false">Color Panels</string>
-    <string name="dialog_elements" translable="false">Dialogs</string>
-    <string name="toggle_theme" translable="false">Change configuration(Day/Night)</string>
-    <string name="apply" translable="false">Apply</string>
-    <string name="widgets" translable="false">Widgets</string>
-    <string name="paged_list_view" translable="false">Paged List View</string>
-    <string name="widget_checkbox" translable="false">Checkbox</string>
-    <string name="toggle_switch" translable="false">Toggle Switch</string>
-    <string name="reset" translable="false">Reset</string>
-    <string name="progress_bar" translable="false">Progress Bar</string>
-    <string name="background_name" translable="false">Set background color :</string>
-    <string name="default_themes" translable="false">Apply Themes</string>
-    <string name="theme_name" translable="false">Theme Name:</string>
-    <string name="multiple_intent" translable="false">Chooser Activity</string>
-    <string name="default_background_color" translable="false">#90CAF9</string>
+    <string name="app_name" translatable="false">AAE Theme Playground</string>
+    <string name="text_elements" translatable="false">Text Elements</string>
+    <string name="panel_elements" translatable="false">Color Panels</string>
+    <string name="dialog_elements" translatable="false">Dialogs</string>
+    <string name="toggle_theme" translatable="false">Change configuration(Day/Night)</string>
+    <string name="apply" translatable="false">Apply</string>
+    <string name="widgets" translatable="false">Widgets</string>
+    <string name="paged_list_view" translatable="false">Paged List View</string>
+    <string name="widget_checkbox" translatable="false">Checkbox</string>
+    <string name="toggle_switch" translatable="false">Toggle Switch</string>
+    <string name="reset" translatable="false">Reset</string>
+    <string name="progress_bar" translatable="false">Progress Bar</string>
+    <string name="background_name" translatable="false">Set background color :</string>
+    <string name="default_themes" translatable="false">Apply Themes</string>
+    <string name="theme_name" translatable="false">Theme Name:</string>
+    <string name="multiple_intent" translatable="false">Chooser Activity</string>
+    <string name="default_background_color" translatable="false">#90CAF9</string>
 </resources>
