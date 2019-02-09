@@ -20,3 +20,11 @@ allow evs_app gpu_device:chr_file { getattr open read write };
 # Permit communication with the vehicle HAL
 # (Communcations with the rest of the EVS stack is allowed via hal_evs)
 binder_call(evs_app, hal_vehicle);
+
+# Allow use of hwservice, ion device, and system files
+allow evs_app hal_configstore_ISurfaceFlingerConfigs:hwservice_manager find;
+allow evs_app hal_configstore_default:binder call;
+allow evs_app hal_graphics_mapper_hwservice:hwservice_manager find;
+allow evs_app hal_evs_hwservice:hwservice_manager find;
+allow evs_app ion_device:chr_file { open read };
+allow evs_app system_file:dir { open read };
