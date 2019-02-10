@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="9186040863360456501">"AAE തീം പ്ലേഗ്രൗണ്ട്"</string>
+    <string name="text_elements" msgid="6678400827142549036">"ടെക്‌സ്‌റ്റ് ഘടകങ്ങൾ"</string>
+    <string name="panel_elements" msgid="9161555672590928319">"വർണ്ണ പാനലുകൾ"</string>
+    <string name="dialog_elements" msgid="6396215643762839537">"ഡയലോഗുകൾ"</string>
+    <string name="toggle_theme" msgid="7848492095193989051">"കോൺഫിഗറേഷൻ മാറ്റുക(പകൽ/രാത്രി)"</string>
+    <string name="apply" msgid="7165796721764564035">"ബാധകമാക്കുക"</string>
+    <string name="widgets" msgid="2335373195144254853">"വിജറ്റുകൾ"</string>
+    <string name="paged_list_view" msgid="5049677197420640692">"പേജ് ചെയ്‌ത ലിസ്‌റ്റ്"</string>
+    <string name="widget_checkbox" msgid="4242511776930245432">"ചെക്ക് ബോക്‌സ്"</string>
+    <string name="toggle_switch" msgid="1631707268585200186">"സ്വിച്ച് മാറ്റുക"</string>
+    <string name="reset" msgid="8400557536601938969">"പുനസജ്ജീകരിക്കുക"</string>
+    <string name="progress_bar" msgid="6376805274151741928">"പ്രോഗ്രസ് ബാർ"</string>
+    <string name="background_name" msgid="2753485007335630418">"പശ്ചാത്തല വർണ്ണം ഇനിപ്പറയുന്നതായി സജ്ജീകരിക്കുക :"</string>
+    <string name="default_themes" msgid="6668869906906304331">"തീമുകൾ ബാധകമാക്കുക"</string>
+    <string name="theme_name" msgid="8750875004662195520">"തീമിന്റെ പേര്:"</string>
+    <string name="multiple_intent" msgid="1681121328768447099">"ആക്‌റ്റി‌വിറ്റി തിരഞ്ഞെടുക്കൽ"</string>
+    <string name="default_background_color" msgid="3761355404069320575">"#90CAF9"</string>
+</resources>

@@ -29,7 +29,7 @@
     <string name="toggle_switch" msgid="1631707268585200186">"टॉगल स्विच"</string>
     <string name="reset" msgid="8400557536601938969">"रीसेट करें"</string>
     <string name="progress_bar" msgid="6376805274151741928">"प्रगति बार"</string>
-    <string name="background_name" msgid="2753485007335630418">"बैकग्राउंड का रंग सेट करें :"</string>
+    <string name="background_name" msgid="2753485007335630418">"बैकग्राउंड का रंग सेट करें:"</string>
     <string name="default_themes" msgid="6668869906906304331">"थीम लागू करें"</string>
     <string name="theme_name" msgid="8750875004662195520">"थीम का नाम:"</string>
     <string name="multiple_intent" msgid="1681121328768447099">"चुनने की गतिविधि"</string>

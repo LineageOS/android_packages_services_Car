@@ -63,8 +63,7 @@ public class CarUserManagerHelper {
      * Default set of restrictions for Non-Admin users.
      */
     private static final Set<String> DEFAULT_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
-            UserManager.DISALLOW_FACTORY_RESET,
-            UserManager.DISALLOW_RUN_IN_BACKGROUND
+            UserManager.DISALLOW_FACTORY_RESET
     );
 
     /**
@@ -782,8 +781,6 @@ public class CarUserManagerHelper {
         }
         assignDefaultIcon(user);
 
-        // Set disallow background run for admin users, users will be killed when switched away.
-        setUserRestriction(user, UserManager.DISALLOW_RUN_IN_BACKGROUND, /* enable= */ true);
         return user;
     }
 

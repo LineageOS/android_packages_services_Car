@@ -13,138 +13,144 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ongoing notifications can only be dismissed by the CANCEL ALL button."/>
-
-    <Button
-        android:id="@+id/cancel_all_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="Cancel All"
-        android:textSize="30sp"/>
+    android:fadeScrollbars="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#334666"
-        android:orientation="horizontal">
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ongoing notifications can only be dismissed by the CANCEL ALL button."/>
 
         <Button
-            android:id="@+id/category_message_button"
+            android:id="@+id/cancel_all_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="Message"
+            android:text="Cancel All"
             android:textSize="30sp"/>
 
-        <Button
-            android:id="@+id/navigation_button"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Navigation"
-            android:textSize="30sp"/>
+            android:background="#334666"
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/ongoing_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Persistent (No heads-up)"
-            android:textSize="30sp"/>
+            <Button
+                android:id="@+id/category_message_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Message"
+                android:textSize="30sp"/>
 
-        <Button
-            android:id="@+id/progress_button"
-            android:layout_width="wrap_content"
+            <Button
+                android:id="@+id/navigation_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Navigation"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/ongoing_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Persistent (No heads-up)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/progress_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Progress (No heads-up)"
+                android:textSize="30sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Progress (No heads-up)"
-            android:textSize="30sp"/>
+            android:background="#5a6633"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/importance_high_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Importance: HIGH"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/importance_default_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Importance: DEFAULT (No heads-up)"
+                android:textSize="30sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#5a6633"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/importance_low_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Importance: LOW (No heads-up)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/importance_min_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Importance: MIN (No heads-up)"
+                android:textSize="30sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#33664d"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/category_car_emergency_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Car Emergency"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/category_car_warning_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Car Warning"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/category_car_info_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Car Information (No heads-up)"
+                android:textSize="30sp"/>
+        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#5a6633"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/importance_high_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Importance: HIGH"
-            android:textSize="30sp"/>
-
-        <Button
-            android:id="@+id/importance_default_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Importance: DEFAULT (No heads-up)"
-            android:textSize="30sp"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#5a6633"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/importance_low_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Importance: LOW (No heads-up)"
-            android:textSize="30sp"/>
-
-        <Button
-            android:id="@+id/importance_min_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Importance: MIN (No heads-up)"
-            android:textSize="30sp"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#33664d"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/category_car_emergency_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Car Emergency"
-            android:textSize="30sp"/>
-
-        <Button
-            android:id="@+id/category_car_warning_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Car Warning"
-            android:textSize="30sp"/>
-
-        <Button
-            android:id="@+id/category_car_info_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Car Information (No heads-up)"
-            android:textSize="30sp"/>
-    </LinearLayout>
-</LinearLayout>
+</ScrollView>

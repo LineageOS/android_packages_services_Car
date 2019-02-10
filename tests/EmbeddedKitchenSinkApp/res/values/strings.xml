@@ -53,6 +53,8 @@
     <string name="hvac_acOn" translatable="false">AC ON</string>
     <string name="hvac_autoOff" translatable="false">Auto OFF</string>
     <string name="hvac_autoOn" translatable="false">Auto ON</string>
+    <string name="hvac_autoRecircOff" translatable="false">Auto Recirc OFF</string>
+    <string name="hvac_autoRecircOn" translatable="false">Auto Recirc ON</string>
     <string name="hvac_defrostFrontOff" translatable="false">Front Defrost OFF</string>
     <string name="hvac_defrostFrontOn" translatable="false">Front Defrost ON</string>
     <string name="hvac_defrostRearOff" translatable="false">Rear Defrost OFF</string>
@@ -69,12 +71,21 @@
     <string name="hvac_positionFaceAndFloor" translatable="false">Face+Floor</string>
     <string name="hvac_positionDefrost" translatable="false">Defrost</string>
     <string name="hvac_positionDefrostAndFloor" translatable="false">Def+Floor</string>
+    <string name="hvac_powerOff" translatable="false">Power OFF</string>
+    <string name="hvac_powerOn" translatable="false">Power ON</string>
+    <string name="hvac_powerAndAcOn" translatable="false">Turn Power And AC ON</string>
     <string name="hvac_fanSpeedDn" translatable="false">Fan Speed Down</string>
     <string name="hvac_fanSpeedUp" translatable="false">Fan Speed Up</string>
     <string name="hvac_recircOff" translatable="false">Recirc OFF</string>
     <string name="hvac_recircOn" translatable="false">Recirc ON</string>
-    <string name="hvac_tempDn" translatable="false">Temp Down</string>
-    <string name="hvac_tempUp" translatable="false">Temp Up</string>
+    <string name="hvac_tempDisplayCelsius" translatable="false">Temp CELSIUS</string>
+    <string name="hvac_tempDisplayFahrenheit" translatable="false">Temp FAHRENHEIT</string>
+    <string name="hvac_aTempDn" translatable="false">All Temp Down</string>
+    <string name="hvac_aTempUp" translatable="false">All Temp Up</string>
+    <string name="hvac_dTempDn" translatable="false">Driver Temp Down</string>
+    <string name="hvac_dTempUp" translatable="false">Driver Temp Up</string>
+    <string name="hvac_pTempDn" translatable="false">Passenger Temp Down</string>
+    <string name="hvac_pTempUp" translatable="false">Passenger Temp Up</string>
     <!-- camera -->
     <string name="rvc_getCapabilities" translatable="false">Get Capabilities</string>
     <string name="rvc_getRvcCrop" translatable="false">Get RVC Crop</string>
