@@ -30,8 +30,10 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.android.car.CarServiceBase;
+import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 /**
  * User service for cars. Manages users at boot time. Including:
@@ -45,6 +47,12 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
     private static final String TAG = "CarUserService";
     private final Context mContext;
     private final CarUserManagerHelper mCarUserManagerHelper;
+
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private boolean mUser0Unlocked;
+    @GuardedBy("mLock")
+    private final ArrayList<Runnable> mUser0UnlockTasks = new ArrayList<>();
 
     public CarUserService(
                 @Nullable Context context, @Nullable CarUserManagerHelper carUserManagerHelper) {
@@ -60,11 +68,13 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "init");
         }
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
-        filter.addAction(Intent.ACTION_USER_SWITCHED);
+        if (mCarUserManagerHelper.isHeadlessSystemUser()) {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
+            filter.addAction(Intent.ACTION_USER_SWITCHED);
 
-        mContext.registerReceiver(this, filter);
+            mContext.registerReceiver(this, filter);
+        }
     }
 
     @Override
@@ -79,6 +89,11 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
     public void dump(PrintWriter writer) {
         writer.println(TAG);
         writer.println("Context: " + mContext);
+        boolean user0Unlocked;
+        synchronized (mLock) {
+            user0Unlocked = mUser0Unlocked;
+        }
+        writer.println("User0Unlocked: " + user0Unlocked);
     }
 
     @Override
@@ -100,11 +115,56 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
 
         } else if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
             // Update last active user if the switched-to user is a persistent, non-system user.
-            int currentUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
+            final int currentUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
             if (currentUser > UserHandle.USER_SYSTEM
                         && mCarUserManagerHelper.isPersistentUser(currentUser)) {
                 mCarUserManagerHelper.setLastActiveUser(currentUser);
             }
+        }
+    }
+
+    /**
+     * Set user lock / unlocking status. This is coming from system server through ICar binder call.
+     * @param userHandle Handle of user
+     * @param unlocked unlocked (=true) or locked (=false)
+     */
+    public void setUserLockStatus(int userHandle, boolean unlocked) {
+        if (userHandle != UserHandle.USER_SYSTEM) {
+            return;
+        }
+        ArrayList<Runnable> tasks = null;
+        synchronized (mLock) {
+            // Assumes that car service need to do it only once during boot-up
+            if (unlocked && !mUser0Unlocked) {
+                tasks = new ArrayList<>(mUser0UnlockTasks);
+                mUser0UnlockTasks.clear();
+                mUser0Unlocked = unlocked;
+            }
+        }
+        if (tasks != null && tasks.size() > 0) {
+            Log.d(TAG, "User0 unlocked, run queued tasks:" + tasks.size());
+            for (Runnable r : tasks) {
+                r.run();
+            }
+        }
+    }
+
+    /**
+     * Run give runnable when user 0 is unlocked. If user 0 is already unlocked, it is
+     * run inside this call.
+     * @param r Runnable to run.
+     */
+    public void runOnUser0Unlock(Runnable r) {
+        boolean runNow = false;
+        synchronized (mLock) {
+            if (mUser0Unlocked) {
+                runNow = true;
+            } else {
+                mUser0UnlockTasks.add(r);
+            }
+        }
+        if (runNow) {
+            r.run();
         }
     }
 

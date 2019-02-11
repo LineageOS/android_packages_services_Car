@@ -86,9 +86,8 @@ public class ICarImpl extends ICar.Stub {
     private final CarStorageMonitoringService mCarStorageMonitoringService;
     private final CarConfigurationService mCarConfigurationService;
     private final CarTrustAgentEnrollmentService mCarTrustAgentEnrollmentService;
-
     private final CarUserManagerHelper mUserManagerHelper;
-    private CarUserService mCarUserService;
+    private final CarUserService mCarUserService;
     private final VmsClientManager mVmsClientManager;
     private final VmsSubscriberService mVmsSubscriberService;
     private final VmsPublisherService mVmsPublisherService;
@@ -116,6 +115,7 @@ public class ICarImpl extends ICar.Stub {
         mHal = new VehicleHal(vehicle);
         mVehicleInterfaceName = vehicleInterfaceName;
         mUserManagerHelper = new CarUserManagerHelper(serviceContext);
+        mCarUserService = new CarUserService(serviceContext, mUserManagerHelper);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
                 systemInterface);
@@ -153,8 +153,11 @@ public class ICarImpl extends ICar.Stub {
                 mContext, mCarPropertyService, mUserManagerHelper);
         mCarTrustAgentEnrollmentService = new CarTrustAgentEnrollmentService(serviceContext);
 
+        CarLocalServices.addService(CarUserService.class, mCarUserService);
+
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
+        allServices.add(mCarUserService);
         allServices.add(mSystemActivityMonitoringService);
         allServices.add(mCarPowerManagementService);
         allServices.add(mCarPropertyService);
@@ -178,9 +181,6 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mVmsSubscriberService);
         allServices.add(mVmsPublisherService);
         allServices.add(mCarTrustAgentEnrollmentService);
-        if (mUserManagerHelper.isHeadlessSystemUser()) {
-            allServices.add(new CarUserService(serviceContext, mUserManagerHelper));
-        }
         allServices.add(mCarLocationService);
         mAllServices = allServices.toArray(new CarServiceBase[allServices.size()]);
     }
@@ -204,6 +204,7 @@ public class ICarImpl extends ICar.Stub {
             mAllServices[i].release();
         }
         mHal.release();
+        CarLocalServices.removeAllServices();
     }
 
     void vehicleHalReconnected(IVehicle vehicle) {
@@ -223,6 +224,15 @@ public class ICarImpl extends ICar.Stub {
             mICarServiceHelper = ICarServiceHelper.Stub.asInterface(helper);
             mSystemInterface.setCarServiceHelper(mICarServiceHelper);
         }
+    }
+
+    @Override
+    public void setUserLockStatus(int userHandle, int unlocked) {
+        int uid = Binder.getCallingUid();
+        if (uid != Process.SYSTEM_UID) {
+            throw new SecurityException("Only allowed from system");
+        }
+        mCarUserService.setUserLockStatus(userHandle, unlocked == 1);
     }
 
     @Override
