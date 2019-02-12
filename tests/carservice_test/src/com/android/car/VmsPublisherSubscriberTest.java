@@ -25,9 +25,11 @@ import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriberManager;
+import android.content.Intent;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.os.UserHandle;
 
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
@@ -108,7 +110,11 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
 
     @Override
     protected synchronized void configureResourceOverrides(MockResources resources) {
-        resources.overrideResource(com.android.car.R.array.vmsPublisherClients,
+        // Override publisher client endpoint configurations
+        // Both lists must be set, but only one will be used (see setUp)
+        resources.overrideResource(com.android.car.R.array.vmsPublisherSystemClients,
+                new String[]{getFlattenComponent(VmsPublisherClientMockService.class)});
+        resources.overrideResource(com.android.car.R.array.vmsPublisherUserClients,
                 new String[]{getFlattenComponent(VmsPublisherClientMockService.class)});
     }
 
@@ -136,6 +142,16 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         mClientCallback = new TestClientCallback();
         mVmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, mClientCallback);
         mVmsSubscriberManager.subscribe(LAYER);
+
+        // Trigger VmsClientManager to bind to the VmsPublisherClientMockService
+        if (getContext().getUserId() == UserHandle.USER_SYSTEM) {
+            // If test is running as U0, trigger system client binding
+            getContext().sendBroadcast(new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
+        } else {
+            // If test is running as U10+, trigger user client binding
+            getContext().sendBroadcastAsUser(new Intent(Intent.ACTION_USER_SWITCHED),
+                    UserHandle.ALL);
+        }
     }
 
     public void postSetup() throws Exception {
@@ -151,6 +167,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     @Test
     public void testPublisherToSubscriber() throws Exception {
         postSetup();
+        assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         assertEquals(LAYER, mClientCallback.getLayer());
         assertTrue(Arrays.equals(PAYLOAD, mClientCallback.getPayload()));
     }

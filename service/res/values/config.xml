@@ -60,8 +60,11 @@
     </string-array>
     <!-- Default home activity -->
     <string name="defaultHomeActivity"><!--com.your.package/com.your.package.Activity--></string>
-    <!--  The com.android.car.VmsPublisherService will bind to this list of clients -->
-    <string-array translatable="false" name="vmsPublisherClients">
+    <!--  The com.android.car.vms.VmsClientManager will bind to this list of clients running as system user -->
+    <string-array translatable="false" name="vmsPublisherSystemClients">
+    </string-array>
+    <!--  The com.android.car.vms.VmsClientManager will bind to this list of clients running as current user -->
+    <string-array translatable="false" name="vmsPublisherUserClients">
     </string-array>
     <!-- Number of milliseconds to wait before trying re-bind to a crashed publisher. -->
     <integer name="millisecondsBeforeRebindToVmsPublisher">10000</integer>
