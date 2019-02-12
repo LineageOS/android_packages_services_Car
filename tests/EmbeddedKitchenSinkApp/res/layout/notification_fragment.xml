@@ -27,14 +27,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ongoing notifications can only be dismissed by the CANCEL ALL button."/>
+            android:text="Ongoing notifications can only be dismissed by the CANCEL ALL button. Red: heads-up; Blue: no heads-up."/>
 
         <Button
             android:id="@+id/cancel_all_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="Cancel All"
+            android:text="Cancel All Kitchensink Notifications"
             android:textSize="30sp"/>
 
         <LinearLayout
@@ -48,6 +48,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
+                android:background="#ffa9a8"
+                android:foreground="?android:attr/selectableItemBackground"
                 android:text="Message"
                 android:textSize="30sp"/>
 
@@ -56,7 +58,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Navigation"
+                android:background="#ffa9a8"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:text="Navigation (Only show heads-up, not shown in notification center)"
                 android:textSize="30sp"/>
 
             <Button
@@ -64,7 +68,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Persistent (No heads-up)"
+                android:text="Persistent (Can't dismiss)"
                 android:textSize="30sp"/>
 
             <Button
@@ -72,7 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Progress (No heads-up)"
+                android:text="Progress (Can't dismiss)"
                 android:textSize="30sp"/>
         </LinearLayout>
 
@@ -87,6 +91,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
+                android:background="#ffa9a8"
+                android:foreground="?android:attr/selectableItemBackground"
                 android:text="Importance: HIGH"
                 android:textSize="30sp"/>
 
@@ -95,7 +101,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Importance: DEFAULT (No heads-up)"
+                android:text="Importance: DEFAULT"
                 android:textSize="30sp"/>
         </LinearLayout>
 
@@ -110,7 +116,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Importance: LOW (No heads-up)"
+                android:text="Importance: LOW"
                 android:textSize="30sp"/>
 
             <Button
@@ -118,7 +124,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Importance: MIN (No heads-up)"
+                android:text="Importance: MIN"
                 android:textSize="30sp"/>
         </LinearLayout>
 
@@ -133,6 +139,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
+                android:background="#ffa9a8"
+                android:foreground="?android:attr/selectableItemBackground"
                 android:text="Car Emergency"
                 android:textSize="30sp"/>
 
@@ -141,6 +149,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
+                android:background="#ffa9a8"
+                android:foreground="?android:attr/selectableItemBackground"
                 android:text="Car Warning"
                 android:textSize="30sp"/>
 
@@ -149,7 +159,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Car Information (No heads-up)"
+                android:text="Car Information"
                 android:textSize="30sp"/>
         </LinearLayout>
     </LinearLayout>
