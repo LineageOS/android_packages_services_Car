@@ -34,6 +34,7 @@ import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.media.CarAudioManager;
+import android.car.media.CarMediaManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.settings.CarConfigurationManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
@@ -170,6 +171,12 @@ public final class Car {
      * Service name for {@link android.car.settings.CarConfigurationManager}
      */
     public static final String CAR_CONFIGURATION_SERVICE = "configuration";
+
+    /**
+     * Service name for {@link android.car.media.CarMediaManager}
+     * @hide
+     */
+    public static final String CAR_MEDIA_SERVICE = "car_media";
 
     /**
      * @hide
@@ -854,6 +861,9 @@ public final class Car {
                 break;
             case CAR_TRUST_AGENT_ENROLLMENT_SERVICE:
                 manager = new CarTrustAgentEnrollmentManager(binder, mContext, mEventHandler);
+                break;
+            case CAR_MEDIA_SERVICE:
+                manager = new CarMediaManager(binder);
                 break;
             default:
                 break;
