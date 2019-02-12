@@ -41,6 +41,9 @@ allow carservice_app {
 # Read and write /data/data subdirectory.
 allow carservice_app system_app_data_file:dir create_dir_perms;
 allow carservice_app system_app_data_file:{ file lnk_file } create_file_perms;
+# R/W /data/system/car
+allow carservice_app system_car_data_file:dir create_dir_perms;
+allow carservice_app system_car_data_file:{ file lnk_file } create_file_perms;
 
 # For I/O stats tracker
 allow carservice_app proc_uid_io_stats:file { read open getattr };

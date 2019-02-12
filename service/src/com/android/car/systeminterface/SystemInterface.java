@@ -68,8 +68,8 @@ public final class SystemInterface implements DisplayInterface, IOInterface,
     }
 
     @Override
-    public File getFilesDir() {
-        return mIOInterface.getFilesDir();
+    public File getSystemCarDir() {
+        return mIOInterface.getSystemCarDir();
     }
 
     @Override
