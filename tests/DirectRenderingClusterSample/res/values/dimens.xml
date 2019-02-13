@@ -32,6 +32,8 @@
     <dimen name="distance_text_size">20sp</dimen>
     <!-- Segment -->
     <dimen name="segment_text_size">15sp</dimen>
+    <!-- ETA -->
+    <dimen name="eta_text_size">15sp</dimen>
     <!-- Cue -->
     <dimen name="cue_line_height">15sp</dimen>
     <!-- Lane -->
