@@ -15,10 +15,8 @@
  */
 package android.car.navigation;
 
-import android.car.CarApiUtil;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -49,16 +47,12 @@ public final class CarNavigationStatusManager implements CarManagerBase {
      *
      * @param eventType event type
      * @param bundle object that holds data about the event
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void sendEvent(int eventType, Bundle bundle) throws CarNotConnectedException {
+    public void sendEvent(int eventType, Bundle bundle) {
         try {
             mService.onEvent(eventType, bundle);
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Illegal state sending event " + eventType, e);
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            handleCarServiceRemoteExceptionAndThrow(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -69,19 +63,11 @@ public final class CarNavigationStatusManager implements CarManagerBase {
     }
 
     /** Returns navigation features of instrument cluster */
-    public CarNavigationInstrumentCluster getInstrumentClusterInfo()
-            throws CarNotConnectedException {
+    public CarNavigationInstrumentCluster getInstrumentClusterInfo() {
         try {
             return mService.getInstrumentClusterInfo();
         } catch (RemoteException e) {
-            handleCarServiceRemoteExceptionAndThrow(e);
+            throw e.rethrowFromSystemServer();
         }
-        return null;
-    }
-
-    private void handleCarServiceRemoteExceptionAndThrow(RemoteException e)
-            throws CarNotConnectedException {
-        Log.e(TAG, "RemoteException from car service:" + e);
-        throw new CarNotConnectedException(e);
     }
 }

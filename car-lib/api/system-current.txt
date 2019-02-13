@@ -44,8 +44,8 @@ package android.car {
 
   public final class CarProjectionManager {
     method public void onCarDisconnected();
-    method public void registerProjectionListener(android.car.CarProjectionManager.CarProjectionListener, int) throws android.car.CarNotConnectedException;
-    method public void registerProjectionRunner(android.content.Intent) throws android.car.CarNotConnectedException;
+    method public void registerProjectionListener(android.car.CarProjectionManager.CarProjectionListener, int);
+    method public void registerProjectionRunner(android.content.Intent);
     method public boolean releaseBluetoothProfileInhibit(android.bluetooth.BluetoothDevice, int, android.os.IBinder);
     method public boolean requestBluetoothProfileInhibit(android.bluetooth.BluetoothDevice, int, android.os.IBinder);
     method public void startProjectionAccessPoint(android.car.CarProjectionManager.ProjectionAccessPointCallback);
@@ -142,9 +142,9 @@ package android.car {
 package android.car.cluster {
 
   @Deprecated public class CarInstrumentClusterManager {
-    method @Deprecated public void registerCallback(String, android.car.cluster.CarInstrumentClusterManager.Callback) throws android.car.CarNotConnectedException;
-    method @Deprecated public void startActivity(android.content.Intent) throws android.car.CarNotConnectedException;
-    method @Deprecated public void unregisterCallback(android.car.cluster.CarInstrumentClusterManager.Callback) throws android.car.CarNotConnectedException;
+    method @Deprecated public void registerCallback(String, android.car.cluster.CarInstrumentClusterManager.Callback);
+    method @Deprecated public void startActivity(android.content.Intent);
+    method @Deprecated public void unregisterCallback(android.car.cluster.CarInstrumentClusterManager.Callback);
     field @Deprecated public static final String CATEGORY_NAVIGATION = "android.car.cluster.NAVIGATION";
     field @Deprecated public static final String KEY_EXTRA_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
   }
@@ -221,8 +221,8 @@ package android.car.content.pm {
   }
 
   public final class CarPackageManager {
-    method public boolean isActivityBackedBySafeActivity(android.content.ComponentName) throws android.car.CarNotConnectedException;
-    method public void setAppBlockingPolicy(String, android.car.content.pm.CarAppBlockingPolicy, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException, java.lang.SecurityException;
+    method public boolean isActivityBackedBySafeActivity(android.content.ComponentName);
+    method public void setAppBlockingPolicy(String, android.car.content.pm.CarAppBlockingPolicy, int);
     field public static final int FLAG_SET_POLICY_ADD = 2; // 0x2
     field public static final int FLAG_SET_POLICY_REMOVE = 4; // 0x4
     field public static final int FLAG_SET_POLICY_WAIT_FOR_CHANGE = 1; // 0x1
@@ -352,17 +352,17 @@ package android.car.diagnostic {
   }
 
   public final class CarDiagnosticManager {
-    method public boolean clearFreezeFrames(long...) throws android.car.CarNotConnectedException;
-    method @Nullable public android.car.diagnostic.CarDiagnosticEvent getFreezeFrame(long) throws android.car.CarNotConnectedException;
-    method public long[] getFreezeFrameTimestamps() throws android.car.CarNotConnectedException;
-    method @Nullable public android.car.diagnostic.CarDiagnosticEvent getLatestLiveFrame() throws android.car.CarNotConnectedException;
-    method public boolean isClearFreezeFramesSupported() throws android.car.CarNotConnectedException;
-    method public boolean isFreezeFrameNotificationSupported() throws android.car.CarNotConnectedException;
-    method public boolean isGetFreezeFrameSupported() throws android.car.CarNotConnectedException;
-    method public boolean isLiveFrameSupported() throws android.car.CarNotConnectedException;
-    method public boolean isSelectiveClearFreezeFramesSupported() throws android.car.CarNotConnectedException;
+    method public boolean clearFreezeFrames(long...);
+    method @Nullable public android.car.diagnostic.CarDiagnosticEvent getFreezeFrame(long);
+    method public long[] getFreezeFrameTimestamps();
+    method @Nullable public android.car.diagnostic.CarDiagnosticEvent getLatestLiveFrame();
+    method public boolean isClearFreezeFramesSupported();
+    method public boolean isFreezeFrameNotificationSupported();
+    method public boolean isGetFreezeFrameSupported();
+    method public boolean isLiveFrameSupported();
+    method public boolean isSelectiveClearFreezeFramesSupported();
     method public void onCarDisconnected();
-    method public boolean registerListener(android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener, @android.car.diagnostic.CarDiagnosticManager.FrameType int, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    method public boolean registerListener(android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener, @android.car.diagnostic.CarDiagnosticManager.FrameType int, int);
     method public void unregisterListener(android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener);
     field public static final int FRAME_TYPE_FREEZE = 1; // 0x1
     field public static final int FRAME_TYPE_LIVE = 0; // 0x0
@@ -506,9 +506,9 @@ package android.car.drivingstate {
   }
 
   public final class CarDrivingStateManager {
-    method @Nullable public android.car.drivingstate.CarDrivingStateEvent getCurrentCarDrivingState() throws android.car.CarNotConnectedException;
-    method public void registerListener(@NonNull android.car.drivingstate.CarDrivingStateManager.CarDrivingStateEventListener) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public void unregisterListener() throws android.car.CarNotConnectedException;
+    method @Nullable public android.car.drivingstate.CarDrivingStateEvent getCurrentCarDrivingState();
+    method public void registerListener(@NonNull android.car.drivingstate.CarDrivingStateManager.CarDrivingStateEventListener);
+    method public void unregisterListener();
   }
 
   public static interface CarDrivingStateManager.CarDrivingStateEventListener {
@@ -581,14 +581,14 @@ package android.car.hardware {
   }
 
   public final class CarVendorExtensionManager {
-    method public <E> E getGlobalProperty(Class<E>, int) throws android.car.CarNotConnectedException;
-    method public java.util.List<android.car.hardware.CarPropertyConfig> getProperties() throws android.car.CarNotConnectedException;
-    method public <E> E getProperty(Class<E>, int, int) throws android.car.CarNotConnectedException;
-    method public boolean isPropertyAvailable(int, int) throws android.car.CarNotConnectedException;
-    method public void registerCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback) throws android.car.CarNotConnectedException;
-    method public <E> void setGlobalProperty(Class<E>, int, E) throws android.car.CarNotConnectedException;
-    method public <E> void setProperty(Class<E>, int, int, E) throws android.car.CarNotConnectedException;
-    method public void unregisterCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback) throws android.car.CarNotConnectedException;
+    method public <E> E getGlobalProperty(Class<E>, int);
+    method public java.util.List<android.car.hardware.CarPropertyConfig> getProperties();
+    method public <E> E getProperty(Class<E>, int, int);
+    method public boolean isPropertyAvailable(int, int);
+    method public void registerCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback);
+    method public <E> void setGlobalProperty(Class<E>, int, E);
+    method public <E> void setProperty(Class<E>, int, int, E);
+    method public void unregisterCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback);
   }
 
   public static interface CarVendorExtensionManager.CarVendorExtensionCallback {
@@ -601,16 +601,16 @@ package android.car.hardware {
 package android.car.hardware.cabin {
 
   public final class CarCabinManager {
-    method public boolean getBooleanProperty(int, int) throws android.car.CarNotConnectedException;
-    method public float getFloatProperty(int, int) throws android.car.CarNotConnectedException;
-    method public int getIntProperty(int, int) throws android.car.CarNotConnectedException;
-    method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList() throws android.car.CarNotConnectedException;
+    method public boolean getBooleanProperty(int, int);
+    method public float getFloatProperty(int, int);
+    method public int getIntProperty(int, int);
+    method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList();
     method public static boolean isZonedProperty(int);
-    method public void registerCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback) throws android.car.CarNotConnectedException;
-    method public void setBooleanProperty(int, int, boolean) throws android.car.CarNotConnectedException;
-    method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
-    method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
-    method public void unregisterCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback) throws android.car.CarNotConnectedException;
+    method public void registerCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback);
+    method public void setBooleanProperty(int, int, boolean);
+    method public void setFloatProperty(int, int, float);
+    method public void setIntProperty(int, int, int);
+    method public void unregisterCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback);
     field public static final int ID_DOOR_LOCK = 371198722; // 0x16200b02
     field public static final int ID_DOOR_MOVE = 373295873; // 0x16400b01
     field public static final int ID_DOOR_POS = 373295872; // 0x16400b00
@@ -662,15 +662,15 @@ package android.car.hardware.cabin {
 package android.car.hardware.hvac {
 
   public final class CarHvacManager {
-    method public boolean getBooleanProperty(int, int) throws android.car.CarNotConnectedException;
-    method public float getFloatProperty(int, int) throws android.car.CarNotConnectedException;
-    method public int getIntProperty(int, int) throws android.car.CarNotConnectedException;
-    method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList() throws android.car.CarNotConnectedException;
-    method public boolean isPropertyAvailable(int, int) throws android.car.CarNotConnectedException;
-    method public void registerCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback) throws android.car.CarNotConnectedException;
-    method public void setBooleanProperty(int, int, boolean) throws android.car.CarNotConnectedException;
-    method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
-    method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
+    method public boolean getBooleanProperty(int, int);
+    method public float getFloatProperty(int, int);
+    method public int getIntProperty(int, int);
+    method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList();
+    method public boolean isPropertyAvailable(int, int);
+    method public void registerCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback);
+    method public void setBooleanProperty(int, int, boolean);
+    method public void setFloatProperty(int, int, float);
+    method public void setIntProperty(int, int, int);
     method public void unregisterCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback);
     field public static final int FAN_DIRECTION_DEFROST = 4; // 0x4
     field public static final int FAN_DIRECTION_FACE = 1; // 0x1
@@ -759,15 +759,15 @@ package android.car.navigation {
 package android.car.storagemonitoring {
 
   public final class CarStorageMonitoringManager {
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.IoStatsEntry> getAggregateIoStats() throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.IoStatsEntry> getBootIoStats() throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.IoStats> getIoStatsDeltas() throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public int getPreEolIndicatorStatus() throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public long getShutdownDiskWriteAmount() throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public android.car.storagemonitoring.WearEstimate getWearEstimate() throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.WearEstimateChange> getWearEstimateHistory() throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public void registerListener(android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener) throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public void unregisterListener(android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener) throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.IoStatsEntry> getAggregateIoStats();
+    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.IoStatsEntry> getBootIoStats();
+    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.IoStats> getIoStatsDeltas();
+    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public int getPreEolIndicatorStatus();
+    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public long getShutdownDiskWriteAmount();
+    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public android.car.storagemonitoring.WearEstimate getWearEstimate();
+    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.WearEstimateChange> getWearEstimateHistory();
+    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public void registerListener(android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public void unregisterListener(android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener);
     field public static final String INTENT_EXCESSIVE_IO = "android.car.storagemonitoring.EXCESSIVE_IO";
     field public static final int PRE_EOL_INFO_NORMAL = 1; // 0x1
     field public static final int PRE_EOL_INFO_UNKNOWN = 0; // 0x0
@@ -895,16 +895,16 @@ package android.car.test {
 package android.car.trust {
 
   public final class CarTrustAgentEnrollmentManager {
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void activateToken(long) throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void enrollmentHandshakeAccepted() throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public java.util.List<java.lang.Integer> getEnrollmentHandlesForUser(int) throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void initiateEnrollmentHandshake(android.bluetooth.BluetoothDevice) throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void revokeTrust(long) throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setBleCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback) throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setEnrollmentCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback) throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void startEnrollmentAdvertising() throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void stopEnrollmentAdvertising() throws android.car.CarNotConnectedException;
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void terminateEnrollmentHandshake() throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void activateToken(long);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void enrollmentHandshakeAccepted();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public java.util.List<java.lang.Integer> getEnrollmentHandlesForUser(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void initiateEnrollmentHandshake(android.bluetooth.BluetoothDevice);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void revokeTrust(long);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setBleCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setEnrollmentCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void startEnrollmentAdvertising();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void stopEnrollmentAdvertising();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void terminateEnrollmentHandshake();
   }
 
   public static interface CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback {
@@ -997,14 +997,14 @@ package android.car.vms {
   }
 
   public final class VmsSubscriberManager {
-    method public void clearVmsSubscriberClientCallback() throws android.car.CarNotConnectedException;
-    method public android.car.vms.VmsAvailableLayers getAvailableLayers() throws android.car.CarNotConnectedException, java.lang.IllegalStateException;
-    method public byte[] getPublisherInfo(int) throws android.car.CarNotConnectedException, java.lang.IllegalStateException;
-    method public void setVmsSubscriberClientCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback) throws android.car.CarNotConnectedException;
-    method public void startMonitoring() throws android.car.CarNotConnectedException;
+    method public void clearVmsSubscriberClientCallback();
+    method public android.car.vms.VmsAvailableLayers getAvailableLayers();
+    method public byte[] getPublisherInfo(int);
+    method public void setVmsSubscriberClientCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback);
+    method public void startMonitoring();
     method public void stopMonitoring();
-    method public void subscribe(android.car.vms.VmsLayer) throws android.car.CarNotConnectedException;
-    method public void subscribe(android.car.vms.VmsLayer, int) throws android.car.CarNotConnectedException;
+    method public void subscribe(android.car.vms.VmsLayer);
+    method public void subscribe(android.car.vms.VmsLayer, int);
     method public void unsubscribe(android.car.vms.VmsLayer);
     method public void unsubscribe(android.car.vms.VmsLayer, int);
   }

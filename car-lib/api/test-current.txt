@@ -10,8 +10,8 @@ package android.car.content.pm {
 package android.car.drivingstate {
 
   public final class CarUxRestrictionsManager {
-    method @RequiresPermission("android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION") public android.car.drivingstate.CarUxRestrictionsConfiguration getConfig() throws android.car.CarNotConnectedException;
-    method @Nullable @RequiresPermission("android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION") public android.car.drivingstate.CarUxRestrictionsConfiguration getStagedConfig() throws android.car.CarNotConnectedException;
+    method @RequiresPermission("android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION") public android.car.drivingstate.CarUxRestrictionsConfiguration getConfig();
+    method @Nullable @RequiresPermission("android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION") public android.car.drivingstate.CarUxRestrictionsConfiguration getStagedConfig();
   }
 
 }
@@ -19,7 +19,7 @@ package android.car.drivingstate {
 package android.car.media {
 
   public final class CarAudioManager {
-    method public boolean isDynamicRoutingEnabled() throws android.car.CarNotConnectedException;
+    method public boolean isDynamicRoutingEnabled();
   }
 
 }

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.content.pm.AppBlockingPackageInfo;
 import android.car.content.pm.CarAppBlockingPolicy;
 import android.car.content.pm.CarPackageManager;
@@ -69,16 +68,10 @@ public class CarPackageManagerTest extends MockedCarTestBase {
         }, POLLING_MAX_RETRY, POLLING_SLEEP));
         final String thisPackage = getContext().getPackageName();
         final String serviceClassName = "DOES_NOT_MATTER";
-        assertTrue(pollingCheck(new PollingChecker() {
-            @Override
-            public boolean check() {
-                try {
-                    return mCarPm.isServiceDistractionOptimized(thisPackage, serviceClassName);
-                } catch (CarNotConnectedException e) {
-                    return false;
-                }
-            }
-        }, POLLING_MAX_RETRY, POLLING_SLEEP));
+        assertTrue(pollingCheck(
+                () -> mCarPm.isServiceDistractionOptimized(thisPackage, serviceClassName),
+                POLLING_MAX_RETRY,
+                POLLING_SLEEP));
         assertTrue(mCarPm.isServiceDistractionOptimized(thisPackage, null));
         assertFalse(mCarPm.isServiceDistractionOptimized(serviceClassName, serviceClassName));
         assertFalse(mCarPm.isServiceDistractionOptimized(serviceClassName, null));

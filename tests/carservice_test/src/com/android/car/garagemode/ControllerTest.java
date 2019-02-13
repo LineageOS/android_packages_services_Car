@@ -28,7 +28,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.content.Context;
@@ -125,7 +124,7 @@ public class ControllerTest {
     }
 
     @Test
-    public void testWakeupTimeProgression() throws CarNotConnectedException {
+    public void testWakeupTimeProgression() {
         // Doing initial suspend
         startAndAssertGarageModeWithSignal(CarPowerStateListener.SHUTDOWN_PREPARE);
 

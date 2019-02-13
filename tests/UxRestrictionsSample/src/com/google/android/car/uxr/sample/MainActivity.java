@@ -22,7 +22,6 @@ import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.content.pm.CarPackageManager;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateManager;
@@ -84,24 +83,20 @@ public class MainActivity extends Activity {
                 public void onServiceConnected(ComponentName name, IBinder iBinder) {
                     Log.d(TAG, "Connected to " + name.flattenToString());
                     // Get Driving State & UXR manager
-                    try {
-                        mCarDrivingStateManager = (CarDrivingStateManager) mCar.getCarManager(
-                                Car.CAR_DRIVING_STATE_SERVICE);
-                        mCarUxRestrictionsManager = (CarUxRestrictionsManager) mCar.getCarManager(
-                                Car.CAR_UX_RESTRICTION_SERVICE);
-                        mCarPackageManager = (CarPackageManager) mCar.getCarManager(
-                                Car.PACKAGE_SERVICE);
-                        if (mCarDrivingStateManager != null) {
-                            mCarDrivingStateManager.registerListener(mDrvStateChangeListener);
-                            updateDrivingStateText(
-                                    mCarDrivingStateManager.getCurrentCarDrivingState());
-                        }
-                        if (mCarUxRestrictionsManager != null) {
-                            mCarUxRestrictionsManager.registerListener(mUxRChangeListener);
-                            updateUxRText(mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
-                        }
-                    } catch (CarNotConnectedException e) {
-                        Log.e(TAG, "Failed to get a connection", e);
+                    mCarDrivingStateManager = (CarDrivingStateManager) mCar.getCarManager(
+                            Car.CAR_DRIVING_STATE_SERVICE);
+                    mCarUxRestrictionsManager = (CarUxRestrictionsManager) mCar.getCarManager(
+                            Car.CAR_UX_RESTRICTION_SERVICE);
+                    mCarPackageManager = (CarPackageManager) mCar.getCarManager(
+                            Car.PACKAGE_SERVICE);
+                    if (mCarDrivingStateManager != null) {
+                        mCarDrivingStateManager.registerListener(mDrvStateChangeListener);
+                        updateDrivingStateText(
+                                mCarDrivingStateManager.getCurrentCarDrivingState());
+                    }
+                    if (mCarUxRestrictionsManager != null) {
+                        mCarUxRestrictionsManager.registerListener(mUxRChangeListener);
+                        updateUxRText(mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
                     }
                 }
 
@@ -229,11 +224,7 @@ public class MainActivity extends Activity {
                 .setUxRestrictions(DRIVING_STATE_MOVING, reqOpt, selectedRestrictions)
                 .build();
 
-        try {
-            mCarUxRestrictionsManager.saveUxRestrictionsConfigurationForNextBoot(config);
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Car not connected", e);
-        }
+        mCarUxRestrictionsManager.saveUxRestrictionsConfigurationForNextBoot(config);
     }
 
     private void showStagedUxRestrictionsConfig() {
@@ -254,8 +245,6 @@ public class MainActivity extends Activity {
                     .setTitle(R.string.staged_config_title)
                     .setMessage(charWriter.toString())
                     .show();
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Car not connected", e);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -279,8 +268,6 @@ public class MainActivity extends Activity {
                     .setTitle(R.string.prod_config_title)
                     .setMessage(charWriter.toString())
                     .show();
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Car not connected", e);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -294,15 +281,11 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            if (mCarUxRestrictionsManager != null) {
-                mCarUxRestrictionsManager.unregisterListener();
-            }
-            if (mCarDrivingStateManager != null) {
-                mCarDrivingStateManager.unregisterListener();
-            }
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Error unregistering listeners", e);
+        if (mCarUxRestrictionsManager != null) {
+            mCarUxRestrictionsManager.unregisterListener();
+        }
+        if (mCarDrivingStateManager != null) {
+            mCarDrivingStateManager.unregisterListener();
         }
         if (mCar != null) {
             mCar.disconnect();

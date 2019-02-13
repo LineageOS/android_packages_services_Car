@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleGear;
@@ -228,7 +227,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testIgnitionState() throws CarNotConnectedException {
+    public void testIgnitionState() {
         CarSensorEvent event = mCarSensorManager.getLatestSensorEvent(
                 CarSensorManager.SENSOR_TYPE_IGNITION_STATE);
         assertNotNull(event);

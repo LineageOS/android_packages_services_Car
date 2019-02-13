@@ -18,7 +18,6 @@ package com.google.android.car.kitchensink.cluster;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarAppFocusManager;
-import android.car.CarNotConnectedException;
 import android.car.navigation.CarNavigationStatusManager;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
@@ -67,14 +66,10 @@ public class InstrumentClusterFragment extends Fragment {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Connected to Car Service");
-            try {
-                mCarNavigationStatusManager = (CarNavigationStatusManager) mCarApi
-                        .getCarManager(Car.CAR_NAVIGATION_SERVICE);
-                mCarAppFocusManager = (CarAppFocusManager) mCarApi
-                        .getCarManager(Car.APP_FOCUS_SERVICE);
-            } catch (CarNotConnectedException e) {
-                Log.e(TAG, "Car is not connected!", e);
-            }
+            mCarNavigationStatusManager = (CarNavigationStatusManager) mCarApi
+                    .getCarManager(Car.CAR_NAVIGATION_SERVICE);
+            mCarAppFocusManager = (CarAppFocusManager) mCarApi
+                    .getCarManager(Car.APP_FOCUS_SERVICE);
         }
 
         @Override
@@ -222,14 +217,10 @@ public class InstrumentClusterFragment extends Fragment {
      * Sends one update of the navigation state through the {@link CarNavigationStatusManager}
      */
     private void sendTurn(@NonNull NavigationState state) {
-        try {
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("navstate", state.toParcelable());
-            mCarNavigationStatusManager.sendEvent(1, bundle);
-            Log.i(TAG, "Sending nav state: " + state);
-        } catch(CarNotConnectedException e) {
-            Log.e(TAG, "Failed to send turn information.", e);
-        }
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("navstate", state.toParcelable());
+        mCarNavigationStatusManager.sendEvent(1, bundle);
+        Log.i(TAG, "Sending nav state: " + state);
     }
 
     private void initCluster() {
@@ -237,29 +228,20 @@ public class InstrumentClusterFragment extends Fragment {
             Log.i(TAG, "Already has focus");
             return;
         }
-        try {
-            mCarAppFocusManager.addFocusListener(mOnAppFocusChangedListener,
-                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-            mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
-                    mFocusCallback);
-            Log.i(TAG, "Focus requested");
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to request focus", e);
-        }
+        mCarAppFocusManager.addFocusListener(mOnAppFocusChangedListener,
+                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+        mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
+                mFocusCallback);
+        Log.i(TAG, "Focus requested");
     }
 
     private boolean hasFocus() {
-        try {
-            boolean ownsFocus = mCarAppFocusManager.isOwningFocus(mFocusCallback,
-                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Owns APP_FOCUS_TYPE_NAVIGATION: " + ownsFocus);
-            }
-            return ownsFocus;
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to get owned focus", e);
-            return false;
+        boolean ownsFocus = mCarAppFocusManager.isOwningFocus(mFocusCallback,
+                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Owns APP_FOCUS_TYPE_NAVIGATION: " + ownsFocus);
         }
+        return ownsFocus;
     }
 
     private void stopCluster() {

@@ -22,7 +22,6 @@ import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_
 
 import android.app.Activity;
 import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.content.pm.CarPackageManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
@@ -87,20 +86,16 @@ public class ActivityBlockingActivity extends Activity {
         mCar = Car.createCar(this, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                try {
-                    if (mExitRequested) {
-                        handleRestartingTask();
-                    }
-                    mUxRManager = (CarUxRestrictionsManager) mCar.getCarManager(
-                            Car.CAR_UX_RESTRICTION_SERVICE);
-                    // This activity would have been launched only in a restricted state.
-                    // But ensuring when the service connection is established, that we are still
-                    // in a restricted state.
-                    handleUxRChange(mUxRManager.getCurrentCarUxRestrictions());
-                    mUxRManager.registerListener(ActivityBlockingActivity.this::handleUxRChange);
-                } catch (CarNotConnectedException e) {
-                    Log.e(CarLog.TAG_AM, "Failed to get CarUxRestrictionsManager", e);
+                if (mExitRequested) {
+                    handleRestartingTask();
                 }
+                mUxRManager = (CarUxRestrictionsManager) mCar.getCarManager(
+                        Car.CAR_UX_RESTRICTION_SERVICE);
+                // This activity would have been launched only in a restricted state.
+                // But ensuring when the service connection is established, that we are still
+                // in a restricted state.
+                handleUxRChange(mUxRManager.getCurrentCarUxRestrictions());
+                mUxRManager.registerListener(ActivityBlockingActivity.this::handleUxRChange);
             }
 
             @Override
@@ -213,11 +208,7 @@ public class ActivityBlockingActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         if (mCar.isConnected() && mUxRManager != null) {
-            try {
-                mUxRManager.unregisterListener();
-            } catch (CarNotConnectedException e) {
-                Log.e(CarLog.TAG_AM, "Cannot unregisterListener", e);
-            }
+            mUxRManager.unregisterListener();
             mUxRManager = null;
             mCar.disconnect();
         }
@@ -289,18 +280,12 @@ public class ActivityBlockingActivity extends Activity {
 
         // Lock on self to avoid restarting the same task twice.
         synchronized (this) {
-            try {
-                if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                    Log.i(CarLog.TAG_AM, "Restarting task " + mBlockedTaskId);
-                }
-                CarPackageManager carPm = (CarPackageManager)
-                        mCar.getCarManager(Car.PACKAGE_SERVICE);
-                carPm.restartTask(mBlockedTaskId);
-            } catch (CarNotConnectedException e) {
-                // We should never be here since Car connection is already checked.
-                Log.e(CarLog.TAG_AM, "Car connection is not available.", e);
-                return;
+            if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
+                Log.i(CarLog.TAG_AM, "Restarting task " + mBlockedTaskId);
             }
+            CarPackageManager carPm = (CarPackageManager)
+                    mCar.getCarManager(Car.PACKAGE_SERVICE);
+            carPm.restartTask(mBlockedTaskId);
             finish();
         }
     }

@@ -18,7 +18,6 @@ package android.car.cluster;
 
 import android.annotation.SystemApi;
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -66,7 +65,7 @@ public class CarInstrumentClusterManager implements CarManagerBase {
      * @hide
      */
     @SystemApi
-    public void startActivity(Intent intent) throws CarNotConnectedException {
+    public void startActivity(Intent intent) {
         // No-op
     }
 
@@ -83,8 +82,7 @@ public class CarInstrumentClusterManager implements CarManagerBase {
      * @hide
      */
     @SystemApi
-    public void registerCallback(String category, Callback callback)
-            throws CarNotConnectedException {
+    public void registerCallback(String category, Callback callback) {
         // No-op
     }
 
@@ -98,7 +96,7 @@ public class CarInstrumentClusterManager implements CarManagerBase {
      * @hide
      */
     @SystemApi
-    public void unregisterCallback(Callback callback) throws CarNotConnectedException {
+    public void unregisterCallback(Callback callback) {
         // No-op
     }
 

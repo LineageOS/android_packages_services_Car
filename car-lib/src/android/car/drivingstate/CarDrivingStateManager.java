@@ -19,10 +19,7 @@ package android.car.drivingstate;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
-import android.car.drivingstate.ICarDrivingState;
 import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
@@ -30,6 +27,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
+
 import java.lang.ref.WeakReference;
 
 /**
@@ -80,8 +78,7 @@ public final class CarDrivingStateManager implements CarManagerBase {
      *
      * @param listener  {@link CarDrivingStateEventListener}
      */
-    public synchronized void registerListener(@NonNull CarDrivingStateEventListener listener)
-            throws CarNotConnectedException, IllegalArgumentException {
+    public synchronized void registerListener(@NonNull CarDrivingStateEventListener listener) {
         if (listener == null) {
             if (VDBG) {
                 Log.v(TAG, "registerCarDrivingStateEventListener(): null listener");
@@ -103,11 +100,7 @@ public final class CarDrivingStateManager implements CarManagerBase {
             // register to the Service for getting notified
             mDrivingService.registerDrivingStateChangeListener(mListenerToService);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not register a listener to Driving State Service " + e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Could not register a listener to Driving State Service " + e);
-            Car.checkCarNotConnectedExceptionFromCarService(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -115,8 +108,7 @@ public final class CarDrivingStateManager implements CarManagerBase {
      * Unregister the registered {@link CarDrivingStateEventListener} for the given driving event
      * type.
      */
-    public synchronized void unregisterListener()
-            throws CarNotConnectedException {
+    public synchronized void unregisterListener() {
         if (mDrvStateEventListener == null) {
             if (DBG) {
                 Log.d(TAG, "Listener was not previously registered");
@@ -128,8 +120,7 @@ public final class CarDrivingStateManager implements CarManagerBase {
             mDrvStateEventListener = null;
             mListenerToService = null;
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not unregister listener from Driving State Service " + e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -139,13 +130,11 @@ public final class CarDrivingStateManager implements CarManagerBase {
      * @return {@link CarDrivingStateEvent} corresponding to the given eventType
      */
     @Nullable
-    public CarDrivingStateEvent getCurrentCarDrivingState()
-            throws CarNotConnectedException {
+    public CarDrivingStateEvent getCurrentCarDrivingState() {
         try {
             return mDrivingService.getCurrentDrivingState();
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not get current driving state " + e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 

@@ -20,7 +20,6 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static java.lang.Integer.parseInt;
 
 import android.app.ActivityOptions;
-import android.car.CarNotConnectedException;
 import android.car.cluster.ClusterActivityState;
 import android.car.cluster.renderer.InstrumentClusterRenderingService;
 import android.car.cluster.renderer.NavigationRenderer;
@@ -109,33 +108,29 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
         @Override
         public void handleMessage(Message msg) {
             Log.d(TAG, "handleMessage: " + msg.what);
-            try {
-                switch (msg.what) {
-                    case MSG_SET_ACTIVITY_LAUNCH_OPTIONS: {
-                        int displayId = msg.getData().getInt(MSG_KEY_ACTIVITY_DISPLAY_ID);
-                        Bundle state = msg.getData().getBundle(MSG_KEY_ACTIVITY_STATE);
-                        String category = msg.getData().getString(MSG_KEY_CATEGORY);
-                        ActivityOptions options = displayId != Display.INVALID_DISPLAY
-                                ? ActivityOptions.makeBasic().setLaunchDisplayId(displayId)
-                                : null;
-                        mService.get().setClusterActivityLaunchOptions(category, options);
-                        Log.d(TAG, String.format("activity options set: %s = %s (displayeId: %d)",
-                                category, options, options.getLaunchDisplayId()));
-                        mService.get().setClusterActivityState(category, state);
-                        Log.d(TAG, String.format("activity state set: %s = %s", category, state));
-                        break;
-                    }
-                    case MSG_REGISTER_CLIENT:
-                        mService.get().mClients.add(msg.replyTo);
-                        break;
-                    case MSG_UNREGISTER_CLIENT:
-                        mService.get().mClients.remove(msg.replyTo);
-                        break;
-                    default:
-                        super.handleMessage(msg);
+            switch (msg.what) {
+                case MSG_SET_ACTIVITY_LAUNCH_OPTIONS: {
+                    int displayId = msg.getData().getInt(MSG_KEY_ACTIVITY_DISPLAY_ID);
+                    Bundle state = msg.getData().getBundle(MSG_KEY_ACTIVITY_STATE);
+                    String category = msg.getData().getString(MSG_KEY_CATEGORY);
+                    ActivityOptions options = displayId != Display.INVALID_DISPLAY
+                            ? ActivityOptions.makeBasic().setLaunchDisplayId(displayId)
+                            : null;
+                    mService.get().setClusterActivityLaunchOptions(category, options);
+                    Log.d(TAG, String.format("activity options set: %s = %s (displayeId: %d)",
+                            category, options, options.getLaunchDisplayId()));
+                    mService.get().setClusterActivityState(category, state);
+                    Log.d(TAG, String.format("activity state set: %s = %s", category, state));
+                    break;
                 }
-            } catch (CarNotConnectedException ex) {
-                Log.e(TAG, "Unable to execute message " + msg.what, ex);
+                case MSG_REGISTER_CLIENT:
+                    mService.get().mClients.add(msg.replyTo);
+                    break;
+                case MSG_UNREGISTER_CLIENT:
+                    mService.get().mClients.remove(msg.replyTo);
+                    break;
+                default:
+                    super.handleMessage(msg);
             }
         }
     }
@@ -315,12 +310,8 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
                 if (args.length > 5) {
                     Rect unobscuredArea = new Rect(parseInt(args[2]), parseInt(args[3]),
                             parseInt(args[4]), parseInt(args[5]));
-                    try {
-                        setClusterActivityState(args[1],
-                                ClusterActivityState.create(true, unobscuredArea).toBundle());
-                    } catch (CarNotConnectedException e) {
-                        Log.i(TAG, "Failed to set activity state.", e);
-                    }
+                    setClusterActivityState(args[1],
+                            ClusterActivityState.create(true, unobscuredArea).toBundle());
                 } else {
                     Log.i(TAG, "wrong format, expected: category left top right bottom");
                 }

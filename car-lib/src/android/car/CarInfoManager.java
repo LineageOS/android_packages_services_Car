@@ -116,7 +116,7 @@ public final class CarInfoManager implements CarManagerBase{
      * @return Manufacturer of the car.  Null if not available.
      */
     @Nullable
-    public String getManufacturer() throws CarNotConnectedException {
+    public String getManufacturer() {
         CarPropertyValue<String> carProp = mCarPropertyMgr.getProperty(String.class,
                 BASIC_INFO_KEY_MANUFACTURER, 0);
         return carProp != null ? carProp.getValue() : null;
@@ -128,7 +128,7 @@ public final class CarInfoManager implements CarManagerBase{
      * name may be used for different cars depending on manufacturers.
      */
     @Nullable
-    public String getModel() throws CarNotConnectedException {
+    public String getModel() {
         CarPropertyValue<String> carProp = mCarPropertyMgr.getProperty(
                 String.class, BASIC_INFO_KEY_MODEL, 0);
         return carProp != null ? carProp.getValue() : null;
@@ -138,7 +138,7 @@ public final class CarInfoManager implements CarManagerBase{
      * @return Model year of the car in AC.  Null if not available.
      */
     @Nullable
-    public String getModelYear() throws CarNotConnectedException {
+    public String getModelYear() {
         CarPropertyValue<String> carProp = mCarPropertyMgr.getProperty(String.class,
                 BASIC_INFO_KEY_MODEL_YEAR, 0);
         return carProp != null ? carProp.getValue() : null;
@@ -150,7 +150,7 @@ public final class CarInfoManager implements CarManagerBase{
      * available.
      */
     // TODO: BASIC_INFO_KEY_VEHICLE_ID property?
-    public String getVehicleId() throws CarNotConnectedException {
+    public String getVehicleId() {
         return "";
     }
 
@@ -158,7 +158,7 @@ public final class CarInfoManager implements CarManagerBase{
      * @return Fuel capacity of the car in milliliters.  0 if car doesn't run on
      *         fuel.
      */
-    public float getFuelCapacity() throws CarNotConnectedException {
+    public float getFuelCapacity() {
         CarPropertyValue<Float> carProp = mCarPropertyMgr.getProperty(Float.class,
                 BASIC_INFO_FUEL_CAPACITY, 0);
         return carProp != null ? carProp.getValue() : 0f;
@@ -168,7 +168,7 @@ public final class CarInfoManager implements CarManagerBase{
      * @return Array of FUEL_TYPEs available in the car.  Empty array if no fuel
      *         types available.
      */
-    public @FuelType.Enum int[] getFuelTypes() throws CarNotConnectedException {
+    public @FuelType.Enum int[] getFuelTypes() {
         return mCarPropertyMgr.getIntArrayProperty(BASIC_INFO_FUEL_TYPES, 0);
     }
 
@@ -176,7 +176,7 @@ public final class CarInfoManager implements CarManagerBase{
      * @return Battery capacity of the car in WH.  0 if car doesn't run on
      *         battery.
      */
-    public float getEvBatteryCapacity() throws CarNotConnectedException {
+    public float getEvBatteryCapacity() {
         CarPropertyValue<Float> carProp = mCarPropertyMgr.getProperty(Float.class,
                 BASIC_INFO_EV_BATTERY_CAPACITY, 0);
         return carProp != null ? carProp.getValue() : 0f;
@@ -186,7 +186,7 @@ public final class CarInfoManager implements CarManagerBase{
      * @return Array of EV_CONNECTOR_TYPEs available in the car.  Empty array if
      *         no connector types available.
      */
-    public @EvConnectorType.Enum int[] getEvConnectorTypes() throws CarNotConnectedException {
+    public @EvConnectorType.Enum int[] getEvConnectorTypes() {
         return mCarPropertyMgr.getIntArrayProperty(BASIC_INFO_EV_CONNECTOR_TYPES, 0);
     }
 
