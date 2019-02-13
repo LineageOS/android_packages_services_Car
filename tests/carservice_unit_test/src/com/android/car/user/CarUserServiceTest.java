@@ -122,7 +122,9 @@ public class CarUserServiceTest {
     @Test
     public void testUnregistersEventReceivers() {
         mCarUserService.release();
-        verify(mMockContext).unregisterReceiver(mCarUserService);
+        if (mCarUserManagerHelper.isHeadlessSystemUser()) {
+            verify(mMockContext).unregisterReceiver(mCarUserService);
+        }
     }
 
     /**

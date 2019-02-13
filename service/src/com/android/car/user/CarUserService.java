@@ -82,7 +82,9 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "release");
         }
-        mContext.unregisterReceiver(this);
+        if (mCarUserManagerHelper.isHeadlessSystemUser()) {
+            mContext.unregisterReceiver(this);
+        }
     }
 
     @Override
