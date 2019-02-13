@@ -39,9 +39,11 @@ import com.android.car.AppFocusService;
 import com.android.car.AppFocusService.FocusOwnershipCallback;
 import com.android.car.CarInputService;
 import com.android.car.CarInputService.KeyEventListener;
+import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.R;
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
@@ -133,7 +135,11 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
 
         mAppFocusService.registerContextOwnerChangedCallback(this /* FocusOwnershipCallback */);
         mCarInputService.setInstrumentClusterKeyListener(this /* KeyEventListener */);
-        mRendererBound = bindInstrumentClusterRendererService();
+        // TODO(b/124246323) Start earlier once data storage for cluster is clarified
+        //  for early boot.
+        CarLocalServices.getService(CarUserService.class).runOnUser0Unlock(() -> {
+            mRendererBound = bindInstrumentClusterRendererService();
+        });
     }
 
     @Override
