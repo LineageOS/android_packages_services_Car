@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.car.VehicleAreaType;
 import android.car.vms.VmsLayer;
+import android.content.Intent;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
@@ -28,6 +29,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
+import android.os.UserHandle;
 import android.util.Log;
 
 import androidx.test.filters.MediumTest;
@@ -74,8 +76,10 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
 
     @Override
     protected synchronized void configureResourceOverrides(MockResources resources) {
-        resources.overrideResource(R.array.vmsPublisherClients,
+        resources.overrideResource(R.array.vmsPublisherSystemClients,
             new String[]{ getFlattenComponent(SimpleVmsPublisherClientService.class) });
+        resources.overrideResource(R.array.vmsPublisherUserClients,
+                new String[]{ getFlattenComponent(SimpleVmsPublisherClientService.class) });
     }
 
     private VehiclePropValue getHalSubscriptionRequest() {
@@ -95,6 +99,16 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
          */
         mHalHandlerSemaphore = new Semaphore(0);
         super.setUp();
+
+        // Trigger VmsClientManager to bind to the SimpleVmsPublisherClientService
+        if (getContext().getUserId() == UserHandle.USER_SYSTEM) {
+            // If test is running as U0, trigger system client binding
+            getContext().sendBroadcast(new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
+        } else {
+            // If test is running as U10+, trigger user client binding
+            getContext().sendBroadcastAsUser(new Intent(Intent.ACTION_USER_SWITCHED),
+                    UserHandle.ALL);
+        }
 
         // Inject a subscribe event which simulates the HAL is subscribed to the Mock Publisher.
         MockedVehicleHal mHal = getMockedVehicleHal();

@@ -20,7 +20,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:theme="@android:style/Theme.DeviceDefault"
     android:maxCollapsedHeight="200dp"
     android:id="@id/contentPanel">
 
@@ -145,7 +144,6 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="?attr/dividerVertical"/>
-
 
         <ListView
             android:layout_width="match_parent"

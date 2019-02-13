@@ -44,6 +44,7 @@ import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.trust.CarTrustAgentEnrollmentService;
 import com.android.car.user.CarUserService;
+import com.android.car.vms.VmsClientManager;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.car.ICarServiceHelper;
 
@@ -88,8 +89,9 @@ public class ICarImpl extends ICar.Stub {
 
     private final CarUserManagerHelper mUserManagerHelper;
     private CarUserService mCarUserService;
-    private VmsSubscriberService mVmsSubscriberService;
-    private VmsPublisherService mVmsPublisherService;
+    private final VmsClientManager mVmsClientManager;
+    private final VmsSubscriberService mVmsSubscriberService;
+    private final VmsPublisherService mVmsPublisherService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -138,8 +140,10 @@ public class ICarImpl extends ICar.Stub {
                 mAppFocusService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(
                 serviceContext, mCarAudioService, this);
+        mVmsClientManager = new VmsClientManager(serviceContext, mUserManagerHelper);
         mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
-        mVmsPublisherService = new VmsPublisherService(serviceContext, mHal.getVmsHal());
+        mVmsPublisherService = new VmsPublisherService(serviceContext, mVmsClientManager,
+                mHal.getVmsHal());
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
         mCarStorageMonitoringService = new CarStorageMonitoringService(serviceContext,
                 systemInterface);
@@ -170,6 +174,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarDiagnosticService);
         allServices.add(mCarStorageMonitoringService);
         allServices.add(mCarConfigurationService);
+        allServices.add(mVmsClientManager);
         allServices.add(mVmsSubscriberService);
         allServices.add(mVmsPublisherService);
         allServices.add(mCarTrustAgentEnrollmentService);
