@@ -20,7 +20,6 @@ import android.annotation.CallbackExecutor;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -114,9 +113,9 @@ public final class VmsSubscriberManager implements CarManagerBase {
      * @param clientCallback subscriber callback that will handle onVmsMessageReceived events.
      * @throws IllegalStateException if the client callback was already set.
      */
-    public void setVmsSubscriberClientCallback(@NonNull @CallbackExecutor Executor executor,
-                @NonNull VmsSubscriberClientCallback clientCallback)
-          throws CarNotConnectedException {
+    public void setVmsSubscriberClientCallback(
+            @NonNull @CallbackExecutor Executor executor,
+            @NonNull VmsSubscriberClientCallback clientCallback) {
         Preconditions.checkNotNull(clientCallback);
         Preconditions.checkNotNull(executor);
         synchronized (mClientCallbackLock) {
@@ -136,10 +135,8 @@ public final class VmsSubscriberManager implements CarManagerBase {
 
     /**
      * Clears the client callback which disables communication with the client.
-     *
-     * @throws CarNotConnectedException
      */
-    public void clearVmsSubscriberClientCallback() throws CarNotConnectedException {
+    public void clearVmsSubscriberClientCallback() {
         synchronized (mClientCallbackLock) {
             if (mExecutor == null) return;
         }
@@ -158,8 +155,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
     /**
      * Returns a serialized publisher information for a publisher ID.
      */
-    public byte[] getPublisherInfo(int publisherId)
-            throws CarNotConnectedException, IllegalStateException {
+    public byte[] getPublisherInfo(int publisherId) {
         try {
             return mVmsSubscriberService.getPublisherInfo(publisherId);
         } catch (RemoteException e) {
@@ -170,8 +166,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
     /**
      * Returns the available layers.
      */
-    public VmsAvailableLayers getAvailableLayers()
-            throws CarNotConnectedException, IllegalStateException {
+    public VmsAvailableLayers getAvailableLayers() {
         try {
             return mVmsSubscriberService.getAvailableLayers();
         } catch (RemoteException e) {
@@ -186,7 +181,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
      * @throws IllegalStateException if the client callback was not set via
      *                               {@link #setVmsSubscriberClientCallback}.
      */
-    public void subscribe(VmsLayer layer) throws CarNotConnectedException {
+    public void subscribe(VmsLayer layer) {
         verifySubscriptionIsAllowed();
         try {
             mVmsSubscriberService.addVmsSubscriber(mSubscriberManagerClient, layer);
@@ -204,7 +199,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
      * @throws IllegalStateException if the client callback was not set via
      *                               {@link #setVmsSubscriberClientCallback}.
      */
-    public void subscribe(VmsLayer layer, int publisherId) throws CarNotConnectedException {
+    public void subscribe(VmsLayer layer, int publisherId) {
         verifySubscriptionIsAllowed();
         try {
             mVmsSubscriberService.addVmsSubscriberToPublisher(
@@ -215,7 +210,8 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
     }
 
-    public void startMonitoring() throws CarNotConnectedException {
+    /** Starts monitoring. */
+    public void startMonitoring() {
         verifySubscriptionIsAllowed();
         try {
             mVmsSubscriberService.addVmsSubscriberPassive(mSubscriberManagerClient);

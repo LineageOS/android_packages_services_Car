@@ -23,7 +23,6 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.bluetooth.BluetoothDevice;
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -112,7 +111,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      * Phones can scan and connect for the enrollment process to begin.
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void startEnrollmentAdvertising() throws CarNotConnectedException {
+    public void startEnrollmentAdvertising() {
         try {
             mEnrollmentService.startEnrollmentAdvertising();
         } catch (RemoteException e) {
@@ -124,7 +123,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      * Stops Enrollment advertising.
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void stopEnrollmentAdvertising() throws CarNotConnectedException {
+    public void stopEnrollmentAdvertising() {
         try {
             mEnrollmentService.stopEnrollmentAdvertising();
         } catch (RemoteException e) {
@@ -139,8 +138,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      * @param device the remote Bluetooth device that is trying to enroll.
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void initiateEnrollmentHandshake(BluetoothDevice device)
-            throws CarNotConnectedException {
+    public void initiateEnrollmentHandshake(BluetoothDevice device) {
         try {
             mEnrollmentService.initiateEnrollmentHandshake(device);
         } catch (RemoteException e) {
@@ -153,7 +151,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      * after the user has confirmed the verification code displayed on the UI.
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void enrollmentHandshakeAccepted() throws CarNotConnectedException {
+    public void enrollmentHandshakeAccepted() {
         try {
             mEnrollmentService.enrollmentHandshakeAccepted();
         } catch (RemoteException e) {
@@ -165,7 +163,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      * Provides an option to quit enrollment if the pairing code doesn't match for example.
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void terminateEnrollmentHandshake() throws CarNotConnectedException {
+    public void terminateEnrollmentHandshake() {
         try {
             mEnrollmentService.terminateEnrollmentHandshake();
         } catch (RemoteException e) {
@@ -179,7 +177,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      * @param handle the handle corresponding to the escrow token
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void activateToken(long handle) throws CarNotConnectedException {
+    public void activateToken(long handle) {
         try {
             mEnrollmentService.activateToken(handle);
         } catch (RemoteException e) {
@@ -193,7 +191,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      * @param handle the handle associated with the escrow token
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void revokeTrust(long handle) throws CarNotConnectedException {
+    public void revokeTrust(long handle) {
         try {
             mEnrollmentService.revokeTrust(handle);
         } catch (RemoteException e) {
@@ -207,8 +205,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      * @param callback The callback methods to call, null to unregister
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void setEnrollmentCallback(@Nullable CarTrustAgentEnrollmentCallback callback)
-            throws CarNotConnectedException {
+    public void setEnrollmentCallback(@Nullable CarTrustAgentEnrollmentCallback callback) {
         if (callback == null) {
             unregisterEnrollmentCallback();
         } else {
@@ -216,8 +213,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         }
     }
 
-    private void registerEnrollmentCallback(CarTrustAgentEnrollmentCallback callback)
-            throws CarNotConnectedException {
+    private void registerEnrollmentCallback(CarTrustAgentEnrollmentCallback callback) {
         synchronized (mListenerLock) {
             if (callback != null && mEnrollmentCallback == null) {
                 try {
@@ -230,7 +226,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         }
     }
 
-    private void unregisterEnrollmentCallback() throws CarNotConnectedException {
+    private void unregisterEnrollmentCallback() {
         synchronized (mListenerLock) {
             if (mEnrollmentCallback != null) {
                 try {
@@ -249,8 +245,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      * @param callback The callback methods to call, null to unregister
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void setBleCallback(@Nullable CarTrustAgentBleCallback callback)
-            throws CarNotConnectedException {
+    public void setBleCallback(@Nullable CarTrustAgentBleCallback callback) {
         if (callback == null) {
             unregisterBleCallback();
         } else {
@@ -258,8 +253,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         }
     }
 
-    private void registerBleCallback(CarTrustAgentBleCallback callback)
-            throws CarNotConnectedException {
+    private void registerBleCallback(CarTrustAgentBleCallback callback) {
         synchronized (mListenerLock) {
             if (callback != null && mBleCallback == null) {
                 try {
@@ -272,7 +266,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         }
     }
 
-    private void unregisterBleCallback() throws CarNotConnectedException {
+    private void unregisterBleCallback() {
         synchronized (mListenerLock) {
             if (mBleCallback != null) {
                 try {
@@ -293,7 +287,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      * @return list of the Enrollment handles for the user id.
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public List<Integer> getEnrollmentHandlesForUser(int uid) throws CarNotConnectedException {
+    public List<Integer> getEnrollmentHandlesForUser(int uid) {
         try {
             return Arrays.stream(
                     mEnrollmentService.getEnrollmentHandlesForUser(uid)).boxed().collect(

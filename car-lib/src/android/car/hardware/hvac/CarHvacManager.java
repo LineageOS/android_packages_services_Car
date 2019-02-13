@@ -20,7 +20,6 @@ import android.annotation.IntDef;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
@@ -308,10 +307,8 @@ public final class CarHvacManager implements CarManagerBase {
     /**
      * Implement wrappers for contained CarPropertyManager object
      * @param callback
-     * @throws CarNotConnectedException
      */
-    public synchronized void registerCallback(CarHvacEventCallback callback)
-            throws CarNotConnectedException {
+    public synchronized void registerCallback(CarHvacEventCallback callback) {
         if (mCallbacks.isEmpty()) {
             mListenerToBase = new CarPropertyEventListenerToBase(this);
         }
@@ -349,9 +346,8 @@ public final class CarHvacManager implements CarManagerBase {
     /**
      * Get list of properties represented by Car Hvac Manager for this car.
      * @return List of CarPropertyConfig objects available via Car Hvac Manager.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public List<CarPropertyConfig> getPropertyList() throws CarNotConnectedException {
+    public List<CarPropertyConfig> getPropertyList() {
         return mCarPropertyMgr.getPropertyList(mHvacPropertyIds);
     }
 
@@ -359,8 +355,7 @@ public final class CarHvacManager implements CarManagerBase {
      * Check whether a given property is available or disabled based on the cars current state.
      * @return true if the property is AVAILABLE, false otherwise
      */
-    public boolean isPropertyAvailable(@PropertyId int propertyId, int area)
-            throws CarNotConnectedException {
+    public boolean isPropertyAvailable(@PropertyId int propertyId, int area) {
         return mCarPropertyMgr.isPropertyAvailable(propertyId, area);
     }
 
@@ -369,10 +364,8 @@ public final class CarHvacManager implements CarManagerBase {
      * @param propertyId
      * @param area
      * @return value of requested boolean property
-     * @throws CarNotConnectedException
      */
-    public boolean getBooleanProperty(@PropertyId int propertyId, int area)
-            throws CarNotConnectedException {
+    public boolean getBooleanProperty(@PropertyId int propertyId, int area) {
         return mCarPropertyMgr.getBooleanProperty(propertyId, area);
     }
 
@@ -381,10 +374,8 @@ public final class CarHvacManager implements CarManagerBase {
      * @param propertyId
      * @param area
      * @return value of requested float property
-     * @throws CarNotConnectedException
      */
-    public float getFloatProperty(@PropertyId int propertyId, int area)
-            throws CarNotConnectedException {
+    public float getFloatProperty(@PropertyId int propertyId, int area) {
         return mCarPropertyMgr.getFloatProperty(propertyId, area);
     }
 
@@ -393,10 +384,8 @@ public final class CarHvacManager implements CarManagerBase {
      * @param propertyId
      * @param area
      * @return value of requested integer property
-     * @throws CarNotConnectedException
      */
-    public int getIntProperty(@PropertyId int propertyId, int area)
-            throws CarNotConnectedException {
+    public int getIntProperty(@PropertyId int propertyId, int area) {
         return mCarPropertyMgr.getIntProperty(propertyId, area);
     }
 
@@ -405,10 +394,8 @@ public final class CarHvacManager implements CarManagerBase {
      * @param propertyId
      * @param area
      * @param val
-     * @throws CarNotConnectedException
      */
-    public void setBooleanProperty(@PropertyId int propertyId, int area, boolean val)
-            throws CarNotConnectedException {
+    public void setBooleanProperty(@PropertyId int propertyId, int area, boolean val) {
         if (mHvacPropertyIds.contains(propertyId)) {
             mCarPropertyMgr.setBooleanProperty(propertyId, area, val);
         }
@@ -419,10 +406,8 @@ public final class CarHvacManager implements CarManagerBase {
      * @param propertyId
      * @param area
      * @param val
-     * @throws CarNotConnectedException
      */
-    public void setFloatProperty(@PropertyId int propertyId, int area, float val)
-            throws CarNotConnectedException {
+    public void setFloatProperty(@PropertyId int propertyId, int area, float val) {
         if (mHvacPropertyIds.contains(propertyId)) {
             mCarPropertyMgr.setFloatProperty(propertyId, area, val);
         }
@@ -433,10 +418,8 @@ public final class CarHvacManager implements CarManagerBase {
      * @param propertyId
      * @param area
      * @param val
-     * @throws CarNotConnectedException
      */
-    public void setIntProperty(@PropertyId int propertyId, int area, int val)
-            throws CarNotConnectedException {
+    public void setIntProperty(@PropertyId int propertyId, int area, int val) {
         if (mHvacPropertyIds.contains(propertyId)) {
             mCarPropertyMgr.setIntProperty(propertyId, area, val);
         }

@@ -20,7 +20,6 @@ import android.annotation.IntDef;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.IBinder;
@@ -106,9 +105,8 @@ public final class CarPackageManager implements CarManagerBase {
      * @hide
      */
     @SystemApi
-    public void setAppBlockingPolicy(String packageName, CarAppBlockingPolicy policy,
-            @SetPolicyFlags int flags) throws CarNotConnectedException, SecurityException,
-            IllegalArgumentException {
+    public void setAppBlockingPolicy(
+            String packageName, CarAppBlockingPolicy policy, @SetPolicyFlags int flags) {
         if ((flags & FLAG_SET_POLICY_WAIT_FOR_CHANGE) != 0 &&
                 Looper.getMainLooper().isCurrentThread()) {
             throw new IllegalStateException(
@@ -149,8 +147,7 @@ public final class CarPackageManager implements CarManagerBase {
      * @hide
      */
     @SystemApi
-    public boolean isActivityBackedBySafeActivity(ComponentName activityName)
-            throws CarNotConnectedException {
+    public boolean isActivityBackedBySafeActivity(ComponentName activityName) {
         try {
             return mService.isActivityBackedBySafeActivity(activityName);
         } catch (RemoteException e) {
@@ -180,8 +177,7 @@ public final class CarPackageManager implements CarManagerBase {
      * @param className
      * @return
      */
-    public boolean isActivityDistractionOptimized(String packageName, String className)
-            throws CarNotConnectedException {
+    public boolean isActivityDistractionOptimized(String packageName, String className) {
         try {
             return mService.isActivityDistractionOptimized(packageName, className);
         } catch (RemoteException e) {
@@ -197,8 +193,7 @@ public final class CarPackageManager implements CarManagerBase {
      * @param className
      * @return
      */
-    public boolean isServiceDistractionOptimized(String packageName, String className)
-            throws CarNotConnectedException {
+    public boolean isServiceDistractionOptimized(String packageName, String className) {
         try {
             return mService.isServiceDistractionOptimized(packageName, className);
         } catch (RemoteException e) {

@@ -60,7 +60,7 @@ public final class CarBluetoothManager implements CarManagerBase {
      */
     @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
     public void setBluetoothDeviceConnectionPriority(BluetoothDevice deviceToSet, int profileToSet,
-            @PriorityType int priorityToSet) throws CarNotConnectedException {
+            @PriorityType int priorityToSet) {
         try {
             mService.setBluetoothDeviceConnectionPriority(deviceToSet, profileToSet, priorityToSet);
         } catch (RemoteException e) {
@@ -77,7 +77,7 @@ public final class CarBluetoothManager implements CarManagerBase {
      */
     @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
     public void clearBluetoothDeviceConnectionPriority(int profileToClear,
-            @PriorityType int priorityToClear) throws CarNotConnectedException {
+            @PriorityType int priorityToClear) {
         try {
             mService.clearBluetoothDeviceConnectionPriority(profileToClear, priorityToClear);
         } catch (RemoteException e) {
@@ -95,8 +95,7 @@ public final class CarBluetoothManager implements CarManagerBase {
      * @hide
      */
     @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
-    public boolean isPriorityDevicePresent(int profile, @PriorityType int priorityToCheck)
-            throws CarNotConnectedException {
+    public boolean isPriorityDevicePresent(int profile, @PriorityType int priorityToCheck) {
         try {
             return mService.isPriorityDevicePresent(profile, priorityToCheck);
         } catch (RemoteException e) {
@@ -114,8 +113,7 @@ public final class CarBluetoothManager implements CarManagerBase {
      * @hide
      */
     @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
-    public String getDeviceNameWithPriority(int profile, @PriorityType int priorityToCheck)
-            throws CarNotConnectedException {
+    public String getDeviceNameWithPriority(int profile, @PriorityType int priorityToCheck) {
         try {
             return mService.getDeviceNameWithPriority(profile, priorityToCheck);
         } catch (RemoteException e) {

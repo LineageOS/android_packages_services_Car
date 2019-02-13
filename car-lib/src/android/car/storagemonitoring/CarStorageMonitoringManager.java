@@ -19,7 +19,6 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -109,7 +108,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * or one of PRE_EOL_INFO_{NORMAL|WARNING|URGENT} depending on the device state.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public int getPreEolIndicatorStatus() throws CarNotConnectedException {
+    public int getPreEolIndicatorStatus() {
         try {
             return mService.getPreEolIndicatorStatus();
         } catch (RemoteException e) {
@@ -127,7 +126,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * If either or both indicators are not available, they will be reported as UNKNOWN.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public WearEstimate getWearEstimate() throws CarNotConnectedException {
+    public WearEstimate getWearEstimate() {
         try {
             return mService.getWearEstimate();
         } catch (RemoteException e) {
@@ -147,7 +146,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * If no indicators are available, an empty list will be returned.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public List<WearEstimateChange> getWearEstimateHistory() throws CarNotConnectedException {
+    public List<WearEstimateChange> getWearEstimateHistory() {
         try {
             return mService.getWearEstimateHistory();
         } catch (RemoteException e) {
@@ -166,7 +165,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * If the information is not available, an empty list will be returned.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public List<IoStatsEntry> getBootIoStats() throws CarNotConnectedException {
+    public List<IoStatsEntry> getBootIoStats() {
         try {
             return mService.getBootIoStats();
         } catch (RemoteException e) {
@@ -196,7 +195,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * <p>If the information is not available, SHUTDOWN_COST_INFO_MISSING will be returned.</p>s
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public long getShutdownDiskWriteAmount() throws CarNotConnectedException {
+    public long getShutdownDiskWriteAmount() {
         try {
             return mService.getShutdownDiskWriteAmount();
         } catch (RemoteException e) {
@@ -213,7 +212,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * If the information is not available, an empty list will be returned.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public List<IoStatsEntry> getAggregateIoStats() throws CarNotConnectedException {
+    public List<IoStatsEntry> getAggregateIoStats() {
         try {
             return mService.getAggregateIoStats();
         } catch (RemoteException e) {
@@ -233,7 +232,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * If the information is not available, an empty list will be returned.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public List<IoStats> getIoStatsDeltas() throws CarNotConnectedException {
+    public List<IoStats> getIoStatsDeltas() {
         try {
             return mService.getIoStatsDeltas();
         } catch (RemoteException e) {
@@ -250,7 +249,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * The timing of availability of the deltas is configurable by the OEM.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public void registerListener(IoStatsListener listener) throws CarNotConnectedException {
+    public void registerListener(IoStatsListener listener) {
         try {
             if (mListeners.isEmpty()) {
                 if (mListenerToService == null) {
@@ -268,7 +267,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * This method removes a registered listener of I/O stats deltas.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public void unregisterListener(IoStatsListener listener) throws CarNotConnectedException {
+    public void unregisterListener(IoStatsListener listener) {
         try {
             if (!mListeners.remove(listener)) {
                 return;

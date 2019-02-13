@@ -95,11 +95,9 @@ public final class CarProjectionManager implements CarManagerBase {
 
     /**
      * Compatibility with previous APIs due to typo
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @hide
      */
-    public void regsiterProjectionListener(CarProjectionListener listener, int voiceSearchFilter)
-            throws CarNotConnectedException {
+    public void regsiterProjectionListener(CarProjectionListener listener, int voiceSearchFilter) {
         registerProjectionListener(listener, voiceSearchFilter);
     }
 
@@ -108,10 +106,8 @@ public final class CarProjectionManager implements CarManagerBase {
      * registering multiple times will lead into only the last listener to be active.
      * @param listener
      * @param voiceSearchFilter Flags of voice search requests to get notification.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void registerProjectionListener(CarProjectionListener listener, int voiceSearchFilter)
-            throws CarNotConnectedException {
+    public void registerProjectionListener(CarProjectionListener listener, int voiceSearchFilter) {
         if (listener == null) {
             throw new IllegalArgumentException("null listener");
         }
@@ -130,7 +126,6 @@ public final class CarProjectionManager implements CarManagerBase {
 
     /**
      * Compatibility with previous APIs due to typo
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @hide
      */
     public void unregsiterProjectionListener() {
@@ -139,7 +134,6 @@ public final class CarProjectionManager implements CarManagerBase {
 
     /**
      * Unregister listener and stop listening projection events.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public void unregisterProjectionListener() {
         synchronized (this) {
@@ -157,9 +151,8 @@ public final class CarProjectionManager implements CarManagerBase {
      * Registers projection runner on projection start with projection service
      * to create reverse binding.
      * @param serviceIntent
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void registerProjectionRunner(Intent serviceIntent) throws CarNotConnectedException {
+    public void registerProjectionRunner(Intent serviceIntent) {
         if (serviceIntent == null) {
             throw new IllegalArgumentException("null serviceIntent");
         }
@@ -176,7 +169,6 @@ public final class CarProjectionManager implements CarManagerBase {
      * Unregisters projection runner on projection stop with projection service to create
      * reverse binding.
      * @param serviceIntent
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public void unregisterProjectionRunner(Intent serviceIntent) {
         if (serviceIntent == null) {

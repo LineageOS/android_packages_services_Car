@@ -19,7 +19,6 @@ package android.car.hardware.power;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
@@ -120,10 +119,9 @@ public class CarPowerManager implements CarManagerBase {
 
     /**
      * Request power manager to shutdown in lieu of suspend at the next opportunity.
-     * @throws CarNotConnectedException
      * @hide
      */
-    public void requestShutdownOnNextSuspend() throws CarNotConnectedException {
+    public void requestShutdownOnNextSuspend() {
         try {
             mService.requestShutdownOnNextSuspend();
         } catch (RemoteException e) {
@@ -133,10 +131,9 @@ public class CarPowerManager implements CarManagerBase {
 
     /**
      * Schedule next wake up time in CarPowerManagementSystem
-     * @throws CarNotConnectedException
      * @hide
      */
-    public void scheduleNextWakeupTime(int seconds) throws CarNotConnectedException {
+    public void scheduleNextWakeupTime(int seconds) {
         try {
             mService.scheduleNextWakeupTime(seconds);
         } catch (RemoteException e) {
@@ -153,11 +150,10 @@ public class CarPowerManager implements CarManagerBase {
      * {@link #SHUTDOWN_ENTER} or {@link #SUSPEND_ENTER} state transition.
      *
      * @param listener
-     * @throws CarNotConnectedException, IllegalStateException
+     * @throws IllegalStateException
      * @hide
      */
-    public void setListener(CarPowerStateListener listener) throws
-            CarNotConnectedException, IllegalStateException {
+    public void setListener(CarPowerStateListener listener) {
         synchronized(mLock) {
             if (mListener == null) {
                 // Update listener

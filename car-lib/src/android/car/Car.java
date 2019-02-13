@@ -742,10 +742,9 @@ public final class Car {
      * SensorManagerService sensorManagerService = car.getCarManager(Car.SENSOR_SERVICE);
      * @param serviceName Name of service that should be created like {@link #SENSOR_SERVICE}.
      * @return Matching service manager or null if there is no such service.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     @Nullable
-    public Object getCarManager(String serviceName) throws CarNotConnectedException {
+    public Object getCarManager(String serviceName) {
         CarManagerBase manager;
         ICar service = getICarOrThrow();
         synchronized (mCarManagerLock) {
@@ -784,8 +783,7 @@ public final class Car {
     }
 
     @Nullable
-    private CarManagerBase createCarManager(String serviceName, IBinder binder)
-            throws CarNotConnectedException {
+    private CarManagerBase createCarManager(String serviceName, IBinder binder) {
         CarManagerBase manager = null;
         switch (serviceName) {
             case AUDIO_SERVICE:

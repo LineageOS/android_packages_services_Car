@@ -20,7 +20,6 @@ import static java.lang.Integer.toHexString;
 
 import android.annotation.Nullable;
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.os.Handler;
@@ -110,8 +109,7 @@ public class CarPropertyManager implements CarManagerBase {
     }
 
     /** Use to register or update Callback for properties */
-    public boolean registerListener(CarPropertyEventListener listener, int propertyId, float rate)
-            throws CarNotConnectedException {
+    public boolean registerListener(CarPropertyEventListener listener, int propertyId, float rate) {
         synchronized (mActivePropertyListener) {
             if (mCarPropertyEventToService == null) {
                 mCarPropertyEventToService = new CarPropertyEventListenerToService(this);
@@ -136,8 +134,7 @@ public class CarPropertyManager implements CarManagerBase {
         return true;
     }
 
-    private boolean registerOrUpdatePropertyListener(int propertyId, float rate)
-            throws CarNotConnectedException {
+    private boolean registerOrUpdatePropertyListener(int propertyId, float rate) {
         try {
             mService.registerListener(propertyId, rate, mCarPropertyEventToService);
         } catch (RemoteException e) {
@@ -212,11 +209,7 @@ public class CarPropertyManager implements CarManagerBase {
                 }
                 mActivePropertyListener.remove(propertyId);
             } else if (needsServerUpdate) {
-                try {
-                    registerOrUpdatePropertyListener(propertyId, listeners.getRate());
-                } catch (CarNotConnectedException e) {
-                    // ignore
-                }
+                registerOrUpdatePropertyListener(propertyId, listeners.getRate());
             }
         }
     }
@@ -248,7 +241,7 @@ public class CarPropertyManager implements CarManagerBase {
      *
      * @return String Permission needed to read this property.  NULL if propId not available.
      */
-    public String getReadPermission(int propId) throws CarNotConnectedException {
+    public String getReadPermission(int propId) {
         if (mDbg) {
             Log.d(mTag, "getReadPermission, propId: 0x" + toHexString(propId));
         }
@@ -266,7 +259,7 @@ public class CarPropertyManager implements CarManagerBase {
      *
      * @return String Permission needed to write this property.  NULL if propId not available.
      */
-    public String getWritePermission(int propId) throws CarNotConnectedException {
+    public String getWritePermission(int propId) {
         if (mDbg) {
             Log.d(mTag, "getWritePermission, propId: 0x" + toHexString(propId));
         }
@@ -281,9 +274,8 @@ public class CarPropertyManager implements CarManagerBase {
     /**
      * Check whether a given property is available or disabled based on the car's current state.
      * @return true if STATUS_AVAILABLE, false otherwise (eg STATUS_UNAVAILABLE)
-     * @throws CarNotConnectedException
      */
-    public boolean isPropertyAvailable(int propId, int area) throws CarNotConnectedException {
+    public boolean isPropertyAvailable(int propId, int area) {
         try {
             CarPropertyValue propValue = mService.getProperty(propId, area);
             return (propValue != null)
@@ -299,7 +291,7 @@ public class CarPropertyManager implements CarManagerBase {
      * @param prop Property ID to get
      * @param area Area of the property to get
      */
-    public boolean getBooleanProperty(int prop, int area) throws CarNotConnectedException {
+    public boolean getBooleanProperty(int prop, int area) {
         CarPropertyValue<Boolean> carProp = getProperty(Boolean.class, prop, area);
         return carProp != null ? carProp.getValue() : false;
     }
@@ -310,7 +302,7 @@ public class CarPropertyManager implements CarManagerBase {
      * @param prop Property ID to get
      * @param area Area of the property to get
      */
-    public float getFloatProperty(int prop, int area) throws CarNotConnectedException {
+    public float getFloatProperty(int prop, int area) {
         CarPropertyValue<Float> carProp = getProperty(Float.class, prop, area);
         return carProp != null ? carProp.getValue() : 0f;
     }
@@ -321,7 +313,7 @@ public class CarPropertyManager implements CarManagerBase {
      * @param prop Property ID to get
      * @param area Zone of the property to get
      */
-    public int getIntProperty(int prop, int area) throws CarNotConnectedException {
+    public int getIntProperty(int prop, int area) {
         CarPropertyValue<Integer> carProp = getProperty(Integer.class, prop, area);
         return carProp != null ? carProp.getValue() : 0;
     }
@@ -332,7 +324,7 @@ public class CarPropertyManager implements CarManagerBase {
      * @param prop Property ID to get
      * @param area Zone of the property to get
      */
-    public int[] getIntArrayProperty(int prop, int area) throws CarNotConnectedException {
+    public int[] getIntArrayProperty(int prop, int area) {
         CarPropertyValue<Integer[]> carProp = getProperty(Integer[].class, prop, area);
         return carProp != null ? toIntArray(carProp.getValue()) : new int[0];
     }
@@ -348,8 +340,7 @@ public class CarPropertyManager implements CarManagerBase {
 
     /** Return CarPropertyValue */
     @SuppressWarnings("unchecked")
-    public <E> CarPropertyValue<E> getProperty(Class<E> clazz, int propId, int area)
-            throws CarNotConnectedException {
+    public <E> CarPropertyValue<E> getProperty(Class<E> clazz, int propId, int area) {
         if (mDbg) {
             Log.d(mTag, "getProperty, propId: 0x" + toHexString(propId)
                     + ", area: 0x" + toHexString(area) + ", class: " + clazz);
@@ -370,8 +361,7 @@ public class CarPropertyManager implements CarManagerBase {
     }
 
     /** Return raw CarPropertyValue */
-    public <E> CarPropertyValue<E> getProperty(int propId, int area)
-            throws CarNotConnectedException {
+    public <E> CarPropertyValue<E> getProperty(int propId, int area) {
         try {
             CarPropertyValue<E> propVal = mService.getProperty(propId, area);
             return propVal;
@@ -381,8 +371,7 @@ public class CarPropertyManager implements CarManagerBase {
     }
 
     /** Set CarPropertyValue */
-    public <E> void setProperty(Class<E> clazz, int propId, int area, E val)
-            throws CarNotConnectedException {
+    public <E> void setProperty(Class<E> clazz, int propId, int area, E val) {
         if (mDbg) {
             Log.d(mTag, "setProperty, propId: 0x" + toHexString(propId)
                     + ", area: 0x" + toHexString(area) + ", class: " + clazz + ", val: " + val);
@@ -402,17 +391,16 @@ public class CarPropertyManager implements CarManagerBase {
      * @param area Area to apply the modification.
      * @param val Value to set
      */
-    public void setBooleanProperty(int prop, int area, boolean val)
-            throws CarNotConnectedException {
+    public void setBooleanProperty(int prop, int area, boolean val) {
         setProperty(Boolean.class, prop, area, val);
     }
 
     /** Set float value of property*/
-    public void setFloatProperty(int prop, int area, float val) throws CarNotConnectedException {
+    public void setFloatProperty(int prop, int area, float val) {
         setProperty(Float.class, prop, area, val);
     }
     /** Set int value of property*/
-    public void setIntProperty(int prop, int area, int val) throws CarNotConnectedException {
+    public void setIntProperty(int prop, int area, int val) {
         setProperty(Integer.class, prop, area, val);
     }
 

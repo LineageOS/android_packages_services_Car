@@ -26,7 +26,6 @@ import android.app.ActivityOptions;
 import android.app.Service;
 import android.car.Car;
 import android.car.CarLibLog;
-import android.car.CarNotConnectedException;
 import android.car.cluster.ClusterActivityState;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.ActivityNotFoundException;
@@ -286,8 +285,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * @hide
      */
     @Deprecated
-    public void setClusterActivityLaunchOptions(String category, ActivityOptions activityOptions)
-            throws CarNotConnectedException {
+    public void setClusterActivityLaunchOptions(String category, ActivityOptions activityOptions) {
         setClusterActivityLaunchOptions(activityOptions);
     }
 
@@ -311,8 +309,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * @hide
      */
     @Deprecated
-    public void setClusterActivityState(String category, Bundle state) throws
-            CarNotConnectedException {
+    public void setClusterActivityState(String category, Bundle state) {
         setClusterActivityState(ClusterActivityState.fromBundle(state));
     }
 

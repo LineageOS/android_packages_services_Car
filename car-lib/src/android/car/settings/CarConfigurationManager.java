@@ -17,7 +17,6 @@
 package android.car.settings;
 
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -38,9 +37,8 @@ public class CarConfigurationManager implements CarManagerBase {
      * Returns a configuration for Speed Bump that will determine when it kicks in.
      *
      * @return A {@link SpeedBumpConfiguration} that contains the configuration values.
-     * @throws CarNotConnectedException If the configuration cannot be retrieved.
      */
-    public SpeedBumpConfiguration getSpeedBumpConfiguration() throws CarNotConnectedException {
+    public SpeedBumpConfiguration getSpeedBumpConfiguration() {
         try {
             return mConfigurationService.getSpeedBumpConfiguration();
         } catch (RemoteException e) {
