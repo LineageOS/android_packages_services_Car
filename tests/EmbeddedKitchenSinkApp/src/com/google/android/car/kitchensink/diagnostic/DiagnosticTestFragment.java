@@ -18,14 +18,12 @@ package com.google.android.car.kitchensink.diagnostic;
 
 import android.annotation.Nullable;
 import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.diagnostic.CarDiagnosticEvent;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener;
 import android.car.hardware.CarSensorManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,8 +38,6 @@ import java.util.Objects;
 
 
 public class DiagnosticTestFragment extends Fragment {
-    private static final String TAG = "CAR.DIAGNOSTIC.KS";
-
     private KitchenSinkActivity mActivity;
     private TextView mLiveDiagnosticInfo;
     private TextView mFreezeDiagnosticInfo;
@@ -96,21 +92,17 @@ public class DiagnosticTestFragment extends Fragment {
     }
 
     private void resumeDiagnosticManager() {
-        try {
-            mDiagnosticManager =
-                    (CarDiagnosticManager)mActivity.getCar().getCarManager(Car.DIAGNOSTIC_SERVICE);
-            if (mLiveListener != null) {
-                mDiagnosticManager.registerListener(mLiveListener,
+        mDiagnosticManager =
+                (CarDiagnosticManager) mActivity.getCar().getCarManager(Car.DIAGNOSTIC_SERVICE);
+        if (mLiveListener != null) {
+            mDiagnosticManager.registerListener(mLiveListener,
                     CarDiagnosticManager.FRAME_TYPE_LIVE,
                     CarSensorManager.SENSOR_RATE_NORMAL);
-            }
-            if (mFreezeListener != null) {
-                mDiagnosticManager.registerListener(mFreezeListener,
+        }
+        if (mFreezeListener != null) {
+            mDiagnosticManager.registerListener(mFreezeListener,
                     CarDiagnosticManager.FRAME_TYPE_FREEZE,
                     CarSensorManager.SENSOR_RATE_NORMAL);
-            }
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Car not connected or not supported", e);
         }
     }
 

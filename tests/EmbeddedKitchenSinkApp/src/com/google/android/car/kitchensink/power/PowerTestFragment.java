@@ -16,7 +16,6 @@
 
 package com.google.android.car.kitchensink.power;
 
-import android.car.CarNotConnectedException;
 import android.car.hardware.power.CarPowerManager;
 import android.content.Context;
 import android.os.Bundle;
@@ -53,8 +52,6 @@ public class PowerTestFragment extends Fragment {
             mCarPowerManager = ((KitchenSinkActivity) getActivity()).getPowerManager();
             try {
                 mCarPowerManager.setListener(mPowerListener);
-            } catch (CarNotConnectedException e) {
-                Log.e(TAG, "Car is not connected!");
             } catch (IllegalStateException e) {
                 Log.e(TAG, "CarPowerManager listener was not cleared");
             }
@@ -91,11 +88,7 @@ public class PowerTestFragment extends Fragment {
     }
 
     private void requestShutdownBtn(View v) {
-        try {
-            mCarPowerManager.requestShutdownOnNextSuspend();
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to set requestShutdownOnNextSuspend()", e);
-        }
+        mCarPowerManager.requestShutdownOnNextSuspend();
     }
 
     private void shutdownBtn(View v) {

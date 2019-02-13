@@ -18,7 +18,6 @@ package com.google.android.car.vms.subscriber;
 
 import android.app.Activity;
 import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriberManager;
@@ -89,32 +88,19 @@ public class VmsSubscriberClientSampleActivity extends Activity {
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "Disconnect from Car Service");
             if (mVmsSubscriberManager != null) {
-                try {
-                    mVmsSubscriberManager.clearVmsSubscriberClientCallback();
-                    mVmsSubscriberManager.unsubscribe(TEST_LAYER);
-                } catch (android.car.CarNotConnectedException e) {
-                    Log.e(TAG, "Car is not connected!", e);
-                }
+                mVmsSubscriberManager.clearVmsSubscriberClientCallback();
+                mVmsSubscriberManager.unsubscribe(TEST_LAYER);
             }
         }
 
         private VmsSubscriberManager getVmsSubscriberManager() {
-            try {
-                return (VmsSubscriberManager) mCarApi.getCarManager(
-                        Car.VMS_SUBSCRIBER_SERVICE);
-            } catch (CarNotConnectedException e) {
-                Log.e(TAG, "Car is not connected!", e);
-            }
-            return null;
+            return (VmsSubscriberManager) mCarApi.getCarManager(
+                    Car.VMS_SUBSCRIBER_SERVICE);
         }
 
         private void configureSubscriptions(VmsSubscriberManager vmsSubscriberManager) {
-            try {
-                vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, mClientCallback);
-                vmsSubscriberManager.subscribe(TEST_LAYER);
-            } catch (CarNotConnectedException e) {
-                Log.e(TAG, "Car is not connected!", e);
-            }
+            vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, mClientCallback);
+            vmsSubscriberManager.subscribe(TEST_LAYER);
         }
 
     };

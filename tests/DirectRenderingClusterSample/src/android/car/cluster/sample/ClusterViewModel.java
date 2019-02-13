@@ -19,7 +19,6 @@ import android.annotation.Nullable;
 import android.app.Application;
 import android.car.Car;
 import android.car.CarAppFocusManager;
-import android.car.CarNotConnectedException;
 import android.car.VehicleAreaType;
 import android.car.cluster.sample.sensors.Sensor;
 import android.car.cluster.sample.sensors.Sensors;
@@ -71,14 +70,10 @@ public class ClusterViewModel extends AndroidViewModel {
     private ServiceConnection mCarServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            try {
-                Log.i(TAG, "onServiceConnected, name: " + name + ", service: " + service);
+            Log.i(TAG, "onServiceConnected, name: " + name + ", service: " + service);
 
-                registerAppFocusListener();
-                registerCarPropertiesListener();
-            } catch (CarNotConnectedException e) {
-                Log.e(TAG, "onServiceConnected: error obtaining manager", e);
-            }
+            registerAppFocusListener();
+            registerCarPropertiesListener();
         }
 
         @Override
@@ -89,7 +84,7 @@ public class ClusterViewModel extends AndroidViewModel {
         }
     };
 
-    private void registerAppFocusListener() throws CarNotConnectedException {
+    private void registerAppFocusListener() {
         mCarAppFocusManager = (CarAppFocusManager) mCar.getCarManager(
                 Car.APP_FOCUS_SERVICE);
         if (mCarAppFocusManager != null) {
@@ -101,7 +96,7 @@ public class ClusterViewModel extends AndroidViewModel {
         }
     }
 
-    private void registerCarPropertiesListener() throws CarNotConnectedException {
+    private void registerCarPropertiesListener() {
         Sensors sensors = Sensors.getInstance();
         mCarPropertyManager = (CarPropertyManager) mCar.getCarManager(Car.PROPERTY_SERVICE);
         for (Integer propertyId : sensors.getPropertyIds()) {
@@ -209,14 +204,9 @@ public class ClusterViewModel extends AndroidViewModel {
      */
     @Nullable
     public <T> T getSensorValue(@NonNull Sensor<T> sensor) {
-        try {
-            CarPropertyValue<?> value = mCarPropertyManager
-                    .getProperty(sensor.mPropertyId, sensor.mAreaId);
-            return sensor.mAdapter.apply(value);
-        } catch (CarNotConnectedException ex) {
-            Log.e(TAG, "We got disconnected from Car Service", ex);
-            return null;
-        }
+        CarPropertyValue<?> value = mCarPropertyManager
+                .getProperty(sensor.mPropertyId, sensor.mAreaId);
+        return sensor.mAdapter.apply(value);
     }
 
     /**

@@ -17,7 +17,6 @@
 package com.android.car;
 
 import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
@@ -84,12 +83,8 @@ public class CarLocationService extends BroadcastReceiver implements
     private final ServiceConnection mCarServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            try {
-                mCarPowerManager = (CarPowerManager) mCar.getCarManager(Car.POWER_SERVICE);
-                mCarPowerManager.setListener(CarLocationService.this);
-            } catch (CarNotConnectedException e) {
-                Log.e(TAG, "Failed to get CarPowerManager instance", e);
-            }
+            mCarPowerManager = (CarPowerManager) mCar.getCarManager(Car.POWER_SERVICE);
+            mCarPowerManager.setListener(CarLocationService.this);
         }
 
         @Override

@@ -18,7 +18,6 @@ package com.google.android.car.kitchensink;
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
-import android.car.CarNotConnectedException;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
@@ -295,21 +294,17 @@ public class KitchenSinkActivity extends DrawerActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Connected to Car Service");
             synchronized (mPropertyManagerReady) {
-                try {
-                    mHvacManager = (CarHvacManager) mCarApi.getCarManager(
-                            android.car.Car.HVAC_SERVICE);
-                    mPowerManager = (CarPowerManager) mCarApi.getCarManager(
-                            android.car.Car.POWER_SERVICE);
-                    mPropertyManager = (CarPropertyManager) mCarApi.getCarManager(
-                            android.car.Car.PROPERTY_SERVICE);
-                    mSensorManager = (CarSensorManager) mCarApi.getCarManager(
-                            android.car.Car.SENSOR_SERVICE);
-                    mCarAppFocusManager =
-                            (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
-                    mPropertyManagerReady.notifyAll();
-                } catch (CarNotConnectedException e) {
-                    Log.e(TAG, "Car is not connected!", e);
-                }
+                mHvacManager = (CarHvacManager) mCarApi.getCarManager(
+                        android.car.Car.HVAC_SERVICE);
+                mPowerManager = (CarPowerManager) mCarApi.getCarManager(
+                        android.car.Car.POWER_SERVICE);
+                mPropertyManager = (CarPropertyManager) mCarApi.getCarManager(
+                        android.car.Car.PROPERTY_SERVICE);
+                mSensorManager = (CarSensorManager) mCarApi.getCarManager(
+                        android.car.Car.SENSOR_SERVICE);
+                mCarAppFocusManager =
+                        (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
+                mPropertyManagerReady.notifyAll();
             }
         }
 

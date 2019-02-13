@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateManager;
 import android.car.drivingstate.CarUxRestrictions;
@@ -86,7 +85,7 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testDrivingStateChange() throws CarNotConnectedException, InterruptedException {
+    public void testDrivingStateChange() throws InterruptedException {
         CarDrivingStateEvent drivingEvent;
         CarUxRestrictions restrictions;
         DrivingStateListener listener = new DrivingStateListener();
@@ -176,8 +175,7 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testDrivingStateChangeForMalformedInputs()
-            throws CarNotConnectedException, InterruptedException {
+    public void testDrivingStateChangeForMalformedInputs() throws InterruptedException {
         CarDrivingStateEvent drivingEvent;
         CarUxRestrictions restrictions;
         DrivingStateListener listener = new DrivingStateListener();
