@@ -264,9 +264,9 @@ public class MainClusterActivity extends FragmentActivity {
 
         mClusterViewModel = ViewModelProviders.of(this).get(ClusterViewModel.class);
         mClusterViewModel.getNavigationFocus().observe(this, focus -> {
-            mNavStateController.setActive(focus);
             // If focus is lost, we launch the default navigation activity again.
             if (!focus) {
+                mNavStateController.update(null);
                 tryLaunchNavigationActivity();
             }
         });

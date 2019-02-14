@@ -102,7 +102,8 @@ public class ImageResolver {
             Log.d(TAG, String.format("Returning image %s (width: %d, height: %d)",
                     img.getRawContentUri(), width, height));
         }
-        return bitmap != null ? Bitmap.createScaledBitmap(bitmap, width, height, true) : null;
+        return bitmap != null ? Bitmap.createScaledBitmap(bitmap, adjusted.x, adjusted.y, true)
+                : null;
     }
 
     /**

@@ -35,7 +35,7 @@
     <!-- ETA -->
     <dimen name="eta_text_size">15sp</dimen>
     <!-- Cue -->
-    <dimen name="cue_line_height">15sp</dimen>
+    <dimen name="cue_text_size">15sp</dimen>
     <!-- Lane -->
     <dimen name="laneview_height">25dp</dimen>
     <dimen name="lane_width">50dp</dimen>
