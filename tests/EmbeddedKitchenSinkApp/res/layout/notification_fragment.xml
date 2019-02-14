@@ -15,6 +15,7 @@
 -->
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:fadeScrollbars="false">
@@ -54,6 +55,16 @@
                 android:textSize="30sp"/>
 
             <Button
+                android:id="@+id/test_message_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="#ffa9a8"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:text="Message (auto update every 6 secs)"
+                android:textSize="30sp"/>
+
+            <Button
                 android:id="@+id/navigation_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -61,6 +72,16 @@
                 android:background="#ffa9a8"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:text="Navigation (Only show heads-up, not shown in notification center)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/media_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="#ffa9a8"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:text="Media (Not shown anywhere)"
                 android:textSize="30sp"/>
 
             <Button
