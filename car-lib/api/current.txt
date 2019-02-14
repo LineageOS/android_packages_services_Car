@@ -158,7 +158,9 @@ package android.car {
     field public static final int PARKING_BRAKE_AUTO_APPLY = 287310851; // 0x11200403
     field public static final int PARKING_BRAKE_ON = 287310850; // 0x11200402
     field public static final int PERF_ODOMETER = 291504644; // 0x11600204
+    field public static final int PERF_STEERING_ANGLE = 291504649; // 0x11600209
     field public static final int PERF_VEHICLE_SPEED = 291504647; // 0x11600207
+    field public static final int PERF_VEHICLE_SPEED_DISPLAY = 291504648; // 0x11600208
     field public static final int RANGE_REMAINING = 291504904; // 0x11600308
     field public static final int SEAT_BACKREST_ANGLE_1_MOVE = 356518792; // 0x15400b88
     field public static final int SEAT_BACKREST_ANGLE_1_POS = 356518791; // 0x15400b87
