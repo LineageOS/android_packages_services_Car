@@ -18,6 +18,8 @@ package com.android.car.user;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
@@ -73,6 +75,9 @@ public class CarUserServiceTest {
 
     private static final String DEFAULT_ADMIN_NAME = "defaultName";
 
+    private boolean mUser0TaskExecuted;
+
+
     /**
      * Initialize all of the objects with the @Mock annotation.
      */
@@ -98,6 +103,9 @@ public class CarUserServiceTest {
      */
     @Test
     public void testRegistersToReceiveEvents() {
+        if (!mCarUserManagerHelper.isHeadlessSystemUser()) {
+            return;
+        }
         ArgumentCaptor<IntentFilter> argument = ArgumentCaptor.forClass(IntentFilter.class);
         mCarUserService.init();
         verify(mMockContext).registerReceiver(eq(mCarUserService), argument.capture());
@@ -200,6 +208,27 @@ public class CarUserServiceTest {
         putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
         mCarUserService.onReceive(mMockContext, new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
         verify(mCarUserManagerHelper, never()).initDefaultGuestRestrictions();
+    }
+
+    @Test
+    public void testRunOnUser0UnlockImmediate() {
+        mUser0TaskExecuted = false;
+        mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
+        mCarUserService.runOnUser0Unlock(() -> {
+            mUser0TaskExecuted = true;
+        });
+        assertTrue(mUser0TaskExecuted);
+    }
+
+    @Test
+    public void testRunOnUser0UnlockLater() {
+        mUser0TaskExecuted = false;
+        mCarUserService.runOnUser0Unlock(() -> {
+            mUser0TaskExecuted = true;
+        });
+        assertFalse(mUser0TaskExecuted);
+        mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
+        assertTrue(mUser0TaskExecuted);
     }
 
     private void putSettingsInt(String key, int value) {

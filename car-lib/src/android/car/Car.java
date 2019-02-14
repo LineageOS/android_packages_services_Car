@@ -458,14 +458,6 @@ public final class Car {
     public @interface ConnectionType {}
 
     /**
-     * CarXyzService throws IllegalStateException with this message is re-thrown as
-     * {@link CarNotConnectedException}.
-     *
-     * @hide
-     */
-    public static final String CAR_NOT_CONNECTED_EXCEPTION_MSG = "CarNotConnected";
-
-    /**
      * Activity Action: Provide media playing through a media template app.
      * <p>Input: String extra mapped by {@link android.app.SearchManager#QUERY} is the query
      * used to start the media. String extra mapped by {@link #CAR_EXTRA_MEDIA_PACKAGE} is the
@@ -750,10 +742,9 @@ public final class Car {
      * SensorManagerService sensorManagerService = car.getCarManager(Car.SENSOR_SERVICE);
      * @param serviceName Name of service that should be created like {@link #SENSOR_SERVICE}.
      * @return Matching service manager or null if there is no such service.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     @Nullable
-    public Object getCarManager(String serviceName) throws CarNotConnectedException {
+    public Object getCarManager(String serviceName) {
         CarManagerBase manager;
         ICar service = getICarOrThrow();
         synchronized (mCarManagerLock) {
@@ -775,7 +766,7 @@ public final class Car {
                     }
                     mServiceMap.put(serviceName, manager);
                 } catch (RemoteException e) {
-                    handleRemoteException(e);
+                    throw e.rethrowFromSystemServer();
                 }
             }
         }
@@ -791,39 +782,8 @@ public final class Car {
         return CONNECTION_TYPE_EMBEDDED;
     }
 
-    /**
-     * IllegalStateException from XyzCarService with special message is re-thrown as a different
-     * exception. If the IllegalStateException is not understood then this message will throw the
-     * original exception.
-     *
-     * @param e exception from XyzCarService.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
-     * @hide
-     */
-    public static void checkCarNotConnectedExceptionFromCarService(
-            IllegalStateException e) throws CarNotConnectedException, IllegalStateException {
-        String message = e.getMessage();
-        if (CAR_NOT_CONNECTED_EXCEPTION_MSG.equals(message)) {
-            throw new CarNotConnectedException();
-        } else {
-            throw e;
-        }
-    }
-
-    /** @hide */
-    public static void hideCarNotConnectedExceptionFromCarService(
-            IllegalStateException e) throws IllegalStateException {
-        String message = e.getMessage();
-        if (CAR_NOT_CONNECTED_EXCEPTION_MSG.equals(message)) {
-            return; //ignore
-        } else {
-            throw e;
-        }
-    }
-
     @Nullable
-    private CarManagerBase createCarManager(String serviceName, IBinder binder)
-            throws CarNotConnectedException {
+    private CarManagerBase createCarManager(String serviceName, IBinder binder) {
         CarManagerBase manager = null;
         switch (serviceName) {
             case AUDIO_SERVICE:
@@ -926,11 +886,6 @@ public final class Car {
             throw new IllegalStateException("not connected");
         }
         return mService;
-    }
-
-    private void handleRemoteException(RemoteException e) {
-        Log.w(CarLibLog.TAG_CAR, "RemoteException", e);
-        disconnect();
     }
 
     private void tearDownCarManagers() {

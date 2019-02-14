@@ -130,10 +130,8 @@ public final class CarAppFocusManager implements CarManagerBase {
      * Register listener to monitor app focus change.
      * @param listener
      * @param appType Application type to get notification for.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void addFocusListener(OnAppFocusChangedListener listener, @AppFocusType int appType)
-            throws CarNotConnectedException {
+    public void addFocusListener(OnAppFocusChangedListener listener, @AppFocusType int appType) {
         if (listener == null) {
             throw new IllegalArgumentException("null listener");
         }
@@ -149,7 +147,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         try {
             mService.registerFocusListener(binder, appType);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -157,7 +155,6 @@ public final class CarAppFocusManager implements CarManagerBase {
      * Unregister listener for application type and stop listening focus change events.
      * @param listener
      * @param appType
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public void removeFocusListener(OnAppFocusChangedListener listener, @AppFocusType int appType) {
         IAppFocusListenerImpl binder;
@@ -170,7 +167,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         try {
             mService.unregisterFocusListener(binder, appType);
         } catch (RemoteException e) {
-            //ignore
+            throw e.rethrowFromSystemServer();
         }
         synchronized (this) {
             binder.removeAppType(appType);
@@ -184,7 +181,6 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * Unregister listener and stop listening focus change events.
      * @param listener
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public void removeFocusListener(OnAppFocusChangedListener listener) {
         IAppFocusListenerImpl binder;
@@ -199,20 +195,19 @@ public final class CarAppFocusManager implements CarManagerBase {
                 mService.unregisterFocusListener(binder, appType);
             }
         } catch (RemoteException e) {
-            //ignore
+            throw e.rethrowFromSystemServer();
         }
     }
 
     /**
      * Returns application types currently active in the system.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @hide
      */
-    public int[] getActiveAppTypes() throws CarNotConnectedException {
+    public int[] getActiveAppTypes() {
         try {
             return mService.getActiveAppTypes();
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -220,10 +215,8 @@ public final class CarAppFocusManager implements CarManagerBase {
      * Checks if listener is associated with active a focus
      * @param callback
      * @param appType
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public boolean isOwningFocus(OnAppFocusOwnershipCallback callback, @AppFocusType int appType)
-            throws CarNotConnectedException {
+    public boolean isOwningFocus(OnAppFocusOwnershipCallback callback, @AppFocusType int appType) {
         IAppFocusOwnershipCallbackImpl binder;
         synchronized (this) {
             binder = mOwnershipBinders.get(callback);
@@ -234,7 +227,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         try {
             return mService.isOwningFocus(binder, appType);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -247,12 +240,10 @@ public final class CarAppFocusManager implements CarManagerBase {
      * @param appType
      * @param ownershipCallback
      * @return {@link #APP_FOCUS_REQUEST_FAILED} or {@link #APP_FOCUS_REQUEST_SUCCEEDED}
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @throws SecurityException If owner cannot be changed.
      */
-    public @AppFocusRequestResult int requestAppFocus(int appType,
-            OnAppFocusOwnershipCallback ownershipCallback)
-                    throws SecurityException, CarNotConnectedException {
+    public @AppFocusRequestResult int requestAppFocus(
+            int appType, OnAppFocusOwnershipCallback ownershipCallback) {
         if (ownershipCallback == null) {
             throw new IllegalArgumentException("null listener");
         }
@@ -268,7 +259,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         try {
             return mService.requestAppFocus(binder, appType);
         } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -277,7 +268,6 @@ public final class CarAppFocusManager implements CarManagerBase {
      * for the focus.
      * @param ownershipCallback
      * @param appType
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback,
             @AppFocusType int appType) {
@@ -294,7 +284,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         try {
             mService.abandonAppFocus(binder, appType);
         } catch (RemoteException e) {
-            //ignore
+            throw e.rethrowFromSystemServer();
         }
         synchronized (this) {
             binder.removeAppType(appType);
@@ -308,7 +298,6 @@ public final class CarAppFocusManager implements CarManagerBase {
      * Abandon all focuses, i.e. mark them as inactive. This also involves releasing ownership
      * for the focus.
      * @param ownershipCallback
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback) {
         IAppFocusOwnershipCallbackImpl binder;
@@ -323,7 +312,7 @@ public final class CarAppFocusManager implements CarManagerBase {
                 mService.abandonAppFocus(binder, appType);
             }
         } catch (RemoteException e) {
-            //ignore
+            throw e.rethrowFromSystemServer();
         }
     }
 

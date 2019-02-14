@@ -18,7 +18,6 @@ package com.android.car;
 
 import static java.lang.Integer.toHexString;
 
-import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
@@ -81,8 +80,7 @@ public class CarPropertyService extends ICarProperty.Stub
             try {
                 mListenerBinder.linkToDeath(this, 0);
             } catch (RemoteException e) {
-                Log.e(TAG, "Failed to link death for recipient. " + e);
-                throw new IllegalStateException(Car.CAR_NOT_CONNECTED_EXCEPTION_MSG);
+                throw new IllegalStateException("Client already dead", e);
             }
             mClientMap.put(mListenerBinder, this);
         }

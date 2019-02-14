@@ -21,7 +21,6 @@ import static android.car.CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND;
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
-import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -305,13 +304,12 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
                 APP_FOCUS_TYPE_NAVIGATION, false));
     }
 
-    private CarAppFocusManager createManager()
-            throws CarNotConnectedException, InterruptedException {
+    private CarAppFocusManager createManager() throws InterruptedException {
         return createManager(getContext(), mEventThread);
     }
 
     private static CarAppFocusManager createManager(Context context,
-            LooperThread eventThread) throws InterruptedException, CarNotConnectedException {
+            LooperThread eventThread) throws InterruptedException {
         Car car = createCar(context, eventThread);
         CarAppFocusManager manager = (CarAppFocusManager) car.getCarManager(Car.APP_FOCUS_SERVICE);
         assertNotNull(manager);

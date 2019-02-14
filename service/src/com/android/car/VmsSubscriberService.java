@@ -143,8 +143,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
                 try {
                     subscriberBinder.linkToDeath(deathRecipient, 0);
                 } catch (RemoteException e) {
-                    Log.e(TAG, "Failed to link death for recipient. ", e);
-                    throw new IllegalStateException(Car.CAR_NOT_CONNECTED_EXCEPTION_MSG);
+                    throw new IllegalStateException("Client already dead", e);
                 }
                 mListenerDeathRecipientMap.put(subscriberBinder, deathRecipient);
                 mSubscriberMap.put(subscriberBinder, subscriber);

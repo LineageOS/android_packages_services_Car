@@ -19,22 +19,15 @@ package android.car.vms;
 import android.annotation.CallbackExecutor;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
-import android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback;
-import android.os.Handler;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
-import java.lang.ref.WeakReference;
 import java.util.concurrent.Executor;
 
 /**
@@ -120,9 +113,9 @@ public final class VmsSubscriberManager implements CarManagerBase {
      * @param clientCallback subscriber callback that will handle onVmsMessageReceived events.
      * @throws IllegalStateException if the client callback was already set.
      */
-    public void setVmsSubscriberClientCallback(@NonNull @CallbackExecutor Executor executor,
-                @NonNull VmsSubscriberClientCallback clientCallback)
-          throws CarNotConnectedException {
+    public void setVmsSubscriberClientCallback(
+            @NonNull @CallbackExecutor Executor executor,
+            @NonNull VmsSubscriberClientCallback clientCallback) {
         Preconditions.checkNotNull(clientCallback);
         Preconditions.checkNotNull(executor);
         synchronized (mClientCallbackLock) {
@@ -135,26 +128,22 @@ public final class VmsSubscriberManager implements CarManagerBase {
         try {
             mVmsSubscriberService.addVmsSubscriberToNotifications(mSubscriberManagerClient);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
 
     /**
      * Clears the client callback which disables communication with the client.
-     *
-     * @throws CarNotConnectedException
      */
-    public void clearVmsSubscriberClientCallback() throws CarNotConnectedException {
+    public void clearVmsSubscriberClientCallback() {
         synchronized (mClientCallbackLock) {
             if (mExecutor == null) return;
         }
         try {
             mVmsSubscriberService.removeVmsSubscriberToNotifications(mSubscriberManagerClient);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         } finally {
             synchronized (mClientCallbackLock) {
                 mClientCallback = null;
@@ -166,32 +155,22 @@ public final class VmsSubscriberManager implements CarManagerBase {
     /**
      * Returns a serialized publisher information for a publisher ID.
      */
-    public byte[] getPublisherInfo(int publisherId)
-            throws CarNotConnectedException, IllegalStateException {
+    public byte[] getPublisherInfo(int publisherId) {
         try {
             return mVmsSubscriberService.getPublisherInfo(publisherId);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
-            throw new IllegalStateException(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
     /**
      * Returns the available layers.
      */
-    public VmsAvailableLayers getAvailableLayers()
-            throws CarNotConnectedException, IllegalStateException {
+    public VmsAvailableLayers getAvailableLayers() {
         try {
             return mVmsSubscriberService.getAvailableLayers();
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
-            throw new IllegalStateException(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -202,16 +181,13 @@ public final class VmsSubscriberManager implements CarManagerBase {
      * @throws IllegalStateException if the client callback was not set via
      *                               {@link #setVmsSubscriberClientCallback}.
      */
-    public void subscribe(VmsLayer layer) throws CarNotConnectedException {
+    public void subscribe(VmsLayer layer) {
         verifySubscriptionIsAllowed();
         try {
             mVmsSubscriberService.addVmsSubscriber(mSubscriberManagerClient, layer);
             VmsOperationRecorder.get().subscribe(layer);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -223,30 +199,25 @@ public final class VmsSubscriberManager implements CarManagerBase {
      * @throws IllegalStateException if the client callback was not set via
      *                               {@link #setVmsSubscriberClientCallback}.
      */
-    public void subscribe(VmsLayer layer, int publisherId) throws CarNotConnectedException {
+    public void subscribe(VmsLayer layer, int publisherId) {
         verifySubscriptionIsAllowed();
         try {
             mVmsSubscriberService.addVmsSubscriberToPublisher(
                     mSubscriberManagerClient, layer, publisherId);
             VmsOperationRecorder.get().subscribe(layer, publisherId);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
-    public void startMonitoring() throws CarNotConnectedException {
+    /** Starts monitoring. */
+    public void startMonitoring() {
         verifySubscriptionIsAllowed();
         try {
             mVmsSubscriberService.addVmsSubscriberPassive(mSubscriberManagerClient);
             VmsOperationRecorder.get().startMonitoring();
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -263,10 +234,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             mVmsSubscriberService.removeVmsSubscriber(mSubscriberManagerClient, layer);
             VmsOperationRecorder.get().unsubscribe(layer);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to clear subscriber", e);
-            // ignore
-        } catch (IllegalStateException ex) {
-            Car.hideCarNotConnectedExceptionFromCarService(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -284,10 +252,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
                     mSubscriberManagerClient, layer, publisherId);
             VmsOperationRecorder.get().unsubscribe(layer, publisherId);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to clear subscriber", e);
-            // ignore
-        } catch (IllegalStateException ex) {
-            Car.hideCarNotConnectedExceptionFromCarService(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -296,10 +261,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             mVmsSubscriberService.removeVmsSubscriberPassive(mSubscriberManagerClient);
             VmsOperationRecorder.get().stopMonitoring();
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to clear subscriber ", e);
-            // ignore
-        } catch (IllegalStateException ex) {
-            Car.hideCarNotConnectedExceptionFromCarService(ex);
+            throw e.rethrowFromSystemServer();
         }
     }
 

@@ -44,9 +44,9 @@ public class NotificationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mManager =
-                (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         mContext = getActivity();
+        mManager =
+                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         mManager.createNotificationChannel(new NotificationChannel(
                 IMPORTANCE_HIGH_ID, "Importance High", NotificationManager.IMPORTANCE_HIGH));
@@ -106,7 +106,7 @@ public class NotificationFragment extends Fragment {
     private void initCarCategoriesButton(View view) {
         view.findViewById(R.id.category_car_emergency_button).setOnClickListener(v -> {
             Notification notification = new Notification
-                    .Builder(getActivity(), IMPORTANCE_DEFAULT_ID)
+                    .Builder(mContext, IMPORTANCE_DEFAULT_ID)
                     .setContentTitle("Car Emergency")
                     .setContentText("Shows heads-up; Shows on top of the list; Does not group")
                     .setCategory(Notification.CATEGORY_CAR_EMERGENCY)
@@ -118,7 +118,7 @@ public class NotificationFragment extends Fragment {
         view.findViewById(R.id.category_car_warning_button).setOnClickListener(v -> {
 
             Notification notification = new Notification
-                    .Builder(getActivity(), IMPORTANCE_MIN_ID)
+                    .Builder(mContext, IMPORTANCE_MIN_ID)
                     .setContentTitle("Car Warning")
                     .setContentText(
                             "Shows heads-up; Shows on top of the list but below Car Emergency; "
@@ -133,7 +133,7 @@ public class NotificationFragment extends Fragment {
 
         view.findViewById(R.id.category_car_info_button).setOnClickListener(v -> {
             Notification notification = new Notification
-                    .Builder(getActivity(), IMPORTANCE_DEFAULT_ID)
+                    .Builder(mContext, IMPORTANCE_DEFAULT_ID)
                     .setContentTitle("Car information")
                     .setContentText("Doesn't show heads-up; Importance Default; Groups")
                     .setCategory(Notification.CATEGORY_CAR_INFORMATION)
@@ -147,11 +147,11 @@ public class NotificationFragment extends Fragment {
     }
 
     private void initImportanceHighBotton(View view) {
-        Intent mIntent = new Intent(getActivity(), KitchenSinkActivity.class);
-        PendingIntent mPendingIntent = PendingIntent.getActivity(getActivity(), 0, mIntent, 0);
+        Intent mIntent = new Intent(mContext, KitchenSinkActivity.class);
+        PendingIntent mPendingIntent = PendingIntent.getActivity(mContext, 0, mIntent, 0);
 
         Notification notification1 = new Notification
-                .Builder(getActivity(), IMPORTANCE_HIGH_ID)
+                .Builder(mContext, IMPORTANCE_HIGH_ID)
                 .setContentTitle("Importance High: Shows as a heads-up")
                 .setContentText(
                         "Each click generates a new notification. And some "
@@ -179,7 +179,7 @@ public class NotificationFragment extends Fragment {
     private void initImportanceDefaultButton(View view) {
         view.findViewById(R.id.importance_default_button).setOnClickListener(v -> {
             Notification notification = new Notification
-                    .Builder(getActivity(), IMPORTANCE_DEFAULT_ID)
+                    .Builder(mContext, IMPORTANCE_DEFAULT_ID)
                     .setContentTitle("No heads-up; Importance Default; Groups")
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .build();
@@ -190,7 +190,7 @@ public class NotificationFragment extends Fragment {
     private void initImportanceLowButton(View view) {
         view.findViewById(R.id.importance_low_button).setOnClickListener(v -> {
 
-            Notification notification = new Notification.Builder(getActivity(), IMPORTANCE_LOW_ID)
+            Notification notification = new Notification.Builder(mContext, IMPORTANCE_LOW_ID)
                     .setContentTitle("Importance Low")
                     .setContentText("No heads-up; Below Importance Default; Groups")
                     .setSmallIcon(R.drawable.car_ic_mode)
@@ -202,7 +202,7 @@ public class NotificationFragment extends Fragment {
     private void initImportanceMinButton(View view) {
         view.findViewById(R.id.importance_min_button).setOnClickListener(v -> {
 
-            Notification notification = new Notification.Builder(getActivity(), IMPORTANCE_MIN_ID)
+            Notification notification = new Notification.Builder(mContext, IMPORTANCE_MIN_ID)
                     .setContentTitle("Importance Min")
                     .setContentText("No heads-up; Below Importance Low; Groups")
                     .setSmallIcon(R.drawable.car_ic_mode)
@@ -215,7 +215,7 @@ public class NotificationFragment extends Fragment {
         view.findViewById(R.id.ongoing_button).setOnClickListener(v -> {
 
             Notification notification = new Notification
-                    .Builder(getActivity(), IMPORTANCE_DEFAULT_ID)
+                    .Builder(mContext, IMPORTANCE_DEFAULT_ID)
                     .setContentTitle("Persistent/Ongoing Notification")
                     .setContentText("Cannot be dismissed; No heads-up; Importance default; Groups")
                     .setSmallIcon(R.drawable.car_ic_mode)
@@ -226,19 +226,14 @@ public class NotificationFragment extends Fragment {
     }
 
     private void initMessagingStyleButton(View view) {
-        int id = mCurrentNotificationId++;
-
         view.findViewById(R.id.category_message_button).setOnClickListener(v -> {
+            int id = mCurrentNotificationId++;
 
             PendingIntent replyIntent = createServiceIntent(id, "reply");
             PendingIntent markAsReadIntent = createServiceIntent(id, "read");
 
-            Person personJohn = new Person.Builder()
-                    .setName("John Doe")
-                    .build();
-            Person personJane = new Person.Builder()
-                    .setName("Jane Roe")
-                    .build();
+            Person personJohn = new Person.Builder().setName("John Doe").build();
+            Person personJane = new Person.Builder().setName("Jane Roe").build();
             MessagingStyle messagingStyle =
                     new MessagingStyle(personJohn)
                             .setConversationTitle("Heads-up: New Message")
@@ -255,11 +250,16 @@ public class NotificationFragment extends Fragment {
                                             personJohn))
                             .addMessage(
                                     new MessagingStyle.Message(
-                                            "Importance High; Groups", System.currentTimeMillis(),
+                                            "Importance High; Groups; Each click generates a new"
+                                                    + "notification. And some looooooong text. "
+                                                    + "Loooooooooooooooooooooong. "
+                                                    + "Loooooooooooooooooooooooooong."
+                                                    + "Long long long long text.",
+                                            System.currentTimeMillis(),
                                             personJane));
 
             NotificationCompat.Builder notification = new NotificationCompat
-                    .Builder(getActivity(), IMPORTANCE_HIGH_ID)
+                    .Builder(mContext, IMPORTANCE_HIGH_ID)
                     .setContentTitle("Message from someone")
                     .setContentText("hi")
                     .setShowWhen(true)
@@ -296,9 +296,12 @@ public class NotificationFragment extends Fragment {
             int id = mCurrentNotificationId++;
 
             Notification notification = new Notification
-                    .Builder(getActivity(), IMPORTANCE_DEFAULT_ID)
+                    .Builder(mContext, IMPORTANCE_DEFAULT_ID)
                     .setContentTitle("Progress")
-                    .setContentText("Doesn't show heads-up; Importance Default; Groups")
+                    .setOngoing(true)
+                    .setContentText(
+                            "Doesn't show heads-up; Importance Default; Groups; Ongoing (cannot "
+                                    + "be dismissed)")
                     .setProgress(100, 0, false)
                     .setColor(mContext.getColor(android.R.color.holo_purple))
                     .setContentInfo("0%")
@@ -312,10 +315,11 @@ public class NotificationFragment extends Fragment {
                 @Override
                 public void run() {
                     Notification updateNotification = new Notification
-                            .Builder(getActivity(), IMPORTANCE_DEFAULT_ID)
+                            .Builder(mContext, IMPORTANCE_DEFAULT_ID)
                             .setContentTitle("Progress")
                             .setContentText("Doesn't show heads-up; Importance Default; Groups")
                             .setProgress(100, mProgress, false)
+                            .setOngoing(true)
                             .setColor(mContext.getColor(android.R.color.holo_purple))
                             .setContentInfo(mProgress + "%")
                             .setSmallIcon(R.drawable.car_ic_mode)
@@ -337,7 +341,8 @@ public class NotificationFragment extends Fragment {
             int id = mCurrentNotificationId++;
 
             Notification notification = new Notification
-                    .Builder(getActivity(), IMPORTANCE_HIGH_ID)
+                    .Builder(mContext, IMPORTANCE_HIGH_ID)
+                    .setCategory(Notification.CATEGORY_NAVIGATION)
                     .setContentTitle("Navigation")
                     .setContentText("Turn right in 900 ft")
                     .setColor(mContext.getColor(android.R.color.holo_green_dark))
@@ -353,7 +358,8 @@ public class NotificationFragment extends Fragment {
                 @Override
                 public void run() {
                     Notification updateNotification = new Notification
-                            .Builder(getActivity(), IMPORTANCE_HIGH_NO_SOUND_ID)
+                            .Builder(mContext, IMPORTANCE_HIGH_NO_SOUND_ID)
+                            .setCategory(Notification.CATEGORY_NAVIGATION)
                             .setContentTitle("Navigation")
                             .setContentText("Turn right in " + mDistance + " ft")
                             .setColor(mContext.getColor(android.R.color.holo_green_dark))
@@ -375,7 +381,8 @@ public class NotificationFragment extends Fragment {
                 @Override
                 public void run() {
                     Notification updateNotification = new Notification
-                            .Builder(getActivity(), IMPORTANCE_HIGH_NO_SOUND_ID)
+                            .Builder(mContext, IMPORTANCE_HIGH_NO_SOUND_ID)
+                            .setCategory(Notification.CATEGORY_NAVIGATION)
                             .setContentTitle("Navigation")
                             .setContentText("Exit in " + mDistance + " miles")
                             .setColor(mContext.getColor(android.R.color.holo_green_dark))

@@ -17,6 +17,7 @@
 package android.car.vms;
 
 
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.app.Service;
 import android.content.Intent;
@@ -25,7 +26,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
-import android.annotation.Nullable;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
@@ -113,7 +113,7 @@ public abstract class VmsPublisherClientService extends Service {
         try {
             mVmsPublisherService.publish(token, layer, publisherId, payload);
         } catch (RemoteException e) {
-            Log.e(TAG, "unable to publish message: " + payload, e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -134,7 +134,7 @@ public abstract class VmsPublisherClientService extends Service {
             mVmsPublisherService.setLayersOffering(token, offering);
             VmsOperationRecorder.get().setLayersOffering(offering);
         } catch (RemoteException e) {
-            Log.e(TAG, "unable to set layers offering: " + offering, e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -162,7 +162,7 @@ public abstract class VmsPublisherClientService extends Service {
             Log.i(TAG, "Getting publisher static ID");
             publisherId = mVmsPublisherService.getPublisherId(publisherInfo);
         } catch (RemoteException e) {
-            Log.e(TAG, "unable to invoke binder method.", e);
+            throw e.rethrowFromSystemServer();
         }
         if (publisherId == null) {
             throw new IllegalStateException("VmsPublisherService cannot get a publisher static ID.");
@@ -184,9 +184,8 @@ public abstract class VmsPublisherClientService extends Service {
         try {
             return mVmsPublisherService.getSubscriptions();
         } catch (RemoteException e) {
-            Log.e(TAG, "unable to invoke binder method.", e);
+            throw e.rethrowFromSystemServer();
         }
-        return null;
     }
 
     private void setVmsPublisherService(IVmsPublisherService service) {

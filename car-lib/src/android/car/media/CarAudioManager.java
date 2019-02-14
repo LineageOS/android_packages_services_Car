@@ -21,7 +21,6 @@ import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
-import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.os.Handler;
@@ -80,12 +79,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @hide
      */
     @TestApi
-    public boolean isDynamicRoutingEnabled() throws CarNotConnectedException {
+    public boolean isDynamicRoutingEnabled() {
         try {
             return mService.isDynamicRoutingEnabled();
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "isDynamicRoutingEnabled failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -94,7 +92,7 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * @see {@link #setGroupVolume(int, int, int, int)}
      */
-    public void setGroupVolume(int groupId, int index, int flags) throws CarNotConnectedException {
+    public void setGroupVolume(int groupId, int index, int flags) {
         setGroupVolume(PRIMARY_AUDIO_ZONE, groupId, index, flags);
     }
 
@@ -109,13 +107,11 @@ public final class CarAudioManager implements CarManagerBase {
      *              {@link android.media.AudioManager#FLAG_PLAY_SOUND})
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    public void setGroupVolume(int zoneId, int groupId, int index, int flags)
-            throws CarNotConnectedException {
+    public void setGroupVolume(int zoneId, int groupId, int index, int flags) {
         try {
             mService.setGroupVolume(zoneId, groupId, index, flags);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "setGroupVolume failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -124,7 +120,7 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * @see {@link #getGroupMaxVolume(int, int)}
      */
-    public int getGroupMaxVolume(int groupId) throws CarNotConnectedException {
+    public int getGroupMaxVolume(int groupId) {
         return getGroupMaxVolume(PRIMARY_AUDIO_ZONE, groupId);
     }
 
@@ -136,12 +132,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @return The maximum valid volume index for the given group.
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    public int getGroupMaxVolume(int zoneId, int groupId) throws CarNotConnectedException {
+    public int getGroupMaxVolume(int zoneId, int groupId) {
         try {
             return mService.getGroupMaxVolume(zoneId, groupId);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getGroupMaxVolume failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -150,7 +145,7 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * @see {@link #getGroupMinVolume(int, int)}
      */
-    public int getGroupMinVolume(int groupId) throws CarNotConnectedException {
+    public int getGroupMinVolume(int groupId) {
         return getGroupMinVolume(PRIMARY_AUDIO_ZONE, groupId);
     }
 
@@ -162,12 +157,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @return The minimum valid volume index for the given group, non-negative
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    public int getGroupMinVolume(int zoneId, int groupId) throws CarNotConnectedException {
+    public int getGroupMinVolume(int zoneId, int groupId) {
         try {
             return mService.getGroupMinVolume(zoneId, groupId);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getGroupMinVolume failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -176,7 +170,7 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * @see {@link #getGroupVolume(int, int)}
      */
-    public int getGroupVolume(int groupId) throws CarNotConnectedException {
+    public int getGroupVolume(int groupId) {
         return getGroupVolume(PRIMARY_AUDIO_ZONE, groupId);
     }
 
@@ -191,12 +185,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @see #setGroupVolume(int, int, int, int)
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    public int getGroupVolume(int zoneId, int groupId) throws CarNotConnectedException {
+    public int getGroupVolume(int zoneId, int groupId) {
         try {
             return mService.getGroupVolume(zoneId, groupId);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getGroupVolume failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -209,12 +202,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @see #setBalanceTowardRight(float)
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    public void setFadeTowardFront(float value) throws CarNotConnectedException {
+    public void setFadeTowardFront(float value) {
         try {
             mService.setFadeTowardFront(value);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "setFadeTowardFront failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -227,12 +219,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @see #setFadeTowardFront(float)
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    public void setBalanceTowardRight(float value) throws CarNotConnectedException {
+    public void setBalanceTowardRight(float value) {
         try {
             mService.setBalanceTowardRight(value);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "setBalanceTowardRight failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -248,12 +239,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @see #releaseAudioPatch(CarAudioPatchHandle)
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    public @NonNull String[] getExternalSources() throws CarNotConnectedException {
+    public @NonNull String[] getExternalSources() {
         try {
             return mService.getExternalSources();
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getExternalSources failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -277,13 +267,11 @@ public final class CarAudioManager implements CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public CarAudioPatchHandle createAudioPatch(String sourceAddress,
-            @AudioAttributes.AttributeUsage int usage, int gainInMillibels)
-            throws CarNotConnectedException {
+            @AudioAttributes.AttributeUsage int usage, int gainInMillibels) {
         try {
             return mService.createAudioPatch(sourceAddress, usage, gainInMillibels);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "createAudioPatch failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -297,12 +285,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @see #createAudioPatch(String, int, int)
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    public void releaseAudioPatch(CarAudioPatchHandle patch) throws CarNotConnectedException {
+    public void releaseAudioPatch(CarAudioPatchHandle patch) {
         try {
             mService.releaseAudioPatch(patch);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "releaseAudioPatch failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -311,7 +298,7 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * @see {@link #getVolumeGroupCount(int)}
      */
-    public int getVolumeGroupCount() throws CarNotConnectedException {
+    public int getVolumeGroupCount() {
         return getVolumeGroupCount(PRIMARY_AUDIO_ZONE);
     }
 
@@ -322,12 +309,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @return Count of volume groups
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    public int getVolumeGroupCount(int zoneId) throws CarNotConnectedException {
+    public int getVolumeGroupCount(int zoneId) {
         try {
             return mService.getVolumeGroupCount(zoneId);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getVolumeGroupCount failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -336,8 +322,7 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * @see {@link #getVolumeGroupIdForUsage(int, int)}
      */
-    public int getVolumeGroupIdForUsage(@AudioAttributes.AttributeUsage int usage)
-            throws CarNotConnectedException {
+    public int getVolumeGroupIdForUsage(@AudioAttributes.AttributeUsage int usage) {
         return getVolumeGroupIdForUsage(PRIMARY_AUDIO_ZONE, usage);
     }
 
@@ -349,13 +334,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @return The volume group id where the usage belongs to
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    public int getVolumeGroupIdForUsage(int zoneId, @AudioAttributes.AttributeUsage int usage)
-            throws CarNotConnectedException {
+    public int getVolumeGroupIdForUsage(int zoneId, @AudioAttributes.AttributeUsage int usage) {
         try {
             return mService.getVolumeGroupIdForUsage(zoneId, usage);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getVolumeGroupIdForUsage failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -364,7 +347,7 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * @see {@link #getUsagesForVolumeGroupId(int, int)}
      */
-    public @NonNull int[] getUsagesForVolumeGroupId(int groupId) throws CarNotConnectedException {
+    public @NonNull int[] getUsagesForVolumeGroupId(int groupId) {
         return getUsagesForVolumeGroupId(PRIMARY_AUDIO_ZONE, groupId);
     }
 
@@ -376,13 +359,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @return Array of {@link AudioAttributes} usages for a given volume group id
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    public @NonNull int[] getUsagesForVolumeGroupId(int zoneId, int groupId)
-            throws CarNotConnectedException {
+    public @NonNull int[] getUsagesForVolumeGroupId(int zoneId, int groupId) {
         try {
             return mService.getUsagesForVolumeGroupId(zoneId, groupId);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getUsagesForVolumeGroupId failed", e);
-            throw new CarNotConnectedException(e);
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -393,7 +374,7 @@ public final class CarAudioManager implements CarManagerBase {
             try {
                 mService.unregisterVolumeCallback(mCarVolumeCallbackImpl.asBinder());
             } catch (RemoteException e) {
-                Log.e(CarLibLog.TAG_CAR, "unregisterVolumeCallback failed", e);
+                throw e.rethrowFromSystemServer();
             }
         }
     }
