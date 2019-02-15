@@ -30,26 +30,22 @@ import android.car.drivingstate.ICarUxRestrictionsManager;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
-import android.car.userlib.CarUserManagerHelper;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.os.UserHandle;
 import android.util.AtomicFile;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
+import android.util.Slog;
 
+import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -88,14 +84,15 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private static final float SPEED_NOT_AVAILABLE = -1.0F;
 
     @VisibleForTesting
-    /* package */ static final String CONFIG_FILENAME_PRODUCTION = "prod_config.json";
+    /* package */ static final String CONFIG_FILENAME_PRODUCTION =
+            "ux_restrictions_prod_config.json";
     @VisibleForTesting
-    /* package */ static final String CONFIG_FILENAME_STAGED = "staged_config.json";
+    /* package */ static final String CONFIG_FILENAME_STAGED =
+            "ux_restrictions_staged_config.json";
 
     private final Context mContext;
     private final CarDrivingStateService mDrivingStateService;
     private final CarPropertyService mCarPropertyService;
-    private final CarUserManagerHelper mCarUserManagerHelper;
     // List of clients listening to UX restriction events.
     private final List<UxRestrictionsClient> mUxRClients = new ArrayList<>();
     private CarUxRestrictionsConfiguration mCarUxRestrictionsConfiguration;
@@ -107,66 +104,14 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     // For dumpsys logging
     private final LinkedList<Utils.TransitionLog> mTransitionLogs = new LinkedList<>();
 
-    // When UXR service boots up the context does not have access to storage yet, so it
-    // will likely read configuration from XML resource. Register to receive broadcast to
-    // attempt to read saved configuration when it becomes available.
-    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(action)) {
-                // If the system user is not headless, then we can read config as soon as the
-                // system has completed booting.
-                if (!mCarUserManagerHelper.isHeadlessSystemUser()) {
-                    logd("not headless on boot complete");
-                    PendingResult pendingResult = goAsync();
-                    LoadRestrictionsTask task = new LoadRestrictionsTask(pendingResult);
-                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                }
-            } else if (Intent.ACTION_USER_SWITCHED.equals(action)) {
-                int userHandle = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
-                logd("USER_SWITCHED: " + userHandle);
-                if (mCarUserManagerHelper.isHeadlessSystemUser()
-                        && userHandle > UserHandle.USER_SYSTEM) {
-                    PendingResult pendingResult = goAsync();
-                    LoadRestrictionsTask task = new LoadRestrictionsTask(pendingResult);
-                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                }
-            }
-        }
-    };
-
-    private class LoadRestrictionsTask extends AsyncTask<Void, Void, Void> {
-        private final BroadcastReceiver.PendingResult mPendingResult;
-
-        private LoadRestrictionsTask(BroadcastReceiver.PendingResult pendingResult) {
-            mPendingResult = pendingResult;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            mCarUxRestrictionsConfiguration = loadConfig();
-            handleDispatchUxRestrictions(mDrivingStateService.getCurrentDrivingState().eventValue,
-                    getCurrentSpeed());
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            mPendingResult.finish();
-        }
-    }
-
     public CarUxRestrictionsManagerService(Context context, CarDrivingStateService drvService,
-            CarPropertyService propertyService, CarUserManagerHelper carUserManagerHelper) {
+            CarPropertyService propertyService) {
         mContext = context;
         mDrivingStateService = drvService;
         mCarPropertyService = propertyService;
-        mCarUserManagerHelper = carUserManagerHelper;
-        // NOTE: during boot phase context cannot access file system so we most likely will
-        // use XML config. If prod config is set, it will be loaded in broadcast receiver.
-        mCarUxRestrictionsConfiguration = loadConfig();
+        // Dir for config files are not available at this point. Read from XML.
+        // If prod config is set, it will be loaded during init().
+        mCarUxRestrictionsConfiguration = readXmlConfig();
         // Unrestricted until driving state information is received. During boot up, we don't want
         // everything to be blocked until data is available from CarPropertyManager.  If we start
         // driving and we don't get speed or gear information, we have bigger problems.
@@ -183,15 +128,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         // subscribe to property service for speed
         mCarPropertyService.registerListener(VehicleProperty.PERF_VEHICLE_SPEED,
                 PROPERTY_UPDATE_RATE, mICarPropertyEventListener);
-        registerReceiverToLoadConfig();
+        // Load config again after car driving state service inits. At this stage the driving
+        // state is known, which determines whether it's safe to load new config.
+        mCarUxRestrictionsConfiguration = loadConfig();
         initializeUxRestrictions();
-    }
-
-    private void registerReceiverToLoadConfig() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_USER_SWITCHED);
-        filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
-        mContext.registerReceiver(mBroadcastReceiver, filter);
     }
 
     @Override
@@ -201,6 +141,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     /**
      * Loads a UX restrictions configuration and returns it.
+     *
      * <p>Reads config from the following sources in order:
      * <ol>
      * <li>saved config set by
@@ -208,14 +149,16 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      * <li>XML resource config from {@code R.xml.car_ux_restrictions_map};
      * <li>hardcoded default config.
      * </ol>
+     *
+     * This method attempts to promote staged config file. Doing which depends on driving state.
      */
     @VisibleForTesting
     /* package */ synchronized CarUxRestrictionsConfiguration loadConfig() {
         promoteStagedConfig();
 
-        CarUxRestrictionsConfiguration config = null;
+        CarUxRestrictionsConfiguration config;
         // Production config, if available, is the first choice.
-        File prodConfig = mContext.getFileStreamPath(CONFIG_FILENAME_PRODUCTION);
+        File prodConfig = getFile(CONFIG_FILENAME_PRODUCTION);
         if (prodConfig.exists()) {
             logd("Attempting to read production config");
             config = readPersistedConfig(prodConfig);
@@ -236,6 +179,11 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         return createDefaultConfig();
     }
 
+    private File getFile(String filename) {
+        SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
+        return new File(systemInterface.getSystemCarDir(), filename);
+    }
+
     @Nullable
     private CarUxRestrictionsConfiguration readXmlConfig() {
         try {
@@ -248,7 +196,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     private void promoteStagedConfig() {
-        Path stagedConfig = mContext.getFileStreamPath(CONFIG_FILENAME_STAGED).toPath();
+        Path stagedConfig = getFile(CONFIG_FILENAME_STAGED).toPath();
 
         CarDrivingStateEvent currentDrivingStateEvent =
                 mDrivingStateService.getCurrentDrivingState();
@@ -256,7 +204,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         if (currentDrivingStateEvent != null
                 && currentDrivingStateEvent.eventValue == CarDrivingStateEvent.DRIVING_STATE_PARKED
                 && Files.exists(stagedConfig)) {
-            Path prod = mContext.getFileStreamPath(CONFIG_FILENAME_PRODUCTION).toPath();
+
+            Path prod = getFile(CONFIG_FILENAME_PRODUCTION).toPath();
             try {
                 logd("Attempting to promote stage config");
                 Files.move(stagedConfig, prod, REPLACE_EXISTING);
@@ -400,7 +349,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     @Nullable
     public CarUxRestrictionsConfiguration getStagedConfig() {
-        File stagedConfig = mContext.getFileStreamPath(CONFIG_FILENAME_STAGED);
+        File stagedConfig = getFile(CONFIG_FILENAME_STAGED);
         if (stagedConfig.exists()) {
             logd("Attempting to read staged config");
             return readPersistedConfig(stagedConfig);
@@ -415,7 +364,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      * IO access on file is not thread safe. Caller should ensure threading protection.
      */
     private boolean persistConfig(CarUxRestrictionsConfiguration config, String filename) {
-        AtomicFile stagedFile = new AtomicFile(mContext.getFileStreamPath(filename));
+        File file = getFile(filename);
+        AtomicFile stagedFile = new AtomicFile(file);
         FileOutputStream fos;
         try {
             fos = stagedFile.startWrite();
@@ -700,7 +650,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     private static void logd(String msg) {
         if (DBG) {
-            Log.d(TAG, msg);
+            Slog.d(TAG, msg);
         }
     }
 }
