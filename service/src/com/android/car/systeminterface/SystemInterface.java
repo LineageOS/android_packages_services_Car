@@ -34,7 +34,7 @@ import java.util.Objects;
  * This class contains references to all the different wrapper interfaces between
  * CarService and the Android OS APIs.
  */
-public final class SystemInterface implements DisplayInterface, IOInterface,
+public class SystemInterface implements DisplayInterface, IOInterface,
         StorageMonitoringInterface, SystemStateInterface, TimeInterface,
         WakeLockInterface {
     private final DisplayInterface mDisplayInterface;
