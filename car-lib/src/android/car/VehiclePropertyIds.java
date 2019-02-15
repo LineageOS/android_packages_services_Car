@@ -19,7 +19,7 @@ package android.car;
 /**
  * Copy from android.hardware.automotive.vehicle-V2.0-java_gen_java/gen/android/hardware/automotive
  * /vehicle/V2_0. Need to update this file when vehicle propertyId is changed in VHAL.
- * Use it as PorpertyId in getProperty() and setProperty() in
+ * Use it as PropertyId in getProperty() and setProperty() in
  * {@link android.car.hardware.property.CarPropertyManager}
  */
 public final class VehiclePropertyIds {
@@ -79,6 +79,19 @@ public final class VehiclePropertyIds {
      * Speed of the vehicle
      */
     public static final int PERF_VEHICLE_SPEED = 291504647;
+    /**
+     * Speed of the vehicle for displays
+     *
+     * Some cars display a slightly slower speed than the actual speed. This is
+     * usually displayed on the speedometer.
+     */
+    public static final int PERF_VEHICLE_SPEED_DISPLAY = 291504648;
+    /**
+     * Steering angle of the vehicle
+     *
+     * Angle is in degrees. Left is negative.
+     */
+    public static final int PERF_STEERING_ANGLE = 291504649;
     /**
      * Temperature of engine coolant
      */
@@ -579,6 +592,12 @@ public final class VehiclePropertyIds {
         }
         if (o == PERF_VEHICLE_SPEED) {
             return "PERF_VEHICLE_SPEED";
+        }
+        if (o == PERF_VEHICLE_SPEED_DISPLAY) {
+            return "PERF_VEHICLE_SPEED_DISPLAY";
+        }
+        if (o == PERF_STEERING_ANGLE) {
+            return "PERF__STEERING_ANGLE";
         }
         if (o == ENGINE_COOLANT_TEMP) {
             return "ENGINE_COOLANT_TEMP";
