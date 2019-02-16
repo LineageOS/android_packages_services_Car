@@ -114,6 +114,9 @@ public class CarUserManagerHelperTest {
         // Restore the non-headless state before every test. Individual tests can set the property
         // to true to test the headless system user scenario.
         CarProperties.headless_system_user(false);
+
+        // Clear boot override for every test
+        CarProperties.boot_user_override_id(null);
     }
 
     @Test
@@ -857,32 +860,85 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testGetInitialUserWithValidLastActiveUser() {
+    public void test_GetInitialUserWithValidLastActiveUser_ReturnsLastActiveUser() {
         CarProperties.headless_system_user(true);
         int lastActiveUserId = 12;
 
-        UserInfo otherUser1 = createUserInfoForId(lastActiveUserId - 2);
-        UserInfo otherUser2 = createUserInfoForId(lastActiveUserId - 1);
-        UserInfo otherUser3 = createUserInfoForId(lastActiveUserId);
+        UserInfo user10 = createUserInfoForId(10);
+        UserInfo user11 = createUserInfoForId(11);
+        UserInfo user12 = createUserInfoForId(12);
 
         setLastActiveUser(lastActiveUserId);
-        mockGetUsers(mSystemUser, otherUser1, otherUser2, otherUser3);
+        mockGetUsers(mSystemUser, user10, user11, user12);
 
         assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(lastActiveUserId);
     }
 
     @Test
-    public void testGetInitialUserWithNonExistLastActiveUser() {
+    public void test_GetInitialUserWithNonExistLastActiveUser_ReturnsSamllestUserId() {
         CarProperties.headless_system_user(true);
         int lastActiveUserId = 12;
+        int minimumUserId = 10;
 
-        UserInfo otherUser1 = createUserInfoForId(lastActiveUserId - 2);
-        UserInfo otherUser2 = createUserInfoForId(lastActiveUserId - 1);
+        UserInfo smallestUser = createUserInfoForId(minimumUserId);
+        UserInfo notSmallestUser = createUserInfoForId(minimumUserId + 1);
 
         setLastActiveUser(lastActiveUserId);
-        mockGetUsers(mSystemUser, otherUser1, otherUser2);
+        mockGetUsers(mSystemUser, smallestUser, notSmallestUser);
 
-        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(lastActiveUserId - 2);
+        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(minimumUserId);
+    }
+
+    @Test
+    public void test_GetInitialUserWithOverrideId_ReturnsOverrideId() {
+        CarProperties.headless_system_user(true);
+        int lastActiveUserId = 12;
+        int overrideUserId = 11;
+
+        UserInfo user10 = createUserInfoForId(10);
+        UserInfo user11 = createUserInfoForId(11);
+        UserInfo user12 = createUserInfoForId(12);
+
+        setDefaultBootUserOverride(overrideUserId);
+        setLastActiveUser(lastActiveUserId);
+        mockGetUsers(mSystemUser, user10, user11, user12);
+
+        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(overrideUserId);
+    }
+
+    @Test
+    public void test_GetInitialUserWithInvalidOverrideId_ReturnsLastActiveUserId() {
+        CarProperties.headless_system_user(true);
+        int lastActiveUserId = 12;
+        int overrideUserId = 15;
+
+        UserInfo user10 = createUserInfoForId(10);
+        UserInfo user11 = createUserInfoForId(11);
+        UserInfo user12 = createUserInfoForId(12);
+
+        setDefaultBootUserOverride(overrideUserId);
+        setLastActiveUser(lastActiveUserId);
+        mockGetUsers(mSystemUser, user10, user11, user12);
+
+        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(lastActiveUserId);
+    }
+
+    @Test
+    public void test_GetInitialUserWithInvalidOverrideAndLastActiveUserIds_ReturnsSmallestUserId() {
+        CarProperties.headless_system_user(true);
+        int minimumUserId = 10;
+        int invalidLastActiveUserId = 14;
+        int invalidOverrideUserId = 15;
+
+        UserInfo minimumUser = createUserInfoForId(minimumUserId);
+        UserInfo user11 = createUserInfoForId(minimumUserId + 1);
+        UserInfo user12 = createUserInfoForId(minimumUserId + 2);
+
+        setDefaultBootUserOverride(invalidOverrideUserId);
+        setLastActiveUser(invalidLastActiveUserId);
+        mockGetUsers(mSystemUser, minimumUser, user11, user12);
+
+        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(minimumUserId);
     }
 
     @Test
@@ -933,5 +989,9 @@ public class CarUserManagerHelperTest {
     private void setLastActiveUser(int userId) {
         Settings.Global.putInt(InstrumentationRegistry.getTargetContext().getContentResolver(),
                 Settings.Global.LAST_ACTIVE_USER_ID, userId);
+    }
+
+    private void setDefaultBootUserOverride(int userId) {
+        CarProperties.boot_user_override_id(userId);
     }
 }
