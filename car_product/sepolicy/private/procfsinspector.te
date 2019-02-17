@@ -10,3 +10,4 @@ allow carservice_app procfsinspector:binder call;
 
 dontaudit procfsinspector domain:dir getattr;
 
+binder_service(procfsinspector)

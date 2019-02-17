@@ -307,7 +307,7 @@ public class MockedCarTestBase {
         private TemporaryDirectory mFilesDir = null;
 
         @Override
-        public File getFilesDir() {
+        public File getSystemCarDir() {
             if (mFilesDir == null) {
                 try {
                     mFilesDir = new TemporaryDirectory(TAG);

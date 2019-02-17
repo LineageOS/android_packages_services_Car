@@ -372,7 +372,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
             mMockStorageMonitoringInterface.setWriteInfo(wearData.currentLifetimeWriteInfo);
 
             if (wearHistory != null) {
-                File wearHistoryFile = new File(getFakeSystemInterface().getFilesDir(),
+                File wearHistoryFile = new File(getFakeSystemInterface().getSystemCarDir(),
                     CarStorageMonitoringService.WEAR_INFO_FILENAME);
                 try (JsonWriter jsonWriter = new JsonWriter(new FileWriter(wearHistoryFile))) {
                     wearHistory.writeToJson(jsonWriter);
@@ -380,7 +380,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
             }
 
             if (wearData.uptime > 0) {
-                File uptimeFile = new File(getFakeSystemInterface().getFilesDir(),
+                File uptimeFile = new File(getFakeSystemInterface().getSystemCarDir(),
                     CarStorageMonitoringService.UPTIME_TRACKER_FILENAME);
                 try (JsonWriter jsonWriter = new JsonWriter(new FileWriter(uptimeFile))) {
                     jsonWriter.beginObject();
@@ -390,7 +390,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
             }
 
             if (wearData.previousLifetimeWriteInfo.length > 0) {
-                File previousLifetimeFile = new File(getFakeSystemInterface().getFilesDir(),
+                File previousLifetimeFile = new File(getFakeSystemInterface().getSystemCarDir(),
                     CarStorageMonitoringService.LIFETIME_WRITES_FILENAME);
                 try (JsonWriter jsonWriter = new JsonWriter(new FileWriter(previousLifetimeFile))) {
                     jsonWriter.beginObject();

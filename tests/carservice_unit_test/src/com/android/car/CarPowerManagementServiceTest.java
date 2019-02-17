@@ -340,7 +340,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         private TemporaryDirectory mFilesDir;
 
         @Override
-        public File getFilesDir() {
+        public File getSystemCarDir() {
             if (mFilesDir == null) {
                 try {
                     mFilesDir = new TemporaryDirectory(TAG);
