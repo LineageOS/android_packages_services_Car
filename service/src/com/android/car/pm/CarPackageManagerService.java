@@ -607,7 +607,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                                     && !mAllowedAppInstallSources.contains(installerName))) {
                                 Log.w(CarLog.TAG_PACKAGE,
                                         info.packageName + " not installed from permitted sources "
-                                                + installerName == null ? "NULL" : installerName);
+                                                + (installerName == null ? "NULL" : installerName));
                                 continue;
                             }
                         }
