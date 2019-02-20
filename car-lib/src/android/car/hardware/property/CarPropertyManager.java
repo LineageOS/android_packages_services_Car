@@ -66,6 +66,12 @@ public class CarPropertyManager implements CarManagerBase {
         void onErrorEvent(int propId, int zone);
     }
 
+    /** Read sensor in default normal rate set for each sensors. */
+    public static final float SENSOR_RATE_NORMAL = 1; // 1 hertz
+    public static final float SENSOR_RATE_UI = 5;
+    public static final float SENSOR_RATE_FAST = 10;
+    public static final float SENSOR_RATE_FASTEST = 100;
+
     /**
      * Get an instance of the CarPropertyManager.
      */
@@ -424,7 +430,9 @@ public class CarPropertyManager implements CarManagerBase {
             listeners.forEach(new Consumer<CarPropertyEventListener>() {
                 @Override
                 public void accept(CarPropertyEventListener listener) {
-                    listener.onChangeEvent(event.getCarPropertyValue());
+                    if (needUpdate(listener, updateTime)) {
+                        listener.onChangeEvent(event.getCarPropertyValue());
+                    }
                 }
             });
         }
