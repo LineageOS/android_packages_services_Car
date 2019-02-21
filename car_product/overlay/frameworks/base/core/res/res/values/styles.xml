@@ -24,7 +24,7 @@
     <!-- Override the default activity transitions. We have to do a full copy and not just inherit
          and override because we're replacing the default style across the system.
     -->
-    <style name="Animation.DeviceDefault.Activity" parent="*android:Animation.Material.Activity">
+    <style name="Animation.Activity" parent="*android:Animation.Material.Activity">
         <item name="android:activityOpenEnterAnimation">@*android:anim/fade_in</item>
         <item name="android:activityOpenExitAnimation">@*android:anim/fade_out</item>
         <item name="android:activityCloseEnterAnimation">@*android:anim/fade_in</item>
