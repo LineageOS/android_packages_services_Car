@@ -39,9 +39,10 @@ wp<EvsGlDisplay>                           EvsEnumerator::sActiveDisplay;
 EvsEnumerator::EvsEnumerator() {
     ALOGD("EvsEnumerator created");
 
-    unsigned videoCount   = 0;
-    unsigned captureCount = 0;
+    enumerateDevices();
+}
 
+void EvsEnumerator::enumerateDevices() {
     // For every video* entry in the dev folder, see if it reports suitable capabilities
     // WARNING:  Depending on the driver implementations this could be slow, especially if
     //           there are timeouts or round trips to hardware required to collect the needed
@@ -50,7 +51,9 @@ EvsEnumerator::EvsEnumerator() {
     //           For example, this code might be replaced with nothing more than:
     //                   sCameraList.emplace_back("/dev/video0");
     //                   sCameraList.emplace_back("/dev/video1");
-    ALOGI("Starting dev/video* enumeration");
+    ALOGI("%s: Starting dev/video* enumeration", __FUNCTION__);
+    unsigned videoCount   = 0;
+    unsigned captureCount = 0;
     DIR* dir = opendir("/dev");
     if (!dir) {
         LOG_FATAL("Failed to open /dev folder\n");
@@ -71,7 +74,6 @@ EvsEnumerator::EvsEnumerator() {
 
     ALOGI("Found %d qualified video capture devices of %d checked\n", captureCount, videoCount);
 }
-
 
 // Methods from ::android::hardware::automotive::evs::V1_0::IEvsEnumerator follow.
 Return<void> EvsEnumerator::getCameraList(getCameraList_cb _hidl_cb)  {
@@ -102,8 +104,13 @@ Return<sp<IEvsCamera>> EvsEnumerator::openCamera(const hidl_string& cameraId) {
     // Is this a recognized camera id?
     CameraRecord *pRecord = findCameraById(cameraId);
     if (!pRecord) {
-        ALOGE("Requested camera %s not found", cameraId.c_str());
-        return nullptr;
+        ALOGE("Requested camera %s not found, enumerate again", cameraId.c_str());
+        enumerateDevices();
+        pRecord = findCameraById(cameraId);
+        if (!pRecord) {
+            ALOGE("Requested camera %s not found", cameraId.c_str());
+            return nullptr;
+        }
     }
 
     // Has this camera already been instantiated by another caller?
@@ -245,21 +252,33 @@ bool EvsEnumerator::qualifyCaptureDevice(const char* deviceName) {
     // Enumerate the available capture formats (if any)
     v4l2_fmtdesc formatDescription;
     formatDescription.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    for (int i=0; true; i++) {
+    union {
+        uint32_t format;
+        uint8_t  c[4];
+    } str;
+    bool found = false;
+    for (int i=0; !found; i++) {
         formatDescription.index = i;
         if (ioctl(fd, VIDIOC_ENUM_FMT, &formatDescription) == 0) {
+            str.format = formatDescription.pixelformat;
+            ALOGI("FORMAT %c%c%c%c (0x%X), type 0x%X, desc %s, flags 0x%X",
+                  str.c[0], str.c[1], str.c[2], str.c[3],
+                  formatDescription.pixelformat, formatDescription.type,
+                  formatDescription.description, formatDescription.flags);
             switch (formatDescription.pixelformat)
             {
-                case V4L2_PIX_FMT_YUYV:     return true;
-                case V4L2_PIX_FMT_NV21:     return true;
-                case V4L2_PIX_FMT_NV16:     return true;
-                case V4L2_PIX_FMT_YVU420:   return true;
-                case V4L2_PIX_FMT_RGB32:    return true;
+                case V4L2_PIX_FMT_YUYV:     found = true; break;
+                case V4L2_PIX_FMT_NV21:     found = true; break;
+                case V4L2_PIX_FMT_NV16:     found = true; break;
+                case V4L2_PIX_FMT_YVU420:   found = true; break;
+                case V4L2_PIX_FMT_RGB32:    found = true; break;
 #ifdef V4L2_PIX_FMT_ARGB32  // introduced with kernel v3.17
-                case V4L2_PIX_FMT_ARGB32:   return true;
-                case V4L2_PIX_FMT_XRGB32:   return true;
+                case V4L2_PIX_FMT_ARGB32:   found = true; break;
+                case V4L2_PIX_FMT_XRGB32:   found = true; break;
 #endif // V4L2_PIX_FMT_ARGB32
-                default:                    break;
+                default:
+                    ALOGW("Unsupported, 0x%X", formatDescription.pixelformat);
+                    break;
             }
         } else {
             // No more formats available
@@ -268,7 +287,7 @@ bool EvsEnumerator::qualifyCaptureDevice(const char* deviceName) {
     }
 
     // If we get here, we didn't find a usable output format
-    return false;
+    return found;
 }
 
 
