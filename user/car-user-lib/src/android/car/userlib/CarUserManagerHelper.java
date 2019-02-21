@@ -168,17 +168,6 @@ public class CarUserManagerHelper {
     }
 
     /**
-     * Set default boot into user.
-     *
-     * @param userId default user id to boot into.
-     */
-    public void setDefaultBootUser(int userId) {
-        Settings.Global.putInt(
-                mContext.getContentResolver(),
-                Settings.Global.DEFAULT_USER_ID_TO_BOOT_INTO, userId);
-    }
-
-    /**
      * Set last active user.
      *
      * @param userId last active user id.
@@ -193,7 +182,7 @@ public class CarUserManagerHelper {
      *
      * @param userId last active user id.
      * @param skipGlobalSetting whether to skip set the global settings value.
-     * @deprecated Use {@link #setDefaultBootUser(int)} instead.
+     * @deprecated Use {@link #setLastActiveUser(int)} instead.
      */
     @Deprecated
     public void setLastActiveUser(int userId, boolean skipGlobalSetting) {
@@ -201,18 +190,6 @@ public class CarUserManagerHelper {
             Settings.Global.putInt(
                     mContext.getContentResolver(), Settings.Global.LAST_ACTIVE_USER_ID, userId);
         }
-    }
-
-    /**
-     * Get user id for the default boot into user.
-     *
-     * @return user id of the default boot into user
-     */
-    public int getDefaultBootUser() {
-        // Make user 10 the original default boot user.
-        return Settings.Global.getInt(
-            mContext.getContentResolver(), Settings.Global.DEFAULT_USER_ID_TO_BOOT_INTO,
-            /* default user id= */ 10);
     }
 
     /**
@@ -545,16 +522,6 @@ public class CarUserManagerHelper {
      */
     public boolean isSystemUser(UserInfo userInfo) {
         return userInfo.id == UserHandle.USER_SYSTEM;
-    }
-
-    /**
-     * Checks whether the user is default user.
-     *
-     * @param userInfo User to check against system user.
-     * @return {@code true} if is default user, {@code false} otherwise.
-     */
-    public boolean isDefaultUser(UserInfo userInfo) {
-        return userInfo.id == getDefaultBootUser();
     }
 
     /**
