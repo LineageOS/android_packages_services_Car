@@ -34,6 +34,7 @@ allow carservice_app {
     procfsinspector_service
     sensorservice_service
     surfaceflinger_service
+    telecom_service
     uimode_service
     voiceinteraction_service
 }:service_manager find;
