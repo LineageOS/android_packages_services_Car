@@ -289,7 +289,15 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
     }
 
     // Do we need a new direct view renderer?
-    if (mCameraList[desiredState].size() > 1 || desiredState == PARKING) {
+    if (mCameraList[desiredState].size() == 1) {
+        // We have a camera assigned to this state for direct view
+        mCurrentRenderer = std::make_unique<RenderDirectView>(mEvs,
+                                                              mCameraList[desiredState][0]);
+        if (!mCurrentRenderer) {
+            ALOGE("Failed to construct direct renderer.  Skipping state change.");
+            return false;
+        }
+    } else if (mCameraList[desiredState].size() > 1 || desiredState == PARKING) {
         // TODO:  DO we want other kinds of compound view or else sequentially selected views?
         mCurrentRenderer = std::make_unique<RenderTopView>(mEvs,
                                                            mCameraList[desiredState],
@@ -298,14 +306,9 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
             ALOGE("Failed to construct top view renderer.  Skipping state change.");
             return false;
         }
-    } else if (mCameraList[desiredState].size() == 1) {
-        // We have a camera assigned to this state for direct view
-        mCurrentRenderer = std::make_unique<RenderDirectView>(mEvs,
-                                                              mCameraList[desiredState][0]);
-        if (!mCurrentRenderer) {
-            ALOGE("Failed to construct direct renderer.  Skipping state change.");
-            return false;
-        }
+    } else {
+        ALOGD("Unsupported, desiredState %d has %u cameras.",
+              desiredState, static_cast<unsigned int>(mCameraList[desiredState].size()));
     }
 
     // Now set the display state based on whether we have a video feed to show
