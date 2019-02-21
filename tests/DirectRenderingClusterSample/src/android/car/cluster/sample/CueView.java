@@ -29,6 +29,8 @@ import androidx.car.cluster.navigation.RichTextElement;
  * View component that displays the Cue information on the instrument cluster display
  */
 public class CueView extends TextView {
+    private String mImageSpanText;
+
     public CueView(Context context) {
         super(context);
     }
@@ -39,6 +41,7 @@ public class CueView extends TextView {
 
     public CueView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mImageSpanText = context.getString(R.string.span_image);
     }
 
     public void setRichText(RichText richText) {
@@ -48,25 +51,23 @@ public class CueView extends TextView {
         }
 
         SpannableStringBuilder builder = new SpannableStringBuilder();
-        for (RichTextElement textElement : richText.getElements()) {
-            if (!textElement.getText().equals("")) {
-                builder.append(textElement.getText());
-            } else if (textElement.getImage() != null) {
+        for (RichTextElement element : richText.getElements()) {
+            if (builder.length() > 0) {
                 builder.append(" ");
-
-                Bitmap bitmap = ImageResolver.getInstance().getBitmap(mContext,
-                        textElement.getImage());
-
+            }
+            if (element.getImage() != null) {
+                Bitmap bitmap = ImageResolver.getInstance().getBitmapConstrained(mContext,
+                        element.getImage(), 0, getLineHeight());
                 if (bitmap != null) {
-                    bitmap = Bitmap.createScaledBitmap(bitmap,
-                            (int) (((float) getLineHeight() / bitmap.getHeight())
-                                    * bitmap.getWidth()),
-                            getLineHeight(),
-                            true);
-
-                    int index = builder.length() - 1;
-                    builder.setSpan(new ImageSpan(mContext, bitmap), index, index + 1, 0);
+                    String imageText = element.getText().isEmpty() ? mImageSpanText :
+                            element.getText();
+                    int start = builder.length();
+                    int end = start + imageText.length();
+                    builder.append(imageText);
+                    builder.setSpan(new ImageSpan(mContext, bitmap), start, end, 0);
                 }
+            } else if (!element.getText().isEmpty()) {
+                builder.append(element.getText());
             }
         }
 

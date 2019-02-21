@@ -20,4 +20,7 @@
     <string name="info_rpm_label" translatable="false">RPM</string>
     <string name="info_value_empty" translatable="false">-</string>
 
+    <!-- Marker used to insert images inside rich-text strings. This string is never shown or spoken
+         to the user. Instead a image would be rendered in its place -->
+    <string name="span_image" translatable="false">[Image]</string>
 </resources>
