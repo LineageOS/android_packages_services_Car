@@ -86,6 +86,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarStorageMonitoringService mCarStorageMonitoringService;
     private final CarConfigurationService mCarConfigurationService;
     private final CarTrustAgentEnrollmentService mCarTrustAgentEnrollmentService;
+    private final CarMediaService mCarMediaService;
     private final CarUserManagerHelper mUserManagerHelper;
     private final CarUserService mCarUserService;
     private final VmsClientManager mVmsClientManager;
@@ -152,6 +153,7 @@ public class ICarImpl extends ICar.Stub {
         mCarLocationService = new CarLocationService(mContext, mCarPropertyService,
                 mUserManagerHelper);
         mCarTrustAgentEnrollmentService = new CarTrustAgentEnrollmentService(serviceContext);
+        mCarMediaService = new CarMediaService(serviceContext);
 
         CarLocalServices.addService(CarUserService.class, mCarUserService);
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
@@ -182,6 +184,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mVmsSubscriberService);
         allServices.add(mVmsPublisherService);
         allServices.add(mCarTrustAgentEnrollmentService);
+        allServices.add(mCarMediaService);
         allServices.add(mCarLocationService);
         mAllServices = allServices.toArray(new CarServiceBase[allServices.size()]);
     }
@@ -296,6 +299,8 @@ public class ICarImpl extends ICar.Stub {
             case Car.CAR_TRUST_AGENT_ENROLLMENT_SERVICE:
                 assertTrustAgentEnrollmentPermission(mContext);
                 return mCarTrustAgentEnrollmentService;
+            case Car.CAR_MEDIA_SERVICE:
+                return mCarMediaService;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:" + serviceName);
                 return null;
