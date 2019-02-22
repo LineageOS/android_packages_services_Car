@@ -61,11 +61,6 @@
     <!-- The action buttons should always take the default color. -->
     <bool name="config_tintNotificationActionButtons">false</bool>
 
-    <!-- Flag indicating that this device does not rotate and will always remain in its default
-         orientation. Activities that desire to run in a non-compatible orientation will find that
-         they are not able to. -->
-    <bool name="config_forceDefaultOrientation">true</bool>
-
     <!-- Corner radius of system dialogs -->
     <dimen name="config_dialogCornerRadius">16dp</dimen>
 
