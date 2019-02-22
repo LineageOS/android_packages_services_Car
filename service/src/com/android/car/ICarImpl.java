@@ -149,11 +149,12 @@ public class ICarImpl extends ICar.Stub {
                 systemInterface);
         mCarConfigurationService =
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
-        mCarLocationService = new CarLocationService(
-                mContext, mCarPropertyService, mUserManagerHelper);
+        mCarLocationService = new CarLocationService(mContext, mCarPropertyService,
+                mUserManagerHelper);
         mCarTrustAgentEnrollmentService = new CarTrustAgentEnrollmentService(serviceContext);
 
         CarLocalServices.addService(CarUserService.class, mCarUserService);
+        CarLocalServices.addService(SystemInterface.class, mSystemInterface);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
