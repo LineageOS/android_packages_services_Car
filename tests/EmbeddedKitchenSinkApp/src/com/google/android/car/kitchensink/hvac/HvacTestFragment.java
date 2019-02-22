@@ -295,8 +295,7 @@ public class HvacTestFragment extends Fragment {
 
         mTbDual.setOnClickListener(view -> {
             // TODO handle zone properly
-            mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_DUAL_ZONE_ON, temp,
-                    mTbDual.isChecked());
+            setBooleanProperty(CarHvacManager.ID_ZONED_DUAL_ZONE_ON, temp, mTbDual.isChecked());
         });
     }
 
@@ -307,8 +306,7 @@ public class HvacTestFragment extends Fragment {
 
         mTbAc.setOnClickListener(view -> {
             // TODO handle zone properly
-            mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_AC_ON, mZoneForAcOn,
-                    mTbAc.isChecked());
+            setBooleanProperty(CarHvacManager.ID_ZONED_AC_ON, mZoneForAcOn, mTbAc.isChecked());
         });
     }
 
@@ -319,7 +317,7 @@ public class HvacTestFragment extends Fragment {
 
         mTbAuto.setOnClickListener(view -> {
             // TODO handle zone properly
-            mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_AUTOMATIC_MODE_ON, temp,
+            setBooleanProperty(CarHvacManager.ID_ZONED_AUTOMATIC_MODE_ON, temp,
                     mTbAuto.isChecked());
         });
     }
@@ -380,9 +378,13 @@ public class HvacTestFragment extends Fragment {
         mMinFanSpeed = ((Integer) prop.getMinValue()).intValue();
         mMaxFanSpeed = ((Integer) prop.getMaxValue()).intValue();
         mZoneForFanSpeed = prop.getFirstAndOnlyAreaId();
-        mCurFanSpeed = mCarHvacManager.getIntProperty(
-                CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT,
-                mZoneForFanSpeed);
+        try {
+            mCurFanSpeed = mCarHvacManager.getIntProperty(
+                    CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT,
+                    mZoneForFanSpeed);
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "Failed to get HVAC int property", e);
+        }
 
         Button btnFanSpeedUp = (Button) v.findViewById(R.id.btnFanSpeedUp);
         btnFanSpeedUp.setEnabled(true);
@@ -441,13 +443,16 @@ public class HvacTestFragment extends Fragment {
         }
         Button btnDTempUp = (Button) v.findViewById(R.id.btnDTempUp);
         if (mZoneForSetTempD != 0) {
-            mCurDTemp = mCarHvacManager.getFloatProperty(
-                    CarHvacManager.ID_ZONED_TEMP_SETPOINT,
-                    mZoneForSetTempD);
-            if (mCurDTemp < mMinTemp) {
-                mCurDTemp = mMinTemp;
-            } else if (mCurDTemp > mMaxTemp) {
-                mCurDTemp = mMaxTemp;
+            try {
+                mCurDTemp = mCarHvacManager.getFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT,
+                        mZoneForSetTempD);
+                if (mCurDTemp < mMinTemp) {
+                    mCurDTemp = mMinTemp;
+                } else if (mCurDTemp > mMaxTemp) {
+                    mCurDTemp = mMaxTemp;
+                }
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "Failed to get HVAC zoned temp property", e);
             }
             btnDTempUp.setEnabled(true);
             btnDTempUp.setOnClickListener(view -> changeDriverTemperature(mTempStep));
@@ -461,13 +466,16 @@ public class HvacTestFragment extends Fragment {
 
         Button btnPTempUp = (Button) v.findViewById(R.id.btnPTempUp);
         if (mZoneForSetTempP != 0) {
-            mCurPTemp = mCarHvacManager.getFloatProperty(
-                    CarHvacManager.ID_ZONED_TEMP_SETPOINT,
-                    mZoneForSetTempP);
-            if (mCurPTemp < mMinTemp) {
-                mCurPTemp = mMinTemp;
-            } else if (mCurPTemp > mMaxTemp) {
-                mCurPTemp = mMaxTemp;
+            try {
+                mCurPTemp = mCarHvacManager.getFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT,
+                        mZoneForSetTempP);
+                if (mCurPTemp < mMinTemp) {
+                    mCurPTemp = mMinTemp;
+                } else if (mCurPTemp > mMaxTemp) {
+                    mCurPTemp = mMaxTemp;
+                }
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "Failed to get HVAC zoned temp property", e);
             }
             btnPTempUp.setEnabled(true);
             btnPTempUp.setOnClickListener(view -> changePassengerTemperature(mTempStep));
@@ -503,8 +511,7 @@ public class HvacTestFragment extends Fragment {
         if (mMinTemp < targetTemp && targetTemp < mMaxTemp) {
             mCurDTemp = targetTemp;
             mTvDTemp.setText(String.valueOf(mCurDTemp));
-            mCarHvacManager.setFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT,
-                    mZoneForSetTempD, mCurDTemp);
+            setFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT, mZoneForSetTempD, mCurDTemp);
         }
     }
 
@@ -513,8 +520,7 @@ public class HvacTestFragment extends Fragment {
         if (mMinTemp < targetTemp && targetTemp < mMaxTemp) {
             mCurPTemp = targetTemp;
             mTvPTemp.setText(String.valueOf(mCurPTemp));
-            mCarHvacManager.setFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT,
-                    mZoneForSetTempP, mCurPTemp);
+            setFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT, mZoneForSetTempP, mCurPTemp);
         }
     }
 
@@ -523,18 +529,16 @@ public class HvacTestFragment extends Fragment {
             mTbDefrostFront = (ToggleButton) v.findViewById(R.id.tbDefrostFront);
             mTbDefrostFront.setEnabled(true);
             mTbDefrostFront.setOnClickListener(view -> {
-                mCarHvacManager.setBooleanProperty(CarHvacManager.ID_WINDOW_DEFROSTER_ON,
-                        VehicleAreaWindow.FRONT_WINDSHIELD,
-                        mTbDefrostFront.isChecked());
+                setBooleanProperty(CarHvacManager.ID_WINDOW_DEFROSTER_ON,
+                        VehicleAreaWindow.FRONT_WINDSHIELD, mTbDefrostFront.isChecked());
             });
         }
         if (prop1.hasArea(VehicleAreaWindow.REAR_WINDSHIELD)) {
             mTbDefrostRear = (ToggleButton) v.findViewById(R.id.tbDefrostRear);
             mTbDefrostRear.setEnabled(true);
             mTbDefrostRear.setOnClickListener(view -> {
-                mCarHvacManager.setBooleanProperty(CarHvacManager.ID_WINDOW_DEFROSTER_ON,
-                        VehicleAreaWindow.REAR_WINDSHIELD,
-                        mTbDefrostRear.isChecked());
+                setBooleanProperty(CarHvacManager.ID_WINDOW_DEFROSTER_ON,
+                        VehicleAreaWindow.REAR_WINDSHIELD, mTbDefrostRear.isChecked());
             });
         }
     }
@@ -546,8 +550,8 @@ public class HvacTestFragment extends Fragment {
 
         mTbRecirc.setOnClickListener(view -> {
             // TODO handle zone properly
-            mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_AIR_RECIRCULATION_ON,
-                    temp, mTbRecirc.isChecked());
+            setBooleanProperty(CarHvacManager.ID_ZONED_AIR_RECIRCULATION_ON, temp,
+                    mTbRecirc.isChecked());
         });
     }
 
@@ -558,8 +562,7 @@ public class HvacTestFragment extends Fragment {
 
         mTbMaxAc.setOnClickListener(view -> {
             // TODO handle zone properly
-            mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_MAX_AC_ON, temp,
-                    mTbMaxAc.isChecked());
+            setBooleanProperty(CarHvacManager.ID_ZONED_MAX_AC_ON, temp, mTbMaxAc.isChecked());
         });
     }
 
@@ -570,7 +573,7 @@ public class HvacTestFragment extends Fragment {
 
         mTbMaxDefrost.setOnClickListener(view -> {
             // TODO handle zone properly
-            mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_MAX_DEFROST_ON, temp,
+            setBooleanProperty(CarHvacManager.ID_ZONED_MAX_DEFROST_ON, temp,
                     mTbMaxDefrost.isChecked());
         });
     }
@@ -582,8 +585,8 @@ public class HvacTestFragment extends Fragment {
         mTbAutoRecirc.setEnabled(true);
 
         mTbAutoRecirc.setOnClickListener(view -> {
-            mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_HVAC_AUTO_RECIRC_ON,
-                    areaId, mTbAutoRecirc.isChecked());
+            setBooleanProperty(CarHvacManager.ID_ZONED_HVAC_AUTO_RECIRC_ON, areaId,
+                    mTbAutoRecirc.isChecked());
         });
     }
 
@@ -593,10 +596,9 @@ public class HvacTestFragment extends Fragment {
         mTbTempDisplayUnit.setEnabled(true);
 
         mTbTempDisplayUnit.setOnClickListener(view -> {
-            int unit = (mTbTempDisplayUnit.isChecked() ? VehicleUnit.FAHRENHEIT
-                    : VehicleUnit.CELSIUS);
-            mCarHvacManager.setIntProperty(CarHvacManager.ID_TEMPERATURE_DISPLAY_UNITS, areaId,
-                    unit);
+            int unit =
+                    (mTbTempDisplayUnit.isChecked() ? VehicleUnit.FAHRENHEIT : VehicleUnit.CELSIUS);
+            setIntProperty(CarHvacManager.ID_TEMPERATURE_DISPLAY_UNITS, areaId, unit);
         });
     }
 
@@ -607,8 +609,7 @@ public class HvacTestFragment extends Fragment {
         mTbPower.setEnabled(true);
 
         mTbPower.setOnClickListener(view -> {
-            mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_HVAC_POWER_ON, areaId,
-                    mTbPower.isChecked());
+            setBooleanProperty(CarHvacManager.ID_ZONED_HVAC_POWER_ON, areaId, mTbPower.isChecked());
         });
     }
 
@@ -619,9 +620,35 @@ public class HvacTestFragment extends Fragment {
         mTbPowerAndAc.setEnabled(true);
 
         mTbPowerAndAc.setOnClickListener(view -> {
-            mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_HVAC_POWER_ON, areaId,
-                    true);
-            mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_AC_ON, areaId, true);
+            setBooleanProperty(CarHvacManager.ID_ZONED_HVAC_POWER_ON, areaId, true);
+            setBooleanProperty(CarHvacManager.ID_ZONED_AC_ON, areaId, true);
         });
+    }
+
+    private void setBooleanProperty(int propertyId, int areaId, boolean value) {
+        try {
+            mCarHvacManager.setBooleanProperty(propertyId, areaId, value);
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "Failed to set boolean property", e);
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void setIntProperty(int propertyId, int areaId, int value) {
+        try {
+            mCarHvacManager.setIntProperty(propertyId, areaId, value);
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "Failed to set int property", e);
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void setFloatProperty(int propertyId, int areaId, float value) {
+        try {
+            mCarHvacManager.setFloatProperty(propertyId, areaId, value);
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "Failed to set float property", e);
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 }
