@@ -17,6 +17,7 @@ package android.car.cluster.sample;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;
@@ -56,7 +57,7 @@ public class CueView extends TextView {
                 builder.append(" ");
             }
             if (element.getImage() != null) {
-                Bitmap bitmap = ImageResolver.getInstance().getBitmapConstrained(mContext,
+                Bitmap bitmap = ImageResolver.getInstance().getBitmapConstrained(getContext(),
                         element.getImage(), 0, getLineHeight());
                 if (bitmap != null) {
                     String imageText = element.getText().isEmpty() ? mImageSpanText :
@@ -64,7 +65,9 @@ public class CueView extends TextView {
                     int start = builder.length();
                     int end = start + imageText.length();
                     builder.append(imageText);
-                    builder.setSpan(new ImageSpan(mContext, bitmap), start, end, 0);
+                    BitmapDrawable drawable = new BitmapDrawable(getResources(), bitmap);
+                    drawable.setBounds(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                    builder.setSpan(new ImageSpan(drawable), start, end, 0);
                 }
             } else if (!element.getText().isEmpty()) {
                 builder.append(element.getText());

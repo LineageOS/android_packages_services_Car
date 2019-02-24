@@ -33,7 +33,6 @@ import androidx.car.cluster.navigation.Step;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.List;
 
 /**
  * View controller for navigation state rendering.
@@ -44,11 +43,9 @@ public class NavStateController {
     private ImageView mManeuver;
     private LaneView mLane;
     private TextView mDistance;
-    private TextView mSegment;
     private TextView mEta;
     private CueView mCue;
     private Context mContext;
-    private View mNavigationState;
 
     /**
      * Creates a controller to coordinate updates to the views displaying navigation state
@@ -57,11 +54,9 @@ public class NavStateController {
      * @param container {@link View} containing the navigation state views
      */
     public NavStateController(View container) {
-        mNavigationState = container;
         mManeuver = container.findViewById(R.id.maneuver);
         mLane = container.findViewById(R.id.lane);
         mDistance = container.findViewById(R.id.distance);
-        mSegment = container.findViewById(R.id.segment);
         mEta = container.findViewById(R.id.eta);
         mCue = container.findViewById(R.id.cue);
 
@@ -75,21 +70,16 @@ public class NavStateController {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Updating nav state: " + state);
         }
-        Step step = getImmediateStep(state);
-
-        List<Destination> destinations = state.getDestinations();
-        ZonedDateTime eta = null;
-        Traffic traffic = null;
-        if (!destinations.isEmpty()) {
-            eta = state.getDestinations().get(0).getEta();
-            traffic = state.getDestinations().get(0).getTraffic();
-        }
+        Step step = state != null && state.getSteps().size() > 0 ? state.getSteps().get(0) : null;
+        Destination destination = state != null && !state.getDestinations().isEmpty()
+                ? state.getDestinations().get(0) : null;
+        ZonedDateTime eta = destination != null ? destination.getEta() : null;
+        Traffic traffic = destination != null ? destination.getTraffic() : null;
 
         mEta.setText(eta != null ? formatEta(eta) : null);
         mEta.setTextColor(getTrafficColor(traffic));
         mManeuver.setImageDrawable(getManeuverIcon(step != null ? step.getManeuver() : null));
         mDistance.setText(formatDistance(step != null ? step.getDistance() : null));
-        mSegment.setText(getSegmentString(state.getCurrentSegment()));
         mCue.setRichText(step != null ? step.getCue() : null);
 
         if (step != null && step.getLanes().size() > 0) {
@@ -129,23 +119,6 @@ public class NavStateController {
             return String.format("%d hr %d min", hours, minutes);
         } else {
             return String.format("%d min", minutes);
-        }
-    }
-
-    /**
-     * Updates whether turn-by-turn display is active or not. Turn-by-turn would be active whenever
-     * a navigation application has focus.
-     */
-    public void setActive(boolean active) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Navigation status active: " + active);
-        }
-        if (!active) {
-            mManeuver.setImageDrawable(null);
-            mDistance.setText(null);
-            mLane.setVisibility(View.GONE);
-            mCue.setText(null);
-            mSegment.setText(null);
         }
     }
 
@@ -272,10 +245,6 @@ public class NavStateController {
                 return mContext.getDrawable(R.drawable.direction_arrive_right);
         }
         return null;
-    }
-
-    private Step getImmediateStep(@Nullable NavigationState state) {
-        return state != null && state.getSteps().size() > 0 ? state.getSteps().get(0) : null;
     }
 
     private String formatDistance(@Nullable Distance distance) {

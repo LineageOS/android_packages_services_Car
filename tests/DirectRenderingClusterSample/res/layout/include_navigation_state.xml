@@ -20,16 +20,19 @@
             android:id="@+id/distance"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
+            android:maxLines="1"
             android:textSize="@dimen/distance_text_size"/>
-        <TextView
-            android:id="@+id/segment"
-            android:layout_height="wrap_content"
+        <android.car.cluster.sample.CueView
+            android:id="@+id/cue"
             android:layout_width="wrap_content"
-            android:textSize="@dimen/segment_text_size"/>
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textSize="@dimen/cue_text_size"/>
         <TextView
             android:id="@+id/eta"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxLines="1"
             android:textSize="@dimen/eta_text_size"/>
     </LinearLayout>
 
@@ -38,11 +41,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <android.car.cluster.sample.CueView
-            android:id="@+id/cue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:lineHeight="@dimen/cue_line_height"/>
         <android.car.cluster.sample.LaneView
             android:id="@+id/lane"
             android:layout_width="wrap_content"

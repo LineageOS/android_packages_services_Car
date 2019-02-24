@@ -44,8 +44,10 @@ import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
 
+import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -61,10 +63,10 @@ import java.util.concurrent.CompletableFuture;
  * and restores the location when the car is powered on.
  */
 public class CarLocationService extends BroadcastReceiver implements
-            CarServiceBase, CarPowerStateListener {
+        CarServiceBase, CarPowerStateListener {
     private static final String TAG = "CarLocationService";
     private static final String FILENAME = "location_cache.json";
-    private static final boolean DBG = false;
+    private static final boolean DBG = true;
     // The accuracy for the stored timestamp
     private static final long GRANULARITY_ONE_DAY_MS = 24 * 60 * 60 * 1000L;
     // The time-to-live for the cached location
@@ -240,7 +242,7 @@ public class CarLocationService extends BroadcastReceiver implements
             deleteCacheFile();
         } else {
             logd("Storing location: " + location);
-            AtomicFile atomicFile = new AtomicFile(mContext.getFileStreamPath(FILENAME));
+            AtomicFile atomicFile = new AtomicFile(getLocationCacheFile());
             FileOutputStream fos = null;
             try {
                 fos = atomicFile.startWrite();
@@ -295,7 +297,7 @@ public class CarLocationService extends BroadcastReceiver implements
      */
     private void loadLocation() {
         Location location = readLocationFromCacheFile();
-        logd("Read location from " + location.getTime());
+        logd("Read location from timestamp " + location.getTime());
         long currentTime = System.currentTimeMillis();
         if (location.getTime() + TTL_THIRTY_DAYS_MS < currentTime) {
             logd("Location expired.");
@@ -311,7 +313,7 @@ public class CarLocationService extends BroadcastReceiver implements
 
     private Location readLocationFromCacheFile() {
         Location location = new Location((String) null);
-        AtomicFile atomicFile = new AtomicFile(mContext.getFileStreamPath(FILENAME));
+        AtomicFile atomicFile = new AtomicFile(getLocationCacheFile());
         try (FileInputStream fis = atomicFile.openRead()) {
             JsonReader reader = new JsonReader(new InputStreamReader(fis, "UTF-8"));
             reader.beginObject();
@@ -358,8 +360,8 @@ public class CarLocationService extends BroadcastReceiver implements
     }
 
     private void deleteCacheFile() {
-        logd("Deleting cache file");
-        mContext.deleteFile(FILENAME);
+        boolean deleted = getLocationCacheFile().delete();
+        logd("Deleted cache file: " + deleted);
     }
 
     /**
@@ -381,6 +383,13 @@ public class CarLocationService extends BroadcastReceiver implements
         } else {
             logd("No location injected.");
         }
+    }
+
+    private File getLocationCacheFile() {
+        SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
+        File file = new File(systemInterface.getSystemCarDir(), FILENAME);
+        logd("File: " + file);
+        return file;
     }
 
     @VisibleForTesting

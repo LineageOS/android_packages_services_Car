@@ -89,4 +89,14 @@ public class ImageResolverTest {
     public void adjustedSize_exceptionIfRequestedWidthAndHeightNoProvided() {
         assertEquals(null, mImageResolver.getAdjustedSize(5, 10, 0, 0));
     }
+
+    @Test
+    public void adjustedSize_flexibleWidth() {
+        assertEquals(new Point(20, 30), mImageResolver.getAdjustedSize(40, 60, 0, 30));
+    }
+
+    @Test
+    public void adjustedSize_flexibleHeight() {
+        assertEquals(new Point(20, 20), mImageResolver.getAdjustedSize(40, 40, 20, 0));
+    }
 }
