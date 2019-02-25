@@ -19,8 +19,13 @@ import android.car.media.CarMediaManager;
 import android.car.media.CarMediaManager.MediaSourceChangedListener;
 import android.car.media.ICarMedia;
 import android.car.media.ICarMediaSourceListener;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.media.session.MediaController;
 import android.media.session.MediaSession;
 import android.media.session.MediaSession.Token;
@@ -28,6 +33,8 @@ import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.service.media.MediaBrowserService;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -67,10 +74,50 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private RemoteCallbackList<ICarMediaSourceListener> mMediaSourceListeners =
             new RemoteCallbackList();
 
+    /** The package name of the last media source that was removed while being primary. */
+    private String mRemovedMediaSourcePackage;
+
+    /**
+     * Listens to {@link Intent#ACTION_PACKAGE_REMOVED} and {@link Intent#ACTION_PACKAGE_REPLACED}
+     * so we can reset the media source to null when its application is uninstalled, and restore it
+     * when the application is reinstalled.
+     */
+    private BroadcastReceiver mPackageRemovedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getData() == null) {
+                return;
+            }
+            String intentPackage = intent.getData().getSchemeSpecificPart();
+            if (Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())) {
+                if (mPrimaryMediaPackage != null && mPrimaryMediaPackage.equals(intentPackage)) {
+                    mRemovedMediaSourcePackage = intentPackage;
+                    setPrimaryMediaSource(null);
+                }
+            } else if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())
+                    || Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
+                if (mRemovedMediaSourcePackage != null
+                        && mRemovedMediaSourcePackage.equals(intentPackage)
+                        && isMediaService(intentPackage)) {
+                    setPrimaryMediaSource(mRemovedMediaSourcePackage);
+                }
+            }
+        }
+    };
+
+
     public CarMediaService(Context context) {
         mContext = context;
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
         mMediaSessionUpdater = new MediaSessionUpdater();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addDataScheme("package");
+        mContext.registerReceiver(mPackageRemovedReceiver, filter);
+
         mMediaSessionUpdater.registerCallbacks(mMediaSessionManager.getActiveSessions(null));
         mMediaSessionManager.addOnActiveSessionsChangedListener(
                 controllers -> mMediaSessionUpdater.registerCallbacks(controllers), null);
@@ -224,7 +271,10 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mPrimaryMediaController = null;
 
         if (mSharedPrefs != null) {
-            mSharedPrefs.edit().putString(SOURCE_KEY, mPrimaryMediaPackage).apply();
+            if (!TextUtils.isEmpty(mPrimaryMediaPackage)) {
+                mSharedPrefs.edit().putString(SOURCE_KEY, mPrimaryMediaPackage).apply();
+                mRemovedMediaSourcePackage = null;
+            }
         } else {
             // Shouldn't reach this unless there is some other error in CarService
             Log.e(CarLog.TAG_MEDIA, "Error trying to save last media source, prefs uninitialized");
@@ -265,5 +315,17 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 return;
             }
         }
+    }
+
+
+    private boolean isMediaService(String packageName) {
+        PackageManager packageManager = mContext.getPackageManager();
+        Intent mediaIntent = new Intent();
+        mediaIntent.setPackage(packageName);
+        mediaIntent.setAction(MediaBrowserService.SERVICE_INTERFACE);
+
+        List<ResolveInfo> mediaServices = packageManager.queryIntentServices(mediaIntent,
+                PackageManager.GET_RESOLVED_FILTER);
+        return mediaServices.size() > 0;
     }
 }
