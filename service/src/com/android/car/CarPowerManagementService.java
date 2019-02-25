@@ -135,7 +135,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void init() {
-        synchronized (this) {
+        synchronized (CarPowerManagementService.this) {
             mHandlerThread = new HandlerThread(CarLog.TAG_POWER);
             mHandlerThread.start();
             mHandler = new PowerHandler(mHandlerThread.getLooper());
@@ -155,7 +155,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public void release() {
         HandlerThread handlerThread;
-        synchronized (this) {
+        synchronized (CarPowerManagementService.this) {
             releaseTimerLocked();
             mCurrentState = null;
             mHandler.cancelAll();
@@ -187,7 +187,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public void onApPowerStateChange(PowerState state) {
         PowerHandler handler;
-        synchronized (this) {
+        synchronized (CarPowerManagementService.this) {
             mPendingPowerStates.addFirst(new CpmsState(state));
             handler = mHandler;
         }
@@ -205,7 +205,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void onApPowerStateChange(int apState, int carPowerStateListenerState) {
         CpmsState newState = new CpmsState(apState, carPowerStateListenerState);
         PowerHandler handler;
-        synchronized (this) {
+        synchronized (CarPowerManagementService.this) {
             mPendingPowerStates.addFirst(newState);
             handler = mHandler;
         }
@@ -215,7 +215,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void doHandlePowerStateChange() {
         CpmsState state;
         PowerHandler handler;
-        synchronized (this) {
+        synchronized (CarPowerManagementService.this) {
             state = mPendingPowerStates.peekFirst();
             mPendingPowerStates.clear();
             if (state == null) {
@@ -304,7 +304,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             doHandlePreprocessing();
         } else {
             Log.i(CarLog.TAG_POWER, "starting shutdown immediately");
-            synchronized (this) {
+            synchronized (CarPowerManagementService.this) {
                 releaseTimerLocked();
             }
             // Notify hal that we are shutting down and since it is immediate, don't schedule next
@@ -338,7 +338,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @GuardedBy("this")
     private void releaseTimerLocked() {
-        synchronized (this) {
+        synchronized (CarPowerManagementService.this) {
             if (mTimer != null) {
                 mTimer.cancel();
             }
@@ -351,7 +351,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         int pollingCount = (sShutdownPrepareTimeMs / SHUTDOWN_POLLING_INTERVAL_MS) + 1;
         Log.i(CarLog.TAG_POWER, "processing before shutdown expected for: "
                 + sShutdownPrepareTimeMs + " ms, adding polling:" + pollingCount);
-        synchronized (this) {
+        synchronized (CarPowerManagementService.this) {
             mProcessingStartTime = SystemClock.elapsedRealtime();
             releaseTimerLocked();
             mTimer = new Timer();
@@ -414,11 +414,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // enterDeepSleep should force sleep entry even if wake lock is kept.
         mSystemInterface.switchToPartialWakeLock();
         PowerHandler handler;
-        synchronized (this) {
+        synchronized (CarPowerManagementService.this) {
             handler = mHandler;
         }
         handler.cancelProcessingComplete();
-        synchronized (this) {
+        synchronized (CarPowerManagementService.this) {
             mLastSleepEntryTime = SystemClock.elapsedRealtime();
         }
         if (!mSystemInterface.enterDeepSleep()) {
@@ -464,7 +464,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void doHandleProcessingComplete() {
-        synchronized (this) {
+        synchronized (CarPowerManagementService.this) {
             releaseTimerLocked();
             if (!mShutdownOnFinish && mLastSleepEntryTime > mProcessingStartTime) {
                 // entered sleep after processing start. So this could be duplicate request.
@@ -483,7 +483,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public void onDisplayBrightnessChange(int brightness) {
         PowerHandler handler;
-        synchronized (this) {
+        synchronized (CarPowerManagementService.this) {
             handler = mHandler;
         }
         handler.handleDisplayBrightnessChange(brightness);
@@ -499,7 +499,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     public void handleMainDisplayChanged(boolean on) {
         PowerHandler handler;
-        synchronized (this) {
+        synchronized (CarPowerManagementService.this) {
             handler = mHandler;
         }
         handler.handleMainDisplayStateChange(on);
@@ -587,7 +587,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     (mCurrentState.mState == CpmsState.SHUTDOWN_PREPARE)) {
                 PowerHandler powerHandler;
                 // All apps are ready to shutdown/suspend.
-                synchronized (this) {
+                synchronized (CarPowerManagementService.this) {
                     if (!mShutdownOnFinish) {
                         if (mLastSleepEntryTime > mProcessingStartTime
                                 && mLastSleepEntryTime < SystemClock.elapsedRealtime()) {
@@ -680,7 +680,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
         @Override
         public void run() {
-            synchronized (this) {
+            synchronized (CarPowerManagementService.this) {
                 if (!mTimerActive) {
                     // Ignore timer expiration since we got cancelled
                     return;
