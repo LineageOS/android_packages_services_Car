@@ -132,7 +132,7 @@ public class ICarImpl extends ICar.Stub {
                 mPerUserCarServiceHelper, mCarUXRestrictionsService);
         mCarInputService = new CarInputService(serviceContext, mHal.getInputHal());
         mCarProjectionService = new CarProjectionService(
-                serviceContext, mCarInputService, mCarBluetoothService);
+                serviceContext, null /* handler */, mCarInputService, mCarBluetoothService);
         mGarageModeService = new GarageModeService(mContext);
         mAppFocusService = new AppFocusService(serviceContext, mSystemActivityMonitoringService);
         mCarAudioService = new CarAudioService(serviceContext);
@@ -270,7 +270,6 @@ public class ICarImpl extends ICar.Stub {
                 assertClusterManagerPermission(mContext);
                 return mInstrumentClusterService.getManagerService();
             case Car.PROJECTION_SERVICE:
-                assertProjectionPermission(mContext);
                 return mCarProjectionService;
             case Car.VMS_SUBSCRIBER_SERVICE:
                 assertVmsSubscriberPermission(mContext);
@@ -343,6 +342,11 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertProjectionPermission(Context context) {
         assertPermission(context, Car.PERMISSION_CAR_PROJECTION);
+    }
+
+    /** Verify the calling context has the {@link Car#PERMISSION_CAR_PROJECTION_STATUS} */
+    public static void assertProjectionStatusPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_PROJECTION_STATUS);
     }
 
     public static void assertAnyDiagnosticPermission(Context context) {

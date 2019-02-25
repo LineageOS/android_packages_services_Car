@@ -85,7 +85,7 @@ public class CarProjectionManagerTest extends CarApiTestBase {
         try {
             mManager.registerProjectionListener(null, CarProjectionManager.PROJECTION_VOICE_SEARCH);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             // expected.
         }
     }
