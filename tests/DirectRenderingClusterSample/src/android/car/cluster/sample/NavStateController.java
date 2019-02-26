@@ -46,6 +46,7 @@ public class NavStateController {
     private TextView mEta;
     private CueView mCue;
     private Context mContext;
+    private ImageResolver mImageResolver;
 
     /**
      * Creates a controller to coordinate updates to the views displaying navigation state
@@ -61,6 +62,10 @@ public class NavStateController {
         mCue = container.findViewById(R.id.cue);
 
         mContext = container.getContext();
+    }
+
+    public void setImageResolver(@Nullable ImageResolver imageResolver) {
+        mImageResolver = imageResolver;
     }
 
     /**
@@ -80,7 +85,7 @@ public class NavStateController {
         mEta.setTextColor(getTrafficColor(traffic));
         mManeuver.setImageDrawable(getManeuverIcon(step != null ? step.getManeuver() : null));
         mDistance.setText(formatDistance(step != null ? step.getDistance() : null));
-        mCue.setRichText(step != null ? step.getCue() : null);
+        mCue.setRichText(step != null ? step.getCue() : null, mImageResolver);
 
         if (step != null && step.getLanes().size() > 0) {
             mLane.setLanes(step.getLanes());

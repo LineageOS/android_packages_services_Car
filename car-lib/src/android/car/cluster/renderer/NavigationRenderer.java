@@ -18,7 +18,6 @@ package android.car.cluster.renderer;
 import android.annotation.SystemApi;
 import android.annotation.UiThread;
 import android.car.navigation.CarNavigationInstrumentCluster;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 
 /**
@@ -32,10 +31,10 @@ public abstract class NavigationRenderer {
     /**
      * Returns properties of instrument cluster for navigation.
      */
-    abstract public CarNavigationInstrumentCluster getNavigationProperties();
+    public abstract CarNavigationInstrumentCluster getNavigationProperties();
 
     /**
      * Called when an event is fired to change the navigation state.
      */
-    abstract public void onEvent(int eventType, Bundle bundle);
+    public abstract void onEvent(int eventType, Bundle bundle);
 }

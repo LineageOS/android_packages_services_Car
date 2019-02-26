@@ -27,12 +27,9 @@ import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager.DisplayListener;
+import android.os.Binder;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -47,37 +44,41 @@ import androidx.versionedparcelable.ParcelUtils;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Implementation of {@link InstrumentClusterRenderingService} which renders an activity on a
  * virtual display that is transmitted to an external screen.
  */
-public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingService {
+public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingService implements
+        ImageResolver.BitmapFetcher {
     private static final String TAG = "Cluster.SampleService";
 
     private static final int NO_DISPLAY = -1;
 
+    static final int NAV_STATE_EVENT_ID = 1;
     static final String LOCAL_BINDING_ACTION = "local";
     static final String NAV_STATE_BUNDLE_KEY = "navstate";
-    static final int NAV_STATE_EVENT_ID = 1;
-    static final int MSG_SET_ACTIVITY_LAUNCH_OPTIONS = 1;
-    static final int MSG_ON_NAVIGATION_STATE_CHANGED = 2;
-    static final int MSG_ON_KEY_EVENT = 3;
-    static final int MSG_REGISTER_CLIENT = 4;
-    static final int MSG_UNREGISTER_CLIENT = 5;
-    static final String MSG_KEY_CATEGORY = "category";
-    static final String MSG_KEY_ACTIVITY_DISPLAY_ID = "activity_display_id";
-    static final String MSG_KEY_ACTIVITY_STATE = "activity_state";
-    static final String MSG_KEY_KEY_EVENT = "key_event";
 
-    private List<Messenger> mClients = new ArrayList<>();
+    private List<ServiceClient> mClients = new ArrayList<>();
     private ClusterDisplayProvider mDisplayProvider;
     private int mDisplayId = NO_DISPLAY;
-    private final IBinder mLocalBinder = new Messenger(new MessageHandler(this)).getBinder();
+    private final IBinder mLocalBinder = new LocalBinder();
+    private final ImageResolver mImageResolver = new ImageResolver(this);
+
+    public interface ServiceClient {
+        void onKeyEvent(KeyEvent keyEvent);
+        void onNavigationStateChange(NavigationState navState);
+    }
+
+    public class LocalBinder extends Binder {
+        ClusterRenderingServiceImpl getService() {
+            return ClusterRenderingServiceImpl.this;
+        }
+    }
 
     private final DisplayListener mDisplayListener = new DisplayListener() {
         @Override
@@ -98,41 +99,31 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
         }
     };
 
-    private static class MessageHandler extends Handler {
-        private final WeakReference<ClusterRenderingServiceImpl> mService;
-
-        MessageHandler(ClusterRenderingServiceImpl service) {
-            mService = new WeakReference<>(service);
+    public void setActivityLaunchOptions(int displayId, ClusterActivityState state) {
+        ActivityOptions options = displayId != Display.INVALID_DISPLAY
+                ? ActivityOptions.makeBasic().setLaunchDisplayId(displayId)
+                : null;
+        setClusterActivityLaunchOptions(options);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, String.format("activity options set: %s (displayeId: %d)",
+                    options, options.getLaunchDisplayId()));
         }
-
-        @Override
-        public void handleMessage(Message msg) {
-            Log.d(TAG, "handleMessage: " + msg.what);
-            switch (msg.what) {
-                case MSG_SET_ACTIVITY_LAUNCH_OPTIONS: {
-                    int displayId = msg.getData().getInt(MSG_KEY_ACTIVITY_DISPLAY_ID);
-                    Bundle state = msg.getData().getBundle(MSG_KEY_ACTIVITY_STATE);
-                    String category = msg.getData().getString(MSG_KEY_CATEGORY);
-                    ActivityOptions options = displayId != Display.INVALID_DISPLAY
-                            ? ActivityOptions.makeBasic().setLaunchDisplayId(displayId)
-                            : null;
-                    mService.get().setClusterActivityLaunchOptions(category, options);
-                    Log.d(TAG, String.format("activity options set: %s = %s (displayeId: %d)",
-                            category, options, options.getLaunchDisplayId()));
-                    mService.get().setClusterActivityState(category, state);
-                    Log.d(TAG, String.format("activity state set: %s = %s", category, state));
-                    break;
-                }
-                case MSG_REGISTER_CLIENT:
-                    mService.get().mClients.add(msg.replyTo);
-                    break;
-                case MSG_UNREGISTER_CLIENT:
-                    mService.get().mClients.remove(msg.replyTo);
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
+        setClusterActivityState(state);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, String.format("activity state set: %s", state));
         }
+    }
+
+    public void registerClient(ServiceClient client) {
+        mClients.add(client);
+    }
+
+    public void unregisterClient(ServiceClient client) {
+        mClients.remove(client);
+    }
+
+    public ImageResolver getImageResolver() {
+        return mImageResolver;
     }
 
     @Override
@@ -161,30 +152,20 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
 
     @Override
     public void onKeyEvent(KeyEvent keyEvent) {
-        Log.d(TAG, "onKeyEvent, keyEvent: " + keyEvent);
-        Bundle data = new Bundle();
-        data.putParcelable(MSG_KEY_KEY_EVENT, keyEvent);
-        broadcastClientMessage(MSG_ON_KEY_EVENT, data);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "onKeyEvent, keyEvent: " + keyEvent);
+        }
+        broadcastClientEvent(client -> client.onKeyEvent(keyEvent));
     }
 
     /**
-     * Broadcasts a message to all the registered service clients
+     * Broadcasts an event to all the registered service clients
      *
-     * @param what event identifier
-     * @param data event data
+     * @param event event to broadcast
      */
-    private void broadcastClientMessage(int what, Bundle data) {
-        Log.d(TAG, "broadcast message " + what + " to " + mClients.size() + " clients");
-        for (int i = mClients.size() - 1; i >= 0; i--) {
-            Messenger client = mClients.get(i);
-            try {
-                Message msg = Message.obtain(null, what);
-                msg.setData(data);
-                client.send(msg);
-            } catch (RemoteException ex) {
-                Log.e(TAG, "Client " + i + " is dead", ex);
-                mClients.remove(i);
-            }
+    private void broadcastClientEvent(Consumer<ServiceClient> event) {
+        for (ServiceClient client : mClients) {
+            event.accept(client);
         }
     }
 
@@ -210,7 +191,7 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
                         bundleSummary.append(navState.toString());
 
                         // Update clients
-                        broadcastClientMessage(MSG_ON_NAVIGATION_STATE_CHANGED, bundle);
+                        broadcastClientEvent(client -> client.onNavigationStateChange(navState));
                     } else {
                         for (String key : bundle.keySet()) {
                             bundleSummary.append(key);
@@ -222,9 +203,8 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
                     Log.d(TAG, "onEvent(" + eventType + ", " + bundleSummary + ")");
                 } catch (Exception e) {
                     Log.e(TAG, "Error parsing event data (" + eventType + ", " + bundle + ")", e);
-                    bundle.putParcelable(NAV_STATE_BUNDLE_KEY, new NavigationState.Builder().build()
-                            .toParcelable());
-                    broadcastClientMessage(MSG_ON_NAVIGATION_STATE_CHANGED, bundle);
+                    NavigationState navState = new NavigationState.Builder().build();
+                    broadcastClientEvent(client -> client.onNavigationStateChange(navState));
                 }
             }
         };
