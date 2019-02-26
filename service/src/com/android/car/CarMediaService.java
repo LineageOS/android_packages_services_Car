@@ -37,16 +37,21 @@ import android.service.media.MediaBrowserService;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.android.car.user.CarUserService;
 
 import java.io.PrintWriter;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * CarMediaService manages the currently active media source for car apps. This is different from
@@ -61,6 +66,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
     private static final String SOURCE_KEY = "media_source";
     private static final String SHARED_PREF = "com.android.car.media.car_media_service";
+    private static final String PACKAGE_NAME_SEPARATOR = ",";
 
     private final Context mContext;
     private final MediaSessionManager mMediaSessionManager;
@@ -127,7 +133,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     public void init() {
         CarLocalServices.getService(CarUserService.class).runOnUser0Unlock(() -> {
             mSharedPrefs = mContext.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
-            mPrimaryMediaPackage = mSharedPrefs.getString(SOURCE_KEY, null);
+            mPrimaryMediaPackage = getLastMediaPackage();
         });
     }
 
@@ -272,7 +278,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
         if (mSharedPrefs != null) {
             if (!TextUtils.isEmpty(mPrimaryMediaPackage)) {
-                mSharedPrefs.edit().putString(SOURCE_KEY, mPrimaryMediaPackage).apply();
+                saveLastMediaPackage(mPrimaryMediaPackage);
                 mRemovedMediaSourcePackage = null;
             }
         } else {
@@ -317,7 +323,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
     }
 
-
     private boolean isMediaService(String packageName) {
         PackageManager packageManager = mContext.getPackageManager();
         Intent mediaIntent = new Intent();
@@ -327,5 +332,44 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         List<ResolveInfo> mediaServices = packageManager.queryIntentServices(mediaIntent,
                 PackageManager.GET_RESOLVED_FILTER);
         return mediaServices.size() > 0;
+    }
+
+    private void saveLastMediaPackage(@NonNull String packageName) {
+        String serialized = mSharedPrefs.getString(SOURCE_KEY, null);
+        if (serialized == null) {
+            mSharedPrefs.edit().putString(SOURCE_KEY, packageName).apply();
+        } else {
+            Deque<String> packageNames = getPackageNameList(serialized);
+            packageNames.remove(packageName);
+            packageNames.addFirst(packageName);
+            mSharedPrefs.edit().putString(SOURCE_KEY, serializePackageNameList(packageNames))
+                    .apply();
+        }
+    }
+
+    private String getLastMediaPackage() {
+        String serialized = mSharedPrefs.getString(SOURCE_KEY, null);
+        if (!TextUtils.isEmpty(serialized)) {
+            for (String packageName : getPackageNameList(serialized)) {
+                if (isMediaService(packageName)) {
+                    return packageName;
+                }
+            }
+        }
+
+        String defaultSourcePackage = mContext.getString(R.string.default_media_application);
+        if (isMediaService(defaultSourcePackage)) {
+            return defaultSourcePackage;
+        }
+        return null;
+    }
+
+    private String serializePackageNameList(Deque<String> packageNames) {
+        return packageNames.stream().collect(Collectors.joining(PACKAGE_NAME_SEPARATOR));
+    }
+
+    private Deque<String> getPackageNameList(String serialized) {
+        String[] packageNames = serialized.split(PACKAGE_NAME_SEPARATOR);
+        return new ArrayDeque(Arrays.asList(packageNames));
     }
 }
