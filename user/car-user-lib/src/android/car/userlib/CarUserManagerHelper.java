@@ -19,6 +19,7 @@ package android.car.userlib;
 import android.Manifest;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -42,6 +43,7 @@ import com.android.internal.util.UserIcons;
 import com.google.android.collect.Sets;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -58,6 +60,8 @@ import java.util.Set;
  */
 public class CarUserManagerHelper {
     private static final String TAG = "CarUserManagerHelper";
+
+    private static final int BOOT_USER_NOT_FOUND = -1;
 
     /**
      * Default set of restrictions for Non-Admin users.
@@ -223,36 +227,64 @@ public class CarUserManagerHelper {
     }
 
     /**
-     * Get user id for the initial user to boot into. This is only applicable for headless
-     * system user model.
+     * Gets the user id for the initial user to boot into. This is only applicable for headless
+     * system user model. This method checks for a system property and will only work for system
+     * apps.
      *
-     * <p>If failed to retrieve the id stored in global settings or the retrieved id does not
-     * exist on device, then return the user with smallest user id.
+     * This method checks for the initial user via three mechanisms in this order:
+     * <ol>
+     *     <li>Check for a boot user override via {@link KEY_BOOT_USER_OVERRIDE_ID}</li>
+     *     <li>Check for the last active user in the system</li>
+     *     <li>Fallback to the smallest user id that is not {@link UserHandle.USER_SYSTEM}</li>
+     * </ol>
      *
-     * @return user id of the last active user or the smallest user id on the device.
+     * If any step fails to retrieve the stored id or the retrieved id does not exist on device,
+     * then it will move onto the next step.
+     *
+     * @return user id of the initial user to boot into on the device.
      */
+    @SystemApi
     public int getInitialUser() {
-        int lastActiveUserId = getLastActiveUser();
+        List<Integer> allUsers = userInfoListToUserIdList(getAllPersistentUsers());
 
-        boolean isUserExist = false;
-        List<UserInfo> allUsers = getAllPersistentUsers();
-        int smallestUserId = Integer.MAX_VALUE;
-        for (UserInfo user : allUsers) {
-            if (user.id == lastActiveUserId) {
-                isUserExist = true;
+        int bootUserOverride = CarProperties.boot_user_override_id().orElse(BOOT_USER_NOT_FOUND);
+
+        // If an override user is present and a real user, return it
+        if (bootUserOverride != BOOT_USER_NOT_FOUND
+                && allUsers.contains(bootUserOverride)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Boot user id override found for initial user, user id: "
+                        + bootUserOverride);
             }
-            smallestUserId = Math.min(user.id, smallestUserId);
+            return bootUserOverride;
         }
 
-        // If the last active user is system user or the user id doesn't exist on device,
-        // return the smallest id or all users.
-        if (lastActiveUserId == UserHandle.USER_SYSTEM || !isUserExist) {
-            Log.e(TAG, "Can't get last active user id or the user no longer exist, user id: ."
-                    + lastActiveUserId);
-            lastActiveUserId = smallestUserId;
+        // If the last active user is not the SYSTEM user and is a real user, return it
+        int lastActiveUser = getLastActiveUser();
+        if (lastActiveUser != UserHandle.USER_SYSTEM
+                && allUsers.contains(lastActiveUser)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Last active user loaded for initial user, user id: "
+                        + lastActiveUser);
+            }
+            return lastActiveUser;
         }
 
-        return lastActiveUserId;
+        // If all else fails, return the smallest user id
+        int returnId = Collections.min(allUsers);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Saved ids were invalid. Returning smallest user id, user id: "
+                    + returnId);
+        }
+        return returnId;
+    }
+
+    private List<Integer> userInfoListToUserIdList(List<UserInfo> allUsers) {
+        ArrayList<Integer> list = new ArrayList<>(allUsers.size());
+        for (UserInfo userInfo : allUsers) {
+            list.add(userInfo.id);
+        }
+        return list;
     }
 
     /**
