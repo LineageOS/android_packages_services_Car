@@ -39,6 +39,7 @@ import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerAndPublisherIdIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsOfferingMessageIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_0.VmsPublisherInformationIntegerValuesIndex;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -315,6 +316,11 @@ public class VmsHalService extends HalServiceBase {
                     case VmsMessageType.UNSUBSCRIBE_TO_PUBLISHER:
                         handleUnsubscribeFromPublisherEvent(vec);
                         break;
+                    case VmsMessageType.PUBLISHER_ID_REQUEST:
+                        handlePublisherIdRequest(toByteArray(v.value.bytes));
+                        break;
+                    case VmsMessageType.PUBLISHER_INFORMATION_REQUEST:
+                        handlePublisherInfoRequest(vec);
                     case VmsMessageType.OFFERING:
                         handleOfferingEvent(vec);
                         break;
@@ -426,6 +432,57 @@ public class VmsHalService extends HalServiceBase {
                     + publisherId);
         }
         mSubscriberService.removeVmsSubscriberToPublisher(mSubscriberClient, vmsLayer, publisherId);
+    }
+
+    /**
+     * PUBLISHER_ID_REQUEST message format:
+     * <ul>
+     * <li>Message type
+     * <li>Publisher info (bytes)
+     * </ul>
+     *
+     * PUBLISHER_ID_RESPONSE message format:
+     * <ul>
+     * <li>Message type
+     * <li>Publisher ID
+     * </ul>
+     */
+    private void handlePublisherIdRequest(byte[] payload)
+            throws RemoteException {
+        if (DBG) Log.d(TAG, "Handling a publisher id request event");
+
+        VehiclePropValue vehicleProp = createVmsMessage(VmsMessageType.PUBLISHER_ID_RESPONSE);
+        // Publisher ID
+        vehicleProp.value.int32Values.add(mPublisherService.getPublisherId(payload));
+
+        setPropertyValue(vehicleProp);
+    }
+
+
+    /**
+     * PUBLISHER_INFORMATION_REQUEST message format:
+     * <ul>
+     * <li>Message type
+     * <li>Publisher ID
+     * </ul>
+     *
+     * PUBLISHER_INFORMATION_RESPONSE message format:
+     * <ul>
+     * <li>Message type
+     * <li>Publisher info (bytes)
+     * </ul>
+     */
+    private void handlePublisherInfoRequest(List<Integer> message)
+            throws RemoteException {
+        if (DBG) Log.d(TAG, "Handling a publisher info request event");
+        int publisherId = message.get(VmsPublisherInformationIntegerValuesIndex.PUBLISHER_ID);
+
+        VehiclePropValue vehicleProp =
+                createVmsMessage(VmsMessageType.PUBLISHER_INFORMATION_RESPONSE);
+        // Publisher Info
+        appendBytes(vehicleProp.value.bytes, mSubscriberService.getPublisherInfo(publisherId));
+
+        setPropertyValue(vehicleProp);
     }
 
     /**
@@ -555,11 +612,7 @@ public class VmsHalService extends HalServiceBase {
         message.add(publisherId);
 
         // Payload
-        ArrayList<Byte> messagePayload = vehicleProp.value.bytes;
-        messagePayload.ensureCapacity(payload.length);
-        for (byte b : payload) {
-            messagePayload.add(b);
-        }
+        appendBytes(vehicleProp.value.bytes, payload);
         return vehicleProp;
     }
 
@@ -710,6 +763,13 @@ public class VmsHalService extends HalServiceBase {
         message.add(layer.getPublisherIds().size());
         for (int publisherId : layer.getPublisherIds()) {
             message.add(publisherId);
+        }
+    }
+
+    private static void appendBytes(ArrayList<Byte> dst, byte[] src) {
+        dst.ensureCapacity(src.length);
+        for (byte b : src) {
+            dst.add(b);
         }
     }
 

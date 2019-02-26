@@ -63,8 +63,7 @@ public class VmsHalServiceTest {
     private static final VmsLayer LAYER = new VmsLayer(LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION);
     private static final int PUBLISHER_ID = 12345;
     private static final byte[] PAYLOAD = new byte[]{1, 2, 3, 4};
-    private static final List<Byte> PAYLOAD_AS_LIST = Arrays.asList(
-            new Byte[]{1, 2, 3, 4});
+    private static final List<Byte> PAYLOAD_AS_LIST = Arrays.asList(new Byte[]{1, 2, 3, 4});
 
     @Rule
     public MockitoRule mockito = MockitoJUnit.rule();
@@ -230,6 +229,68 @@ public class VmsHalServiceTest {
         sendHalMessage(message);
         verify(mSubscriberService).removeVmsSubscriberToPublisher(mSubscriberClient, LAYER,
                 PUBLISHER_ID);
+    }
+
+    /**
+     * PUBLISHER_ID_REQUEST message format:
+     * <ul>
+     * <li>Message type
+     * <li>Publisher info (bytes)
+     * </ul>
+     *
+     * PUBLISHER_ID_RESPONSE message format:
+     * <ul>
+     * <li>Message type
+     * <li>Publisher ID
+     * </ul>
+     */
+    @Test
+    public void testHandlePublisherIdRequestEvent() throws Exception {
+        VehiclePropValue request = createHalMessage(
+                VmsMessageType.PUBLISHER_ID_REQUEST  // Message type
+        );
+        request.value.bytes.addAll(PAYLOAD_AS_LIST);
+
+        when(mPublisherService.getPublisherId(PAYLOAD)).thenReturn(PUBLISHER_ID);
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.PUBLISHER_ID_RESPONSE,  // Message type
+                PUBLISHER_ID                           // Publisher ID
+        );
+
+        sendHalMessage(request);
+        verify(mVehicleHal).set(response);
+    }
+
+    /**
+     * PUBLISHER_INFORMATION_REQUEST message format:
+     * <ul>
+     * <li>Message type
+     * <li>Publisher ID
+     * </ul>
+     *
+     * PUBLISHER_INFORMATION_RESPONSE message format:
+     * <ul>
+     * <li>Message type
+     * <li>Publisher info (bytes)
+     * </ul>
+     */
+    @Test
+    public void testHandlePublisherInformationRequestEvent() throws Exception {
+        VehiclePropValue request = createHalMessage(
+                VmsMessageType.PUBLISHER_INFORMATION_REQUEST,  // Message type
+                PUBLISHER_ID                                   // Publisher ID
+        );
+
+        when(mSubscriberService.getPublisherInfo(PUBLISHER_ID)).thenReturn(PAYLOAD);
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.PUBLISHER_INFORMATION_RESPONSE  // Message type
+        );
+        response.value.bytes.addAll(PAYLOAD_AS_LIST);
+
+        sendHalMessage(request);
+        verify(mVehicleHal).set(response);
     }
 
     /**
