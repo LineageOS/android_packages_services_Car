@@ -483,13 +483,13 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\tday-night-mode [day|night|sensor]");
             pw.println("\t  Force into day/night mode or restore to auto.");
             pw.println("\tinject-vhal-event property [zone] data(can be comma separated list)");
-            pw.println("\t  Inject a vehicle property for testing");
+            pw.println("\t  Inject a vehicle property for testing.");
             pw.println("\tdisable-uxr true|false");
             pw.println("\t  Disable UX restrictions and App blocking.");
             pw.println("\tgarage-mode [on|off|query]");
             pw.println("\t  Force into garage mode or check status.");
             pw.println("\tget-do-activities pkgname");
-            pw.println("\t Get Distraction Optimized activities in given package");
+            pw.println("\t  Get Distraction Optimized activities in given package.");
         }
 
         public void exec(String[] args, PrintWriter writer) {
@@ -499,23 +499,23 @@ public class ICarImpl extends ICar.Stub {
                     dumpHelp(writer);
                     break;
                 case COMMAND_DAY_NIGHT_MODE: {
-                    String value = args.length < 1 ? "" : args[1];
+                    String value = args.length < 2 ? "" : args[1];
                     forceDayNightMode(value, writer);
                     break;
                 }
                 case COMMAND_GARAGE_MODE: {
-                    String value = args.length < 1 ? "" : args[1];
+                    String value = args.length < 2 ? "" : args[1];
                     forceGarageMode(value, writer);
                     break;
                 }
                 case COMMAND_INJECT_VHAL_EVENT:
                     String zone = PARAM_VEHICLE_PROPERTY_AREA_GLOBAL;
                     String data;
-                    if (args.length < 3) {
+                    if (args.length != 3 && args.length != 4) {
                         writer.println("Incorrect number of arguments.");
                         dumpHelp(writer);
                         break;
-                    } else if (args.length > 3) {
+                    } else if (args.length == 4) {
                         // Zoned
                         zone = args[2];
                         data = args[3];
@@ -526,7 +526,7 @@ public class ICarImpl extends ICar.Stub {
                     injectVhalEvent(args[1], zone, data, writer);
                     break;
                 case COMMAND_ENABLE_UXR:
-                    if (args.length < 2) {
+                    if (args.length != 2) {
                         writer.println("Incorrect number of arguments");
                         dumpHelp(writer);
                         break;
@@ -537,7 +537,7 @@ public class ICarImpl extends ICar.Stub {
                     }
                     break;
                 case COMMAND_GET_DO_ACTIVITIES:
-                    if (args.length < 2) {
+                    if (args.length != 2) {
                         writer.println("Incorrect number of arguments");
                         dumpHelp(writer);
                         break;
@@ -558,7 +558,7 @@ public class ICarImpl extends ICar.Stub {
                     }
                     break;
                 default:
-                    writer.println("Unknown command.");
+                    writer.println("Unknown command: \"" + arg + "\"");
                     dumpHelp(writer);
             }
         }
