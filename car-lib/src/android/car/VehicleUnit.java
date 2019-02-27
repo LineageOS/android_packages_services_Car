@@ -37,10 +37,13 @@ public final class VehicleUnit {
     public static final int MILLIMETER = 0x20;
     public static final int METER = 0x21;
     public static final int KILOMETER = 0x23;
+    public static final int MILE = 0x24;
     public static final int CELSIUS = 0x30;
     public static final int FAHRENHEIT = 0x31;
     public static final int KELVIN = 0x32;
     public static final int MILLILITER = 0x40;
+    public static final int LITER = 0x41;
+    public static final int GALLON  = 0x42;
     public static final int NANO_SECS = 0x50;
     public static final int SECS = 0x53;
     public static final int YEAR = 0x59;
@@ -49,7 +52,11 @@ public final class VehicleUnit {
     public static final int MILLIAMPERE = 0x61;
     public static final int MILLIVOLT = 0x62;
     public static final int MILLIWATTS = 0x63;
-
+    public static final int AMPERE_HOURS = 0x64;
+    public static final int KILOWATT_HOUR = 0x65;
+    public static final int PSI = 0x71;
+    public static final int BAR = 0x72;
+    public static final int DEGREES = 0x80;
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
@@ -61,10 +68,13 @@ public final class VehicleUnit {
             MILLIMETER,
             METER,
             KILOMETER,
+            MILE,
             CELSIUS,
             FAHRENHEIT,
             KELVIN,
             MILLILITER,
+            LITER,
+            GALLON,
             NANO_SECS,
             SECS,
             YEAR,
@@ -72,7 +82,12 @@ public final class VehicleUnit {
             WATT_HOUR,
             MILLIAMPERE,
             MILLIVOLT,
-            MILLIWATTS
+            MILLIWATTS,
+            AMPERE_HOURS,
+            KILOWATT_HOUR,
+            PSI,
+            BAR,
+            DEGREES
     })
     public @interface Enum {}
 

@@ -26,11 +26,16 @@ package android.car {
     field public static final String PERMISSION_CAR_CONTROL_AUDIO_VOLUME = "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
     field public static final String PERMISSION_CAR_INFO = "android.car.permission.CAR_INFO";
     field public static final String PERMISSION_CAR_NAVIGATION_MANAGER = "android.car.permission.CAR_NAVIGATION_MANAGER";
+    field public static final String PERMISSION_CONTROL_DISPLAY_UNITS = "android.car.permission.CONTROL_CAR_DISPLAY_UNITS";
+    field public static final String PERMISSION_CONTROL_INTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS";
     field public static final String PERMISSION_ENERGY = "android.car.permission.CAR_ENERGY";
     field public static final String PERMISSION_ENERGY_PORTS = "android.car.permission.CAR_ENERGY_PORTS";
     field public static final String PERMISSION_EXTERIOR_ENVIRONMENT = "android.car.permission.CAR_EXTERIOR_ENVIRONMENT";
     field public static final String PERMISSION_IDENTIFICATION = "android.car.permission.CAR_IDENTIFICATION";
     field public static final String PERMISSION_POWERTRAIN = "android.car.permission.CAR_POWERTRAIN";
+    field public static final String PERMISSION_READ_DISPLAY_UNITS = "android.car.permission.READ_CAR_DISPLAY_UNITS";
+    field public static final String PERMISSION_READ_INTERIOR_LIGHTS = "android.car.permission.READ_CAR_INTERIOR_LIGHTS";
+    field public static final String PERMISSION_READ_STEERING_STATE = "android.car.permission.READ_CAR_STEERING";
     field public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
     field public static final String SENSOR_SERVICE = "sensor";
     field public static final int VERSION = 3; // 0x3
@@ -84,8 +89,11 @@ package android.car {
     field public static final int AP_POWER_BOOTUP_REASON = 289409538; // 0x11400a02
     field public static final int AP_POWER_STATE_REPORT = 289475073; // 0x11410a01
     field public static final int AP_POWER_STATE_REQ = 289475072; // 0x11410a00
+    field public static final int CABIN_LIGHTS_STATE = 289410817; // 0x11400f01
+    field public static final int CABIN_LIGHTS_SWITCH = 289410818; // 0x11400f02
     field public static final int CURRENT_GEAR = 289408001; // 0x11400401
     field public static final int DISPLAY_BRIGHTNESS = 289409539; // 0x11400a03
+    field public static final int DISTANCE_DISPLAY_UNITS = 289408512; // 0x11400600
     field public static final int DOOR_LOCK = 371198722; // 0x16200b02
     field public static final int DOOR_MOVE = 373295873; // 0x16400b01
     field public static final int DOOR_POS = 373295872; // 0x16400b00
@@ -94,6 +102,7 @@ package android.car {
     field public static final int ENGINE_OIL_TEMP = 291504900; // 0x11600304
     field public static final int ENGINE_RPM = 291504901; // 0x11600305
     field public static final int ENV_OUTSIDE_TEMPERATURE = 291505923; // 0x11600703
+    field public static final int EV_BATTERY_DISPLAY_UNITS = 289408515; // 0x11400603
     field public static final int EV_BATTERY_INSTANTANEOUS_CHARGE_RATE = 291504908; // 0x1160030c
     field public static final int EV_BATTERY_LEVEL = 291504905; // 0x11600309
     field public static final int EV_CHARGE_PORT_CONNECTED = 287310603; // 0x1120030b
@@ -103,6 +112,7 @@ package android.car {
     field public static final int FUEL_DOOR_OPEN = 287310600; // 0x11200308
     field public static final int FUEL_LEVEL = 291504903; // 0x11600307
     field public static final int FUEL_LEVEL_LOW = 287310853; // 0x11200405
+    field public static final int FUEL_VOLUME_DISPLAY_UNITS = 289408513; // 0x11400601
     field public static final int GEAR_SELECTION = 289408000; // 0x11400400
     field public static final int HAZARD_LIGHTS_STATE = 289410563; // 0x11400e03
     field public static final int HAZARD_LIGHTS_SWITCH = 289410579; // 0x11400e13
@@ -162,6 +172,8 @@ package android.car {
     field public static final int PERF_VEHICLE_SPEED = 291504647; // 0x11600207
     field public static final int PERF_VEHICLE_SPEED_DISPLAY = 291504648; // 0x11600208
     field public static final int RANGE_REMAINING = 291504904; // 0x11600308
+    field public static final int READING_LIGHTS_STATE = 356519683; // 0x15400f03
+    field public static final int READING_LIGHTS_SWITCH = 356519684; // 0x15400f04
     field public static final int SEAT_BACKREST_ANGLE_1_MOVE = 356518792; // 0x15400b88
     field public static final int SEAT_BACKREST_ANGLE_1_POS = 356518791; // 0x15400b87
     field public static final int SEAT_BACKREST_ANGLE_2_MOVE = 356518794; // 0x15400b8a
@@ -187,9 +199,11 @@ package android.car {
     field public static final int SEAT_LUMBAR_SIDE_SUPPORT_POS = 356518803; // 0x15400b93
     field public static final int SEAT_MEMORY_SELECT = 356518784; // 0x15400b80
     field public static final int SEAT_MEMORY_SET = 356518785; // 0x15400b81
+    field public static final int SEAT_OCCUPANCY = 356518832; // 0x15400bb0
     field public static final int SEAT_TILT_MOVE = 356518800; // 0x15400b90
     field public static final int SEAT_TILT_POS = 356518799; // 0x15400b8f
     field public static final int TIRE_PRESSURE = 392168201; // 0x17600309
+    field public static final int TIRE_PRESSURE_DISPLAY_UNITS = 289408514; // 0x11400602
     field public static final int TRACTION_CONTROL_ACTIVE = 287310859; // 0x1120040b
     field public static final int TURN_SIGNAL_STATE = 289408008; // 0x11400408
     field public static final int VEHICLE_MAP_SERVICE = 299895808; // 0x11e00c00
