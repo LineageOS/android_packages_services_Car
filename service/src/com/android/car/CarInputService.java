@@ -20,6 +20,10 @@ import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothHeadsetClient;
+import android.bluetooth.BluetoothProfile;
 import android.car.input.CarInputHandlingService;
 import android.car.input.CarInputHandlingService.InputFilter;
 import android.car.input.ICarInputListener;
@@ -50,6 +54,7 @@ import com.android.internal.app.AssistUtils;
 import com.android.internal.app.IVoiceInteractionSessionShowCallback;
 
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class CarInputService implements CarServiceBase, InputHalService.InputListener {
@@ -188,14 +193,14 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
                 Log.d(CarLog.TAG_INPUT, "onServiceConnected, name: "
                         + name + ", binder: " + binder);
             }
-            synchronized (this) {
+            synchronized (CarInputService.this) {
                 mCarInputListener = ICarInputListener.Stub.asInterface(binder);
             }
 
             try {
                 binder.linkToDeath(() -> CarServiceUtils.runOnMainSync(() -> {
                     Log.w(CarLog.TAG_INPUT, "Input service died. Trying to rebind...");
-                    synchronized (this) {
+                    synchronized (CarInputService.this) {
                         mCarInputListener = null;
                         // Try to rebind with input service.
                         mCarInputListenerBound = bindCarInputService();
@@ -209,10 +214,40 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(CarLog.TAG_INPUT, "onServiceDisconnected, name: " + name);
-            synchronized (this) {
+            synchronized (CarInputService.this) {
                 mCarInputListener = null;
                 // Try to rebind with input service.
                 mCarInputListenerBound = bindCarInputService();
+            }
+        }
+    };
+
+    private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+    // BluetoothHeadsetClient set through mBluetoothProfileServiceListener, and used by
+    // launchBluetoothVoiceRecognition().
+    @GuardedBy("mBluetoothProfileServiceListener")
+    private BluetoothHeadsetClient mBluetoothHeadsetClient;
+
+    private final BluetoothProfile.ServiceListener mBluetoothProfileServiceListener =
+            new BluetoothProfile.ServiceListener() {
+        @Override
+        public void onServiceConnected(int profile, BluetoothProfile proxy) {
+            if (profile == BluetoothProfile.HEADSET_CLIENT) {
+                Log.d(CarLog.TAG_INPUT, "Bluetooth proxy connected for HEADSET_CLIENT profile");
+                synchronized (this) {
+                    mBluetoothHeadsetClient = (BluetoothHeadsetClient) proxy;
+                }
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(int profile) {
+            if (profile == BluetoothProfile.HEADSET_CLIENT) {
+                Log.d(CarLog.TAG_INPUT, "Bluetooth proxy disconnected for HEADSET_CLIENT profile");
+                synchronized (this) {
+                    mBluetoothHeadsetClient = null;
+                }
             }
         }
     };
@@ -304,6 +339,10 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         synchronized (this) {
             mCarInputListenerBound = bindCarInputService();
         }
+        if (mBluetoothAdapter != null) {
+            mBluetoothAdapter.getProfileProxy(
+                    mContext, mBluetoothProfileServiceListener, BluetoothProfile.HEADSET_CLIENT);
+        }
     }
 
     @Override
@@ -315,6 +354,13 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             if (mCarInputListenerBound) {
                 mContext.unbindService(mInputServiceConnection);
                 mCarInputListenerBound = false;
+            }
+        }
+        synchronized (mBluetoothProfileServiceListener) {
+            if (mBluetoothHeadsetClient != null) {
+                mBluetoothAdapter.closeProfileProxy(
+                        BluetoothProfile.HEADSET_CLIENT, mBluetoothHeadsetClient);
+                mBluetoothHeadsetClient = null;
             }
         }
     }
@@ -390,11 +436,17 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             listener = mLongVoiceAssistantKeyListener;
         }
 
+        // If there's a long press listener registered, let it handle the event.
         if (listener != null) {
             listener.run();
-        } else {
-            launchDefaultVoiceAssistantHandler();
+            return;
         }
+        // Otherwise, try to launch voice recognition on a BT device.
+        if (launchBluetoothVoiceRecognition()) {
+            return;
+        }
+        // Finally, fallback to the default voice assist handling.
+        launchDefaultVoiceAssistantHandler();
     }
 
     private void handleCallKey(KeyEvent event) {
@@ -450,6 +502,34 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             return true;
         }
 
+        return false;
+    }
+
+    private boolean launchBluetoothVoiceRecognition() {
+        synchronized (mBluetoothProfileServiceListener) {
+            if (mBluetoothHeadsetClient == null) {
+                return false;
+            }
+            // getConnectedDevices() does not make any guarantees about the order of the returned
+            // list. As of 2019-02-26, this code is only triggered through a long-press of the
+            // voice recognition key, so handling of multiple connected devices that support voice
+            // recognition is not expected to be a primary use case.
+            List<BluetoothDevice> devices = mBluetoothHeadsetClient.getConnectedDevices();
+            if (devices != null) {
+                for (BluetoothDevice device : devices) {
+                    Bundle bundle = mBluetoothHeadsetClient.getCurrentAgFeatures(device);
+                    if (bundle == null || !bundle.getBoolean(
+                            BluetoothHeadsetClient.EXTRA_AG_FEATURE_VOICE_RECOGNITION)) {
+                        continue;
+                    }
+                    if (mBluetoothHeadsetClient.startVoiceRecognition(device)) {
+                        Log.d(CarLog.TAG_INPUT, "started voice recognition on BT device at "
+                                + device.getAddress());
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
