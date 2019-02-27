@@ -16,6 +16,9 @@
  * limitations under the License.
  */
 -->
-<merge>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
     <include layout="@*android:layout/car_resolver_different_item_header"/>
-</merge>
+</FrameLayout>
