@@ -138,7 +138,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
     }
 
     /**
-     * Test senor notification registration, delivery, and unregistration
+     * Test sensor notification registration, delivery, and unregistration
      * @throws Exception
      */
     @Test
@@ -147,7 +147,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         SensorListener listener = new SensorListener();
         mCarSensorManager.registerListener(listener,
                 CarSensorManager.SENSOR_TYPE_NIGHT,
-                CarSensorManager.SENSOR_RATE_NORMAL);
+                CarSensorManager.SENSOR_RATE_FASTEST);
 
         VehiclePropValue value;
         CarSensorEvent event;
@@ -161,9 +161,9 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         getMockedVehicleHal().injectEvent(
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.NIGHT_MODE)
                         .setBooleanValue(true)
-                        .setTimestamp(1L)
+                        .setTimestamp(51L)
                         .build(), true);
-        assertTrue(listener.waitForSensorChange(1L));
+        assertTrue(listener.waitForSensorChange(51L));
 
         // Ensure we got the expected event
         assertEquals(listener.getLastEvent().sensorType, CarSensorManager.SENSOR_TYPE_NIGHT);
@@ -177,7 +177,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         event = mCarSensorManager.getLatestSensorEvent(CarSensorManager.SENSOR_TYPE_NIGHT);
         assertNotNull(event);
         data = event.getNightData(data);
-        assertEquals("Unexpected event timestamp", data.timestamp, 1);
+        assertEquals("Unexpected event timestamp", data.timestamp, 51);
         assertTrue("Unexpected value", data.isNightMode);
 
         listener.reset();
@@ -324,7 +324,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
     }
 
     /**
-     * Test senor multiple liseners notification registration, delivery and unregistration.
+     * Test sensor multiple liseners notification registration, delivery and unregistration.
      * @throws Exception
      */
     @Test
@@ -360,14 +360,14 @@ public class CarSensorManagerTest extends MockedCarTestBase {
 
         // Set the value TRUE and wait for the event to arrive
         value = VehiclePropValueBuilder.newBuilder(VehicleProperty.NIGHT_MODE)
-                .setTimestamp(42L)
+                .setTimestamp(1001L)
                 .setBooleanValue(true)
                 .build();
         getMockedVehicleHal().injectEvent(value, true);
 
-        assertTrue(listener1.waitForSensorChange(42L));
-        assertTrue(listener2.waitForSensorChange(42L));
-        assertTrue(listener3.waitForSensorChange(42L));
+        assertTrue(listener1.waitForSensorChange(1001L));
+        assertTrue(listener2.waitForSensorChange(1001L));
+        assertTrue(listener3.waitForSensorChange(1001L));
 
         // Ensure we got the expected event
         assertEquals(listener1.getLastEvent().sensorType, CarSensorManager.SENSOR_TYPE_NIGHT);
@@ -390,7 +390,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         // Ensure we have the expected value in the sensor manager's cache
         event = mCarSensorManager.getLatestSensorEvent(CarSensorManager.SENSOR_TYPE_NIGHT);
         data = event.getNightData(data);
-        assertEquals("Unexpected event timestamp", 42, data.timestamp);
+        assertEquals("Unexpected event timestamp", 1001, data.timestamp);
         assertTrue("Unexpected value", data.isNightMode);
 
         listener1.reset();
@@ -398,13 +398,13 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         listener3.reset();
         // Set the value FALSE
         value = VehiclePropValueBuilder.newBuilder(VehicleProperty.NIGHT_MODE)
-                .setTimestamp(1001)
+                .setTimestamp(2001)
                 .setBooleanValue(false)
                 .build();
         getMockedVehicleHal().injectEvent(value, true);
-        assertTrue(listener1.waitForSensorChange(1001));
-        assertTrue(listener2.waitForSensorChange(1001));
-        assertTrue(listener3.waitForSensorChange(1001));
+        assertTrue(listener1.waitForSensorChange(2001));
+        assertTrue(listener2.waitForSensorChange(2001));
+        assertTrue(listener3.waitForSensorChange(2001));
 
         // Ensure we got the expected event
         assertEquals(listener1.getLastEvent().sensorType, CarSensorManager.SENSOR_TYPE_NIGHT);
@@ -413,15 +413,15 @@ public class CarSensorManagerTest extends MockedCarTestBase {
 
         // Ensure we got the expected value in our callback
         data = listener1.getLastEvent().getNightData(data);
-        assertEquals("Unexpected event timestamp", 1001, data.timestamp);
+        assertEquals("Unexpected event timestamp", 2001, data.timestamp);
         assertFalse("Unexpected value", data.isNightMode);
 
         data = listener2.getLastEvent().getNightData(data);
-        assertEquals("Unexpected event timestamp", 1001, data.timestamp);
+        assertEquals("Unexpected event timestamp", 2001, data.timestamp);
         assertFalse("Unexpected value", data.isNightMode);
 
         data = listener3.getLastEvent().getNightData(data);
-        assertEquals("Unexpected event timestamp", 1001, data.timestamp);
+        assertEquals("Unexpected event timestamp", 2001, data.timestamp);
         assertFalse("Unexpected value", data.isNightMode);
 
         // Ensure we have the expected value in the sensor manager's cache
@@ -436,7 +436,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         mCarSensorManager.unregisterListener(listener3);
         Log.d(TAG, "Rate changed - expect sensor restart and change event sent.");
         value = VehiclePropValueBuilder.newBuilder(VehicleProperty.NIGHT_MODE)
-                .setTimestamp(1002)
+                .setTimestamp(3002)
                 .setBooleanValue(false)
                 .build();
         getMockedVehicleHal().injectEvent(value, true);
