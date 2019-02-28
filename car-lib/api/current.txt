@@ -61,9 +61,9 @@ package android.car {
 
   public final class CarInfoManager {
     method public float getEvBatteryCapacity();
-    method public int[] getEvConnectorTypes();
+    method @android.car.EvConnectorType.Enum public int[] getEvConnectorTypes();
     method public float getFuelCapacity();
-    method public int[] getFuelTypes();
+    method @android.car.FuelType.Enum public int[] getFuelTypes();
     method @Nullable public String getManufacturer();
     method @Nullable public String getModel();
     method @Nullable public String getModelYear();
@@ -75,6 +75,42 @@ package android.car {
     ctor @Deprecated public CarNotConnectedException(String);
     ctor @Deprecated public CarNotConnectedException(String, Throwable);
     ctor @Deprecated public CarNotConnectedException(Exception);
+  }
+
+  public final class EvConnectorType {
+    field public static final int CHADEMO = 3; // 0x3
+    field public static final int COMBO_1 = 4; // 0x4
+    field public static final int COMBO_2 = 5; // 0x5
+    field public static final int GBT = 9; // 0x9
+    field public static final int J1772 = 1; // 0x1
+    field public static final int MENNEKES = 2; // 0x2
+    field public static final int OTHER = 101; // 0x65
+    field public static final int TESLA_HPWC = 7; // 0x7
+    field public static final int TESLA_ROADSTER = 6; // 0x6
+    field public static final int TESLA_SUPERCHARGER = 8; // 0x8
+    field public static final int UNKNOWN = 0; // 0x0
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({android.car.EvConnectorType.UNKNOWN, android.car.EvConnectorType.J1772, android.car.EvConnectorType.MENNEKES, android.car.EvConnectorType.CHADEMO, android.car.EvConnectorType.COMBO_1, android.car.EvConnectorType.COMBO_2, android.car.EvConnectorType.TESLA_ROADSTER, android.car.EvConnectorType.TESLA_HPWC, android.car.EvConnectorType.TESLA_SUPERCHARGER, android.car.EvConnectorType.GBT, android.car.EvConnectorType.OTHER}) public static @interface EvConnectorType.Enum {
+  }
+
+  public final class FuelType {
+    field public static final int BIODIESEL = 5; // 0x5
+    field public static final int CNG = 8; // 0x8
+    field public static final int DIESEL_1 = 3; // 0x3
+    field public static final int DIESEL_2 = 4; // 0x4
+    field public static final int E85 = 6; // 0x6
+    field public static final int ELECTRIC = 10; // 0xa
+    field public static final int HYDROGEN = 11; // 0xb
+    field public static final int LEADED = 2; // 0x2
+    field public static final int LNG = 9; // 0x9
+    field public static final int LPG = 7; // 0x7
+    field public static final int OTHER = 12; // 0xc
+    field public static final int UNKNOWN = 0; // 0x0
+    field public static final int UNLEADED = 1; // 0x1
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({android.car.FuelType.UNKNOWN, android.car.FuelType.UNLEADED, android.car.FuelType.LEADED, android.car.FuelType.DIESEL_1, android.car.FuelType.DIESEL_2, android.car.FuelType.BIODIESEL, android.car.FuelType.E85, android.car.FuelType.LPG, android.car.FuelType.CNG, android.car.FuelType.LNG, android.car.FuelType.ELECTRIC, android.car.FuelType.HYDROGEN, android.car.FuelType.OTHER}) public static @interface FuelType.Enum {
   }
 
   public final class VehiclePropertyIds {
