@@ -306,6 +306,9 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
             ALOGE("Failed to construct direct renderer.  Skipping state change.");
             return false;
         }
+    } else {
+        ALOGD("Unsupported, desiredState %d has %lu cameras.",
+              desiredState, mCameraList[desiredState].size());
     }
 
     // Now set the display state based on whether we have a video feed to show
