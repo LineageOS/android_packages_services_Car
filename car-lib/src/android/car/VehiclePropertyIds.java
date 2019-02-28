@@ -279,6 +279,22 @@ public final class VehiclePropertyIds {
      */
     public static final int HVAC_SEAT_VENTILATION = 356517139;
     /**
+     * Distance units for display
+     */
+    public static final int DISTANCE_DISPLAY_UNITS = 289408512;
+    /**
+     * Fuel volume units for display
+     */
+    public static final int FUEL_VOLUME_DISPLAY_UNITS = 289408513;
+    /**
+     * Tire pressure units for display
+     */
+    public static final int TIRE_PRESSURE_DISPLAY_UNITS = 289408514;
+    /**
+     * EV battery units for display
+     */
+    public static final int EV_BATTERY_DISPLAY_UNITS = 289408515;
+    /**
      * Outside temperature
      */
     public static final int ENV_OUTSIDE_TEMPERATURE = 291505923;
@@ -474,6 +490,10 @@ public final class VehiclePropertyIds {
      */
     public static final int SEAT_HEADREST_FORE_AFT_MOVE = 356518810;
     /**
+     * Seat Occupancy
+     */
+    public static final int SEAT_OCCUPANCY = 356518832;
+    /**
      * Window Position
      */
     public static final int WINDOW_POS = 322964416;
@@ -545,6 +565,22 @@ public final class VehiclePropertyIds {
      * Hazard light switch
      */
     public static final int HAZARD_LIGHTS_SWITCH = 289410579;
+    /**
+     * Cabin lights
+     */
+    public static final int CABIN_LIGHTS_STATE = 289410817;
+    /**
+     * Cabin lights switch
+     */
+    public static final int CABIN_LIGHTS_SWITCH = 289410818;
+    /**
+     * Reading lights
+     */
+    public static final int READING_LIGHTS_STATE = 356519683;
+    /**
+     * Reading lights switch
+     */
+    public static final int READING_LIGHTS_SWITCH = 356519684;
 
     /**
      * @param o Integer
@@ -728,6 +764,18 @@ public final class VehiclePropertyIds {
         if (o == HVAC_SEAT_VENTILATION) {
             return "HVAC_SEAT_VENTILATION";
         }
+        if (o == DISTANCE_DISPLAY_UNITS) {
+            return "DISTANCE_DISPLAY_UNITS";
+        }
+        if (o == FUEL_VOLUME_DISPLAY_UNITS) {
+            return "FUEL_VOLUME_DISPLAY_UNITS";
+        }
+        if (o == TIRE_PRESSURE_DISPLAY_UNITS) {
+            return "TIRE_PRESSURE_DISPLAY_UNITS";
+        }
+        if (o == EV_BATTERY_DISPLAY_UNITS) {
+            return "EV_BATTERY_DISPLAY_UNITS";
+        }
         if (o == ENV_OUTSIDE_TEMPERATURE) {
             return "ENV_OUTSIDE_TEMPERATURE";
         }
@@ -854,6 +902,9 @@ public final class VehiclePropertyIds {
         if (o == SEAT_HEADREST_FORE_AFT_MOVE) {
             return "SEAT_HEADREST_FORE_AFT_MOVE";
         }
+        if (o == SEAT_OCCUPANCY) {
+            return "SEAT_OCCUPANCY";
+        }
         if (o == WINDOW_POS) {
             return "WINDOW_POS";
         }
@@ -901,6 +952,18 @@ public final class VehiclePropertyIds {
         }
         if (o == HAZARD_LIGHTS_SWITCH) {
             return "HAZARD_LIGHTS_SWITCH";
+        }
+        if (o == CABIN_LIGHTS_STATE) {
+            return "CABIN_LIGHTS_STATE";
+        }
+        if (o == CABIN_LIGHTS_SWITCH) {
+            return "CABIN_LIGHTS_SWITCH";
+        }
+        if (o == READING_LIGHTS_STATE) {
+            return "READING_LIGHTS_STATE";
+        }
+        if (o == READING_LIGHTS_SWITCH) {
+            return "READING_LIGHTS_SWITCH";
         }
         return "0x" + Integer.toHexString(o);
     }

@@ -94,6 +94,7 @@ public class NotificationFragment extends Fragment {
         initProgressButton(view);
         initNavigationButton(view);
         initMediaButton(view);
+        initCallButton(view);
 
         return view;
     }
@@ -159,8 +160,8 @@ public class NotificationFragment extends Fragment {
     }
 
     private void initImportanceHighBotton(View view) {
-        Intent mIntent = new Intent(mContext, KitchenSinkActivity.class);
-        PendingIntent mPendingIntent = PendingIntent.getActivity(mContext, 0, mIntent, 0);
+        Intent intent = new Intent(mContext, KitchenSinkActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent, 0);
 
         Notification notification1 = new Notification
                 .Builder(mContext, IMPORTANCE_HIGH_ID)
@@ -173,13 +174,13 @@ public class NotificationFragment extends Fragment {
                 .setSmallIcon(R.drawable.car_ic_mode)
                 .addAction(
                         new Notification.Action.Builder(
-                                null, "Long Action (no-op)", mPendingIntent).build())
+                                null, "Long Action (no-op)", pendingIntent).build())
                 .addAction(
                         new Notification.Action.Builder(
-                                null, "Action (no-op)", mPendingIntent).build())
+                                null, "Action (no-op)", pendingIntent).build())
                 .addAction(
                         new Notification.Action.Builder(
-                                null, "Long Action (no-op)", mPendingIntent).build())
+                                null, "Long Action (no-op)", pendingIntent).build())
                 .setColor(mContext.getColor(android.R.color.holo_red_light))
                 .build();
 
@@ -244,42 +245,46 @@ public class NotificationFragment extends Fragment {
             PendingIntent replyIntent = createServiceIntent(id, "reply");
             PendingIntent markAsReadIntent = createServiceIntent(id, "read");
 
-            Person personJohn = new Person.Builder()
-                    .setName("John Doe")
+            Person person1 = new Person.Builder()
+                    .setName("Person " + id)
                     .setIcon(IconCompat.createWithResource(v.getContext(), R.drawable.avatar1))
                     .build();
-            Person personJane = new Person.Builder().setName("Jane Roe")
-                    .setName("Jane Roe")
+            Person person2 = new Person.Builder()
+                    .setName("Person " + id + 1)
+                    .setIcon(IconCompat.createWithResource(v.getContext(), R.drawable.android_logo))
+                    .build();
+            Person person3 = new Person.Builder()
+                    .setName("Person " + id + 2)
                     .setIcon(IconCompat.createWithResource(v.getContext(), R.drawable.avatar2))
                     .build();
             MessagingStyle messagingStyle =
-                    new MessagingStyle(personJohn)
-                            .setConversationTitle("Heads-up: New Message")
+                    new MessagingStyle(person3)
+                            .setConversationTitle("Group chat")
                             .addMessage(
                                     new MessagingStyle.Message(
-                                            "The meaning of life, or the answer to the question"
-                                                    + "What is the meaning of life?, pertains to "
-                                                    + "the significance of living or existence in"
-                                                    + " general. Many other related questions "
-                                                    + "include: Why are we here?, What is "
-                                                    + "life all about?, or What is the "
-                                                    + "purpose of existence?",
+                                            person1.getName() + "'s message",
                                             System.currentTimeMillis(),
-                                            personJohn))
+                                            person1))
                             .addMessage(
                                     new MessagingStyle.Message(
-                                            "Importance High; Groups; Each click generates a new"
+                                            person2.getName() + "'s message",
+                                            System.currentTimeMillis(),
+                                            person2))
+                            .addMessage(
+                                    new MessagingStyle.Message(
+                                            person3.getName() + "'s message; "
+                                                    + "Each click generates a new"
                                                     + "notification. And some looooooong text. "
                                                     + "Loooooooooooooooooooooong. "
                                                     + "Loooooooooooooooooooooooooong."
                                                     + "Long long long long text.",
                                             System.currentTimeMillis(),
-                                            personJane));
+                                            person3));
 
             NotificationCompat.Builder notification = new NotificationCompat
                     .Builder(mContext, IMPORTANCE_HIGH_ID)
-                    .setContentTitle("Message from someone")
-                    .setContentText("hi")
+                    .setContentTitle("Jane, John, Joe")
+                    .setContentText("Group chat")
                     .setShowWhen(true)
                     .setCategory(Notification.CATEGORY_MESSAGE)
                     .setSmallIcon(R.drawable.car_ic_mode)
@@ -309,18 +314,9 @@ public class NotificationFragment extends Fragment {
             PendingIntent replyIntent = createServiceIntent(id, "reply");
             PendingIntent markAsReadIntent = createServiceIntent(id, "read");
 
-            Person personJohn = new Person.Builder().setName("John Doe").build();
-            Person personJane = new Person.Builder().setName("Jane Roe").build();
+            Person person = new Person.Builder().setName("John Doe").build();
             MessagingStyle messagingStyle =
-                    new MessagingStyle(personJohn)
-                            .setConversationTitle("Heads-up: New Message")
-                            .addMessage(
-                                    new MessagingStyle.Message(
-                                            "Hello!",
-                                            System.currentTimeMillis(),
-                                            personJohn));
-
-            // first message
+                    new MessagingStyle(person).setConversationTitle("Hello!");
             NotificationCompat.Builder builder = new NotificationCompat
                     .Builder(mContext, IMPORTANCE_HIGH_ID)
                     .setContentTitle("Message from someone")
@@ -328,7 +324,6 @@ public class NotificationFragment extends Fragment {
                     .setShowWhen(true)
                     .setCategory(Notification.CATEGORY_MESSAGE)
                     .setSmallIcon(R.drawable.car_ic_mode)
-                    .setStyle(messagingStyle)
                     .setAutoCancel(true)
                     .setColor(mContext.getColor(android.R.color.holo_green_light))
                     .addAction(
@@ -343,8 +338,6 @@ public class NotificationFragment extends Fragment {
                                     .addRemoteInput(new RemoteInput.Builder("input").build())
                                     .build());
 
-            mManager.notify(id, builder.build());
-
             Runnable runnable = new Runnable() {
                 int mCount = 1;
 
@@ -355,7 +348,7 @@ public class NotificationFragment extends Fragment {
                                     new MessagingStyle.Message(
                                             "Message " + mCount++,
                                             System.currentTimeMillis(),
-                                            personJane)));
+                                            person)));
                     mManager.notify(id, updateNotification.build());
                     if (mCount < 5) {
                         mHandler.postDelayed(this, 6000);
@@ -363,7 +356,7 @@ public class NotificationFragment extends Fragment {
                 }
             };
             mUpdateRunnables.put(id, runnable);
-            mHandler.postDelayed(runnable, 6000);
+            mHandler.post(runnable);
         });
     }
 
@@ -508,6 +501,25 @@ public class NotificationFragment extends Fragment {
             mediaSession.release();
 
             mManager.notify(id, builder.build());
+        });
+    }
+
+    private void initCallButton(View view) {
+        Intent intent = new Intent(mContext, KitchenSinkActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent, 0);
+
+        view.findViewById(R.id.category_call_button).setOnClickListener(v -> {
+            Notification notification = new Notification
+                    .Builder(mContext, IMPORTANCE_HIGH_ID)
+                    .setContentTitle("+1 1231231234")
+                    .setContentText("Shows persistent heads-up")
+                    .setCategory(Notification.CATEGORY_CALL)
+                    .setSmallIcon(R.drawable.car_ic_mode)
+                    .setFullScreenIntent(pendingIntent, true)
+                    .setColor(mContext.getColor(android.R.color.holo_red_light))
+                    .setColorized(true)
+                    .build();
+            mManager.notify(mCurrentNotificationId++, notification);
         });
     }
 }
