@@ -36,8 +36,7 @@ std::list<EvsEnumerator::CameraRecord>   EvsEnumerator::sCameraList;
 wp<EvsGlDisplay>                           EvsEnumerator::sActiveDisplay;
 
 
-EvsEnumerator::EvsEnumerator()
-: max_retry(3) {
+EvsEnumerator::EvsEnumerator() {
     ALOGD("EvsEnumerator created");
 
     enumerateDevices();
@@ -104,18 +103,14 @@ Return<sp<IEvsCamera>> EvsEnumerator::openCamera(const hidl_string& cameraId) {
 
     // Is this a recognized camera id?
     CameraRecord *pRecord = findCameraById(cameraId);
-    // WAR: this assumes that the device has at least one compatible camera and
-    // therefore keeps trying until it succeeds to open.
-    // TODO: this is required for external USB camera so would be better to
-    // subscribe hot-plug event.
-    unsigned tries = 0;
-    while (!pRecord && tries++ < max_retry) {
-        ALOGI("Requested camera %s not found, enumerate again, %d", cameraId.c_str(), tries);
+    if (!pRecord) {
+        ALOGE("Requested camera %s not found, enumerate again", cameraId.c_str());
         enumerateDevices();
         pRecord = findCameraById(cameraId);
-
-        // TODO: remove this.
-        usleep(1000 * 1000);
+        if (!pRecord) {
+            ALOGE("Requested camera %s not found", cameraId.c_str());
+            return nullptr;
+        }
     }
 
     // Has this camera already been instantiated by another caller?

@@ -72,8 +72,6 @@ private:
     static wp<EvsGlDisplay>          sActiveDisplay; // Weak pointer. Object destructs if client dies.
 
     void enumerateDevices();
-
-    unsigned max_retry;
 };
 
 } // namespace implementation
