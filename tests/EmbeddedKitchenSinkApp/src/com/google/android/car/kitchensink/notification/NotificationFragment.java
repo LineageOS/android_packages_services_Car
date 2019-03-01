@@ -119,7 +119,7 @@ public class NotificationFragment extends Fragment {
     private void initCarCategoriesButton(View view) {
         view.findViewById(R.id.category_car_emergency_button).setOnClickListener(v -> {
             Notification notification = new Notification
-                    .Builder(mContext, IMPORTANCE_DEFAULT_ID)
+                    .Builder(mContext, IMPORTANCE_HIGH_ID)
                     .setContentTitle("Car Emergency")
                     .setContentText("Shows heads-up; Shows on top of the list; Does not group")
                     .setCategory(Notification.CATEGORY_CAR_EMERGENCY)
@@ -131,7 +131,7 @@ public class NotificationFragment extends Fragment {
         view.findViewById(R.id.category_car_warning_button).setOnClickListener(v -> {
 
             Notification notification = new Notification
-                    .Builder(mContext, IMPORTANCE_MIN_ID)
+                    .Builder(mContext, IMPORTANCE_HIGH_ID)
                     .setContentTitle("Car Warning")
                     .setContentText(
                             "Shows heads-up; Shows on top of the list but below Car Emergency; "
@@ -407,27 +407,15 @@ public class NotificationFragment extends Fragment {
 
     private void initNavigationButton(View view) {
         view.findViewById(R.id.navigation_button).setOnClickListener(v -> {
-            int id = mCurrentNotificationId++;
 
-            Notification notification = new Notification
-                    .Builder(mContext, IMPORTANCE_HIGH_ID)
-                    .setCategory("navigation")
-                    .setContentTitle("Navigation")
-                    .setContentText("Turn right in 900 ft")
-                    .setColor(mContext.getColor(android.R.color.holo_green_dark))
-                    .setColorized(true)
-                    .setSubText("900 ft")
-                    .setSmallIcon(R.drawable.car_ic_mode)
-                    .build();
-            mManager.notify(id, notification);
-
+            int id1 = mCurrentNotificationId++;
             Runnable rightTurnRunnable = new Runnable() {
-                int mDistance = 800;
+                int mDistance = 900;
 
                 @Override
                 public void run() {
                     Notification updateNotification = new Notification
-                            .Builder(mContext, IMPORTANCE_HIGH_NO_SOUND_ID)
+                            .Builder(mContext, IMPORTANCE_HIGH_ID)
                             .setCategory("navigation")
                             .setContentTitle("Navigation")
                             .setContentText("Turn right in " + mDistance + " ft")
@@ -435,22 +423,28 @@ public class NotificationFragment extends Fragment {
                             .setColorized(true)
                             .setSubText(mDistance + " ft")
                             .setSmallIcon(R.drawable.car_ic_mode)
+                            .setOnlyAlertOnce(true)
                             .build();
-                    mManager.notify(id, updateNotification);
+                    mManager.notify(id1, updateNotification);
                     mDistance -= 100;
                     if (mDistance >= 0) {
                         mHandler.postDelayed(this, 1000);
+                    } else {
+                        mManager.cancel(id1);
                     }
                 }
             };
+            mUpdateRunnables.put(id1, rightTurnRunnable);
+            mHandler.postDelayed(rightTurnRunnable, 1000);
 
+            int id2 = mCurrentNotificationId++;
             Runnable exitRunnable = new Runnable() {
-                int mDistance = 9;
+                int mDistance = 20;
 
                 @Override
                 public void run() {
                     Notification updateNotification = new Notification
-                            .Builder(mContext, IMPORTANCE_HIGH_NO_SOUND_ID)
+                            .Builder(mContext, IMPORTANCE_HIGH_ID)
                             .setCategory("navigation")
                             .setContentTitle("Navigation")
                             .setContentText("Exit in " + mDistance + " miles")
@@ -458,18 +452,16 @@ public class NotificationFragment extends Fragment {
                             .setColorized(true)
                             .setSubText(mDistance + " miles")
                             .setSmallIcon(R.drawable.car_ic_mode)
+                            .setOnlyAlertOnce(true)
                             .build();
-                    mManager.notify(id, updateNotification);
+                    mManager.notify(id2, updateNotification);
                     mDistance -= 1;
                     if (mDistance >= 0) {
-                        mHandler.postDelayed(this, 1000);
+                        mHandler.postDelayed(this, 500);
                     }
                 }
             };
-
-            mUpdateRunnables.put(id, rightTurnRunnable);
-            mUpdateRunnables.put(id, exitRunnable);
-            mHandler.postDelayed(rightTurnRunnable, 1000);
+            mUpdateRunnables.put(id2, exitRunnable);
             mHandler.postDelayed(exitRunnable, 10000);
         });
     }
