@@ -47,9 +47,13 @@ EvsV4lCamera::EvsV4lCamera(const char *deviceName) :
         ALOGE("Failed to open v4l device %s\n", deviceName);
     }
 
-    // Output buffer format.
-    // TODO: Does this need to be configurable?
-    mFormat = HAL_PIXEL_FORMAT_RGBA_8888;
+    // NOTE:  Our current spec says only support NV21 -- can we stick to that with software
+    // conversion?  Will this work with the hardware texture units?
+    // TODO:  Settle on the one official format that works on all platforms
+    // TODO:  Get NV21 working?  It is scrambled somewhere along the way right now.
+//    mFormat = HAL_PIXEL_FORMAT_YCRCB_420_SP;    // 420SP == NV21
+//    mFormat = HAL_PIXEL_FORMAT_RGBA_8888;
+    mFormat = HAL_PIXEL_FORMAT_YCBCR_422_I;
 
     // How we expect to use the gralloc buffers we'll exchange with our client
     mUsage  = GRALLOC_USAGE_HW_TEXTURE     |
@@ -155,15 +159,17 @@ Return<EvsResult> EvsV4lCamera::startVideoStream(const ::android::sp<IEvsCameraS
     // Choose which image transfer function we need
     // Map from V4L2 to Android graphic buffer format
     const uint32_t videoSrcFormat = mVideo.getV4LFormat();
-    ALOGI("Configuring to accept %4.4s camera data and convert to 0x%X",
-          (char*)&videoSrcFormat, mFormat);
+    ALOGI("Configuring to accept %4.4s camera data and convert to %4.4s",
+          (char*)&videoSrcFormat, (char*)&mFormat);
 
     // TODO:  Simplify this by supporting only ONE fixed output format
     switch (mFormat) {
     case HAL_PIXEL_FORMAT_YCRCB_420_SP:
         switch (videoSrcFormat) {
         case V4L2_PIX_FMT_NV21:     mFillBufferFromVideo = fillNV21FromNV21;    break;
+    //  case V4L2_PIX_FMT_YV12:     mFillBufferFromVideo = fillNV21FromYV12;    break;
         case V4L2_PIX_FMT_YUYV:     mFillBufferFromVideo = fillNV21FromYUYV;    break;
+    //  case V4L2_PIX_FORMAT_NV16:  mFillBufferFromVideo = fillNV21FromNV16;    break;
         default:
             // TODO:  Are there other V4L2 formats we must support?
             ALOGE("Unhandled camera output format %c%c%c%c (0x%8X)\n",

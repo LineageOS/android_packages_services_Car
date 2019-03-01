@@ -70,8 +70,6 @@ private:
     static std::list<CameraRecord> sCameraList;
 
     static wp<EvsGlDisplay>          sActiveDisplay; // Weak pointer. Object destructs if client dies.
-
-    void enumerateDevices();
 };
 
 } // namespace implementation
