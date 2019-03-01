@@ -96,10 +96,30 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"Доступ к данным о состоянии внешних осветительных приборов"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"Внешние осветительные приборы"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"Возможность управлять внешними осветительными приборами автомобиля"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
     <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"Температура снаружи"</string>
     <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"Доступ к данным о температуре снаружи"</string>
     <string name="car_permission_label_car_tires" msgid="7261327603773636683">"Шины"</string>
     <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"Доступ к данным о шинах"</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
     <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"Трансмиссия"</string>
     <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"Доступ к данным о трансмиссии"</string>
     <string name="car_permission_label_car_power" msgid="3671174734416372201">"Электропитание"</string>
