@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?android:attr/toastFrameBackground">
+    android:background="@*android:drawable/toast_frame">
 
     <TextView
         android:id="@android:id/message"
@@ -30,7 +30,7 @@
         android:layout_marginHorizontal="24dp"
         android:layout_marginVertical="15dp"
         android:layout_gravity="center_horizontal"
-        android:textAppearance="@style/TextAppearance.Toast"
+        android:textAppearance="@*android:style/TextAppearance.Toast"
         android:textColor="?android:attr/textColorPrimary"
         />
 

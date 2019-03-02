@@ -173,16 +173,6 @@
                     android:layout_height="wrap_content"
                     android:text="android:attr/panelColorBackground"/>
             </FrameLayout>
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:background="?android:attr/panelColorForeground">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="android:attr/panelColorForeground"
-                    android:textColor="?android:attr/textColorPrimaryInverse"/>
-            </FrameLayout>
         </LinearLayout>
     </ScrollView>
     <include layout="@layout/menu_button"/>
