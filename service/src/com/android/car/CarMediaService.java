@@ -134,6 +134,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         CarLocalServices.getService(CarUserService.class).runOnUser0Unlock(() -> {
             mSharedPrefs = mContext.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
             mPrimaryMediaPackage = getLastMediaPackage();
+            notifyListeners();
         });
     }
 
@@ -285,7 +286,10 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             // Shouldn't reach this unless there is some other error in CarService
             Log.e(CarLog.TAG_MEDIA, "Error trying to save last media source, prefs uninitialized");
         }
+        notifyListeners();
+    }
 
+    private void notifyListeners() {
         int i = mMediaSourceListeners.beginBroadcast();
         while (i-- > 0) {
             try {
