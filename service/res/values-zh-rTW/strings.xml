@@ -96,10 +96,30 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"存取車輛外部燈光狀態"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"車輛外部燈光"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"控制車輛外部燈光"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
     <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"車外溫度"</string>
     <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"存取車外溫度"</string>
     <string name="car_permission_label_car_tires" msgid="7261327603773636683">"車輪"</string>
     <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"存取車輪資訊"</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
     <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"車輛動力傳動系統"</string>
     <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"存取車輛動力總成資訊"</string>
     <string name="car_permission_label_car_power" msgid="3671174734416372201">"車輛動力"</string>
