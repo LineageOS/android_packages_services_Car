@@ -237,4 +237,7 @@
     <string name="car_permission_label_car_power">Car Power</string>
     <!-- Permission text: apps read information of car's power state [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_power">Access car power state</string>
+
+    <!-- The package name of the media application that will be selected as the default [CHAR LIMIT=NONE] -->
+    <string name="default_media_application" translatable="false">com.android.bluetooth</string>
 </resources>

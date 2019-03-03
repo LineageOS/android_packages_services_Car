@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.view.ContextThemeWrapper;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -39,6 +40,8 @@ public class DialogSamples extends AbstractSampleActivity {
         setupBackgroundColorControls(R.id.dialogLayout);
         mShowDialogBT.setOnClickListener(v -> openDialog(false));
         mShowDialogWithCheckboxBT.setOnClickListener(v -> openDialog(true));
+        Button mShowToast = findViewById(R.id.showToast);
+        mShowToast.setOnClickListener(v -> showToast());
     }
 
 
@@ -67,5 +70,10 @@ public class DialogSamples extends AbstractSampleActivity {
                 (dialog, which) -> {
                 });
         builder.show();
+    }
+
+    private void showToast() {
+        Toast.makeText(this, "Toast message looks like this",
+                Toast.LENGTH_LONG).show();
     }
 }

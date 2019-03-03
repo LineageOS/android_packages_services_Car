@@ -19,168 +19,167 @@
     It is how the device default is changed to match the desired look for a car theme.
 -->
 <resources>
-    <style name="Theme.DeviceDefault" parent="Theme.DeviceDefaultBase">
-        <item name="borderlessButtonStyle">@style/Widget.DeviceDefault.Button.Borderless.Colored</item>
-        <item name="buttonBarButtonStyle">@style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
-        <item name="buttonStyle">@style/Widget.DeviceDefault.Button</item>
-        <item name="colorAccent">@color/accent_device_default_light</item>
-        <item name="colorBackground">@color/background_device_default_light</item>
-        <item name="colorBackgroundFloating">@color/background_floating_device_default_light</item>
-        <item name="colorButtonNormal">@color/car_highlight</item>
-        <item name="colorControlHighlight">@color/car_card_ripple_background</item>
-        <item name="colorControlNormal">@color/car_body2</item>
-        <item name="colorPrimary">@color/primary_device_default_light</item>
-        <item name="colorPrimaryDark">@color/primary_device_default_dark</item>
-        <item name="colorForeground">@color/car_card_light</item>
-        <item name="editTextColor">@color/car_body1</item>
-        <item name="listPreferredItemHeightSmall">@dimen/car_single_line_list_item_height</item>
-        <item name="textColorHint">@color/car_body2</item>
-        <item name="textColorPrimary">@color/primary_text</item>
-        <item name="textColorSecondary">@color/car_body2</item>
-        <item name="textColorHint">@color/car_grey_400</item>
-        <item name="toastFrameBackground">@drawable/toast_frame</item>
-        <item name="textAppearanceListItem">@style/TextAppearance.DeviceDefault.Large</item>
-        <item name="textAppearanceListItemSmall">@style/TextAppearance.DeviceDefault.Large</item>
-        <item name="textAppearanceListItemSecondary">@style/TextAppearance.DeviceDefault.Small</item>
-        <item name="actionBarSize">@dimen/car_app_bar_height</item>
-    </style>
-    <style name="Theme.DeviceDefault.Dialog" parent="Theme.Material.Dialog">
-        <item name="textAppearanceLarge">@style/TextAppearance.DeviceDefault.Large</item>
-        <item name="textAppearanceMedium">@style/TextAppearance.DeviceDefault.Medium</item>
-        <item name="textAppearanceSmall">@style/TextAppearance.DeviceDefault.Small</item>
-        <item name="textAppearanceLargeInverse">@style/TextAppearance.DeviceDefault.Large.Inverse</item>
-        <item name="textAppearanceMediumInverse">@style/TextAppearance.DeviceDefault.Medium.Inverse</item>
-        <item name="textAppearanceSmallInverse">@style/TextAppearance.DeviceDefault.Small.Inverse</item>
-        <item name="textAppearanceListItem">@style/TextAppearance.DeviceDefault.Large</item>
-        <item name="textAppearanceListItemSmall">@style/TextAppearance.DeviceDefault.Large</item>
-        <item name="textAppearanceListItemSecondary">@style/TextAppearance.DeviceDefault.Small</item>
-        <item name="borderlessButtonStyle">@style/Widget.DeviceDefault.Button.Borderless.Colored</item>
-        <item name="buttonBarButtonStyle">@style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
-        <item name="buttonStyle">@style/Widget.DeviceDefault.Button</item>
-        <item name="colorAccent">@color/accent_device_default_light</item>
-        <item name="colorBackgroundFloating">@color/background_floating_device_default_light</item>
-        <item name="colorButtonNormal">@color/car_highlight</item>
-        <item name="colorControlHighlight">@color/car_card_ripple_background</item>
-        <item name="colorControlNormal">@color/car_body2</item>
-        <item name="colorPrimary">@color/primary_device_default_light</item>
-        <item name="colorPrimaryDark">@color/primary_device_default_dark</item>
-        <item name="colorForeground">@color/car_card_light</item>
-        <item name="editTextColor">@color/car_body1</item>
-        <item name="textColorHint">@color/car_body2</item>
-        <item name="textColorPrimary">@color/car_body1</item>
-        <item name="textColorSecondary">@color/car_body2</item>
-        <item name="toastFrameBackground">@drawable/toast_frame</item>
-    </style>
-    <style name="Theme.DeviceDefault.Dialog.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-    <style name="Theme.DeviceDefault.Dialog.Alert" parent="Theme.Material.Dialog.Alert">
-        <item name="borderlessButtonStyle">@style/Widget.DeviceDefault.Button.Borderless.Colored</item>
-        <item name="buttonBarButtonStyle">@style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
-        <item name="buttonStyle">@style/Widget.DeviceDefault.Button</item>
-        <item name="colorAccent">@color/accent_device_default_light</item>
-        <item name="colorBackgroundFloating">@color/background_floating_device_default_light</item>
-        <item name="colorButtonNormal">@color/car_highlight</item>
-        <item name="colorControlHighlight">@color/car_card_ripple_background</item>
-        <item name="colorControlNormal">@color/car_body2</item>
-        <item name="colorPrimary">@color/primary_device_default_light</item>
-        <item name="colorPrimaryDark">@color/primary_device_default_dark</item>
-        <item name="colorForeground">@color/car_card_light</item>
-        <item name="editTextColor">@color/car_body1</item>
-        <item name="textColorHint">@color/car_body2</item>
-        <item name="textColorPrimary">@color/car_body1</item>
-        <item name="textColorSecondary">@color/car_body2</item>
-        <item name="toastFrameBackground">@drawable/toast_frame</item>
-        <item name="textAppearanceListItem">@style/TextAppearance.DeviceDefault.Large</item>
-        <item name="textAppearanceListItemSmall">@style/TextAppearance.DeviceDefault.Large</item>
-        <item name="textAppearanceListItemSecondary">@style/TextAppearance.DeviceDefault.Small</item>
+    <style name="Theme.DeviceDefault" parent="*android:Theme.DeviceDefaultBase">
+        <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
+        <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
+        <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
+        <item name="android:colorAccent">@*android:color/accent_device_default_light</item>
+        <item name="android:colorBackground">@*android:color/background_device_default_light</item>
+        <item name="android:colorBackgroundFloating">@*android:color/background_floating_device_default_light</item>
+        <item name="android:colorButtonNormal">@*android:color/car_highlight</item>
+        <item name="android:colorControlHighlight">@*android:color/car_card_ripple_background</item>
+        <item name="android:colorControlNormal">@*android:color/car_body2</item>
+        <item name="android:colorPrimary">@*android:color/primary_device_default_light</item>
+        <item name="android:colorPrimaryDark">@*android:color/primary_device_default_dark</item>
+        <item name="android:colorForeground">@*android:color/car_card_light</item>
+        <item name="android:editTextColor">@*android:color/car_body1</item>
+        <item name="android:listPreferredItemHeightSmall">@*android:dimen/car_single_line_list_item_height</item>
+        <item name="android:textColorHint">@*android:color/car_body2</item>
+        <item name="android:textColorPrimary">@*android:color/text_color_primary</item>
+        <item name="android:textColorSecondary">@*android:color/car_body2</item>
+        <item name="android:textAppearanceListItem">@*android:style/TextAppearance.DeviceDefault.Large</item>
+        <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
+        <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
+        <item name="android:actionBarSize">@*android:dimen/car_app_bar_height</item>
     </style>
 
-    <style name="Theme.DeviceDefault.Settings.Dialog" parent="Theme.DeviceDefault.Dialog.Alert">
+    <style name="Theme.DeviceDefault.Dialog" parent="android:Theme.Material.Dialog">
+        <item name="android:textAppearanceLarge">@*android:style/TextAppearance.DeviceDefault.Large</item>
+        <item name="android:textAppearanceMedium">@*android:style/TextAppearance.DeviceDefault.Medium</item>
+        <item name="android:textAppearanceSmall">@*android:style/TextAppearance.DeviceDefault.Small</item>
+        <item name="android:textAppearanceLargeInverse">@*android:style/TextAppearance.DeviceDefault.Large.Inverse</item>
+        <item name="android:textAppearanceMediumInverse">@*android:style/TextAppearance.DeviceDefault.Medium.Inverse</item>
+        <item name="android:textAppearanceSmallInverse">@*android:style/TextAppearance.DeviceDefault.Small.Inverse</item>
+        <item name="android:textAppearanceListItem">@*android:style/TextAppearance.DeviceDefault.Large</item>
+        <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
+        <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
+        <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
+        <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
+        <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
+        <item name="android:colorAccent">@*android:color/accent_device_default_light</item>
+        <item name="android:colorBackgroundFloating">@*android:color/background_floating_device_default_light</item>
+        <item name="android:colorButtonNormal">@*android:color/car_highlight</item>
+        <item name="android:colorControlHighlight">@*android:color/car_card_ripple_background</item>
+        <item name="android:colorControlNormal">@*android:color/car_body2</item>
+        <item name="android:colorPrimary">@*android:color/primary_device_default_light</item>
+        <item name="android:colorPrimaryDark">@*android:color/primary_device_default_dark</item>
+        <item name="android:colorForeground">@*android:color/car_card_light</item>
+        <item name="android:editTextColor">@*android:color/car_body1</item>
+        <item name="android:textColorHint">@*android:color/car_body2</item>
+        <item name="android:textColorPrimary">@*android:color/text_color_primary</item>
+        <item name="android:textColorSecondary">@*android:color/car_body2</item>
+    </style>
+
+    <style name="Theme.DeviceDefault.Dialog.NoActionBar" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.DeviceDefault.Dialog.Alert" parent="android:Theme.Material.Dialog.Alert">
+        <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
+        <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
+        <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
+        <item name="android:colorAccent">@*android:color/accent_device_default_light</item>
+        <item name="android:colorBackgroundFloating">@*android:color/background_floating_device_default_light</item>
+        <item name="android:colorButtonNormal">@*android:color/car_highlight</item>
+        <item name="android:colorControlHighlight">@*android:color/car_card_ripple_background</item>
+        <item name="android:colorControlNormal">@*android:color/car_body2</item>
+        <item name="android:colorPrimary">@*android:color/primary_device_default_light</item>
+        <item name="android:colorPrimaryDark">@*android:color/primary_device_default_dark</item>
+        <item name="android:colorForeground">@*android:color/car_card_light</item>
+        <item name="android:editTextColor">@*android:color/car_body1</item>
+        <item name="android:textColorHint">@*android:color/car_body2</item>
+        <item name="android:textColorPrimary">@*android:color/text_color_primary</item>
+        <item name="android:textColorSecondary">@*android:color/car_body2</item>
+        <item name="android:textAppearanceListItem">@*android:style/TextAppearance.DeviceDefault.Large</item>
+        <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
+        <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
+    </style>
+
+    <style name="Theme.DeviceDefault.Settings.Dialog" parent="android:Theme.DeviceDefault.Dialog.Alert">
     </style>
 
     <!-- The light theme is defined to be the same as the default since currently there is only one
         defined theme palette -->
-    <style name="Theme.DeviceDefault.Light"/>
-    <style name="Theme.DeviceDefault.Light.Dialog" parent="Theme.DeviceDefault.Dialog"/>
-    <style name="Theme.DeviceDefault.Light.Dialog.Alert" parent="Theme.DeviceDefault.Dialog.Alert"/>
-    <style name="Theme.DeviceDefault.Light.Dialog.NoActionBar" parent="Theme.DeviceDefault.Dialog.NoActionBar"/>
+    <style name="Theme.DeviceDefault.Light" parent="android:Theme.DeviceDefault"/>
+    <style name="Theme.DeviceDefault.Light.Dialog" parent="android:Theme.DeviceDefault.Dialog"/>
+    <style name="Theme.DeviceDefault.Light.Dialog.Alert" parent="android:Theme.DeviceDefault.Dialog.Alert"/>
+    <style name="Theme.DeviceDefault.Light.Dialog.NoActionBar" parent="android:Theme.DeviceDefault.Dialog.NoActionBar"/>
 
-    <style name="Theme.DeviceDefault.Light.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="Theme.DeviceDefault.Light.NoActionBar" parent="android:Theme.DeviceDefault.Light">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
-    <style name="Theme.DeviceDefault.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="Theme.DeviceDefault.NoActionBar" parent="android:Theme.DeviceDefault">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.DeviceDefault.InputMethod" parent="Theme.Material.InputMethod">
+    <style name="Theme.DeviceDefault.InputMethod" parent="android:Theme.Material.InputMethod">
         <!-- Color palette -->
-        <item name="colorAccent">@color/accent_device_default_light</item>
-        <item name="colorBackground">@color/primary_device_default_light</item>
-        <item name="listDivider">@color/car_keyboard_divider_line</item>
-        <item name="textColorPrimary">@color/car_keyboard_text_primary_color</item>
-        <item name="textColorSecondary">@color/car_keyboard_text_secondary_color</item>
+        <item name="android:colorAccent">@*android:color/accent_device_default_light</item>
+        <item name="android:colorBackground">@*android:color/primary_device_default_light</item>
+        <item name="android:listDivider">@*android:color/car_keyboard_divider_line</item>
+        <item name="android:textColorPrimary">@*android:color/car_keyboard_text_primary_color</item>
+        <item name="android:textColorSecondary">@*android:color/car_keyboard_text_secondary_color</item>
     </style>
 
-    <style name="Theme.DeviceDefault.Settings"/>
-    <style name="Theme.DeviceDefault.Settings.NoActionBar" parent="Theme.DeviceDefault.NoActionBar"/>
+    <style name="Theme.DeviceDefault.Settings" parent="android:Theme.DeviceDefault"/>
+    <style name="Theme.DeviceDefault.Settings.NoActionBar" parent="android:Theme.DeviceDefault.NoActionBar"/>
 
-    <style name="Theme.DeviceDefault.Light.DarkActionBar"  parent="Theme.DeviceDefault"/>
+    <style name="Theme.DeviceDefault.Light.DarkActionBar"  parent="android:Theme.DeviceDefault"/>
       <!-- DeviceDefault theme for the default system theme.  -->
-    <style name="Theme.DeviceDefault.System" parent="Theme.DeviceDefault.Light.DarkActionBar" />
+    <style name="Theme.DeviceDefault.System" parent="android:Theme.DeviceDefault.Light.DarkActionBar" />
 
     <!-- Theme used for the intent picker activity. -->
-    <style name="Theme.DeviceDefault.Resolver" parent="Theme.DeviceDefault">
-        <item name="windowEnterTransition">@empty</item>
-        <item name="windowExitTransition">@empty</item>
-        <item name="windowIsTranslucent">true</item>
-        <item name="windowNoTitle">true</item>
-        <item name="windowBackground">@color/transparent</item>
-        <item name="backgroundDimEnabled">true</item>
-        <item name="statusBarColor">@color/transparent</item>
-        <item name="windowContentOverlay">@null</item>
-        <item name="colorControlActivated">?attr/colorControlHighlight</item>
-        <item name="listPreferredItemPaddingStart">?attr/dialogPreferredPadding</item>
-        <item name="listPreferredItemPaddingEnd">?attr/dialogPreferredPadding</item>
+    <style name="Theme.DeviceDefault.Resolver" parent="android:Theme.DeviceDefault">
+        <item name="android:windowEnterTransition">@empty</item>
+        <item name="android:windowExitTransition">@empty</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:colorControlActivated">?*android:attr/colorControlHighlight</item>
+        <item name="android:listPreferredItemPaddingStart">?*android:attr/dialogPreferredPadding</item>
+        <item name="android:listPreferredItemPaddingEnd">?*android:attr/dialogPreferredPadding</item>
 
         <!-- Dialog attributes -->
-        <item name="dialogCornerRadius">@dimen/config_dialogCornerRadius</item>
-        <item name="alertDialogTheme">@style/Theme.DeviceDefault.Light.Dialog.Alert</item>
+        <item name="android:dialogCornerRadius">@*android:dimen/config_dialogCornerRadius</item>
+        <item name="android:alertDialogTheme">@android:style/Theme.DeviceDefault.Light.Dialog.Alert</item>
 
         <!-- Button styles -->
-        <item name="buttonCornerRadius">@dimen/config_buttonCornerRadius</item>
-        <item name="buttonBarButtonStyle">@style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
-        <item name="borderlessButtonStyle">@style/Widget.DeviceDefault.Button.Borderless.Colored</item>
-        <item name="buttonStyle">@style/Widget.DeviceDefault.Button</item>
+        <item name="android:buttonCornerRadius">@*android:dimen/config_buttonCornerRadius</item>
+        <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
+        <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
+        <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
 
         <!-- Color palette -->
-        <item name="colorPrimary">@color/primary_device_default_light</item>
-        <item name="colorPrimaryDark">@color/primary_device_default_dark</item>
-        <item name="colorAccent">@color/accent_device_default_light</item>
-        <item name="colorError">@color/error_color_device_default_light</item>
-        <item name="colorBackgroundFloating">@color/background_floating_device_default_light</item>
-        <item name="colorButtonNormal">@color/car_highlight</item>
-        <item name="colorControlHighlight">@color/car_card_ripple_background</item>
-        <item name="colorControlNormal">@color/car_body2</item>
-        <item name="colorForeground">@color/car_card_light</item>
-        <item name="editTextColor">@color/car_body1</item>
-        <item name="textColorHint">@color/car_body2</item>
-        <item name="textColorPrimary">@color/car_body1</item>
-        <item name="textColorSecondary">@color/car_body2</item>
+        <item name="android:colorPrimary">@*android:color/primary_device_default_light</item>
+        <item name="android:colorPrimaryDark">@*android:color/primary_device_default_dark</item>
+        <item name="android:colorAccent">@*android:color/accent_device_default_light</item>
+        <item name="android:colorError">@*android:color/error_color_device_default_light</item>
+        <item name="android:colorBackgroundFloating">@*android:color/background_floating_device_default_light</item>
+        <item name="android:colorButtonNormal">@*android:color/car_highlight</item>
+        <item name="android:colorControlHighlight">@*android:color/car_card_ripple_background</item>
+        <item name="android:colorControlNormal">@*android:color/car_body2</item>
+        <item name="android:colorForeground">@*android:color/car_card_light</item>
+        <item name="android:editTextColor">@*android:color/car_body1</item>
+        <item name="android:textColorHint">@*android:color/car_body2</item>
+        <item name="android:textColorPrimary">@*android:color/text_color_primary</item>
+        <item name="android:textColorSecondary">@*android:color/car_body2</item>
 
         <!-- Progress bar attributes -->
-        <item name="colorProgressBackgroundNormal">@color/config_progress_background_tint</item>
-        <item name="progressBarCornerRadius">@dimen/config_progressBarCornerRadius</item>
+        <item name="*android:colorProgressBackgroundNormal">@*android:color/config_progress_background_tint</item>
+        <item name="*android:progressBarCornerRadius">@*android:dimen/config_progressBarCornerRadius</item>
 
         <!-- Toolbar attributes -->
-        <item name="toolbarStyle">@style/Widget.DeviceDefault.Toolbar</item>
+        <item name="android:toolbarStyle">@*android:style/Widget.DeviceDefault.Toolbar</item>
 
-        <item name="toastFrameBackground">@drawable/toast_frame</item>
-        <item name="textAppearanceListItem">@style/TextAppearance.DeviceDefault.Large</item>
-        <item name="textAppearanceListItemSmall">@style/TextAppearance.DeviceDefault.Large</item>
-        <item name="textAppearanceListItemSecondary">@style/TextAppearance.DeviceDefault.Small</item>
+        <item name="*android:toastFrameBackground">@*android:drawable/toast_frame</item>
+        <item name="android:textAppearanceListItem">@android:style/TextAppearance.DeviceDefault.Large</item>
+        <item name="android:textAppearanceListItemSmall">@android:style/TextAppearance.DeviceDefault.Large</item>
+        <item name="android:textAppearanceListItemSecondary">@android:style/TextAppearance.DeviceDefault.Small</item>
     </style>
 </resources>

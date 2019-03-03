@@ -20,111 +20,111 @@
 -->
 <resources>
 
-    <style name="TextAppearance.DeviceDefault" parent="TextAppearance.Material.Large">
-        <item name="textSize">@dimen/car_body3_size</item>
+    <style name="TextAppearance.DeviceDefault" parent="android:TextAppearance.Material.Large">
+        <item name="android:textSize">@*android:dimen/car_body3_size</item>
     </style>
-    <style name="TextAppearance.DeviceDefault.Inverse" parent="TextAppearance.Material.Inverse">
-        <item name="textSize">@dimen/car_body3_size</item>
-    </style>
-
-    <style name="TextAppearance.DeviceDefault.Large" parent="TextAppearance.Material.Large">
-        <item name="textSize">@dimen/car_body1_size</item>
-    </style>
-    <style name="TextAppearance.DeviceDefault.Large.Inverse" parent="TextAppearance.Material.Large.Inverse">
-        <item name="textSize">@dimen/car_body1_size</item>
+    <style name="TextAppearance.DeviceDefault.Inverse" parent="android:TextAppearance.Material.Inverse">
+        <item name="android:textSize">@*android:dimen/car_body3_size</item>
     </style>
 
-    <style name="TextAppearance.DeviceDefault.Medium" parent="TextAppearance.Material.Medium">
-        <item name="textSize">@dimen/car_body2_size</item>
+    <style name="TextAppearance.DeviceDefault.Large" parent="android:TextAppearance.Material.Large">
+        <item name="android:textSize">@*android:dimen/car_body1_size</item>
     </style>
-    <style name="TextAppearance.DeviceDefault.Medium.Inverse" parent="TextAppearance.Material.Medium.Inverse">
-        <item name="textSize">@dimen/car_body2_size</item>
+    <style name="TextAppearance.DeviceDefault.Large.Inverse" parent="android:TextAppearance.Material.Large.Inverse">
+        <item name="android:textSize">@*android:dimen/car_body1_size</item>
     </style>
 
-    <style name="TextAppearance.DeviceDefault.Small" parent="TextAppearance.Material.Small">
-        <item name="textSize">@dimen/car_body4_size</item>
+    <style name="TextAppearance.DeviceDefault.Medium" parent="android:TextAppearance.Material.Medium">
+        <item name="android:textSize">@*android:dimen/car_body2_size</item>
     </style>
-    <style name="TextAppearance.DeviceDefault.Small.Inverse" parent="TextAppearance.Material.Small.Inverse">
-        <item name="textSize">@dimen/car_body4_size</item>
+    <style name="TextAppearance.DeviceDefault.Medium.Inverse" parent="android:TextAppearance.Material.Medium.Inverse">
+        <item name="android:textSize">@*android:dimen/car_body2_size</item>
+    </style>
+
+    <style name="TextAppearance.DeviceDefault.Small" parent="android:TextAppearance.Material.Small">
+        <item name="android:textSize">@*android:dimen/car_body4_size</item>
+    </style>
+    <style name="TextAppearance.DeviceDefault.Small.Inverse" parent="android:TextAppearance.Material.Small.Inverse">
+        <item name="android:textSize">@*android:dimen/car_body4_size</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored"
-           parent="TextAppearance.DeviceDefault.Widget.Button">
-        <item name="textColor">@color/car_borderless_button_text_color</item>
+           parent="android:TextAppearance.DeviceDefault.Widget.Button">
+        <item name="android:textColor">@*android:color/car_borderless_button_text_color</item>
     </style>
 
-    <style name="DialogWindowTitle.DeviceDefault" parent="DialogWindowTitle.Material">
-        <item name="textAppearance">@style/TextAppearance.DeviceDefault.DialogWindowTitle</item>
+    <style name="DialogWindowTitle.DeviceDefault" parent="*android:DialogWindowTitle.Material">
+        <item name="android:textAppearance">@*android:style/TextAppearance.DeviceDefault.DialogWindowTitle</item>
     </style>
-    <style name="TextAppearance.DeviceDefault.DialogWindowTitle" parent="TextAppearance.Material.DialogWindowTitle">
-        <item name="fontFamily">@string/config_headlineFontFamilyMedium</item>
-        <item name="textStyle">normal</item>
-        <item name="textSize">@dimen/car_body2_size</item>
-        <item name="textColor">@color/car_body2</item>
+    <style name="TextAppearance.DeviceDefault.DialogWindowTitle" parent="android:TextAppearance.Material.DialogWindowTitle">
+        <item name="android:fontFamily">@*android:string/config_headlineFontFamilyMedium</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@*android:dimen/car_body2_size</item>
+        <item name="android:textColor">@*android:color/car_body2</item>
     </style>
-    <style name="TextAppearance.Material.DialogWindowTitle" parent="TextAppearance.Material.Title" />
-    <style name="TextAppearance.Material.Title">
-        <item name="textSize">@dimen/text_size_title_material</item>
-        <item name="fontFamily">@string/font_family_title_material</item>
-        <item name="textColor">?attr/textColorPrimary</item>
-    </style>
-
-    <style name="TextAppearance.DeviceDefault.Widget.Button" parent="TextAppearance.Material.Widget.Button">
-        <item name="fontFamily">@string/config_headlineFontFamilyMedium</item>
-        <item name="textAllCaps">@bool/config_buttonTextAllCaps</item>
-        <item name="textSize">@dimen/car_action1_size</item>
-        <item name="textColor">@color/car_button_text_color</item>
+    <style name="TextAppearance.Material.DialogWindowTitle" parent="android:TextAppearance.Material.Title" />
+    <style name="TextAppearance.Material.Title" parent="android:TextAppearance.Material">
+        <item name="android:textSize">@*android:dimen/text_size_title_material</item>
+        <item name="android:fontFamily">@*android:string/font_family_title_material</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
-    <style name="Widget.DeviceDefault.Button" parent="Widget.Material.Button">
-        <item name="background">@drawable/car_button_background</item>
-        <item name="layout_height">@dimen/car_button_height</item>
-        <item name="minWidth">@dimen/car_button_min_width</item>
-        <item name="paddingStart">@dimen/car_button_horizontal_padding</item>
-        <item name="paddingEnd">@dimen/car_button_horizontal_padding</item>
+    <style name="TextAppearance.DeviceDefault.Widget.Button" parent="android:TextAppearance.Material.Widget.Button">
+        <item name="android:fontFamily">@*android:string/config_headlineFontFamilyMedium</item>
+        <item name="android:textAllCaps">@*android:bool/config_buttonTextAllCaps</item>
+        <item name="android:textSize">@*android:dimen/car_action1_size</item>
+        <item name="android:textColor">@*android:color/car_button_text_color</item>
     </style>
 
-    <style name="Widget.DeviceDefault.CompoundButton.CheckBox" parent="Widget.Material.CompoundButton.CheckBox">
-        <item name="button">@drawable/car_checkbox</item>
+    <style name="Widget.DeviceDefault.Button" parent="android:Widget.Material.Button">
+        <item name="android:background">@*android:drawable/car_button_background</item>
+        <item name="android:layout_height">@*android:dimen/car_button_height</item>
+        <item name="android:minWidth">@*android:dimen/car_button_min_width</item>
+        <item name="android:paddingStart">@*android:dimen/car_button_horizontal_padding</item>
+        <item name="android:paddingEnd">@*android:dimen/car_button_horizontal_padding</item>
     </style>
 
-    <style name="Widget.DeviceDefault.CompoundButton.Switch" parent="Widget.Material.CompoundButton.Switch">
-        <item name="thumb">@drawable/car_switch_thumb</item>
-        <item name="switchMinWidth">@dimen/car_primary_icon_size</item>
+    <style name="Widget.DeviceDefault.CompoundButton.CheckBox" parent="android:Widget.Material.CompoundButton.CheckBox">
+        <item name="android:button">@*android:drawable/car_checkbox</item>
     </style>
 
-    <style name="Widget.DeviceDefault.ProgressBar.Horizontal" parent="Widget.Material.ProgressBar.Horizontal">
-        <item name="minHeight">@dimen/car_progress_bar_height</item>
-        <item name="maxHeight">@dimen/car_progress_bar_height</item>
+    <style name="Widget.DeviceDefault.CompoundButton.Switch" parent="android:Widget.Material.CompoundButton.Switch">
+        <item name="android:thumb">@*android:drawable/car_switch_thumb</item>
+        <item name="android:switchMinWidth">@*android:dimen/car_primary_icon_size</item>
     </style>
 
-    <style name="Widget.DeviceDefault.SeekBar" parent="Widget.Material.SeekBar">
-        <item name="progressDrawable">@drawable/car_seekbar_track</item>
-        <item name="thumb">@drawable/car_seekbar_thumb</item>
+    <style name="Widget.DeviceDefault.ProgressBar.Horizontal" parent="android:Widget.Material.ProgressBar.Horizontal">
+        <item name="android:minHeight">@*android:dimen/car_progress_bar_height</item>
+        <item name="android:maxHeight">@*android:dimen/car_progress_bar_height</item>
     </style>
 
-    <style name="Widget.DeviceDefault.ActionBar.Solid" parent="Widget.Material.ActionBar.Solid">
-        <item name="textSize">@dimen/car_body3_size</item>
+    <style name="Widget.DeviceDefault.SeekBar" parent="android:Widget.Material.SeekBar">
+        <item name="android:progressDrawable">@*android:drawable/car_seekbar_track</item>
+        <item name="android:thumb">@*android:drawable/car_seekbar_thumb</item>
+    </style>
+
+    <style name="Widget.DeviceDefault.ActionBar.Solid" parent="android:Widget.Material.ActionBar.Solid">
+        <item name="android:textSize">@*android:dimen/car_body3_size</item>
     </style>
 
     <!-- Preference Styles -->
-    <style name="Preference.DeviceDefault" parent="Preference.Material">
-        <item name="layout">@layout/car_preference</item>
+    <style name="Preference.DeviceDefault" parent="*android:Preference.Material">
+        <item name="android:layout">@*android:layout/car_preference</item>
     </style>
-    <style name="Preference.DeviceDefault.Category" parent="Preference.Material.Category">
-        <item name="layout">@layout/car_preference_category</item>
+    <style name="Preference.DeviceDefault.Category" parent="*android:Preference.Material.Category">
+        <item name="android:layout">@*android:layout/car_preference_category</item>
     </style>
-    <style name="Preference.DeviceDefault.CheckBoxPreference" parent="Preference.Material.CheckBoxPreference">
-        <item name="layout">@layout/car_preference</item>
+    <style name="Preference.DeviceDefault.CheckBoxPreference" parent="*android:Preference.Material.CheckBoxPreference">
+        <item name="android:layout">@*android:layout/car_preference</item>
     </style>
-    <style name="Preference.DeviceDefault.DialogPreference" parent="Preference.Material.DialogPreference">
-        <item name="layout">@layout/car_preference</item>
+    <style name="Preference.DeviceDefault.DialogPreference" parent="*android:Preference.Material.DialogPreference">
+        <item name="android:layout">@*android:layout/car_preference</item>
     </style>
-    <style name="Preference.DeviceDefault.DialogPreference.EditTextPreference" parent="Preference.Material.DialogPreference.EditTextPreference">
-        <item name="layout">@layout/car_preference</item>
+    <style name="Preference.DeviceDefault.DialogPreference.EditTextPreference" parent="*android:Preference.Material.DialogPreference.EditTextPreference">
+        <item name="android:layout">@*android:layout/car_preference</item>
     </style>
-    <style name="Preference.DeviceDefault.SwitchPreference" parent="Preference.Material.SwitchPreference">
-        <item name="layout">@layout/car_preference</item>
+    <style name="Preference.DeviceDefault.SwitchPreference" parent="*android:Preference.Material.SwitchPreference">
+        <item name="android:layout">@*android:layout/car_preference</item>
     </style>
 
 </resources>
