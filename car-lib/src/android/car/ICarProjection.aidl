@@ -21,6 +21,7 @@ import android.car.projection.ProjectionStatus;
 import android.car.ICarProjectionCallback;
 import android.car.ICarProjectionStatusListener;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Messenger;
 
 /**
@@ -80,4 +81,10 @@ interface ICarProjection {
 
     /** Unregister projection status listener */
     void unregisterProjectionStatusListener(in ICarProjectionStatusListener listener) = 10;
+
+    /**
+     * Returns options for projection receiver app that can be un-packed using
+     * {@link android.car.projection.ProjectionOptions} class.
+     */
+    Bundle getProjectionOptions() = 11;
 }

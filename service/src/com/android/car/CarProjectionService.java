@@ -29,12 +29,14 @@ import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLING;
 
 import android.annotation.Nullable;
+import android.app.ActivityOptions;
 import android.bluetooth.BluetoothDevice;
 import android.car.CarProjectionManager;
 import android.car.CarProjectionManager.ProjectionAccessPointCallback;
 import android.car.ICarProjection;
 import android.car.ICarProjectionCallback;
 import android.car.ICarProjectionStatusListener;
+import android.car.projection.ProjectionOptions;
 import android.car.projection.ProjectionStatus;
 import android.car.projection.ProjectionStatus.ProjectionState;
 import android.content.BroadcastReceiver;
@@ -44,6 +46,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Rect;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiConfiguration.GroupCipher;
 import android.net.wifi.WifiConfiguration.KeyMgmt;
@@ -53,6 +57,7 @@ import android.net.wifi.WifiManager.LocalOnlyHotspotCallback;
 import android.net.wifi.WifiManager.LocalOnlyHotspotReservation;
 import android.net.wifi.WifiManager.SoftApCallback;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -113,6 +118,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     @GuardedBy("mLock")
     private @ProjectionState int mCurrentProjectionState = PROJECTION_STATE_INACTIVE;
 
+    @GuardedBy("mLock")
+    private ProjectionOptions mProjectionOptions;
 
     @GuardedBy("mLock")
     private @Nullable String mCurrentProjectionPackage;
@@ -458,6 +465,55 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
     }
 
+    @Override
+    public Bundle getProjectionOptions() {
+        ICarImpl.assertProjectionPermission(mContext);
+        synchronized (mLock) {
+            if (mProjectionOptions == null) {
+                mProjectionOptions = createProjectionOptionsBuilder()
+                        .build();
+            }
+        }
+        return mProjectionOptions.toBundle();
+    }
+
+    private ProjectionOptions.Builder createProjectionOptionsBuilder() {
+        Resources res = mContext.getResources();
+
+        ProjectionOptions.Builder builder = ProjectionOptions.builder();
+
+        ActivityOptions activityOptions = createActivityOptions(res);
+        if (activityOptions != null) {
+            builder.setProjectionActivityOptions(activityOptions);
+        }
+
+        String consentActivity = res.getString(R.string.config_projectionConsentActivity);
+        if (!TextUtils.isEmpty(consentActivity)) {
+            builder.setConsentActivity(ComponentName.unflattenFromString(consentActivity));
+        }
+
+        builder.setUiMode(res.getInteger(R.integer.config_projectionUiMode));
+        return builder;
+    }
+
+    @Nullable
+    private static ActivityOptions createActivityOptions(Resources res) {
+        ActivityOptions activityOptions = ActivityOptions.makeBasic();
+        boolean changed = false;
+        int displayId = res.getInteger(R.integer.config_projectionActivityDisplayId);
+        if (displayId != -1) {
+            activityOptions.setLaunchDisplayId(displayId);
+            changed = true;
+        }
+        int[] rawBounds = res.getIntArray(R.array.config_projectionActivityLaunchBounds);
+        if (rawBounds != null && rawBounds.length == 4) {
+            Rect bounds = new Rect(rawBounds[0], rawBounds[1], rawBounds[2], rawBounds[3]);
+            activityOptions.setLaunchBounds(bounds);
+            changed = true;
+        }
+        return changed ? activityOptions : null;
+    }
+
     private void startAccessPoint() {
         synchronized (mLock) {
             switch (mWifiMode) {
@@ -729,6 +785,14 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         try {
             listener.onVoiceAssistantRequest(fromLongPress);
         } catch (RemoteException e) {
+        }
+    }
+
+    void setUiMode(Integer uiMode) {
+        synchronized (mLock) {
+            mProjectionOptions = createProjectionOptionsBuilder()
+                    .setUiMode(uiMode)
+                    .build();
         }
     }
 

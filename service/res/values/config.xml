@@ -143,4 +143,19 @@
 
     <string name="config_TetheredProjectionAccessPointSsid" translatable="false">CarAP</string>
 
+    <!-- The consent activity that must be shown for every unknown mobile device before projection
+         gets started.  The format is: com.your.package/com.your.Activity  -->
+    <string name="config_projectionConsentActivity" translatable="false"/>
+
+    <!-- Display Id where projection rendering activity needs to be shown, Specify -1 to use system
+         defaults -->
+    <integer name="config_projectionActivityDisplayId" translatable="false">-1</integer>
+
+    <!-- Bounds of the projection activity on the screen. It should be in the pixels and screen
+         coordinates in the following order: left, top, right, bottom. -->
+    <integer-array name="config_projectionActivityLaunchBounds" translatable="false"/>
+
+    <!-- UI mode for projection activity. See ProjectionOptions class for possible values. -->
+    <integer name="config_projectionUiMode" translatable="false">0</integer>
+
 </resources>

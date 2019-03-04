@@ -23,10 +23,16 @@ import static android.car.projection.ProjectionStatus.PROJECTION_TRANSPORT_WIFI;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.when;
+
 import android.car.ICarProjectionStatusListener;
+import android.car.projection.ProjectionOptions;
 import android.car.projection.ProjectionStatus;
 import android.car.projection.ProjectionStatus.MobileDevice;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Rect;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -70,6 +76,9 @@ public class CarProjectionServiceTest {
 
     @Spy
     private final Context mContext = ApplicationProvider.getApplicationContext();
+
+    @Mock
+    private Resources mResources;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     @Mock
@@ -171,6 +180,56 @@ public class CarProjectionServiceTest {
         mService.updateProjectionStatus(createProjectionStatus(), mToken);
 
         latch.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void getProjectionOptions_defaults() {
+        when(mContext.getResources()).thenReturn(mResources);
+        final int uiMode = ProjectionOptions.UI_MODE_FULL_SCREEN;
+
+        when(mResources.getInteger(com.android.car.R.integer.config_projectionUiMode))
+                .thenReturn(uiMode);
+        when(mResources.getString(com.android.car.R.string.config_projectionConsentActivity))
+                .thenReturn("");
+        when(mResources.getInteger(com.android.car.R.integer.config_projectionActivityDisplayId))
+                .thenReturn(-1);
+        when(mResources.getIntArray(com.android.car.R.array.config_projectionActivityLaunchBounds))
+                .thenReturn(new int[0]);
+
+        Bundle bundle = mService.getProjectionOptions();
+
+        ProjectionOptions options = new ProjectionOptions(bundle);
+        assertThat(options.getActivityOptions()).isNull();
+        assertThat(options.getConsentActivity()).isNull();
+        assertThat(options.getUiMode()).isEqualTo(uiMode);
+    }
+
+    @Test
+    public void getProjectionOptions_nonDefaults() {
+        when(mContext.getResources()).thenReturn(mResources);
+        final int uiMode = ProjectionOptions.UI_MODE_BLENDED;
+        final String consentActivity = "com.my.app/.MyActivity";
+        final int[] bounds = new int[] {1, 2, 3, 4};
+        final int displayId = 1;
+
+        when(mResources.getInteger(com.android.car.R.integer.config_projectionUiMode))
+                .thenReturn(uiMode);
+        when(mResources.getString(com.android.car.R.string.config_projectionConsentActivity))
+                .thenReturn(consentActivity);
+        when(mResources.getInteger(com.android.car.R.integer.config_projectionActivityDisplayId))
+                .thenReturn(displayId);
+        when(mResources.getIntArray(com.android.car.R.array.config_projectionActivityLaunchBounds))
+                .thenReturn(bounds);
+
+        Bundle bundle = mService.getProjectionOptions();
+
+        ProjectionOptions options = new ProjectionOptions(bundle);
+        assertThat(options.getActivityOptions().getLaunchDisplayId()).isEqualTo(displayId);
+        assertThat(options.getActivityOptions().getLaunchBounds())
+                .isEqualTo(new Rect(bounds[0], bounds[1], bounds[2], bounds[3]));
+        assertThat(options.getConsentActivity()).isEqualTo(
+                ComponentName.unflattenFromString(consentActivity));
+        assertThat(options.getUiMode()).isEqualTo(uiMode);
     }
 
     private ProjectionStatus createProjectionStatus() {

@@ -21,11 +21,13 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.bluetooth.BluetoothDevice;
+import android.car.projection.ProjectionOptions;
 import android.car.projection.ProjectionStatus;
 import android.car.projection.ProjectionStatus.ProjectionState;
 import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -399,6 +401,19 @@ public final class CarProjectionManager implements CarManagerBase {
         }
         for (ProjectionStatusListener listener : listeners) {
             listener.onProjectionStatusChanged(state, packageName, details);
+        }
+    }
+
+    /**
+     * Returns {@link Bundle} object that contains customization for projection app. This bundle
+     * can be parsed using {@link ProjectionOptions}.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public @NonNull Bundle getProjectionOptions() {
+        try {
+            return mService.getProjectionOptions();
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
         }
     }
 

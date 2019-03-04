@@ -471,6 +471,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_GARAGE_MODE = "garage-mode";
         private static final String COMMAND_GET_DO_ACTIVITIES = "get-do-activities";
         private static final String COMMAND_GET_CARPROPERTYCONFIG = "get-carpropertyconfig";
+        private static final String COMMAND_PROJECTION_UI_MODE = "projection-ui-mode";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -568,6 +569,13 @@ public class ICarImpl extends ICar.Stub {
                     String propertyId = args.length < 2 ? "" : args[1];
                     mHal.dumpPropertyConfigs(writer, propertyId);
                     break;
+                case COMMAND_PROJECTION_UI_MODE:
+                    if (args.length != 2) {
+                        writer.println("Incorrect number of arguments");
+                        dumpHelp(writer);
+                        break;
+                    }
+                    mCarProjectionService.setUiMode(Integer.valueOf(args[1]));
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
                     dumpHelp(writer);

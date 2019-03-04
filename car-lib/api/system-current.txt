@@ -44,6 +44,7 @@ package android.car {
   }
 
   public final class CarProjectionManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) @NonNull public android.os.Bundle getProjectionOptions();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionListener(@NonNull android.car.CarProjectionManager.CarProjectionListener, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionRunner(@NonNull android.content.Intent);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION_STATUS) public void registerProjectionStatusListener(@NonNull android.car.CarProjectionManager.ProjectionStatusListener);
@@ -765,6 +766,16 @@ package android.car.navigation {
 }
 
 package android.car.projection {
+
+  public class ProjectionOptions {
+    ctor public ProjectionOptions(android.os.Bundle);
+    method @Nullable public android.app.ActivityOptions getActivityOptions();
+    method @Nullable public android.content.ComponentName getConsentActivity();
+    method public int getUiMode();
+    method @NonNull public android.os.Bundle toBundle();
+    field public static final int UI_MODE_BLENDED = 1; // 0x1
+    field public static final int UI_MODE_FULL_SCREEN = 0; // 0x0
+  }
 
   public final class ProjectionStatus implements android.os.Parcelable {
     method @NonNull public static android.car.projection.ProjectionStatus.Builder builder(String, int);
