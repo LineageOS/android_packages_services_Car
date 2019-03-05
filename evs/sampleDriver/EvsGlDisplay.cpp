@@ -27,6 +27,7 @@ namespace evs {
 namespace V1_0 {
 namespace implementation {
 
+static bool sDebugFirstFrameDisplayed = false;
 
 EvsGlDisplay::EvsGlDisplay() {
     ALOGD("EvsGlDisplay instantiated");
@@ -285,6 +286,11 @@ Return<EvsResult> EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc& b
 
         // Put the image on the screen
         mGlWrapper.renderImageToScreen();
+        if (!sDebugFirstFrameDisplayed) {
+            ALOGI("First frame is displayed.");
+            sDebugFirstFrameDisplayed = true;
+        }
+
     }
 
     return EvsResult::OK;

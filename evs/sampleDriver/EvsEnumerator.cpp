@@ -37,7 +37,7 @@ wp<EvsGlDisplay>                           EvsEnumerator::sActiveDisplay;
 
 
 EvsEnumerator::EvsEnumerator()
-: max_retry(3) {
+: kMaxRetry(3) {
     ALOGD("EvsEnumerator created");
 
     enumerateDevices();
@@ -109,13 +109,13 @@ Return<sp<IEvsCamera>> EvsEnumerator::openCamera(const hidl_string& cameraId) {
     // TODO: this is required for external USB camera so would be better to
     // subscribe hot-plug event.
     unsigned tries = 0;
-    while (!pRecord && tries++ < max_retry) {
+    while (!pRecord && tries++ < kMaxRetry) {
         ALOGI("Requested camera %s not found, enumerate again, %d", cameraId.c_str(), tries);
         enumerateDevices();
         pRecord = findCameraById(cameraId);
 
         // TODO: remove this.
-        usleep(1000);
+        usleep(5000);
     }
 
     // Has this camera already been instantiated by another caller?
@@ -257,17 +257,11 @@ bool EvsEnumerator::qualifyCaptureDevice(const char* deviceName) {
     // Enumerate the available capture formats (if any)
     v4l2_fmtdesc formatDescription;
     formatDescription.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    union {
-        uint32_t format;
-        uint8_t  c[4];
-    } str;
     bool found = false;
     for (int i=0; !found; i++) {
         formatDescription.index = i;
         if (ioctl(fd, VIDIOC_ENUM_FMT, &formatDescription) == 0) {
-            str.format = formatDescription.pixelformat;
-            ALOGI("FORMAT %c%c%c%c (0x%X), type 0x%X, desc %s, flags 0x%X",
-                  str.c[0], str.c[1], str.c[2], str.c[3],
+            ALOGI("FORMAT 0x%X, type 0x%X, desc %s, flags 0x%X",
                   formatDescription.pixelformat, formatDescription.type,
                   formatDescription.description, formatDescription.flags);
             switch (formatDescription.pixelformat)
@@ -286,12 +280,11 @@ bool EvsEnumerator::qualifyCaptureDevice(const char* deviceName) {
                     break;
             }
         } else {
-            // No more formats available
+            // No more formats available.
             break;
         }
     }
 
-    // If we get here, we didn't find a usable output format
     return found;
 }
 
