@@ -18,6 +18,7 @@
 
 #include <ui/GraphicBufferAllocator.h>
 #include <ui/GraphicBufferMapper.h>
+#include <utils/SystemClock.h>
 
 
 namespace android {
@@ -287,7 +288,7 @@ Return<EvsResult> EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc& b
         // Put the image on the screen
         mGlWrapper.renderImageToScreen();
         if (!sDebugFirstFrameDisplayed) {
-            ALOGI("First frame is displayed.");
+            ALOGD("EvsFirstFrameDisplayTiming start time: %" PRId64 "ms", elapsedRealtime());
             sDebugFirstFrameDisplayed = true;
         }
 
