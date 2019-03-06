@@ -134,7 +134,7 @@ public class CarLocationService extends BroadcastReceiver implements
         filter.addAction(Intent.ACTION_USER_SWITCHED);
         filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
         filter.addAction(LocationManager.MODE_CHANGED_ACTION);
-        filter.addAction(LocationManager.GPS_ENABLED_CHANGE_ACTION);
+        filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
         mContext.registerReceiver(this, filter);
         mCarPropertyService.registerListener(
                 VehicleProperty.IGNITION_STATE, 0, mCarPropertyEventListener);
@@ -206,7 +206,7 @@ public class CarLocationService extends BroadcastReceiver implements
             if (!locationEnabled) {
                 asyncOperation(() -> deleteCacheFile());
             }
-        } else if (action == LocationManager.GPS_ENABLED_CHANGE_ACTION
+        } else if (action == LocationManager.PROVIDERS_CHANGED_ACTION
                 && shouldCheckLocationPermissions()) {
             LocationManager locationManager =
                     (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
