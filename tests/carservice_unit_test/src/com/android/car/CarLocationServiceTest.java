@@ -168,7 +168,7 @@ public class CarLocationServiceTest {
                 intentFilter.getAction(2), intentFilter.getAction(3)};
         assertTrue(ArrayUtils.contains(actions, Intent.ACTION_LOCKED_BOOT_COMPLETED));
         assertTrue(ArrayUtils.contains(actions, LocationManager.MODE_CHANGED_ACTION));
-        assertTrue(ArrayUtils.contains(actions, LocationManager.GPS_ENABLED_CHANGE_ACTION));
+        assertTrue(ArrayUtils.contains(actions, LocationManager.PROVIDERS_CHANGED_ACTION));
         assertTrue(ArrayUtils.contains(actions, Intent.ACTION_USER_SWITCHED));
         verify(mMockCarPropertyService).registerListener(
                 eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), eq(0.0f), any());
@@ -457,7 +457,7 @@ public class CarLocationServiceTest {
                 false);
         mCarLocationService.init();
         mCarLocationService.onReceive(mMockContext,
-                new Intent(LocationManager.GPS_ENABLED_CHANGE_ACTION));
+                new Intent(LocationManager.PROVIDERS_CHANGED_ACTION));
         mLatch.await();
         verify(mMockLocationManager, times(1))
                 .isProviderEnabled(LocationManager.GPS_PROVIDER);
