@@ -66,15 +66,6 @@ import java.util.HashMap;
  *   Calling this API on a device with no such feature will lead to an exception.
  */
 public final class Car {
-
-    /**
-     * Represent the version of Car API. This is only updated when there is API change.
-     * 1 : N
-     * 2 : O
-     * 3 : O-MR1
-     */
-    public static final int VERSION = 3;
-
     /** Service name for {@link CarSensorManager}, to be used in {@link #getCarManager(String)}. */
     public static final String SENSOR_SERVICE = "sensor";
 
