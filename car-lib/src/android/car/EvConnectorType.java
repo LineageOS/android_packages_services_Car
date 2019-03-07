@@ -16,27 +16,35 @@
 package android.car;
 
 import android.annotation.IntDef;
-import android.annotation.SystemApi;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * EvConnectorType denotes the different connectors a EV may use.
- * @hide
  */
 public final class EvConnectorType {
     /**
      * List of EV Connector Types from VHAL
      */
     public static final int UNKNOWN = 0;
+    /** Connector type SAE J1772 */
     public static final int J1772 = 1;
+    /** IEC 62196 Type 2 connector */
     public static final int MENNEKES = 2;
+    /** CHAdeMo fast charger connector */
     public static final int CHADEMO = 3;
+    /** Combined Charging System Combo 1 */
     public static final int COMBO_1 = 4;
+    /** Combined Charging System Combo 2 */
     public static final int COMBO_2 = 5;
+    /** Connector of Tesla Roadster */
     public static final int TESLA_ROADSTER = 6;
+    /** High Power Wall Charger of Tesla */
     public static final int TESLA_HPWC = 7;
+    /** Supercharger of Tesla */
     public static final int TESLA_SUPERCHARGER = 8;
+    /** GB/T Fast Charging Standard */
     public static final int GBT = 9;
     /**
      * Connector type to use when no other types apply. Before using this
@@ -45,7 +53,6 @@ public final class EvConnectorType {
      */
     public static final int OTHER = 101;
 
-    /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
         UNKNOWN,
