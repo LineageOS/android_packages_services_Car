@@ -199,11 +199,33 @@ public final class UsbHostController
             } else if (handlers.size() == 1) {
                 applyDeviceSettings(handlers.get(0));
             } else {
+                if (AoapInterface.isDeviceInAoapMode(device)) {
+                    // Device is in AOAP mode, if we have just single AOAP handler then use it
+                    // instead of showing disambiguation dialog to the user.
+                    UsbDeviceSettings aoapHandler = getSingleAoapDeviceHandlerOrNull(handlers);
+                    if (aoapHandler != null) {
+                        applyDeviceSettings(aoapHandler);
+                        return;
+                    }
+                }
                 mCallback.optionsUpdated(handlers);
             }
         } else {
             Log.w(TAG, "Handlers ignored as they came for inactive device");
         }
+    }
+
+    private UsbDeviceSettings getSingleAoapDeviceHandlerOrNull(List<UsbDeviceSettings> handlers) {
+        UsbDeviceSettings aoapHandler = null;
+        for (UsbDeviceSettings handler : handlers) {
+            if (handler.getAoap()) {
+                if (aoapHandler != null) { // Found multiple AOAP handlers.
+                    return null;
+                }
+                aoapHandler = handler;
+            }
+        }
+        return aoapHandler;
     }
 
     @Override
