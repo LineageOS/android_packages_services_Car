@@ -16,14 +16,14 @@
   "cameras" : [
     {
       "cameraId" : "/dev/video1",
-      "function" : "reverse,park",
-      "x" : 36.0,
-      "y" : 60.0,
-      "z" : 32,
-      "yaw" : -90,
+      "function" : "reverse, park",
+      "x" : 0.0,
+      "y" : -40.0,
+      "z" : 48,
+      "yaw" : 180,
       "pitch" : -30,
-      "hfov" : 60,
-      "vfov" : 42
+      "hfov" : 125,
+      "vfov" : 103
     }
   ]
 }
