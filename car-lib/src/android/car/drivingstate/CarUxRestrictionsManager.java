@@ -30,6 +30,8 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.android.internal.annotations.GuardedBy;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
@@ -78,9 +80,9 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     private final Context mContext;
     private final ICarUxRestrictionsManager mUxRService;
     private final EventCallbackHandler mEventCallbackHandler;
+    @GuardedBy("this")
     private OnUxRestrictionsChangedListener mUxRListener;
     private CarUxRestrictionsChangeListenerToService mListenerToService;
-
 
     /** @hide */
     public CarUxRestrictionsManager(IBinder service, Context context, Handler handler) {
@@ -91,9 +93,11 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
 
     /** @hide */
     @Override
-    public synchronized void onCarDisconnected() {
+    public void onCarDisconnected() {
         mListenerToService = null;
-        mUxRListener = null;
+        synchronized (this) {
+            mUxRListener = null;
+        }
     }
 
     /**
@@ -118,21 +122,18 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
      *
      * @param listener {@link OnUxRestrictionsChangedListener}
      */
-    public synchronized void registerListener(@NonNull OnUxRestrictionsChangedListener listener) {
-        if (listener == null) {
-            if (VDBG) {
-                Log.v(TAG, "registerListener(): null listener");
+    public void registerListener(@NonNull OnUxRestrictionsChangedListener listener) {
+        synchronized (this) {
+            // Check if the listener has been already registered.
+            if (mUxRListener != null) {
+                if (DBG) {
+                    Log.d(TAG, "Listener already registered listener");
+                }
+                return;
             }
-            throw new IllegalArgumentException("Listener is null");
+            mUxRListener = listener;
         }
-        // Check if the listener has been already registered.
-        if (mUxRListener != null) {
-            if (DBG) {
-                Log.d(TAG, "Listener already registered listener");
-            }
-            return;
-        }
-        mUxRListener = listener;
+
         try {
             if (mListenerToService == null) {
                 mListenerToService = new CarUxRestrictionsChangeListenerToService(this);
@@ -147,16 +148,18 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     /**
      * Unregister the registered {@link OnUxRestrictionsChangedListener}
      */
-    public synchronized void unregisterListener() {
-        if (mUxRListener == null) {
-            if (DBG) {
-                Log.d(TAG, "Listener was not previously registered");
+    public void unregisterListener() {
+        synchronized (this) {
+            if (mUxRListener == null) {
+                if (DBG) {
+                    Log.d(TAG, "Listener was not previously registered");
+                }
+                return;
             }
-            return;
+            mUxRListener = null;
         }
         try {
             mUxRService.unregisterUxRestrictionsChangeListener(mListenerToService);
-            mUxRListener = null;
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -220,7 +223,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
      * @hide
      */
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
-    public synchronized boolean saveUxRestrictionsConfigurationForNextBoot(
+    public boolean saveUxRestrictionsConfigurationForNextBoot(
             CarUxRestrictionsConfiguration config) {
         try {
             return mUxRService.saveUxRestrictionsConfigurationForNextBoot(config);
@@ -240,7 +243,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
      */
     @Nullable
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
-    public synchronized CarUxRestrictionsConfiguration getStagedConfig() {
+    public CarUxRestrictionsConfiguration getStagedConfig() {
         try {
             return mUxRService.getStagedConfig();
         } catch (RemoteException e) {
@@ -256,7 +259,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
      * @hide
      */
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
-    public synchronized CarUxRestrictionsConfiguration getConfig() {
+    public CarUxRestrictionsConfiguration getConfig() {
         try {
             return mUxRService.getConfig();
         } catch (RemoteException e) {
@@ -331,7 +334,6 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
                 mgr.dispatchUxRChangeToClient((CarUxRestrictions) msg.obj);
             }
         }
-
     }
 
     /**
@@ -344,12 +346,10 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         if (restrictionInfo == null) {
             return;
         }
-        OnUxRestrictionsChangedListener listener;
         synchronized (this) {
-            listener = mUxRListener;
-        }
-        if (listener != null) {
-            listener.onUxRestrictionsChanged(restrictionInfo);
+            if (mUxRListener != null) {
+                mUxRListener.onUxRestrictionsChanged(restrictionInfo);
+            }
         }
     }
 }
