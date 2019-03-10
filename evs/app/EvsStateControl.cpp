@@ -21,6 +21,8 @@
 #include <string.h>
 
 #include <log/log.h>
+#include <inttypes.h>
+#include <utils/SystemClock.h>
 
 
 // TODO:  Seems like it'd be nice if the Vehicle HAL provided such helpers (but how & where?)
@@ -317,14 +319,14 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
         mDisplay->setDisplayState(DisplayState::NOT_VISIBLE);
     } else {
         // Start the camera stream
-        ALOGD("Starting camera stream");
+        ALOGD("EvsStartCameraStreamTiming start time: %" PRId64 "ms", android::elapsedRealtime());
         if (!mCurrentRenderer->activate()) {
             ALOGE("New renderer failed to activate");
             return false;
         }
 
         // Activate the display
-        ALOGD("Arming the display");
+        ALOGD("EvsActivateDisplayTiming start time: %" PRId64 "ms", android::elapsedRealtime());
         Return<EvsResult> result = mDisplay->setDisplayState(DisplayState::VISIBLE_ON_NEXT_FRAME);
         if (result != EvsResult::OK) {
             ALOGE("setDisplayState returned an error (%d)", (EvsResult)result);

@@ -38,7 +38,6 @@ package android.car {
     field public static final String PERMISSION_READ_STEERING_STATE = "android.car.permission.READ_CAR_STEERING";
     field public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
     field public static final String SENSOR_SERVICE = "sensor";
-    field public static final int VERSION = 3; // 0x3
   }
 
   public final class CarAppFocusManager {
