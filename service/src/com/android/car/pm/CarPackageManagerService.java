@@ -16,6 +16,7 @@
 
 package com.android.car.pm;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager.StackInfo;
 import android.car.Car;
@@ -94,6 +95,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     // Store the white list and black list strings from the resource file.
     private String mConfiguredWhitelist;
+    private String mConfiguredSystemWhitelist;
     private String mConfiguredBlacklist;
     private final List<String> mAllowedAppInstallSources;
 
@@ -551,15 +553,24 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
      */
     private void generateActivityWhitelistMap() {
         HashMap<String, AppBlockingPackageInfoWrapper> activityWhitelist = new HashMap<>();
+
+        // Get the apps/activities that are whitelisted in the configuration XML resources.
+        HashMap<String, Set<String>> configWhitelist = new HashMap<>();
         mConfiguredWhitelist = mContext.getString(R.string.activityWhitelist);
-        // Get the apps/activities that are whitelisted in the configuration XML resource
-        HashMap<String, Set<String>> configWhitelist = parseConfigList(mConfiguredWhitelist);
-        if (configWhitelist == null) {
+        if (mConfiguredWhitelist == null) {
             if (DBG_POLICY_CHECK) {
-                Log.w(CarLog.TAG_PACKAGE, "White list null.  No apps whitelisted");
+                Log.w(CarLog.TAG_PACKAGE, "White list is null.");
             }
-            return;
         }
+        parseConfigList(mConfiguredWhitelist, configWhitelist);
+        mConfiguredSystemWhitelist = mContext.getString(R.string.systemActivityWhitelist);
+        if (mConfiguredSystemWhitelist == null) {
+            if (DBG_POLICY_CHECK) {
+                Log.w(CarLog.TAG_PACKAGE, "System white list is null.");
+            }
+        }
+        parseConfigList(mConfiguredSystemWhitelist, configWhitelist);
+
         // Add the blocking overlay activity to the whitelist, since that needs to run in a
         // restricted state to communicate the reason an app was blocked.
         Set<String> defaultActivity = new ArraySet<>();
@@ -690,20 +701,16 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
      */
     private void generateActivityBlacklistMap() {
         HashMap<String, AppBlockingPackageInfoWrapper> activityBlacklist = new HashMap<>();
+
+        // Parse blacklisted activities.
+        Map<String, Set<String>> configBlacklist = new HashMap<>();
         mConfiguredBlacklist = mContext.getString(R.string.activityBlacklist);
         if (mConfiguredBlacklist == null) {
             if (DBG_POLICY_CHECK) {
                 Log.d(CarLog.TAG_PACKAGE, "Null blacklist in config");
             }
-            return;
         }
-        Map<String, Set<String>> configBlacklist = parseConfigList(mConfiguredBlacklist);
-        if (configBlacklist == null) {
-            if (DBG_POLICY_CHECK) {
-                Log.w(CarLog.TAG_PACKAGE, "Black list null.  No apps blacklisted");
-            }
-            return;
-        }
+        parseConfigList(mConfiguredBlacklist, configBlacklist);
 
         for (String pkg : configBlacklist.keySet()) {
             if (TextUtils.isEmpty(pkg)) {
@@ -757,16 +764,22 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     /**
-     * Parses the given resource and returns a map of packages and activities.
-     * Key is package name and value is list of activities. Empty list implies whole package is
+     * Parses the given resource and updates the input map of packages and activities.
+     *
+     * Key is package name and value is list of activities. Empty set implies whole package is
      * included.
+     *
+     * When there are multiple entries regarding one package, the entry with
+     * greater scope wins. Namely if there were 2 entires such that one whitelists
+     * an activity, and the other whitelists the entire package of the activity,
+     * the package is whitelisted, regardless of input order.
      */
-    @Nullable
-    private HashMap<String, Set<String>> parseConfigList(String configList) {
+    @VisibleForTesting
+    /* package */ void parseConfigList(String configList,
+            @NonNull Map<String, Set<String>> packageToActivityMap) {
         if (configList == null) {
-            return null;
+            return;
         }
-        HashMap<String, Set<String>> packageToActivityMap = new HashMap<>();
         String[] entries = configList.split(PACKAGE_DELIMITER);
         for (String entry : entries) {
             String[] packageActivityPair = entry.split(PACKAGE_ACTIVITY_DELIMITER);
@@ -786,7 +799,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 }
             }
         }
-        return packageToActivityMap;
     }
 
     @Nullable
