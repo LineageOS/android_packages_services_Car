@@ -17,6 +17,7 @@ package com.android.car;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.StackInfo;
+import android.app.ActivityOptions;
 import android.app.IActivityManager;
 import android.app.IProcessObserver;
 import android.app.TaskStackListener;
@@ -34,6 +35,7 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
+import android.view.Display;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -54,11 +56,14 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     public static class TopTaskInfoContainer {
         public final ComponentName topActivity;
         public final int taskId;
+        public final int displayId;
         public final StackInfo stackInfo;
 
-        private TopTaskInfoContainer(ComponentName topActivity, int taskId, StackInfo stackInfo) {
+        private TopTaskInfoContainer(ComponentName topActivity, int taskId, int displayId,
+                StackInfo stackInfo) {
             this.topActivity = topActivity;
             this.taskId = taskId;
+            this.displayId = displayId;
             this.stackInfo = stackInfo;
         }
 
@@ -66,14 +71,16 @@ public class SystemActivityMonitoringService implements CarServiceBase {
             return taskInfo != null
                     && Objects.equals(this.topActivity, taskInfo.topActivity)
                     && this.taskId == taskInfo.taskId
+                    && this.displayId == taskInfo.displayId
                     && this.stackInfo.userId == taskInfo.stackInfo.userId;
         }
 
         @Override
         public String toString() {
             return String.format(
-                    "TaskInfoContainer [topActivity=%s, taskId=%d, stackId=%d, userId=%d",
-                    topActivity, taskId, stackInfo.stackId, stackInfo.userId);
+                    "TaskInfoContainer [topActivity=%s, taskId=%d, stackId=%d, userId=%d,"
+                    + " displayId=%d]",
+                    topActivity, taskId, stackInfo.stackId, stackInfo.userId, displayId);
         }
     }
 
@@ -280,7 +287,8 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                     continue;
                 }
                 TopTaskInfoContainer newTopTaskInfo = new TopTaskInfoContainer(
-                        info.topActivity, info.taskIds[info.taskIds.length - 1], info);
+                        info.topActivity, info.taskIds[info.taskIds.length - 1], info.displayId,
+                        info);
                 TopTaskInfoContainer currentTopTaskInfo = mTopTasks.get(stackId);
 
                 // if a new task is added to stack or focused stack changes, should notify
@@ -374,7 +382,11 @@ public class SystemActivityMonitoringService implements CarServiceBase {
      * block the current task with the provided new activity.
      */
     private void handleBlockActivity(TopTaskInfoContainer currentTask, Intent newActivityIntent) {
-        mContext.startActivityAsUser(newActivityIntent,
+        // Only block default display.
+        ActivityOptions options = ActivityOptions.makeBasic();
+        options.setLaunchDisplayId(Display.DEFAULT_DISPLAY);
+
+        mContext.startActivityAsUser(newActivityIntent, options.toBundle(),
                 new UserHandle(currentTask.stackInfo.userId));
         // Now make stack with new activity focused.
         findTaskAndGrantFocus(newActivityIntent.getComponent());

@@ -51,6 +51,7 @@ import android.text.format.DateFormat;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Display;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
@@ -929,8 +930,11 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     private void blockTopActivityIfNecessary(TopTaskInfoContainer topTask) {
-        boolean restricted = mUxRestrictionsListener.isRestricted();
-        if (!restricted) {
+        // Only block activities launched on default display.
+        if (topTask.displayId != Display.DEFAULT_DISPLAY) {
+            return;
+        }
+        if (!mUxRestrictionsListener.isRestricted()) {
             return;
         }
         doBlockTopActivityIfNotAllowed(topTask);
@@ -1017,6 +1021,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME, taskRootActivity);
         newActivityIntent.putExtra(
                 BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO, isRootDo);
+
         return newActivityIntent;
     }
 
