@@ -57,7 +57,6 @@ import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
 import com.google.android.car.kitchensink.property.PropertyTestFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
-import com.google.android.car.kitchensink.setting.CarServiceSettingsActivity;
 import com.google.android.car.kitchensink.storagelifetime.StorageLifetimeFragment;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.users.UsersFragment;
@@ -152,11 +151,6 @@ public class KitchenSinkActivity extends DrawerActivity {
             new FragmentMenuEntry("audio", AudioTestFragment.class),
             new FragmentMenuEntry("bluetooth headset", BluetoothHeadsetFragment.class),
             new FragmentMenuEntry("bluetooth messaging test", MapMceTestFragment.class),
-            new OnClickMenuEntry("car service settings", () -> {
-                Intent intent = new Intent(KitchenSinkActivity.this,
-                        CarServiceSettingsActivity.class);
-                startActivity(intent);
-            }),
             new FragmentMenuEntry("carboard", KeyboardTestFragment.class),
             new FragmentMenuEntry("connectivity", ConnectivityFragment.class),
             new FragmentMenuEntry("cubes test", CubesTestFragment.class),
