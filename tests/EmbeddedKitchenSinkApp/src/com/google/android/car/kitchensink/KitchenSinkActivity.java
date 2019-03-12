@@ -23,6 +23,7 @@ import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.property.CarPropertyManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -31,12 +32,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
-import androidx.car.drawer.CarDrawerAdapter;
-import androidx.car.drawer.DrawerItemViewHolder;
 import androidx.fragment.app.Fragment;
-
-import com.android.car.apps.common.DrawerActivity;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.car.kitchensink.activityview.ActivityViewTestFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
@@ -67,9 +72,11 @@ import com.google.android.car.kitchensink.weblinks.WebLinksTestFragment;
 import java.util.Arrays;
 import java.util.List;
 
-
-public class KitchenSinkActivity extends DrawerActivity {
+public class KitchenSinkActivity extends FragmentActivity {
     private static final String TAG = "KitchenSinkActivity";
+    private RecyclerView mMenu;
+    private Button mMenuButton;
+    private View mKitchenContent;
 
     private interface ClickHandler {
         void onClick();
@@ -95,6 +102,7 @@ public class KitchenSinkActivity extends DrawerActivity {
 
         @Override
         public void onClick() {
+            toggleMenuVisibility();
             mClickHandler.onClick();
         }
     }
@@ -138,6 +146,7 @@ public class KitchenSinkActivity extends DrawerActivity {
             Fragment fragment = mFragment.getFragment();
             if (fragment != null) {
                 KitchenSinkActivity.this.showFragment(fragment);
+                toggleMenuVisibility();
             } else {
                 Log.e(TAG, "cannot show fragment for " + getText());
             }
@@ -169,8 +178,7 @@ public class KitchenSinkActivity extends DrawerActivity {
             new FragmentMenuEntry("users", UsersFragment.class),
             new FragmentMenuEntry("volume test", VolumeTestFragment.class),
             new FragmentMenuEntry("vehicle hal", VehicleHalFragment.class),
-            new FragmentMenuEntry("web links", WebLinksTestFragment.class),
-            new OnClickMenuEntry("quit", KitchenSinkActivity.this::finish)
+            new FragmentMenuEntry("web links", WebLinksTestFragment.class)
     );
 
     private Car mCarApi;
@@ -217,16 +225,30 @@ public class KitchenSinkActivity extends DrawerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.kitchen_content);
+        setContentView(R.layout.kitchen_activity);
 
         // Connection to Car Service does not work for non-automotive yet.
         if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
             initCarApi();
         }
-        Log.i(TAG, "onCreate");
-        getDrawerController().setRootAdapter(new DrawerAdapter());
 
+        mKitchenContent = findViewById(R.id.kitchen_content);
+
+        mMenu = findViewById(R.id.menu);
+        mMenu.setAdapter(new MenuAdapter(this));
+        mMenu.setLayoutManager(new GridLayoutManager(this, 3));
+
+        mMenuButton = findViewById(R.id.menu_button);
+        mMenuButton.setOnClickListener(view -> toggleMenuVisibility());
+        Log.i(TAG, "onCreate");
         onNewIntent(getIntent());
+    }
+
+    private void toggleMenuVisibility() {
+        boolean menuVisible = mMenu.getVisibility() == View.VISIBLE;
+        mMenu.setVisibility(menuVisible ? View.GONE : View.VISIBLE);
+        mKitchenContent.setVisibility(menuVisible ? View.VISIBLE : View.GONE);
+        mMenuButton.setText(menuVisible ? "Show KitchenSink Menu" : "Hide KitchenSink Menu");
     }
 
     private void initCarApi() {
@@ -312,33 +334,38 @@ public class KitchenSinkActivity extends DrawerActivity {
         return mCarApi;
     }
 
-    private final class DrawerAdapter extends CarDrawerAdapter {
+    private final class MenuAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
-        public DrawerAdapter() {
-            super(KitchenSinkActivity.this, true /* showDisabledOnListOnEmpty */);
-            setTitle(getString(R.string.app_title));
+        private final LayoutInflater mLayoutInflator;
+
+        MenuAdapter(Context context) {
+            mLayoutInflator = LayoutInflater.from(context);
         }
 
         @Override
-        protected int getActualItemCount() {
+        public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = mLayoutInflator.inflate(R.layout.menu_item, parent, false);
+            return new ItemViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(ItemViewHolder holder, int position) {
+            holder.mTitle.setText(mMenuEntries.get(position).getText());
+            holder.mTitle.setOnClickListener(v -> mMenuEntries.get(position).onClick());
+        }
+
+        @Override
+        public int getItemCount() {
             return mMenuEntries.size();
         }
+    }
 
-        @Override
-        protected void populateViewHolder(DrawerItemViewHolder holder, int position) {
-            holder.getTitleView().setText(mMenuEntries.get(position).getText());
-            holder.itemView.setOnClickListener(v -> onItemClick(holder.getAdapterPosition()));
-        }
+    private final class ItemViewHolder extends RecyclerView.ViewHolder {
+        TextView mTitle;
 
-        private void onItemClick(int position) {
-            if ((position < 0) || (position >= mMenuEntries.size())) {
-                Log.wtf(TAG, "Unknown menu item: " + position);
-                return;
-            }
-
-            mMenuEntries.get(position).onClick();
-
-            getDrawerController().closeDrawer();
+        ItemViewHolder(View itemView) {
+            super(itemView);
+            mTitle = itemView.findViewById(R.id.title);
         }
     }
 
