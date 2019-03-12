@@ -17,15 +17,17 @@
 <!--
 This xml contains UX restrictions configuration for testing.
 -->
-
 <UxRestrictions xmlns:car="http://schemas.android.com/apk/res-auto">
-    <!-- Need RestrictionMapping to create a config. -->
-    <RestrictionMapping>
+    <RestrictionMapping car:physicalPort="1">
         <DrivingState car:state="parked">
             <Restrictions car:requiresDistractionOptimization="false" car:uxr="baseline"/>
         </DrivingState>
     </RestrictionMapping>
-    <!-- restriction parameters -->
+    <RestrictionMapping car:physicalPort="2">
+        <DrivingState car:state="parked">
+            <Restrictions car:requiresDistractionOptimization="false" car:uxr="baseline"/>
+        </DrivingState>
+    </RestrictionMapping>
     <RestrictionParameters>
         <StringRestrictions car:maxLength="1"/>
         <ContentRestrictions car:maxCumulativeItems="1" car:maxDepth="1"/>

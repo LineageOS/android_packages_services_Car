@@ -52,7 +52,14 @@
     <!-- Defines the UX restrictions to be imposed for different driving states of a vehicle -->
     <declare-styleable name="UxRestrictions"/>
     <!-- 1. UX restriction Mapping from a driving state of the vehicle-->
-    <declare-styleable name="UxRestrictions_RestrictionMapping"/>
+    <declare-styleable name="UxRestrictions_RestrictionMapping">
+        <!-- Physical port that connects to a display. Restrictions defined will apply to the
+             display that connects to this port.
+             Only the lowest byte in the integer value is used. The value should be represented
+             as an signed int, namely the supported range is [-128, 127].
+             Optional field. Defaults to primary display. -->
+        <attr name="physicalPort" format="integer"/>
+    </declare-styleable>
 
     <!-- 1.a. Driving states supported -->
     <declare-styleable name="UxRestrictions_DrivingState">

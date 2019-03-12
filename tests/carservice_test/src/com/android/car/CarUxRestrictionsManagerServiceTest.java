@@ -25,11 +25,11 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
+import android.car.drivingstate.CarUxRestrictionsConfiguration.Builder;
 import android.car.hardware.CarPropertyValue;
 import android.content.Context;
 import android.content.res.Resources;
@@ -58,6 +58,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -104,7 +106,7 @@ public class CarUxRestrictionsManagerServiceTest {
         File staged = setupMockFile(CONFIG_FILENAME_STAGED, null);
         CarUxRestrictionsConfiguration config = createEmptyConfig();
 
-        assertTrue(mService.saveUxRestrictionsConfigurationForNextBoot(config));
+        assertTrue(mService.saveUxRestrictionsConfigurationForNextBoot(Arrays.asList(config)));
         assertTrue(readFile(staged).equals(config));
         // Verify prod config file was not created.
         assertFalse(new File(mTempSystemCarDir, CONFIG_FILENAME_PRODUCTION).exists());
@@ -115,19 +117,7 @@ public class CarUxRestrictionsManagerServiceTest {
         CarUxRestrictionsConfiguration spyConfig = spy(createEmptyConfig());
         doThrow(new IOException()).when(spyConfig).writeJson(any(JsonWriter.class));
 
-        assertFalse(mService.saveUxRestrictionsConfigurationForNextBoot(spyConfig));
-    }
-
-    @Test
-    public void testSaveConfig_DoesNotAffectCurrentConfig() throws Exception {
-        CarUxRestrictionsConfiguration spyConfig = spy(createEmptyConfig());
-
-        CarUxRestrictionsConfiguration currentConfig = mService.getConfig();
-        assertTrue(mService.saveUxRestrictionsConfigurationForNextBoot(spyConfig));
-
-        verify(spyConfig).writeJson(any(JsonWriter.class));
-        // Verify current config is untouched by address comparison.
-        assertTrue(mService.getConfig() == currentConfig);
+        assertFalse(mService.saveUxRestrictionsConfigurationForNextBoot(Arrays.asList(spyConfig)));
     }
 
     @Test
@@ -137,15 +127,18 @@ public class CarUxRestrictionsManagerServiceTest {
         doReturn(spyResources).when(mSpyContext).getResources();
         doReturn(null).when(spyResources).getXml(anyInt());
 
-        assertTrue(mService.loadConfig().equals(mService.createDefaultConfig()));
+        for (CarUxRestrictionsConfiguration config : mService.loadConfig()) {
+            assertTrue(config.equals(mService.createDefaultConfig(config.getPhysicalPort())));
+        }
     }
 
     @Test
     public void testLoadConfig_UseXml() throws IOException, XmlPullParserException {
-        CarUxRestrictionsConfiguration expected = CarUxRestrictionsConfigurationXmlParser.parse(
-                mSpyContext, R.xml.car_ux_restrictions_map);
+        List<CarUxRestrictionsConfiguration> expected =
+                CarUxRestrictionsConfigurationXmlParser.parse(
+                        mSpyContext, R.xml.car_ux_restrictions_map);
 
-        CarUxRestrictionsConfiguration actual = mService.loadConfig();
+        List<CarUxRestrictionsConfiguration> actual = mService.loadConfig();
 
         assertTrue(actual.equals(expected));
     }
@@ -155,7 +148,7 @@ public class CarUxRestrictionsManagerServiceTest {
         CarUxRestrictionsConfiguration expected = createEmptyConfig();
         setupMockFile(CONFIG_FILENAME_PRODUCTION, expected);
 
-        CarUxRestrictionsConfiguration actual = mService.loadConfig();
+        CarUxRestrictionsConfiguration actual = mService.loadConfig().get(0);
 
         assertTrue(actual.equals(expected));
     }
@@ -168,7 +161,7 @@ public class CarUxRestrictionsManagerServiceTest {
         // Set up temp file for prod to avoid polluting other tests.
         setupMockFile(CONFIG_FILENAME_PRODUCTION, null);
 
-        CarUxRestrictionsConfiguration actual = mService.loadConfig();
+        CarUxRestrictionsConfiguration actual = mService.loadConfig().get(0);
 
         // Staged file should be moved as production.
         assertFalse(staged.exists());
@@ -183,15 +176,46 @@ public class CarUxRestrictionsManagerServiceTest {
         setupMockFile(CONFIG_FILENAME_PRODUCTION, expected);
 
         setUpMockDrivingState();
-        CarUxRestrictionsConfiguration actual = mService.loadConfig();
+        CarUxRestrictionsConfiguration actual = mService.loadConfig().get(0);
 
         // Staged file should be untouched.
         assertTrue(staged.exists());
         assertTrue(actual.equals(expected));
     }
 
+    @Test
+    public void testValidateConfigs_SingleConfigNotSetPort() throws Exception {
+        CarUxRestrictionsConfiguration config = createEmptyConfig();
+        mService.validateConfigs(Arrays.asList(config));
+    }
+
+    @Test
+    public void testValidateConfigs_SingleConfigWithPort() throws Exception {
+        CarUxRestrictionsConfiguration config = createEmptyConfig((byte) 0);
+        mService.validateConfigs(Arrays.asList(config));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testValidateConfigs_MultipleConfigsMustHavePort() throws Exception {
+        mService.validateConfigs(Arrays.asList(createEmptyConfig(null), createEmptyConfig(null)));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testValidateConfigs_MultipleConfigsMustHaveUniquePort() throws Exception {
+        mService.validateConfigs(Arrays.asList(
+                createEmptyConfig((byte) 0), createEmptyConfig((byte) 0)));
+    }
+
     private CarUxRestrictionsConfiguration createEmptyConfig() {
-        return new CarUxRestrictionsConfiguration.Builder().build();
+        return createEmptyConfig(null);
+    }
+
+    private CarUxRestrictionsConfiguration createEmptyConfig(Byte port) {
+        Builder builder = new Builder();
+        if (port != null) {
+            builder.setPhysicalPort(port);
+        }
+        return builder.build();
     }
 
     private void setUpMockParkedState() {
@@ -222,7 +246,9 @@ public class CarUxRestrictionsManagerServiceTest {
         if (config != null) {
             try (JsonWriter writer = new JsonWriter(
                     new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
+                writer.beginArray();
                 config.writeJson(writer);
+                writer.endArray();
             }
         }
         return f;
@@ -231,7 +257,11 @@ public class CarUxRestrictionsManagerServiceTest {
     private CarUxRestrictionsConfiguration readFile(File file) throws Exception {
         try (JsonReader reader = new JsonReader(
                 new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
-            return CarUxRestrictionsConfiguration.readJson(reader);
+            CarUxRestrictionsConfiguration config = null;
+            reader.beginArray();
+            config = CarUxRestrictionsConfiguration.readJson(reader);
+            reader.endArray();
+            return config;
         }
     }
 }
