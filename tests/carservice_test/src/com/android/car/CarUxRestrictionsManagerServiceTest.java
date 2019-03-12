@@ -15,15 +15,15 @@
  */
 package com.android.car;
 
+import static com.android.car.CarUxRestrictionsManagerService.CONFIG_FILENAME_PRODUCTION;
+import static com.android.car.CarUxRestrictionsManagerService.CONFIG_FILENAME_STAGED;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,7 +31,6 @@ import static org.mockito.Mockito.when;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.hardware.CarPropertyValue;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
@@ -41,6 +40,8 @@ import android.util.JsonWriter;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
 import androidx.test.runner.AndroidJUnit4;
+
+import com.android.car.systeminterface.SystemInterface;
 
 import org.junit.After;
 import org.junit.Before;
@@ -56,6 +57,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -67,19 +69,28 @@ public class CarUxRestrictionsManagerServiceTest {
     @Mock
     private CarPropertyService mMockCarPropertyService;
     @Mock
-    private CarUserManagerHelper mMockCarUserManagerHelper;
+    private SystemInterface mMockSystemInterface;
 
     private Context mSpyContext;
+
+    private File mTempSystemCarDir;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        // Spy context because service needs to access xml resource during init.
         mSpyContext = spy(InstrumentationRegistry.getTargetContext());
+
+        CarLocalServices.removeServiceForTest(SystemInterface.class);
+        CarLocalServices.addService(SystemInterface.class, mMockSystemInterface);
+
+        mTempSystemCarDir = Files.createTempDirectory("uxr_test").toFile();
+        when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
 
         setUpMockParkedState();
 
         mService = new CarUxRestrictionsManagerService(mSpyContext,
-                mMockDrivingStateService, mMockCarPropertyService, mMockCarUserManagerHelper);
+                mMockDrivingStateService, mMockCarPropertyService);
     }
 
     @After
@@ -89,25 +100,17 @@ public class CarUxRestrictionsManagerServiceTest {
 
     @Test
     public void testSaveConfig_WriteStagedFile() throws Exception {
-        // Reset spy context because service tries to access production config
-        // during construction (due to calling loadConfig()).
-        reset(mSpyContext);
-
-        File staged = setupMockFile(CarUxRestrictionsManagerService.CONFIG_FILENAME_STAGED, null);
+        File staged = setupMockFile(CONFIG_FILENAME_STAGED, null);
         CarUxRestrictionsConfiguration config = createEmptyConfig();
 
         assertTrue(mService.saveUxRestrictionsConfigurationForNextBoot(config));
         assertTrue(readFile(staged).equals(config));
-        // Verify prod config file was not touched.
-        verify(mSpyContext, never()).getFileStreamPath(
-                CarUxRestrictionsManagerService.CONFIG_FILENAME_PRODUCTION);
+        // Verify prod config file was not created.
+        assertFalse(new File(mTempSystemCarDir, CONFIG_FILENAME_PRODUCTION).exists());
     }
 
     @Test
     public void testSaveConfig_ReturnFalseOnException() throws Exception {
-        File tempFile = File.createTempFile("uxr_test", null);
-        doReturn(tempFile).when(mSpyContext).getFileStreamPath(anyString());
-
         CarUxRestrictionsConfiguration spyConfig = spy(createEmptyConfig());
         doThrow(new IOException()).when(spyConfig).writeJson(any(JsonWriter.class));
 
@@ -116,8 +119,6 @@ public class CarUxRestrictionsManagerServiceTest {
 
     @Test
     public void testSaveConfig_DoesNotAffectCurrentConfig() throws Exception {
-        File tempFile = File.createTempFile("uxr_test", null);
-        doReturn(tempFile).when(mSpyContext).getFileStreamPath(anyString());
         CarUxRestrictionsConfiguration spyConfig = spy(createEmptyConfig());
 
         CarUxRestrictionsConfiguration currentConfig = mService.getConfig();
@@ -151,7 +152,7 @@ public class CarUxRestrictionsManagerServiceTest {
     @Test
     public void testLoadConfig_UseProdConfig() throws IOException {
         CarUxRestrictionsConfiguration expected = createEmptyConfig();
-        setupMockFile(CarUxRestrictionsManagerService.CONFIG_FILENAME_PRODUCTION, expected);
+        setupMockFile(CONFIG_FILENAME_PRODUCTION, expected);
 
         CarUxRestrictionsConfiguration actual = mService.loadConfig();
 
@@ -162,10 +163,9 @@ public class CarUxRestrictionsManagerServiceTest {
     public void testLoadConfig_PromoteStagedFileWhenParked() throws Exception {
         CarUxRestrictionsConfiguration expected = createEmptyConfig();
         // Staged file contains actual config. Ignore prod since it should be overwritten by staged.
-        File staged = setupMockFile(CarUxRestrictionsManagerService.CONFIG_FILENAME_STAGED,
-                expected);
+        File staged = setupMockFile(CONFIG_FILENAME_STAGED, expected);
         // Set up temp file for prod to avoid polluting other tests.
-        setupMockFile(CarUxRestrictionsManagerService.CONFIG_FILENAME_PRODUCTION, null);
+        setupMockFile(CONFIG_FILENAME_PRODUCTION, null);
 
         CarUxRestrictionsConfiguration actual = mService.loadConfig();
 
@@ -177,9 +177,9 @@ public class CarUxRestrictionsManagerServiceTest {
     @Test
     public void testLoadConfig_NoPromoteStagedFileWhenMoving() throws Exception {
         CarUxRestrictionsConfiguration expected = createEmptyConfig();
-        File staged = setupMockFile(CarUxRestrictionsManagerService.CONFIG_FILENAME_STAGED, null);
+        File staged = setupMockFile(CONFIG_FILENAME_STAGED, null);
         // Prod file contains actual config. Ignore staged since it should not be promoted.
-        setupMockFile(CarUxRestrictionsManagerService.CONFIG_FILENAME_PRODUCTION, expected);
+        setupMockFile(CONFIG_FILENAME_PRODUCTION, expected);
 
         setUpMockDrivingState();
         CarUxRestrictionsConfiguration actual = mService.loadConfig();
@@ -215,8 +215,8 @@ public class CarUxRestrictionsManagerServiceTest {
 
     private File setupMockFile(String filename, CarUxRestrictionsConfiguration config)
             throws IOException {
-        File f = File.createTempFile("uxr_test", null);
-        doReturn(f).when(mSpyContext).getFileStreamPath(filename);
+        File f = new File(mTempSystemCarDir, filename);
+        assertTrue(f.createNewFile());
 
         if (config != null) {
             try (JsonWriter writer = new JsonWriter(
