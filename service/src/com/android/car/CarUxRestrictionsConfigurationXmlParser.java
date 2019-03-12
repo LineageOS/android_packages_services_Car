@@ -35,6 +35,8 @@ import android.util.Xml;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @hide
@@ -54,7 +56,10 @@ public final class CarUxRestrictionsConfigurationXmlParser {
 
     private final Context mContext;
 
-    private CarUxRestrictionsConfiguration.Builder mConfigBuilder;
+    private int mMaxRestrictedStringLength = UX_RESTRICTIONS_UNKNOWN;
+    private int mMaxCumulativeContentItems = UX_RESTRICTIONS_UNKNOWN;
+    private int mMaxContentDepth = UX_RESTRICTIONS_UNKNOWN;
+    private final List<CarUxRestrictionsConfiguration.Builder> mConfigBuilders = new ArrayList<>();
 
     private CarUxRestrictionsConfigurationXmlParser(Context context) {
         mContext = context;
@@ -66,15 +71,15 @@ public final class CarUxRestrictionsConfigurationXmlParser {
      * @return parsed CarUxRestrictionsConfiguration; {@code null} if the XML is malformed.
      */
     @Nullable
-    public static CarUxRestrictionsConfiguration parse(Context context, @XmlRes int xmlResource)
+    public static List<CarUxRestrictionsConfiguration> parse(
+            Context context, @XmlRes int xmlResource)
             throws IOException, XmlPullParserException {
         return new CarUxRestrictionsConfigurationXmlParser(context).parse(xmlResource);
     }
 
     @Nullable
-    private CarUxRestrictionsConfiguration parse(@XmlRes int xmlResource)
+    private List<CarUxRestrictionsConfiguration> parse(@XmlRes int xmlResource)
             throws IOException, XmlPullParserException {
-        mConfigBuilder = new CarUxRestrictionsConfiguration.Builder();
 
         XmlResourceParser parser = mContext.getResources().getXml(xmlResource);
         if (parser == null) {
@@ -92,7 +97,14 @@ public final class CarUxRestrictionsConfigurationXmlParser {
             return null;
         }
 
-        return mConfigBuilder.build();
+        List<CarUxRestrictionsConfiguration> configs = new ArrayList<>();
+        for (CarUxRestrictionsConfiguration.Builder builder : mConfigBuilders) {
+            builder.setMaxStringLength(mMaxRestrictedStringLength)
+                    .setMaxCumulativeContentItems(mMaxCumulativeContentItems)
+                    .setMaxContentDepth(mMaxContentDepth);
+            configs.add(builder.build());
+        }
+        return configs;
     }
 
     private boolean traverseUntilStartTag(XmlResourceParser parser)
@@ -115,6 +127,9 @@ public final class CarUxRestrictionsConfigurationXmlParser {
             if (parser.next() == XmlResourceParser.START_TAG) {
                 switch (parser.getName()) {
                     case RESTRICTION_MAPPING:
+                        // Each RestrictionMapping tag represents a new set of rules.
+                        mConfigBuilders.add(new CarUxRestrictionsConfiguration.Builder());
+
                         if (!mapDrivingStateToRestrictions(parser, attrs)) {
                             Log.e(TAG, "Could not map driving state to restriction.");
                             return false;
@@ -153,6 +168,19 @@ public final class CarUxRestrictionsConfigurationXmlParser {
             Log.e(TAG, "Parser not at RestrictionMapping element: " + parser.getName());
             return false;
         }
+        {
+            // Use a floating block to limit the scope of TypedArray and ensure it's recycled.
+            TypedArray a = mContext.getResources().obtainAttributes(attrs,
+                    R.styleable.UxRestrictions_RestrictionMapping);
+            if (a.hasValue(R.styleable.UxRestrictions_RestrictionMapping_physicalPort)) {
+                int portValue = a.getInt(
+                        R.styleable.UxRestrictions_RestrictionMapping_physicalPort, 0);
+                byte port = CarUxRestrictionsConfiguration.Builder.validatePort(portValue);
+                getCurrentBuilder().setPhysicalPort(port);
+            }
+            a.recycle();
+        }
+
         if (!traverseToTag(parser, DRIVING_STATE)) {
             Log.e(TAG, "No <" + DRIVING_STATE + "> tag in XML");
             return false;
@@ -221,8 +249,7 @@ public final class CarUxRestrictionsConfigurationXmlParser {
                 // Update the builder if the driving state and restrictions info are valid.
                 if (drivingState != CarDrivingStateEvent.DRIVING_STATE_UNKNOWN
                         && restrictions != null) {
-
-                    mConfigBuilder.setUxRestrictions(drivingState, restrictions);
+                    getCurrentBuilder().setUxRestrictions(drivingState, restrictions);
                 }
             }
             parser.next();
@@ -316,20 +343,20 @@ public final class CarUxRestrictionsConfigurationXmlParser {
                     case STRING_RESTRICTIONS:
                         a = mContext.getResources().obtainAttributes(attrs,
                                 R.styleable.UxRestrictions_StringRestrictions);
-                        mConfigBuilder.setMaxStringLength(a.getInt(
+                        mMaxRestrictedStringLength = a.getInt(
                                 R.styleable.UxRestrictions_StringRestrictions_maxLength,
-                                UX_RESTRICTIONS_UNKNOWN));
+                                UX_RESTRICTIONS_UNKNOWN);
 
                         break;
                     case CONTENT_RESTRICTIONS:
                         a = mContext.getResources().obtainAttributes(attrs,
                                 R.styleable.UxRestrictions_ContentRestrictions);
-                        mConfigBuilder.setMaxCumulativeContentItems(a.getInt(
+                        mMaxCumulativeContentItems = a.getInt(
                                 R.styleable.UxRestrictions_ContentRestrictions_maxCumulativeItems,
-                                UX_RESTRICTIONS_UNKNOWN));
-                        mConfigBuilder.setMaxContentDepth(a.getInt(
+                                UX_RESTRICTIONS_UNKNOWN);
+                        mMaxContentDepth = a.getInt(
                                 R.styleable.UxRestrictions_ContentRestrictions_maxDepth,
-                                UX_RESTRICTIONS_UNKNOWN));
+                                UX_RESTRICTIONS_UNKNOWN);
                         break;
                     default:
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -344,6 +371,10 @@ public final class CarUxRestrictionsConfigurationXmlParser {
             }
         }
         return true;
+    }
+
+    private CarUxRestrictionsConfiguration.Builder getCurrentBuilder() {
+        return mConfigBuilders.get(mConfigBuilders.size() - 1);
     }
 }
 

@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.content.Context;
+import android.util.ArraySet;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
@@ -38,6 +39,8 @@ import org.junit.runner.RunWith;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -54,7 +57,7 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
     @Test
     public void testParsingParameters() throws IOException, XmlPullParserException {
         CarUxRestrictionsConfiguration config = CarUxRestrictionsConfigurationXmlParser.parse(
-                getContext(), R.xml.ux_restrictions_only_parameters);
+                getContext(), R.xml.ux_restrictions_only_parameters).get(0);
 
         CarUxRestrictions r = config.getUxRestrictions(DRIVING_STATE_PARKED, 0f);
         assertEquals(1, r.getMaxContentDepth());
@@ -65,7 +68,7 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
     @Test
     public void testParsingNonMovingState() throws IOException, XmlPullParserException {
         CarUxRestrictionsConfiguration config = CarUxRestrictionsConfigurationXmlParser.parse(
-                getContext(), R.xml.ux_restrictions_non_moving_state);
+                getContext(), R.xml.ux_restrictions_non_moving_state).get(0);
 
         CarUxRestrictions parked = config.getUxRestrictions(DRIVING_STATE_PARKED, 0f);
         assertFalse(parked.isRequiresDistractionOptimization());
@@ -78,7 +81,7 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
     @Test
     public void testParsingMovingState_NoSpeedRange() throws IOException, XmlPullParserException {
         CarUxRestrictionsConfiguration config = CarUxRestrictionsConfigurationXmlParser.parse(
-                getContext(), R.xml.ux_restrictions_moving_state_no_speed_range);
+                getContext(), R.xml.ux_restrictions_moving_state_no_speed_range).get(0);
 
         CarUxRestrictions r = config.getUxRestrictions(DRIVING_STATE_MOVING, 1f);
         assertTrue(r.isRequiresDistractionOptimization());
@@ -89,7 +92,7 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
     public void testParsingMovingState_SingleSpeedRange()
             throws IOException, XmlPullParserException {
         CarUxRestrictionsConfiguration config = CarUxRestrictionsConfigurationXmlParser.parse(
-                getContext(), R.xml.ux_restrictions_moving_state_single_speed_range);
+                getContext(), R.xml.ux_restrictions_moving_state_single_speed_range).get(0);
 
         CarUxRestrictions r = config.getUxRestrictions(DRIVING_STATE_MOVING, 1f);
         assertTrue(r.isRequiresDistractionOptimization());
@@ -100,7 +103,7 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
     public void testParsingMovingState_MultiSpeedRange()
             throws IOException, XmlPullParserException {
         CarUxRestrictionsConfiguration config = CarUxRestrictionsConfigurationXmlParser.parse(
-                getContext(), R.xml.ux_restrictions_moving_state_single_speed_range);
+                getContext(), R.xml.ux_restrictions_moving_state_single_speed_range).get(0);
 
         CarUxRestrictions slow = config.getUxRestrictions(DRIVING_STATE_MOVING, 1f);
         assertTrue(slow.isRequiresDistractionOptimization());
@@ -114,7 +117,7 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
     @Test
     public void testParsingPassengerState() throws IOException, XmlPullParserException {
         CarUxRestrictionsConfiguration config = CarUxRestrictionsConfigurationXmlParser.parse(
-                getContext(), R.xml.ux_restrictions_passenger_mode);
+                getContext(), R.xml.ux_restrictions_passenger_mode).get(0);
 
         CarUxRestrictions moving = config.getUxRestrictions(
                 DRIVING_STATE_MOVING, 1f, UX_RESTRICTION_MODE_PASSENGER);
@@ -133,7 +136,7 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
     public void testParsingPassengerMode_ValuesInBaselineAreNotAffected()
             throws IOException, XmlPullParserException {
         CarUxRestrictionsConfiguration config = CarUxRestrictionsConfigurationXmlParser.parse(
-                getContext(), R.xml.ux_restrictions_passenger_mode);
+                getContext(), R.xml.ux_restrictions_passenger_mode).get(0);
 
         CarUxRestrictions moving = config.getUxRestrictions(
                 DRIVING_STATE_MOVING, 1f, UX_RESTRICTION_MODE_BASELINE);
@@ -149,5 +152,38 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
                 DRIVING_STATE_PARKED, 0f, UX_RESTRICTION_MODE_BASELINE);
         assertTrue(parked.isRequiresDistractionOptimization());
         assertEquals(CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO, parked.getActiveRestrictions());
+    }
+
+    @Test
+    public void testParsingMultipleConfigurations()
+            throws IOException, XmlPullParserException {
+        List<CarUxRestrictionsConfiguration> configs =
+                CarUxRestrictionsConfigurationXmlParser.parse(
+                        getContext(), R.xml.ux_restrictions_multiple_display_ports);
+
+        assertEquals(configs.size(), 2);
+
+        // 1 and 2 are specified in test xml.
+        Set<Byte> expected = new ArraySet<>();
+        expected.add((byte) 1);
+        expected.add((byte) 2);
+        for (CarUxRestrictionsConfiguration config: configs) {
+            assertTrue(expected.contains(config.getPhysicalPort()));
+        }
+    }
+
+    @Test
+    public void testMultipleConfigurationsShareParameters()
+            throws IOException, XmlPullParserException {
+        List<CarUxRestrictionsConfiguration> configs =
+                CarUxRestrictionsConfigurationXmlParser.parse(
+                        getContext(), R.xml.ux_restrictions_multiple_display_ports);
+
+        for (CarUxRestrictionsConfiguration config: configs) {
+            CarUxRestrictions r = config.getUxRestrictions(DRIVING_STATE_PARKED, 0f);
+            assertEquals(1, r.getMaxContentDepth());
+            assertEquals(1, r.getMaxCumulativeContentItems());
+            assertEquals(1, r.getMaxRestrictedStringLength());
+        }
     }
 }
