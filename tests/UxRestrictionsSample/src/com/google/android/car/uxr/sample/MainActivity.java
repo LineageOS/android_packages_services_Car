@@ -29,13 +29,11 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.ComponentName;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.JsonWriter;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -188,9 +186,6 @@ public class MainActivity extends Activity {
         mShowProdConfig.setOnClickListener(v -> showProdUxRestrictionsConfig());
         mToggleButton.setOnClickListener(v -> updateToggleUxREnable());
 
-        mSampleMsgButton = findViewById(R.id.launch_message);
-        mSampleMsgButton.setOnClickListener(this::launchSampleMsgActivity);
-
         // Connect to car service
         mCar = Car.createCar(this, mCarConnectionListener);
         mCar.connect();
@@ -271,11 +266,6 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private void launchSampleMsgActivity(View view) {
-        Intent msgIntent = new Intent(this, SampleMessageActivity.class);
-        startActivity(msgIntent);
     }
 
     @Override
