@@ -57,13 +57,15 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         public final ComponentName topActivity;
         public final int taskId;
         public final int displayId;
+        public final int position;
         public final StackInfo stackInfo;
 
-        private TopTaskInfoContainer(ComponentName topActivity, int taskId, int displayId,
-                StackInfo stackInfo) {
+        private TopTaskInfoContainer(ComponentName topActivity, int taskId,
+                int displayId, int position, StackInfo stackInfo) {
             this.topActivity = topActivity;
             this.taskId = taskId;
             this.displayId = displayId;
+            this.position = position;
             this.stackInfo = stackInfo;
         }
 
@@ -72,15 +74,16 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                     && Objects.equals(this.topActivity, taskInfo.topActivity)
                     && this.taskId == taskInfo.taskId
                     && this.displayId == taskInfo.displayId
+                    && this.position == taskInfo.position
                     && this.stackInfo.userId == taskInfo.stackInfo.userId;
         }
 
         @Override
         public String toString() {
             return String.format(
-                    "TaskInfoContainer [topActivity=%s, taskId=%d, stackId=%d, userId=%d,"
-                    + " displayId=%d]",
-                    topActivity, taskId, stackInfo.stackId, stackInfo.userId, displayId);
+                    "TaskInfoContainer [topActivity=%s, taskId=%d, stackId=%d, userId=%d, "
+                    + "displayId=%d, position=%d",
+                  topActivity, taskId, stackInfo.stackId, stackInfo.userId, displayId, position);
         }
     }
 
@@ -144,15 +147,16 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*SystemActivityMonitoringService*");
-        writer.println(" Top Tasks:");
+        writer.println(" Top Tasks per display:");
         synchronized (this) {
             for (int i = 0; i < mTopTasks.size(); i++) {
+                int displayId = mTopTasks.keyAt(i);
                 TopTaskInfoContainer info = mTopTasks.valueAt(i);
                 if (info != null) {
-                    writer.println(info);
+                    writer.println("display id " + displayId + ": " + info);
                 }
             }
-            writer.println(" Foregroud uid-pids:");
+            writer.println(" Foreground uid-pids:");
             for (Integer key : mForegroundUidPids.keySet()) {
                 Set<Integer> pids = mForegroundUidPids.get(key);
                 if (pids == null) {
@@ -274,48 +278,39 @@ public class SystemActivityMonitoringService implements CarServiceBase {
             return;
         }
         mTasksToDispatch.clear();
+
+        SparseArray<TopTaskInfoContainer> topTasks = new SparseArray<>();
         ActivityLaunchListener listener;
         synchronized (this) {
             listener = mActivityLaunchListener;
-            Set<Integer> allStackIds = new ArraySet<>(infos.size());
-            Set<Integer> stackIdsToRemove = new ArraySet<>(infos.size());
             for (StackInfo info : infos) {
-                int stackId = info.stackId;
-                allStackIds.add(info.stackId);
+                int displayId = info.displayId;
                 if (info.taskNames.length == 0 || !info.visible) { // empty stack or not shown
-                    stackIdsToRemove.add(stackId);
                     continue;
                 }
                 TopTaskInfoContainer newTopTaskInfo = new TopTaskInfoContainer(
-                        info.topActivity, info.taskIds[info.taskIds.length - 1], info.displayId,
-                        info);
-                TopTaskInfoContainer currentTopTaskInfo = mTopTasks.get(stackId);
+                        info.topActivity, info.taskIds[info.taskIds.length - 1],
+                        info.displayId, info.position, info);
+                TopTaskInfoContainer currentTopTaskInfo = topTasks.get(displayId);
 
-                // if a new task is added to stack or focused stack changes, should notify
                 if (currentTopTaskInfo == null ||
-                        !currentTopTaskInfo.isMatching(newTopTaskInfo) ||
-                        (focusedStackId == stackId && focusedStackId != mFocusedStackId)) {
-                    mTopTasks.put(stackId, newTopTaskInfo);
-                    mTasksToDispatch.add(newTopTaskInfo);
+                        newTopTaskInfo.position > currentTopTaskInfo.position) {
+                    topTasks.put(displayId, newTopTaskInfo);
                     if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                        Log.i(CarLog.TAG_AM, "New top task: " + newTopTaskInfo);
+                        Log.i(CarLog.TAG_AM, "Current top task " + newTopTaskInfo);
                     }
                 }
             }
-            for (int i = 0; i < mTopTasks.size(); i++) {
-                TopTaskInfoContainer topTask = mTopTasks.valueAt(i);
-                if (topTask == null) {
-                    Log.wtf(CarLog.TAG_AM, "unexpected null value in sparse array");
-                    continue;
-                }
-                if (!allStackIds.contains(mTopTasks.keyAt(i))) {
-                    stackIdsToRemove.add(mTopTasks.keyAt(i));
+            // Assuming displays remains the same.
+            for (int i = 0; i < topTasks.size(); i++) {
+                int displayId = topTasks.keyAt(i);
+                TopTaskInfoContainer current = topTasks.get(displayId);
+                TopTaskInfoContainer previous = mTopTasks.get(displayId);
+                if (!current.isMatching(previous)) {
+                    mTasksToDispatch.add(current);
+                    mTopTasks.put(displayId, current);
                 }
             }
-            for (int stackIdToRemove : stackIdsToRemove) {
-                mTopTasks.remove(stackIdToRemove);
-            }
-            mFocusedStackId = focusedStackId;
         }
         if (listener != null) {
             for (TopTaskInfoContainer topTask : mTasksToDispatch) {
