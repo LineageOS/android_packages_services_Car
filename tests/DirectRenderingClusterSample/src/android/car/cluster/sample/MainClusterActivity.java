@@ -16,17 +16,6 @@
 package android.car.cluster.sample;
 
 import static android.car.cluster.sample.ClusterRenderingServiceImpl.LOCAL_BINDING_ACTION;
-import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_ACTIVITY_DISPLAY_ID;
-import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_ACTIVITY_STATE;
-import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_CATEGORY;
-import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_KEY_EVENT;
-import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_ON_KEY_EVENT;
-import static android.car.cluster.sample.ClusterRenderingServiceImpl
-        .MSG_ON_NAVIGATION_STATE_CHANGED;
-import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_REGISTER_CLIENT;
-import static android.car.cluster.sample.ClusterRenderingServiceImpl
-        .MSG_SET_ACTIVITY_LAUNCH_OPTIONS;
-import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_UNREGISTER_CLIENT;
 import static android.content.Intent.ACTION_USER_SWITCHED;
 import static android.content.Intent.ACTION_USER_UNLOCKED;
 
@@ -48,9 +37,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
 import android.util.SparseArray;
@@ -69,7 +55,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.versionedparcelable.ParcelUtils;
 import androidx.viewpager.widget.ViewPager;
 
 import java.lang.ref.WeakReference;
@@ -95,7 +80,8 @@ import java.util.Map;
  * This is necessary because the navigation app runs under a normal user, and different users will
  * see different instances of the same application, with their own personalized data.
  */
-public class MainClusterActivity extends FragmentActivity {
+public class MainClusterActivity extends FragmentActivity implements
+        ClusterRenderingServiceImpl.ServiceClient {
     private static final String TAG = "Cluster.MainActivity";
 
     private static final NavigationState NULL_NAV_STATE = new NavigationState.Builder().build();
@@ -110,8 +96,7 @@ public class MainClusterActivity extends FragmentActivity {
 
     private Map<Sensors.Gear, View> mGearsToIcon = new HashMap<>();
     private InputMethodManager mInputMethodManager;
-    private Messenger mService;
-    private Messenger mServiceCallbacks = new Messenger(new MessageHandler(this));
+    private ClusterRenderingServiceImpl mService;
     private VirtualDisplay mPendingVirtualDisplay = null;
 
     private static final int NAVIGATION_ACTIVITY_RETRY_INTERVAL_MS = 1000;
@@ -142,7 +127,7 @@ public class MainClusterActivity extends FragmentActivity {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
                     if (hasFocus) {
-                        mPager.setCurrentItem(mButtonToFacet.get(v).order);
+                        mPager.setCurrentItem(mButtonToFacet.get(v).mOrder);
                     }
                 }
             };
@@ -151,8 +136,9 @@ public class MainClusterActivity extends FragmentActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.i(TAG, "onServiceConnected, name: " + name + ", service: " + service);
-            mService = new Messenger(service);
-            sendServiceMessage(MSG_REGISTER_CLIENT, null, mServiceCallbacks);
+            mService = ((ClusterRenderingServiceImpl.LocalBinder) service).getService();
+            mService.registerClient(MainClusterActivity.this);
+            mNavStateController.setImageResolver(mService.getImageResolver());
             if (mPendingVirtualDisplay != null) {
                 // If haven't reported the virtual display yet, do so on service connect.
                 reportNavDisplay(mPendingVirtualDisplay);
@@ -164,43 +150,10 @@ public class MainClusterActivity extends FragmentActivity {
         public void onServiceDisconnected(ComponentName name) {
             Log.i(TAG, "onServiceDisconnected, name: " + name);
             mService = null;
+            mNavStateController.setImageResolver(null);
             onNavigationStateChange(NULL_NAV_STATE);
         }
     };
-
-    private static class MessageHandler extends Handler {
-        private final WeakReference<MainClusterActivity> mActivity;
-
-        MessageHandler(MainClusterActivity activity) {
-            mActivity = new WeakReference<>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            Bundle data = msg.getData();
-            switch (msg.what) {
-                case MSG_ON_KEY_EVENT:
-                    KeyEvent event = data.getParcelable(MSG_KEY_KEY_EVENT);
-                    if (event != null) {
-                        mActivity.get().onKeyEvent(event);
-                    }
-                    break;
-                case MSG_ON_NAVIGATION_STATE_CHANGED:
-                    if (data == null) {
-                        mActivity.get().onNavigationStateChange(null);
-                    } else {
-                        data.setClassLoader(ParcelUtils.class.getClassLoader());
-                        NavigationState navState = NavigationState
-                                .fromParcelable(data.getParcelable(
-                                        ClusterRenderingServiceImpl.NAV_STATE_BUNDLE_KEY));
-                        mActivity.get().onNavigationStateChange(navState);
-                    }
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
-        }
-    }
 
     private ActivityMonitor.ActivityListener mNavigationActivityMonitor = (displayId, activity) -> {
         if (displayId != mNavigationDisplayId) {
@@ -259,7 +212,7 @@ public class MainClusterActivity extends FragmentActivity {
 
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(new ClusterPageAdapter(getSupportFragmentManager()));
-        mOrderToFacet.get(0).button.requestFocus();
+        mOrderToFacet.get(0).mButton.requestFocus();
         mNavStateController = new NavStateController(findViewById(R.id.navigation_state));
 
         mClusterViewModel = ViewModelProviders.of(this).get(ClusterViewModel.class);
@@ -300,13 +253,14 @@ public class MainClusterActivity extends FragmentActivity {
         mUserReceiver.unregister(this);
         mActivityMonitor.stop();
         if (mService != null) {
-            sendServiceMessage(MSG_UNREGISTER_CLIENT, null, mServiceCallbacks);
+            mService.unregisterClient(this);
             mService = null;
         }
         unbindService(mClusterRenderingServiceConnection);
     }
 
-    private void onKeyEvent(KeyEvent event) {
+    @Override
+    public void onKeyEvent(KeyEvent event) {
         Log.i(TAG, "onKeyEvent, event: " + event);
 
         // This is a hack. We use SOURCE_CLASS_POINTER here because this type of input is associated
@@ -316,7 +270,8 @@ public class MainClusterActivity extends FragmentActivity {
         mInputMethodManager.dispatchKeyEventFromInputMethod(getCurrentFocus(), event);
     }
 
-    private void onNavigationStateChange(NavigationState state) {
+    @Override
+    public void onNavigationStateChange(NavigationState state) {
         Log.d(TAG, "onNavigationStateChange: " + state);
         if (mNavStateController != null) {
             mNavStateController.update(state);
@@ -338,32 +293,9 @@ public class MainClusterActivity extends FragmentActivity {
     }
 
     private void reportNavDisplay(VirtualDisplay virtualDisplay) {
-        Bundle data = new Bundle();
-        data.putString(MSG_KEY_CATEGORY, Car.CAR_CATEGORY_NAVIGATION);
-        data.putInt(MSG_KEY_ACTIVITY_DISPLAY_ID, virtualDisplay.mDisplayId);
-        data.putBundle(MSG_KEY_ACTIVITY_STATE, ClusterActivityState
+        mService.setActivityLaunchOptions(virtualDisplay.mDisplayId, ClusterActivityState
                 .create(virtualDisplay.mDisplayId != Display.INVALID_DISPLAY,
-                        virtualDisplay.mUnobscuredBounds)
-                .toBundle());
-        sendServiceMessage(MSG_SET_ACTIVITY_LAUNCH_OPTIONS, data, null);
-    }
-
-    /**
-     * Sends a message to the {@link ClusterRenderingServiceImpl}, which runs on a different
-     * process.
-     * @param what action to perform
-     * @param data action data
-     * @param replyTo {@link Messenger} where to reply back
-     */
-    private void sendServiceMessage(int what, Bundle data, Messenger replyTo) {
-        try {
-            Message message = Message.obtain(null, what);
-            message.setData(data);
-            message.replyTo = replyTo;
-            mService.send(message);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Unable to deliver message " + what + ". Service died");
-        }
+                        virtualDisplay.mUnobscuredBounds));
     }
 
     public class ClusterPageAdapter extends FragmentPagerAdapter {
@@ -383,21 +315,21 @@ public class MainClusterActivity extends FragmentActivity {
     }
 
     private <T> void registerFacet(Facet<T> facet) {
-        mOrderToFacet.append(facet.order, facet);
-        mButtonToFacet.put(facet.button, facet);
+        mOrderToFacet.append(facet.mOrder, facet);
+        mButtonToFacet.put(facet.mButton, facet);
 
-        facet.button.setOnFocusChangeListener(mFacetButtonFocusListener);
+        facet.mButton.setOnFocusChangeListener(mFacetButtonFocusListener);
     }
 
     private static class Facet<T> {
-        Button button;
-        Class<T> clazz;
-        int order;
+        Button mButton;
+        Class<T> mClazz;
+        int mOrder;
 
         Facet(Button button, int order, Class<T> clazz) {
-            this.button = button;
-            this.order = order;
-            this.clazz = clazz;
+            this.mButton = button;
+            this.mOrder = order;
+            this.mClazz = clazz;
         }
 
         private Fragment mFragment;
@@ -405,8 +337,9 @@ public class MainClusterActivity extends FragmentActivity {
         Fragment getOrCreateFragment() {
             if (mFragment == null) {
                 try {
-                    mFragment = (Fragment) clazz.getConstructors()[0].newInstance();
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                    mFragment = (Fragment) mClazz.getConstructors()[0].newInstance();
+                } catch (InstantiationException | IllegalAccessException
+                        | InvocationTargetException e) {
                     throw new RuntimeException(e);
                 }
             }

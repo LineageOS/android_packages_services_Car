@@ -32,7 +32,7 @@ public class ImageResolverTest {
 
     @Before
     public void setup() {
-        mImageResolver = ImageResolver.getInstance();
+        mImageResolver = new ImageResolver((uri) -> null);
     }
 
     @Test
