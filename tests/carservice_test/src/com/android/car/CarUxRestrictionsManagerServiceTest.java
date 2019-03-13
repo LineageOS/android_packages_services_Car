@@ -96,6 +96,7 @@ public class CarUxRestrictionsManagerServiceTest {
     @After
     public void tearDown() throws Exception {
         mService = null;
+        CarLocalServices.removeAllServices();
     }
 
     @Test
