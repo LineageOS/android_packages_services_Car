@@ -48,8 +48,6 @@ public:
     // Implementation details
     EvsEnumerator();
 
-    const unsigned kMaxRetry;
-
 private:
     struct CameraRecord {
         CameraDesc          desc;
