@@ -125,27 +125,6 @@
         android:layout_marginBottom="10dp"
         android:background="@android:color/darker_gray"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/sample_header"
-        android:padding="@dimen/section_padding"
-        android:textSize="@dimen/header_text_size"
-        android:textAppearance="?android:textAppearanceLarge"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-      <Button
-          android:id="@+id/launch_message"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:padding="@dimen/section_padding"
-          android:text="@string/sample_msg_activity"
-          android:textAllCaps="false"
-          android:textSize="@dimen/info_text_size"/>
-    </LinearLayout>
-
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
