@@ -91,6 +91,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering">Receive instrument cluster data</string>
     <string name="car_permission_label_car_ux_restrictions_configuration">UX Restrictions Configuration</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration">Configure UX Restrictions</string>
+    <string name="car_permission_label_car_handle_usb_aoap_device">Communicate with USB device in AOAP mode</string>
+    <string name="car_permission_desc_car_handle_usb_aoap_device">Allows an app to communicate with a device in AOAP mode</string>
 
     <!-- Permission text: apps can handle input events [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_bind_input_service">Car Input Service</string>

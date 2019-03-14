@@ -1,6 +1,16 @@
 // Signature format: 2.0
 package android.car {
 
+  public abstract class AoapService extends android.app.Service {
+    ctor public AoapService();
+    method @MainThread public int canSwitchToAoap(@NonNull android.hardware.usb.UsbDevice);
+    method @MainThread public abstract int isDeviceSupported(@NonNull android.hardware.usb.UsbDevice);
+    method public android.os.IBinder onBind(android.content.Intent);
+    field public static final int RESULT_DEVICE_NOT_SUPPORTED = 1; // 0x1
+    field public static final int RESULT_DO_NOT_SWITCH_TO_AOAP = 2; // 0x2
+    field public static final int RESULT_OK = 0; // 0x0
+  }
+
   public final class Car {
     field public static final String CABIN_SERVICE = "cabin";
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
