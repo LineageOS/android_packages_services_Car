@@ -259,6 +259,15 @@ public final class Car {
             "android.car.permission.CAR_CONTROL_AUDIO_SETTINGS";
 
     /**
+     * Permission necessary to receive full audio ducking events from car audio focus handler.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS =
+            "android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS";
+
+    /**
      * Permission necessary to use {@link CarNavigationStatusManager}.
      */
     public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
