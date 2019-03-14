@@ -466,6 +466,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_ENABLE_UXR = "enable-uxr";
         private static final String COMMAND_GARAGE_MODE = "garage-mode";
         private static final String COMMAND_GET_DO_ACTIVITIES = "get-do-activities";
+        private static final String COMMAND_GET_CARPROPERTYCONFIG = "get-carpropertyconfig";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -490,6 +491,8 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  Force into garage mode or check status.");
             pw.println("\tget-do-activities pkgname");
             pw.println("\t  Get Distraction Optimized activities in given package.");
+            pw.println("\tget-carpropertyconfig [propertyId]");
+            pw.println("\t  Get a CarPropertyConfig by Id in Hex or list all CarPropertyConfigs");
         }
 
         public void exec(String[] args, PrintWriter writer) {
@@ -556,6 +559,10 @@ public class ICarImpl extends ICar.Stub {
                             writer.println("No DO Activities for " + pkgName);
                         }
                     }
+                    break;
+                case COMMAND_GET_CARPROPERTYCONFIG:
+                    String propertyId = args.length < 2 ? "" : args[1];
+                    mHal.dumpPropertyConfigs(writer, propertyId);
                     break;
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
