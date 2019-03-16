@@ -86,7 +86,8 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     }
 
     @Override
-    public void activateToken(long handle) {
+    public boolean isEscrowTokenActive(long handle, int uid) {
+        return false;
     }
 
     @Override
@@ -94,9 +95,8 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     }
 
     @Override
-    public int[] getEnrollmentHandlesForUser(int uid) {
-        int[] handles = {};
-        return handles;
+    public long[] getEnrollmentHandlesForUser(int uid) {
+        return new long[0];
     }
 
     /**

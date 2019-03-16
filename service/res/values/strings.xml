@@ -124,14 +124,19 @@
     <string name="car_permission_desc_diag_clear">Clear diagnostic data from the car</string>
 
     <!-- Permission text: apps can publish VMS data [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_vms_publisher">VMS publisher</string>
+    <string name="car_permission_label_vms_publisher">VMS Publisher</string>
     <!-- Permission text: apps can send VMS messages to the car [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_vms_publisher">Publish vms messages</string>
+    <string name="car_permission_desc_vms_publisher">Publish VMS messages</string>
 
     <!-- Permission text: apps can subscribe to VMS data [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_vms_subscriber">VMS subscriber</string>
+    <string name="car_permission_label_vms_subscriber">VMS Subscriber</string>
     <!-- Permission text: apps can receive VMS messages from the car [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_vms_subscriber">Subscribe to vms messages</string>
+    <string name="car_permission_desc_vms_subscriber">Subscribe to VMS messages</string>
+
+    <!-- Permission text: apps can act as VMS router core [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_bind_vms_client">VMS Client Service</string>
+    <!-- Permission text: apps can act as VMS router core [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_bind_vms_client">Bind to VMS clients</string>
 
     <!-- Permission text: apps can monitor flash storage usage [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_storage_monitoring">Flash storage monitoring</string>

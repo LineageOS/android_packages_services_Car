@@ -18,6 +18,7 @@ package android.car.trust;
 
 import static android.car.Car.PERMISSION_CAR_ENROLL_TRUST;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
@@ -172,14 +173,21 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
     }
 
     /**
-     * Activate the newly added escrow token.
+     * Returns {@code true} if the escrow token associated with the given handle is active.
+     * <p>
+     * When a new escrow token has been added as part of the Trusted device enrollment, the client
+     * will receive {@link CarTrustAgentEnrollmentCallback#onEscrowTokenAdded(long)} and
+     * {@link CarTrustAgentEnrollmentCallback#onEscrowTokenActiveStateChanged(long, boolean)}
+     * callbacks.  This method provides a way to query for the token state at a later point of time.
      *
      * @param handle the handle corresponding to the escrow token
+     * @param uid user id associated with the token
+     * @return true if the token is active, false if not
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void activateToken(long handle) {
+    public boolean isEscrowTokenActive(long handle, int uid) {
         try {
-            mEnrollmentService.activateToken(handle);
+            return mEnrollmentService.isEscrowTokenActive(handle, uid);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -281,17 +289,19 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
 
     /**
      * Provides a list of enrollment handles for the given user id.
+     * <p>
      * Each enrollment handle corresponds to a trusted device for the given user.
      *
      * @param uid user id.
      * @return list of the Enrollment handles for the user id.
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public List<Integer> getEnrollmentHandlesForUser(int uid) {
+    @NonNull
+    public List<Long> getEnrollmentHandlesForUser(int uid) {
         try {
-            return Arrays.stream(
-                    mEnrollmentService.getEnrollmentHandlesForUser(uid)).boxed().collect(
-                    Collectors.toList());
+            return Arrays.stream(mEnrollmentService.getEnrollmentHandlesForUser(uid))
+                    .boxed()
+                    .collect(Collectors.toList());
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -346,7 +356,6 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
          * @param active True if token has been activated, false if not.
          */
         void onEscrowTokenActiveStateChanged(long handle, boolean active);
-
     }
 
     /**
