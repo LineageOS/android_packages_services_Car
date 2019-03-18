@@ -56,6 +56,7 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.LocalOnlyHotspotCallback;
 import android.net.wifi.WifiManager.LocalOnlyHotspotReservation;
 import android.net.wifi.WifiManager.SoftApCallback;
+import android.net.wifi.WifiScanner;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -114,6 +115,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     @Nullable
     private String mApBssid;
 
+    @GuardedBy("mLock")
+    private @Nullable WifiScanner mWifiScanner;
 
     @GuardedBy("mLock")
     private @ProjectionState int mCurrentProjectionState = PROJECTION_STATE_INACTIVE;
@@ -297,6 +300,35 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         if (shouldReleaseAp) {
             stopAccessPoint();
         }
+    }
+
+    @Override
+    public int[] getAvailableWifiChannels(int band) {
+        ICarImpl.assertProjectionPermission(mContext);
+        WifiScanner scanner;
+        synchronized (mLock) {
+            // Lazy initialization
+            if (mWifiScanner == null) {
+                mWifiScanner = mContext.getSystemService(WifiScanner.class);
+            }
+            scanner = mWifiScanner;
+        }
+        if (scanner == null) {
+            Log.w(TAG, "Unable to get WifiScanner");
+            return new int[0];
+        }
+
+        List<Integer> channels = scanner.getAvailableChannels(band);
+        if (channels == null || channels.isEmpty()) {
+            Log.w(TAG, "WifiScanner reported no available channels");
+            return new int[0];
+        }
+
+        int[] array = new int[channels.size()];
+        for (int i = 0; i < channels.size(); i++) {
+            array[i] = channels.get(i);
+        }
+        return array;
     }
 
     /**
@@ -777,6 +809,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             writer.println("Current projection state: " + mCurrentProjectionState);
             writer.println("Current projection package: " + mCurrentProjectionPackage);
             writer.println("Projection status: " + mProjectionReceiverClients);
+            writer.println("WifiScanner: " + mWifiScanner);
         }
     }
 

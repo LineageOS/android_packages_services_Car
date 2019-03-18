@@ -87,4 +87,7 @@ interface ICarProjection {
      * {@link android.car.projection.ProjectionOptions} class.
      */
     Bundle getProjectionOptions() = 11;
+
+    /** Returns a list of available Wi-Fi channels */
+    int[] getAvailableWifiChannels(int band) = 12;
 }

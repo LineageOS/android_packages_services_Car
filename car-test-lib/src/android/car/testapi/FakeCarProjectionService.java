@@ -174,6 +174,11 @@ class FakeCarProjectionService extends ICarProjection.Stub implements
         return mProjectionOptions.toBundle();
     }
 
+    @Override
+    public int[] getAvailableWifiChannels(int band) throws RemoteException {
+        return new int[] {2412 /* Channel 1 */, 5180 /* Channel 36 */};
+    }
+
 
     @Override
     public void setProjectionOptions(ProjectionOptions projectionOptions) {

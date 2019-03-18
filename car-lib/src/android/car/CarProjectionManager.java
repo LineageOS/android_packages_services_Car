@@ -251,6 +251,26 @@ public final class CarProjectionManager implements CarManagerBase {
     }
 
     /**
+     * Returns a list of available Wi-Fi channels. A channel is specified as frequency in MHz,
+     * e.g. channel 1 will be represented as 2412 in the list.
+     *
+     * @param band one of the values from {@code android.net.wifi.WifiScanner#WIFI_BAND_*}
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public @NonNull List<Integer> getAvailableWifiChannels(int band) {
+        try {
+            int[] channels = mService.getAvailableWifiChannels(band);
+            List<Integer> channelList = new ArrayList<>(channels.length);
+            for (int v : channels) {
+                channelList.add(v);
+            }
+            return channelList;
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
      * Stop Wi-Fi Access Point for wireless projection receiver app.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)

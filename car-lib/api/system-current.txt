@@ -44,6 +44,7 @@ package android.car {
   }
 
   public final class CarProjectionManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) @NonNull public java.util.List<java.lang.Integer> getAvailableWifiChannels(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) @NonNull public android.os.Bundle getProjectionOptions();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionListener(@NonNull android.car.CarProjectionManager.CarProjectionListener, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionRunner(@NonNull android.content.Intent);

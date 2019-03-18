@@ -33,6 +33,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.net.wifi.WifiScanner;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -230,6 +231,13 @@ public class CarProjectionServiceTest {
         assertThat(options.getConsentActivity()).isEqualTo(
                 ComponentName.unflattenFromString(consentActivity));
         assertThat(options.getUiMode()).isEqualTo(uiMode);
+    }
+
+    @Test
+    public void getWifiChannels() {
+        int[] wifiChannels = mService.getAvailableWifiChannels(WifiScanner.WIFI_BAND_BOTH_WITH_DFS);
+        assertThat(wifiChannels).isNotNull();
+        assertThat(wifiChannels).isNotEmpty();
     }
 
     private ProjectionStatus createProjectionStatus() {
