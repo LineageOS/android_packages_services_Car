@@ -33,18 +33,24 @@ import android.bluetooth.BluetoothPan;
 import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothUuid;
+import android.car.Car;
 import android.car.CarBluetoothManager;
+import android.car.CarNotConnectedException;
 import android.car.ICarBluetoothUserService;
 import android.car.ICarUserService;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
@@ -71,9 +77,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
-
 
 /**
  * A Bluetooth Device Connection policy that is specific to the use cases of a Car.  A car's
@@ -112,12 +118,15 @@ public class BluetoothDeviceConnectionPolicy {
     // The main data structure that holds on to the {profile:list of known and connectible devices}
     HashMap<Integer, BluetoothDevicesInfo> mProfileToConnectableDevicesMap;
 
-    /// TODO(vnori): fix this. b/70029056
-    private static final int NUM_SUPPORTED_PHONE_CONNECTIONS = 4; // num of HFP and PBAP connections
-    private static final int NUM_SUPPORTED_MSG_CONNECTIONS = 4; // num of MAP connections
-    private static final int NUM_SUPPORTED_MUSIC_CONNECTIONS = 1; // num of A2DP connections
-    private static final int NUM_SUPPORTED_NETWORK_CONNECTIONS = 1; // num of PAN connections
-    private Map<Integer, Integer> mNumSupportedActiveConnections;
+    // Keep a map of the maximum number of connections allowed for any profile we plan to support.
+    private static final Map<Integer, Integer> sNumSupportedActiveConnections = new HashMap<>();
+    static {
+        sNumSupportedActiveConnections.put(BluetoothProfile.HEADSET_CLIENT, 4);
+        sNumSupportedActiveConnections.put(BluetoothProfile.PBAP_CLIENT, 4);
+        sNumSupportedActiveConnections.put(BluetoothProfile.A2DP_SINK, 1);
+        sNumSupportedActiveConnections.put(BluetoothProfile.MAP_CLIENT, 4);
+        sNumSupportedActiveConnections.put(BluetoothProfile.PAN, 1);
+    }
 
     private BluetoothAutoConnectStateMachine mBluetoothAutoConnectStateMachine;
     private final BluetoothAdapter mBluetoothAdapter;
@@ -132,6 +141,63 @@ public class BluetoothDeviceConnectionPolicy {
     //  Door unlock and ignition switch ON come from Car Property Service
     private final CarPropertyService mCarPropertyService;
     private final CarPropertyListener mPropertyEventListener;
+
+    // Car service binder to setup listening for power manager updates
+    private final Car mCar;
+    private CarPowerManager mCarPowerManager;
+    private final CarPowerStateListener mCarPowerStateListener = new CarPowerStateListener() {
+        @Override
+        public void onStateChanged(int state, CompletableFuture<Void> future) {
+            if (DBG) Log.d(TAG, "Car power state has changed to " + state);
+
+            // ON is the state when user turned on the car (it can be either ignition or
+            // door unlock) the policy for ON is defined by OEMs and we can rely on that.
+            if (state == CarPowerManager.CarPowerStateListener.ON) {
+                Log.i(TAG, "Car is powering on. Enable Bluetooth and auto-connect to devices.");
+                if (isBluetoothPersistedOn()) {
+                    enabledBluetooth();
+                }
+                initiateConnection();
+                return;
+            }
+
+            // Since we're appearing to be off after shutdown prepare, but may stay on in idle mode,
+            // we'll turn off Bluetooth to disconnect devices and better the "off" illusion
+            if (state == CarPowerManager.CarPowerStateListener.SHUTDOWN_PREPARE) {
+                Log.i(TAG, "Car is preparing for shutdown. Disable bluetooth adapter.");
+                disableBluetooth();
+
+                // Let CPMS know we're ready to shutdown. Otherwise, CPMS will get stuck for
+                // up to an hour.
+                if (future != null) {
+                    future.complete(null);
+                }
+                return;
+            }
+        }
+    };
+
+
+    private final ServiceConnection mCarServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i(TAG, "Car is now connected, getting CarPowerManager service");
+            try {
+                mCarPowerManager = (CarPowerManager) mCar.getCarManager(Car.POWER_SERVICE);
+                mCarPowerManager.setListener(mCarPowerStateListener);
+            } catch (CarNotConnectedException e) {
+                Log.e(TAG, "Failed to get CarPowerManager instance", e);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG, "Car is now disconnected");
+            if (mCarPowerManager != null) {
+                mCarPowerManager.clearListener();
+            }
+        }
+    };
 
     // PerUserCarService related listeners
     private final UserServiceConnectionCallback mServiceCallback;
@@ -193,33 +259,6 @@ public class BluetoothDeviceConnectionPolicy {
                 CarBluetoothManager.BLUETOOTH_DEVICE_CONNECTION_PRIORITY_0,
                 CarBluetoothManager.BLUETOOTH_DEVICE_CONNECTION_PRIORITY_1
         );
-        // mNumSupportedActiveConnections is a HashMap of mProfilesToConnect and the number of
-        // connections each profile supports currently.
-        mNumSupportedActiveConnections = new HashMap<>(mProfilesToConnect.size());
-        for (Integer profile : mProfilesToConnect) {
-            switch (profile) {
-                case BluetoothProfile.HEADSET_CLIENT:
-                    mNumSupportedActiveConnections.put(BluetoothProfile.HEADSET_CLIENT,
-                            NUM_SUPPORTED_PHONE_CONNECTIONS);
-                    break;
-                case BluetoothProfile.PBAP_CLIENT:
-                    mNumSupportedActiveConnections.put(BluetoothProfile.PBAP_CLIENT,
-                            NUM_SUPPORTED_PHONE_CONNECTIONS);
-                    break;
-                case BluetoothProfile.A2DP_SINK:
-                    mNumSupportedActiveConnections.put(BluetoothProfile.A2DP_SINK,
-                            NUM_SUPPORTED_MUSIC_CONNECTIONS);
-                    break;
-                case BluetoothProfile.MAP_CLIENT:
-                    mNumSupportedActiveConnections.put(BluetoothProfile.MAP_CLIENT,
-                            NUM_SUPPORTED_MSG_CONNECTIONS);
-                    break;
-                case BluetoothProfile.PAN:
-                    mNumSupportedActiveConnections.put(BluetoothProfile.PAN,
-                            NUM_SUPPORTED_NETWORK_CONNECTIONS);
-                    break;
-            }
-        }
 
         // Listen to events for triggering auto connect
         mPropertyEventListener = new CarPropertyListener();
@@ -232,6 +271,10 @@ public class BluetoothDeviceConnectionPolicy {
             Log.w(TAG, "No Bluetooth Adapter Available");
         }
         mFastPairProvider = new FastPairProvider(mContext);
+
+        // Connect to car
+        mCar = Car.createCar(context, mCarServiceConnection);
+        mCar.connect();
     }
 
     /**
@@ -746,7 +789,7 @@ public class BluetoothDeviceConnectionPolicy {
             for (Integer profile : mProfilesToConnect) {
                 // Build the BluetoothDevicesInfo for this profile.
                 BluetoothDevicesInfo devicesInfo = new BluetoothDevicesInfo(profile,
-                        mNumSupportedActiveConnections.get(profile));
+                        sNumSupportedActiveConnections.get(profile));
                 mProfileToConnectableDevicesMap.put(profile, devicesInfo);
             }
             if (DBG) {
@@ -851,6 +894,7 @@ public class BluetoothDeviceConnectionPolicy {
         writeDeviceInfoToSettings();
         cleanupUserSpecificInfo();
         closeEventListeners();
+        mCar.disconnect();
     }
 
     /**
@@ -1793,6 +1837,41 @@ public class BluetoothDeviceConnectionPolicy {
             writer.print("\n" + mProfileToConnectableDevicesMap.get(profile).toDebugString());
             writer.println();
         }
+    }
+
+    /**
+     * Get the persisted Bluetooth state from Settings
+     */
+    private boolean isBluetoothPersistedOn() {
+        return (Settings.Global.getInt(
+                mContext.getContentResolver(), Settings.Global.BLUETOOTH_ON, -1) != 0);
+    }
+
+    /**
+     * Turn on the Bluetooth Adapter.
+     */
+    private void enabledBluetooth() {
+        if (DBG) Log.d(TAG, "Enable bluetooth adapter");
+        if (mBluetoothAdapter == null) {
+            Log.e(TAG, "Cannot enable Bluetooth adapter. The object is null.");
+            return;
+        }
+        mBluetoothAdapter.enable();
+    }
+
+    /**
+     * Turn off the Bluetooth Adapter.
+     *
+     * Tells BluetoothAdapter to shut down _without_ persisting the off state as the desired state
+     * of the Bluetooth adapter for next start up.
+     */
+    private void disableBluetooth() {
+        if (DBG) Log.d(TAG, "Disable bluetooth, do not persist state across reboot");
+        if (mBluetoothAdapter == null) {
+            Log.e(TAG, "Cannot disable Bluetooth adapter. The object is null.");
+            return;
+        }
+        mBluetoothAdapter.disable(false);
     }
 
     /**
