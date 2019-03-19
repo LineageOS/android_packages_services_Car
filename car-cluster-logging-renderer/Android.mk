@@ -35,5 +35,7 @@ LOCAL_JAVA_LIBRARIES += android.car
 LOCAL_STATIC_ANDROID_LIBRARIES += \
     androidx.car_car-cluster
 
+LOCAL_REQUIRED_MODULES := privapp_whitelist_android.car.cluster.loggingrenderer
+
 include $(BUILD_PACKAGE)
 endif

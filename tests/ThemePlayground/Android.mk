@@ -44,4 +44,6 @@ LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_JAVA_LIBRARIES += android.car
 
+LOCAL_REQUIRED_MODULES := privapp_whitelist_com.android.car.themeplayground
+
 include $(BUILD_PACKAGE)
