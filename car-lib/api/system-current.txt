@@ -736,6 +736,40 @@ package android.car.input {
 
 }
 
+package android.car.media {
+
+  public final class CarAudioManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.media.CarAudioPatchHandle createAudioPatch(String, int, int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public String[] getExternalSources();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupMaxVolume(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupMaxVolume(int, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupMinVolume(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupMinVolume(int, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupVolume(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupVolume(int, int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int[] getUsagesForVolumeGroupId(int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int[] getUsagesForVolumeGroupId(int, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupCount();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupCount(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupIdForUsage(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupIdForUsage(int, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void releaseAudioPatch(android.car.media.CarAudioPatchHandle);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void setBalanceTowardRight(float);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void setFadeTowardFront(float);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void setGroupVolume(int, int, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void setGroupVolume(int, int, int, int);
+    field public static final int PRIMARY_AUDIO_ZONE = 0; // 0x0
+  }
+
+  public final class CarAudioPatchHandle implements android.os.Parcelable {
+    ctor public CarAudioPatchHandle(android.media.AudioPatch);
+    method public int describeContents();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.media.CarAudioPatchHandle> CREATOR;
+  }
+
+}
+
 package android.car.navigation {
 
   public class CarNavigationInstrumentCluster implements android.os.Parcelable {
