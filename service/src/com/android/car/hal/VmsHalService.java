@@ -19,9 +19,11 @@ import static com.android.car.CarServiceUtils.toByteArray;
 
 import static java.lang.Integer.toHexString;
 
-import android.annotation.SystemApi;
 import android.car.VehicleAreaType;
+import android.car.vms.IVmsPublisherClient;
+import android.car.vms.IVmsPublisherService;
 import android.car.vms.IVmsSubscriberClient;
+import android.car.vms.IVmsSubscriberService;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
@@ -37,864 +39,691 @@ import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerAndPublisherIdIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsOfferingMessageIntegerValuesIndex;
-import android.os.Binder;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.RemoteException;
+import android.util.ArraySet;
 import android.util.Log;
 
+import androidx.annotation.GuardedBy;
+import androidx.annotation.VisibleForTesting;
+
 import com.android.car.CarLog;
-import com.android.car.VmsLayersAvailability;
-import com.android.car.VmsPublishersInfo;
-import com.android.car.VmsRouting;
-import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * This is a glue layer between the VehicleHal and the VmsService. It sends VMS properties back and
- * forth.
+ * VMS client implementation that proxies VmsPublisher/VmsSubscriber API calls to the Vehicle HAL
+ * using HAL-specific message encodings.
+ *
+ * @see android.hardware.automotive.vehicle.V2_0
  */
-@SystemApi
 public class VmsHalService extends HalServiceBase {
-
     private static final boolean DBG = true;
-    private static final int HAL_PROPERTY_ID = VehicleProperty.VEHICLE_MAP_SERVICE;
     private static final String TAG = "VmsHalService";
+    private static final int HAL_PROPERTY_ID = VehicleProperty.VEHICLE_MAP_SERVICE;
+    private static final int NUM_INTEGERS_IN_VMS_LAYER = 3;
 
-    private final static List<Integer> AVAILABILITY_MESSAGE_TYPES = Collections.unmodifiableList(
-            Arrays.asList(
-                    VmsMessageType.AVAILABILITY_RESPONSE,
-                    VmsMessageType.AVAILABILITY_CHANGE));
-
-    private boolean mIsSupported = false;
-    private CopyOnWriteArrayList<VmsHalPublisherListener> mPublisherListeners =
-            new CopyOnWriteArrayList<>();
-    private CopyOnWriteArrayList<VmsHalSubscriberListener> mSubscriberListeners =
-            new CopyOnWriteArrayList<>();
-
-    private final IBinder mHalPublisherToken = new Binder();
     private final VehicleHal mVehicleHal;
+    private volatile boolean mIsSupported = false;
 
-    private final Object mLock = new Object();
-    private final VmsRouting mRouting = new VmsRouting();
-    @GuardedBy("mLock")
-    private final Map<IBinder, Map<Integer, VmsLayersOffering>> mOfferings = new HashMap<>();
-    @GuardedBy("mLock")
-    private final VmsLayersAvailability mAvailableLayers = new VmsLayersAvailability();
-    private final VmsPublishersInfo mPublishersInfo = new VmsPublishersInfo();
+    private IBinder mPublisherToken;
+    private IVmsPublisherService mPublisherService;
+    private IVmsSubscriberService mSubscriberService;
 
-    /**
-     * The VmsPublisherService implements this interface to receive data from the HAL.
-     */
-    public interface VmsHalPublisherListener {
-        void onChange(VmsSubscriptionState subscriptionState);
-    }
+    @GuardedBy("this")
+    private HandlerThread mHandlerThread;
+    @GuardedBy("this")
+    private Handler mHandler;
 
-    /**
-     * The VmsSubscriberService implements this interface to receive data from the HAL.
-     */
-    public interface VmsHalSubscriberListener {
-        // Notifies the listener on a data Message from a publisher.
-        void onDataMessage(VmsLayer layer, int publisherId, byte[] payload);
+    private int mSubscriptionStateSequence = -1;
+    private int mAvailableLayersSequence = -1;
 
-        // Notifies the listener on a change in available layers.
-        void onLayersAvaiabilityChange(VmsAvailableLayers availableLayers);
-    }
-
-    /**
-     * The VmsService implements this interface to receive data from the HAL.
-     */
-    protected VmsHalService(VehicleHal vehicleHal) {
-        mVehicleHal = vehicleHal;
-        if (DBG) {
-            Log.d(TAG, "Started VmsHalService!");
+    private final IVmsPublisherClient.Stub mPublisherClient = new IVmsPublisherClient.Stub() {
+        @Override
+        public void setVmsPublisherService(IBinder token, IVmsPublisherService service) {
+            mPublisherToken = token;
+            mPublisherService = service;
         }
-    }
 
-    /**
-     * VMS subscribers should wait for a layers availability message which indicates
-     * the subscriber service is ready to handle subscription requests.
-     */
-    public void signalSubscriberServiceIsReady() {
-        notifyOfAvailabilityChange();
-    }
-
-    /**
-     * VMS publishers should wait for a subscription state message which indicates
-     * the publisher service is ready to handle offerings and publishing.
-     */
-    public void signalPublisherServiceIsReady() {
-        notifyOfSubscriptionChange();
-    }
-
-    public void addPublisherListener(VmsHalPublisherListener listener) {
-        mPublisherListeners.add(listener);
-    }
-
-    public void addSubscriberListener(VmsHalSubscriberListener listener) {
-        mSubscriberListeners.add(listener);
-    }
-
-    public void removePublisherListener(VmsHalPublisherListener listener) {
-        mPublisherListeners.remove(listener);
-    }
-
-    public void removeSubscriberListener(VmsHalSubscriberListener listener) {
-        mSubscriberListeners.remove(listener);
-    }
-
-    public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
-        boolean firstSubscriptionForLayer = false;
-        if (DBG) {
-            Log.d(TAG, "Checking for first subscription. Layer: " + layer);
+        @Override
+        public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState) {
+            // Registration of this callback is handled by VmsPublisherService.
+            // As a result, HAL support must be checked whenever the callback is triggered.
+            if (!mIsSupported) {
+                return;
+            }
+            if (DBG) Log.d(TAG, "Handling a subscription state change");
+            Message.obtain(mHandler, VmsMessageType.SUBSCRIPTIONS_CHANGE, subscriptionState)
+                    .sendToTarget();
         }
-        synchronized (mLock) {
-            // Check if publishers need to be notified about this change in subscriptions.
-            firstSubscriptionForLayer = !mRouting.hasLayerSubscriptions(layer);
+    };
 
-            // Add the listeners subscription to the layer
-            mRouting.addSubscription(listener, layer);
+    private final IVmsSubscriberClient.Stub mSubscriberClient = new IVmsSubscriberClient.Stub() {
+        @Override
+        public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
+            if (DBG) Log.d(TAG, "Handling a data message for Layer: " + layer);
+            // TODO(b/124130256): Set publisher ID of data message
+            Message.obtain(mHandler, VmsMessageType.DATA, createDataMessage(layer, 0, payload))
+                    .sendToTarget();
         }
-        if (firstSubscriptionForLayer) {
-            notifyHalPublishers(layer, true);
-            notifyOfSubscriptionChange();
-        }
-    }
 
-    public void removeSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
-        boolean layerHasSubscribers = true;
-        synchronized (mLock) {
-            if (!mRouting.hasLayerSubscriptions(layer)) {
-                if (DBG) {
-                    Log.d(TAG, "Trying to remove a layer with no subscription: " + layer);
+        @Override
+        public void onLayersAvailabilityChanged(VmsAvailableLayers availableLayers) {
+            if (DBG) Log.d(TAG, "Handling a layer availability change");
+            Message.obtain(mHandler, VmsMessageType.AVAILABILITY_CHANGE, availableLayers)
+                    .sendToTarget();
+        }
+    };
+
+    private final Handler.Callback mHandlerCallback = msg -> {
+        int messageType = msg.what;
+        VehiclePropValue vehicleProp = null;
+        switch (messageType) {
+            case VmsMessageType.DATA:
+                vehicleProp = (VehiclePropValue) msg.obj;
+                break;
+            case VmsMessageType.SUBSCRIPTIONS_CHANGE:
+                VmsSubscriptionState subscriptionState = (VmsSubscriptionState) msg.obj;
+                // Drop out-of-order notifications
+                if (subscriptionState.getSequenceNumber() <= mSubscriptionStateSequence) {
+                    break;
                 }
-                return;
+                vehicleProp = createSubscriptionStateMessage(
+                        VmsMessageType.SUBSCRIPTIONS_CHANGE,
+                        subscriptionState);
+                mSubscriptionStateSequence = subscriptionState.getSequenceNumber();
+                break;
+            case VmsMessageType.AVAILABILITY_CHANGE:
+                VmsAvailableLayers availableLayers = (VmsAvailableLayers) msg.obj;
+                // Drop out-of-order notifications
+                if (availableLayers.getSequence() <= mAvailableLayersSequence) {
+                    break;
+                }
+                vehicleProp = createAvailableLayersMessage(
+                        VmsMessageType.AVAILABILITY_CHANGE,
+                        availableLayers);
+                mAvailableLayersSequence = availableLayers.getSequence();
+                break;
+            default:
+                Log.e(TAG, "Unexpected message type: " + messageType);
+        }
+        if (vehicleProp != null) {
+            if (DBG) Log.d(TAG, "Sending " + VmsMessageType.toString(messageType) + " message");
+            try {
+                setPropertyValue(vehicleProp);
+            } catch (RemoteException e) {
+                Log.e(TAG, "While sending " + VmsMessageType.toString(messageType));
             }
-
-            // Remove the listeners subscription to the layer
-            mRouting.removeSubscription(listener, layer);
-
-            // Check if publishers need to be notified about this change in subscriptions.
-            layerHasSubscribers = mRouting.hasLayerSubscriptions(layer);
         }
-        if (!layerHasSubscribers) {
-            notifyHalPublishers(layer, false);
-            notifyOfSubscriptionChange();
-        }
-    }
+        return true;
+    };
 
-    public void addSubscription(IVmsSubscriberClient listener) {
-        synchronized (mLock) {
-            mRouting.addSubscription(listener);
-        }
-    }
-
-    public void removeSubscription(IVmsSubscriberClient listener) {
-        synchronized (mLock) {
-            mRouting.removeSubscription(listener);
-        }
-    }
-
-    public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer, int publisherId) {
-        boolean firstSubscriptionForLayer = false;
-        synchronized (mLock) {
-            // Check if publishers need to be notified about this change in subscriptions.
-            firstSubscriptionForLayer = !(mRouting.hasLayerSubscriptions(layer) ||
-                    mRouting.hasLayerFromPublisherSubscriptions(layer, publisherId));
-
-            // Add the listeners subscription to the layer
-            mRouting.addSubscription(listener, layer, publisherId);
-        }
-        if (firstSubscriptionForLayer) {
-            notifyHalPublishers(layer, true);
-            notifyOfSubscriptionChange();
-        }
-    }
-
-    public void removeSubscription(IVmsSubscriberClient listener, VmsLayer layer, int publisherId) {
-        boolean layerHasSubscribers = true;
-        synchronized (mLock) {
-            if (!mRouting.hasLayerFromPublisherSubscriptions(layer, publisherId)) {
-                Log.i(TAG, "Trying to remove a layer with no subscription: " +
-                        layer + ", publisher ID:" + publisherId);
-                return;
-            }
-
-            // Remove the listeners subscription to the layer
-            mRouting.removeSubscription(listener, layer, publisherId);
-
-            // Check if publishers need to be notified about this change in subscriptions.
-            layerHasSubscribers = mRouting.hasLayerSubscriptions(layer) ||
-                    mRouting.hasLayerFromPublisherSubscriptions(layer, publisherId);
-        }
-        if (!layerHasSubscribers) {
-            notifyHalPublishers(layer, false);
-            notifyOfSubscriptionChange();
-        }
-    }
-
-    public void removeDeadSubscriber(IVmsSubscriberClient listener) {
-        synchronized (mLock) {
-            mRouting.removeDeadSubscriber(listener);
-        }
-    }
-
-    public Set<IVmsSubscriberClient> getSubscribersForLayerFromPublisher(VmsLayer layer,
-                                                                         int publisherId) {
-        synchronized (mLock) {
-            return mRouting.getSubscribersForLayerFromPublisher(layer, publisherId);
-        }
-    }
-
-    public Set<IVmsSubscriberClient> getAllSubscribers() {
-        synchronized (mLock) {
-            return mRouting.getAllSubscribers();
-        }
-    }
-
-    public boolean isHalSubscribed(VmsLayer layer) {
-        synchronized (mLock) {
-            return mRouting.isHalSubscribed(layer);
-        }
-    }
-
-    public VmsSubscriptionState getSubscriptionState() {
-        synchronized (mLock) {
-            return mRouting.getSubscriptionState();
-        }
+    /**
+     * Constructor used by {@link VehicleHal}
+     */
+    VmsHalService(VehicleHal vehicleHal) {
+        mVehicleHal = vehicleHal;
     }
 
     /**
-     * Assigns an idempotent ID for publisherInfo and stores it. The idempotency in this case means
-     * that the same publisherInfo will always, within a trip of the vehicle, return the same ID.
-     * The publisherInfo should be static for a binary and should only change as part of a software
-     * update. The publisherInfo is a serialized proto message which VMS clients can interpret.
+     * Retrieves the callback message handler for use by unit tests.
      */
-    public int getPublisherId(byte[] publisherInfo) {
-        if (DBG) {
-            Log.i(TAG, "Getting publisher static ID");
-        }
-        synchronized (mLock) {
-            return mPublishersInfo.getIdForInfo(publisherInfo);
-        }
-    }
-
-    public byte[] getPublisherInfo(int publisherId) {
-        if (DBG) {
-            Log.i(TAG, "Getting information for publisher ID: " + publisherId);
-        }
-        synchronized (mLock) {
-            return mPublishersInfo.getPublisherInfo(publisherId);
-        }
-    }
-
-    private void addHalSubscription(VmsLayer layer) {
-        boolean firstSubscriptionForLayer = true;
-        synchronized (mLock) {
-            // Check if publishers need to be notified about this change in subscriptions.
-            firstSubscriptionForLayer = !mRouting.hasLayerSubscriptions(layer);
-
-            // Add the listeners subscription to the layer
-            mRouting.addHalSubscription(layer);
-        }
-        if (firstSubscriptionForLayer) {
-            notifyHalPublishers(layer, true);
-            notifyOfSubscriptionChange();
-        }
-    }
-
-    private void addHalSubscriptionToPublisher(VmsLayer layer, int publisherId) {
-        boolean firstSubscriptionForLayer = true;
-        synchronized (mLock) {
-            // Check if publishers need to be notified about this change in subscriptions.
-            firstSubscriptionForLayer = !(mRouting.hasLayerSubscriptions(layer) ||
-                    mRouting.hasLayerFromPublisherSubscriptions(layer, publisherId));
-
-            // Add the listeners subscription to the layer
-            mRouting.addHalSubscriptionToPublisher(layer, publisherId);
-        }
-        if (firstSubscriptionForLayer) {
-            notifyHalPublishers(layer, publisherId, true);
-            notifyOfSubscriptionChange();
-        }
-    }
-
-    private void removeHalSubscription(VmsLayer layer) {
-        boolean layerHasSubscribers = true;
-        synchronized (mLock) {
-            if (!mRouting.hasLayerSubscriptions(layer)) {
-                Log.i(TAG, "Trying to remove a layer with no subscription: " + layer);
-                return;
-            }
-
-            // Remove the listeners subscription to the layer
-            mRouting.removeHalSubscription(layer);
-
-            // Check if publishers need to be notified about this change in subscriptions.
-            layerHasSubscribers = mRouting.hasLayerSubscriptions(layer);
-        }
-        if (!layerHasSubscribers) {
-            notifyHalPublishers(layer, false);
-            notifyOfSubscriptionChange();
-        }
-    }
-
-    public void removeHalSubscriptionFromPublisher(VmsLayer layer, int publisherId) {
-        boolean layerHasSubscribers = true;
-        synchronized (mLock) {
-            if (!mRouting.hasLayerSubscriptions(layer)) {
-                Log.i(TAG, "Trying to remove a layer with no subscription: " + layer);
-                return;
-            }
-
-            // Remove the listeners subscription to the layer
-            mRouting.removeHalSubscriptionToPublisher(layer, publisherId);
-
-            // Check if publishers need to be notified about this change in subscriptions.
-            layerHasSubscribers = mRouting.hasLayerSubscriptions(layer) ||
-                    mRouting.hasLayerFromPublisherSubscriptions(layer, publisherId);
-        }
-        if (!layerHasSubscribers) {
-            notifyHalPublishers(layer, publisherId, false);
-            notifyOfSubscriptionChange();
-        }
-    }
-
-    public boolean containsSubscriber(IVmsSubscriberClient subscriber) {
-        synchronized (mLock) {
-            return mRouting.containsSubscriber(subscriber);
-        }
-    }
-
-    public void setPublisherLayersOffering(IBinder publisherToken, VmsLayersOffering offering) {
-        synchronized (mLock) {
-            updateOffering(publisherToken, offering);
-            VmsOperationRecorder.get().setPublisherLayersOffering(offering);
-        }
-    }
-
-    public VmsAvailableLayers getAvailableLayers() {
-        synchronized (mLock) {
-            return mAvailableLayers.getAvailableLayers();
-        }
+    @VisibleForTesting
+    Handler getHandler() {
+        return mHandler;
     }
 
     /**
-     * Notify all the publishers and the HAL on subscription changes regardless of who triggered
-     * the change.
-     *
-     * @param layer          layer which is being subscribed to or unsubscribed from.
-     * @param hasSubscribers indicates if the notification is for subscription or unsubscription.
+     * Gets the {@link IVmsPublisherClient} implementation for the HAL's publisher callback.
      */
-    private void notifyHalPublishers(VmsLayer layer, boolean hasSubscribers) {
-        // notify the HAL
-        setSubscriptionRequest(layer, hasSubscribers);
-    }
-
-    private void notifyHalPublishers(VmsLayer layer, int publisherId, boolean hasSubscribers) {
-        // notify the HAL
-        setSubscriptionToPublisherRequest(layer, publisherId, hasSubscribers);
-    }
-
-    private void notifyOfSubscriptionChange() {
-        if (DBG) {
-            Log.d(TAG, "Notifying publishers on subscriptions");
-        }
-
-        // Notify the App publishers
-        for (VmsHalPublisherListener listener : mPublisherListeners) {
-            // Besides the list of layers, also a timestamp is provided to the clients.
-            // They should ignore any notification with a timestamp that is older than the most
-            // recent timestamp they have seen.
-            listener.onChange(getSubscriptionState());
-        }
+    public IBinder getPublisherClient() {
+        return mPublisherClient.asBinder();
     }
 
     /**
-     * Notify all the subscribers and the HAL on layers availability change.
-     *
-     * @param availableLayers the layers which publishers claim they made publish.
+     * Sets a reference to the {@link IVmsSubscriberService} implementation for use by the HAL.
      */
-    private void notifyOfAvailabilityChange() {
-        if (DBG) {
-            Log.d(TAG, "Notifying subscribers on layers availability");
-        }
-
-        VmsAvailableLayers availableLayers;
-        synchronized (mLock) {
-            availableLayers = mAvailableLayers.getAvailableLayers();
-        }
-
-        // notify the HAL
-        notifyAvailabilityChangeToHal(availableLayers);
-
-        // Notify the App subscribers
-        for (VmsHalSubscriberListener listener : mSubscriberListeners) {
-            listener.onLayersAvaiabilityChange(availableLayers);
-        }
-    }
-
-    @Override
-    public void init() {
-        if (mIsSupported) {
-            mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID);
-            if (DBG) {
-                Log.d(TAG, "Initializing VmsHalService VHAL property");
-            }
-        } else {
-            if (DBG) {
-                Log.d(TAG, "VmsHalService VHAL property not supported");
-            }
-        }
-    }
-
-    @Override
-    public void release() {
-        if (DBG) {
-            Log.d(TAG, "Releasing VmsHalService");
-        }
-        if (mIsSupported) {
-            mVehicleHal.unsubscribeProperty(this, HAL_PROPERTY_ID);
-        }
-        mPublisherListeners.clear();
-        mSubscriberListeners.clear();
+    public void setVmsSubscriberService(IVmsSubscriberService service) {
+        mSubscriberService = service;
     }
 
     @Override
     public Collection<VehiclePropConfig> takeSupportedProperties(
             Collection<VehiclePropConfig> allProperties) {
-        List<VehiclePropConfig> taken = new LinkedList<>();
         for (VehiclePropConfig p : allProperties) {
             if (p.prop == HAL_PROPERTY_ID) {
-                taken.add(p);
                 mIsSupported = true;
-                if (DBG) {
-                    Log.d(TAG, "takeSupportedProperties: " + toHexString(p.prop));
-                }
-                break;
+                return Collections.singleton(p);
             }
         }
-        return taken;
+        return Collections.emptySet();
     }
 
-    /**
-     * Consumes/produces HAL messages. The format of these messages is defined in:
-     * hardware/interfaces/automotive/vehicle/2.1/types.hal
-     */
     @Override
-    public void handleHalEvents(List<VehiclePropValue> values) {
-        if (DBG) {
-            Log.d(TAG, "Handling a VMS property change");
+    public void init() {
+        if (mIsSupported) {
+            if (DBG) Log.d(TAG, "Initializing VmsHalService VHAL property");
+            mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID);
+        } else {
+            if (DBG) Log.d(TAG, "VmsHalService VHAL property not supported");
+            return; // Do not continue initialization
         }
-        for (VehiclePropValue v : values) {
-            ArrayList<Integer> vec = v.value.int32Values;
-            int messageType = vec.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
 
-            if (DBG) {
-                Log.d(TAG, "Handling VMS message type: " + messageType);
+        synchronized (this) {
+            mHandlerThread = new HandlerThread(TAG);
+            mHandlerThread.start();
+            mHandler = new Handler(mHandlerThread.getLooper(), mHandlerCallback);
+        }
+
+        if (mSubscriberService != null) {
+            try {
+                mSubscriberService.addVmsSubscriberToNotifications(mSubscriberClient);
+            } catch (RemoteException e) {
+                Log.e(TAG, "While adding subscriber callback", e);
             }
-            switch (messageType) {
-                case VmsMessageType.DATA:
-                    handleDataEvent(vec, toByteArray(v.value.bytes));
-                    break;
-                case VmsMessageType.SUBSCRIBE:
-                    handleSubscribeEvent(vec);
-                    break;
-                case VmsMessageType.UNSUBSCRIBE:
-                    handleUnsubscribeEvent(vec);
-                    break;
-                case VmsMessageType.SUBSCRIBE_TO_PUBLISHER:
-                    handleSubscribeToPublisherEvent(vec);
-                    break;
-                case VmsMessageType.UNSUBSCRIBE_TO_PUBLISHER:
-                    handleUnsubscribeFromPublisherEvent(vec);
-                    break;
-                case VmsMessageType.OFFERING:
-                    handleOfferingEvent(vec);
-                    break;
-                case VmsMessageType.AVAILABILITY_REQUEST:
-                    handleHalAvailabilityRequestEvent();
-                    break;
-                case VmsMessageType.SUBSCRIPTIONS_REQUEST:
-                    handleSubscriptionsRequestEvent();
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unexpected message type: " + messageType);
+
+            // Publish layer availability to HAL clients (this triggers HAL client initialization)
+            try {
+                mSubscriberClient.onLayersAvailabilityChanged(
+                        mSubscriberService.getAvailableLayers());
+            } catch (RemoteException e) {
+                Log.e(TAG, "While publishing layer availability", e);
             }
+        } else if (DBG) {
+            Log.d(TAG, "VmsSubscriberService not registered");
         }
     }
 
-    private VmsLayer parseVmsLayerFromSimpleMessageIntegerValues(List<Integer> integerValues) {
-        return new VmsLayer(integerValues.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_TYPE),
-                integerValues.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_SUBTYPE),
-                integerValues.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_VERSION));
-    }
-
-    private VmsLayer parseVmsLayerFromDataMessageIntegerValues(List<Integer> integerValues) {
-        return parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
-    }
-
-    private int parsePublisherIdFromDataMessageIntegerValues(List<Integer> integerValues) {
-        return integerValues.get(VmsMessageWithLayerAndPublisherIdIntegerValuesIndex.PUBLISHER_ID);
-    }
-
-
-    /**
-     * Data message format:
-     * <ul>
-     * <li>Message type.
-     * <li>Layer id.
-     * <li>Layer version.
-     * <li>Layer subtype.
-     * <li>Publisher ID.
-     * <li>Payload.
-     * </ul>
-     */
-    private void handleDataEvent(List<Integer> integerValues, byte[] payload) {
-        VmsLayer vmsLayer = parseVmsLayerFromDataMessageIntegerValues(integerValues);
-        int publisherId = parsePublisherIdFromDataMessageIntegerValues(integerValues);
-        if (DBG) {
-            Log.d(TAG, "Handling a data event for Layer: " + vmsLayer);
-        }
-
-        // Send the message.
-        for (VmsHalSubscriberListener listener : mSubscriberListeners) {
-            listener.onDataMessage(vmsLayer, publisherId, payload);
-        }
-    }
-
-    /**
-     * Subscribe message format:
-     * <ul>
-     * <li>Message type.
-     * <li>Layer id.
-     * <li>Layer version.
-     * <li>Layer subtype.
-     * </ul>
-     */
-    private void handleSubscribeEvent(List<Integer> integerValues) {
-        VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
-        if (DBG) {
-            Log.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer);
-        }
-        addHalSubscription(vmsLayer);
-    }
-
-    /**
-     * Subscribe message format:
-     * <ul>
-     * <li>Message type.
-     * <li>Layer id.
-     * <li>Layer version.
-     * <li>Layer subtype.
-     * <li>Publisher ID
-     * </ul>
-     */
-    private void handleSubscribeToPublisherEvent(List<Integer> integerValues) {
-        VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
-        if (DBG) {
-            Log.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer);
-        }
-        int publisherId =
-                integerValues.get(VmsMessageWithLayerAndPublisherIdIntegerValuesIndex.PUBLISHER_ID);
-        addHalSubscriptionToPublisher(vmsLayer, publisherId);
-    }
-
-    /**
-     * Unsubscribe message format:
-     * <ul>
-     * <li>Message type.
-     * <li>Layer id.
-     * <li>Layer version.
-     * </ul>
-     */
-    private void handleUnsubscribeEvent(List<Integer> integerValues) {
-        VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
-        if (DBG) {
-            Log.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer);
-        }
-        removeHalSubscription(vmsLayer);
-    }
-
-    /**
-     * Unsubscribe message format:
-     * <ul>
-     * <li>Message type.
-     * <li>Layer id.
-     * <li>Layer version.
-     * </ul>
-     */
-    private void handleUnsubscribeFromPublisherEvent(List<Integer> integerValues) {
-        VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
-        int publisherId =
-                integerValues.get(VmsMessageWithLayerAndPublisherIdIntegerValuesIndex.PUBLISHER_ID);
-        if (DBG) {
-            Log.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer);
-        }
-        removeHalSubscriptionFromPublisher(vmsLayer, publisherId);
-    }
-
-    private static int NUM_INTEGERS_IN_VMS_LAYER = 3;
-
-    private VmsLayer parseVmsLayerFromIndex(List<Integer> integerValues, int index) {
-        int layerType = integerValues.get(index++);
-        int layerSutype = integerValues.get(index++);
-        int layerVersion = integerValues.get(index++);
-        return new VmsLayer(layerType, layerSutype, layerVersion);
-    }
-
-    /**
-     * Offering message format:
-     * <ul>
-     * <li>Message type.
-     * <li>Publisher ID.
-     * <li>Number of offerings.
-     * <li>Each offering consists of:
-     * <ul>
-     * <li>Layer id.
-     * <li>Layer version.
-     * <li>Number of layer dependencies.
-     * <li>Layer type/subtype/version.
-     * </ul>
-     * </ul>
-     */
-    private void handleOfferingEvent(List<Integer> integerValues) {
-        int publisherId = integerValues.get(VmsOfferingMessageIntegerValuesIndex.PUBLISHER_ID);
-        int numLayersDependencies =
-                integerValues.get(
-                        VmsOfferingMessageIntegerValuesIndex.NUMBER_OF_OFFERS);
-        int idx = VmsOfferingMessageIntegerValuesIndex.OFFERING_START;
-
-        Set<VmsLayerDependency> offeredLayers = new HashSet<>();
-
-        // An offering is layerId, LayerVersion, LayerType, NumDeps, <LayerId, LayerVersion> X NumDeps.
-        for (int i = 0; i < numLayersDependencies; i++) {
-            VmsLayer offeredLayer = parseVmsLayerFromIndex(integerValues, idx);
-            idx += NUM_INTEGERS_IN_VMS_LAYER;
-
-            int numDependenciesForLayer = integerValues.get(idx++);
-            if (numDependenciesForLayer == 0) {
-                offeredLayers.add(new VmsLayerDependency(offeredLayer));
-            } else {
-                Set<VmsLayer> dependencies = new HashSet<>();
-
-                for (int j = 0; j < numDependenciesForLayer; j++) {
-                    VmsLayer dependantLayer = parseVmsLayerFromIndex(integerValues, idx);
-                    idx += NUM_INTEGERS_IN_VMS_LAYER;
-                    dependencies.add(dependantLayer);
-                }
-                offeredLayers.add(new VmsLayerDependency(offeredLayer, dependencies));
+    @Override
+    public void release() {
+        synchronized (this) {
+            if (mHandlerThread != null) {
+                mHandlerThread.quitSafely();
             }
         }
-        // Store the HAL offering.
-        VmsLayersOffering offering = new VmsLayersOffering(offeredLayers, publisherId);
-        synchronized (mLock) {
-            updateOffering(mHalPublisherToken, offering);
-            VmsOperationRecorder.get().setHalPublisherLayersOffering(offering);
+
+        mSubscriptionStateSequence = -1;
+        mAvailableLayersSequence = -1;
+
+        if (mIsSupported) {
+            if (DBG) Log.d(TAG, "Releasing VmsHalService VHAL property");
+            mVehicleHal.unsubscribeProperty(this, HAL_PROPERTY_ID);
+        } else {
+            return;
         }
-    }
 
-    /**
-     * Availability message format:
-     * <ul>
-     * <li>Message type.
-     * <li>Number of layers.
-     * <li>Layer type/subtype/version.
-     * </ul>
-     */
-    private void handleHalAvailabilityRequestEvent() {
-        synchronized (mLock) {
-            VmsAvailableLayers availableLayers = mAvailableLayers.getAvailableLayers();
-            VehiclePropValue vehiclePropertyValue =
-                    toAvailabilityUpdateVehiclePropValue(
-                            availableLayers,
-                            VmsMessageType.AVAILABILITY_RESPONSE);
-
-            setPropertyValue(vehiclePropertyValue);
-        }
-    }
-
-    /**
-     * VmsSubscriptionRequestFormat:
-     * <ul>
-     * <li>Message type.
-     * </ul>
-     * <p>
-     * VmsSubscriptionResponseFormat:
-     * <ul>
-     * <li>Message type.
-     * <li>Sequence number.
-     * <li>Number of layers.
-     * <li>Layer type/subtype/version.
-     * </ul>
-     */
-    private void handleSubscriptionsRequestEvent() {
-        VmsSubscriptionState subscription = getSubscriptionState();
-        VehiclePropValue vehicleProp =
-                toTypedVmsVehiclePropValue(VmsMessageType.SUBSCRIPTIONS_RESPONSE);
-        VehiclePropValue.RawValue v = vehicleProp.value;
-        v.int32Values.add(subscription.getSequenceNumber());
-        Set<VmsLayer> layers = subscription.getLayers();
-        v.int32Values.add(layers.size());
-
-        //TODO(asafro): get the real number of associated layers in the subscriptions
-        //              state and send the associated layers themselves.
-        v.int32Values.add(0);
-
-        for (VmsLayer layer : layers) {
-            v.int32Values.add(layer.getType());
-            v.int32Values.add(layer.getSubtype());
-            v.int32Values.add(layer.getVersion());
-        }
-        setPropertyValue(vehicleProp);
-    }
-
-    private void updateOffering(IBinder publisherToken, VmsLayersOffering offering) {
-        synchronized (mLock) {
-            Map<Integer, VmsLayersOffering> publisherOfferings = mOfferings.get(publisherToken);
-            if (publisherOfferings == null) {
-                publisherOfferings = new HashMap<>();
-                mOfferings.put(publisherToken, publisherOfferings);
+        if (mSubscriberService != null) {
+            try {
+                mSubscriberService.removeVmsSubscriberToNotifications(mSubscriberClient);
+            } catch (RemoteException e) {
+                Log.e(TAG, "While removing subscriber callback", e);
             }
-            publisherOfferings.put(offering.getPublisherId(), offering);
-
-            // Update layers availability.
-            Set<VmsLayersOffering> allPublisherOfferings = new HashSet<>();
-            for (Map<Integer, VmsLayersOffering> offerings : mOfferings.values()) {
-                allPublisherOfferings.addAll(offerings.values());
-            }
-            if (DBG) {
-                Log.d(TAG, "New layer availability: " + allPublisherOfferings);
-            }
-            mAvailableLayers.setPublishersOffering(allPublisherOfferings);
         }
-        notifyOfAvailabilityChange();
     }
 
     @Override
     public void dump(PrintWriter writer) {
         writer.println(TAG);
         writer.println("VmsProperty " + (mIsSupported ? "" : "not") + " supported.");
+
+        writer.println(
+                "VmsPublisherService " + (mPublisherService != null ? "" : "not") + " registered.");
+        writer.println("mSubscriptionStateSequence: " + mSubscriptionStateSequence);
+
+        writer.println("VmsSubscriberService " + (mSubscriberService != null ? "" : "not")
+                + " registered.");
+        writer.println("mAvailableLayersSequence: " + mAvailableLayersSequence);
     }
 
     /**
-     * Updates the VMS HAL property with the given value.
+     * Consumes/produces HAL messages.
      *
-     * @param layer          layer data to update the hal property.
-     * @param hasSubscribers if it is a subscribe or unsubscribe message.
-     * @return true if the call to the HAL to update the property was successful.
+     * The format of these messages is defined in:
+     * hardware/interfaces/automotive/vehicle/2.0/types.hal
      */
-    public boolean setSubscriptionRequest(VmsLayer layer, boolean hasSubscribers) {
-        VehiclePropValue vehiclePropertyValue = toTypedVmsVehiclePropValueWithLayer(
-                hasSubscribers ? VmsMessageType.SUBSCRIBE : VmsMessageType.UNSUBSCRIBE, layer);
-        return setPropertyValue(vehiclePropertyValue);
-    }
+    @Override
+    public void handleHalEvents(List<VehiclePropValue> values) {
+        if (DBG) Log.d(TAG, "Handling a VMS property change");
+        for (VehiclePropValue v : values) {
+            ArrayList<Integer> vec = v.value.int32Values;
+            int messageType = vec.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
 
-    public boolean setSubscriptionToPublisherRequest(VmsLayer layer,
-                                                     int publisherId,
-                                                     boolean hasSubscribers) {
-        VehiclePropValue vehiclePropertyValue = toTypedVmsVehiclePropValueWithLayer(
-                hasSubscribers ?
-                        VmsMessageType.SUBSCRIBE_TO_PUBLISHER :
-                        VmsMessageType.UNSUBSCRIBE_TO_PUBLISHER, layer);
-        vehiclePropertyValue.value.int32Values.add(publisherId);
-        return setPropertyValue(vehiclePropertyValue);
-    }
-
-    public boolean setDataMessage(VmsLayer layer, byte[] payload) {
-        VehiclePropValue vehiclePropertyValue =
-                toTypedVmsVehiclePropValueWithLayer(VmsMessageType.DATA, layer);
-        VehiclePropValue.RawValue v = vehiclePropertyValue.value;
-        v.bytes.ensureCapacity(payload.length);
-        for (byte b : payload) {
-            v.bytes.add(b);
-        }
-        return setPropertyValue(vehiclePropertyValue);
-    }
-
-    public boolean notifyAvailabilityChangeToHal(VmsAvailableLayers availableLayers) {
-        VehiclePropValue vehiclePropertyValue =
-                toAvailabilityUpdateVehiclePropValue(
-                        availableLayers,
-                        VmsMessageType.AVAILABILITY_CHANGE);
-
-        return setPropertyValue(vehiclePropertyValue);
-    }
-
-    private boolean setPropertyValue(VehiclePropValue vehiclePropertyValue) {
-        if (mIsSupported) {
+            if (DBG) Log.d(TAG, "Received " + VmsMessageType.toString(messageType) + " message");
             try {
-                mVehicleHal.set(vehiclePropertyValue);
-                return true;
-            } catch (PropertyTimeoutException e) {
-                Log.e(CarLog.TAG_PROPERTY,
-                        "set, property not ready 0x" + toHexString(HAL_PROPERTY_ID));
+                switch (messageType) {
+                    case VmsMessageType.DATA:
+                        handleDataEvent(vec, toByteArray(v.value.bytes));
+                        break;
+                    case VmsMessageType.SUBSCRIBE:
+                        handleSubscribeEvent(vec);
+                        break;
+                    case VmsMessageType.UNSUBSCRIBE:
+                        handleUnsubscribeEvent(vec);
+                        break;
+                    case VmsMessageType.SUBSCRIBE_TO_PUBLISHER:
+                        handleSubscribeToPublisherEvent(vec);
+                        break;
+                    case VmsMessageType.UNSUBSCRIBE_TO_PUBLISHER:
+                        handleUnsubscribeFromPublisherEvent(vec);
+                        break;
+                    case VmsMessageType.OFFERING:
+                        handleOfferingEvent(vec);
+                        break;
+                    case VmsMessageType.AVAILABILITY_REQUEST:
+                        handleAvailabilityRequestEvent();
+                        break;
+                    case VmsMessageType.SUBSCRIPTIONS_REQUEST:
+                        handleSubscriptionsRequestEvent();
+                        break;
+                    default:
+                        Log.e(TAG, "Unexpected message type: " + messageType);
+                }
+            } catch (IndexOutOfBoundsException | RemoteException e) {
+                Log.e(TAG, "While handling: " + messageType, e);
             }
         }
-        return false;
     }
 
-    private static VehiclePropValue toTypedVmsVehiclePropValue(int messageType) {
+    /**
+     * DATA message format:
+     * <ul>
+     * <li>Message type
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Publisher ID
+     * <li>Payload
+     * </ul>
+     */
+    private void handleDataEvent(List<Integer> message, byte[] payload)
+            throws RemoteException {
+        VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
+        int publisherId = parsePublisherIdFromMessage(message);
+        if (DBG) {
+            Log.d(TAG,
+                    "Handling a data event for Layer: " + vmsLayer + " Publisher: " + publisherId);
+        }
+        mPublisherService.publish(mPublisherToken, vmsLayer, publisherId, payload);
+    }
+
+    /**
+     * SUBSCRIBE message format:
+     * <ul>
+     * <li>Message type
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * </ul>
+     */
+    private void handleSubscribeEvent(List<Integer> message) throws RemoteException {
+        VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
+        if (DBG) Log.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer);
+        mSubscriberService.addVmsSubscriber(mSubscriberClient, vmsLayer);
+    }
+
+    /**
+     * SUBSCRIBE_TO_PUBLISHER message format:
+     * <ul>
+     * <li>Message type
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Publisher ID
+     * </ul>
+     */
+    private void handleSubscribeToPublisherEvent(List<Integer> message)
+            throws RemoteException {
+        VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
+        int publisherId = parsePublisherIdFromMessage(message);
+        if (DBG) {
+            Log.d(TAG,
+                    "Handling a subscribe event for Layer: " + vmsLayer + " Publisher: "
+                            + publisherId);
+        }
+        mSubscriberService.addVmsSubscriberToPublisher(mSubscriberClient, vmsLayer, publisherId);
+    }
+
+    /**
+     * UNSUBSCRIBE message format:
+     * <ul>
+     * <li>Message type
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * </ul>
+     */
+    private void handleUnsubscribeEvent(List<Integer> message) throws RemoteException {
+        VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
+        if (DBG) Log.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer);
+        mSubscriberService.removeVmsSubscriber(mSubscriberClient, vmsLayer);
+    }
+
+    /**
+     * UNSUBSCRIBE_TO_PUBLISHER message format:
+     * <ul>
+     * <li>Message type
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Publisher ID
+     * </ul>
+     */
+    private void handleUnsubscribeFromPublisherEvent(List<Integer> message)
+            throws RemoteException {
+        VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
+        int publisherId = parsePublisherIdFromMessage(message);
+        if (DBG) {
+            Log.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer + " Publisher: "
+                    + publisherId);
+        }
+        mSubscriberService.removeVmsSubscriberToPublisher(mSubscriberClient, vmsLayer, publisherId);
+    }
+
+    /**
+     * OFFERING message format:
+     * <ul>
+     * <li>Message type
+     * <li>Publisher ID
+     * <li>Number of offerings.
+     * <li>Offerings (x number of offerings)
+     * <ul>
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Number of layer dependencies.
+     * <li>Layer dependencies (x number of layer dependencies)
+     * <ul>
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * </ul>
+     * </ul>
+     * </ul>
+     */
+    private void handleOfferingEvent(List<Integer> message) throws RemoteException {
+        // Publisher ID for OFFERING is stored at a different index than in other message types
+        int publisherId = message.get(VmsOfferingMessageIntegerValuesIndex.PUBLISHER_ID);
+        int numLayerDependencies =
+                message.get(
+                        VmsOfferingMessageIntegerValuesIndex.NUMBER_OF_OFFERS);
+        if (DBG) {
+            Log.d(TAG, "Handling an offering event of " + numLayerDependencies
+                    + " layers for Publisher: " + publisherId);
+        }
+
+        Set<VmsLayerDependency> offeredLayers = new ArraySet<>(numLayerDependencies);
+        int idx = VmsOfferingMessageIntegerValuesIndex.OFFERING_START;
+        for (int i = 0; i < numLayerDependencies; i++) {
+            VmsLayer offeredLayer = parseVmsLayerAtIndex(message, idx);
+            idx += NUM_INTEGERS_IN_VMS_LAYER;
+
+            int numDependenciesForLayer = message.get(idx++);
+            if (numDependenciesForLayer == 0) {
+                offeredLayers.add(new VmsLayerDependency(offeredLayer));
+            } else {
+                Set<VmsLayer> dependencies = new HashSet<>();
+
+                for (int j = 0; j < numDependenciesForLayer; j++) {
+                    VmsLayer dependantLayer = parseVmsLayerAtIndex(message, idx);
+                    idx += NUM_INTEGERS_IN_VMS_LAYER;
+                    dependencies.add(dependantLayer);
+                }
+                offeredLayers.add(new VmsLayerDependency(offeredLayer, dependencies));
+            }
+        }
+
+        VmsLayersOffering offering = new VmsLayersOffering(offeredLayers, publisherId);
+        VmsOperationRecorder.get().setHalPublisherLayersOffering(offering);
+        mPublisherService.setLayersOffering(mPublisherToken, offering);
+    }
+
+    /**
+     * AVAILABILITY_REQUEST message format:
+     * <ul>
+     * <li>Message type
+     * </ul>
+     */
+    private void handleAvailabilityRequestEvent() throws RemoteException {
+        setPropertyValue(
+                createAvailableLayersMessage(VmsMessageType.AVAILABILITY_RESPONSE,
+                        mSubscriberService.getAvailableLayers()));
+    }
+
+    /**
+     * SUBSCRIPTION_REQUEST message format:
+     * <ul>
+     * <li>Message type
+     * </ul>
+     */
+    private void handleSubscriptionsRequestEvent() throws RemoteException {
+        setPropertyValue(
+                createSubscriptionStateMessage(VmsMessageType.SUBSCRIPTIONS_RESPONSE,
+                        mPublisherService.getSubscriptions()));
+    }
+
+    private void setPropertyValue(VehiclePropValue vehicleProp) throws RemoteException {
+        int messageType = vehicleProp.value.int32Values.get(
+                VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
+
+        if (!mIsSupported) {
+            Log.w(TAG, "HAL unsupported while attempting to send "
+                    + VmsMessageType.toString(messageType));
+            return;
+        }
+
+        try {
+            mVehicleHal.set(vehicleProp);
+        } catch (PropertyTimeoutException e) {
+            Log.e(CarLog.TAG_PROPERTY,
+                    "set, property not ready 0x" + toHexString(HAL_PROPERTY_ID));
+            throw new RemoteException(
+                    "Timeout while sending " + VmsMessageType.toString(messageType));
+        }
+    }
+
+    /**
+     * Creates a DATA type {@link VehiclePropValue}.
+     *
+     * DATA message format:
+     * <ul>
+     * <li>Message type
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Publisher ID
+     * <li>Payload
+     * </ul>
+     *
+     * @param layer Layer for which message was published.
+     */
+    private static VehiclePropValue createDataMessage(VmsLayer layer, int publisherId,
+            byte[] payload) {
+        // Message type + layer
+        VehiclePropValue vehicleProp = createVmsMessageWithLayer(VmsMessageType.DATA, layer);
+        List<Integer> message = vehicleProp.value.int32Values;
+
+        // Publisher ID
+        message.add(publisherId);
+
+        // Payload
+        ArrayList<Byte> messagePayload = vehicleProp.value.bytes;
+        messagePayload.ensureCapacity(payload.length);
+        for (byte b : payload) {
+            messagePayload.add(b);
+        }
+        return vehicleProp;
+    }
+
+    /**
+     * Creates a SUBSCRIPTION_CHANGE or SUBSCRIPTION_RESPONSE type {@link VehiclePropValue}.
+     *
+     * Both message types have the same format:
+     * <ul>
+     * <li>Message type
+     * <li>Sequence number
+     * <li>Number of layers
+     * <li>Number of associated layers
+     * <li>Layers (x number of layers) (see {@link #appendLayer})
+     * <li>Associated layers (x number of associated layers) (see {@link #appendAssociatedLayer})
+     * </ul>
+     *
+     * @param messageType       Either SUBSCRIPTIONS_CHANGE or SUBSCRIPTIONS_RESPONSE.
+     * @param subscriptionState The subscription state to encode in the message.
+     */
+    private static VehiclePropValue createSubscriptionStateMessage(int messageType,
+            VmsSubscriptionState subscriptionState) {
+        // Message type
+        VehiclePropValue vehicleProp = createVmsMessage(messageType);
+        List<Integer> message = vehicleProp.value.int32Values;
+
+        // Sequence number
+        message.add(subscriptionState.getSequenceNumber());
+
+        Set<VmsLayer> layers = subscriptionState.getLayers();
+        Set<VmsAssociatedLayer> associatedLayers = subscriptionState.getAssociatedLayers();
+
+        // Number of layers
+        message.add(layers.size());
+        // Number of associated layers
+        message.add(associatedLayers.size());
+
+        // Layers
+        for (VmsLayer layer : layers) {
+            appendLayer(message, layer);
+        }
+
+        // Associated layers
+        for (VmsAssociatedLayer layer : associatedLayers) {
+            appendAssociatedLayer(message, layer);
+        }
+        return vehicleProp;
+    }
+
+    /**
+     * Creates an AVAILABILITY_CHANGE or AVAILABILITY_RESPONSE type {@link VehiclePropValue}.
+     *
+     * Both message types have the same format:
+     * <ul>
+     * <li>Message type
+     * <li>Sequence number.
+     * <li>Number of associated layers.
+     * <li>Associated layers (x number of associated layers) (see {@link #appendAssociatedLayer})
+     * </ul>
+     *
+     * @param messageType     Either AVAILABILITY_CHANGE or AVAILABILITY_RESPONSE.
+     * @param availableLayers The available layers to encode in the message.
+     */
+    private static VehiclePropValue createAvailableLayersMessage(int messageType,
+            VmsAvailableLayers availableLayers) {
+        // Message type
+        VehiclePropValue vehicleProp = createVmsMessage(messageType);
+        List<Integer> message = vehicleProp.value.int32Values;
+
+        // Sequence number
+        message.add(availableLayers.getSequence());
+
+        // Number of associated layers
+        message.add(availableLayers.getAssociatedLayers().size());
+
+        // Associated layers
+        for (VmsAssociatedLayer layer : availableLayers.getAssociatedLayers()) {
+            appendAssociatedLayer(message, layer);
+        }
+        return vehicleProp;
+    }
+
+    /**
+     * Creates a base {@link VehiclePropValue} of the requested message type, with no message fields
+     * populated.
+     *
+     * @param messageType Type of message, from {@link VmsMessageType}
+     */
+    private static VehiclePropValue createVmsMessage(int messageType) {
         VehiclePropValue vehicleProp = new VehiclePropValue();
         vehicleProp.prop = HAL_PROPERTY_ID;
         vehicleProp.areaId = VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
-        VehiclePropValue.RawValue v = vehicleProp.value;
-
-        v.int32Values.add(messageType);
+        vehicleProp.value.int32Values.add(messageType);
         return vehicleProp;
     }
 
     /**
-     * Creates a {@link VehiclePropValue}
+     * Creates a {@link VehiclePropValue} of the requested message type, with layer message fields
+     * populated. Other message fields are *not* populated.
+     *
+     * @param messageType Type of message, from {@link VmsMessageType}
+     * @param layer       Layer affected by message.
      */
-    private static VehiclePropValue toTypedVmsVehiclePropValueWithLayer(
+    private static VehiclePropValue createVmsMessageWithLayer(
             int messageType, VmsLayer layer) {
-        VehiclePropValue vehicleProp = toTypedVmsVehiclePropValue(messageType);
-        VehiclePropValue.RawValue v = vehicleProp.value;
-        v.int32Values.add(layer.getType());
-        v.int32Values.add(layer.getSubtype());
-        v.int32Values.add(layer.getVersion());
+        VehiclePropValue vehicleProp = createVmsMessage(messageType);
+        appendLayer(vehicleProp.value.int32Values, layer);
         return vehicleProp;
     }
 
-    private static VehiclePropValue toAvailabilityUpdateVehiclePropValue(
-            VmsAvailableLayers availableLayers, int messageType) {
-
-        if (!AVAILABILITY_MESSAGE_TYPES.contains(messageType)) {
-            throw new IllegalArgumentException("Unsupported availability type: " + messageType);
-        }
-        VehiclePropValue vehicleProp =
-                toTypedVmsVehiclePropValue(messageType);
-        populateAvailabilityPropValueFields(availableLayers, vehicleProp);
-        return vehicleProp;
-
+    /**
+     * Appends a {@link VmsLayer} to an encoded VMS message.
+     *
+     * Layer format:
+     * <ul>
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * </ul>
+     *
+     * @param message Message to append to.
+     * @param layer   Layer to append.
+     */
+    private static void appendLayer(List<Integer> message, VmsLayer layer) {
+        message.add(layer.getType());
+        message.add(layer.getSubtype());
+        message.add(layer.getVersion());
     }
 
-    private static void populateAvailabilityPropValueFields(
-            VmsAvailableLayers availableAssociatedLayers,
-            VehiclePropValue vehicleProp) {
-        VehiclePropValue.RawValue v = vehicleProp.value;
-        v.int32Values.add(availableAssociatedLayers.getSequence());
-        int numLayers = availableAssociatedLayers.getAssociatedLayers().size();
-        v.int32Values.add(numLayers);
-        for (VmsAssociatedLayer layer : availableAssociatedLayers.getAssociatedLayers()) {
-            v.int32Values.add(layer.getVmsLayer().getType());
-            v.int32Values.add(layer.getVmsLayer().getSubtype());
-            v.int32Values.add(layer.getVmsLayer().getVersion());
-            v.int32Values.add(layer.getPublisherIds().size());
-            for (int publisherId : layer.getPublisherIds()) {
-                v.int32Values.add(publisherId);
-            }
+    /**
+     * Appends a {@link VmsAssociatedLayer} to an encoded VMS message.
+     *
+     * AssociatedLayer format:
+     * <ul>
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Number of publishers
+     * <li>Publisher ID (x number of publishers)
+     * </ul>
+     *
+     * @param message Message to append to.
+     * @param layer   Layer to append.
+     */
+    private static void appendAssociatedLayer(List<Integer> message, VmsAssociatedLayer layer) {
+        message.add(layer.getVmsLayer().getType());
+        message.add(layer.getVmsLayer().getSubtype());
+        message.add(layer.getVmsLayer().getVersion());
+        message.add(layer.getPublisherIds().size());
+        for (int publisherId : layer.getPublisherIds()) {
+            message.add(publisherId);
         }
+    }
+
+    private static VmsLayer parseVmsLayerFromMessage(List<Integer> message) {
+        return parseVmsLayerAtIndex(message,
+                VmsMessageWithLayerIntegerValuesIndex.LAYER_TYPE);
+    }
+
+    private static VmsLayer parseVmsLayerAtIndex(List<Integer> message, int index) {
+        List<Integer> layerValues = message.subList(index, index + NUM_INTEGERS_IN_VMS_LAYER);
+        return new VmsLayer(layerValues.get(0), layerValues.get(1), layerValues.get(2));
+    }
+
+    private static int parsePublisherIdFromMessage(List<Integer> message) {
+        return message.get(VmsMessageWithLayerAndPublisherIdIntegerValuesIndex.PUBLISHER_ID);
     }
 }

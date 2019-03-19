@@ -28,7 +28,6 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_0.VmsAvailabilityStateIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
-import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsSubscriptionsStateIntegerValuesIndex;
 
 import androidx.test.filters.MediumTest;
@@ -106,13 +105,14 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
         assertTrue(mHalHandlerSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         // Validate response.
         ArrayList<Integer> v = mHalHandler.getValues();
-        int messageType = v.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
-        int sequenceNumber = v.get(VmsAvailabilityStateIntegerValuesIndex.SEQUENCE_NUMBER);
-        assertEquals(VmsMessageType.AVAILABILITY_CHANGE, messageType);
-        assertEquals(0, sequenceNumber);
+        assertEquals(VmsMessageType.AVAILABILITY_CHANGE,
+                (int) v.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE));
+        assertEquals(0, (int) v.get(VmsAvailabilityStateIntegerValuesIndex.SEQUENCE_NUMBER));
 
+        int sequenceNumber = 0;
         for (VmsLayer layer : layers) {
-            subscribeViaHal(layer);
+            sequenceNumber++;
+            subscribeViaHal(sequenceNumber, layer);
         }
         // Send subscription request.
         mHal.injectEvent(createHalSubscriptionRequest());
@@ -122,14 +122,15 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
 
         // Validate response.
         v = mHalHandler.getValues();
-        messageType = v.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
-        assertEquals(VmsMessageType.SUBSCRIPTIONS_RESPONSE, messageType);
-        sequenceNumber = v.get(VmsSubscriptionsStateIntegerValuesIndex.SEQUENCE_NUMBER);
-        int numberLayers = v.get(VmsSubscriptionsStateIntegerValuesIndex.NUMBER_OF_LAYERS);
-        assertEquals(layers.size(), numberLayers);
+        assertEquals(VmsMessageType.SUBSCRIPTIONS_RESPONSE,
+                (int) v.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE));
+        assertEquals(sequenceNumber,
+                (int) v.get(VmsSubscriptionsStateIntegerValuesIndex.SEQUENCE_NUMBER));
+        assertEquals(layers.size(),
+                (int) v.get(VmsSubscriptionsStateIntegerValuesIndex.NUMBER_OF_LAYERS));
         List<VmsLayer> receivedLayers = new ArrayList<>();
         int start = VmsSubscriptionsStateIntegerValuesIndex.SUBSCRIPTIONS_START;
-        int end = VmsSubscriptionsStateIntegerValuesIndex.SUBSCRIPTIONS_START + 3 * numberLayers;
+        int end = VmsSubscriptionsStateIntegerValuesIndex.SUBSCRIPTIONS_START + 3 * layers.size();
         while (start < end) {
             int type = v.get(start++);
             int subtype = v.get(start++);
@@ -140,23 +141,22 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
     }
 
     /**
-     * Subscribes to a layer, waits for the event to propagate back to the HAL layer and validates
-     * the propagated message.
+     * Subscribes to a layer, waits for the state change to propagate back to the HAL layer and
+     * validates the propagated message.
      */
-    private void subscribeViaHal(VmsLayer layer) throws Exception {
+    private void subscribeViaHal(int sequenceNumber, VmsLayer layer) throws Exception {
         // Send subscribe request.
         mHal.injectEvent(createHalSubscribeRequest(layer));
         // Wait for response.
         assertTrue(mHalHandlerSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         // Validate response.
         ArrayList<Integer> v = mHalHandler.getValues();
-        int messsageType = v.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
-        assertEquals(VmsMessageType.SUBSCRIBE, messsageType);
-        int layerId = v.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_TYPE);
-        int layerVersion = v.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_VERSION);
-        int fused = v.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_SUBTYPE);
-        assertEquals(layer.getType(), layerId);
-        assertEquals(layer.getVersion(), layerVersion);
+        assertEquals(VmsMessageType.SUBSCRIPTIONS_CHANGE,
+                (int) v.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE));
+        assertEquals(sequenceNumber,
+                (int) v.get(VmsSubscriptionsStateIntegerValuesIndex.SEQUENCE_NUMBER));
+        assertEquals(sequenceNumber,
+                (int) v.get(VmsSubscriptionsStateIntegerValuesIndex.NUMBER_OF_LAYERS));
     }
 
     private VehiclePropValue createHalSubscribeRequest(VmsLayer layer) {
