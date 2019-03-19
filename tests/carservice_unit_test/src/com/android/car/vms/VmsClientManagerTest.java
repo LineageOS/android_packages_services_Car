@@ -305,9 +305,13 @@ public class VmsClientManagerTest {
         connection.onServiceConnected(null, new Binder());
         connection.onServiceDisconnected(null);
 
+        verify(mContext).unbindService(connection);
         verify(mConnectionListener).onClientDisconnected(
                 eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
                         + ".VmsSystemClient U=0"));
+
+        Thread.sleep(10);
+        verifySystemBind(1);
     }
 
     @Test
@@ -319,7 +323,11 @@ public class VmsClientManagerTest {
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceDisconnected(null);
 
+        verify(mContext).unbindService(connection);
         verifyZeroInteractions(mConnectionListener);
+
+        Thread.sleep(10);
+        verifySystemBind(1);
     }
 
     @Test
@@ -332,9 +340,13 @@ public class VmsClientManagerTest {
         connection.onServiceConnected(null, new Binder());
         connection.onServiceDisconnected(null);
 
+        verify(mContext).unbindService(connection);
         verify(mConnectionListener).onClientDisconnected(
                 eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
                         + ".VmsUserClient U=10"));
+
+        Thread.sleep(10);
+        verifyUserBind(1);
     }
 
     @Test
@@ -346,7 +358,11 @@ public class VmsClientManagerTest {
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceDisconnected(null);
 
+        verify(mContext).unbindService(connection);
         verifyZeroInteractions(mConnectionListener);
+
+        Thread.sleep(10);
+        verifyUserBind(1);
     }
 
     @Test
