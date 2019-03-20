@@ -42,7 +42,7 @@ import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.trust.CarTrustAgentEnrollmentService;
+import com.android.car.trust.CarTrustedDeviceService;
 import com.android.car.user.CarUserService;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
@@ -86,7 +86,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarDiagnosticService mCarDiagnosticService;
     private final CarStorageMonitoringService mCarStorageMonitoringService;
     private final CarConfigurationService mCarConfigurationService;
-    private final CarTrustAgentEnrollmentService mCarTrustAgentEnrollmentService;
+    private final CarTrustedDeviceService mCarTrustedDeviceService;
     private final CarMediaService mCarMediaService;
     private final CarUserManagerHelper mUserManagerHelper;
     private final CarUserService mCarUserService;
@@ -156,10 +156,13 @@ public class ICarImpl extends ICar.Stub {
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
         mCarLocationService = new CarLocationService(mContext, mCarPropertyService,
                 mUserManagerHelper);
-        mCarTrustAgentEnrollmentService = new CarTrustAgentEnrollmentService(serviceContext);
+        mCarTrustedDeviceService = new CarTrustedDeviceService(serviceContext);
         mCarMediaService = new CarMediaService(serviceContext);
 
         CarLocalServices.addService(CarUserService.class, mCarUserService);
+        Log.d(TAG, "Adding CarTrustedDeviceService");
+        CarLocalServices.addService(CarTrustedDeviceService.class,
+                mCarTrustedDeviceService);
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
 
         // Be careful with order. Service depending on other service should be inited later.
@@ -187,7 +190,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mVmsClientManager);
         allServices.add(mVmsSubscriberService);
         allServices.add(mVmsPublisherService);
-        allServices.add(mCarTrustAgentEnrollmentService);
+        allServices.add(mCarTrustedDeviceService);
         allServices.add(mCarMediaService);
         allServices.add(mCarLocationService);
         mAllServices = allServices.toArray(new CarServiceBase[allServices.size()]);
@@ -301,7 +304,7 @@ public class ICarImpl extends ICar.Stub {
                 return mCarConfigurationService;
             case Car.CAR_TRUST_AGENT_ENROLLMENT_SERVICE:
                 assertTrustAgentEnrollmentPermission(mContext);
-                return mCarTrustAgentEnrollmentService;
+                return mCarTrustedDeviceService.getCarTrustAgentEnrollmentService();
             case Car.CAR_MEDIA_SERVICE:
                 return mCarMediaService;
             default:
