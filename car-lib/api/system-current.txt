@@ -945,7 +945,7 @@ package android.car.test {
 package android.car.trust {
 
   public final class CarTrustAgentEnrollmentManager {
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void enrollmentHandshakeAccepted();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void enrollmentHandshakeAccepted(android.bluetooth.BluetoothDevice);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) @NonNull public java.util.List<java.lang.Long> getEnrollmentHandlesForUser(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void initiateEnrollmentHandshake(android.bluetooth.BluetoothDevice);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public boolean isEscrowTokenActive(long, int);

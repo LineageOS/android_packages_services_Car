@@ -39,6 +39,7 @@ import java.util.UUID;
  */
 class CarTrustAgentBleManager extends BleManager {
     private static final String TAG = "CarTrustBLEManager";
+    private static final String CONFIRMATION_SIGNAL = "True";
     private CarTrustedDeviceService mCarTrustedDeviceService;
     private CarTrustAgentEnrollmentService mCarTrustAgentEnrollmentService;
     private CarTrustAgentUnlockService mCarTrustAgentUnlockService;
@@ -239,6 +240,22 @@ class CarTrustAgentBleManager extends BleManager {
         enrollmentHandle.setValue(Utils.longToBytes(handle));
         notifyCharacteristicChanged(device, enrollmentHandle, false);
     }
+
+    /**
+     * Sends the pairing code confirmation signal to the phone
+     *
+     * @param device the BLE peer device to send the signal to.
+     */
+    void sendPairingCodeConfirmation(BluetoothDevice device) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "sendPairingCodeConfirmation: " + device.getAddress());
+        }
+        BluetoothGattCharacteristic confirmation = mEnrollmentGattService.getCharacteristic(
+                mEnrollmentTokenHandleUuid);
+        confirmation.setValue(CONFIRMATION_SIGNAL.getBytes());
+        notifyCharacteristicChanged(device, confirmation, false);
+    }
+
 
     private final AdvertiseCallback mEnrollmentAdvertisingCallback = new AdvertiseCallback() {
         @Override
