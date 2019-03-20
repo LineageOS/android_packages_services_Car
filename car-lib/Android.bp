@@ -109,17 +109,6 @@ genrule {
     ],
 }
 
-genrule {
-    name: "android-car-last-released-test-api",
-    srcs: [
-        "api/test-released/*.txt",
-    ],
-    cmd: "cp -f $$(echo $(in) | tr \" \" \"\\n\" | sort -n | tail -1) $(genDir)/last-released-test-api.txt",
-    out: [
-        "last-released-test-api.txt",
-    ],
-}
-
 droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
