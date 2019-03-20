@@ -227,12 +227,9 @@ public class MainClusterActivity extends FragmentActivity implements
         mClusterViewModel.getSensor(Sensors.SENSOR_GEAR).observe(this, this::updateSelectedGear);
 
         registerSensor(findViewById(R.id.info_fuel), mClusterViewModel.getFuelLevel());
-        registerSensor(findViewById(R.id.info_speed),
-                mClusterViewModel.getSensor(Sensors.SENSOR_SPEED));
-        registerSensor(findViewById(R.id.info_range),
-                mClusterViewModel.getSensor(Sensors.SENSOR_FUEL_RANGE));
-        registerSensor(findViewById(R.id.info_rpm),
-                mClusterViewModel.getSensor(Sensors.SENSOR_RPM));
+        registerSensor(findViewById(R.id.info_speed), mClusterViewModel.getSpeed());
+        registerSensor(findViewById(R.id.info_range), mClusterViewModel.getRange());
+        registerSensor(findViewById(R.id.info_rpm), mClusterViewModel.getRPM());
 
         mActivityMonitor.start();
 
