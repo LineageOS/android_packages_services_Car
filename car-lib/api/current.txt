@@ -144,6 +144,7 @@ package android.car {
     field public static final int EV_CHARGE_PORT_OPEN = 287310602; // 0x1120030a
     field public static final int FOG_LIGHTS_STATE = 289410562; // 0x11400e02
     field public static final int FOG_LIGHTS_SWITCH = 289410578; // 0x11400e12
+    field public static final int FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME = 287311364; // 0x11200604
     field public static final int FUEL_DOOR_OPEN = 287310600; // 0x11200308
     field public static final int FUEL_LEVEL = 291504903; // 0x11600307
     field public static final int FUEL_LEVEL_LOW = 287310853; // 0x11200405

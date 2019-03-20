@@ -397,6 +397,9 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.EV_BATTERY_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
+        mProps.put(VehicleProperty.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME, new Pair<>(
+                Car.PERMISSION_READ_DISPLAY_UNITS,
+                Car.PERMISSION_CONTROL_DISPLAY_UNITS));
     }
 
     /**

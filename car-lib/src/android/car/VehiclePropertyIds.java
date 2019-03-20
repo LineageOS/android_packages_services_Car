@@ -295,6 +295,10 @@ public final class VehiclePropertyIds {
      */
     public static final int EV_BATTERY_DISPLAY_UNITS = 289408515;
     /**
+     * Fuel consumption units for display
+     */
+    public static final int FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME = 287311364;
+    /**
      * Outside temperature
      */
     public static final int ENV_OUTSIDE_TEMPERATURE = 291505923;
@@ -775,6 +779,9 @@ public final class VehiclePropertyIds {
         }
         if (o == EV_BATTERY_DISPLAY_UNITS) {
             return "EV_BATTERY_DISPLAY_UNITS";
+        }
+        if (o == FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME) {
+            return "FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME";
         }
         if (o == ENV_OUTSIDE_TEMPERATURE) {
             return "ENV_OUTSIDE_TEMPERATURE";
