@@ -16,8 +16,15 @@
 
 package com.android.car;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPowerStateListener;
+import android.car.userlib.CarUserManagerHelper;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
 import android.os.RemoteException;
@@ -52,6 +59,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     private final MockWakeLockInterface mWakeLockInterface = new MockWakeLockInterface();
     private final MockIOInterface mIOInterface = new MockIOInterface();
     private final PowerSignalListener mPowerSignalListener = new PowerSignalListener();
+    private CarUserManagerHelper mCarUserManagerHelper;
 
     private MockedPowerHalService mPowerHal;
     private SystemInterface mSystemInterface;
@@ -68,6 +76,10 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
             .withSystemStateInterface(mSystemStateInterface)
             .withWakeLockInterface(mWakeLockInterface)
             .withIOInterface(mIOInterface).build();
+        mCarUserManagerHelper = mock(CarUserManagerHelper.class);
+        doReturn(true).when(mCarUserManagerHelper).switchToUserId(anyInt());
+        doReturn(10).when(mCarUserManagerHelper).getInitialUser();
+        doReturn(10).when(mCarUserManagerHelper).getCurrentForegroundUserId();
     }
 
     @Override
@@ -83,7 +95,8 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
      * Helper method to create mService and initialize a test case
      */
     private void initTest(int wakeupTime) throws Exception {
-        mService = new CarPowerManagementService(getContext(), mPowerHal, mSystemInterface);
+        mService = new CarPowerManagementService(getContext(), mPowerHal, mSystemInterface,
+                mCarUserManagerHelper);
         mService.init();
         CarPowerManagementService.setShutdownPrepareTimeout(0);
         mPowerHal.setSignalListener(mPowerSignalListener);
@@ -103,7 +116,6 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         mSystemInterface.setDisplayState(false);
         mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS);
         initTest(0);
-
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
 
@@ -160,6 +172,13 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     public void testSleepEntryAndWakeUpForProcessing() throws Exception {
         final int wakeupTime = 100;
         initTest(wakeupTime);
+
+        // set up for user switching after display on
+        final int currentUserId = 10;
+        final int newUserId = 11;
+        doReturn(newUserId).when(mCarUserManagerHelper).getInitialUser();
+        doReturn(currentUserId).when(mCarUserManagerHelper).getCurrentForegroundUserId();
+
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
@@ -177,8 +196,12 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         mService.scheduleNextWakeupTime(wakeupTime);
         // second processing after wakeup
         assertFalse(mDisplayInterface.getDisplayState());
+        // do not skip user switching part.
+        mService.clearIsBooting();
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        // user switching should have been requested.
+        verify(mCarUserManagerHelper, times(1)).switchToUserId(newUserId);
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
         assertStateReceivedForShutdownOrSleepWithPostpone(

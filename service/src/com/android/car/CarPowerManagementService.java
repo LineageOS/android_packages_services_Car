@@ -19,6 +19,7 @@ import android.car.Car;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPower;
 import android.car.hardware.power.ICarPowerStateListener;
+import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.os.Handler;
@@ -29,6 +30,7 @@ import android.os.Message;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.car.hal.PowerHalService;
@@ -75,6 +77,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private int mNextWakeupSec = 0;
     private int mTokenValue = 1;
     private boolean mShutdownOnFinish = false;
+    private boolean mIsBooting = true;
+
+    private final CarUserManagerHelper mCarUserManagerHelper;
 
     // TODO:  Make this OEM configurable.
     private static final int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
@@ -96,10 +101,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     public CarPowerManagementService(
-            Context context, PowerHalService powerHal, SystemInterface systemInterface) {
+            Context context, PowerHalService powerHal, SystemInterface systemInterface,
+            CarUserManagerHelper carUserManagerHelper) {
         mContext = context;
         mHal = powerHal;
         mSystemInterface = systemInterface;
+        mCarUserManagerHelper = carUserManagerHelper;
     }
 
     /**
@@ -113,6 +120,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mSystemInterface = null;
         mHandlerThread = null;
         mHandler = new PowerHandler(Looper.getMainLooper());
+        mCarUserManagerHelper = null;
     }
 
     @VisibleForTesting
@@ -184,6 +192,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             handler = mHandler;
         }
         handler.handlePowerStateChange();
+    }
+
+    @VisibleForTesting
+    protected void clearIsBooting() {
+        mIsBooting = false;
     }
 
     /**
@@ -262,6 +275,17 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void handleOn() {
+        // Do not switch user if it is booting as there can be a race with CarServiceHelperService
+        if (mIsBooting) {
+            mIsBooting = false;
+        } else {
+            int targetUserId = mCarUserManagerHelper.getInitialUser();
+            if (targetUserId != UserHandle.USER_SYSTEM
+                    && targetUserId != mCarUserManagerHelper.getCurrentForegroundUserId()) {
+                Log.i(CarLog.TAG_POWER, "Desired user changed, switching to user:" + targetUserId);
+                mCarUserManagerHelper.switchToUserId(targetUserId);
+            }
+        }
         mSystemInterface.setDisplayState(true);
         sendPowerManagerEvent(CarPowerStateListener.ON);
         mHal.sendOn();
