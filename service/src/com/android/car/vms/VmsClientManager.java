@@ -313,6 +313,15 @@ public class VmsClientManager implements CarServiceBase {
             mBinder = null;
         }
 
+        void rebind() {
+            unbind();
+            if (DBG) {
+                Log.d(TAG,
+                        String.format("rebinding %s after %dms", mFullName, mMillisBeforeRebind));
+            }
+            mHandler.postDelayed(this::bind, mMillisBeforeRebind);
+        }
+
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             if (DBG) Log.d(TAG, "onServiceConnected: " + mFullName);
@@ -323,20 +332,13 @@ public class VmsClientManager implements CarServiceBase {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             if (DBG) Log.d(TAG, "onServiceDisconnected: " + mFullName);
-            if (mBinder != null) {
-                notifyListenersOnClientDisconnected(mFullName);
-            }
-            mBinder = null;
-            // No need to unbind and rebind, per onServiceDisconnected documentation:
-            // "binding to the service will remain active, and you will receive a call
-            // to onServiceConnected when the Service is next running"
+            rebind();
         }
 
         @Override
         public void onBindingDied(ComponentName name) {
             if (DBG) Log.d(TAG, "onBindingDied: " + mFullName);
-            unbind();
-            mHandler.postDelayed(this::bind, mMillisBeforeRebind);
+            rebind();
         }
 
         @Override

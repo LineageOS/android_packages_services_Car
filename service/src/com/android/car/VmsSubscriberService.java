@@ -27,6 +27,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.car.hal.VmsHalService;
+import com.android.car.vms.VmsBrokerService;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
@@ -41,14 +42,14 @@ import java.util.Set;
  * + Receives HAL updates by implementing VmsHalService.VmsHalListener.
  * + Offers subscriber/publisher services by implementing IVmsService.Stub.
  */
-public class VmsSubscriberService extends IVmsSubscriberService.Stub
-        implements CarServiceBase, VmsHalService.VmsHalSubscriberListener {
+public class VmsSubscriberService extends IVmsSubscriberService.Stub implements CarServiceBase,
+        VmsBrokerService.SubscriberListener {
     private static final boolean DBG = true;
     private static final String PERMISSION = Car.PERMISSION_VMS_SUBSCRIBER;
     private static final String TAG = "VmsSubscriberService";
 
     private final Context mContext;
-    private final VmsHalService mHal;
+    private final VmsBrokerService mBrokerService;
 
     @GuardedBy("mSubscriberServiceLock")
     private final VmsSubscribersManager mSubscribersManager = new VmsSubscribersManager();
@@ -90,7 +91,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
                 // Remove the subscriber subscriptions.
                 if (subscriber != null) {
                     Log.d(TAG, "Removing subscriptions for dead subscriber: " + subscriber);
-                    mHal.removeDeadSubscriber(subscriber);
+                    mBrokerService.removeDeadSubscriber(subscriber);
                 } else {
                     Log.d(TAG, "Handling dead binder with no matching subscriber");
 
@@ -195,24 +196,23 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         }
     }
 
-    public VmsSubscriberService(Context context, VmsHalService hal) {
+    public VmsSubscriberService(Context context, VmsBrokerService brokerService,
+            VmsHalService hal) {
         mContext = context;
-        mHal = hal;
+        mBrokerService = brokerService;
+        hal.setVmsSubscriberService(this);
     }
 
     // Implements CarServiceBase interface.
     @Override
     public void init() {
-        mHal.addSubscriberListener(this);
-
-        // Signal to subscribers that the SubscriberService is ready.
-        mHal.signalSubscriberServiceIsReady();
+        mBrokerService.addSubscriberListener(this);
     }
 
     @Override
     public void release() {
+        mBrokerService.removeSubscriberListener(this);
         mSubscribersManager.release();
-        mHal.removeSubscriberListener(this);
     }
 
     @Override
@@ -233,9 +233,6 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     public void removeVmsSubscriberToNotifications(IVmsSubscriberClient subscriber) {
         ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
-            if (mHal.containsSubscriber(subscriber)) {
-                throw new IllegalArgumentException("Subscriber has active subscriptions.");
-            }
             mSubscribersManager.remove(subscriber);
         }
     }
@@ -248,7 +245,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
             mSubscribersManager.add(subscriber);
 
             // Add the subscription for the layer.
-            mHal.addSubscription(subscriber, layer);
+            mBrokerService.addSubscription(subscriber, layer);
         }
     }
 
@@ -257,32 +254,32 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
-            mHal.removeSubscription(subscriber, layer);
+            mBrokerService.removeSubscription(subscriber, layer);
         }
     }
 
     @Override
     public void addVmsSubscriberToPublisher(IVmsSubscriberClient subscriber,
-                                            VmsLayer layer,
-                                            int publisherId) {
+            VmsLayer layer,
+            int publisherId) {
         ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             // Add the subscriber so it can subscribe.
             mSubscribersManager.add(subscriber);
 
             // Add the subscription for the layer.
-            mHal.addSubscription(subscriber, layer, publisherId);
+            mBrokerService.addSubscription(subscriber, layer, publisherId);
         }
     }
 
     @Override
     public void removeVmsSubscriberToPublisher(IVmsSubscriberClient subscriber,
-                                               VmsLayer layer,
-                                               int publisherId) {
+            VmsLayer layer,
+            int publisherId) {
         ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
-            mHal.removeSubscription(subscriber, layer, publisherId);
+            mBrokerService.removeSubscription(subscriber, layer, publisherId);
         }
     }
 
@@ -291,7 +288,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             mSubscribersManager.add(subscriber);
-            mHal.addSubscription(subscriber);
+            mBrokerService.addSubscription(subscriber);
         }
     }
 
@@ -300,7 +297,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
-            mHal.removeSubscription(subscriber);
+            mBrokerService.removeSubscription(subscriber);
         }
     }
 
@@ -308,25 +305,22 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     public byte[] getPublisherInfo(int publisherId) {
         ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
-            return mHal.getPublisherInfo(publisherId);
+            return mBrokerService.getPublisherInfo(publisherId);
         }
     }
 
     @Override
     public VmsAvailableLayers getAvailableLayers() {
-        return mHal.getAvailableLayers();
+        return mBrokerService.getAvailableLayers();
 
     }
 
-    // Implements VmsHalSubscriberListener interface
     @Override
-    public void onDataMessage(VmsLayer layer, int publisherId, byte[] payload) {
-        if (DBG) {
-            Log.d(TAG, "Publishing a message for layer: " + layer);
-        }
+    public void onMessageReceived(VmsLayer layer, int publisherId, byte[] payload) {
+        if (DBG) Log.d(TAG, "Publishing a message for layer: " + layer);
 
         Set<IVmsSubscriberClient> subscribers =
-                mHal.getSubscribersForLayerFromPublisher(layer, publisherId);
+                mBrokerService.getSubscribersForLayerFromPublisher(layer, publisherId);
 
         for (IVmsSubscriberClient subscriber : subscribers) {
             try {
@@ -340,10 +334,8 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     }
 
     @Override
-    public void onLayersAvaiabilityChange(VmsAvailableLayers availableLayers) {
-        if (DBG) {
-            Log.d(TAG, "Publishing layers availability change: " + availableLayers);
-        }
+    public void onLayersAvailabilityChange(VmsAvailableLayers availableLayers) {
+        if (DBG) Log.d(TAG, "Publishing layers availability change: " + availableLayers);
 
         Set<IVmsSubscriberClient> subscribers;
         subscribers = new HashSet<>(mSubscribersManager.getListeners());
