@@ -393,6 +393,14 @@ public final class Car {
     public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
 
     /**
+     * Permission necessary to access projection status.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CAR_PROJECTION_STATUS =
+            "android.car.permission.ACCESS_CAR_PROJECTION_STATUS";
+
+    /**
      * Permission necessary to mock vehicle hal for testing.
      * @hide
      * @deprecated mocking vehicle HAL in car service is no longer supported.

@@ -17,6 +17,7 @@ package android.car {
     field public static final String PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL = "android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
     field public static final String PERMISSION_CAR_POWER = "android.car.permission.CAR_POWER";
     field public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
+    field public static final String PERMISSION_CAR_PROJECTION_STATUS = "android.car.permission.ACCESS_CAR_PROJECTION_STATUS";
     field public static final String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
     field public static final String PERMISSION_CONTROL_APP_BLOCKING = "android.car.permission.CONTROL_APP_BLOCKING";
     field public static final String PERMISSION_CONTROL_CAR_CLIMATE = "android.car.permission.CONTROL_CAR_CLIMATE";
@@ -43,15 +44,19 @@ package android.car {
   }
 
   public final class CarProjectionManager {
-    method public void onCarDisconnected();
-    method public void registerProjectionListener(android.car.CarProjectionManager.CarProjectionListener, int);
-    method public void registerProjectionRunner(android.content.Intent);
-    method public boolean releaseBluetoothProfileInhibit(android.bluetooth.BluetoothDevice, int, android.os.IBinder);
-    method public boolean requestBluetoothProfileInhibit(android.bluetooth.BluetoothDevice, int, android.os.IBinder);
-    method public void startProjectionAccessPoint(android.car.CarProjectionManager.ProjectionAccessPointCallback);
-    method public void stopProjectionAccessPoint();
-    method public void unregisterProjectionListener();
-    method public void unregisterProjectionRunner(android.content.Intent);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) @NonNull public java.util.List<java.lang.Integer> getAvailableWifiChannels(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) @NonNull public android.os.Bundle getProjectionOptions();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionListener(@NonNull android.car.CarProjectionManager.CarProjectionListener, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionRunner(@NonNull android.content.Intent);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION_STATUS) public void registerProjectionStatusListener(@NonNull android.car.CarProjectionManager.ProjectionStatusListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean releaseBluetoothProfileInhibit(android.bluetooth.BluetoothDevice, int, android.os.IBinder);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean requestBluetoothProfileInhibit(@NonNull android.bluetooth.BluetoothDevice, int, @NonNull android.os.IBinder);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void startProjectionAccessPoint(@NonNull android.car.CarProjectionManager.ProjectionAccessPointCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void stopProjectionAccessPoint();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void unregisterProjectionListener();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void unregisterProjectionRunner(@NonNull android.content.Intent);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION_STATUS) public void unregisterProjectionStatusListener(@NonNull android.car.CarProjectionManager.ProjectionStatusListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void updateProjectionStatus(@NonNull android.car.projection.ProjectionStatus);
     field public static final int PROJECTION_LONG_PRESS_VOICE_SEARCH = 2; // 0x2
     field public static final int PROJECTION_VOICE_SEARCH = 1; // 0x1
   }
@@ -69,6 +74,10 @@ package android.car {
     field public static final int ERROR_INCOMPATIBLE_MODE = 3; // 0x3
     field public static final int ERROR_NO_CHANNEL = 1; // 0x1
     field public static final int ERROR_TETHERING_DISALLOWED = 4; // 0x4
+  }
+
+  public static interface CarProjectionManager.ProjectionStatusListener {
+    method public void onProjectionStatusChanged(int, @Nullable String, @NonNull java.util.List<android.car.projection.ProjectionStatus>);
   }
 
   public final class VehicleAreaDoor {
@@ -787,6 +796,66 @@ package android.car.navigation {
     field public static final int CLUSTER_TYPE_CUSTOM_IMAGES_SUPPORTED = 1; // 0x1
     field public static final int CLUSTER_TYPE_IMAGE_CODES_ONLY = 2; // 0x2
     field public static final android.os.Parcelable.Creator<android.car.navigation.CarNavigationInstrumentCluster> CREATOR;
+  }
+
+}
+
+package android.car.projection {
+
+  public class ProjectionOptions {
+    ctor public ProjectionOptions(android.os.Bundle);
+    method @Nullable public android.app.ActivityOptions getActivityOptions();
+    method @Nullable public android.content.ComponentName getConsentActivity();
+    method public int getUiMode();
+    method @NonNull public android.os.Bundle toBundle();
+    field public static final int UI_MODE_BLENDED = 1; // 0x1
+    field public static final int UI_MODE_FULL_SCREEN = 0; // 0x0
+  }
+
+  public final class ProjectionStatus implements android.os.Parcelable {
+    method @NonNull public static android.car.projection.ProjectionStatus.Builder builder(String, int);
+    method public int describeContents();
+    method @NonNull public java.util.List<android.car.projection.ProjectionStatus.MobileDevice> getConnectedMobileDevices();
+    method @NonNull public android.os.Bundle getExtras();
+    method @NonNull public String getPackageName();
+    method public int getState();
+    method public int getTransport();
+    method public boolean isActive();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.projection.ProjectionStatus> CREATOR;
+    field public static final int PROJECTION_STATE_ACTIVE_BACKGROUND = 3; // 0x3
+    field public static final int PROJECTION_STATE_ACTIVE_FOREGROUND = 2; // 0x2
+    field public static final int PROJECTION_STATE_INACTIVE = 0; // 0x0
+    field public static final int PROJECTION_STATE_READY_TO_PROJECT = 1; // 0x1
+    field public static final int PROJECTION_TRANSPORT_NONE = 0; // 0x0
+    field public static final int PROJECTION_TRANSPORT_USB = 1; // 0x1
+    field public static final int PROJECTION_TRANSPORT_WIFI = 2; // 0x2
+  }
+
+  public static final class ProjectionStatus.Builder {
+    method @NonNull public android.car.projection.ProjectionStatus.Builder addMobileDevice(android.car.projection.ProjectionStatus.MobileDevice);
+    method public android.car.projection.ProjectionStatus build();
+    method @NonNull public android.car.projection.ProjectionStatus.Builder setExtras(android.os.Bundle);
+    method @NonNull public android.car.projection.ProjectionStatus.Builder setProjectionTransport(int);
+  }
+
+  public static final class ProjectionStatus.MobileDevice implements android.os.Parcelable {
+    method @NonNull public static android.car.projection.ProjectionStatus.MobileDevice.Builder builder(int, String);
+    method public int describeContents();
+    method @NonNull public java.util.List<java.lang.Integer> getAvailableTransports();
+    method @NonNull public android.os.Bundle getExtras();
+    method public int getId();
+    method @NonNull public String getName();
+    method public boolean isProjecting();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.projection.ProjectionStatus.MobileDevice> CREATOR;
+  }
+
+  public static final class ProjectionStatus.MobileDevice.Builder {
+    method @NonNull public android.car.projection.ProjectionStatus.MobileDevice.Builder addTransport(int);
+    method @NonNull public android.car.projection.ProjectionStatus.MobileDevice build();
+    method @NonNull public android.car.projection.ProjectionStatus.MobileDevice.Builder setExtras(android.os.Bundle);
+    method @NonNull public android.car.projection.ProjectionStatus.MobileDevice.Builder setProjecting(boolean);
   }
 
 }

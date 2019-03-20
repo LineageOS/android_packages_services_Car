@@ -21,15 +21,24 @@ import android.car.CarProjectionManager;
 import android.car.CarProjectionManager.ProjectionAccessPointCallback;
 import android.car.ICarProjection;
 import android.car.ICarProjectionCallback;
+import android.car.ICarProjectionStatusListener;
+import android.car.projection.ProjectionOptions;
+import android.car.projection.ProjectionStatus;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.wifi.WifiConfiguration;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Fake implementation of {@link ICarProjection} interface.
@@ -44,6 +53,11 @@ class FakeCarProjectionService extends ICarProjection.Stub implements
     private WifiConfiguration mWifiConfiguration;
     private Messenger mApMessenger;
     private IBinder mApBinder;
+    private List<ICarProjectionStatusListener> mStatusListeners = new ArrayList<>();
+    private Map<IBinder, ProjectionStatus> mProjectionStatusMap = new HashMap<>();
+    private ProjectionStatus mCurrentProjectionStatus = ProjectionStatus.builder(
+            "", ProjectionStatus.PROJECTION_STATE_INACTIVE).build();
+    private ProjectionOptions mProjectionOptions;
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -55,6 +69,7 @@ class FakeCarProjectionService extends ICarProjection.Stub implements
 
     FakeCarProjectionService(Context context) {
         mContext = context;
+        mProjectionOptions = ProjectionOptions.builder().build();
     }
 
     @Override
@@ -118,7 +133,55 @@ class FakeCarProjectionService extends ICarProjection.Stub implements
     }
 
     @Override
+    public void updateProjectionStatus(ProjectionStatus status, IBinder token)
+            throws RemoteException {
+        mCurrentProjectionStatus = status;
+        mProjectionStatusMap.put(token, status);
+        notifyStatusListeners(status,
+                mStatusListeners.toArray(new ICarProjectionStatusListener[0]));
+    }
+
+    private void notifyStatusListeners(ProjectionStatus status,
+            ICarProjectionStatusListener... listeners) throws RemoteException {
+        for (ICarProjectionStatusListener listener : listeners) {
+            listener.onProjectionStatusChanged(
+                    status.getState(),
+                    status.getPackageName(),
+                    new ArrayList<>(mProjectionStatusMap.values()));
+        }
+    }
+
+    @Override
+    public void registerProjectionStatusListener(ICarProjectionStatusListener listener)
+            throws RemoteException {
+        mStatusListeners.add(listener);
+        notifyStatusListeners(mCurrentProjectionStatus, listener);
+    }
+
+    @Override
+    public void unregisterProjectionStatusListener(ICarProjectionStatusListener listener)
+            throws RemoteException {
+        mStatusListeners.remove(listener);
+    }
+
+    @Override
     public void setWifiConfiguration(WifiConfiguration wifiConfiguration) {
         mWifiConfiguration = wifiConfiguration;
+    }
+
+    @Override
+    public Bundle getProjectionOptions() throws RemoteException {
+        return mProjectionOptions.toBundle();
+    }
+
+    @Override
+    public int[] getAvailableWifiChannels(int band) throws RemoteException {
+        return new int[] {2412 /* Channel 1 */, 5180 /* Channel 36 */};
+    }
+
+
+    @Override
+    public void setProjectionOptions(ProjectionOptions projectionOptions) {
+        mProjectionOptions = projectionOptions;
     }
 }

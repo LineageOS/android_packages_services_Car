@@ -134,7 +134,7 @@ public class ICarImpl extends ICar.Stub {
                 mPerUserCarServiceHelper, mCarUXRestrictionsService);
         mCarInputService = new CarInputService(serviceContext, mHal.getInputHal());
         mCarProjectionService = new CarProjectionService(
-                serviceContext, mCarInputService, mCarBluetoothService);
+                serviceContext, null /* handler */, mCarInputService, mCarBluetoothService);
         mGarageModeService = new GarageModeService(mContext);
         mAppFocusService = new AppFocusService(serviceContext, mSystemActivityMonitoringService);
         mCarAudioService = new CarAudioService(serviceContext);
@@ -274,7 +274,6 @@ public class ICarImpl extends ICar.Stub {
                 assertClusterManagerPermission(mContext);
                 return mInstrumentClusterService.getManagerService();
             case Car.PROJECTION_SERVICE:
-                assertProjectionPermission(mContext);
                 return mCarProjectionService;
             case Car.VMS_SUBSCRIBER_SERVICE:
                 assertVmsSubscriberPermission(mContext);
@@ -347,6 +346,11 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertProjectionPermission(Context context) {
         assertPermission(context, Car.PERMISSION_CAR_PROJECTION);
+    }
+
+    /** Verify the calling context has the {@link Car#PERMISSION_CAR_PROJECTION_STATUS} */
+    public static void assertProjectionStatusPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_PROJECTION_STATUS);
     }
 
     public static void assertAnyDiagnosticPermission(Context context) {
@@ -471,6 +475,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_GARAGE_MODE = "garage-mode";
         private static final String COMMAND_GET_DO_ACTIVITIES = "get-do-activities";
         private static final String COMMAND_GET_CARPROPERTYCONFIG = "get-carpropertyconfig";
+        private static final String COMMAND_PROJECTION_UI_MODE = "projection-ui-mode";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -568,6 +573,13 @@ public class ICarImpl extends ICar.Stub {
                     String propertyId = args.length < 2 ? "" : args[1];
                     mHal.dumpPropertyConfigs(writer, propertyId);
                     break;
+                case COMMAND_PROJECTION_UI_MODE:
+                    if (args.length != 2) {
+                        writer.println("Incorrect number of arguments");
+                        dumpHelp(writer);
+                        break;
+                    }
+                    mCarProjectionService.setUiMode(Integer.valueOf(args[1]));
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
                     dumpHelp(writer);
