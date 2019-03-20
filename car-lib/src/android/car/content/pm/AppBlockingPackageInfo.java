@@ -31,7 +31,7 @@ import java.util.Arrays;
  * @hide
  */
 @SystemApi
-public class AppBlockingPackageInfo implements Parcelable {
+public final class AppBlockingPackageInfo implements Parcelable {
 
     /** Package name for the package to block or allow. */
     public final String packageName;
