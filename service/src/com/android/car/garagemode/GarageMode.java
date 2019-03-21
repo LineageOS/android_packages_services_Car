@@ -65,8 +65,9 @@ class GarageMode {
         mHandler = controller.getHandler();
 
         mRunnable = () -> {
-            if (areAnyIdleJobsRunning()) {
-                LOG.d("Some jobs are still running. Need to wait more ...");
+            int numberRunning = numberOfIdleJobsRunning();
+            if (numberRunning > 0) {
+                LOG.d("" + numberRunning + " jobs are still running. Need to wait more ...");
                 mHandler.postDelayed(mRunnable, JOB_SNAPSHOT_UPDATE_FREQUENCY_MS);
             } else {
                 LOG.d("No jobs are currently running.");
@@ -150,15 +151,15 @@ class GarageMode {
         mHandler.removeCallbacks(mRunnable);
     }
 
-    private boolean areAnyIdleJobsRunning() {
+    private int numberOfIdleJobsRunning() {
         List<JobInfo> startedJobs = mJobScheduler.getStartedJobs();
+        int count = 0;
         for (JobSnapshot snap : mJobScheduler.getAllJobSnapshots()) {
-            if (startedJobs.contains(snap.getJobInfo())) {
-                if (snap.getJobInfo().isRequireDeviceIdle()) {
-                    return true;
-                }
+            if (startedJobs.contains(snap.getJobInfo())
+                    && snap.getJobInfo().isRequireDeviceIdle()) {
+                count++;
             }
         }
-        return false;
+        return count;
     }
 }
