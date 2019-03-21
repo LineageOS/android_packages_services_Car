@@ -197,7 +197,7 @@ package android.car.cluster.renderer {
 
 package android.car.content.pm {
 
-  public class AppBlockingPackageInfo implements android.os.Parcelable {
+  public final class AppBlockingPackageInfo implements android.os.Parcelable {
     ctor public AppBlockingPackageInfo(String, int, int, int, @Nullable android.content.pm.Signature[], @Nullable String[]);
     ctor public AppBlockingPackageInfo(android.os.Parcel);
     method public int describeContents();
@@ -213,7 +213,7 @@ package android.car.content.pm {
     field public final android.content.pm.Signature[] signatures;
   }
 
-  public class CarAppBlockingPolicy implements android.os.Parcelable {
+  public final class CarAppBlockingPolicy implements android.os.Parcelable {
     ctor public CarAppBlockingPolicy(android.car.content.pm.AppBlockingPackageInfo[], android.car.content.pm.AppBlockingPackageInfo[]);
     ctor public CarAppBlockingPolicy(android.os.Parcel);
     method public int describeContents();
@@ -502,7 +502,7 @@ package android.car.diagnostic {
 
 package android.car.drivingstate {
 
-  public class CarDrivingStateEvent implements android.os.Parcelable {
+  public final class CarDrivingStateEvent implements android.os.Parcelable {
     ctor public CarDrivingStateEvent(int, long);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);

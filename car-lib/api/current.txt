@@ -262,7 +262,7 @@ package android.car.content.pm {
 
 package android.car.drivingstate {
 
-  public class CarUxRestrictions implements android.os.Parcelable {
+  public final class CarUxRestrictions implements android.os.Parcelable {
     ctor public CarUxRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public int describeContents();
     method @android.car.drivingstate.CarUxRestrictions.CarUxRestrictionsInfo public int getActiveRestrictions();
