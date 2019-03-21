@@ -38,20 +38,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Show Dialog"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/showDialogOnlyPositiveBT"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/setBackground" />
+
+    <Button
+        android:id="@+id/showDialogOnlyPositiveBT"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Dialog with only positive button"
+        app:layout_constraintBottom_toTopOf="@+id/showDialogWithCheckboxBT"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/showDialogBT" />
 
     <Button
         android:id="@+id/showDialogWithCheckboxBT"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Show Dialog With Checkbox"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/showToast"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/showDialogBT" />
+        app:layout_constraintTop_toBottomOf="@+id/showDialogOnlyPositiveBT" />
 
     <Button
         android:id="@+id/showToast"
@@ -61,7 +71,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/showDialogWithCheckboxBT" />
+        app:layout_constraintTop_toBottomOf="@+id/showDialogWithCheckboxBT" />
 
     <include layout="@layout/menu_button"/>
 
