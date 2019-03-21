@@ -60,12 +60,12 @@ public class Sensors {
             "RPM", VehiclePropertyIds.ENGINE_RPM, GLOBAL_AREA_ID,
             VehiclePropertyType.FLOAT,
             value -> (Float) value.getValue());
-    /** Fuel range in kilometers */
+    /** Fuel range in meters */
     public static final Sensor<Float> SENSOR_FUEL_RANGE = registerSensor(
             "Fuel Range", VehiclePropertyIds.RANGE_REMAINING, GLOBAL_AREA_ID,
             VehiclePropertyType.FLOAT,
             value -> (Float) value.getValue());
-    /** Speed in kph */
+    /** Speed in meters per second */
     public static final Sensor<Float> SENSOR_SPEED = registerSensor(
             "Speed", VehiclePropertyIds.PERF_VEHICLE_SPEED, GLOBAL_AREA_ID,
             VehiclePropertyType.FLOAT,

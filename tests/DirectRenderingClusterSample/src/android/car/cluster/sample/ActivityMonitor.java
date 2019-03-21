@@ -60,6 +60,10 @@ public class ActivityMonitor {
         }
 
         @Override
+        public void onForegroundServicesChanged(int pid, int uid, int fgServicetypes) {
+        }
+
+        @Override
         public void onProcessDied(int pid, int uid) {
             notifyTopActivities();
         }

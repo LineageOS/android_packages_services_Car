@@ -425,6 +425,10 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         }
 
         @Override
+        public void onForegroundServicesChanged(int pid, int uid, int fgServiceTypes) {
+        }
+
+        @Override
         public void onProcessDied(int pid, int uid) {
             mHandler.requestProcessDied(pid, uid);
         }

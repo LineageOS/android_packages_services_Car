@@ -16,11 +16,18 @@
 
 package android.car;
 
+import android.annotation.NonNull;
+import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.bluetooth.BluetoothDevice;
+import android.car.projection.ProjectionOptions;
+import android.car.projection.ProjectionStatus;
+import android.car.projection.ProjectionStatus.ProjectionState;
 import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -29,7 +36,14 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.android.internal.util.Preconditions;
+
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * CarProjectionManager allows applications implementing projection to register/unregister itself
@@ -43,6 +57,9 @@ import java.lang.ref.WeakReference;
 @SystemApi
 public final class CarProjectionManager implements CarManagerBase {
     private static final String TAG = CarProjectionManager.class.getSimpleName();
+
+    private final Binder mToken = new Binder();
+    private final Object mLock = new Object();
 
     /**
      * Listener to get projected notifications.
@@ -81,8 +98,28 @@ public final class CarProjectionManager implements CarManagerBase {
 
     private ProjectionAccessPointCallbackProxy mProjectionAccessPointCallbackProxy;
 
+    private final Set<ProjectionStatusListener> mProjectionStatusListeners = new LinkedHashSet<>();
+    private CarProjectionStatusListenerImpl mCarProjectionStatusListener;
+
     // Only one access point proxy object per process.
     private static final IBinder mAccessPointProxyToken = new Binder();
+
+    /**
+     * Interface to receive for projection status updates.
+     */
+    public interface ProjectionStatusListener {
+        /**
+         * This method gets invoked if projection status has been changed.
+         *
+         * @param state - current projection state
+         * @param packageName - if projection is currently running either in the foreground or
+         *                      in the background this argument will contain its package name
+         * @param details - contains detailed information about all currently registered projection
+         *                  receivers.
+         */
+        void onProjectionStatusChanged(@ProjectionState int state, @Nullable String packageName,
+                @NonNull List<ProjectionStatus> details);
+    }
 
     /**
      * @hide
@@ -107,11 +144,11 @@ public final class CarProjectionManager implements CarManagerBase {
      * @param listener
      * @param voiceSearchFilter Flags of voice search requests to get notification.
      */
-    public void registerProjectionListener(CarProjectionListener listener, int voiceSearchFilter) {
-        if (listener == null) {
-            throw new IllegalArgumentException("null listener");
-        }
-        synchronized (this) {
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public void registerProjectionListener(@NonNull CarProjectionListener listener,
+            int voiceSearchFilter) {
+        Preconditions.checkNotNull(listener, "listener cannot be null");
+        synchronized (mLock) {
             if (mListener == null || mVoiceSearchFilter != voiceSearchFilter) {
                 try {
                     mService.registerProjectionListener(mBinderListener, voiceSearchFilter);
@@ -135,8 +172,9 @@ public final class CarProjectionManager implements CarManagerBase {
     /**
      * Unregister listener and stop listening projection events.
      */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public void unregisterProjectionListener() {
-        synchronized (this) {
+        synchronized (mLock) {
             try {
                 mService.unregisterProjectionListener(mBinderListener);
             } catch (RemoteException e) {
@@ -152,11 +190,10 @@ public final class CarProjectionManager implements CarManagerBase {
      * to create reverse binding.
      * @param serviceIntent
      */
-    public void registerProjectionRunner(Intent serviceIntent) {
-        if (serviceIntent == null) {
-            throw new IllegalArgumentException("null serviceIntent");
-        }
-        synchronized (this) {
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public void registerProjectionRunner(@NonNull Intent serviceIntent) {
+        Preconditions.checkNotNull("serviceIntent cannot be null");
+        synchronized (mLock) {
             try {
                 mService.registerProjectionRunner(serviceIntent);
             } catch (RemoteException e) {
@@ -170,11 +207,10 @@ public final class CarProjectionManager implements CarManagerBase {
      * reverse binding.
      * @param serviceIntent
      */
-    public void unregisterProjectionRunner(Intent serviceIntent) {
-        if (serviceIntent == null) {
-            throw new IllegalArgumentException("null serviceIntent");
-        }
-        synchronized (this) {
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public void unregisterProjectionRunner(@NonNull Intent serviceIntent) {
+        Preconditions.checkNotNull("serviceIntent cannot be null");
+        synchronized (mLock) {
             try {
                 mService.unregisterProjectionRunner(serviceIntent);
             } catch (RemoteException e) {
@@ -183,6 +219,7 @@ public final class CarProjectionManager implements CarManagerBase {
         }
     }
 
+    /** @hide */
     @Override
     public void onCarDisconnected() {
         // nothing to do
@@ -194,9 +231,13 @@ public final class CarProjectionManager implements CarManagerBase {
      *
      * <p>A process can have only one request to start an access point, subsequent call of this
      * method will invalidate previous calls.
+     *
+     * @param callback to receive notifications when access point status changed for the request
      */
-    public void startProjectionAccessPoint(ProjectionAccessPointCallback callback) {
-        synchronized (this) {
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public void startProjectionAccessPoint(@NonNull ProjectionAccessPointCallback callback) {
+        Preconditions.checkNotNull(callback, "callback cannot be null");
+        synchronized (mLock) {
             Looper looper = mHandler.getLooper();
             ProjectionAccessPointCallbackProxy proxy =
                     new ProjectionAccessPointCallbackProxy(this, looper, callback);
@@ -210,11 +251,32 @@ public final class CarProjectionManager implements CarManagerBase {
     }
 
     /**
+     * Returns a list of available Wi-Fi channels. A channel is specified as frequency in MHz,
+     * e.g. channel 1 will be represented as 2412 in the list.
+     *
+     * @param band one of the values from {@code android.net.wifi.WifiScanner#WIFI_BAND_*}
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public @NonNull List<Integer> getAvailableWifiChannels(int band) {
+        try {
+            int[] channels = mService.getAvailableWifiChannels(band);
+            List<Integer> channelList = new ArrayList<>(channels.length);
+            for (int v : channels) {
+                channelList.add(v);
+            }
+            return channelList;
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
      * Stop Wi-Fi Access Point for wireless projection receiver app.
      */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public void stopProjectionAccessPoint() {
         ProjectionAccessPointCallbackProxy proxy;
-        synchronized (this) {
+        synchronized (mLock) {
             proxy = mProjectionAccessPointCallbackProxy;
             mProjectionAccessPointCallbackProxy = null;
         }
@@ -239,8 +301,11 @@ public final class CarProjectionManager implements CarManagerBase {
      *                owning the token dies, the request will automatically be released.
      * @return True if the profile was successfully inhibited, false if an error occurred.
      */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public boolean requestBluetoothProfileInhibit(
-            BluetoothDevice device, int profile, IBinder token) {
+            @NonNull BluetoothDevice device, int profile, @NonNull IBinder token) {
+        Preconditions.checkNotNull(device, "device cannot be null");
+        Preconditions.checkNotNull(token, "token cannot be null");
         try {
             return mService.requestBluetoothProfileInhibit(device, profile, token);
         } catch (RemoteException e) {
@@ -258,10 +323,115 @@ public final class CarProjectionManager implements CarManagerBase {
      *                {@link #requestBluetoothProfileInhibit}.
      * @return True if the request was released, false if an error occurred.
      */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public boolean releaseBluetoothProfileInhibit(
             BluetoothDevice device, int profile, IBinder token) {
+        Preconditions.checkNotNull(device, "device cannot be null");
+        Preconditions.checkNotNull(token, "token cannot be null");
         try {
             return mService.releaseBluetoothProfileInhibit(device, profile, token);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Call this method to report projection status of your app. The aggregated status (from other
+     * projection apps if available) will be broadcasted to interested parties.
+     *
+     * @param status the reported status that will be distributed to the interested listeners
+     *
+     * @see #registerProjectionListener(CarProjectionListener, int)
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public void updateProjectionStatus(@NonNull ProjectionStatus status) {
+        Preconditions.checkNotNull(status, "status cannot be null");
+        try {
+            mService.updateProjectionStatus(status, mToken);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Register projection status listener. See {@link ProjectionStatusListener} for details. It is
+     * allowed to register multiple listeners.
+     *
+     * <p>Note: provided listener will be called immediately with the most recent status.
+     *
+     * @param listener the listener to receive notification for any projection status changes
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION_STATUS)
+    public void registerProjectionStatusListener(@NonNull ProjectionStatusListener listener) {
+        Preconditions.checkNotNull(listener, "listener cannot be null");
+        synchronized (mLock) {
+            mProjectionStatusListeners.add(listener);
+
+            if (mCarProjectionStatusListener == null) {
+                mCarProjectionStatusListener = new CarProjectionStatusListenerImpl(this);
+                try {
+                    mService.registerProjectionStatusListener(mCarProjectionStatusListener);
+                } catch (RemoteException e) {
+                    throw e.rethrowFromSystemServer();
+                }
+            } else {
+                // Already subscribed to Car Service, immediately notify listener with the current
+                // projection status in the event handler thread.
+                mHandler.post(() ->
+                        listener.onProjectionStatusChanged(
+                                mCarProjectionStatusListener.mCurrentState,
+                                mCarProjectionStatusListener.mCurrentPackageName,
+                                mCarProjectionStatusListener.mDetails));
+            }
+        }
+    }
+
+    /**
+     * Unregister provided listener from projection status notifications
+     *
+     * @param listener the listener for projection status notifications that was previously
+     * registered with {@link #unregisterProjectionStatusListener(ProjectionStatusListener)}
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION_STATUS)
+    public void unregisterProjectionStatusListener(@NonNull ProjectionStatusListener listener) {
+        Preconditions.checkNotNull(listener, "listener cannot be null");
+        synchronized (mLock) {
+            if (!mProjectionStatusListeners.remove(listener)
+                    || !mProjectionStatusListeners.isEmpty()) {
+                return;
+            }
+            unregisterProjectionStatusListenerFromCarServiceLocked();
+        }
+    }
+
+    private void unregisterProjectionStatusListenerFromCarServiceLocked() {
+        try {
+            mService.unregisterProjectionStatusListener(mCarProjectionStatusListener);
+            mCarProjectionStatusListener = null;
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    private void handleProjectionStatusChanged(@ProjectionState int state,
+            String packageName, List<ProjectionStatus> details) {
+        List<ProjectionStatusListener> listeners;
+        synchronized (mLock) {
+            listeners = new ArrayList<>(mProjectionStatusListeners);
+        }
+        for (ProjectionStatusListener listener : listeners) {
+            listener.onProjectionStatusChanged(state, packageName, details);
+        }
+    }
+
+    /**
+     * Returns {@link Bundle} object that contains customization for projection app. This bundle
+     * can be parsed using {@link ProjectionOptions}.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public @NonNull Bundle getProjectionOptions() {
+        try {
+            return mService.getProjectionOptions();
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -345,7 +515,7 @@ public final class CarProjectionManager implements CarManagerBase {
 
     private void handleVoiceAssistantRequest(boolean fromLongPress) {
         CarProjectionListener listener;
-        synchronized (this) {
+        synchronized (mLock) {
             if (mListener == null) {
                 return;
             }
@@ -369,6 +539,36 @@ public final class CarProjectionManager implements CarManagerBase {
                 return;
             }
             manager.mHandler.post(() -> manager.handleVoiceAssistantRequest(fromLongPress));
+        }
+    }
+
+    private static class CarProjectionStatusListenerImpl
+            extends ICarProjectionStatusListener.Stub {
+
+        private @ProjectionState int mCurrentState;
+        private @Nullable String mCurrentPackageName;
+        private List<ProjectionStatus> mDetails = new ArrayList<>(0);
+
+        private final WeakReference<CarProjectionManager> mManagerRef;
+
+        private CarProjectionStatusListenerImpl(CarProjectionManager mgr) {
+            mManagerRef = new WeakReference<>(mgr);
+        }
+
+        @Override
+        public void onProjectionStatusChanged(int projectionState,
+                String packageName,
+                List<ProjectionStatus> details) {
+            CarProjectionManager mgr = mManagerRef.get();
+            if (mgr != null) {
+                mgr.mHandler.post(() -> {
+                    mCurrentState = projectionState;
+                    mCurrentPackageName = packageName;
+                    mDetails = Collections.unmodifiableList(details);
+
+                    mgr.handleProjectionStatusChanged(projectionState, packageName, mDetails);
+                });
+            }
         }
     }
 }

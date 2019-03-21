@@ -43,7 +43,8 @@ public final class VehicleUnit {
     public static final int KELVIN = 0x32;
     public static final int MILLILITER = 0x40;
     public static final int LITER = 0x41;
-    public static final int GALLON  = 0x42;
+    public static final int US_GALLON  = 0x42;
+    public static final int IMPERIAL_GALLON = 0x43;
     public static final int NANO_SECS = 0x50;
     public static final int SECS = 0x53;
     public static final int YEAR = 0x59;
@@ -74,7 +75,8 @@ public final class VehicleUnit {
             KELVIN,
             MILLILITER,
             LITER,
-            GALLON,
+            US_GALLON,
+            IMPERIAL_GALLON,
             NANO_SECS,
             SECS,
             YEAR,

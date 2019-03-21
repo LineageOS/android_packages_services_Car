@@ -17,8 +17,11 @@
 package android.car;
 
 import android.bluetooth.BluetoothDevice;
+import android.car.projection.ProjectionStatus;
 import android.car.ICarProjectionCallback;
+import android.car.ICarProjectionStatusListener;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Messenger;
 
 /**
@@ -69,4 +72,22 @@ interface ICarProjection {
     /** Undo the effects of requestBluetoothProfileInhibit. */
     boolean releaseBluetoothProfileInhibit(
             in BluetoothDevice device, in int profile, in IBinder token) = 7;
+
+    /** Reports projection status for a given projection receiver app. */
+    void updateProjectionStatus(in ProjectionStatus status, in IBinder token) = 8;
+
+    /** Registers projection status listener */
+    void registerProjectionStatusListener(in ICarProjectionStatusListener listener) = 9;
+
+    /** Unregister projection status listener */
+    void unregisterProjectionStatusListener(in ICarProjectionStatusListener listener) = 10;
+
+    /**
+     * Returns options for projection receiver app that can be un-packed using
+     * {@link android.car.projection.ProjectionOptions} class.
+     */
+    Bundle getProjectionOptions() = 11;
+
+    /** Returns a list of available Wi-Fi channels */
+    int[] getAvailableWifiChannels(int band) = 12;
 }

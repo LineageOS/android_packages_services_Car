@@ -40,4 +40,12 @@
     <dimen name="laneview_height">25dp</dimen>
     <dimen name="lane_width">50dp</dimen>
     <dimen name="lane_height">50dp</dimen>
+
+    <!--                                   -->
+    <!-- Sensor value conversion constants -->
+    <!--                                   -->
+    <!-- Speed: meters per second to kilometers per hour -->
+    <item name="speed_factor" format="float" type="dimen">3.6</item>
+    <!-- Distance: kilometers to meters -->
+    <item name="distance_factor" format="float" type="dimen">1000</item>
 </resources>
