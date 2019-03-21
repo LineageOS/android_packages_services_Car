@@ -18,12 +18,13 @@ package android.car.hardware.property;
 
 import static java.lang.Integer.toHexString;
 
+import android.annotation.FloatRange;
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.CarManagerBase;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.Log;
@@ -39,50 +40,69 @@ import java.util.function.Consumer;
 
 
 /**
- * API for creating Car*Manager
- * @hide
+ * Provides an application interface for interacting with the Vehicle specific properties.
+ * For details about the individual properties, see the descriptions in
+ * hardware/interfaces/automotive/vehicle/types.hal
+ * TODO: b/128354867
  */
 public class CarPropertyManager implements CarManagerBase {
+    private static final boolean DBG = false;
+    private static final String TAG = "CarPropertyManager";
+    private static final int MSG_GENERIC_EVENT = 0;
     private final List<CarPropertyConfig> mConfigs;
-    private final boolean mDbg;
     private final SingleMessageHandler<CarPropertyEvent> mHandler;
     private final ICarProperty mService;
-    private final String mTag;
-    private static final int MSG_GENERIC_EVENT = 0;
 
     private CarPropertyEventListenerToService mCarPropertyEventToService;
-
 
     /** Record of locally active properties. Key is propertyId */
     private final SparseArray<CarPropertyListeners> mActivePropertyListener =
             new SparseArray<>();
 
-    /** Callback functions for property events */
-    public interface CarPropertyEventListener {
-        /** Called when a property is updated */
+    /**
+     * Application registers {@link CarPropertyEventCallback} object to receive updates and changes
+     * to subscribed Vehicle specific properties.
+     */
+    public interface CarPropertyEventCallback {
+        /**
+         * Called when a property is updated
+         * @param value Property that has been updated.
+         */
         void onChangeEvent(CarPropertyValue value);
 
-        /** Called when an error is detected with a property */
+        /**
+         * Called when an error is detected with a property
+         * @param propId Property ID which is detected an error.
+         * @param zone Zone which is detected an error.
+         */
         void onErrorEvent(int propId, int zone);
     }
 
-    /** Read sensor in default normal rate set for each sensors. */
-    public static final float SENSOR_RATE_NORMAL = 1; // 1 hertz
+    /** Read ON_CHANGE sensors */
+    public static final float SENSOR_RATE_ONCHANGE = 0;
+    /** Read sensors at the rate of  1 hertz */
+    public static final float SENSOR_RATE_NORMAL = 1;
+    /** Read sensors at the rate of 5 hertz */
     public static final float SENSOR_RATE_UI = 5;
+    /** Read sensors at the rate of 10 hertz */
     public static final float SENSOR_RATE_FAST = 10;
+    /** Read sensors at the rate of 100 hertz */
     public static final float SENSOR_RATE_FASTEST = 100;
 
     /**
      * Get an instance of the CarPropertyManager.
+     *
+     * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
+     * @param service ICarProperty instance
+     * @param handler The handler to deal with CarPropertyEvent.
+     * @hide
      */
-    public CarPropertyManager(IBinder service, @Nullable Handler handler, boolean dbg, String tag) {
-        mDbg = dbg;
-        mTag = tag;
-        mService = ICarProperty.Stub.asInterface(service);
+    public CarPropertyManager(@NonNull ICarProperty service, @Nullable Handler handler) {
+        mService = service;
         try {
             mConfigs = mService.getPropertyList();
         } catch (Exception e) {
-            Log.e(mTag, "getPropertyList exception ", e);
+            Log.e(TAG, "getPropertyList exception ", e);
             throw new RuntimeException(e);
         }
         if (handler == null) {
@@ -90,13 +110,13 @@ public class CarPropertyManager implements CarManagerBase {
             return;
         }
         mHandler = new SingleMessageHandler<CarPropertyEvent>(handler.getLooper(),
-                MSG_GENERIC_EVENT) {
+            MSG_GENERIC_EVENT) {
             @Override
             protected void handleEvent(CarPropertyEvent event) {
                 CarPropertyListeners listeners;
                 synchronized (mActivePropertyListener) {
                     listeners = mActivePropertyListener.get(
-                            event.getCarPropertyValue().getPropertyId());
+                        event.getCarPropertyValue().getPropertyId());
                 }
                 if (listeners != null) {
                     switch (event.getEventType()) {
@@ -114,8 +134,20 @@ public class CarPropertyManager implements CarManagerBase {
         };
     }
 
-    /** Use to register or update Callback for properties */
-    public boolean registerListener(CarPropertyEventListener listener, int propertyId, float rate) {
+    /**
+     * Register {@link CarPropertyEventCallback} to get property updates. Multiple listeners
+     * can be registered for a single sensor or the same listener can be used for different sensors.
+     * If the same listener is registered again for the same sensor, it will be either ignored or
+     * updated depending on the rate.
+     *
+     * @param callback CarPropertyEventCallback to be registered.
+     * @param propertyId PropertyId to subscribe
+     * @param rate rate how fast the sensor events are delivered.
+     * @return if the sensor was successfully enabled.
+     * @throws SecurityException if missing the appropriate permission.
+     */
+    public boolean registerCallback(@NonNull CarPropertyEventCallback callback,
+            int propertyId, @FloatRange(from = 0.0, to = 100.0) float rate) {
         synchronized (mActivePropertyListener) {
             if (mCarPropertyEventToService == null) {
                 mCarPropertyEventToService = new CarPropertyEventListenerToService(this);
@@ -128,7 +160,7 @@ public class CarPropertyManager implements CarManagerBase {
                 mActivePropertyListener.put(propertyId, listeners);
                 needsServerUpdate = true;
             }
-            if (listeners.addAndUpdateRate(listener, rate)) {
+            if (listeners.addAndUpdateRate(callback, rate)) {
                 needsServerUpdate = true;
             }
             if (needsServerUpdate) {
@@ -172,35 +204,36 @@ public class CarPropertyManager implements CarManagerBase {
     }
 
     /**
-     * Stop getting sensor update for the given listener. If there are multiple registrations for
-     * this listener, all listening will be stopped.
-     * @param listener
+     * Stop getting property update for the given callback. If there are multiple registrations for
+     * this callback, all listening will be stopped.
+     * @param callback CarPropertyEventCallback to be unregistered.
      */
-    public void unregisterListener(CarPropertyEventListener listener) {
+    public void unregisterCallback(@NonNull CarPropertyEventCallback callback) {
         synchronized (mActivePropertyListener) {
             int [] propertyIds = new int[mActivePropertyListener.size()];
             for (int i = 0; i < mActivePropertyListener.size(); i++) {
                 propertyIds[i] = mActivePropertyListener.keyAt(i);
             }
             for (int prop : propertyIds) {
-                doUnregisterListenerLocked(listener, prop);
+                doUnregisterListenerLocked(callback, prop);
             }
         }
     }
 
     /**
-     * Stop getting sensor update for the given listener and sensor. If the same listener is used
-     * for other sensors, those subscriptions will not be affected.
-     * @param listener
-     * @param propertyId
+     * Stop getting property update for the given callback and property. If the same callback is
+     * used for other properties, those subscriptions will not be affected.
+     *
+     * @param callback CarPropertyEventCallback to be unregistered.
+     * @param propertyId PropertyId to be unregistered.
      */
-    public void unregisterListener(CarPropertyEventListener listener, int propertyId) {
+    public void unregisterCallback(@NonNull CarPropertyEventCallback callback, int propertyId) {
         synchronized (mActivePropertyListener) {
-            doUnregisterListenerLocked(listener, propertyId);
+            doUnregisterListenerLocked(callback, propertyId);
         }
     }
 
-    private void doUnregisterListenerLocked(CarPropertyEventListener listener, int propertyId) {
+    private void doUnregisterListenerLocked(CarPropertyEventCallback listener, int propertyId) {
         CarPropertyListeners listeners = mActivePropertyListener.get(propertyId);
         if (listeners != null) {
             boolean needsServerUpdate = false;
@@ -223,15 +256,18 @@ public class CarPropertyManager implements CarManagerBase {
     /**
      * @return List of properties implemented by this car that the application may access.
      */
+    @NonNull
     public List<CarPropertyConfig> getPropertyList() {
         return mConfigs;
     }
 
     /**
+     * @param propertyIds property ID list
      * @return List of properties implemented by this car in given property ID list that application
      *          may access.
      */
-    public List<CarPropertyConfig> getPropertyList(ArraySet<Integer> propertyIds) {
+    @NonNull
+    public List<CarPropertyConfig> getPropertyList(@NonNull ArraySet<Integer> propertyIds) {
         List<CarPropertyConfig> configs = new ArrayList<>();
         for (CarPropertyConfig c : mConfigs) {
             if (propertyIds.contains(c.getPropertyId())) {
@@ -242,14 +278,16 @@ public class CarPropertyManager implements CarManagerBase {
     }
 
     /**
+     * Return read permission string for given property ID.
      *
      * @param propId Property ID to query
-     *
      * @return String Permission needed to read this property.  NULL if propId not available.
+     * @hide
      */
+    @Nullable
     public String getReadPermission(int propId) {
-        if (mDbg) {
-            Log.d(mTag, "getReadPermission, propId: 0x" + toHexString(propId));
+        if (DBG) {
+            Log.d(TAG, "getReadPermission, propId: 0x" + toHexString(propId));
         }
         try {
             return mService.getReadPermission(propId);
@@ -259,14 +297,16 @@ public class CarPropertyManager implements CarManagerBase {
     }
 
     /**
+     * Return write permission string for given property ID.
      *
      * @param propId Property ID to query
-     *
      * @return String Permission needed to write this property.  NULL if propId not available.
+     * @hide
      */
+    @Nullable
     public String getWritePermission(int propId) {
-        if (mDbg) {
-            Log.d(mTag, "getWritePermission, propId: 0x" + toHexString(propId));
+        if (DBG) {
+            Log.d(TAG, "getWritePermission, propId: 0x" + toHexString(propId));
         }
         try {
             return mService.getWritePermission(propId);
@@ -275,8 +315,11 @@ public class CarPropertyManager implements CarManagerBase {
         }
     }
 
+
     /**
      * Check whether a given property is available or disabled based on the car's current state.
+     * @param propId Property Id
+     * @param area AreaId of property
      * @return true if STATUS_AVAILABLE, false otherwise (eg STATUS_UNAVAILABLE)
      */
     public boolean isPropertyAvailable(int propId, int area) {
@@ -294,6 +337,7 @@ public class CarPropertyManager implements CarManagerBase {
      *
      * @param prop Property ID to get
      * @param area Area of the property to get
+     * @return value of a bool property.
      */
     public boolean getBooleanProperty(int prop, int area) {
         CarPropertyValue<Boolean> carProp = getProperty(Boolean.class, prop, area);
@@ -328,6 +372,7 @@ public class CarPropertyManager implements CarManagerBase {
      * @param prop Property ID to get
      * @param area Zone of the property to get
      */
+    @NonNull
     public int[] getIntArrayProperty(int prop, int area) {
         CarPropertyValue<Integer[]> carProp = getProperty(Integer[].class, prop, area);
         return carProp != null ? toIntArray(carProp.getValue()) : new int[0];
@@ -342,15 +387,24 @@ public class CarPropertyManager implements CarManagerBase {
         return arr;
     }
 
-    /** Return CarPropertyValue */
+    /**
+     * Return CarPropertyValue
+     *
+     * @param clazz The class object for the CarPropertyValue
+     * @param propId Property ID to get
+     * @param areaId Zone of the property to get
+     * @throws IllegalArgumentException if there is invalid property type.
+     * @return CarPropertyValue. Null if property's id is invalid.
+     */
     @SuppressWarnings("unchecked")
-    public <E> CarPropertyValue<E> getProperty(Class<E> clazz, int propId, int area) {
-        if (mDbg) {
-            Log.d(mTag, "getProperty, propId: 0x" + toHexString(propId)
-                    + ", area: 0x" + toHexString(area) + ", class: " + clazz);
+    @Nullable
+    public <E> CarPropertyValue<E> getProperty(@NonNull Class<E> clazz, int propId, int areaId) {
+        if (DBG) {
+            Log.d(TAG, "getProperty, propId: 0x" + toHexString(propId)
+                    + ", areaId: 0x" + toHexString(areaId) + ", class: " + clazz);
         }
         try {
-            CarPropertyValue<E> propVal = mService.getProperty(propId, area);
+            CarPropertyValue<E> propVal = mService.getProperty(propId, areaId);
             if (propVal != null && propVal.getValue() != null) {
                 Class<?> actualClass = propVal.getValue().getClass();
                 if (actualClass != clazz) {
@@ -364,24 +418,40 @@ public class CarPropertyManager implements CarManagerBase {
         }
     }
 
-    /** Return raw CarPropertyValue */
-    public <E> CarPropertyValue<E> getProperty(int propId, int area) {
+    /**
+     * Query CarPropertyValue with property id and areaId.
+     * @param propId Property Id
+     * @param areaId areaId
+     * @param <E>
+     * @return CarPropertyValue. Null if property's id is invalid.
+     */
+    @Nullable
+    public <E> CarPropertyValue<E> getProperty(int propId, int areaId) {
         try {
-            CarPropertyValue<E> propVal = mService.getProperty(propId, area);
+            CarPropertyValue<E> propVal = mService.getProperty(propId, areaId);
             return propVal;
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
     }
 
-    /** Set CarPropertyValue */
-    public <E> void setProperty(Class<E> clazz, int propId, int area, E val) {
-        if (mDbg) {
-            Log.d(mTag, "setProperty, propId: 0x" + toHexString(propId)
-                    + ", area: 0x" + toHexString(area) + ", class: " + clazz + ", val: " + val);
+    /**
+     * Set value of car property by areaId.
+     * @param clazz The class object for the CarPropertyValue
+     * @param propId Property ID
+     * @param areaId areaId
+     * @param val Value of CarPropertyValue
+     * @param <E> data type of the given property, for example property that was
+     * defined as {@code VEHICLE_VALUE_TYPE_INT32} in vehicle HAL could be accessed using
+     * {@code Integer.class}
+     */
+    public <E> void setProperty(@NonNull Class<E> clazz, int propId, int areaId, @NonNull E val) {
+        if (DBG) {
+            Log.d(TAG, "setProperty, propId: 0x" + toHexString(propId)
+                    + ", areaId: 0x" + toHexString(areaId) + ", class: " + clazz + ", val: " + val);
         }
         try {
-            mService.setProperty(new CarPropertyValue<>(propId, area, val));
+            mService.setProperty(new CarPropertyValue<>(propId, areaId, val));
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -392,24 +462,37 @@ public class CarPropertyManager implements CarManagerBase {
      * generated and propagated back to the application.
      *
      * @param prop Property ID to modify
-     * @param area Area to apply the modification.
+     * @param areaId AreaId to apply the modification.
      * @param val Value to set
      */
-    public void setBooleanProperty(int prop, int area, boolean val) {
-        setProperty(Boolean.class, prop, area, val);
+    public void setBooleanProperty(int prop, int areaId, boolean val) {
+        setProperty(Boolean.class, prop, areaId, val);
     }
 
-    /** Set float value of property*/
-    public void setFloatProperty(int prop, int area, float val) {
-        setProperty(Float.class, prop, area, val);
+    /**
+     * Set float value of property
+     *
+     * @param prop Property ID to modify
+     * @param areaId AreaId to apply the modification
+     * @param val Value to set
+     */
+    public void setFloatProperty(int prop, int areaId, float val) {
+        setProperty(Float.class, prop, areaId, val);
     }
-    /** Set int value of property*/
-    public void setIntProperty(int prop, int area, int val) {
-        setProperty(Integer.class, prop, area, val);
+
+    /**
+     * Set int value of property
+     *
+     * @param prop Property ID to modify
+     * @param areaId AreaId to apply the modification
+     * @param val Value to set
+     */
+    public void setIntProperty(int prop, int areaId, int val) {
+        setProperty(Integer.class, prop, areaId, val);
     }
 
 
-    private class CarPropertyListeners extends CarRatedFloatListeners<CarPropertyEventListener> {
+    private class CarPropertyListeners extends CarRatedFloatListeners<CarPropertyEventCallback> {
         CarPropertyListeners(float rate) {
             super(rate);
         }
@@ -417,17 +500,17 @@ public class CarPropertyManager implements CarManagerBase {
             // throw away old sensor data as oneway binder call can change order.
             long updateTime = event.getCarPropertyValue().getTimestamp();
             if (updateTime < mLastUpdateTime) {
-                Log.w(mTag, "dropping old property data");
+                Log.w(TAG, "dropping old property data");
                 return;
             }
             mLastUpdateTime = updateTime;
-            List<CarPropertyEventListener> listeners;
+            List<CarPropertyEventCallback> listeners;
             synchronized (mActivePropertyListener) {
                 listeners = new ArrayList<>(getListeners());
             }
-            listeners.forEach(new Consumer<CarPropertyEventListener>() {
+            listeners.forEach(new Consumer<CarPropertyEventCallback>() {
                 @Override
-                public void accept(CarPropertyEventListener listener) {
+                public void accept(CarPropertyEventCallback listener) {
                     if (needUpdate(listener, updateTime)) {
                         listener.onChangeEvent(event.getCarPropertyValue());
                     }
@@ -436,14 +519,14 @@ public class CarPropertyManager implements CarManagerBase {
         }
 
         void onErrorEvent(final CarPropertyEvent event) {
-            List<CarPropertyEventListener> listeners;
+            List<CarPropertyEventCallback> listeners;
             CarPropertyValue value = event.getCarPropertyValue();
             synchronized (mActivePropertyListener) {
                 listeners = new ArrayList<>(getListeners());
             }
-            listeners.forEach(new Consumer<CarPropertyEventListener>() {
+            listeners.forEach(new Consumer<CarPropertyEventCallback>() {
                 @Override
-                public void accept(CarPropertyEventListener listener) {
+                public void accept(CarPropertyEventCallback listener) {
                     listener.onErrorEvent(value.getPropertyId(), value.getAreaId());
                 }
             });
