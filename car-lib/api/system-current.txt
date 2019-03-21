@@ -900,7 +900,7 @@ package android.car.trust {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) @NonNull public java.util.List<java.lang.Long> getEnrollmentHandlesForUser(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void initiateEnrollmentHandshake(android.bluetooth.BluetoothDevice);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public boolean isEscrowTokenActive(long, int);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void revokeTrust(long);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeEscrowToken(long, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setBleCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setEnrollmentCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void startEnrollmentAdvertising();
@@ -920,7 +920,7 @@ package android.car.trust {
     method public void onEnrollmentHandshakeFailure(android.bluetooth.BluetoothDevice, int);
     method public void onEscrowTokenActiveStateChanged(long, boolean);
     method public void onEscrowTokenAdded(long);
-    method public void onTrustRevoked(long, boolean);
+    method public void onEscrowTokenRemoved(long);
   }
 
 }

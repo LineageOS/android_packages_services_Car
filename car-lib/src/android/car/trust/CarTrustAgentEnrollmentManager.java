@@ -70,7 +70,6 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
     private static final String TAG = "CarTrustEnrollMgr";
     private static final String KEY_HANDLE = "handle";
     private static final String KEY_ACTIVE = "active";
-    private static final String KEY_SUCCESS = "success";
     private static final int MSG_ENROLL_ADVERTISING_STARTED = 0;
     private static final int MSG_ENROLL_ADVERTISING_FAILED = 1;
     private static final int MSG_ENROLL_DEVICE_CONNECTED = 2;
@@ -78,8 +77,8 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
     private static final int MSG_ENROLL_HANDSHAKE_FAILURE = 4;
     private static final int MSG_ENROLL_AUTH_STRING_AVAILABLE = 5;
     private static final int MSG_ENROLL_TOKEN_ADDED = 6;
-    private static final int MSG_ENROLL_TOKEN_REVOKED = 7;
-    private static final int MSG_ENROLL_TOKEN_STATE_CHANGED = 8;
+    private static final int MSG_ENROLL_TOKEN_STATE_CHANGED = 7;
+    private static final int MSG_ENROLL_TOKEN_REMOVED = 8;
 
     private final Context mContext;
     private final ICarTrustAgentEnrollment mEnrollmentService;
@@ -181,7 +180,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      * callbacks.  This method provides a way to query for the token state at a later point of time.
      *
      * @param handle the handle corresponding to the escrow token
-     * @param uid user id associated with the token
+     * @param uid    user id associated with the token
      * @return true if the token is active, false if not
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
@@ -194,17 +193,14 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
     }
 
     /**
-     * Revoke trust for the remote device denoted by the handle.
+     * Remove the escrow token that is associated with the given handle and uid.
      *
      * @param handle the handle associated with the escrow token
+     * @param uid    user id associated with the token
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void revokeTrust(long handle) {
-        try {
-            mEnrollmentService.revokeTrust(handle);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        }
+    public void removeEscrowToken(long handle, int uid) {
+        //TODO:(b/128857992) need to call method in CarTrustAgentEnrollmentService
     }
 
     /**
@@ -342,12 +338,14 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         void onEscrowTokenAdded(long handle);
 
         /**
-         * Escrow token corresponding to the given handle has been removed.
+         * Escrow token was removed as a result of a call to {@link #removeEscrowToken(long handle,
+         * int uid)}. The peer device associated with this token is not trusted for authentication
+         * anymore.
          *
-         * @param handle  the handle associated with the escrow token.
-         * @param success status of the revoke operation.
+         * @param handle the handle associated with the escrow token.
          */
-        void onTrustRevoked(long handle, boolean success);
+        void onEscrowTokenRemoved(long handle);
+
 
         /**
          * Escrow token's active state changed.
@@ -439,19 +437,18 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         }
 
         /**
-         * Escrow token corresponding to the given handle has been removed.
+         * Escrow token was removed.
          */
         @Override
-        public void onTrustRevoked(long handle, boolean success) {
+        public void onEscrowTokenRemoved(long handle) {
             CarTrustAgentEnrollmentManager enrollmentManager = mMgr.get();
             if (enrollmentManager == null) {
                 return;
             }
             Message message = enrollmentManager.getEventCallbackHandler().obtainMessage(
-                    MSG_ENROLL_TOKEN_REVOKED);
+                    MSG_ENROLL_TOKEN_REMOVED);
             Bundle data = new Bundle();
             data.putLong(KEY_HANDLE, handle);
-            data.putBoolean(KEY_SUCCESS, success);
             message.setData(data);
             enrollmentManager.getEventCallbackHandler().sendMessage(message);
         }
@@ -565,8 +562,8 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
                 case MSG_ENROLL_HANDSHAKE_FAILURE:
                 case MSG_ENROLL_AUTH_STRING_AVAILABLE:
                 case MSG_ENROLL_TOKEN_ADDED:
-                case MSG_ENROLL_TOKEN_REVOKED:
                 case MSG_ENROLL_TOKEN_STATE_CHANGED:
+                case MSG_ENROLL_TOKEN_REMOVED:
                     enrollmentManager.dispatchEnrollmentCallback(message);
                     break;
                 default:
@@ -640,14 +637,6 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
                 }
                 enrollmentCallback.onEscrowTokenAdded(data.getLong(KEY_HANDLE));
                 break;
-            case MSG_ENROLL_TOKEN_REVOKED:
-                data = message.getData();
-                if (data == null) {
-                    break;
-                }
-                enrollmentCallback.onTrustRevoked(data.getLong(KEY_HANDLE),
-                        data.getBoolean(KEY_SUCCESS));
-                break;
             case MSG_ENROLL_TOKEN_STATE_CHANGED:
                 data = message.getData();
                 if (data == null) {
@@ -655,6 +644,13 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
                 }
                 enrollmentCallback.onEscrowTokenActiveStateChanged(data.getLong(KEY_HANDLE),
                         data.getBoolean(KEY_ACTIVE));
+                break;
+            case MSG_ENROLL_TOKEN_REMOVED:
+                data = message.getData();
+                if (data == null) {
+                    break;
+                }
+                enrollmentCallback.onEscrowTokenRemoved(data.getLong(KEY_HANDLE));
                 break;
             default:
                 break;
