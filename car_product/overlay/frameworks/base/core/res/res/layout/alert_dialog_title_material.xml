@@ -32,9 +32,9 @@
 
         <ImageView
             android:id="@*android:id/icon"
-            android:layout_width="@*android:dimen/car_icon_size"
-            android:layout_height="@*android:dimen/car_icon_size"
-            android:layout_marginStart="@*android:dimen/car_keyline_1"
+            android:layout_width="@*android:dimen/image_size"
+            android:layout_height="@*android:dimen/image_size"
+            android:layout_marginStart="@*android:dimen/image_margin_start"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:scaleType="fitCenter"
@@ -49,8 +49,8 @@
             android:layout_toEndOf="@*android:id/icon"
             android:textAlignment="viewStart"
             android:layout_centerVertical="true"
-            android:layout_marginStart="@*android:dimen/car_keyline_1"
-            android:layout_marginEnd="@*android:dimen/car_keyline_1"
+            android:layout_marginStart="@*android:dimen/text_view_start_margin"
+            android:layout_marginEnd="@*android:dimen/text_view_end_margin"
             style="?android:attr/windowTitleStyle" />
     </RelativeLayout>
 
