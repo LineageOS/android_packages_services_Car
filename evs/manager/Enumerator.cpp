@@ -15,6 +15,7 @@
  */
 
 #include "Enumerator.h"
+#include "HalDisplay.h"
 
 namespace android {
 namespace automotive {
@@ -138,28 +139,34 @@ Return<sp<IEvsDisplay>> Enumerator::openDisplay() {
     sp<IEvsDisplay> pActiveDisplay = mHwEnumerator->openDisplay();
     if (pActiveDisplay == nullptr) {
         ALOGE("EVS Display unavailable");
+
+        return nullptr;
     }
 
     // Remember (via weak pointer) who we think the most recently opened display is so that
     // we can proxy state requests from other callers to it.
-    mActiveDisplay = pActiveDisplay;
-    return pActiveDisplay;
+    // TODO: Because of b/129284474, an additional class, HalDisplay, has been defined and
+    // wraps the IEvsDisplay object the driver returns.  We may want to remove this
+    // additional class when it is fixed properly.
+    sp<IEvsDisplay> pHalDisplay = new HalDisplay(pActiveDisplay);
+    mActiveDisplay = pHalDisplay;
+
+    return pHalDisplay;
 }
 
 
 Return<void> Enumerator::closeDisplay(const ::android::sp<IEvsDisplay>& display) {
     ALOGD("closeDisplay");
 
-    // Do we still have a display object we think should be active?
     sp<IEvsDisplay> pActiveDisplay = mActiveDisplay.promote();
 
     // Drop the active display
     if (display.get() != pActiveDisplay.get()) {
-        ALOGW("Ignoring call to closeDisplay with unrecognzied display object.");
-        ALOGI("Got %p while active display is %p.", display.get(), pActiveDisplay.get());
+        ALOGW("Ignoring call to closeDisplay with unrecognized display object.");
     } else {
         // Pass this request through to the hardware layer
-        mHwEnumerator->closeDisplay(display);
+        sp<HalDisplay> halDisplay = reinterpret_cast<HalDisplay *>(pActiveDisplay.get());
+        mHwEnumerator->closeDisplay(halDisplay->getHwDisplay());
         mActiveDisplay = nullptr;
     }
 

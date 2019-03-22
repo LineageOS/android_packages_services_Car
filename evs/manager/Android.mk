@@ -8,6 +8,7 @@ LOCAL_SRC_FILES := \
     Enumerator.cpp \
     HalCamera.cpp \
     VirtualCamera.cpp \
+    HalDisplay.cpp
 
 
 LOCAL_SHARED_LIBRARIES := \
