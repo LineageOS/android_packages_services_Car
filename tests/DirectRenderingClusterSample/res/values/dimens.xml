@@ -88,4 +88,11 @@
     <dimen name="fragment_playback_guide_margin_x">@*android:dimen/car_margin</dimen>
     <dimen name="fragment_playback_guide_margin_top">@*android:dimen/car_padding_4</dimen>
 
+    <!--                     -->
+    <!-- Communication Facet -->
+    <!--                     -->
+    <dimen name="user_profile_title_padding_top">@*android:dimen/car_padding_3</dimen>
+    <dimen name="user_profile_body_padding_top">@*android:dimen/car_padding_3</dimen>
+
+    <dimen name="large_avatar_icon_size">@dimen/car_large_avatar_size</dimen>
 </resources>
