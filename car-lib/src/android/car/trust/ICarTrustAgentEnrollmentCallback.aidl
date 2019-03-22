@@ -39,10 +39,12 @@ oneway interface ICarTrustAgentEnrollmentCallback {
      */
     void onEscrowTokenAdded(in long handle);
 
-    /*
-     * Escrow token corresponding to the given handle has been removed.
+    /**
+     * Escrow token was removed as a result of a call to
+     * {@link CarTrustAgentEnrollmentManager#removeEscrowToken(long handle, int uid)}. The peer
+     * device associated with this token is not trusted for authentication anymore.
      */
-    void onTrustRevoked(in long handle, in boolean success);
+      void onEscrowTokenRemoved(in long handle);
 
     /**
      * Escrow token's active state changed.
