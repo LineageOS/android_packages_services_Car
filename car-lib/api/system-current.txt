@@ -670,7 +670,7 @@ package android.car.input {
     field public static final String INPUT_CALLBACK_BINDER_KEY = "callback_binder";
   }
 
-  public static class CarInputHandlingService.InputFilter implements android.os.Parcelable {
+  public static final class CarInputHandlingService.InputFilter implements android.os.Parcelable {
     ctor public CarInputHandlingService.InputFilter(int, int);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
