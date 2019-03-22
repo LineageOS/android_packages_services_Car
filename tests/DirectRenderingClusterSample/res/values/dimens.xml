@@ -48,4 +48,37 @@
     <item name="speed_factor" format="float" type="dimen">3.6</item>
     <!-- Distance: kilometers to meters -->
     <item name="distance_factor" format="float" type="dimen">1000</item>
+
+    <!-- fragment_metadata.xml -->
+    <dimen name="fragment_metadata_queue_divider_margin">@*android:dimen/car_keyline_1</dimen>
+    <dimen name="fragment_metadata_queue_margin_top">@*android:dimen/car_padding_4</dimen>
+    <dimen name="fragment_metadata_metadata_margin_start">@*android:dimen/car_padding_4</dimen>
+    <dimen name="fragment_metadata_metadata_margin_end">@*android:dimen/car_keyline_1</dimen>
+    <dimen name="fragment_metadata_art_margin_start">@*android:dimen/car_keyline_1</dimen>
+    <dimen name="fragment_metadata_art_margin_end">@*android:dimen/car_padding_4</dimen>
+
+    <!-- metadata_normal.xml -->
+    <dimen name="metadata_normal_subtitle_margin_top">@*android:dimen/car_padding_1</dimen>
+    <dimen name="metadata_normal_time_margin_top">@*android:dimen/car_padding_1</dimen>
+    <dimen name="metadata_normal_seek_margin_top">@*android:dimen/car_padding_4</dimen>
+    <dimen name="metadata_normal_subtitle_margin_end">@*android:dimen/car_padding_3</dimen>
+
+    <!-- Size of the album art thumbnail -->
+    <dimen name="playback_album_art_size_normal">156dp</dimen>
+
+    <!-- Playback seekbar track height -->
+    <dimen name="playback_seekbar_track_height">8dp</dimen>
+
+    <!-- Paddings of playback seekbar -->
+    <dimen name="playback_seekbar_padding_start">10dp</dimen>
+    <dimen name="playback_seekbar_padding_end">10dp</dimen>
+
+    <!-- Size of the thumb in the playback seekbar -->
+    <dimen name="playback_seekbar_thumb_height">20dp</dimen>
+    <dimen name="playback_seekbar_thumb_width">20dp</dimen>
+
+    <!-- fragment_playback.xml and fragment_playback_with_queue.xml -->
+    <dimen name="fragment_playback_guide_margin_x">@*android:dimen/car_margin</dimen>
+    <dimen name="fragment_playback_guide_margin_top">@*android:dimen/car_padding_4</dimen>
+
 </resources>
