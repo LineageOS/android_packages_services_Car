@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,78 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProviders;
+
+import com.android.car.media.common.CrossfadeImageView;
+import com.android.car.media.common.playback.PlaybackViewModel;
+import com.android.car.media.common.source.MediaSourceViewModel;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Displays information on the current media item selected.
  */
 public class MusicFragment extends Fragment {
+    private static final String TAG = "MusicFragment";
 
     public MusicFragment() {
         // Required empty public constructor
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_music, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            Bundle savedInstanceState) {
+        FragmentActivity activity = requireActivity();
+        PlaybackViewModel playbackViewModel = PlaybackViewModel.get(activity.getApplication());
+        MediaSourceViewModel mMediaSourceViewModel = MediaSourceViewModel.get(
+                activity.getApplication());
+
+        MusicFragmentViewModel innerViewModel = ViewModelProviders.of(activity).get(
+                MusicFragmentViewModel.class);
+        innerViewModel.init(mMediaSourceViewModel, playbackViewModel);
+
+        View view = inflater.inflate(R.layout.fragment_music, container, false);
+
+        TextView appName = view.findViewById(R.id.app_name);
+        innerViewModel.getAppName().observe(getViewLifecycleOwner(), appName::setText);
+
+        TextView title = view.findViewById(R.id.title);
+        innerViewModel.getTitle().observe(getViewLifecycleOwner(), title::setText);
+
+        TextView subtitle = view.findViewById(R.id.subtitle);
+        innerViewModel.getSubtitle().observe(getViewLifecycleOwner(), subtitle::setText);
+
+        SeekBar seekBar = view.findViewById(R.id.seek_bar);
+        innerViewModel.getMaxProgress().observe(getViewLifecycleOwner(),
+                maxProgress -> seekBar.setMax(maxProgress != null ? maxProgress.intValue() : 0));
+        innerViewModel.getProgress().observe(getViewLifecycleOwner(),
+                progress -> seekBar.setProgress(progress.intValue()));
+        innerViewModel.hasTime().observe(getViewLifecycleOwner(),
+                hasTime -> seekBar.setVisibility(hasTime ? View.VISIBLE : View.INVISIBLE));
+
+        TextView time = view.findViewById(R.id.time);
+
+        innerViewModel.getTimeText().observe(getViewLifecycleOwner(),
+                timeText -> time.setText(timeText));
+
+        CrossfadeImageView albumBackground = view.findViewById(R.id.album_background);
+        ImageView albumIcon = view.findViewById(R.id.album_art);
+        innerViewModel.getAlbumArt().observe(getViewLifecycleOwner(), albumArt -> {
+            albumBackground.setImageBitmap(albumArt, true);
+            if (albumArt == null) {
+                albumIcon.setImageDrawable(getContext().getDrawable(R.drawable.ic_person));
+            } else {
+                albumIcon.setImageBitmap(albumArt);
+            }
+        });
+
+        return view;
     }
 }

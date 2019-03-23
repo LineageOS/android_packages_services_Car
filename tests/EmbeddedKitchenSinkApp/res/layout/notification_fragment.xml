@@ -51,7 +51,7 @@
                 android:layout_margin="10dp"
                 android:background="#ffa9a8"
                 android:foreground="?android:attr/selectableItemBackground"
-                android:text="Call (Shows persistent heads-up until swiped away)"
+                android:text="Call (Shows persistent heads-up, only dismissed on cancel)"
                 android:textSize="30sp"/>
 
             <Button

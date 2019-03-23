@@ -61,7 +61,7 @@ import java.lang.annotation.RetentionPolicy;
  * and not to the absolute driving state.
  * </ul>
  */
-public class CarUxRestrictions implements Parcelable {
+public final class CarUxRestrictions implements Parcelable {
 
     // Default fallback values for the restriction related parameters if the information is
     // not available from the underlying service.

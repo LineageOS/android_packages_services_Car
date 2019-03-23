@@ -27,8 +27,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
-    androidx.car_car \
-    car-theme-lib \
+    androidx.recyclerview_recyclerview \
     androidx.transition_transition \
     androidx.legacy_legacy-support-v4 \
     androidx-constraintlayout_constraintlayout

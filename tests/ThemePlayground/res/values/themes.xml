@@ -24,8 +24,4 @@
     <!--Theme for the dialog testing-->
     <style name="Theme.Testing.Dialog.Alert" parent="android:Theme.DeviceDefault.Dialog.Alert">
     </style>
-
-    <!--This Theme contains attributes required for components from the car support lib -->
-    <style name="PagedListTheme" parent="Theme.CarSupportWrapper.NoActionBar">
-    </style>
 </resources>

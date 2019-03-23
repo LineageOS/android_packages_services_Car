@@ -53,7 +53,7 @@ public final class EvConnectorType {
      */
     public static final int OTHER = 101;
 
-    @Retention(RetentionPolicy.SOURCE)
+    /** @hide */
     @IntDef({
         UNKNOWN,
         J1772,
@@ -67,8 +67,8 @@ public final class EvConnectorType {
         GBT,
         OTHER
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface Enum {}
-
 
     private EvConnectorType() {}
 }
