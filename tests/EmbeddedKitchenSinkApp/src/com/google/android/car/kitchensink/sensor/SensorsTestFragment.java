@@ -28,6 +28,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,7 +107,9 @@ public class SensorsTestFragment extends Fragment {
         mActivity = (KitchenSinkActivity) getHost();
 
         mSensorInfo = (TextView) view.findViewById(R.id.sensor_info);
+        mSensorInfo.setMovementMethod(new ScrollingMovementMethod());
         mLocationInfo = (TextView) view.findViewById(R.id.location_info);
+        mLocationInfo.setMovementMethod(new ScrollingMovementMethod());
         mAccelInfo = (TextView) view.findViewById(R.id.accel_info);
         mGyroInfo = (TextView) view.findViewById(R.id.gyro_info);
         mMagInfo = (TextView) view.findViewById(R.id.mag_info);
