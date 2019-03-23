@@ -95,6 +95,8 @@ public class NotificationFragment extends Fragment {
         initNavigationButton(view);
         initMediaButton(view);
         initCallButton(view);
+        initCustomGroupSummaryButton(view);
+        initGroupWithoutSummaryButton(view);
 
         return view;
     }
@@ -513,6 +515,62 @@ public class NotificationFragment extends Fragment {
                     .setColorized(true)
                     .build();
             mManager.notify(mCurrentNotificationId++, notification);
+        });
+    }
+
+    private void initCustomGroupSummaryButton(View view) {
+        view.findViewById(R.id.custom_group_summary_button).setOnClickListener(v -> {
+            String groupKey = "GROUP_KEY" + mCurrentNotificationId++;
+            int delay = 500;
+
+            Notification summaryNotification = new Notification
+                    .Builder(mContext, IMPORTANCE_HIGH_ID)
+                    .setContentTitle("6 New mails")
+                    .setContentText("this is some summary")
+                    .setSmallIcon(R.drawable.thumb_up)
+                    .setLargeIcon(Icon.createWithResource(mContext, R.drawable.avatar1))
+                    .setGroup(groupKey)
+                    .setGroupSummary(true)
+                    .setStyle(new Notification.InboxStyle()
+                            .addLine("line 1")
+                            .addLine("line 2")
+                            .addLine("line 3")
+                            .addLine("line 4")
+                            .addLine("line 5")
+                            .setBigContentTitle("You've received 6 messages")
+                            .setSummaryText("From Alice, Bob, Claire, Douglas.."))
+                    .build();
+
+            mHandler.postDelayed(
+                    () -> mManager.notify(mCurrentNotificationId++, summaryNotification), delay);
+            for (int i = 1; i <= 6; i++) {
+                Notification notification = new Notification
+                        .Builder(mContext, IMPORTANCE_HIGH_ID)
+                        .setContentTitle("Group child " + i)
+                        .setSmallIcon(R.drawable.car_ic_mode)
+                        .setGroup(groupKey)
+                        .setSortKey(Integer.toString(6 - i))
+                        .build();
+                mHandler.postDelayed(() -> mManager.notify(mCurrentNotificationId++, notification),
+                        delay += 5000);
+            }
+        });
+    }
+
+    private void initGroupWithoutSummaryButton(View view) {
+        view.findViewById(R.id.group_without_summary_button).setOnClickListener(v -> {
+            String groupKey = "GROUP_KEY" + mCurrentNotificationId++;
+
+            for (int i = 1; i <= 6; i++) {
+                Notification notification = new Notification
+                        .Builder(mContext, IMPORTANCE_DEFAULT_ID)
+                        .setContentTitle("This notification should not group " + i)
+                        .setSmallIcon(R.drawable.car_ic_mode)
+                        .setGroup(groupKey)
+                        .setSortKey(Integer.toString(i))
+                        .build();
+                mHandler.post(() -> mManager.notify(mCurrentNotificationId++, notification));
+            }
         });
     }
 }
