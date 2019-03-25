@@ -252,6 +252,12 @@
         android:description="@string/car_permission_desc_car_cluster_control" />
 
     <permission
+        android:name="android.car.permission.CAR_HANDLE_USB_AOAP_DEVICE"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_car_handle_usb_aoap_device"
+        android:description="@string/car_permission_desc_car_handle_usb_aoap_device" />
+
+    <permission
         android:name="android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_car_ux_restrictions_configuration"
