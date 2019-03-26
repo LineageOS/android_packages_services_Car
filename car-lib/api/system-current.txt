@@ -59,8 +59,8 @@ package android.car {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionListener(@NonNull android.car.CarProjectionManager.CarProjectionListener, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionRunner(@NonNull android.content.Intent);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION_STATUS) public void registerProjectionStatusListener(@NonNull android.car.CarProjectionManager.ProjectionStatusListener);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean releaseBluetoothProfileInhibit(android.bluetooth.BluetoothDevice, int, android.os.IBinder);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean requestBluetoothProfileInhibit(@NonNull android.bluetooth.BluetoothDevice, int, @NonNull android.os.IBinder);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean releaseBluetoothProfileInhibit(@NonNull android.bluetooth.BluetoothDevice, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean requestBluetoothProfileInhibit(@NonNull android.bluetooth.BluetoothDevice, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void startProjectionAccessPoint(@NonNull android.car.CarProjectionManager.ProjectionAccessPointCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void stopProjectionAccessPoint();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void unregisterProjectionListener();
