@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.UserInfo;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -56,10 +55,10 @@ public class VmsClientManager implements CarServiceBase {
         /**
          * Called when a client connection is established or re-established.
          *
-         * @param clientName String that uniquely identifies the service and user.
-         * @param binder Binder for communicating with the client.
+         * @param clientName    String that uniquely identifies the service and user.
+         * @param clientService The IBinder of the client's communication channel.
          */
-        void onClientConnected(String clientName, IBinder binder);
+        void onClientConnected(String clientName, IBinder clientService);
 
         /**
          * Called when a client connection is terminated.
@@ -114,7 +113,7 @@ public class VmsClientManager implements CarServiceBase {
     /**
      * Constructor for client managers.
      *
-     * @param context Context to use for registering receivers and binding services.
+     * @param context           Context to use for registering receivers and binding services.
      * @param userManagerHelper User manager for querying current user state.
      */
     public VmsClientManager(Context context, CarUserManagerHelper userManagerHelper) {
@@ -142,10 +141,10 @@ public class VmsClientManager implements CarServiceBase {
         mContext.unregisterReceiver(mBootCompletedReceiver);
         mContext.unregisterReceiver(mUserSwitchReceiver);
         synchronized (mSystemClients) {
-            unbind(mSystemClients);
+            terminate(mSystemClients);
         }
         synchronized (mCurrentUserClients) {
-            unbind(mCurrentUserClients);
+            terminate(mCurrentUserClients);
         }
     }
 
@@ -194,12 +193,12 @@ public class VmsClientManager implements CarServiceBase {
     }
 
     private void bindToCurrentUserClients() {
-        UserInfo userInfo = mUserManagerHelper.getCurrentForegroundUserInfo();
+        int currentUserId = mUserManagerHelper.getCurrentForegroundUserId();
         synchronized (mCurrentUserClients) {
-            if (mCurrentUser != userInfo.id) {
-                unbind(mCurrentUserClients);
+            if (mCurrentUser != currentUserId) {
+                terminate(mCurrentUserClients);
             }
-            mCurrentUser = userInfo.id;
+            mCurrentUser = currentUserId;
 
             // To avoid the risk of double-binding, clients running as the system user must only
             // ever be bound in bindToSystemClients().
@@ -212,8 +211,9 @@ public class VmsClientManager implements CarServiceBase {
             String[] clientNames = mContext.getResources().getStringArray(
                     R.array.vmsPublisherUserClients);
             Log.i(TAG, "Attempting to bind " + clientNames.length + " user client(s)");
+            UserHandle currentUserHandle = UserHandle.of(mCurrentUser);
             for (String clientName : clientNames) {
-                bind(mCurrentUserClients, clientName, userInfo.getUserHandle());
+                bind(mCurrentUserClients, clientName, currentUserHandle);
             }
         }
     }
@@ -244,17 +244,17 @@ public class VmsClientManager implements CarServiceBase {
         }
     }
 
-    private void unbind(Map<String, ClientConnection> connectionMap) {
+    private void terminate(Map<String, ClientConnection> connectionMap) {
         for (ClientConnection connection : connectionMap.values()) {
-            connection.unbind();
+            connection.terminate();
         }
         connectionMap.clear();
     }
 
-    private void notifyListenersOnClientConnected(String clientName, IBinder binder) {
+    private void notifyListenersOnClientConnected(String clientName, IBinder clientService) {
         synchronized (mListeners) {
             for (ConnectionListener listener : mListeners) {
-                listener.onClientConnected(clientName, binder);
+                listener.onClientConnected(clientName, clientService);
             }
         }
     }
@@ -272,7 +272,8 @@ public class VmsClientManager implements CarServiceBase {
         private final UserHandle mUser;
         private final String mFullName;
         private boolean mIsBound = false;
-        private IBinder mBinder;
+        private boolean mIsTerminated = false;
+        private IBinder mClientService;
 
         ClientConnection(ComponentName name, UserHandle user) {
             mName = name;
@@ -281,9 +282,11 @@ public class VmsClientManager implements CarServiceBase {
         }
 
         synchronized boolean bind() {
-            // Ignore if already bound
             if (mIsBound) {
                 return true;
+            }
+            if (mIsTerminated) {
+                return false;
             }
 
             if (DBG) Log.d(TAG, "binding: " + mFullName);
@@ -307,26 +310,34 @@ public class VmsClientManager implements CarServiceBase {
                 Log.e(TAG, "While unbinding " + mFullName, t);
             }
             mIsBound = false;
-            if (mBinder != null) {
+            if (mClientService != null) {
                 notifyListenersOnClientDisconnected(mFullName);
             }
-            mBinder = null;
+            mClientService = null;
         }
 
-        void rebind() {
+        synchronized void rebind() {
             unbind();
             if (DBG) {
                 Log.d(TAG,
                         String.format("rebinding %s after %dms", mFullName, mMillisBeforeRebind));
             }
-            mHandler.postDelayed(this::bind, mMillisBeforeRebind);
+            if (!mIsTerminated) {
+                mHandler.postDelayed(this::bind, mMillisBeforeRebind);
+            }
+        }
+
+        synchronized void terminate() {
+            if (DBG) Log.d(TAG, "terminating: " + mFullName);
+            mIsTerminated = true;
+            unbind();
         }
 
         @Override
-        public void onServiceConnected(ComponentName name, IBinder binder) {
+        public void onServiceConnected(ComponentName name, IBinder service) {
             if (DBG) Log.d(TAG, "onServiceConnected: " + mFullName);
-            mBinder = binder;
-            notifyListenersOnClientConnected(mFullName, mBinder);
+            mClientService = service;
+            notifyListenersOnClientConnected(mFullName, mClientService);
         }
 
         @Override
@@ -344,7 +355,7 @@ public class VmsClientManager implements CarServiceBase {
         @Override
         public void onNullBinding(ComponentName name) {
             if (DBG) Log.d(TAG, "onNullBinding: " + mFullName);
-            unbind();
+            terminate();
         }
 
         @Override
