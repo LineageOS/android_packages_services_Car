@@ -47,7 +47,7 @@ import java.util.List;
 
 public class E2eCarTestBase {
     private static final String TAG = Utils.concatTag(E2eCarTestBase.class);
-    private static final int DEFAULT_WAIT_TIMEOUT_MS = 1000;
+    private static final int DEFAULT_WAIT_TIMEOUT_MS = 5000;
 
     protected IVehicle mVehicle;
     protected Car mCar;
@@ -56,7 +56,7 @@ public class E2eCarTestBase {
 
     @Before
     public void connectToVehicleHal() throws Exception {
-        mVehicle = Utils.getVehicle();
+        mVehicle = Utils.getVehicleWithTimeout(DEFAULT_WAIT_TIMEOUT_MS);
         mVehicle.getPropConfigs(
                 Lists.newArrayList(VhalEventGenerator.GENERATE_FAKE_DATA_CONTROLLING_PROPERTY),
                 (status, propConfigs) -> assumeTrue(status == StatusCode.OK));
