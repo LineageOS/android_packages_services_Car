@@ -15,17 +15,23 @@
  */
 package android.car.usb.handler;
 
+import static android.content.Intent.ACTION_USER_UNLOCKED;
+
 import android.annotation.Nullable;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +60,39 @@ public class UsbHostManagementActivity extends Activity
     private LinearLayout mProgressInfo;
     private UsbHostController mController;
     private PackageManager mPackageManager;
+
+    private final ResolveBroadcastReceiver mResolveBroadcastReceiver
+            = new ResolveBroadcastReceiver();
+    private boolean mReceiverRegistered = false;
+
+    private void unregisterResolveBroadcastReceiver() {
+        if (mReceiverRegistered) {
+            unregisterReceiver(mResolveBroadcastReceiver);
+            mReceiverRegistered = false;
+        }
+    }
+
+    private void processDevice() {
+        UsbDevice connectedDevice = getDevice();
+
+        if (connectedDevice != null) {
+            mController.processDevice(connectedDevice);
+        } else {
+            unregisterResolveBroadcastReceiver();
+            finish();
+        }
+    }
+
+    private class ResolveBroadcastReceiver extends BroadcastReceiver {
+        public void onReceive(Context context, Intent intent) {
+            // We could have been unregistered after receiving the intent but before processing it,
+            // so make sure we are still registered.
+            if (mReceiverRegistered) {
+                processDevice();
+                unregisterResolveBroadcastReceiver();
+            }
+        }
+    }
 
     private final AdapterView.OnItemClickListener mHandlerClickListener =
             new AdapterView.OnItemClickListener() {
@@ -85,13 +124,25 @@ public class UsbHostManagementActivity extends Activity
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        unregisterResolveBroadcastReceiver();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-        UsbDevice connectedDevice = getDevice();
-        if (connectedDevice != null) {
-            mController.processDevice(connectedDevice);
+
+        UserManager userManager = getSystemService(UserManager.class);
+        if (userManager.isUserUnlocked() || getUserId() == UserHandle.USER_SYSTEM) {
+            processDevice();
         } else {
-            finish();
+            mReceiverRegistered = true;
+            registerReceiver(mResolveBroadcastReceiver, new IntentFilter(ACTION_USER_UNLOCKED));
+            // in case the car was unlocked while the receiver was being registered
+            if (userManager.isUserUnlocked()) {
+                mResolveBroadcastReceiver.onReceive(this, new Intent(ACTION_USER_UNLOCKED));
+            }
         }
     }
 
