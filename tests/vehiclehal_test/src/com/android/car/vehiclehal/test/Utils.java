@@ -16,6 +16,9 @@
 
 package com.android.car.vehiclehal.test;
 
+import static android.os.SystemClock.elapsedRealtime;
+
+import android.annotation.Nullable;
 import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
@@ -81,15 +84,32 @@ final class Utils {
         return readVhalProperty(vehicle, request, f);
     }
 
-    static IVehicle getVehicle() throws RemoteException {
-        IVehicle service;
+    @Nullable
+    private static IVehicle getVehicle() {
         try {
-            service = IVehicle.getService();
+            return IVehicle.getService();
         } catch (NoSuchElementException ex) {
-            throw new RuntimeException("Couldn't connect to vehicle@2.0", ex);
+            Log.e(TAG, "IVehicle service not registered yet", ex);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Failed to get IVehicle Service ", e);
         }
-        Log.d(TAG, "Connected to IVehicle service: " + service);
-        return service;
+        Log.d(TAG, "Failed to connect to IVehicle service");
+        return null;
+    }
+
+    static IVehicle getVehicleWithTimeout(long waitMilliseconds) {
+        IVehicle vehicle = getVehicle();
+        long endTime = elapsedRealtime() + waitMilliseconds;
+        while (vehicle == null && endTime > elapsedRealtime()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Sleep was interrupted", e);
+            }
+            vehicle = getVehicle();
+        }
+
+        return vehicle;
     }
 
     /**
