@@ -580,6 +580,7 @@ public class ICarImpl extends ICar.Stub {
                         break;
                     }
                     mCarProjectionService.setUiMode(Integer.valueOf(args[1]));
+                    break;
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
                     dumpHelp(writer);
