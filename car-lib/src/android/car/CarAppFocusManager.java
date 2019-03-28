@@ -78,7 +78,10 @@ public final class CarAppFocusManager implements CarManagerBase {
     public static final int APP_FOCUS_TYPE_NAVIGATION = 1;
     /**
      * Represents voice command focus.
+     *
+     * @deprecated use {@link android.service.voice.VoiceInteractionService} instead.
      */
+    @Deprecated
     public static final int APP_FOCUS_TYPE_VOICE_COMMAND = 2;
     /**
      * Update this after adding a new app type.
@@ -89,7 +92,6 @@ public final class CarAppFocusManager implements CarManagerBase {
     /** @hide */
     @IntDef({
         APP_FOCUS_TYPE_NAVIGATION,
-        APP_FOCUS_TYPE_VOICE_COMMAND
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface AppFocusType {}

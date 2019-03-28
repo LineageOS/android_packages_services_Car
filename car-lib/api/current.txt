@@ -51,7 +51,7 @@ package android.car {
     field public static final int APP_FOCUS_REQUEST_FAILED = 0; // 0x0
     field public static final int APP_FOCUS_REQUEST_SUCCEEDED = 1; // 0x1
     field public static final int APP_FOCUS_TYPE_NAVIGATION = 1; // 0x1
-    field public static final int APP_FOCUS_TYPE_VOICE_COMMAND = 2; // 0x2
+    field @Deprecated public static final int APP_FOCUS_TYPE_VOICE_COMMAND = 2; // 0x2
   }
 
   public static interface CarAppFocusManager.OnAppFocusChangedListener {
