@@ -47,7 +47,7 @@ public final class CarInfoManager implements CarManagerBase{
     @ValueTypeDef(type = Integer.class)
     public static final int BASIC_INFO_KEY_MODEL = 0x11100102;
     /**
-     * Key for model year of the car in AC. Passed in basic info Bundle.
+     * Key for model year of the car in AD. Passed in basic info Bundle.
      * @hide
      */
     @ValueTypeDef(type = Integer.class)
@@ -134,13 +134,21 @@ public final class CarInfoManager implements CarManagerBase{
     }
 
     /**
-     * @return Model year of the car in AC.  Empty if not available.
+     * @return Model year of the car in AD.  Empty if not available.
+     * @deprecated Use {@link #getModelYearInInteger()} instead.
      */
+    @Deprecated
     @NonNull
     public String getModelYear() {
-        CarPropertyValue<String> carProp = mCarPropertyMgr.getProperty(String.class,
-                BASIC_INFO_KEY_MODEL_YEAR, 0);
-        return carProp != null ? carProp.getValue() : "";
+        int year =  mCarPropertyMgr.getIntProperty(BASIC_INFO_KEY_MODEL_YEAR, 0);
+        return year == 0 ? "" : Integer.toString(year);
+    }
+
+    /**
+     * @return Model year of the car in AD.  0 if not available.
+     */
+    public int getModelYearInInteger() {
+        return mCarPropertyMgr.getIntProperty(BASIC_INFO_KEY_MODEL_YEAR, 0);
     }
 
     /**
@@ -217,5 +225,6 @@ public final class CarInfoManager implements CarManagerBase{
     public void onCarDisconnected() {
         mCarPropertyMgr.onCarDisconnected();
     }
+
 
 }

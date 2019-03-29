@@ -73,7 +73,8 @@ package android.car {
     method public int[] getFuelTypes();
     method @NonNull public String getManufacturer();
     method @NonNull public String getModel();
-    method @NonNull public String getModelYear();
+    method @Deprecated @NonNull public String getModelYear();
+    method public int getModelYearInInteger();
     method @Deprecated public String getVehicleId();
   }
 
