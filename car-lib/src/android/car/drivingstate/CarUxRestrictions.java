@@ -220,6 +220,8 @@ public final class CarUxRestrictions implements Parcelable {
      * Time at which this UX restriction event was deduced based on the car's driving state.
      *
      * @return Elapsed time in nanoseconds since system boot.
+     *
+     * @hide
      */
     public long getTimeStamp() {
         return mTimeStamp;
