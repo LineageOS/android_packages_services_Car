@@ -42,7 +42,6 @@ LOCAL_DEX_PREOPT := false
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
     car-service-lib-for-test \
-    car-apps-common \
     androidx.car_car-cluster
 
 LOCAL_STATIC_JAVA_LIBRARIES += \

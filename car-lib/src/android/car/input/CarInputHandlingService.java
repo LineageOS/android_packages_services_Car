@@ -160,7 +160,7 @@ public abstract class CarInputHandlingService extends Service {
     /**
      * Filter for input events that are handled by custom service.
      */
-    public static class InputFilter implements Parcelable {
+    public static final class InputFilter implements Parcelable {
         public final int mKeyCode;
         public final int mTargetDisplay;
 

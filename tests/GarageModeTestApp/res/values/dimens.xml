@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2017 The Android Open Source Project
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright (C) 2019 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,12 +13,9 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<!-- We use this container to place kitchen app fragments. It insets the fragment contents -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/kitchen_content"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingStart="56dp"
-    android:paddingTop="@dimen/car_app_bar_height">
-</FrameLayout>
+<resources>
+    <dimen name="title_size">40dp</dimen>
+    <dimen name="icon_size">48dp</dimen>
+    <dimen name="panel_margin">80dp</dimen>
+    <dimen name="app_bar_height">60dp</dimen>
+</resources>

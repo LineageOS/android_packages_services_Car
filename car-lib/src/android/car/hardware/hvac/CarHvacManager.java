@@ -23,6 +23,8 @@ import android.car.CarManagerBase;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
+import android.car.hardware.property.ICarProperty;
 import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
@@ -37,9 +39,12 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * @deprecated Use {@link CarPropertyManager} instead.
+ *
  * API for controlling HVAC system in cars
  * @hide
  */
+@Deprecated
 @SystemApi
 public final class CarHvacManager implements CarManagerBase {
     private final static boolean DBG = false;
@@ -243,8 +248,7 @@ public final class CarHvacManager implements CarManagerBase {
         void onErrorEvent(@PropertyId int propertyId, int zone);
     }
 
-    private static class CarPropertyEventListenerToBase implements
-            CarPropertyManager.CarPropertyEventListener {
+    private static class CarPropertyEventListenerToBase implements CarPropertyEventCallback {
         private final WeakReference<CarHvacManager> mManager;
 
         public CarPropertyEventListenerToBase(CarHvacManager manager) {
@@ -302,7 +306,8 @@ public final class CarHvacManager implements CarManagerBase {
      * @hide
      */
     public CarHvacManager(IBinder service, Context context, Handler handler) {
-        mCarPropertyMgr = new CarPropertyManager(service, handler, DBG, TAG);
+        ICarProperty mCarPropertyService = ICarProperty.Stub.asInterface(service);
+        mCarPropertyMgr = new CarPropertyManager(mCarPropertyService, handler);
     }
     /**
      * Implement wrappers for contained CarPropertyManager object
@@ -315,7 +320,7 @@ public final class CarHvacManager implements CarManagerBase {
         List<CarPropertyConfig> configs = getPropertyList();
         for (CarPropertyConfig c : configs) {
                 // Register each individual propertyId
-            mCarPropertyMgr.registerListener(mListenerToBase, c.getPropertyId(), 0);
+            mCarPropertyMgr.registerCallback(mListenerToBase, c.getPropertyId(), 0);
         }
         mCallbacks.add(callback);
     }
@@ -331,14 +336,14 @@ public final class CarHvacManager implements CarManagerBase {
             List<CarPropertyConfig> configs = getPropertyList();
             for (CarPropertyConfig c : configs) {
                 // Register each individual propertyId
-                mCarPropertyMgr.unregisterListener(mListenerToBase, c.getPropertyId());
+                mCarPropertyMgr.unregisterCallback(mListenerToBase, c.getPropertyId());
 
             }
         } catch (Exception e) {
             Log.e(TAG, "getPropertyList exception ", e);
         }
         if (mCallbacks.isEmpty()) {
-            mCarPropertyMgr.unregisterListener(mListenerToBase);
+            mCarPropertyMgr.unregisterCallback(mListenerToBase);
             mListenerToBase = null;
         }
     }

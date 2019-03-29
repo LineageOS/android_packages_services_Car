@@ -31,7 +31,7 @@ import java.lang.annotation.RetentionPolicy;
  * @hide
  */
 @SystemApi
-public class CarDrivingStateEvent implements Parcelable {
+public final class CarDrivingStateEvent implements Parcelable {
 
     // New Driving States
     /**

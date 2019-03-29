@@ -18,4 +18,14 @@
     <color name="medium_traffic">#F2B300</color>
     <color name="high_traffic">#E06055</color>
     <color name="unknown_traffic">#4285F4</color>
+
+    <color name="album_art_background">@*android:color/car_grey_100</color>
+    <!-- Color used on the placeholder album art -->
+    <color name="album_art_placeholder_color">@*android:color/car_grey_800</color>
+    <!-- Color used on the progress bar background -->
+    <color name="progress_bar_background">@*android:color/car_seekbar_track_background</color>
+    <!-- Color used on the progress bar -->
+    <color name="progress_bar_highlight">@*android:color/car_accent</color>
+    <!-- Color used on the thumb of the progress bar -->
+    <color name="progress_bar_thumb_color">@*android:color/car_accent</color>
 </resources>

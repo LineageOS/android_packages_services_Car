@@ -1,6 +1,16 @@
 // Signature format: 2.0
 package android.car {
 
+  public abstract class AoapService extends android.app.Service {
+    ctor public AoapService();
+    method @MainThread public int canSwitchToAoap(@NonNull android.hardware.usb.UsbDevice);
+    method @MainThread public abstract int isDeviceSupported(@NonNull android.hardware.usb.UsbDevice);
+    method public android.os.IBinder onBind(android.content.Intent);
+    field public static final int RESULT_DEVICE_NOT_SUPPORTED = 1; // 0x1
+    field public static final int RESULT_DO_NOT_SWITCH_TO_AOAP = 2; // 0x2
+    field public static final int RESULT_OK = 0; // 0x0
+  }
+
   public final class Car {
     field public static final String CABIN_SERVICE = "cabin";
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
@@ -97,27 +107,6 @@ package android.car {
     field public static final int MIRROR_DRIVER_RIGHT = 2; // 0x2
   }
 
-  public final class VehicleAreaSeat {
-    field public static final int SEAT_ROW_1_CENTER = 2; // 0x2
-    field public static final int SEAT_ROW_1_LEFT = 1; // 0x1
-    field public static final int SEAT_ROW_1_RIGHT = 4; // 0x4
-    field public static final int SEAT_ROW_2_CENTER = 32; // 0x20
-    field public static final int SEAT_ROW_2_LEFT = 16; // 0x10
-    field public static final int SEAT_ROW_2_RIGHT = 64; // 0x40
-    field public static final int SEAT_ROW_3_CENTER = 512; // 0x200
-    field public static final int SEAT_ROW_3_LEFT = 256; // 0x100
-    field public static final int SEAT_ROW_3_RIGHT = 1024; // 0x400
-  }
-
-  public final class VehicleAreaType {
-    field public static final int VEHICLE_AREA_TYPE_DOOR = 4; // 0x4
-    field public static final int VEHICLE_AREA_TYPE_GLOBAL = 0; // 0x0
-    field public static final int VEHICLE_AREA_TYPE_MIRROR = 5; // 0x5
-    field public static final int VEHICLE_AREA_TYPE_SEAT = 3; // 0x3
-    field public static final int VEHICLE_AREA_TYPE_WHEEL = 6; // 0x6
-    field public static final int VEHICLE_AREA_TYPE_WINDOW = 2; // 0x2
-  }
-
   public final class VehicleAreaWheel {
     field public static final int WHEEL_LEFT_FRONT = 1; // 0x1
     field public static final int WHEEL_LEFT_REAR = 4; // 0x4
@@ -197,7 +186,7 @@ package android.car.cluster.renderer {
 
 package android.car.content.pm {
 
-  public class AppBlockingPackageInfo implements android.os.Parcelable {
+  public final class AppBlockingPackageInfo implements android.os.Parcelable {
     ctor public AppBlockingPackageInfo(String, int, int, int, @Nullable android.content.pm.Signature[], @Nullable String[]);
     ctor public AppBlockingPackageInfo(android.os.Parcel);
     method public int describeContents();
@@ -213,7 +202,7 @@ package android.car.content.pm {
     field public final android.content.pm.Signature[] signatures;
   }
 
-  public class CarAppBlockingPolicy implements android.os.Parcelable {
+  public final class CarAppBlockingPolicy implements android.os.Parcelable {
     ctor public CarAppBlockingPolicy(android.car.content.pm.AppBlockingPackageInfo[], android.car.content.pm.AppBlockingPackageInfo[]);
     ctor public CarAppBlockingPolicy(android.os.Parcel);
     method public int describeContents();
@@ -502,7 +491,7 @@ package android.car.diagnostic {
 
 package android.car.drivingstate {
 
-  public class CarDrivingStateEvent implements android.os.Parcelable {
+  public final class CarDrivingStateEvent implements android.os.Parcelable {
     ctor public CarDrivingStateEvent(int, long);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
@@ -529,38 +518,9 @@ package android.car.drivingstate {
 
 package android.car.hardware {
 
-  public class CarPropertyConfig<T> implements android.os.Parcelable {
-    method public int describeContents();
-    method public int getAccess();
-    method public int getAreaCount();
-    method public int[] getAreaIds();
-    method public int getAreaType();
-    method public int getChangeMode();
-    method public java.util.List<java.lang.Integer> getConfigArray();
-    method public String getConfigString();
-    method public int getFirstAndOnlyAreaId();
-    method public float getMaxSampleRate();
-    method @Nullable public T getMaxValue(int);
-    method @Nullable public T getMaxValue();
-    method public float getMinSampleRate();
-    method @Nullable public T getMinValue(int);
-    method @Nullable public T getMinValue();
-    method public int getPropertyId();
-    method public Class<T> getPropertyType();
-    method public boolean hasArea(int);
-    method public boolean isGlobalProperty();
+  public final class CarPropertyConfig<T> implements android.os.Parcelable {
+    method @NonNull public Class<T> getPropertyType();
     method public static <T> android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(Class<T>, int, int, int);
-    method public static <T> android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(Class<T>, int, int);
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.hardware.CarPropertyConfig> CREATOR;
-  }
-
-  public static class CarPropertyConfig.AreaConfig<T> implements android.os.Parcelable {
-    method public int describeContents();
-    method @Nullable public T getMaxValue();
-    method @Nullable public T getMinValue();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.hardware.CarPropertyConfig.AreaConfig<java.lang.Object>> CREATOR;
   }
 
   public static class CarPropertyConfig.Builder<T> {
@@ -576,140 +536,126 @@ package android.car.hardware {
     method public android.car.hardware.CarPropertyConfig.Builder<T> setMinSampleRate(float);
   }
 
-  public class CarPropertyValue<T> implements android.os.Parcelable {
-    ctor public CarPropertyValue(int, int, T);
-    ctor public CarPropertyValue(int, int, int, long, T);
-    ctor public CarPropertyValue(android.os.Parcel);
-    method public int describeContents();
-    method public int getAreaId();
-    method public int getPropertyId();
-    method public int getStatus();
-    method public long getTimestamp();
-    method public T getValue();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.hardware.CarPropertyValue> CREATOR;
+  @Deprecated public final class CarVendorExtensionManager {
+    method @Deprecated public <E> E getGlobalProperty(Class<E>, int);
+    method @Deprecated public java.util.List<android.car.hardware.CarPropertyConfig> getProperties();
+    method @Deprecated public <E> E getProperty(Class<E>, int, int);
+    method @Deprecated public boolean isPropertyAvailable(int, int);
+    method @Deprecated public void registerCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback);
+    method @Deprecated public <E> void setGlobalProperty(Class<E>, int, E);
+    method @Deprecated public <E> void setProperty(Class<E>, int, int, E);
+    method @Deprecated public void unregisterCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback);
   }
 
-  public final class CarVendorExtensionManager {
-    method public <E> E getGlobalProperty(Class<E>, int);
-    method public java.util.List<android.car.hardware.CarPropertyConfig> getProperties();
-    method public <E> E getProperty(Class<E>, int, int);
-    method public boolean isPropertyAvailable(int, int);
-    method public void registerCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback);
-    method public <E> void setGlobalProperty(Class<E>, int, E);
-    method public <E> void setProperty(Class<E>, int, int, E);
-    method public void unregisterCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback);
-  }
-
-  public static interface CarVendorExtensionManager.CarVendorExtensionCallback {
-    method public void onChangeEvent(android.car.hardware.CarPropertyValue);
-    method public void onErrorEvent(int, int);
+  @Deprecated public static interface CarVendorExtensionManager.CarVendorExtensionCallback {
+    method @Deprecated public void onChangeEvent(android.car.hardware.CarPropertyValue);
+    method @Deprecated public void onErrorEvent(int, int);
   }
 
 }
 
 package android.car.hardware.cabin {
 
-  public final class CarCabinManager {
-    method public boolean getBooleanProperty(int, int);
-    method public float getFloatProperty(int, int);
-    method public int getIntProperty(int, int);
-    method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList();
-    method public static boolean isZonedProperty(int);
-    method public void registerCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback);
-    method public void setBooleanProperty(int, int, boolean);
-    method public void setFloatProperty(int, int, float);
-    method public void setIntProperty(int, int, int);
-    method public void unregisterCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback);
-    field public static final int ID_DOOR_LOCK = 371198722; // 0x16200b02
-    field public static final int ID_DOOR_MOVE = 373295873; // 0x16400b01
-    field public static final int ID_DOOR_POS = 373295872; // 0x16400b00
-    field public static final int ID_MIRROR_FOLD = 287312709; // 0x11200b45
-    field public static final int ID_MIRROR_LOCK = 287312708; // 0x11200b44
-    field public static final int ID_MIRROR_Y_MOVE = 339741507; // 0x14400b43
-    field public static final int ID_MIRROR_Y_POS = 339741506; // 0x14400b42
-    field public static final int ID_MIRROR_Z_MOVE = 339741505; // 0x14400b41
-    field public static final int ID_MIRROR_Z_POS = 339741504; // 0x14400b40
-    field public static final int ID_SEAT_BACKREST_ANGLE_1_MOVE = 356518792; // 0x15400b88
-    field public static final int ID_SEAT_BACKREST_ANGLE_1_POS = 356518791; // 0x15400b87
-    field public static final int ID_SEAT_BACKREST_ANGLE_2_MOVE = 356518794; // 0x15400b8a
-    field public static final int ID_SEAT_BACKREST_ANGLE_2_POS = 356518793; // 0x15400b89
-    field public static final int ID_SEAT_BELT_BUCKLED = 354421634; // 0x15200b82
-    field public static final int ID_SEAT_BELT_HEIGHT_MOVE = 356518788; // 0x15400b84
-    field public static final int ID_SEAT_BELT_HEIGHT_POS = 356518787; // 0x15400b83
-    field public static final int ID_SEAT_DEPTH_MOVE = 356518798; // 0x15400b8e
-    field public static final int ID_SEAT_DEPTH_POS = 356518797; // 0x15400b8d
-    field public static final int ID_SEAT_FORE_AFT_MOVE = 356518790; // 0x15400b86
-    field public static final int ID_SEAT_FORE_AFT_POS = 356518789; // 0x15400b85
-    field public static final int ID_SEAT_HEADREST_ANGLE_MOVE = 356518808; // 0x15400b98
-    field public static final int ID_SEAT_HEADREST_ANGLE_POS = 356518807; // 0x15400b97
-    field public static final int ID_SEAT_HEADREST_FORE_AFT_MOVE = 356518810; // 0x15400b9a
-    field public static final int ID_SEAT_HEADREST_FORE_AFT_POS = 356518809; // 0x15400b99
-    field public static final int ID_SEAT_HEADREST_HEIGHT_MOVE = 356518806; // 0x15400b96
-    field public static final int ID_SEAT_HEADREST_HEIGHT_POS = 356518805; // 0x15400b95
-    field public static final int ID_SEAT_HEIGHT_MOVE = 356518796; // 0x15400b8c
-    field public static final int ID_SEAT_HEIGHT_POS = 356518795; // 0x15400b8b
-    field public static final int ID_SEAT_LUMBAR_FORE_AFT_MOVE = 356518802; // 0x15400b92
-    field public static final int ID_SEAT_LUMBAR_FORE_AFT_POS = 356518801; // 0x15400b91
-    field public static final int ID_SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 356518804; // 0x15400b94
-    field public static final int ID_SEAT_LUMBAR_SIDE_SUPPORT_POS = 356518803; // 0x15400b93
-    field public static final int ID_SEAT_MEMORY_SELECT = 356518784; // 0x15400b80
-    field public static final int ID_SEAT_MEMORY_SET = 356518785; // 0x15400b81
-    field public static final int ID_SEAT_TILT_MOVE = 356518800; // 0x15400b90
-    field public static final int ID_SEAT_TILT_POS = 356518799; // 0x15400b8f
-    field public static final int ID_WINDOW_LOCK = 322964420; // 0x13400bc4
-    field public static final int ID_WINDOW_MOVE = 322964417; // 0x13400bc1
-    field public static final int ID_WINDOW_POS = 322964416; // 0x13400bc0
+  @Deprecated public final class CarCabinManager {
+    method @Deprecated public boolean getBooleanProperty(int, int);
+    method @Deprecated public float getFloatProperty(int, int);
+    method @Deprecated public int getIntProperty(int, int);
+    method @Deprecated public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList();
+    method @Deprecated public static boolean isZonedProperty(int);
+    method @Deprecated public void registerCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback);
+    method @Deprecated public void setBooleanProperty(int, int, boolean);
+    method @Deprecated public void setFloatProperty(int, int, float);
+    method @Deprecated public void setIntProperty(int, int, int);
+    method @Deprecated public void unregisterCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback);
+    field @Deprecated public static final int ID_DOOR_LOCK = 371198722; // 0x16200b02
+    field @Deprecated public static final int ID_DOOR_MOVE = 373295873; // 0x16400b01
+    field @Deprecated public static final int ID_DOOR_POS = 373295872; // 0x16400b00
+    field @Deprecated public static final int ID_MIRROR_FOLD = 287312709; // 0x11200b45
+    field @Deprecated public static final int ID_MIRROR_LOCK = 287312708; // 0x11200b44
+    field @Deprecated public static final int ID_MIRROR_Y_MOVE = 339741507; // 0x14400b43
+    field @Deprecated public static final int ID_MIRROR_Y_POS = 339741506; // 0x14400b42
+    field @Deprecated public static final int ID_MIRROR_Z_MOVE = 339741505; // 0x14400b41
+    field @Deprecated public static final int ID_MIRROR_Z_POS = 339741504; // 0x14400b40
+    field @Deprecated public static final int ID_SEAT_BACKREST_ANGLE_1_MOVE = 356518792; // 0x15400b88
+    field @Deprecated public static final int ID_SEAT_BACKREST_ANGLE_1_POS = 356518791; // 0x15400b87
+    field @Deprecated public static final int ID_SEAT_BACKREST_ANGLE_2_MOVE = 356518794; // 0x15400b8a
+    field @Deprecated public static final int ID_SEAT_BACKREST_ANGLE_2_POS = 356518793; // 0x15400b89
+    field @Deprecated public static final int ID_SEAT_BELT_BUCKLED = 354421634; // 0x15200b82
+    field @Deprecated public static final int ID_SEAT_BELT_HEIGHT_MOVE = 356518788; // 0x15400b84
+    field @Deprecated public static final int ID_SEAT_BELT_HEIGHT_POS = 356518787; // 0x15400b83
+    field @Deprecated public static final int ID_SEAT_DEPTH_MOVE = 356518798; // 0x15400b8e
+    field @Deprecated public static final int ID_SEAT_DEPTH_POS = 356518797; // 0x15400b8d
+    field @Deprecated public static final int ID_SEAT_FORE_AFT_MOVE = 356518790; // 0x15400b86
+    field @Deprecated public static final int ID_SEAT_FORE_AFT_POS = 356518789; // 0x15400b85
+    field @Deprecated public static final int ID_SEAT_HEADREST_ANGLE_MOVE = 356518808; // 0x15400b98
+    field @Deprecated public static final int ID_SEAT_HEADREST_ANGLE_POS = 356518807; // 0x15400b97
+    field @Deprecated public static final int ID_SEAT_HEADREST_FORE_AFT_MOVE = 356518810; // 0x15400b9a
+    field @Deprecated public static final int ID_SEAT_HEADREST_FORE_AFT_POS = 356518809; // 0x15400b99
+    field @Deprecated public static final int ID_SEAT_HEADREST_HEIGHT_MOVE = 356518806; // 0x15400b96
+    field @Deprecated public static final int ID_SEAT_HEADREST_HEIGHT_POS = 356518805; // 0x15400b95
+    field @Deprecated public static final int ID_SEAT_HEIGHT_MOVE = 356518796; // 0x15400b8c
+    field @Deprecated public static final int ID_SEAT_HEIGHT_POS = 356518795; // 0x15400b8b
+    field @Deprecated public static final int ID_SEAT_LUMBAR_FORE_AFT_MOVE = 356518802; // 0x15400b92
+    field @Deprecated public static final int ID_SEAT_LUMBAR_FORE_AFT_POS = 356518801; // 0x15400b91
+    field @Deprecated public static final int ID_SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 356518804; // 0x15400b94
+    field @Deprecated public static final int ID_SEAT_LUMBAR_SIDE_SUPPORT_POS = 356518803; // 0x15400b93
+    field @Deprecated public static final int ID_SEAT_MEMORY_SELECT = 356518784; // 0x15400b80
+    field @Deprecated public static final int ID_SEAT_MEMORY_SET = 356518785; // 0x15400b81
+    field @Deprecated public static final int ID_SEAT_TILT_MOVE = 356518800; // 0x15400b90
+    field @Deprecated public static final int ID_SEAT_TILT_POS = 356518799; // 0x15400b8f
+    field @Deprecated public static final int ID_WINDOW_LOCK = 322964420; // 0x13400bc4
+    field @Deprecated public static final int ID_WINDOW_MOVE = 322964417; // 0x13400bc1
+    field @Deprecated public static final int ID_WINDOW_POS = 322964416; // 0x13400bc0
   }
 
-  public static interface CarCabinManager.CarCabinEventCallback {
-    method public void onChangeEvent(android.car.hardware.CarPropertyValue);
-    method public void onErrorEvent(int, int);
+  @Deprecated public static interface CarCabinManager.CarCabinEventCallback {
+    method @Deprecated public void onChangeEvent(android.car.hardware.CarPropertyValue);
+    method @Deprecated public void onErrorEvent(int, int);
   }
 
 }
 
 package android.car.hardware.hvac {
 
-  public final class CarHvacManager {
-    method public boolean getBooleanProperty(int, int);
-    method public float getFloatProperty(int, int);
-    method public int getIntProperty(int, int);
-    method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList();
-    method public boolean isPropertyAvailable(int, int);
-    method public void registerCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback);
-    method public void setBooleanProperty(int, int, boolean);
-    method public void setFloatProperty(int, int, float);
-    method public void setIntProperty(int, int, int);
-    method public void unregisterCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback);
-    field public static final int FAN_DIRECTION_DEFROST = 4; // 0x4
-    field public static final int FAN_DIRECTION_FACE = 1; // 0x1
-    field public static final int FAN_DIRECTION_FLOOR = 2; // 0x2
-    field public static final int ID_MIRROR_DEFROSTER_ON = 339739916; // 0x1440050c
-    field public static final int ID_OUTSIDE_AIR_TEMP = 291505923; // 0x11600703
-    field public static final int ID_STEERING_WHEEL_HEAT = 289408269; // 0x1140050d
-    field public static final int ID_TEMPERATURE_DISPLAY_UNITS = 289408270; // 0x1140050e
-    field public static final int ID_WINDOW_DEFROSTER_ON = 320865540; // 0x13200504
-    field public static final int ID_ZONED_AC_ON = 354419973; // 0x15200505
-    field public static final int ID_ZONED_AIR_RECIRCULATION_ON = 354419976; // 0x15200508
-    field public static final int ID_ZONED_AUTOMATIC_MODE_ON = 354419978; // 0x1520050a
-    field public static final int ID_ZONED_DUAL_ZONE_ON = 354419977; // 0x15200509
-    field public static final int ID_ZONED_FAN_DIRECTION = 356517121; // 0x15400501
-    field public static final int ID_ZONED_FAN_DIRECTION_AVAILABLE = 356582673; // 0x15410511
-    field public static final int ID_ZONED_FAN_SPEED_RPM = 356517135; // 0x1540050f
-    field public static final int ID_ZONED_FAN_SPEED_SETPOINT = 356517120; // 0x15400500
-    field public static final int ID_ZONED_HVAC_AUTO_RECIRC_ON = 354419986; // 0x15200512
-    field public static final int ID_ZONED_HVAC_POWER_ON = 354419984; // 0x15200510
-    field public static final int ID_ZONED_MAX_AC_ON = 354419974; // 0x15200506
-    field public static final int ID_ZONED_MAX_DEFROST_ON = 354419975; // 0x15200507
-    field public static final int ID_ZONED_SEAT_TEMP = 356517131; // 0x1540050b
-    field public static final int ID_ZONED_TEMP_ACTUAL = 358614274; // 0x15600502
-    field public static final int ID_ZONED_TEMP_SETPOINT = 358614275; // 0x15600503
+  @Deprecated public final class CarHvacManager {
+    method @Deprecated public boolean getBooleanProperty(int, int);
+    method @Deprecated public float getFloatProperty(int, int);
+    method @Deprecated public int getIntProperty(int, int);
+    method @Deprecated public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList();
+    method @Deprecated public boolean isPropertyAvailable(int, int);
+    method @Deprecated public void registerCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback);
+    method @Deprecated public void setBooleanProperty(int, int, boolean);
+    method @Deprecated public void setFloatProperty(int, int, float);
+    method @Deprecated public void setIntProperty(int, int, int);
+    method @Deprecated public void unregisterCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback);
+    field @Deprecated public static final int FAN_DIRECTION_DEFROST = 4; // 0x4
+    field @Deprecated public static final int FAN_DIRECTION_FACE = 1; // 0x1
+    field @Deprecated public static final int FAN_DIRECTION_FLOOR = 2; // 0x2
+    field @Deprecated public static final int ID_MIRROR_DEFROSTER_ON = 339739916; // 0x1440050c
+    field @Deprecated public static final int ID_OUTSIDE_AIR_TEMP = 291505923; // 0x11600703
+    field @Deprecated public static final int ID_STEERING_WHEEL_HEAT = 289408269; // 0x1140050d
+    field @Deprecated public static final int ID_TEMPERATURE_DISPLAY_UNITS = 289408270; // 0x1140050e
+    field @Deprecated public static final int ID_WINDOW_DEFROSTER_ON = 320865540; // 0x13200504
+    field @Deprecated public static final int ID_ZONED_AC_ON = 354419973; // 0x15200505
+    field @Deprecated public static final int ID_ZONED_AIR_RECIRCULATION_ON = 354419976; // 0x15200508
+    field @Deprecated public static final int ID_ZONED_AUTOMATIC_MODE_ON = 354419978; // 0x1520050a
+    field @Deprecated public static final int ID_ZONED_DUAL_ZONE_ON = 354419977; // 0x15200509
+    field @Deprecated public static final int ID_ZONED_FAN_DIRECTION = 356517121; // 0x15400501
+    field @Deprecated public static final int ID_ZONED_FAN_DIRECTION_AVAILABLE = 356582673; // 0x15410511
+    field @Deprecated public static final int ID_ZONED_FAN_SPEED_RPM = 356517135; // 0x1540050f
+    field @Deprecated public static final int ID_ZONED_FAN_SPEED_SETPOINT = 356517120; // 0x15400500
+    field @Deprecated public static final int ID_ZONED_HVAC_AUTO_RECIRC_ON = 354419986; // 0x15200512
+    field @Deprecated public static final int ID_ZONED_HVAC_POWER_ON = 354419984; // 0x15200510
+    field @Deprecated public static final int ID_ZONED_MAX_AC_ON = 354419974; // 0x15200506
+    field @Deprecated public static final int ID_ZONED_MAX_DEFROST_ON = 354419975; // 0x15200507
+    field @Deprecated public static final int ID_ZONED_SEAT_TEMP = 356517131; // 0x1540050b
+    field @Deprecated public static final int ID_ZONED_TEMP_ACTUAL = 358614274; // 0x15600502
+    field @Deprecated public static final int ID_ZONED_TEMP_SETPOINT = 358614275; // 0x15600503
   }
 
-  public static interface CarHvacManager.CarHvacEventCallback {
-    method public void onChangeEvent(android.car.hardware.CarPropertyValue);
-    method public void onErrorEvent(int, int);
+  @Deprecated public static interface CarHvacManager.CarHvacEventCallback {
+    method @Deprecated public void onChangeEvent(android.car.hardware.CarPropertyValue);
+    method @Deprecated public void onErrorEvent(int, int);
   }
 
 }
@@ -734,7 +680,7 @@ package android.car.input {
     field public static final String INPUT_CALLBACK_BINDER_KEY = "callback_binder";
   }
 
-  public static class CarInputHandlingService.InputFilter implements android.os.Parcelable {
+  public static final class CarInputHandlingService.InputFilter implements android.os.Parcelable {
     ctor public CarInputHandlingService.InputFilter(int, int);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
@@ -1003,7 +949,7 @@ package android.car.trust {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) @NonNull public java.util.List<java.lang.Long> getEnrollmentHandlesForUser(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void initiateEnrollmentHandshake(android.bluetooth.BluetoothDevice);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public boolean isEscrowTokenActive(long, int);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void revokeTrust(long);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeEscrowToken(long, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setBleCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setEnrollmentCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void startEnrollmentAdvertising();
@@ -1023,7 +969,7 @@ package android.car.trust {
     method public void onEnrollmentHandshakeFailure(android.bluetooth.BluetoothDevice, int);
     method public void onEscrowTokenActiveStateChanged(long, boolean);
     method public void onEscrowTokenAdded(long);
-    method public void onTrustRevoked(long, boolean);
+    method public void onEscrowTokenRemoved(long);
   }
 
 }

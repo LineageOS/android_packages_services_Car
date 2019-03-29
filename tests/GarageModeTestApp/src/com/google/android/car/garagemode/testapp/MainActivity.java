@@ -17,25 +17,15 @@ package com.google.android.car.garagemode.testapp;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.view.MenuItem;
 
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.car.drawer.CarDrawerAdapter;
-import androidx.car.drawer.CarDrawerController;
-import androidx.car.drawer.DrawerItemViewHolder;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity {
     private static final Logger LOG = new Logger("MainActivity");
-
-    private CarDrawerController mDrawerController;
-    private Toolbar mToolbar;
 
     private final List<MenuEntry> mMenuEntries = new ArrayList<MenuEntry>() {
         {
@@ -58,45 +48,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
-                /* activity= */ this,
-                drawerLayout,
-                R.string.car_drawer_open,
-                R.string.car_drawer_close);
-
-        mToolbar = findViewById(R.id.car_toolbar);
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-
         mMenuEntries.get(0).onClick();
 
-        mDrawerController = new CarDrawerController(drawerLayout, drawerToggle);
-        mDrawerController.setRootAdapter(new DrawerAdapter());
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        mDrawerController.syncState();
+        findViewById(R.id.offcar_test_btn).setOnClickListener((v) -> mMenuEntries.get(0).onClick());
+        findViewById(R.id.incar_test_btn).setOnClickListener((v) -> mMenuEntries.get(1).onClick());
+        findViewById(R.id.exit_button_container).setOnClickListener(
+                (v) -> mMenuEntries.get(2).onClick());
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mDrawerController.closeDrawer();
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        mDrawerController.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return mDrawerController.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
     private interface ClickHandler {
@@ -176,33 +143,5 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_content, fragment)
                 .commit();
-    }
-
-    private final class DrawerAdapter extends CarDrawerAdapter {
-        DrawerAdapter() {
-            super(MainActivity.this, true /* showDisabledOnListOnEmpty */);
-            setTitle(getString(R.string.app_name));
-        }
-
-        @Override
-        protected int getActualItemCount() {
-            return mMenuEntries.size();
-        }
-
-        @Override
-        protected void populateViewHolder(DrawerItemViewHolder holder, int position) {
-            holder.getTitleView().setText(mMenuEntries.get(position).getText());
-            holder.itemView.setOnClickListener(v -> onItemClick(holder.getAdapterPosition()));
-        }
-
-        private void onItemClick(int position) {
-            if ((position < 0) || (position >= mMenuEntries.size())) {
-                LOG.wtf("Unknown menu item: " + position);
-                return;
-            }
-
-            mMenuEntries.get(position).onClick();
-            mDrawerController.closeDrawer();
-        }
     }
 }

@@ -22,11 +22,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.car.widget.PagedListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
-        android:theme="@style/PagedListTheme"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:gutter="both" />
+        android:layout_height="match_parent"/>
     <include layout="@layout/menu_button"/>
 </LinearLayout>

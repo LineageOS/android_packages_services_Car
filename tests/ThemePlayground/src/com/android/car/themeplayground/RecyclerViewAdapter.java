@@ -27,27 +27,27 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 /**
- * Implementation of {@link PagedListViewAdapter} that can be used with RecyclerViews.
+ * Implementation of {@link RecyclerViewAdapter} that can be used with RecyclerViews.
  */
-public class PagedListViewAdapter extends
-        RecyclerView.Adapter<PagedListViewAdapter.PagedListViewHolder> {
+public class RecyclerViewAdapter extends
+        RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder> {
 
     private ArrayList<String> mData;
 
-    PagedListViewAdapter(ArrayList<String> data) {
+    RecyclerViewAdapter(ArrayList<String> data) {
         this.mData = data;
     }
 
     @NonNull
     @Override
-    public PagedListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflator = LayoutInflater.from(parent.getContext());
         View view = inflator.inflate(R.layout.item_list, parent, false);
-        return new PagedListViewHolder(view);
+        return new RecyclerViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PagedListViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerViewHolder holder, int position) {
         String title = mData.get(position);
         holder.mTextTitle.setText(title);
     }
@@ -61,10 +61,10 @@ public class PagedListViewAdapter extends
     /**
      * Holds views for each element in the list.
      */
-    public static class PagedListViewHolder extends RecyclerView.ViewHolder {
+    public static class RecyclerViewHolder extends RecyclerView.ViewHolder {
         TextView mTextTitle;
 
-        PagedListViewHolder(@NonNull View itemView) {
+        RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
             mTextTitle = itemView.findViewById(R.id.textTitle);
         }
