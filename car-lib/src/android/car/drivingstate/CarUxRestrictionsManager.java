@@ -19,7 +19,6 @@ package android.car.drivingstate;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
-import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.content.Context;
@@ -175,9 +174,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
      * @return current staged configuration, {@code null} if it's not available
      *
      * @hide
-     *
      */
-    @TestApi
     @Nullable
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
     public synchronized CarUxRestrictionsConfiguration getStagedConfig() {
@@ -194,9 +191,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
      * @return current prod configuration that is in effect.
      *
      * @hide
-     *
      */
-    @TestApi
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
     public synchronized CarUxRestrictionsConfiguration getConfig() {
         try {
