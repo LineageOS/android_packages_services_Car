@@ -830,7 +830,7 @@ package android.car.storagemonitoring {
     method public void onSnapshot(android.car.storagemonitoring.IoStats);
   }
 
-  public class IoStats implements android.os.Parcelable {
+  public final class IoStats implements android.os.Parcelable {
     ctor public IoStats(java.util.List<android.car.storagemonitoring.IoStatsEntry>, long);
     ctor public IoStats(android.os.Parcel);
     ctor public IoStats(org.json.JSONObject) throws org.json.JSONException;
@@ -876,7 +876,7 @@ package android.car.storagemonitoring {
     field public final long fsyncCalls;
   }
 
-  public class LifetimeWriteInfo implements android.os.Parcelable {
+  public final class LifetimeWriteInfo implements android.os.Parcelable {
     ctor public LifetimeWriteInfo(String, String, long);
     ctor public LifetimeWriteInfo(android.os.Parcel);
     ctor public LifetimeWriteInfo(org.json.JSONObject) throws org.json.JSONException;
@@ -904,7 +904,7 @@ package android.car.storagemonitoring {
     field public final int uid;
   }
 
-  public class WearEstimate implements android.os.Parcelable {
+  public final class WearEstimate implements android.os.Parcelable {
     ctor public WearEstimate(int, int);
     ctor public WearEstimate(android.os.Parcel);
     ctor public WearEstimate(android.util.JsonReader) throws java.io.IOException;
@@ -917,7 +917,7 @@ package android.car.storagemonitoring {
     field @IntRange(from=0xffffffff, to=100) public final int typeB;
   }
 
-  public class WearEstimateChange implements android.os.Parcelable {
+  public final class WearEstimateChange implements android.os.Parcelable {
     ctor public WearEstimateChange(android.car.storagemonitoring.WearEstimate, android.car.storagemonitoring.WearEstimate, long, java.time.Instant, boolean);
     ctor public WearEstimateChange(android.os.Parcel);
     method public int describeContents();

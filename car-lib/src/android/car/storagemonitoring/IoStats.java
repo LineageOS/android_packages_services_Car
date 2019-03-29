@@ -35,7 +35,7 @@ import org.json.JSONObject;
  * @hide
  */
 @SystemApi
-public class IoStats implements Parcelable {
+public final class IoStats implements Parcelable {
     public static final Creator<IoStats> CREATOR = new Creator<IoStats>() {
         @Override
         public IoStats createFromParcel(Parcel in) {

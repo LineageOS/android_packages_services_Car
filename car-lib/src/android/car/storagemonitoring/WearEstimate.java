@@ -38,7 +38,7 @@ import org.json.JSONObject;
  * @hide
  */
 @SystemApi
-public class WearEstimate implements Parcelable {
+public final class WearEstimate implements Parcelable {
     public static final int UNKNOWN = -1;
 
     /** @hide */
