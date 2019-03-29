@@ -123,13 +123,21 @@ public class CarBleTrustAgent extends TrustAgentService {
             mCarTrustAgentUnlockService.stopUnlockAdvertising();
 
         }
-        // TODO(b/128857992) - should we revoke trust right after to enable keyguard when
-        //  switching user
+        revokeTrust();
     }
 
     @Override
     public void onEscrowTokenRemoved(long handle, boolean successful) {
-        // TODO(b/128857992) To be implemented
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "onEscrowTokenRemoved handle: " + Long.toHexString(handle));
+        }
+        if (mCarTrustAgentEnrollmentService == null) {
+            return;
+        }
+        if (successful) {
+            mCarTrustAgentEnrollmentService.onEscrowTokenRemoved(handle,
+                    ActivityManager.getCurrentUser());
+        }
     }
 
     @Override
@@ -230,11 +238,6 @@ public class CarBleTrustAgent extends TrustAgentService {
     private final CarTrustAgentEnrollmentRequestDelegate mEnrollDelegate =
             new CarTrustAgentEnrollmentRequestDelegate() {
                 @Override
-                public void revokeTrust() {
-                    // TODO(b/128857992) to be implemented
-                }
-
-                @Override
                 public void addEscrowToken(byte[] token, int uid) {
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG,
@@ -247,7 +250,13 @@ public class CarBleTrustAgent extends TrustAgentService {
 
                 @Override
                 public void removeEscrowToken(long handle, int uid) {
-                    // TODO(b/128857992) to be implemented
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG,
+                                "removeEscrowToken. uid: " + ActivityManager.getCurrentUser()
+                                        + " handle: " + handle);
+                    }
+                    CarBleTrustAgent.this.removeEscrowToken(handle,
+                            UserHandle.of(uid));
                 }
 
                 @Override

@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothDevice;
 import android.car.trust.ICarTrustAgentBleCallback;
 import android.car.trust.ICarTrustAgentEnrollment;
 import android.car.trust.ICarTrustAgentEnrollmentCallback;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -114,10 +115,13 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
 
     /**
      * Called by the client to notify that the user has accepted a pairing code or any out-of-band
-     * confirmation.
+     * confirmation, and send confirmation signals to remote bluetooth device.
+     *
+     * @param device the remote Bluetooth device that will receive the signal.
      */
     @Override
-    public void enrollmentHandshakeAccepted() {
+    public void enrollmentHandshakeAccepted(BluetoothDevice device) {
+        mCarTrustAgentBleManager.sendPairingCodeConfirmation(device);
         setEnrollmentHandshakeAccepted(true);
     }
 
@@ -148,9 +152,9 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         return false;
     }
 
-    // TODO(b/128857992)- Implement this
     @Override
-    public void revokeTrust(long handle) {
+    public void removeEscrowToken(long handle, int uid) {
+        mEnrollmentDelegate.removeEscrowToken(handle, uid);
     }
 
     /**
@@ -204,22 +208,18 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onEscrowTokenAdded handle:" + handle + " uid:" + uid);
         }
-        mTrustedDeviceService.getSharedPrefs().edit()
-                .putInt(String.valueOf(handle), uid)
-                .apply();
+        mTrustedDeviceService.getSharedPrefs().edit().putInt(String.valueOf(handle), uid).apply();
         Set<String> handles = mTrustedDeviceService.getSharedPrefs().getStringSet(
-                String.valueOf(uid),
-                new HashSet<>());
+                String.valueOf(uid), new HashSet<>());
         handles.add(String.valueOf(handle));
         mTrustedDeviceService.getSharedPrefs().edit().putStringSet(String.valueOf(uid),
                 handles).apply();
 
         if (mRemoteEnrollmentDevice == null) {
             Log.e(TAG, "onEscrowTokenAdded() but no remote device connected!");
-            //TODO(b/128857992) remove Escrow token now?
+            removeEscrowToken(handle, uid);
             return;
         }
-        mCarTrustAgentBleManager.sendEnrollmentHandle(mRemoteEnrollmentDevice, handle);
         for (EnrollmentStateClient client : mEnrollmentStateClients) {
             try {
                 client.mListener.onEscrowTokenAdded(handle);
@@ -229,12 +229,35 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         }
     }
 
-    void onEscrowTokenActiveStateChanged(long handle, boolean tokenState) {
+    void onEscrowTokenRemoved(long handle, int uid) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "onEscrowTokenRemoved handle:" + handle + " uid:" + uid);
+        }
+        for (EnrollmentStateClient client : mEnrollmentStateClients) {
+            try {
+                client.mListener.onEscrowTokenRemoved(handle);
+            } catch (RemoteException e) {
+                Log.e(TAG, "onEscrowTokenAdded dispatch failed", e);
+            }
+        }
+        SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
+        editor.remove(String.valueOf(handle));
+        Set<String> handles = mTrustedDeviceService.getSharedPrefs().getStringSet(
+                String.valueOf(uid), new HashSet<>());
+        handles.remove(String.valueOf(handle));
+        editor.putStringSet(String.valueOf(uid), handles);
+        editor.apply();
+    }
+
+    void onEscrowTokenActiveStateChanged(long handle, boolean isTokenActive) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onEscrowTokenActiveStateChanged: " + Long.toHexString(handle));
         }
-        mTokenActiveState.put(handle, tokenState);
-        dispatchEscrowTokenActiveStateChanged(handle, tokenState);
+        mTokenActiveState.put(handle, isTokenActive);
+        dispatchEscrowTokenActiveStateChanged(handle, isTokenActive);
+        if (isTokenActive) {
+            mCarTrustAgentBleManager.sendEnrollmentHandle(mRemoteEnrollmentDevice, handle);
+        }
     }
 
     void onEnrollmentAdvertiseStartSuccess() {
@@ -458,12 +481,6 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
          * @param uid    user id
          */
         void isEscrowTokenActive(long handle, int uid);
-
-        /**
-         * Calls the Trust framwework's revoke trust to revoke the trust that was granted for the
-         * current user.
-         */
-        void revokeTrust();
     }
 
     void setEnrollmentRequestDelegate(CarTrustAgentEnrollmentRequestDelegate delegate) {
