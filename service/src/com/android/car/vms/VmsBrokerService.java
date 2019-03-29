@@ -60,7 +60,7 @@ public class VmsBrokerService {
     private final VmsPublishersInfo mPublishersInfo = new VmsPublishersInfo();
 
     /**
-     * The VMS publisher and HAL services implement this interface to receive publisher callbacks.
+     * The VMS publisher service implements this interface to receive publisher callbacks.
      */
     public interface PublisherListener {
         /**
@@ -72,7 +72,7 @@ public class VmsBrokerService {
     }
 
     /**
-     * The VMS publisher and HAL services implement this interface to receive subscriber callbacks.
+     * The VMS subscriber service implements this interface to receive subscriber callbacks.
      */
     public interface SubscriberListener {
         /**
@@ -324,16 +324,22 @@ public class VmsBrokerService {
             Map<Integer, VmsLayersOffering> publisherOfferings = mOfferings.computeIfAbsent(
                     publisherToken, k -> new HashMap<>());
             publisherOfferings.put(offering.getPublisherId(), offering);
-
-            // Update layers availability.
-            Set<VmsLayersOffering> allPublisherOfferings = new HashSet<>();
-            for (Map<Integer, VmsLayersOffering> offerings : mOfferings.values()) {
-                allPublisherOfferings.addAll(offerings.values());
-            }
-            if (DBG) Log.d(TAG, "New layer availability: " + allPublisherOfferings);
-            mAvailableLayers.setPublishersOffering(allPublisherOfferings);
+            updateLayerAvailability();
         }
         VmsOperationRecorder.get().setPublisherLayersOffering(offering);
+        notifyOfAvailabilityChange();
+    }
+
+    /**
+     * Removes a disconnected publisher's offerings
+     *
+     * @param publisherToken Identifier token of publisher to be removed
+     */
+    public void removeDeadPublisher(IBinder publisherToken) {
+        synchronized (mLock) {
+            mOfferings.remove(publisherToken);
+            updateLayerAvailability();
+        }
         notifyOfAvailabilityChange();
     }
 
@@ -345,6 +351,17 @@ public class VmsBrokerService {
     public VmsAvailableLayers getAvailableLayers() {
         synchronized (mLock) {
             return mAvailableLayers.getAvailableLayers();
+        }
+    }
+
+    private void updateLayerAvailability() {
+        Set<VmsLayersOffering> allPublisherOfferings = new HashSet<>();
+        synchronized (mLock) {
+            for (Map<Integer, VmsLayersOffering> offerings : mOfferings.values()) {
+                allPublisherOfferings.addAll(offerings.values());
+            }
+            if (DBG) Log.d(TAG, "New layer availability: " + allPublisherOfferings);
+            mAvailableLayers.setPublishersOffering(allPublisherOfferings);
         }
     }
 
