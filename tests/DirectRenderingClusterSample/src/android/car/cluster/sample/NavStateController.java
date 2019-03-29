@@ -43,6 +43,7 @@ public class NavStateController {
     private ImageView mManeuver;
     private LaneView mLane;
     private TextView mDistance;
+    private TextView mSegment;
     private TextView mEta;
     private CueView mCue;
     private Context mContext;
@@ -58,6 +59,7 @@ public class NavStateController {
         mManeuver = container.findViewById(R.id.maneuver);
         mLane = container.findViewById(R.id.lane);
         mDistance = container.findViewById(R.id.distance);
+        mSegment = container.findViewById(R.id.segment);
         mEta = container.findViewById(R.id.eta);
         mCue = container.findViewById(R.id.cue);
 
@@ -85,6 +87,7 @@ public class NavStateController {
         mEta.setTextColor(getTrafficColor(traffic));
         mManeuver.setImageDrawable(getManeuverIcon(step != null ? step.getManeuver() : null));
         mDistance.setText(formatDistance(step != null ? step.getDistance() : null));
+        mSegment.setText(state != null ? getSegmentString(state.getCurrentSegment()) : null);
         mCue.setRichText(step != null ? step.getCue() : null, mImageResolver);
 
         if (step != null && step.getLanes().size() > 0) {
@@ -256,7 +259,26 @@ public class NavStateController {
         if (distance == null || distance.getDisplayUnit() == Distance.Unit.UNKNOWN) {
             return null;
         }
-        return String.format("In %s %s", distance.getDisplayValue(),
-                distance.getDisplayUnit().toString().toLowerCase());
+
+        String unit = "";
+
+        switch(distance.getDisplayUnit()){
+            case METERS:
+                unit = "m";
+                break;
+            case KILOMETERS:
+                unit = "km";
+                break;
+            case MILES:
+                unit = "mi";
+                break;
+            case YARDS:
+                unit = "yd";
+                break;
+            case FEET:
+                unit = "ft";
+                break;
+        }
+        return String.format("In %s %s", distance.getDisplayValue(), unit);
     }
 }
