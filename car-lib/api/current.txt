@@ -298,7 +298,6 @@ package android.car.drivingstate {
     method public int getMaxContentDepth();
     method public int getMaxCumulativeContentItems();
     method public int getMaxRestrictedStringLength();
-    method public long getTimeStamp();
     method public boolean isRequiresDistractionOptimization();
     method public boolean isSameRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public void writeToParcel(android.os.Parcel, int);
