@@ -269,6 +269,12 @@
         android:label="@string/car_permission_label_storage_monitoring"
         android:description="@string/car_permission_desc_storage_monitoring" />
 
+    <permission
+        android:name="android.car.permission.CAR_ENROLL_TRUST"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_enroll_trust"
+        android:description="@string/car_permission_desc_enroll_trust" />
+
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.DEVICE_POWER" />
     <uses-permission android:name="android.permission.GRANT_RUNTIME_PERMISSIONS" />
