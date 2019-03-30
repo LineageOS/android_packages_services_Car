@@ -7,15 +7,6 @@ package android.car.content.pm {
 
 }
 
-package android.car.drivingstate {
-
-  public final class CarUxRestrictionsManager {
-    method @RequiresPermission("android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION") public android.car.drivingstate.CarUxRestrictionsConfiguration getConfig();
-    method @Nullable @RequiresPermission("android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION") public android.car.drivingstate.CarUxRestrictionsConfiguration getStagedConfig();
-  }
-
-}
-
 package android.car.media {
 
   public final class CarAudioManager {

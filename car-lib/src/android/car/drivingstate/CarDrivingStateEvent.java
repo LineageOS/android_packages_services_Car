@@ -44,7 +44,6 @@ public final class CarDrivingStateEvent implements Parcelable {
     public static final int DRIVING_STATE_PARKED = 0;
     /**
      * Car is idling.  Gear is not in Parked mode and Speed of the vehicle is zero.
-     * TODO: (b/72157869) - Should speed that differentiates moving vs idling be configurable?
      */
     public static final int DRIVING_STATE_IDLING = 1;
     /**
