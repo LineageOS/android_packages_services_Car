@@ -36,9 +36,7 @@ import android.util.Log;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -290,20 +288,18 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
     }
 
     /**
-     * Provides a list of enrollment handles for the given user id.
+     * Provides a list that contains information about the enrolled devices for the given user id.
      * <p>
      * Each enrollment handle corresponds to a trusted device for the given user.
      *
      * @param uid user id.
-     * @return list of the Enrollment handles for the user id.
+     * @return list of the Enrollment handles and user names for the user id.
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
     @NonNull
-    public List<Long> getEnrollmentHandlesForUser(int uid) {
+    public List<TrustedDeviceInfo> getEnrolledDeviceInfoForUser(int uid) {
         try {
-            return Arrays.stream(mEnrollmentService.getEnrollmentHandlesForUser(uid))
-                    .boxed()
-                    .collect(Collectors.toList());
+            return mEnrollmentService.getEnrolledDeviceInfosForUser(uid);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
