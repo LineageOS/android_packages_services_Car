@@ -147,13 +147,15 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
     }
 
     /**
-     * Confirms that the enrollment handshake has been accepted by the user.  This should be called
+     * Confirms that the enrollment handshake has been accepted by the user. This should be called
      * after the user has confirmed the verification code displayed on the UI.
+     *
+     * @param device the remote Bluetooth device that will receive the signal.
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void enrollmentHandshakeAccepted() {
+    public void enrollmentHandshakeAccepted(BluetoothDevice device) {
         try {
-            mEnrollmentService.enrollmentHandshakeAccepted();
+            mEnrollmentService.enrollmentHandshakeAccepted(device);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -200,7 +202,11 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      */
     @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
     public void removeEscrowToken(long handle, int uid) {
-        //TODO:(b/128857992) need to call method in CarTrustAgentEnrollmentService
+        try {
+            mEnrollmentService.removeEscrowToken(handle, uid);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
     }
 
     /**

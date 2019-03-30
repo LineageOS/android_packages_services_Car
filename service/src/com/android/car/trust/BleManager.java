@@ -116,16 +116,22 @@ public abstract class BleManager {
 
     private void startAdvertisingInternally(AdvertiseSettings settings, AdvertiseData data,
             AdvertiseCallback advertiseCallback) {
-        mAdvertiser = BluetoothAdapter.getDefaultAdapter().getBluetoothLeAdvertiser();
-        if (mAdvertiser == null && mAdvertiserStartCount < BLE_RETRY_LIMIT) {
+        if (BluetoothAdapter.getDefaultAdapter() != null) {
+            mAdvertiser = BluetoothAdapter.getDefaultAdapter().getBluetoothLeAdvertiser();
+        }
+
+        if (mAdvertiser != null) {
+            mAdvertiser.startAdvertising(settings, data, advertiseCallback);
+            mAdvertiserStartCount = 0;
+        } else if (mAdvertiserStartCount < BLE_RETRY_LIMIT) {
             mHandler.postDelayed(
                     () -> startAdvertisingInternally(settings, data, advertiseCallback),
                     BLE_RETRY_INTERVAL_MS);
             mAdvertiserStartCount += 1;
         } else {
-            mHandler.removeCallbacks(null);
-            mAdvertiser.startAdvertising(settings, data, advertiseCallback);
-            mAdvertiserStartCount = 0;
+            Log.e(TAG, "Cannot start BLE Advertisement.  BT Adapter: "
+                    + BluetoothAdapter.getDefaultAdapter() + " Advertise Retry count: "
+                    + mAdvertiserStartCount);
         }
     }
 
