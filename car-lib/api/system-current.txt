@@ -936,7 +936,7 @@ package android.car.trust {
 
   public final class CarTrustAgentEnrollmentManager {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void enrollmentHandshakeAccepted(android.bluetooth.BluetoothDevice);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) @NonNull public java.util.List<java.lang.Long> getEnrollmentHandlesForUser(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) @NonNull public java.util.List<android.car.trust.TrustedDeviceInfo> getEnrolledDeviceInfoForUser(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void initiateEnrollmentHandshake(android.bluetooth.BluetoothDevice);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public boolean isEscrowTokenActive(long, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeEscrowToken(long, int);
@@ -960,6 +960,20 @@ package android.car.trust {
     method public void onEscrowTokenActiveStateChanged(long, boolean);
     method public void onEscrowTokenAdded(long);
     method public void onEscrowTokenRemoved(long);
+  }
+
+  public final class TrustedDeviceInfo implements android.os.Parcelable {
+    ctor public TrustedDeviceInfo(long, @NonNull String, @NonNull String);
+    ctor public TrustedDeviceInfo(android.os.Parcel);
+    method public int describeContents();
+    method public static android.car.trust.TrustedDeviceInfo deserialize(String);
+    method @NonNull public String getAddress();
+    method public long getHandle();
+    method @NonNull public String getName();
+    method public String serialize();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator CREATOR;
+    field public static final String DEFAULT_NAME = "Default";
   }
 
 }
