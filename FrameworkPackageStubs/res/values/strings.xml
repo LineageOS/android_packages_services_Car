@@ -4,7 +4,7 @@
     <!-- Package name [CHAR LIMIT=NONE]-->
     <string name="app_name">Activity Stub</string>
 
-    <!-- Toast message displayed when a stub activity is launched. [CHAR LIMIT=40] -->
+    <!-- Toast message displayed when a stub activity is launched. [CHAR LIMIT=NONE] -->
     <string name="message_not_supported">No application can handle this action</string>
 
     <!-- Stub name [CHAR LIMIT=NONE]-->
