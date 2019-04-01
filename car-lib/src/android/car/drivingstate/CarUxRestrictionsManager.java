@@ -16,6 +16,7 @@
 
 package android.car.drivingstate;
 
+import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
@@ -29,6 +30,8 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 
 /**
@@ -40,6 +43,37 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     private static final boolean DBG = false;
     private static final boolean VDBG = false;
     private static final int MSG_HANDLE_UX_RESTRICTIONS_CHANGE = 0;
+
+    /**
+     * Baseline restriction mode is the default UX restrictions used for driving state.
+     *
+     * @hide
+     */
+    public static final int UX_RESTRICTION_MODE_BASELINE = 0;
+    /**
+     * Passenger restriction mode uses UX restrictions for {@link #UX_RESTRICTION_MODE_PASSENGER},
+     * set through {@link CarUxRestrictionsConfiguration.Builder.UxRestrictions#setMode(int)}.
+     *
+     * <p>If a new {@link CarUxRestrictions} is available upon mode transition, it'll be immediately
+     * dispatched to listeners.
+     *
+     * <p>If passenger mode restrictions is not configured for current driving state, it will fall
+     * back to {@link #UX_RESTRICTION_MODE_BASELINE}.
+     *
+     * <p>Caller are responsible for determining and executing the criteria for entering and exiting
+     * this mode. Exiting by setting mode to {@link #UX_RESTRICTION_MODE_BASELINE}.
+     *
+     * @hide
+     */
+    public static final int UX_RESTRICTION_MODE_PASSENGER = 1;
+
+    /** @hide */
+    @IntDef(prefix = { "UX_RESTRICTION_MODE_" }, value = {
+            UX_RESTRICTION_MODE_BASELINE,
+            UX_RESTRICTION_MODE_PASSENGER
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface UxRestrictionMode {}
 
     private final Context mContext;
     private final ICarUxRestrictionsManager mUxRService;
@@ -111,30 +145,6 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     }
 
     /**
-     * Set a new {@link CarUxRestrictionsConfiguration} for next trip.
-     * <p>
-     * Saving a new configuration does not affect current configuration. The new configuration will
-     * only be used after UX Restrictions service restarts when the vehicle is parked.
-     * <p>
-     * Requires Permission:
-     * {@link android.car.Manifest.permission#CAR_UX_RESTRICTIONS_CONFIGURATION}.
-     *
-     * @param config UX restrictions configuration to be persisted.
-     * @return {@code true} if input config was successfully saved; {@code false} otherwise.
-     *
-     * @hide
-     */
-    @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
-    public synchronized boolean saveUxRestrictionsConfigurationForNextBoot(
-            CarUxRestrictionsConfiguration config) {
-        try {
-            return mUxRService.saveUxRestrictionsConfigurationForNextBoot(config);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        }
-    }
-
-    /**
      * Unregister the registered {@link OnUxRestrictionsChangedListener}
      */
     public synchronized void unregisterListener() {
@@ -161,6 +171,59 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     public CarUxRestrictions getCurrentCarUxRestrictions() {
         try {
             return mUxRService.getCurrentUxRestrictions();
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Sets restriction mode. Returns {@code true} if the operation succeeds.
+     *
+     * @hide
+     */
+    @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
+    public boolean setRestrictionMode(@UxRestrictionMode int mode) {
+        try {
+            return mUxRService.setRestrictionMode(mode);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Returns the current restriction mode.
+     *
+     * @hide
+     */
+    @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
+    @UxRestrictionMode
+    public int getRestrictionMode() {
+        try {
+            return mUxRService.getRestrictionMode();
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Set a new {@link CarUxRestrictionsConfiguration} for next trip.
+     * <p>
+     * Saving a new configuration does not affect current configuration. The new configuration will
+     * only be used after UX Restrictions service restarts when the vehicle is parked.
+     * <p>
+     * Requires Permission:
+     * {@link android.car.Manifest.permission#CAR_UX_RESTRICTIONS_CONFIGURATION}.
+     *
+     * @param config UX restrictions configuration to be persisted.
+     * @return {@code true} if input config was successfully saved; {@code false} otherwise.
+     *
+     * @hide
+     */
+    @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
+    public synchronized boolean saveUxRestrictionsConfigurationForNextBoot(
+            CarUxRestrictionsConfiguration config) {
+        try {
+            return mUxRService.saveUxRestrictionsConfigurationForNextBoot(config);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -198,6 +261,20 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
             return mUxRService.getConfig();
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * @hide
+     */
+    public static String modeToString(@UxRestrictionMode int mode) {
+        switch (mode) {
+            case UX_RESTRICTION_MODE_BASELINE:
+                return "baseline";
+            case UX_RESTRICTION_MODE_PASSENGER:
+                return "passenger";
+            default:
+                throw new IllegalArgumentException("Unrecognized restriction mode " + mode);
         }
     }
 

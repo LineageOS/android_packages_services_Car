@@ -23,9 +23,13 @@ import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELIN
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO;
 import static android.car.drivingstate.CarUxRestrictionsConfiguration.Builder.SpeedRange.MAX_SPEED;
+import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
+import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_PASSENGER;
 
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
+import android.car.drivingstate.CarUxRestrictionsConfiguration.Builder;
+import android.car.drivingstate.CarUxRestrictionsConfiguration.DrivingStateRestrictions;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
@@ -47,39 +51,41 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
 
     // This test verifies the expected way to build config would succeed.
     public void testConstruction() {
-        new CarUxRestrictionsConfiguration.Builder().build();
+        new Builder().build();
 
-        new CarUxRestrictionsConfiguration.Builder()
+        new Builder()
                 .setMaxStringLength(1)
                 .build();
 
-        new CarUxRestrictionsConfiguration.Builder()
+        new Builder()
                 .setUxRestrictions(DRIVING_STATE_PARKED, false, UX_RESTRICTIONS_BASELINE)
                 .build();
 
-        new CarUxRestrictionsConfiguration.Builder()
+        new Builder()
                 .setUxRestrictions(DRIVING_STATE_MOVING, true, UX_RESTRICTIONS_FULLY_RESTRICTED)
                 .build();
 
-        new CarUxRestrictionsConfiguration.Builder()
-                .setUxRestrictions(DRIVING_STATE_MOVING,
-                        new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, MAX_SPEED),
-                        true, UX_RESTRICTIONS_FULLY_RESTRICTED)
+        new Builder()
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        .setSpeedRange(new Builder.SpeedRange(0f, MAX_SPEED)))
                 .build();
 
-        new CarUxRestrictionsConfiguration.Builder()
-                .setUxRestrictions(DRIVING_STATE_MOVING,
-                        new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 1f),
-                        true, UX_RESTRICTIONS_FULLY_RESTRICTED)
-                .setUxRestrictions(DRIVING_STATE_MOVING,
-                        new CarUxRestrictionsConfiguration.Builder.SpeedRange(1f, MAX_SPEED),
-                        true, UX_RESTRICTIONS_FULLY_RESTRICTED)
+        new Builder()
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        .setSpeedRange(new Builder.SpeedRange(0f, 1f)))
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        .setSpeedRange(new Builder.SpeedRange(1f, MAX_SPEED)))
                 .build();
     }
 
     public void testUnspecifiedDrivingStateUsesDefaultRestriction() {
-        CarUxRestrictionsConfiguration config =
-                new CarUxRestrictionsConfiguration.Builder().build();
+        CarUxRestrictionsConfiguration config = new Builder().build();
 
         CarUxRestrictions parkedRestrictions = config.getUxRestrictions(DRIVING_STATE_PARKED, 0f);
         assertTrue(parkedRestrictions.isRequiresDistractionOptimization());
@@ -90,183 +96,245 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertEquals(movingRestrictions.getActiveRestrictions(), UX_RESTRICTIONS_FULLY_RESTRICTED);
     }
 
-    public void testBuilderValidation_MultipleSpeedRange_NonZeroStart() {
-        CarUxRestrictionsConfiguration.Builder builder =
-                new CarUxRestrictionsConfiguration.Builder();
-        builder.setUxRestrictions(DRIVING_STATE_MOVING,
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(1, 2),
-                true, UX_RESTRICTIONS_FULLY_RESTRICTED);
-        builder.setUxRestrictions(DRIVING_STATE_MOVING,
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(2, MAX_SPEED),
-                true, UX_RESTRICTIONS_FULLY_RESTRICTED);
+    public void testBuilderValidation_UnspecifiedStateUsesRestrictiveDefault() {
+        CarUxRestrictionsConfiguration config = new Builder()
+                .setUxRestrictions(DRIVING_STATE_MOVING, true, UX_RESTRICTIONS_FULLY_RESTRICTED)
+                .build();
+        assertTrue(config.getUxRestrictions(DRIVING_STATE_PARKED, 0f)
+                .isRequiresDistractionOptimization());
+        assertTrue(config.getUxRestrictions(DRIVING_STATE_IDLING, 0f)
+                .isRequiresDistractionOptimization());
+    }
 
+    public void testBuilderValidation_NonMovingStateHasOneRestriction() {
+        Builder builder = new Builder();
+        builder.setUxRestrictions(DRIVING_STATE_IDLING,
+                true, UX_RESTRICTIONS_NO_VIDEO);
+        builder.setUxRestrictions(DRIVING_STATE_IDLING,
+                false, UX_RESTRICTIONS_BASELINE);
         try {
             builder.build();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
+            // Expected exception.
+        }
+    }
+
+    public void testBuilderValidation_PassengerModeNoSpeedRangeOverlap() {
+        Builder builder = new Builder();
+        builder.setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                    .setDistractionOptimizationRequired(true)
+                    .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                    .setSpeedRange(new Builder.SpeedRange(1f, 2f)));
+        builder.setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                    .setDistractionOptimizationRequired(true)
+                    .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                    .setSpeedRange(new Builder.SpeedRange(1f)));
+        try {
+            builder.build();
+            fail();
+        } catch (Exception e) {
+            // Expected exception.
+        }
+    }
+
+    public void testBuilderValidation_PassengerModeCanSpecifySubsetOfSpeedRange() {
+        CarUxRestrictionsConfiguration config = new Builder()
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER)
+                        .setSpeedRange(new Builder.SpeedRange(1f, 2f)))
+                .build();
+
+        assertTrue(config.getUxRestrictions(DRIVING_STATE_MOVING, 1f, UX_RESTRICTION_MODE_PASSENGER)
+                .isRequiresDistractionOptimization());
+    }
+
+    public void testBuilderValidation_MultipleSpeedRange_NonZeroStart() {
+        Builder builder = new Builder();
+        builder.setUxRestrictions(DRIVING_STATE_MOVING,
+                new Builder.SpeedRange(1, 2),
+                true, UX_RESTRICTIONS_FULLY_RESTRICTED);
+        builder.setUxRestrictions(DRIVING_STATE_MOVING,
+                new Builder.SpeedRange(2, MAX_SPEED),
+                true, UX_RESTRICTIONS_FULLY_RESTRICTED);
+        try {
+            builder.build();
+            fail();
+        } catch (Exception e) {
             // Expected exception.
         }
     }
 
     public void testBuilderValidation_SpeedRange_NonZeroStart() {
-        CarUxRestrictionsConfiguration.Builder builder =
-                new CarUxRestrictionsConfiguration.Builder();
+        Builder builder = new Builder();
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(1, MAX_SPEED),
+                new Builder.SpeedRange(1, MAX_SPEED),
                 true, UX_RESTRICTIONS_FULLY_RESTRICTED);
-
         try {
             builder.build();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
             // Expected exception.
         }
     }
 
     public void testBuilderValidation_SpeedRange_Overlap() {
-        CarUxRestrictionsConfiguration.Builder builder =
-                new CarUxRestrictionsConfiguration.Builder();
+        Builder builder = new Builder();
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(0, 5), true,
+                new Builder.SpeedRange(0, 5), true,
                 UX_RESTRICTIONS_FULLY_RESTRICTED);
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(4), true,
+                new Builder.SpeedRange(4), true,
                 UX_RESTRICTIONS_FULLY_RESTRICTED);
-
         try {
             builder.build();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
             // Expected exception.
         }
     }
 
     public void testBuilderValidation_SpeedRange_Gap() {
-        CarUxRestrictionsConfiguration.Builder builder =
-                new CarUxRestrictionsConfiguration.Builder();
+        Builder builder = new Builder();
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(0, 5), true,
+                new Builder.SpeedRange(0, 5), true,
                 UX_RESTRICTIONS_FULLY_RESTRICTED);
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(8), true,
+                new Builder.SpeedRange(8), true,
                 UX_RESTRICTIONS_FULLY_RESTRICTED);
-
         try {
             builder.build();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
             // Expected exception.
         }
     }
 
     public void testBuilderValidation_NonMovingStateCannotUseSpeedRange() {
-        CarUxRestrictionsConfiguration.Builder builder =
-                new CarUxRestrictionsConfiguration.Builder();
+        Builder builder = new Builder();
         try {
             builder.setUxRestrictions(DRIVING_STATE_PARKED,
-                    new CarUxRestrictionsConfiguration.Builder.SpeedRange(0, 5), true,
+                    new Builder.SpeedRange(0, 5), true,
                     UX_RESTRICTIONS_FULLY_RESTRICTED);
-        } catch (IllegalArgumentException e) {
+            fail();
+        } catch (Exception e) {
+            // Expected exception.
+        }
+    }
+
+    public void testBuilderValidation_MultipleMovingRestrictionsShouldAllContainSpeedRange() {
+        Builder builder = new Builder();
+        builder.setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                .setDistractionOptimizationRequired(true)
+                .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED));
+        builder.setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                .setDistractionOptimizationRequired(true)
+                .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                .setSpeedRange(new Builder.SpeedRange(1f)));
+        try {
+            builder.build();
+            fail();
+        } catch (Exception e) {
             // Expected exception.
         }
     }
 
     public void testSpeedRange_Construction() {
-        new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f);
-        new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 1f);
-        new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, MAX_SPEED);
+        new Builder.SpeedRange(0f);
+        new Builder.SpeedRange(0f, 1f);
+        new Builder.SpeedRange(0f, MAX_SPEED);
     }
 
     public void testSpeedRange_NegativeMax() {
         try {
-            new CarUxRestrictionsConfiguration.Builder.SpeedRange(2f, -1f);
-        } catch (IllegalArgumentException e) {
+            new Builder.SpeedRange(2f, -1f);
+        } catch (Exception e) {
             // Expected exception.
         }
     }
 
     public void testSpeedRange_MinGreaterThanMax() {
         try {
-            new CarUxRestrictionsConfiguration.Builder.SpeedRange(5f, 2f);
-        } catch (IllegalArgumentException e) {
+            new Builder.SpeedRange(5f, 2f);
+        } catch (Exception e) {
             // Expected exception.
         }
     }
 
     public void testSpeedRangeComparison_DifferentMin() {
-        CarUxRestrictionsConfiguration.Builder.SpeedRange s1 =
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(1f);
-        CarUxRestrictionsConfiguration.Builder.SpeedRange s2 =
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(2f);
+        Builder.SpeedRange s1 =
+                new Builder.SpeedRange(1f);
+        Builder.SpeedRange s2 =
+                new Builder.SpeedRange(2f);
         assertTrue(s1.compareTo(s2) < 0);
         assertTrue(s2.compareTo(s1) > 0);
     }
 
     public void testSpeedRangeComparison_SameMin() {
-        CarUxRestrictionsConfiguration.Builder.SpeedRange s1 =
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(1f);
-        CarUxRestrictionsConfiguration.Builder.SpeedRange s2 =
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(1f);
+        Builder.SpeedRange s1 =
+                new Builder.SpeedRange(1f);
+        Builder.SpeedRange s2 =
+                new Builder.SpeedRange(1f);
         assertTrue(s1.compareTo(s2) == 0);
     }
 
     public void testSpeedRangeComparison_SameMinDifferentMax() {
-        CarUxRestrictionsConfiguration.Builder.SpeedRange s1 =
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 1f);
-        CarUxRestrictionsConfiguration.Builder.SpeedRange s2 =
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 2f);
+        Builder.SpeedRange s1 =
+                new Builder.SpeedRange(0f, 1f);
+        Builder.SpeedRange s2 =
+                new Builder.SpeedRange(0f, 2f);
         assertTrue(s1.compareTo(s2) < 0);
         assertTrue(s2.compareTo(s1) > 0);
     }
 
     public void testSpeedRangeComparison_MaxSpeed() {
-        CarUxRestrictionsConfiguration.Builder.SpeedRange s1 =
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 1f);
-        CarUxRestrictionsConfiguration.Builder.SpeedRange s2 =
-                new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f);
+        Builder.SpeedRange s1 =
+                new Builder.SpeedRange(0f, 1f);
+        Builder.SpeedRange s2 =
+                new Builder.SpeedRange(0f);
         assertTrue(s1.compareTo(s2) < 0);
         assertTrue(s2.compareTo(s1) > 0);
     }
 
     public void testSpeedRangeEquals() {
-        CarUxRestrictionsConfiguration.Builder.SpeedRange s1, s2;
+        Builder.SpeedRange s1, s2;
 
-        s1 = new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f);
+        s1 = new Builder.SpeedRange(0f);
         assertTrue(s1.equals(s1));
 
-        s1 = new CarUxRestrictionsConfiguration.Builder.SpeedRange(1f);
-        s2 = new CarUxRestrictionsConfiguration.Builder.SpeedRange(1f);
+        s1 = new Builder.SpeedRange(1f);
+        s2 = new Builder.SpeedRange(1f);
         assertTrue(s1.compareTo(s2) == 0);
         assertTrue(s1.equals(s2));
 
-        s1 = new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 1f);
-        s2 = new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 1f);
+        s1 = new Builder.SpeedRange(0f, 1f);
+        s2 = new Builder.SpeedRange(0f, 1f);
         assertTrue(s1.equals(s2));
 
-        s1 = new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, MAX_SPEED);
-        s2 = new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, MAX_SPEED);
+        s1 = new Builder.SpeedRange(0f, MAX_SPEED);
+        s2 = new Builder.SpeedRange(0f, MAX_SPEED);
         assertTrue(s1.equals(s2));
 
-        s1 = new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f);
-        s2 = new CarUxRestrictionsConfiguration.Builder.SpeedRange(1f);
+        s1 = new Builder.SpeedRange(0f);
+        s2 = new Builder.SpeedRange(1f);
         assertFalse(s1.equals(s2));
 
-        s1 = new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 1f);
-        s2 = new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 2f);
+        s1 = new Builder.SpeedRange(0f, 1f);
+        s2 = new Builder.SpeedRange(0f, 2f);
         assertFalse(s1.equals(s2));
     }
 
-    // TODO: add more tests that each verifies setting one filed in builder can be
-    // successfully retrieved out of saved json.
     public void testJsonSerialization_DefaultConstructor() {
         CarUxRestrictionsConfiguration config =
-                new CarUxRestrictionsConfiguration.Builder().build();
+                new Builder().build();
 
         verifyConfigThroughJsonSerialization(config);
     }
 
     public void testJsonSerialization_RestrictionParameters() {
-        CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
+        CarUxRestrictionsConfiguration config = new Builder()
                 .setMaxStringLength(1)
                 .setMaxCumulativeContentItems(1)
                 .setMaxContentDepth(1)
@@ -276,7 +344,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     }
 
     public void testJsonSerialization_NonMovingStateRestrictions() {
-        CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
+        CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_PARKED, false, UX_RESTRICTIONS_BASELINE)
                 .build();
 
@@ -284,7 +352,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     }
 
     public void testJsonSerialization_MovingStateNoSpeedRange() {
-        CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
+        CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_MOVING, true, UX_RESTRICTIONS_FULLY_RESTRICTED)
                 .build();
 
@@ -292,13 +360,36 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     }
 
     public void testJsonSerialization_MovingStateWithSpeedRange() {
-        CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
-                .setUxRestrictions(DRIVING_STATE_MOVING,
-                        new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 5f),
-                        true, UX_RESTRICTIONS_FULLY_RESTRICTED)
-                .setUxRestrictions(DRIVING_STATE_MOVING,
-                        new CarUxRestrictionsConfiguration.Builder.SpeedRange(5f, MAX_SPEED),
-                        true, UX_RESTRICTIONS_FULLY_RESTRICTED)
+        CarUxRestrictionsConfiguration config = new Builder()
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        .setSpeedRange(new Builder.SpeedRange(0f, 5f)))
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        .setSpeedRange(new Builder.SpeedRange(5f, MAX_SPEED)))
+                .build();
+
+        verifyConfigThroughJsonSerialization(config);
+    }
+
+    public void testJsonSerialization_UxRestrictionMode() {
+        CarUxRestrictionsConfiguration config = new Builder()
+                // Passenger mode
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(false)
+                        .setRestrictions(UX_RESTRICTIONS_BASELINE)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER))
+                // Explicitly specify baseline mode
+                .setUxRestrictions(DRIVING_STATE_PARKED, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_NO_VIDEO)
+                        .setMode(UX_RESTRICTION_MODE_BASELINE))
+                // Implicitly defaults to baseline mode
+                .setUxRestrictions(DRIVING_STATE_IDLING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_NO_VIDEO))
                 .build();
 
         verifyConfigThroughJsonSerialization(config);
@@ -307,31 +398,45 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     public void testDump() {
         CarUxRestrictionsConfiguration[] configs = new CarUxRestrictionsConfiguration[] {
                 // Driving state with no speed range
-                new CarUxRestrictionsConfiguration.Builder()
+                new Builder()
                         .setUxRestrictions(DRIVING_STATE_PARKED, false, UX_RESTRICTIONS_BASELINE)
                         .setUxRestrictions(DRIVING_STATE_IDLING, true, UX_RESTRICTIONS_NO_VIDEO)
                         .setUxRestrictions(DRIVING_STATE_MOVING, true, UX_RESTRICTIONS_NO_VIDEO)
                         .build(),
                 // Parameters
-                new CarUxRestrictionsConfiguration.Builder()
+                new Builder()
                         .setMaxStringLength(1)
                         .setMaxContentDepth(1)
                         .setMaxCumulativeContentItems(1)
                         .build(),
                 // Driving state with single speed range
-                new CarUxRestrictionsConfiguration.Builder()
-                        .setUxRestrictions(DRIVING_STATE_MOVING,
-                                new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f),
-                                true, UX_RESTRICTIONS_NO_VIDEO)
+                new Builder()
+                        .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(true)
+                                .setRestrictions(UX_RESTRICTIONS_NO_VIDEO)
+                                .setSpeedRange(new Builder.SpeedRange(0f)))
                         .build(),
                 // Driving state with multiple speed ranges
-                new CarUxRestrictionsConfiguration.Builder()
-                        .setUxRestrictions(DRIVING_STATE_MOVING,
-                                new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 1f),
-                                true, UX_RESTRICTIONS_NO_VIDEO)
-                        .setUxRestrictions(DRIVING_STATE_MOVING,
-                                new CarUxRestrictionsConfiguration.Builder.SpeedRange(1f),
-                                true, UX_RESTRICTIONS_NO_VIDEO)
+                new Builder()
+                        .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(true)
+                                .setRestrictions(UX_RESTRICTIONS_NO_VIDEO)
+                                .setSpeedRange(new Builder.SpeedRange(0f, 1f)))
+                        .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(true)
+                                .setRestrictions(UX_RESTRICTIONS_NO_VIDEO)
+                                .setSpeedRange(new Builder.SpeedRange(1f)))
+                        .build(),
+                // Driving state with passenger mode
+                new Builder()
+                        .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(false)
+                                .setRestrictions(UX_RESTRICTIONS_BASELINE)
+                                .setMode(UX_RESTRICTION_MODE_PASSENGER))
+                        .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(true)
+                                .setRestrictions(UX_RESTRICTIONS_NO_VIDEO)
+                                .setMode(UX_RESTRICTION_MODE_BASELINE))
                         .build(),
         };
 
@@ -341,14 +446,19 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     }
 
     public void testDumpContainsNecessaryInfo() {
-
-        CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
-                .setUxRestrictions(DRIVING_STATE_MOVING,
-                        new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 1f),
-                        true, UX_RESTRICTIONS_NO_VIDEO)
-                .setUxRestrictions(DRIVING_STATE_MOVING,
-                        new CarUxRestrictionsConfiguration.Builder.SpeedRange(1f),
-                        true, UX_RESTRICTIONS_NO_VIDEO)
+        CarUxRestrictionsConfiguration config = new Builder()
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_NO_VIDEO)
+                        .setSpeedRange(new Builder.SpeedRange(0f, 1f)))
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_NO_VIDEO)
+                        .setSpeedRange(new Builder.SpeedRange(1f)))
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(false)
+                        .setRestrictions(UX_RESTRICTIONS_BASELINE)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER))
                 .build();
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try (PrintWriter writer = new PrintWriter(output)) {
@@ -363,8 +473,74 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertTrue(dump.contains("Speed Range"));
         assertTrue(dump.contains("Requires DO?"));
         assertTrue(dump.contains("Restrictions"));
+        assertTrue(dump.contains("Passenger mode"));
+        assertTrue(dump.contains("Baseline mode"));
     }
 
+    public void testSetUxRestrictions_UnspecifiedModeDefaultsToBaseline() {
+        CarUxRestrictionsConfiguration config = new Builder()
+                .setUxRestrictions(DRIVING_STATE_PARKED, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_NO_VIDEO))
+                .build();
+
+        CarUxRestrictions restrictions = config.getUxRestrictions(DRIVING_STATE_PARKED, 0f);
+        assertTrue(restrictions.isRequiresDistractionOptimization());
+        assertEquals(UX_RESTRICTIONS_NO_VIDEO, restrictions.getActiveRestrictions());
+
+        assertTrue(restrictions.isSameRestrictions(
+                config.getUxRestrictions(DRIVING_STATE_PARKED, 0f, UX_RESTRICTIONS_BASELINE)));
+    }
+
+    public void testSetUxRestrictions_PassengerMode() {
+        CarUxRestrictionsConfiguration config = new Builder()
+                .setUxRestrictions(DRIVING_STATE_PARKED, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(false)
+                        .setRestrictions(UX_RESTRICTIONS_BASELINE)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER))
+                .setUxRestrictions(DRIVING_STATE_PARKED, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_NO_VIDEO))
+                .build();
+
+        CarUxRestrictions passenger = config.getUxRestrictions(
+                DRIVING_STATE_PARKED, 0f, UX_RESTRICTION_MODE_PASSENGER);
+        assertFalse(passenger.isRequiresDistractionOptimization());
+
+        CarUxRestrictions baseline = config.getUxRestrictions(
+                DRIVING_STATE_PARKED, 0f, UX_RESTRICTION_MODE_BASELINE);
+        assertTrue(baseline.isRequiresDistractionOptimization());
+        assertEquals(UX_RESTRICTIONS_NO_VIDEO, baseline.getActiveRestrictions());
+    }
+
+    public void testPassengerModeFallbackToBaseline() {
+        CarUxRestrictionsConfiguration config = new Builder()
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_NO_VIDEO))
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(false)
+                        .setRestrictions(UX_RESTRICTIONS_BASELINE)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER)
+                        .setSpeedRange(new Builder.SpeedRange(3f)))
+                .build();
+
+        // Retrieve at speed within passenger mode range.
+        CarUxRestrictions passenger = config.getUxRestrictions(
+                DRIVING_STATE_MOVING, 5f, UX_RESTRICTION_MODE_PASSENGER);
+        assertFalse(passenger.isRequiresDistractionOptimization());
+
+        // Retrieve with passenger mode but outside speed range
+        CarUxRestrictions baseline = config.getUxRestrictions(
+                DRIVING_STATE_MOVING, 1f, UX_RESTRICTION_MODE_PASSENGER);
+        assertTrue(baseline.isRequiresDistractionOptimization());
+        assertEquals(UX_RESTRICTIONS_NO_VIDEO, baseline.getActiveRestrictions());
+    }
+
+    /**
+     * Writes input config as json, then reads a config out of json.
+     * Asserts the deserialized config is the same as input.
+     */
     private void verifyConfigThroughJsonSerialization(CarUxRestrictionsConfiguration config) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try (JsonWriter writer = new JsonWriter(new OutputStreamWriter(out))) {
