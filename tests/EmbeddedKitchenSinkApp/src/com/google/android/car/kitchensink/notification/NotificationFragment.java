@@ -506,6 +506,7 @@ public class NotificationFragment extends Fragment {
                     .setContentTitle("+1 1231231234")
                     .setContentText("Shows persistent heads-up")
                     .setCategory(Notification.CATEGORY_CALL)
+                    .setOngoing(true)
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .setFullScreenIntent(pendingIntent, true)
                     .setColor(mContext.getColor(android.R.color.holo_red_light))
