@@ -85,8 +85,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
     private static final int SHUTDOWN_EXTEND_MAX_MS = 5000;
 
-    // Use one hour for now
-    private static int sShutdownPrepareTimeMs = 60 * 60 * 1000;
+    // maxGarageModeRunningDurationInSecs should be equal or greater than this. 15 min for now.
+    private static final int MIN_MAX_GARAGE_MODE_DURATION_MS = 15 * 60 * 1000;
+
+    private static int sShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
 
     private class PowerManagerCallbackList extends RemoteCallbackList<ICarPowerStateListener> {
         /**
@@ -107,6 +109,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mHal = powerHal;
         mSystemInterface = systemInterface;
         mCarUserManagerHelper = carUserManagerHelper;
+        sShutdownPrepareTimeMs = mContext.getResources().getInteger(
+                R.integer.maxGarageModeRunningDurationInSecs) * 1000;
+        if (sShutdownPrepareTimeMs < MIN_MAX_GARAGE_MODE_DURATION_MS) {
+            Log.w(CarLog.TAG_POWER,
+                    "maxGarageModeRunningDurationInSecs smaller than minimum required, resource:"
+                    + sShutdownPrepareTimeMs + "(ms) while should exceed:"
+                    +  MIN_MAX_GARAGE_MODE_DURATION_MS + "(ms), Ignore resource.");
+            sShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
+        }
     }
 
     /**
@@ -181,7 +192,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         writer.print(",mLastSleepEntryTime:" + mLastSleepEntryTime);
         writer.print(",mNextWakeupSec:" + mNextWakeupSec);
         writer.print(",mTokenValue:" + mTokenValue);
-        writer.println(",mShutdownOnFinish:" + mShutdownOnFinish);
+        writer.print(",mShutdownOnFinish:" + mShutdownOnFinish);
+        writer.println(",sShutdownPrepareTimeMs:" + sShutdownPrepareTimeMs);
     }
 
     @Override
