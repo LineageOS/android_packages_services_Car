@@ -104,7 +104,9 @@
     <string name="stop_wav" translatable="false">Stop WAV</string>
     <string name="audio_focus" translatable="false">Audio Focus</string>
     <string name="focus_gain" translatable="false">Gain</string>
-    <string name="focus_gain_transient_duck" translatable="false">Gain,Transient,Duck</string>
+    <string name="focus_gain_transient" translatable="false">Gain (Transient)</string>
+    <string name="focus_gain_transient_duck" translatable="false">Gain (Transient, May Duck)</string>
+    <string name="focus_gain_transient_exclusive" translatable="false">Gain (Transient, Exclusive)</string>
     <string name="focus_release" translatable="false">Release</string>
     <string name="request" translatable="false">request</string>
     <string name="release" translatable="false">release</string>
