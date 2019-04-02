@@ -486,8 +486,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 // If VHAL sends SHUTDOWN_IMMEDIATELY while in SHUTDOWN_PREPARE state, do it.
                 return ((newState.mState == CpmsState.SHUTDOWN_PREPARE) && !newState.mCanPostpone)
                     || (newState.mState == CpmsState.WAIT_FOR_FINISH)
-                    || (newState.mState == CpmsState.WAIT_FOR_VHAL)
-                    || (newState.mState == CpmsState.ON);
+                    || (newState.mState == CpmsState.WAIT_FOR_VHAL);
             case CpmsState.SIMULATE_SLEEP:
                 return true;
             case CpmsState.WAIT_FOR_FINISH:
