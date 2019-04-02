@@ -479,6 +479,8 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_GET_DO_ACTIVITIES = "get-do-activities";
         private static final String COMMAND_GET_CARPROPERTYCONFIG = "get-carpropertyconfig";
         private static final String COMMAND_PROJECTION_UI_MODE = "projection-ui-mode";
+        private static final String COMMAND_RESUME = "resume";
+        private static final String COMMAND_SUSPEND = "suspend";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -505,6 +507,10 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  Get Distraction Optimized activities in given package.");
             pw.println("\tget-carpropertyconfig [propertyId]");
             pw.println("\t  Get a CarPropertyConfig by Id in Hex or list all CarPropertyConfigs");
+            pw.println("\tsuspend");
+            pw.println("\t  Suspend the system to Deep Sleep.");
+            pw.println("\tresume");
+            pw.println("\t  Wake the system up after a 'suspend.'");
         }
 
         public void exec(String[] args, PrintWriter writer) {
@@ -583,6 +589,14 @@ public class ICarImpl extends ICar.Stub {
                         break;
                     }
                     mCarProjectionService.setUiMode(Integer.valueOf(args[1]));
+                    break;
+                case COMMAND_RESUME:
+                    mCarPowerManagementService.forceSimulatedResume();
+                    writer.println("Resume: Simulating resuming from Deep Sleep");
+                    break;
+                case COMMAND_SUSPEND:
+                    mCarPowerManagementService.forceSimulatedSuspend();
+                    writer.println("Resume: Simulating powering down to Deep Sleep");
                     break;
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");

@@ -69,6 +69,34 @@ public class PowerHalService extends HalServiceBase {
     @VisibleForTesting
     public static final int SHUTDOWN_ONLY = VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY;
 
+    private static String powerStateReportName(int state) {
+        String baseName;
+        switch(state) {
+            case SET_WAIT_FOR_VHAL:      baseName = "WAIT_FOR_VHAL";      break;
+            case SET_DEEP_SLEEP_ENTRY:   baseName = "DEEP_SLEEP_ENTRY";   break;
+            case SET_DEEP_SLEEP_EXIT:    baseName = "DEEP_SLEEP_EXIT";    break;
+            case SET_SHUTDOWN_POSTPONE:  baseName = "SHUTDOWN_POSTPONE";  break;
+            case SET_SHUTDOWN_START:     baseName = "SHUTDOWN_START";     break;
+            case SET_ON:                 baseName = "ON";                 break;
+            case SET_SHUTDOWN_PREPARE:   baseName = "SHUTDOWN_PREPARE";   break;
+            case SET_SHUTDOWN_CANCELLED: baseName = "SHUTDOWN_CANCELLED"; break;
+            default:                     baseName = "<unknown>";          break;
+        }
+        return baseName + "(" + state + ")";
+    }
+
+    private static String powerStateReqName(int state) {
+        String baseName;
+        switch(state) {
+            case VehicleApPowerStateReq.ON:               baseName = "ON";               break;
+            case VehicleApPowerStateReq.SHUTDOWN_PREPARE: baseName = "SHUTDOWN_PREPARE"; break;
+            case VehicleApPowerStateReq.CANCEL_SHUTDOWN:  baseName = "CANCEL_SHUTDOWN";  break;
+            case VehicleApPowerStateReq.FINISHED:         baseName = "FINISHED";         break;
+            default:                                      baseName = "<unknown>";        break;
+        }
+        return baseName + "(" + state + ")";
+    }
+
     public interface PowerEventListener {
         /**
          * Received power state change event.
@@ -252,7 +280,8 @@ public class PowerHalService extends HalServiceBase {
             int[] values = { state, additionalParam };
             try {
                 mHal.set(VehicleProperty.AP_POWER_STATE_REPORT, 0).to(values);
-                Log.i(CarLog.TAG_POWER, "setPowerState=" + state + " param=" + additionalParam);
+                Log.i(CarLog.TAG_POWER, "setPowerState=" + powerStateReportName(state)
+                        + " param=" + additionalParam);
             } catch (PropertyTimeoutException e) {
                 Log.e(CarLog.TAG_POWER, "cannot set to AP_POWER_STATE_REPORT", e);
             }
@@ -359,8 +388,8 @@ public class PowerHalService extends HalServiceBase {
                 case AP_POWER_STATE_REQ:
                     int state = v.value.int32Values.get(VehicleApPowerStateReqIndex.STATE);
                     int param = v.value.int32Values.get(VehicleApPowerStateReqIndex.ADDITIONAL);
-                    Log.i(CarLog.TAG_POWER, "Received AP_POWER_STATE_REQ=" + state
-                            + " param=" + param);
+                    Log.i(CarLog.TAG_POWER, "Received AP_POWER_STATE_REQ="
+                            + powerStateReqName(state) + " param=" + param);
                     listener.onApPowerStateChange(new PowerState(state, param));
                     break;
                 case DISPLAY_BRIGHTNESS:
