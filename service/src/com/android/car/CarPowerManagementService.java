@@ -57,6 +57,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final SystemInterface mSystemInterface;
     private final PowerManagerCallbackList mPowerManagerListeners = new PowerManagerCallbackList();
     private final Map<IBinder, Integer> mPowerManagerListenerTokens = new ConcurrentHashMap<>();
+    private final Object mSimulationSleepObject = new Object();
 
     @GuardedBy("this")
     private CpmsState mCurrentState;
@@ -74,12 +75,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private PowerHandler mHandler;
     @GuardedBy("this")
     private boolean mTimerActive;
+    @GuardedBy("mSimulationSleepObject")
+    private boolean mInSimulatedDeepSleepMode = false;
+    @GuardedBy("mSimulationSleepObject")
+    private boolean mWakeFromSimulatedSleep = false;
     private int mNextWakeupSec = 0;
     private int mTokenValue = 1;
     private boolean mShutdownOnFinish = false;
     private boolean mIsBooting = true;
-    private boolean mSimulatingDeepSleep = false;
-    private Object mSimulationSleepObject = new Object();
 
     private final CarUserManagerHelper mCarUserManagerHelper;
 
@@ -354,11 +357,17 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void handleFinish() {
-        if (mShutdownOnFinish && !mSimulatingDeepSleep) {
+        boolean mustShutDown;
+        boolean simulatedMode;
+        synchronized (mSimulationSleepObject) {
+            simulatedMode = mInSimulatedDeepSleepMode;
+            mustShutDown = mShutdownOnFinish && !simulatedMode;
+        }
+        if (mustShutDown) {
             // shutdown HU
             mSystemInterface.shutdown();
         } else {
-            doHandleDeepSleep();
+            doHandleDeepSleep(simulatedMode);
         }
     }
 
@@ -435,7 +444,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void doHandleDeepSleep() {
+    private void doHandleDeepSleep(boolean simulatedMode) {
         // keep holding partial wakelock to prevent entering sleep before enterDeepSleep call
         // enterDeepSleep should force sleep entry even if wake lock is kept.
         mSystemInterface.switchToPartialWakeLock();
@@ -447,7 +456,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (CarPowerManagementService.this) {
             mLastSleepEntryTime = SystemClock.elapsedRealtime();
         }
-        if (mSimulatingDeepSleep) {
+        if (simulatedMode) {
             simulateSleepByLooping();
         } else {
             boolean sleepSucceeded = mSystemInterface.enterDeepSleep();
@@ -868,7 +877,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     public void forceSimulatedResume() {
         synchronized (mSimulationSleepObject) {
-            mSimulatingDeepSleep = false;
+            mWakeFromSimulatedSleep = true;
             mSimulationSleepObject.notify();
         }
     }
@@ -881,7 +890,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     public void forceSimulatedSuspend() {
         synchronized (mSimulationSleepObject) {
-            mSimulatingDeepSleep = true;
+            mInSimulatedDeepSleepMode = true;
+            mWakeFromSimulatedSleep = false;
         }
         PowerHandler handler;
         synchronized (this) {
@@ -900,12 +910,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void simulateSleepByLooping() {
         Log.i(CarLog.TAG_POWER, "Starting to simulate Deep Sleep by looping");
         synchronized (mSimulationSleepObject) {
-            while (mSimulatingDeepSleep) {
+            while (!mWakeFromSimulatedSleep) {
                 try {
                     mSimulationSleepObject.wait();
                 } catch (InterruptedException ignored) {
                 }
             }
+            mInSimulatedDeepSleepMode = false;
         }
         Log.i(CarLog.TAG_POWER, "Exit Deep Sleep simulation loop");
     }
