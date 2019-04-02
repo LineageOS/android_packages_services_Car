@@ -215,6 +215,9 @@ java_library_static {
         },
     },
     compile_dex: true,
+    dist: {
+        targets: ["dist_files"],
+    }
 }
 
 java_library_static {
@@ -231,6 +234,9 @@ java_library_static {
         },
     },
     compile_dex: true,
+    dist: {
+        targets: ["dist_files"],
+    }
 }
 
 java_library_static {

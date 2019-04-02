@@ -129,6 +129,10 @@
          device specific model id. -->
     <integer name="fastPairModelId">0x000000</integer>
 
+    <!-- Maximum allowed time to run garage mode. Note that 15 min (=900sec) is the minimum required
+         duration and this should not be made shorter. -->
+    <integer name="maxGarageModeRunningDurationInSecs">900</integer>
+
     <!-- The garage mode configuration, specifying the time after shutdown to reboot into garage
          mode and the number of attempts at that time to try before moving to the next wake up
          time. This is intended to be a back-off pattern. -->
