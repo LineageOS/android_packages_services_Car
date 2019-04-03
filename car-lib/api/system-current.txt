@@ -833,7 +833,6 @@ package android.car.storagemonitoring {
   public final class IoStats implements android.os.Parcelable {
     ctor public IoStats(java.util.List<android.car.storagemonitoring.IoStatsEntry>, long);
     ctor public IoStats(android.os.Parcel);
-    ctor public IoStats(org.json.JSONObject) throws org.json.JSONException;
     method public int describeContents();
     method public android.car.storagemonitoring.IoStatsEntry.Metrics getBackgroundTotals();
     method public android.car.storagemonitoring.IoStatsEntry.Metrics getForegroundTotals();
@@ -841,7 +840,6 @@ package android.car.storagemonitoring {
     method public long getTimestamp();
     method public android.car.storagemonitoring.IoStatsEntry.Metrics getTotals();
     method public android.car.storagemonitoring.IoStatsEntry getUserIdStats(int);
-    method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStats> CREATOR;
   }
@@ -850,9 +848,7 @@ package android.car.storagemonitoring {
     ctor public IoStatsEntry(int, long, android.car.storagemonitoring.IoStatsEntry.Metrics, android.car.storagemonitoring.IoStatsEntry.Metrics);
     ctor public IoStatsEntry(android.os.Parcel);
     ctor public IoStatsEntry(android.car.storagemonitoring.UidIoRecord, long);
-    ctor public IoStatsEntry(org.json.JSONObject) throws org.json.JSONException;
     method public int describeContents();
-    method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStatsEntry> CREATOR;
     field public final android.car.storagemonitoring.IoStatsEntry.Metrics background;
@@ -864,9 +860,7 @@ package android.car.storagemonitoring {
   public static final class IoStatsEntry.Metrics implements android.os.Parcelable {
     ctor public IoStatsEntry.Metrics(long, long, long, long, long);
     ctor public IoStatsEntry.Metrics(android.os.Parcel);
-    ctor public IoStatsEntry.Metrics(org.json.JSONObject) throws org.json.JSONException;
     method public int describeContents();
-    method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStatsEntry.Metrics> CREATOR;
     field public final long bytesRead;
@@ -879,9 +873,7 @@ package android.car.storagemonitoring {
   public final class LifetimeWriteInfo implements android.os.Parcelable {
     ctor public LifetimeWriteInfo(String, String, long);
     ctor public LifetimeWriteInfo(android.os.Parcel);
-    ctor public LifetimeWriteInfo(org.json.JSONObject) throws org.json.JSONException;
     method public int describeContents();
-    method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStats> CREATOR;
     field public final String fstype;
@@ -907,9 +899,7 @@ package android.car.storagemonitoring {
   public final class WearEstimate implements android.os.Parcelable {
     ctor public WearEstimate(int, int);
     ctor public WearEstimate(android.os.Parcel);
-    ctor public WearEstimate(android.util.JsonReader) throws java.io.IOException;
     method public int describeContents();
-    method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.WearEstimate> CREATOR;
     field public static final int UNKNOWN = -1; // 0xffffffff
