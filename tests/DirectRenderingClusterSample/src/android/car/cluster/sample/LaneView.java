@@ -41,6 +41,13 @@ public class LaneView extends LinearLayout {
 
     private final int mWidth = (int) getResources().getDimension(R.dimen.lane_width);
     private final int mHeight = (int) getResources().getDimension(R.dimen.lane_height);
+    private final int mOffset = (int) getResources().getDimension(R.dimen.lane_icon_offset);
+
+    private enum Shift {
+        LEFT,
+        RIGHT,
+        BOTH
+    }
 
     public LaneView(Context context) {
         super(context);
@@ -75,30 +82,103 @@ public class LaneView extends LinearLayout {
         Bitmap bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
+        Shift shift = getShift(lane);
+
         for (LaneDirection laneDir : lane.getDirections()) {
             if (!laneDir.isHighlighted()) {
-                drawToCanvas(laneDir, canvas, false);
+                drawToCanvas(laneDir, canvas, false, shift);
             }
         }
 
         for (LaneDirection laneDir : lane.getDirections()) {
             if (laneDir.isHighlighted()) {
-                drawToCanvas(laneDir, canvas, true);
+                drawToCanvas(laneDir, canvas, true, shift);
             }
         }
 
         return bitmap;
     }
 
-
-    private void drawToCanvas(LaneDirection laneDir, Canvas canvas, boolean isHighlighted) {
+    private void drawToCanvas(LaneDirection laneDir, Canvas canvas, boolean isHighlighted,
+            Shift shift) {
+        int offset = getOffset(laneDir, shift);
         VectorDrawable icon = (VectorDrawable) getLaneIcon(laneDir);
-        icon.setBounds(0, 0, mWidth, mHeight);
+        icon.setBounds(offset, 0, mWidth + offset, mHeight);
         icon.setColorFilter(new PorterDuffColorFilter(isHighlighted
                 ? getContext().getColor(R.color.laneDirectionHighlighted)
                 : getContext().getColor(R.color.laneDirection),
                 PorterDuff.Mode.SRC_ATOP));
         icon.draw(canvas);
+    }
+
+    /**
+     * Determines the offset direction to line up overlapping lane directions.
+     */
+    private Shift getShift(Lane lane) {
+        boolean containsRight = false;
+        boolean containsLeft = false;
+        boolean containsStraight = false;
+
+        for (LaneDirection laneDir : lane.getDirections()) {
+            if (laneDir.getShape().equals(LaneDirection.Shape.NORMAL_RIGHT)
+                    || laneDir.getShape().equals(LaneDirection.Shape.SLIGHT_RIGHT)
+                    || laneDir.getShape().equals(LaneDirection.Shape.SHARP_RIGHT)
+                    || laneDir.getShape().equals(LaneDirection.Shape.U_TURN_RIGHT)) {
+                containsRight = true;
+            }
+            if (laneDir.getShape().equals(LaneDirection.Shape.NORMAL_LEFT)
+                    || laneDir.getShape().equals(LaneDirection.Shape.SLIGHT_LEFT)
+                    || laneDir.getShape().equals(LaneDirection.Shape.SHARP_LEFT)
+                    || laneDir.getShape().equals(LaneDirection.Shape.U_TURN_LEFT)) {
+                containsLeft = true;
+            }
+            if (laneDir.getShape().equals(LaneDirection.Shape.STRAIGHT)) {
+                containsStraight = true;
+            }
+        }
+
+        if (containsLeft && containsRight) {
+            //shift turns outwards
+            return Shift.BOTH;
+        } else if (containsStraight && containsRight) {
+            //shift straight lane dir to the left
+            return Shift.LEFT;
+        } else if (containsStraight && containsLeft) {
+            //shift straight lane dir to the right
+            return Shift.RIGHT;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the offset value of the lane direction based on the given shift direction.
+     */
+    private int getOffset(LaneDirection laneDir, Shift shift) {
+        if (shift == Shift.BOTH) {
+            if (laneDir.getShape().equals(LaneDirection.Shape.NORMAL_LEFT)
+                    || laneDir.getShape().equals(LaneDirection.Shape.SLIGHT_LEFT)
+                    || laneDir.getShape().equals(LaneDirection.Shape.SHARP_LEFT)
+                    || laneDir.getShape().equals(LaneDirection.Shape.U_TURN_LEFT)) {
+                return -mOffset;
+            }
+            if (laneDir.getShape().equals(LaneDirection.Shape.NORMAL_RIGHT)
+                    || laneDir.getShape().equals(LaneDirection.Shape.SLIGHT_RIGHT)
+                    || laneDir.getShape().equals(LaneDirection.Shape.SHARP_RIGHT)
+                    || laneDir.getShape().equals(LaneDirection.Shape.U_TURN_RIGHT)) {
+                return mOffset;
+            }
+        } else if (shift == Shift.LEFT) {
+            if (laneDir.getShape().equals(LaneDirection.Shape.STRAIGHT)) {
+                return -mOffset;
+            }
+        } else if (shift == Shift.RIGHT) {
+            if (laneDir.getShape().equals(LaneDirection.Shape.STRAIGHT)) {
+                return mOffset;
+            }
+        }
+
+        return 0;
     }
 
     private Drawable getLaneIcon(@Nullable LaneDirection laneDir) {

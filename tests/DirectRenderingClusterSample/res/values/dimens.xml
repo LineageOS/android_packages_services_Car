@@ -27,12 +27,14 @@
     <!-- Maneuver -->
     <dimen name="maneuver_width">60dp</dimen>
     <dimen name="maneuver_height">60dp</dimen>
-    <dimen name="maneuver_margin">10dp</dimen>
+    <dimen name="maneuver_margin">8dp</dimen>
     <!-- Distance -->
+    <dimen name="distance_width">125dp</dimen>
     <dimen name="distance_text_size">20sp</dimen>
     <!-- Segment -->
     <dimen name="segment_text_size">15sp</dimen>
     <!-- ETA -->
+    <dimen name="eta_margin_right">15dp</dimen>
     <dimen name="eta_text_size">15sp</dimen>
     <!-- Cue -->
     <dimen name="cue_text_size">15sp</dimen>
@@ -40,6 +42,8 @@
     <dimen name="laneview_height">25dp</dimen>
     <dimen name="lane_width">50dp</dimen>
     <dimen name="lane_height">50dp</dimen>
+
+    <dimen name="lane_icon_offset">12.5dp</dimen>
 
     <!--                                   -->
     <!-- Sensor value conversion constants -->
