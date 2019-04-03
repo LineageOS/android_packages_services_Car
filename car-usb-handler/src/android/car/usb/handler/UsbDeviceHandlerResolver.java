@@ -222,8 +222,9 @@ public final class UsbDeviceHandlerResolver {
         List<ResolveInfo> resolveInfos =
                 mPackageManager.queryIntentActivities(intent, PackageManager.GET_META_DATA);
         for (ResolveInfo resolveInfo : resolveInfos) {
-            if (forAoap && !hasAoapPermission(resolveInfo.resolvePackageName)) {
-                Log.w(TAG, "Package " + resolveInfo.resolvePackageName + " does not hold "
+            final String packageName = resolveInfo.activityInfo.packageName;
+            if (forAoap && !hasAoapPermission(packageName)) {
+                Log.w(TAG, "Package " + packageName + " does not hold "
                         + AOAP_HANDLE_PERMISSION + " permission. Ignore the package.");
                 continue;
             }

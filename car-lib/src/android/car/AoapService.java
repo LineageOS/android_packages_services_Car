@@ -45,7 +45,7 @@ import java.lang.ref.WeakReference;
  * following permission: {@code android.car.permission.CAR_HANDLE_USB_AOAP_DEVICE}.
  *
  * <p>This service gets bound by the framework and the service needs to be protected by
- * {@code android.car.permission.CAR_HANDLE_USB_AOAP_DEVICE} permission to ensure nobody else can
+ * {@code android.permission.MANAGE_USB} permission to ensure nobody else can
  * bind to the service. At most only one client should be bound at a time.
  *
  * @hide

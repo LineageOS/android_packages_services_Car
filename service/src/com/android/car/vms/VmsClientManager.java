@@ -32,6 +32,7 @@ import android.util.Log;
 
 import com.android.car.CarServiceBase;
 import com.android.car.R;
+import com.android.car.hal.VmsHalService;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
@@ -47,6 +48,7 @@ import java.util.Map;
 public class VmsClientManager implements CarServiceBase {
     private static final boolean DBG = false;
     private static final String TAG = "VmsClientManager";
+    private static final String HAL_CLIENT_NAME = "VmsHalClient";
 
     /**
      * Interface for receiving updates about client connections.
@@ -71,6 +73,7 @@ public class VmsClientManager implements CarServiceBase {
     private final Context mContext;
     private final Handler mHandler;
     private final CarUserManagerHelper mUserManagerHelper;
+    private final IBinder mHalClient;
     private final int mMillisBeforeRebind;
 
     @GuardedBy("mListeners")
@@ -115,11 +118,14 @@ public class VmsClientManager implements CarServiceBase {
      *
      * @param context           Context to use for registering receivers and binding services.
      * @param userManagerHelper User manager for querying current user state.
+     * @param halService        Service providing the HAL client interface
      */
-    public VmsClientManager(Context context, CarUserManagerHelper userManagerHelper) {
+    public VmsClientManager(Context context, CarUserManagerHelper userManagerHelper,
+            VmsHalService halService) {
         mContext = context;
         mHandler = new Handler(Looper.getMainLooper());
         mUserManagerHelper = userManagerHelper;
+        mHalClient = halService.getPublisherClient();
         mMillisBeforeRebind = mContext.getResources().getInteger(
                 com.android.car.R.integer.millisecondsBeforeRebindToVmsPublisher);
     }
@@ -140,6 +146,7 @@ public class VmsClientManager implements CarServiceBase {
     public void release() {
         mContext.unregisterReceiver(mBootCompletedReceiver);
         mContext.unregisterReceiver(mUserSwitchReceiver);
+        notifyListenersOnClientDisconnected(HAL_CLIENT_NAME);
         synchronized (mSystemClients) {
             terminate(mSystemClients);
         }
@@ -168,6 +175,7 @@ public class VmsClientManager implements CarServiceBase {
                 mListeners.add(listener);
             }
         }
+        notifyListenerOfConnectedClients(listener);
     }
 
     /**
@@ -245,10 +253,18 @@ public class VmsClientManager implements CarServiceBase {
     }
 
     private void terminate(Map<String, ClientConnection> connectionMap) {
-        for (ClientConnection connection : connectionMap.values()) {
-            connection.terminate();
-        }
+        connectionMap.values().forEach(ClientConnection::terminate);
         connectionMap.clear();
+    }
+
+    private void notifyListenerOfConnectedClients(ConnectionListener listener) {
+        listener.onClientConnected(HAL_CLIENT_NAME, mHalClient);
+        synchronized (mSystemClients) {
+            mSystemClients.values().forEach(conn -> conn.notifyIfConnected(listener));
+        }
+        synchronized (mCurrentUserClients) {
+            mCurrentUserClients.values().forEach(conn -> conn.notifyIfConnected(listener));
+        }
     }
 
     private void notifyListenersOnClientConnected(String clientName, IBinder clientService) {
@@ -303,6 +319,10 @@ public class VmsClientManager implements CarServiceBase {
         }
 
         synchronized void unbind() {
+            if (!mIsBound) {
+                return;
+            }
+
             if (DBG) Log.d(TAG, "unbinding: " + mFullName);
             try {
                 mContext.unbindService(this);
@@ -331,6 +351,12 @@ public class VmsClientManager implements CarServiceBase {
             if (DBG) Log.d(TAG, "terminating: " + mFullName);
             mIsTerminated = true;
             unbind();
+        }
+
+        synchronized void notifyIfConnected(ConnectionListener listener) {
+            if (mClientService != null) {
+                listener.onClientConnected(mFullName, mClientService);
+            }
         }
 
         @Override

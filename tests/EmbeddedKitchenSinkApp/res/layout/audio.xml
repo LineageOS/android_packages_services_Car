@@ -65,10 +65,20 @@
                 android:layout_height="wrap_content"
                 android:text="@string/focus_gain" />
             <RadioButton
+                android:id="@+id/focus_gain_transient"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/focus_gain_transient" />
+            <RadioButton
                 android:id="@+id/focus_gain_transient_duck"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/focus_gain_transient_duck" />
+            <RadioButton
+                android:id="@+id/focus_gain_transient_exclusive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/focus_gain_transient_exclusive" />
             <RadioButton
                 android:id="@+id/focus_release"
                 android:layout_width="wrap_content"
@@ -148,6 +158,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/speaker_phone_off" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_weight="1">
         <Button
             android:id="@+id/button_microphone_on"
             android:layout_width="wrap_content"
