@@ -82,7 +82,10 @@ public final class CarUxRestrictions implements Parcelable {
     public static final int UX_RESTRICTIONS_NO_DIALPAD = 1;
 
     /**
-     * No filtering a list.
+     * No filtering a list with alpha-numeric character via the use of a character entry method.
+     *
+     * For example, do not allow entering a letter to filter the content of a list down to
+     * items only containing that letter.
      */
     public static final int UX_RESTRICTIONS_NO_FILTERING = 0x1 << 1;
 
@@ -93,7 +96,7 @@ public final class CarUxRestrictions implements Parcelable {
     public static final int UX_RESTRICTIONS_LIMIT_STRING_LENGTH = 0x1 << 2;
 
     /**
-     * No text entry for the purpose of searching etc.
+     * No text entry for the purpose of searching or other manual text string entry actvities.
      */
     public static final int UX_RESTRICTIONS_NO_KEYBOARD = 0x1 << 3;
 
@@ -103,8 +106,9 @@ public final class CarUxRestrictions implements Parcelable {
     public static final int UX_RESTRICTIONS_NO_VIDEO = 0x1 << 4;
 
     /**
-     * Limit the number of items displayed on the screen.
-     * Refer to {@link #getMaxCumulativeContentItems()} and
+     * Limit the number of items user can browse through in total in a single task.
+     *
+     * <p>Refer to {@link #getMaxCumulativeContentItems()} and
      * {@link #getMaxContentDepth()} for the upper bounds on content
      * serving.
      */
@@ -125,9 +129,8 @@ public final class CarUxRestrictions implements Parcelable {
      */
     public static final int UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION = 0x1 << 8;
 
-
     /**
-     * All the above restrictions are in effect.
+     * All restrictions are in effect.
      */
     public static final int UX_RESTRICTIONS_FULLY_RESTRICTED =
             UX_RESTRICTIONS_NO_DIALPAD | UX_RESTRICTIONS_NO_FILTERING

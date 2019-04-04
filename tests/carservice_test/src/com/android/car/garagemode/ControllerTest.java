@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -38,14 +39,20 @@ import android.os.Looper;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
+import com.android.car.CarLocalServices;
+import com.android.car.user.CarUserService;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -59,6 +66,8 @@ public class ControllerTest {
     @Mock private Handler mHandlerMock;
     @Mock private Car mCarMock;
     @Mock private CarPowerManager mCarPowerManagerMock;
+    @Mock private CarUserService mCarUserServiceMock;
+    private CarUserService mCarUserServiceOriginal;
     @Captor private ArgumentCaptor<Intent> mIntentCaptor;
     @Captor private ArgumentCaptor<Integer> mIntegerCaptor;
 
@@ -90,6 +99,16 @@ public class ControllerTest {
                 mCarMock);
         mController.setCarPowerManager(mCarPowerManagerMock);
         mFuture = new CompletableFuture<>();
+        mCarUserServiceOriginal = CarLocalServices.getService(CarUserService.class);
+        CarLocalServices.removeServiceForTest(CarUserService.class);
+        CarLocalServices.addService(CarUserService.class, mCarUserServiceMock);
+        doReturn(new ArrayList<Integer>()).when(mCarUserServiceMock).startAllBackgroundUsers();
+    }
+
+    @After
+    public void tearDown() {
+        CarLocalServices.removeServiceForTest(CarUserService.class);
+        CarLocalServices.addService(CarUserService.class, mCarUserServiceOriginal);
     }
 
     @Test
@@ -111,7 +130,7 @@ public class ControllerTest {
         assertThat(mController.isGarageModeActive()).isFalse();
 
         // Verify that monitoring thread has stopped
-        verify(mHandlerMock).removeCallbacks(any(Runnable.class));
+        verify(mHandlerMock, Mockito.atLeastOnce()).removeCallbacks(any(Runnable.class));
 
         // Verify that OFF signal broadcasted to JobScheduler
         verify(mContextMock, times(2)).sendBroadcast(mIntentCaptor.capture());
