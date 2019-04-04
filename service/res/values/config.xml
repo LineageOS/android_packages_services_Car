@@ -129,6 +129,10 @@
          device specific model id. -->
     <integer name="fastPairModelId">0x000000</integer>
 
+    <!-- Maximum allowed time to run garage mode. Note that 15 min (=900sec) is the minimum required
+         duration and this should not be made shorter. -->
+    <integer name="maxGarageModeRunningDurationInSecs">900</integer>
+
     <!-- The garage mode configuration, specifying the time after shutdown to reboot into garage
          mode and the number of attempts at that time to try before moving to the next wake up
          time. This is intended to be a back-off pattern. -->
@@ -157,5 +161,17 @@
 
     <!-- UI mode for projection activity. See ProjectionOptions class for possible values. -->
     <integer name="config_projectionUiMode" translatable="false">0</integer>
+
+    <!-- service/characteristics uuid for adding new escrow token -->
+    <string name="enrollment_service_uuid" translatable="false">5e2a68a4-27be-43f9-8d1e-4546976fabd7</string>
+    <string name="enrollment_handle_uuid" translatable="false">5e2a68a5-27be-43f9-8d1e-4546976fabd7</string>
+    <string name="enrollment_token_uuid" translatable="false">5e2a68a6-27be-43f9-8d1e-4546976fabd7</string>
+
+    <!-- service/characteristics uuid for unlocking a device -->
+    <string name="unlock_service_uuid" translatable="false">5e2a68a1-27be-43f9-8d1e-4546976fabd7</string>
+    <string name="unlock_escrow_token_uuid" translatable="false">5e2a68a2-27be-43f9-8d1e-4546976fabd7</string>
+    <string name="unlock_handle_uuid" translatable="false">5e2a68a3-27be-43f9-8d1e-4546976fabd7</string>
+
+    <string name="token_handle_shared_preferences" translatable="false">com.android.car.trust.TOKEN_HANDLE</string>
 
 </resources>

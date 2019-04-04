@@ -252,6 +252,12 @@
         android:description="@string/car_permission_desc_car_cluster_control" />
 
     <permission
+        android:name="android.car.permission.CAR_HANDLE_USB_AOAP_DEVICE"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_car_handle_usb_aoap_device"
+        android:description="@string/car_permission_desc_car_handle_usb_aoap_device" />
+
+    <permission
         android:name="android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_car_ux_restrictions_configuration"
@@ -262,6 +268,12 @@
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_storage_monitoring"
         android:description="@string/car_permission_desc_storage_monitoring" />
+
+    <permission
+        android:name="android.car.permission.CAR_ENROLL_TRUST"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_enroll_trust"
+        android:description="@string/car_permission_desc_enroll_trust" />
 
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.DEVICE_POWER" />
@@ -283,6 +295,7 @@
     <uses-permission android:name="android.permission.MANAGE_USERS" />
     <uses-permission android:name="android.permission.LOCATION_HARDWARE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.PROVIDE_TRUST_AGENT" />
 
     <application android:label="@string/app_title"
                  android:directBootAware="true"
@@ -297,6 +310,21 @@
             </intent-filter>
         </service>
         <service android:name=".PerUserCarService" android:exported="false" />
+
+        <service
+            android:name="com.android.car.trust.CarBleTrustAgent"
+            android:permission="android.permission.BIND_TRUST_AGENT"
+            android:singleUser="true">
+            <intent-filter>
+                <action android:name="android.service.trust.TrustAgentService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- Warning: the meta data must be included if the service is direct boot aware.
+                If not included, the device will crash before boot completes. Rendering the
+                device unusable. -->
+            <meta-data android:name="android.service.trust.trustagent"
+                       android:resource="@xml/car_trust_agent"/>
+        </service>
         <activity android:name="com.android.car.pm.ActivityBlockingActivity"
                   android:excludeFromRecents="true"
                   android:theme="@android:style/Theme.Translucent.NoTitleBar"

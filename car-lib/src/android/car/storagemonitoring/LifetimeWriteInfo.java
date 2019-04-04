@@ -30,7 +30,7 @@ import org.json.JSONObject;
  * @hide
  */
 @SystemApi
-public class LifetimeWriteInfo implements Parcelable {
+public final class LifetimeWriteInfo implements Parcelable {
     public static final Creator<IoStats> CREATOR = new Creator<IoStats>() {
         @Override
         public IoStats createFromParcel(Parcel in) {

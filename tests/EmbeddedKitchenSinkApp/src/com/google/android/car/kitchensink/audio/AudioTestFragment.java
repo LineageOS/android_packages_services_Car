@@ -25,6 +25,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -354,6 +355,7 @@ public class AudioTestFragment extends Fragment {
         private final RadioGroup mRequestSelection;
         private final TextView mText;
         private final AudioFocusListener mFocusListener;
+        private AudioFocusRequest mFocusRequest;
 
         public FocusHandler(RadioGroup radioGroup, Button requestButton, TextView text) {
             mText = text;
@@ -363,16 +365,32 @@ public class AudioTestFragment extends Fragment {
             mFocusListener = new AudioFocusListener();
             requestButton.setOnClickListener(v -> {
                 int selectedButtonId = mRequestSelection.getCheckedRadioButtonId();
-                int focusRequest = AudioManager.AUDIOFOCUS_GAIN;
-                if (selectedButtonId == R.id.focus_gain_transient_duck) {
-                    focusRequest = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
-                } else if (selectedButtonId == R.id.focus_release) {
-                    mAudioManager.abandonAudioFocus(mFocusListener);
-                    setFocusText(AUDIO_FOCUS_STATE_RELEASED_UNKNOWN);
-                    return;
+                int focusRequest;
+                switch (selectedButtonId) {
+                    case R.id.focus_gain:
+                        focusRequest = AudioManager.AUDIOFOCUS_GAIN;
+                        break;
+                    case R.id.focus_gain_transient:
+                        focusRequest = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
+                        break;
+                    case R.id.focus_gain_transient_duck:
+                        focusRequest = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
+                        break;
+                    case R.id.focus_gain_transient_exclusive:
+                        focusRequest = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
+                        break;
+                    case R.id.focus_release:
+                    default:
+                        abandonAudioFocus();
+                        return;
                 }
-                int ret = mAudioManager.requestAudioFocus(mFocusListener,
-                        AudioManager.STREAM_MUSIC, focusRequest);
+                mFocusRequest = new AudioFocusRequest.Builder(focusRequest)
+                        .setAudioAttributes(new AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                                .build())
+                        .setOnAudioFocusChangeListener(mFocusListener)
+                        .build();
+                int ret = mAudioManager.requestAudioFocus(mFocusRequest);
                 Log.i(TAG, "requestAudioFocus returned " + ret);
                 if (ret == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                     setFocusText(AUDIO_FOCUS_STATE_GAIN);
@@ -388,7 +406,8 @@ public class AudioTestFragment extends Fragment {
             if (DBG) {
                 Log.i(TAG, "abandonAudioFocus");
             }
-            mAudioManager.abandonAudioFocus(mFocusListener);
+            mAudioManager.abandonAudioFocusRequest(mFocusRequest);
+            mFocusRequest = null;
             setFocusText(AUDIO_FOCUS_STATE_RELEASED_UNKNOWN);
         }
 

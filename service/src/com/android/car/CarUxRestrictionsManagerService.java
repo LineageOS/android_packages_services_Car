@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
+
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import android.annotation.Nullable;
@@ -24,6 +26,7 @@ import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
+import android.car.drivingstate.CarUxRestrictionsManager;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.drivingstate.ICarUxRestrictionsManager;
@@ -95,7 +98,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private final CarPropertyService mCarPropertyService;
     // List of clients listening to UX restriction events.
     private final List<UxRestrictionsClient> mUxRClients = new ArrayList<>();
-    private CarUxRestrictionsConfiguration mCarUxRestrictionsConfiguration;
+    @VisibleForTesting
+    CarUxRestrictionsConfiguration mCarUxRestrictionsConfiguration;
+    @CarUxRestrictionsManager.UxRestrictionMode
+    private int mRestrictionMode = UX_RESTRICTION_MODE_BASELINE;
     private CarUxRestrictions mCurrentUxRestrictions;
     private float mCurrentMovingSpeed;
     // Flag to disable broadcasting UXR changes - for development purposes
@@ -359,6 +365,42 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     /**
+     * Sets the restriction mode to use. Restriction mode allows a different set of restrictions to
+     * be applied in the same driving state. Restrictions for each mode can be configured through
+     * {@link CarUxRestrictionsConfiguration}.
+     *
+     * <p>Defaults to {@link CarUxRestrictionsManager#UX_RESTRICTION_MODE_BASELINE}.
+     *
+     * @param mode See values in {@link CarUxRestrictionsManager.UxRestrictionMode}.
+     * @return {@code true} if mode was successfully changed; {@code false} otherwise.
+     *
+     * @see CarUxRestrictionsConfiguration.DrivingStateRestrictions
+     * @see CarUxRestrictionsConfiguration.Builder
+     */
+    @Override
+    public synchronized boolean setRestrictionMode(
+            @CarUxRestrictionsManager.UxRestrictionMode int mode) {
+        if (mRestrictionMode == mode) {
+            return true;
+        }
+
+        addTransitionLog(TAG, mRestrictionMode, mode, System.currentTimeMillis(),
+                "Restriction mode");
+        mRestrictionMode = mode;
+        logd("Set restriction mode to: " + CarUxRestrictionsManager.modeToString(mode));
+
+        handleDispatchUxRestrictions(
+                mDrivingStateService.getCurrentDrivingState().eventValue, getCurrentSpeed());
+        return true;
+    }
+
+    @Override
+    @CarUxRestrictionsManager.UxRestrictionMode
+    public synchronized int getRestrictionMode() {
+        return mRestrictionMode;
+    }
+
+    /**
      * Writes configuration into the specified file.
      *
      * IO access on file is not thread safe. Caller should ensure threading protection.
@@ -592,8 +634,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
 
-        CarUxRestrictions uxRestrictions =
-                mCarUxRestrictionsConfiguration.getUxRestrictions(currentDrivingState, speed);
+        CarUxRestrictions uxRestrictions = mCarUxRestrictionsConfiguration.getUxRestrictions(
+                currentDrivingState, speed, mRestrictionMode);
 
         if (DBG) {
             Log.d(TAG, String.format("DO old->new: %b -> %b",

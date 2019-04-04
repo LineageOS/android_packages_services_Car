@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="0dp"
+              android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="horizontal">
 
@@ -12,38 +12,57 @@
         android:tint="@android:color/white"/>
 
     <LinearLayout
-        android:layout_width="@dimen/nav_state_width"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/distance"
-            android:layout_height="wrap_content"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:maxLines="1"
-            android:textSize="@dimen/distance_text_size"/>
+            android:layout_height="match_parent"
+            android:layout_weight="1.0">
+
+            <TextView
+                android:id="@+id/distance"
+                android:layout_width="@dimen/distance_width"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="@dimen/distance_text_size"/>
+
+            <android.car.cluster.sample.LaneView
+                android:id="@+id/lane"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/laneview_height"
+                android:layout_alignParentRight="true"/>
+        </LinearLayout>
+
         <android.car.cluster.sample.CueView
             android:id="@+id/cue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:textSize="@dimen/cue_text_size"/>
-        <TextView
-            android:id="@+id/eta"
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textSize="@dimen/eta_text_size"/>
-    </LinearLayout>
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="@dimen/nav_state_width"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+            <TextView
+                android:id="@+id/eta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginRight="@dimen/eta_margin_right"
+                android:maxLines="1"
+                android:textSize="@dimen/eta_text_size"/>
 
-        <android.car.cluster.sample.LaneView
-            android:id="@+id/lane"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/laneview_height"/>
+            <TextView
+                android:id="@+id/segment"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="@dimen/segment_text_size"/>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

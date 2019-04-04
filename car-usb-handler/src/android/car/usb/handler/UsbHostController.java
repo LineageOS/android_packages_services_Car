@@ -56,6 +56,8 @@ public final class UsbHostController
     private static final boolean LOCAL_LOGD = true;
     private static final boolean LOCAL_LOGV = true;
 
+    private static final int DISPATCH_RETRY_DELAY_MS = 1000;
+    private static final int DISPATCH_RETRY_ATTEMPTS = 5;
 
     private final List<UsbDeviceSettings> mEmptyList = new ArrayList<>();
     private final Context mContext;
@@ -158,16 +160,16 @@ public final class UsbHostController
         mCallback.processingStateChanged(true);
 
         UsbDeviceSettings settings = mUsbSettingsStorage.getSettings(device);
-        if (settings != null && mUsbResolver.dispatch(
-                    device, settings.getHandler(), settings.getAoap())) {
-            if (LOCAL_LOGV) {
-                Log.v(TAG, "Usb Device: " + device + " was sent to component: "
-                        + settings.getHandler());
-            }
-            return;
+
+        if (settings == null) {
+            resolveDevice(device);
+        } else {
+            Object obj =
+                    new UsbHostControllerHandlerDispatchData(
+                            device, settings, DISPATCH_RETRY_ATTEMPTS, true);
+            Message.obtain(mHandler, UsbHostControllerHandler.MSG_DEVICE_DISPATCH, obj)
+                    .sendToTarget();
         }
-        mCallback.titleChanged(generateTitle(mContext, device));
-        mUsbResolver.resolve(device);
     }
 
     /**
@@ -175,7 +177,17 @@ public final class UsbHostController
      */
     public void applyDeviceSettings(UsbDeviceSettings settings) {
         mUsbSettingsStorage.saveSettings(settings);
-        mUsbResolver.dispatch(getActiveDevice(), settings.getHandler(), settings.getAoap());
+        Message msg = mHandler.obtainMessage();
+        msg.obj =
+                new UsbHostControllerHandlerDispatchData(
+                        getActiveDevice(), settings, DISPATCH_RETRY_ATTEMPTS, false);
+        msg.what = UsbHostControllerHandler.MSG_DEVICE_DISPATCH;
+        msg.sendToTarget();
+    }
+
+    private void resolveDevice(UsbDevice device) {
+        mCallback.titleChanged(generateTitle(mContext, device));
+        mUsbResolver.resolve(device);
     }
 
     /**
@@ -244,8 +256,34 @@ public final class UsbHostController
         }
     }
 
+    private class UsbHostControllerHandlerDispatchData {
+        private final UsbDevice mUsbDevice;
+        private final UsbDeviceSettings mUsbDeviceSettings;
+
+        public int mRetries = 0;
+        public boolean mCanResolve = true;
+
+        public UsbHostControllerHandlerDispatchData(
+                UsbDevice usbDevice, UsbDeviceSettings usbDeviceSettings,
+                int retries, boolean canResolve) {
+            mUsbDevice = usbDevice;
+            mUsbDeviceSettings = usbDeviceSettings;
+            mRetries = retries;
+            mCanResolve = canResolve;
+        }
+
+        public UsbDevice getUsbDevice() {
+            return mUsbDevice;
+        }
+
+        public UsbDeviceSettings getUsbDeviceSettings() {
+            return mUsbDeviceSettings;
+        }
+    }
+
     private class UsbHostControllerHandler extends Handler {
         private static final int MSG_DEVICE_REMOVED = 1;
+        private static final int MSG_DEVICE_DISPATCH = 2;
 
         private static final int DEVICE_REMOVE_TIMEOUT_MS = 500;
 
@@ -262,6 +300,24 @@ public final class UsbHostController
             switch (msg.what) {
                 case MSG_DEVICE_REMOVED:
                     doHandleDeviceRemoved();
+                    break;
+                case MSG_DEVICE_DISPATCH:
+                    UsbHostControllerHandlerDispatchData data =
+                            (UsbHostControllerHandlerDispatchData) msg.obj;
+                    UsbDevice device = data.getUsbDevice();
+                    UsbDeviceSettings settings = data.getUsbDeviceSettings();
+                    if (!mUsbResolver.dispatch(device, settings.getHandler(), settings.getAoap())) {
+                        if (data.mRetries > 0) {
+                            --data.mRetries;
+                            Message nextMessage = Message.obtain(msg);
+                            mHandler.sendMessageDelayed(nextMessage, DISPATCH_RETRY_DELAY_MS);
+                        } else if (data.mCanResolve) {
+                            resolveDevice(device);
+                        }
+                    } else if (LOCAL_LOGV) {
+                        Log.v(TAG, "Usb Device: " + data.getUsbDevice() + " was sent to component: "
+                                + settings.getHandler());
+                    }
                     break;
                 default:
                     Log.w(TAG, "Unhandled message: " + msg);

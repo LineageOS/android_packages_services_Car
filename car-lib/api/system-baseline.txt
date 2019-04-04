@@ -53,7 +53,4 @@ Todo: android.car.CarInfoManager#getVehicleId():
     Documentation mentions 'TODO'
 Todo: android.car.cluster.renderer.InstrumentClusterRenderer:
     Documentation mentions 'TODO'
-Todo: android.car.drivingstate.CarDrivingStateEvent#DRIVING_STATE_IDLING:
-    Documentation mentions 'TODO'
-
 

@@ -34,4 +34,6 @@ interface ICarUxRestrictionsManager {
     boolean saveUxRestrictionsConfigurationForNextBoot(in CarUxRestrictionsConfiguration config) = 3;
     CarUxRestrictionsConfiguration getStagedConfig() = 4;
     CarUxRestrictionsConfiguration getConfig() = 5;
+    boolean setRestrictionMode(int mode) = 6;
+    int getRestrictionMode() = 7;
 }

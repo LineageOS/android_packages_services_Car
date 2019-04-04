@@ -297,17 +297,14 @@ public final class CarProjectionManager implements CarManagerBase {
      *
      * @param device  The device on which to inhibit a profile.
      * @param profile The {@link android.bluetooth.BluetoothProfile} to inhibit.
-     * @param token   A {@link IBinder} to be used as an identity for the request. If the process
-     *                owning the token dies, the request will automatically be released.
      * @return True if the profile was successfully inhibited, false if an error occurred.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public boolean requestBluetoothProfileInhibit(
-            @NonNull BluetoothDevice device, int profile, @NonNull IBinder token) {
+            @NonNull BluetoothDevice device, int profile) {
         Preconditions.checkNotNull(device, "device cannot be null");
-        Preconditions.checkNotNull(token, "token cannot be null");
         try {
-            return mService.requestBluetoothProfileInhibit(device, profile, token);
+            return mService.requestBluetoothProfileInhibit(device, profile, mToken);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -319,17 +316,13 @@ public final class CarProjectionManager implements CarManagerBase {
      *
      * @param device  The device on which to release the inhibit request.
      * @param profile The profile on which to release the inhibit request.
-     * @param token   The token provided in the original call to
-     *                {@link #requestBluetoothProfileInhibit}.
      * @return True if the request was released, false if an error occurred.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    public boolean releaseBluetoothProfileInhibit(
-            BluetoothDevice device, int profile, IBinder token) {
+    public boolean releaseBluetoothProfileInhibit(@NonNull BluetoothDevice device, int profile) {
         Preconditions.checkNotNull(device, "device cannot be null");
-        Preconditions.checkNotNull(token, "token cannot be null");
         try {
-            return mService.releaseBluetoothProfileInhibit(device, profile, token);
+            return mService.releaseBluetoothProfileInhibit(device, profile, mToken);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -341,7 +334,7 @@ public final class CarProjectionManager implements CarManagerBase {
      *
      * @param status the reported status that will be distributed to the interested listeners
      *
-     * @see #registerProjectionListener(CarProjectionListener, int)
+     * @see #registerProjectionStatusListener(ProjectionStatusListener)
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public void updateProjectionStatus(@NonNull ProjectionStatus status) {

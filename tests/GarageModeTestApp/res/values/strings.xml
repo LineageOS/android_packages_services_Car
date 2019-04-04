@@ -16,6 +16,10 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="app_name" translatable="false">GarageMode Test App</string>
 
+  <string name="off_car_testing" translatable="false">Offcar Test</string>
+  <string name="in_car_testing" translatable="false">Incar Test</string>
+  <string name="quit_app" translatable="false">Quit App</string>
+
   <string name="button_schedule_job" translatable="false">Schedule Job</string>
   <string name="button_job_info" translatable="false">Job Info</string>
   <string name="button_enter_garage_mode" translatable="false">Enter GarageMode</string>

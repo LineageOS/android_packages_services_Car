@@ -37,6 +37,7 @@
             android:id="@*android:id/button3"
             style="@*android:style/CarAction1"
             android:background="@*android:drawable/car_dialog_button_background"
+            android:layout_marginEnd="@*android:dimen/car_padding_4"
             android:layout_width="wrap_content"
             android:layout_height="@*android:dimen/car_card_action_bar_height" />
 
@@ -52,7 +53,6 @@
             android:id="@*android:id/button1"
             style="@*android:style/CarAction1"
             android:background="@*android:drawable/car_dialog_button_background"
-            android:layout_marginStart="@*android:dimen/car_padding_4"
             android:layout_width="wrap_content"
             android:layout_height="@*android:dimen/car_card_action_bar_height" />
         <Space

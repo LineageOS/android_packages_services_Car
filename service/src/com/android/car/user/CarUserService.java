@@ -17,6 +17,8 @@
 package com.android.car.user;
 
 import android.annotation.Nullable;
+import android.app.ActivityManager;
+import android.app.IActivityManager;
 import android.car.settings.CarSettings;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
@@ -24,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.LocationManager;
+import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -47,12 +50,15 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
     private static final String TAG = "CarUserService";
     private final Context mContext;
     private final CarUserManagerHelper mCarUserManagerHelper;
+    private final IActivityManager mAm;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private boolean mUser0Unlocked;
     @GuardedBy("mLock")
     private final ArrayList<Runnable> mUser0UnlockTasks = new ArrayList<>();
+    @GuardedBy("mLock")
+    private final ArrayList<Integer> mLastUnlockedUsers = new ArrayList<>();
 
     public CarUserService(
                 @Nullable Context context, @Nullable CarUserManagerHelper carUserManagerHelper) {
@@ -61,6 +67,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         }
         mContext = context;
         mCarUserManagerHelper = carUserManagerHelper;
+        mAm = ActivityManager.getService();
     }
 
     @Override
@@ -92,10 +99,14 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         writer.println(TAG);
         writer.println("Context: " + mContext);
         boolean user0Unlocked;
+        ArrayList<Integer> lastUnlockedUsers;
         synchronized (mLock) {
             user0Unlocked = mUser0Unlocked;
+            lastUnlockedUsers = new ArrayList<>(mLastUnlockedUsers);
+
         }
         writer.println("User0Unlocked: " + user0Unlocked);
+        writer.println("LastUnlockedUsers:" + lastUnlockedUsers);
     }
 
     @Override
@@ -131,11 +142,15 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
      * @param unlocked unlocked (=true) or locked (=false)
      */
     public void setUserLockStatus(int userHandle, boolean unlocked) {
-        if (userHandle != UserHandle.USER_SYSTEM) {
-            return;
-        }
         ArrayList<Runnable> tasks = null;
         synchronized (mLock) {
+            if (userHandle != UserHandle.USER_SYSTEM && unlocked
+                    && mCarUserManagerHelper.isPersistentUser(userHandle)) {
+                Integer user = userHandle;
+                mLastUnlockedUsers.remove(user);
+                mLastUnlockedUsers.add(0, user);
+                return;
+            }
             // Assumes that car service need to do it only once during boot-up
             if (unlocked && !mUser0Unlocked) {
                 tasks = new ArrayList<>(mUser0UnlockTasks);
@@ -149,6 +164,54 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
                 r.run();
             }
         }
+    }
+
+    /**
+     * Start all background users that were active in system.
+     * @return list of background users started successfully.
+     */
+    public ArrayList<Integer> startAllBackgroundUsers() {
+        ArrayList<Integer> users;
+        synchronized (mLock) {
+            users = new ArrayList<>(mLastUnlockedUsers);
+        }
+        ArrayList<Integer> startedUsers = new ArrayList<>();
+        for (Integer user : users) {
+            if (user == mCarUserManagerHelper.getCurrentForegroundUserId()) {
+                continue;
+            }
+            try {
+                if (mAm.startUserInBackground(user)) {
+                    if (mAm.unlockUser(user, null, null, null)) {
+                        startedUsers.add(user);
+                    }
+                }
+            } catch (RemoteException e) {
+                // ignore
+            }
+        }
+        return startedUsers;
+    }
+
+    /**
+     * Stop all background users that were active in system.
+     * @return true if stopping succeeds.
+     */
+    public boolean stopBackgroundUser(int userId) {
+        if (userId == mCarUserManagerHelper.getCurrentForegroundUserId()) {
+            Log.i(TAG, "stopBackgroundUser, already a fg user:" + userId);
+            return false;
+        }
+        try {
+            int r = mAm.stopUser(userId, true, null);
+            if (r != ActivityManager.USER_OP_SUCCESS) {
+                Log.i(TAG, "stopBackgroundUser failed, user:" + userId + " err:" + r);
+                return false;
+            }
+        } catch (RemoteException e) {
+            // ignore
+        }
+        return true;
     }
 
     /**

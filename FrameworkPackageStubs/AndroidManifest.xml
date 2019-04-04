@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.car.frameworkpackagestubs"
+          android:versionCode="1"
+          android:versionName="1.0.1">
+
+    <uses-sdk android:minSdkVersion="28"/>
+
+    <application android:label="@string/app_name"
+                 android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
+
+        <!-- Music / media stubs. -->
+        <activity android:name=".Stubs$MediaStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="file"/>
+                <data android:mimeType="audio/*"/>
+                <data android:mimeType="application/ogg"/>
+                <data android:mimeType="application/x-ogg"/>
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http"/>
+                <data android:mimeType="audio/*"/>
+                <data android:mimeType="application/ogg"/>
+                <data android:mimeType="application/x-ogg"/>
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content"/>
+                <data android:mimeType="audio/*"/>
+                <data android:mimeType="application/ogg"/>
+                <data android:mimeType="application/x-ogg"/>
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.PICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.dir/audio"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Settings package stubs -->
+        <activity android:name=".Stubs$SettingsStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.app.action.ADD_DEVICE_ADMIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.settings.ACCESSIBILITY_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.settings.USER_DICTIONARY_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>

@@ -22,6 +22,7 @@ import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
 import android.util.ArraySet;
 import android.util.Log;
 
@@ -55,8 +56,7 @@ public class CarPropertyTest extends E2eCarTestBase {
     private static final String CAR_HVAC_TEST_JSON = "car_hvac_test.json";
     private static final String CAR_INFO_TEST_JSON = "car_info_test.json";
 
-    private class CarPropertyEventReceiver implements
-            CarPropertyManager.CarPropertyEventListener {
+    private class CarPropertyEventReceiver implements CarPropertyEventCallback {
 
         private VhalEventVerifier mVerifier;
         private Integer mNumOfEventToSkip;
@@ -116,10 +116,10 @@ public class CarPropertyTest extends E2eCarTestBase {
         int numToSkip = countNumPropEventsToSkip(propMgr, props);
         Log.d(TAG, String.format("Start listening to the HAL."
                                  + " Skipping %d events for listener registration", numToSkip));
-        CarPropertyManager.CarPropertyEventListener receiver =
+        CarPropertyEventCallback receiver =
                 new CarPropertyEventReceiver(verifier, numToSkip);
         for (Integer prop : props) {
-            propMgr.registerListener(receiver, prop, 0);
+            propMgr.registerCallback(receiver, prop, 0);
         }
 
         File sharedJson = makeShareable(CAR_HVAC_TEST_JSON);
@@ -133,7 +133,7 @@ public class CarPropertyTest extends E2eCarTestBase {
 
         Log.d(TAG, "Send command to VHAL to stop generation");
         hvacGenerator.stop();
-        propMgr.unregisterListener(receiver);
+        propMgr.unregisterCallback(receiver);
 
         assertTrue("Detected mismatched events: " + verifier.getResultString(),
                     verifier.getMismatchedEvents().isEmpty());

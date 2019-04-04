@@ -24,6 +24,7 @@ import android.car.cluster.sample.sensors.Sensor;
 import android.car.cluster.sample.sensors.Sensors;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
@@ -106,7 +107,7 @@ public class ClusterViewModel extends AndroidViewModel {
         mCarPropertyManager = (CarPropertyManager) mCar.getCarManager(Car.PROPERTY_SERVICE);
         for (Integer propertyId : sensors.getPropertyIds()) {
             try {
-                mCarPropertyManager.registerListener(mCarPropertyEventListener,
+                mCarPropertyManager.registerCallback(mCarPropertyEventListener,
                         propertyId, PROPERTIES_REFRESH_RATE_UI);
             } catch (SecurityException ex) {
                 Log.e(TAG, "onServiceConnected: Unable to listen to car property: " + propertyId
@@ -115,8 +116,7 @@ public class ClusterViewModel extends AndroidViewModel {
         }
     }
 
-    private CarPropertyManager.CarPropertyEventListener mCarPropertyEventListener =
-            new CarPropertyManager.CarPropertyEventListener() {
+    private CarPropertyEventCallback mCarPropertyEventListener = new CarPropertyEventCallback() {
                 @Override
                 public void onChangeEvent(CarPropertyValue value) {
                     if (Log.isLoggable(TAG, Log.DEBUG)) {

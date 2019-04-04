@@ -38,7 +38,8 @@ LOCAL_STATIC_ANDROID_LIBRARIES += \
     androidx.legacy_legacy-support-v4 \
     androidx-constraintlayout_constraintlayout \
     androidx.car_car-cluster \
-    car-arch-common
+    car-arch-common \
+    car-media-common
 
 include $(BUILD_PACKAGE)
 

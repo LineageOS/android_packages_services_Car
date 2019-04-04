@@ -83,6 +83,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Automotive specific packages
 PRODUCT_PACKAGES += \
+    CarFrameworkPackageStubs \
     CarService \
     CarDialerApp \
     CarRadioApp \

@@ -39,10 +39,50 @@
               {
                 "mShape": { "mValues": [ "STRAIGHT" ] },
                 "mHighlighted": false
+              }
+            ]
+          },
+          {
+            "mDirections": [
+              {
+                "mShape": { "mValues": [ "STRAIGHT" ] },
+                "mHighlighted": false
+              }
+            ]
+          },
+          {
+            "mDirections": [
+              {
+                "mShape": { "mValues": [ "STRAIGHT" ] },
+                "mHighlighted": false
+              }
+            ]
+          },
+          {
+            "mDirections": [
+              {
+                "mShape": { "mValues": [ "STRAIGHT" ] },
+                "mHighlighted": false
+              }
+            ]
+          },
+          {
+            "mDirections": [
+              {
+                "mShape": { "mValues": [ "STRAIGHT" ] },
+                "mHighlighted": false
               },
               {
                 "mShape": { "mValues": [ "SLIGHT_RIGHT" ] },
                 "mHighlighted": true
+              }
+            ]
+          },
+          {
+            "mDirections": [
+              {
+                "mShape": { "mValues": [ "SLIGHT_RIGHT" ] },
+                "mHighlighted": false
               }
             ]
           }
@@ -50,7 +90,7 @@
       }
     ],
     "mCurrentSegment": {
-      "mName": "On McCowan St"
+      "mName": "On Something Really Long St"
     },
     "mDestinations": [
       {
@@ -62,7 +102,7 @@
           "mDisplayUnit": { "mValues": [ "KILOMETERS" ] }
         },
         "mEta": {
-          "mSecondsSinceEpoch": 1551318762,
+          "mSecondsSinceEpoch": 1551314762,
           "mZoneId": "America/Los_Angeles"
         },
         "mTraffic": { "mValues": [ "MEDIUM" ] }

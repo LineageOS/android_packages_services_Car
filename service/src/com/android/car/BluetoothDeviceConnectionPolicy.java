@@ -811,7 +811,7 @@ public class BluetoothDeviceConnectionPolicy {
                 mPropertyEventListener);
         // Get Current restrictions and handle them
         handleUxRestrictionsChanged(mUxRService.getCurrentUxRestrictions());
-        // Register for future changes to the UxRestrictions
+        // Register for future changes to the DrivingStateRestrictions
         mUxRService.registerUxRestrictionsChangeListener(mUxRListener);
         mUserServiceHelper.registerServiceCallback(mServiceCallback);
     }

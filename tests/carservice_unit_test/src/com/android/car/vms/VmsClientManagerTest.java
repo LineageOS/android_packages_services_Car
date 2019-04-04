@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,29 +38,34 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.UserHandle;
 
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
+
+import com.android.car.hal.VmsHalService;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-@RunWith(AndroidJUnit4.class)
 @SmallTest
 public class VmsClientManagerTest {
+    private static final String HAL_CLIENT_NAME = "VmsHalClient";
+    private static final String SYSTEM_CLIENT_NAME =
+            "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsSystemClient U=0";
+    private static final String USER_CLIENT_NAME =
+            "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsUserClient U=10";
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock
@@ -70,7 +76,11 @@ public class VmsClientManagerTest {
     private Resources mResources;
     @Mock
     private CarUserManagerHelper mUserManager;
-    private UserInfo mUserInfo;
+    private int mUserId;
+
+    @Mock
+    private VmsHalService mHal;
+    private IBinder mHalClient;
 
     @Mock
     private VmsClientManager.ConnectionListener mConnectionListener;
@@ -89,19 +99,25 @@ public class VmsClientManagerTest {
                 5);
         when(mResources.getStringArray(
                 com.android.car.R.array.vmsPublisherSystemClients)).thenReturn(
-                        new String[]{
-                                "com.google.android.apps.vms.test/.VmsSystemClient"
-                        });
+                new String[]{
+                        "com.google.android.apps.vms.test/.VmsSystemClient"
+                });
         when(mResources.getStringArray(
                 com.android.car.R.array.vmsPublisherUserClients)).thenReturn(
-                        new String[]{
-                                "com.google.android.apps.vms.test/.VmsUserClient"
-                        });
-        mUserInfo = new UserInfo(10, "Driver", 0);
-        when(mUserManager.getCurrentForegroundUserInfo()).thenReturn(mUserInfo);
+                new String[]{
+                        "com.google.android.apps.vms.test/.VmsUserClient"
+                });
 
-        mClientManager = new VmsClientManager(mContext, mUserManager);
+        mUserId = 10;
+        when(mUserManager.getCurrentForegroundUserId()).thenAnswer((invocation) -> mUserId);
+
+        mHalClient = new Binder();
+        when(mHal.getPublisherClient()).thenReturn(mHalClient);
+
+        mClientManager = new VmsClientManager(mContext, mUserManager, mHal);
         mClientManager.registerConnectionListener(mConnectionListener);
+        verify(mConnectionListener).onClientConnected(HAL_CLIENT_NAME, mHalClient);
+        reset(mConnectionListener);
     }
 
     @After
@@ -141,6 +157,27 @@ public class VmsClientManagerTest {
         // Verify both receivers are unregistered
         verify(mContext).unregisterReceiver(mClientManager.mBootCompletedReceiver);
         verify(mContext).unregisterReceiver(mClientManager.mUserSwitchReceiver);
+    }
+
+    @Test
+    public void testRegisterConnectionListener() {
+        VmsClientManager.ConnectionListener listener =
+                Mockito.mock(VmsClientManager.ConnectionListener.class);
+        mClientManager.registerConnectionListener(listener);
+        verify(listener).onClientConnected(HAL_CLIENT_NAME, mHalClient);
+    }
+
+    @Test
+    public void testRegisterConnectionListener_AfterClientsConnected() {
+        IBinder systemBinder = bindSystemClient();
+        IBinder userBinder = bindUserClient();
+
+        VmsClientManager.ConnectionListener listener =
+                Mockito.mock(VmsClientManager.ConnectionListener.class);
+        mClientManager.registerConnectionListener(listener);
+        verify(listener).onClientConnected(HAL_CLIENT_NAME, mHalClient);
+        verify(listener).onClientConnected(eq(SYSTEM_CLIENT_NAME), eq(systemBinder));
+        verify(listener).onClientConnected(eq(USER_CLIENT_NAME), eq(userBinder));
     }
 
     @Test
@@ -244,12 +281,12 @@ public class VmsClientManagerTest {
 
     @Test
     public void testUserSwitchedToSystemUser() {
-        mUserInfo = new UserInfo(UserHandle.USER_SYSTEM, "Owner", 0);
-        when(mUserManager.getCurrentForegroundUserInfo()).thenReturn(mUserInfo);
+        mUserId = UserHandle.USER_SYSTEM;
         notifyUserSwitched();
 
         // System user should not trigger any binding
-        verifyUserBind(0);
+        verifySystemBind(0);
+        verifyNoBind();
     }
 
     @Test
@@ -265,34 +302,36 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnSystemServiceConnected() {
+        IBinder binder = bindSystemClient();
+        verify(mConnectionListener).onClientConnected(eq(SYSTEM_CLIENT_NAME), eq(binder));
+    }
+
+    private IBinder bindSystemClient() {
         notifyLockedBootCompleted();
         verifySystemBind(1);
         resetContext();
 
-        Binder binder = new Binder();
+        IBinder binder = new Binder();
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceConnected(null, binder);
-
-        verify(mConnectionListener).onClientConnected(
-                eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
-                        + ".VmsSystemClient U=0"),
-                eq(binder));
+        return binder;
     }
 
     @Test
     public void testOnUserServiceConnected() {
+        IBinder binder = bindUserClient();
+        verify(mConnectionListener).onClientConnected(eq(USER_CLIENT_NAME), eq(binder));
+    }
+
+    private IBinder bindUserClient() {
         notifyUserSwitched();
         verifyUserBind(1);
         resetContext();
 
-        Binder binder = new Binder();
+        IBinder binder = new Binder();
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceConnected(null, binder);
-
-        verify(mConnectionListener).onClientConnected(
-                eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
-                        + ".VmsUserClient U=10"),
-                eq(binder));
+        return binder;
     }
 
     @Test
@@ -306,9 +345,7 @@ public class VmsClientManagerTest {
         connection.onServiceDisconnected(null);
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(
-                eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
-                        + ".VmsSystemClient U=0"));
+        verify(mConnectionListener).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
 
         Thread.sleep(10);
         verifySystemBind(1);
@@ -341,9 +378,7 @@ public class VmsClientManagerTest {
         connection.onServiceDisconnected(null);
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(
-                eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
-                        + ".VmsUserClient U=10"));
+        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
 
         Thread.sleep(10);
         verifyUserBind(1);
@@ -376,9 +411,7 @@ public class VmsClientManagerTest {
         connection.onBindingDied(null);
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(
-                eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
-                        + ".VmsSystemClient U=0"));
+        verify(mConnectionListener).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
 
         Thread.sleep(10);
         verifySystemBind(1);
@@ -411,9 +444,7 @@ public class VmsClientManagerTest {
         connection.onBindingDied(null);
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(
-                eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
-                        + ".VmsUserClient U=10"));
+        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
 
         Thread.sleep(10);
         verifyUserBind(1);
@@ -447,8 +478,7 @@ public class VmsClientManagerTest {
 
         verify(mContext).unbindService(connection);
         verify(mConnectionListener).onClientDisconnected(
-                eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
-                        + ".VmsSystemClient U=0"));
+                eq(SYSTEM_CLIENT_NAME));
     }
 
     @Test
@@ -475,9 +505,7 @@ public class VmsClientManagerTest {
         connection.onNullBinding(null);
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(
-                eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
-                        + ".VmsUserClient U=10"));
+        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
     }
 
     @Test
@@ -502,16 +530,12 @@ public class VmsClientManagerTest {
         resetContext();
         reset(mConnectionListener);
 
-        mUserInfo = new UserInfo(11, "Driver", 0);
-        when(mUserManager.getCurrentForegroundUserInfo()).thenReturn(mUserInfo);
+        mUserId = 11;
         notifyUserSwitched();
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(
-                eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
-                        + ".VmsUserClient U=10"));
-        verifyBind(1, "com.google.android.apps.vms.test/.VmsUserClient",
-                mUserInfo.getUserHandle());
+        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
+        verifyUserBind(1);
     }
 
     @Test
@@ -523,17 +547,13 @@ public class VmsClientManagerTest {
         resetContext();
         reset(mConnectionListener);
 
-        mUserInfo = new UserInfo(UserHandle.USER_SYSTEM, "Owner", 0);
-        when(mUserManager.getCurrentForegroundUserInfo()).thenReturn(mUserInfo);
+        mUserId = UserHandle.USER_SYSTEM;
         notifyUserSwitched();
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(
-                eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
-                        + ".VmsUserClient U=10"));
+        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
         // User processes will not be bound for system user
-        verifyBind(0, "com.google.android.apps.vms.test/.VmsUserClient",
-                mUserInfo.getUserHandle());
+        verifyNoBind();
     }
 
     @Test
@@ -543,13 +563,11 @@ public class VmsClientManagerTest {
         ServiceConnection connection = mConnectionCaptor.getValue();
         resetContext();
 
-        mUserInfo = new UserInfo(11, "Driver", 0);
-        when(mUserManager.getCurrentForegroundUserInfo()).thenReturn(mUserInfo);
+        mUserId = 11;
         notifyUserSwitched();
 
         verify(mContext).unbindService(connection);
-        verifyBind(1, "com.google.android.apps.vms.test/.VmsUserClient",
-                mUserInfo.getUserHandle());
+        verifyUserBind(1);
     }
 
     @Test
@@ -561,16 +579,12 @@ public class VmsClientManagerTest {
         resetContext();
         reset(mConnectionListener);
 
-        mUserInfo = new UserInfo(11, "Driver", 0);
-        when(mUserManager.getCurrentForegroundUserInfo()).thenReturn(mUserInfo);
+        mUserId = 11;
         notifyUserUnlocked();
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(
-                eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
-                        + ".VmsUserClient U=10"));
-        verifyBind(1, "com.google.android.apps.vms.test/.VmsUserClient",
-                mUserInfo.getUserHandle());
+        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
+        verifyUserBind(1);
     }
 
     @Test
@@ -582,17 +596,13 @@ public class VmsClientManagerTest {
         resetContext();
         reset(mConnectionListener);
 
-        mUserInfo = new UserInfo(UserHandle.USER_SYSTEM, "Owner", 0);
-        when(mUserManager.getCurrentForegroundUserInfo()).thenReturn(mUserInfo);
+        mUserId = UserHandle.USER_SYSTEM;
         notifyUserUnlocked();
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(
-                eq("com.google.android.apps.vms.test/com.google.android.apps.vms.test"
-                        + ".VmsUserClient U=10"));
+        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
         // User processes will not be bound for system user
-        verifyBind(0, "com.google.android.apps.vms.test/.VmsUserClient",
-                mUserInfo.getUserHandle());
+        verifyNoBind();
     }
 
     @Test
@@ -602,13 +612,11 @@ public class VmsClientManagerTest {
         ServiceConnection connection = mConnectionCaptor.getValue();
         resetContext();
 
-        mUserInfo = new UserInfo(11, "Driver", 0);
-        when(mUserManager.getCurrentForegroundUserInfo()).thenReturn(mUserInfo);
+        mUserId = 11;
         notifyUserUnlocked();
 
         verify(mContext).unbindService(connection);
-        verifyBind(1, "com.google.android.apps.vms.test/.VmsUserClient",
-                mUserInfo.getUserHandle());
+        verifyUserBind(1);
     }
 
     private void resetContext() {
@@ -640,7 +648,12 @@ public class VmsClientManagerTest {
 
     private void verifyUserBind(int times) {
         verifyBind(times, "com.google.android.apps.vms.test/.VmsUserClient",
-                mUserInfo.getUserHandle());
+                UserHandle.of(mUserId));
+    }
+
+    private void verifyNoBind() {
+        verify(mContext, never()).bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
+                anyInt(), any(Handler.class), any(UserHandle.class));
     }
 
     private void verifyBind(int times, String componentName,
