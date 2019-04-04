@@ -109,6 +109,22 @@
                 android:layout_margin="10dp"
                 android:text="Progress (Can't dismiss)"
                 android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/custom_group_summary_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Custom Group Summary of 6 (Inbox Style, Should behave the same as phone)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/group_without_summary_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Custom Group Without Summary of 6 (Should not group)"
+                android:textSize="30sp"/>
         </LinearLayout>
 
         <LinearLayout
