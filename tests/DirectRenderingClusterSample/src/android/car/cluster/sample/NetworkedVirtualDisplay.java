@@ -284,18 +284,9 @@ public class NetworkedVirtualDisplay {
         Log.i(TAG, "Casting stopped");
     }
 
-    private synchronized void restart() {
-        // This method could be called from different threads when receiver has disconnected.
-        if (mHandler.hasMessages(MSG_START)) return;
-        mHandler.sendMessage(Message.obtain(mHandler, MSG_STOP));
-        mHandler.sendMessage(Message.obtain(mHandler, MSG_START));
-    }
-
     private class BroadcastThreadHandler extends Handler {
         private static final int MAX_FAIL_COUNT = 10;
         private int mFailConnectCounter;
-        private SocketThread mSocketThread;
-        private PipeThread mPipeThread;
 
         BroadcastThreadHandler(Looper looper) {
             super(looper);
@@ -306,6 +297,13 @@ public class NetworkedVirtualDisplay {
             switch (msg.what) {
                 case MSG_START:
                     Log.i(TAG, "Received start message");
+
+                    // Make sure mActiveThread cannot start multiple times
+                    if (mActiveThread != null) {
+                        Log.w(TAG, "Trying to start a running thread. Race condition may exist");
+                        break;
+                    }
+
                     // Failure to connect to either pipe or network returns null
                     if (mActiveThread == null) {
                         mActiveThread = tryPipeConnect();
@@ -324,10 +322,16 @@ public class NetworkedVirtualDisplay {
                         mHandler.sendMessage(Message.obtain(mHandler, MSG_START));
                         break;
                     }
-                    mFailConnectCounter = 0;
-                    mCounter.clientsConnected++;
-                    mActiveThread.start();
-                    startCasting(this);
+
+                    try {
+                        mFailConnectCounter = 0;
+                        mCounter.clientsConnected++;
+                        mActiveThread.start();
+                        startCasting(this);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Failed to start thread", e);
+                        Log.e(TAG, "DebugCounter: " + mCounter);
+                    }
                     break;
 
                 case MSG_STOP:
