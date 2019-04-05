@@ -37,6 +37,7 @@ import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * User service for cars. Manages users at boot time. Including:
@@ -59,6 +60,17 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
     private final ArrayList<Runnable> mUser0UnlockTasks = new ArrayList<>();
     @GuardedBy("mLock")
     private final ArrayList<Integer> mLastUnlockedUsers = new ArrayList<>();
+
+
+    private final CopyOnWriteArrayList<UserCallback> mUserCallbacks = new CopyOnWriteArrayList<>();
+
+    /** Interface for callbacks related to user activities. */
+    public interface UserCallback {
+        /** Gets called when user lock status has been changed. */
+        void onUserLockChanged(int userId, boolean unlocked);
+        /** Called when new foreground user started to boot. */
+        void onSwitchUser(int userId);
+    }
 
     public CarUserService(
                 @Nullable Context context, @Nullable CarUserManagerHelper carUserManagerHelper) {
@@ -136,12 +148,20 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         }
     }
 
+    /** Add callback to listen to user activity events. */
+    public void addUserCallback(UserCallback callback) {
+        mUserCallbacks.add(callback);
+    }
+
     /**
      * Set user lock / unlocking status. This is coming from system server through ICar binder call.
      * @param userHandle Handle of user
      * @param unlocked unlocked (=true) or locked (=false)
      */
     public void setUserLockStatus(int userHandle, boolean unlocked) {
+        for (UserCallback callback : mUserCallbacks) {
+            callback.onUserLockChanged(userHandle, unlocked);
+        }
         ArrayList<Runnable> tasks = null;
         synchronized (mLock) {
             if (userHandle != UserHandle.USER_SYSTEM && unlocked
@@ -212,6 +232,17 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
             // ignore
         }
         return true;
+    }
+
+    /**
+     * Called when new foreground user started to boot.
+     *
+     * @param userHandle user handle of new user
+     */
+    public void onSwitchUser(int userHandle) {
+        for (UserCallback callback : mUserCallbacks) {
+            callback.onSwitchUser(userHandle);
+        }
     }
 
     /**
