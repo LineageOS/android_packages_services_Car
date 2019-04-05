@@ -228,10 +228,7 @@ public class ICarImpl extends ICar.Stub {
 
     @Override
     public void setCarServiceHelper(IBinder helper) {
-        int uid = Binder.getCallingUid();
-        if (uid != Process.SYSTEM_UID) {
-            throw new SecurityException("Only allowed from system");
-        }
+        assertCallingFromSystemProcess();
         synchronized (this) {
             mICarServiceHelper = ICarServiceHelper.Stub.asInterface(helper);
             mSystemInterface.setCarServiceHelper(mICarServiceHelper);
@@ -240,11 +237,23 @@ public class ICarImpl extends ICar.Stub {
 
     @Override
     public void setUserLockStatus(int userHandle, int unlocked) {
+        assertCallingFromSystemProcess();
+        mCarUserService.setUserLockStatus(userHandle, unlocked == 1);
+    }
+
+    @Override
+    public void onSwitchUser(int userHandle) {
+        assertCallingFromSystemProcess();
+
+        Log.i(TAG, "Foreground user switched to " + userHandle);
+        mCarUserService.onSwitchUser(userHandle);
+    }
+
+    private static void assertCallingFromSystemProcess() {
         int uid = Binder.getCallingUid();
         if (uid != Process.SYSTEM_UID) {
             throw new SecurityException("Only allowed from system");
         }
-        mCarUserService.setUserLockStatus(userHandle, unlocked == 1);
     }
 
     @Override
