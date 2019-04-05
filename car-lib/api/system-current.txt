@@ -922,16 +922,6 @@ package android.car.storagemonitoring {
 
 }
 
-package android.car.test {
-
-  public class CarTestManagerBinderWrapper {
-    ctor public CarTestManagerBinderWrapper(android.os.IBinder);
-    method public void onCarDisconnected();
-    field public final android.os.IBinder binder;
-  }
-
-}
-
 package android.car.trust {
 
   public final class CarTrustAgentEnrollmentManager {
