@@ -92,6 +92,14 @@
             <flag name="no_voice_transcription" value="256"/>
             <flag name="fully_restricted" value="511"/>
         </attr>
+        <!-- UX restrictions service supports returning different sets of UX restrictions for
+        the same driving state, through configurations for each "mode". -->
+        <attr name="mode">
+            <!-- Default mode. -->
+            <flag name="baseline" value="0"/>
+            <!-- Mode for passenger to interact with system. -->
+            <flag name="passenger" value="1"/>
+        </attr>
     </declare-styleable>
 
     <!-- 2. Some of UX restrictions can be parametrized. -->

@@ -53,8 +53,8 @@
                     android:id="@*android:id/message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@*android:dimen/car_keyline_1"
-                    android:layout_marginEnd="@*android:dimen/car_keyline_1"
+                    android:layout_marginStart="@*android:dimen/text_view_start_margin"
+                    android:layout_marginEnd="@*android:dimen/text_view_end_margin"
                     style="@*android:style/CarBody2"/>
 
                 <!-- we don't need this spacer, but the id needs to be here for compatibility -->
