@@ -37,6 +37,7 @@ import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * User service for cars. Manages users at boot time. Including:
@@ -60,6 +61,17 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
     @GuardedBy("mLock")
     private final ArrayList<Integer> mLastUnlockedUsers = new ArrayList<>();
 
+
+    private final CopyOnWriteArrayList<UserCallback> mUserCallbacks = new CopyOnWriteArrayList<>();
+
+    /** Interface for callbacks related to user activities. */
+    public interface UserCallback {
+        /** Gets called when user lock status has been changed. */
+        void onUserLockChanged(int userId, boolean unlocked);
+        /** Called when new foreground user started to boot. */
+        void onSwitchUser(int userId);
+    }
+
     public CarUserService(
                 @Nullable Context context, @Nullable CarUserManagerHelper carUserManagerHelper) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -75,13 +87,10 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "init");
         }
-        if (mCarUserManagerHelper.isHeadlessSystemUser()) {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
-            filter.addAction(Intent.ACTION_USER_SWITCHED);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_USER_SWITCHED);
 
-            mContext.registerReceiver(this, filter);
-        }
+        mContext.registerReceiver(this, filter);
     }
 
     @Override
@@ -89,9 +98,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "release");
         }
-        if (mCarUserManagerHelper.isHeadlessSystemUser()) {
-            mContext.unregisterReceiver(this);
-        }
+        mContext.unregisterReceiver(this);
     }
 
     @Override
@@ -109,24 +116,25 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         writer.println("LastUnlockedUsers:" + lastUnlockedUsers);
     }
 
+    private void updateDefaultUserRestriction() {
+        // We want to set restrictions on system and guest users only once. These are persisted
+        // onto disk, so it's sufficient to do it once + we minimize the number of disk writes.
+        if (Settings.Global.getInt(mContext.getContentResolver(),
+                CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, /* default= */ 0) == 0) {
+            setSystemUserRestrictions();
+            mCarUserManagerHelper.initDefaultGuestRestrictions();
+            Settings.Global.putInt(mContext.getContentResolver(),
+                    CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
+        }
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onReceive " + intent);
         }
 
-        if (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(intent.getAction())) {
-            // We want to set restrictions on system and guest users only once. These are persisted
-            // onto disk, so it's sufficient to do it once + we minimize the number of disk writes.
-            if (Settings.Global.getInt(mContext.getContentResolver(),
-                    CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, /* default= */ 0) == 0) {
-                setSystemUserRestrictions();
-                mCarUserManagerHelper.initDefaultGuestRestrictions();
-                Settings.Global.putInt(mContext.getContentResolver(),
-                        CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
-            }
-
-        } else if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
+        if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
             // Update last active user if the switched-to user is a persistent, non-system user.
             final int currentUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
             if (currentUser > UserHandle.USER_SYSTEM
@@ -136,12 +144,20 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         }
     }
 
+    /** Add callback to listen to user activity events. */
+    public void addUserCallback(UserCallback callback) {
+        mUserCallbacks.add(callback);
+    }
+
     /**
      * Set user lock / unlocking status. This is coming from system server through ICar binder call.
      * @param userHandle Handle of user
      * @param unlocked unlocked (=true) or locked (=false)
      */
     public void setUserLockStatus(int userHandle, boolean unlocked) {
+        for (UserCallback callback : mUserCallbacks) {
+            callback.onUserLockChanged(userHandle, unlocked);
+        }
         ArrayList<Runnable> tasks = null;
         synchronized (mLock) {
             if (userHandle != UserHandle.USER_SYSTEM && unlocked
@@ -153,6 +169,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
             }
             // Assumes that car service need to do it only once during boot-up
             if (unlocked && !mUser0Unlocked) {
+                updateDefaultUserRestriction();
                 tasks = new ArrayList<>(mUser0UnlockTasks);
                 mUser0UnlockTasks.clear();
                 mUser0Unlocked = unlocked;
@@ -212,6 +229,17 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
             // ignore
         }
         return true;
+    }
+
+    /**
+     * Called when new foreground user started to boot.
+     *
+     * @param userHandle user handle of new user
+     */
+    public void onSwitchUser(int userHandle) {
+        for (UserCallback callback : mUserCallbacks) {
+            callback.onSwitchUser(userHandle);
+        }
     }
 
     /**
