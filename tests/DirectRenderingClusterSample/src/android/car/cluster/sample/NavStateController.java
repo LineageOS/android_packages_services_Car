@@ -166,7 +166,7 @@ public class NavStateController {
             case TURN_SHARP_RIGHT:
                 return mContext.getDrawable(R.drawable.direction_turn_sharp_right);
             case U_TURN_LEFT:
-                return mContext.getDrawable(R.drawable.direction_uturn);
+                return mContext.getDrawable(R.drawable.direction_uturn_left);
             case U_TURN_RIGHT:
                 return mContext.getDrawable(R.drawable.direction_uturn_right);
             case ON_RAMP_SLIGHT_LEFT:
@@ -182,7 +182,7 @@ public class NavStateController {
             case ON_RAMP_SHARP_RIGHT:
                 return mContext.getDrawable(R.drawable.direction_on_ramp_sharp_right);
             case ON_RAMP_U_TURN_LEFT:
-                return mContext.getDrawable(R.drawable.direction_uturn);
+                return mContext.getDrawable(R.drawable.direction_uturn_left);
             case ON_RAMP_U_TURN_RIGHT:
                 return mContext.getDrawable(R.drawable.direction_uturn_right);
             case OFF_RAMP_SLIGHT_LEFT:
@@ -206,37 +206,37 @@ public class NavStateController {
             case ROUNDABOUT_EXIT:
                 return mContext.getDrawable(R.drawable.direction_roundabout);
             case ROUNDABOUT_ENTER_AND_EXIT_CW_SHARP_RIGHT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_sharp_right);
+                return mContext.getDrawable(R.drawable.direction_roundabout_cw_sharp_right);
             case ROUNDABOUT_ENTER_AND_EXIT_CW_NORMAL_RIGHT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_right);
+                return mContext.getDrawable(R.drawable.direction_roundabout_cw_right);
             case ROUNDABOUT_ENTER_AND_EXIT_CW_SLIGHT_RIGHT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_slight_right);
+                return mContext.getDrawable(R.drawable.direction_roundabout_cw_slight_right);
             case ROUNDABOUT_ENTER_AND_EXIT_CW_STRAIGHT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_straight);
+                return mContext.getDrawable(R.drawable.direction_roundabout_cw_straight);
             case ROUNDABOUT_ENTER_AND_EXIT_CW_SHARP_LEFT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_sharp_left);
+                return mContext.getDrawable(R.drawable.direction_roundabout_cw_sharp_left);
             case ROUNDABOUT_ENTER_AND_EXIT_CW_NORMAL_LEFT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_left);
+                return mContext.getDrawable(R.drawable.direction_roundabout_cw_left);
             case ROUNDABOUT_ENTER_AND_EXIT_CW_SLIGHT_LEFT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_slight_left);
+                return mContext.getDrawable(R.drawable.direction_roundabout_cw_slight_left);
             case ROUNDABOUT_ENTER_AND_EXIT_CW_U_TURN:
                 return mContext.getDrawable(R.drawable.direction_uturn_right);
             case ROUNDABOUT_ENTER_AND_EXIT_CCW_SHARP_RIGHT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_sharp_right);
+                return mContext.getDrawable(R.drawable.direction_roundabout_ccw_sharp_right);
             case ROUNDABOUT_ENTER_AND_EXIT_CCW_NORMAL_RIGHT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_right);
+                return mContext.getDrawable(R.drawable.direction_roundabout_ccw_right);
             case ROUNDABOUT_ENTER_AND_EXIT_CCW_SLIGHT_RIGHT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_slight_right);
+                return mContext.getDrawable(R.drawable.direction_roundabout_ccw_slight_right);
             case ROUNDABOUT_ENTER_AND_EXIT_CCW_STRAIGHT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_straight);
+                return mContext.getDrawable(R.drawable.direction_roundabout_ccw_straight);
             case ROUNDABOUT_ENTER_AND_EXIT_CCW_SHARP_LEFT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_sharp_left);
+                return mContext.getDrawable(R.drawable.direction_roundabout_ccw_sharp_left);
             case ROUNDABOUT_ENTER_AND_EXIT_CCW_NORMAL_LEFT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_left);
+                return mContext.getDrawable(R.drawable.direction_roundabout_ccw_left);
             case ROUNDABOUT_ENTER_AND_EXIT_CCW_SLIGHT_LEFT:
-                return mContext.getDrawable(R.drawable.direction_roundabout_slight_left);
+                return mContext.getDrawable(R.drawable.direction_roundabout_ccw_slight_left);
             case ROUNDABOUT_ENTER_AND_EXIT_CCW_U_TURN:
-                return mContext.getDrawable(R.drawable.direction_uturn);
+                return mContext.getDrawable(R.drawable.direction_uturn_left);
             case STRAIGHT:
                 return mContext.getDrawable(R.drawable.direction_continue);
             case FERRY_BOAT:
