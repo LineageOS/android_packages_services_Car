@@ -231,7 +231,7 @@ package android.car.content.pm {
 
 package android.car.diagnostic {
 
-  public class CarDiagnosticEvent implements android.os.Parcelable {
+  public final class CarDiagnosticEvent implements android.os.Parcelable {
     ctor public CarDiagnosticEvent(android.os.Parcel);
     method public int describeContents();
     method @Nullable @android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.Status public Integer getFuelSystemStatus();
@@ -257,13 +257,17 @@ package android.car.diagnostic {
   }
 
   public static class CarDiagnosticEvent.Builder {
-    method public android.car.diagnostic.CarDiagnosticEvent.Builder atTimestamp(long);
+    method @Deprecated public android.car.diagnostic.CarDiagnosticEvent.Builder atTimestamp(long);
     method public android.car.diagnostic.CarDiagnosticEvent build();
     method public static android.car.diagnostic.CarDiagnosticEvent.Builder newFreezeFrameBuilder();
     method public static android.car.diagnostic.CarDiagnosticEvent.Builder newLiveFrameBuilder();
-    method public android.car.diagnostic.CarDiagnosticEvent.Builder withDtc(String);
-    method public android.car.diagnostic.CarDiagnosticEvent.Builder withFloatValue(int, float);
-    method public android.car.diagnostic.CarDiagnosticEvent.Builder withIntValue(int, int);
+    method public android.car.diagnostic.CarDiagnosticEvent.Builder setDtc(String);
+    method public android.car.diagnostic.CarDiagnosticEvent.Builder setFloatValue(int, float);
+    method public android.car.diagnostic.CarDiagnosticEvent.Builder setIntValue(int, int);
+    method public android.car.diagnostic.CarDiagnosticEvent.Builder setTimeStamp(long);
+    method @Deprecated public android.car.diagnostic.CarDiagnosticEvent.Builder withDtc(String);
+    method @Deprecated public android.car.diagnostic.CarDiagnosticEvent.Builder withFloatValue(int, float);
+    method @Deprecated public android.car.diagnostic.CarDiagnosticEvent.Builder withIntValue(int, int);
   }
 
   public static class CarDiagnosticEvent.CommonIgnitionMonitors {
