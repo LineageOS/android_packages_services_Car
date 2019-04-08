@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,62 @@
 package android.car.cluster.sample;
 
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProviders;
+
+import com.android.car.telephony.common.TelecomUtils;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Displays ongoing call information.
  */
 public class PhoneFragment extends Fragment {
+    private View mUserProfileContainerView;
 
+    private PhoneFragmentViewModel mViewModel;
 
     public PhoneFragment() {
         // Required empty public constructor
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_phone, container, false);
-    }
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            Bundle savedInstanceState) {
+        FragmentActivity activity = requireActivity();
+        mViewModel = ViewModelProviders.of(activity).get(
+                PhoneFragmentViewModel.class);
 
+        View fragmentView = inflater.inflate(R.layout.fragment_phone, container, false);
+        mUserProfileContainerView = fragmentView.findViewById(R.id.user_profile_container);
+
+        TextView body = mUserProfileContainerView.findViewById(R.id.body);
+        ImageView avatar = mUserProfileContainerView.findViewById(R.id.avatar);
+        TextView nameView = mUserProfileContainerView.findViewById(R.id.title);
+
+        mViewModel.getContactInfo().observe(getViewLifecycleOwner(), (contactInfo) -> {
+            nameView.setText(contactInfo.getDisplayName());
+            TelecomUtils.setContactBitmapAsync(getContext(),
+                    avatar, contactInfo.getContact(), contactInfo.getNumber());
+        });
+        mViewModel.getBody().observe(getViewLifecycleOwner(), body::setText);
+        mViewModel.getState().observe(getViewLifecycleOwner(), (state) -> {
+            if (state == TelephonyManager.CALL_STATE_IDLE) {
+                mUserProfileContainerView.setVisibility(View.GONE);
+            } else {
+                mUserProfileContainerView.setVisibility(View.VISIBLE);
+            }
+        });
+
+        return fragmentView;
+    }
 }
