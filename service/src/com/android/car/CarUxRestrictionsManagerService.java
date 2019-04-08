@@ -439,6 +439,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     public synchronized boolean setRestrictionMode(
             @CarUxRestrictionsManager.UxRestrictionMode int mode) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+
         if (mRestrictionMode == mode) {
             return true;
         }
@@ -456,6 +458,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     @CarUxRestrictionsManager.UxRestrictionMode
     public synchronized int getRestrictionMode() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+
         return mRestrictionMode;
     }
 
