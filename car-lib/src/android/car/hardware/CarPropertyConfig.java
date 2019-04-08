@@ -107,26 +107,50 @@ public final class CarPropertyConfig<T> implements Parcelable {
     public static final int VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS = 2;
 
     /**
-     * @return Access type of properties.
-     * None = 0, READ = 1, WRITE = 2, READ_WRITE = 3
+     * Return the access type of the car property.
+     * <p>The access type could be one of the following:
+     * <ul>
+     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_NONE}</li>
+     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}</li>
+     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}</li>
+     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}</li>
+     * </ul>
+     *
+     * @return the access type of the car property.
      */
     public @VehiclePropertyAccessType int getAccess() {
         return mAccess;
     }
 
     /**
+     * Return the area type of the car property.
+     * <p>The area type could be one of the following:
+     * <ul>
+     *   <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}</li>
+     *   <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_WINDOW}</li>
+     *   <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}</li>
+     *   <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_DOOR}</li>
+     *   <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_MIRROR}</li>
+     *   <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_WHEEL}</li>
+     * </ul>
      *
-     * @return Area type of properties.
-     * Global = 0, Window = 2, Seat = 3, Door = 4, Mirror = 5, Wheel = 6
+     * @return the area type of the car property.
      */
     public @VehicleAreaTypeValue int getAreaType() {
         return mAreaType;
     }
 
     /**
+     * Return the change mode of the car property.
      *
-     * @return Change mode of properties.
-     * STATIC = 0, ON_CHANGE = 1, CONTINUOUS = 2
+     * <p>The change mode could be one of the following:
+     * <ul>
+     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC }</li>
+     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}</li>
+     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}</li>
+     * </ul>
+     *
+     * @return the change mode of properties.
      */
     public @VehiclePropertyChangeModeType int getChangeMode() {
         return mChangeMode;
@@ -136,7 +160,6 @@ public final class CarPropertyConfig<T> implements Parcelable {
      *
      * @return Additional configuration parameters. For different properties, configArrays have
      * different information.
-     * TODO: b/128873196 need add link to document.
      */
     @NonNull
     public List<Integer> getConfigArray() {
