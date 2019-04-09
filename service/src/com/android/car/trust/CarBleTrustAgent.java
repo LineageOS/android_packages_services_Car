@@ -150,7 +150,7 @@ public class CarBleTrustAgent extends TrustAgentService {
             return;
         }
         mCarTrustAgentEnrollmentService.onEscrowTokenActiveStateChanged(handle,
-                tokenState == TOKEN_STATE_ACTIVE);
+                tokenState == TOKEN_STATE_ACTIVE, ActivityManager.getCurrentUser());
     }
 
     @Override

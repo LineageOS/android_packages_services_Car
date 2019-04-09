@@ -39,7 +39,8 @@ LOCAL_STATIC_ANDROID_LIBRARIES += \
     androidx-constraintlayout_constraintlayout \
     androidx.car_car-cluster \
     car-arch-common \
-    car-media-common
+    car-media-common \
+    car-telephony-common
 
 include $(BUILD_PACKAGE)
 
