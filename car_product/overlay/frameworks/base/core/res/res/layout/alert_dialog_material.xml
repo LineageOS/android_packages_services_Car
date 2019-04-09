@@ -20,7 +20,7 @@
     android:id="@*android:id/parentPanel"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="start|top"    
+    android:gravity="start|top"
     android:orientation="vertical">
 
     <include layout="@*android:layout/alert_dialog_title_material" />
@@ -42,12 +42,11 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- we don't need this spacer, but the id needs to be here for compatibility -->
                 <Space
                     android:id="@*android:id/textSpacerNoTitle"
                     android:visibility="gone"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp" />
+                    android:layout_height="@*android:dimen/dialog_no_title_padding_top" />
 
                 <TextView
                     android:id="@*android:id/message"
