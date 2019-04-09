@@ -742,7 +742,7 @@ package android.car.media {
 
 package android.car.navigation {
 
-  public class CarNavigationInstrumentCluster implements android.os.Parcelable {
+  public final class CarNavigationInstrumentCluster implements android.os.Parcelable {
     ctor public CarNavigationInstrumentCluster(android.car.navigation.CarNavigationInstrumentCluster);
     method public static android.car.navigation.CarNavigationInstrumentCluster createCluster(int);
     method public static android.car.navigation.CarNavigationInstrumentCluster createCustomImageCluster(int, int, int, int);
