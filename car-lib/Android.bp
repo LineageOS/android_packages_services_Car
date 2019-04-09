@@ -201,7 +201,7 @@ droidstubs {
     },
 }
 
-java_library_static {
+java_library {
     name: "android.car-stubs",
     srcs: [
         ":android.car-stub-docs",
@@ -214,13 +214,24 @@ java_library_static {
             enabled: false,
         },
     },
-    compile_dex: true,
+    installable: false,
     dist: {
         targets: ["dist_files"],
     }
 }
 
-java_library_static {
+java_library {
+    name: "android.car-stubs-dex",
+    static_libs: ["android.car-stubs"],
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+    compile_dex: true,
+}
+
+java_library {
     name: "android.car-system-stubs",
     srcs: [
         ":android.car-system-stubs-docs",
@@ -233,10 +244,21 @@ java_library_static {
             enabled: false,
         },
     },
-    compile_dex: true,
+    installable: false,
     dist: {
         targets: ["dist_files"],
     }
+}
+
+java_library {
+    name: "android.car-system-stubs-dex",
+    static_libs: ["android.car-system-stubs"],
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+    compile_dex: true,
 }
 
 java_library_static {
@@ -247,6 +269,17 @@ java_library_static {
     libs: [
         "android.car",
     ],
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+    installable: false,
+}
+
+java_library {
+    name: "android.car-test-stubs-dex",
+    static_libs: ["android.car-test-stubs"],
     product_variables: {
         pdk: {
             enabled: false,
