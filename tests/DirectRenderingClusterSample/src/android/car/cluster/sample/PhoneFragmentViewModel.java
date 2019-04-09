@@ -117,7 +117,7 @@ public final class PhoneFragmentViewModel extends AndroidViewModel {
 
         public ContactInfo(String number) {
             mNumber = number;
-            mDisplayName = TelecomUtils.getDisplayName(getApplication(), number);
+            mDisplayName = TelecomUtils.getDisplayNameAndAvatarUri(getApplication(), number).first;
             mContact = InMemoryPhoneBook.get().lookupContactEntry(number);
         }
 
