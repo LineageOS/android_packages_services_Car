@@ -16,31 +16,49 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="car_permission_label" msgid="2215078736675564541">"ព័ត៌មាន​រថយន្ត"</string>
+    <!-- no translation found for car_permission_label (741004755205554376) -->
+    <skip />
     <string name="car_permission_desc" msgid="162499818870052725">"ចូលប្រើ​ព័ត៌មាន​របស់រថយន្តអ្នក។"</string>
-    <string name="car_permission_label_cabin" msgid="7737204489497269651">"កាប៊ីន​រថយន្ត"</string>
-    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"ចូលប្រើ​គ្រឿងបរិក្ខារ​របស់រថយន្តអ្នក រួមមាន​ទ្វារ កញ្ចក់ កៅអី និងបង្អួច។"</string>
-    <string name="car_permission_label_camera" msgid="608969838109034886">"កាមេរ៉ា​រថយន្ត"</string>
+    <!-- no translation found for car_permission_label_camera (3725702064841827180) -->
+    <skip />
     <string name="car_permission_desc_camera" msgid="917024932164501426">"ចូលប្រើ​កាមេរ៉ារបស់​រថយន្តអ្នក។"</string>
-    <string name="car_permission_label_energy" msgid="3398092932402178393">"ថាមពល​របស់រថយន្ត"</string>
+    <!-- no translation found for car_permission_label_energy (7409144323527821558) -->
+    <skip />
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"ចូលប្រើ​ព័ត៌មាន​ថាមពលរបស់​រថយន្តអ្នក។"</string>
-    <string name="car_permission_label_hvac" msgid="8047274427463154164">"ប្រព័ន្ធកម្តៅ ខ្យល់ និងម៉ាស៊ីនត្រជាក់​របស់រថយន្ត"</string>
+    <!-- no translation found for car_permission_label_hvac (1499454192558727843) -->
+    <skip />
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"ចូលប្រើ​ប្រព័ន្ធកម្តៅ ខ្យល់ និងម៉ាស៊ីនត្រជាក់​របស់រថយន្តអ្នក។"</string>
-    <string name="car_permission_label_mileage" msgid="811821331694754443">"រយៈចម្ងាយរត់​របស់រថយន្ត"</string>
+    <!-- no translation found for car_permission_label_mileage (4661317074631150551) -->
+    <skip />
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"ចូលប្រើ​ព័ត៌មាន​អំពីរយៈចម្ងាយរត់​របស់រថយន្តអ្នក។"</string>
-    <string name="car_permission_label_speed" msgid="7315924371063443241">"ល្បឿន​រថយន្ត"</string>
+    <!-- no translation found for car_permission_label_speed (1149027717860529745) -->
+    <skip />
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"ចូលប្រើ​ល្បឿន​របស់រថយន្តអ្នក។"</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"ស្ថានភាព​ឌីណាមិច​របស់យានជំនិះ"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"ចូលប្រើ​ស្ថានភាព​ឌីណាមិច​របស់រថយន្ត​អ្នក"</string>
-    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"បណ្តាញ​អ្នកលក់​រថយន្ត"</string>
+    <!-- no translation found for car_permission_label_vehicle_dynamics_state (313779267420048367) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_vehicle_dynamics_state (8891506193446375660) -->
+    <skip />
+    <!-- no translation found for car_permission_label_vendor_extension (7141601811734127361) -->
+    <skip />
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"ចូលប្រើ​បណ្ដាញ​អ្នកលក់​របស់រថយន្តអ្នក ដើម្បី​ផ្លាស់ប្ដូរ​ព័ត៌មាន​ជាក់លាក់​ទាក់ទង​នឹងរថយន្ត។"</string>
-    <string name="car_permission_label_radio" msgid="4768692394049267617">"វិទ្យុ​រថយន្ត"</string>
+    <!-- no translation found for car_permission_label_radio (6009465291685935112) -->
+    <skip />
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"ចូលប្រើ​វិទ្យុ​របស់រថយន្ត​អ្នក។"</string>
-    <string name="car_permission_label_projection" msgid="7830068427803303154">"ការបញ្ចាំង​របស់រថយន្ត"</string>
-    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"កម្រិតសំឡេង​របស់រថយន្ត"</string>
-    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"ការកំណត់សំឡេង​របស់រថយន្ត"</string>
-    <string name="car_permission_desc_projection" msgid="2680001094361534439">"បញ្ចាំង​ផ្ទៃទូរសព្ទ​នៅលើ​ឧបករណ៍បញ្ចាំង​របស់រថយន្ត។"</string>
-    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"ត្រាប់តាម HAL នៃយានជំនិះ"</string>
+    <!-- no translation found for car_permission_label_projection (9107156380287576787) -->
+    <skip />
+    <string name="car_permission_desc_projection" msgid="2352178999656292944">"អនុញ្ញាតឱ្យ​កម្មវិធី​បញ្ចាំង​ផ្ទៃពីទូរសព្ទ​នៅលើ​ផ្ទាំងអេក្រង់​​របស់រថយន្ត។"</string>
+    <!-- no translation found for car_permission_label_access_projection_status (4231618890836627402) -->
+    <skip />
+    <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"អនុញ្ញាតឱ្យ​កម្មវិធី​ទទួលបាន​ស្ថានភាពរបស់កម្មវិធីផ្សេងទៀត ដែល​បញ្ចាំង​នៅលើ​ផ្ទាំងអេក្រង់​​របស់រថយន្ត។"</string>
+    <!-- no translation found for car_permission_label_bind_projection_service (5362076216606651526) -->
+    <skip />
+    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"អនុញ្ញាតឱ្យ​ទម្រ​​ភ្ជាប់ជាមួយ​ផ្ទៃកម្រិត​កំពូល​របស់​សេវាកម្មបញ្ចាំង។ មិន​គួរ​ចាំបាច់​សម្រាប់​កម្មវិធី​ធម្មតា​ទេ។"</string>
+    <!-- no translation found for car_permission_label_audio_volume (310587969373137690) -->
+    <skip />
+    <!-- no translation found for car_permission_label_audio_settings (6524703796944023977) -->
+    <skip />
+    <!-- no translation found for car_permission_label_mock_vehicle_hal (7198852512207405935) -->
+    <skip />
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"ត្រាប់តាម HAL នៃយានជំនិះ​របស់រថយន្តអ្នក ក្នុងបំណង​ធ្វើតេស្តផ្នែកខាងក្នុង។"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"គ្រប់គ្រង​កម្រិតសំឡេង​របស់រថយន្ត​អ្នក។"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"គ្រប់គ្រង​ការកំណត់​សំឡេង​របស់​រថយន្តអ្នក។"</string>
@@ -56,6 +74,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ទទួលបាន​ទិន្នន័យ​បណ្ដុំឧបករណ៍"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"ការកំណត់រចនាសម្ព័ន្ធ​ការរឹតបន្តឹង UX"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"កំណត់រចនាសម្ព័ន្ធ​ការរឹតបន្តឹង UX"</string>
+    <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"ទាក់ទងជាមួយ​ឧបករណ៍ USB តាមរយៈមុខងារ AOAP"</string>
+    <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"អនុញ្ញាតឱ្យ​កម្មវិធី​ទាក់ទង​ជាមួយឧបករណ៍តាមរយៈមុខងារ AOAP"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"សេវាកម្ម​បញ្ចូលរបស់​រថយន្ត"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"គ្រប់គ្រង​ព្រឹត្តិការណ៍​បញ្ចូល"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"មិនអាច​ដំណើរការ CAN bus បានទេ"</string>
@@ -64,64 +84,102 @@
     <string name="exit_button_message" msgid="8554690915924055685">"ដើម្បី​ចាប់ផ្តើមឡើងវិញ​ដោយប្រើ​មុខងារកម្មវិធី​ដែលមានសុវត្ថិភាព សូមជ្រើសរើស <xliff:g id="EXIT_BUTTON">%s</xliff:g> ។"</string>
     <string name="exit_button" msgid="5829638404777671253">"ថយក្រោយ"</string>
     <string name="debug_button_text" msgid="6395881820644544676">"ព័ត៌មានជួសជុល"</string>
-    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"ទិន្នន័យ​វិភាគ"</string>
-    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"អាន​ទិន្នន័យ​វិភាគពី​រថយន្ត"</string>
-    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"ទិន្នន័យ​វិភាគ"</string>
-    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"សម្អាត​ទិន្នន័យ​វិភាគពី​រថយន្ត"</string>
-    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"អ្នកបោះផ្សាយ VMS"</string>
-    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"បោះផ្សាយ​សារ vms"</string>
-    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"អ្នកជាវ VMS"</string>
-    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"ជាវ​សារ vms"</string>
+    <!-- no translation found for car_permission_label_diag_read (7248894224877702604) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_diag_read (1121426363040966178) -->
+    <skip />
+    <!-- no translation found for car_permission_label_diag_clear (4783070510879698157) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_diag_clear (7453222114866042786) -->
+    <skip />
+    <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"អ្នកផ្សាយ VMS"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"បោះផ្សាយ​សារ VMS"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"អ្នកជាវ VMS"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"ជាវសារ VMS"</string>
+    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"សេវាកម្ម​អតិថិជន VMS"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"ភ្ជាប់ទៅអតិថិជន VMS"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"ការតាមដាន​ឧបករណ៍ផ្ទុក​ទិន្នន័យ"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"តាមដាន​ការប្រើប្រាស់​ឧបករណ៍ផ្ទុក​ទិន្នន័យ"</string>
-    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"ស្ថានភាព​បើកបរ"</string>
-    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"ស្តាប់​ការផ្លាស់ប្តូរ​ស្ថានភាព​បើកបរ"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"ព័ត៌មានលម្អិត​របស់ម៉ាស៊ីន"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"ចូលប្រើ​ព័ត៌មាន​លម្អិត​នៃម៉ាស៊ីនរបស់​រថយន្តអ្នក"</string>
-    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"រន្ធ​ថាមពល"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"ចូលប្រើ​រន្ធ​ថាមពល"</string>
-    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"ការកំណត់​អត្តសញ្ញាណរបស់​រថយន្ត"</string>
-    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"ចូលប្រើ​ការកំណត់អត្តសញ្ញាណ​របស់រថយន្ត"</string>
-    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"ទ្វារ​របស់រថយន្ត"</string>
-    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"គ្រប់គ្រង​ទ្វាររបស់រថយន្ត"</string>
-    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"បង្អួច​រថយន្ត"</string>
-    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"គ្រប់គ្រង​បង្អួច​របស់រថយន្ត"</string>
-    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"កញ្ចក់​របស់រថយន្ត"</string>
-    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"គ្រប់គ្រង​កញ្ចក់របស់​រថយន្ត"</string>
-    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"កៅអី​របស់​រថយន្ត"</string>
-    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"គ្រប់គ្រង​កៅអីរបស់​រថយន្ត"</string>
-    <string name="car_permission_label_car_info" msgid="5638680944359440535">"ព័ត៌មាន​មូលដ្ឋាន​របស់រថយន្ត"</string>
-    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"ចូលប្រើ​ព័ត៌មាន​មូលដ្ឋាន​របស់រថយន្ត"</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"អំពូលភ្លើង​ផ្នែកខាងក្រៅ​រថយន្ត"</string>
-    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"ចូលប្រើ​ស្ថានភាពអំពូលភ្លើង​ផ្នែកខាងក្រៅ​របស់រថយន្ត"</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"អំពូលភ្លើង​ផ្នែកខាងក្រៅ​រថយន្ត"</string>
-    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"គ្រប់គ្រង​អំពូលភ្លើង​ផ្នែកខាងក្រៅ​របស់រថយន្ត"</string>
-    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <!-- no translation found for car_permission_label_driving_state (7754624599537393650) -->
     <skip />
-    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <!-- no translation found for car_permission_desc_driving_state (2684025262811635737) -->
     <skip />
-    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <!-- no translation found for car_permission_label_car_engine_detailed (8911992719173587337) -->
     <skip />
-    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <!-- no translation found for car_permission_desc_car_engine_detailed (1746863362811347700) -->
     <skip />
-    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"សីតុណ្ហភាព​ផ្នែកខាងក្រៅ​របស់រថយន្ត"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"ចូលប្រើ​សីតុណ្ហភាព​ផ្នែកខាងក្រៅរបស់​រថយន្ត"</string>
-    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"សំបកកង់​របស់​រថយន្ត"</string>
-    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"ចូលប្រើ​ព័ត៌មាន​អំពីសំបកកង់​របស់រថយន្ត"</string>
-    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <!-- no translation found for car_permission_label_car_energy_ports (8548990315169219454) -->
     <skip />
-    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <!-- no translation found for car_permission_desc_car_energy_ports (7771185999828794949) -->
     <skip />
-    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <!-- no translation found for car_permission_label_car_identification (5896712510164020478) -->
     <skip />
-    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <!-- no translation found for car_permission_desc_car_identification (4132040867171275059) -->
     <skip />
-    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <!-- no translation found for car_permission_label_control_car_doors (3032058819250195700) -->
     <skip />
-    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <!-- no translation found for car_permission_desc_control_car_doors (6287353311980590092) -->
     <skip />
-    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"ប្រព័ន្ធម៉ាស៊ីន​របស់រថយន្ត"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"ចូលប្រើ​ព័ត៌មាន​នៃប្រព័ន្ធម៉ាស៊ីន​របស់រថយន្ត"</string>
-    <string name="car_permission_label_car_power" msgid="3671174734416372201">"ថាមពល​របស់រថយន្ត"</string>
-    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"ចូលប្រើ​ស្ថានភាព​ថាមពល​របស់រថយន្ត"</string>
+    <!-- no translation found for car_permission_label_control_car_windows (2452854429996653029) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_windows (7693657991521595635) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_mirrors (8470700538827409476) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_mirrors (1224135684068855032) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_seats (1826934820585497135) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_seats (2407536601226470563) -->
+    <skip />
+    <!-- no translation found for car_permission_label_car_info (4707513570676492315) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_info (2118081474543537653) -->
+    <skip />
+    <!-- no translation found for car_permission_label_car_exterior_lights (541304469604902110) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_exterior_lights (4038037584100849318) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_exterior_lights (101357531386232141) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_exterior_lights (6332252612685264180) -->
+    <skip />
+    <!-- no translation found for car_permission_label_car_interior_lights (8506302199784427680) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (6204775354692372506) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (6685386372012664281) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (797201814109701538) -->
+    <skip />
+    <!-- no translation found for car_permission_label_car_exterior_environment (3385924985991299436) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_exterior_environment (1716656004731603379) -->
+    <skip />
+    <!-- no translation found for car_permission_label_car_tires (4379255261197836840) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_tires (8134496466769810134) -->
+    <skip />
+    <!-- no translation found for car_permission_label_car_steering (7779530447441232479) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (1357331844530708138) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (7617008314862097183) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (6891898275208542385) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (4975303668183173076) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (8744397195158556945) -->
+    <skip />
+    <!-- no translation found for car_permission_label_car_powertrain (4586122326622134886) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_powertrain (1116007372551797796) -->
+    <skip />
+    <!-- no translation found for car_permission_label_car_power (8111448088314368268) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_power (9202079903668652864) -->
+    <skip />
+    <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"ចុះ​ឈ្មោះ​ឧបករណ៍​ដែល​ទុក​ចិត្ត"</string>
+    <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"អនុញ្ញាតឱ្យចុះ​ឈ្មោះឧបករណ៍​ដែល​ទុក​ចិត្ត"</string>
 </resources>

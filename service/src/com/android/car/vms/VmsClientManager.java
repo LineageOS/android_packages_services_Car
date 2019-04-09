@@ -33,7 +33,9 @@ import android.util.Log;
 import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.car.hal.VmsHalService;
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -72,6 +74,7 @@ public class VmsClientManager implements CarServiceBase {
 
     private final Context mContext;
     private final Handler mHandler;
+    private final CarUserService mUserService;
     private final CarUserManagerHelper mUserManagerHelper;
     private final IBinder mHalClient;
     private final int mMillisBeforeRebind;
@@ -85,19 +88,9 @@ public class VmsClientManager implements CarServiceBase {
     @GuardedBy("mCurrentUserClients")
     private int mCurrentUser;
 
-    final BroadcastReceiver mBootCompletedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case Intent.ACTION_LOCKED_BOOT_COMPLETED:
-                    bindToSystemClients();
-                    break;
-                default:
-                    Log.e(TAG, "Unexpected intent received: " + intent);
-            }
-        }
-    };
-
+    @VisibleForTesting
+    final Runnable mSystemUserUnlockedListener = this::bindToSystemClients;
+    @VisibleForTesting
     final BroadcastReceiver mUserSwitchReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -105,6 +98,7 @@ public class VmsClientManager implements CarServiceBase {
             switch (intent.getAction()) {
                 case Intent.ACTION_USER_SWITCHED:
                 case Intent.ACTION_USER_UNLOCKED:
+                    bindToSystemClients();
                     bindToCurrentUserClients();
                     break;
                 default:
@@ -117,13 +111,15 @@ public class VmsClientManager implements CarServiceBase {
      * Constructor for client managers.
      *
      * @param context           Context to use for registering receivers and binding services.
+     * @param userService       User service for registering system unlock listener.
      * @param userManagerHelper User manager for querying current user state.
      * @param halService        Service providing the HAL client interface
      */
-    public VmsClientManager(Context context, CarUserManagerHelper userManagerHelper,
-            VmsHalService halService) {
+    public VmsClientManager(Context context, CarUserService userService,
+            CarUserManagerHelper userManagerHelper, VmsHalService halService) {
         mContext = context;
         mHandler = new Handler(Looper.getMainLooper());
+        mUserService = userService;
         mUserManagerHelper = userManagerHelper;
         mHalClient = halService.getPublisherClient();
         mMillisBeforeRebind = mContext.getResources().getInteger(
@@ -132,8 +128,7 @@ public class VmsClientManager implements CarServiceBase {
 
     @Override
     public void init() {
-        mContext.registerReceiver(mBootCompletedReceiver,
-                new IntentFilter(Intent.ACTION_LOCKED_BOOT_COMPLETED));
+        mUserService.runOnUser0Unlock(mSystemUserUnlockedListener);
 
         IntentFilter userSwitchFilter = new IntentFilter();
         userSwitchFilter.addAction(Intent.ACTION_USER_SWITCHED);
@@ -144,7 +139,6 @@ public class VmsClientManager implements CarServiceBase {
 
     @Override
     public void release() {
-        mContext.unregisterReceiver(mBootCompletedReceiver);
         mContext.unregisterReceiver(mUserSwitchReceiver);
         notifyListenersOnClientDisconnected(HAL_CLIENT_NAME);
         synchronized (mSystemClients) {
@@ -229,6 +223,7 @@ public class VmsClientManager implements CarServiceBase {
     private void bind(Map<String, ClientConnection> connectionMap, String clientName,
             UserHandle userHandle) {
         if (connectionMap.containsKey(clientName)) {
+            Log.i(TAG, "Already bound: " + clientName);
             return;
         }
 
