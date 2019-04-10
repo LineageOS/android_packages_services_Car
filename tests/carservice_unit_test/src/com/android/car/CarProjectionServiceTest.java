@@ -23,8 +23,16 @@ import static android.car.projection.ProjectionStatus.PROJECTION_TRANSPORT_WIFI;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.CarProjectionManager;
+import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
 import android.car.projection.ProjectionOptions;
 import android.car.projection.ProjectionStatus;
@@ -39,6 +47,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.RemoteException;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.runner.AndroidJUnit4;
@@ -47,11 +56,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.util.BitSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -240,6 +252,75 @@ public class CarProjectionServiceTest {
         assertThat(wifiChannels).isNotEmpty();
     }
 
+    @Test
+    public void addedKeyEventHandler_getsDispatchedEvents() throws RemoteException {
+        ICarProjectionKeyEventHandler eventHandler = createMockKeyEventHandler();
+
+        BitSet eventSet = bitSetOf(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
+        mService.registerKeyEventHandler(eventHandler, eventSet.toByteArray());
+
+        mService.onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
+        verify(eventHandler)
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
+    }
+
+    @Test
+    public void addedKeyEventHandler_registersWithCarInputService() throws RemoteException {
+        ICarProjectionKeyEventHandler eventHandler1 = createMockKeyEventHandler();
+        ICarProjectionKeyEventHandler eventHandler2 = createMockKeyEventHandler();
+        InOrder inOrder = inOrder(mCarInputService);
+
+        BitSet bitSet = bitSetOf(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
+
+        bitSet.set(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
+        mService.registerKeyEventHandler(eventHandler1, bitSet.toByteArray());
+
+        ArgumentCaptor<CarProjectionManager.ProjectionKeyEventHandler> eventListenerCaptor =
+                ArgumentCaptor.forClass(CarProjectionManager.ProjectionKeyEventHandler.class);
+        inOrder.verify(mCarInputService)
+                .setProjectionKeyEventHandler(
+                        eventListenerCaptor.capture(),
+                        eq(bitSetOf(
+                                CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP)));
+
+        mService.registerKeyEventHandler(
+                eventHandler2,
+                bitSetOf(
+                        CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP,
+                        CarProjectionManager.KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN
+                ).toByteArray());
+        inOrder.verify(mCarInputService).setProjectionKeyEventHandler(
+                eventListenerCaptor.getValue(),
+                bitSetOf(
+                        CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP,
+                        CarProjectionManager.KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN
+                ));
+
+        // Fire handler interface sent to CarInputService, and ensure that correct events fire.
+        eventListenerCaptor.getValue()
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
+        verify(eventHandler1)
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
+        verify(eventHandler2)
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
+
+        eventListenerCaptor.getValue()
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN);
+        verify(eventHandler1, never())
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN);
+        verify(eventHandler2)
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN);
+
+        // Deregister event handlers, and check that CarInputService is updated appropriately.
+        mService.unregisterKeyEventHandler(eventHandler2);
+        inOrder.verify(mCarInputService).setProjectionKeyEventHandler(
+                eventListenerCaptor.getValue(),
+                bitSetOf(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP));
+
+        mService.unregisterKeyEventHandler(eventHandler1);
+        inOrder.verify(mCarInputService).setProjectionKeyEventHandler(eq(null), any());
+    }
+
     private ProjectionStatus createProjectionStatus() {
         Bundle statusExtra = new Bundle();
         statusExtra.putString(STATUS_EXTRA_KEY, STATUS_EXTRA_VALUE);
@@ -262,5 +343,19 @@ public class CarProjectionServiceTest {
                         .setProjecting(true)
                         .build())
                 .build();
+    }
+
+    private static ICarProjectionKeyEventHandler createMockKeyEventHandler() {
+        ICarProjectionKeyEventHandler listener = mock(ICarProjectionKeyEventHandler.Stub.class);
+        when(listener.asBinder()).thenCallRealMethod();
+        return listener;
+    }
+
+    private static BitSet bitSetOf(@CarProjectionManager.KeyEventNum int... events) {
+        BitSet bitSet = new BitSet();
+        for (int event : events) {
+            bitSet.set(event);
+        }
+        return bitSet;
     }
 }

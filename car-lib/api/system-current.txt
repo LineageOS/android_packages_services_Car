@@ -54,12 +54,15 @@ package android.car {
   }
 
   public final class CarProjectionManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void addKeyEventHandler(@NonNull java.util.Set<java.lang.Integer>, @NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void addKeyEventHandler(@NonNull java.util.Set<java.lang.Integer>, @Nullable java.util.concurrent.Executor, @NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) @NonNull public java.util.List<java.lang.Integer> getAvailableWifiChannels(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) @NonNull public android.os.Bundle getProjectionOptions();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionListener(@NonNull android.car.CarProjectionManager.CarProjectionListener, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionRunner(@NonNull android.content.Intent);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION_STATUS) public void registerProjectionStatusListener(@NonNull android.car.CarProjectionManager.ProjectionStatusListener);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean releaseBluetoothProfileInhibit(@NonNull android.bluetooth.BluetoothDevice, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void removeKeyEventHandler(@NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean requestBluetoothProfileInhibit(@NonNull android.bluetooth.BluetoothDevice, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void startProjectionAccessPoint(@NonNull android.car.CarProjectionManager.ProjectionAccessPointCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void stopProjectionAccessPoint();
@@ -67,8 +70,16 @@ package android.car {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void unregisterProjectionRunner(@NonNull android.content.Intent);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION_STATUS) public void unregisterProjectionStatusListener(@NonNull android.car.CarProjectionManager.ProjectionStatusListener);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void updateProjectionStatus(@NonNull android.car.projection.ProjectionStatus);
-    field public static final int PROJECTION_LONG_PRESS_VOICE_SEARCH = 2; // 0x2
-    field public static final int PROJECTION_VOICE_SEARCH = 1; // 0x1
+    field public static final int KEY_EVENT_CALL_KEY_DOWN = 4; // 0x4
+    field public static final int KEY_EVENT_CALL_LONG_PRESS_KEY_DOWN = 6; // 0x6
+    field public static final int KEY_EVENT_CALL_LONG_PRESS_KEY_UP = 7; // 0x7
+    field public static final int KEY_EVENT_CALL_SHORT_PRESS_KEY_UP = 5; // 0x5
+    field public static final int KEY_EVENT_VOICE_SEARCH_KEY_DOWN = 0; // 0x0
+    field public static final int KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN = 2; // 0x2
+    field public static final int KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_UP = 3; // 0x3
+    field public static final int KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP = 1; // 0x1
+    field @Deprecated public static final int PROJECTION_LONG_PRESS_VOICE_SEARCH = 2; // 0x2
+    field @Deprecated public static final int PROJECTION_VOICE_SEARCH = 1; // 0x1
   }
 
   public static interface CarProjectionManager.CarProjectionListener {
@@ -84,6 +95,10 @@ package android.car {
     field public static final int ERROR_INCOMPATIBLE_MODE = 3; // 0x3
     field public static final int ERROR_NO_CHANNEL = 1; // 0x1
     field public static final int ERROR_TETHERING_DISALLOWED = 4; // 0x4
+  }
+
+  public static interface CarProjectionManager.ProjectionKeyEventHandler {
+    method public void onKeyEvent(int);
   }
 
   public static interface CarProjectionManager.ProjectionStatusListener {

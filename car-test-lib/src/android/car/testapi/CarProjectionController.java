@@ -16,16 +16,24 @@
 
 package android.car.testapi;
 
+import android.car.CarProjectionManager;
 import android.car.projection.ProjectionOptions;
 import android.net.wifi.WifiConfiguration;
 
-/** Controller to change behavior of {@link android.car.CarProjectionManager} */
+/** Controller to change behavior of {@link CarProjectionManager} */
 public interface CarProjectionController {
     /** Set WifiConfiguration for wireless projection or null to simulate failure to start AP */
     void setWifiConfiguration(WifiConfiguration wifiConfiguration);
+
     /**
      * Sets {@link ProjectionOptions} object returns by
-     * {@link android.car.CarProjectionManager#getProjectionOptions()} call
+     * {@link CarProjectionManager#getProjectionOptions()} call
      */
     void setProjectionOptions(ProjectionOptions projectionOptions);
+
+    /**
+     * Fire a projection event to be received by registered
+     * {@link CarProjectionManager.ProjectionKeyEventHandler}s.
+     */
+    void fireKeyEvent(@CarProjectionManager.KeyEventNum int event);
 }
