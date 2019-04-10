@@ -22,10 +22,13 @@ import android.bluetooth.BluetoothDevice;
 import android.car.trust.ICarTrustAgentBleCallback;
 import android.car.trust.ICarTrustAgentEnrollment;
 import android.car.trust.ICarTrustAgentEnrollmentCallback;
+import android.car.trust.TrustedDeviceInfo;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.android.car.Utils;
 import com.android.internal.annotations.GuardedBy;
@@ -34,6 +37,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -158,24 +162,24 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     }
 
     /**
-     * Get the Handles corresponding to the token for the current user.  The client can use this
-     * to list the trusted devices for the user.  This means that the client should maintain a map
-     * of the handles:Bluetooth device names.
+     * Get the Handles and Device Mac Address corresponding to the token for the current user.  The
+     * client can use this to list the trusted devices for the user.
      *
      * @param uid user id
-     * @return array of handles for the user.
+     * @return array of trusted device handles and names for the user.
      */
+    @NonNull
     @Override
-    public long[] getEnrollmentHandlesForUser(int uid) {
-        Set<String> handlesSet = mTrustedDeviceService.getSharedPrefs().getStringSet(
-                String.valueOf(uid),
-                new HashSet<>());
-        long[] handles = new long[handlesSet.size()];
-        int i = 0;
-        for (String handle : handlesSet) {
-            handles[i++] = Long.valueOf(handle);
+    public List<TrustedDeviceInfo> getEnrolledDeviceInfosForUser(int uid) {
+        Set<String> enrolledDeviceInfos = mTrustedDeviceService.getSharedPrefs().getStringSet(
+                String.valueOf(uid), new HashSet<>());
+        List<TrustedDeviceInfo> trustedDeviceInfos = new ArrayList<>(enrolledDeviceInfos.size());
+        for (String deviceInfo : enrolledDeviceInfos) {
+            trustedDeviceInfos.add(TrustedDeviceInfo.deserialize(deviceInfo));
         }
-        return handles;
+        return trustedDeviceInfos;
+
+
     }
 
     /**
@@ -208,18 +212,25 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onEscrowTokenAdded handle:" + handle + " uid:" + uid);
         }
-        mTrustedDeviceService.getSharedPrefs().edit().putInt(String.valueOf(handle), uid).apply();
-        Set<String> handles = mTrustedDeviceService.getSharedPrefs().getStringSet(
-                String.valueOf(uid), new HashSet<>());
-        handles.add(String.valueOf(handle));
-        mTrustedDeviceService.getSharedPrefs().edit().putStringSet(String.valueOf(uid),
-                handles).apply();
 
         if (mRemoteEnrollmentDevice == null) {
             Log.e(TAG, "onEscrowTokenAdded() but no remote device connected!");
             removeEscrowToken(handle, uid);
             return;
         }
+
+        SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
+        // To conveniently get the user id to unlock when handle is received.
+        editor.putInt(String.valueOf(handle), uid);
+        Set<String> deviceInfo = mTrustedDeviceService.getSharedPrefs().getStringSet(
+                String.valueOf(uid), new HashSet<>());
+        // TODO(b/124052887) to get readable name of the device, now we use mac address as
+        // temporary solution
+        deviceInfo.add(new TrustedDeviceInfo(handle, mRemoteEnrollmentDevice.getAddress(),
+                        TrustedDeviceInfo.DEFAULT_NAME).serialize());
+        // To conveniently get the devices info regarding certain user.
+        editor.putStringSet(String.valueOf(uid), deviceInfo);
+        editor.apply();
         for (EnrollmentStateClient client : mEnrollmentStateClients) {
             try {
                 client.mListener.onEscrowTokenAdded(handle);
@@ -242,14 +253,27 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         }
         SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
         editor.remove(String.valueOf(handle));
-        Set<String> handles = mTrustedDeviceService.getSharedPrefs().getStringSet(
+        Set<String> deviceInfos = mTrustedDeviceService.getSharedPrefs().getStringSet(
                 String.valueOf(uid), new HashSet<>());
-        handles.remove(String.valueOf(handle));
-        editor.putStringSet(String.valueOf(uid), handles);
+        Iterator<String> iterator = deviceInfos.iterator();
+        while (iterator.hasNext()) {
+            String deviceInfoString = iterator.next();
+            if (TrustedDeviceInfo.deserialize(deviceInfoString).getHandle()
+                    == handle) {
+                iterator.remove();
+                break;
+            }
+        }
+        editor.putStringSet(String.valueOf(uid), deviceInfos);
         editor.apply();
     }
 
-    void onEscrowTokenActiveStateChanged(long handle, boolean isTokenActive) {
+    /**
+     * @param handle        the handle whose activa state change
+     * @param isTokenActive the active state of the handle
+     * @param uid           id of current user
+     */
+    void onEscrowTokenActiveStateChanged(long handle, boolean isTokenActive, int uid) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onEscrowTokenActiveStateChanged: " + Long.toHexString(handle));
         }
@@ -257,6 +281,8 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         dispatchEscrowTokenActiveStateChanged(handle, isTokenActive);
         if (isTokenActive) {
             mCarTrustAgentBleManager.sendEnrollmentHandle(mRemoteEnrollmentDevice, handle);
+        } else {
+            removeEscrowToken(handle, uid);
         }
     }
 
@@ -291,7 +317,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
                 Log.e(TAG, "onAdvertiseSuccess dispatch failed", e);
             }
         }
-        //TODO(b/11788064) Fake Authentication to enable clients to go through the enrollment flow.
+        // TODO(b/11788064) Fake Authentication to enable clients to go through the enrollment flow.
         fakeAuthentication();
     }
 
@@ -475,7 +501,8 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
 
         /**
          * Query if the token is active.  The result is asynchronously delivered through a callback
-         * {@link CarTrustAgentEnrollmentService#onEscrowTokenActiveStateChanged(long, boolean)}
+         * {@link CarTrustAgentEnrollmentService#onEscrowTokenActiveStateChanged(long, boolean,
+         * int)}
          *
          * @param handle the 64 bit token
          * @param uid    user id
