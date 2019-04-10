@@ -34,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.car.CarProjectionManager;
 import android.car.input.CarInputHandlingService.InputFilter;
 import android.car.input.ICarInputListener;
 import android.content.ComponentName;
@@ -66,6 +67,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.util.BitSet;
 import java.util.function.Supplier;
 
 @RunWith(AndroidJUnit4.class)
@@ -150,39 +152,42 @@ public class CarInputServiceTest {
     }
 
     @Test
-    public void voiceKey_shortPress_withRegisteredListener_triggersListener() {
-        Runnable listener = mock(Runnable.class);
-        mCarInputService.setVoiceAssistantKeyListener(listener);
+    public void voiceKey_shortPress_withRegisteredEventHandler_triggersEventHandler() {
+        CarProjectionManager.ProjectionKeyEventHandler eventHandler =
+                registerProjectionKeyEventHandler(
+                        CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
 
         send(Key.DOWN, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
         send(Key.UP, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
 
-        verify(listener).run();
+        verify(eventHandler)
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
     }
 
     @Test
-    public void voiceKey_longPress_withRegisteredListener_triggersListener() {
-        Runnable shortPressListener = mock(Runnable.class);
-        Runnable longPressListener = mock(Runnable.class);
-        mCarInputService.setVoiceAssistantKeyListener(shortPressListener);
-        mCarInputService.setLongVoiceAssistantKeyListener(longPressListener);
+    public void voiceKey_longPress_withRegisteredEventHandler_triggersEventHandler() {
+        CarProjectionManager.ProjectionKeyEventHandler eventHandler =
+                registerProjectionKeyEventHandler(
+                        CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP,
+                        CarProjectionManager.KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN);
 
         send(Key.DOWN, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
-        verify(shortPressListener, never()).run();
-        verify(longPressListener, never()).run();
+        verify(eventHandler, never()).onKeyEvent(anyInt());
 
         // Simulate the long-press timer expiring.
         flushHandler();
-        verify(longPressListener).run();
+        verify(eventHandler)
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN);
 
-        // Ensure that the short-press listener is *not* called.
+        // Ensure that the short-press handler is *not* called.
         send(Key.UP, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
         flushHandler();
-        verify(shortPressListener, never()).run();
+        verify(eventHandler, never())
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
     }
 
     @Test
-    public void voiceKey_shortPress_withoutRegisteredListener_triggersAssistUtils() {
+    public void voiceKey_shortPress_withoutRegisteredEventHandler_triggersAssistUtils() {
         when(mAssistUtils.getAssistComponentForUser(anyInt()))
                 .thenReturn(new ComponentName("pkg", "cls"));
 
@@ -200,7 +205,7 @@ public class CarInputServiceTest {
     }
 
     @Test
-    public void voiceKey_longPress_withoutRegisteredListener_triggersAssistUtils() {
+    public void voiceKey_longPress_withoutRegisteredEventHandler_triggersAssistUtils() {
         when(mAssistUtils.getAssistComponentForUser(anyInt()))
                 .thenReturn(new ComponentName("pkg", "cls"));
 
@@ -221,6 +226,33 @@ public class CarInputServiceTest {
     }
 
     @Test
+    public void voiceKey_keyDown_withEventHandler_triggersEventHandler() {
+        CarProjectionManager.ProjectionKeyEventHandler eventHandler =
+                registerProjectionKeyEventHandler(
+                        CarProjectionManager.KEY_EVENT_VOICE_SEARCH_KEY_DOWN);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
+
+        verify(eventHandler).onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_KEY_DOWN);
+    }
+
+    @Test
+    public void voiceKey_keyUp_afterLongPress_withEventHandler_triggersEventHandler() {
+        CarProjectionManager.ProjectionKeyEventHandler eventHandler =
+                registerProjectionKeyEventHandler(
+                        CarProjectionManager.KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_UP);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
+        flushHandler();
+        verify(eventHandler, never())
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_UP);
+
+        send(Key.UP, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
+        verify(eventHandler)
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_UP);
+    }
+
+    @Test
     public void voiceKey_repeatedEvents_ignored() {
         // Pressing a key starts the long-press timer.
         send(Key.DOWN, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
@@ -233,7 +265,7 @@ public class CarInputServiceTest {
     }
 
     @Test
-    public void callKey_shortPress_launchesDialer() {
+    public void callKey_shortPress_withoutEventHandler_launchesDialer() {
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
 
         doNothing().when(mContext).startActivityAsUser(any(), any(), any());
@@ -247,7 +279,7 @@ public class CarInputServiceTest {
     }
 
     @Test
-    public void callKey_shortPress_whenCallRinging_answersCall() {
+    public void callKey_shortPress_withoutEventHandler_whenCallRinging_answersCall() {
         when(mTelecomManager.isRinging()).thenReturn(true);
 
         send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
@@ -259,7 +291,36 @@ public class CarInputServiceTest {
     }
 
     @Test
-    public void callKey_longPress_redialsLastCall() {
+    public void callKey_shortPress_withEventHandler_triggersEventHandler() {
+        CarProjectionManager.ProjectionKeyEventHandler eventHandler =
+                registerProjectionKeyEventHandler(
+                        CarProjectionManager.KEY_EVENT_CALL_SHORT_PRESS_KEY_UP);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
+        send(Key.UP, KeyEvent.KEYCODE_CALL, Display.MAIN);
+
+        verify(eventHandler).onKeyEvent(CarProjectionManager.KEY_EVENT_CALL_SHORT_PRESS_KEY_UP);
+        // Ensure default handlers do not run.
+        verify(mTelecomManager, never()).acceptRingingCall();
+        verify(mContext, never()).startActivityAsUser(any(), any(), any());
+    }
+
+    @Test
+    public void callKey_shortPress_withEventHandler_whenCallRinging_answersCall() {
+        CarProjectionManager.ProjectionKeyEventHandler eventHandler =
+                registerProjectionKeyEventHandler(
+                        CarProjectionManager.KEY_EVENT_CALL_SHORT_PRESS_KEY_UP);
+        when(mTelecomManager.isRinging()).thenReturn(true);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
+        send(Key.UP, KeyEvent.KEYCODE_CALL, Display.MAIN);
+
+        verify(mTelecomManager).acceptRingingCall();
+        verify(eventHandler, never()).onKeyEvent(anyInt());
+    }
+
+    @Test
+    public void callKey_longPress_withoutEventHandler_redialsLastCall() {
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
 
         when(mLastCallSupplier.get()).thenReturn("1234567890");
@@ -281,7 +342,7 @@ public class CarInputServiceTest {
     }
 
     @Test
-    public void callKey_longPress_withNoLastCall_doesNothing() {
+    public void callKey_longPress_withoutEventHandler_withNoLastCall_doesNothing() {
         when(mLastCallSupplier.get()).thenReturn("");
 
         send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
@@ -291,7 +352,7 @@ public class CarInputServiceTest {
     }
 
     @Test
-    public void callKey_longPress_whenCallRinging_answersCall() {
+    public void callKey_longPress_withoutEventHandler_whenCallRinging_answersCall() {
         when(mTelecomManager.isRinging()).thenReturn(true);
 
         send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
@@ -306,6 +367,63 @@ public class CarInputServiceTest {
     }
 
     @Test
+    public void callKey_longPress_withEventHandler_triggersEventHandler() {
+        CarProjectionManager.ProjectionKeyEventHandler eventHandler =
+                registerProjectionKeyEventHandler(
+                        CarProjectionManager.KEY_EVENT_CALL_LONG_PRESS_KEY_DOWN);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
+        flushHandler();
+
+        verify(eventHandler).onKeyEvent(CarProjectionManager.KEY_EVENT_CALL_LONG_PRESS_KEY_DOWN);
+        verify(mContext, never()).startActivityAsUser(any(), any(), any());
+    }
+
+    @Test
+    public void callKey_longPress_withEventHandler_whenCallRinging_answersCall() {
+        CarProjectionManager.ProjectionKeyEventHandler eventHandler =
+                registerProjectionKeyEventHandler(
+                        CarProjectionManager.KEY_EVENT_CALL_LONG_PRESS_KEY_DOWN);
+        when(mTelecomManager.isRinging()).thenReturn(true);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
+        flushHandler();
+
+        verify(mTelecomManager).acceptRingingCall();
+
+        send(Key.UP, KeyEvent.KEYCODE_CALL, Display.MAIN);
+        // Ensure that event handler does not run, either after accepting ringing call,
+        // or as a result of key-up.
+        verify(eventHandler, never()).onKeyEvent(anyInt());
+    }
+
+    @Test
+    public void callKey_keyDown_withEventHandler_triggersEventHandler() {
+        CarProjectionManager.ProjectionKeyEventHandler eventHandler =
+                registerProjectionKeyEventHandler(
+                        CarProjectionManager.KEY_EVENT_CALL_KEY_DOWN);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
+
+        verify(eventHandler).onKeyEvent(CarProjectionManager.KEY_EVENT_CALL_KEY_DOWN);
+    }
+
+    @Test
+    public void callKey_keyUp_afterLongPress_withEventHandler_triggersEventHandler() {
+        CarProjectionManager.ProjectionKeyEventHandler eventHandler =
+                registerProjectionKeyEventHandler(
+                        CarProjectionManager.KEY_EVENT_CALL_LONG_PRESS_KEY_UP);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
+        flushHandler();
+        verify(eventHandler, never())
+                .onKeyEvent(CarProjectionManager.KEY_EVENT_CALL_LONG_PRESS_KEY_UP);
+
+        send(Key.UP, KeyEvent.KEYCODE_CALL, Display.MAIN);
+        verify(eventHandler).onKeyEvent(CarProjectionManager.KEY_EVENT_CALL_LONG_PRESS_KEY_UP);
+    }
+
+    @Test
     public void callKey_repeatedEvents_ignored() {
         // Pressing a key starts the long-press timer.
         send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
@@ -316,6 +434,7 @@ public class CarInputServiceTest {
         sendWithRepeat(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN, 1);
         verify(mHandler, never()).sendMessageAtTime(any(), anyLong());
     }
+
     private enum Key {DOWN, UP}
 
     private enum Display {MAIN, INSTRUMENT_CLUSTER}
@@ -344,6 +463,19 @@ public class CarInputServiceTest {
         mCarInputService.mCarInputListener = listener;
         mCarInputService.setHandledKeys(handledKeys);
         return listener;
+    }
+
+    private CarProjectionManager.ProjectionKeyEventHandler registerProjectionKeyEventHandler(
+            int... events) {
+        BitSet eventSet = new BitSet();
+        for (int event : events) {
+            eventSet.set(event);
+        }
+
+        CarProjectionManager.ProjectionKeyEventHandler projectionKeyEventHandler =
+                mock(CarProjectionManager.ProjectionKeyEventHandler.class);
+        mCarInputService.setProjectionKeyEventHandler(projectionKeyEventHandler, eventSet);
+        return projectionKeyEventHandler;
     }
 
     private void flushHandler() {

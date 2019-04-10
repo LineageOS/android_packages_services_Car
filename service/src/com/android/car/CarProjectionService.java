@@ -15,8 +15,6 @@
  */
 package com.android.car;
 
-import static android.car.CarProjectionManager.PROJECTION_LONG_PRESS_VOICE_SEARCH;
-import static android.car.CarProjectionManager.PROJECTION_VOICE_SEARCH;
 import static android.car.CarProjectionManager.ProjectionAccessPointCallback.ERROR_GENERIC;
 import static android.car.projection.ProjectionStatus.PROJECTION_STATE_INACTIVE;
 import static android.net.wifi.WifiManager.EXTRA_PREVIOUS_WIFI_AP_STATE;
@@ -34,7 +32,7 @@ import android.bluetooth.BluetoothDevice;
 import android.car.CarProjectionManager;
 import android.car.CarProjectionManager.ProjectionAccessPointCallback;
 import android.car.ICarProjection;
-import android.car.ICarProjectionCallback;
+import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
 import android.car.projection.ProjectionOptions;
 import android.car.projection.ProjectionStatus;
@@ -69,6 +67,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
@@ -76,6 +75,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -86,11 +86,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * It also enables proejcted applications to handle voice action requests.
  */
 class CarProjectionService extends ICarProjection.Stub implements CarServiceBase,
-        BinderInterfaceContainer.BinderEventHandler<ICarProjectionCallback> {
+        BinderInterfaceContainer.BinderEventHandler<ICarProjectionKeyEventHandler>,
+        CarProjectionManager.ProjectionKeyEventHandler {
     private static final String TAG = CarLog.TAG_PROJECTION;
     private static final boolean DBG = true;
 
-    private final ProjectionCallbackHolder mProjectionCallbacks;
     private final CarInputService mCarInputService;
     private final CarBluetoothService mCarBluetoothService;
     private final Context mContext;
@@ -130,6 +130,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     private final List<ICarProjectionStatusListener> mProjectionStatusListeners =
             new CopyOnWriteArrayList<>();
 
+    @GuardedBy("mLock")
+    private final ProjectionKeyEventHandlerContainer mKeyEventHandlers;
 
     private static final int WIFI_MODE_TETHERED = 1;
     private static final int WIFI_MODE_LOCALONLY = 2;
@@ -142,12 +144,6 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     private int mWifiMode = WIFI_MODE_LOCALONLY;
 
     private final WifiConfiguration mProjectionWifiConfiguration;
-
-    private final Runnable mVoiceAssistantKeyListener =
-            () -> handleVoiceAssistantRequest(false);
-
-    private final Runnable mLongVoiceAssistantKeyListener =
-            () -> handleVoiceAssistantRequest(true);
 
     private final ServiceConnection mConnection = new ServiceConnection() {
             @Override
@@ -177,7 +173,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         mHandler = handler == null ? new Handler() : handler;
         mCarInputService = carInputService;
         mCarBluetoothService = carBluetoothService;
-        mProjectionCallbacks = new ProjectionCallbackHolder(this);
+        mKeyEventHandlers = new ProjectionKeyEventHandlerContainer(this);
         mWifiManager = context.getSystemService(WifiManager.class);
         mProjectionWifiConfiguration = createWifiConfiguration(context);
     }
@@ -233,45 +229,34 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         mContext.unbindService(mConnection);
     }
 
-    private void handleVoiceAssistantRequest(boolean isTriggeredByLongPress) {
-        Log.i(TAG, "Voice assistant request, long press = " + isTriggeredByLongPress);
-        synchronized (mLock) {
-            for (BinderInterfaceContainer.BinderInterface<ICarProjectionCallback> listener :
-                    mProjectionCallbacks.getInterfaces()) {
-                ProjectionCallback projectionCallback = (ProjectionCallback) listener;
-                if ((projectionCallback.hasFilter(PROJECTION_LONG_PRESS_VOICE_SEARCH)
-                        && isTriggeredByLongPress)
-                        || (projectionCallback.hasFilter(PROJECTION_VOICE_SEARCH)
-                        && !isTriggeredByLongPress)) {
-                    dispatchVoiceAssistantRequest(
-                            projectionCallback.binderInterface, isTriggeredByLongPress);
-                }
-            }
-        }
-    }
-
     @Override
-    public void registerProjectionListener(ICarProjectionCallback callback, int filter) {
+    public void registerKeyEventHandler(
+            ICarProjectionKeyEventHandler eventHandler, byte[] eventMask) {
         ICarImpl.assertProjectionPermission(mContext);
+        BitSet events = BitSet.valueOf(eventMask);
+        Preconditions.checkArgument(
+                events.length() <= CarProjectionManager.NUM_KEY_EVENTS,
+                "Unknown handled event");
         synchronized (mLock) {
-            ProjectionCallback info = mProjectionCallbacks.get(callback);
+            ProjectionKeyEventHandler info = mKeyEventHandlers.get(eventHandler);
             if (info == null) {
-                info = new ProjectionCallback(mProjectionCallbacks, callback, filter);
-                mProjectionCallbacks.addBinderInterface(info);
+                info = new ProjectionKeyEventHandler(mKeyEventHandlers, eventHandler, events);
+                mKeyEventHandlers.addBinderInterface(info);
             } else {
-                info.setFilter(filter);
+                info.setHandledEvents(events);
             }
+
+            updateInputServiceHandlerLocked();
         }
-        updateCarInputServiceListeners();
     }
 
     @Override
-    public void unregisterProjectionListener(ICarProjectionCallback listener) {
+    public void unregisterKeyEventHandler(ICarProjectionKeyEventHandler eventHandler) {
         ICarImpl.assertProjectionPermission(mContext);
         synchronized (mLock) {
-            mProjectionCallbacks.removeBinder(listener);
+            mKeyEventHandlers.removeBinder(eventHandler);
+            updateInputServiceHandlerLocked();
         }
-        updateCarInputServiceListeners();
     }
 
     @Override
@@ -718,25 +703,6 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
     }
 
-    private void updateCarInputServiceListeners() {
-        boolean listenShortPress = false;
-        boolean listenLongPress = false;
-        synchronized (mLock) {
-            for (BinderInterfaceContainer.BinderInterface<ICarProjectionCallback> listener :
-                         mProjectionCallbacks.getInterfaces()) {
-                ProjectionCallback projectionCallback = (ProjectionCallback) listener;
-                listenShortPress |= projectionCallback.hasFilter(
-                        PROJECTION_VOICE_SEARCH);
-                listenLongPress |= projectionCallback.hasFilter(
-                        PROJECTION_LONG_PRESS_VOICE_SEARCH);
-            }
-        }
-        mCarInputService.setVoiceAssistantKeyListener(listenShortPress
-                ? mVoiceAssistantKeyListener : null);
-        mCarInputService.setLongVoiceAssistantKeyListener(listenLongPress
-                ? mLongVoiceAssistantKeyListener : null);
-    }
-
     @Override
     public void init() {
         mContext.registerReceiver(
@@ -780,24 +746,27 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     @Override
     public void release() {
         synchronized (mLock) {
-            mProjectionCallbacks.clear();
+            mKeyEventHandlers.clear();
         }
     }
 
     @Override
     public void onBinderDeath(
-            BinderInterfaceContainer.BinderInterface<ICarProjectionCallback> bInterface) {
-        unregisterProjectionListener(bInterface.binderInterface);
+            BinderInterfaceContainer.BinderInterface<ICarProjectionKeyEventHandler> iface) {
+        unregisterKeyEventHandler(iface.binderInterface);
     }
 
     @Override
     public void dump(PrintWriter writer) {
         writer.println("**CarProjectionService**");
         synchronized (mLock) {
-            for (BinderInterfaceContainer.BinderInterface<ICarProjectionCallback> listener :
-                         mProjectionCallbacks.getInterfaces()) {
-                ProjectionCallback projectionCallback = (ProjectionCallback) listener;
-                writer.println(projectionCallback.toString());
+            writer.println("Registered key event handlers:");
+            for (BinderInterfaceContainer.BinderInterface<ICarProjectionKeyEventHandler>
+                    handler : mKeyEventHandlers.getInterfaces()) {
+                ProjectionKeyEventHandler
+                        projectionKeyEventHandler = (ProjectionKeyEventHandler) handler;
+                writer.print("  ");
+                writer.println(projectionKeyEventHandler.toString());
             }
 
             writer.println("Local-only hotspot reservation: " + mLocalOnlyHotspotReservation);
@@ -813,12 +782,46 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
     }
 
-    private void dispatchVoiceAssistantRequest(ICarProjectionCallback listener,
-            boolean fromLongPress) {
-        try {
-            listener.onVoiceAssistantRequest(fromLongPress);
-        } catch (RemoteException e) {
+    @Override
+    public void onKeyEvent(@CarProjectionManager.KeyEventNum int keyEvent) {
+        Log.d(TAG, "Dispatching key event: " + keyEvent);
+        synchronized (mLock) {
+            for (BinderInterfaceContainer.BinderInterface<ICarProjectionKeyEventHandler>
+                    eventHandlerInterface : mKeyEventHandlers.getInterfaces()) {
+                ProjectionKeyEventHandler eventHandler =
+                        (ProjectionKeyEventHandler) eventHandlerInterface;
+
+                if (eventHandler.canHandleEvent(keyEvent)) {
+                    try {
+                        // oneway
+                        eventHandler.binderInterface.onKeyEvent(keyEvent);
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "Cannot dispatch event to client", e);
+                    }
+                }
+            }
         }
+    }
+
+    @GuardedBy("mLock")
+    private void updateInputServiceHandlerLocked() {
+        BitSet newEvents = computeHandledEventsLocked();
+
+        if (!newEvents.isEmpty()) {
+            mCarInputService.setProjectionKeyEventHandler(this, newEvents);
+        } else {
+            mCarInputService.setProjectionKeyEventHandler(null, null);
+        }
+    }
+
+    @GuardedBy("mLock")
+    private BitSet computeHandledEventsLocked() {
+        BitSet rv = new BitSet();
+        for (BinderInterfaceContainer.BinderInterface<ICarProjectionKeyEventHandler>
+                handlerInterface : mKeyEventHandlers.getInterfaces()) {
+            rv.or(((ProjectionKeyEventHandler) handlerInterface).mHandledEvents);
+        }
+        return rv;
     }
 
     void setUiMode(Integer uiMode) {
@@ -829,42 +832,40 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
     }
 
-    private static class ProjectionCallbackHolder
-            extends BinderInterfaceContainer<ICarProjectionCallback> {
-        ProjectionCallbackHolder(CarProjectionService service) {
+    private static class ProjectionKeyEventHandlerContainer
+            extends BinderInterfaceContainer<ICarProjectionKeyEventHandler> {
+        ProjectionKeyEventHandlerContainer(CarProjectionService service) {
             super(service);
         }
 
-        ProjectionCallback get(ICarProjectionCallback projectionCallback) {
-            return (ProjectionCallback) getBinderInterface(projectionCallback);
+        ProjectionKeyEventHandler get(ICarProjectionKeyEventHandler projectionCallback) {
+            return (ProjectionKeyEventHandler) getBinderInterface(projectionCallback);
         }
     }
 
-    private static class ProjectionCallback extends
-            BinderInterfaceContainer.BinderInterface<ICarProjectionCallback> {
-        private int mFilter;
+    private static class ProjectionKeyEventHandler extends
+            BinderInterfaceContainer.BinderInterface<ICarProjectionKeyEventHandler> {
+        private BitSet mHandledEvents;
 
-        private ProjectionCallback(ProjectionCallbackHolder holder, ICarProjectionCallback binder,
-                int filter) {
+        private ProjectionKeyEventHandler(
+                ProjectionKeyEventHandlerContainer holder,
+                ICarProjectionKeyEventHandler binder,
+                BitSet handledEvents) {
             super(holder, binder);
-            this.mFilter = filter;
+            mHandledEvents = handledEvents;
         }
 
-        private synchronized int getFilter() {
-            return mFilter;
+        private boolean canHandleEvent(int event) {
+            return mHandledEvents.get(event);
         }
 
-        private boolean hasFilter(int filter) {
-            return (getFilter() & filter) != 0;
-        }
-
-        private synchronized void setFilter(int filter) {
-            mFilter = filter;
+        private void setHandledEvents(BitSet handledEvents) {
+            mHandledEvents = handledEvents;
         }
 
         @Override
         public String toString() {
-            return "ListenerInfo{filter=" + Integer.toHexString(getFilter()) + "}";
+            return "ProjectionKeyEventHandler{events=" + mHandledEvents + "}";
         }
     }
 
