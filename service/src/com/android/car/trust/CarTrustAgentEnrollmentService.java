@@ -111,12 +111,6 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         mCarTrustAgentBleManager.stopEnrollmentAdvertising();
     }
 
-    @Override
-    public void initiateEnrollmentHandshake(BluetoothDevice device) {
-        // TODO(b/129029320) - this is not needed since the IHU plays the server
-        // role and the secure handshake is initiated by the client.
-    }
-
     /**
      * Called by the client to notify that the user has accepted a pairing code or any out-of-band
      * confirmation, and send confirmation signals to remote bluetooth device.
