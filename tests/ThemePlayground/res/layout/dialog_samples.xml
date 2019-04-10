@@ -58,10 +58,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Show Dialog With Checkbox"
-        app:layout_constraintBottom_toTopOf="@+id/showToast"
+        app:layout_constraintBottom_toTopOf="@+id/showDialogWithoutTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/showDialogOnlyPositiveBT" />
+
+    <Button
+        android:id="@+id/showDialogWithoutTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Dialog without title"
+        app:layout_constraintBottom_toTopOf="@+id/showToast"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/showDialogWithCheckboxBT" />
 
     <Button
         android:id="@+id/showToast"
@@ -71,7 +81,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/showDialogWithCheckboxBT" />
+        app:layout_constraintTop_toBottomOf="@+id/showDialogWithoutTitle" />
 
     <include layout="@layout/menu_button"/>
 
