@@ -20,7 +20,7 @@ import android.bluetooth.BluetoothDevice;
 import android.car.CarProjectionManager;
 import android.car.CarProjectionManager.ProjectionAccessPointCallback;
 import android.car.ICarProjection;
-import android.car.ICarProjectionCallback;
+import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
 import android.car.projection.ProjectionOptions;
 import android.car.projection.ProjectionStatus;
@@ -36,6 +36,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,7 @@ class FakeCarProjectionService extends ICarProjection.Stub implements
     private ProjectionStatus mCurrentProjectionStatus = ProjectionStatus.builder(
             "", ProjectionStatus.PROJECTION_STATE_INACTIVE).build();
     private ProjectionOptions mProjectionOptions;
+    private final Map<ICarProjectionKeyEventHandler, BitSet> mKeyEventListeners = new HashMap<>();
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -83,15 +85,27 @@ class FakeCarProjectionService extends ICarProjection.Stub implements
     }
 
     @Override
-    public void registerProjectionListener(ICarProjectionCallback callback, int filter)
-            throws RemoteException {
-        // Not yet implemented.
+    public void registerKeyEventHandler(ICarProjectionKeyEventHandler callback, byte[] events) {
+        mKeyEventListeners.put(callback, BitSet.valueOf(events));
     }
 
     @Override
-    public void unregisterProjectionListener(ICarProjectionCallback callback)
-            throws RemoteException {
-        // Not yet implemented.
+    public void unregisterKeyEventHandler(ICarProjectionKeyEventHandler callback) {
+        mKeyEventListeners.remove(callback);
+    }
+
+    @Override
+    public void fireKeyEvent(int event) {
+        for (Map.Entry<ICarProjectionKeyEventHandler, BitSet> entry :
+                mKeyEventListeners.entrySet()) {
+            if (entry.getValue().get(event)) {
+                try {
+                    entry.getKey().onKeyEvent(event);
+                } catch (RemoteException e) {
+                    throw e.rethrowFromSystemServer();
+                }
+            }
+        }
     }
 
     @Override

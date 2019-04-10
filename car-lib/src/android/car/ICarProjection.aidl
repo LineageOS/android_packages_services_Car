@@ -18,7 +18,7 @@ package android.car;
 
 import android.bluetooth.BluetoothDevice;
 import android.car.projection.ProjectionStatus;
-import android.car.ICarProjectionCallback;
+import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
 import android.content.Intent;
 import android.os.Bundle;
@@ -44,15 +44,16 @@ interface ICarProjection {
     void unregisterProjectionRunner(in Intent serviceIntent) = 1;
 
     /**
-     * Registers projection callback.
-     * Re-registering same callback with different filter will cause only filter to update.
+     * Registers projection key event handler.
+     * Re-registering same event handler with different events will cause only events to update.
      */
-    void registerProjectionListener(ICarProjectionCallback callback, int filter) = 2;
+    void registerKeyEventHandler(
+            in ICarProjectionKeyEventHandler eventHandler, in byte[] eventMask) = 2;
 
     /**
-     * Unregisters projection callback.
+     * Unregisters projection key event handler.
      */
-    void unregisterProjectionListener(ICarProjectionCallback callback) = 3;
+    void unregisterKeyEventHandler(in ICarProjectionKeyEventHandler eventHandler) = 3;
 
     /**
      * Starts Wi-Fi access point if it hasn't been started yet for wireless projection and returns
