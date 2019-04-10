@@ -35,15 +35,17 @@ public class DialogSamples extends AbstractSampleActivity {
         Utils.onActivityCreateSetTheme(this);
         setContentView(R.layout.dialog_samples);
 
-        Button mShowDialogBT = findViewById(R.id.showDialogBT);
-        Button mShowDialogOnlyPositiveBT = findViewById(R.id.showDialogOnlyPositiveBT);
-        Button mShowDialogWithCheckboxBT = findViewById(R.id.showDialogWithCheckboxBT);
+        Button showDialogButton = findViewById(R.id.showDialogBT);
+        Button showDialogOnlyPositiveButton = findViewById(R.id.showDialogOnlyPositiveBT);
+        Button showDialogWithoutTitleButton = findViewById(R.id.showDialogWithoutTitle);
+        Button showDialogWithCheckboxButton = findViewById(R.id.showDialogWithCheckboxBT);
         setupBackgroundColorControls(R.id.dialogLayout);
-        mShowDialogBT.setOnClickListener(v -> openDialog(false));
-        mShowDialogOnlyPositiveBT.setOnClickListener(v -> openDialogWithOnlyPositiveButton());
-        mShowDialogWithCheckboxBT.setOnClickListener(v -> openDialog(true));
-        Button mShowToast = findViewById(R.id.showToast);
-        mShowToast.setOnClickListener(v -> showToast());
+        showDialogButton.setOnClickListener(v -> openDialog(false));
+        showDialogOnlyPositiveButton.setOnClickListener(v -> openDialogWithOnlyPositiveButton());
+        showDialogWithoutTitleButton.setOnClickListener(v -> openDialogWithoutTitle());
+        showDialogWithCheckboxButton.setOnClickListener(v -> openDialog(true));
+        Button showToast = findViewById(R.id.showToast);
+        showToast.setOnClickListener(v -> showToast());
     }
 
 
@@ -81,6 +83,17 @@ public class DialogSamples extends AbstractSampleActivity {
                 .setMessage("With a message to show.");
         builder.setPositiveButton("OK", (dialoginterface, i) -> {
         });
+        builder.show();
+    }
+
+    private void openDialogWithoutTitle() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(
+                new ContextThemeWrapper(this, R.style.Theme_Testing_Dialog_Alert));
+        builder.setMessage("I dont have a titile.");
+        builder.setPositiveButton("OK", (dialoginterface, i) -> {
+        }).setNegativeButton("CANCEL",
+                (dialog, which) -> {
+                });
         builder.show();
     }
 
