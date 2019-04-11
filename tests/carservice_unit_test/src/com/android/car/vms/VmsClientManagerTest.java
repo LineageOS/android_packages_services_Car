@@ -132,7 +132,8 @@ public class VmsClientManagerTest {
         verifyNoMoreInteractions(mContext);
     }
 
-    private void testInit() {
+    @Test
+    public void testInit() {
         mClientManager.init();
 
         // Verify registration of system user unlock listener
@@ -493,127 +494,6 @@ public class VmsClientManagerTest {
 
         Thread.sleep(10);
         verifyUserBind(1);
-    }
-
-    @Test
-    public void testOnSystemServiceBindingDied() throws Exception {
-        notifySystemUserUnlocked();
-        verifySystemBind(1);
-        resetContext();
-
-        ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
-        connection.onBindingDied(null);
-
-        verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
-
-        Thread.sleep(10);
-        verifySystemBind(1);
-    }
-
-    @Test
-    public void testOnSystemServiceBindingDied_ServiceNotConnected() throws Exception {
-        notifySystemUserUnlocked();
-        verifySystemBind(1);
-        resetContext();
-
-        ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onBindingDied(null);
-
-        verify(mContext).unbindService(connection);
-        verifyZeroInteractions(mConnectionListener);
-
-        Thread.sleep(10);
-        verifySystemBind(1);
-    }
-
-    @Test
-    public void testOnUserServiceBindingDied() throws Exception {
-        notifyUserSwitched();
-        verifyUserBind(1);
-        resetContext();
-
-        ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
-        connection.onBindingDied(null);
-
-        verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
-
-        Thread.sleep(10);
-        verifyUserBind(1);
-    }
-
-    @Test
-    public void testOnUserServiceBindingDied_ServiceNotConnected() throws Exception {
-        notifyUserSwitched();
-        verifyUserBind(1);
-        resetContext();
-
-        ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onBindingDied(null);
-
-        verify(mContext).unbindService(connection);
-        verifyZeroInteractions(mConnectionListener);
-
-        Thread.sleep(10);
-        verifyUserBind(1);
-    }
-
-    @Test
-    public void testOnSystemServiceNullBinding() throws Exception {
-        notifySystemUserUnlocked();
-        verifySystemBind(1);
-        resetContext();
-
-        ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
-        connection.onNullBinding(null);
-
-        verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(
-                eq(SYSTEM_CLIENT_NAME));
-    }
-
-    @Test
-    public void testOnSystemServiceNullBinding_ServiceNotConnected() throws Exception {
-        notifySystemUserUnlocked();
-        verifySystemBind(1);
-        resetContext();
-
-        ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onNullBinding(null);
-
-        verify(mContext).unbindService(connection);
-        verifyZeroInteractions(mConnectionListener);
-    }
-
-    @Test
-    public void testOnUserServiceNullBinding() throws Exception {
-        notifyUserSwitched();
-        verifyUserBind(1);
-        resetContext();
-
-        ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
-        connection.onNullBinding(null);
-
-        verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
-    }
-
-    @Test
-    public void testOnUserServiceNullBinding_ServiceNotConnected() throws Exception {
-        notifyUserSwitched();
-        verifyUserBind(1);
-        resetContext();
-
-        ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onNullBinding(null);
-
-        verify(mContext).unbindService(connection);
-        verifyZeroInteractions(mConnectionListener);
     }
 
     @Test
