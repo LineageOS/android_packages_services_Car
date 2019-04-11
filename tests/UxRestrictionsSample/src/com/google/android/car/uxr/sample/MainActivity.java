@@ -18,8 +18,9 @@ package com.google.android.car.uxr.sample;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_IDLING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
+import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
+import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_PASSENGER;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
@@ -27,15 +28,15 @@ import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
+import android.car.drivingstate.CarUxRestrictionsConfiguration.DrivingStateRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
-import android.content.ComponentName;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.JsonWriter;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
 import java.io.CharArrayWriter;
 
@@ -43,69 +44,91 @@ import java.io.CharArrayWriter;
  * Sample app that uses components in car support library to demonstrate Car drivingstate UXR
  * status.
  */
-public class MainActivity extends Activity {
-    public static final String TAG = "drivingstate";
+public class MainActivity extends AppCompatActivity
+        implements ConfigurationDialogFragment.OnConfirmListener {
 
-    // Order of elements is based on number of bits shifted in value of the constants.
-    private static final CharSequence[] UX_RESTRICTION_NAMES = new CharSequence[]{
-            "BASELINE",
-            "NO_DIALPAD",
-            "NO_FILTERING",
-            "LIMIT_STRING_LENGTH",
-            "NO_KEYBOARD",
-            "NO_VIDEO",
-            "LIMIT_CONTENT",
-            "NO_SETUP",
-            "NO_TEXT_MESSAGE",
-            "NO_VOICE_TRANSCRIPTION",
-    };
+    public static final String TAG = "UxRDemo";
+
+    private static final String DIALOG_FRAGMENT_TAG = "dialog_fragment_tag";
 
     private Car mCar;
     private CarDrivingStateManager mCarDrivingStateManager;
     private CarUxRestrictionsManager mCarUxRestrictionsManager;
     private CarPackageManager mCarPackageManager;
+
+    private CarUxRestrictionsManager.OnUxRestrictionsChangedListener mUxRChangeListener =
+            this::updateUxRText;
+    private CarDrivingStateManager.CarDrivingStateEventListener mDrvStateChangeListener =
+            this::updateDrivingStateText;
+
     private TextView mDrvStatus;
     private TextView mDistractionOptStatus;
     private TextView mUxrStatus;
     private Button mToggleButton;
-    private Button mSampleMsgButton;
     private Button mSaveUxrConfigButton;
     private Button mShowStagedConfig;
     private Button mShowProdConfig;
+    private Button mTogglePassengerMode;
 
     private boolean mEnableUxR;
 
-    private final ServiceConnection mCarConnectionListener =
-            new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                    Log.d(TAG, "Connected to " + name.flattenToString());
-                    // Get Driving State & UXR manager
-                    mCarDrivingStateManager = (CarDrivingStateManager) mCar.getCarManager(
-                            Car.CAR_DRIVING_STATE_SERVICE);
-                    mCarUxRestrictionsManager = (CarUxRestrictionsManager) mCar.getCarManager(
-                            Car.CAR_UX_RESTRICTION_SERVICE);
-                    mCarPackageManager = (CarPackageManager) mCar.getCarManager(
-                            Car.PACKAGE_SERVICE);
-                    if (mCarDrivingStateManager != null) {
-                        mCarDrivingStateManager.registerListener(mDrvStateChangeListener);
-                        updateDrivingStateText(
-                                mCarDrivingStateManager.getCurrentCarDrivingState());
-                    }
-                    if (mCarUxRestrictionsManager != null) {
-                        mCarUxRestrictionsManager.registerListener(mUxRChangeListener);
-                        updateUxRText(mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
-                    }
-                }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                    Log.d(TAG, "Disconnected from " + name.flattenToString());
-                    mCarDrivingStateManager = null;
-                    mCarUxRestrictionsManager = null;
-                    mCarPackageManager = null;
-                }
-            };
+        setContentView(R.layout.main_activity);
+
+        mDrvStatus = findViewById(R.id.driving_state);
+        mDistractionOptStatus = findViewById(R.id.do_status);
+        mUxrStatus = findViewById(R.id.uxr_status);
+
+        mToggleButton = findViewById(R.id.toggle_status);
+        mToggleButton.setOnClickListener(v -> updateToggleUxREnable());
+
+        mSaveUxrConfigButton = findViewById(R.id.save_uxr_config);
+        mSaveUxrConfigButton.setOnClickListener(v -> showConfigurationDialog());
+
+        mShowStagedConfig = findViewById(R.id.show_staged_config);
+        mShowStagedConfig.setOnClickListener(v -> showStagedUxRestrictionsConfig());
+        mShowProdConfig = findViewById(R.id.show_prod_config);
+        mShowProdConfig.setOnClickListener(v -> showProdUxRestrictionsConfig());
+
+        mTogglePassengerMode = findViewById(R.id.toggle_passenger_mode);
+        mTogglePassengerMode.setOnClickListener(v -> togglePassengerMode());
+
+        // Connect to car service
+        mCar = Car.createCar(this);
+
+        mCarDrivingStateManager = (CarDrivingStateManager) mCar.getCarManager(
+                Car.CAR_DRIVING_STATE_SERVICE);
+        mCarUxRestrictionsManager = (CarUxRestrictionsManager) mCar.getCarManager(
+                Car.CAR_UX_RESTRICTION_SERVICE);
+        mCarPackageManager = (CarPackageManager) mCar.getCarManager(
+                Car.PACKAGE_SERVICE);
+        if (mCarDrivingStateManager != null) {
+            mCarDrivingStateManager.registerListener(mDrvStateChangeListener);
+            updateDrivingStateText(
+                    mCarDrivingStateManager.getCurrentCarDrivingState());
+        }
+        if (mCarUxRestrictionsManager != null) {
+            mCarUxRestrictionsManager.registerListener(mUxRChangeListener);
+            updateUxRText(mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mCarUxRestrictionsManager != null) {
+            mCarUxRestrictionsManager.unregisterListener();
+        }
+        if (mCarDrivingStateManager != null) {
+            mCarDrivingStateManager.unregisterListener();
+        }
+        if (mCar != null) {
+            mCar.disconnect();
+        }
+    }
 
     private void updateUxRText(CarUxRestrictions restrictions) {
         mDistractionOptStatus.setText(
@@ -159,64 +182,54 @@ public class MainActivity extends Activity {
         mDrvStatus.requestLayout();
     }
 
-    private CarUxRestrictionsManager.OnUxRestrictionsChangedListener mUxRChangeListener =
-            this::updateUxRText;
+    private void togglePassengerMode() {
+        if (mCarUxRestrictionsManager == null) {
+            return;
+        }
 
+        int mode = mCarUxRestrictionsManager.getRestrictionMode();
+        switch (mode) {
+            case UX_RESTRICTION_MODE_BASELINE:
+                mCarUxRestrictionsManager.setRestrictionMode(UX_RESTRICTION_MODE_PASSENGER);
+                mTogglePassengerMode.setText(R.string.disable_passenger_mode);
+                break;
+            case UX_RESTRICTION_MODE_PASSENGER:
+                mCarUxRestrictionsManager.setRestrictionMode(UX_RESTRICTION_MODE_BASELINE);
+                mTogglePassengerMode.setText(R.string.enable_passenger_mode);
+                break;
+            default:
+                throw new IllegalStateException("Unrecognized restriction mode " + mode);
+        }
+    }
 
-    private CarDrivingStateManager.CarDrivingStateEventListener mDrvStateChangeListener =
-            this::updateDrivingStateText;
+    private void showConfigurationDialog() {
+        DialogFragment dialogFragment = ConfigurationDialogFragment.newInstance();
+        dialogFragment.show(getSupportFragmentManager(), DIALOG_FRAGMENT_TAG);
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onConfirm(int baseline, int passenger) {
 
-        setContentView(R.layout.main_activity);
-
-        mDrvStatus = findViewById(R.id.driving_state);
-        mDistractionOptStatus = findViewById(R.id.do_status);
-        mUxrStatus = findViewById(R.id.uxr_status);
-        mToggleButton = findViewById(R.id.toggle_status);
-
-        mSaveUxrConfigButton = findViewById(R.id.save_uxr_config);
-        mSaveUxrConfigButton.setOnClickListener(v -> saveUxrConfig());
-
-        mShowStagedConfig = findViewById(R.id.show_staged_config);
-        mShowStagedConfig.setOnClickListener(v -> showStagedUxRestrictionsConfig());
-        mShowProdConfig = findViewById(R.id.show_prod_config);
-        mShowProdConfig.setOnClickListener(v -> showProdUxRestrictionsConfig());
-        mToggleButton.setOnClickListener(v -> updateToggleUxREnable());
-
-        // Connect to car service
-        mCar = Car.createCar(this, mCarConnectionListener);
-        mCar.connect();
-    }
-
-    private void saveUxrConfig() {
-        // Pop up a dialog to build the IDLING restrictions.
-        boolean[] selected = new boolean[UX_RESTRICTION_NAMES.length];
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.set_uxr_config_dialog_title)
-                .setMultiChoiceItems(UX_RESTRICTION_NAMES, null,
-                        (dialog, which, isChecked) -> selected[which] = isChecked)
-                .setPositiveButton(R.string.set_uxr_config_dialog_positive_button,
-                        (dialog, id) -> setUxRestrictionsConfig(selected))
-                .setNegativeButton(R.string.set_uxr_config_dialog_negative_button, null)
-                .show();
-    }
-
-    private void setUxRestrictionsConfig(boolean[] selected) {
-        int selectedRestrictions = 0;
-        // Iteration starts at 1 because 0 is BASELINE (no restrictions).
-        for (int i = 1; i < selected.length; i++) {
-            if (selected[i]) {
-                selectedRestrictions += 1 << (i - 1);
-            }
-        }
-        boolean reqOpt = selectedRestrictions != 0;
         CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
                 .setUxRestrictions(DRIVING_STATE_PARKED, false, 0)
-                .setUxRestrictions(DRIVING_STATE_IDLING, reqOpt, selectedRestrictions)
-                .setUxRestrictions(DRIVING_STATE_MOVING, reqOpt, selectedRestrictions)
+                .setUxRestrictions(DRIVING_STATE_MOVING,
+                        new DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(baseline != 0)
+                                .setRestrictions(baseline))
+                .setUxRestrictions(DRIVING_STATE_MOVING,
+                        new DrivingStateRestrictions()
+                                .setMode(CarUxRestrictionsManager.UX_RESTRICTION_MODE_PASSENGER)
+                                .setDistractionOptimizationRequired(passenger != 0)
+                                .setRestrictions(passenger))
+                .setUxRestrictions(DRIVING_STATE_IDLING,
+                        new DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(baseline != 0)
+                                .setRestrictions(baseline))
+                .setUxRestrictions(DRIVING_STATE_IDLING,
+                        new DrivingStateRestrictions()
+                                .setMode(CarUxRestrictionsManager.UX_RESTRICTION_MODE_PASSENGER)
+                                .setDistractionOptimizationRequired(passenger != 0)
+                                .setRestrictions(passenger))
                 .build();
 
         mCarUxRestrictionsManager.saveUxRestrictionsConfigurationForNextBoot(config);
@@ -247,8 +260,7 @@ public class MainActivity extends Activity {
 
     private void showProdUxRestrictionsConfig() {
         try {
-            CarUxRestrictionsConfiguration prodConfig =
-                    mCarUxRestrictionsManager.getConfig();
+            CarUxRestrictionsConfiguration prodConfig = mCarUxRestrictionsManager.getConfig();
             if (prodConfig == null) {
                 new AlertDialog.Builder(this)
                         .setMessage(R.string.no_prod_config)
@@ -267,19 +279,4 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mCarUxRestrictionsManager != null) {
-            mCarUxRestrictionsManager.unregisterListener();
-        }
-        if (mCarDrivingStateManager != null) {
-            mCarDrivingStateManager.unregisterListener();
-        }
-        if (mCar != null) {
-            mCar.disconnect();
-        }
-    }
 }
-
