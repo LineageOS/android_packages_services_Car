@@ -30,7 +30,6 @@ import android.car.trust.TrustedDeviceInfo;
 interface ICarTrustAgentEnrollment {
     void startEnrollmentAdvertising();
     void stopEnrollmentAdvertising();
-    void initiateEnrollmentHandshake(in BluetoothDevice device);
     void enrollmentHandshakeAccepted(in BluetoothDevice device);
     void terminateEnrollmentHandshake();
     boolean isEscrowTokenActive(in long handle, int uid);
