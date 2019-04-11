@@ -17,6 +17,7 @@
 package com.android.car;
 
 import android.annotation.MainThread;
+import android.app.ActivityManager;
 import android.app.UiModeManager;
 import android.car.Car;
 import android.car.ICar;
@@ -24,6 +25,7 @@ import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.os.Binder;
@@ -118,7 +120,11 @@ public class ICarImpl extends ICar.Stub {
         mHal = new VehicleHal(vehicle);
         mVehicleInterfaceName = vehicleInterfaceName;
         mUserManagerHelper = new CarUserManagerHelper(serviceContext);
-        mCarUserService = new CarUserService(serviceContext, mUserManagerHelper);
+        final Resources res = mContext.getResources();
+        final int maxRunningUsers = res.getInteger(
+                com.android.internal.R.integer.config_multiuserMaxRunningUsers);
+        mCarUserService = new CarUserService(serviceContext, mUserManagerHelper,
+                ActivityManager.getService(), maxRunningUsers);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
                 systemInterface, mUserManagerHelper);
