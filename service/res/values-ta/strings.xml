@@ -180,8 +180,6 @@
     <skip />
     <!-- no translation found for car_permission_desc_car_power (9202079903668652864) -->
     <skip />
-    <!-- no translation found for car_permission_label_enroll_trust (3512907900486690218) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_enroll_trust (4148649994602185130) -->
-    <skip />
+    <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"’நம்பகமான சாதனம்’ என்று பதிவு செய்"</string>
+    <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"’நம்பகமான சாதனம்’ என்று பதிவு செய்வதை அனுமதிக்கும்"</string>
 </resources>
