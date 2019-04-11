@@ -109,11 +109,6 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     /** K: uid, V : list of pid */
     private final Map<Integer, Set<Integer>> mForegroundUidPids = new ArrayMap<>();
     private int mFocusedStackId = INVALID_STACK_ID;
-
-    /**
-     * Temporary container to dispatch tasks for onActivityLaunch. Only used in handler thread.
-     * can be accessed without lock. */
-    private final List<TopTaskInfoContainer> mTasksToDispatch = new LinkedList<>();
     private ActivityLaunchListener mActivityLaunchListener;
 
     public SystemActivityMonitoringService(Context context) {
@@ -277,12 +272,12 @@ public class SystemActivityMonitoringService implements CarServiceBase {
             Log.e(CarLog.TAG_AM, "cannot getFocusedStackId", e);
             return;
         }
-        mTasksToDispatch.clear();
 
         SparseArray<TopTaskInfoContainer> topTasks = new SparseArray<>();
         ActivityLaunchListener listener;
         synchronized (this) {
             listener = mActivityLaunchListener;
+
             for (StackInfo info : infos) {
                 int displayId = info.displayId;
                 if (info.taskNames.length == 0 || !info.visible) { // empty stack or not shown
@@ -297,25 +292,24 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                         newTopTaskInfo.position > currentTopTaskInfo.position) {
                     topTasks.put(displayId, newTopTaskInfo);
                     if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                        Log.i(CarLog.TAG_AM, "Current top task " + newTopTaskInfo);
+                        Log.i(CarLog.TAG_AM, "Updating top task to: " + newTopTaskInfo);
                     }
                 }
             }
             // Assuming displays remains the same.
             for (int i = 0; i < topTasks.size(); i++) {
+                TopTaskInfoContainer topTask = topTasks.get(i);
+
                 int displayId = topTasks.keyAt(i);
-                TopTaskInfoContainer current = topTasks.get(displayId);
-                TopTaskInfoContainer previous = mTopTasks.get(displayId);
-                if (!current.isMatching(previous)) {
-                    mTasksToDispatch.add(current);
-                    mTopTasks.put(displayId, current);
-                }
+                mTopTasks.put(displayId, topTask);
             }
         }
         if (listener != null) {
-            for (TopTaskInfoContainer topTask : mTasksToDispatch) {
+            for (int i = 0; i < topTasks.size(); i++) {
+                TopTaskInfoContainer topTask = topTasks.valueAt(i);
+
                 if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                    Log.i(CarLog.TAG_AM, "activity launched:" + topTask.toString());
+                    Log.i(CarLog.TAG_AM, "Notifying about top task: " + topTask.toString());
                 }
                 listener.onActivityLaunch(topTask);
             }
