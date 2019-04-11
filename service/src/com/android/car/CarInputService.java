@@ -24,6 +24,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadsetClient;
 import android.bluetooth.BluetoothProfile;
+import android.car.CarProjectionManager;
 import android.car.input.CarInputHandlingService;
 import android.car.input.CarInputHandlingService.InputFilter;
 import android.car.input.ICarInputListener;
@@ -54,6 +55,7 @@ import com.android.internal.app.AssistUtils;
 import com.android.internal.app.IVoiceInteractionSessionShowCallback;
 
 import java.io.PrintWriter;
+import java.util.BitSet;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -149,9 +151,9 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     private final Supplier<String> mLastCalledNumberSupplier;
 
     @GuardedBy("this")
-    private Runnable mVoiceAssistantKeyListener;
+    private CarProjectionManager.ProjectionKeyEventHandler mProjectionKeyEventHandler;
     @GuardedBy("this")
-    private Runnable mLongVoiceAssistantKeyListener;
+    private final BitSet mProjectionKeyEventsSubscribed = new BitSet();
 
     private final KeyPressTimer mVoiceKeyTimer;
     private final KeyPressTimer mCallKeyTimer;
@@ -298,24 +300,17 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     }
 
     /**
-     * Set listener for listening voice assistant key event. Setting to null stops listening.
-     * If listener is not set, default behavior will be done for short press.
-     * If listener is set, short key press will lead into calling the listener.
+     * Set projection key event listener. If null, unregister listener.
      */
-    public void setVoiceAssistantKeyListener(Runnable listener) {
+    public void setProjectionKeyEventHandler(
+            @Nullable CarProjectionManager.ProjectionKeyEventHandler listener,
+            @Nullable BitSet events) {
         synchronized (this) {
-            mVoiceAssistantKeyListener = listener;
-        }
-    }
-
-    /**
-     * Set listener for listening long voice assistant key event. Setting to null stops listening.
-     * If listener is not set, default behavior will be done for long press.
-     * If listener is set, short long press will lead into calling the listener.
-     */
-    public void setLongVoiceAssistantKeyListener(Runnable listener) {
-        synchronized (this) {
-            mLongVoiceAssistantKeyListener = listener;
+            mProjectionKeyEventHandler = listener;
+            mProjectionKeyEventsSubscribed.clear();
+            if (events != null) {
+                mProjectionKeyEventsSubscribed.or(events);
+            }
         }
     }
 
@@ -348,8 +343,8 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     @Override
     public void release() {
         synchronized (this) {
-            mVoiceAssistantKeyListener = null;
-            mLongVoiceAssistantKeyListener = null;
+            mProjectionKeyEventHandler = null;
+            mProjectionKeyEventsSubscribed.clear();
             mInstrumentClusterKeyListener = null;
             if (mCarInputListenerBound) {
                 mContext.unbindService(mInputServiceConnection);
@@ -410,35 +405,29 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         int action = event.getAction();
         if (action == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
             mVoiceKeyTimer.keyDown();
+            dispatchProjectionKeyEvent(CarProjectionManager.KEY_EVENT_VOICE_SEARCH_KEY_DOWN);
         } else if (action == KeyEvent.ACTION_UP) {
             if (mVoiceKeyTimer.keyUp()) {
                 // Long press already handled by handleVoiceAssistLongPress(), nothing more to do.
+                // Hand it off to projection, if it's interested, otherwise we're done.
+                dispatchProjectionKeyEvent(
+                        CarProjectionManager.KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_UP);
                 return;
             }
 
-            final Runnable listener;
-            synchronized (this) {
-                listener = mVoiceAssistantKeyListener;
+            if (dispatchProjectionKeyEvent(
+                    CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP)) {
+                return;
             }
 
-            if (listener != null) {
-                listener.run();
-            } else {
-                launchDefaultVoiceAssistantHandler();
-            }
+            launchDefaultVoiceAssistantHandler();
         }
     }
 
     private void handleVoiceAssistLongPress() {
-        Runnable listener;
-
-        synchronized (this) {
-            listener = mLongVoiceAssistantKeyListener;
-        }
-
-        // If there's a long press listener registered, let it handle the event.
-        if (listener != null) {
-            listener.run();
+        // If projection wants this event, let it take it.
+        if (dispatchProjectionKeyEvent(
+                CarProjectionManager.KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN)) {
             return;
         }
         // Otherwise, try to launch voice recognition on a BT device.
@@ -453,14 +442,22 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         int action = event.getAction();
         if (action == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
             mCallKeyTimer.keyDown();
+            dispatchProjectionKeyEvent(CarProjectionManager.KEY_EVENT_CALL_KEY_DOWN);
         } else if (action == KeyEvent.ACTION_UP) {
             if (mCallKeyTimer.keyUp()) {
                 // Long press already handled by handleCallLongPress(), nothing more to do.
+                // Hand it off to projection, if it's interested, otherwise we're done.
+                dispatchProjectionKeyEvent(CarProjectionManager.KEY_EVENT_CALL_LONG_PRESS_KEY_UP);
                 return;
             }
 
             if (acceptCallIfRinging()) {
                 // Ringing call answered, nothing more to do.
+                return;
+            }
+
+            if (dispatchProjectionKeyEvent(
+                    CarProjectionManager.KEY_EVENT_CALL_SHORT_PRESS_KEY_UP)) {
                 return;
             }
 
@@ -474,7 +471,25 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             return;
         }
 
+        if (dispatchProjectionKeyEvent(CarProjectionManager.KEY_EVENT_CALL_LONG_PRESS_KEY_DOWN)) {
+            return;
+        }
+
         dialLastCallHandler();
+    }
+
+    private boolean dispatchProjectionKeyEvent(@CarProjectionManager.KeyEventNum int event) {
+        CarProjectionManager.ProjectionKeyEventHandler projectionKeyEventHandler;
+        synchronized (this) {
+            projectionKeyEventHandler = mProjectionKeyEventHandler;
+            if (projectionKeyEventHandler == null || !mProjectionKeyEventsSubscribed.get(event)) {
+                // No event handler, or event handler doesn't want this event - we're done.
+                return false;
+            }
+        }
+
+        projectionKeyEventHandler.onKeyEvent(event);
+        return true;
     }
 
     private void launchDialerHandler() {

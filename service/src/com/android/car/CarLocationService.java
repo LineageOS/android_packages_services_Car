@@ -132,7 +132,6 @@ public class CarLocationService extends BroadcastReceiver implements
         logd("init");
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_USER_SWITCHED);
-        filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
         filter.addAction(LocationManager.MODE_CHANGED_ACTION);
         filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
         mContext.registerReceiver(this, filter);
@@ -183,14 +182,7 @@ public class CarLocationService extends BroadcastReceiver implements
     public void onReceive(Context context, Intent intent) {
         logd("onReceive " + intent);
         String action = intent.getAction();
-        if (action == Intent.ACTION_LOCKED_BOOT_COMPLETED) {
-            // If the system user is not headless, then we can inject location as soon as the
-            // system has completed booting.
-            if (!mCarUserManagerHelper.isHeadlessSystemUser()) {
-                logd("not headless on boot complete");
-                asyncOperation(() -> loadLocation());
-            }
-        } else if (action == Intent.ACTION_USER_SWITCHED) {
+        if (action == Intent.ACTION_USER_SWITCHED) {
             int userHandle = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
             logd("USER_SWITCHED: " + userHandle);
             if (mCarUserManagerHelper.isHeadlessSystemUser()

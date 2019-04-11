@@ -16,6 +16,8 @@
 
 package android.car;
 
+import android.annotation.CallbackExecutor;
+import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
@@ -34,16 +36,28 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.ArraySet;
 import android.util.Log;
+import android.util.Pair;
+import android.view.KeyEvent;
 
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * CarProjectionManager allows applications implementing projection to register/unregister itself
@@ -74,13 +88,103 @@ public final class CarProjectionManager implements CarManagerBase {
     }
 
     /**
-     * Flag for voice search request.
+     * Interface for projection apps to receive and handle key events from the system.
      */
+    public interface ProjectionKeyEventHandler {
+        /**
+         * Called when a projection key event occurs.
+         *
+         * @param event The projection key event that occurred.
+         */
+        void onKeyEvent(@KeyEventNum int event);
+    }
+    /**
+     * Flag for {@link #registerProjectionListener(CarProjectionListener, int)}: subscribe to
+     * voice-search short-press requests.
+     *
+     * @deprecated Use {@link #addKeyEventHandler(Set, ProjectionKeyEventHandler)} with the
+     * {@link #KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP} event instead.
+     */
+    @Deprecated
     public static final int PROJECTION_VOICE_SEARCH = 0x1;
     /**
-     * Flag for long press voice search request.
+     * Flag for {@link #registerProjectionListener(CarProjectionListener, int)}: subscribe to
+     * voice-search long-press requests.
+     *
+     * @deprecated Use {@link #addKeyEventHandler(Set, ProjectionKeyEventHandler)} with the
+     * {@link #KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN} event instead.
      */
+    @Deprecated
     public static final int PROJECTION_LONG_PRESS_VOICE_SEARCH = 0x2;
+
+    /**
+     * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_VOICE_ASSIST}
+     * key is pressed down.
+     *
+     * If the key is released before the long-press timeout,
+     * {@link #KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP} will be fired. If the key is held past the
+     * long-press timeout, {@link #KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN} will be fired,
+     * followed by {@link #KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_UP}.
+     */
+    public static final int KEY_EVENT_VOICE_SEARCH_KEY_DOWN = 0;
+    /**
+     * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_VOICE_ASSIST}
+     * key is released after a short-press.
+     */
+    public static final int KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP = 1;
+    /**
+     * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_VOICE_ASSIST}
+     * key is held down past the long-press timeout.
+     */
+    public static final int KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN = 2;
+    /**
+     * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_VOICE_ASSIST}
+     * key is released after a long-press.
+     */
+    public static final int KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_UP = 3;
+    /**
+     * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_CALL} key is
+     * pressed down.
+     *
+     * If the key is released before the long-press timeout,
+     * {@link #KEY_EVENT_CALL_SHORT_PRESS_KEY_UP} will be fired. If the key is held past the
+     * long-press timeout, {@link #KEY_EVENT_CALL_LONG_PRESS_KEY_DOWN} will be fired, followed by
+     * {@link #KEY_EVENT_CALL_LONG_PRESS_KEY_UP}.
+     */
+    public static final int KEY_EVENT_CALL_KEY_DOWN = 4;
+    /**
+     * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_CALL} key is
+     * released after a short-press.
+     */
+    public static final int KEY_EVENT_CALL_SHORT_PRESS_KEY_UP = 5;
+    /**
+     * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_CALL} key is
+     * held down past the long-press timeout.
+     */
+    public static final int KEY_EVENT_CALL_LONG_PRESS_KEY_DOWN = 6;
+    /**
+     * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_CALL} key is
+     * released after a long-press.
+     */
+    public static final int KEY_EVENT_CALL_LONG_PRESS_KEY_UP = 7;
+
+    /** @hide */
+    public static final int NUM_KEY_EVENTS = 8;
+
+    /** @hide */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(prefix = "KEY_EVENT_", value = {
+            KEY_EVENT_VOICE_SEARCH_KEY_DOWN,
+            KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP,
+            KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN,
+            KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_UP,
+            KEY_EVENT_CALL_KEY_DOWN,
+            KEY_EVENT_CALL_SHORT_PRESS_KEY_UP,
+            KEY_EVENT_CALL_LONG_PRESS_KEY_DOWN,
+            KEY_EVENT_CALL_LONG_PRESS_KEY_UP,
+    })
+    @Target({ElementType.TYPE_USE})
+    public @interface KeyEventNum {}
 
     /** @hide */
     public static final int PROJECTION_AP_STARTED = 0;
@@ -91,10 +195,23 @@ public final class CarProjectionManager implements CarManagerBase {
 
     private final ICarProjection mService;
     private final Handler mHandler;
-    private final ICarProjectionCallbackImpl mBinderListener;
+    private final Executor mHandlerExecutor;
 
+    @GuardedBy("mLock")
     private CarProjectionListener mListener;
+    @GuardedBy("mLock")
     private int mVoiceSearchFilter;
+    private final ProjectionKeyEventHandler mLegacyListenerTranslator =
+            this::translateKeyEventToLegacyListener;
+
+    private final ICarProjectionKeyEventHandlerImpl mBinderHandler =
+            new ICarProjectionKeyEventHandlerImpl(this);
+
+    @GuardedBy("mLock")
+    private final Map<ProjectionKeyEventHandler, KeyEventHandlerRecord> mKeyEventHandlers =
+            new HashMap<>();
+    @GuardedBy("mLock")
+    private BitSet mHandledEvents = new BitSet();
 
     private ProjectionAccessPointCallbackProxy mProjectionAccessPointCallbackProxy;
 
@@ -127,7 +244,7 @@ public final class CarProjectionManager implements CarManagerBase {
     public CarProjectionManager(IBinder service, Handler handler) {
         mService = ICarProjection.Stub.asInterface(service);
         mHandler = handler;
-        mBinderListener = new ICarProjectionCallbackImpl(this);
+        mHandlerExecutor = handler::post;
     }
 
     /**
@@ -150,11 +267,9 @@ public final class CarProjectionManager implements CarManagerBase {
         Preconditions.checkNotNull(listener, "listener cannot be null");
         synchronized (mLock) {
             if (mListener == null || mVoiceSearchFilter != voiceSearchFilter) {
-                try {
-                    mService.registerProjectionListener(mBinderListener, voiceSearchFilter);
-                } catch (RemoteException e) {
-                    throw e.rethrowFromSystemServer();
-                }
+                addKeyEventHandler(
+                        translateVoiceSearchFilter(voiceSearchFilter),
+                        mLegacyListenerTranslator);
             }
             mListener = listener;
             mVoiceSearchFilter = voiceSearchFilter;
@@ -175,14 +290,168 @@ public final class CarProjectionManager implements CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public void unregisterProjectionListener() {
         synchronized (mLock) {
-            try {
-                mService.unregisterProjectionListener(mBinderListener);
-            } catch (RemoteException e) {
-                throw e.rethrowFromSystemServer();
-            }
+            removeKeyEventHandler(mLegacyListenerTranslator);
             mListener = null;
             mVoiceSearchFilter = 0;
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    private static Set<Integer> translateVoiceSearchFilter(int voiceSearchFilter) {
+        Set<Integer> rv = new ArraySet<>(Integer.bitCount(voiceSearchFilter));
+        int i = 0;
+        if ((voiceSearchFilter & PROJECTION_VOICE_SEARCH) != 0) {
+            rv.add(KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
+        }
+        if ((voiceSearchFilter & PROJECTION_LONG_PRESS_VOICE_SEARCH) != 0) {
+            rv.add(KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN);
+        }
+        return rv;
+    }
+
+    private void translateKeyEventToLegacyListener(@KeyEventNum int keyEvent) {
+        CarProjectionListener legacyListener;
+        boolean fromLongPress;
+
+        synchronized (mLock) {
+            if (mListener == null) {
+                return;
+            }
+            legacyListener = mListener;
+
+            if (keyEvent == KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP) {
+                fromLongPress = false;
+            } else if (keyEvent == KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN) {
+                fromLongPress = true;
+            } else {
+                Log.e(TAG, "Unexpected key event " + keyEvent);
+                return;
+            }
+        }
+
+        Log.d(TAG, "Voice assistant request, long-press = " + fromLongPress);
+
+        legacyListener.onVoiceAssistantRequest(fromLongPress);
+    }
+
+    /**
+     * Adds a {@link ProjectionKeyEventHandler} to be called for the given set of key events.
+     *
+     * If the given event handler is already registered, the event set and {@link Executor} for that
+     * event handler will be replaced with those provided.
+     *
+     * For any event with a defined event handler, the system will suppress its default behavior for
+     * that event, and call the event handler instead. (For instance, if an event handler is defined
+     * for {@link #KEY_EVENT_CALL_SHORT_PRESS_KEY_UP}, the system will not open the dialer when the
+     * {@link KeyEvent#KEYCODE_CALL CALL} key is short-pressed.)
+     *
+     * Callbacks on the event handler will be run on the {@link Handler} designated to run callbacks
+     * from {@link Car}.
+     *
+     * @param events        The set of key events to which to subscribe.
+     * @param eventHandler  The {@link ProjectionKeyEventHandler} to call when those events occur.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public void addKeyEventHandler(
+            @NonNull Set<@KeyEventNum Integer> events,
+            @NonNull ProjectionKeyEventHandler eventHandler) {
+        addKeyEventHandler(events, null, eventHandler);
+    }
+
+    /**
+     * Adds a {@link ProjectionKeyEventHandler} to be called for the given set of key events.
+     *
+     * If the given event handler is already registered, the event set and {@link Executor} for that
+     * event handler will be replaced with those provided.
+     *
+     * For any event with a defined event handler, the system will suppress its default behavior for
+     * that event, and call the event handler instead. (For instance, if an event handler is defined
+     * for {@link #KEY_EVENT_CALL_SHORT_PRESS_KEY_UP}, the system will not open the dialer when the
+     * {@link KeyEvent#KEYCODE_CALL CALL} key is short-pressed.)
+     *
+     * Callbacks on the event handler will be run on the given {@link Executor}, or, if it is null,
+     * the {@link Handler} designated to run callbacks for {@link Car}.
+     *
+     * @param events        The set of key events to which to subscribe.
+     * @param executor      An {@link Executor} on which to run callbacks.
+     * @param eventHandler  The {@link ProjectionKeyEventHandler} to call when those events occur.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public void addKeyEventHandler(
+            @NonNull Set<@KeyEventNum Integer> events,
+            @CallbackExecutor @Nullable Executor executor,
+            @NonNull ProjectionKeyEventHandler eventHandler) {
+        BitSet eventMask = new BitSet();
+        for (int event : events) {
+            Preconditions.checkArgument(event >= 0 && event < NUM_KEY_EVENTS, "Invalid key event");
+            eventMask.set(event);
+        }
+
+        if (eventMask.isEmpty()) {
+            removeKeyEventHandler(eventHandler);
+            return;
+        }
+
+        if (executor == null) {
+            executor = mHandlerExecutor;
+        }
+
+        synchronized (mLock) {
+            KeyEventHandlerRecord record = mKeyEventHandlers.get(eventHandler);
+            if (record == null) {
+                record = new KeyEventHandlerRecord(executor, eventMask);
+                mKeyEventHandlers.put(eventHandler, record);
+            } else {
+                record.mExecutor = executor;
+                record.mSubscribedEvents = eventMask;
+            }
+
+            updateHandledEventsLocked();
+        }
+    }
+
+    /**
+     * Removes a previously registered {@link ProjectionKeyEventHandler}.
+     *
+     * @param eventHandler The listener to remove.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public void removeKeyEventHandler(@NonNull ProjectionKeyEventHandler eventHandler) {
+        synchronized (mLock) {
+            KeyEventHandlerRecord record = mKeyEventHandlers.remove(eventHandler);
+            if (record != null) {
+                updateHandledEventsLocked();
+            }
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void updateHandledEventsLocked() {
+        BitSet events = new BitSet();
+
+        for (KeyEventHandlerRecord record : mKeyEventHandlers.values()) {
+            events.or(record.mSubscribedEvents);
+        }
+
+        if (events.equals(mHandledEvents)) {
+            // No changes.
+            return;
+        }
+
+        try {
+            if (!events.isEmpty()) {
+                Log.d(TAG, "Registering handler with system for " + events);
+                byte[] eventMask = events.toByteArray();
+                mService.registerKeyEventHandler(mBinderHandler, eventMask);
+            } else {
+                Log.d(TAG, "Unregistering handler with system");
+                mService.unregisterKeyEventHandler(mBinderHandler);
+            }
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+
+        mHandledEvents = events;
     }
 
     /**
@@ -506,32 +775,47 @@ public final class CarProjectionManager implements CarManagerBase {
         }
     }
 
-    private void handleVoiceAssistantRequest(boolean fromLongPress) {
-        CarProjectionListener listener;
-        synchronized (mLock) {
-            if (mListener == null) {
-                return;
-            }
-            listener = mListener;
-        }
-        listener.onVoiceAssistantRequest(fromLongPress);
-    }
-
-    private static class ICarProjectionCallbackImpl extends ICarProjectionCallback.Stub {
+    private static class ICarProjectionKeyEventHandlerImpl
+            extends ICarProjectionKeyEventHandler.Stub {
 
         private final WeakReference<CarProjectionManager> mManager;
 
-        private ICarProjectionCallbackImpl(CarProjectionManager manager) {
+        private ICarProjectionKeyEventHandlerImpl(CarProjectionManager manager) {
             mManager = new WeakReference<>(manager);
         }
 
         @Override
-        public void onVoiceAssistantRequest(final boolean fromLongPress) {
+        public void onKeyEvent(@KeyEventNum int event) {
+            Log.d(TAG, "Received projection key event " + event);
             final CarProjectionManager manager = mManager.get();
             if (manager == null) {
                 return;
             }
-            manager.mHandler.post(() -> manager.handleVoiceAssistantRequest(fromLongPress));
+
+            List<Pair<ProjectionKeyEventHandler, Executor>> toDispatch = new ArrayList<>();
+            synchronized (manager.mLock) {
+                for (Map.Entry<ProjectionKeyEventHandler, KeyEventHandlerRecord> entry :
+                        manager.mKeyEventHandlers.entrySet()) {
+                    if (entry.getValue().mSubscribedEvents.get(event)) {
+                        toDispatch.add(Pair.create(entry.getKey(), entry.getValue().mExecutor));
+                    }
+                }
+            }
+
+            for (Pair<ProjectionKeyEventHandler, Executor> entry : toDispatch) {
+                ProjectionKeyEventHandler listener = entry.first;
+                entry.second.execute(() -> listener.onKeyEvent(event));
+            }
+        }
+    }
+
+    private static class KeyEventHandlerRecord {
+        @NonNull Executor mExecutor;
+        @NonNull BitSet mSubscribedEvents;
+
+        KeyEventHandlerRecord(@NonNull Executor executor, @NonNull BitSet subscribedEvents) {
+            mExecutor = executor;
+            mSubscribedEvents = subscribedEvents;
         }
     }
 

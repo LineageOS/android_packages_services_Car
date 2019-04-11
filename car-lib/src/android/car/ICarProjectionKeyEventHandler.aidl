@@ -16,9 +16,9 @@
 
 package android.car;
 
-/**
- * @hide
- */
-oneway interface ICarProjectionCallback {
-    void onVoiceAssistantRequest(boolean fromLongPress) = 0;
+import android.os.Bundle;
+
+/** @hide */
+oneway interface ICarProjectionKeyEventHandler {
+    void onKeyEvent(int event) = 0;
 }
