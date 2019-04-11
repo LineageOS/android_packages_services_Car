@@ -20,6 +20,11 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
+LOCAL_RESOURCE_DIR += $(LOCAL_PATH)/res \
+    packages/services/Car/service/res
+
+LOCAL_AAPT_FLAGS += --extra-packages com.android.car --auto-add-overlay
+
 LOCAL_PACKAGE_NAME := CarServiceUnitTest
 LOCAL_PRIVATE_PLATFORM_APIS := true
 
@@ -41,11 +46,14 @@ LOCAL_JAVA_LIBRARIES := \
     android.test.base
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
-    junit \
     androidx.test.core \
     androidx.test.rules \
-    mockito-target-minus-junit4 \
+    car-frameworks-service \
+    car-service-lib-for-test \
     com.android.car.test.utils \
+    junit \
+    mockito-target-minus-junit4 \
     truth-prebuilt
+
 
 include $(BUILD_PACKAGE)
