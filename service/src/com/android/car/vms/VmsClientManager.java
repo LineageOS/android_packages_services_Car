@@ -368,18 +368,6 @@ public class VmsClientManager implements CarServiceBase {
         }
 
         @Override
-        public void onBindingDied(ComponentName name) {
-            if (DBG) Log.d(TAG, "onBindingDied: " + mFullName);
-            rebind();
-        }
-
-        @Override
-        public void onNullBinding(ComponentName name) {
-            if (DBG) Log.d(TAG, "onNullBinding: " + mFullName);
-            terminate();
-        }
-
-        @Override
         public String toString() {
             return mFullName;
         }
