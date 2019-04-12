@@ -275,7 +275,7 @@ class CarTrustAgentBleManager extends BleManager {
 
             super.onStartFailure(errorCode);
             if (getEnrollmentService() != null) {
-                getEnrollmentService().onEnrollmentAdvertiseStartFailure(errorCode);
+                getEnrollmentService().onEnrollmentAdvertiseStartFailure();
             }
         }
     };

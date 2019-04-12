@@ -290,10 +290,10 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         }
     }
 
-    void onEnrollmentAdvertiseStartFailure(int errorcode) {
+    void onEnrollmentAdvertiseStartFailure() {
         for (BleStateChangeClient client : mBleStateChangeClients) {
             try {
-                client.mListener.onEnrollmentAdvertisingFailed(errorcode);
+                client.mListener.onEnrollmentAdvertisingFailed();
             } catch (RemoteException e) {
                 Log.e(TAG, "onAdvertiseSuccess dispatch failed", e);
             }
