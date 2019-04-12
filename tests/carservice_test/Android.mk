@@ -40,14 +40,16 @@ LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_STATIC_JAVA_LIBRARIES := junit
 LOCAL_STATIC_JAVA_LIBRARIES += \
-    car-service-lib-for-test \
-    vehicle-hal-support-lib \
-    car-systemtest \
-    mockito-target-inline \
     androidx.test.rules \
     android.hardware.automotive.vehicle-V2.0-java \
+    car-frameworks-service \
+    car-service-lib-for-test \
+    car-systemtest \
     com.android.car.test.utils \
-    truth-prebuilt
+    mockito-target-inline \
+    truth-prebuilt \
+    vehicle-hal-support-lib
+
 
 LOCAL_JAVA_LIBRARIES := \
     android.car \
