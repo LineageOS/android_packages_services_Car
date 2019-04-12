@@ -43,7 +43,6 @@ import java.util.function.Consumer;
  * Provides an application interface for interacting with the Vehicle specific properties.
  * For details about the individual properties, see the descriptions in
  * hardware/interfaces/automotive/vehicle/types.hal
- * TODO: b/128354867
  */
 public class CarPropertyManager implements CarManagerBase {
     private static final boolean DBG = false;

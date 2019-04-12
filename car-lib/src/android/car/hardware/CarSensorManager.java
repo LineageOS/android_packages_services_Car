@@ -183,7 +183,6 @@ public final class CarSensorManager implements CarManagerBase {
     /**
      * Oil level sensor.
      * This requires {@link Car#PERMISSION_CAR_ENGINE_DETAILED} permission
-     * @hide
      */
     public static final int SENSOR_TYPE_ENGINE_OIL_LEVEL            = 0x11400303;
 
@@ -380,19 +379,6 @@ public final class CarSensorManager implements CarManagerBase {
      * If the same listener is registered again for the same sensor, it will be either ignored or
      * updated depending on the rate.
      * <p>
-     * Requires {@link Car#PERMISSION_SPEED} for {@link #SENSOR_TYPE_CAR_SPEED} and
-     * {@link #SENSOR_TYPE_WHEEL_TICK_DISTANCE}, {@link Car#PERMISSION_CAR_ENGINE_DETAILED} for
-     * {@link #SENSOR_TYPE_RPM} and {@link #SENSOR_TYPE_ENGINE_OIL_LEVEL},
-     * {@link Car#PERMISSION_MILEAGE} for {@link #SENSOR_TYPE_ODOMETER},
-     * {@link Car#PERMISSION_ENERGY} for {@link #SENSOR_TYPE_FUEL_LEVEL} and
-     * {@link #SENSOR_TYPE_EV_BATTERY_LEVEL} and {@link #SENSOR_TYPE_EV_CHARGE_RATE},
-     * {@link Car#PERMISSION_POWERTRAIN} for {@link #SENSOR_TYPE_PARKING_BRAKE} and
-     * {@link #SENSOR_TYPE_GEAR} and {@link #SENSOR_TYPE_IGNITION_STATE},
-     * {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT} for {@link #SENSOR_TYPE_NIGHT} and
-     * {@link #SENSOR_TYPE_ENV_OUTSIDE_TEMPERATURE}, {@link Car#PERMISSION_CAR_DYNAMICS_STATE} for
-     * {@link #SENSOR_TYPE_ABS_ACTIVE} and {@link #SENSOR_TYPE_TRACTION_CONTROL_ACTIVE},
-     * {@link Car#PERMISSION_ENERGY_PORTS} for {@link #SENSOR_TYPE_FUEL_DOOR_OPEN} and
-     * {@link #SENSOR_TYPE_EV_CHARGE_PORT_OPEN} and {@link #SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED}
      *
      * @param listener
      * @param sensorType sensor type to subscribe.
