@@ -1070,7 +1070,6 @@ package android.car.vms {
   }
 
   public final class VmsOperationRecorder {
-    ctor public VmsOperationRecorder(android.car.vms.VmsOperationRecorder.Writer);
     method public void addHalSubscription(int, android.car.vms.VmsLayer);
     method public void addPromiscuousSubscription(int);
     method public void addSubscription(int, android.car.vms.VmsLayer);
