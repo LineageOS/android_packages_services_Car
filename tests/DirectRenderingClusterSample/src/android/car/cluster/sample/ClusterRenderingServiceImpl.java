@@ -19,6 +19,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 import static java.lang.Integer.parseInt;
 
+import android.annotation.Nullable;
 import android.app.ActivityOptions;
 import android.car.cluster.ClusterActivityState;
 import android.car.cluster.renderer.InstrumentClusterRenderingService;
@@ -59,7 +60,6 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
 
     private static final int NO_DISPLAY = -1;
 
-    static final int NAV_STATE_EVENT_ID = 1;
     static final String LOCAL_BINDING_ACTION = "local";
     static final String NAV_STATE_BUNDLE_KEY = "navstate";
 
@@ -181,28 +181,22 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
             }
 
             @Override
-            public void onEvent(int eventType, Bundle bundle) {
+            public void onNavigationStateChanged(@Nullable Bundle bundle) {
                 try {
-                    StringBuilder bundleSummary = new StringBuilder();
-                    if (eventType == NAV_STATE_EVENT_ID) {
-                        bundle.setClassLoader(ParcelUtils.class.getClassLoader());
-                        NavigationState navState = NavigationState
-                                .fromParcelable(bundle.getParcelable(NAV_STATE_BUNDLE_KEY));
-                        bundleSummary.append(navState.toString());
-
-                        // Update clients
-                        broadcastClientEvent(client -> client.onNavigationStateChange(navState));
-                    } else {
-                        for (String key : bundle.keySet()) {
-                            bundleSummary.append(key);
-                            bundleSummary.append("=");
-                            bundleSummary.append(bundle.get(key));
-                            bundleSummary.append(" ");
-                        }
+                    if (bundle == null) {
+                        return;
                     }
-                    Log.d(TAG, "onEvent(" + eventType + ", " + bundleSummary + ")");
+                    StringBuilder bundleSummary = new StringBuilder();
+                    bundle.setClassLoader(ParcelUtils.class.getClassLoader());
+                    NavigationState navState = NavigationState
+                            .fromParcelable(bundle.getParcelable(NAV_STATE_BUNDLE_KEY));
+                    bundleSummary.append(navState.toString());
+
+                    // Update clients
+                    broadcastClientEvent(client -> client.onNavigationStateChange(navState));
+                    Log.d(TAG, "onNavigationStateChanged(" + bundleSummary + ")");
                 } catch (Exception e) {
-                    Log.e(TAG, "Error parsing event data (" + eventType + ", " + bundle + ")", e);
+                    Log.e(TAG, "Error parsing event data (" + bundle + ")", e);
                     NavigationState navState = new NavigationState.Builder().build();
                     broadcastClientEvent(client -> client.onNavigationStateChange(navState));
                 }

@@ -15,6 +15,9 @@
  */
 package android.car.navigation;
 
+import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
+import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
@@ -25,7 +28,9 @@ import android.util.Log;
 
 /**
  * API for providing navigation status for instrument cluster.
+ * @hide
  */
+@SystemApi
 public final class CarNavigationStatusManager implements CarManagerBase {
     private static final String TAG = CarLibLog.TAG_NAV;
 
@@ -42,15 +47,25 @@ public final class CarNavigationStatusManager implements CarManagerBase {
     /**
      * Sends events from navigation app to instrument cluster.
      *
-     * <p>The event type and bundle can be populated by
-     * {@link android.support.car.navigation.CarNavigationStatusEvent}.
-     *
-     * @param eventType event type
-     * @param bundle object that holds data about the event
+     * @deprecated use {@link #sendEvent(Bundle)} instead.
      */
+    @Deprecated
+    @RequiresPermission(Car.PERMISSION_CAR_NAVIGATION_MANAGER)
     public void sendEvent(int eventType, Bundle bundle) {
+        sendNavigationStateChange(bundle);
+    }
+
+    /**
+     * Sends events from navigation app to instrument cluster.
+     *
+     * @param bundle object holding data about the navigation event. This information is
+     *               generated using <a href="https://developer.android.com/reference/androidx/car/cluster/navigation/NavigationState.html#toParcelable()">
+     *               androidx.car.cluster.navigation.NavigationState#toParcelable()</a>
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_NAVIGATION_MANAGER)
+    public void sendNavigationStateChange(Bundle bundle) {
         try {
-            mService.onEvent(eventType, bundle);
+            mService.onNavigationStateChanged(bundle);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -63,6 +78,7 @@ public final class CarNavigationStatusManager implements CarManagerBase {
     }
 
     /** Returns navigation features of instrument cluster */
+    @RequiresPermission(Car.PERMISSION_CAR_NAVIGATION_MANAGER)
     public CarNavigationInstrumentCluster getInstrumentClusterInfo() {
         try {
             return mService.getInstrumentClusterInfo();

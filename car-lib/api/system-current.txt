@@ -227,7 +227,8 @@ package android.car.cluster.renderer {
   @UiThread public abstract class NavigationRenderer {
     ctor public NavigationRenderer();
     method public abstract android.car.navigation.CarNavigationInstrumentCluster getNavigationProperties();
-    method public abstract void onEvent(int, android.os.Bundle);
+    method @Deprecated public void onEvent(int, android.os.Bundle);
+    method public void onNavigationStateChanged(@Nullable android.os.Bundle);
   }
 
 }
@@ -795,6 +796,12 @@ package android.car.navigation {
     field public static final int CLUSTER_TYPE_CUSTOM_IMAGES_SUPPORTED = 1; // 0x1
     field public static final int CLUSTER_TYPE_IMAGE_CODES_ONLY = 2; // 0x2
     field public static final android.os.Parcelable.Creator<android.car.navigation.CarNavigationInstrumentCluster> CREATOR;
+  }
+
+  public final class CarNavigationStatusManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public android.car.navigation.CarNavigationInstrumentCluster getInstrumentClusterInfo();
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public void sendEvent(int, android.os.Bundle);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public void sendNavigationStateChange(android.os.Bundle);
   }
 
 }
