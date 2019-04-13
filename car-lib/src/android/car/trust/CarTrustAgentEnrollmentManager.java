@@ -130,21 +130,6 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
     }
 
     /**
-     * Initiates the handshake with the phone for enrollment.  This should be called after the
-     * user has confirmed the phone that is requesting enrollment.
-     *
-     * @param device the remote Bluetooth device that is trying to enroll.
-     */
-    @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
-    public void initiateEnrollmentHandshake(BluetoothDevice device) {
-        try {
-            mEnrollmentService.initiateEnrollmentHandshake(device);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        }
-    }
-
-    /**
      * Confirms that the enrollment handshake has been accepted by the user. This should be called
      * after the user has confirmed the verification code displayed on the UI.
      *

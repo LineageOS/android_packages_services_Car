@@ -92,6 +92,7 @@ public class CarUserManagerHelper {
             UserManager.DISALLOW_OUTGOING_CALLS,
             UserManager.DISALLOW_SMS,
             UserManager.DISALLOW_INSTALL_APPS,
+            UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES,
             UserManager.DISALLOW_UNINSTALL_APPS
     );
 

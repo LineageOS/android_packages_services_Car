@@ -686,7 +686,7 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void testDefaultGuestRestrictions() {
-        int guestRestrictionsExpectedCount = 7;
+        int guestRestrictionsExpectedCount = 8;
 
         ArgumentCaptor<Bundle> bundleCaptor = ArgumentCaptor.forClass(Bundle.class);
         mCarUserManagerHelper.initDefaultGuestRestrictions();
@@ -701,6 +701,8 @@ public class CarUserManagerHelperTest {
         assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_OUTGOING_CALLS)).isTrue();
         assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_SMS)).isTrue();
         assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_INSTALL_APPS)).isTrue();
+        assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES))
+            .isTrue();
         assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_UNINSTALL_APPS)).isTrue();
     }
 

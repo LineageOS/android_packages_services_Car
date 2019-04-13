@@ -228,6 +228,12 @@
         android:description="@string/car_permission_desc_audio_settings" />
 
     <permission
+        android:name="android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_receive_ducking"
+        android:description="@string/car_permission_desc_receive_ducking" />
+
+    <permission
         android:name="android.car.permission.BIND_INSTRUMENT_CLUSTER_RENDERER_SERVICE"
         android:protectionLevel="signature"
         android:label="@string/car_permission_label_bind_instrument_cluster_rendering"

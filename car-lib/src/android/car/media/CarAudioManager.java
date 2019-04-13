@@ -24,6 +24,7 @@ import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.content.Context;
 import android.media.AudioAttributes;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -57,6 +58,19 @@ public final class CarAudioManager implements CarManagerBase {
      */
     @SystemApi
     public static final int PRIMARY_AUDIO_ZONE = 0x0;
+
+    /**
+     * Extra for {@link android.media.AudioAttributes.Builder#addBundle(Bundle)}: when used in an
+     * {@link android.media.AudioFocusRequest}, the requester should receive all audio focus events,
+     * including {@link android.media.AudioManager#AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK}.
+     * The requester must hold {@link Car#PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS}; otherwise,
+     * this extra is ignored.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS =
+            "android.car.media.AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS";
 
     private final ICarAudio mService;
     private final List<CarVolumeCallback> mCarVolumeCallbacks;
