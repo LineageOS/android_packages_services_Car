@@ -136,7 +136,6 @@ public final class CarPropertyConfig<T> implements Parcelable {
      *
      * @return Additional configuration parameters. For different properties, configArrays have
      * different information.
-     * TODO: b/128873196 need add link to document.
      */
     @NonNull
     public List<Integer> getConfigArray() {

@@ -441,6 +441,7 @@ package android.car.hardware {
     field @Deprecated public static final int SENSOR_RATE_UI = 5; // 0x5
     field @Deprecated public static final int SENSOR_TYPE_ABS_ACTIVE = 287310858; // 0x1120040a
     field @Deprecated public static final int SENSOR_TYPE_CAR_SPEED = 291504647; // 0x11600207
+    field @Deprecated public static final int SENSOR_TYPE_ENGINE_OIL_LEVEL = 289407747; // 0x11400303
     field @Deprecated public static final int SENSOR_TYPE_ENV_OUTSIDE_TEMPERATURE = 291505923; // 0x11600703
     field @Deprecated public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE = 291504908; // 0x1160030c
     field @Deprecated public static final int SENSOR_TYPE_EV_BATTERY_LEVEL = 291504905; // 0x11600309
