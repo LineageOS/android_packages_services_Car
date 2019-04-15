@@ -987,12 +987,14 @@ package android.car.trust {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void startEnrollmentAdvertising();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void stopEnrollmentAdvertising();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void terminateEnrollmentHandshake();
+    field public static final int ENROLLMENT_HANDSHAKE_FAILURE = 1; // 0x1
+    field public static final int ENROLLMENT_NOT_ALLOWED = 2; // 0x2
   }
 
   public static interface CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback {
     method public void onBleEnrollmentDeviceConnected(android.bluetooth.BluetoothDevice);
     method public void onBleEnrollmentDeviceDisconnected(android.bluetooth.BluetoothDevice);
-    method public void onEnrollmentAdvertisingFailed(int);
+    method public void onEnrollmentAdvertisingFailed();
     method public void onEnrollmentAdvertisingStarted();
   }
 
