@@ -31,9 +31,8 @@ oneway interface ICarTrustAgentBleCallback {
 
     /**
      * Called when the BLE enrollment advertisement fails to start.
-     * see AdvertiseCallback#ADVERTISE_FAILED_* for possible error codes.
      */
-    void onEnrollmentAdvertisingFailed(int errorCode);
+    void onEnrollmentAdvertisingFailed();
 
     /**
      * Called when a remote device is connected on BLE.
