@@ -33,6 +33,11 @@
          and other sounds can be still played. -->
     <bool name="displayOffMuteLockAllAudio">true</bool>
 
+    <!--  Configuration to enable or disable the default Bluetooth Device Connection Policy. This
+          policy determines when to initiate device connections, but does not control the actual
+          connection process. Disable this default to implement your own policy. -->
+    <bool name="useDefaultBluetoothConnectionPolicy">true</bool>
+
     <string name="inputService">android.car.input.service/.DefaultInputService</string>
 
     <string name="instrumentClusterRendererService">android.car.cluster.sample/.ClusterRenderingServiceImpl</string>
