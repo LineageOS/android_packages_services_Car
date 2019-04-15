@@ -30,6 +30,7 @@ public final class VmsOperationRecorder {
     private static final VmsOperationRecorder INSTANCE = new VmsOperationRecorder(new Writer());
     private final Writer mWriter;
 
+    /** @hide */
     @VisibleForTesting
     public VmsOperationRecorder(Writer writer) {
         mWriter = writer;

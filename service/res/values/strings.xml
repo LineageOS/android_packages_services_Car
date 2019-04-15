@@ -70,6 +70,11 @@
     <!-- Permission text: apps can control car-audio-settings [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_audio_settings">manage car\u2019s audio settings</string>
     <string name="car_permission_label_mock_vehicle_hal">emulate vehicle HAL</string>
+    <!-- Permission text: apps can receive audio ducking events [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_receive_ducking">receive audio ducking events</string>
+    <!-- Permission text: apps can receive audio ducking events [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_receive_ducking">Allows an app to be notified when its volume
+        is being lowered as a result of other audio playing in the car.</string>
     <!-- Permission text: can emulate information from your car [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_mock_vehicle_hal">Emulate your car\u2019s vehicle HAL for internal
         testing purpose.</string>
