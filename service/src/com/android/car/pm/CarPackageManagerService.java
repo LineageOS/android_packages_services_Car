@@ -27,6 +27,7 @@ import android.car.content.pm.CarPackageManager;
 import android.car.content.pm.ICarPackageManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
+import android.car.userlib.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -122,6 +123,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private final ActivityLaunchListener mActivityLaunchListener = new ActivityLaunchListener();
     private final UxRestrictionsListener mUxRestrictionsListener;
+    private final VendorServiceController mVendorServiceController;
 
     // Information related to when the installed packages should be parsed for building a white and
     // black list
@@ -171,7 +173,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     public CarPackageManagerService(Context context,
             CarUxRestrictionsManagerService uxRestrictionsService,
-            SystemActivityMonitoringService systemActivityMonitoringService) {
+            SystemActivityMonitoringService systemActivityMonitoringService,
+            CarUserManagerHelper carUserManagerHelper) {
         mContext = context;
         mCarUxRestrictionsService = uxRestrictionsService;
         mSystemActivityMonitoringService = systemActivityMonitoringService;
@@ -186,6 +189,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mActivityBlockingActivity = ComponentName.unflattenFromString(blockingActivity);
         mAllowedAppInstallSources = Arrays.asList(
                 res.getStringArray(R.array.allowedAppInstallSources));
+        mVendorServiceController = new VendorServiceController(
+                mContext, mHandler.getLooper(), carUserManagerHelper);
     }
 
 
@@ -406,6 +411,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
         mSystemActivityMonitoringService.registerActivityLaunchListener(
                 mActivityLaunchListener);
+        mVendorServiceController.init();
     }
 
     private void doParseInstalledPackages() {
@@ -418,6 +424,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     private synchronized void doHandleRelease() {
+        mVendorServiceController.release();
         notifyAll();
     }
 
