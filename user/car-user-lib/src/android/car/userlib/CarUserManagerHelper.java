@@ -39,6 +39,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.os.RoSystemProperties;
 import com.android.internal.util.UserIcons;
 
 import com.google.android.collect.Sets;
@@ -285,7 +286,7 @@ public class CarUserManagerHelper {
      * @return {@boolean true} if headless system user.
      */
     public boolean isHeadlessSystemUser() {
-        return CarProperties.headless_system_user().orElse(false);
+        return RoSystemProperties.MULTIUSER_HEADLESS_SYSTEM_USER;
     }
 
     /**
