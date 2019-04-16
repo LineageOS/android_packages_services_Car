@@ -23,10 +23,13 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
+import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import androidx.car.cluster.navigation.ImageReference;
 import androidx.car.cluster.navigation.Lane;
 import androidx.car.cluster.navigation.LaneDirection;
 
@@ -37,6 +40,10 @@ import java.util.List;
  * View component that displays the Lane preview information on the instrument cluster display
  */
 public class LaneView extends LinearLayout {
+    private static final String TAG = "Cluster.LaneView";
+
+    private Handler mHandler = new Handler();
+
     private ArrayList<Lane> mLanes;
 
     private final int mWidth = (int) getResources().getDimension(R.dimen.lane_width);
@@ -61,10 +68,32 @@ public class LaneView extends LinearLayout {
         super(context, attrs, defStyleAttr);
     }
 
+    public void setLanes(ImageReference imageReference, ImageResolver imageResolver) {
+        imageResolver
+                .getBitmap(imageReference, 0, getHeight())
+                .thenAccept(bitmap -> {
+                    mHandler.post(() -> {
+                        removeAllViews();
+                        ImageView imgView = new ImageView(getContext());
+                        imgView.setImageBitmap(bitmap);
+                        imgView.setAdjustViewBounds(true);
+                        addView(imgView);
+                    });
+                })
+                .exceptionally(ex -> {
+                    removeAllViews();
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "Unable to fetch image for lane: " + imageReference);
+                    }
+                    return null;
+                });
+    }
+
     public void setLanes(List<Lane> lanes) {
         mLanes = new ArrayList<>(lanes);
         removeAllViews();
 
+        // Use drawables for lane directional guidance
         for (Lane lane : mLanes) {
             Bitmap bitmap = combineBitmapFromLane(lane);
             ImageView imgView = new ImageView(getContext());
