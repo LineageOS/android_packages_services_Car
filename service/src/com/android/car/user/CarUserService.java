@@ -169,6 +169,11 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         mUserCallbacks.add(callback);
     }
 
+    /** Removes previuosly added callback to lilsten user events. */
+    public void removeUserCallback(UserCallback callback) {
+        mUserCallbacks.remove(callback);
+    }
+
     /**
      * Set user lock / unlocking status. This is coming from system server through ICar binder call.
      * @param userHandle Handle of user
