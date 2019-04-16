@@ -24,7 +24,12 @@ java_library {
     },
     static_libs: [
         "android.car",
+    ],
+    libs: [
         "mockito",
     ],
     installable: false,
+    dist: {
+        targets: ["dist_files"],
+    },
 }
