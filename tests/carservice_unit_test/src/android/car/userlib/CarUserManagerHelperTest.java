@@ -111,12 +111,14 @@ public class CarUserManagerHelperTest {
         mForegroundUserId = ActivityManager.getCurrentUser();
         mForegroundUser = createUserInfoForId(mForegroundUserId);
 
-        // Restore the non-headless state before every test. Individual tests can set the property
-        // to true to test the headless system user scenario.
-        CarProperties.headless_system_user(false);
-
         // Clear boot override for every test
         CarProperties.boot_user_override_id(null);
+    }
+
+    @Test
+    public void checkHeadlessSystemUserFlag() {
+        // Make sure the headless system user flag is on.
+        assertThat(mCarUserManagerHelper.isHeadlessSystemUser()).isTrue();
     }
 
     @Test
@@ -133,7 +135,6 @@ public class CarUserManagerHelperTest {
     // System user will not be returned when calling get all users.
     @Test
     public void testHeadlessUser0GetAllUsers_NotReturnSystemUser() {
-        CarProperties.headless_system_user(true);
         UserInfo otherUser1 = createUserInfoForId(10);
         UserInfo otherUser2 = createUserInfoForId(11);
         UserInfo otherUser3 = createUserInfoForId(12);
@@ -278,10 +279,7 @@ public class CarUserManagerHelperTest {
     public void testGetMaxSupportedUsers() {
         SystemProperties.set("fw.max_users", "11");
 
-        assertThat(mCarUserManagerHelper.getMaxSupportedUsers()).isEqualTo(11);
-
-        // In headless user 0 model, we want to exclude the system user.
-        CarProperties.headless_system_user(true);
+        // Max users - headless system user.
         assertThat(mCarUserManagerHelper.getMaxSupportedUsers()).isEqualTo(10);
     }
 
@@ -301,31 +299,12 @@ public class CarUserManagerHelperTest {
 
         mockGetUsers(user1, user2, user3, user4, user5);
 
-        // Max users - # managed profiles.
-        assertThat(mCarUserManagerHelper.getMaxSupportedRealUsers()).isEqualTo(4);
-    }
-
-    @Test
-    public void testIsUserLimitReached() {
-        UserInfo user1 = createUserInfoForId(10);
-        UserInfo user2 =
-                new UserInfo(/* id= */ 11, /* name = */ "user11", UserInfo.FLAG_MANAGED_PROFILE);
-        UserInfo user3 =
-                new UserInfo(/* id= */ 12, /* name = */ "user12", UserInfo.FLAG_MANAGED_PROFILE);
-        UserInfo user4 = createUserInfoForId(13);
-
-        mockGetUsers(user1, user2, user3, user4);
-
-        SystemProperties.set("fw.max_users", "5");
-        assertThat(mCarUserManagerHelper.isUserLimitReached()).isFalse();
-
-        SystemProperties.set("fw.max_users", "4");
-        assertThat(mCarUserManagerHelper.isUserLimitReached()).isTrue();
+        // Max users - # managed profiles - headless system user.
+        assertThat(mCarUserManagerHelper.getMaxSupportedRealUsers()).isEqualTo(3);
     }
 
     @Test
     public void testHeadlessSystemUser_IsUserLimitReached() {
-        CarProperties.headless_system_user(true);
         UserInfo user1 = createUserInfoForId(10);
         UserInfo user2 =
                 new UserInfo(/* id= */ 11, /* name = */ "user11", UserInfo.FLAG_MANAGED_PROFILE);
@@ -344,7 +323,7 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void testIsUserLimitReachedIgnoresGuests() {
-        SystemProperties.set("fw.max_users", "5");
+        SystemProperties.set("fw.max_users", "6");
 
         UserInfo user1 = createUserInfoForId(10);
         UserInfo user2 =
@@ -863,7 +842,6 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void test_GetInitialUserWithValidLastActiveUser_ReturnsLastActiveUser() {
-        CarProperties.headless_system_user(true);
         int lastActiveUserId = 12;
 
         UserInfo user10 = createUserInfoForId(10);
@@ -877,8 +855,7 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void test_GetInitialUserWithNonExistLastActiveUser_ReturnsSamllestUserId() {
-        CarProperties.headless_system_user(true);
+    public void test_GetInitialUserWithNonExistLastActiveUser_ReturnsSmallestUserId() {
         int lastActiveUserId = 12;
         int minimumUserId = 10;
 
@@ -893,7 +870,6 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void test_GetInitialUserWithOverrideId_ReturnsOverrideId() {
-        CarProperties.headless_system_user(true);
         int lastActiveUserId = 12;
         int overrideUserId = 11;
 
@@ -910,7 +886,6 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void test_GetInitialUserWithInvalidOverrideId_ReturnsLastActiveUserId() {
-        CarProperties.headless_system_user(true);
         int lastActiveUserId = 12;
         int overrideUserId = 15;
 
@@ -927,7 +902,6 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void test_GetInitialUserWithInvalidOverrideAndLastActiveUserIds_ReturnsSmallestUserId() {
-        CarProperties.headless_system_user(true);
         int minimumUserId = 10;
         int invalidLastActiveUserId = 14;
         int invalidOverrideUserId = 15;

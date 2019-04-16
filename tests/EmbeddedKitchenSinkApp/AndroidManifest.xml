@@ -104,6 +104,10 @@
             </intent-filter>
         </receiver>
 
+        <service android:name=".vendorservice.LogLifecycleService"
+                 android:exported="false" android:directBootAware="true">
+        </service>
+
         <!-- Content provider for images -->
         <provider android:name=".cluster.ClusterContentProvider"
                   android:authorities="com.google.android.car.kitchensink.cluster.clustercontentprovider"
