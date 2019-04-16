@@ -20,6 +20,7 @@ import android.car.media.CarMediaManager.MediaSourceChangedListener;
 import android.car.media.ICarMedia;
 import android.car.media.ICarMediaSourceListener;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -27,10 +28,13 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.media.session.MediaController;
+import android.media.session.MediaController.TransportControls;
 import android.media.session.MediaSession;
 import android.media.session.MediaSession.Token;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.service.media.MediaBrowserService;
@@ -40,6 +44,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.android.car.media.MediaBrowserConnector;
 import com.android.car.user.CarUserService;
 
 import java.io.PrintWriter;
@@ -68,7 +73,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private static final String SHARED_PREF = "com.android.car.media.car_media_service";
     private static final String PACKAGE_NAME_SEPARATOR = ",";
 
-    private final Context mContext;
+    private Context mContext;
     private final MediaSessionManager mMediaSessionManager;
     private final MediaSessionUpdater mMediaSessionUpdater;
     private String mPrimaryMediaPackage;
@@ -76,9 +81,13 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     // MediaController for the primary media source. Can be null if the primary media source has not
     // played any media yet.
     private MediaController mPrimaryMediaController;
+    private final MediaBrowserConnector mMediaBrowserConnector;
 
     private RemoteCallbackList<ICarMediaSourceListener> mMediaSourceListeners =
             new RemoteCallbackList();
+
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
 
     /** The package name of the last media source that was removed while being primary. */
     private String mRemovedMediaSourcePackage;
@@ -111,6 +120,18 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
     };
 
+    private final MediaBrowserConnector.Callback mConnectedBrowserCallback = browser -> {
+        if (browser != null && browser.isConnected()) {
+            mPrimaryMediaController =
+                    new MediaController(mContext, browser.getSessionToken());
+            TransportControls controls = mPrimaryMediaController.getTransportControls();
+            if (controls != null) {
+                controls.prepare();
+            }
+        } else {
+            mPrimaryMediaController = null;
+        }
+    };
 
     public CarMediaService(Context context) {
         mContext = context;
@@ -127,6 +148,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mMediaSessionUpdater.registerCallbacks(mMediaSessionManager.getActiveSessions(null));
         mMediaSessionManager.addOnActiveSessionsChangedListener(
                 controllers -> mMediaSessionUpdater.registerCallbacks(controllers), null);
+
+        mMediaBrowserConnector = new MediaBrowserConnector(mContext, mConnectedBrowserCallback);
+        mHandlerThread = new HandlerThread(CarLog.TAG_MEDIA);
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
     }
 
     @Override
@@ -147,6 +173,10 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     public void dump(PrintWriter writer) {
         writer.println("*CarMediaService*");
         writer.println("\tCurrent media package: " + mPrimaryMediaPackage);
+        if (mPrimaryMediaController != null) {
+            writer
+                .println("\tCurrent media controller: " + mPrimaryMediaController.getPackageName());
+        }
         writer.println("\tNumber of active media sessions: "
                 + mMediaSessionManager.getActiveSessions(null).size());
     }
@@ -185,6 +215,18 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     public synchronized void unregisterMediaSourceListener(ICarMediaSourceListener callback) {
         ICarImpl.assertPermission(mContext, android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         mMediaSourceListeners.unregister(callback);
+    }
+
+    /**
+     * Attempts to stop the current source using MediaController.TransportControls.stop()
+     */
+    private void stop() {
+        if (mPrimaryMediaController != null) {
+            TransportControls controls = mPrimaryMediaController.getTransportControls();
+            if (controls != null) {
+                controls.stop();
+            }
+        }
     }
 
     private class MediaControllerCallback extends MediaController.Callback {
@@ -266,16 +308,20 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             return;
         }
 
-        if (mPrimaryMediaController != null) {
-            MediaController.TransportControls controls =
-                    mPrimaryMediaController.getTransportControls();
-            if (controls != null) {
-                controls.pause();
-            }
-        }
+        stop();
 
         mPrimaryMediaPackage = packageName;
         mPrimaryMediaController = null;
+        if (packageName != null) {
+            String browseServiceName = getBrowseServiceClassName(packageName);
+            if (browseServiceName != null) {
+                mHandler.post(() -> mMediaBrowserConnector.connectTo(
+                        new ComponentName(packageName, browseServiceName)));
+            } else {
+                Log.e(CarLog.TAG_MEDIA, "Can't connect to BrowseService for media source: "
+                        + packageName);
+            }
+        }
 
         if (mSharedPrefs != null) {
             if (!TextUtils.isEmpty(mPrimaryMediaPackage)) {
@@ -314,20 +360,16 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                         controller.getPackageName())) {
                     setPrimaryMediaSource(controller.getPackageName());
                 }
-                // The primary MediaSource can be set via api call (e.g from app picker)
-                // and the MediaController will enter playing state some time after. This avoids
-                // re-setting the primary media source every time the MediaController changes state.
-                // Also, it's possible that a MediaSource will create a new MediaSession without
-                // us ever changing sources, which is we overwrite our previously saved controller.
-                if (mPrimaryMediaPackage.equals(controller.getPackageName())) {
-                    mPrimaryMediaController = controller;
-                }
                 return;
             }
         }
     }
 
     private boolean isMediaService(String packageName) {
+        return getBrowseServiceClassName(packageName) != null;
+    }
+
+    private String getBrowseServiceClassName(@NonNull String packageName) {
         PackageManager packageManager = mContext.getPackageManager();
         Intent mediaIntent = new Intent();
         mediaIntent.setPackage(packageName);
@@ -335,7 +377,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
         List<ResolveInfo> mediaServices = packageManager.queryIntentServices(mediaIntent,
                 PackageManager.GET_RESOLVED_FILTER);
-        return mediaServices.size() > 0;
+
+        if (mediaServices == null || mediaServices.isEmpty()) {
+            return null;
+        }
+        return mediaServices.get(0).serviceInfo.name;
     }
 
     private void saveLastMediaPackage(@NonNull String packageName) {
