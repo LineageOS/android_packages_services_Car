@@ -95,8 +95,7 @@ public class ControllerTest {
                 mLooperMock,
                 mWakeupPolicy,
                 mHandlerMock,
-                null,
-                mCarMock);
+                null);
         mController.setCarPowerManager(mCarPowerManagerMock);
         mFuture = new CompletableFuture<>();
         mCarUserServiceOriginal = CarLocalServices.getService(CarUserService.class);
