@@ -18,6 +18,7 @@ package android.car.cluster.sample;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import androidx.car.cluster.navigation.Destination;
 import androidx.car.cluster.navigation.Destination.Traffic;
 import androidx.car.cluster.navigation.Distance;
+import androidx.car.cluster.navigation.ImageReference;
 import androidx.car.cluster.navigation.Maneuver;
 import androidx.car.cluster.navigation.NavigationState;
 import androidx.car.cluster.navigation.Segment;
@@ -40,8 +42,12 @@ import java.time.ZonedDateTime;
 public class NavStateController {
     private static final String TAG = "Cluster.NavController";
 
+    private Handler mHandler = new Handler();
+
     private ImageView mManeuver;
+    private ImageView mProvidedManeuver;
     private LaneView mLane;
+    private LaneView mProvidedLane;
     private TextView mDistance;
     private TextView mSegment;
     private TextView mEta;
@@ -57,7 +63,9 @@ public class NavStateController {
      */
     public NavStateController(View container) {
         mManeuver = container.findViewById(R.id.maneuver);
+        mProvidedManeuver = container.findViewById(R.id.provided_maneuver);
         mLane = container.findViewById(R.id.lane);
+        mProvidedLane = container.findViewById(R.id.provided_lane);
         mDistance = container.findViewById(R.id.distance);
         mSegment = container.findViewById(R.id.segment);
         mEta = container.findViewById(R.id.eta);
@@ -86,15 +94,21 @@ public class NavStateController {
         mEta.setText(eta != null ? formatEta(eta) : null);
         mEta.setTextColor(getTrafficColor(traffic));
         mManeuver.setImageDrawable(getManeuverIcon(step != null ? step.getManeuver() : null));
+        setProvidedManeuverIcon(mProvidedManeuver,
+                step != null ? step.getManeuver().getIcon() : null);
         mDistance.setText(formatDistance(step != null ? step.getDistance() : null));
         mSegment.setText(state != null ? getSegmentString(state.getCurrentSegment()) : null);
         mCue.setRichText(step != null ? step.getCue() : null, mImageResolver);
 
         if (step != null && step.getLanes().size() > 0) {
+            mProvidedLane.setLanes(step.getLanesImage(), mImageResolver);
+            mProvidedLane.setVisibility(View.VISIBLE);
+
             mLane.setLanes(step.getLanes());
             mLane.setVisibility(View.VISIBLE);
         } else {
             mLane.setVisibility(View.GONE);
+            mProvidedLane.setVisibility(View.GONE);
         }
     }
 
@@ -136,6 +150,27 @@ public class NavStateController {
         }
 
         return null;
+    }
+
+    private void setProvidedManeuverIcon(ImageView view, ImageReference imageReference) {
+        if (mImageResolver == null || imageReference == null) {
+            view.setImageBitmap(null);
+            return;
+        }
+
+        mImageResolver
+                .getBitmap(imageReference, 0, view.getHeight())
+                .thenAccept(bitmap -> {
+                    mHandler.post(() -> {
+                        view.setImageBitmap(bitmap);
+                    });
+                })
+                .exceptionally(ex -> {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "Unable to fetch image for maneuver: " + imageReference);
+                    }
+                    return null;
+                });
     }
 
     private Drawable getManeuverIcon(@Nullable Maneuver maneuver) {
@@ -262,7 +297,7 @@ public class NavStateController {
 
         String unit = "";
 
-        switch(distance.getDisplayUnit()){
+        switch (distance.getDisplayUnit()) {
             case METERS:
                 unit = "m";
                 break;
