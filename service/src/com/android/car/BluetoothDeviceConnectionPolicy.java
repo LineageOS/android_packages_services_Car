@@ -33,9 +33,7 @@ import android.bluetooth.BluetoothPan;
 import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothUuid;
-import android.car.Car;
 import android.car.CarBluetoothManager;
-import android.car.CarNotConnectedException;
 import android.car.ICarBluetoothUserService;
 import android.car.ICarUserService;
 import android.car.drivingstate.CarUxRestrictions;
@@ -46,11 +44,9 @@ import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
@@ -142,8 +138,6 @@ public class BluetoothDeviceConnectionPolicy {
     private final CarPropertyService mCarPropertyService;
     private final CarPropertyListener mPropertyEventListener;
 
-    // Car service binder to setup listening for power manager updates
-    private final Car mCar;
     private CarPowerManager mCarPowerManager;
     private final CarPowerStateListener mCarPowerStateListener = new CarPowerStateListener() {
         @Override
@@ -173,28 +167,6 @@ public class BluetoothDeviceConnectionPolicy {
                     future.complete(null);
                 }
                 return;
-            }
-        }
-    };
-
-
-    private final ServiceConnection mCarServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.i(TAG, "Car is now connected, getting CarPowerManager service");
-            try {
-                mCarPowerManager = (CarPowerManager) mCar.getCarManager(Car.POWER_SERVICE);
-                mCarPowerManager.setListener(mCarPowerStateListener);
-            } catch (CarNotConnectedException e) {
-                Log.e(TAG, "Failed to get CarPowerManager instance", e);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.i(TAG, "Car is now disconnected");
-            if (mCarPowerManager != null) {
-                mCarPowerManager.clearListener();
             }
         }
     };
@@ -271,10 +243,6 @@ public class BluetoothDeviceConnectionPolicy {
             Log.w(TAG, "No Bluetooth Adapter Available");
         }
         mFastPairProvider = new FastPairProvider(mContext);
-
-        // Connect to car
-        mCar = Car.createCar(context, mCarServiceConnection);
-        mCar.connect();
     }
 
     /**
@@ -723,6 +691,8 @@ public class BluetoothDeviceConnectionPolicy {
         // Listen to various events coming from the vehicle.
         setupEventListenersLocked();
         mInitialized = true;
+        mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
+        mCarPowerManager.setListener(mCarPowerStateListener);
     }
 
     /**
@@ -891,10 +861,10 @@ public class BluetoothDeviceConnectionPolicy {
             Log.d(TAG, "release()");
         }
         mInitialized = false;
+        mCarPowerManager.clearListener();
         writeDeviceInfoToSettings();
         cleanupUserSpecificInfo();
         closeEventListeners();
-        mCar.disconnect();
     }
 
     /**

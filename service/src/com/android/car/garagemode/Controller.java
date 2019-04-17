@@ -17,17 +17,14 @@
 package com.android.car.garagemode;
 
 import android.app.job.JobScheduler;
-import android.car.Car;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 
+import com.android.car.CarLocalServices;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.concurrent.CompletableFuture;
@@ -42,28 +39,10 @@ public class Controller implements CarPowerStateListener {
     private final GarageMode mGarageMode;
     private final Handler mHandler;
     private final Context mContext;
-    private final Car mCar;
-    private final ServiceConnection mCarServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            LOG.i("Car is now connected, getting CarPowerManager service");
-            mCarPowerManager = (CarPowerManager) mCar.getCarManager(Car.POWER_SERVICE);
-            mCarPowerManager.setListener(Controller.this);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            LOG.i("Car is now disconnected!");
-            if (mCarPowerManager != null) {
-                mCarPowerManager.clearListener();
-            }
-        }
-    };
-
     private CarPowerManager mCarPowerManager;
 
     public Controller(Context context, Looper looper) {
-        this(context, looper, null, null, null, null);
+        this(context, looper, null, null, null);
     }
 
     public Controller(
@@ -71,20 +50,23 @@ public class Controller implements CarPowerStateListener {
             Looper looper,
             WakeupPolicy wakeupPolicy,
             Handler handler,
-            GarageMode garageMode,
-            Car car) {
+            GarageMode garageMode) {
         mContext = context;
         mHandler = (handler == null ? new Handler(looper) : handler);
         mWakeupPolicy =
                 (wakeupPolicy == null ? WakeupPolicy.initFromResources(context) : wakeupPolicy);
         mGarageMode = (garageMode == null ? new GarageMode(this) : garageMode);
-        if (car == null) {
-            LOG.i("Creating a connection to car service to get CarPowerManager");
-            mCar = Car.createCar(context, mCarServiceConnection);
-            mCar.connect();
-        } else {
-            mCar = car;
-        }
+    }
+
+    /** init */
+    public void init() {
+        mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
+        mCarPowerManager.setListener(Controller.this);
+    }
+
+    /** release */
+    public void release() {
+        mCarPowerManager.clearListener();
     }
 
     @Override
