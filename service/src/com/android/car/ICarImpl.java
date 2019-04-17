@@ -167,8 +167,8 @@ public class ICarImpl extends ICar.Stub {
         mCarTrustedDeviceService = new CarTrustedDeviceService(serviceContext);
         mCarMediaService = new CarMediaService(serviceContext);
 
+        CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
-        Log.d(TAG, "Adding CarTrustedDeviceService");
         CarLocalServices.addService(CarTrustedDeviceService.class,
                 mCarTrustedDeviceService);
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);

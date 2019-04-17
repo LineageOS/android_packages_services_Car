@@ -28,7 +28,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.Car;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
@@ -92,7 +91,6 @@ public class CarLocationServiceTest {
     private CarLocationService mCarLocationService;
     private Context mContext;
     private CountDownLatch mLatch;
-    private Car mCar;
     private File mTempDirectory;
     @Mock
     private Context mMockContext;
@@ -114,9 +112,8 @@ public class CarLocationServiceTest {
         mContext = InstrumentationRegistry.getTargetContext();
         mTempDirectory = new TemporaryDirectory(TAG).getDirectory();
         mLatch = new CountDownLatch(1);
-        mCar = new Car(mContext, null, null);
         mCarLocationService = new CarLocationService(
-                mMockContext, mMockCarPropertyService, mMockCarUserManagerHelper, mCar) {
+                mMockContext, mMockCarPropertyService, mMockCarUserManagerHelper) {
             @Override
             void asyncOperation(Runnable operation) {
                 super.asyncOperation(() -> {
