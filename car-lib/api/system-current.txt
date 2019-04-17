@@ -981,9 +981,12 @@ package android.car.trust {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void enrollmentHandshakeAccepted(android.bluetooth.BluetoothDevice);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) @NonNull public java.util.List<android.car.trust.TrustedDeviceInfo> getEnrolledDeviceInfoForUser(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public boolean isEscrowTokenActive(long, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeAllTrustedDevices(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeEscrowToken(long, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setBleCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setEnrollmentCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setTrustedDeviceEnrollmentEnabled(boolean);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setTrustedDeviceUnlockEnabled(boolean);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void startEnrollmentAdvertising();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void stopEnrollmentAdvertising();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void terminateEnrollmentHandshake();
@@ -1000,7 +1003,7 @@ package android.car.trust {
 
   public static interface CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback {
     method public void onAuthStringAvailable(android.bluetooth.BluetoothDevice, String);
-    method public void onEnrollmentHandshakeFailure(android.bluetooth.BluetoothDevice, int);
+    method public void onEnrollmentHandshakeFailure(@Nullable android.bluetooth.BluetoothDevice, int);
     method public void onEscrowTokenActiveStateChanged(long, boolean);
     method public void onEscrowTokenAdded(long);
     method public void onEscrowTokenRemoved(long);
