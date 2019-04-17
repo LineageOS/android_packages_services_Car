@@ -15,6 +15,7 @@
  */
 package android.car.cluster.renderer;
 
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.annotation.UiThread;
 import android.car.navigation.CarNavigationInstrumentCluster;
@@ -34,7 +35,20 @@ public abstract class NavigationRenderer {
     public abstract CarNavigationInstrumentCluster getNavigationProperties();
 
     /**
-     * Called when an event is fired to change the navigation state.
+     * Called when a navigation state change is received.
+     *
+     * @deprecated use {@link #onNavigationStateChanged(Bundle)} instead.
      */
-    public abstract void onEvent(int eventType, Bundle bundle);
+    @Deprecated
+    public void onEvent(int eventType, Bundle bundle) {}
+
+    /**
+     * Called when a navigation state change is received.
+     *
+     * @param bundle {@link android.os.Bundle} containing the description of the navigation state
+     *               change. This information can be parsed using
+     *               <a href="https://developer.android.com/reference/androidx/car/cluster/navigation/NavigationState.html#toParcelable()">
+     *               androidx.car.cluster.navigation.NavigationState#fromParcelable(Parcelable)</a>
+     */
+    public void onNavigationStateChanged(@Nullable Bundle bundle) {}
 }
