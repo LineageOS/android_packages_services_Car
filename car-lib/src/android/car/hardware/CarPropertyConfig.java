@@ -22,6 +22,7 @@ import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.VehicleAreaType;
 import android.car.VehicleAreaType.VehicleAreaTypeValue;
+import android.car.VehiclePropertyType;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
@@ -522,7 +523,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
          * @return Builder<T>
          */
         public Builder<T> addAreaConfig(int areaId, T min, T max) {
-            if (min == null && max == null) {
+            if (!isRangeAvailable(min, max)) {
                 mSupportedAreas.put(areaId, null);
             } else {
                 mSupportedAreas.put(areaId, new AreaConfig<>(min, max));
@@ -595,6 +596,23 @@ public final class CarPropertyConfig<T> implements Parcelable {
             return new CarPropertyConfig<>(mAccess, mAreaType, mChangeMode, mConfigArray,
                                            mConfigString, mMaxSampleRate, mMinSampleRate,
                                            mPropertyId, mSupportedAreas, mType);
+        }
+
+        private boolean isRangeAvailable(T min, T max) {
+            if (min == null || max == null) {
+                return false;
+            }
+            int propertyType = mPropertyId & VehiclePropertyType.MASK;
+            switch (propertyType) {
+                case VehiclePropertyType.INT32:
+                    return (Integer) min  != 0 || (Integer) max != 0;
+                case VehiclePropertyType.INT64:
+                    return (Long) min != 0L || (Long) max != 0L;
+                case VehiclePropertyType.FLOAT:
+                    return (Float) min != 0f || (Float) max != 0f;
+                default:
+                    return false;
+            }
         }
     }
 }
