@@ -29,7 +29,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.android.car.media.common.CrossfadeImageView;
+import com.android.car.apps.common.BackgroundImageView;
 import com.android.car.media.common.playback.PlaybackViewModel;
 import com.android.car.media.common.source.MediaSourceViewModel;
 
@@ -80,10 +80,10 @@ public class MusicFragment extends Fragment {
         innerViewModel.getTimeText().observe(getViewLifecycleOwner(),
                 timeText -> time.setText(timeText));
 
-        CrossfadeImageView albumBackground = view.findViewById(R.id.album_background);
+        BackgroundImageView albumBackground = view.findViewById(R.id.album_background);
         ImageView albumIcon = view.findViewById(R.id.album_art);
         innerViewModel.getAlbumArt().observe(getViewLifecycleOwner(), albumArt -> {
-            albumBackground.setImageBitmap(albumArt, true);
+            albumBackground.setBackgroundImage(albumArt, true);
             if (albumArt == null) {
                 albumIcon.setImageDrawable(getContext().getDrawable(R.drawable.ic_person));
             } else {
