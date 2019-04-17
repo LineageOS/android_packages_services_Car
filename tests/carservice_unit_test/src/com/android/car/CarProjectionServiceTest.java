@@ -24,6 +24,7 @@ import static android.car.projection.ProjectionStatus.PROJECTION_TRANSPORT_WIFI;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -63,6 +64,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -98,6 +100,9 @@ public class CarProjectionServiceTest {
     private CarInputService mCarInputService;
     @Mock
     private CarBluetoothService mCarBluetoothService;
+
+    @Mock
+    WifiScanner mWifiScanner;
 
     @Before
     public void setUp() {
@@ -247,9 +252,13 @@ public class CarProjectionServiceTest {
 
     @Test
     public void getWifiChannels() {
+        List<Integer> expectedWifiChannels = Arrays.asList(2400, 5600);
+        when(mWifiScanner.getAvailableChannels(anyInt())).thenReturn(expectedWifiChannels);
+        when(mContext.getSystemService(WifiScanner.class)).thenReturn(mWifiScanner);
+
         int[] wifiChannels = mService.getAvailableWifiChannels(WifiScanner.WIFI_BAND_BOTH_WITH_DFS);
         assertThat(wifiChannels).isNotNull();
-        assertThat(wifiChannels).isNotEmpty();
+        assertThat(wifiChannels).asList().containsExactlyElementsIn(expectedWifiChannels);
     }
 
     @Test
