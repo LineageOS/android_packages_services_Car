@@ -50,6 +50,7 @@ public class GarageModeService implements CarServiceBase {
      */
     @Override
     public void init() {
+        mController.init();
     }
 
     /**
@@ -57,6 +58,7 @@ public class GarageModeService implements CarServiceBase {
      */
     @Override
     public void release() {
+        mController.release();
     }
 
     /**
