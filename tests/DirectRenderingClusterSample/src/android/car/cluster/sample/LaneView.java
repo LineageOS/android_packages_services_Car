@@ -203,7 +203,7 @@ public class LaneView extends LinearLayout {
             case SHARP_RIGHT:
                 return mContext.getDrawable(R.drawable.direction_turn_sharp_right);
             case U_TURN_LEFT:
-                return mContext.getDrawable(R.drawable.direction_uturn);
+                return mContext.getDrawable(R.drawable.direction_uturn_left);
             case U_TURN_RIGHT:
                 return mContext.getDrawable(R.drawable.direction_uturn_right);
         }
