@@ -64,6 +64,9 @@ class CarTrustAgentBleManager extends BleManager {
     @Override
     public void onRemoteDeviceConnected(BluetoothDevice device) {
         if (getTrustedDeviceService() != null) {
+            if (device.getName() == null) {
+                retrieveDeviceName(device);
+            }
             getTrustedDeviceService().onRemoteDeviceConnected(device);
         }
     }
@@ -72,6 +75,13 @@ class CarTrustAgentBleManager extends BleManager {
     public void onRemoteDeviceDisconnected(BluetoothDevice device) {
         if (getTrustedDeviceService() != null) {
             getTrustedDeviceService().onRemoteDeviceDisconnected(device);
+        }
+    }
+
+    @Override
+    protected void onDeviceNameRetrieved(@Nullable String deviceName) {
+        if (getTrustedDeviceService() != null) {
+            getTrustedDeviceService().onDeviceNameRetrieved(deviceName);
         }
     }
 
