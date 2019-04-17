@@ -20,6 +20,9 @@ android_library {
             enabled: false,
         },
     },
+    static_libs: [
+      "ukey2",
+    ],
     srcs: [
         "src/**/*.java",
     ],
