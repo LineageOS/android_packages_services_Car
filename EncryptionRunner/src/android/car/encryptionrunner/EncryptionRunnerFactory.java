@@ -21,6 +21,17 @@ package android.car.encryptionrunner;
  */
 public class EncryptionRunnerFactory {
 
+    private EncryptionRunnerFactory() {
+        // prevent instantiation.
+    }
+
+    /**
+     * Creates a new {@link EncryptionRunner}.
+     */
+    public static EncryptionRunner newRunner() {
+        return new Ukey2EncryptionRunner();
+    }
+
     /**
      * Creates a new {@link EncryptionRunner} one that doesn't actually do encryption but is useful
      * for testing.

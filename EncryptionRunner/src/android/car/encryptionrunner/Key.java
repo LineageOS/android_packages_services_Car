@@ -18,6 +18,8 @@ package android.car.encryptionrunner;
 
 import android.annotation.NonNull;
 
+import java.security.SignatureException;
+
 /**
  * Represents a serializable encryption key.
  */
@@ -26,4 +28,22 @@ public interface Key {
      * Returns a serialized encryption key.
      */
     @NonNull byte[] asBytes();
+
+    /**
+     * Encrypts data using this key.
+     *
+     * @param data the data to be encrypted
+     * @return the encrypted data.
+     */
+    byte[] encryptData(@NonNull byte[] data);
+
+    /**
+     * Decrypts data using this key.
+     *
+     * @param encryptedData The encrypted data.
+     * @return decrypted data.
+     *
+     * @throws SignatureException if encrypted data is not properly signed.
+     */
+    byte[] decryptData(@NonNull byte[] encryptedData) throws SignatureException;
 }
