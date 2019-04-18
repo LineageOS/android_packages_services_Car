@@ -1,0 +1,12 @@
+java_library_static {
+    name: "blestream-protos",
+    host_supported: true,
+    proto: {
+        type: "lite",
+    },
+    srcs: ["src/**/*.proto"],
+    no_framework_libs: true,
+    jarjar_rules: "jarjar-rules.txt",
+    sdk_version: "28",
+    java_version: "1.8",
+}
