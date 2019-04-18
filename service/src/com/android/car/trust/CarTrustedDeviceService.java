@@ -43,11 +43,10 @@ public class CarTrustedDeviceService implements CarServiceBase {
     private CarTrustAgentBleManager mCarTrustAgentBleManager;
     private SharedPreferences mTrustAgentTokenPreferences;
 
-
     public CarTrustedDeviceService(Context context) {
         mContext = context;
         mCarTrustAgentBleManager = new CarTrustAgentBleManager(context);
-        mCarTrustAgentEnrollmentService = new CarTrustAgentEnrollmentService(this,
+        mCarTrustAgentEnrollmentService = new CarTrustAgentEnrollmentService(mContext, this,
                 mCarTrustAgentBleManager);
         mCarTrustAgentUnlockService = new CarTrustAgentUnlockService(this,
                 mCarTrustAgentBleManager);
@@ -98,6 +97,10 @@ public class CarTrustedDeviceService implements CarServiceBase {
     void onRemoteDeviceDisconnected(BluetoothDevice device) {
         mCarTrustAgentEnrollmentService.onRemoteDeviceDisconnected(device);
         mCarTrustAgentUnlockService.onRemoteDeviceDisconnected(device);
+    }
+
+    void onDeviceNameRetrieved(String deviceName) {
+        mCarTrustAgentEnrollmentService.onDeviceNameRetrieved(deviceName);
     }
 
     void cleanupBleService() {

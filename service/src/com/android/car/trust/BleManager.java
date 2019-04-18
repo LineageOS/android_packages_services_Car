@@ -20,6 +20,7 @@ import static android.bluetooth.BluetoothProfile.GATT_SERVER;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattServerCallback;
@@ -36,7 +37,11 @@ import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import com.android.car.Utils;
+
+import java.util.UUID;
 
 /**
  * A generic class that manages BLE operations like start/stop advertising, notifying connects/
@@ -50,12 +55,20 @@ public abstract class BleManager {
     private static final int BLE_RETRY_LIMIT = 5;
     private static final int BLE_RETRY_INTERVAL_MS = 1000;
 
+    // https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.service.generic_access.xml
+    private static final UUID GENERIC_ACCESS_PROFILE_UUID =
+            UUID.fromString("00001800-0000-1000-8000-00805f9b34fb");
+    //https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.characteristic.gap.device_name.xml
+    private static final UUID DEVICE_NAME_UUID =
+            UUID.fromString("00002a00-0000-1000-8000-00805f9b34fb");
+
     private final Handler mHandler = new Handler();
 
     private final Context mContext;
     private BluetoothManager mBluetoothManager;
     private BluetoothLeAdvertiser mAdvertiser;
     private BluetoothGattServer mGattServer;
+    private BluetoothGatt mBluetoothGatt;
     private int mAdvertiserStartCount;
 
     BleManager(Context context) {
@@ -154,6 +167,13 @@ public abstract class BleManager {
         }
     }
 
+    /**
+     * Connect the Gatt server of the remote device to retrieve device name.
+     */
+    protected final void retrieveDeviceName(BluetoothDevice device) {
+        mBluetoothGatt = device.connectGatt(getContext(), false, mGattCallback);
+    }
+
     protected Context getContext() {
         return mContext;
     }
@@ -193,6 +213,14 @@ public abstract class BleManager {
         }
         mGattServer.close();
         mGattServer = null;
+    }
+
+    /**
+     * Triggered when the name of the remote device is retrieved.
+     *
+     * @param deviceName Name of the remote device.
+     */
+    protected void onDeviceNameRetrieved(@Nullable String deviceName) {
     }
 
     /**
@@ -290,4 +318,66 @@ public abstract class BleManager {
                             preparedWrite, responseNeeded, offset, value);
                 }
             };
+
+    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Gatt Connection State Change: " + newState);
+            }
+            switch (newState) {
+                case BluetoothProfile.STATE_CONNECTED:
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "Gatt connected");
+                    }
+                    mBluetoothGatt.discoverServices();
+                    break;
+                case BluetoothProfile.STATE_DISCONNECTED:
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "Gatt Disconnected");
+                    }
+                    break;
+                default:
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG,
+                                "Connection state not connecting or disconnecting; ignoring: "
+                                + newState);
+                    }
+            }
+        }
+
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Gatt Services Discovered");
+            }
+            BluetoothGattService gapService = mBluetoothGatt.getService(
+                    GENERIC_ACCESS_PROFILE_UUID);
+            if (gapService == null) {
+                Log.e(TAG, "Generic Access Service is Null");
+                return;
+            }
+            BluetoothGattCharacteristic deviceNameCharacteristic = gapService.getCharacteristic(
+                    DEVICE_NAME_UUID);
+            if (deviceNameCharacteristic == null) {
+                Log.e(TAG, "Device Name Characteristic is Null");
+                return;
+            }
+            mBluetoothGatt.readCharacteristic(deviceNameCharacteristic);
+        }
+
+        @Override
+        public void onCharacteristicRead(BluetoothGatt gatt,
+                BluetoothGattCharacteristic characteristic, int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                String deviceName = characteristic.getStringValue(0);
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "BLE Device Name: " + deviceName);
+                }
+                onDeviceNameRetrieved(deviceName);
+            } else {
+                Log.e(TAG, "Reading GAP Failed: " + status);
+            }
+        }
+    };
 }

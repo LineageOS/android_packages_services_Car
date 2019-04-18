@@ -120,7 +120,7 @@ public final class TrustedDeviceInfo implements Parcelable {
      * @return string contains current trusted device information with certain format
      */
     public String serialize() {
-        return mAddress + DEVICE_INFO_DELIMITER + mHandle;
+        return String.join(DEVICE_INFO_DELIMITER, String.valueOf(mHandle), mAddress, mName);
     }
 
     /**
@@ -132,8 +132,7 @@ public final class TrustedDeviceInfo implements Parcelable {
      */
     public static TrustedDeviceInfo deserialize(String deviceInfo) {
         String[] res = deviceInfo.split(DEVICE_INFO_DELIMITER);
-        // TODO(b/124052887) to get the real device local name.
-        return new TrustedDeviceInfo(Long.valueOf(res[1]), res[0], DEFAULT_NAME);
+        return new TrustedDeviceInfo(Long.valueOf(res[0]), res[1], res[2]);
     }
 
     public static final Creator CREATOR = new Creator() {
