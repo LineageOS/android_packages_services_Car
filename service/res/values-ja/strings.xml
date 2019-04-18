@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"カーオーディオの音量の調節"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"カーオーディオの設定の管理"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"車両ハードウェア抽象化レイヤのエミュレート"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"[音量を下げる] イベントの通知の受信"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"車内で他の音声が再生されるときにアプリの音量が下がることをアプリに通知することを許可します。"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"内部テスト用に車の車両ハードウェア抽象化レイヤをエミュレートします。"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"カーオーディオの音量を調節します。"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"カーオーディオの設定を調節します。"</string>

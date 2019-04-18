@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"контролисање јачине звука у аутомобилу"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"управљање подешавањима звука у аутомобилу"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"емулација HAL-а возила"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"пријем догађаја са утишавањем звука у позадини"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Дозвољава апликацији да буде обавештена када се њен звук смањује због других звукова који се чују у аутомобилу."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Емулира HAL возила за аутомобил у сврхе интерног тестирања"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Контролише јачину звука у аутомобилу."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Контролише подешавања звука у аутомобилу."</string>

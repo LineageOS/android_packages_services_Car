@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"kontrolatu autoaren audioaren bolumena"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"kudeatu autoaren audio-ezarpenak"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"emulatu autoaren hardware-abstrakzioaren geruza (HAL)"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"jaso bolumena jaisten duten gertaerak"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Autoan erreproduzitzen ari den beste audio baten bolumena jaisteko baimena ematen die aplikazio baten jakinarazpenei."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Emulatu autoaren hardware-abstrakzioaren geruza (HAL) barneko probak egiteko."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Kontrolatu autoaren audioaren bolumena."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Kontrolatu autoaren audio-ezarpenak."</string>

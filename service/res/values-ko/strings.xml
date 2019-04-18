@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"차량 오디오 볼륨 제어"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"차량 오디오 설정 관리"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"차량 HAL 에뮬레이션"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"오디오 볼륨 낮추기 이벤트 수신"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"앱을 허용하면 차량에서 다른 오디오가 재생되어 볼륨이 줄어들 때 알림을 받을 수 있습니다."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"내부 테스트 목적으로 차량의 HAL을 에뮬레이션"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"차량 오디오 볼륨 제어"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"차량 오디오 설정 제어"</string>

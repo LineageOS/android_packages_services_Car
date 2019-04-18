@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"控制車輛音量"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"管理車輛音訊設定"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"模擬車輛 HAL"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"接收應用程式音量降低通知"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"當車內播放其他音訊而導致應用程式音量降低時，允許該應用程式收到相關通知。"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"模擬車輛 HAL 做為內部測試用途。"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"控制車輛音訊音量。"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"控制車輛音訊設定。"</string>

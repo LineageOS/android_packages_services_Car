@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"көліктегі аудионың дыбыс деңгейін басқару"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"көліктің аудио параметрлерін басқару"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"көліктің HAL интерфейсін эмуляциялау"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"дыбысты басу оқиғалары туралы хабарландырулар алу"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Көлікте басқа аудиомазмұн ойнатылғандықтан, қолданбаға оның дыбысы азайтылатыны туралы хабарландыру алуға рұқсат етіледі."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Ішкі сынақтар үшін көліктің HAL интерфейсін қолдануға болады."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Көліктегі аудионың дыбыс деңгейін басқаруға болады."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Көліктің аудио параметрлерін басқару"</string>

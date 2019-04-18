@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"कार में ऑडियो की आवाज़ नियंत्रित कर सकता है"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"कार में ऑडियो की सेटिंग मैनेज कर सकता है"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"वाहन एलएएल की तरह काम करना"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"आवाज़ कम होने के इवेंट की सूचना पाएं"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"जब कार में चल रहे दूसरे ऑडियो की वजह से किसी ऐप्लिकेशन की आवाज़ कम हो तो उसे इसकी सूचना पाने की मंज़ूरी दें."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"अंदरूनी टेस्ट के मकसद से आपकी कार के vehicle HAL की तरह काम कर सकता है."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"आपकी कार के ऑडियो की आवाज़ नियंत्रित कर सकता है."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"आपकी कार की ऑडियो सेटिंग नियंत्रित कर सकता है."</string>

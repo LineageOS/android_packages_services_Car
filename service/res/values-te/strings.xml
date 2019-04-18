@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"కారు ఆడియోను నియత్రించగలవు"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"కారు ఆడియో సెట్టింగ్‌లను నియంత్రించగలవు"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"వాహన HALను అనుకరించగలవు"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"ఆడియో తగ్గినప్పుడు తెలియజేయి"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"కారులో వేరే ఆడియోలు ప్లే చేయడం వల్ల, దీని వాల్యూమ్ తగ్గినప్పుడు ఆ సమాచారాన్ని తెలపడానికి యాప్‌కు అనుమతిస్తుంది."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"అంతర్గత పరీక్ష ప్రయోజనం కోసం మీ కారు వాహనం HALను మార్చుకోండి."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"మీ కారు యొక్క ఆడియో వాల్యూమ్‌ని నియంత్రించండి."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"మీ కారు ఆడియో సెట్టింగ్‌లను నియంత్రించండి."</string>

@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"audiovolume van auto bedienen"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"audio-instellingen van auto beheren"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"voertuig-HAL emuleren"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"gebeurtenissen met betrekking tot verlagen van audiovolume ontvangen"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Hiermee kan een app een melding ontvangen wanneer het bijbehorende volume wordt verlaagd als gevolg van andere audio die wordt afgespeeld in de auto."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"De voertuig-HAL van je auto emuleren voor interne tests"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Het volume van je auto bedienen."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"De audio-instellingen van je auto bedienen."</string>

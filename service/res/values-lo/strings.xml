@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"ຄວບຄຸມລະດັບເຄື່ອງສຽງໃນລົດ"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"ຈັດການການຕັ້ງຄ່າສຽງຂອງລົດ"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"ຈຳລອງ HAL ພາຫະນະ"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"ຮັບເຫດການຜ່ອນສຽງ"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"ອະນຸຍາດໃຫ້ແອັບໄດ້ຮັບການແຈ້ງເຕືອນ ເມື່ອລະດັບສຽງຂອງມັນຖືກຫຼຸດລົງ ເນືອງຈາກມີການຫຼິ້ນສຽງອື່ນຢູ່ໃນລົດ."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"ຈໍາລອງ HAL ພາຫະນະຂອງລົດທ່ານສຳລັບຈຸດປະສົງການທົດສອບພາຍໃນ."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"ຄວບຄຸມລະດັບສຽງຂອງເຄື່ອງສຽງໃນລົດຂອງທ່ານ."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"ຄວບຄຸມການຕັ້ງຄ່າເຄື່ອງສຽງໃນລົດຂອງທ່ານ."</string>

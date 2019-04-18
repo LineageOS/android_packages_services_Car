@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"ကား၏ အသံအတိုးအကျယ်ကို ထိန်းချုပ်ပါမည်"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"ကား၏ အသံဆက်တင်များကို စီမံပါမည်"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"ယာဉ်၏ \"HAL အလွှာ\" ကို အသွင်ယူလုပ်ဆောင်ရန်"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"နောက်ခံသံလျှော့ချမှု ဖြစ်ရပ်များ ရယူရန်"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"ကားထဲတွင် အခြားအသံဖွင့်ထားသဖြင့် အက်ပ်၏အသံ လျှော့ထားသည့်အခါ ၎င်းကို အကြောင်းကြားခွင့်ပြုသည်။"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"အတွင်းပိုင်းစမ်းသပ်မှုဆိုင်ရာ ရည်ရွယ်ချက်အတွက် သင့်ယာဉ်၏ HAL အလွှာကို အသွင်ယူလုပ်ဆောင်ပါမည်။"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"သင့်ကားတွင် အသံအတိုးအကျယ်ကို ထိမ်းချုပ်သည်။"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"သင့်ကားတွင် အသံဆက်တင်များကို ထိမ်းချုပ်ပါမည်။"</string>

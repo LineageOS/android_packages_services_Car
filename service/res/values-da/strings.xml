@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"styre bilens lydstyrke"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"administrere bilens lydindstillinger"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"efterligne Vehicle HAL (Hardware Abstraction Layer)"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"modtag lyddæmpningshændelser"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Tillader, at en app får besked, når der skrues ned for dens lydstyrke på grund af andre lyde, der afspilles i bilen."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Efterlign bilens Vehicle HAL (Hardware Abstraction Layer) til interne testformål."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Styr lydstyrken i din bil."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Styr bilens lydindstillinger."</string>

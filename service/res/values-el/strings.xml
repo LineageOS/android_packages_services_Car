@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"έλεγχος έντασης ήχου αυτοκινήτου"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"διαχείριση των ρυθμίσεων ήχου του αυτοκινήτου"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"προσομοίωση HAL οχήματος"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"λήψη συμβάντων μείωσης έντασης ήχου"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Επιτρέπει σε μια εφαρμογή να ενημερώνεται όταν μειώνεται η ένταση του ήχου της λόγω αναπαραγωγής άλλου ήχου στο αυτοκίνητο."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Προσομοίωση του HAL οχήματος του αυτοκινήτου σας για εσωτερική δοκιμή."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Έλεγχος έντασης ήχου του αυτοκινήτου σας."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Ελέγξτε τις ρυθμίσεις ήχου του αυτοκινήτου σας."</string>

@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"ја контролира јачината на звукот на автомобилот"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"управува со поставките за звук на автомобилот"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"го поддржува HAL за возило"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"примај настани за намалување јачина на звук"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Овозможува апликацијата да биде известена кога јачината на нејзиниот звук се намалува кога е пуштено друго аудио во колата."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Го поддржува HAL за возило на автомобилот за внатрешно тестирање."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Ја контролира јачината на звукот на автомобилот."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Ги контролира поставките за звук на автомобилот."</string>
