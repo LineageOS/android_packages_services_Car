@@ -260,8 +260,12 @@ public class VmsBrokerService {
      * @param subscriber Subscriber that was disconnected
      */
     public void removeDeadSubscriber(IVmsSubscriberClient subscriber) {
+        boolean subscriptionStateChanged;
         synchronized (mLock) {
-            mRouting.removeDeadSubscriber(subscriber);
+            subscriptionStateChanged = mRouting.removeDeadSubscriber(subscriber);
+        }
+        if (subscriptionStateChanged) {
+            notifyOfSubscriptionChange();
         }
     }
 

@@ -16,8 +16,11 @@
               "mText": "Stay on"
             },
             {
+              "mText": "US 101",
               "mImage": {
-                "mContentUri": "content://com.google.android.car.kitchensink.cluster.clustercontentprovider/img/US_101.png"
+                "mContentUri": "content://com.google.android.car.kitchensink.cluster.clustercontentprovider/img/US_101.png",
+                "mOriginalWidth": 60,
+                "mOriginalHeight": 52
               }
             },
             {

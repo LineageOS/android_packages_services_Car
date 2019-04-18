@@ -71,5 +71,8 @@
     <!-- Corner radius of system dialogs -->
     <dimen name="config_dialogCornerRadius">16dp</dimen>
 
+    <!-- Set CarUsbHandler as the USB handling component by default -->
+    <string name="config_UsbDeviceConnectionHandling_component">android.car.usb.handler/android.car.usb.handler.UsbHostManagementActivity</string>
+
     <string name="config_headlineFontFamilyMedium">sans-serif-medium</string>
 </resources>

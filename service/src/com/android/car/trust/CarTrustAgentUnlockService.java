@@ -17,6 +17,7 @@
 package com.android.car.trust;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.android.car.Utils;
@@ -31,6 +32,7 @@ import java.io.PrintWriter;
  */
 public class CarTrustAgentUnlockService {
     private static final String TAG = "CarTrustAgentUnlock";
+    private static final String TRUSTED_DEVICE_UNLOCK_ENABLED_KEY = "trusted_device_unlock_enabled";
     private final CarTrustedDeviceService mTrustedDeviceService;
     private final CarTrustAgentBleManager mCarTrustAgentBleManager;
     private CarTrustAgentUnlockDelegate mUnlockDelegate;
@@ -68,6 +70,17 @@ public class CarTrustAgentUnlockService {
     }
 
     /**
+     * Enable or disable authentication of the head unit with a trusted device.
+     *
+     * @param isEnabled when set to {@code false}, head unit will not be
+     * discoverable to unlock the user. Setting it to {@code true} will enable it back.
+     */
+    public void setTrustedDeviceUnlockEnabled(boolean isEnabled) {
+        SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
+        editor.putBoolean(TRUSTED_DEVICE_UNLOCK_ENABLED_KEY, isEnabled);
+        editor.apply();
+    }
+    /**
      * Set a delegate that implements {@link CarTrustAgentUnlockDelegate}. The delegate will be
      * handed the auth related data (token and handle) when it is received from the remote
      * trusted device. The delegate is expected to use that to authorize the user.
@@ -80,6 +93,11 @@ public class CarTrustAgentUnlockService {
      * Start Unlock Advertising
      */
     void startUnlockAdvertising() {
+        if (!mTrustedDeviceService.getSharedPrefs().getBoolean(TRUSTED_DEVICE_UNLOCK_ENABLED_KEY,
+                true)) {
+            Log.e(TAG, "Trusted Device Unlock is disabled");
+            return;
+        }
         mTrustedDeviceService.getCarTrustAgentEnrollmentService().stopEnrollmentAdvertising();
         stopUnlockAdvertising();
         mCarTrustAgentBleManager.startUnlockAdvertising();

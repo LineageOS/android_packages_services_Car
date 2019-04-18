@@ -16,11 +16,14 @@
 package android.car.cluster.sample;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 /**
  * This class serves as a template for sending to specific clients of the broadcaster.
  */
 public abstract class SenderThread extends Thread {
+    private static final String TAG = "Cluster.SenderThread";
+
     private Handler mHandler;
 
     SenderThread(Handler handler) {
@@ -34,8 +37,10 @@ public abstract class SenderThread extends Thread {
      * Tells the broadcasting thread to stop and close everything in progress, and start over again.
      * It will kill the current instance of this thread, and produce a new one.
      */
-    void restart() {
+    synchronized void restart() {
         if (mHandler.hasMessages(NetworkedVirtualDisplay.MSG_START)) return;
+        Log.i(TAG, "Sending STOP and START msgs to NetworkedVirtualDisplay");
+
         mHandler.sendMessage(Message.obtain(mHandler, NetworkedVirtualDisplay.MSG_STOP));
         mHandler.sendMessage(Message.obtain(mHandler, NetworkedVirtualDisplay.MSG_START));
     }

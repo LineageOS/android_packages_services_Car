@@ -16,6 +16,8 @@
 
 package com.android.car.trust;
 
+import static android.car.trust.CarTrustAgentEnrollmentManager.ENROLLMENT_NOT_ALLOWED;
+
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
@@ -23,6 +25,7 @@ import android.car.trust.ICarTrustAgentBleCallback;
 import android.car.trust.ICarTrustAgentEnrollment;
 import android.car.trust.ICarTrustAgentEnrollmentCallback;
 import android.car.trust.TrustedDeviceInfo;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -30,6 +33,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.android.car.R;
 import com.android.car.Utils;
 import com.android.internal.annotations.GuardedBy;
 
@@ -51,6 +55,8 @@ import java.util.Set;
 public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stub {
     private static final String TAG = "CarTrustAgentEnroll";
     private static final String FAKE_AUTH_STRING = "000000";
+    private static final String TRUSTED_DEVICE_ENROLLMENT_ENABLED_KEY =
+            "trusted_device_enrollment_enabled";
     private final CarTrustedDeviceService mTrustedDeviceService;
     // List of clients listening to Enrollment state change events.
     private final List<EnrollmentStateClient> mEnrollmentStateClients = new ArrayList<>();
@@ -64,9 +70,12 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     @GuardedBy("this")
     private boolean mEnrollmentHandshakeAccepted;
     private final Map<Long, Boolean> mTokenActiveState = new HashMap<>();
+    private String mDeviceName;
+    private final Context mContext;
 
-    public CarTrustAgentEnrollmentService(CarTrustedDeviceService service,
+    public CarTrustAgentEnrollmentService(Context context, CarTrustedDeviceService service,
             CarTrustAgentBleManager bleService) {
+        mContext = context;
         mTrustedDeviceService = service;
         mCarTrustAgentBleManager = bleService;
     }
@@ -94,6 +103,18 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
      */
     @Override
     public void startEnrollmentAdvertising() {
+        if (!mTrustedDeviceService.getSharedPrefs()
+                .getBoolean(TRUSTED_DEVICE_ENROLLMENT_ENABLED_KEY, true)) {
+            Log.e(TAG, "Trusted Device Enrollment disabled");
+            for (EnrollmentStateClient client : mEnrollmentStateClients) {
+                try {
+                    client.mListener.onEnrollmentHandshakeFailure(null, ENROLLMENT_NOT_ALLOWED);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "onEnrollmentHandshakeFailure dispatch failed", e);
+                }
+            }
+            return;
+        }
         // Stop any current broadcasts
         mTrustedDeviceService.getCarTrustAgentUnlockService().stopUnlockAdvertising();
         stopEnrollmentAdvertising();
@@ -150,9 +171,53 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         return false;
     }
 
+    /**
+     * Remove the Token associated with the given handle for the given user.
+     *
+     * @param handle handle corresponding to the escrow token
+     * @param uid user id
+     */
     @Override
     public void removeEscrowToken(long handle, int uid) {
         mEnrollmentDelegate.removeEscrowToken(handle, uid);
+    }
+
+    /**
+     * Remove all Trusted devices associated with the given user.
+     *
+     * @param uid user id
+     */
+    @Override
+    public void removeAllTrustedDevices(int uid) {
+        for (TrustedDeviceInfo device: getEnrolledDeviceInfosForUser(uid)) {
+            removeEscrowToken(device.getHandle(), uid);
+        }
+    }
+
+    /**
+     * Enable or disable enrollment of a Trusted device.  When disabled,
+     * {@link android.car.trust.CarTrustAgentEnrollmentManager#ENROLLMENT_NOT_ALLOWED} is returned,
+     * when {@link #startEnrollmentAdvertising()} is called by a client.
+     *
+     * @param isEnabled {@code true} to enable; {@code false} to disable the feature.
+     */
+    @Override
+    public void setTrustedDeviceEnrollmentEnabled(boolean isEnabled) {
+        SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
+        editor.putBoolean(TRUSTED_DEVICE_ENROLLMENT_ENABLED_KEY, isEnabled);
+        editor.apply();
+    }
+
+    /**
+     * Enable or disable authentication of the head unit with a trusted device.
+     *
+     * @param isEnabled when set to {@code false}, head unit will not be
+     * discoverable to unlock the user.  Setting it to {@code true} will enable it back.
+     */
+    @Override
+    public void setTrustedDeviceUnlockEnabled(boolean isEnabled) {
+        mTrustedDeviceService.getCarTrustAgentUnlockService()
+            .setTrustedDeviceUnlockEnabled(isEnabled);
     }
 
     /**
@@ -212,19 +277,6 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             removeEscrowToken(handle, uid);
             return;
         }
-
-        SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
-        // To conveniently get the user id to unlock when handle is received.
-        editor.putInt(String.valueOf(handle), uid);
-        Set<String> deviceInfo = mTrustedDeviceService.getSharedPrefs().getStringSet(
-                String.valueOf(uid), new HashSet<>());
-        // TODO(b/124052887) to get readable name of the device, now we use mac address as
-        // temporary solution
-        deviceInfo.add(new TrustedDeviceInfo(handle, mRemoteEnrollmentDevice.getAddress(),
-                        TrustedDeviceInfo.DEFAULT_NAME).serialize());
-        // To conveniently get the devices info regarding certain user.
-        editor.putStringSet(String.valueOf(uid), deviceInfo);
-        editor.apply();
         for (EnrollmentStateClient client : mEnrollmentStateClients) {
             try {
                 client.mListener.onEscrowTokenAdded(handle);
@@ -242,7 +294,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             try {
                 client.mListener.onEscrowTokenRemoved(handle);
             } catch (RemoteException e) {
-                Log.e(TAG, "onEscrowTokenAdded dispatch failed", e);
+                Log.e(TAG, "onEscrowTokenRemoved dispatch failed", e);
             }
         }
         SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
@@ -274,6 +326,24 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         mTokenActiveState.put(handle, isTokenActive);
         dispatchEscrowTokenActiveStateChanged(handle, isTokenActive);
         if (isTokenActive) {
+            SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
+            // To conveniently get the user id to unlock when handle is received.
+            editor.putInt(String.valueOf(handle), uid);
+            Set<String> deviceInfo = mTrustedDeviceService.getSharedPrefs().getStringSet(
+                    String.valueOf(uid), new HashSet<>());
+            String deviceName;
+            if (mRemoteEnrollmentDevice.getName() != null) {
+                deviceName = mRemoteEnrollmentDevice.getName();
+            } else if (mDeviceName != null) {
+                deviceName = mDeviceName;
+            } else {
+                deviceName = mContext.getString(R.string.trust_device_default_name);
+            }
+            deviceInfo.add(new TrustedDeviceInfo(handle, mRemoteEnrollmentDevice.getAddress(),
+                    deviceName).serialize());
+            // To conveniently get the devices info regarding certain user.
+            editor.putStringSet(String.valueOf(uid), deviceInfo);
+            editor.apply();
             mCarTrustAgentBleManager.sendEnrollmentHandle(mRemoteEnrollmentDevice, handle);
         } else {
             removeEscrowToken(handle, uid);
@@ -343,6 +413,10 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             return;
         }
         mEnrollmentDelegate.addEscrowToken(value, ActivityManager.getCurrentUser());
+    }
+
+    void onDeviceNameRetrieved(String deviceName) {
+        mDeviceName = deviceName;
     }
 
     // TODO(b/11788064) Fake Authentication until we hook up the crypto lib

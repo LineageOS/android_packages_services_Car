@@ -28,14 +28,14 @@ import android.os.Bundle;
  */
 interface IInstrumentClusterNavigation {
     /**
-     * Called when an event is fired to change the navigation state. Content of this events can be
-     * interpreted using androidx.car.car-cluster API.
+     * Called when there is a change on the navigation state.
      *
-     * @param eventType type of navigation state change
      * @param bundle {@link android.os.Bundle} containing the description of the navigation state
-     *               change.
+     *               change. This information can be parsed using
+     *               <a href="https://developer.android.com/reference/androidx/car/cluster/navigation/NavigationState.html#toParcelable()">
+     *               androidx.car.cluster.navigation.NavigationState#fromParcelable(Parcelable)</a>
      */
-    void onEvent(int eventType, in Bundle bundle);
+    void onNavigationStateChanged(in Bundle bundle);
 
     /**
      * Returns attributes of instrument cluster for navigation.

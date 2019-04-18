@@ -16,6 +16,9 @@
 
 package com.android.car;
 
+import android.annotation.Nullable;
+import android.car.hardware.power.CarPowerManager;
+import android.content.Context;
 import android.util.ArrayMap;
 import android.util.Log;
 
@@ -77,5 +80,20 @@ public class CarLocalServices {
         synchronized (sLocalServiceObjects) {
             sLocalServiceObjects.clear();
         }
+    }
+
+    /**
+     * Create CarPowerManager from registered CarPowerManagementService.
+     * @param context
+     * @return Newly created CarPowerManager. It will return null if CarPowerManagementService is
+     * not registered, which can only happen in test setup.
+     */
+    @Nullable
+    public static CarPowerManager createCarPowerManager(Context context) {
+        CarPowerManagementService service = getService(CarPowerManagementService.class);
+        if (service == null) {
+            return null;
+        }
+        return new CarPowerManager(service, context, null);
     }
 }
