@@ -27,13 +27,11 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -62,10 +60,6 @@ public class ActivityBlockingActivity extends Activity {
     private TextView mExitButtonMessage;
     private Button mExitButton;
 
-    // Exiting depends on Car connection, which might not be available at the time exit was
-    // requested (e.g. user presses Exit Button). In that case, we record exiting was requested, and
-    // Car connection will perform exiting once it is established.
-    private boolean mExitRequested;
     private int mBlockedTaskId;
 
     @Override
@@ -83,28 +77,16 @@ public class ActivityBlockingActivity extends Activity {
 
         // Listen to the CarUxRestrictions so this blocking activity can be dismissed when the
         // restrictions are lifted.
-        mCar = Car.createCar(this, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                if (mExitRequested) {
-                    handleRestartingTask();
-                }
-                mUxRManager = (CarUxRestrictionsManager) mCar.getCarManager(
-                        Car.CAR_UX_RESTRICTION_SERVICE);
-                // This activity would have been launched only in a restricted state.
-                // But ensuring when the service connection is established, that we are still
-                // in a restricted state.
-                handleUxRChange(mUxRManager.getCurrentCarUxRestrictions());
-                mUxRManager.registerListener(ActivityBlockingActivity.this::handleUxRChange);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                finish();
-                mUxRManager = null;
-            }
-        });
-        mCar.connect();
+        // This Activity should be launched only after car service is initialized. Currently this
+        // Activity is only launched from CPMS. So this is safe to do.
+        mCar = Car.createCar(this);
+        mUxRManager = (CarUxRestrictionsManager) mCar.getCarManager(
+                Car.CAR_UX_RESTRICTION_SERVICE);
+        // This activity would have been launched only in a restricted state.
+        // But ensuring when the service connection is established, that we are still
+        // in a restricted state.
+        handleUxRChange(mUxRManager.getCurrentCarUxRestrictions());
+        mUxRManager.registerListener(ActivityBlockingActivity.this::handleUxRChange);
     }
 
     @Override
@@ -207,11 +189,7 @@ public class ActivityBlockingActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mCar.isConnected() && mUxRManager != null) {
-            mUxRManager.unregisterListener();
-            mUxRManager = null;
-            mCar.disconnect();
-        }
+        mUxRManager.unregisterListener();
     }
 
     // If no distraction optimization is required in the new restrictions, then dismiss the
@@ -270,10 +248,6 @@ public class ActivityBlockingActivity extends Activity {
     }
 
     private void handleRestartingTask() {
-        if (!mCar.isConnected()) {
-            mExitRequested = true;
-            return;
-        }
         if (isFinishing()) {
             return;
         }

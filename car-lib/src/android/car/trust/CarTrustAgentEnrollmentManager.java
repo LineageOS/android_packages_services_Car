@@ -214,6 +214,50 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
     }
 
     /**
+     * Remove all of the trusted devices associated with the given user.
+     *
+     * @param uid User id to remove the devices for
+     */
+    @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
+    public void removeAllTrustedDevices(int uid) {
+        try {
+            mEnrollmentService.removeAllTrustedDevices(uid);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Enable or Disable Trusted device enrollment.  Once disabled, head unit will not broadcast
+     * for enrollment until enabled back.
+     *
+     * @param isEnabled {@code true} enables enrollment.
+     */
+    @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
+    public void setTrustedDeviceEnrollmentEnabled(boolean isEnabled) {
+        try {
+            mEnrollmentService.setTrustedDeviceEnrollmentEnabled(isEnabled);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Enable or disable Unlocking with a trusted device. Once disabled, head unit will not
+     * broadcast until enabled back.
+     *
+     * @param isEnabled {@code true} enables unlock.
+     */
+    @RequiresPermission(PERMISSION_CAR_ENROLL_TRUST)
+    public void setTrustedDeviceUnlockEnabled(boolean isEnabled) {
+        try {
+            mEnrollmentService.setTrustedDeviceUnlockEnabled(isEnabled);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
      * Register for enrollment event callbacks.
      *
      * @param callback The callback methods to call, null to unregister
@@ -321,12 +365,13 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
      */
     public interface CarTrustAgentEnrollmentCallback {
         /**
-         * Communicate about failure/timeouts in the handshake process.
+         * Communicate about failure/timeouts in the handshake process.  BluetoothDevice will be
+         * null when the returned error code is {@link #ENROLLMENT_NOT_ALLOWED}.
          *
          * @param device    the remote device trying to enroll
          * @param errorCode information on what failed.
          */
-        void onEnrollmentHandshakeFailure(BluetoothDevice device,
+        void onEnrollmentHandshakeFailure(@Nullable BluetoothDevice device,
                 @TrustedDeviceEnrollmentError int errorCode);
 
         /**

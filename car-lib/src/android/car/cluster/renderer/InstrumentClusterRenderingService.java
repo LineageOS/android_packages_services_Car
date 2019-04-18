@@ -83,6 +83,14 @@ import java.util.stream.Collectors;
 public abstract class InstrumentClusterRenderingService extends Service {
     private static final String TAG = CarLibLog.TAG_CLUSTER;
 
+    /**
+     * This constant is kept here for backwards compatibility only.
+     * @deprecated TODO (b/130255007): Remove this along {@link NavigationRenderer#onEvent(int,
+     * Bundle)}
+     */
+    @Deprecated
+    private static final int NAVIGATION_STATE_EVENT_ID = 1;
+
     private final Object mLock = new Object();
     private RendererBinder mRendererBinder;
     private Handler mUiHandler = new Handler(Looper.getMainLooper());
@@ -410,17 +418,22 @@ public abstract class InstrumentClusterRenderingService extends Service {
         }
 
         @Override
-        public void onEvent(int eventType, Bundle bundle) throws RemoteException {
+        @SuppressWarnings("deprecation")
+        public void onNavigationStateChanged(@Nullable Bundle bundle) throws RemoteException {
+            assertClusterManagerPermission();
             assertContextOwnership();
             mUiHandler.post(() -> {
                 if (mNavigationRenderer != null) {
-                    mNavigationRenderer.onEvent(eventType, bundle);
+                    // Invoking deprecated method to maintain backwards compatibility
+                    mNavigationRenderer.onEvent(NAVIGATION_STATE_EVENT_ID, bundle);
+                    mNavigationRenderer.onNavigationStateChanged(bundle);
                 }
             });
         }
 
         @Override
         public CarNavigationInstrumentCluster getInstrumentClusterInfo() throws RemoteException {
+            assertClusterManagerPermission();
             return runAndWaitResult(() -> mNavigationRenderer.getNavigationProperties());
         }
 
@@ -434,6 +447,13 @@ public abstract class InstrumentClusterRenderingService extends Service {
                             + " not an owner of APP_FOCUS_TYPE_NAVIGATION " + mNavContextOwner);
                 }
             }
+        }
+    }
+
+    private void assertClusterManagerPermission() {
+        if (checkCallingOrSelfPermission(Car.PERMISSION_CAR_NAVIGATION_MANAGER)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException("requires " + Car.PERMISSION_CAR_NAVIGATION_MANAGER);
         }
     }
 

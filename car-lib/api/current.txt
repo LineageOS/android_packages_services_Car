@@ -513,15 +513,6 @@ package android.car.media {
 
 }
 
-package android.car.navigation {
-
-  public final class CarNavigationStatusManager {
-    method public android.car.navigation.CarNavigationInstrumentCluster getInstrumentClusterInfo();
-    method public void sendEvent(int, android.os.Bundle);
-  }
-
-}
-
 package android.car.settings {
 
   public class CarConfigurationManager {
