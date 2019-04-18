@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"მანქანის აუდიოს ხმის სიძლიერის გაკონტროლება"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"მანქანის აუდიო პარამეტრების მართვა"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"ავტომობილის HAL-ინტერფეისის ემულაცია"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"აუდიო დაკინგის მოვლენების მიღება"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"საშუალებას აძლევს აპს, მიიღოს შეტყობინება, როდესაც მისი ხმა დაიწევა მანქანაში სხვა აუდიოს დაკვრის შედეგად."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"თქვენი მანქანის HAL-ინტერფეისის ემულაცია შიდა ტესტირების მიზნით."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"თქვენი მანქანის აუდიოს ხმის სიძლიერის გაკონტროლება."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"თქვენი მანქანის აუდიოს პარამეტრების გაკონტროლება."</string>

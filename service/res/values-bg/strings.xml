@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"контролиране на силата на звука на автомобилната аудиосистема"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"управление на звуковите настройки на автомобила"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"емулиране на HAL интерфейса на превозното средство"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"получаване на събития за заглъхване на аудиото"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Разрешава дадено приложение да получава известия, когато силата на звука му е намалена в резултат на друго възпроизвеждащо се в автомобила аудио."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Емулиране на HAL интерфейса на автомобила ви с цел вътрешно тестване."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Контролиране на силата на звука на автомобилната аудиосистема."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Контролиране на звуковите настройки на автомобила."</string>

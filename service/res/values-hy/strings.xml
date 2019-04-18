@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"կառավարել մեքենայի աուդիո համակարգի ձայնը"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"կառավարել մեքենայի աուդիո համակարգի կարգավորումները"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"նմանակել HAL միջերեսի տվյալները"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"ստանալ ձայնի խլացման իրադարձություններ"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Թույլ է տալիս, որ հավելվածը ծանուցվի, երբ վերջինիս ձայնի ուժգնությունն իջնում է՝ մեքենայում մեկ այլ աուդիո ֆայլի նվագարկման արդյունքում:"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Նմանակել HAL միջերեսը ներքին փորձարկման համար"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Կառավարել մեքենայի աուդիո համակարգի ձայնի ուժգնությունը"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Կառավարել մեքենայի աուդիո համակարգի կարգավորումները"</string>

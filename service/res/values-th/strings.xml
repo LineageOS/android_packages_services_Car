@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"ควบคุมระดับเสียงของระบบเสียงในรถ"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"จัดการการตั้งค่าระบบเสียงของรถ"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"เลียนแบบ HAL ยานพาหนะ"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"รับกิจกรรมที่มีการลดเสียง"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"อนุญาตการแจ้งเตือนแอปเมื่อมีการลดระดับเสียงของแอปเนื่องจากมีเสียงอื่นเล่นอยู่ในรถ"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"เลียนแบบ HAL ยานพาหนะของรถคุณเพื่อจุดประสงค์ด้านการทดสอบภายใน"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"ควบคุมระดับเสียงของระบบเสียงรถ"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"ควบคุมการตั้งค่าระบบเสียงของรถ"</string>

@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"මෝටර් රථයේ ශ්‍රව්‍ය හඬ පාලනය කරන්න"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"මෝටර් රථයේ ශ්‍රව්‍ය සැකසුම් කළමනාකරණය කරන්න"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"වාහන HAL අනුකරණය කරන්න"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"ශ්‍රව්‍ය ගිල්වීමේ සිදුවීම් ලබන්න"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"මෝටර් රථයේ වෙනත් ශ්‍රව්‍යයක් වාදනය වීමේ ප්‍රතිඵලයක් ලෙස හඬ පරිමාව පහත හෙළන විට යෙදුමකට දැනුම් දීමට ඉඩ දෙයි."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"අභ්‍යන්තර පරීක්‍ෂණ අරමුණ සඳහා ඔබේ මෝටර් රථයේ HAL උසස් කරන්න."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"ඔබේ මෝටර් රථයේ හඬ පරිමාණය පාලන කරන්න"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"ඔබේ මෝටර් රථයේ ශ්‍රව්‍ය සැකසීම් පාලන කරන්න."</string>

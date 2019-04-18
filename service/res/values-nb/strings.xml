@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"kontrollére lydvolumet i bilen"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"administrere bilens lydinnstillinger"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"emulere kjøretøys-HAL"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"motta varsler om demping av lyd fra andre apper"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Tillater at en app varsles når volumet senkes som følge av annen lyd som spilles av i bilen."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Emulering av bilens kjøretøys-HAL for intern testing."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Styring av lydvolumet i bilen."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Styring av lydinnstillingene i bilen."</string>

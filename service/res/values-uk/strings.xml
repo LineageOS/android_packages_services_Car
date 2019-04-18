@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"керування гучністю аудіосистеми автомобіля"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"керування налаштуваннями аудіосистеми автомобіля"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"імітація рівня HAL автомобіля"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"отримувати події зменшення гучності аудіо"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Дозволяє додатку отримувати сповіщення, коли його гучність зменшується через відтворення іншого аудіо в автомобілі."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Імітація рівня HAL автомобіля для внутрішнього тестування."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Керування гучністю аудіосистеми автомобіля."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Керування налаштуваннями аудіосистеми автомобіля."</string>

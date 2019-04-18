@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"کنترل میزان صدای خودرو"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"مدیریت تنظیمات صدای خودرو"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"شبیه‌سازی HAL خودرو"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"دریافت رویدادهای کاهش صدای پس‌زمینه"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"به برنامه‌ای اجازه می‌دهد وقتی میزان صدایش درنتیجه پخش محتوای صوتی دیگری در خودرو کاهش می‌یابد، اعلان کند."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"شبیه‌سازی HAL خودرو برای هدف آزمایش داخلی."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"کنترل میزان صدای خودرو"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"کنترل تنظیمات صدای خودرو."</string>

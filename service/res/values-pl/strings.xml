@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"sterowanie głośnością dźwięku w samochodzie"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"zarządzanie ustawieniami dźwięku w samochodzie"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"emulowanie interfejsu HAL pojazdu"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"odbieraj zdarzenia ściszające dźwięk"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Zezwala aplikacji na powiadamianie, gdy jej głośność zostaje zmniejszona z powodu odtwarzania dźwięku z innego źródła w samochodzie."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Emulowanie interfejsu HAL samochodu na potrzeby testów wewnętrznych."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Sterowanie głośnością dźwięku w samochodzie."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Sterowanie ustawieniami dźwięku w samochodzie."</string>

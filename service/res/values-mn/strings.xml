@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"машины аудионы түвшнийг хянах"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"машины аудионы тохиргоог удирдах"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"тээврийн хэрэгслийн HAL-г эмуляц хийх"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"аудио багасгах үйл ажиллагааг хүлэээн авах"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Mашинд тоглуулж буй бусад аудионы улмаас аппын дууг бууруулж буй үед мэдэгдэл авахыг аппад зөвшөөрнө үү."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Машиныхаа тээврийн хэрэгслийн HAL-г дотоод шалгалтын зорилгоор дахин боловсруулна уу."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Машиныхаа аудионы түвшнийг хянана уу."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Машиныхаа аудионы тохиргоог хянана уу."</string>

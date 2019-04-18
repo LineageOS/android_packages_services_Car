@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"stjórna hljóðstyrk í bílnum"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"stjórna stillingum fyrir hljóðkerfi bílsins"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"líkja eftir HAL ökutækis"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"fá tilkynningar um hljóðlækkun"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Leyfir tilkynningu til forrits þegar verið er að lækka hljóðstyrk vegna þess að verið er að spila annað hljóð í bílnum."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Líkja eftir HAL ökutækis til að gera innri prófanir."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Stjórna hljóðstyrk í bílnum."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Stjórna stillingum fyrir hljóðkerfi bílsins."</string>

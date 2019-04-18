@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"upravljati glasnoćom zvuka za automobil"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"upravljati postavkama zvuka za automobil"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"emulirati HAL vozila"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"primati događaje za utišavanje zvuka"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Omogućuje da aplikacija primi obavijest kad joj se glasnoća stiša zbog neke druge audioreprodukcije u automobilu."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"emulirati HAL vozila za vaš automobil u svrhu internog testiranja"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"upravljati glasnoćom zvuka za automobil"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"upravljati postavkama zvuka za automobil"</string>

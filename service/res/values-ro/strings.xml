@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"Controlează volumul audio din mașină"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"Gestionează setările audio ale mașinii"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"Imită nivelul HAL al vehiculului"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"Primiți evenimente de reducere a volumului audio"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Permite notificarea unei aplicații atunci când volumul acesteia este redus din cauza redării unui alt conținut audio în mașină."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Imită nivelul HAL al mașinii pentru testare internă."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Controlează volumul audio din mașină."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Controlați setările audio ale mașinii"</string>

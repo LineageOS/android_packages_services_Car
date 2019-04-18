@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"audio tizim tovushi balandligini boshqarish"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"avtomobilning audio sozlamalarini boshqarish"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"HAL interfeysini emulyatsiya qilish"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"ovoz pasaytirib bezovta qilinishlar"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Avtomobilda audio ijro etilayotganda ovoz pasaytirilib, ilovaga bildirishnoma kelishiga ruxsat beradi"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Ichki sinov uchun HAL interfeysini emulyatsiya qilish."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Audio tizim tovushi balandligini boshqarish"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Avtomobil audio tizimi sozlamalarini boshqarish."</string>

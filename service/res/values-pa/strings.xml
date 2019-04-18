@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"ਕਾਰ ਦੀ ਆਡੀਓ ਅਵਾਜ਼ \'ਤੇ ਕੰਟਰੋਲ"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"ਕਾਰ ਦੀਆਂ ਆਡੀਓ ਸੈਟਿੰਗਾਂ ਦਾ ਪ੍ਰਬੰਧਨ"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"ਵਾਹਨ HAL ਦੀ ਨਕਲ ਕਰੋ"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"ਆਡੀਓ ਡੱਕਣ ਵਾਲੇ ਇਵੈਂਟ ਪ੍ਰਾਪਤ ਕਰੋ"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"ਕਾਰ ਵਿੱਚ ਹੋਰ ਆਡੀਓ ਚੱਲਣ ਦੇ ਨਤੀਜੇ ਵਜੋਂ ਜਦੋਂ ਕਿਸੇ ਐਪ ਦੀ ਅਵਾਜ਼ ਘੱਟ ਹੋ ਰਹੀ ਹੋਵੋ ਤਾਂ ਐਪ ਨੂੰ ਸੂਚਿਤ ਕਰਨ ਦਿੰਦੀ ਹੈ।"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"ਅੰਦਰੂਨੀ ਜਾਂਚ ਦੇ ਉਦੇਸ਼ ਲਈ ਤੁਹਾਡੀ ਕਾਰ ਦੇ ਵਾਹਨ HAL ਦੀ ਨਕਲ।"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"ਤੁਹਾਡੀ ਕਾਰ ਦੇ ਆਡੀਓ ਦੀ ਅਵਾਜ਼ ਨੂੰ ਕੰਟਰੋਲ।"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"ਆਪਣੀ ਕਾਰ ਦੀਆਂ ਆਡੀਓ ਸੈਟਿੰਗਾਂ ਨੂੰ ਕੰਟਰੋਲ ਕਰੋ।"</string>

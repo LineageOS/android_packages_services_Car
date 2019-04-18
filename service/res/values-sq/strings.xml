@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"kontrollo volumin e audios së makinës"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"menaxho cilësimet e audios së makinës"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"emulo ndërfaqen HAL të automjetit"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"merr ngjarje me reduktim të audios"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Lejon që një aplikacion të njoftohet kur volumi i tij po reduktohet si rezultat i një audioje tjetër që luhet në makinë."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Emulo ndërfaqen HAL të makinës për qëllime testimi të brendshëm."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Kontrollo volumin e audios së makinës."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Kontrollo cilësimet e audios së makinës."</string>
