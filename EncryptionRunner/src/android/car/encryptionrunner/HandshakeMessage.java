@@ -16,7 +16,12 @@
 
 package android.car.encryptionrunner;
 
+import android.annotation.IntDef;
 import android.annotation.Nullable;
+import android.text.TextUtils;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * During an {@link EncryptionRunner} handshake process, these are the messages returned as part
@@ -24,9 +29,43 @@ import android.annotation.Nullable;
  */
 public class HandshakeMessage {
 
-    private final boolean mHandShakeComplete;
+    /**
+     * States for handshake progress.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+            HandshakeState.UNKNOWN,
+            HandshakeState.IN_PROGRESS,
+            HandshakeState.VERIFICATION_NEEDED,
+            HandshakeState.FINISHED,
+            HandshakeState.INVALID})
+    public @interface HandshakeState {
+        /**
+         * The initial state, this value is not expected to be returned.
+         */
+        int UNKNOWN = 0;
+        /**
+         * The handshake is in progress.
+         */
+        int IN_PROGRESS = 1;
+        /**
+         * The handshake is complete, but verification of the code is needed.
+         */
+        int VERIFICATION_NEEDED = 2;
+        /**
+         * The handshake is complete.
+         */
+        int FINISHED = 3;
+        /**
+         * The handshake is complete and not successful.
+         */
+        int INVALID = 4;
+    }
+
+    @HandshakeState private final int mHandshakeState;
     private final Key mKey;
     private final byte[] mNextMessage;
+    private final String mVerificationCode;
 
     /**
      * @return Returns a builder for {@link HandshakeMessage}.
@@ -39,12 +78,14 @@ public class HandshakeMessage {
      * Use the builder;
      */
     private HandshakeMessage(
-            boolean handShakeComplete,
+            @HandshakeState int handshakeState,
             @Nullable Key key,
-            @Nullable byte[] nextMessage) {
-        mHandShakeComplete = handShakeComplete;
+            @Nullable byte[] nextMessage,
+            @Nullable String verificationCode) {
+        mHandshakeState = handshakeState;
         mKey = key;
         mNextMessage = nextMessage;
+        mVerificationCode = verificationCode;
     }
 
     /**
@@ -56,10 +97,11 @@ public class HandshakeMessage {
     }
 
     /**
-     * Returns true if the handshake is complete.
+     * Returns the state of the handshake.
      */
-    public boolean isHandShakeComplete() {
-        return mHandShakeComplete;
+    @HandshakeState
+    public int getHandshakeState() {
+        return mHandshakeState;
     }
 
     /**
@@ -70,28 +112,51 @@ public class HandshakeMessage {
         return mKey;
     }
 
+    /**
+     * Returns a verification code to show to the user.
+     */
+    @Nullable
+    public String getVerificationCode() {
+        return mVerificationCode;
+    }
+
     static class Builder {
-        boolean mHandshakeComplete;
+        @HandshakeState int mHandshakeState;
         Key mKey;
         byte[] mNextMessage;
+        String mVerificationCode;
 
-        Builder setHandshakeComplete(boolean handshakeComplete) {
-            mHandshakeComplete = handshakeComplete;
+        Builder setHandshakeState(@HandshakeState int handshakeState) {
+            mHandshakeState = handshakeState;
             return this;
         }
 
-        Builder setKey(Key key) {
+        Builder setKey(@Nullable Key key) {
             mKey = key;
             return this;
         }
 
-        Builder setNextMessage(byte[] nextMessage) {
+        Builder setNextMessage(@Nullable byte[] nextMessage) {
             mNextMessage = nextMessage == null ? null : nextMessage.clone();
             return this;
         }
 
-        HandshakeMessage build() {
-            return new HandshakeMessage(mHandshakeComplete, mKey, mNextMessage);
+        Builder setVerificationCode(@Nullable String verificationCode) {
+            mVerificationCode = verificationCode;
+            return this;
         }
+
+        HandshakeMessage build() {
+            if (mHandshakeState == HandshakeState.UNKNOWN) {
+                throw new IllegalStateException("must set handshake state before calling build");
+            }
+            if (mHandshakeState == HandshakeState.VERIFICATION_NEEDED
+                    && TextUtils.isEmpty(mVerificationCode)) {
+                throw new IllegalStateException(
+                        "if state is verification needed, must have verification code");
+            }
+            return new HandshakeMessage(mHandshakeState, mKey, mNextMessage, mVerificationCode);
+        }
+
     }
 }

@@ -21,7 +21,11 @@ package android.car.encryptionrunner;
  */
 public class HandshakeException extends Exception {
 
-    public HandshakeException(String message) {
+    HandshakeException(String message) {
         super(message);
+    }
+
+    HandshakeException(Exception e) {
+        super(e);
     }
 }
