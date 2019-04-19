@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"kawal kelantangan audio kereta"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"urus tetapan audio kereta"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"tiru HAL kenderaan"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"terima acara yang merendahkan audio"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Membenarkan apl diberitahu apabila kelantangan apl itu direndahkan disebabkan audio lain yang dimainkan di dalam kereta."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Tiru HAL kenderaan kereta anda untuk tujuan ujian dalaman."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Kawal kelantangan audio kereta anda."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Kawal tetapan audio kereta anda."</string>
@@ -122,4 +124,6 @@
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Akses keadaan kuasa kereta."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Daftarkan Peranti yang Dipercayai"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Benarkan Pendaftaran Peranti yang Dipercayai"</string>
+    <!-- no translation found for trust_device_default_name (4213625926070261253) -->
+    <skip />
 </resources>
