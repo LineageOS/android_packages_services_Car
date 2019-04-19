@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"kudhibiti kiwango cha sauti ya gari"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"kudhibiti mipangilio ya sauti ya gari"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"kuiga HAL ya gari"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"pokea matukio ya upunguzaji wa sauti"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Huruhusu programu ipate arifa sauti yake inapopunguzwa kutokana na sauti nyingine kucheza kwenye gari."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Kuiga HAL ya gari lako kwa madhumuni ya jaribio la ndani."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Kudhibiti kiwango cha sauti ya gari lako."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Kudhibiti mipangilio ya sauti ya gari lako."</string>

@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"управление громкостью аудиосистемы"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"управление настройками аудиосистемы"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"эмуляция интерфейса HAL"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"получать уведомления о событиях приглушения звука"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Приложению будут поступать уведомления о том, что его громкость уменьшена, поскольку в автомобиле воспроизводится другое аудио."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Возможность эмулировать интерфейс HAL для внутреннего тестирования"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Возможность управлять громкостью автомобильной аудиосистемы"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Возможность управлять настройками аудиосистемы автомобиля"</string>

@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"kontrolēt automašīnas audio skaļumu"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"pārvaldīt automašīnas audio iestatījumus"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"emulēt transportlīdzekļa HAL"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"saņemt paziņojumus par audio skaļuma samazināšanas gadījumiem"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Atļauj lietotnei saņemt paziņojumu, kad tās skaļums tiek samazināts, jo automašīnā tiek atskaņots cits audio."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Imitēt jūsu automašīnas Vehicle HAL, lai veiktu iekšējo testēšanu."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Kontrolēt automašīnas audio skaļumu."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Kontrolēt automašīnas audio iestatījumus."</string>

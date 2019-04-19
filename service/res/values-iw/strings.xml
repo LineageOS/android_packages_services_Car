@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"שליטה בעוצמת הקול של האודיו ברכב"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"ניהול ההגדרות של עוצמת הקול ברכב"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"אמולציה של ממשק vehicle HAL"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"קבלת אירועים של הנמכת עוצמת קול של אודיו"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"מאפשרת לאפליקציה לקבל התראה כשעוצמת הקול שלה מונמכת, בעקבות תוכן אודיו אחר המופעל במכונית."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"אמולציה של ממשק vehicle HAL של הרכב למטרות בדיקה פנימית."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"שליטה בעוצמת האודיו של הרכב."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"שליטה בהגדרות האודיו של הרכב."</string>

@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"कारचा ऑडिओ व्हॉल्यूम नियंत्रित करा"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"कारच्या ऑडिओ सेटिंग्ज व्यवस्थापित करा"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"वाहन HAL चे अनुकरण करा"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"डक केल्याच्या सूचना मिळवा"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"कारमधील इतर ऑडिओ प्ले होत असल्याने अॅपचा व्हॉल्यूम कमी केला जातो तेव्हा ते अॅपला सूचित केले जाण्याची अनुमती देते."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"अंतर्गत चाचणी उद्देशांसाठी तुमच्या कारच्या वाहन HAL चे अनुकरण करा."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"तुमच्या कारचा ऑडिओ व्हॉल्यूम नियंत्रित करा."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"तुमच्या कारची ऑडिओ सेटिंग्ज नियंत्रित करा."</string>

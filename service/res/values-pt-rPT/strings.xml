@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"controlar o volume de áudio do automóvel"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"gerir as definições de áudio do automóvel"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"emular a HAL do veículo"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"receber eventos de redução do volume de áudio"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Permite a notificação de uma aplicação quando o respetivo volume é reduzido como resultado da reprodução de outro áudio no automóvel."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Emule a HAL do veículo automóvel para fins de testes internos."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Controle o volume do áudio do automóvel."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Controle as definições de áudio do automóvel."</string>

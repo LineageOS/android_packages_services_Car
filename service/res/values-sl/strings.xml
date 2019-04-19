@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"nadziranje glasnosti zvoka v avtomobilu"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"upravljanje nastavitev zvoka v avtomobilu"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"posnemanje HAL-a vozila"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"sprejemanje dogodkov utišanja zvoka"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Omogoča, da je aplikacija obveščena, če je njena glasnost zmanjšana zaradi predvajanja drugega zvoka v avtomobilu."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Posnemanje HAL-a vozila za avtomobil zaradi internega preizkušanja."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Nadziranje glasnosti zvoka v avtomobilu."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Nadziranje nastavitev zvoka v avtomobilu."</string>

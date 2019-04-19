@@ -25,6 +25,7 @@ import android.car.trust.ICarTrustAgentBleCallback;
 import android.car.trust.ICarTrustAgentEnrollment;
 import android.car.trust.ICarTrustAgentEnrollmentCallback;
 import android.car.trust.TrustedDeviceInfo;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -32,6 +33,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.android.car.R;
 import com.android.car.Utils;
 import com.android.internal.annotations.GuardedBy;
 
@@ -68,9 +70,12 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     @GuardedBy("this")
     private boolean mEnrollmentHandshakeAccepted;
     private final Map<Long, Boolean> mTokenActiveState = new HashMap<>();
+    private String mDeviceName;
+    private final Context mContext;
 
-    public CarTrustAgentEnrollmentService(CarTrustedDeviceService service,
+    public CarTrustAgentEnrollmentService(Context context, CarTrustedDeviceService service,
             CarTrustAgentBleManager bleService) {
+        mContext = context;
         mTrustedDeviceService = service;
         mCarTrustAgentBleManager = bleService;
     }
@@ -272,19 +277,6 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             removeEscrowToken(handle, uid);
             return;
         }
-
-        SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
-        // To conveniently get the user id to unlock when handle is received.
-        editor.putInt(String.valueOf(handle), uid);
-        Set<String> deviceInfo = mTrustedDeviceService.getSharedPrefs().getStringSet(
-                String.valueOf(uid), new HashSet<>());
-        // TODO(b/124052887) to get readable name of the device, now we use mac address as
-        // temporary solution
-        deviceInfo.add(new TrustedDeviceInfo(handle, mRemoteEnrollmentDevice.getAddress(),
-                TrustedDeviceInfo.DEFAULT_NAME).serialize());
-        // To conveniently get the devices info regarding certain user.
-        editor.putStringSet(String.valueOf(uid), deviceInfo);
-        editor.apply();
         for (EnrollmentStateClient client : mEnrollmentStateClients) {
             try {
                 client.mListener.onEscrowTokenAdded(handle);
@@ -334,6 +326,24 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         mTokenActiveState.put(handle, isTokenActive);
         dispatchEscrowTokenActiveStateChanged(handle, isTokenActive);
         if (isTokenActive) {
+            SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
+            // To conveniently get the user id to unlock when handle is received.
+            editor.putInt(String.valueOf(handle), uid);
+            Set<String> deviceInfo = mTrustedDeviceService.getSharedPrefs().getStringSet(
+                    String.valueOf(uid), new HashSet<>());
+            String deviceName;
+            if (mRemoteEnrollmentDevice.getName() != null) {
+                deviceName = mRemoteEnrollmentDevice.getName();
+            } else if (mDeviceName != null) {
+                deviceName = mDeviceName;
+            } else {
+                deviceName = mContext.getString(R.string.trust_device_default_name);
+            }
+            deviceInfo.add(new TrustedDeviceInfo(handle, mRemoteEnrollmentDevice.getAddress(),
+                    deviceName).serialize());
+            // To conveniently get the devices info regarding certain user.
+            editor.putStringSet(String.valueOf(uid), deviceInfo);
+            editor.apply();
             mCarTrustAgentBleManager.sendEnrollmentHandle(mRemoteEnrollmentDevice, handle);
         } else {
             removeEscrowToken(handle, uid);
@@ -403,6 +413,10 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             return;
         }
         mEnrollmentDelegate.addEscrowToken(value, ActivityManager.getCurrentUser());
+    }
+
+    void onDeviceNameRetrieved(String deviceName) {
+        mDeviceName = deviceName;
     }
 
     // TODO(b/11788064) Fake Authentication until we hook up the crypto lib

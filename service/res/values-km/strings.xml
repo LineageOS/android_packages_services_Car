@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"គ្រប់គ្រងកម្រិតសំឡេង​របស់រថយន្ត"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"គ្រប់គ្រងការកំណត់​សំឡេង​របស់​រថយន្ត"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"ត្រាប់តាម HAL របស់យានជំនិះ"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"ទទួលបានព្រឹត្តិការណ៍នៃ​ការសម្រួលសំឡេងពីរព្រមគ្នា"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"អនុញ្ញាតឱ្យកម្មវិធី​ទទួលបានការជូនដំណឹង នៅពេលកម្រិតសំឡេង​របស់កម្មវិធី​កំពុងត្រូវបានបន្ថយ ដែលជាលទ្ធផលនៃការចាក់សំឡេង​ផ្សេងទៀតនៅក្នុង​រថយន្ត។"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"ត្រាប់តាម HAL នៃយានជំនិះ​របស់រថយន្តអ្នក ក្នុងបំណង​ធ្វើតេស្តផ្នែកខាងក្នុង។"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"គ្រប់គ្រង​កម្រិតសំឡេង​របស់រថយន្ត​អ្នក។"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"គ្រប់គ្រង​ការកំណត់​សំឡេង​របស់​រថយន្តអ្នក។"</string>

@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"lawula ivolomu yemoto"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"phatha amasethingi omsindo emoto"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"phinda i-HAL yemoto"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"thola imicimbi yokudakha yomsindo"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Vumela uhlelo lokusebenza ukuthi laziswe uma ivolumu yalo yehlisiwe njengomphumela wokunye ukudlalwa komsindo emotweni."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Phinda i-HAL yemoto yakho ngenhloso yokuhlola kwangaphakathi."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Lawula ivolomu yemoto yakho."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Lawula izilungiselelo zomsindo zemoto yakho."</string>

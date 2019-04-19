@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"auto helitugevuse juhtimine"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"auto heliseadete haldamine"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"sõiduki HAL-i jäljendamine"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"heli vaigistamise sündmuste vastuvõtmine"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Lubab rakendust teavitada, kui selle helitugevust on vähendatud, kuna autos esitatakse muud heli."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Jälgige sisemise testimise eesmärgil oma auto sõiduki HAL-i."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Auto helitugevuse kontrollimine."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Auto heliseadete kontrollimine"</string>

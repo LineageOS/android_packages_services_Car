@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"kiểm soát âm lượng trên ô tô"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"quản lý tùy chọn cài đặt âm thanh của ô tô"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"mô phỏng HAL của phương tiện"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"nhận thông báo cho các trường hợp bị giảm âm thanh"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Cho phép thông báo cho ứng dụng biết khi âm lượng của ứng dụng bị giảm do âm thanh khác đang phát trong ô tô."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Mô phỏng HAL phương tiện của ô tô cho mục đích kiểm tra nội bộ."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Kiểm soát âm lượng âm thanh trên ô tô."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Kiểm soát tùy chọn cài đặt âm thanh trên ô tô."</string>

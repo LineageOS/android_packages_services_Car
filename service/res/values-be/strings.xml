@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"рэгуляваць гучнасць аўдыясістэмы ў аўтамабілі"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"кіраваць наладамі аўдыя ў аўтамабілі"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"эмуляваць інтэрфейс HAL аўтамабіля"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"атрымліваць звесткі пра падзеі з прыглушаным аўдыя"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Дазваляе праграме атрымліваць апавяшчэнні, калі яе гучнасць зменшана ў выніку прайгравання ў аўтамабілі іншых аўдыя."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Магчымасць эмуляваць інтэрфейс HAL для ўнутранага тэсціравання транспартнага сродку."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Рэгуляванне гучнасці аўдыясістэмы ў аўтамабілі."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Змяненне налад аўдыясістэмы аўтамабіля."</string>

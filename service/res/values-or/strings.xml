@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"କାର୍\'ର ଅଡିଓ ଭଲ୍ୟୁମ୍‌କୁ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"କାର୍\'ର ଅଡିଓ ସେଟିଂସ୍‌କୁ ପରିଚାଳନା କରନ୍ତୁ"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"ଗାଡ଼ି HALକୁ ଅନୁକରଣ କରନ୍ତୁ"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"ଅଡିଓ ଡକିଙ୍ଗ ଇଭେଣ୍ଟଗୁଡ଼ିକ ପ୍ରାପ୍ତ କରେ"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"କାର୍‌ରେ ଅନ୍ୟ ଅଡିଓ ଚାଲୁଥିବା ହେତୁ ଯେତେବେଳେ ଆପ୍‍ର ଭଲ୍ୟୁମ୍‌କୁ କମ୍ କରାଯାଉଛି ସେତେବେଳେ ଆପ୍‍କୁ ଏହାର ସୂଚନା ପ୍ରାପ୍ତ କରିବାକୁ ଅନୁମତି ଦିଅନ୍ତୁ।"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"ଇଣ୍ଟର୍ନଲ୍ ପରୀକ୍ଷଣ ଉଦ୍ଦେଶ୍ୟରେ ଆପଣଙ୍କ କାର୍‍ର ଯାନବାହନ HALକୁ ଅନୁକରଣ କରିପାରେ।"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"ଆପଣଙ୍କ କାର୍‍ର ଅଡିଓ ଭଲ୍ୟୁମ୍ ନିୟନ୍ତ୍ରଣ କରିପାରେ।"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"ଆପଣଙ୍କ କାର୍‍ର ଅଡିଓ ସେଟିଂସ୍ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ।"</string>

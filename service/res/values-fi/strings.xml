@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"ohjata äänenvoimakkuutta autossa"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"muokata auton ääniasetuksia"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"jäljitellä auton ajoneuvo-HAL:ää"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"salli äänenvaimennusilmoitukset"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Sallii ilmoitukset sovellukselle, kun sen äänenvoimakkuutta pienennetään toisen autossa toistettavan äänen takia."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"jäljitellä auton ajoneuvo-HAL:ää sisäistä testausta varten"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"säätää auton äänenvoimakkuutta"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"ohjata auton ääniasetuksia"</string>

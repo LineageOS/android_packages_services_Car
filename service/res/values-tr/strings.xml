@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"aracın ses düzeyini kontrol etme"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"aracın ses ayarlarını yönetme"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"araç HAL\'sini taklit etme"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"ses kısma etkinliklerini al"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Araçta başka bir sesin çalması nedeniyle ses seviyesi azaltılan bir uygulamaya bildirim gönderilmesine izin verir."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Şirket içi test amaçları için aracınızın HAL\'ini taklit etme."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Aracınızın ses seviyesini kontrol etme."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Aracınızın ses ayarlarını kontrol etme."</string>

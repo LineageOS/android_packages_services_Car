@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"کار کی آڈیو والیوم کو کنٹرول کریں"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"کار کی آڈیو کی ترتیبات کا نظم کریں"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"HAL گاڑی کی تقلید کریں"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"آڈیو ڈکنگ ایونٹس موصول کریں"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"کار میں چلنے والی دوسری آڈیو کے نتیجے کے طور پر جب کسی ایپ کا والیوم کم کیا جا رہا ہو اس وقت ایپ کو مطلع کیے جانے کی اطلاع دیں۔"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"اندرونی طور پر ٹیسٹنگ کے مقصد سے اپنی کار کی وہیکل HAL کو تقلید کریں۔"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"اپنی کار کی آڈیو کا والیوم کنٹرول کریں۔"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"اپنی کار کی آڈیو کی ترتیبات کو کنٹرول کریں۔"</string>
