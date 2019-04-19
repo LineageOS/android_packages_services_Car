@@ -2122,8 +2122,7 @@
     <skip />
     <!-- no translation found for display_settings (1045535829232307190) -->
     <skip />
-    <!-- no translation found for accelerometer_title (2427487734964971453) -->
-    <skip />
+    <string name="accelerometer_title" msgid="2427487734964971453">"Giro automático da tela"</string>
     <!-- no translation found for color_mode_title (8164858320869449142) -->
     <skip />
     <!-- no translation found for color_mode_option_natural (1292837781836645320) -->
@@ -3664,8 +3663,7 @@
     <skip />
     <!-- no translation found for show_password (620964020348073739) -->
     <skip />
-    <!-- no translation found for show_password_summary (1403805089582258620) -->
-    <skip />
+    <string name="show_password_summary" msgid="1403805089582258620">"Mostra os caracteres rapidamente enquanto você digita"</string>
     <!-- no translation found for spellchecker_security_warning (792070474432612097) -->
     <skip />
     <!-- no translation found for spellchecker_quick_settings (5193036510190696655) -->

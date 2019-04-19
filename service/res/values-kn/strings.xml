@@ -124,4 +124,6 @@
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"ಕಾರಿನ ಶಕ್ತಿಯ ಸ್ಥಿತಿಯ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"ವಿಶ್ವಾಸಾರ್ಹ ಸಾಧನಗಳನ್ನು ನೋಂದಾಯಿಸಿ"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"ವಿಶ್ವಾಸಾರ್ಹ ಸಾಧನಗಳ ನೋಂದಣಿಯನ್ನು ಅನುಮತಿಸಿ"</string>
+    <!-- no translation found for trust_device_default_name (4213625926070261253) -->
+    <skip />
 </resources>

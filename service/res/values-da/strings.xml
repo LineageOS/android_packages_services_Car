@@ -124,4 +124,6 @@
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Få adgang til bilens batteritilstand."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Tilmeld godkendt enhed"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Tillad tilmelding af godkendt enhed"</string>
+    <!-- no translation found for trust_device_default_name (4213625926070261253) -->
+    <skip />
 </resources>

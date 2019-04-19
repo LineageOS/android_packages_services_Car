@@ -8290,8 +8290,7 @@
     <string name="search_bar_account_avatar_content_description" msgid="947628881535053409"></string>
     <!-- no translation found for permission_bar_chart_empty_text (5893326513700540130) -->
     <skip />
-    <!-- no translation found for permission_bar_chart_title (874145405516650073) -->
-    <skip />
+    <string name="permission_bar_chart_title" msgid="874145405516650073">"پراستفاده‌ترین مجوز در ۲۴ ساعت گذشته"</string>
     <!-- no translation found for permission_bar_chart_details (942094334321073927) -->
     <skip />
     <!-- no translation found for permission_bar_chart_label (2831305719356562097) -->
