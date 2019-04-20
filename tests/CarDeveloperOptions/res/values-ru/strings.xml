@@ -8293,8 +8293,7 @@
     <skip />
     <!-- no translation found for permission_bar_chart_title (874145405516650073) -->
     <skip />
-    <!-- no translation found for permission_bar_chart_details (942094334321073927) -->
-    <skip />
+    <string name="permission_bar_chart_details" msgid="942094334321073927">"Показать все в панели управления"</string>
     <!-- no translation found for permission_bar_chart_label (2831305719356562097) -->
     <!-- no translation found for accessibility_usage_title (3920601240120963611) -->
     <skip />
