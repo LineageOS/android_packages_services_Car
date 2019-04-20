@@ -15,7 +15,7 @@
 -->
 <resources>
 
-    <style name="AppTheme" parent="@style/android:Theme.DeviceDefault.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@android:color/black</item>
     </style>
 </resources>

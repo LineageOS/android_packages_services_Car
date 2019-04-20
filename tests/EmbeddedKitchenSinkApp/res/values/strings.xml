@@ -111,6 +111,8 @@
     <string name="request" translatable="false">request</string>
     <string name="release" translatable="false">release</string>
     <string name="media_play" translatable="false">Media Play</string>
+    <string name="hw_audio_source_title" translatable="false">HwAudioSource</string>
+    <string name="hw_audio_source_not_found" translatable="false">Not found</string>
     <string name="nav_play" translatable="false">Nav Play</string>
     <string name="vr_play" translatable="false">VR Play</string>
     <string name="system_play" translatable="false">System Play</string>
