@@ -189,7 +189,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     };
 
     private AudioPolicy mAudioPolicy;
-    private CarAudioFocus mFocusHandler;
+    private CarZonesAudioFocus mFocusHandler;
     private String mCarAudioConfigurationPath;
     private CarAudioZone[] mCarAudioZones;
 
@@ -478,7 +478,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             // Configure our AudioPolicy to handle focus events.
             // This gives us the ability to decide which audio focus requests to accept and bypasses
             // the framework ducking logic.
-            mFocusHandler = new CarAudioFocus(mAudioManager, mContext.getPackageManager());
+            mFocusHandler = new CarZonesAudioFocus(mAudioManager,
+                    mContext.getPackageManager(),
+                    mCarAudioZones);
             builder.setAudioPolicyFocusListener(mFocusHandler);
             builder.setIsAudioFocusPolicy(true);
         }
