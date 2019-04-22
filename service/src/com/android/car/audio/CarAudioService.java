@@ -65,7 +65,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -191,6 +193,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private String mCarAudioConfigurationPath;
     private CarAudioZone[] mCarAudioZones;
 
+    // TODO do not store uid mapping here instead use the uid
+    //  device affinity in audio policy when available
+    private Map<Integer, Integer> mUidToZoneMap;
+
     public CarAudioService(Context context) {
         mContext = context;
         mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
@@ -198,6 +204,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
         mPersistMasterMuteState = mContext.getResources().getBoolean(
                 R.bool.audioPersistMasterMuteState);
+        mUidToZoneMap = new HashMap<>();
     }
 
     /**
@@ -277,7 +284,18 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             for (CarAudioZone zone : mCarAudioZones) {
                 zone.dump("\t", writer);
             }
+            writer.println();
+            writer.println("\tUID to Zone Mapping:");
+            for (int callingId : mUidToZoneMap.keySet()) {
+                writer.printf("\t\tUID %d mapped to zone %d\n",
+                        callingId,
+                        mUidToZoneMap.get(callingId));
+            }
+            //Print focus handler info
+            writer.println();
+            mFocusHandler.dump("\t", writer);
         }
+
     }
 
     @Override
@@ -734,6 +752,127 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
             return usages.stream().mapToInt(i -> i).toArray();
         }
+    }
+
+    /**
+     * Gets the ids of all available audio zones
+     *
+     * @return Array of available audio zones ids
+     */
+    @Override
+    public @NonNull int[] getAudioZoneIds() {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        synchronized (mImplLock) {
+            return Arrays.stream(mCarAudioZones).mapToInt(CarAudioZone::getId).toArray();
+        }
+    }
+
+    /**
+     * Gets the audio zone id currently mapped to uid,
+     * defaults to PRIMARY_AUDIO_ZONE if no mapping exist
+     *
+     * @param uid The uid
+     * @return zone id mapped to uid
+     */
+    @Override
+    public int getZoneIdForUid(int uid) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        synchronized (mImplLock) {
+            if (!mUidToZoneMap.containsKey(uid)) {
+                Log.i(CarLog.TAG_AUDIO, "getZoneIdForUid uid "
+                        + uid + " does not have a zone. Defaulting to PRIMARY_AUDIO_ZONE: "
+                        + CarAudioManager.PRIMARY_AUDIO_ZONE);
+
+                //Must be added to PRIMARY_AUDIO_ZONE otherwise audio may be routed to other devices
+                // that match the audio criterion (i.e. usage)
+                setZoneIdForUidNoCheckLocked(CarAudioManager.PRIMARY_AUDIO_ZONE, uid);
+            }
+
+            return mUidToZoneMap.get(uid);
+        }
+    }
+
+    /**
+     * Maps the audio zone id to uid
+     *
+     * @param zoneId The audio zone id
+     * @param uid The uid to map
+     * @return true if the device affinities, for devices in zone, are successfully set
+     */
+    @Override
+    public boolean setZoneIdForUid(int zoneId, int uid) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        synchronized (mImplLock) {
+            Log.i(CarLog.TAG_AUDIO, "setZoneIdForUid Calling uid "
+                    + uid + " mapped to : "
+                    + zoneId);
+            //if the current uid is in the list
+            //remove it from the list
+            if (checkAndRemoveUidLocked(uid)) {
+                return setZoneIdForUidNoCheckLocked(zoneId, uid);
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Removes the current mapping of the Uid
+     *
+     * @param uid The uid to remove
+     * return true if all the devices affinities currently
+     *            mapped to uid are successfully removed
+     */
+    @Override
+    public boolean clearZoneIdForUid(int uid) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        synchronized (mImplLock) {
+            return checkAndRemoveUidLocked(uid);
+        }
+    }
+
+    /**
+     * Sets the zone id for uid
+     * @param zoneId zone id to map to uid
+     * @param uid uid to map
+     * @return true if setting uid device affinity is successful
+     */
+    private boolean setZoneIdForUidNoCheckLocked(int zoneId, int uid) {
+        Log.d(CarLog.TAG_AUDIO, "setZoneIdForUidNoCheck Calling uid "
+                + uid + " mapped to " + zoneId);
+        //Request to add uid device affinity
+        if (mAudioPolicy.setUidDeviceAffinity(uid, mCarAudioZones[zoneId].getAudioDeviceInfos())) {
+            // TODO do not store uid mapping here instead use the uid
+            //  device affinity in audio policy when available
+            mUidToZoneMap.put(uid, zoneId);
+            return true;
+        }
+        Log.w(CarLog.TAG_AUDIO, "setZoneIdForUidNoCheck Failed set device affinity for uid "
+                + uid + " in zone " + zoneId);
+        return false;
+    }
+
+    /**
+     * Checks if the uid is contained in map and removes it if so
+     * @param uid uid to remove from mapping
+     * @return true if the removing the uid mapping succeeds
+     */
+    private boolean checkAndRemoveUidLocked(int uid) {
+        if (mUidToZoneMap.containsKey(uid)) {
+            int zoneId = mUidToZoneMap.get(uid);
+            Log.i(CarLog.TAG_AUDIO, "checkAndRemoveUid removing Calling uid "
+                    + uid + " from zone " + zoneId);
+            if (mAudioPolicy.removeUidDeviceAffinity(uid)) {
+                // TODO use the uid device affinity in audio policy when available
+                mUidToZoneMap.remove(uid);
+                return true;
+            }
+            //failed to remove device affinity from zone devices
+            Log.w(CarLog.TAG_AUDIO,
+                    "checkAndRemoveUid Failed remove device affinity for uid "
+                            + uid + " in zone " +  zoneId);
+            return false;
+        }
+        return true;
     }
 
     @Override

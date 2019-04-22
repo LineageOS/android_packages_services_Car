@@ -490,17 +490,22 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         }
     }
 
-    public synchronized void dump(PrintWriter writer) {
-        writer.println("*CarAudioFocus*");
+    /**
+     * dumps the current state of the CarAudioFocus object
+     * @param indent indent to add to each line in the current stream
+     * @param writer stream to write to
+     */
+    public synchronized void dump(String indent, PrintWriter writer) {
+        writer.printf("%s*CarAudioFocus*\n", indent);
 
-        writer.println("  Current Focus Holders:");
+        writer.printf("%s\tCurrent Focus Holders:\n", indent);
         for (String clientId : mFocusHolders.keySet()) {
-            System.out.println(clientId);
+            writer.printf("%s\t\t%s\n", indent, clientId);
         }
 
-        writer.println("  Transient Focus Losers:");
+        writer.printf("%s\tTransient Focus Losers:\n", indent);
         for (String clientId : mFocusLosers.keySet()) {
-            System.out.println(clientId);
+            writer.printf("%s\t\t%s\n", indent, clientId);
         }
     }
 

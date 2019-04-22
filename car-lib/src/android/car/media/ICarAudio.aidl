@@ -43,6 +43,11 @@ interface ICarAudio {
     int getVolumeGroupIdForUsage(int zoneId, int usage);
     int[] getUsagesForVolumeGroupId(int zoneId, int groupId);
 
+    int[] getAudioZoneIds();
+    int getZoneIdForUid(int uid);
+    boolean setZoneIdForUid(int zoneId, int uid);
+    boolean clearZoneIdForUid(int uid);
+
     /**
      * IBinder is ICarVolumeCallback but passed as IBinder due to aidl hidden.
      */
