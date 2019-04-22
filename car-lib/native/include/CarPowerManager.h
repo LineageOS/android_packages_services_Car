@@ -76,22 +76,16 @@ private:
     public:
         explicit CarPowerStateListener(CarPowerManager* parent) : mParent(parent) {};
 
-        Status onStateChanged(int state, int token) override {
+        Status onStateChanged(int state) override {
             sp<CarPowerManager> parent = mParent;
-            if ((parent != nullptr) && (parent->mListener != nullptr)) {
-                if ((state >= static_cast<int>(State::kFirst)) &&
-                    (state <= static_cast<int>(State::kLast))) {
-                    // Notify the listener of the state transition
-                    parent->mListener(static_cast<State>(state));
-                    if (token != 0) {
-                        // Call finished() method to let CPMS know we're ready to suspend/shutdown.
-                        parent->mICarPower->finished(parent->mListenerToService, token);
-                    }
-                } else {
-                    ALOGE("CarPowerManagerNative: onStateChanged unknown state: %d", state);
-                }
-            } else {
+            if ((parent == nullptr) || (parent->mListener == nullptr)) {
                 ALOGE("CarPowerManagerNative: onStateChanged null pointer detected!");
+            } else if ((state < static_cast<int>(State::kFirst)) ||
+                       (state > static_cast<int>(State::kLast)) )  {
+                ALOGE("CarPowerManagerNative: onStateChanged unknown state: %d", state);
+            } else {
+                // Notify the listener of the state transition
+                parent->mListener(static_cast<State>(state));
             }
             return binder::Status::ok();
         };
@@ -114,4 +108,3 @@ private:
 } // namespace android
 
 #endif // CAR_POWER_MANAGER
-

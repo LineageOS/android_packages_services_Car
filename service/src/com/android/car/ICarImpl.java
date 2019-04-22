@@ -259,7 +259,7 @@ public class ICarImpl extends ICar.Stub {
         mCarUserService.onSwitchUser(userHandle);
     }
 
-    private static void assertCallingFromSystemProcess() {
+    static void assertCallingFromSystemProcess() {
         int uid = Binder.getCallingUid();
         if (uid != Process.SYSTEM_UID) {
             throw new SecurityException("Only allowed from system");

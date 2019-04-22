@@ -41,7 +41,7 @@ public class DishService extends JobService {
             JobParameters job = (JobParameters) msg.obj;
             switch (msg.what) {
                 case MSG_FINISHED:
-                    LOG.d("Job done! " + job.getJobId());
+                    LOG.d("Job " + job.getJobId() + " done!");
                     mTaskMap.remove(job.getJobId());
                     jobFinished(job, false);
                     break;
@@ -54,7 +54,7 @@ public class DishService extends JobService {
                     JobParameters job1 = mTaskMap.get(job.getJobId());
                     if (job1 != null) {
                         removeMessages(MSG_RUN_JOB, job1);
-                        LOG.d("cancelled job " + job1);
+                        LOG.d("Job " + job1 + " cancelled");
                         mTaskMap.remove(job.getJobId());
                     }
                     break;
@@ -96,8 +96,8 @@ public class DishService extends JobService {
         protected Boolean doInBackground(Void... infos) {
             int dishTotal = mJobParameter.getExtras().getInt(EXTRA_DISH_COUNT);
 
-            LOG.d("jobId: " + mJobParameter.getJobId() + " totalDish: " + dishTotal
-                    + " washing: #" + mMyDishNum);
+            LOG.d("jobId " + mJobParameter.getJobId() + ": Washing dish "
+                    + (mMyDishNum + 1) + " of " + dishTotal);
             wash();
             if (mMyDishNum >= dishTotal - 1) {
                 // all done!

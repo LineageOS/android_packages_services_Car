@@ -19,6 +19,7 @@ package com.android.car.garagemode;
 import android.app.job.JobScheduler;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -32,7 +33,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Main controller for GarageMode. It controls all the flows of GarageMode and defines the logic.
  */
-public class Controller implements CarPowerStateListener {
+public class Controller implements CarPowerStateListenerWithCompletion {
     private static final Logger LOG = new Logger("Controller");
 
     @VisibleForTesting final WakeupPolicy mWakeupPolicy;
@@ -61,7 +62,7 @@ public class Controller implements CarPowerStateListener {
     /** init */
     public void init() {
         mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
-        mCarPowerManager.setListener(Controller.this);
+        mCarPowerManager.setListenerWithCompletion(Controller.this);
     }
 
     /** release */
