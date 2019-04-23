@@ -48,7 +48,6 @@ public class CarPropertyManager implements CarManagerBase {
     private static final boolean DBG = false;
     private static final String TAG = "CarPropertyManager";
     private static final int MSG_GENERIC_EVENT = 0;
-    private final List<CarPropertyConfig> mConfigs;
     private final SingleMessageHandler<CarPropertyEvent> mHandler;
     private final ICarProperty mService;
 
@@ -57,6 +56,8 @@ public class CarPropertyManager implements CarManagerBase {
     /** Record of locally active properties. Key is propertyId */
     private final SparseArray<CarPropertyListeners> mActivePropertyListener =
             new SparseArray<>();
+    /** Record of properties' configs. Key is propertyId */
+    private final SparseArray<CarPropertyConfig> mConfigMap = new SparseArray<>();
 
     /**
      * Application registers {@link CarPropertyEventCallback} object to receive updates and changes
@@ -78,15 +79,15 @@ public class CarPropertyManager implements CarManagerBase {
     }
 
     /** Read ON_CHANGE sensors */
-    public static final float SENSOR_RATE_ONCHANGE = 0;
+    public static final float SENSOR_RATE_ONCHANGE = 0f;
     /** Read sensors at the rate of  1 hertz */
-    public static final float SENSOR_RATE_NORMAL = 1;
+    public static final float SENSOR_RATE_NORMAL = 1f;
     /** Read sensors at the rate of 5 hertz */
-    public static final float SENSOR_RATE_UI = 5;
+    public static final float SENSOR_RATE_UI = 5f;
     /** Read sensors at the rate of 10 hertz */
-    public static final float SENSOR_RATE_FAST = 10;
+    public static final float SENSOR_RATE_FAST = 10f;
     /** Read sensors at the rate of 100 hertz */
-    public static final float SENSOR_RATE_FASTEST = 100;
+    public static final float SENSOR_RATE_FASTEST = 100f;
 
     /**
      * Get an instance of the CarPropertyManager.
@@ -99,7 +100,10 @@ public class CarPropertyManager implements CarManagerBase {
     public CarPropertyManager(@NonNull ICarProperty service, @Nullable Handler handler) {
         mService = service;
         try {
-            mConfigs = mService.getPropertyList();
+            List<CarPropertyConfig> configs = mService.getPropertyList();
+            for (CarPropertyConfig carPropertyConfig : configs) {
+                mConfigMap.put(carPropertyConfig.getPropertyId(), carPropertyConfig);
+            }
         } catch (Exception e) {
             Log.e(TAG, "getPropertyList exception ", e);
             throw new RuntimeException(e);
@@ -135,14 +139,33 @@ public class CarPropertyManager implements CarManagerBase {
 
     /**
      * Register {@link CarPropertyEventCallback} to get property updates. Multiple listeners
-     * can be registered for a single sensor or the same listener can be used for different sensors.
-     * If the same listener is registered again for the same sensor, it will be either ignored or
-     * updated depending on the rate.
+     * can be registered for a single property or the same listener can be used for different
+     * properties. If the same listener is registered again for the same property, it will be
+     * updated to new rate.
+     * <p>Rate could be one of the following:
+     * <ul>
+     *   <li>{@link CarPropertyManager#SENSOR_RATE_ONCHANGE}</li>
+     *   <li>{@link CarPropertyManager#SENSOR_RATE_NORMAL}</li>
+     *   <li>{@link CarPropertyManager#SENSOR_RATE_UI}</li>
+     *   <li>{@link CarPropertyManager#SENSOR_RATE_FAST}</li>
+     *   <li>{@link CarPropertyManager#SENSOR_RATE_FASTEST}</li>
+     * </ul>
+     * <p>
+     * <b>Note:</b>Rate has no effect if the property has one of the following change modes:
+     * <ul>
+     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}</li>
+     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}</li>
+     * </ul>
+     * See {@link CarPropertyConfig#getChangeMode()} for details.
+     * If rate is higher than {@link CarPropertyConfig#getMaxSampleRate()}, it will be registered
+     * with max sample rate.
+     * If rate is lower than {@link CarPropertyConfig#getMinSampleRate()}, it will be registered
+     * with min sample rate.
      *
      * @param callback CarPropertyEventCallback to be registered.
      * @param propertyId PropertyId to subscribe
-     * @param rate rate how fast the sensor events are delivered.
-     * @return if the sensor was successfully enabled.
+     * @param rate how fast the property events are delivered in Hz.
+     * @return true if the listener is successfully registered.
      * @throws SecurityException if missing the appropriate permission.
      */
     public boolean registerCallback(@NonNull CarPropertyEventCallback callback,
@@ -150,6 +173,14 @@ public class CarPropertyManager implements CarManagerBase {
         synchronized (mActivePropertyListener) {
             if (mCarPropertyEventToService == null) {
                 mCarPropertyEventToService = new CarPropertyEventListenerToService(this);
+            }
+            CarPropertyConfig config = mConfigMap.get(propertyId);
+            if (config == null) {
+                Log.e(TAG, "registerListener:  propId is not in config list:  " + propertyId);
+                return false;
+            }
+            if (config.getChangeMode() == CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE) {
+                rate = SENSOR_RATE_ONCHANGE;
             }
             boolean needsServerUpdate = false;
             CarPropertyListeners listeners;
@@ -257,7 +288,11 @@ public class CarPropertyManager implements CarManagerBase {
      */
     @NonNull
     public List<CarPropertyConfig> getPropertyList() {
-        return mConfigs;
+        List<CarPropertyConfig> configs = new ArrayList<>(mConfigMap.size());
+        for (int i = 0; i < mConfigMap.size(); i++) {
+            configs.add(mConfigMap.valueAt(i));
+        }
+        return configs;
     }
 
     /**
@@ -268,9 +303,10 @@ public class CarPropertyManager implements CarManagerBase {
     @NonNull
     public List<CarPropertyConfig> getPropertyList(@NonNull ArraySet<Integer> propertyIds) {
         List<CarPropertyConfig> configs = new ArrayList<>();
-        for (CarPropertyConfig c : mConfigs) {
-            if (propertyIds.contains(c.getPropertyId())) {
-                configs.add(c);
+        for (int propId : propertyIds) {
+            CarPropertyConfig config = mConfigMap.get(propId);
+            if (config != null) {
+                configs.add(config);
             }
         }
         return configs;
