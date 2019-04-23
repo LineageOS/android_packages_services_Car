@@ -141,7 +141,10 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         // onto disk, so it's sufficient to do it once + we minimize the number of disk writes.
         if (Settings.Global.getInt(mContext.getContentResolver(),
                 CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, /* default= */ 0) == 0) {
-            setSystemUserRestrictions();
+            // Only apply the system user restrictions if the system user is headless.
+            if (mCarUserManagerHelper.isHeadlessSystemUser()) {
+                setSystemUserRestrictions();
+            }
             mCarUserManagerHelper.initDefaultGuestRestrictions();
             Settings.Global.putInt(mContext.getContentResolver(),
                     CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
