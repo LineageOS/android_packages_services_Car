@@ -57,6 +57,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 
+import com.android.car.telephony.common.InMemoryPhoneBook;
+
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -106,6 +108,8 @@ public class MainClusterActivity extends FragmentActivity implements
     private final Handler mHandler = new Handler();
     private final Runnable mRetryLaunchNavigationActivity = this::tryLaunchNavigationActivity;
     private int mNavigationDisplayId = NO_DISPLAY;
+
+    private int mPreviousFacet;
 
     /**
      * Description of a virtual display
@@ -170,7 +174,7 @@ public class MainClusterActivity extends FragmentActivity implements
         }
 
         public void register(Context context) {
-            IntentFilter intentFilter =  new IntentFilter(ACTION_USER_UNLOCKED);
+            IntentFilter intentFilter = new IntentFilter(ACTION_USER_UNLOCKED);
             intentFilter.addAction(ACTION_USER_SWITCHED);
             context.registerReceiver(this, intentFilter);
         }
@@ -235,6 +239,24 @@ public class MainClusterActivity extends FragmentActivity implements
 
         mUserReceiver = new UserReceiver(this);
         mUserReceiver.register(this);
+
+        InMemoryPhoneBook.init(this);
+
+        PhoneFragmentViewModel phoneViewModel = ViewModelProviders.of(this).get(
+                PhoneFragmentViewModel.class);
+
+        phoneViewModel.setPhoneStateCallback(new PhoneFragmentViewModel.PhoneStateCallback() {
+            @Override
+            public void onCall() {
+                mPreviousFacet = mPager.getCurrentItem();
+                mOrderToFacet.get(1).mButton.requestFocus();
+            }
+
+            @Override
+            public void onDisconnect() {
+                mOrderToFacet.get(mPreviousFacet).mButton.requestFocus();
+            }
+        });
     }
 
     private <V> void registerSensor(TextView textView, LiveData<V> source) {
