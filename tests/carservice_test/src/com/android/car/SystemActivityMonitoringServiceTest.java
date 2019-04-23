@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
@@ -142,8 +141,8 @@ public class SystemActivityMonitoringServiceTest {
     public static class ActivityThatFinishesImmediately extends Activity {
 
         @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
+        protected void onResume() {
+            super.onResume();
             finish();
         }
     }
