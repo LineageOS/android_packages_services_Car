@@ -1049,6 +1049,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
         List<TopTaskInfoContainer> topTasks = mSystemActivityMonitoringService.getTopTasks();
         for (TopTaskInfoContainer topTask : topTasks) {
+            if (topTask == null) {
+                Log.e(CarLog.TAG_PACKAGE, "Top tasks contains null.");
+                continue;
+            }
             doBlockTopActivityIfNotAllowed(topTask);
         }
     }
@@ -1269,6 +1273,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             implements SystemActivityMonitoringService.ActivityLaunchListener {
         @Override
         public void onActivityLaunch(TopTaskInfoContainer topTask) {
+            if (topTask == null) {
+                Log.e(CarLog.TAG_PACKAGE, "Received callback with null top task.");
+                return;
+            }
             blockTopActivityIfNecessary(topTask);
         }
     }
