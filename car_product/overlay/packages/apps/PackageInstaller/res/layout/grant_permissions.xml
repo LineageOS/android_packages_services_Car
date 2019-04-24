@@ -79,7 +79,7 @@
                     android:paddingStart="@dimen/car_keyline_1"
                     android:paddingEnd="@dimen/car_padding_4"
                     android:text="@string/grant_dialog_button_deny"
-                    android:textColor="@color/car_highlight"
+                    android:textColor="@*android:color/car_highlight"
                     android:textSize="@dimen/car_action1_size"
                     android:textStyle="bold">
                 </Button>
@@ -92,7 +92,7 @@
                     android:paddingStart="@dimen/car_padding_4"
                     android:paddingEnd="@dimen/car_padding_4"
                     android:text="@string/grant_dialog_button_allow"
-                    android:textColor="@color/car_highlight"
+                    android:textColor="@*android:color/car_highlight"
                     android:textSize="@dimen/car_action1_size"
                     android:textStyle="bold">
                 </Button>
