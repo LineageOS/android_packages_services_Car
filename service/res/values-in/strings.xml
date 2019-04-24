@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"mengontrol volume audio mobil"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"mengelola setelan audio mobil"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"mengemulasi HAL kendaraan"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"menerima aktivitas pengecilan volume audio"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Mengizinkan aplikasi diberi tahu saat volumenya dikecilkan karena audio lain sedang diputar di mobil."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Mengemulasi HAL kendaraan mobil Anda untuk tujuan pengujian internal."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Mengontrol volume audio mobil Anda."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Mengontrol setelan audio mobil Anda."</string>
@@ -122,4 +124,6 @@
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Mengakses status daya mobil."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Daftarkan Perangkat Dipercaya"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Izinkan Pendaftaran Perangkat Dipercaya"</string>
+    <!-- no translation found for trust_device_default_name (4213625926070261253) -->
+    <skip />
 </resources>

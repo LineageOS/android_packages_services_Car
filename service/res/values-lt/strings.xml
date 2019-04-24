@@ -43,6 +43,8 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"valdyti automobilio garsų garsumą"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"valdyti automobilio garso nustatymus"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"imituoti transporto priemonės HAL"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"gauti garso įrašo pritildymo įvykius"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Programai leidžiama gauti pranešimus, kai jos garsumas sumažinamas automobilyje paleidus kitą garso įrašą."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Imituoti automobilio transporto priemonės HAL vidinio testavimo tikslais."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Valdyti automobilio garsų garsumą."</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Valdyti automobilio garso nustatymus."</string>
@@ -122,4 +124,6 @@
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Pasiekti automobilio maitinimo būseną."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Užregistruoti patikimą įrenginį"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Leisti užregistruoti patikimą įrenginį"</string>
+    <!-- no translation found for trust_device_default_name (4213625926070261253) -->
+    <skip />
 </resources>
