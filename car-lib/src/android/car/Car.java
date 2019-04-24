@@ -171,6 +171,13 @@ public final class Car {
     public static final String CAR_MEDIA_SERVICE = "car_media";
 
     /**
+     *
+     * Service name for {@link android.car.CarBugreportManager}
+     * @hide
+     */
+    public static final String CAR_BUGREPORT_SERVICE = "car_bugreport";
+
+    /**
      * @hide
      */
     @SystemApi
@@ -904,6 +911,9 @@ public final class Car {
                 break;
             case CAR_MEDIA_SERVICE:
                 manager = new CarMediaManager(binder);
+                break;
+            case CAR_BUGREPORT_SERVICE:
+                manager = new CarBugreportManager(binder, mContext);
                 break;
             default:
                 break;
