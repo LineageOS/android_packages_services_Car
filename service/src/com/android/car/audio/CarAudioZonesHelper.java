@@ -24,6 +24,7 @@ import android.util.SparseArray;
 import android.util.Xml;
 
 import com.android.car.CarLog;
+import com.android.internal.util.Preconditions;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -74,6 +75,7 @@ import java.util.Map;
     private final String mXmlConfigurationPath;
     private final SparseArray<CarAudioDeviceInfo> mBusToCarAudioDeviceInfo;
 
+    private boolean mHasPrimaryZone;
     private int mNextSecondaryZoneId;
 
     CarAudioZonesHelper(Context context, @NonNull String xmlConfigurationPath,
@@ -130,12 +132,17 @@ import java.util.Map;
                 skip(parser);
             }
         }
+        Preconditions.checkArgument(mHasPrimaryZone, "Requires one primary zone");
     }
 
     private CarAudioZone parseAudioZone(XmlPullParser parser)
             throws XmlPullParserException, IOException {
         final boolean isPrimary = Boolean.parseBoolean(
                 parser.getAttributeValue(NAMESPACE, ATTR_IS_PRIMARY));
+        if (isPrimary) {
+            Preconditions.checkArgument(!mHasPrimaryZone, "Only one primary zone is allowed");
+            mHasPrimaryZone = true;
+        }
         final String zoneName = parser.getAttributeValue(NAMESPACE, ATTR_ZONE_NAME);
 
         CarAudioZone zone = new CarAudioZone(
