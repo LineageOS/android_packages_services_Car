@@ -94,9 +94,6 @@ public class CueView extends TextView {
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
         for (RichTextElement element : richText.getElements()) {
-            if (builder.length() > 0) {
-                builder.append(" ");
-            }
             if (element.getImage() != null) {
                 Bitmap bitmap = bitmaps.get(element.getImage());
                 if (bitmap != null) {
