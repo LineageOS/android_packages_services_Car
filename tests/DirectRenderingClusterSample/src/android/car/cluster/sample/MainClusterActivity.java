@@ -240,7 +240,12 @@ public class MainClusterActivity extends FragmentActivity implements
         mUserReceiver = new UserReceiver(this);
         mUserReceiver.register(this);
 
-        InMemoryPhoneBook.init(this);
+        try {
+            InMemoryPhoneBook.get();
+        } catch (IllegalStateException ex) {
+            // Initialize if not yet initialized
+            InMemoryPhoneBook.init(this);
+        }
 
         PhoneFragmentViewModel phoneViewModel = ViewModelProviders.of(this).get(
                 PhoneFragmentViewModel.class);
