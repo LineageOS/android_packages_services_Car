@@ -75,4 +75,8 @@
     <string name="config_UsbDeviceConnectionHandling_component">android.car.usb.handler/android.car.usb.handler.UsbHostManagementActivity</string>
 
     <string name="config_headlineFontFamilyMedium">sans-serif-medium</string>
+
+    <!-- Whether the system enables per-display focus. If the system has the input method for each
+         display, this value should be true. -->
+    <bool name="config_perDisplayFocusEnabled">true</bool>
 </resources>
