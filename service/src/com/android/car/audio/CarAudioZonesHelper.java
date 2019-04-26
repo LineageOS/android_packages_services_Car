@@ -19,17 +19,14 @@ import android.annotation.NonNull;
 import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
-import android.util.Log;
 import android.util.SparseArray;
 import android.util.Xml;
 
-import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -40,7 +37,7 @@ import java.util.Map;
 /**
  * A helper class loads all audio zones from the configuration XML file.
  */
-/* package */ class CarAudioZonesHelper implements CarAudioService.CarAudioZonesLoader {
+/* package */ class CarAudioZonesHelper {
 
     private static final String NAMESPACE = null;
     private static final String TAG_ROOT = "carAudioConfiguration";
@@ -56,6 +53,7 @@ import java.util.Map;
     private static final String ATTR_DEVICE_ADDRESS = "address";
     private static final String ATTR_CONTEXT_NAME = "context";
     private static final int SUPPORTED_VERSION = 1;
+    private static final int NO_XML_RESOURCE = 0;
 
     private static final Map<String, Integer> CONTEXT_NAME_MAP;
 
@@ -72,54 +70,54 @@ import java.util.Map;
     }
 
     private final Context mContext;
-    private final String mXmlConfigurationPath;
     private final SparseArray<CarAudioDeviceInfo> mBusToCarAudioDeviceInfo;
+    private final InputStream mInputStream;
 
     private boolean mHasPrimaryZone;
     private int mNextSecondaryZoneId;
 
-    CarAudioZonesHelper(Context context, @NonNull String xmlConfigurationPath,
+    CarAudioZonesHelper(Context context, @NonNull InputStream inputStream,
             @NonNull SparseArray<CarAudioDeviceInfo> busToCarAudioDeviceInfo) {
         mContext = context;
-        mXmlConfigurationPath = xmlConfigurationPath;
+        mInputStream = inputStream;
         mBusToCarAudioDeviceInfo = busToCarAudioDeviceInfo;
 
         mNextSecondaryZoneId = CarAudioManager.PRIMARY_AUDIO_ZONE + 1;
     }
 
-    @Override
-    public CarAudioZone[] loadAudioZones() {
+    public CarAudioZone[] loadAudioZones() throws IOException, XmlPullParserException {
         List<CarAudioZone> carAudioZones = new ArrayList<>();
-        try (InputStream stream = new FileInputStream(mXmlConfigurationPath)) {
-            final XmlPullParser parser = Xml.newPullParser();
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, NAMESPACE != null);
-            parser.setInput(stream, null);
-
-            // Ensure <carAudioConfiguration> is the root
-            parser.nextTag();
-            parser.require(XmlPullParser.START_TAG, NAMESPACE, TAG_ROOT);
-
-            // Version check
-            final int versionNumber = Integer.parseInt(
-                    parser.getAttributeValue(NAMESPACE, ATTR_VERSION));
-            if (versionNumber != SUPPORTED_VERSION) {
-                throw new RuntimeException("Support version:"
-                        + SUPPORTED_VERSION + " only, got version:" + versionNumber);
-            }
-
-            // Get all zones configured under <zones> tag
-            while (parser.next() != XmlPullParser.END_TAG) {
-                if (parser.getEventType() != XmlPullParser.START_TAG) continue;
-                if (TAG_AUDIO_ZONES.equals(parser.getName())) {
-                    parseAudioZones(parser, carAudioZones);
-                } else {
-                    skip(parser);
-                }
-            }
-        } catch (Exception e) {
-            Log.e(CarLog.TAG_AUDIO, "Error parsing unified car audio configuration", e);
-        }
+        parseCarAudioZones(carAudioZones, mInputStream);
         return carAudioZones.toArray(new CarAudioZone[0]);
+    }
+
+    private void parseCarAudioZones(List<CarAudioZone> carAudioZones, InputStream stream)
+            throws XmlPullParserException, IOException {
+        final XmlPullParser parser = Xml.newPullParser();
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, NAMESPACE != null);
+        parser.setInput(stream, null);
+
+        // Ensure <carAudioConfiguration> is the root
+        parser.nextTag();
+        parser.require(XmlPullParser.START_TAG, NAMESPACE, TAG_ROOT);
+
+        // Version check
+        final int versionNumber = Integer.parseInt(
+                parser.getAttributeValue(NAMESPACE, ATTR_VERSION));
+        if (versionNumber != SUPPORTED_VERSION) {
+            throw new RuntimeException("Support version:"
+                    + SUPPORTED_VERSION + " only, got version:" + versionNumber);
+        }
+
+        // Get all zones configured under <zones> tag
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) continue;
+            if (TAG_AUDIO_ZONES.equals(parser.getName())) {
+                parseAudioZones(parser, carAudioZones);
+            } else {
+                skip(parser);
+            }
+        }
     }
 
     private void parseAudioZones(XmlPullParser parser, List<CarAudioZone> carAudioZones)
