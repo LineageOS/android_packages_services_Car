@@ -67,7 +67,12 @@ import java.util.HashMap;
  *   Calling this API on a device with no such feature will lead to an exception.
  */
 public final class Car {
-    /** Service name for {@link CarSensorManager}, to be used in {@link #getCarManager(String)}. */
+    /**
+     * Service name for {@link CarSensorManager}, to be used in {@link #getCarManager(String)}.
+     *
+     * @deprecated  {@link CarSensorManager} is deprecated. Use {@link CarPropertyManager} instead.
+     */
+    @Deprecated
     public static final String SENSOR_SERVICE = "sensor";
 
     /** Service name for {@link CarInfoManager}, to be used in {@link #getCarManager(String)}. */
@@ -95,8 +100,12 @@ public final class Car {
     public static final String CAR_INSTRUMENT_CLUSTER_SERVICE = "cluster_service";
 
     /**
+     * Service name for {@link CarCabinManager}.
+     *
+     * @deprecated {@link CarCabinManager} is deprecated. Use {@link CarPropertyManager} instead.
      * @hide
      */
+    @Deprecated
     @SystemApi
     public static final String CABIN_SERVICE = "cabin";
 
@@ -107,8 +116,11 @@ public final class Car {
     public static final String DIAGNOSTIC_SERVICE = "diagnostic";
 
     /**
+     * Service name for {@link CarHvacManager}
+     * @deprecated {@link CarHvacManager} is deprecated. Use {@link CarPropertyManager} instead.
      * @hide
      */
+    @Deprecated
     @SystemApi
     public static final String HVAC_SERVICE = "hvac";
 
@@ -125,14 +137,18 @@ public final class Car {
     public static final String PROJECTION_SERVICE = "projection";
 
     /**
-     * @hide
+     * Service name for {@link CarPropertyManager}
      */
-    @SystemApi
     public static final String PROPERTY_SERVICE = "property";
 
     /**
+     * Service name for {@link CarVendorExtensionManager}
+     *
+     * @deprecated {@link CarVendorExtensionManager} is deprecated.
+     * Use {@link CarPropertyManager} instead.
      * @hide
      */
+    @Deprecated
     @SystemApi
     public static final String VENDOR_EXTENSION_SERVICE = "vendor_extension";
 
