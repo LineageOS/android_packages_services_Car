@@ -176,7 +176,13 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         LinkedList<TopTaskInfoContainer> tasks = new LinkedList<>();
         synchronized (this) {
             for (int i = 0; i < mTopTasks.size(); i++) {
-                tasks.add(mTopTasks.valueAt(i));
+                TopTaskInfoContainer topTask = mTopTasks.valueAt(i);
+                if (topTask == null) {
+                    Log.e(CarLog.TAG_AM, "Top tasks contains null. Full content is: "
+                            + mTopTasks.toString());
+                    continue;
+                }
+                tasks.add(topTask);
             }
         }
         return tasks;
@@ -298,7 +304,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
             }
             // Assuming displays remains the same.
             for (int i = 0; i < topTasks.size(); i++) {
-                TopTaskInfoContainer topTask = topTasks.get(i);
+                TopTaskInfoContainer topTask = topTasks.valueAt(i);
 
                 int displayId = topTasks.keyAt(i);
                 mTopTasks.put(displayId, topTask);
