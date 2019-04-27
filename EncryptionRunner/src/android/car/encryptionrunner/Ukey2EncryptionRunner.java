@@ -17,6 +17,7 @@
 package android.car.encryptionrunner;
 
 import android.annotation.NonNull;
+import android.util.Base64;
 import android.util.Log;
 
 import com.google.security.cryptauth.lib.securegcm.D2DConnectionContext;
@@ -103,8 +104,9 @@ public class Ukey2EncryptionRunner implements EncryptionRunner {
 
             String verificationCode = null;
             if (mUkey2client.getHandshakeState() == Ukey2Handshake.State.VERIFICATION_NEEDED) {
-                verificationCode =
-                        new String(mUkey2client.getVerificationString(MAX_AUTH_STRING_LENGTH));
+                verificationCode = Base64.encodeToString(
+                        mUkey2client.getVerificationString(MAX_AUTH_STRING_LENGTH),
+                        Base64.DEFAULT);
             }
             return HandshakeMessage.newBuilder()
                     .setHandshakeState(getHandshakeState())
