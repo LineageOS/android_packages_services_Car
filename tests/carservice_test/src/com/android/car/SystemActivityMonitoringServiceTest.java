@@ -19,9 +19,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.VirtualDisplay;
+import android.view.Display;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
@@ -105,6 +109,23 @@ public class SystemActivityMonitoringServiceTest {
         waitUntil(() -> !topTasksHasComponent(activityThatFinishesImmediately));
     }
 
+    @Test
+    public void testGetTopTasksOnMultiDisplay() throws Exception {
+        String virtualDisplayName = "virtual_display";
+        DisplayManager displayManager = getContext().getSystemService(DisplayManager.class);
+        VirtualDisplay virtualDisplay = displayManager.createVirtualDisplay(
+                virtualDisplayName, 10, 10, 10, null, 0);
+
+        ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
+        startActivity(getContext(), activityA, Display.DEFAULT_DISPLAY);
+        waitUntil(() -> topTasksHasComponent(activityA));
+
+        ComponentName activityB = toComponentName(getTestContext(), ActivityB.class);
+        startActivity(getContext(), activityB, virtualDisplay.getDisplay().getDisplayId());
+        waitUntil(() -> topTasksHasComponent(activityB));
+
+        virtualDisplay.release();
+    }
 
     private void waitUntil(BooleanSupplier condition) throws Exception {
         while (!condition.getAsBoolean()) {
@@ -169,9 +190,17 @@ public class SystemActivityMonitoringServiceTest {
     }
 
     private static void startActivity(Context ctx, ComponentName name) {
+        startActivity(ctx, name, Display.DEFAULT_DISPLAY);
+    }
+
+    private static void startActivity(Context ctx, ComponentName name, int displayId) {
         Intent intent = new Intent();
         intent.setComponent(name);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        ctx.startActivity(intent);
+
+        ActivityOptions options = ActivityOptions.makeBasic();
+        options.setLaunchDisplayId(displayId);
+
+        ctx.startActivity(intent, options.toBundle());
     }
 }
