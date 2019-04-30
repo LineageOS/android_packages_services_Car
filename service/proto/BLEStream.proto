@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package com.android.car.trust.BLEStream;
+
+option java_package = "com.android.car.trust";
+option java_outer_classname = "BLEStream";
+
+message BLEMessage {
+  // Required.
+  int32 version = 1;
+
+  // Required.
+  int32 operation = 2;
+
+  // Required.
+  int32 packet_number = 3;
+
+  // Required.
+  int32 total_packets = 4;
+
+  // Required.
+  bytes payload = 5;
+}
