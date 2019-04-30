@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity
     private void showStagedUxRestrictionsConfig() {
         try {
             CarUxRestrictionsConfiguration stagedConfig =
-                    mCarUxRestrictionsManager.getStagedConfig();
+                    mCarUxRestrictionsManager.getStagedConfigs().get(0);
             if (stagedConfig == null) {
                 new AlertDialog.Builder(this)
                         .setMessage(R.string.no_staged_config)
@@ -260,7 +260,8 @@ public class MainActivity extends AppCompatActivity
 
     private void showProdUxRestrictionsConfig() {
         try {
-            CarUxRestrictionsConfiguration prodConfig = mCarUxRestrictionsManager.getConfig();
+            CarUxRestrictionsConfiguration prodConfig =
+                    mCarUxRestrictionsManager.getConfigs().get(0);
             if (prodConfig == null) {
                 new AlertDialog.Builder(this)
                         .setMessage(R.string.no_prod_config)

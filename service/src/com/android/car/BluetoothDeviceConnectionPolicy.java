@@ -60,6 +60,7 @@ import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -781,8 +782,9 @@ public class BluetoothDeviceConnectionPolicy {
                 mPropertyEventListener);
         // Get Current restrictions and handle them
         handleUxRestrictionsChanged(mUxRService.getCurrentUxRestrictions());
-        // Register for future changes to the DrivingStateRestrictions
-        mUxRService.registerUxRestrictionsChangeListener(mUxRListener);
+        // Register for future changes to the UxRestrictions
+        // We are only interested in restrictions for the default display.
+        mUxRService.registerUxRestrictionsChangeListener(mUxRListener, Display.DEFAULT_DISPLAY);
         mUserServiceHelper.registerServiceCallback(mServiceCallback);
     }
 
