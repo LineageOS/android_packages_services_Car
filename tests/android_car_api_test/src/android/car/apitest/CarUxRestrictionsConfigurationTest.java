@@ -553,6 +553,84 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertEquals(UX_RESTRICTIONS_NO_VIDEO, baseline.getActiveRestrictions());
     }
 
+    public void testHasSameParameters_SameParameters() {
+        CarUxRestrictionsConfiguration one = new CarUxRestrictionsConfiguration.Builder()
+                .setMaxStringLength(1)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .build();
+
+        CarUxRestrictionsConfiguration other = new CarUxRestrictionsConfiguration.Builder()
+                .setMaxStringLength(1)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .build();
+
+        assertTrue(one.hasSameParameters(other));
+    }
+
+    public void testHasSameParameters_DifferentParameters() {
+        CarUxRestrictionsConfiguration one = new CarUxRestrictionsConfiguration.Builder()
+                .setMaxStringLength(2)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .build();
+
+        CarUxRestrictionsConfiguration other = new CarUxRestrictionsConfiguration.Builder()
+                .setMaxStringLength(1)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .build();
+
+        assertFalse(one.hasSameParameters(other));
+    }
+
+    public void testConfigurationEquals() {
+        CarUxRestrictionsConfiguration one = new CarUxRestrictionsConfiguration.Builder()
+                .setMaxStringLength(2)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions())
+                .setUxRestrictions(DRIVING_STATE_PARKED,
+                        new DrivingStateRestrictions().setRestrictions(UX_RESTRICTIONS_NO_VIDEO))
+                .build();
+
+        CarUxRestrictionsConfiguration other = new CarUxRestrictionsConfiguration.Builder()
+                .setMaxStringLength(2)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions())
+                .setUxRestrictions(DRIVING_STATE_PARKED,
+                        new DrivingStateRestrictions().setRestrictions(UX_RESTRICTIONS_NO_VIDEO))
+                .build();
+
+        assertTrue(one.equals(other));
+        assertTrue(one.hashCode() == other.hashCode());
+    }
+
+    public void testConfigurationEquals_DifferentRestrictions() {
+        CarUxRestrictionsConfiguration one = new CarUxRestrictionsConfiguration.Builder()
+                .setMaxStringLength(2)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions())
+                .setUxRestrictions(DRIVING_STATE_PARKED,
+                        new DrivingStateRestrictions().setRestrictions(
+                                UX_RESTRICTIONS_FULLY_RESTRICTED))
+                .build();
+
+        CarUxRestrictionsConfiguration other = new CarUxRestrictionsConfiguration.Builder()
+                .setMaxStringLength(2)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions())
+                .setUxRestrictions(DRIVING_STATE_PARKED,
+                        new DrivingStateRestrictions().setRestrictions(UX_RESTRICTIONS_BASELINE))
+                .build();
+
+        assertFalse(one.equals(other));
+    }
+
     /**
      * Writes input config as json, then reads a config out of json.
      * Asserts the deserialized config is the same as input.

@@ -33,6 +33,7 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.ArrayMap;
 import android.util.JsonReader;
+import android.util.JsonToken;
 import android.util.JsonWriter;
 import android.util.Log;
 
@@ -44,6 +45,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Configuration for Car UX Restrictions service.
@@ -54,6 +56,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
     private static final String TAG = "CarUxRConfig";
 
     // Constants used by json de/serialization.
+    private static final String JSON_NAME_PHYSICAL_PORT = "physical_port";
     private static final String JSON_NAME_MAX_CONTENT_DEPTH = "max_content_depth";
     private static final String JSON_NAME_MAX_CUMULATIVE_CONTENT_ITEMS =
             "max_cumulative_content_items";
@@ -84,7 +87,13 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
     private final Map<Integer, List<RestrictionsPerSpeedRange>> mBaselineUxRestrictions =
             new ArrayMap<>(DRIVING_STATES.length);
 
+    // null means the port is not configured. It should apply to default display.
+    @Nullable
+    private final Byte mPhysicalPort;
+
     private CarUxRestrictionsConfiguration(CarUxRestrictionsConfiguration.Builder builder) {
+        mPhysicalPort = builder.mPhysicalPort;
+
         mMaxContentDepth = builder.mMaxContentDepth;
         mMaxCumulativeContentItems = builder.mMaxCumulativeContentItems;
         mMaxStringLength = builder.mMaxStringLength;
@@ -153,6 +162,20 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         return createUxRestrictionsEvent(restriction.mReqOpt, restriction.mRestrictions);
     }
 
+    /**
+     * Returns the port this configuration applies to.
+     *
+     * <p>Returns {@code null} if port is not set, meaning this configuration will apply
+     * to default display {@link android.view.Display#DEFAULT_DISPLAY}.
+     */
+    @Nullable
+    public Byte getPhysicalPort() {
+        return mPhysicalPort;
+    }
+
+    /**
+     * Returns the restrictions based on current driving state and speed.
+     */
     @Nullable
     private static RestrictionsPerSpeedRange findUxRestrictionsInList(float currentSpeed,
             List<RestrictionsPerSpeedRange> restrictions) {
@@ -213,7 +236,11 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         writer.setLenient(true);
 
         writer.beginObject();
-
+        if (mPhysicalPort == null) {
+            writer.name(JSON_NAME_PHYSICAL_PORT).nullValue();
+        } else {
+            writer.name(JSON_NAME_PHYSICAL_PORT).value((int) mPhysicalPort.byteValue());
+        }
         writer.name(JSON_NAME_MAX_CONTENT_DEPTH).value(mMaxContentDepth);
         writer.name(JSON_NAME_MAX_CUMULATIVE_CONTENT_ITEMS).value(
                 mMaxCumulativeContentItems);
@@ -303,6 +330,13 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         while (reader.hasNext()) {
             String name = reader.nextName();
             switch (name) {
+                case JSON_NAME_PHYSICAL_PORT:
+                    if (reader.peek() == JsonToken.NULL) {
+                        reader.nextNull();
+                    } else {
+                        builder.setPhysicalPort(Builder.validatePort(reader.nextInt()));
+                    }
+                    break;
                 case JSON_NAME_MAX_CONTENT_DEPTH:
                     builder.setMaxContentDepth(reader.nextInt());
                     break;
@@ -408,56 +442,49 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(mPhysicalPort,
+                mMaxStringLength, mMaxCumulativeContentItems, mMaxContentDepth,
+                mBaselineUxRestrictions, mPassengerUxRestrictions);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-        if (obj == null || !(obj instanceof CarUxRestrictionsConfiguration)) {
+        if (!(obj instanceof CarUxRestrictionsConfiguration)) {
             return false;
         }
 
         CarUxRestrictionsConfiguration other = (CarUxRestrictionsConfiguration) obj;
 
-        // Compare UXR parameters.
-        if (mMaxContentDepth != other.mMaxContentDepth
-                || mMaxCumulativeContentItems != other.mMaxCumulativeContentItems
-                || mMaxStringLength != other.mMaxStringLength) {
-            return false;
-        }
-
-        // Compare UXR for each restriction mode.
-        if (!areRestrictionsEqual(mBaselineUxRestrictions, other.mBaselineUxRestrictions)
-                || !areRestrictionsEqual(
-                        mPassengerUxRestrictions, other.mPassengerUxRestrictions)) {
-            return false;
-        }
-        return true;
+        return mPhysicalPort == other.mPhysicalPort
+                && hasSameParameters(other)
+                && mBaselineUxRestrictions.equals(other.mBaselineUxRestrictions)
+                && mPassengerUxRestrictions.equals(other.mPassengerUxRestrictions);
     }
 
-    private boolean areRestrictionsEqual(Map<Integer, List<RestrictionsPerSpeedRange>> r1,
-            Map<Integer, List<RestrictionsPerSpeedRange>> r2) {
-        // Compare UXR by driving state.
-        if (!r1.keySet().equals(r2.keySet())) {
-            return false;
-        }
-        for (int drivingState : r1.keySet()) {
-            List<RestrictionsPerSpeedRange> restrictions = r1.get(drivingState);
-            List<RestrictionsPerSpeedRange> otherRestrictions = r2.get(drivingState);
-            if (!restrictions.equals(otherRestrictions)) {
-                return false;
-            }
-        }
-        return true;
+    /**
+     * Compares {@code this} configuration object with {@code other} on restriction parameters.
+     */
+    public boolean hasSameParameters(CarUxRestrictionsConfiguration other) {
+        return mMaxContentDepth == other.mMaxContentDepth
+                && mMaxCumulativeContentItems == other.mMaxCumulativeContentItems
+                && mMaxStringLength == other.mMaxStringLength;
     }
 
     /**
      * Dump the driving state to UX restrictions mapping.
      */
     public void dump(PrintWriter writer) {
+        writer.println("Physical display port: " + mPhysicalPort);
+
         writer.println("===========================================");
         writer.println("Baseline mode UXR:");
         writer.println("-------------------------------------------");
         dumpRestrictions(writer, mBaselineUxRestrictions);
+
         writer.println("Passenger mode UXR:");
         writer.println("-------------------------------------------");
         dumpRestrictions(writer, mPassengerUxRestrictions);
@@ -541,6 +568,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             in.readTypedList(restrictions, RestrictionsPerSpeedRange.CREATOR);
             mPassengerUxRestrictions.put(drivingState, restrictions);
         }
+        mPhysicalPort = in.readByte();
         mMaxContentDepth = in.readInt();
         mMaxCumulativeContentItems = in.readInt();
         mMaxStringLength = in.readInt();
@@ -554,6 +582,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         for (int drivingState : DRIVING_STATES) {
             dest.writeTypedList(mPassengerUxRestrictions.get(drivingState));
         }
+        dest.writeByte(mPhysicalPort);
         dest.writeInt(mMaxContentDepth);
         dest.writeInt(mMaxCumulativeContentItems);
         dest.writeInt(mMaxStringLength);
@@ -564,7 +593,27 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
      */
     public static final class Builder {
 
+        /**
+         * Validates integer value for port is within the value range of a byte.
+         *
+         * Throws exception if input value is outside the range.
+         *
+         * @return {@code port} as a byte.
+         */
+        public static byte validatePort(int port) {
+            if (Byte.MIN_VALUE <= port && port <= Byte.MAX_VALUE) {
+                return (byte) port;
+            }
+            throw new IllegalArgumentException(
+                    "Port value should be within the range of a byte. Input is " + port);
+        }
+
         private static final int UX_RESTRICTIONS_UNKNOWN = -1;
+
+        /**
+         * {@code null} means port is not set.
+         */
+        private Byte mPhysicalPort;
 
         private int mMaxContentDepth = UX_RESTRICTIONS_UNKNOWN;
         private int mMaxCumulativeContentItems = UX_RESTRICTIONS_UNKNOWN;
@@ -583,7 +632,20 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         }
 
         /**
-         * Sets UX restrictions for driving state.
+         * Sets the display this configuration will apply to.
+         *
+         * <p>The display is identified by the physical {@code port}.
+         *
+         * @param port Port that is connected to a display.
+         *             See {@link android.view.DisplayAddress.Physical#getPort()}.
+         */
+        public Builder setPhysicalPort(byte port) {
+            mPhysicalPort = port;
+            return this;
+        }
+
+        /**
+         * Sets ux restrictions for driving state.
          */
         public Builder setUxRestrictions(@CarDrivingState int drivingState,
                 boolean requiresOptimization,
@@ -853,12 +915,17 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             @Override
             public int compareTo(SpeedRange other) {
                 // First compare min speed; then max speed.
-                int minSpeedComparison = Float.compare(this.mMinSpeed, other.mMinSpeed);
+                int minSpeedComparison = Float.compare(mMinSpeed, other.mMinSpeed);
                 if (minSpeedComparison != 0) {
                     return minSpeedComparison;
                 }
 
-                return Float.compare(this.mMaxSpeed, other.mMaxSpeed);
+                return Float.compare(mMaxSpeed, other.mMaxSpeed);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(mMinSpeed, mMaxSpeed);
             }
 
             @Override
@@ -866,12 +933,12 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
                 if (this == obj) {
                     return true;
                 }
-                if (obj == null || !(obj instanceof SpeedRange)) {
+                if (!(obj instanceof SpeedRange)) {
                     return false;
                 }
                 SpeedRange other = (SpeedRange) obj;
 
-                return this.compareTo(other) == 0;
+                return compareTo(other) == 0;
             }
 
             @Override
@@ -984,6 +1051,11 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         }
 
         @Override
+        public int hashCode() {
+            return Objects.hash(mMode, mReqOpt, mRestrictions, mSpeedRange);
+        }
+
+        @Override
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
@@ -995,8 +1067,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             return mMode == other.mMode
                     && mReqOpt == other.mReqOpt
                     && mRestrictions == other.mRestrictions
-                    && ((mSpeedRange == null && other.mSpeedRange == null) || mSpeedRange.equals(
-                    other.mSpeedRange));
+                    && Objects.equals(mSpeedRange, other.mSpeedRange);
         }
 
         @Override
