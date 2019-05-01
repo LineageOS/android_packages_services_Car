@@ -80,8 +80,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     private BluetoothDevice mRemoteEnrollmentDevice;
     @GuardedBy("this")
     private boolean mEnrollmentHandshakeAccepted;
-
-    private final Map<Long, Boolean> mTokenActiveState = new HashMap<>();
+    private final Map<Long, Boolean> mTokenActiveStateMap = new HashMap<>();
     private String mDeviceName;
     private final Context mContext;
 
@@ -172,6 +171,18 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         setEnrollmentHandshakeAccepted(false);
         // Disconnect from BLE
         mCarTrustAgentBleManager.disconnectRemoteDevice(mRemoteEnrollmentDevice);
+        // Remove any handles that have not been activated yet.
+        Iterator<Map.Entry<Long, Boolean>> it = mTokenActiveStateMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Long, Boolean> pair = it.next();
+            boolean isHandleActive = pair.getValue();
+            if (!isHandleActive) {
+                long handle = pair.getKey();
+                int uid = mTrustedDeviceService.getSharedPrefs().getInt(String.valueOf(handle), -1);
+                removeEscrowToken(handle, uid);
+                it.remove();
+            }
+        }
     }
 
     /**
@@ -183,8 +194,8 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
      */
     @Override
     public boolean isEscrowTokenActive(long handle, int uid) {
-        if (mTokenActiveState.get(handle) != null) {
-            return mTokenActiveState.get(handle);
+        if (mTokenActiveStateMap.get(handle) != null) {
+            return mTokenActiveStateMap.get(handle);
         }
         return false;
     }
@@ -193,7 +204,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
      * Remove the Token associated with the given handle for the given user.
      *
      * @param handle handle corresponding to the escrow token
-     * @param uid user id
+     * @param uid    user id
      */
     @Override
     public void removeEscrowToken(long handle, int uid) {
@@ -207,7 +218,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
      */
     @Override
     public void removeAllTrustedDevices(int uid) {
-        for (TrustedDeviceInfo device: getEnrolledDeviceInfosForUser(uid)) {
+        for (TrustedDeviceInfo device : getEnrolledDeviceInfosForUser(uid)) {
             removeEscrowToken(device.getHandle(), uid);
         }
     }
@@ -230,12 +241,13 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
      * Enable or disable authentication of the head unit with a trusted device.
      *
      * @param isEnabled when set to {@code false}, head unit will not be
-     * discoverable to unlock the user.  Setting it to {@code true} will enable it back.
+     *                  discoverable to unlock the user.  Setting it to {@code true} will enable it
+     *                  back.
      */
     @Override
     public void setTrustedDeviceUnlockEnabled(boolean isEnabled) {
         mTrustedDeviceService.getCarTrustAgentUnlockService()
-            .setTrustedDeviceUnlockEnabled(isEnabled);
+                .setTrustedDeviceUnlockEnabled(isEnabled);
     }
 
     /**
@@ -295,6 +307,9 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             removeEscrowToken(handle, uid);
             return;
         }
+        // To conveniently get the user id to unlock when handle is received.
+        mTrustedDeviceService.getSharedPrefs().edit().putInt(String.valueOf(handle), uid).apply();
+        mTokenActiveStateMap.put(handle, false);
         for (EnrollmentStateClient client : mEnrollmentStateClients) {
             try {
                 client.mListener.onEscrowTokenAdded(handle);
@@ -341,12 +356,9 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onEscrowTokenActiveStateChanged: " + Long.toHexString(handle));
         }
-        mTokenActiveState.put(handle, isTokenActive);
+        mTokenActiveStateMap.put(handle, isTokenActive);
         dispatchEscrowTokenActiveStateChanged(handle, isTokenActive);
         if (isTokenActive) {
-            SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
-            // To conveniently get the user id to unlock when handle is received.
-            editor.putInt(String.valueOf(handle), uid);
             Set<String> deviceInfo = mTrustedDeviceService.getSharedPrefs().getStringSet(
                     String.valueOf(uid), new HashSet<>());
             String deviceName;
@@ -360,13 +372,11 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             deviceInfo.add(new TrustedDeviceInfo(handle, mRemoteEnrollmentDevice.getAddress(),
                     deviceName).serialize());
             // To conveniently get the devices info regarding certain user.
-            editor.putStringSet(String.valueOf(uid), deviceInfo);
-            editor.apply();
-
+            mTrustedDeviceService.getSharedPrefs().edit().putStringSet(String.valueOf(uid),
+                    deviceInfo).apply();
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "Sending handle: " + handle);
             }
-
             mCarTrustAgentBleManager.sendEnrollmentHandle(mRemoteEnrollmentDevice,
                     mEncryptionKey.encryptData(Utils.longToBytes(handle)));
         } else {
@@ -466,7 +476,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
      * <p>This method should be called continually until {@link #mEnrollmentHandshakeAccepted} is
      * {@code true}, meaning an secure channel has been set up.
      *
-     * @param  message The message received from the connected device.
+     * @param message The message received from the connected device.
      * @throws HandshakeException If an error was encountered during the handshake flow.
      */
     private void processInitEncryptionMessage(byte[] message) throws HandshakeException {
