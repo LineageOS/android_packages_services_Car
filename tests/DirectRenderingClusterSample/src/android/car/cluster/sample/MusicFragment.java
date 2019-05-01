@@ -71,7 +71,7 @@ public class MusicFragment extends Fragment {
         innerViewModel.getMaxProgress().observe(getViewLifecycleOwner(),
                 maxProgress -> seekBar.setMax(maxProgress != null ? maxProgress.intValue() : 0));
         innerViewModel.getProgress().observe(getViewLifecycleOwner(),
-                progress -> seekBar.setProgress(progress.intValue()));
+                progress -> seekBar.setProgress((int) progress.getProgress()));
         innerViewModel.hasTime().observe(getViewLifecycleOwner(),
                 hasTime -> seekBar.setVisibility(hasTime ? View.VISIBLE : View.INVISIBLE));
 
