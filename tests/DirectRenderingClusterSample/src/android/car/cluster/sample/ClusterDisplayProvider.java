@@ -20,9 +20,11 @@ import android.annotation.Nullable;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
+import android.os.SystemProperties;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
+import android.view.DisplayAddress;
 
 /**
  * This class provides a display for instrument cluster renderer.
@@ -36,6 +38,9 @@ import android.view.Display;
 public class ClusterDisplayProvider {
     private static final String TAG = "Cluster.DisplayProvider";
 
+    private static final String RO_CLUSTER_DISPLAY_PORT = "ro.car.cluster.displayport";
+    private static final String PERSIST_CLUSTER_DISPLAY_PORT =
+            "persist.car.cluster.displayport";
     private static final int NETWORKED_DISPLAY_WIDTH = 1280;
     private static final int NETWORKED_DISPLAY_HEIGHT = 720;
     private static final int NETWORKED_DISPLAY_DPI = 320;
@@ -115,13 +120,27 @@ public class ClusterDisplayProvider {
         Display[] displays = displayManager.getDisplays();
         Log.d(TAG, "There are currently " + displays.length + " displays connected.");
 
-        // TODO: assuming that secondary display is instrument cluster. Put this into
-        // settings?
-        // We could use name and ownerPackageName to verify this is the right display.
-        // For now we consider the second system display to be the one to be used.
-        for (int i = 1; i < displays.length; i++) {
-            if (displays[i].getOwnerPackageName() == null) {
-                return displays[i];
+        final int displayPortPrimary = 0;  // primary port should not be instrument cluster.
+        int displayPort = SystemProperties.getInt(PERSIST_CLUSTER_DISPLAY_PORT,
+                displayPortPrimary);
+        if (displayPort == displayPortPrimary) {
+            displayPort = SystemProperties.getInt(RO_CLUSTER_DISPLAY_PORT,
+                    displayPortPrimary);
+            if (displayPort == displayPortPrimary) {
+                return null;
+            }
+        }
+        // match port for system display ( = null getOwnerPackageName())
+        // with separate check for main display as main display should be never picked up.
+        for (Display display : displays) {
+            if (display.getDisplayId() != Display.DEFAULT_DISPLAY
+                    && display.getOwnerPackageName() == null
+                    && display.getAddress() != null
+                    && display.getAddress() instanceof DisplayAddress.Physical) {
+                final byte port = ((DisplayAddress.Physical) display.getAddress()).getPort();
+                if (displayPort == port) {
+                    return display;
+                }
             }
         }
         return null;
