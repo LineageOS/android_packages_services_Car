@@ -826,6 +826,9 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
 
             public SpeedRange(@FloatRange(from = 0.0) float minSpeed,
                     @FloatRange(from = 0.0) float maxSpeed) {
+                if (Float.compare(minSpeed, 0) < 0 || Float.compare(maxSpeed, 0) < 0) {
+                    throw new IllegalArgumentException("Speed cannot be negative.");
+                }
                 if (minSpeed == MAX_SPEED) {
                     throw new IllegalArgumentException("Min speed cannot be MAX_SPEED.");
                 }
