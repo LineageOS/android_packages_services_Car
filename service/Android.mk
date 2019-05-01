@@ -53,6 +53,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     car-frameworks-service \
     car-systemtest \
     com.android.car.procfsinspector-client \
+    blestream-protos \
 
 LOCAL_STATIC_ANDROID_LIBRARIES := \
     SettingsLib \
@@ -88,6 +89,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     vehicle-hal-support-lib \
     car-systemtest \
     com.android.car.procfsinspector-client \
+    blestream-protos \
 
 LOCAL_STATIC_ANDROID_LIBRARIES := \
     SettingsLib \
