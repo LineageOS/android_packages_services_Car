@@ -170,7 +170,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     public void terminateEnrollmentHandshake() {
         setEnrollmentHandshakeAccepted(false);
         // Disconnect from BLE
-        mCarTrustAgentBleManager.disconnectRemoteDevice(mRemoteEnrollmentDevice);
+        mCarTrustAgentBleManager.disconnectRemoteDevice();
         // Remove any handles that have not been activated yet.
         Iterator<Map.Entry<Long, Boolean>> it = mTokenActiveStateMap.entrySet().iterator();
         while (it.hasNext()) {

@@ -228,8 +228,8 @@ class CarTrustAgentBleManager extends BleManager {
         stopAdvertising(mUnlockAdvertisingCallback);
     }
 
-    void disconnectRemoteDevice(BluetoothDevice device) {
-        // TODO(b/129029421) - is closing the GATT Server the right thing to do here?
+    void disconnectRemoteDevice() {
+        stopGattServer();
     }
 
     /**
