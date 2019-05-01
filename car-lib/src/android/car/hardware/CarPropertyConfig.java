@@ -308,7 +308,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      */
     @Nullable
     public T getMinValue() {
-        AreaConfig<T> area = mSupportedAreas.valueAt(0);
+        AreaConfig<T> area = mSupportedAreas.get(0);
         return area == null ? null : area.getMinValue();
     }
 
@@ -318,7 +318,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      */
     @Nullable
     public T getMaxValue() {
-        AreaConfig<T> area = mSupportedAreas.valueAt(0);
+        AreaConfig<T> area = mSupportedAreas.get(0);
         return area == null ? null : area.getMaxValue();
     }
 
