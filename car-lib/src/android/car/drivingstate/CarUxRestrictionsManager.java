@@ -29,12 +29,15 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.Display;
 
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * API to register and get the User Experience restrictions imposed based on the car's driving
@@ -78,6 +81,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     public @interface UxRestrictionMode {}
 
     private final Context mContext;
+    private int mDisplayId = Display.INVALID_DISPLAY;
     private final ICarUxRestrictionsManager mUxRService;
     private final EventCallbackHandler mEventCallbackHandler;
     @GuardedBy("this")
@@ -114,7 +118,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     }
 
     /**
-     * Register a {@link OnUxRestrictionsChangedListener} for listening to changes in the
+     * Registers a {@link OnUxRestrictionsChangedListener} for listening to changes in the
      * UX Restrictions to adhere to.
      * <p>
      * If a listener has already been registered, it has to be unregistered before registering
@@ -123,6 +127,13 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
      * @param listener {@link OnUxRestrictionsChangedListener}
      */
     public void registerListener(@NonNull OnUxRestrictionsChangedListener listener) {
+        registerListener(listener, getDisplayId());
+    }
+
+    /**
+     * @hide
+     */
+    public void registerListener(@NonNull OnUxRestrictionsChangedListener listener, int displayId) {
         synchronized (this) {
             // Check if the listener has been already registered.
             if (mUxRListener != null) {
@@ -139,14 +150,14 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
                 mListenerToService = new CarUxRestrictionsChangeListenerToService(this);
             }
             // register to the Service to listen for changes.
-            mUxRService.registerUxRestrictionsChangeListener(mListenerToService);
+            mUxRService.registerUxRestrictionsChangeListener(mListenerToService, displayId);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
     }
 
     /**
-     * Unregister the registered {@link OnUxRestrictionsChangedListener}
+     * Unregisters the registered {@link OnUxRestrictionsChangedListener}
      */
     public void unregisterListener() {
         synchronized (this) {
@@ -166,14 +177,47 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     }
 
     /**
-     * Get the current UX restrictions {@link CarUxRestrictions} in place.
+     * Sets new {@link CarUxRestrictionsConfiguration}s for next trip.
+     * <p>
+     * Saving new configurations does not affect current configuration. The new configuration will
+     * only be used after UX Restrictions service restarts when the vehicle is parked.
+     * <p>
+     * Input configurations must be one-to-one mapped to displays, namely each display must have
+     * exactly one configuration.
+     * See {@link CarUxRestrictionsConfiguration.Builder#setDisplayAddress(DisplayAddress)}.
+     *
+     * @param configs Map of display Id to UX restrictions configurations to be persisted.
+     * @return {@code true} if input config was successfully saved; {@code false} otherwise.
+     *
+     * @hide
+     */
+    @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
+    public boolean saveUxRestrictionsConfigurationForNextBoot(
+            List<CarUxRestrictionsConfiguration> configs) {
+        try {
+            return mUxRService.saveUxRestrictionsConfigurationForNextBoot(configs);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Gets the current UX restrictions ({@link CarUxRestrictions}) in place.
      *
      * @return current UX restrictions that is in effect.
      */
     @Nullable
     public CarUxRestrictions getCurrentCarUxRestrictions() {
+        return getCurrentCarUxRestrictions(getDisplayId());
+    }
+
+    /**
+     * @hide
+     */
+    @Nullable
+    public CarUxRestrictions getCurrentCarUxRestrictions(int displayId) {
         try {
-            return mUxRService.getCurrentUxRestrictions();
+            return mUxRService.getCurrentUxRestrictions(displayId);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -209,13 +253,10 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     }
 
     /**
-     * Set a new {@link CarUxRestrictionsConfiguration} for next trip.
+     * Sets a new {@link CarUxRestrictionsConfiguration} for next trip.
      * <p>
      * Saving a new configuration does not affect current configuration. The new configuration will
      * only be used after UX Restrictions service restarts when the vehicle is parked.
-     * <p>
-     * Requires Permission:
-     * {@link android.car.Manifest.permission#CAR_UX_RESTRICTIONS_CONFIGURATION}.
      *
      * @param config UX restrictions configuration to be persisted.
      * @return {@code true} if input config was successfully saved; {@code false} otherwise.
@@ -225,16 +266,16 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
     public boolean saveUxRestrictionsConfigurationForNextBoot(
             CarUxRestrictionsConfiguration config) {
-        try {
-            return mUxRService.saveUxRestrictionsConfigurationForNextBoot(config);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        }
+        return saveUxRestrictionsConfigurationForNextBoot(Arrays.asList(config));
     }
 
     /**
-     * Get the current staged configuration, staged config file will only be accessible after
-     * the boot up completed or user has been switched.
+     * Gets the staged configurations.
+     * <p>
+     * Configurations set by {@link #saveUxRestrictionsConfigurationForNextBoot(List)} do not
+     * immediately affect current drive. Instead, they are staged to take effect when car service
+     * boots up the next time.
+     * <p>
      * This methods is only for test purpose, please do not use in production.
      *
      * @return current staged configuration, {@code null} if it's not available
@@ -243,25 +284,25 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
      */
     @Nullable
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
-    public CarUxRestrictionsConfiguration getStagedConfig() {
+    public List<CarUxRestrictionsConfiguration> getStagedConfigs() {
         try {
-            return mUxRService.getStagedConfig();
+            return mUxRService.getStagedConfigs();
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
     }
 
     /**
-     * Get the current prod configuration
+     * Gets the current configurations.
      *
-     * @return current prod configuration that is in effect.
+     * @return current configurations that is in effect.
      *
      * @hide
      */
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
-    public CarUxRestrictionsConfiguration getConfig() {
+    public List<CarUxRestrictionsConfiguration> getConfigs() {
         try {
-            return mUxRService.getConfig();
+            return mUxRService.getConfigs();
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -305,7 +346,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     /**
      * Gets the {@link CarUxRestrictions} from the service listener
      * {@link CarUxRestrictionsChangeListenerToService} and dispatches it to a handler provided
-     * to the manager
+     * to the manager.
      *
      * @param restrictionInfo {@link CarUxRestrictions} that has been registered to listen on
      */
@@ -317,7 +358,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
 
     /**
      * Callback Handler to handle dispatching the UX restriction changes to the corresponding
-     * listeners
+     * listeners.
      */
     private static final class EventCallbackHandler extends Handler {
         private final WeakReference<CarUxRestrictionsManager> mUxRestrictionsManager;
@@ -338,7 +379,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
 
     /**
      * Checks for the listeners to list of {@link CarUxRestrictions} and calls them back
-     * in the callback handler thread
+     * in the callback handler thread.
      *
      * @param restrictionInfo {@link CarUxRestrictions}
      */
@@ -351,5 +392,21 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
                 mUxRListener.onUxRestrictionsChanged(restrictionInfo);
             }
         }
+    }
+
+    private int getDisplayId() {
+        if (mDisplayId != Display.INVALID_DISPLAY) {
+            return mDisplayId;
+        }
+
+        mDisplayId = mContext.getDisplayId();
+        Log.i(TAG, "Context returns display ID " + mDisplayId);
+
+        if (mDisplayId == Display.INVALID_DISPLAY) {
+            mDisplayId = Display.DEFAULT_DISPLAY;
+            Log.e(TAG, "Could not retrieve display id. Using default: " + mDisplayId);
+        }
+
+        return mDisplayId;
     }
 }
