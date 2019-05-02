@@ -18,6 +18,8 @@ package com.android.car;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_IDLING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
+import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
+import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_PASSENGER;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -107,5 +109,45 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
         CarUxRestrictions fast = config.getUxRestrictions(DRIVING_STATE_MOVING, 6f);
         assertTrue(fast.isRequiresDistractionOptimization());
         assertEquals(CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO, fast.getActiveRestrictions());
+    }
+
+    @Test
+    public void testParsingPassengerState() throws IOException, XmlPullParserException {
+        CarUxRestrictionsConfiguration config = CarUxRestrictionsConfigurationXmlParser.parse(
+                getContext(), R.xml.ux_restrictions_passenger_mode);
+
+        CarUxRestrictions moving = config.getUxRestrictions(
+                DRIVING_STATE_MOVING, 1f, UX_RESTRICTION_MODE_PASSENGER);
+        assertFalse(moving.isRequiresDistractionOptimization());
+
+        CarUxRestrictions idling = config.getUxRestrictions(
+                DRIVING_STATE_IDLING, 0f, UX_RESTRICTION_MODE_PASSENGER);
+        assertFalse(idling.isRequiresDistractionOptimization());
+
+        CarUxRestrictions parked = config.getUxRestrictions(
+                DRIVING_STATE_PARKED, 0f, UX_RESTRICTION_MODE_PASSENGER);
+        assertFalse(parked.isRequiresDistractionOptimization());
+    }
+
+    @Test
+    public void testParsingPassengerMode_ValuesInBaselineAreNotAffected()
+            throws IOException, XmlPullParserException {
+        CarUxRestrictionsConfiguration config = CarUxRestrictionsConfigurationXmlParser.parse(
+                getContext(), R.xml.ux_restrictions_passenger_mode);
+
+        CarUxRestrictions moving = config.getUxRestrictions(
+                DRIVING_STATE_MOVING, 1f, UX_RESTRICTION_MODE_BASELINE);
+        assertTrue(moving.isRequiresDistractionOptimization());
+        assertEquals(CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO, moving.getActiveRestrictions());
+
+        CarUxRestrictions idling = config.getUxRestrictions(
+                DRIVING_STATE_IDLING, 0f, UX_RESTRICTION_MODE_BASELINE);
+        assertTrue(idling.isRequiresDistractionOptimization());
+        assertEquals(CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO, idling.getActiveRestrictions());
+
+        CarUxRestrictions parked = config.getUxRestrictions(
+                DRIVING_STATE_PARKED, 0f, UX_RESTRICTION_MODE_BASELINE);
+        assertTrue(parked.isRequiresDistractionOptimization());
+        assertEquals(CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO, parked.getActiveRestrictions());
     }
 }

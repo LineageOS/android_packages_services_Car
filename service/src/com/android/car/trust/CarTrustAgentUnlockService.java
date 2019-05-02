@@ -110,7 +110,7 @@ public class CarTrustAgentUnlockService {
         mCarTrustAgentBleManager.stopUnlockAdvertising();
         // Also disconnect from the peer.
         if (mRemoteUnlockDevice != null) {
-            mCarTrustAgentBleManager.disconnectRemoteDevice(mRemoteUnlockDevice);
+            mCarTrustAgentBleManager.disconnectRemoteDevice();
         }
     }
 

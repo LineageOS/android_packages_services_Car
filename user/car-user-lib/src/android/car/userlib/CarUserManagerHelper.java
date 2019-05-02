@@ -73,7 +73,8 @@ public class CarUserManagerHelper {
     );
 
     /**
-     * Additional optional set of restrictions for Non-Admin users.
+     * Additional optional set of restrictions for Non-Admin users. These are the restrictions
+     * configurable via Settings.
      */
     public static final Set<String> OPTIONAL_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
             UserManager.DISALLOW_ADD_USER,
@@ -90,8 +91,6 @@ public class CarUserManagerHelper {
             UserManager.DISALLOW_FACTORY_RESET,
             UserManager.DISALLOW_REMOVE_USER,
             UserManager.DISALLOW_MODIFY_ACCOUNTS,
-            UserManager.DISALLOW_OUTGOING_CALLS,
-            UserManager.DISALLOW_SMS,
             UserManager.DISALLOW_INSTALL_APPS,
             UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES,
             UserManager.DISALLOW_UNINSTALL_APPS

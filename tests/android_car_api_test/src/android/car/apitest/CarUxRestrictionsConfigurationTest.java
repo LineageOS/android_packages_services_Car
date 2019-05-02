@@ -247,9 +247,25 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         new Builder.SpeedRange(0f, MAX_SPEED);
     }
 
-    public void testSpeedRange_NegativeMax() {
+    public void testSpeedRange_NoNegativeMin() {
+        try {
+            new Builder.SpeedRange(-2f, 1f);
+        } catch (Exception e) {
+            // Expected exception.
+        }
+    }
+
+    public void testSpeedRange_NoNegativeMax() {
         try {
             new Builder.SpeedRange(2f, -1f);
+        } catch (Exception e) {
+            // Expected exception.
+        }
+    }
+
+    public void testSpeedRange_MinCannotBeMaxSpeed() {
+        try {
+            new Builder.SpeedRange(MAX_SPEED, 1f);
         } catch (Exception e) {
             // Expected exception.
         }

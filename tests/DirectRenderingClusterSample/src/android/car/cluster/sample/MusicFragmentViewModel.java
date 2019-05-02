@@ -30,6 +30,7 @@ import androidx.lifecycle.LiveData;
 
 import com.android.car.media.common.MediaItemMetadata;
 import com.android.car.media.common.playback.AlbumArtLiveData;
+import com.android.car.media.common.playback.PlaybackProgress;
 import com.android.car.media.common.playback.PlaybackViewModel;
 import com.android.car.media.common.source.MediaSource;
 import com.android.car.media.common.source.MediaSourceViewModel;
@@ -49,7 +50,7 @@ public final class MusicFragmentViewModel extends AndroidViewModel {
     private LiveData<CharSequence> mTitle;
     private LiveData<CharSequence> mSubtitle;
     private LiveData<Bitmap> mAlbumArt;
-    private LiveData<Long> mProgress;
+    private LiveData<PlaybackProgress> mProgress;
     private LiveData<Long> mMaxProgress;
     private LiveData<CharSequence> mTimeText;
     private LiveData<Boolean> mHasTime;
@@ -82,11 +83,12 @@ public final class MusicFragmentViewModel extends AndroidViewModel {
         mTimeText = combine(mProgress, mMaxProgress, (progress, maxProgress) -> {
             boolean showHours = TimeUnit.MILLISECONDS.toHours(maxProgress) > 0;
             return String.format("%s / %s",
-                    formatTime(progress, showHours),
+                    formatTime(progress.getProgress(), showHours),
                     formatTime(maxProgress, showHours));
         });
         mHasTime = combine(mProgress, mMaxProgress, (progress, maxProgress) ->
-                maxProgress > 0 && progress != PlaybackState.PLAYBACK_POSITION_UNKNOWN);
+                maxProgress > 0
+                        && progress.getProgress() != PlaybackState.PLAYBACK_POSITION_UNKNOWN);
     }
 
     LiveData<CharSequence> getAppName() {
@@ -109,7 +111,7 @@ public final class MusicFragmentViewModel extends AndroidViewModel {
         return mAlbumArt;
     }
 
-    LiveData<Long> getProgress() {
+    LiveData<PlaybackProgress> getProgress() {
         return mProgress;
     }
 
