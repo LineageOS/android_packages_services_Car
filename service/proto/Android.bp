@@ -4,9 +4,8 @@ java_library_static {
     proto: {
         type: "lite",
     },
-    srcs: ["src/**/*.proto"],
+    srcs: ["*.proto"],
     no_framework_libs: true,
     jarjar_rules: "jarjar-rules.txt",
     sdk_version: "28",
-    java_version: "1.8",
 }

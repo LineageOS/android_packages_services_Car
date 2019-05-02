@@ -42,9 +42,7 @@
                 <action android:name="android.car.content.pm.CarAppBlockingPolicyService"/>
             </intent-filter>
         </service>
-        <service android:name="com.android.car.SimpleVmsPublisherClientService"
-                 android:exported="true" />
-        <service android:name="com.android.car.VmsPublisherClientMockService"
+        <service android:name="com.android.car.MockedVmsTestBase$MockPublisherClient"
                  android:exported="true" />
 
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityA"/>

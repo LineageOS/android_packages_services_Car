@@ -123,7 +123,7 @@ public class CarBleTrustAgent extends TrustAgentService {
             mCarTrustAgentUnlockService.stopUnlockAdvertising();
 
         }
-        revokeTrust();
+        // TODO(b/131699594) - Add back revokeTrust()
     }
 
     @Override

@@ -40,7 +40,8 @@ LOCAL_STATIC_ANDROID_LIBRARIES += \
     androidx.car_car-cluster \
     car-arch-common \
     car-media-common \
-    car-telephony-common
+    car-telephony-common \
+    car-apps-common
 
 include $(BUILD_PACKAGE)
 
