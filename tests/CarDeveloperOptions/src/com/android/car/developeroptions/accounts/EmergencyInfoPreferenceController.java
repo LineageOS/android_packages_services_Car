@@ -23,7 +23,6 @@ import android.content.res.Resources;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.text.TextUtils;
-import android.util.FeatureFlagUtils;
 
 import androidx.preference.Preference;
 
@@ -34,10 +33,9 @@ import com.android.car.developeroptions.search.SearchIndexableRaw;
 import java.util.List;
 
 public class EmergencyInfoPreferenceController extends BasePreferenceController {
-
-    public static final String ACTION_EDIT_EMERGENCY_INFO = "android.settings.EDIT_EMERGENCY_INFO";
-
-    private static final String PACKAGE_NAME_EMERGENCY = "com.android.emergency";
+    public static String getIntentAction(Context context) {
+        return context.getResources().getString(R.string.config_emergency_intent_action);
+    }
 
     public EmergencyInfoPreferenceController(Context context, String preferenceKey) {
         super(context, preferenceKey);
@@ -85,19 +83,7 @@ public class EmergencyInfoPreferenceController extends BasePreferenceController 
                 ? AVAILABLE : UNSUPPORTED_ON_DEVICE;
     }
 
-    private static String getIntentAction(Context context) {
-        if (FeatureFlagUtils.isEnabled(context, FeatureFlagUtils.SAFETY_HUB)) {
-            return context.getResources().getString(R.string.config_emergency_intent_action);
-        }
-
-        return ACTION_EDIT_EMERGENCY_INFO;
-    }
-
     private static String getPackageName(Context context) {
-        if (FeatureFlagUtils.isEnabled(context, FeatureFlagUtils.SAFETY_HUB)) {
-            return context.getResources().getString(R.string.config_emergency_package_name);
-        }
-
-        return PACKAGE_NAME_EMERGENCY;
+        return context.getResources().getString(R.string.config_emergency_package_name);
     }
 }
