@@ -47,6 +47,7 @@ import java.util.List;
 public class HvacTestFragment extends Fragment {
     private final boolean DBG = true;
     private final String TAG = "HvacTestFragment";
+    private static final float TEMP_STEP = 0.5f;
     private RadioButton mRbFanPositionFace;
     private RadioButton mRbFanPositionFloor;
     private RadioButton mRbFanPositionFaceAndFloor;
@@ -73,9 +74,10 @@ public class HvacTestFragment extends Fragment {
     private int mMaxFanSpeed;
     private float mCurDTemp;
     private float mCurPTemp;
-    private float mMinTemp;
-    private float mMaxTemp;
-    private float mTempStep;
+    private float mMinDTemp;
+    private float mMinPTemp;
+    private float mMaxDTemp;
+    private float mMaxPTemp;
     private CarHvacManager mCarHvacManager;
     private int mZoneForAcOn;
     private int mZoneForSetTempD;
@@ -375,9 +377,11 @@ public class HvacTestFragment extends Fragment {
     }
 
     private void configureFanSpeed(View v, CarPropertyConfig prop) {
-        mMinFanSpeed = ((Integer) prop.getMinValue()).intValue();
-        mMaxFanSpeed = ((Integer) prop.getMaxValue()).intValue();
+
         mZoneForFanSpeed = prop.getFirstAndOnlyAreaId();
+        mMaxFanSpeed = (Integer) prop.getMaxValue(mZoneForFanSpeed);
+        mMinFanSpeed = (Integer) prop.getMinValue(mZoneForFanSpeed);
+
         try {
             mCurFanSpeed = mCarHvacManager.getIntProperty(
                     CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT,
@@ -414,16 +418,7 @@ public class HvacTestFragment extends Fragment {
     }
 
     private void configureTempSetpoint(View v, CarPropertyConfig prop) {
-        mMinTemp = ((Float) prop.getMinValue()).floatValue();
-        mMaxTemp = ((Float) prop.getMaxValue()).floatValue();
 
-        if (mMaxTemp > 50) {
-            // Assume it's Fahrenheit
-            mTempStep = 1.0f;
-        } else {
-            // Assume it's Celsius
-            mTempStep = 0.5f;
-        }
         mZoneForSetTempD = 0;
         if (prop.hasArea(VehicleAreaSeat.ROW_1_LEFT | VehicleAreaSeat.ROW_2_LEFT
                 | VehicleAreaSeat.ROW_2_CENTER)) {
@@ -443,46 +438,53 @@ public class HvacTestFragment extends Fragment {
         }
         Button btnDTempUp = (Button) v.findViewById(R.id.btnDTempUp);
         if (mZoneForSetTempD != 0) {
+            mMaxDTemp = (Float) prop.getMaxValue(mZoneForSetTempD);
+            mMinDTemp = (Float) prop.getMinValue(mZoneForSetTempD);
+
+
             try {
                 mCurDTemp = mCarHvacManager.getFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT,
                         mZoneForSetTempD);
-                if (mCurDTemp < mMinTemp) {
-                    mCurDTemp = mMinTemp;
-                } else if (mCurDTemp > mMaxTemp) {
-                    mCurDTemp = mMaxTemp;
+                if (mCurDTemp < mMinDTemp) {
+                    mCurDTemp = mMinDTemp;
+                } else if (mCurDTemp > mMaxDTemp) {
+                    mCurDTemp = mMaxDTemp;
                 }
             } catch (IllegalStateException e) {
                 Log.e(TAG, "Failed to get HVAC zoned temp property", e);
             }
             btnDTempUp.setEnabled(true);
-            btnDTempUp.setOnClickListener(view -> changeDriverTemperature(mTempStep));
+            btnDTempUp.setOnClickListener(view -> changeDriverTemperature(TEMP_STEP));
 
             Button btnDTempDn = (Button) v.findViewById(R.id.btnDTempDn);
             btnDTempDn.setEnabled(true);
-            btnDTempDn.setOnClickListener(view -> changeDriverTemperature(-mTempStep));
+            btnDTempDn.setOnClickListener(view -> changeDriverTemperature(-TEMP_STEP));
         } else {
             btnDTempUp.setEnabled(false);
         }
 
         Button btnPTempUp = (Button) v.findViewById(R.id.btnPTempUp);
         if (mZoneForSetTempP != 0) {
+            mMaxPTemp = (Float) prop.getMaxValue(mZoneForSetTempP);
+            mMinPTemp = (Float) prop.getMinValue(mZoneForSetTempP);
+
             try {
                 mCurPTemp = mCarHvacManager.getFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT,
                         mZoneForSetTempP);
-                if (mCurPTemp < mMinTemp) {
-                    mCurPTemp = mMinTemp;
-                } else if (mCurPTemp > mMaxTemp) {
-                    mCurPTemp = mMaxTemp;
+                if (mCurPTemp < mMinPTemp) {
+                    mCurPTemp = mMinPTemp;
+                } else if (mCurPTemp > mMaxPTemp) {
+                    mCurPTemp = mMaxPTemp;
                 }
             } catch (IllegalStateException e) {
                 Log.e(TAG, "Failed to get HVAC zoned temp property", e);
             }
             btnPTempUp.setEnabled(true);
-            btnPTempUp.setOnClickListener(view -> changePassengerTemperature(mTempStep));
+            btnPTempUp.setOnClickListener(view -> changePassengerTemperature(TEMP_STEP));
 
             Button btnPTempDn = (Button) v.findViewById(R.id.btnPTempDn);
             btnPTempDn.setEnabled(true);
-            btnPTempDn.setOnClickListener(view -> changePassengerTemperature(-mTempStep));
+            btnPTempDn.setOnClickListener(view -> changePassengerTemperature(-TEMP_STEP));
         } else {
             btnPTempUp.setEnabled(false);
         }
@@ -491,15 +493,15 @@ public class HvacTestFragment extends Fragment {
         if (mZoneForSetTempD != 0 && mZoneForSetTempP != 0) {
             btnATempUp.setEnabled(true);
             btnATempUp.setOnClickListener(view -> {
-                changeDriverTemperature(mTempStep);
-                changePassengerTemperature(mTempStep);
+                changeDriverTemperature(TEMP_STEP);
+                changePassengerTemperature(TEMP_STEP);
             });
 
             Button btnATempDn = (Button) v.findViewById(R.id.btnATempDn);
             btnATempDn.setEnabled(true);
             btnATempDn.setOnClickListener(view -> {
-                changeDriverTemperature(-mTempStep);
-                changePassengerTemperature(-mTempStep);
+                changeDriverTemperature(-TEMP_STEP);
+                changePassengerTemperature(-TEMP_STEP);
             });
         } else {
             btnATempUp.setEnabled(false);
@@ -508,7 +510,7 @@ public class HvacTestFragment extends Fragment {
 
     private void changeDriverTemperature(float tempStep) {
         float targetTemp = mCurDTemp + tempStep;
-        if (mMinTemp < targetTemp && targetTemp < mMaxTemp) {
+        if (mMinDTemp < targetTemp && targetTemp < mMaxDTemp) {
             mCurDTemp = targetTemp;
             mTvDTemp.setText(String.valueOf(mCurDTemp));
             setFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT, mZoneForSetTempD, mCurDTemp);
@@ -517,7 +519,7 @@ public class HvacTestFragment extends Fragment {
 
     private void changePassengerTemperature(float tempStep) {
         float targetTemp = mCurPTemp + tempStep;
-        if (mMinTemp < targetTemp && targetTemp < mMaxTemp) {
+        if (mMinPTemp < targetTemp && targetTemp < mMaxPTemp) {
             mCurPTemp = targetTemp;
             mTvPTemp.setText(String.valueOf(mCurPTemp));
             setFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT, mZoneForSetTempP, mCurPTemp);
