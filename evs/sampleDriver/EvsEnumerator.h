@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2016-2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@
 #include <android/hardware/automotive/evs/1.0/IEvsCamera.h>
 
 #include <list>
+#include <thread>
+#include <atomic>
 
 
 namespace android {
@@ -48,6 +50,9 @@ public:
     // Implementation details
     EvsEnumerator();
 
+    // Listen to video device uevents
+    static void EvsUeventThread(std::atomic<bool>& running);
+
 private:
     struct CameraRecord {
         CameraDesc          desc;
@@ -70,6 +75,9 @@ private:
     static std::list<CameraRecord> sCameraList;
 
     static wp<EvsGlDisplay>        sActiveDisplay; // Weak pointer. Object destructs if client dies.
+
+    static std::mutex              sLock;          // Mutex on shared camera device list.
+    static std::condition_variable sCameraSignal;  // Signal on camera device addition.
 };
 
 } // namespace implementation
