@@ -39,10 +39,7 @@ public class PowerTestFragment extends Fragment {
     private CarPowerManager mCarPowerManager;
 
     private final CarPowerManager.CarPowerStateListener mPowerListener =
-            (state, future) -> {
-                if (future != null) {
-                    future.complete(null);
-                }
+            (state) -> {
                 Log.i(TAG, "onStateChanged() state = " + state);
             };
 
