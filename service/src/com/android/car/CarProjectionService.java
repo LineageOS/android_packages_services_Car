@@ -390,14 +390,20 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
         ICarImpl.assertProjectionPermission(mContext);
         final String packageName = status.getPackageName();
-        final int uid = Binder.getCallingUid();
+        final int callingUid = Binder.getCallingUid();
+        final int userHandleId = Binder.getCallingUserHandle().getIdentifier();
+        final int packageUid;
+
         try {
-            if (uid != mContext.getPackageManager().getPackageUid(packageName, 0)) {
-                throw new SecurityException(
-                        "UID " + uid + " cannot update status for package " + packageName);
-            }
+            packageUid =
+                    mContext.getPackageManager().getPackageUidAsUser(packageName, userHandleId);
         } catch (PackageManager.NameNotFoundException e) {
             throw new SecurityException("Package " + packageName + " does not exist", e);
+        }
+
+        if (callingUid != packageUid) {
+            throw new SecurityException(
+                    "UID " + callingUid + " cannot update status for package " + packageName);
         }
 
         synchronized (mLock) {
