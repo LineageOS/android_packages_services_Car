@@ -205,7 +205,7 @@ public class PowerHalService extends HalServiceBase {
      */
     public void sendSleepEntry(int wakeupTimeSec) {
         Log.i(CarLog.TAG_POWER, "send sleep entry");
-        setPowerState(VehicleApPowerStateReport.DEEP_SLEEP_ENTRY, wakeupTimeSec);
+        setPowerState(VehicleApPowerStateReport.DEEP_SLEEP_ENTRY, wakeupTimeSec * 1000);
     }
 
     /**
@@ -230,7 +230,7 @@ public class PowerHalService extends HalServiceBase {
      */
     public void sendShutdownStart(int wakeupTimeSec) {
         Log.i(CarLog.TAG_POWER, "send shutdown start");
-        setPowerState(VehicleApPowerStateReport.SHUTDOWN_START, wakeupTimeSec);
+        setPowerState(VehicleApPowerStateReport.SHUTDOWN_START, wakeupTimeSec * 1000);
     }
 
     /**

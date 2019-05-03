@@ -27,6 +27,7 @@ import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -42,6 +43,7 @@ public class CarPowerManager implements CarManagerBase {
     private final ICarPower mService;
 
     private CarPowerStateListener mListener;
+    private CarPowerStateListenerWithCompletion mListenerWithCompletion;
     private CompletableFuture<Void> mFuture;
     @GuardedBy("mLock")
     private ICarPowerStateListener mListenerToService;
@@ -94,11 +96,27 @@ public class CarPowerManager implements CarManagerBase {
         int SHUTDOWN_CANCELLED = 8;
 
         /**
-         *  Called when power state changes
-         *  @param state New power state of device.
-         *  @param future CompletableFuture used by consumer modules to notify CPMS that
-         *                they are ready to continue shutting down. CPMS will wait until this future
-         *                is completed.
+         * Called when power state changes. This callback is available to
+         * any listener, even if it is not running in the system process.
+         * @param state New power state of device.
+         * @hide
+         */
+        void onStateChanged(int state);
+    }
+
+    /**
+     * Applications set a {@link CarPowerStateListenerWithCompletion} for power state
+     * event updates where a CompletableFuture is used.
+     * @hide
+     */
+    public interface CarPowerStateListenerWithCompletion {
+        /**
+         * Called when power state changes. This callback is only for listeners
+         * that are running in the system process.
+         * @param state New power state of device.
+         * @param future CompletableFuture used by Car modules to notify CPMS that they
+         *               are ready to continue shutting down. CPMS will wait until this
+         *               future is completed.
          * @hide
          */
         void onStateChanged(int state, CompletableFuture<Void> future);
@@ -142,38 +160,74 @@ public class CarPowerManager implements CarManagerBase {
     }
 
     /**
-     * Sets a listener to receive power state changes.  Only one listener may be set at a time.
-     * For calls that require completion before continue, we attach a {@link CompletableFuture}
-     * which is being used as a signal that caller is finished and ready to proceed.
-     * Once future is completed, the {@link finished} method will automatically be called to notify
-     * {@link CarPowerManagementService} that the application has handled the
-     * {@link #SHUTDOWN_ENTER} or {@link #SUSPEND_ENTER} state transition.
+     * Sets a listener to receive power state changes. Only one listener may be set at a
+     * time for an instance of CarPowerManager.
+     * The listener is assumed to completely handle the 'onStateChanged' before returning.
      *
      * @param listener
      * @throws IllegalStateException
      * @hide
      */
     public void setListener(CarPowerStateListener listener) {
-        synchronized(mLock) {
-            if (mListener == null) {
-                // Update listener
-                mListener = listener;
-            } else {
+        synchronized (mLock) {
+            if (mListener != null || mListenerWithCompletion != null) {
                 throw new IllegalStateException("Listener must be cleared first");
             }
-            if (mListenerToService == null) {
-                ICarPowerStateListener listenerToService = new ICarPowerStateListener.Stub() {
-                    @Override
-                    public void onStateChanged(int state, int token) throws RemoteException {
-                        handleStateTransition(state, token);
+            // Update listener
+            mListener = listener;
+            setServiceForListenerLocked(false);
+        }
+    }
+
+    /**
+     * Sets a listener to receive power state changes. Only one listener may be set at a
+     * time for an instance of CarPowerManager.
+     * For calls that require completion before continue, we attach a {@link CompletableFuture}
+     * which is being used as a signal that caller is finished and ready to proceed.
+     * Once future is completed, the {@link finished} method will automatically be called to notify
+     * {@link CarPowerManagementService} that the application has handled the
+     * {@link #SHUTDOWN_PREPARE} state transition.
+     *
+     * @param listener
+     * @throws IllegalStateException
+     * @hide
+     */
+    public void setListenerWithCompletion(CarPowerStateListenerWithCompletion listener) {
+        synchronized(mLock) {
+            if (mListener != null || mListenerWithCompletion != null) {
+                throw new IllegalStateException("Listener must be cleared first");
+            }
+            // Update listener
+            mListenerWithCompletion = listener;
+            setServiceForListenerLocked(true);
+        }
+    }
+
+    private void setServiceForListenerLocked(boolean useCompletion) {
+        if (mListenerToService == null) {
+            ICarPowerStateListener listenerToService = new ICarPowerStateListener.Stub() {
+                @Override
+                public void onStateChanged(int state) throws RemoteException {
+                    if (useCompletion) {
+                        // Update CompletableFuture. This will recreate it or just clean it up.
+                        updateFuture(state);
+                        // Notify user that the state has changed and supply a future
+                        mListenerWithCompletion.onStateChanged(state, mFuture);
+                    } else {
+                        // Notify the user without supplying a future
+                        mListener.onStateChanged(state);
                     }
-                };
-                try {
-                    mService.registerListener(listenerToService);
-                    mListenerToService = listenerToService;
-                } catch (RemoteException e) {
-                    throw e.rethrowFromSystemServer();
                 }
+            };
+            try {
+                if (useCompletion) {
+                    mService.registerListenerWithCompletion(listenerToService);
+                } else {
+                    mService.registerListener(listenerToService);
+                }
+                mListenerToService = listenerToService;
+            } catch (RemoteException e) {
+                throw e.rethrowFromSystemServer();
             }
         }
     }
@@ -188,6 +242,7 @@ public class CarPowerManager implements CarManagerBase {
             listenerToService = mListenerToService;
             mListenerToService = null;
             mListener = null;
+            mListenerWithCompletion = null;
             cleanupFuture();
         }
 
@@ -203,24 +258,19 @@ public class CarPowerManager implements CarManagerBase {
         }
     }
 
-    private void handleStateTransition(int state, int token) {
-        // Update CompletableFuture. It will recreate it or just clean it up
-        updateFuture(state, token);
-        // Notify user that state has changed and supply future
-        mListener.onStateChanged(state, mFuture);
-    }
-
-    private void updateFuture(int state, int token) {
+    private void updateFuture(int state) {
         cleanupFuture();
         if (state == CarPowerStateListener.SHUTDOWN_PREPARE) {
+            // Create a CompletableFuture and pass it to the listener.
+            // When the listener completes the future, tell
+            // CarPowerManagementService that this action is finished.
             mFuture = new CompletableFuture<>();
             mFuture.whenComplete((result, exception) -> {
-                if (exception != null) {
+                if (exception != null && !(exception instanceof CancellationException)) {
                     Log.e(TAG, "Exception occurred while waiting for future", exception);
-                    return;
                 }
                 try {
-                    mService.finished(mListenerToService, token);
+                    mService.finished(mListenerToService);
                 } catch (RemoteException e) {
                     throw e.rethrowFromSystemServer();
                 }

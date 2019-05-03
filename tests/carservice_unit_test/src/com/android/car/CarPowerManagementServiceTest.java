@@ -219,13 +219,13 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     private void registerListenerToService() {
         ICarPowerStateListener listenerToService = new ICarPowerStateListener.Stub() {
             @Override
-            public void onStateChanged(int state, int token) throws RemoteException {
+            public void onStateChanged(int state) throws RemoteException {
                 if (state == CarPowerStateListener.SHUTDOWN_ENTER
                         || state == CarPowerStateListener.SUSPEND_ENTER) {
                     mFuture = new CompletableFuture<>();
                     mFuture.whenComplete((res, ex) -> {
                         if (ex == null) {
-                            mService.finished(this, token);
+                            mService.finished(this);
                         }
                     });
                 } else {
