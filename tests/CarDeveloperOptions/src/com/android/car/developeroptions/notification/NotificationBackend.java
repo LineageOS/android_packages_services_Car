@@ -34,7 +34,6 @@ import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.UserHandle;
-import android.service.notification.NotifyingApp;
 import android.text.format.DateUtils;
 import android.util.IconDrawableFactory;
 import android.util.Log;
@@ -301,15 +300,6 @@ public class NotificationBackend {
         } catch (Exception e) {
             Log.w(TAG, "Error calling NoMan", e);
             return 0;
-        }
-    }
-
-    public List<NotifyingApp> getRecentApps() {
-        try {
-            return sINM.getRecentNotifyingAppsForUser(UserHandle.myUserId()).getList();
-        } catch (Exception e) {
-            Log.w(TAG, "Error calling NoMan", e);
-            return new ArrayList<>();
         }
     }
 
