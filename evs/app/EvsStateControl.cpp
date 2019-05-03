@@ -58,7 +58,8 @@ EvsStateControl::EvsStateControl(android::sp <IVehicle>       pVnet,
     mGearValue.prop       = static_cast<int32_t>(VehicleProperty::GEAR_SELECTION);
     mTurnSignalValue.prop = static_cast<int32_t>(VehicleProperty::TURN_SIGNAL_STATE);
 
-#if 0 // This way we only ever deal with cameras which exist in the system
+#if 1
+    // This way we only ever deal with cameras which exist in the system
     // Build our set of cameras for the states we support
     ALOGD("Requesting camera list");
     mEvs->getCameraList([this, &config](hidl_vec<CameraDesc> cameraList) {

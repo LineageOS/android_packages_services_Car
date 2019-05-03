@@ -27,6 +27,7 @@ LOCAL_SHARED_LIBRARIES := \
     libhidltransport \
     liblog \
     libutils \
+    libhardware_legacy
 
 LOCAL_INIT_RC := android.hardware.automotive.evs@1.0-sample.rc
 
