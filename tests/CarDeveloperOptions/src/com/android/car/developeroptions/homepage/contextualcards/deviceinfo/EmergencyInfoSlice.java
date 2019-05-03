@@ -16,8 +16,6 @@
 
 package com.android.car.developeroptions.homepage.contextualcards.deviceinfo;
 
-import static com.android.car.developeroptions.accounts.EmergencyInfoPreferenceController.ACTION_EDIT_EMERGENCY_INFO;
-
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +27,7 @@ import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.SliceAction;
 
 import com.android.car.developeroptions.R;
+import com.android.car.developeroptions.accounts.EmergencyInfoPreferenceController;
 import com.android.car.developeroptions.slices.CustomSliceRegistry;
 import com.android.car.developeroptions.slices.CustomSliceable;
 
@@ -62,7 +61,7 @@ public class EmergencyInfoSlice implements CustomSliceable {
 
     @Override
     public Intent getIntent() {
-        return new Intent(ACTION_EDIT_EMERGENCY_INFO);
+        return new Intent(EmergencyInfoPreferenceController.getIntentAction(mContext));
     }
 
     @Override
