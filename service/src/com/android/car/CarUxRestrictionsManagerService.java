@@ -701,6 +701,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         Map<Byte, CarUxRestrictions> newUxRestrictions = new HashMap<>();
         for (byte port : mPhysicalPorts) {
             CarUxRestrictionsConfiguration config = mCarUxRestrictionsConfigurations.get(port);
+            if (config == null) {
+                continue;
+            }
 
             CarUxRestrictions uxRestrictions = config.getUxRestrictions(
                     currentDrivingState, speed, mRestrictionMode);
