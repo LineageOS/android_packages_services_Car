@@ -52,8 +52,11 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.bluetooth.enablenewavrcp=false \
-    ro.carrier=unknown \
-    ro.fw.mu.headless_system_user=true
+    ro.carrier=unknown
+
+# Enable headless user 0
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    ro.fw.mu.headless_system_user=true \
 
 # Overlay for Google network and fused location providers
 $(call inherit-product, device/sample/products/location_overlay.mk)
