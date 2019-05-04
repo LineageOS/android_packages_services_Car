@@ -36,7 +36,6 @@ import com.android.car.developeroptions.gestures.GestureSettings;
 import com.android.car.developeroptions.homepage.TopLevelSettings;
 import com.android.car.developeroptions.language.LanguageAndInputSettings;
 import com.android.car.developeroptions.network.NetworkDashboardFragment;
-import com.android.car.developeroptions.notification.ConfigureNotificationSettings;
 import com.android.car.developeroptions.notification.SoundSettings;
 import com.android.car.developeroptions.notification.ZenModeSettings;
 import com.android.car.developeroptions.privacy.PrivacyDashboardFragment;
@@ -96,8 +95,6 @@ public class DashboardFragmentRegistry {
                 CategoryKey.CATEGORY_SYSTEM_LANGUAGE);
         PARENT_TO_CATEGORY_KEY_MAP.put(DevelopmentSettingsDashboardFragment.class.getName(),
                 CategoryKey.CATEGORY_SYSTEM_DEVELOPMENT);
-        PARENT_TO_CATEGORY_KEY_MAP.put(ConfigureNotificationSettings.class.getName(),
-                CategoryKey.CATEGORY_NOTIFICATIONS);
         PARENT_TO_CATEGORY_KEY_MAP.put(LockscreenDashboardFragment.class.getName(),
                 CategoryKey.CATEGORY_SECURITY_LOCKSCREEN);
         PARENT_TO_CATEGORY_KEY_MAP.put(ZenModeSettings.class.getName(),

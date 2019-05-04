@@ -234,7 +234,6 @@ public class SoundSettings extends DashboardFragment implements OnActivityResult
         // === Phone & notification ringtone ===
         controllers.add(new PhoneRingtonePreferenceController(context));
         controllers.add(new AlarmRingtonePreferenceController(context));
-        controllers.add(new NotificationRingtonePreferenceController(context));
 
         // === Work Sound Settings ===
         controllers.add(new WorkSoundPreferenceController(context, fragment, lifecycle));
