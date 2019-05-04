@@ -46,7 +46,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     car-service-lib-for-test \
     car-systemtest \
     com.android.car.test.utils \
-    mockito-target-inline \
+    mockito-target-extended \
     truth-prebuilt \
     vehicle-hal-support-lib
 
