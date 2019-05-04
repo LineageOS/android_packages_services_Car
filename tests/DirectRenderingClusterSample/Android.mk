@@ -43,6 +43,8 @@ LOCAL_STATIC_ANDROID_LIBRARIES += \
     car-telephony-common \
     car-apps-common
 
+LOCAL_REQUIRED_MODULES := privapp_whitelist_android.car.cluster.sample
+
 include $(BUILD_PACKAGE)
 
 # Use the following include to make our test apk.

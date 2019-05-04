@@ -29,6 +29,7 @@ import android.car.input.CarInputHandlingService;
 import android.car.input.CarInputHandlingService.InputFilter;
 import android.car.input.ICarInputListener;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -43,10 +44,12 @@ import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.CallLog.Calls;
+import android.provider.Settings;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.ViewConfiguration;
 
 import com.android.car.hal.InputHalService;
 import com.android.internal.annotations.GuardedBy;
@@ -57,6 +60,7 @@ import com.android.internal.app.IVoiceInteractionSessionShowCallback;
 import java.io.PrintWriter;
 import java.util.BitSet;
 import java.util.List;
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 public class CarInputService implements CarServiceBase, InputHalService.InputListener {
@@ -71,14 +75,18 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         private final Handler mHandler;
         private final Runnable mLongPressRunnable;
         private final Runnable mCallback = this::onTimerExpired;
+        private final IntSupplier mLongPressDelaySupplier;
+
         @GuardedBy("this")
         private boolean mDown = false;
         @GuardedBy("this")
         private boolean mLongPress = false;
 
-        KeyPressTimer(Handler handler, Runnable longPressRunnable) {
+        KeyPressTimer(
+                Handler handler, IntSupplier longPressDelaySupplier, Runnable longPressRunnable) {
             mHandler = handler;
             mLongPressRunnable = longPressRunnable;
+            mLongPressDelaySupplier = longPressDelaySupplier;
         }
 
         /** Marks that a key was pressed, and starts the long-press timer. */
@@ -86,7 +94,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             mDown = true;
             mLongPress = false;
             mHandler.removeCallbacks(mCallback);
-            mHandler.postDelayed(mCallback, LONG_PRESS_TIME_MS);
+            mHandler.postDelayed(mCallback, mLongPressDelaySupplier.getAsInt());
         }
 
         /**
@@ -133,8 +141,6 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     static final String EXTRA_CAR_PUSH_TO_TALK =
             "com.android.car.input.EXTRA_CAR_PUSH_TO_TALK";
 
-    private static final int LONG_PRESS_TIME_MS = 1000;
-
     private final Context mContext;
     private final InputHalService mInputHalService;
     private final TelecomManager mTelecomManager;
@@ -149,6 +155,10 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     // The supplier for the last-called number. By default, gets the number from the call log.
     // May be overridden for testing.
     private final Supplier<String> mLastCalledNumberSupplier;
+    // The supplier for the system long-press delay, in milliseconds. By default, gets the value
+    // from Settings.Secure for the current user, falling back to the system-wide default
+    // long-press delay defined in ViewConfiguration. May be overridden for testing.
+    private final IntSupplier mLongPressDelaySupplier;
 
     @GuardedBy("this")
     private CarProjectionManager.ProjectionKeyEventHandler mProjectionKeyEventHandler;
@@ -264,6 +274,14 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         return ComponentName.unflattenFromString(carInputService);
     }
 
+    private static int getViewLongPressDelay(ContentResolver cr) {
+        return Settings.Secure.getIntForUser(
+                cr,
+                Settings.Secure.LONG_PRESS_TIMEOUT,
+                ViewConfiguration.getLongPressTimeout(),
+                UserHandle.USER_CURRENT);
+    }
+
     public CarInputService(Context context, InputHalService inputHalService) {
         this(context, inputHalService, new Handler(Looper.getMainLooper()),
                 context.getSystemService(TelecomManager.class), new AssistUtils(context),
@@ -271,14 +289,16 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
                         context.getSystemService(InputManager.class)
                                 .injectInputEvent(event, INJECT_INPUT_EVENT_MODE_ASYNC),
                 () -> Calls.getLastOutgoingCall(context),
-                getDefaultInputComponent(context));
+                getDefaultInputComponent(context),
+                () -> getViewLongPressDelay(context.getContentResolver()));
     }
 
     @VisibleForTesting
     CarInputService(Context context, InputHalService inputHalService, Handler handler,
             TelecomManager telecomManager, AssistUtils assistUtils,
             KeyEventListener mainDisplayHandler, Supplier<String> lastCalledNumberSupplier,
-            @Nullable ComponentName customInputServiceComponent) {
+            @Nullable ComponentName customInputServiceComponent,
+            IntSupplier longPressDelaySupplier) {
         mContext = context;
         mInputHalService = inputHalService;
         mTelecomManager = telecomManager;
@@ -286,9 +306,13 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         mMainDisplayHandler = mainDisplayHandler;
         mLastCalledNumberSupplier = lastCalledNumberSupplier;
         mCustomInputServiceComponent = customInputServiceComponent;
+        mLongPressDelaySupplier = longPressDelaySupplier;
 
-        mVoiceKeyTimer = new KeyPressTimer(handler, this::handleVoiceAssistLongPress);
-        mCallKeyTimer = new KeyPressTimer(handler, this::handleCallLongPress);
+        mVoiceKeyTimer =
+                new KeyPressTimer(
+                        handler, longPressDelaySupplier, this::handleVoiceAssistLongPress);
+        mCallKeyTimer =
+                new KeyPressTimer(handler, longPressDelaySupplier, this::handleCallLongPress);
     }
 
     @VisibleForTesting
@@ -577,8 +601,10 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     @Override
     public synchronized void dump(PrintWriter writer) {
         writer.println("*Input Service*");
-        writer.println("mCarInputListenerBound:" + mCarInputListenerBound);
-        writer.println("mCarInputListener:" + mCarInputListener);
+        writer.println("mCustomInputServiceComponent: " + mCustomInputServiceComponent);
+        writer.println("mCarInputListenerBound: " + mCarInputListenerBound);
+        writer.println("mCarInputListener: " + mCarInputListener);
+        writer.println("Long-press delay: " + mLongPressDelaySupplier.getAsInt() + "ms");
     }
 
     private boolean bindCarInputService() {

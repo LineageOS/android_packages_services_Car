@@ -40,7 +40,7 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.power.CarPowerManager;
-import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.BroadcastReceiver;
@@ -140,7 +140,8 @@ public class BluetoothDeviceConnectionPolicy {
     private final CarPropertyListener mPropertyEventListener;
 
     private CarPowerManager mCarPowerManager;
-    private final CarPowerStateListener mCarPowerStateListener = new CarPowerStateListener() {
+    private final CarPowerStateListenerWithCompletion mCarPowerStateListener =
+            new CarPowerStateListenerWithCompletion() {
         @Override
         public void onStateChanged(int state, CompletableFuture<Void> future) {
             if (DBG) Log.d(TAG, "Car power state has changed to " + state);
@@ -693,7 +694,7 @@ public class BluetoothDeviceConnectionPolicy {
         setupEventListenersLocked();
         mInitialized = true;
         mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
-        mCarPowerManager.setListener(mCarPowerStateListener);
+        mCarPowerManager.setListenerWithCompletion(mCarPowerStateListener);
     }
 
     /**

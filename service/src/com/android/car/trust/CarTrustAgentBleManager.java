@@ -16,6 +16,7 @@
 
 package com.android.car.trust;
 
+import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -28,6 +29,8 @@ import android.util.Log;
 import com.android.car.CarLocalServices;
 import com.android.car.R;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
 
 /**
@@ -39,6 +42,21 @@ import java.util.UUID;
 class CarTrustAgentBleManager extends BleManager {
     private static final String TAG = "CarTrustBLEManager";
 
+    /** @hide */
+    @IntDef(prefix = { "TRUSTED_DEVICE_OPERATION_" }, value = {
+        TRUSTED_DEVICE_OPERATION_NONE,
+        TRUSTED_DEVICE_OPERATION_ENROLLMENT,
+        TRUSTED_DEVICE_OPERATION_UNLOCK
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface TrustedDeviceOperation {}
+
+    private static final int TRUSTED_DEVICE_OPERATION_NONE = 0;
+    private static final int TRUSTED_DEVICE_OPERATION_ENROLLMENT = 1;
+    private static final int TRUSTED_DEVICE_OPERATION_UNLOCK = 2;
+
+    @TrustedDeviceOperation
+    private int mCurrentTrustedDeviceOperation = TRUSTED_DEVICE_OPERATION_NONE;
     private CarTrustedDeviceService mCarTrustedDeviceService;
     private CarTrustAgentEnrollmentService mCarTrustAgentEnrollmentService;
     private CarTrustAgentUnlockService mCarTrustAgentUnlockService;
@@ -62,12 +80,16 @@ class CarTrustAgentBleManager extends BleManager {
     // Overriding some of the {@link BLEManager} methods to be specific for Trusted Device feature.
     @Override
     public void onRemoteDeviceConnected(BluetoothDevice device) {
-        if (getTrustedDeviceService() != null) {
-            if (device.getName() == null) {
-                retrieveDeviceName(device);
-            }
-            getTrustedDeviceService().onRemoteDeviceConnected(device);
+        if (getTrustedDeviceService() == null) {
+            return;
         }
+        // Retrieving device name only happens in enrollment, the retrieved device name will be
+        // stored in sharedPreference for further use.
+        if (mCurrentTrustedDeviceOperation == TRUSTED_DEVICE_OPERATION_ENROLLMENT
+                && device.getName() == null) {
+            retrieveDeviceName(device);
+        }
+        getTrustedDeviceService().onRemoteDeviceConnected(device);
     }
 
     @Override
@@ -213,18 +235,22 @@ class CarTrustAgentBleManager extends BleManager {
     }
 
     void startEnrollmentAdvertising() {
+        mCurrentTrustedDeviceOperation = TRUSTED_DEVICE_OPERATION_ENROLLMENT;
         startAdvertising(mEnrollmentGattService, mEnrollmentAdvertisingCallback);
     }
 
     void stopEnrollmentAdvertising() {
+        mCurrentTrustedDeviceOperation = TRUSTED_DEVICE_OPERATION_NONE;
         stopAdvertising(mEnrollmentAdvertisingCallback);
     }
 
     void startUnlockAdvertising() {
+        mCurrentTrustedDeviceOperation = TRUSTED_DEVICE_OPERATION_UNLOCK;
         startAdvertising(mUnlockGattService, mUnlockAdvertisingCallback);
     }
 
     void stopUnlockAdvertising() {
+        mCurrentTrustedDeviceOperation = TRUSTED_DEVICE_OPERATION_NONE;
         stopAdvertising(mUnlockAdvertisingCallback);
     }
 

@@ -29,6 +29,7 @@ import com.android.car.user.CarUserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -53,9 +54,9 @@ class GarageMode {
     public static final String ACTION_GARAGE_MODE_OFF =
             "com.android.server.jobscheduler.GARAGE_MODE_OFF";
 
-    static final long JOB_SNAPSHOT_INITIAL_UPDATE_MS = 10000; // 10 seconds
-    static final long JOB_SNAPSHOT_UPDATE_FREQUENCY_MS = 1000; // 1 second
-    static final long USER_STOP_CHECK_INTERVAL = 10000; // 10 secs
+    static final long JOB_SNAPSHOT_INITIAL_UPDATE_MS = 10_000; // 10 seconds
+    static final long JOB_SNAPSHOT_UPDATE_FREQUENCY_MS = 1_000; // 1 second
+    static final long USER_STOP_CHECK_INTERVAL = 10_000; // 10 secs
 
     private final Controller mController;
 
@@ -189,10 +190,12 @@ class GarageMode {
         }
         if (mFuture != null) {
             mFuture.whenComplete((result, exception) -> {
-                if (exception != null) {
-                    LOG.e("Seems like GarageMode got canceled, cleaning up", exception);
+                if (exception == null) {
+                    LOG.d("GarageMode completed normally");
+                } else if (exception instanceof CancellationException) {
+                    LOG.d("GarageMode was canceled");
                 } else {
-                    LOG.d("Seems like GarageMode is completed, cleaning up");
+                    LOG.e("GarageMode ended due to exception: ", exception);
                 }
                 cleanupGarageMode();
             });

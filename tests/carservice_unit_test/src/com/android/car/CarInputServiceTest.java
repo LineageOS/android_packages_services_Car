@@ -46,6 +46,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.os.UserHandle;
 import android.service.voice.VoiceInteractionSession;
 import android.telecom.TelecomManager;
@@ -56,6 +57,8 @@ import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.hal.InputHalService;
 import com.android.internal.app.AssistUtils;
+
+import com.google.common.collect.Range;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -68,6 +71,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import java.util.BitSet;
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 @RunWith(AndroidJUnit4.class)
@@ -79,6 +83,7 @@ public class CarInputServiceTest {
     @Mock AssistUtils mAssistUtils;
     @Mock CarInputService.KeyEventListener mDefaultMainListener;
     @Mock Supplier<String> mLastCallSupplier;
+    @Mock IntSupplier mLongPressDelaySupplier;
 
     @Spy Context mContext = ApplicationProvider.getApplicationContext();
     @Spy Handler mHandler = new Handler(Looper.getMainLooper());
@@ -89,7 +94,7 @@ public class CarInputServiceTest {
     public void setUp() {
         mCarInputService = new CarInputService(mContext, mInputHalService, mHandler,
                 mTelecomManager, mAssistUtils, mDefaultMainListener, mLastCallSupplier,
-                /* customInputServiceComponent= */ null);
+                /* customInputServiceComponent= */ null, mLongPressDelaySupplier);
 
         when(mInputHalService.isKeyInputSupported()).thenReturn(true);
         mCarInputService.init();
@@ -433,6 +438,28 @@ public class CarInputServiceTest {
         // Repeated KEY_DOWN events don't reset the timer.
         sendWithRepeat(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN, 1);
         verify(mHandler, never()).sendMessageAtTime(any(), anyLong());
+    }
+
+    @Test
+    public void longPressDelay_obeysValueFromSystem() {
+        final int systemDelay = 4242;
+
+        when(mLongPressDelaySupplier.getAsInt()).thenReturn(systemDelay);
+        ArgumentCaptor<Long> timeCaptor = ArgumentCaptor.forClass(long.class);
+
+        long then = SystemClock.uptimeMillis();
+        send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
+        long now = SystemClock.uptimeMillis();
+
+        verify(mHandler).sendMessageAtTime(any(), timeCaptor.capture());
+
+        // The message time must be the expected delay time (as provided by the supplier) after
+        // the time the message was sent to the handler. We don't know that exact time, but we
+        // can put a bound on it - it's no sooner than immediately before the call to send(), and no
+        // later than immediately afterwards. Check to make sure the actual observed message time is
+        // somewhere in the valid range.
+
+        assertThat(timeCaptor.getValue()).isIn(Range.closed(then + systemDelay, now + systemDelay));
     }
 
     private enum Key {DOWN, UP}
