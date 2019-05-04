@@ -581,7 +581,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public void registerListenerWithCompletion(ICarPowerStateListener listener) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
-        ICarImpl.assertCallingFromSystemProcess();
+        ICarImpl.assertCallingFromSystemProcessOrSelf();
 
         mPowerManagerListenersWithCompletion.register(listener);
         // TODO: Need to send current state to newly registered listener? If so, need to handle
@@ -612,7 +612,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public void finished(ICarPowerStateListener listener) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
-        ICarImpl.assertCallingFromSystemProcess();
+        ICarImpl.assertCallingFromSystemProcessOrSelf();
         finishedImpl(listener.asBinder());
     }
 
