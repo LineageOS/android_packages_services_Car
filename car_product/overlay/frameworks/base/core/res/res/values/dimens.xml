@@ -25,6 +25,9 @@
     <dimen name="navigation_bar_height_landscape">112dp</dimen>
     <dimen name="status_bar_icon_size">36dp</dimen>
 
+    <!-- The size of the right icon. This size is used to down-sample the bitmaps for "large icon". -->
+    <dimen name="notification_right_icon_size">@*android:dimen/car_touch_target_size</dimen>
+
     <!-- The height of the header of a notification. -->
     <dimen name="notification_header_height">58dp</dimen>
 

@@ -60,6 +60,8 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
     androidx.preference_preference \
     EncryptionRunner
 
+LOCAL_REQUIRED_MODULES := privapp_whitelist_com.android.car
+
 include $(BUILD_PACKAGE)
 
 #####################################################################################

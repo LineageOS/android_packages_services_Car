@@ -19,6 +19,7 @@ package com.android.car;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.userlib.CarUserManagerHelper;
@@ -59,7 +60,7 @@ import java.util.concurrent.CompletableFuture;
  * and restores the location when the car is powered on.
  */
 public class CarLocationService extends BroadcastReceiver implements
-        CarServiceBase, CarPowerStateListener {
+        CarServiceBase, CarPowerStateListenerWithCompletion {
     private static final String TAG = "CarLocationService";
     private static final String FILENAME = "location_cache.json";
     private static final boolean DBG = true;
@@ -105,7 +106,7 @@ public class CarLocationService extends BroadcastReceiver implements
                 VehicleProperty.IGNITION_STATE, 0, mCarPropertyEventListener);
         mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
         if (mCarPowerManager != null) { // null case happens for testing.
-            mCarPowerManager.setListener(CarLocationService.this);
+            mCarPowerManager.setListenerWithCompletion(CarLocationService.this);
         }
     }
 

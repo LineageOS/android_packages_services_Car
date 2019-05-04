@@ -99,11 +99,9 @@ import com.android.car.developeroptions.applications.appinfo.DrawOverlayDetails;
 import com.android.car.developeroptions.applications.appinfo.ExternalSourcesDetails;
 import com.android.car.developeroptions.applications.appinfo.WriteSettingsDetails;
 import com.android.car.developeroptions.core.InstrumentedFragment;
-import com.android.car.developeroptions.core.SubSettingLauncher;
 import com.android.car.developeroptions.dashboard.SummaryLoader;
 import com.android.car.developeroptions.fuelgauge.HighPowerDetail;
 import com.android.car.developeroptions.notification.AppNotificationSettings;
-import com.android.car.developeroptions.notification.ConfigureNotificationSettings;
 import com.android.car.developeroptions.notification.NotificationBackend;
 import com.android.car.developeroptions.widget.LoadingViewController;
 import com.android.car.developeroptions.wifi.AppStateChangeWifiStateBridge;
@@ -696,12 +694,7 @@ public class ManageApplications extends InstrumentedFragment
                 return true;
             case R.id.advanced:
                 if (mListType == LIST_TYPE_NOTIFICATION) {
-                    new SubSettingLauncher(getContext())
-                            .setDestination(ConfigureNotificationSettings.class.getName())
-                            .setTitleRes(R.string.configure_notification_settings)
-                            .setSourceMetricsCategory(getMetricsCategory())
-                            .setResultListener(this, ADVANCED_SETTINGS)
-                            .launch();
+                    // Pruned.
                 } else {
                     Intent intent = new Intent(
                             android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS);

@@ -40,7 +40,7 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.power.CarPowerManager;
-import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.BroadcastReceiver;
@@ -60,6 +60,7 @@ import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -139,7 +140,8 @@ public class BluetoothDeviceConnectionPolicy {
     private final CarPropertyListener mPropertyEventListener;
 
     private CarPowerManager mCarPowerManager;
-    private final CarPowerStateListener mCarPowerStateListener = new CarPowerStateListener() {
+    private final CarPowerStateListenerWithCompletion mCarPowerStateListener =
+            new CarPowerStateListenerWithCompletion() {
         @Override
         public void onStateChanged(int state, CompletableFuture<Void> future) {
             if (DBG) Log.d(TAG, "Car power state has changed to " + state);
@@ -692,7 +694,7 @@ public class BluetoothDeviceConnectionPolicy {
         setupEventListenersLocked();
         mInitialized = true;
         mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
-        mCarPowerManager.setListener(mCarPowerStateListener);
+        mCarPowerManager.setListenerWithCompletion(mCarPowerStateListener);
     }
 
     /**
@@ -781,8 +783,9 @@ public class BluetoothDeviceConnectionPolicy {
                 mPropertyEventListener);
         // Get Current restrictions and handle them
         handleUxRestrictionsChanged(mUxRService.getCurrentUxRestrictions());
-        // Register for future changes to the DrivingStateRestrictions
-        mUxRService.registerUxRestrictionsChangeListener(mUxRListener);
+        // Register for future changes to the UxRestrictions
+        // We are only interested in restrictions for the default display.
+        mUxRService.registerUxRestrictionsChangeListener(mUxRListener, Display.DEFAULT_DISPLAY);
         mUserServiceHelper.registerServiceCallback(mServiceCallback);
     }
 

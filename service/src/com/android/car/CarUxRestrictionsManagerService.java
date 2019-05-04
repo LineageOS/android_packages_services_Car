@@ -16,10 +16,15 @@
 
 package com.android.car;
 
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_IDLING;
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
 import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.drivingstate.CarDrivingStateEvent;
@@ -36,17 +41,21 @@ import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.util.ArraySet;
 import android.util.AtomicFile;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
 import android.util.Slog;
+import android.view.Display;
+import android.view.DisplayAddress;
 
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
@@ -64,8 +73,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A service that listens to current driving state of the vehicle and maps it to the
@@ -77,6 +89,10 @@ import java.util.List;
  * If one is not available, it will try reading the configuration saved in
  * {@code R.xml.car_ux_restrictions_map}. If XML is somehow unavailable, it will
  * fall back to a hard-coded configuration.
+ * <p>
+ * <h1>Multi-Display</h1>
+ * Only physical displays that are available at service initialization are recognized.
+ * This service does not support pluggable displays.
  */
 public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.Stub implements
         CarServiceBase {
@@ -85,25 +101,34 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private static final int MAX_TRANSITION_LOG_SIZE = 20;
     private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz
     private static final float SPEED_NOT_AVAILABLE = -1.0F;
+    private static final byte DEFAULT_PORT = 0;
 
     @VisibleForTesting
-    /* package */ static final String CONFIG_FILENAME_PRODUCTION =
-            "ux_restrictions_prod_config.json";
+    static final String CONFIG_FILENAME_PRODUCTION = "ux_restrictions_prod_config.json";
     @VisibleForTesting
-    /* package */ static final String CONFIG_FILENAME_STAGED =
-            "ux_restrictions_staged_config.json";
+    static final String CONFIG_FILENAME_STAGED = "ux_restrictions_staged_config.json";
 
     private final Context mContext;
+    private final DisplayManager mDisplayManager;
     private final CarDrivingStateService mDrivingStateService;
     private final CarPropertyService mCarPropertyService;
     // List of clients listening to UX restriction events.
     private final List<UxRestrictionsClient> mUxRClients = new ArrayList<>();
-    @VisibleForTesting
-    CarUxRestrictionsConfiguration mCarUxRestrictionsConfiguration;
+
+    private float mCurrentMovingSpeed;
+
+    // Byte represents a physical port for display.
+    private byte mDefaultDisplayPhysicalPort;
+    private final List<Byte> mPhysicalPorts = new ArrayList<>();
+    // This lookup caches the mapping from an int display id
+    // to a byte that represents a physical port.
+    private final Map<Integer, Byte> mPortLookup = new HashMap<>();
+    private Map<Byte, CarUxRestrictionsConfiguration> mCarUxRestrictionsConfigurations;
+    private Map<Byte, CarUxRestrictions> mCurrentUxRestrictions;
+
     @CarUxRestrictionsManager.UxRestrictionMode
     private int mRestrictionMode = UX_RESTRICTION_MODE_BASELINE;
-    private CarUxRestrictions mCurrentUxRestrictions;
-    private float mCurrentMovingSpeed;
+
     // Flag to disable broadcasting UXR changes - for development purposes
     @GuardedBy("this")
     private boolean mUxRChangeBroadcastEnabled = true;
@@ -113,40 +138,46 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     public CarUxRestrictionsManagerService(Context context, CarDrivingStateService drvService,
             CarPropertyService propertyService) {
         mContext = context;
+        mDisplayManager = mContext.getSystemService(DisplayManager.class);
         mDrivingStateService = drvService;
         mCarPropertyService = propertyService;
-        // Dir for config files are not available at this point. Read from XML.
-        // If prod config is set, it will be loaded during init().
-        mCarUxRestrictionsConfiguration = readXmlConfig();
-        // Unrestricted until driving state information is received. During boot up, we don't want
-        // everything to be blocked until data is available from CarPropertyManager.  If we start
-        // driving and we don't get speed or gear information, we have bigger problems.
-        mCurrentUxRestrictions = new CarUxRestrictions.Builder(/* reqOpt= */ false,
-                CarUxRestrictions.UX_RESTRICTIONS_BASELINE, SystemClock.elapsedRealtimeNanos())
-                .build();
     }
 
     @Override
     public synchronized void init() {
+        mDefaultDisplayPhysicalPort = getDefaultDisplayPhysicalPort();
+
+        initPhysicalPort();
+
+        // Unrestricted until driving state information is received. During boot up, we don't want
+        // everything to be blocked until data is available from CarPropertyManager.  If we start
+        // driving and we don't get speed or gear information, we have bigger problems.
+        mCurrentUxRestrictions = new HashMap<>();
+        for (byte port : mPhysicalPorts) {
+            mCurrentUxRestrictions.put(port, createUnrestrictedRestrictions());
+        }
+
         // subscribe to driving State
         mDrivingStateService.registerDrivingStateChangeListener(
                 mICarDrivingStateChangeEventListener);
         // subscribe to property service for speed
         mCarPropertyService.registerListener(VehicleProperty.PERF_VEHICLE_SPEED,
                 PROPERTY_UPDATE_RATE, mICarPropertyEventListener);
-        // Load config again after car driving state service inits. At this stage the driving
-        // state is known, which determines whether it's safe to load new config.
-        mCarUxRestrictionsConfiguration = loadConfig();
+
+        // At this point the driving state is known, which determines whether it's safe
+        // to promote staged new config.
+        mCarUxRestrictionsConfigurations = convertToMap(loadConfig());
+
         initializeUxRestrictions();
     }
 
     @Override
-    public CarUxRestrictionsConfiguration getConfig() {
-        return mCarUxRestrictionsConfiguration;
+    public List<CarUxRestrictionsConfiguration> getConfigs() {
+        return new ArrayList<>(mCarUxRestrictionsConfigurations.values());
     }
 
     /**
-     * Loads a UX restrictions configuration and returns it.
+     * Loads UX restrictions configurations and returns them.
      *
      * <p>Reads config from the following sources in order:
      * <ol>
@@ -159,30 +190,35 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      * This method attempts to promote staged config file. Doing which depends on driving state.
      */
     @VisibleForTesting
-    /* package */ synchronized CarUxRestrictionsConfiguration loadConfig() {
+    synchronized List<CarUxRestrictionsConfiguration> loadConfig() {
         promoteStagedConfig();
+        List<CarUxRestrictionsConfiguration> configs;
 
-        CarUxRestrictionsConfiguration config;
         // Production config, if available, is the first choice.
         File prodConfig = getFile(CONFIG_FILENAME_PRODUCTION);
         if (prodConfig.exists()) {
             logd("Attempting to read production config");
-            config = readPersistedConfig(prodConfig);
-            if (config != null) {
-                return config;
+            configs = readPersistedConfig(prodConfig);
+            if (configs != null) {
+                return configs;
             }
         }
 
         // XML config is the second choice.
         logd("Attempting to read config from XML resource");
-        config = readXmlConfig();
-        if (config != null) {
-            return config;
+        configs = readXmlConfig();
+        if (configs != null) {
+            return configs;
         }
 
         // This should rarely happen.
         Log.w(TAG, "Creating default config");
-        return createDefaultConfig();
+
+        configs = new ArrayList<>();
+        for (byte port : mPhysicalPorts) {
+            configs.add(createDefaultConfig(port));
+        }
+        return configs;
     }
 
     private File getFile(String filename) {
@@ -191,10 +227,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     @Nullable
-    private CarUxRestrictionsConfiguration readXmlConfig() {
+    private List<CarUxRestrictionsConfiguration> readXmlConfig() {
         try {
-            return CarUxRestrictionsConfigurationXmlParser.parse(mContext,
-                    R.xml.car_ux_restrictions_map);
+            return CarUxRestrictionsConfigurationXmlParser.parse(
+                    mContext, R.xml.car_ux_restrictions_map);
         } catch (IOException | XmlPullParserException e) {
             Log.e(TAG, "Could not read config from XML resource", e);
         }
@@ -208,7 +244,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 mDrivingStateService.getCurrentDrivingState();
         // Only promote staged config when car is parked.
         if (currentDrivingStateEvent != null
-                && currentDrivingStateEvent.eventValue == CarDrivingStateEvent.DRIVING_STATE_PARKED
+                && currentDrivingStateEvent.eventValue == DRIVING_STATE_PARKED
                 && Files.exists(stagedConfig)) {
 
             Path prod = getFile(CONFIG_FILENAME_PRODUCTION).toPath();
@@ -228,8 +264,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         // if we don't have enough information from the CarPropertyService to compute the UX
         // restrictions, then leave the UX restrictions unchanged from what it was initialized to
         // in the constructor.
-        if (currentDrivingStateEvent == null || currentDrivingStateEvent.eventValue
-                == CarDrivingStateEvent.DRIVING_STATE_UNKNOWN) {
+        if (currentDrivingStateEvent == null
+                || currentDrivingStateEvent.eventValue == DRIVING_STATE_UNKNOWN) {
             return;
         }
         int currentDrivingState = currentDrivingStateEvent.eventValue;
@@ -265,14 +301,15 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     // Binder methods
 
     /**
-     * Register a {@link ICarUxRestrictionsChangeListener} to be notified for changes to the UX
-     * restrictions
+     * Registers a {@link ICarUxRestrictionsChangeListener} to be notified for changes to the UX
+     * restrictions.
      *
-     * @param listener listener to register
+     * @param listener Listener to register
+     * @param displayId UX restrictions on this display will be notified.
      */
     @Override
     public synchronized void registerUxRestrictionsChangeListener(
-            ICarUxRestrictionsChangeListener listener) {
+            ICarUxRestrictionsChangeListener listener, int displayId) {
         if (listener == null) {
             Log.e(TAG, "registerUxRestrictionsChangeListener(): listener null");
             throw new IllegalArgumentException("Listener is null");
@@ -281,7 +318,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         // of listening clients.
         UxRestrictionsClient client = findUxRestrictionsClient(listener);
         if (client == null) {
-            client = new UxRestrictionsClient(listener);
+            client = new UxRestrictionsClient(listener, displayId);
             try {
                 listener.asBinder().linkToDeath(client, 0);
             } catch (RemoteException e) {
@@ -335,26 +372,37 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     /**
-     * Gets the current UX restrictions
+     * Gets the current UX restrictions for a display.
      *
-     * @return {@link CarUxRestrictions} for the given event type
+     * @param displayId UX restrictions on this display will be returned.
      */
     @Override
     @Nullable
+    public synchronized CarUxRestrictions getCurrentUxRestrictions(int displayId) {
+        return mCurrentUxRestrictions.get(getPhysicalPort(displayId));
+    }
+
+    /**
+     * Convenience method to retrieve restrictions for default display.
+     */
+    @Nullable
     public synchronized CarUxRestrictions getCurrentUxRestrictions() {
-        return mCurrentUxRestrictions;
+        return getCurrentUxRestrictions(Display.DEFAULT_DISPLAY);
     }
 
     @Override
     public synchronized boolean saveUxRestrictionsConfigurationForNextBoot(
-            CarUxRestrictionsConfiguration config) {
+            List<CarUxRestrictionsConfiguration> configs) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
-        return persistConfig(config, CONFIG_FILENAME_STAGED);
+
+        validateConfigs(configs);
+
+        return persistConfig(configs, CONFIG_FILENAME_STAGED);
     }
 
     @Override
     @Nullable
-    public CarUxRestrictionsConfiguration getStagedConfig() {
+    public List<CarUxRestrictionsConfiguration> getStagedConfigs() {
         File stagedConfig = getFile(CONFIG_FILENAME_STAGED);
         if (stagedConfig.exists()) {
             logd("Attempting to read staged config");
@@ -405,7 +453,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      *
      * IO access on file is not thread safe. Caller should ensure threading protection.
      */
-    private boolean persistConfig(CarUxRestrictionsConfiguration config, String filename) {
+    private boolean persistConfig(List<CarUxRestrictionsConfiguration> configs, String filename) {
         File file = getFile(filename);
         AtomicFile stagedFile = new AtomicFile(file);
         FileOutputStream fos;
@@ -417,7 +465,11 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
         try (JsonWriter jsonWriter = new JsonWriter(
                 new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
-            config.writeJson(jsonWriter);
+            jsonWriter.beginArray();
+            for (CarUxRestrictionsConfiguration config : configs) {
+                config.writeJson(jsonWriter);
+            }
+            jsonWriter.endArray();
         } catch (IOException e) {
             Log.e(TAG, "Could not persist config", e);
             stagedFile.failWrite(fos);
@@ -428,16 +480,22 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     @Nullable
-    private CarUxRestrictionsConfiguration readPersistedConfig(File file) {
+    private List<CarUxRestrictionsConfiguration> readPersistedConfig(File file) {
         if (!file.exists()) {
             Log.e(TAG, "Could not find config file: " + file.getName());
             return null;
         }
 
-        AtomicFile config = new AtomicFile(file);
+        AtomicFile configFile = new AtomicFile(file);
         try (JsonReader reader = new JsonReader(
-                new InputStreamReader(config.openRead(), StandardCharsets.UTF_8))) {
-            return CarUxRestrictionsConfiguration.readJson(reader);
+                new InputStreamReader(configFile.openRead(), StandardCharsets.UTF_8))) {
+            List<CarUxRestrictionsConfiguration> configs = new ArrayList<>();
+            reader.beginArray();
+            while (reader.hasNext()) {
+                configs.add(CarUxRestrictionsConfiguration.readJson(reader));
+            }
+            reader.endArray();
+            return configs;
         } catch (IOException e) {
             Log.e(TAG, "Could not read persisted config file " + file.getName(), e);
         }
@@ -449,7 +507,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      * Setting this to true will stop broadcasts of UX restriction change to listeners.
      * This method works only on debug builds and the caller of this method needs to have the same
      * signature of the car service.
-     *
      */
     public synchronized void setUxRChangeBroadcastEnabled(boolean enable) {
         if (!isDebugBuild()) {
@@ -471,7 +528,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         } else {
             // fake parked state, so if the system is currently restricted, the restrictions are
             // relaxed.
-            handleDispatchUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_PARKED, 0);
+            handleDispatchUxRestrictions(DRIVING_STATE_PARKED, 0);
             mUxRChangeBroadcastEnabled = enable;
         }
     }
@@ -488,10 +545,12 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private class UxRestrictionsClient implements IBinder.DeathRecipient {
         private final IBinder listenerBinder;
         private final ICarUxRestrictionsChangeListener listener;
+        private final int mDisplayId;
 
-        public UxRestrictionsClient(ICarUxRestrictionsChangeListener l) {
+        UxRestrictionsClient(ICarUxRestrictionsChangeListener l, int displayId) {
             listener = l;
             listenerBinder = l.asBinder();
+            mDisplayId = displayId;
         }
 
         @Override
@@ -532,13 +591,18 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     @Override
     public void dump(PrintWriter writer) {
-        writer.println(
-                "Requires DO? " + mCurrentUxRestrictions.isRequiresDistractionOptimization());
-        writer.println("Current UXR: " + mCurrentUxRestrictions.getActiveRestrictions());
+        for (byte port : mCurrentUxRestrictions.keySet()) {
+            CarUxRestrictions restrictions = mCurrentUxRestrictions.get(port);
+            writer.printf("Port: 0x%02X UXR: %s\n", port, restrictions.toString());
+        }
         if (isDebugBuild()) {
             writer.println("mUxRChangeBroadcastEnabled? " + mUxRChangeBroadcastEnabled);
         }
-        mCarUxRestrictionsConfiguration.dump(writer);
+
+        writer.println("UX Restriction configurations:");
+        for (CarUxRestrictionsConfiguration config : mCarUxRestrictionsConfigurations.values()) {
+            config.dump(writer);
+        }
         writer.println("UX Restriction change log:");
         for (Utils.TransitionLog tlog : mTransitionLogs) {
             writer.println(tlog);
@@ -572,8 +636,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
         if (speed != SPEED_NOT_AVAILABLE) {
             mCurrentMovingSpeed = speed;
-        } else if (drivingState == CarDrivingStateEvent.DRIVING_STATE_PARKED
-                || drivingState == CarDrivingStateEvent.DRIVING_STATE_UNKNOWN) {
+        } else if (drivingState == DRIVING_STATE_PARKED
+                || drivingState == DRIVING_STATE_UNKNOWN) {
             // If speed is unavailable, but the driving state is parked or unknown, it can still be
             // handled.
             logd("Speed null when driving state is: " + drivingState);
@@ -613,7 +677,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
         int currentDrivingState = mDrivingStateService.getCurrentDrivingState().eventValue;
-        if (currentDrivingState != CarDrivingStateEvent.DRIVING_STATE_MOVING) {
+        if (currentDrivingState != DRIVING_STATE_MOVING) {
             // Ignore speed changes if the vehicle is not moving
             return;
         }
@@ -634,49 +698,205 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
 
-        CarUxRestrictions uxRestrictions = mCarUxRestrictionsConfiguration.getUxRestrictions(
-                currentDrivingState, speed, mRestrictionMode);
+        Map<Byte, CarUxRestrictions> newUxRestrictions = new HashMap<>();
+        for (byte port : mPhysicalPorts) {
+            CarUxRestrictionsConfiguration config = mCarUxRestrictionsConfigurations.get(port);
+            if (config == null) {
+                continue;
+            }
 
-        if (DBG) {
-            Log.d(TAG, String.format("DO old->new: %b -> %b",
-                    mCurrentUxRestrictions.isRequiresDistractionOptimization(),
+            CarUxRestrictions uxRestrictions = config.getUxRestrictions(
+                    currentDrivingState, speed, mRestrictionMode);
+            logd(String.format("Display port 0x%02x\tDO old->new: %b -> %b",
+                    port,
+                    mCurrentUxRestrictions.get(port).isRequiresDistractionOptimization(),
                     uxRestrictions.isRequiresDistractionOptimization()));
-            Log.d(TAG, String.format("UxR old->new: 0x%x -> 0x%x",
-                    mCurrentUxRestrictions.getActiveRestrictions(),
+            logd(String.format("Display port 0x%02x\tUxR old->new: 0x%x -> 0x%x",
+                    port,
+                    mCurrentUxRestrictions.get(port).getActiveRestrictions(),
                     uxRestrictions.getActiveRestrictions()));
+            newUxRestrictions.put(port, uxRestrictions);
         }
 
-        if (mCurrentUxRestrictions.isSameRestrictions(uxRestrictions)) {
-            // Ignore dispatching if the restrictions has not changed.
+        // Ignore dispatching if the restrictions has not changed.
+        Set<Byte> displayToDispatch = new ArraySet<>();
+        for (byte port : newUxRestrictions.keySet()) {
+            if (!mCurrentUxRestrictions.containsKey(port)) {
+                // This should never happen.
+                Log.wtf(TAG, "Unrecognized port:" + port);
+                continue;
+            }
+            CarUxRestrictions uxRestrictions = newUxRestrictions.get(port);
+            if (!mCurrentUxRestrictions.get(port).isSameRestrictions(uxRestrictions)) {
+                displayToDispatch.add(port);
+            }
+        }
+        if (displayToDispatch.isEmpty()) {
             return;
         }
-        // for dumpsys logging
-        StringBuilder extraInfo = new StringBuilder();
-        extraInfo.append(
-                mCurrentUxRestrictions.isRequiresDistractionOptimization() ? "DO -> "
-                        : "No DO -> ");
-        extraInfo.append(
-                uxRestrictions.isRequiresDistractionOptimization() ? "DO" : "No DO");
-        addTransitionLog(TAG, mCurrentUxRestrictions.getActiveRestrictions(),
-                uxRestrictions.getActiveRestrictions(), System.currentTimeMillis(),
-                extraInfo.toString());
 
-        mCurrentUxRestrictions = uxRestrictions;
-        logd("dispatching to " + mUxRClients.size() + " clients");
+        for (byte port : displayToDispatch) {
+            addTransitionLog(
+                    mCurrentUxRestrictions.get(port), newUxRestrictions.get(port));
+        }
+
+        logd("dispatching to clients");
         for (UxRestrictionsClient client : mUxRClients) {
-            client.dispatchEventToClients(uxRestrictions);
+            byte clientDisplayPort = getPhysicalPort(client.mDisplayId);
+            if (displayToDispatch.contains(clientDisplayPort)) {
+                client.dispatchEventToClients(newUxRestrictions.get(clientDisplayPort));
+            }
+        }
+
+        mCurrentUxRestrictions = newUxRestrictions;
+    }
+
+    private byte getDefaultDisplayPhysicalPort() {
+        Display defaultDisplay = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
+        DisplayAddress.Physical address = (DisplayAddress.Physical) defaultDisplay.getAddress();
+
+        if (address == null) {
+            Log.w(TAG, "Default display does not have physical display port.");
+            return DEFAULT_PORT;
+        }
+        return address.getPort();
+    }
+
+    private void initPhysicalPort() {
+        for (Display display : mDisplayManager.getDisplays()) {
+            if (display.getType() == Display.TYPE_VIRTUAL) {
+                continue;
+            }
+
+            if (display.getDisplayId() == Display.DEFAULT_DISPLAY && display.getAddress() == null) {
+                // Assume default display is a physical display so assign an address if it
+                // does not have one (possibly due to lower graphic driver version).
+                if (Log.isLoggable(TAG, Log.INFO)) {
+                    Log.i(TAG, "Default display does not have display address. Using default.");
+                }
+                mPhysicalPorts.add(mDefaultDisplayPhysicalPort);
+            } else if (display.getAddress() instanceof DisplayAddress.Physical) {
+                byte port = ((DisplayAddress.Physical) display.getAddress()).getPort();
+                if (Log.isLoggable(TAG, Log.INFO)) {
+                    Log.i(TAG, String.format(
+                            "Display %d uses port %d", display.getDisplayId(), port));
+                }
+                mPhysicalPorts.add(port);
+            } else {
+                Log.w(TAG, "At init non-virtual display has a non-physical display address: "
+                        + display);
+            }
         }
     }
 
-    CarUxRestrictionsConfiguration createDefaultConfig() {
+    private Map<Byte, CarUxRestrictionsConfiguration> convertToMap(
+            List<CarUxRestrictionsConfiguration> configs) {
+        validateConfigs(configs);
+
+        Map<Byte, CarUxRestrictionsConfiguration> result = new HashMap<>();
+        if (configs.size() == 1) {
+            CarUxRestrictionsConfiguration config = configs.get(0);
+            byte port = config.getPhysicalPort() == null
+                    ? mDefaultDisplayPhysicalPort
+                    : config.getPhysicalPort();
+            result.put(port, config);
+        } else {
+            for (CarUxRestrictionsConfiguration config : configs) {
+                result.put(config.getPhysicalPort(), config);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Validates configs for multi-display:
+     * - share the same restrictions parameters;
+     * - each sets display port;
+     * - each has unique display port.
+     */
+    @VisibleForTesting
+    void validateConfigs(List<CarUxRestrictionsConfiguration> configs) {
+        if (configs.size() == 0) {
+            throw new IllegalArgumentException("Empty configuration.");
+        }
+
+        if (configs.size() == 1) {
+            return;
+        }
+
+        CarUxRestrictionsConfiguration first = configs.get(0);
+        Set<Byte> existingPorts = new ArraySet<>();
+        for (CarUxRestrictionsConfiguration config : configs) {
+            if (!config.hasSameParameters(first)) {
+                // Input should have the same restriction parameters because:
+                // - it doesn't make sense otherwise; and
+                // - in format it matches how xml can only specify one set of parameters.
+                throw new IllegalArgumentException(
+                        "Configurations should have the same restrictions parameters.");
+            }
+
+            Byte port = config.getPhysicalPort();
+            if (port == null) {
+                // Size was checked above; safe to assume there are multiple configs.
+                throw new IllegalArgumentException(
+                        "Input contains multiple configurations; each must set physical port.");
+            }
+            if (existingPorts.contains(port)) {
+                throw new IllegalArgumentException("Multiple configurations for port " + port);
+            }
+
+            existingPorts.add(port);
+        }
+    }
+
+    private byte getPhysicalPort(int displayId) {
+        if (!mPortLookup.containsKey(displayId)) {
+            Display display = mDisplayManager.getDisplay(displayId);
+            if (display == null) {
+                Log.w(TAG, "Could not retrieve display for id: " + displayId);
+                return mDefaultDisplayPhysicalPort;
+            }
+            byte port = getPhysicalPort(display);
+            mPortLookup.put(displayId, port);
+        }
+        return mPortLookup.get(displayId);
+    }
+
+    private byte getPhysicalPort(@NonNull Display display) {
+        if (display.getType() == Display.TYPE_VIRTUAL) {
+            // We require all virtual displays to be launched on default display.
+            return mDefaultDisplayPhysicalPort;
+        }
+
+        DisplayAddress address = display.getAddress();
+        if (address == null) {
+            Log.e(TAG, "Display " + display
+                    + " is not a virtual display but has null DisplayAddress.");
+            return mDefaultDisplayPhysicalPort;
+        } else if (!(address instanceof DisplayAddress.Physical)) {
+            Log.e(TAG, "Display " + display + " has non-physical address: " + address);
+            return mDefaultDisplayPhysicalPort;
+        } else {
+            return ((DisplayAddress.Physical) address).getPort();
+        }
+    }
+
+    private CarUxRestrictions createUnrestrictedRestrictions() {
+        return new CarUxRestrictions.Builder(/* reqOpt= */ false,
+                CarUxRestrictions.UX_RESTRICTIONS_BASELINE, SystemClock.elapsedRealtimeNanos())
+                .build();
+    }
+
+    CarUxRestrictionsConfiguration createDefaultConfig(byte port) {
         return new CarUxRestrictionsConfiguration.Builder()
-                .setUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_PARKED,
+                .setPhysicalPort(port)
+                .setUxRestrictions(DRIVING_STATE_PARKED,
                         false, CarUxRestrictions.UX_RESTRICTIONS_BASELINE)
-                .setUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_IDLING,
+                .setUxRestrictions(DRIVING_STATE_IDLING,
                         false, CarUxRestrictions.UX_RESTRICTIONS_BASELINE)
-                .setUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_MOVING,
+                .setUxRestrictions(DRIVING_STATE_MOVING,
                         true, CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED)
-                .setUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_UNKNOWN,
+                .setUxRestrictions(DRIVING_STATE_UNKNOWN,
                         true, CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED)
                 .build();
     }
@@ -687,6 +907,21 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
 
         Utils.TransitionLog tLog = new Utils.TransitionLog(name, from, to, timestamp, extra);
+        mTransitionLogs.add(tLog);
+    }
+
+    private void addTransitionLog(
+            CarUxRestrictions oldRestrictions, CarUxRestrictions newRestrictions) {
+        if (mTransitionLogs.size() >= MAX_TRANSITION_LOG_SIZE) {
+            mTransitionLogs.remove();
+        }
+        StringBuilder extra = new StringBuilder();
+        extra.append(oldRestrictions.isRequiresDistractionOptimization() ? "DO -> " : "No DO -> ");
+        extra.append(newRestrictions.isRequiresDistractionOptimization() ? "DO" : "No DO");
+
+        Utils.TransitionLog tLog = new Utils.TransitionLog(TAG,
+                oldRestrictions.getActiveRestrictions(), newRestrictions.getActiveRestrictions(),
+                System.currentTimeMillis(), extra.toString());
         mTransitionLogs.add(tLog);
     }
 
