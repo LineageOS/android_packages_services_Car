@@ -24,6 +24,7 @@
     <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"বাতিল করুন"</string>
     <string name="usb_resolving_handlers" msgid="1943100136172948686">"ব্যবহারযোগ্য হ্যান্ডলার নিয়ে আসা হচ্ছে"</string>
     <string name="usb_unknown_device" msgid="4211439272338937095">"অজানা ইউএসবি ডিভাইস"</string>
+    <string name="usb_boot_service_notification" msgid="8519949189071048797">"ইউএসবি ডিভাইস বিশ্লেষণ করা হচ্ছে"</string>
   <string-array name="config_AoapIncompatibleDeviceIds">
     <item msgid="4267974637522344258">"18d1:9302"</item>
   </string-array>
