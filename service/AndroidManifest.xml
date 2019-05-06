@@ -526,10 +526,10 @@
                        android:resource="@xml/car_trust_agent"/>
         </service>
         <activity android:name="com.android.car.pm.ActivityBlockingActivity"
+                  android:documentLaunchMode="always"
                   android:excludeFromRecents="true"
-                  android:theme="@android:style/Theme.Translucent.NoTitleBar"
                   android:exported="false"
-                  android:launchMode="singleTask">
+                  android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
