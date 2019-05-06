@@ -24,6 +24,7 @@
     <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"റദ്ദാക്കുക"</string>
     <string name="usb_resolving_handlers" msgid="1943100136172948686">"പിന്തുണയുള്ള കൈകാര്യം ചെയ്യുന്ന സംവിധാനം ലഭ്യമാക്കുന്നു"</string>
     <string name="usb_unknown_device" msgid="4211439272338937095">"അജ്ഞാത USB ഉപകരണം"</string>
+    <string name="usb_boot_service_notification" msgid="8519949189071048797">"USB ഉപകരണങ്ങൾ വിശകലനം ചെയ്യുന്നു"</string>
   <string-array name="config_AoapIncompatibleDeviceIds">
     <item msgid="4267974637522344258">"18d1:9302"</item>
   </string-array>
