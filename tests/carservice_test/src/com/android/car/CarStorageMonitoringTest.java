@@ -19,9 +19,9 @@ package com.android.car;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doNothing;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -34,8 +34,6 @@ import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 import android.content.Intent;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.ResolveInfo;
 import android.os.SystemClock;
 import android.util.JsonWriter;
 import android.util.Log;
@@ -60,6 +58,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -72,7 +71,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /** Test the public entry points for the CarStorageMonitoringManager */
 @RunWith(AndroidJUnit4.class)
@@ -84,35 +82,6 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
     private static final WearInformation DEFAULT_WEAR_INFORMATION =
         new WearInformation(30, 0, WearInformation.PRE_EOL_INFO_NORMAL);
-
-    final class TestContext extends MockContext {
-        TestContext(MockContext context) {
-            super(context.getBaseContext());
-        }
-
-        @Override
-        public void sendBroadcast(Intent intent, String receiverPermission) {
-            Log.d(TAG, "test context broadcasting " + intent);
-            if (CarStorageMonitoringManager.INTENT_EXCESSIVE_IO.equals(intent.getAction())) {
-                assertEquals(Car.PERMISSION_STORAGE_MONITORING, receiverPermission);
-
-                List<ResolveInfo> resolveInfoList = mContext.getPackageManager().
-                        queryBroadcastReceivers(intent, 0);
-
-                assertEquals(1,
-                        resolveInfoList.stream().map(ri -> ri.activityInfo)
-                            .filter(Objects::nonNull)
-                            .map(ai -> ai.name)
-                            .filter(CarStorageMonitoringBroadcastReceiver.class
-                                    .getCanonicalName()::equals)
-                            .count());
-
-                CarStorageMonitoringBroadcastReceiver.deliver(intent);
-            } else {
-                super.sendBroadcast(intent, receiverPermission);
-            }
-        }
-    }
 
     static class ResourceOverrides {
         private final HashMap<Integer, Integer> mIntegerOverrides = new HashMap<>();
@@ -152,9 +121,6 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
                                 override(R.integer.maxExcessiveIoSamplesInWindow, 0);
                                 override(R.integer.acceptableWrittenKBytesPerSample, 10);
                                 override(R.integer.acceptableFsyncCallsPerSample, 1000);
-                                override(R.string.intentReceiverForUnacceptableIoMetrics,
-                                        getFlattenComponent(
-                                                CarStorageMonitoringBroadcastReceiver.class));
                             }});
 
                     put("testIntentOnExcessiveFsync",
@@ -163,9 +129,6 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
                                 override(R.integer.maxExcessiveIoSamplesInWindow, 0);
                                 override(R.integer.acceptableWrittenKBytesPerSample, 1000);
                                 override(R.integer.acceptableFsyncCallsPerSample, 2);
-                                override(R.string.intentReceiverForUnacceptableIoMetrics,
-                                        getFlattenComponent(
-                                                CarStorageMonitoringBroadcastReceiver.class));
                             }});
 
                     put("testZeroWindowDisablesCollection",
@@ -342,17 +305,11 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
             new MockStorageMonitoringInterface();
     private final MockTimeInterface mMockTimeInterface =
             new MockTimeInterface();
-    private TestContext mContext;
 
     private CarStorageMonitoringManager mCarStorageMonitoringManager;
 
-    @Override
-    protected MockContext getCarServiceContext() throws NameNotFoundException {
-        if (mContext == null) {
-            mContext = new TestContext(super.getCarServiceContext());
-        }
-        return mContext;
-    }
+    private ArgumentCaptor<Intent> mBroadcastIntentArg = ArgumentCaptor.forClass(Intent.class);
+    private ArgumentCaptor<String> mBroadcastStringArg = ArgumentCaptor.forClass(String.class);
 
     @Override
     protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
@@ -422,6 +379,8 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        doNothing().when(getCarServiceContext()).sendBroadcast(mBroadcastIntentArg.capture(),
+                mBroadcastStringArg.capture());
         mMockSystemStateInterface.executeBootCompletedActions();
 
         mCarStorageMonitoringManager =
@@ -677,8 +636,6 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
     @Test
     public void testIntentOnExcessiveWrite() throws Exception {
-        assertNull(CarStorageMonitoringBroadcastReceiver.reset());
-
         final Duration intentDeliveryDeadline = Duration.ofSeconds(5);
 
         UidIoRecord record = new UidIoRecord(0,
@@ -696,16 +653,11 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         mMockStorageMonitoringInterface.addIoStatsRecord(record);
         mMockTimeInterface.setUptime(500).tick();
 
-        assertTrue(CarStorageMonitoringBroadcastReceiver.waitForIntent(intentDeliveryDeadline));
-        Intent deliveredIntent = CarStorageMonitoringBroadcastReceiver.reset();
-        assertNotNull(deliveredIntent);
-        assertEquals(CarStorageMonitoringManager.INTENT_EXCESSIVE_IO, deliveredIntent.getAction());
+        assertBroadcastArgs(mBroadcastIntentArg.getValue(), mBroadcastStringArg.getValue());
     }
 
     @Test
     public void testIntentOnExcessiveFsync() throws Exception {
-        assertNull(CarStorageMonitoringBroadcastReceiver.reset());
-
         final Duration intentDeliveryDeadline = Duration.ofSeconds(5);
 
         UidIoRecord record = new UidIoRecord(0,
@@ -723,10 +675,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         mMockStorageMonitoringInterface.addIoStatsRecord(record);
         mMockTimeInterface.setUptime(500).tick();
 
-        assertTrue(CarStorageMonitoringBroadcastReceiver.waitForIntent(intentDeliveryDeadline));
-        Intent deliveredIntent = CarStorageMonitoringBroadcastReceiver.reset();
-        assertNotNull(deliveredIntent);
-        assertEquals(CarStorageMonitoringManager.INTENT_EXCESSIVE_IO, deliveredIntent.getAction());
+        assertBroadcastArgs(mBroadcastIntentArg.getValue(), mBroadcastStringArg.getValue());
     }
 
     @Test
@@ -768,6 +717,11 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
     private String getName() {
         return mTestName.getMethodName();
+    }
+
+    private void assertBroadcastArgs(Intent intent, String receiverPermission) {
+        assertEquals(CarStorageMonitoringManager.INTENT_EXCESSIVE_IO, intent.getAction());
+        assertEquals(Car.PERMISSION_STORAGE_MONITORING, receiverPermission);
     }
 
     static final class Listener implements CarStorageMonitoringManager.IoStatsListener {
