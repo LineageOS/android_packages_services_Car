@@ -43,7 +43,8 @@ LOCAL_JAVA_LIBRARIES := \
     android.car \
     android.car.userlib \
     android.test.runner \
-    android.test.base
+    android.test.base \
+    android.test.mock
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
     androidx.test.core \
