@@ -7587,8 +7587,7 @@
     <skip />
     <!-- no translation found for managed_profile_contact_search_summary (7278267480246726951) -->
     <skip />
-    <!-- no translation found for cross_profile_calendar_title (2351605904015067145) -->
-    <skip />
+    <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Kalendář s více profily"</string>
     <!-- no translation found for cross_profile_calendar_summary (3196258680438896098) -->
     <skip />
     <!-- no translation found for cross_profile_calendar_restricted_summary (6892589892357409107) -->

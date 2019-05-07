@@ -8328,8 +8328,7 @@
     <skip />
     <!-- no translation found for content_capture (1709538093513983279) -->
     <skip />
-    <!-- no translation found for content_capture_summary (2675659095218714681) -->
-    <skip />
+    <string name="content_capture_summary" msgid="2675659095218714681">"Androidକୁ ଆପଣଙ୍କ ସ୍କ୍ରୀନରେ ଦେଖାଯାଉଥିବା ସୂଚନା କିମ୍ବା ଭିଡିଓ ଓ ଅଡିଓ ବିଷୟବସ୍ତୁରେ ଶୁଣାଯାଉଥିବା ସୂଚନାକୁ ସେଭ୍ କରିବାକୁ ଅନୁମତି ଦିଅନ୍ତୁ। Android ଆପଣଙ୍କର ଡିଭାଇସ୍ କାର୍ଯ୍ୟକଳାପ ଆଧାରରେ  ସହାୟତାମୂଳକ ପରାମର୍ଶ ଦେଇଥାଏ।"</string>
     <!-- no translation found for capture_system_heap_dump_title (7417508823603305421) -->
     <skip />
     <!-- no translation found for capturing_system_heap_dump_message (5108339625760845950) -->
