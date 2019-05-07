@@ -18,25 +18,8 @@
                 </group>
             </volumeGroups>
             <displays>
-                <display port="1"/>
-                <display port="2"/>
+                <display port="one"/>
             </displays>
-        </zone>
-        <zone name="rear seat zone">
-            <volumeGroups>
-                <group>
-                    <device address="bus100_rear_seat">
-                        <context context="music"/>
-                        <context context="navigation"/>
-                        <context context="voice_command"/>
-                        <context context="call_ring"/>
-                        <context context="call"/>
-                        <context context="alarm"/>
-                        <context context="notification"/>
-                        <context context="system_sound"/>
-                    </device>
-                </group>
-            </volumeGroups>
         </zone>
     </zones>
 </carAudioConfiguration>

@@ -15,6 +15,8 @@
  */
 package com.android.car.audio;
 
+import static junit.framework.TestCase.fail;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -25,6 +27,7 @@ import android.content.Context;
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.media.AudioGain;
 import android.util.SparseArray;
+import android.view.DisplayAddress;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -40,6 +43,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class CarAudioZonesHelperTest {
@@ -162,5 +166,61 @@ public class CarAudioZonesHelperTest {
         CarVolumeGroup rseVolumeGroup = rearSeatEntertainmentZone.getVolumeGroups()[0];
         int[] contextForBus100 = rseVolumeGroup.getContextsForBus(100);
         assertArrayEquals(expectedContextForBus100, contextForBus100);
+    }
+
+    @Test
+    public void loadAudioZones_parsesPhysicalDisplayAddresses()
+            throws IOException, XmlPullParserException {
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, mInputStream,
+                mBusToMockCarAudioDeviceInfo);
+
+        CarAudioZone[] zones = cazh.loadAudioZones();
+
+        CarAudioZone primaryZone = zones[0];
+        List<DisplayAddress.Physical> primaryPhysicals = primaryZone.getPhysicalDisplayAddresses();
+        assertEquals(2, primaryPhysicals.size());
+        assertEquals(1, (long) primaryPhysicals.get(0).getPort());
+        assertEquals(2, (long) primaryPhysicals.get(1).getPort());
+    }
+
+    @Test
+    public void loadAudioZones_defaultsDisplayAddressesToEmptyList()
+            throws IOException, XmlPullParserException {
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, mInputStream,
+                mBusToMockCarAudioDeviceInfo);
+
+        CarAudioZone[] zones = cazh.loadAudioZones();
+
+        CarAudioZone rseZone = zones[1];
+        List<DisplayAddress.Physical> rsePhysicals = rseZone.getPhysicalDisplayAddresses();
+        assertTrue(rsePhysicals.isEmpty());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void loadAudioZones_throwsOnDuplicatePorts() throws IOException, XmlPullParserException {
+        try (InputStream duplicatePortStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_duplicate_ports)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, duplicatePortStream,
+                    mBusToMockCarAudioDeviceInfo);
+
+            cazh.loadAudioZones();
+        }
+    }
+
+    @Test
+    public void loadAudioZones_throwsOnNonNumericalPort()
+            throws IOException, XmlPullParserException {
+        try (InputStream duplicatePortStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_non_numerical_port)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, duplicatePortStream,
+                    mBusToMockCarAudioDeviceInfo);
+
+            try {
+                cazh.loadAudioZones();
+                fail();
+            } catch (RuntimeException e) {
+                assertEquals(NumberFormatException.class, e.getCause().getClass());
+            }
+        }
     }
 }

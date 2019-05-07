@@ -21,6 +21,7 @@ import android.content.Context;
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.util.SparseArray;
 import android.util.Xml;
+import android.view.DisplayAddress;
 
 import com.android.internal.util.Preconditions;
 
@@ -31,8 +32,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A helper class loads all audio zones from the configuration XML file.
@@ -47,11 +50,14 @@ import java.util.Map;
     private static final String TAG_VOLUME_GROUP = "group";
     private static final String TAG_AUDIO_DEVICE = "device";
     private static final String TAG_CONTEXT = "context";
+    private static final String TAG_DISPLAYS = "displays";
+    private static final String TAG_DISPLAY = "display";
     private static final String ATTR_VERSION = "version";
     private static final String ATTR_IS_PRIMARY = "isPrimary";
     private static final String ATTR_ZONE_NAME = "name";
     private static final String ATTR_DEVICE_ADDRESS = "address";
     private static final String ATTR_CONTEXT_NAME = "context";
+    private static final String ATTR_PHYSICAL_PORT = "port";
     private static final int SUPPORTED_VERSION = 1;
     private static final int NO_XML_RESOURCE = 0;
 
@@ -72,6 +78,7 @@ import java.util.Map;
     private final Context mContext;
     private final SparseArray<CarAudioDeviceInfo> mBusToCarAudioDeviceInfo;
     private final InputStream mInputStream;
+    private final Set<Long> mPortIds;
 
     private boolean mHasPrimaryZone;
     private int mNextSecondaryZoneId;
@@ -83,6 +90,7 @@ import java.util.Map;
         mBusToCarAudioDeviceInfo = busToCarAudioDeviceInfo;
 
         mNextSecondaryZoneId = CarAudioManager.PRIMARY_AUDIO_ZONE + 1;
+        mPortIds = new HashSet<>();
     }
 
     public CarAudioZone[] loadAudioZones() throws IOException, XmlPullParserException {
@@ -151,11 +159,43 @@ import java.util.Map;
             // Expect one <volumeGroups> in one audio zone
             if (TAG_VOLUME_GROUPS.equals(parser.getName())) {
                 parseVolumeGroups(parser, zone);
+            } else if (TAG_DISPLAYS.equals(parser.getName())) {
+                parseDisplays(parser, zone);
             } else {
                 skip(parser);
             }
         }
         return zone;
+    }
+
+    private void parseDisplays(XmlPullParser parser, CarAudioZone zone)
+            throws IOException, XmlPullParserException {
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) continue;
+            if (TAG_DISPLAY.equals(parser.getName())) {
+                zone.addPhysicalDisplayAddress(parsePhysicalDisplayAddress(parser));
+            }
+            skip(parser);
+        }
+    }
+
+    private DisplayAddress.Physical parsePhysicalDisplayAddress(XmlPullParser parser) {
+        String port = parser.getAttributeValue(NAMESPACE, ATTR_PHYSICAL_PORT);
+        Long portId;
+        try {
+            portId = Long.parseLong(port);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Port " +  port + " is not a number", e);
+        }
+        validatePortIsUnique(portId);
+        return DisplayAddress.fromPhysicalDisplayId(portId);
+    }
+
+    private void validatePortIsUnique(Long portId) {
+        if (mPortIds.contains(portId)) {
+            throw new RuntimeException("Port Id " + portId + " is already associated with a zone");
+        }
+        mPortIds.add(portId);
     }
 
     private void parseVolumeGroups(XmlPullParser parser, CarAudioZone zone)
