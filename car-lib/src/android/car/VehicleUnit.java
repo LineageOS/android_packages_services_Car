@@ -72,6 +72,12 @@ public final class VehicleUnit {
     public static final int DEGREES = 0x80;
 
     /** @hide */
+    public static final int MILES_PER_HOUR = 0x90;
+
+    /** @hide */
+    public static final int KILOMETERS_PER_HOUR = 0x91;
+
+    /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             SHOULD_NOT_USE,
@@ -102,7 +108,9 @@ public final class VehicleUnit {
             KILOWATT_HOUR,
             PSI,
             BAR,
-            DEGREES
+            DEGREES,
+            MILES_PER_HOUR,
+            KILOMETERS_PER_HOUR
     })
     public @interface Enum {}
 
