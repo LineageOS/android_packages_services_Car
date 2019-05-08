@@ -123,7 +123,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
         try {
             callback.onError(errorCode);
         } catch (RemoteException e) {
-            Slog.e(TAG, "onError() failed " + e.getMessage());
+            Slog.e(TAG, "onError() failed: " + e.getMessage());
         }
     }
 
@@ -144,16 +144,27 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
         }
         OutputStream out = null;
         InputStream in = null;
+        LocalSocket localSocket;
+
         try {
             SystemProperties.set("ctl.start", "dumpstate");
-            LocalSocket localSocket = connectToDumpstateService();
+        } catch (RuntimeException e) {
+            Slog.e(TAG, "Failed to start dumpstate", e);
+            reportError(callback, CarBugreportManagerCallback.CAR_BUGREPORT_DUMPSTATE_FAILED);
+            return;
+        }
+
+        try {
+            localSocket = connectToDumpstateService();
+        } catch (IOException e) {
+            Slog.e(TAG, "Timed out connecting to dumpstate socket", e);
+            reportError(callback,
+                    CarBugreportManagerCallback.CAR_BUGREPORT_DUMPSTATE_CONNECTION_FAILED);
             // Early out if connection to socket fails.
-            if (localSocket == null) {
-                Slog.e(TAG, "Timed out connecting to dumpstate socket");
-                reportError(callback,
-                        CarBugreportManagerCallback.CAR_BUGREPORT_DUMPSTATE_CONNECTION_FAILED);
-                return;
-            }
+            return;
+        }
+
+        try {
             in = new DataInputStream(localSocket.getInputStream());
             out = new DataOutputStream(new ParcelFileDescriptor.AutoCloseOutputStream(pfd));
             rawCopyStream(out, in);
@@ -169,30 +180,31 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
         try {
             callback.onFinished();
         } catch (RemoteException e) {
-            Slog.e(TAG, "onFinished() failed " + e.getMessage());
+            Slog.e(TAG, "onFinished() failed: " + e.getMessage());
         }
     }
 
-    private LocalSocket connectToDumpstateService() {
+    private LocalSocket connectToDumpstateService() throws IOException {
         LocalSocket socket = new LocalSocket();
         // The dumpstate socket will be created by init upon receiving the
         // service request. It may not be ready by this point. So we will
         // keep retrying until success or reaching timeout.
         int retryCount = 0;
         while (true) {
+            // First connection always fails so we just 1 second before trying to connect for the
+            // first time too.
+            SystemClock.sleep(/* ms= */ 1000);
             try {
                 socket.connect(new LocalSocketAddress(DUMPSTATE_SOCKET,
                         LocalSocketAddress.Namespace.RESERVED));
                 return socket;
             } catch (IOException e) {
-                Log.w(TAG, "failed connecting dumpstate", e);
                 if (++retryCount >= SOCKET_CONNECTION_MAX_RETRY) {
-                    break;
+                    throw e;
                 }
-                SystemClock.sleep(1000);
+                Log.i(TAG, "Failed to connect to dumpstate, will try again: " + e.getMessage());
             }
         }
-        return null;
     }
 
     // does not close the reader or writer.
