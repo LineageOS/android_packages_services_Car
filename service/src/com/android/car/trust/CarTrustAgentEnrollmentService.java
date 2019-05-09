@@ -49,8 +49,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -65,12 +67,15 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     private static final String TRUSTED_DEVICE_ENROLLMENT_ENABLED_KEY =
             "trusted_device_enrollment_enabled";
     private static final byte[] CONFIRMATION_SIGNAL = "True".getBytes();
+    //Arbirary log size
+    private static final int MAX_LOG_SIZE = 20;
 
     private final CarTrustedDeviceService mTrustedDeviceService;
     // List of clients listening to Enrollment state change events.
     private final List<EnrollmentStateClient> mEnrollmentStateClients = new ArrayList<>();
     // List of clients listening to BLE state changes events during enrollment.
     private final List<BleStateChangeClient> mBleStateChangeClients = new ArrayList<>();
+    private final Queue<String> mLogQueue = new LinkedList<>();
 
     private final CarTrustAgentBleManager mCarTrustAgentBleManager;
     private CarTrustAgentEnrollmentRequestDelegate mEnrollmentDelegate;
@@ -138,6 +143,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "startEnrollmentAdvertising");
         }
+        addEnrollmentServiceLog("startEnrollmentAdvertising");
         mCarTrustAgentBleManager.startEnrollmentAdvertising();
     }
 
@@ -146,6 +152,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
      */
     @Override
     public void stopEnrollmentAdvertising() {
+        addEnrollmentServiceLog("stopEnrollmentAdvertising");
         mCarTrustAgentBleManager.stopEnrollmentAdvertising();
     }
 
@@ -157,6 +164,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
      */
     @Override
     public void enrollmentHandshakeAccepted(BluetoothDevice device) {
+        addEnrollmentServiceLog("enrollmentHandshakeAccepted");
         mCarTrustAgentBleManager.sendPairingCodeConfirmation(device, CONFIRMATION_SIGNAL);
         setEnrollmentHandshakeAccepted(true);
     }
@@ -169,6 +177,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     @Override
     public void terminateEnrollmentHandshake() {
         setEnrollmentHandshakeAccepted(false);
+        addEnrollmentServiceLog("terminateEnrollmentHandshake");
         // Disconnect from BLE
         mCarTrustAgentBleManager.disconnectRemoteDevice();
         // Remove any handles that have not been activated yet.
@@ -209,6 +218,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     @Override
     public void removeEscrowToken(long handle, int uid) {
         mEnrollmentDelegate.removeEscrowToken(handle, uid);
+        addEnrollmentServiceLog("removeEscrowToken (handle:" + handle + " uid:" + uid + ")");
     }
 
     /**
@@ -369,6 +379,9 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             } else {
                 deviceName = mContext.getString(R.string.trust_device_default_name);
             }
+            addEnrollmentServiceLog("trustedDeviceAdded (handle:" + handle + ", uid:" + uid
+                    + ", addr:" + mRemoteEnrollmentDevice.getAddress()
+                    + ", name:" + deviceName + ")");
             deviceInfo.add(new TrustedDeviceInfo(handle, mRemoteEnrollmentDevice.getAddress(),
                     deviceName).serialize());
             // To conveniently get the devices info regarding certain user.
@@ -407,6 +420,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     void onRemoteDeviceConnected(BluetoothDevice device) {
         resetEncryptionState();
 
+        addEnrollmentServiceLog("onRemoteDeviceConnected (addr:" + device.getAddress() + ")");
         synchronized (mRemoteDeviceLock) {
             mRemoteEnrollmentDevice = device;
         }
@@ -422,6 +436,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     void onRemoteDeviceDisconnected(BluetoothDevice device) {
         resetEncryptionState();
 
+        addEnrollmentServiceLog("onRemoteDeviceDisconnected (addr:" + device.getAddress() + ")");
         synchronized (mRemoteDeviceLock) {
             mRemoteEnrollmentDevice = null;
         }
@@ -747,6 +762,18 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     }
 
     void dump(PrintWriter writer) {
+        writer.println("*CarTrustAgentEnrollmentService*");
+        writer.println("Enrollment Service Logs:");
+        for (String log : mLogQueue) {
+            writer.println("\t" + log);
+        }
+    }
+
+    private void addEnrollmentServiceLog(String message) {
+        if (mLogQueue.size() >= MAX_LOG_SIZE) {
+            mLogQueue.remove();
+        }
+        mLogQueue.add(System.currentTimeMillis() + " : " + message);
     }
 
     private void dispatchEscrowTokenActiveStateChanged(long handle, boolean active) {

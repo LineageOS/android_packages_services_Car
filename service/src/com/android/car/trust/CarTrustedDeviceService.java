@@ -16,7 +16,9 @@
 
 package com.android.car.trust;
 
+import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
+import android.car.trust.TrustedDeviceInfo;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -25,6 +27,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.R;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 /**
  * The part of the Car service that enables the Trusted device feature.  Trusted Device is a feature
@@ -123,5 +126,27 @@ public class CarTrustedDeviceService implements CarServiceBase {
 
     @Override
     public void dump(PrintWriter writer) {
+        writer.println("*CarTrustedDeviceService*");
+        int uid = ActivityManager.getCurrentUser();
+        writer.println("current user id: " + uid);
+        List<TrustedDeviceInfo> deviceInfos = mCarTrustAgentEnrollmentService
+                .getEnrolledDeviceInfosForUser(uid);
+        writer.println(getDeviceInfoListString(uid, deviceInfos));
+        mCarTrustAgentEnrollmentService.dump(writer);
+        mCarTrustAgentUnlockService.dump(writer);
+    }
+
+    private static String getDeviceInfoListString(int uid, List<TrustedDeviceInfo> deviceInfos) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("device list of (user : ").append(uid).append("):");
+        if (deviceInfos != null && deviceInfos.size() > 0) {
+            for (int i = 0; i < deviceInfos.size(); i++) {
+                sb.append("\n\tdevice# ").append(i + 1).append(" : ")
+                    .append(deviceInfos.get(i).toString());
+            }
+        } else {
+            sb.append("\n\tno device listed");
+        }
+        return sb.toString();
     }
 }
