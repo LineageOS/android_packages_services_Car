@@ -134,6 +134,7 @@ public final class UsbDeviceHandlerResolver {
                                     + " handled by " + filter.mAoapService);
                         }
                     });
+                    mDeviceCallback.onDeviceDispatched();
                     return true;
                 }
             }
