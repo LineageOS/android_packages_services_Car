@@ -56,7 +56,12 @@ import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.internal.util.Preconditions;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -415,11 +420,15 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         final AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
         builder.setLooper(Looper.getMainLooper());
 
-        final CarAudioZonesLoader zonesLoader;
         mCarAudioConfigurationPath = getAudioConfigurationPath();
         if (mCarAudioConfigurationPath != null) {
-            zonesLoader = new CarAudioZonesHelper(mContext, mCarAudioConfigurationPath,
-                    busToCarAudioDeviceInfo);
+            try (InputStream inputStream = new FileInputStream(mCarAudioConfigurationPath)) {
+                CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mContext, inputStream,
+                        busToCarAudioDeviceInfo);
+                mCarAudioZones = zonesHelper.loadAudioZones();
+            } catch (IOException | XmlPullParserException e) {
+                throw new RuntimeException("Failed to parse audio zone configuration", e);
+            }
         } else {
             // In legacy mode, context -> bus mapping is done by querying IAudioControl HAL.
             final IAudioControl audioControl = getAudioControl();
@@ -427,10 +436,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 throw new RuntimeException(
                         "Dynamic routing requested but audioControl HAL not available");
             }
-            zonesLoader = new CarAudioZonesHelperLegacy(mContext, R.xml.car_volume_groups,
-                    busToCarAudioDeviceInfo, audioControl);
+            CarAudioZonesHelperLegacy legacyHelper = new CarAudioZonesHelperLegacy(mContext,
+                    R.xml.car_volume_groups, busToCarAudioDeviceInfo, audioControl);
+            mCarAudioZones = legacyHelper.loadAudioZones();
         }
-        mCarAudioZones = zonesLoader.loadAudioZones();
         for (CarAudioZone zone : mCarAudioZones) {
             if (!zone.validateVolumeGroups()) {
                 throw new RuntimeException("Invalid volume groups configuration");
@@ -817,9 +826,5 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Log.e(CarLog.TAG_AUDIO, "IAudioControl service not registered yet");
         }
         return null;
-    }
-
-    interface CarAudioZonesLoader {
-        CarAudioZone[] loadAudioZones();
     }
 }
