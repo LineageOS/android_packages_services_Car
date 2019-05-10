@@ -83,13 +83,22 @@ public class VmsClientManager implements CarServiceBase {
     private final ArrayList<ConnectionListener> mListeners = new ArrayList<>();
     @GuardedBy("mSystemClients")
     private final Map<String, ClientConnection> mSystemClients = new ArrayMap<>();
+    @GuardedBy("mSystemClients")
+    private boolean mSystemUserUnlocked;
+
     @GuardedBy("mCurrentUserClients")
     private final Map<String, ClientConnection> mCurrentUserClients = new ArrayMap<>();
     @GuardedBy("mCurrentUserClients")
     private int mCurrentUser;
 
     @VisibleForTesting
-    final Runnable mSystemUserUnlockedListener = this::bindToSystemClients;
+    final Runnable mSystemUserUnlockedListener = () -> {
+        synchronized (mSystemClients) {
+            mSystemUserUnlocked = true;
+        }
+        bindToSystemClients();
+    };
+
     @VisibleForTesting
     final BroadcastReceiver mUserSwitchReceiver = new BroadcastReceiver() {
         @Override
@@ -97,9 +106,11 @@ public class VmsClientManager implements CarServiceBase {
             if (DBG) Log.d(TAG, "Received " + intent);
             switch (intent.getAction()) {
                 case Intent.ACTION_USER_SWITCHED:
+                    terminateUserClients();
+                    break;
                 case Intent.ACTION_USER_UNLOCKED:
                     bindToSystemClients();
-                    bindToCurrentUserClients();
+                    bindToUserClients();
                     break;
                 default:
                     Log.e(TAG, "Unexpected intent received: " + intent);
@@ -188,19 +199,18 @@ public class VmsClientManager implements CarServiceBase {
                 R.array.vmsPublisherSystemClients);
         Log.i(TAG, "Attempting to bind " + clientNames.length + " system client(s)");
         synchronized (mSystemClients) {
+            if (!mSystemUserUnlocked) {
+                return;
+            }
             for (String clientName : clientNames) {
                 bind(mSystemClients, clientName, UserHandle.SYSTEM);
             }
         }
     }
 
-    private void bindToCurrentUserClients() {
-        int currentUserId = mUserManagerHelper.getCurrentForegroundUserId();
+    private void bindToUserClients() {
         synchronized (mCurrentUserClients) {
-            if (mCurrentUser != currentUserId) {
-                terminate(mCurrentUserClients);
-            }
-            mCurrentUser = currentUserId;
+            terminateUserClients();
 
             // To avoid the risk of double-binding, clients running as the system user must only
             // ever be bound in bindToSystemClients().
@@ -217,6 +227,16 @@ public class VmsClientManager implements CarServiceBase {
             for (String clientName : clientNames) {
                 bind(mCurrentUserClients, clientName, currentUserHandle);
             }
+        }
+    }
+
+    private void terminateUserClients() {
+        synchronized (mCurrentUserClients) {
+            int currentUserId = mUserManagerHelper.getCurrentForegroundUserId();
+            if (mCurrentUser != currentUserId) {
+                terminate(mCurrentUserClients);
+            }
+            mCurrentUser = currentUserId;
         }
     }
 
