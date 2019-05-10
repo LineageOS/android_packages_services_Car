@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelUuid;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -69,6 +70,7 @@ import java.util.List;
  */
 @RunWith(AndroidJUnit4.class)
 public class BluetoothProfileDeviceManagerTest {
+    private static final int CONNECT_LATENCY_MS = 100;
     private static final int CONNECT_TIMEOUT_MS = 8000;
     private static final int ADAPTER_STATE_ANY = 0;
     private static final int ADAPTER_STATE_OFF = 1;
@@ -112,6 +114,8 @@ public class BluetoothProfileDeviceManagerTest {
             BluetoothProfile.PBAP_CLIENT};
 
     @Mock private ICarBluetoothUserService mMockProxies;
+    private Handler mHandler;
+    private static final Object HANDLER_TOKEN = new Object();
 
     private MockContext mMockContext;
 
@@ -167,6 +171,8 @@ public class BluetoothProfileDeviceManagerTest {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Assert.assertTrue(mBluetoothAdapter != null);
 
+        mHandler = new Handler(Looper.getMainLooper());
+
         mProfileDeviceManager = BluetoothProfileDeviceManager.create(mMockContext, mUserId,
                 mMockProxies, mProfileId);
         Assert.assertTrue(mProfileDeviceManager != null);
@@ -177,6 +183,10 @@ public class BluetoothProfileDeviceManagerTest {
         if (mProfileDeviceManager != null) {
             mProfileDeviceManager.stop();
             mProfileDeviceManager = null;
+        }
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(HANDLER_TOKEN);
+            mHandler = null;
         }
         mBluetoothAdapter = null;
         if (mBluetoothAdapterHelper != null) {
@@ -249,18 +259,20 @@ public class BluetoothProfileDeviceManagerTest {
 
     private void mockDeviceAvailability(BluetoothDevice device, boolean available)
             throws Exception {
-        doAnswer(new Answer<Void>() {
+        doAnswer(new Answer<Boolean>() {
             @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
+            public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 Object[] arguments = invocation.getArguments();
                 if (arguments != null && arguments.length == 2 && arguments[1] != null) {
                     BluetoothDevice device = (BluetoothDevice) arguments[1];
                     int state = (available
                             ? BluetoothProfile.STATE_CONNECTED
                             : BluetoothProfile.STATE_DISCONNECTED);
-                    sendConnectionStateChanged(device, state);
+                    mHandler.postDelayed(() -> {
+                        sendConnectionStateChanged(device, state);
+                    }, HANDLER_TOKEN, CONNECT_LATENCY_MS);
                 }
-                return null;
+                return true;
             }
         }).when(mMockProxies).bluetoothConnectToProfile(mProfileId, device);
     }
@@ -285,12 +297,14 @@ public class BluetoothProfileDeviceManagerTest {
     }
 
     private void sendAdapterStateChanged(int newState) {
+        Assert.assertTrue(mMockContext != null);
         Intent intent = new Intent(BluetoothAdapter.ACTION_STATE_CHANGED);
         intent.putExtra(BluetoothAdapter.EXTRA_STATE, newState);
         mMockContext.sendBroadcast(intent);
     }
 
     private void sendBondStateChanged(BluetoothDevice device, int newState) {
+        Assert.assertTrue(mMockContext != null);
         Intent intent = new Intent(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         intent.putExtra(BluetoothDevice.EXTRA_DEVICE, device);
         intent.putExtra(BluetoothDevice.EXTRA_BOND_STATE, newState);
@@ -298,6 +312,7 @@ public class BluetoothProfileDeviceManagerTest {
     }
 
     private void sendDeviceUuids(BluetoothDevice device, ParcelUuid[] uuids) {
+        Assert.assertTrue(mMockContext != null);
         Intent intent = new Intent(BluetoothDevice.ACTION_UUID);
         intent.putExtra(BluetoothDevice.EXTRA_DEVICE, device);
         intent.putExtra(BluetoothDevice.EXTRA_UUID, uuids);
@@ -305,6 +320,7 @@ public class BluetoothProfileDeviceManagerTest {
     }
 
     private void sendConnectionStateChanged(BluetoothDevice device, int newState) {
+        Assert.assertTrue(mMockContext != null);
         Intent intent = new Intent(mConnectionAction);
         intent.putExtra(BluetoothDevice.EXTRA_DEVICE, device);
         intent.putExtra(BluetoothProfile.EXTRA_STATE, newState);
@@ -995,7 +1011,7 @@ public class BluetoothProfileDeviceManagerTest {
      *   PRIORITY_OFF.
      *
      * Outcome:
-     * - The device is removed from the list.
+     * - The device list is unchanged.
      */
     @Test
     public void testReceiveDeviceDisconnectPriorityOff_deviceRemoved() throws Exception {
@@ -1003,7 +1019,7 @@ public class BluetoothProfileDeviceManagerTest {
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_OFF);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
-        assertDeviceList(EMPTY_DEVICE_LIST);
+        assertDeviceList(SINGLE_DEVICE_LIST);
     }
 
     /**
