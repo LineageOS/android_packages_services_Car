@@ -40,6 +40,7 @@ LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_STATIC_JAVA_LIBRARIES := junit
 LOCAL_STATIC_JAVA_LIBRARIES += \
+    androidx.test.ext.junit \
     androidx.test.rules \
     android.hardware.automotive.vehicle-V2.0-java \
     car-frameworks-service \
