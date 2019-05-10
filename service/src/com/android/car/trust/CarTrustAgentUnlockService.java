@@ -106,6 +106,9 @@ public class CarTrustAgentUnlockService {
         }
         mTrustedDeviceService.getCarTrustAgentEnrollmentService().stopEnrollmentAdvertising();
         stopUnlockAdvertising();
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "start unlock advertising");
+        }
         mCarTrustAgentBleManager.startUnlockAdvertising();
     }
 
