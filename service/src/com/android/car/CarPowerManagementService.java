@@ -22,6 +22,7 @@ import android.car.hardware.power.ICarPowerStateListener;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -30,6 +31,7 @@ import android.os.Message;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.util.Log;
 
@@ -97,6 +99,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final int MIN_MAX_GARAGE_MODE_DURATION_MS = 15 * 60 * 1000;
 
     private static int sShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
+
+    // in secs
+    private static final String PROP_MAX_GARAGE_MODE_DURATION_OVERRIDE =
+            "android.car.garagemodeduration";
 
     private class PowerManagerCallbackList extends RemoteCallbackList<ICarPowerStateListener> {
         /**
@@ -386,6 +392,18 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void doHandlePreprocessing() {
         int pollingCount = (sShutdownPrepareTimeMs / SHUTDOWN_POLLING_INTERVAL_MS) + 1;
+        if (Build.IS_USERDEBUG || Build.IS_ENG) {
+            int shutdownPrepareTimeOverrideInSecs =
+                    SystemProperties.getInt(PROP_MAX_GARAGE_MODE_DURATION_OVERRIDE, -1);
+            if (shutdownPrepareTimeOverrideInSecs >= 0) {
+                pollingCount =
+                        (shutdownPrepareTimeOverrideInSecs * 1000 / SHUTDOWN_POLLING_INTERVAL_MS)
+                                + 1;
+                Log.i(CarLog.TAG_POWER,
+                        "Garage mode duration overridden secs:"
+                                + shutdownPrepareTimeOverrideInSecs);
+            }
+        }
         Log.i(CarLog.TAG_POWER, "processing before shutdown expected for: "
                 + sShutdownPrepareTimeMs + " ms, adding polling:" + pollingCount);
         synchronized (CarPowerManagementService.this) {
