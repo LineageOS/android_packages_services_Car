@@ -25,7 +25,8 @@
     <string name="instrumentClusterRendererService" msgid="2416852774232083347">"android.car.cluster.sample/.ClusterRenderingServiceImpl"</string>
     <string name="activityBlockingActivity" msgid="1307583481022873450">"com.android.car/com.android.car.pm.ActivityBlockingActivity"</string>
     <string name="activityWhitelist" msgid="1814434236909655273"></string>
-    <string name="systemActivityWhitelist" msgid="1027457780545793775">"com.android.systemui,com.google.android.packageinstaller/com.android.packageinstaller.permission.ui.GrantPermissionsActivity,android/com.android.internal.app.ResolverActivity"</string>
+    <!-- no translation found for systemActivityWhitelist (1256445723884668706) -->
+    <skip />
     <string name="activityBlacklist" msgid="4824386090073724380"></string>
   <string-array name="allowedAppInstallSources">
   </string-array>

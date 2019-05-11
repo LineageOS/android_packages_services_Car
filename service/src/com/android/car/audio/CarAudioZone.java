@@ -17,6 +17,7 @@ package com.android.car.audio;
 
 import android.car.media.CarAudioManager;
 import android.util.Log;
+import android.view.DisplayAddress;
 
 import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
@@ -42,11 +43,13 @@ import java.util.Set;
     private final int mId;
     private final String mName;
     private final List<CarVolumeGroup> mVolumeGroups;
+    private final List<DisplayAddress.Physical> mPhysicalDisplayAddresses;
 
     CarAudioZone(int id, String name) {
         mId = id;
         mName = name;
         mVolumeGroups = new ArrayList<>();
+        mPhysicalDisplayAddresses = new ArrayList<>();
     }
 
     int getId() {
@@ -73,6 +76,23 @@ import java.util.Set;
 
     int getVolumeGroupCount() {
         return mVolumeGroups.size();
+    }
+
+    /**
+     * Associates a new display physical port with this audio zone. This can be used to
+     * identify what zone an activity should produce sound in when launching on a particular display
+     * @param physicalDisplayAddress port to associate with this zone
+     */
+    void addPhysicalDisplayAddress(DisplayAddress.Physical physicalDisplayAddress) {
+        mPhysicalDisplayAddresses.add(physicalDisplayAddress);
+    }
+
+    /**
+     * Gets list of ports for displays associated with this audio zone
+     * @return list of Physical ports for displays associated with this audio zone
+     */
+    List<DisplayAddress.Physical> getPhysicalDisplayAddresses() {
+        return mPhysicalDisplayAddresses;
     }
 
     /**
@@ -138,6 +158,12 @@ import java.util.Set;
 
     void dump(String indent, PrintWriter writer) {
         writer.printf("%sCarAudioZone(%s:%d) isPrimary? %b\n", indent, mName, mId, isPrimaryZone());
+        for (DisplayAddress.Physical physical: mPhysicalDisplayAddresses) {
+            long port = (long) physical.getPort();
+            writer.printf("%sDisplayAddress.Physical(%d)\n", indent + "\t", port);
+        }
+        writer.println();
+
         for (CarVolumeGroup group : mVolumeGroups) {
             group.dump(indent + "\t", writer);
         }

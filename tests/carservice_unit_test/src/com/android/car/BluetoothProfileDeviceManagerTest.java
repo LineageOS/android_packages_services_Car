@@ -29,21 +29,22 @@ import android.car.ICarBluetoothUserService;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelUuid;
 import android.os.UserHandle;
 import android.provider.Settings;
-import android.test.mock.MockContentProvider;
 import android.test.mock.MockContentResolver;
 import android.test.suitebuilder.annotation.Suppress;
 import android.text.TextUtils;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
+
+import com.android.internal.util.test.BroadcastInterceptingContext;
+import com.android.internal.util.test.FakeSettingsProvider;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -58,6 +59,7 @@ import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,13 +67,36 @@ import java.util.List;
  *
  * Run:
  * atest BluetoothProfileDeviceManagerTest
- *
- * As a note, content provider based tests that intercept requests from Settings.Secure do not
- * test well in atest with other test modules. They have been suppressed for now.
  */
 @RunWith(AndroidJUnit4.class)
 public class BluetoothProfileDeviceManagerTest {
+    private static final int CONNECT_LATENCY_MS = 100;
     private static final int CONNECT_TIMEOUT_MS = 8000;
+    private static final int ADAPTER_STATE_ANY = 0;
+    private static final int ADAPTER_STATE_OFF = 1;
+    private static final int ADAPTER_STATE_OFF_NOT_PERSISTED = 2;
+    private static final int ADAPTER_STATE_ON = 3;
+
+    private static final List<String> EMPTY_DEVICE_LIST = Arrays.asList();
+    private static final List<String> SINGLE_DEVICE_LIST = Arrays.asList("DE:AD:BE:EF:00:00");
+    private static final List<String> SMALL_DEVICE_LIST = Arrays.asList(
+            "DE:AD:BE:EF:00:00",
+            "DE:AD:BE:EF:00:01",
+            "DE:AD:BE:EF:00:02");
+    private static final List<String> LARGE_DEVICE_LIST = Arrays.asList(
+            "DE:AD:BE:EF:00:00",
+            "DE:AD:BE:EF:00:01",
+            "DE:AD:BE:EF:00:02",
+            "DE:AD:BE:EF:00:03",
+            "DE:AD:BE:EF:00:04",
+            "DE:AD:BE:EF:00:05",
+            "DE:AD:BE:EF:00:06",
+            "DE:AD:BE:EF:00:07");
+
+    private static final String EMPTY_SETTINGS_STRING = "";
+    private static final String SINGLE_SETTINGS_STRING = makeSettingsString(SINGLE_DEVICE_LIST);
+    private static final String SMALL_SETTINGS_STRING = makeSettingsString(SMALL_DEVICE_LIST);
+    private static final String LARGE_SETTINGS_STRING = makeSettingsString(LARGE_DEVICE_LIST);
 
     BluetoothProfileDeviceManager mProfileDeviceManager;
 
@@ -82,67 +107,35 @@ public class BluetoothProfileDeviceManagerTest {
     private ParcelUuid[] mUuids = new ParcelUuid[] {
             BluetoothUuid.Handsfree_AG,
             BluetoothUuid.HSP_AG};
+    private ParcelUuid[] mBadUuids = new ParcelUuid[] {
+            BluetoothUuid.PANU};
     private final int[] mProfileTriggers = new int[] {
             BluetoothProfile.MAP_CLIENT,
             BluetoothProfile.PBAP_CLIENT};
 
     @Mock private ICarBluetoothUserService mMockProxies;
+    private Handler mHandler;
+    private static final Object HANDLER_TOKEN = new Object();
 
     private MockContext mMockContext;
 
     private BluetoothAdapterHelper mBluetoothAdapterHelper;
     private BluetoothAdapter mBluetoothAdapter;
 
-    /**
-     * A mock context that will override the relevant functions to allow us to grab broadcast
-     * receivers and dictate which content resolver to use.
-     */
-    public class MockContext extends ContextWrapper {
+    public class MockContext extends BroadcastInterceptingContext {
         private MockContentResolver mContentResolver;
-        private MockContentProvider mContentProvider;
-        private String mSettingsContents;
-        private BroadcastReceiver mReceiver;
+        private FakeSettingsProvider mContentProvider;
 
         MockContext(Context base) {
             super(base);
+            FakeSettingsProvider.clearSettingsProvider();
             mContentResolver = new MockContentResolver(this);
-            mContentProvider = new MockContentProvider(this) {
-                @Override
-                public Bundle call(String method, String request, Bundle args) {
-                    if (Settings.CALL_METHOD_GET_SECURE.equals(method)) {
-                        String ret = getSettingsContents();
-                        Bundle b = new Bundle(1);
-                        b.putCharSequence("value", ret);
-                        return b;
-                    } else if (Settings.CALL_METHOD_PUT_SECURE.equals(method)) {
-                        String newSettings = (String) args.get("value");
-                        setSettingsContents(newSettings);
-                    }
-                    return new Bundle();
-                }
-            };
+            mContentProvider = new FakeSettingsProvider();
             mContentResolver.addProvider(Settings.AUTHORITY, mContentProvider);
-            setSettingsContents("");
         }
 
         public void release() {
-            setReceiver(null);
-            setSettingsContents("");
-            mContentResolver = null;
-            mContentProvider = null;
-        }
-
-        private synchronized BroadcastReceiver getReceiver() {
-            return mReceiver;
-        }
-
-        private synchronized void setReceiver(BroadcastReceiver receiver) {
-            mReceiver = receiver;
-        }
-
-        @Override
-        public int getUserId() {
-            return mUserId;
+            FakeSettingsProvider.clearSettingsProvider();
         }
 
         @Override
@@ -151,34 +144,11 @@ public class BluetoothProfileDeviceManagerTest {
         }
 
         @Override
-        public Intent registerReceiverAsUser(BroadcastReceiver receiver,
-                UserHandle user, IntentFilter filter, String broadcastPermission,
-                Handler scheduler) {
-            setReceiver(receiver);
-            return null;
-        }
-
-        @Override
-        public void unregisterReceiver(BroadcastReceiver receiver) {
-            setReceiver(null);
-        }
-
-        @Override
-        public void sendBroadcast(Intent intent) {
-            synchronized (this) {
-                if (mReceiver != null) {
-                    mReceiver.onReceive(null, intent);
-                }
-            }
-        }
-
-        public synchronized String getSettingsContents() {
-            return mSettingsContents;
-        }
-
-        public synchronized void setSettingsContents(String s) {
-            if (s == null) s = "";
-            mSettingsContents = s;
+        public Intent registerReceiverAsUser(BroadcastReceiver receiver, UserHandle user,
+                IntentFilter filter, String broadcastPermission, Handler scheduler) {
+            // We're basically ignoring the userhandle since the tests only assume one user anyway.
+            // BroadcastInterceptingContext doesn't implement this hook either so this has to do.
+            return super.registerReceiver(receiver, filter);
         }
     }
 
@@ -201,6 +171,8 @@ public class BluetoothProfileDeviceManagerTest {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Assert.assertTrue(mBluetoothAdapter != null);
 
+        mHandler = new Handler(Looper.getMainLooper());
+
         mProfileDeviceManager = BluetoothProfileDeviceManager.create(mMockContext, mUserId,
                 mMockProxies, mProfileId);
         Assert.assertTrue(mProfileDeviceManager != null);
@@ -208,14 +180,24 @@ public class BluetoothProfileDeviceManagerTest {
 
     @After
     public void tearDown() {
-        mProfileDeviceManager.stop();
-        mProfileDeviceManager = null;
+        if (mProfileDeviceManager != null) {
+            mProfileDeviceManager.stop();
+            mProfileDeviceManager = null;
+        }
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(HANDLER_TOKEN);
+            mHandler = null;
+        }
         mBluetoothAdapter = null;
-        mBluetoothAdapterHelper.release();
-        mBluetoothAdapterHelper = null;
+        if (mBluetoothAdapterHelper != null) {
+            mBluetoothAdapterHelper.release();
+            mBluetoothAdapterHelper = null;
+        }
         mMockProxies = null;
-        mMockContext.release();
-        mMockContext = null;
+        if (mMockContext != null) {
+            mMockContext.release();
+            mMockContext = null;
+        }
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -236,7 +218,6 @@ public class BluetoothProfileDeviceManagerTest {
 
     private ArrayList<BluetoothDevice> makeDeviceList(List<String> addresses) {
         ArrayList<BluetoothDevice> devices = new ArrayList<>();
-
         for (String address : addresses) {
             BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
             if (device == null) continue;
@@ -245,20 +226,53 @@ public class BluetoothProfileDeviceManagerTest {
         return devices;
     }
 
+    private static String makeSettingsString(List<String> addresses) {
+        return TextUtils.join(",", addresses);
+    }
+
+    private void setPreconditionsAndStart(int adapterState, String settings,
+            List<String> devices) {
+        switch (adapterState) {
+            case ADAPTER_STATE_ON:
+                mBluetoothAdapterHelper.forceAdapterOn();
+                break;
+            case ADAPTER_STATE_OFF:
+                mBluetoothAdapterHelper.forceAdapterOff();
+                break;
+            case ADAPTER_STATE_OFF_NOT_PERSISTED:
+                mBluetoothAdapterHelper.forceAdapterOffDoNotPersist();
+                break;
+            case ADAPTER_STATE_ANY:
+                break;
+            default:
+                break;
+        }
+
+        setSettingsDeviceList(settings);
+
+        mProfileDeviceManager.start();
+
+        for (BluetoothDevice device : makeDeviceList(devices)) {
+            mProfileDeviceManager.addDevice(device);
+        }
+    }
+
     private void mockDeviceAvailability(BluetoothDevice device, boolean available)
             throws Exception {
-        doAnswer(new Answer<Void>() {
+        doAnswer(new Answer<Boolean>() {
             @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
+            public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 Object[] arguments = invocation.getArguments();
                 if (arguments != null && arguments.length == 2 && arguments[1] != null) {
                     BluetoothDevice device = (BluetoothDevice) arguments[1];
                     int state = (available
                             ? BluetoothProfile.STATE_CONNECTED
                             : BluetoothProfile.STATE_DISCONNECTED);
-                    sendConnectionStateChanged(device, state);
+                    mHandler.postDelayed(() -> {
+                        sendConnectionStateChanged(device, state);
+                    }, HANDLER_TOKEN, CONNECT_LATENCY_MS);
                 }
-                return null;
+                return true;
             }
         }).when(mMockProxies).bluetoothConnectToProfile(mProfileId, device);
     }
@@ -283,12 +297,14 @@ public class BluetoothProfileDeviceManagerTest {
     }
 
     private void sendAdapterStateChanged(int newState) {
+        Assert.assertTrue(mMockContext != null);
         Intent intent = new Intent(BluetoothAdapter.ACTION_STATE_CHANGED);
         intent.putExtra(BluetoothAdapter.EXTRA_STATE, newState);
         mMockContext.sendBroadcast(intent);
     }
 
     private void sendBondStateChanged(BluetoothDevice device, int newState) {
+        Assert.assertTrue(mMockContext != null);
         Intent intent = new Intent(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         intent.putExtra(BluetoothDevice.EXTRA_DEVICE, device);
         intent.putExtra(BluetoothDevice.EXTRA_BOND_STATE, newState);
@@ -296,6 +312,7 @@ public class BluetoothProfileDeviceManagerTest {
     }
 
     private void sendDeviceUuids(BluetoothDevice device, ParcelUuid[] uuids) {
+        Assert.assertTrue(mMockContext != null);
         Intent intent = new Intent(BluetoothDevice.ACTION_UUID);
         intent.putExtra(BluetoothDevice.EXTRA_DEVICE, device);
         intent.putExtra(BluetoothDevice.EXTRA_UUID, uuids);
@@ -303,6 +320,7 @@ public class BluetoothProfileDeviceManagerTest {
     }
 
     private void sendConnectionStateChanged(BluetoothDevice device, int newState) {
+        Assert.assertTrue(mMockContext != null);
         Intent intent = new Intent(mConnectionAction);
         intent.putExtra(BluetoothDevice.EXTRA_DEVICE, device);
         intent.putExtra(BluetoothProfile.EXTRA_STATE, newState);
@@ -311,15 +329,15 @@ public class BluetoothProfileDeviceManagerTest {
 
     private synchronized void assertSettingsContains(String expected) {
         Assert.assertTrue(expected != null);
-        String settings = Settings.Secure.getStringForUser(mMockContext.getContentResolver(),
-                mSettingsKey, mUserId);
+        String settings = getSettingsDeviceList();
         if (settings == null) settings = "";
         Assert.assertEquals(expected, settings);
     }
 
-    private void assertDeviceList(ArrayList<BluetoothDevice> devices,
-            ArrayList<BluetoothDevice> expected) {
-        Assert.assertEquals(expected, devices);
+    private void assertDeviceList(List<String> expected) {
+        ArrayList<BluetoothDevice> devices = mProfileDeviceManager.getDeviceListSnapshot();
+        ArrayList<BluetoothDevice> expectedDevices = makeDeviceList(expected);
+        Assert.assertEquals(expectedDevices, devices);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -337,12 +355,9 @@ public class BluetoothProfileDeviceManagerTest {
      * - device manager should initialize
      */
     @Test
-    @Suppress
     public void testEmptySettingsString_loadNoDevices() {
-        mProfileDeviceManager.start();
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        assertDeviceList(EMPTY_DEVICE_LIST);
     }
 
     /**
@@ -356,15 +371,9 @@ public class BluetoothProfileDeviceManagerTest {
      * - The single device is now located in the device manager's device list
      */
     @Test
-    @Suppress
     public void testSingleDeviceSettingsString_loadSingleDevice() {
-        final List<String> addresses = Arrays.asList("DE:AD:BE:EF:00:00");
-        String devicesStr = TextUtils.join(",", addresses);
-        setSettingsDeviceList(devicesStr);
-
-        mProfileDeviceManager.start();
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), makeDeviceList(addresses));
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, SINGLE_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        assertDeviceList(SINGLE_DEVICE_LIST);
     }
 
     /**
@@ -378,16 +387,9 @@ public class BluetoothProfileDeviceManagerTest {
      * - All devices are now in the device manager's list, all in the proper order.
      */
     @Test
-    @Suppress
     public void testSeveralDevicesSettingsString_loadAllDevices() {
-        final List<String> addresses = Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02",
-                "DE:AD:BE:EF:00:03", "DE:AD:BE:EF:00:04", "DE:AD:BE:EF:00:05",
-                "DE:AD:BE:EF:00:06", "DE:AD:BE:EF:00:07");
-        String devicesStr = TextUtils.join(",", addresses);
-        setSettingsDeviceList(devicesStr);
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), makeDeviceList(addresses));
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, LARGE_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        assertDeviceList(LARGE_DEVICE_LIST);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -405,13 +407,10 @@ public class BluetoothProfileDeviceManagerTest {
      * - The empty list should be written to Settings.Secure as an empty string, ""
      */
     @Test
-    @Suppress
     public void testNoDevicesCommit_commitEmptyDeviceString() {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
         sendAdapterStateChanged(BluetoothAdapter.STATE_OFF);
-        assertSettingsContains("");
+        assertSettingsContains(EMPTY_SETTINGS_STRING);
     }
 
     /**
@@ -425,23 +424,10 @@ public class BluetoothProfileDeviceManagerTest {
      * - The ordered device list should be written to Settings.Secure as a comma separated list
      */
     @Test
-    @Suppress
     public void testSeveralDevicesCommit_commitAllDeviceString() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02",
-                "DE:AD:BE:EF:00:03", "DE:AD:BE:EF:00:04", "DE:AD:BE:EF:00:05",
-                "DE:AD:BE:EF:00:06", "DE:AD:BE:EF:00:07"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, LARGE_DEVICE_LIST);
         sendAdapterStateChanged(BluetoothAdapter.STATE_OFF);
-
-        assertSettingsContains(TextUtils.join(",", devices));
+        assertSettingsContains(LARGE_SETTINGS_STRING);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -453,26 +439,31 @@ public class BluetoothProfileDeviceManagerTest {
      * - The device manager is initialized and contains no devices.
      *
      * Actions:
+     * - Add a single device
+     *
+     * Outcome:
+     * - The device manager priority list contains the single device
+     */
+    @Test
+    public void testAddSingleDevice_devicesAppearInPriorityList() {
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
+        assertDeviceList(SINGLE_DEVICE_LIST);
+    }
+
+    /**
+     * Preconditions:
+     * - The device manager is initialized and contains no devices.
+     *
+     * Actions:
      * - Add several devices
      *
      * Outcome:
-     * - The device manager contains all devices, ordered properly
+     * - The device manager priority list contains all devices, ordered properly
      */
     @Test
-    public void testAddDevices_devicesAppearInPriorityList() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02",
-                "DE:AD:BE:EF:00:03", "DE:AD:BE:EF:00:04", "DE:AD:BE:EF:00:05",
-                "DE:AD:BE:EF:00:06", "DE:AD:BE:EF:00:07"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
+    public void testAddMultipleDevices_devicesAppearInPriorityList() {
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, LARGE_DEVICE_LIST);
+        assertDeviceList(LARGE_DEVICE_LIST);
     }
 
     /**
@@ -487,16 +478,10 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testAddDeviceAlreadyInList_priorityListUnchanged() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        mProfileDeviceManager.addDevice(mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:00"));
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        mProfileDeviceManager.addDevice(mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:00"));
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mProfileDeviceManager.addDevice(device);
+        assertDeviceList(SINGLE_DEVICE_LIST);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -515,13 +500,9 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testRemoveDeviceFromEmptyList_priorityListUnchanged() {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
         mProfileDeviceManager.removeDevice(mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:00"));
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
+        assertDeviceList(EMPTY_DEVICE_LIST);
     }
 
     /**
@@ -536,20 +517,12 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testRemoveDeviceFront_deviceNoLongerInPriorityList() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        mProfileDeviceManager.removeDevice(mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:00"));
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02")));
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mProfileDeviceManager.removeDevice(device);
+        ArrayList<String> expected = new ArrayList(SMALL_DEVICE_LIST);
+        expected.remove(0);
+        assertDeviceList(expected);
     }
 
     /**
@@ -565,20 +538,12 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testRemoveDeviceMiddle_deviceNoLongerInPriorityList() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        mProfileDeviceManager.removeDevice(mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:01"));
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:02")));
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SMALL_DEVICE_LIST.get(1));
+        mProfileDeviceManager.removeDevice(device);
+        ArrayList<String> expected = new ArrayList(SMALL_DEVICE_LIST);
+        expected.remove(1);
+        assertDeviceList(expected);
     }
 
     /**
@@ -593,20 +558,12 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testRemoveDeviceEnd_deviceNoLongerInPriorityList() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        mProfileDeviceManager.removeDevice(mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:02"));
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01")));
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SMALL_DEVICE_LIST.get(2));
+        mProfileDeviceManager.removeDevice(device);
+        ArrayList<String> expected = new ArrayList(SMALL_DEVICE_LIST);
+        expected.remove(2); // 00, 01
+        assertDeviceList(expected);
     }
 
     /**
@@ -621,19 +578,10 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testRemoveDeviceNotInList_priorityListUnchanged() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        mProfileDeviceManager.removeDevice(mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:03"));
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("10:20:30:40:50:60");
+        mProfileDeviceManager.removeDevice(device);
+        assertDeviceList(SMALL_DEVICE_LIST);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -652,20 +600,11 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testGetConnectionPriority_prioritiesReturned() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
+        ArrayList<BluetoothDevice> devices = makeDeviceList(SMALL_DEVICE_LIST);
         for (int i = 0; i < devices.size(); i++) {
             int priority = mProfileDeviceManager.getDeviceConnectionPriority(devices.get(i));
-            Assert.assertTrue(priority == i);
+            Assert.assertEquals(i, priority);
         }
     }
 
@@ -681,20 +620,10 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testGetConnectionPriorityDeviceNotInList_negativeOneReturned() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        int priority = mProfileDeviceManager.getDeviceConnectionPriority(
-                mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:03"));
-        Assert.assertTrue(priority == -1);
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
+        BluetoothDevice deviceNotPresent = mBluetoothAdapter.getRemoteDevice("10:20:30:40:50:60");
+        int priority = mProfileDeviceManager.getDeviceConnectionPriority(deviceNotPresent);
+        Assert.assertEquals(-1, priority);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -720,66 +649,52 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testSetConnectionPriority_listOrderedCorrectly() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
 
         // move middle device to front
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:01");
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SMALL_DEVICE_LIST.get(1));
         mProfileDeviceManager.setDeviceConnectionPriority(device, 0);
-        Assert.assertTrue(mProfileDeviceManager.getDeviceConnectionPriority(device) == 0);
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList(
-                        "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:02")));
+        Assert.assertEquals(0, mProfileDeviceManager.getDeviceConnectionPriority(device));
+        ArrayList<String> expected = new ArrayList(SMALL_DEVICE_LIST);
+        Collections.swap(expected, 1, 0); // expected: 00, [01], 02 -> [01], 00, 02
+        assertDeviceList(expected);
 
         // move front device to the end
         mProfileDeviceManager.setDeviceConnectionPriority(device, 2);
-        Assert.assertTrue(mProfileDeviceManager.getDeviceConnectionPriority(device) == 2);
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList(
-                        "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:02", "DE:AD:BE:EF:00:01")));
+        Assert.assertEquals(2, mProfileDeviceManager.getDeviceConnectionPriority(device));
+        Collections.swap(expected, 0, 2); // expected: [01], 00, 02 -> 00, 02, [01]
+        Collections.swap(expected, 0, 1);
+        assertDeviceList(expected);
 
         // move end device to middle
         mProfileDeviceManager.setDeviceConnectionPriority(device, 1);
-        Assert.assertTrue(mProfileDeviceManager.getDeviceConnectionPriority(device) == 1);
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList(
-                        "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02")));
+        Assert.assertEquals(1, mProfileDeviceManager.getDeviceConnectionPriority(device));
+        Collections.swap(expected, 2, 1); // expected: 00, 02, [01] -> 00, [01], 02
+        assertDeviceList(expected);
 
         // move middle to end
         mProfileDeviceManager.setDeviceConnectionPriority(device, 2);
-        Assert.assertTrue(mProfileDeviceManager.getDeviceConnectionPriority(device) == 2);
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList(
-                        "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:02", "DE:AD:BE:EF:00:01")));
+        Assert.assertEquals(2, mProfileDeviceManager.getDeviceConnectionPriority(device));
+        Collections.swap(expected, 1, 2); // expected: 00, [01], 02 -> 00, 02, [01]
+        assertDeviceList(expected);
 
         // move end to front
         mProfileDeviceManager.setDeviceConnectionPriority(device, 0);
-        Assert.assertTrue(mProfileDeviceManager.getDeviceConnectionPriority(device) == 0);
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList(
-                        "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:02")));
+        Assert.assertEquals(0, mProfileDeviceManager.getDeviceConnectionPriority(device));
+        Collections.swap(expected, 2, 0); // expected: 00, 02, [01] -> [01], 00, 02
+        Collections.swap(expected, 1, 2);
+        assertDeviceList(expected);
 
         // move front to middle
         mProfileDeviceManager.setDeviceConnectionPriority(device, 1);
-        Assert.assertTrue(mProfileDeviceManager.getDeviceConnectionPriority(device) == 1);
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList(
-                        "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02")));
+        Assert.assertEquals(1, mProfileDeviceManager.getDeviceConnectionPriority(device));
+        Collections.swap(expected, 0, 1); // expected: [01], 00, 02 -> 00, [01], 02
+        assertDeviceList(expected);
 
-        // move middle to middle
+        // move middle to middle (i.e same to same)
         mProfileDeviceManager.setDeviceConnectionPriority(device, 1);
-        Assert.assertTrue(mProfileDeviceManager.getDeviceConnectionPriority(device) == 1);
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList(
-                        "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02")));
+        Assert.assertEquals(1, mProfileDeviceManager.getDeviceConnectionPriority(device));
+        assertDeviceList(expected); // expected: 00, [01], 02 -> 00, [01], 02
     }
 
     /**
@@ -795,25 +710,29 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testSetConnectionPriorityNewDevice_listOrderedCorrectly() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
 
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        // move middle device to front
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:03");
+        // add new device to the middle
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("10:20:30:40:50:60");
         mProfileDeviceManager.setDeviceConnectionPriority(device, 1);
-        Assert.assertTrue(mProfileDeviceManager.getDeviceConnectionPriority(device) == 1);
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList(
-                        "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:03", "DE:AD:BE:EF:00:01",
-                        "DE:AD:BE:EF:00:02")));
+        Assert.assertEquals(1, mProfileDeviceManager.getDeviceConnectionPriority(device));
+        ArrayList<String> expected = new ArrayList(SMALL_DEVICE_LIST);
+        expected.add(1, "10:20:30:40:50:60"); // 00, 60, 01, 02
+        assertDeviceList(expected);
+
+        // add new device to the front
+        device = mBluetoothAdapter.getRemoteDevice("10:20:30:40:50:61");
+        mProfileDeviceManager.setDeviceConnectionPriority(device, 0);
+        Assert.assertEquals(0, mProfileDeviceManager.getDeviceConnectionPriority(device));
+        expected.add(0, "10:20:30:40:50:61"); // 61, 00, 60, 01, 02
+        assertDeviceList(expected);
+
+        // add new device to the end
+        device = mBluetoothAdapter.getRemoteDevice("10:20:30:40:50:62");
+        mProfileDeviceManager.setDeviceConnectionPriority(device, 5);
+        Assert.assertEquals(5, mProfileDeviceManager.getDeviceConnectionPriority(device));
+        expected.add(5, "10:20:30:40:50:62"); // 61, 00, 60, 01, 02, 62
+        assertDeviceList(expected);
     }
 
     /**
@@ -828,24 +747,13 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testSetConnectionPriorityLargerThanSize_priorityListUnchanged() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
 
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        // move middle device to end with huge end priority
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:01");
+        // Attempt to move middle device to end with huge end priority
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SMALL_DEVICE_LIST.get(1));
         mProfileDeviceManager.setDeviceConnectionPriority(device, 100000);
-        Assert.assertTrue(mProfileDeviceManager.getDeviceConnectionPriority(device) == 1);
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList(
-                        "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02")));
+        Assert.assertEquals(1, mProfileDeviceManager.getDeviceConnectionPriority(device));
+        assertDeviceList(SMALL_DEVICE_LIST);
     }
 
     /**
@@ -860,21 +768,12 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testSetConnectionPriorityNegative_priorityListUnchanged() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
 
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:01");
+        // Attempt to move middle device to negative priority
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SMALL_DEVICE_LIST.get(1));
         mProfileDeviceManager.setDeviceConnectionPriority(device, -1);
-        Assert.assertTrue(mProfileDeviceManager.getDeviceConnectionPriority(device) == 1);
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
+        assertDeviceList(SMALL_DEVICE_LIST);
     }
 
     /**
@@ -889,19 +788,9 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testSetConnectionPriorityNullDevice_priorityListUnchanged() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
         mProfileDeviceManager.setDeviceConnectionPriority(null, 1);
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
+        assertDeviceList(SMALL_DEVICE_LIST);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -921,16 +810,10 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testAutoConnectNoDevices_returnsImmediately() throws Exception {
-        mBluetoothAdapterHelper.forceAdapterOn();
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
+        setPreconditionsAndStart(ADAPTER_STATE_ON, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
         mProfileDeviceManager.beginAutoConnecting();
-
         verify(mMockProxies, times(0)).bluetoothConnectToProfile(eq(mProfileId),
                 any(BluetoothDevice.class));
-
         Assert.assertFalse(mProfileDeviceManager.isAutoConnecting());
     }
 
@@ -947,23 +830,10 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testAutoConnectAdapterOff_returnsImmediately() throws Exception {
-        mBluetoothAdapterHelper.forceAdapterOff();
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
+        setPreconditionsAndStart(ADAPTER_STATE_OFF, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
         mProfileDeviceManager.beginAutoConnecting();
-
         verify(mMockProxies, times(0)).bluetoothConnectToProfile(eq(mProfileId),
                 any(BluetoothDevice.class));
-
         Assert.assertFalse(mProfileDeviceManager.isAutoConnecting());
     }
 
@@ -980,31 +850,19 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testAutoConnectSeveralDevices_attemptsToConnectEachDevice() throws Exception {
-        mBluetoothAdapterHelper.forceAdapterOn();
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
+        setPreconditionsAndStart(ADAPTER_STATE_ON, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
+        ArrayList<BluetoothDevice> devices = makeDeviceList(SMALL_DEVICE_LIST);
         for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
+            mockDeviceAvailability(device, true);
         }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        mockDeviceAvailability(devices.get(0), true);
-        mockDeviceAvailability(devices.get(1), true);
-        mockDeviceAvailability(devices.get(2), true);
 
         mProfileDeviceManager.beginAutoConnecting();
 
         InOrder ordered = inOrder(mMockProxies);
-        ordered.verify(mMockProxies, timeout(CONNECT_TIMEOUT_MS).times(1))
-                .bluetoothConnectToProfile(mProfileId, devices.get(0));
-        ordered.verify(mMockProxies, timeout(CONNECT_TIMEOUT_MS).times(1))
-                .bluetoothConnectToProfile(mProfileId, devices.get(1));
-        ordered.verify(mMockProxies, timeout(CONNECT_TIMEOUT_MS).times(1))
-                .bluetoothConnectToProfile(mProfileId, devices.get(2));
+        for (BluetoothDevice device : devices) {
+            ordered.verify(mMockProxies, timeout(CONNECT_TIMEOUT_MS).times(1))
+                    .bluetoothConnectToProfile(mProfileId, device);
+        }
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -1013,29 +871,25 @@ public class BluetoothProfileDeviceManagerTest {
 
     /**
      * Preconditions:
-     * - The device manager is initialized, there are no devices in the list.
+     * - The device manager is initialized, there are no devices in the list. We are not auto
+     *   connecting
      *
      * Actions:
      * - A connection action comes in for the profile we're tracking and the device's priority is
      *   PRIORITY_AUTO_CONNECT.
      *
      * Outcome:
-     * - The device is added to the list.
+     * - The device is added to the list. Related/configured trigger profiles are connected.
      */
     @Test
     public void testReceiveDeviceConnectPriorityAutoConnect_deviceAdded() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_AUTO_CONNECT);
-        sendConnectionStateChanged(devices.get(0), BluetoothProfile.STATE_CONNECTED);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_AUTO_CONNECT);
+        sendConnectionStateChanged(device, BluetoothProfile.STATE_CONNECTED);
+        assertDeviceList(SINGLE_DEVICE_LIST);
         for (int profile : mProfileTriggers) {
-            verify(mMockProxies, times(1)).bluetoothConnectToProfile(profile, devices.get(0));
+            verify(mMockProxies, times(1)).bluetoothConnectToProfile(profile, device);
         }
     }
 
@@ -1048,22 +902,17 @@ public class BluetoothProfileDeviceManagerTest {
      *   PRIORITY_ON.
      *
      * Outcome:
-     * - The device is added to the list.
+     * - The device is added to the list. Related/configured trigger profiles are connected.
      */
     @Test
     public void testReceiveDeviceConnectPriorityOn_deviceAdded() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_ON);
-        sendConnectionStateChanged(devices.get(0), BluetoothProfile.STATE_CONNECTED);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_ON);
+        sendConnectionStateChanged(device, BluetoothProfile.STATE_CONNECTED);
+        assertDeviceList(SINGLE_DEVICE_LIST);
         for (int profile : mProfileTriggers) {
-            verify(mMockProxies, times(1)).bluetoothConnectToProfile(profile, devices.get(0));
+            verify(mMockProxies, times(1)).bluetoothConnectToProfile(profile, device);
         }
     }
 
@@ -1076,23 +925,17 @@ public class BluetoothProfileDeviceManagerTest {
      *   PRIORITY_OFF.
      *
      * Outcome:
-     * - The device is not added to the list.
+     * - The device is not added to the list. Related/configured trigger profiles are connected.
      */
     @Test
     public void testReceiveDeviceConnectPriorityOff_deviceNotAdded() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_OFF);
-        sendConnectionStateChanged(devices.get(0), BluetoothProfile.STATE_CONNECTED);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_OFF);
+        sendConnectionStateChanged(device, BluetoothProfile.STATE_CONNECTED);
+        assertDeviceList(EMPTY_DEVICE_LIST);
         for (int profile : mProfileTriggers) {
-            verify(mMockProxies, times(1)).bluetoothConnectToProfile(profile, devices.get(0));
+            verify(mMockProxies, times(1)).bluetoothConnectToProfile(profile, device);
         }
     }
 
@@ -1105,23 +948,17 @@ public class BluetoothProfileDeviceManagerTest {
      *   PRIORITY_UNDEFINED.
      *
      * Outcome:
-     * - The device is not added to the list.
+     * - The device is not added to the list. Related/configured trigger profiles are connected.
      */
     @Test
     public void testReceiveDeviceConnectPriorityUndefined_deviceNotAdded() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_UNDEFINED);
-        sendConnectionStateChanged(devices.get(0), BluetoothProfile.STATE_CONNECTED);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
+        sendConnectionStateChanged(device, BluetoothProfile.STATE_CONNECTED);
+        assertDeviceList(EMPTY_DEVICE_LIST);
         for (int profile : mProfileTriggers) {
-            verify(mMockProxies, times(1)).bluetoothConnectToProfile(profile, devices.get(0));
+            verify(mMockProxies, times(1)).bluetoothConnectToProfile(profile, device);
         }
     }
 
@@ -1138,21 +975,11 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveDeviceDisconnectPriorityAutoConnect_listUnchanged() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_AUTO_CONNECT);
-        sendConnectionStateChanged(devices.get(0), BluetoothProfile.STATE_DISCONNECTED);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_AUTO_CONNECT);
+        sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
+        assertDeviceList(SINGLE_DEVICE_LIST);
     }
 
     /**
@@ -1168,21 +995,11 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveDeviceDisconnectPriorityOn_listUnchanged() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_ON);
-        sendConnectionStateChanged(devices.get(0), BluetoothProfile.STATE_DISCONNECTED);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_ON);
+        sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
+        assertDeviceList(SINGLE_DEVICE_LIST);
     }
 
     /**
@@ -1194,26 +1011,15 @@ public class BluetoothProfileDeviceManagerTest {
      *   PRIORITY_OFF.
      *
      * Outcome:
-     * - The device is removed from the list.
+     * - The device list is unchanged.
      */
     @Test
     public void testReceiveDeviceDisconnectPriorityOff_deviceRemoved() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_OFF);
-        sendConnectionStateChanged(devices.get(0), BluetoothProfile.STATE_DISCONNECTED);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_OFF);
+        sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
+        assertDeviceList(SINGLE_DEVICE_LIST);
     }
 
     /**
@@ -1229,21 +1035,11 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveDeviceDisconnectPriorityUndefined_listUnchanged() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_UNDEFINED);
-        sendConnectionStateChanged(devices.get(0), BluetoothProfile.STATE_DISCONNECTED);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
+        sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
+        assertDeviceList(SINGLE_DEVICE_LIST);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -1262,21 +1058,10 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveDeviceUnbonded_deviceRemoved() {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
-        sendBondStateChanged(devices.get(0), BluetoothDevice.BOND_NONE);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        sendBondStateChanged(device, BluetoothDevice.BOND_NONE);
+        assertDeviceList(EMPTY_DEVICE_LIST);
     }
 
     /**
@@ -1295,18 +1080,12 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     @Suppress
     public void testReceiveSupportedDeviceBonded_deviceAdded() {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
         BluetoothDevice device = mock(BluetoothDevice.class);
-        doReturn("DE:AD:BE:EF:00:00").when(device).getAddress();
+        doReturn(SINGLE_DEVICE_LIST.get(0)).when(device).getAddress();
         doReturn(mUuids).when(device).getUuids();
-
         sendBondStateChanged(device, BluetoothDevice.BOND_BONDED);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00")));
+        assertDeviceList(SINGLE_DEVICE_LIST);
     }
 
     /**
@@ -1321,16 +1100,10 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveUnsupportedDeviceBonded_deviceNotAdded() {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-
-        sendBondStateChanged(devices.get(0), BluetoothDevice.BOND_BONDED);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        sendBondStateChanged(device, BluetoothDevice.BOND_BONDED);
+        assertDeviceList(EMPTY_DEVICE_LIST);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -1349,18 +1122,11 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveUuidDevicePriorityAutoConnect_doNothing() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_AUTO_CONNECT);
-        sendDeviceUuids(devices.get(0), mUuids);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_AUTO_CONNECT);
+        sendDeviceUuids(device, mUuids);
+        assertDeviceList(EMPTY_DEVICE_LIST);
         verify(mMockProxies, times(0)).setProfilePriority(eq(mProfileId),
                 any(BluetoothDevice.class), anyInt());
     }
@@ -1377,19 +1143,11 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveUuidDevicePriorityOn_doNothing() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_ON);
-        sendDeviceUuids(devices.get(0), mUuids);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_ON);
+        sendDeviceUuids(device, mUuids);
+        assertDeviceList(EMPTY_DEVICE_LIST);
         verify(mMockProxies, times(0)).setProfilePriority(eq(mProfileId),
                 any(BluetoothDevice.class), anyInt());
     }
@@ -1406,18 +1164,11 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveUuidDevicePriorityOff_doNothing() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_OFF);
-        sendDeviceUuids(devices.get(0), mUuids);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_OFF);
+        sendDeviceUuids(device, mUuids);
+        assertDeviceList(EMPTY_DEVICE_LIST);
         verify(mMockProxies, times(0)).setProfilePriority(eq(mProfileId),
                 any(BluetoothDevice.class), anyInt());
     }
@@ -1434,19 +1185,12 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveUuidDevicePriorityUndefined_setPriorityOn() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_UNDEFINED);
-        sendDeviceUuids(devices.get(0), mUuids);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        verify(mMockProxies, times(1)).setProfilePriority(mProfileId, devices.get(0),
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
+        sendDeviceUuids(device, mUuids);
+        assertDeviceList(EMPTY_DEVICE_LIST);
+        verify(mMockProxies, times(1)).setProfilePriority(mProfileId, device,
                 BluetoothProfile.PRIORITY_ON);
     }
 
@@ -1462,17 +1206,11 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveUuidsDeviceUnsupported_doNothing() throws Exception {
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList("DE:AD:BE:EF:00:00"));
-
-        mockDevicePriority(devices.get(0), BluetoothProfile.PRIORITY_UNDEFINED);
-
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
+        sendDeviceUuids(device, mBadUuids);
+        assertDeviceList(EMPTY_DEVICE_LIST);
         verify(mMockProxies, times(0)).getProfilePriority(eq(mProfileId),
                 any(BluetoothDevice.class));
     }
@@ -1483,8 +1221,8 @@ public class BluetoothProfileDeviceManagerTest {
 
     /**
      * Preconditions:
-     * - The device manager is initialized, there are several devices in the list. We are currently
-     *   connecting devices.
+     * - The device manager is initialized, there are several devices in the list. The adapter is on
+     *   and we are currently connecting devices.
      *
      * Actions:
      * - The adapter is turning off
@@ -1494,30 +1232,18 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveAdapterTurningOff_cancel() {
-        mBluetoothAdapterHelper.forceAdapterOn();
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
+        setPreconditionsAndStart(ADAPTER_STATE_ON, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
         mProfileDeviceManager.beginAutoConnecting();
         Assert.assertTrue(mProfileDeviceManager.isAutoConnecting());
-
+        // We have 24 seconds of auto connecting time while we force it to quit
         sendAdapterStateChanged(BluetoothAdapter.STATE_TURNING_OFF);
-
         Assert.assertFalse(mProfileDeviceManager.isAutoConnecting());
     }
 
     /**
      * Preconditions:
-     * - The device manager is initialized, there are several devices in the list. We are currently
-     *   connecting devices.
+     * - The device manager is initialized, there are several devices in the list. The adapter is on
+     *   and we are currently connecting devices.
      *
      * Actions:
      * - The adapter becomes off
@@ -1526,34 +1252,20 @@ public class BluetoothProfileDeviceManagerTest {
      * - Auto-connecting is cancelled. The device list is committed
      */
     @Test
-    @Suppress
     public void testReceiveAdapterOff_cancelAndCommit() {
-        mBluetoothAdapterHelper.forceAdapterOn();
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
+        setPreconditionsAndStart(ADAPTER_STATE_ON, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
         mProfileDeviceManager.beginAutoConnecting();
         Assert.assertTrue(mProfileDeviceManager.isAutoConnecting());
-
+        // We have 24 seconds of auto connecting time while we force it to quit
         sendAdapterStateChanged(BluetoothAdapter.STATE_OFF);
-
         Assert.assertFalse(mProfileDeviceManager.isAutoConnecting());
-
-        assertSettingsContains(TextUtils.join(",", devices));
+        assertSettingsContains(SMALL_SETTINGS_STRING);
     }
 
     /**
      * Preconditions:
-     * - The device manager is initialized, there are several devices in the list. We are currently
-     *   connecting devices.
+     * - The device manager is initialized, there are several devices in the list. The adapter is on
+     *   and we are currently connecting devices.
      *
      * Actions:
      * - The adapter sends a turning on. (This can happen in weird cases in the stack where the
@@ -1565,30 +1277,16 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveAdapterTurningOn_cancel() {
-        mBluetoothAdapterHelper.forceAdapterOn();
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
+        setPreconditionsAndStart(ADAPTER_STATE_ON, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
         mProfileDeviceManager.beginAutoConnecting();
         Assert.assertTrue(mProfileDeviceManager.isAutoConnecting());
-
         sendAdapterStateChanged(BluetoothAdapter.STATE_TURNING_ON);
-
         Assert.assertFalse(mProfileDeviceManager.isAutoConnecting());
     }
 
     /**
      * Preconditions:
-     * - The device manager is initialized, there are several devices in the list. We are currently
-     *   connecting devices.
+     * - The device manager is initialized, there are several devices in the list.
      *
      * Actions:
      * - The adapter becomes on
@@ -1598,19 +1296,8 @@ public class BluetoothProfileDeviceManagerTest {
      */
     @Test
     public void testReceiveAdapterOn_doNothing() {
-        ArrayList<BluetoothDevice> devices = makeDeviceList(Arrays.asList(
-                "DE:AD:BE:EF:00:00", "DE:AD:BE:EF:00:01", "DE:AD:BE:EF:00:02"));
-        mProfileDeviceManager.start();
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(),
-                new ArrayList<BluetoothDevice>());
-
-        for (BluetoothDevice device : devices) {
-            mProfileDeviceManager.addDevice(device);
-        }
-        assertDeviceList(mProfileDeviceManager.getDeviceListSnapshot(), devices);
-
+        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
         sendAdapterStateChanged(BluetoothAdapter.STATE_ON);
-
         verifyNoMoreInteractions(mMockProxies);
     }
 }
