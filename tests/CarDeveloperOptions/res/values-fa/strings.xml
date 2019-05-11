@@ -680,10 +680,8 @@
     <skip />
     <!-- no translation found for lockdown_settings_summary (7270756909878256174) -->
     <skip />
-    <!-- no translation found for trust_agents_extend_unlock_title (3582017561316089951) -->
-    <skip />
-    <!-- no translation found for trust_agents_extend_unlock_summary (3543997596586078084) -->
-    <skip />
+    <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"نماینده‌های معتمد فقط تمدید حالت باز"</string>
+    <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"اگر فعال شود، نماینده‌های معتمد برای مدت طولانی‌تری دستگاهتان را باز نگه می‌دارند اما دیگر نمی‌توانند دستگاه قفلی را باز کنند."</string>
     <!-- no translation found for trust_lost_locks_screen_title (3094736590690459372) -->
     <skip />
     <!-- no translation found for trust_lost_locks_screen_summary (2058567484625606803) -->
@@ -1462,8 +1460,7 @@
     <skip />
     <!-- no translation found for art_verifier_for_debuggable_title (5223835619409464642) -->
     <skip />
-    <!-- no translation found for art_verifier_for_debuggable_summary (2204242476996701111) -->
-    <skip />
+    <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"به ART برای تأیید بایت‌کد برنامه‌های اشکال‌زدا اجازه داده شود"</string>
     <!-- no translation found for nfc_quick_toggle_title (4990697912813795002) -->
     <skip />
     <!-- no translation found for nfc_quick_toggle_summary (983451155092850657) -->
