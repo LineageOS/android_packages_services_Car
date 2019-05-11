@@ -7902,8 +7902,7 @@
     <skip />
     <!-- no translation found for disabled_feature_reason_slow_down_phone (1819157849156814583) -->
     <skip />
-    <!-- no translation found for enable_gnss_raw_meas_full_tracking (3397182995626655581) -->
-    <skip />
+    <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Полные измерения GNSS"</string>
     <!-- no translation found for enable_gnss_raw_meas_full_tracking_summary (2469305990718976105) -->
     <skip />
     <!-- no translation found for allow_background_activity_starts (6754016668813082728) -->

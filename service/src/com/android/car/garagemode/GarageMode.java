@@ -25,6 +25,7 @@ import android.os.UserHandle;
 import android.util.ArraySet;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarStatsLog;
 import com.android.car.user.CarUserService;
 
 import java.util.ArrayList;
@@ -135,6 +136,7 @@ class GarageMode {
         }
         updateFuture(future);
         broadcastSignalToJobSchedulerTo(true);
+        CarStatsLog.logGarageModeStart();
         startMonitoringThread();
         ArrayList<Integer> startedUsers =
                 CarLocalServices.getService(CarUserService.class).startAllBackgroundUsers();
@@ -156,6 +158,7 @@ class GarageMode {
 
     synchronized void finish() {
         broadcastSignalToJobSchedulerTo(false);
+        CarStatsLog.logGarageModeStop();
         mController.scheduleNextWakeup();
         synchronized (this) {
             if (mFuture != null && !mFuture.isDone()) {

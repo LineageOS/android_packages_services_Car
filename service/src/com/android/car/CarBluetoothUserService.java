@@ -291,75 +291,67 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     }
 
     @Override
-    public void bluetoothConnectToProfile(int profile, BluetoothDevice device) {
+    public boolean bluetoothConnectToProfile(int profile, BluetoothDevice device) {
         if (device == null) {
             Log.e(TAG, "Cannot connect to profile on null device");
-            return;
+            return false;
         }
         logd("Trying to connect to " + device.getName() + " (" + device.getAddress() + ") Profile: "
                 + Utils.getProfileName(profile));
         synchronized (this) {
             if (!isBluetoothConnectionProxyAvailable(profile)) {
                 Log.e(TAG, "Cannot connect to Profile. Proxy Unavailable");
-                return;
+                return false;
             }
             switch (profile) {
                 case BluetoothProfile.A2DP_SINK:
-                    mBluetoothA2dpSink.connect(device);
-                    break;
+                    return mBluetoothA2dpSink.connect(device);
                 case BluetoothProfile.HEADSET_CLIENT:
-                    mBluetoothHeadsetClient.connect(device);
-                    break;
+                    return mBluetoothHeadsetClient.connect(device);
                 case BluetoothProfile.MAP_CLIENT:
-                    mBluetoothMapClient.connect(device);
-                    break;
+                    return mBluetoothMapClient.connect(device);
                 case BluetoothProfile.PBAP_CLIENT:
-                    mBluetoothPbapClient.connect(device);
-                    break;
+                    return mBluetoothPbapClient.connect(device);
                 case BluetoothProfile.PAN:
-                    mBluetoothPan.connect(device);
-                    break;
+                    return mBluetoothPan.connect(device);
                 default:
                     Log.w(TAG, "Unknown Profile: " + Utils.getProfileName(profile));
                     break;
             }
         }
+        return false;
     }
 
     @Override
-    public void bluetoothDisconnectFromProfile(int profile, BluetoothDevice device) {
+    public boolean bluetoothDisconnectFromProfile(int profile, BluetoothDevice device) {
         if (device == null) {
             Log.e(TAG, "Cannot disconnect from profile on null device");
-            return;
+            return false;
         }
         logd("Trying to disconnect from " + device.getName() + " (" + device.getAddress()
                 + ") Profile: " + Utils.getProfileName(profile));
         synchronized (this) {
             if (!isBluetoothConnectionProxyAvailable(profile)) {
                 Log.e(TAG, "Cannot disconnect from profile. Proxy Unavailable");
-                return;
+                return false;
             }
             switch (profile) {
                 case BluetoothProfile.A2DP_SINK:
-                    mBluetoothA2dpSink.disconnect(device);
-                    break;
+                    return mBluetoothA2dpSink.disconnect(device);
                 case BluetoothProfile.HEADSET_CLIENT:
-                    mBluetoothHeadsetClient.disconnect(device);
-                    break;
+                    return mBluetoothHeadsetClient.disconnect(device);
                 case BluetoothProfile.MAP_CLIENT:
-                    mBluetoothMapClient.disconnect(device);
-                    break;
+                    return mBluetoothMapClient.disconnect(device);
                 case BluetoothProfile.PBAP_CLIENT:
-                    mBluetoothPbapClient.disconnect(device);
-                    break;
+                    return mBluetoothPbapClient.disconnect(device);
                 case BluetoothProfile.PAN:
-                    mBluetoothPan.disconnect(device);
-                    break;
+                    return mBluetoothPan.disconnect(device);
                 default:
                     Log.w(TAG, "Unknown Profile: " + Utils.getProfileName(profile));
                     break;
             }
         }
+        return false;
     }
 
     /**

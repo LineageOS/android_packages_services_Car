@@ -162,8 +162,7 @@ public class ICarImpl extends ICar.Stub {
                 systemInterface);
         mCarConfigurationService =
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
-        mCarLocationService = new CarLocationService(mContext, mCarPropertyService,
-                mUserManagerHelper);
+        mCarLocationService = new CarLocationService(mContext, mUserManagerHelper);
         mCarTrustedDeviceService = new CarTrustedDeviceService(serviceContext);
         mCarMediaService = new CarMediaService(serviceContext);
         mCarBugreportManagerService = new CarBugreportManagerService(serviceContext);
@@ -410,7 +409,6 @@ public class ICarImpl extends ICar.Stub {
 
     /**
      * Ensures the caller has the permission to enroll a Trust Agent.
-     * @param context
      */
     public static void assertTrustAgentEnrollmentPermission(Context context) {
         assertPermission(context, Car.PERMISSION_CAR_ENROLL_TRUST);
@@ -424,8 +422,6 @@ public class ICarImpl extends ICar.Stub {
 
     /**
      * Checks to see if the caller has a permission.
-     * @param context
-     * @param permission
      *
      * @return boolean TRUE if caller has the permission.
      */
