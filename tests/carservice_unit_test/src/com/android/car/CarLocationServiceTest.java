@@ -28,12 +28,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.hardware.CarPropertyValue;
-import android.car.hardware.CarSensorEvent;
-import android.car.hardware.CarSensorManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
-import android.car.hardware.property.CarPropertyEvent;
-import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.Intent;
@@ -41,7 +36,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.RemoteException;
 import android.os.SystemClock;
 
 import androidx.test.InstrumentationRegistry;
@@ -65,9 +59,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
@@ -80,9 +71,8 @@ import java.util.stream.Collectors;
  * The following mocks are used:
  * 1. {@link Context} provides a mocked {@link LocationManager}.
  * 2. {@link LocationManager} provides dummy {@link Location}s.
- * 3. {@link CarPropertyService} registers a listener for ignition state events.
- * 4. {@link CarUserManagerHelper} tells whether or not the system user is headless.
- * 5. {@link SystemInterface} tells where to store system files.
+ * 3. {@link CarUserManagerHelper} tells whether or not the system user is headless.
+ * 4. {@link SystemInterface} tells where to store system files.
  */
 @RunWith(AndroidJUnit4.class)
 public class CarLocationServiceTest {
@@ -97,8 +87,6 @@ public class CarLocationServiceTest {
     @Mock
     private LocationManager mMockLocationManager;
     @Mock
-    private CarPropertyService mMockCarPropertyService;
-    @Mock
     private CarUserManagerHelper mMockCarUserManagerHelper;
     @Mock
     private SystemInterface mMockSystemInterface;
@@ -112,8 +100,7 @@ public class CarLocationServiceTest {
         mContext = InstrumentationRegistry.getTargetContext();
         mTempDirectory = new TemporaryDirectory(TAG).getDirectory();
         mLatch = new CountDownLatch(1);
-        mCarLocationService = new CarLocationService(
-                mMockContext, mMockCarPropertyService, mMockCarUserManagerHelper) {
+        mCarLocationService = new CarLocationService(mMockContext, mMockCarUserManagerHelper) {
             @Override
             void asyncOperation(Runnable operation) {
                 super.asyncOperation(() -> {
@@ -151,8 +138,7 @@ public class CarLocationServiceTest {
     }
 
     /**
-     * Test that the {@link CarLocationService} registers to receive the ignition sensor event upon
-     * initialization.
+     * Test that the {@link CarLocationService} registers to receive location and user intents.
      */
     @Test
     public void testRegistersToReceiveEvents() {
@@ -166,8 +152,6 @@ public class CarLocationServiceTest {
         assertTrue(ArrayUtils.contains(actions, LocationManager.MODE_CHANGED_ACTION));
         assertTrue(ArrayUtils.contains(actions, LocationManager.PROVIDERS_CHANGED_ACTION));
         assertTrue(ArrayUtils.contains(actions, Intent.ACTION_USER_SWITCHED));
-        verify(mMockCarPropertyService).registerListener(
-                eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), eq(0.0f), any());
     }
 
     /**
@@ -177,8 +161,6 @@ public class CarLocationServiceTest {
     public void testUnregistersEventReceivers() {
         mCarLocationService.release();
         verify(mMockContext).unregisterReceiver(mCarLocationService);
-        verify(mMockCarPropertyService).unregisterListener(
-                eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), any());
     }
 
     /**
@@ -310,36 +292,6 @@ public class CarLocationServiceTest {
 
     /**
      * Test that the {@link CarLocationService} stores the {@link LocationManager}'s last known
-     * location in a JSON file upon ignition-off events.
-     */
-    @Test
-    public void testStoresLocationUponIgnitionOff() throws Exception {
-        long currentTime = System.currentTimeMillis();
-        long elapsedTime = SystemClock.elapsedRealtimeNanos();
-        Location timbuktu = new Location(LocationManager.GPS_PROVIDER);
-        timbuktu.setLatitude(16.7666);
-        timbuktu.setLongitude(3.0026);
-        timbuktu.setAccuracy(13.75f);
-        timbuktu.setTime(currentTime);
-        timbuktu.setElapsedRealtimeNanos(elapsedTime);
-        when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempDirectory);
-        when(mMockContext.getSystemService(Context.LOCATION_SERVICE))
-                .thenReturn(mMockLocationManager);
-        when(mMockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER))
-                .thenReturn(timbuktu);
-        sendIgnitionOffEvent();
-        mLatch.await();
-        verify(mMockLocationManager).getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        String actualContents = readCacheFile();
-        long oneDayMs = 24 * 60 * 60 * 1000;
-        long granularCurrentTime = (currentTime / oneDayMs) * oneDayMs;
-        String expectedContents = "{\"provider\":\"gps\",\"latitude\":16.7666,\"longitude\":"
-                + "3.0026,\"accuracy\":13.75,\"captureTime\":" + granularCurrentTime + "}";
-        assertEquals(expectedContents, actualContents);
-    }
-
-    /**
-     * Test that the {@link CarLocationService} stores the {@link LocationManager}'s last known
      * location upon power state-changed SUSPEND events.
      */
     @Test
@@ -396,7 +348,8 @@ public class CarLocationServiceTest {
                 .thenReturn(mMockLocationManager);
         when(mMockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER))
                 .thenReturn(null);
-        sendIgnitionOffEvent();
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        mCarLocationService.onStateChanged(CarPowerStateListener.SHUTDOWN_PREPARE, future);
         mLatch.await();
         verify(mMockLocationManager).getLastKnownLocation(LocationManager.GPS_PROVIDER);
         assertFalse(getLocationCacheFile().exists());
@@ -454,21 +407,5 @@ public class CarLocationServiceTest {
 
     private File getLocationCacheFile() {
         return new File(mTempDirectory, TEST_FILENAME);
-    }
-
-    private void sendIgnitionOffEvent() throws RemoteException {
-        mCarLocationService.init();
-        ArgumentCaptor<ICarPropertyEventListener> argument =
-                ArgumentCaptor.forClass(ICarPropertyEventListener.class);
-        verify(mMockCarPropertyService).registerListener(
-                eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), eq(0.0f), argument.capture());
-        ICarPropertyEventListener carPropertyEventListener = argument.getValue();
-        int intValues = CarSensorEvent.IGNITION_STATE_OFF;
-        CarPropertyValue ignitionOff = new CarPropertyValue(
-                CarSensorManager.SENSOR_TYPE_IGNITION_STATE, 0, 0,
-                System.currentTimeMillis(), intValues);
-        CarPropertyEvent event = new CarPropertyEvent(0, ignitionOff);
-        List<CarPropertyEvent> events = new ArrayList<>(Arrays.asList(event));
-        carPropertyEventListener.onEvent(events);
     }
 }
