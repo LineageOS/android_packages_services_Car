@@ -211,79 +211,6 @@ public class VmsClientManagerTest {
     @Test
     public void testUserSwitched() {
         notifyUserSwitched();
-        notifyUserSwitched();
-
-        // Multiple events should only trigger a single bind, when successful
-        verifySystemBind(1);
-        verifyUserBind(1);
-    }
-
-    @Test
-    public void testUserSwitched_BindFailed() {
-        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), any()))
-                .thenReturn(false);
-        notifyUserSwitched();
-        notifyUserSwitched();
-
-        // Failure state will trigger another attempt
-        verifySystemBind(2);
-        verifyUserBind(2);
-    }
-
-    @Test
-    public void testUserSwitched_UserBindFailed() {
-        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.of(mUserId))))
-                .thenReturn(false);
-        notifyUserSwitched();
-        notifyUserSwitched();
-
-        verifySystemBind(1);
-        verifyUserBind(2); // Failure state will trigger another attempt
-    }
-
-    @Test
-    public void testUserSwitched_SystemBindFailed() {
-        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.SYSTEM)))
-                .thenReturn(false);
-        notifyUserSwitched();
-        notifyUserSwitched();
-
-        verifySystemBind(2); // Failure state will trigger another attempt
-        verifyUserBind(1);
-    }
-
-    @Test
-    public void testUserSwitched_BindException() {
-        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), any()))
-                .thenThrow(new SecurityException());
-        notifyUserSwitched();
-        notifyUserSwitched();
-
-        // Failure state will trigger another attempt
-        verifySystemBind(2);
-        verifyUserBind(2);
-    }
-
-    @Test
-    public void testUserSwitched_UserBindException() {
-        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.of(mUserId))))
-                .thenThrow(new SecurityException());
-        notifyUserSwitched();
-        notifyUserSwitched();
-
-        verifySystemBind(1);
-        verifyUserBind(2); // Failure state will trigger another attempt
-    }
-
-    @Test
-    public void testUserSwitched_SystemBindException() {
-        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.SYSTEM)))
-                .thenThrow(new SecurityException());
-        notifyUserSwitched();
-        notifyUserSwitched();
-
-        verifySystemBind(2); // Failure state will trigger another attempt
-        verifyUserBind(1);
     }
 
     @Test
@@ -292,7 +219,6 @@ public class VmsClientManagerTest {
         notifyUserUnlocked();
 
         // Multiple events should only trigger a single bind, when successful
-        verifySystemBind(1);
         verifyUserBind(1);
     }
 
@@ -304,7 +230,6 @@ public class VmsClientManagerTest {
         notifyUserUnlocked();
 
         // Failure state will trigger another attempt
-        verifySystemBind(2);
         verifyUserBind(2);
     }
 
@@ -315,20 +240,8 @@ public class VmsClientManagerTest {
         notifyUserUnlocked();
         notifyUserUnlocked();
 
-        verifySystemBind(1);
-        verifyUserBind(2); // Failure state will trigger another attempt
-    }
-
-
-    @Test
-    public void testUserUnlocked_SystemBindFailed() {
-        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.SYSTEM)))
-                .thenReturn(false);
-        notifyUserUnlocked();
-        notifyUserUnlocked();
-
-        verifySystemBind(2); // Failure state will trigger another attempt
-        verifyUserBind(1);
+        // Failure state will trigger another attempt
+        verifyUserBind(2);
     }
 
     @Test
@@ -339,23 +252,49 @@ public class VmsClientManagerTest {
         notifyUserUnlocked();
 
         // Failure state will trigger another attempt
-        verifySystemBind(2);
         verifyUserBind(2);
     }
 
     @Test
-    public void testUserUnlocked_UserBindException() {
-        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.of(mUserId))))
-                .thenThrow(new SecurityException());
-        notifyUserUnlocked();
-        notifyUserUnlocked();
-
+    public void testUserUnlocked_SystemRebind() {
+        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.SYSTEM)))
+                .thenReturn(false);
+        notifySystemUserUnlocked();
         verifySystemBind(1);
-        verifyUserBind(2); // Failure state will trigger another attempt
+        resetContext();
+
+        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.SYSTEM)))
+                .thenReturn(true);
+        notifyUserUnlocked();
+        verifySystemBind(1);
+        verifyUserBind(1);
     }
 
     @Test
-    public void testUserUnlocked_SystemBindException() {
+    public void testUserUnlocked_SystemRebind_BindFailed() {
+        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.SYSTEM)))
+                .thenReturn(false);
+        notifySystemUserUnlocked();
+        verifySystemBind(1);
+        resetContext();
+
+        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.SYSTEM)))
+                .thenReturn(false);
+        notifyUserUnlocked();
+        notifyUserUnlocked();
+
+        verifySystemBind(2); // Failure state will trigger another attempt
+        verifyUserBind(1);
+    }
+
+    @Test
+    public void testUserUnlocked_SystemRebind_BindException() {
+        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.SYSTEM)))
+                .thenThrow(new SecurityException());
+        notifySystemUserUnlocked();
+        verifySystemBind(1);
+        resetContext();
+
         when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.SYSTEM)))
                 .thenThrow(new SecurityException());
         notifyUserUnlocked();
@@ -371,7 +310,6 @@ public class VmsClientManagerTest {
         notifyUserUnlocked();
 
         // Multiple events should only trigger a single bind, when successful
-        verifySystemBind(1);
         verifyUserBind(1);
     }
 
@@ -380,7 +318,6 @@ public class VmsClientManagerTest {
         mUserId = UserHandle.USER_SYSTEM;
         notifyUserSwitched();
 
-        verifySystemBind(1);
         // User processes will not be bound for system user
         verifyUserBind(0);
     }
@@ -420,7 +357,7 @@ public class VmsClientManagerTest {
     }
 
     private IBinder bindUserClient() {
-        notifyUserSwitched();
+        notifyUserUnlocked();
         verifyUserBind(1);
         resetContext();
 
@@ -465,7 +402,7 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnUserServiceDisconnected() throws Exception {
-        notifyUserSwitched();
+        notifyUserUnlocked();
         verifyUserBind(1);
         resetContext();
 
@@ -482,7 +419,7 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnUserServiceDisconnected_ServiceNotConnected() throws Exception {
-        notifyUserSwitched();
+        notifyUserUnlocked();
         verifyUserBind(1);
         resetContext();
 
@@ -498,7 +435,7 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnUserSwitched_UserChange() {
-        notifyUserSwitched();
+        notifyUserUnlocked();
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceConnected(null, new Binder());
@@ -510,14 +447,12 @@ public class VmsClientManagerTest {
 
         verify(mContext).unbindService(connection);
         verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
-        verifyUserBind(1);
+        verifyUserBind(0);
     }
 
     @Test
     public void testOnUserSwitched_UserChange_ToSystemUser() {
         notifyUserUnlocked();
-        verifySystemBind(1);
-        notifyUserSwitched();
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceConnected(null, new Binder());
@@ -529,13 +464,12 @@ public class VmsClientManagerTest {
 
         verify(mContext).unbindService(connection);
         verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
-        // User processes will not be bound for system user
         verifyUserBind(0);
     }
 
     @Test
     public void testOnUserSwitched_UserChange_ServiceNotConnected() {
-        notifyUserSwitched();
+        notifyUserUnlocked();
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
         resetContext();
@@ -544,7 +478,7 @@ public class VmsClientManagerTest {
         notifyUserSwitched();
 
         verify(mContext).unbindService(connection);
-        verifyUserBind(1);
+        verifyUserBind(0);
     }
 
     @Test
