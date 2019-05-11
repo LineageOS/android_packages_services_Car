@@ -188,10 +188,10 @@ public class BluetoothProfileDeviceManager {
                 }
                 triggerConnections(device);
             }
-        } else if (state == BluetoothProfile.STATE_DISCONNECTED
-                && getProfilePriority(device) == BluetoothProfile.PRIORITY_OFF) {
-            removeDevice(device);
         }
+        // NOTE: We wanted check on disconnect if a device is priority off and use that as an
+        // indicator to remove a device from the list, but priority reporting can be flaky and
+        // was leading to us removing devices when we didn't want to.
     }
 
     /**
@@ -526,12 +526,11 @@ public class BluetoothProfileDeviceManager {
     private boolean connect(BluetoothDevice device) {
         logd("Connecting " + device);
         try {
-            mBluetoothUserProxies.bluetoothConnectToProfile(mProfileId, device);
+            return mBluetoothUserProxies.bluetoothConnectToProfile(mProfileId, device);
         } catch (RemoteException e) {
             logw("Failed to connect " + device + ", Reason: " + e);
-            return false;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -543,12 +542,11 @@ public class BluetoothProfileDeviceManager {
     private boolean disconnect(BluetoothDevice device) {
         logd("Disconnecting " + device);
         try {
-            mBluetoothUserProxies.bluetoothDisconnectFromProfile(mProfileId, device);
+            return mBluetoothUserProxies.bluetoothDisconnectFromProfile(mProfileId, device);
         } catch (RemoteException e) {
             logw("Failed to disconnect " + device + ", Reason: " + e);
-            return false;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -630,7 +628,11 @@ public class BluetoothProfileDeviceManager {
             logd("Auto connecting (" + mAutoConnectPriority + ") device: " + device);
 
             mHandler.post(() -> {
-                connect(device);
+                boolean connectStatus = connect(device);
+                if (!connectStatus) {
+                    logw("Connection attempt immediately failed, moving to the next device");
+                    continueAutoConnecting();
+                }
             });
             mHandler.postDelayed(() -> {
                 logw("Auto connect process has timed out connecting to " + device);
