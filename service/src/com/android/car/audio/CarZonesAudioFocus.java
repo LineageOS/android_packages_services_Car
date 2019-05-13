@@ -28,6 +28,7 @@ import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,6 +61,48 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             CarAudioFocus zoneFocusListener = new CarAudioFocus(audioManager, packageManager);
             mFocusZones.put(audioZone.getId(), zoneFocusListener);
         }
+    }
+
+
+    /**
+     * Query the current list of focus loser in zoneId for uid
+     * @param uid uid to query for current focus losers
+     * @param zoneId zone id to query for info
+     * @return list of current focus losers for uid
+     */
+    ArrayList<AudioFocusInfo> getAudioFocusLosersForUid(int uid, int zoneId) {
+        CarAudioFocus focus = mFocusZones.get(zoneId);
+        return focus.getAudioFocusLosersForUid(uid);
+    }
+
+    /**
+     * Query the current list of focus holders in zoneId for uid
+     * @param uid uid to query for current focus holders
+     * @param zoneId zone id to query
+     * @return list of current focus holders that for uid
+     */
+    ArrayList<AudioFocusInfo> getAudioFocusHoldersForUid(int uid, int zoneId) {
+        CarAudioFocus focus = mFocusZones.get(zoneId);
+        return focus.getAudioFocusHoldersForUid(uid);
+    }
+
+    /**
+     * For each entry in list, transiently lose focus
+     * @param afiList list of audio focus entries
+     * @param zoneId zone id where focus should should be lost
+     */
+    void transientlyLoseInFocusInZone(@NonNull ArrayList<AudioFocusInfo> afiList,
+            int zoneId) {
+        CarAudioFocus focus = mFocusZones.get(zoneId);
+
+        for (AudioFocusInfo info : afiList) {
+            focus.removeAudioFocusInfoAndTransientlyLoseFocus(info);
+        }
+    }
+
+    int reevaluateAndRegainAudioFocus(AudioFocusInfo afi) {
+        CarAudioFocus focus = getFocusForUid(afi.getClientUid());
+        return focus.reevaluateAndRegainAudioFocus(afi);
     }
 
 

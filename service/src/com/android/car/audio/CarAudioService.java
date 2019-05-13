@@ -31,6 +31,7 @@ import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
+import android.media.AudioFocusInfo;
 import android.media.AudioFormat;
 import android.media.AudioGain;
 import android.media.AudioGainConfig;
@@ -785,7 +786,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                         + uid + " does not have a zone. Defaulting to PRIMARY_AUDIO_ZONE: "
                         + CarAudioManager.PRIMARY_AUDIO_ZONE);
 
-                //Must be added to PRIMARY_AUDIO_ZONE otherwise audio may be routed to other devices
+                // Must be added to PRIMARY_AUDIO_ZONE otherwise
+                // audio may be routed to other devices
                 // that match the audio criterion (i.e. usage)
                 setZoneIdForUidNoCheckLocked(CarAudioManager.PRIMARY_AUDIO_ZONE, uid);
             }
@@ -793,7 +795,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             return mUidToZoneMap.get(uid);
         }
     }
-
     /**
      * Maps the audio zone id to uid
      *
@@ -808,18 +809,73 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Log.i(CarLog.TAG_AUDIO, "setZoneIdForUid Calling uid "
                     + uid + " mapped to : "
                     + zoneId);
-            //if the current uid is in the list
-            //remove it from the list
+
+            // Figure out if anything is currently holding focus,
+            // This will change the focus to transient loss while we are switching zones
+            Integer currentZoneId = mUidToZoneMap.get(uid);
+            ArrayList<AudioFocusInfo> currentFocusHoldersForUid = new ArrayList<>();
+            ArrayList<AudioFocusInfo> currentFocusLosersForUid = new ArrayList<>();
+            if (currentZoneId != null) {
+                currentFocusHoldersForUid = mFocusHandler.getAudioFocusHoldersForUid(uid,
+                        currentZoneId.intValue());
+                currentFocusLosersForUid = mFocusHandler.getAudioFocusLosersForUid(uid,
+                        currentZoneId.intValue());
+                if (!currentFocusHoldersForUid.isEmpty() || !currentFocusLosersForUid.isEmpty()) {
+                    // Order matters here: Remove the focus losers first
+                    // then do the current holder to prevent loser from popping up while
+                    // the focus is being remove for current holders
+                    // Remove focus for current focus losers
+                    mFocusHandler.transientlyLoseInFocusInZone(currentFocusLosersForUid,
+                            currentZoneId.intValue());
+                    // Remove focus for current holders
+                    mFocusHandler.transientlyLoseInFocusInZone(currentFocusHoldersForUid,
+                            currentZoneId.intValue());
+                }
+            }
+
+            // if the current uid is in the list
+            // remove it from the list
+
             if (checkAndRemoveUidLocked(uid)) {
-                return setZoneIdForUidNoCheckLocked(zoneId, uid);
+                if (setZoneIdForUidNoCheckLocked(zoneId, uid)) {
+                    // Order matters here: Regain focus for
+                    // Previously lost focus holders then regain
+                    // focus for holders that had it last
+                    // Regain focus for the focus losers from previous zone
+                    if (!currentFocusLosersForUid.isEmpty()) {
+                        regainAudioFocusLocked(currentFocusLosersForUid, zoneId);
+                    }
+                    // Regain focus for the focus holders from previous zone
+                    if (!currentFocusHoldersForUid.isEmpty()) {
+                        regainAudioFocusLocked(currentFocusHoldersForUid, zoneId);
+                    }
+                    return true;
+                }
             }
             return false;
         }
     }
 
     /**
-     * Removes the current mapping of the Uid
-     *
+     * Regain focus for the focus list passed in
+     * @param afiList focus info list to regain
+     * @param zoneId zone id where the focus holder belong
+     */
+    void regainAudioFocusLocked(ArrayList<AudioFocusInfo> afiList, int zoneId) {
+        for (AudioFocusInfo info : afiList) {
+            if (mFocusHandler.reevaluateAndRegainAudioFocus(info)
+                    != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                Log.i(CarLog.TAG_AUDIO,
+                        " Focus could not be granted for entry "
+                                + info.getClientId()
+                                + " uid " + info.getClientUid()
+                                + " in zone " + zoneId);
+            }
+        }
+    }
+
+    /**
+     * Removes the current mapping of the uid, focus will be lost in zone
      * @param uid The uid to remove
      * return true if all the devices affinities currently
      *            mapped to uid are successfully removed
@@ -854,13 +910,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     /**
-     * Checks if the uid is contained in map and removes it if so
-     * @param uid uid to remove from mapping
-     * @return true if the removing the uid mapping succeeds
+     * Check if uid is attached to a zone and remove it
+     * @param uid unique id to remove
+     * @return true if the uid was successfully removed or mapping was not assigned
      */
     private boolean checkAndRemoveUidLocked(int uid) {
-        if (mUidToZoneMap.containsKey(uid)) {
-            int zoneId = mUidToZoneMap.get(uid);
+        Integer zoneId = mUidToZoneMap.get(uid);
+        if (zoneId != null) {
             Log.i(CarLog.TAG_AUDIO, "checkAndRemoveUid removing Calling uid "
                     + uid + " from zone " + zoneId);
             if (mAudioPolicy.removeUidDeviceAffinity(uid)) {
