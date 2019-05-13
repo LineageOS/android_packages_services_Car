@@ -43,13 +43,14 @@ class CarTrustAgentBleManager extends BleManager {
     private static final String TAG = "CarTrustBLEManager";
 
     /** @hide */
-    @IntDef(prefix = { "TRUSTED_DEVICE_OPERATION_" }, value = {
-        TRUSTED_DEVICE_OPERATION_NONE,
-        TRUSTED_DEVICE_OPERATION_ENROLLMENT,
-        TRUSTED_DEVICE_OPERATION_UNLOCK
+    @IntDef(prefix = {"TRUSTED_DEVICE_OPERATION_"}, value = {
+            TRUSTED_DEVICE_OPERATION_NONE,
+            TRUSTED_DEVICE_OPERATION_ENROLLMENT,
+            TRUSTED_DEVICE_OPERATION_UNLOCK
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface TrustedDeviceOperation {}
+    public @interface TrustedDeviceOperation {
+    }
 
     private static final int TRUSTED_DEVICE_OPERATION_NONE = 0;
     private static final int TRUSTED_DEVICE_OPERATION_ENROLLMENT = 1;
@@ -265,7 +266,7 @@ class CarTrustAgentBleManager extends BleManager {
      * eventually set up a secure channel for communication between the given device and this
      * head unit.
      *
-     * @param device The device to send the message to.
+     * @param device  The device to send the message to.
      * @param message A message that will continue the encryption handshake.
      */
     void sendEncryptionHandshakeMessage(BluetoothDevice device, byte[] message) {
@@ -299,7 +300,7 @@ class CarTrustAgentBleManager extends BleManager {
     /**
      * Sends the given pairing code confirmation signal to the specified device.
      *
-     * @param device the BLE peer device to send the signal to.
+     * @param device             the BLE peer device to send the signal to.
      * @param confirmationSignal The signal that will let the given {@link device} know that
      *                           the pairing code has been accepted by the user.
      */
@@ -350,6 +351,11 @@ class CarTrustAgentBleManager extends BleManager {
         public void onStartFailure(int errorCode) {
             Log.e(TAG, "Failed to advertise, errorCode: " + errorCode);
             super.onStartFailure(errorCode);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Start unlock advertising fail, retry to advertising..");
+            }
+            setupUnlockBleServer();
+            startUnlockAdvertising();
         }
     };
 }
