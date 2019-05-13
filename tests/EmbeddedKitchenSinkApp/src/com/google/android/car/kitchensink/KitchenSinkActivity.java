@@ -159,8 +159,8 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("alert window", AlertDialogTestFragment.class),
             new FragmentMenuEntry("assistant", CarAssistantFragment.class),
             new FragmentMenuEntry("audio", AudioTestFragment.class),
-            new FragmentMenuEntry("bluetooth headset", BluetoothHeadsetFragment.class),
-            new FragmentMenuEntry("bluetooth messaging test", MapMceTestFragment.class),
+            new FragmentMenuEntry("BT headset", BluetoothHeadsetFragment.class),
+            new FragmentMenuEntry("BT messaging", MapMceTestFragment.class),
             new FragmentMenuEntry("carboard", KeyboardTestFragment.class),
             new FragmentMenuEntry("connectivity", ConnectivityFragment.class),
             new FragmentMenuEntry("cubes test", CubesTestFragment.class),
@@ -238,7 +238,7 @@ public class KitchenSinkActivity extends FragmentActivity {
 
         mMenu = findViewById(R.id.menu);
         mMenu.setAdapter(new MenuAdapter(this));
-        mMenu.setLayoutManager(new GridLayoutManager(this, 3));
+        mMenu.setLayoutManager(new GridLayoutManager(this, 4));
 
         mMenuButton = findViewById(R.id.menu_button);
         mMenuButton.setOnClickListener(view -> toggleMenuVisibility());
