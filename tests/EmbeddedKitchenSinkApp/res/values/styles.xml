@@ -34,6 +34,6 @@
         <item name="android:clickable">true</item>
     </style>
 
-    <style name="KitchenSinkActivityTheme" parent="android:Theme.DeviceDefault.NoActionBar">
+    <style name="KitchenSinkActivityTheme" parent="Theme.AppCompat.NoActionBar">
     </style>
 </resources>
