@@ -34,7 +34,6 @@ import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Handler;
-import android.os.ParcelUuid;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -83,8 +82,10 @@ public abstract class BleManager {
      * Therefore, several retries will be made to ensure advertising is started.
      *
      * @param service {@link BluetoothGattService} that will be discovered by clients
+     * @param data {@link AdvertiseData} data to advertise
+     * @param advertiseCallback {@link AdvertiseCallback} callback for advertiser
      */
-    protected void startAdvertising(BluetoothGattService service,
+    protected void startAdvertising(BluetoothGattService service, AdvertiseData data,
             AdvertiseCallback advertiseCallback) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "startAdvertising: " + service.getUuid().toString());
@@ -116,11 +117,6 @@ public abstract class BleManager {
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
                 .setConnectable(true)
-                .build();
-
-        AdvertiseData data = new AdvertiseData.Builder()
-                .setIncludeDeviceName(true)
-                .addServiceUuid(new ParcelUuid(service.getUuid()))
                 .build();
 
         mAdvertiserStartCount = 0;
