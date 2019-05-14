@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2016-2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,10 @@
 #include "EvsGlDisplay.h"
 
 #include <dirent.h>
+#include <hardware_legacy/uevent.h>
 
+
+using namespace std::chrono_literals;
 
 namespace android {
 namespace hardware {
@@ -33,10 +36,82 @@ namespace implementation {
 //        That is to say, this is effectively a singleton despite the fact that HIDL
 //        constructs a new instance for each client.
 std::list<EvsEnumerator::CameraRecord>   EvsEnumerator::sCameraList;
-wp<EvsGlDisplay>                           EvsEnumerator::sActiveDisplay;
+wp<EvsGlDisplay>                         EvsEnumerator::sActiveDisplay;
+std::mutex                               EvsEnumerator::sLock;
+std::condition_variable                  EvsEnumerator::sCameraSignal;
 
-// Number of trials to open the camera.
-static const unsigned int kMaxRetry = 3;
+// Constants
+const auto kEnumerationTimeout = 10s;
+
+void EvsEnumerator::EvsUeventThread(std::atomic<bool>& running) {
+    int status = uevent_init();
+    if (!status) {
+        ALOGE("Failed to initialize uevent handler.");
+        return;
+    }
+
+    char uevent_data[PAGE_SIZE - 2] = {};
+    while (running) {
+        int length = uevent_next_event(uevent_data, static_cast<int32_t>(sizeof(uevent_data)));
+
+        // Ensure double-null termination.
+        uevent_data[length] = uevent_data[length + 1] = '\0';
+
+        const char *action = nullptr;
+        const char *devname = nullptr;
+        const char *subsys = nullptr;
+        char *cp = uevent_data;
+        while (*cp) {
+            // EVS is interested only in ACTION, SUBSYSTEM, and DEVNAME.
+            if (!std::strncmp(cp, "ACTION=", 7)) {
+                action = cp + 7;
+            } else if (!std::strncmp(cp, "SUBSYSTEM=", 10)) {
+                subsys = cp + 10;
+            } else if (!std::strncmp(cp, "DEVNAME=", 8)) {
+                devname = cp + 8;
+            }
+
+            // Advance to after next \0
+            while (*cp++);
+        }
+
+        if (!devname || !subsys || std::strcmp(subsys, "video4linux")) {
+            // EVS expects that the subsystem of enabled video devices is
+            // video4linux.
+            continue;
+        }
+
+        // Update shared list.
+        bool cmd_addition = !std::strcmp(action, "add");
+        bool cmd_removal  = !std::strcmp(action, "remove");
+        {
+            std::string devpath = "/dev/";
+            devpath += devname;
+
+            std::lock_guard<std::mutex> lock(sLock);
+            if (cmd_removal) {
+                for (auto it = sCameraList.begin(); it != sCameraList.end(); ++it) {
+                    if (!devpath.compare(it->desc.cameraId)) {
+                        // There must be no entry with duplicated name.
+                        sCameraList.erase(it);
+                        break;
+                    }
+                }
+            } else if (cmd_addition) {
+                // NOTE: we are here adding new device without a validation
+                // because it always fails to open, b/132164956.
+                sCameraList.emplace_back(devpath.c_str());
+            } else {
+                // Ignore all other actions including "change".
+            }
+
+            // Notify the change.
+            sCameraSignal.notify_all();
+        }
+    }
+
+    return;
+}
 
 EvsEnumerator::EvsEnumerator() {
     ALOGD("EvsEnumerator created");
@@ -61,15 +136,19 @@ void EvsEnumerator::enumerateDevices() {
         LOG_FATAL("Failed to open /dev folder\n");
     }
     struct dirent* entry;
-    while ((entry = readdir(dir)) != nullptr) {
-        // We're only looking for entries starting with 'video'
-        if (strncmp(entry->d_name, "video", 5) == 0) {
-            std::string deviceName("/dev/");
-            deviceName += entry->d_name;
-            videoCount++;
-            if (qualifyCaptureDevice(deviceName.c_str())) {
-                sCameraList.emplace_back(deviceName.c_str());
-                captureCount++;
+    {
+        std::lock_guard<std::mutex> lock(sLock);
+
+        while ((entry = readdir(dir)) != nullptr) {
+            // We're only looking for entries starting with 'video'
+            if (strncmp(entry->d_name, "video", 5) == 0) {
+                std::string deviceName("/dev/");
+                deviceName += entry->d_name;
+                videoCount++;
+                if (qualifyCaptureDevice(deviceName.c_str())) {
+                    sCameraList.emplace_back(deviceName.c_str());
+                    captureCount++;
+                }
             }
         }
     }
@@ -80,19 +159,16 @@ void EvsEnumerator::enumerateDevices() {
 // Methods from ::android::hardware::automotive::evs::V1_0::IEvsEnumerator follow.
 Return<void> EvsEnumerator::getCameraList(getCameraList_cb _hidl_cb)  {
     ALOGD("getCameraList");
-
-    if (sCameraList.size() < 1) {
-        // WAR: this assumes that the device has at least one compatible camera and
-        // therefore keeps trying until it succeeds to open.
-        // TODO: this is required for external USB camera so would be better to
-        // subscribe hot-plug event.
-        unsigned tries = 0;
-        ALOGI("No camera is available; enumerate devices again.");
-        while (sCameraList.size() < 1 && tries++ < kMaxRetry) {
-            enumerateDevices();
-
-            // TODO: remove this.
-            usleep(5000);
+    {
+        std::unique_lock<std::mutex> lock(sLock);
+        if (sCameraList.size() < 1) {
+            // No qualified device has been found.  Wait until new device is ready,
+            // for 10 seconds.
+            if (!sCameraSignal.wait_for(lock,
+                                        kEnumerationTimeout,
+                                        []{ return sCameraList.size() > 0; })) {
+                ALOGD("Timer expired.  No new device has been added.");
+            }
         }
     }
 
