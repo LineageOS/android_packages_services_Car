@@ -99,6 +99,9 @@ public class CarTrustAgentUnlockService {
      */
     void startUnlockAdvertising() {
         queueMessageForLog("startUnlockAdvertising");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "startUnlockAdvertising");
+        }
         if (!mTrustedDeviceService.getSharedPrefs().getBoolean(TRUSTED_DEVICE_UNLOCK_ENABLED_KEY,
                 true)) {
             Log.e(TAG, "Trusted Device Unlock is disabled");
@@ -117,6 +120,9 @@ public class CarTrustAgentUnlockService {
      */
     void stopUnlockAdvertising() {
         queueMessageForLog("stopUnlockAdvertising");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "stopUnlockAdvertising");
+        }
         mCarTrustAgentBleManager.stopUnlockAdvertising();
         // Also disconnect from the peer.
         if (mRemoteUnlockDevice != null) {
@@ -161,7 +167,7 @@ public class CarTrustAgentUnlockService {
             mUnlockToken = value;
         }
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Unlock Token: " + mUnlockToken);
+            Log.d(TAG, "Unlock Token: " + Utils.byteArrayToHexString(mUnlockToken));
         }
         queueMessageForLog("onUnlockTokenReceived");
         if (mUnlockToken == null || mUnlockHandle == null) {
@@ -194,7 +200,7 @@ public class CarTrustAgentUnlockService {
             mUnlockHandle = value;
         }
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Unlock Handle: " + mUnlockHandle);
+            Log.d(TAG, "Unlock Handle: " + Utils.byteArrayToHexString(mUnlockHandle));
         }
         queueMessageForLog("onUnlockHandleReceived");
         if (mUnlockToken == null || mUnlockHandle == null) {

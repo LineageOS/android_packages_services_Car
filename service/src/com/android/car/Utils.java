@@ -15,18 +15,28 @@
  */
 package com.android.car;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Some potentially useful static methods.
  */
 public class Utils {
     static final Boolean DBG = false;
+    // https://developer.android.com/reference/java/util/UUID
+    private static final int UUID_LENGTH = 16;
+
 
     /*
      * Maps of types and status to human readable strings
@@ -198,4 +208,49 @@ public class Utils {
         }
         return sb.toString();
     }
+
+    /**
+     * Convert UUID to Big Endian byte array
+     *
+     * @param uuid UUID to convert
+     * @return the byte array representing the UUID
+     */
+    @NonNull
+    public static byte[] uuidToBytes(@NonNull UUID uuid) {
+
+        return ByteBuffer.allocate(UUID_LENGTH)
+                .order(ByteOrder.BIG_ENDIAN)
+                .putLong(uuid.getMostSignificantBits())
+                .putLong(uuid.getLeastSignificantBits())
+                .array();
+    }
+
+    /**
+     * Convert Big Endian byte array to UUID
+     *
+     * @param bytes byte array to convert
+     * @return the UUID representing the byte array, or null if not a valid UUID
+     */
+    @Nullable
+    public static UUID bytesToUUID(@NonNull byte[] bytes) {
+        if (bytes.length != UUID_LENGTH) {
+            return null;
+        }
+
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        return new UUID(buffer.getLong(), buffer.getLong());
+    }
+
+    /**
+     * Generate a random zero-filled string of given length
+     *
+     * @param length of string
+     * @return generated string
+     */
+    @SuppressLint("DefaultLocale")  // Should always have the same format regardless of locale
+    public static String generateRandomNumberString(int length) {
+        return String.format("%0" + length + "d",
+                ThreadLocalRandom.current().nextInt((int) Math.pow(10, length)));
+    }
+
 }
