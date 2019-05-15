@@ -29,6 +29,7 @@ import java.util.Map;
  * @hide
  */
 public class CarRatedFloatListeners<T> {
+    private static final float NANOSECOND_PER_SECOND = 1000 * 1000 * 1000;
     private final Map<T, Float> mListenersToRate = new HashMap<>(4);
 
     private final Map<T, Long> mListenersUpdateTime = new HashMap<>(4);
@@ -112,7 +113,7 @@ public class CarRatedFloatListeners<T> {
             return true;
         }
         if (nextUpdateTime <= eventTimeStamp) {
-            Float cycle = 1000 / updateRate;
+            Float cycle = NANOSECOND_PER_SECOND / updateRate;
             nextUpdateTime = eventTimeStamp + cycle.longValue();
             mListenersUpdateTime.put(listener, nextUpdateTime);
             return true;
