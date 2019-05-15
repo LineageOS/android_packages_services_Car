@@ -99,6 +99,7 @@ public class CarUserManagerHelper {
     private final Context mContext;
     private final UserManager mUserManager;
     private final ActivityManager mActivityManager;
+    private final TestableFrameworkWrapper mTestableFrameworkWrapper;
     private String mDefaultAdminName;
     private Bitmap mDefaultGuestUserIcon;
     private ArrayList<OnUsersUpdateListener> mUpdateListeners;
@@ -122,10 +123,16 @@ public class CarUserManagerHelper {
      * @param context Application Context
      */
     public CarUserManagerHelper(Context context) {
+        this(context, new TestableFrameworkWrapper());
+    }
+
+    @VisibleForTesting
+    CarUserManagerHelper(Context context, TestableFrameworkWrapper testableFrameworkWrapper) {
         mUpdateListeners = new ArrayList<>();
         mContext = context.getApplicationContext();
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mActivityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        mTestableFrameworkWrapper = testableFrameworkWrapper;
     }
 
     /**
@@ -212,7 +219,7 @@ public class CarUserManagerHelper {
      *
      * This method checks for the initial user via three mechanisms in this order:
      * <ol>
-     *     <li>Check for a boot user override via {@link KEY_BOOT_USER_OVERRIDE_ID}</li>
+     *     <li>Check for a boot user override via {@link CarProperties#boot_user_override_id()}</li>
      *     <li>Check for the last active user in the system</li>
      *     <li>Fallback to the smallest user id that is not {@link UserHandle.USER_SYSTEM}</li>
      * </ol>
@@ -226,7 +233,7 @@ public class CarUserManagerHelper {
     public int getInitialUser() {
         List<Integer> allUsers = userInfoListToUserIdList(getAllPersistentUsers());
 
-        int bootUserOverride = CarProperties.boot_user_override_id().orElse(BOOT_USER_NOT_FOUND);
+        int bootUserOverride = mTestableFrameworkWrapper.getBootUserOverrideId(BOOT_USER_NOT_FOUND);
 
         // If an override user is present and a real user, return it
         if (bootUserOverride != BOOT_USER_NOT_FOUND
@@ -468,9 +475,9 @@ public class CarUserManagerHelper {
      */
     public int getMaxSupportedUsers() {
         if (isHeadlessSystemUser()) {
-            return UserManager.getMaxSupportedUsers() - 1;
+            return mTestableFrameworkWrapper.userManagerGetMaxSupportedUsers() - 1;
         }
-        return UserManager.getMaxSupportedUsers();
+        return mTestableFrameworkWrapper.userManagerGetMaxSupportedUsers();
     }
 
     /**

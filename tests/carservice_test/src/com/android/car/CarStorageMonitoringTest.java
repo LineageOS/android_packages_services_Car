@@ -370,6 +370,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
     @Override
     protected synchronized void configureResourceOverrides(MockResources resources) {
+        super.configureResourceOverrides(resources);
         final ResourceOverrides overrides = PER_TEST_RESOURCES.getOrDefault(getName(), null);
         if (overrides != null) {
             overrides.overrideResources(resources);
