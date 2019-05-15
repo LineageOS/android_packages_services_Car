@@ -121,6 +121,7 @@ public class MockedCarTestBase {
 
     protected synchronized void configureResourceOverrides(MockResources resources) {
         resources.overrideResource(com.android.car.R.string.instrumentClusterRendererService, "");
+        resources.overrideResource(com.android.car.R.bool.audioUseDynamicRouting, false);
     }
 
     protected Context getContext() {
@@ -154,25 +155,30 @@ public class MockedCarTestBase {
         configureResourceOverrides(mResources);
         doReturn(mResources).when(context).getResources();
 
-
-        // ICarImpl will register new ones. This prevents one test failure in tearDown from
-        // breaking others.
+        // ICarImpl will register new CarLocalServices services.
+        // This prevents one test failure in tearDown from triggering assertion failure for single
+        // CarLocalServices service.
         CarLocalServices.removeAllServices();
-
-        mCarImpl = new ICarImpl(context, mMockedVehicleHal, mFakeSystemInterface,
+        ICarImpl carImpl = new ICarImpl(context, mMockedVehicleHal, mFakeSystemInterface,
                 null /* error notifier */, "MockedCar");
 
-        initMockedHal(false /* no need to release */);
+        initMockedHal(carImpl, false /* no need to release */);
+        mCarImpl = carImpl;
 
         mCar = new Car(context, mCarImpl, null /* handler */);
     }
 
     @After
     public void tearDown() throws Exception {
-        mCar.disconnect();
-        mCarImpl.release();
-
-        mMockIOInterface.tearDown();
+        if (mCar != null) {
+            mCar.disconnect();
+        }
+        if (mCarImpl != null) {
+            mCarImpl.release();
+        }
+        if (mMockIOInterface != null) {
+            mMockIOInterface.tearDown();
+        }
     }
 
     public CarPackageManagerService getPackageManagerService() {
@@ -184,12 +190,12 @@ public class MockedCarTestBase {
     }
 
     protected synchronized void reinitializeMockedHal() throws Exception {
-        initMockedHal(true /* release */);
+        initMockedHal(mCarImpl, true /* release */);
     }
 
-    private synchronized void initMockedHal(boolean release) throws Exception {
+    private synchronized void initMockedHal(ICarImpl carImpl, boolean release) throws Exception {
         if (release) {
-            mCarImpl.release();
+            carImpl.release();
         }
 
         for (Map.Entry<VehiclePropConfigBuilder, VehicleHalPropertyHandler> entry
@@ -197,7 +203,7 @@ public class MockedCarTestBase {
             mMockedVehicleHal.addProperty(entry.getKey().build(), entry.getValue());
         }
         mHalConfig.clear();
-        mCarImpl.init();
+        carImpl.init();
     }
 
     protected synchronized VehiclePropConfigBuilder addProperty(int propertyId,
@@ -335,6 +341,7 @@ public class MockedCarTestBase {
     }
 
     static final class MockResources extends Resources {
+        private final HashMap<Integer, Boolean> mBooleanOverrides = new HashMap<>();
         private final HashMap<Integer, Integer> mIntegerOverrides = new HashMap<>();
         private final HashMap<Integer, String> mStringOverrides = new HashMap<>();
         private final HashMap<Integer, String[]> mStringArrayOverrides = new HashMap<>();
@@ -343,6 +350,12 @@ public class MockedCarTestBase {
             super(resources.getAssets(),
                     resources.getDisplayMetrics(),
                     resources.getConfiguration());
+        }
+
+        @Override
+        public boolean getBoolean(int id) {
+            return mBooleanOverrides.getOrDefault(id,
+                    super.getBoolean(id));
         }
 
         @Override
@@ -361,6 +374,11 @@ public class MockedCarTestBase {
         public String[] getStringArray(int id) {
             return mStringArrayOverrides.getOrDefault(id,
                     super.getStringArray(id));
+        }
+
+        MockResources overrideResource(int id, boolean value) {
+            mBooleanOverrides.put(id, value);
+            return this;
         }
 
         MockResources overrideResource(int id, int value) {

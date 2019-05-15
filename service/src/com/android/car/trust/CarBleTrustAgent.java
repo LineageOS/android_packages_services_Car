@@ -167,7 +167,7 @@ public class CarBleTrustAgent extends TrustAgentService {
     @Override
     public void onEscrowTokenAdded(byte[] token, long handle, UserHandle user) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onEscrowTokenAdded handle: " + Long.toHexString(handle) + "token: "
+            Log.d(TAG, "onEscrowTokenAdded handle: " + Long.toHexString(handle) + " token: "
                     + Utils.byteArrayToHexString(token));
         }
         if (mCarTrustAgentEnrollmentService == null) {

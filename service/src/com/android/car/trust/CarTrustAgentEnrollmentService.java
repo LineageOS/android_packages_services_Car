@@ -18,7 +18,6 @@ package com.android.car.trust;
 
 import static android.car.trust.CarTrustAgentEnrollmentManager.ENROLLMENT_NOT_ALLOWED;
 
-import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
 import android.car.encryptionrunner.EncryptionRunner;
@@ -37,13 +36,17 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.car.R;
 import com.android.car.Utils;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * A service that is part of the CarTrustedDeviceService that is responsible for allowing a
@@ -87,6 +91,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     private boolean mEnrollmentHandshakeAccepted;
     private final Map<Long, Boolean> mTokenActiveStateMap = new HashMap<>();
     private String mDeviceName;
+    private String mDeviceId;
     private final Context mContext;
 
     private EncryptionRunner mEncryptionRunner = EncryptionRunnerFactory.newRunner();
@@ -94,6 +99,22 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     private Key mEncryptionKey;
     @HandshakeState
     private int mEncryptionState = HandshakeState.UNKNOWN;
+
+    // State of last message sent to phone in enrollment process. Order matters with
+    // state being auto-incremented.
+    private static final int ENROLLMENT_STATE_NONE = 0;
+    private static final int ENROLLMENT_STATE_UNIQUE_ID = 1;
+    private static final int ENROLLMENT_STATE_ENCRYPTION_COMPLETED = 2;
+    private static final int ENROLLMENT_STATE_HANDLE = 3;
+
+    /** @hide */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({ENROLLMENT_STATE_NONE, ENROLLMENT_STATE_UNIQUE_ID,
+                ENROLLMENT_STATE_ENCRYPTION_COMPLETED, ENROLLMENT_STATE_HANDLE})
+    public @interface EnrollmentState {}
+
+    @EnrollmentState
+    private int mEnrollmentState;
 
     public CarTrustAgentEnrollmentService(Context context, CarTrustedDeviceService service,
             CarTrustAgentBleManager bleService) {
@@ -145,6 +166,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         }
         addEnrollmentServiceLog("startEnrollmentAdvertising");
         mCarTrustAgentBleManager.startEnrollmentAdvertising();
+        mEnrollmentState = ENROLLMENT_STATE_NONE;
     }
 
     /**
@@ -154,6 +176,9 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     public void stopEnrollmentAdvertising() {
         addEnrollmentServiceLog("stopEnrollmentAdvertising");
         mCarTrustAgentBleManager.stopEnrollmentAdvertising();
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "stopEnrollmentAdvertising");
+        }
     }
 
     /**
@@ -165,7 +190,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     @Override
     public void enrollmentHandshakeAccepted(BluetoothDevice device) {
         addEnrollmentServiceLog("enrollmentHandshakeAccepted");
-        mCarTrustAgentBleManager.sendPairingCodeConfirmation(device, CONFIRMATION_SIGNAL);
+        mCarTrustAgentBleManager.sendMessage(device, CONFIRMATION_SIGNAL);
         setEnrollmentHandshakeAccepted(true);
     }
 
@@ -390,7 +415,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "Sending handle: " + handle);
             }
-            mCarTrustAgentBleManager.sendEnrollmentHandle(mRemoteEnrollmentDevice,
+            mCarTrustAgentBleManager.sendMessage(mRemoteEnrollmentDevice,
                     mEncryptionKey.encryptData(Utils.longToBytes(handle)));
         } else {
             removeEscrowToken(handle, uid);
@@ -457,18 +482,26 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             return;
         }
 
-        // The phone is not expected to send any data until the user has accepted the
-        // pairing.
-        if (mEnrollmentHandshakeAccepted) {
-            notifyEscrowTokenReceived(value);
-            return;
-        }
-
-        // Otherwise, the message should be one that continues the encryption handshake.
-        try {
-            processInitEncryptionMessage(value);
-        } catch (HandshakeException e) {
-            Log.e(TAG, "HandshakeException during set up of encryption: ", e);
+        switch (mEnrollmentState) {
+            case ENROLLMENT_STATE_NONE:
+                notifyDeviceIdReceived(value);
+                break;
+            case ENROLLMENT_STATE_UNIQUE_ID:
+                try {
+                    processInitEncryptionMessage(value);
+                } catch (HandshakeException e) {
+                    Log.e(TAG, "HandshakeException during set up of encryption: ", e);
+                }
+                break;
+            case ENROLLMENT_STATE_ENCRYPTION_COMPLETED:
+                notifyEscrowTokenReceived(value);
+                break;
+            case ENROLLMENT_STATE_HANDLE:
+                // TODO(danharms): React to ACK. Shut down server?
+                break;
+            default:
+                // Should never get here
+                break;
         }
     }
 
@@ -476,10 +509,30 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         mDeviceName = deviceName;
     }
 
+    private void notifyDeviceIdReceived(byte[] id) {
+        UUID deviceId = Utils.bytesToUUID(id);
+        if (deviceId == null) {
+            Log.e(TAG, "Invalid device id sent");
+            return;
+        }
+        mDeviceId = deviceId.toString();
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Received device id: " + mDeviceId);
+        }
+        UUID uniqueId = mTrustedDeviceService.getUniqueId();
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Sending device id: " + uniqueId.toString());
+        }
+        mCarTrustAgentBleManager.sendMessage(
+                mRemoteEnrollmentDevice, Utils.uuidToBytes(uniqueId));
+        mEnrollmentState++;
+    }
+
     private void notifyEscrowTokenReceived(byte[] token) {
         try {
             mEnrollmentDelegate.addEscrowToken(
                     mEncryptionKey.decryptData(token), ActivityManager.getCurrentUser());
+            mEnrollmentState++;
         } catch (SignatureException e) {
             Log.e(TAG, "Could not decrypt escrow token", e);
         }
@@ -503,7 +556,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
 
                 mHandshakeMessage = mEncryptionRunner.respondToInitRequest(message);
                 mEncryptionState = mHandshakeMessage.getHandshakeState();
-                mCarTrustAgentBleManager.sendEncryptionHandshakeMessage(
+                mCarTrustAgentBleManager.sendMessage(
                         mRemoteEnrollmentDevice, mHandshakeMessage.getNextMessage());
 
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -530,8 +583,8 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
                     return;
                 }
 
-                mCarTrustAgentBleManager.sendEncryptionHandshakeMessage(
-                        mRemoteEnrollmentDevice, mHandshakeMessage.getNextMessage());
+                mCarTrustAgentBleManager.sendMessage(mRemoteEnrollmentDevice,
+                        mHandshakeMessage.getNextMessage());
                 break;
             case HandshakeState.VERIFICATION_NEEDED:
                 Log.w(TAG, "Encountered VERIFICATION_NEEDED state when it should have been "
@@ -613,8 +666,9 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
 
         mEncryptionState = HandshakeState.FINISHED;
         mEncryptionKey = message.getKey();
+        mTrustedDeviceService.saveEncryptionKey(mDeviceId, mEncryptionKey.asBytes());
+        mEnrollmentState++;
 
-        // TODO(ajchen): Save the key to a secure database.
     }
 
     /**
