@@ -24,6 +24,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
@@ -35,11 +36,9 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
-import android.sysprop.CarProperties;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
@@ -77,6 +76,8 @@ public class CarUserManagerHelperTest {
     private ActivityManager mActivityManager;
     @Mock
     private CarUserManagerHelper.OnUsersUpdateListener mTestListener;
+    @Mock
+    private TestableFrameworkWrapper mTestableFrameworkWrapper;
 
     private static final String GUEST_USER_NAME = "testGuest";
     private static final String TEST_USER_NAME = "testUser";
@@ -98,7 +99,7 @@ public class CarUserManagerHelperTest {
         doReturn(InstrumentationRegistry.getTargetContext().getContentResolver())
                 .when(mContext).getContentResolver();
         doReturn(mContext).when(mContext).getApplicationContext();
-        mCarUserManagerHelper = new CarUserManagerHelper(mContext);
+        mCarUserManagerHelper = new CarUserManagerHelper(mContext, mTestableFrameworkWrapper);
         mCarUserManagerHelper.setDefaultAdminName(DEFAULT_ADMIN_NAME);
 
         mCurrentProcessUser = createUserInfoForId(UserHandle.myUserId());
@@ -111,8 +112,9 @@ public class CarUserManagerHelperTest {
         mForegroundUserId = ActivityManager.getCurrentUser();
         mForegroundUser = createUserInfoForId(mForegroundUserId);
 
-        // Clear boot override for every test
-        CarProperties.boot_user_override_id(null);
+        // Clear boot override for every test by returning the default value passed to the method
+        when(mTestableFrameworkWrapper.getBootUserOverrideId(anyInt()))
+                .thenAnswer(stub -> stub.getArguments()[0]);
     }
 
     @Test
@@ -164,9 +166,9 @@ public class CarUserManagerHelperTest {
         UserInfo user2 = createUserInfoForId(mForegroundUserId + 1);
         // Create two ephemeral users.
         UserInfo user3 = new UserInfo(
-              /* id= */mForegroundUserId + 2, /* name = */ "user3", UserInfo.FLAG_EPHEMERAL);
+                /* id= */mForegroundUserId + 2, /* name = */ "user3", UserInfo.FLAG_EPHEMERAL);
         UserInfo user4 = new UserInfo(
-              /* id= */mForegroundUserId + 3, /* name = */ "user4", UserInfo.FLAG_EPHEMERAL);
+                /* id= */mForegroundUserId + 3, /* name = */ "user4", UserInfo.FLAG_EPHEMERAL);
 
         mockGetUsers(user1, user2, user3, user4);
 
@@ -217,33 +219,33 @@ public class CarUserManagerHelperTest {
     @Test
     public void testCurrentProcessCanAddUsers() {
         doReturn(false).when(mUserManager)
-            .hasUserRestriction(UserManager.DISALLOW_ADD_USER);
+                .hasUserRestriction(UserManager.DISALLOW_ADD_USER);
         assertThat(mCarUserManagerHelper.canCurrentProcessAddUsers()).isTrue();
 
         doReturn(true).when(mUserManager)
-            .hasUserRestriction(UserManager.DISALLOW_ADD_USER);
+                .hasUserRestriction(UserManager.DISALLOW_ADD_USER);
         assertThat(mCarUserManagerHelper.canCurrentProcessAddUsers()).isFalse();
     }
 
     @Test
     public void testCurrentProcessCanRemoveUsers() {
         doReturn(false).when(mUserManager)
-            .hasUserRestriction(UserManager.DISALLOW_REMOVE_USER);
+                .hasUserRestriction(UserManager.DISALLOW_REMOVE_USER);
         assertThat(mCarUserManagerHelper.canCurrentProcessRemoveUsers()).isTrue();
 
         doReturn(true).when(mUserManager)
-            .hasUserRestriction(UserManager.DISALLOW_REMOVE_USER);
+                .hasUserRestriction(UserManager.DISALLOW_REMOVE_USER);
         assertThat(mCarUserManagerHelper.canCurrentProcessRemoveUsers()).isFalse();
     }
 
     @Test
     public void testCurrentProcessCanSwitchUsers() {
         doReturn(false).when(mUserManager)
-            .hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
+                .hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
         assertThat(mCarUserManagerHelper.canCurrentProcessSwitchUsers()).isTrue();
 
         doReturn(true).when(mUserManager)
-            .hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
+                .hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
         assertThat(mCarUserManagerHelper.canCurrentProcessSwitchUsers()).isFalse();
     }
 
@@ -277,7 +279,7 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void testGetMaxSupportedUsers() {
-        SystemProperties.set("fw.max_users", "11");
+        setMaxSupportedUsers(11);
 
         // Max users - headless system user.
         assertThat(mCarUserManagerHelper.getMaxSupportedUsers()).isEqualTo(10);
@@ -285,7 +287,7 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void testGetMaxSupportedRealUsers() {
-        SystemProperties.set("fw.max_users", "7");
+        setMaxSupportedUsers(7);
 
         // Create three managed profiles, and two normal users.
         UserInfo user1 = createUserInfoForId(10);
@@ -314,16 +316,16 @@ public class CarUserManagerHelperTest {
 
         mockGetUsers(mSystemUser, user1, user2, user3, user4);
 
-        SystemProperties.set("fw.max_users", "6");
+        setMaxSupportedUsers(6);
         assertThat(mCarUserManagerHelper.isUserLimitReached()).isFalse();
 
-        SystemProperties.set("fw.max_users", "5");
+        setMaxSupportedUsers(5);
         assertThat(mCarUserManagerHelper.isUserLimitReached()).isTrue();
     }
 
     @Test
     public void testIsUserLimitReachedIgnoresGuests() {
-        SystemProperties.set("fw.max_users", "6");
+        setMaxSupportedUsers(6);
 
         UserInfo user1 = createUserInfoForId(10);
         UserInfo user2 =
@@ -500,7 +502,7 @@ public class CarUserManagerHelperTest {
         mockGetUsers(adminInfo);
 
         assertThat(mCarUserManagerHelper.removeUser(adminInfo, GUEST_USER_NAME))
-            .isEqualTo(false);
+                .isEqualTo(false);
     }
 
     @Test
@@ -679,7 +681,7 @@ public class CarUserManagerHelperTest {
         assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_MODIFY_ACCOUNTS)).isTrue();
         assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_INSTALL_APPS)).isTrue();
         assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES))
-            .isTrue();
+                .isTrue();
         assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_UNINSTALL_APPS)).isTrue();
     }
 
@@ -954,7 +956,7 @@ public class CarUserManagerHelperTest {
 
     private void mockGetUsers(UserInfo... users) {
         List<UserInfo> testUsers = new ArrayList<>();
-        for (UserInfo user: users) {
+        for (UserInfo user : users) {
             testUsers.add(user);
         }
         doReturn(testUsers).when(mUserManager).getUsers(true);
@@ -966,6 +968,11 @@ public class CarUserManagerHelperTest {
     }
 
     private void setDefaultBootUserOverride(int userId) {
-        CarProperties.boot_user_override_id(userId);
+        doReturn(userId).when(mTestableFrameworkWrapper)
+                .getBootUserOverrideId(anyInt());
+    }
+
+    private void setMaxSupportedUsers(int maxValue) {
+        doReturn(maxValue).when(mTestableFrameworkWrapper).userManagerGetMaxSupportedUsers();
     }
 }
