@@ -206,15 +206,20 @@ public class CarPropertyService extends ICarProperty.Stub
         List<CarPropertyEvent> events = new LinkedList<CarPropertyEvent>();
         if (mConfigs.get(propId).isGlobalProperty()) {
             CarPropertyValue value = mHal.getProperty(propId, 0);
-            CarPropertyEvent event = new CarPropertyEvent(
+            // CarPropertyEvent without a CarPropertyValue can not be used by any listeners.
+            if (value != null) {
+                CarPropertyEvent event = new CarPropertyEvent(
                     CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
-            events.add(event);
+                events.add(event);
+            }
         } else {
             for (int areaId : mConfigs.get(propId).getAreaIds()) {
                 CarPropertyValue value = mHal.getProperty(propId, areaId);
-                CarPropertyEvent event = new CarPropertyEvent(
+                if (value != null) {
+                    CarPropertyEvent event = new CarPropertyEvent(
                         CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
-                events.add(event);
+                    events.add(event);
+                }
             }
         }
         try {
