@@ -265,6 +265,9 @@
     <string name="bluetooth_pick_device" translatable="false">Pick Device</string>
     <string name="bluetooth_quiet_mode_enable" translatable="false">Quiet Mode</string>
     <string name="bluetooth_hold_call" translatable="false">Hold call</string>
+    <string name="bluetooth_start_outgoing_call" translatable="false">Start call</string>
+    <string name="bluetooth_end_outgoing_call" translatable="false">End call</string>
+    <string name="bluetooth_outgoing_phone_number" translatable="false">Enter number</string>
     <string name="bluetooth_voice_recognition_enable" translatable="false">Start Voice Recognition</string>
     <string name="bluetooth_voice_recognition_disable" translatable="false">Stop Voice Recognition</string>
     <string name="uploading_supported_feature" translatable="false">Uploading_Supported bit value</string>

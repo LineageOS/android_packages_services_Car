@@ -295,6 +295,11 @@ public final class VehiclePropertyIds {
      */
     public static final int EV_BATTERY_DISPLAY_UNITS = 289408515;
     /**
+     * Speed Units for display
+     * @hide
+     */
+    public static final int VEHICLE_SPEED_DISPLAY_UNITS = 289408516;
+    /**
      * Fuel consumption units for display
      */
     public static final int FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME = 287311364;
@@ -971,6 +976,9 @@ public final class VehiclePropertyIds {
         }
         if (o == READING_LIGHTS_SWITCH) {
             return "READING_LIGHTS_SWITCH";
+        }
+        if (o == VEHICLE_SPEED_DISPLAY_UNITS) {
+            return "VEHICLE_SPEED_DISPLAY_UNITS";
         }
         return "0x" + Integer.toHexString(o);
     }
