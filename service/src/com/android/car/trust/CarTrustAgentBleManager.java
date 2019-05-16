@@ -33,9 +33,12 @@ import androidx.annotation.Nullable;
 import com.android.car.CarLocalServices;
 import com.android.car.R;
 import com.android.car.Utils;
+import com.android.car.trust.BLEStream.BLEMessage;
+import com.android.car.trust.BLEStream.BLEMessage.OperationType;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -70,6 +73,7 @@ class CarTrustAgentBleManager extends BleManager {
     private String mOriginalBluetoothName;
     private byte[] mUniqueId;
     private String mRandomName;
+    private int mMtuSize = 20;
 
     // Enrollment Service and Characteristic UUIDs
     private UUID mEnrollmentServiceUuid;
@@ -82,6 +86,8 @@ class CarTrustAgentBleManager extends BleManager {
     private UUID mUnlockEscrowTokenUuid;
     private UUID mUnlockTokenHandleUuid;
     private BluetoothGattService mUnlockGattService;
+
+    private BLEMessagePayloadStream mBleMessagePayloadStream = new BLEMessagePayloadStream();
 
     CarTrustAgentBleManager(Context context) {
         super(context);
@@ -117,6 +123,11 @@ class CarTrustAgentBleManager extends BleManager {
     }
 
     @Override
+    protected void onMtuSizeChanged(int size) {
+        mMtuSize = size;
+    }
+
+    @Override
     public void onCharacteristicWrite(BluetoothDevice device, int requestId,
             BluetoothGattCharacteristic characteristic, boolean preparedWrite,
             boolean responseNeeded, int offset, byte[] value) {
@@ -124,19 +135,28 @@ class CarTrustAgentBleManager extends BleManager {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onCharacteristicWrite received uuid: " + uuid);
         }
+        // This write operation is not thread safe individually, but is guarded by the callback
+        // here.
+        mBleMessagePayloadStream.write(value);
+        if (!mBleMessagePayloadStream.isComplete()) {
+            return;
+        }
         if (uuid.equals(mEnrollmentClientWriteUuid)) {
             if (getEnrollmentService() != null) {
-                getEnrollmentService().onEnrollmentDataReceived(value);
+                getEnrollmentService().onEnrollmentDataReceived(
+                        mBleMessagePayloadStream.toByteArray());
             }
         } else if (uuid.equals(mUnlockEscrowTokenUuid)) {
             if (getUnlockService() != null) {
-                getUnlockService().onUnlockTokenReceived(value);
+                getUnlockService().onUnlockTokenReceived(mBleMessagePayloadStream.toByteArray());
+
             }
         } else if (uuid.equals(mUnlockTokenHandleUuid)) {
             if (getUnlockService() != null) {
-                getUnlockService().onUnlockHandleReceived(value);
+                getUnlockService().onUnlockHandleReceived(mBleMessagePayloadStream.toByteArray());
             }
         }
+        mBleMessagePayloadStream.reset();
     }
 
     @Override
@@ -316,24 +336,33 @@ class CarTrustAgentBleManager extends BleManager {
     }
 
     void disconnectRemoteDevice() {
+        mBleMessagePayloadStream.reset();
         stopGattServer();
     }
 
     /**
      * Sends the given message to the specified device.
      *
-     * @param device The device to send the message to.
+     * @param device  The device to send the message to.
      * @param message A message to send.
      */
-    void sendMessage(BluetoothDevice device, byte[] message) {
+    void sendMessage(BluetoothDevice device, byte[] message, OperationType operation,
+            boolean isPayloadEncrypted) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "sendMessage to: " + device.getAddress());
         }
-
         BluetoothGattCharacteristic serverCharacteristic = mEnrollmentGattService
                 .getCharacteristic(mEnrollmentServerWriteUuid);
-        serverCharacteristic.setValue(message);
-        notifyCharacteristicChanged(device, serverCharacteristic, false);
+        List<BLEMessage> bleMessages = BLEMessageV1Factory.makeBLEMessages(message, operation,
+                mMtuSize, isPayloadEncrypted);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "sending " + bleMessages.size() + " messages to device");
+        }
+        for (BLEMessage bleMessage : bleMessages) {
+            // TODO(b/131719066) get acknowledgement from the phone then continue to send packets
+            serverCharacteristic.setValue(bleMessage.toByteArray());
+            notifyCharacteristicChanged(device, serverCharacteristic, false);
+        }
     }
 
     private final AdvertiseCallback mEnrollmentAdvertisingCallback = new AdvertiseCallback() {
