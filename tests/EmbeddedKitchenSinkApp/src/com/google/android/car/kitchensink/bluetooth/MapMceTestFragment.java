@@ -356,6 +356,10 @@ public class MapMceTestFragment extends Fragment {
             if (BluetoothDevicePicker.ACTION_DEVICE_SELECTED.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.v(TAG, "mPickerReceiver got " + device);
+                if (device == null) {
+                    Toast.makeText(getContext(), "No device selected", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 mMapProfile.connect(device);
 
                 // The receiver can now be disabled.
