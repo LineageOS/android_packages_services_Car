@@ -17,8 +17,9 @@
 package android.car.encryptionrunner;
 
 import android.annotation.NonNull;
-import android.util.Base64;
 import android.util.Log;
+
+import com.android.internal.annotations.VisibleForTesting;
 
 import com.google.security.cryptauth.lib.securegcm.D2DConnectionContext;
 import com.google.security.cryptauth.lib.securegcm.Ukey2Handshake;
@@ -33,8 +34,7 @@ public class Ukey2EncryptionRunner implements EncryptionRunner {
     private static final Ukey2Handshake.HandshakeCipher CIPHER =
             Ukey2Handshake.HandshakeCipher.P256_SHA512;
 
-    // This is from Ukey2HandshakeTest
-    private static final int MAX_AUTH_STRING_LENGTH = 32;
+    private static final int AUTH_STRING_LENGTH = 6;
 
     private Ukey2Handshake mUkey2client;
     private boolean mRunnerIsInvalid;
@@ -104,9 +104,8 @@ public class Ukey2EncryptionRunner implements EncryptionRunner {
 
             String verificationCode = null;
             if (mUkey2client.getHandshakeState() == Ukey2Handshake.State.VERIFICATION_NEEDED) {
-                verificationCode = Base64.encodeToString(
-                        mUkey2client.getVerificationString(MAX_AUTH_STRING_LENGTH),
-                        Base64.DEFAULT);
+                verificationCode = generateReadablePairingCode(
+                        mUkey2client.getVerificationString(AUTH_STRING_LENGTH));
             }
             return HandshakeMessage.newBuilder()
                     .setHandshakeState(getHandshakeState())
@@ -117,6 +116,24 @@ public class Ukey2EncryptionRunner implements EncryptionRunner {
                 | Ukey2Handshake.AlertException e) {
             throw new HandshakeException(e);
         }
+    }
+
+    /**
+     * Returns a human-readable pairing code string generated from the verification bytes. Converts
+     * each byte into a digit with a simple modulo.
+     *
+     * <p>This should match the implementation in the iOS and Android client libraries.
+     */
+    @VisibleForTesting
+    String generateReadablePairingCode(byte[] verificationCode) {
+        StringBuilder outString = new StringBuilder();
+        for (byte b : verificationCode) {
+            int unsignedInt = Byte.toUnsignedInt(b);
+            int digit = unsignedInt % 10;
+            outString.append(digit);
+        }
+
+        return outString.toString();
     }
 
     private static class UKey2Key implements Key {
