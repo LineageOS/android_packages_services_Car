@@ -134,7 +134,9 @@ public class CarBleTrustAgent extends TrustAgentService {
             mCarTrustAgentUnlockService.stopUnlockAdvertising();
 
         }
-        // TODO(b/131699594) - Add back revokeTrust()
+        // Set the trust state to false (not trusted), so unlocking is required for current user
+        // in case of user switch.
+        revokeTrust();
     }
 
     @Override
