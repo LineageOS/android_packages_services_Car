@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -348,6 +349,10 @@ public class BluetoothHeadsetFragment extends Fragment {
 
             if (BluetoothDevicePicker.ACTION_DEVICE_SELECTED.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (device == null) {
+                    Toast.makeText(getContext(), "No device selected", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 mPickedDevice = device;
                 String text = device.getName() == null ?
                     device.getAddress() : device.getName() + " " + device.getAddress();
