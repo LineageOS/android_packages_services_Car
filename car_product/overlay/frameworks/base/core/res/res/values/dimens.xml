@@ -114,4 +114,20 @@
 
     <!-- Make the dots in lock pattern thicker in Car -->
     <dimen name="lock_pattern_dot_size">20dp</dimen>
+
+    <!-- Autofill save dialog padding -->
+    <dimen name="autofill_save_outer_top_margin">@*android:dimen/car_padding_2</dimen>
+    <dimen name="autofill_save_outer_top_padding">@*android:dimen/car_padding_2</dimen>
+    <dimen name="autofill_elevation">@*android:dimen/car_padding_2</dimen>
+    <dimen name="autofill_save_inner_padding">@*android:dimen/car_padding_2</dimen>
+    <dimen name="autofill_save_icon_size">@*android:dimen/car_primary_icon_size</dimen>
+    <dimen name="autofill_save_title_start_padding">@*android:dimen/car_padding_4</dimen>
+    <dimen name="autofill_save_scroll_view_top_margin">@*android:dimen/car_padding_4</dimen>
+    <dimen name="autofill_save_button_bar_padding">@*android:dimen/car_keyline_1</dimen>
+
+    <!-- Floating toolbar dimensions -->
+    <dimen name="floating_toolbar_menu_button_side_padding">@*android:dimen/car_padding_2</dimen>
+    <dimen name="floating_toolbar_menu_image_width">@*android:dimen/car_primary_icon_size</dimen>
+    <dimen name="floating_toolbar_menu_image_button_vertical_padding">@*android:dimen/car_padding_2</dimen>
+    <dimen name="floating_toolbar_text_size">@*android:dimen/car_body1_size</dimen>
 </resources>
