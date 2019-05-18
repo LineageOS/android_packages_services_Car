@@ -23,7 +23,11 @@
     <dimen name="car_qs_header_system_icons_area_height">76dp</dimen>
     <dimen name="navigation_bar_height">112dp</dimen>
     <dimen name="navigation_bar_height_landscape">112dp</dimen>
-    <dimen name="status_bar_icon_size">36dp</dimen>
+
+    <!-- Notification icon size in the status bar. -->
+    <dimen name="status_bar_icon_size">32dp</dimen>
+    <!-- System status icon size in the status bar. -->
+    <dimen name="status_bar_system_icon_size">32dp</dimen>
 
     <!-- The size of the right icon. This size is used to down-sample the bitmaps for "large icon". -->
     <dimen name="notification_right_icon_size">@*android:dimen/car_touch_target_size</dimen>
