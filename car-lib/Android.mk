@@ -24,6 +24,19 @@ include $(CLEAR_VARS)
 ifeq ($(BOARD_IS_AUTOMOTIVE), true)
 full_classes_jar := $(call intermediates-dir-for,JAVA_LIBRARIES,android.car,,COMMON)/classes.jar
 $(call dist-for-goals,dist_files,$(full_classes_jar):android.car.jar)
-endif
+
+ifeq ($(EMMA_INSTRUMENT),true)
+# Put XML formatted API files in the dist dir.
+car_api_xmls := $(addprefix $(TARGET_OUT_COMMON_INTERMEDIATES)/,car-api.xml car-system-api.xml car-test-api.xml)
+$(car_api_xmls): $(TARGET_OUT_COMMON_INTERMEDIATES)/car-%api.xml : packages/services/Car/car-lib/api/%current.txt $(APICHECK)
+	$(hide) echo "Converting API file to XML: $@"
+	$(hide) mkdir -p $(dir $@)
+	$(hide) $(APICHECK_COMMAND) -convert2xml $< $@
+
+$(call dist-for-goals, dist_files, $(car_api_xmls))
+car_api_xmls :=
+endif #EMMA_INSTRUMENT
+
+endif #BOARD_IS_AUTOMOTIVE
 
 endif #TARGET_BUILD_PDK
