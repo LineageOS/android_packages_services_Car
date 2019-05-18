@@ -49,6 +49,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
+import java.util.Date;
 import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -337,8 +338,15 @@ public class MapMceTestFragment extends Fragment {
                     if (senderName == null) {
                         senderName = "<null>";
                     }
-
-                    mMessage.setText(intent.getStringExtra(android.content.Intent.EXTRA_TEXT));
+                    Date msgTimestamp = new Date(intent.getLongExtra(
+                            BluetoothMapClient.EXTRA_MESSAGE_TIMESTAMP,
+                            System.currentTimeMillis()));
+                    boolean msgReadStatus = intent.getBooleanExtra(
+                            BluetoothMapClient.EXTRA_MESSAGE_READ_STATUS, false);
+                    String msgText = intent.getStringExtra(android.content.Intent.EXTRA_TEXT);
+                    String msg = "[" + msgTimestamp + "] " + "("
+                            + (msgReadStatus ? "READ" : "UNREAD") + ") " + msgText;
+                    mMessage.setText(msg);
                     mOriginator.setText(senderUri);
                     mOriginatorDisplayName.setText(senderName);
                 }
@@ -356,6 +364,10 @@ public class MapMceTestFragment extends Fragment {
             if (BluetoothDevicePicker.ACTION_DEVICE_SELECTED.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.v(TAG, "mPickerReceiver got " + device);
+                if (device == null) {
+                    Toast.makeText(getContext(), "No device selected", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 mMapProfile.connect(device);
 
                 // The receiver can now be disabled.
