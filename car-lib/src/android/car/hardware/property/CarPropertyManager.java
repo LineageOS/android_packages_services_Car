@@ -211,7 +211,7 @@ public class CarPropertyManager implements CarManagerBase {
         return true;
     }
 
-    private class CarPropertyEventListenerToService extends ICarPropertyEventListener.Stub{
+    private static class CarPropertyEventListenerToService extends ICarPropertyEventListener.Stub{
         private final WeakReference<CarPropertyManager> mMgr;
 
         CarPropertyEventListenerToService(CarPropertyManager mgr) {
