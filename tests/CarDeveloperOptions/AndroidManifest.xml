@@ -179,6 +179,23 @@
         <activity android:name=".development.AppPicker"
                   android:label="@string/select_application"
                   android:theme="@android:style/Theme.DeviceDefault.Light.Dialog" />
-        <!-- This is the longest AndroidManifest.xml ever. -->
+
+        <!-- For CtsVerifier use. -->
+        <activity
+            android:name="Settings$TrustedCredentialsSettingsActivity"
+            android:label="@string/trusted_credentials"
+            android:icon="@drawable/ic_settings_security"
+            android:parentActivityName="Settings">
+            <intent-filter android:priority="1">
+                <action android:name="com.android.settings.TRUSTED_CREDENTIALS" />
+                <action android:name="com.android.settings.TRUSTED_CREDENTIALS_USER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.car.developeroptions.FRAGMENT_CLASS"
+                       android:value="com.android.car.developeroptions.TrustedCredentialsSettings" />
+            <meta-data android:name="com.android.car.developeroptions.PRIMARY_PROFILE_CONTROLLED"
+                       android:value="true" />
+        </activity>
+
     </application>
 </manifest>
