@@ -188,4 +188,19 @@
 
     </LinearLayout>
 
+    <LinearLayout>
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp">
+        <Button android:id="@+id/networkEnableWifiIntent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enable Wifi Intent"/>
+        <Button android:id="@+id/networkDisableWifiIntent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Disable Wifi Intent"/>
+    </LinearLayout>
+
 </androidx.viewpager.widget.ViewPager>
