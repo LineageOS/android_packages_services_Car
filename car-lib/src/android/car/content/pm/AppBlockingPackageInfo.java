@@ -45,7 +45,7 @@ public final class AppBlockingPackageInfo implements Parcelable {
     @IntDef(flag = true,
             value = {FLAG_SYSTEM_APP, FLAG_WHOLE_ACTIVITY})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ConstrcutorFlags {}
+    public @interface ConstructorFlags {}
 
     /**
      * flags to give additional information on the package.
@@ -82,7 +82,7 @@ public final class AppBlockingPackageInfo implements Parcelable {
 
 
     public AppBlockingPackageInfo(String packageName, int minRevisionCode, int maxRevisionCode,
-            @ConstrcutorFlags int flags, @Nullable Signature[] signatures,
+            @ConstructorFlags int flags, @Nullable Signature[] signatures,
             @Nullable String[] activities) {
         if (packageName == null) {
             throw new IllegalArgumentException("packageName cannot be null");
@@ -155,8 +155,6 @@ public final class AppBlockingPackageInfo implements Parcelable {
         }
         return false;
     }
-
-
 
     @Override
     public int hashCode() {
