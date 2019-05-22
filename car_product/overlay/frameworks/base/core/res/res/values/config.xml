@@ -79,4 +79,6 @@
     <!-- Whether the system enables per-display focus. If the system has the input method for each
          display, this value should be true. -->
     <bool name="config_perDisplayFocusEnabled">true</bool>
+
+    <string name="config_dataUsageSummaryComponent">com.android.car.settings/com.android.car.settings.datausage.DataWarningAndLimitActivity</string>
 </resources>

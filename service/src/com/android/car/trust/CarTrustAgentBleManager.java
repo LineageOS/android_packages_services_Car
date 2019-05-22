@@ -30,11 +30,11 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.android.car.BLEStreamProtos.BLEMessageProto.BLEMessage;
+import com.android.car.BLEStreamProtos.BLEOperationProto.OperationType;
 import com.android.car.CarLocalServices;
 import com.android.car.R;
 import com.android.car.Utils;
-import com.android.car.trust.BLEStream.BLEMessage;
-import com.android.car.trust.BLEStream.BLEMessage.OperationType;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
