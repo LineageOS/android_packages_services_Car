@@ -485,6 +485,58 @@ public class VehicleHal extends IVehicleCallback.Stub {
     }
 
     /**
+     * Dumps vehicle property values.
+     * @param writer
+     * @param propId property id, dump all properties' value if it is empty string.
+     * @param areaId areaId of the property, dump the property for all areaIds in the config
+     * if it is empty string.
+     */
+    public void dumpPropertyValueByCommend(PrintWriter writer, String propId, String areaId) {
+        if (propId.equals("")) {
+            writer.println("**All property values**");
+            for (VehiclePropConfig config : mAllProperties.values()) {
+                dumpPropertyValueByConfig(writer, config);
+            }
+        } else if (areaId.equals("")) {
+            VehiclePropConfig config = mAllProperties.get(Integer.parseInt(propId, 16));
+            dumpPropertyValueByConfig(writer, config);
+        } else {
+            int id = Integer.parseInt(propId, 16);
+            int area = Integer.parseInt(areaId);
+            try {
+                VehiclePropValue value = get(id, area);
+                writer.println(dumpVehiclePropValue(value));
+            } catch (Exception e) {
+                writer.println("Can not get property value for propertyId: 0x"
+                        + propId + ", areaId: " + area);
+            }
+        }
+    }
+
+    private void dumpPropertyValueByConfig(PrintWriter writer, VehiclePropConfig config) {
+        if (config.areaConfigs.isEmpty()) {
+            try {
+                VehiclePropValue value = get(config.prop);
+                writer.println(dumpVehiclePropValue(value));
+            } catch (Exception e) {
+                writer.println("Can not get property value for propertyId: 0x"
+                        + toHexString(config.prop) + ", areaId: 0");
+            }
+        } else {
+            for (VehicleAreaConfig areaConfig : config.areaConfigs) {
+                int area = areaConfig.areaId;
+                try {
+                    VehiclePropValue value = get(config.prop, area);
+                    writer.println(dumpVehiclePropValue(value));
+                } catch (Exception e) {
+                    writer.println("Can not get property value for propertyId: 0x"
+                            + toHexString(config.prop) + ", areaId: " + area);
+                }
+            }
+        }
+    }
+
+    /**
      * Dump VHAL property configs.
      *
      * @param writer
@@ -513,7 +565,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     }
 
     /** Use VehiclePropertyConfig to construct string for dumping */
-    private String dumpPropertyConfigsHelp(VehiclePropConfig config) {
+    private static String dumpPropertyConfigsHelp(VehiclePropConfig config) {
         StringBuilder builder = new StringBuilder()
                 .append("Property:0x").append(toHexString(config.prop))
                 .append(",Property name:").append(VehicleProperty.toString(config.prop))
@@ -640,6 +692,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
 
         StringBuilder sb = new StringBuilder()
                 .append("Property:0x").append(toHexString(value.prop))
+                .append(",status: ").append(value.status)
                 .append(",timestamp:").append(value.timestamp)
                 .append(",zone:0x").append(toHexString(value.areaId))
                 .append(",floatValues: ").append(Arrays.toString(value.value.floatValues.toArray()))
