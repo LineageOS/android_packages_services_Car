@@ -28,12 +28,14 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import android.car.drivingstate.CarDrivingStateEvent;
+import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.CarUxRestrictionsConfiguration.Builder;
 import android.car.hardware.CarPropertyValue;
 import android.content.Context;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.os.SystemClock;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
@@ -204,6 +206,18 @@ public class CarUxRestrictionsManagerServiceTest {
     public void testValidateConfigs_MultipleConfigsMustHaveUniquePort() throws Exception {
         mService.validateConfigs(Arrays.asList(
                 createEmptyConfig((byte) 0), createEmptyConfig((byte) 0)));
+    }
+
+    @Test
+    public void testGetCurrentUxRestrictions_UnknownDisplayId_ReturnsFullRestrictions()
+            throws Exception {
+        mService.init();
+        CarUxRestrictions restrictions = mService.getCurrentUxRestrictions(/* displayId= */ 10);
+        CarUxRestrictions expected = new CarUxRestrictions.Builder(
+                /*reqOpt= */ true,
+                CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED,
+                SystemClock.elapsedRealtimeNanos()).build();
+        assertTrue(restrictions.toString(), expected.isSameRestrictions(restrictions));
     }
 
     private CarUxRestrictionsConfiguration createEmptyConfig() {
