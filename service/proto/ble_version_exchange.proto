@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package aae.blemessagestream;
+
+option java_package = "com.android.car.BLEStreamProtos";
+option java_outer_classname = "VersionExchangeProto";
+
+message BLEVersionExchange {
+  // Required.
+  int32 minSupportedVersion = 1;
+
+  // Required.
+  int32 maxSupportedVersion = 2;
+}
