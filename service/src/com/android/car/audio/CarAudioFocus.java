@@ -43,9 +43,9 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
 
     // Values for the internal interaction matrix we use to make focus decisions
-    private static final int INTERACTION_REJECT     = 0;    // Focus not granted
-    private static final int INTERACTION_EXCLUSIVE  = 1;    // Focus granted, others loose focus
-    private static final int INTERACTION_CONCURRENT = 2;    // Focus granted, others keep focus
+    static final int INTERACTION_REJECT     = 0;    // Focus not granted
+    static final int INTERACTION_EXCLUSIVE  = 1;    // Focus granted, others loose focus
+    static final int INTERACTION_CONCURRENT = 2;    // Focus granted, others keep focus
 
     // TODO:  Make this an overlayable resource...
     //  MUSIC           = 1,        // Music playback
