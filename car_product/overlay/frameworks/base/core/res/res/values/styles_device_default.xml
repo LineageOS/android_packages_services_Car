@@ -48,6 +48,10 @@
         <item name="android:textSize">@*android:dimen/car_body4_size</item>
     </style>
 
+    <style name="TextAppearance.DeviceDefault.Subhead" parent="android:TextAppearance.Material.Subhead">
+        <item name="android:textSize">@*android:dimen/car_body1_size</item>
+    </style>
+
     <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored"
            parent="android:TextAppearance.DeviceDefault.Widget.Button">
         <item name="android:textColor">@*android:color/car_borderless_button_text_color</item>
