@@ -1,29 +1,16 @@
 syntax = "proto3";
 
-package com.android.car.trust.BLEStream;
+package aae.blemessagestream;
 
-option java_package = "com.android.car.trust";
-option java_outer_classname = "BLEStream";
+import "packages/services/Car/service/proto/operation_type.proto";
+
+option java_package = "com.android.car.BLEStreamProtos";
+option java_outer_classname = "BLEMessageProto";
 
 // A message across a BLE channel.
 message BLEMessage {
   // The current version of the protocol.
   int32 version = 1;
-
-  enum OperationType {
-    // The contents of the payload are unknown.
-    UNKNOWN = 0;
-
-    // The payload contains handshake messages needed to set up encryption.
-    ENCRYPTION_HANDSHAKE = 1;
-
-    // The message is an acknowledgment of a previously received message. The
-    // payload for this type should be empty.
-    ACK = 2;
-
-    // The payload contains a client-specific message.
-    CLIENT_MESSAGE = 3;
-  }
 
   // The operation that this message represents.
   OperationType operation = 2;

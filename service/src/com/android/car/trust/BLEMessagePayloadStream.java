@@ -19,7 +19,7 @@ package com.android.car.trust;
 import android.annotation.NonNull;
 import android.util.Log;
 
-import com.android.car.trust.BLEStream.BLEMessage;
+import com.android.car.BLEStreamProtos.BLEMessageProto.BLEMessage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
