@@ -304,7 +304,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      * Registers a {@link ICarUxRestrictionsChangeListener} to be notified for changes to the UX
      * restrictions.
      *
-     * @param listener Listener to register
+     * @param listener  Listener to register
      * @param displayId UX restrictions on this display will be notified.
      */
     @Override
@@ -377,9 +377,15 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      * @param displayId UX restrictions on this display will be returned.
      */
     @Override
-    @Nullable
     public synchronized CarUxRestrictions getCurrentUxRestrictions(int displayId) {
-        return mCurrentUxRestrictions.get(getPhysicalPort(displayId));
+        CarUxRestrictions restrictions = mCurrentUxRestrictions.get(getPhysicalPort(displayId));
+        if (restrictions == null) {
+            Log.e(TAG, String.format(
+                    "Restrictions are null for displayId:%d. Returning full restrictions.",
+                    displayId));
+            restrictions = createFullyRestrictedRestrictions();
+        }
+        return restrictions;
     }
 
     /**
@@ -421,7 +427,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      *
      * @param mode See values in {@link CarUxRestrictionsManager.UxRestrictionMode}.
      * @return {@code true} if mode was successfully changed; {@code false} otherwise.
-     *
      * @see CarUxRestrictionsConfiguration.DrivingStateRestrictions
      * @see CarUxRestrictionsConfiguration.Builder
      */
@@ -746,7 +751,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
         logd("dispatching to clients");
         for (UxRestrictionsClient client : mUxRClients) {
-            byte clientDisplayPort = getPhysicalPort(client.mDisplayId);
+            Byte clientDisplayPort = getPhysicalPort(client.mDisplayId);
+            if (clientDisplayPort == null) {
+                clientDisplayPort = mDefaultDisplayPhysicalPort;
+            }
             if (displayToDispatch.contains(clientDisplayPort)) {
                 client.dispatchEventToClients(newUxRestrictions.get(clientDisplayPort));
             }
@@ -853,12 +861,17 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
     }
 
-    private byte getPhysicalPort(int displayId) {
+    /**
+     * Returns the physical port byte id for the display or {@code null} if {@link
+     * DisplayManager#getDisplay(int)} is not aware of the provided id.
+     */
+    @Nullable
+    private Byte getPhysicalPort(int displayId) {
         if (!mPortLookup.containsKey(displayId)) {
             Display display = mDisplayManager.getDisplay(displayId);
             if (display == null) {
                 Log.w(TAG, "Could not retrieve display for id: " + displayId);
-                return mDefaultDisplayPhysicalPort;
+                return null;
             }
             byte port = getPhysicalPort(display);
             mPortLookup.put(displayId, port);
@@ -889,6 +902,13 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         return new CarUxRestrictions.Builder(/* reqOpt= */ false,
                 CarUxRestrictions.UX_RESTRICTIONS_BASELINE, SystemClock.elapsedRealtimeNanos())
                 .build();
+    }
+
+    private CarUxRestrictions createFullyRestrictedRestrictions() {
+        return new CarUxRestrictions.Builder(
+                /*reqOpt= */ true,
+                CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED,
+                SystemClock.elapsedRealtimeNanos()).build();
     }
 
     CarUxRestrictionsConfiguration createDefaultConfig(byte port) {
