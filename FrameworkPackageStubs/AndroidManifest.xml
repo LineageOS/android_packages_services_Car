@@ -9,6 +9,17 @@
     <application android:label="@string/app_name"
                  android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
 
+        <!-- Dialer stubs -->
+        <activity android:name=".Stubs$DialerStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.DIAL" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="voicemail"/>
+            </intent-filter>
+        </activity>
+
         <!-- Music / media stubs. -->
         <activity android:name=".Stubs$MediaStub"
                   android:label="@string/stub_name"
@@ -68,5 +79,56 @@
             </intent-filter>
         </activity>
 
+        <!-- CDD Core Application Intents Stubs -->
+        <!-- Desk Clock -->
+        <activity android:name=".Stubs$DeskClockStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.SET_ALARM" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.SET_TIMER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.SHOW_ALARMS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.DISMISS_ALARM" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.SHOW_TIMERS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.SNOOZE_ALARM" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Calendar -->
+        <activity android:name=".Stubs$CalendarStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.EDIT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.item/event" />
+            </intent-filter>
+        </activity>
+
+        <!-- Browser -->
+        <activity android:name=".Stubs$BrowserStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.WEB_SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
