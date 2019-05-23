@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"तपाईंको सुरक्षाका लागि, तपाईंले सवारी साधन चलाइरहेका बेलामा यो क्रियाकलाप उपलब्ध हुँदैन।\nजारी राख्न, पार्क नगरुन्जेल पर्खनुहोस्‌।"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"अनुप्रयोगका सुरक्षित सुविधाहरूको प्रयोग गरी फेरि सुरु गर्न <xliff:g id="EXIT_BUTTON">%s</xliff:g> चयन गर्नुहोस्‌।"</string>
     <string name="exit_button" msgid="5829638404777671253">"पछाडि"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"डिबगसम्बन्धी जानकारी"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"निदानसम्बन्धी डेटा पढ्ने"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"कारको निदानसम्बन्धी डेटा पढ्ने।"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"निदानसम्बन्धी डेटा हटाउने"</string>

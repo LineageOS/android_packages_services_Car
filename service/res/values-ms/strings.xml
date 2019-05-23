@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Untuk keselamatan anda, aktiviti ini tidak tersedia semasa memandu.\nUntuk meneruskan, tunggu kereta diberhentikan."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Untuk bermula semula dengan ciri apl selamat, pilih <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Kembali"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Nyhpepijat"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"baca data diagnostik"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Baca data diagnostik daripada kereta."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"kosongkan data diagnostik"</string>
