@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"За ваша безбедност, оваа активност не е достапна додека возите.\nЗа да продолжите, почекајте да се паркирате."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"За да започнете одново со безбедносните фунции на апликацијата, изберете <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Назад"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ги чита дијагностичките податоци"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Чита дијагностички податоци од автомобилот."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"чисти дијагностички податоци"</string>

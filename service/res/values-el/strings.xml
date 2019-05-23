@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Για λόγους ασφαλείας, η δραστηρ. δεν είναι διαθέσιμη όταν οδηγείτε.\nΓια να συνεχίσετε, περιμένετε μέχρι να σταθμεύσετε."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Για να ξεκινήσετε από την αρχή με ασφαλείς λειτουργίες εφαρμογής, επιλέξτε <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Πίσω"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Πλ. εντ. σφ."</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"παρακολούθηση δεδομένων διαγνωστικών στοιχείων"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Παρακολούθηση δεδομένων διαγνωστικών στοιχείων από το αυτοκίνητο."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"διαγραφή δεδομένων διαγνωστικών στοιχείων"</string>

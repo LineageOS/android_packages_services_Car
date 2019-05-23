@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Ngokuphepha kwakho, lo msebenzi awutholakali uma ushayela.\nUkuze uqhubeke, linda uze umiswe."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Ukuze uqalise futhi ngezici zohlelo lokusebenza, khetha <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Emuva"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"ulwazi Lokususa iphutha"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"funda idatha yokuxilonga"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Ukufunda idatha yokuxilonga kusuka emotweni."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"sula idatha yokuxilonga"</string>

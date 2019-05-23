@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"ეს აქტივობა მიუწვდომელია მანქანის მართვისას, უსაფრთხოების მოსაზრებებიდან გამომდინარე.\nგთხოვთ, ჯერ გააჩეროთ მანქანა."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"აპის უსაფრთხო რეჟიმში გასაშვებად აირჩიეთ „<xliff:g id="EXIT_BUTTON">%s</xliff:g>“."</string>
     <string name="exit_button" msgid="5829638404777671253">"უკან"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"გამართვის ინფორმაცია"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"დიაგნოსტიკური მონაცემების წაკითხვა"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"დიაგნოსტიკური მონაცემების წაკითხვა მანქანიდან."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"დიაგნოსტიკური მონაცემების გასუფთავება"</string>

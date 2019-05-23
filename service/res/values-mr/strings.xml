@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"तुमच्या सुरक्षेसाठी, ड्रायव्हिंग करत असताना ही अ‍ॅक्टिव्हिटी उपलब्ध नाही.\nसुरू ठेवण्यासाठी, पार्क करेपर्यंत वाट पहा."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"सुरक्षित अ‍ॅप वैशिष्ट्यांसोबत पुन्हा सुरुवात करण्यासाठी, <xliff:g id="EXIT_BUTTON">%s</xliff:g> निवडा."</string>
     <string name="exit_button" msgid="5829638404777671253">"मागे जा"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"डीबग माहिती"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"निदान डेटा वाचा"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"कारचा निदान डेटा वाचा."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"निदान डेटा साफ करा"</string>

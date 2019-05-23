@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"ඔබේ ආරක්‍ෂාව සඳහා, ඔබ රිය පදවන විට මෙම ක්‍රියාකාරකම නොලැබේ.\nඉදිරියට යාමට, ඔබ ගාල් කරන තෙක් රැඳී සිටින්න."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"ආරක්‍ෂිත යෙදුම් විශේෂාංග සමඟ පටන් ගැනීමට, <xliff:g id="EXIT_BUTTON">%s</xliff:g> තෝරන්න."</string>
     <string name="exit_button" msgid="5829638404777671253">"ආපසු"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"නිදොසීම"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"දෝෂනිර්ණ දත්ත කියවන්න"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"මෝටර් රථයෙන් දෝෂනිර්ණ දත්ත කියවන්න."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"දෝෂනිර්ණ දත්ත හිස් කරන්න"</string>
