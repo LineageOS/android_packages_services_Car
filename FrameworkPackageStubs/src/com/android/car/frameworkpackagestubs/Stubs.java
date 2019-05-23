@@ -64,6 +64,26 @@ public final class Stubs {
     }
 
     /**
+     * Stub activity for Browser events.
+     */
+    public static class BrowserStub extends BaseActivity { }
+
+    /**
+     * Stub activity for Calendar events.
+     */
+    public static class CalendarStub extends BaseActivity { }
+
+    /**
+     * Stub activity for Desk Clock events.
+     */
+    public static class DeskClockStub extends BaseActivity { }
+
+    /**
+     * Stub activity for Dialer events.
+     */
+    public static class DialerStub extends BaseActivity { }
+
+    /**
      * Stub activity for media events.
      */
     public static class MediaStub extends BaseActivity { }
