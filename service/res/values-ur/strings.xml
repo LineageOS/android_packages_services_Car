@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"آپ کی حفاظت کے لیے یہ سرگرمی آپ کے کار چلانے کے دوران دستیاب نہیں ہے۔\n جاری رکھنے کے لیے کار کے پارک ہونے تک انتظار کریں۔"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"محفوظ اپپ کی خصوصیات کے ساتھ شروع کرنے کے لیے <xliff:g id="EXIT_BUTTON">%s</xliff:g> پر کلک کریں۔"</string>
     <string name="exit_button" msgid="5829638404777671253">"پیچھے"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"ڈیبگ کی معلومات"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"تشخیصی ڈیٹا پڑھیں"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"کار کے تشخیصی ڈیٹا کے بارے میں پڑھیں۔"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"تشخیصی ڈیٹا صاف کریں"</string>

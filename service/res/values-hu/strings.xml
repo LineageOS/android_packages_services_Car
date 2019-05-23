@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Az Ön biztonsága érdekében ez a tevékenység nem végezhető vezetés közben.\nLeparkolás után folytathatja a tevékenységet."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Ha biztonságos alkalmazásfunkciókkal szeretné újrakezdeni, válassza a következő gombot: <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Vissza"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Hibakeresési adatok"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"olvashatja a diagnosztikai adatokat"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Olvashatja az autó diagnosztikai adatait."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"törölheti a diagnosztikai adatokat"</string>

@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Vì lý do an toàn, bạn không sử dụng được hoạt động này trong khi lái xe.\nHãy đợi cho tới khi bạn đỗ xe để tiếp tục."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Để bắt đầu lại với các tính năng an toàn của ứng dụng, hãy chọn <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Quay lại"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Thông tin gỡ lỗi"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"đọc dữ liệu chẩn đoán"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Đọc dữ liệu chẩn đoán từ ô tô."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"xóa dữ liệu chẩn đoán"</string>

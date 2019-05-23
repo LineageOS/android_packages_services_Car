@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"તમારી સલામતી માટે કાર ચલાવતી વખતે આ પ્રવૃત્તિ ઉપલબ્ધ નથી.\nચાલુ રાખવા માટે કાર પાર્ક થવા સુધી રાહ જુઓ."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"સુરક્ષિત ઍપ્લિકેશન સુવિધાઓ સાથે ફરી શરૂ કરવા, <xliff:g id="EXIT_BUTTON">%s</xliff:g> પસંદ કરો."</string>
     <string name="exit_button" msgid="5829638404777671253">"પાછળ"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"ડિબગમાહિતી"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"નિદાનનો ડેટા વાંચો"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"કારમાંથી નિદાનનો ડેટા વાંચો."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"નિદાનનો ડેટા સાફ કરો"</string>
