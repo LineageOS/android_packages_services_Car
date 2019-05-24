@@ -693,19 +693,19 @@ public class ICarImpl extends ICar.Stub {
             switch (arg) {
                 case PARAM_ON_MODE:
                     mGarageModeService.forceStartGarageMode();
+                    writer.println("Garage mode: " + mGarageModeService.isGarageModeActive());
                     break;
                 case PARAM_OFF_MODE:
                     mGarageModeService.stopAndResetGarageMode();
+                    writer.println("Garage mode: " + mGarageModeService.isGarageModeActive());
                     break;
                 case PARAM_QUERY_MODE:
-                    // Nothing to do. Always query at the end anyway.
+                    mGarageModeService.dump(writer);
                     break;
                 default:
                     writer.println("Unknown value. Valid argument: " + PARAM_ON_MODE + "|"
                             + PARAM_OFF_MODE + "|" + PARAM_QUERY_MODE);
-                    return;
             }
-            writer.println("Garage mode: " + mGarageModeService.isGarageModeActive());
         }
 
         /**
