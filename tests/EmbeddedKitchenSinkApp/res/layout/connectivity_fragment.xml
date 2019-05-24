@@ -195,4 +195,19 @@
                 android:text="Disable Wifi Intent"/>
     </LinearLayout>
 
+    <LinearLayout>
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp">
+        <Button android:id="@+id/networkEnableBluetoothIntent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enable Bluetooth Intent"/>
+        <Button android:id="@+id/networkDisableBluetoothIntent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Disable Bluetooth Intent"/>
+    </LinearLayout>
+
 </LinearLayout>
