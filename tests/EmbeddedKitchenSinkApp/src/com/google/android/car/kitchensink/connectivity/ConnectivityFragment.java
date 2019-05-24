@@ -19,6 +19,7 @@ package com.google.android.car.kitchensink.connectivity;
 import android.annotation.Nullable;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -491,7 +492,23 @@ public class ConnectivityFragment extends Fragment {
         mTetheringStatusPolled = (TextView) view.findViewById(R.id.tetheringStatusPolled);
         mLocalOnlyStatus = (TextView) view.findViewById(R.id.localOnlyStatus);
 
+        view.findViewById(R.id.networkEnableWifiIntent).setOnClickListener(v -> enableWifiIntent());
+        view.findViewById(R.id.networkDisableWifiIntent)
+                .setOnClickListener(v -> disableWifiIntent());
+
         return view;
+    }
+
+    private void enableWifiIntent() {
+        Intent enableWifi = new Intent(WifiManager.ACTION_REQUEST_ENABLE);
+        enableWifi.putExtra(Intent.EXTRA_PACKAGE_NAME, getContext().getPackageName());
+        startActivity(enableWifi);
+    }
+
+    private void disableWifiIntent() {
+        Intent disableWifi = new Intent(WifiManager.ACTION_REQUEST_DISABLE);
+        disableWifi.putExtra(Intent.EXTRA_PACKAGE_NAME, getContext().getPackageName());
+        startActivity(disableWifi);
     }
 
     @Override
