@@ -4223,8 +4223,7 @@
     <skip />
     <!-- no translation found for battery_tip_summary_title (2750922152518825526) -->
     <skip />
-    <!-- no translation found for battery_tip_summary_summary (6294900413896440006) -->
-    <skip />
+    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"ଫୋନର ସାଧାରଣ ବ୍ୟାକଗ୍ରାଉଣ୍ଡ୍ ବ୍ୟାଟେରୀ ବ୍ୟବହାର ରହିଛି"</string>
     <!-- no translation found for battery_tip_summary_summary (5280099016800644130) -->
     <skip />
     <!-- no translation found for battery_tip_summary_summary (4459840492610842705) -->

@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Ova aktivnost nije dostupna dok vozite radi vaše bezbednosti.\nDa biste nastavili, prvo se parkirajte."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Da biste ponovo počeli sa bezbednim funkcijama aplikacije, izaberite <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Nazad"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"čitanje dijagnostičkih podataka"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Čitanje dijagnostičkih podataka iz automobila."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"brisanje dijagnostičkih podataka"</string>

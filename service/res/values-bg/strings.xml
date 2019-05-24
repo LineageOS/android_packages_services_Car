@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"От съображения за безопасност тази функция не е достъпна при шофиране.\nЗа да продължите, трябва първо да паркирате."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"За да рестартирате приложението и безопасните му функции, изберете „<xliff:g id="EXIT_BUTTON">%s</xliff:g>“."</string>
     <string name="exit_button" msgid="5829638404777671253">"Назад"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"четене на диагностични данни"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Четене на диагностични данни от автомобила."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"изчистване на диагностичните данни"</string>

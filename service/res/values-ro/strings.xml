@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Pentru siguranța dvs., activitatea nu este disponibilă în timp ce conduceți.\nCa să continuați, așteptați să parcați."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Pentru a începe din nou cu funcțiile pentru aplicații sigure, selectați <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Înapoi"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Informații de remediere a erorilor"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"Citește datele de diagnosticare"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Citește datele de diagnosticare de la mașină."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"Șterge datele de diagnosticare"</string>

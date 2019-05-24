@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Aus Sicherheitsgründen ist diese Aktivität während der Fahrt nicht verfügbar.\nWarte, bis das Fahrzeug geparkt ist."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Wähle <xliff:g id="EXIT_BUTTON">%s</xliff:g>, um die App mit sicheren Funktionen neu zu starten."</string>
     <string name="exit_button" msgid="5829638404777671253">"Zurück"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"Diagnosedaten zu lesen"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Diagnosedaten des Autos lesen."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"Diagnosedaten zu löschen"</string>

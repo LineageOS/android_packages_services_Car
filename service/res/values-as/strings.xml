@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"আপোনাৰ নিৰাপত্তাৰ বাবে এই কাৰ্যকলাপটো গাড়ী চলাই থকা সময়ত কৰিব নোৱাৰি।\nগাড়ীখন পাৰ্ক কৰি কামটো কৰক।"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"সুৰক্ষিত এপ্ সুবিধাসহ আকৌ আৰম্ভ কৰিবলৈ <xliff:g id="EXIT_BUTTON">%s</xliff:g> বাছনি কৰক।"</string>
     <string name="exit_button" msgid="5829638404777671253">"উভতি যাওক"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"ডিবাগ তথ্য"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ডায়গন’ষ্টিক ডেটা পঢ়িব"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"গাড়ীৰ ডায়গ’ষ্টিক তথ্য পঢ়িব।"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ডায়গন’ষ্টিক ডেটা মচিব"</string>

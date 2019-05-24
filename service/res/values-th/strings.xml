@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"เพื่อความปลอดภัย กิจกรรมนี้จะไม่เปิดให้ใช้งานขณะขับรถ\nคุณต้องจอดรถให้เรียบร้อยก่อน จึงจะดำเนินการต่อได้"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"เลือก <xliff:g id="EXIT_BUTTON">%s</xliff:g> เพื่อเริ่มต้นใหม่โดยใช้ฟีเจอร์แอปที่ปลอดภัย"</string>
     <string name="exit_button" msgid="5829638404777671253">"กลับ"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"อ่านข้อมูลการวินิจฉัย"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"อ่านข้อมูลการวินิจฉัยจากรถ"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ล้างข้อมูลการวินิจฉัย"</string>

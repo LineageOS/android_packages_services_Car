@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Por razones de seguridad, esta actividad no está disponible al conducir.\nPara continuar espera hasta que estaciones."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Para volver a comenzar con funciones de app seguras, selecciona <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Atrás"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Depuración"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"leer datos de diagnóstico"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Leer datos de diagnóstico del vehículo."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"borrar datos de diagnóstico"</string>
