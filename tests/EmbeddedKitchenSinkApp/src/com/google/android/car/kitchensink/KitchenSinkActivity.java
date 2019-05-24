@@ -18,6 +18,7 @@ package com.google.android.car.kitchensink;
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
+import android.car.CarProjectionManager;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
@@ -60,6 +61,7 @@ import com.google.android.car.kitchensink.input.InputTestFragment;
 import com.google.android.car.kitchensink.notification.NotificationFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
+import com.google.android.car.kitchensink.projection.ProjectionFragment;
 import com.google.android.car.kitchensink.property.PropertyTestFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
 import com.google.android.car.kitchensink.storagelifetime.StorageLifetimeFragment;
@@ -172,6 +174,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("notification", NotificationFragment.class),
             new FragmentMenuEntry("orientation test", OrientationTestFragment.class),
             new FragmentMenuEntry("power test", PowerTestFragment.class),
+            new FragmentMenuEntry("projection", ProjectionFragment.class),
             new FragmentMenuEntry("property test", PropertyTestFragment.class),
             new FragmentMenuEntry("sensors", SensorsTestFragment.class),
             new FragmentMenuEntry("storage lifetime", StorageLifetimeFragment.class),
@@ -189,6 +192,7 @@ public class KitchenSinkActivity extends FragmentActivity {
     private CarPropertyManager mPropertyManager;
     private CarSensorManager mSensorManager;
     private CarAppFocusManager mCarAppFocusManager;
+    private CarProjectionManager mCarProjectionManager;
     private Object mPropertyManagerReady = new Object();
 
     public CarHvacManager getHvacManager() {
@@ -205,6 +209,10 @@ public class KitchenSinkActivity extends FragmentActivity {
 
     public CarSensorManager getSensorManager() {
         return mSensorManager;
+    }
+
+    public CarProjectionManager getProjectionManager() {
+        return mCarProjectionManager;
     }
 
     /* Open any tab directly:
@@ -322,6 +330,8 @@ public class KitchenSinkActivity extends FragmentActivity {
                         android.car.Car.SENSOR_SERVICE);
                 mCarAppFocusManager =
                         (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
+                mCarProjectionManager =
+                        (CarProjectionManager) mCarApi.getCarManager(Car.PROJECTION_SERVICE);
                 mPropertyManagerReady.notifyAll();
             }
         }
