@@ -31,6 +31,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,7 +60,6 @@ import java.util.Set;
     private static final String ATTR_CONTEXT_NAME = "context";
     private static final String ATTR_PHYSICAL_PORT = "port";
     private static final int SUPPORTED_VERSION = 1;
-    private static final int NO_XML_RESOURCE = 0;
 
     private static final Map<String, Integer> CONTEXT_NAME_MAP;
 
@@ -93,7 +93,7 @@ import java.util.Set;
         mPortIds = new HashSet<>();
     }
 
-    public CarAudioZone[] loadAudioZones() throws IOException, XmlPullParserException {
+    CarAudioZone[] loadAudioZones() throws IOException, XmlPullParserException {
         List<CarAudioZone> carAudioZones = new ArrayList<>();
         parseCarAudioZones(carAudioZones, mInputStream);
         return carAudioZones.toArray(new CarAudioZone[0]);
@@ -139,6 +139,7 @@ import java.util.Set;
             }
         }
         Preconditions.checkArgument(mHasPrimaryZone, "Requires one primary zone");
+        carAudioZones.sort(Comparator.comparing(CarAudioZone::getId));
     }
 
     private CarAudioZone parseAudioZone(XmlPullParser parser)
@@ -181,7 +182,7 @@ import java.util.Set;
 
     private DisplayAddress.Physical parsePhysicalDisplayAddress(XmlPullParser parser) {
         String port = parser.getAttributeValue(NAMESPACE, ATTR_PHYSICAL_PORT);
-        Long portId;
+        long portId;
         try {
             portId = Long.parseLong(port);
         } catch (NumberFormatException e) {
