@@ -60,7 +60,7 @@ import java.util.Set;
  *
  * @hide
  */
-public class CarUserManagerHelper {
+public final class CarUserManagerHelper {
     private static final String TAG = "CarUserManagerHelper";
 
     private static final int BOOT_USER_NOT_FOUND = -1;
