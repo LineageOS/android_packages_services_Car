@@ -519,6 +519,7 @@ public final class VehiclePropertyIds {
     public static final int MIRROR_Z_POS = 339741504;
     /**
      * Mirror Z Move
+     * Requires permission: {@link Car#PERMISSION_CONTROL_CAR_MIRRORS}.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_MIRRORS)
     public static final int MIRROR_Z_MOVE = 339741505;
