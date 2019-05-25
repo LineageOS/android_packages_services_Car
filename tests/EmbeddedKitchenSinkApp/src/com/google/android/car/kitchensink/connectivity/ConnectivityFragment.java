@@ -18,7 +18,9 @@ package com.google.android.car.kitchensink.connectivity;
 
 import android.annotation.Nullable;
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -491,7 +493,39 @@ public class ConnectivityFragment extends Fragment {
         mTetheringStatusPolled = (TextView) view.findViewById(R.id.tetheringStatusPolled);
         mLocalOnlyStatus = (TextView) view.findViewById(R.id.localOnlyStatus);
 
+        view.findViewById(R.id.networkEnableWifiIntent).setOnClickListener(v -> enableWifiIntent());
+        view.findViewById(R.id.networkDisableWifiIntent)
+                .setOnClickListener(v -> disableWifiIntent());
+        view.findViewById(R.id.networkEnableBluetoothIntent)
+                .setOnClickListener(v -> enableBluetoothIntent());
+        view.findViewById(R.id.networkDisableBluetoothIntent)
+                .setOnClickListener(v -> disableBluetoothIntent());
+
         return view;
+    }
+
+    private void enableWifiIntent() {
+        Intent enableWifi = new Intent(WifiManager.ACTION_REQUEST_ENABLE);
+        enableWifi.putExtra(Intent.EXTRA_PACKAGE_NAME, getContext().getPackageName());
+        startActivity(enableWifi);
+    }
+
+    private void disableWifiIntent() {
+        Intent disableWifi = new Intent(WifiManager.ACTION_REQUEST_DISABLE);
+        disableWifi.putExtra(Intent.EXTRA_PACKAGE_NAME, getContext().getPackageName());
+        startActivity(disableWifi);
+    }
+
+    private void enableBluetoothIntent() {
+        Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        enableBluetooth.putExtra(Intent.EXTRA_PACKAGE_NAME, getContext().getPackageName());
+        startActivity(enableBluetooth);
+    }
+
+    private void disableBluetoothIntent() {
+        Intent disableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_DISABLE);
+        disableBluetooth.putExtra(Intent.EXTRA_PACKAGE_NAME, getContext().getPackageName());
+        startActivity(disableBluetooth);
     }
 
     @Override

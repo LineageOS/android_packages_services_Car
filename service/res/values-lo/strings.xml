@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"ເພື່ອຄວາມປອດໄພຂອງທ່ານ, ກິດຈະກຳນີ້ບໍ່ມີໃຫ້ນໍາໃຊ້ໃນຂະນະທີ່ທ່ານກຳລັງຂັບລົດຢູ່. \nເພື່ອສືບຕໍ່, ກະລຸນາລໍຖ້າຈົນກວ່າວ່າທ່ານຈອດລົດ."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"ເພື່ອເລີ່ມຕົ້ນຄືນໃໝ່ດ້ວຍຄຸນສົມບັດແອັບທີ່ປອດໄພ,​ ກະລຸນາເລືອກ <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"ກັບຄືນ"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ອ່ານຂໍ້ມູນການວິເຄາະ"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"ອ່ານຂໍ້ມູນການວິເຄາະຈາກລົດ."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ລຶບລ້າງຂໍ້ມູນການວິເຄາະ"</string>

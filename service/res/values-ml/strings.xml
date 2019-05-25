@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"നിങ്ങളുടെ സുരക്ഷയ്ക്ക്, ഡ്രൈവ് ചെയ്യുമ്പോൾ ഈ ആക്റ്റിവിറ്റി ലഭ്യമല്ല.\nതുടരാൻ, നിങ്ങൾ പാർക്ക് ചെയ്യുന്നതുവരെ കാത്തിരിക്കുക."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"സുരക്ഷിതമായ ആപ്പ് ഫീച്ചറുകൾ ഉപയോഗിച്ച് പുനരാരംഭിക്കാൻ, <xliff:g id="EXIT_BUTTON">%s</xliff:g> തിരഞ്ഞെടുക്കുക."</string>
     <string name="exit_button" msgid="5829638404777671253">"മടങ്ങുക"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"ഡീബഗ് വിവരം"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"പ്രശ്‌നനിർണ്ണയ ഡാറ്റ വായിക്കുക"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"കാറിൽ നിന്നുള്ള പ്രശ്‌നനിർണ്ണയ ഡാറ്റ വായിക്കുക."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"പ്രശ്‌നനിർണ്ണയ ഡാറ്റ മായ്‌ക്കുക"</string>

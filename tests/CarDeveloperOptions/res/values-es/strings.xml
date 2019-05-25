@@ -3935,8 +3935,7 @@
     <skip />
     <!-- no translation found for accessibility_touch_vibration_title (285890135612038092) -->
     <skip />
-    <!-- no translation found for accessibility_service_master_switch_title (2734791644475782924) -->
-    <skip />
+    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Usar servicio"</string>
     <!-- no translation found for accessibility_daltonizer_master_switch_title (4855011639012300777) -->
     <skip />
     <!-- no translation found for accessibility_caption_master_switch_title (6373335123229234053) -->

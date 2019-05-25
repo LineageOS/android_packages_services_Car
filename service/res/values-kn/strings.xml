@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"ನಿಮ್ಮ ಸುರಕ್ಷೆಗಾಗಿ, ಈ ಚಟುವಟಿಕೆಯು ವಾಹನ ಚಲಾಯಿಸುತ್ತಿರುವಾಗ ಲಭ್ಯವಿಲ್ಲ. ಮುಂದುವರೆಯಲು \n ಮಾಡಿ, ನೀವು ಪಾರ್ಕ್ ಮಾಡುವ ತನಕ ಕಾಯಿರಿ."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"ಆಪ್‌ನ ಸುರಕ್ಷೆ ಗುಣಲಕ್ಷಣಗಳನ್ನು ಒಳಗೊಂಡು ಮತ್ತೆ ಪ್ರಾರಂಭಿಸಲು, <xliff:g id="EXIT_BUTTON">%s</xliff:g> ಆಯ್ಕೆ ಮಾಡಿ."</string>
     <string name="exit_button" msgid="5829638404777671253">"ಹಿಂದಕ್ಕೆ"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"ಡೀಬಗ್ ಮಾಹಿ"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಡೇಟಾವನ್ನು ಓದಿ"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"ಕಾರಿನಲ್ಲಿರುವ ಅದರ ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಡೇಟಾವನ್ನು ಓದಿ."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಡೇಟಾವನ್ನು ತೆರವುಗೊಳಿಸಿ"</string>

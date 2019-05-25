@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Коопсуздугуңузду коргоо максатында, бул иш-аракетти унаа айдап баратканда аткарууга болбойт.\nТоктоп туруп, улантыңыз."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Колдонмонун коопсуз функцияларын иштетүү үчүн <xliff:g id="EXIT_BUTTON">%s</xliff:g> баскычын басыңыз."</string>
     <string name="exit_button" msgid="5829638404777671253">"Артка"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Мүчүлүштүк"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"мүчүлүштүктөрдү аныктоо дайындарын окуу"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Унаадагы мүчүлүштүктөрдү аныктоо дайындарын окуу."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"мүчүлүштүктөрдү аныктоо дайындарын тазалоо"</string>

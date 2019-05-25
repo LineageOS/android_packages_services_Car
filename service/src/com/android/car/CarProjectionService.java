@@ -17,6 +17,7 @@ package com.android.car;
 
 import static android.car.CarProjectionManager.ProjectionAccessPointCallback.ERROR_GENERIC;
 import static android.car.projection.ProjectionStatus.PROJECTION_STATE_INACTIVE;
+import static android.car.projection.ProjectionStatus.PROJECTION_STATE_READY_TO_PROJECT;
 import static android.net.wifi.WifiManager.EXTRA_PREVIOUS_WIFI_AP_STATE;
 import static android.net.wifi.WifiManager.EXTRA_WIFI_AP_FAILURE_REASON;
 import static android.net.wifi.WifiManager.EXTRA_WIFI_AP_INTERFACE_NAME;
@@ -410,7 +411,15 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             ProjectionReceiverClient client = getOrCreateProjectionReceiverClientLocked(token);
             client.mProjectionStatus = status;
 
-            if (status.isActive() || TextUtils.equals(packageName, mCurrentProjectionPackage)) {
+            // If the projection package that's reporting its projection state is the currently
+            // active projection package, update the state. If it is a different package, update the
+            // current projection state if the new package is reporting that it is projecting or if
+            // it is reporting that it's ready to project, and the current package has an inactive
+            // projection state.
+            if (status.isActive()
+                    || (status.getState() == PROJECTION_STATE_READY_TO_PROJECT
+                            && mCurrentProjectionState == PROJECTION_STATE_INACTIVE)
+                    || TextUtils.equals(packageName, mCurrentProjectionPackage)) {
                 mCurrentProjectionState = status.getState();
                 mCurrentProjectionPackage = packageName;
             }

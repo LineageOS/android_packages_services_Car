@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"သင့် လုံခြုံမှုအတွက် ဤလုပ်ဆောင်ချက်ကို ကားမောင်းနေစဉ် အသုံးမပြုနိုင်ပါ။\nဆက်လက်လုပ်ဆောင်ရန် ကားရပ်နားသည်အထိစောင့်ပါ။"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"စိတ်ချရသော အက်ပ်လုပ်ဆောင်ချက်များနှင့်အတူ အစမှပြန်စရန် <xliff:g id="EXIT_BUTTON">%s</xliff:g> ကို ရွေးချယ်ပါ။"</string>
     <string name="exit_button" msgid="5829638404777671253">"နောက်သို့"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"တွေ့ရှိမှု"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"အမှားရှာပြင်ခြင်းဒေတာများကို ကြည့်ပါမည်"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"ကားအတွင်း အမှားရှာပြင်ခြင်းဒေတာကို ကြည့်ပါမည်။"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"အမှားရှာပြင်ခြင်းဒေတာများကို ရှင်းလင်းပါမည်"</string>

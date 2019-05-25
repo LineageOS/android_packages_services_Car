@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"안전을 위해 운전 중에는 이용할 수 없는 활동입니다.\n계속하려면 먼저 주차하세요."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"안전한 앱 기능으로 다시 시작하려면 <xliff:g id="EXIT_BUTTON">%s</xliff:g>을(를) 선택하세요."</string>
     <string name="exit_button" msgid="5829638404777671253">"뒤로"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"디버그 정보"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"진단 데이터 읽기"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"차량의 진단 데이터를 읽습니다."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"진단 데이터 삭제"</string>

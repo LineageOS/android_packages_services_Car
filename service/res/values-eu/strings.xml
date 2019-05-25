@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Zure segurtasuna bermatzeko, eginbide hau ezin da erabili gidatu bitartean.\nAurrera egiteko, itxaron autoa aparkatu arte."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Berriro hasi nahi baduzu aplikazioaren eginbide seguruekin, hautatu <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Atzera"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"irakurri datu diagnostikoak"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Irakurri autoaren datu diagnostikoak."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"garbitu datu diagnostikoak"</string>
