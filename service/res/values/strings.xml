@@ -120,8 +120,8 @@
     <string name="exit_button_message">To start over with safe app features, select <xliff:g id="exit_button" example="Back">%s</xliff:g>.</string>
     <!-- Blocking activity: Text for button that restarts the current blocked application. [CHAR LIMIT=15] -->
     <string name="exit_button">Back</string>
-    <!-- Blocking activity: Text for button that shows debug info for non-user build. [CHAR LIMIT=10] -->
-    <string name="debug_button_text">Debug Info</string>
+    <!-- Blocking activity: Text for button that shows debug info in non-user build. -->
+    <string name="debug_button_text" translatable="false">Debug Info</string>
 
     <!-- Permission text: apps can control diagnostic data [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_diag_read">read diagnostic data</string>

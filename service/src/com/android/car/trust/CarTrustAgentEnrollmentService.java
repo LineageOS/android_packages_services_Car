@@ -40,9 +40,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.android.car.BLEStreamProtos.BLEOperationProto.OperationType;
 import com.android.car.R;
 import com.android.car.Utils;
-import com.android.car.trust.BLEStream.BLEMessage.OperationType;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
@@ -457,6 +457,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
                 Log.e(TAG, "onAdvertiseSuccess dispatch failed", e);
             }
         }
+        mCarTrustAgentBleManager.stopEnrollmentAdvertising();
     }
 
     void onRemoteDeviceDisconnected(BluetoothDevice device) {
