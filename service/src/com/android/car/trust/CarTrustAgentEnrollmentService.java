@@ -457,6 +457,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
                 Log.e(TAG, "onAdvertiseSuccess dispatch failed", e);
             }
         }
+        mCarTrustAgentBleManager.stopEnrollmentAdvertising();
     }
 
     void onRemoteDeviceDisconnected(BluetoothDevice device) {
