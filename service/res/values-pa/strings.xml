@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"ਤੁਹਾਡੀ ਸੁਰੱਖਿਆ ਲਈ, ਗੱਡੀ ਚਲਾਉਣ ਵੇਲੇ ਇਹ ਸਰਗਰਮੀ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।\nਜਾਰੀ ਰੱਖਣ ਲਈ, ਗੱਡੀ ਰੋਕਣ ਤੱਕ ਉਡੀਕ ਕਰੋ।"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"ਸੁਰੱਖਿਅਤ ਐਪ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ ਨਾਲ ਮੁੜ ਤੋਂ ਸ਼ੁਰੂ ਕਰਨ ਲਈ, <xliff:g id="EXIT_BUTTON">%s</xliff:g> ਚੁਣੋ।"</string>
     <string name="exit_button" msgid="5829638404777671253">"ਪਿੱਛੇ"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"ਡੀਬੱਗ ਜਾਣਕਾਰੀ"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ਤਸ਼ਖੀਸੀ ਡਾਟੇ ਨੂੰ ਪੜ੍ਹਨਾ"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"ਕਾਰ ਦਾ ਤਸ਼ਖੀਸੀ ਡਾਟਾ ਪੜ੍ਹਨਾ।"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ਤਸ਼ਖੀਸੀ ਡਾਟਾ ਕਲੀਅਰ ਕਰਨਾ"</string>

@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"حرصًا على سلامتك، لا يتوفّر هذا النشاط أثناء القيادة.\nللمتابعة، يمكنك الانتظار حتى تتوقّف السيارة."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"للبدء من جديد باستخدام ميزات تطبيق آمنة، اختَر <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"رجوع"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"التصحيح"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"قراءة البيانات التشخيصية"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"يمكنك قراءة البيانات التشخيصية من السيارة."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"محو البيانات التشخيصية"</string>

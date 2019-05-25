@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Per motius de seguretat, aquesta activitat no està disponible mentre condueixes.\nPer continuar, has d\'estar aparcat."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Per tornar a començar amb unes funcions d\'aplicació segures, selecciona <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Enrere"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Depuració"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"llegeix les dades de diagnòstic"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Llegeix les dades de diagnòstic del cotxe."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"esborra les dades de diagnòstic"</string>

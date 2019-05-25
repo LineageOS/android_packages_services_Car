@@ -3,6 +3,7 @@ app_domain(carservice_app);
 
 # Allow Car Service to be the client of Vehicle and Audio Control HALs
 hal_client_domain(carservice_app, hal_audiocontrol)
+hal_client_domain(carservice_app, hal_health)
 hal_client_domain(carservice_app, hal_vehicle)
 
 # Allow to set boot.car_service_created property
@@ -10,6 +11,8 @@ set_prop(carservice_app, system_prop)
 
 # Allow Car Service to register itself with ServiceManager
 allow carservice_app carservice_service:service_manager add;
+
+allow carservice_app wifi_service:service_manager find;
 
 # Allow Car Service to access certain system services.
 # Keep alphabetically sorted.
@@ -45,6 +48,8 @@ allow carservice_app system_app_data_file:{ file lnk_file } create_file_perms;
 # R/W /data/system/car
 allow carservice_app system_car_data_file:dir create_dir_perms;
 allow carservice_app system_car_data_file:{ file lnk_file } create_file_perms;
+
+allow carservice_app cgroup:file rw_file_perms;
 
 # For I/O stats tracker
 allow carservice_app proc_uid_io_stats:file { read open getattr };

@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Таны аюулгүй байдлын үүднээс жолоодох явцад энэ үйл ажиллагааг хийх боломжгүй.\nМашинаа зогсоолд байршуулаад үргэлжлүүлнэ үү."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Аппын аюулгүй онцлогуудтайгаар дахин эхлүүлэхийн тулд <xliff:g id="EXIT_BUTTON">%s</xliff:g>-г сонгоно уу."</string>
     <string name="exit_button" msgid="5829638404777671253">"Буцах"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Дебаг хийх мэдээлэл"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"оношилгооны өгөгдлийг унших"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Машины оношилгооны өгөгдлийг унших."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"оношилгооны өгөгдлийг устгах"</string>
