@@ -401,6 +401,9 @@ class CarTrustAgentBleManager extends BleManager {
         public void onStartFailure(int errorCode) {
             Log.e(TAG, "Failed to advertise, errorCode: " + errorCode);
             super.onStartFailure(errorCode);
+            if (errorCode == AdvertiseCallback.ADVERTISE_FAILED_ALREADY_STARTED) {
+                return;
+            }
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "Start unlock advertising fail, retry to advertising..");
             }
