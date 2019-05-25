@@ -74,7 +74,7 @@ import java.util.List;
         }
     }
 
-    public CarAudioZone[] loadAudioZones() {
+    CarAudioZone[] loadAudioZones() {
         final CarAudioZone zone = new CarAudioZone(CarAudioManager.PRIMARY_AUDIO_ZONE,
                 "Primary zone");
         for (CarVolumeGroup group : loadVolumeGroups()) {
