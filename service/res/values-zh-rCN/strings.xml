@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"为了确保您的安全，您无法在开车时执行这项活动。\n要继续，请先停车。"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"要重新开始使用安全的应用功能，请选择<xliff:g id="EXIT_BUTTON">%s</xliff:g>。"</string>
     <string name="exit_button" msgid="5829638404777671253">"返回"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"调试信息"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"读取诊断数据"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"读取汽车的诊断数据。"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"清除诊断数据"</string>

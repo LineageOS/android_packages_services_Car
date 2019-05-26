@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"基於安全理由，駕駛時無法執行此操作。\n如要繼續，請留待泊車後操作。"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"如要以安全應用程式功能重新啟動，請選擇 <xliff:g id="EXIT_BUTTON">%s</xliff:g>。"</string>
     <string name="exit_button" msgid="5829638404777671253">"返回"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"讀取診斷資料"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"讀取來自汽車的診斷資料。"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"清除診斷資料"</string>

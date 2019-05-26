@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"安全上の理由により、運転中はこのアクティビティをご利用いただけません。\n続行するには駐車してください。"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"アプリをセーフモードで再起動するには、<xliff:g id="EXIT_BUTTON">%s</xliff:g> を選択します。"</string>
     <string name="exit_button" msgid="5829638404777671253">"戻る"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"デバッグ情報"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"診断データの読み取り"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"車から診断データを読み取ります。"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"診断データの消去"</string>

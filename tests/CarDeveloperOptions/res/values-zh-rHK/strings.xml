@@ -3945,8 +3945,7 @@
     <skip />
     <!-- no translation found for accessibility_hearingaid_title (3700978781235124891) -->
     <skip />
-    <!-- no translation found for accessibility_hearingaid_not_connected_summary (634573930469952213) -->
-    <skip />
+    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"無連接任何助聽器"</string>
     <!-- no translation found for accessibility_hearingaid_adding_summary (4139031880828714300) -->
     <skip />
     <!-- no translation found for accessibility_hearingaid_pair_instructions_first_message (2671518890909750740) -->

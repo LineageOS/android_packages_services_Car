@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"మీ భద్రత విషయమై, ఈ కార్యాచరణ మీరు డ్రైవింగ్‌లో ఉన్నప్పుడు అందుబాటులో లేదు.\n కొనసాగించడానికి, మీరు పార్క్ చేయబడేవరకు వేచి ఉండండి."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"సురక్షిత యాప్ లక్షణాలతో ప్రారంభించడానికి, <xliff:g id="EXIT_BUTTON">%s</xliff:g>ని ఎంచుకోండి."</string>
     <string name="exit_button" msgid="5829638404777671253">"వెనుకకు"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"డీబగ్ సమాచారం"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"సమస్య విశ్లేషణ డేటాను తెలుసుకోగలవు"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"కారు నుండి విశ్లేషణ డేటాను తెలుసుకోగలవు."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"సమస్య విశ్లేషణ డేటాను క్లియర్ చేయగలవు"</string>
