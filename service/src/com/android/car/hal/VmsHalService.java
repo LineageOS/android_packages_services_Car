@@ -40,26 +40,30 @@ import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerAndPublisherI
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsOfferingMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsPublisherInformationIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_0.VmsStartSessionMessageIntegerValuesIndex;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.car.CarLog;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * VMS client implementation that proxies VmsPublisher/VmsSubscriber API calls to the Vehicle HAL
@@ -72,18 +76,20 @@ public class VmsHalService extends HalServiceBase {
     private static final String TAG = "VmsHalService";
     private static final int HAL_PROPERTY_ID = VehicleProperty.VEHICLE_MAP_SERVICE;
     private static final int NUM_INTEGERS_IN_VMS_LAYER = 3;
+    private static final int UNKNOWN_CLIENT_ID = -1;
 
     private final VehicleHal mVehicleHal;
+    private final int mCoreId;
+    private final MessageQueue mMessageQueue;
     private volatile boolean mIsSupported = false;
 
-    private IBinder mPublisherToken;
     private IVmsPublisherService mPublisherService;
-    private IVmsSubscriberService mSubscriberService;
+    private Consumer<IBinder> mPublisherOnHalConnected;
+    private Runnable mPublisherOnHalDisconnected;
+    private IBinder mPublisherToken;
 
-    @GuardedBy("this")
-    private HandlerThread mHandlerThread;
-    @GuardedBy("this")
-    private Handler mHandler;
+    private IVmsSubscriberService mSubscriberService;
+    private Consumer<IVmsSubscriberClient> mSuscriberOnHalDisconnected;
 
     private int mSubscriptionStateSequence = -1;
     private int mAvailableLayersSequence = -1;
@@ -97,14 +103,19 @@ public class VmsHalService extends HalServiceBase {
 
         @Override
         public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState) {
-            // Registration of this callback is handled by VmsPublisherService.
-            // As a result, HAL support must be checked whenever the callback is triggered.
-            if (!mIsSupported) {
+            if (DBG) Log.d(TAG, "Handling a subscription state change");
+            // Drop out-of-order notifications
+            if (subscriptionState.getSequenceNumber() <= mSubscriptionStateSequence) {
+                Log.w(TAG,
+                        String.format("Out of order subscription state received: %d (expecting %d)",
+                                subscriptionState.getSequenceNumber(),
+                                mSubscriptionStateSequence + 1));
                 return;
             }
-            if (DBG) Log.d(TAG, "Handling a subscription state change");
-            Message.obtain(mHandler, VmsMessageType.SUBSCRIPTIONS_CHANGE, subscriptionState)
-                    .sendToTarget();
+            mSubscriptionStateSequence = subscriptionState.getSequenceNumber();
+            mMessageQueue.enqueue(VmsMessageType.SUBSCRIPTIONS_CHANGE,
+                    createSubscriptionStateMessage(VmsMessageType.SUBSCRIPTIONS_CHANGE,
+                            subscriptionState));
         }
     };
 
@@ -112,67 +123,87 @@ public class VmsHalService extends HalServiceBase {
         @Override
         public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
             if (DBG) Log.d(TAG, "Handling a data message for Layer: " + layer);
-            // TODO(b/124130256): Set publisher ID of data message
-            Message.obtain(mHandler, VmsMessageType.DATA, createDataMessage(layer, 0, payload))
-                    .sendToTarget();
+            mMessageQueue.enqueue(VmsMessageType.DATA, createDataMessage(layer, payload));
         }
 
         @Override
         public void onLayersAvailabilityChanged(VmsAvailableLayers availableLayers) {
             if (DBG) Log.d(TAG, "Handling a layer availability change");
-            Message.obtain(mHandler, VmsMessageType.AVAILABILITY_CHANGE, availableLayers)
-                    .sendToTarget();
+            // Drop out-of-order notifications
+            if (availableLayers.getSequence() <= mAvailableLayersSequence) {
+                Log.w(TAG,
+                        String.format("Out of order layer availability received: %d (expecting %d)",
+                                availableLayers.getSequence(),
+                                mAvailableLayersSequence + 1));
+                return;
+            }
+            mAvailableLayersSequence = availableLayers.getSequence();
+            mMessageQueue.enqueue(VmsMessageType.AVAILABILITY_CHANGE,
+                    createAvailableLayersMessage(VmsMessageType.AVAILABILITY_CHANGE,
+                            availableLayers));
         }
     };
 
-    private final Handler.Callback mHandlerCallback = msg -> {
-        int messageType = msg.what;
-        VehiclePropValue vehicleProp = null;
-        switch (messageType) {
-            case VmsMessageType.DATA:
-                vehicleProp = (VehiclePropValue) msg.obj;
-                break;
-            case VmsMessageType.SUBSCRIPTIONS_CHANGE:
-                VmsSubscriptionState subscriptionState = (VmsSubscriptionState) msg.obj;
-                // Drop out-of-order notifications
-                if (subscriptionState.getSequenceNumber() <= mSubscriptionStateSequence) {
-                    break;
-                }
-                vehicleProp = createSubscriptionStateMessage(
-                        VmsMessageType.SUBSCRIPTIONS_CHANGE,
-                        subscriptionState);
-                mSubscriptionStateSequence = subscriptionState.getSequenceNumber();
-                break;
-            case VmsMessageType.AVAILABILITY_CHANGE:
-                VmsAvailableLayers availableLayers = (VmsAvailableLayers) msg.obj;
-                // Drop out-of-order notifications
-                if (availableLayers.getSequence() <= mAvailableLayersSequence) {
-                    break;
-                }
-                vehicleProp = createAvailableLayersMessage(
-                        VmsMessageType.AVAILABILITY_CHANGE,
-                        availableLayers);
-                mAvailableLayersSequence = availableLayers.getSequence();
-                break;
-            default:
-                Log.e(TAG, "Unexpected message type: " + messageType);
+    private class MessageQueue implements Handler.Callback {
+        private final Set<Integer> mSupportedMessageTypes = new ArraySet<>(Arrays.asList(
+                VmsMessageType.DATA,
+                VmsMessageType.START_SESSION,
+                VmsMessageType.AVAILABILITY_CHANGE,
+                VmsMessageType.SUBSCRIPTIONS_CHANGE
+        ));
+        private HandlerThread mHandlerThread;
+        private Handler mHandler;
+
+        synchronized void init() {
+            mHandlerThread = new HandlerThread(TAG);
+            mHandlerThread.start();
+            mHandler = new Handler(mHandlerThread.getLooper(), this);
         }
-        if (vehicleProp != null) {
+
+        synchronized void release() {
+            if (mHandlerThread != null) {
+                mHandlerThread.quitSafely();
+            }
+        }
+
+        synchronized void enqueue(int messageType, Object message) {
+            if (mSupportedMessageTypes.contains(messageType)) {
+                Message.obtain(mHandler, messageType, message).sendToTarget();
+            } else {
+                Log.e(TAG, "Unexpected message type: " + VmsMessageType.toString(messageType));
+            }
+        }
+
+        synchronized void clear() {
+            mSupportedMessageTypes.forEach(mHandler::removeMessages);
+        }
+
+        @Override
+        public boolean handleMessage(Message msg) {
+            int messageType = msg.what;
+            VehiclePropValue vehicleProp = (VehiclePropValue) msg.obj;
             if (DBG) Log.d(TAG, "Sending " + VmsMessageType.toString(messageType) + " message");
             try {
                 setPropertyValue(vehicleProp);
             } catch (RemoteException e) {
                 Log.e(TAG, "While sending " + VmsMessageType.toString(messageType));
             }
+            return true;
         }
-        return true;
-    };
+    }
 
     /**
      * Constructor used by {@link VehicleHal}
      */
     VmsHalService(VehicleHal vehicleHal) {
+        this(vehicleHal, SystemClock::uptimeMillis);
+    }
+
+    @VisibleForTesting
+    VmsHalService(VehicleHal vehicleHal, Supplier<Long> getCoreId) {
         mVehicleHal = vehicleHal;
+        mCoreId = (int) (getCoreId.get() % Integer.MAX_VALUE);
+        mMessageQueue = new MessageQueue();
     }
 
     /**
@@ -180,21 +211,25 @@ public class VmsHalService extends HalServiceBase {
      */
     @VisibleForTesting
     Handler getHandler() {
-        return mHandler;
+        return mMessageQueue.mHandler;
     }
 
     /**
      * Gets the {@link IVmsPublisherClient} implementation for the HAL's publisher callback.
      */
-    public IBinder getPublisherClient() {
-        return mPublisherClient.asBinder();
+    public void setPublisherConnectionCallbacks(Consumer<IBinder> onHalConnected,
+            Runnable onHalDisconnected) {
+        mPublisherOnHalConnected = onHalConnected;
+        mPublisherOnHalDisconnected = onHalDisconnected;
     }
 
     /**
      * Sets a reference to the {@link IVmsSubscriberService} implementation for use by the HAL.
      */
-    public void setVmsSubscriberService(IVmsSubscriberService service) {
+    public void setVmsSubscriberService(IVmsSubscriberService service,
+            Consumer<IVmsSubscriberClient> onHalDisconnected) {
         mSubscriberService = service;
+        mSuscriberOnHalDisconnected = onHalDisconnected;
     }
 
     @Override
@@ -219,39 +254,14 @@ public class VmsHalService extends HalServiceBase {
             return; // Do not continue initialization
         }
 
-        synchronized (this) {
-            mHandlerThread = new HandlerThread(TAG);
-            mHandlerThread.start();
-            mHandler = new Handler(mHandlerThread.getLooper(), mHandlerCallback);
-        }
-
-        if (mSubscriberService != null) {
-            try {
-                mSubscriberService.addVmsSubscriberToNotifications(mSubscriberClient);
-            } catch (RemoteException e) {
-                Log.e(TAG, "While adding subscriber callback", e);
-            }
-
-            // Publish layer availability to HAL clients (this triggers HAL client initialization)
-            try {
-                mSubscriberClient.onLayersAvailabilityChanged(
-                        mSubscriberService.getAvailableLayers());
-            } catch (RemoteException e) {
-                Log.e(TAG, "While publishing layer availability", e);
-            }
-        } else if (DBG) {
-            Log.d(TAG, "VmsSubscriberService not registered");
-        }
+        mMessageQueue.init();
+        mMessageQueue.enqueue(VmsMessageType.START_SESSION,
+                createStartSessionMessage(mCoreId, UNKNOWN_CLIENT_ID));
     }
 
     @Override
     public void release() {
-        synchronized (this) {
-            if (mHandlerThread != null) {
-                mHandlerThread.quitSafely();
-            }
-        }
-
+        mMessageQueue.release();
         mSubscriptionStateSequence = -1;
         mAvailableLayersSequence = -1;
 
@@ -330,12 +340,81 @@ public class VmsHalService extends HalServiceBase {
                     case VmsMessageType.SUBSCRIPTIONS_REQUEST:
                         handleSubscriptionsRequestEvent();
                         break;
+                    case VmsMessageType.START_SESSION:
+                        handleStartSessionEvent(vec);
+                        break;
                     default:
                         Log.e(TAG, "Unexpected message type: " + messageType);
                 }
             } catch (IndexOutOfBoundsException | RemoteException e) {
                 Log.e(TAG, "While handling: " + messageType, e);
             }
+        }
+    }
+
+    /**
+     * SESSION_START message format:
+     * <ul>
+     * <li>Message type
+     * <li>Core ID
+     * <li>Client ID
+     * </ul>
+     */
+    private void handleStartSessionEvent(List<Integer> message) {
+        int coreId = message.get(VmsStartSessionMessageIntegerValuesIndex.SERVICE_ID);
+        int clientId = message.get(VmsStartSessionMessageIntegerValuesIndex.CLIENT_ID);
+        if (DBG) {
+            Log.d(TAG,
+                    "Handling a session start event with coreId: " + coreId + " client: "
+                            + clientId);
+        }
+
+        if (coreId != mCoreId) {
+            if (mPublisherOnHalDisconnected != null) {
+                mPublisherOnHalDisconnected.run();
+            } else {
+                Log.w(TAG, "Publisher disconnect callback not registered");
+            }
+            if (mSuscriberOnHalDisconnected != null) {
+                mSuscriberOnHalDisconnected.accept(mSubscriberClient);
+            } else {
+                Log.w(TAG, "Subscriber disconnect callback not registered");
+            }
+
+            // Drop all queued messages and client state
+            mMessageQueue.clear();
+            mSubscriptionStateSequence = -1;
+            mAvailableLayersSequence = -1;
+
+            // Enqueue an acknowledgement message
+            mMessageQueue.enqueue(VmsMessageType.START_SESSION,
+                    createStartSessionMessage(mCoreId, clientId));
+        }
+
+        // Notify client manager of connection
+        if (mPublisherOnHalConnected != null) {
+            mPublisherOnHalConnected.accept(mPublisherClient);
+        } else {
+            Log.w(TAG, "Publisher connect callback not registered");
+        }
+
+        // Notify subscriber service of connection
+        if (mSubscriberService != null) {
+            try {
+                mSubscriberService.addVmsSubscriberToNotifications(mSubscriberClient);
+            } catch (RemoteException e) {
+                Log.e(TAG, "While adding subscriber callback", e);
+            }
+
+            // Publish layer availability to HAL clients (this triggers HAL client initialization)
+            try {
+                mSubscriberClient.onLayersAvailabilityChanged(
+                        mSubscriberService.getAvailableLayers());
+            } catch (RemoteException e) {
+                Log.e(TAG, "While publishing layer availability", e);
+            }
+        } else {
+            Log.w(TAG, "Subscriber connect callback not registered");
         }
     }
 
@@ -588,6 +667,30 @@ public class VmsHalService extends HalServiceBase {
     }
 
     /**
+     * Creates a SESSION_START type {@link VehiclePropValue}.
+     *
+     * SESSION_START message format:
+     * <ul>
+     * <li>Message type
+     * <li>Core ID
+     * <li>Client ID
+     * </ul>
+     */
+    private static VehiclePropValue createStartSessionMessage(int coreId, int clientId) {
+        // Message type + layer
+        VehiclePropValue vehicleProp = createVmsMessage(VmsMessageType.START_SESSION);
+        List<Integer> message = vehicleProp.value.int32Values;
+
+        // Core ID
+        message.add(coreId);
+
+        // Client ID
+        message.add(clientId);
+
+        return vehicleProp;
+    }
+
+    /**
      * Creates a DATA type {@link VehiclePropValue}.
      *
      * DATA message format:
@@ -602,14 +705,15 @@ public class VmsHalService extends HalServiceBase {
      *
      * @param layer Layer for which message was published.
      */
-    private static VehiclePropValue createDataMessage(VmsLayer layer, int publisherId,
-            byte[] payload) {
+    private static VehiclePropValue createDataMessage(VmsLayer layer, byte[] payload) {
         // Message type + layer
-        VehiclePropValue vehicleProp = createVmsMessageWithLayer(VmsMessageType.DATA, layer);
+        VehiclePropValue vehicleProp = createVmsMessage(VmsMessageType.DATA);
+        appendLayer(vehicleProp.value.int32Values, layer);
         List<Integer> message = vehicleProp.value.int32Values;
 
         // Publisher ID
-        message.add(publisherId);
+        // TODO(b/124130256): Set publisher ID of data message
+        message.add(0);
 
         // Payload
         appendBytes(vehicleProp.value.bytes, payload);
@@ -709,20 +813,6 @@ public class VmsHalService extends HalServiceBase {
     }
 
     /**
-     * Creates a {@link VehiclePropValue} of the requested message type, with layer message fields
-     * populated. Other message fields are *not* populated.
-     *
-     * @param messageType Type of message, from {@link VmsMessageType}
-     * @param layer       Layer affected by message.
-     */
-    private static VehiclePropValue createVmsMessageWithLayer(
-            int messageType, VmsLayer layer) {
-        VehiclePropValue vehicleProp = createVmsMessage(messageType);
-        appendLayer(vehicleProp.value.int32Values, layer);
-        return vehicleProp;
-    }
-
-    /**
      * Appends a {@link VmsLayer} to an encoded VMS message.
      *
      * Layer format:
@@ -761,9 +851,7 @@ public class VmsHalService extends HalServiceBase {
         message.add(layer.getVmsLayer().getSubtype());
         message.add(layer.getVmsLayer().getVersion());
         message.add(layer.getPublisherIds().size());
-        for (int publisherId : layer.getPublisherIds()) {
-            message.add(publisherId);
-        }
+        message.addAll(layer.getPublisherIds());
     }
 
     private static void appendBytes(ArrayList<Byte> dst, byte[] src) {

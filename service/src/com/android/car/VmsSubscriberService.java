@@ -200,7 +200,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub implements 
             VmsHalService hal) {
         mContext = context;
         mBrokerService = brokerService;
-        hal.setVmsSubscriberService(this);
+        hal.setVmsSubscriberService(this, mBrokerService::removeDeadSubscriber);
     }
 
     // Implements CarServiceBase interface.
