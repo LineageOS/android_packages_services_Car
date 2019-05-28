@@ -19,21 +19,11 @@ package com.android.car.developeroptions.security;
 import android.content.Context;
 
 import com.android.internal.widget.LockPatternUtils;
-import com.android.car.developeroptions.security.trustagent.TrustAgentManager;
 
 /** Implementation for {@code SecurityFeatureProvider}. */
 public class SecurityFeatureProviderImpl implements SecurityFeatureProvider {
 
-    private TrustAgentManager mTrustAgentManager;
     private LockPatternUtils mLockPatternUtils;
-
-    @Override
-    public TrustAgentManager getTrustAgentManager() {
-        if (mTrustAgentManager == null) {
-            mTrustAgentManager = new TrustAgentManager();
-        }
-        return mTrustAgentManager;
-    }
 
     @Override
     public LockPatternUtils getLockPatternUtils(Context context) {
