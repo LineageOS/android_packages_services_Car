@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Av sikkerhetshensyn er denne aktiviteten utilgjengelig når du kjører.\nDu kan ikke fortsette før du stopper bilen."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"For å starte på nytt med sikre appfunksjoner, velg <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Tilbake"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"lese diagnostikkdata"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Les diagnostikkdata fra bilen."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"slette diagnostikkdata"</string>

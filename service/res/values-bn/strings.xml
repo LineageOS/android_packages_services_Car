@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"আপনার সুরক্ষার জন্য, ড্রাইভ করার সময় এটি করা যাবে না।\nচালিয়ে যেতে, গাড়ি পার্ক করা পর্যন্ত অপেক্ষা করুন।"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"অ্যাপের সুরক্ষিত ফিচারগুলি নিয়ে আবার শুরু করতে, <xliff:g id="EXIT_BUTTON">%s</xliff:g> বেছে নিন।"</string>
     <string name="exit_button" msgid="5829638404777671253">"আবার চালু করুন"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"ডিবাগ তথ্য"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ডায়াগনস্টিক ডেটা দেখা"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"গাড়ির ডায়াগনস্টিক সংক্রান্ত ডেটা দেখা।"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ডায়াগনস্টিকস ডেটা সরানো"</string>

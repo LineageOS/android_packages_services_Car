@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Voor jouw veiligheid is deze activiteit niet beschikbaar als je aan het rijden bent.\nJe moet parkeren om door te gaan."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Selecteer <xliff:g id="EXIT_BUTTON">%s</xliff:g> om opnieuw te beginnen met de veilige app-functies."</string>
     <string name="exit_button" msgid="5829638404777671253">"Vorige"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Debug-info"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"diagnostische gegevens lezen"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Diagnostische gegevens van auto lezen."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"diagnostische gegevens wissen"</string>
