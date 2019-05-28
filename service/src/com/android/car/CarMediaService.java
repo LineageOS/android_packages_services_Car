@@ -34,6 +34,8 @@ import android.media.session.MediaSession.Token;
 import android.media.session.MediaSessionManager;
 import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener;
 import android.media.session.PlaybackState;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.service.media.MediaBrowserService;
@@ -85,6 +87,10 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private RemoteCallbackList<ICarMediaSourceListener> mMediaSourceListeners =
             new RemoteCallbackList();
 
+    // Handler to receive PlaybackState callbacks from the active media controller.
+    private Handler mHandler;
+    private HandlerThread mHandlerThread;
+
     /** The package name of the last media source that was removed while being primary. */
     private String mRemovedMediaSourcePackage;
 
@@ -127,6 +133,10 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mContext = context;
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
         mMediaSessionUpdater = new MediaSessionUpdater();
+
+        mHandlerThread = new HandlerThread(CarLog.TAG_MEDIA);
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
@@ -463,7 +473,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             if (mPrimaryMediaPackage.equals(controller.getPackageName())) {
                 mActiveUserMediaController = controller;
                 savePlaybackState(mActiveUserMediaController.getPlaybackState());
-                mActiveUserMediaController.registerCallback(mMediaControllerCallback);
+                // Specify Handler to receive callbacks on, to avoid defaulting to the calling
+                // thread; this method can be called from the MediaSessionManager callback.
+                // Using the version of this method without passing a handler causes a
+                // RuntimeException for failing to create a Handler.
+                mActiveUserMediaController.registerCallback(mMediaControllerCallback, mHandler);
                 return;
             }
         }
