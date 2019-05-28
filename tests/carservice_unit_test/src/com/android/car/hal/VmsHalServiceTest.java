@@ -37,14 +37,13 @@ import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.os.Binder;
 import android.os.IBinder;
 
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -54,8 +53,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
-@RunWith(AndroidJUnit4.class)
 public class VmsHalServiceTest {
     private static final int LAYER_TYPE = 1;
     private static final int LAYER_SUBTYPE = 2;
@@ -64,6 +63,8 @@ public class VmsHalServiceTest {
     private static final int PUBLISHER_ID = 12345;
     private static final byte[] PAYLOAD = new byte[]{1, 2, 3, 4};
     private static final List<Byte> PAYLOAD_AS_LIST = Arrays.asList(new Byte[]{1, 2, 3, 4});
+    private static final int CORE_ID = 54321;
+    private static final int CLIENT_ID = 98765;
 
     @Rule
     public MockitoRule mockito = MockitoJUnit.rule();
@@ -73,6 +74,12 @@ public class VmsHalServiceTest {
     private IVmsPublisherService mPublisherService;
     @Mock
     private IVmsSubscriberService mSubscriberService;
+    @Mock
+    private Consumer<IBinder> mPublisherOnHalConnected;
+    @Mock
+    private Runnable mPublisherOnHalDisconnected;
+    @Mock
+    private Consumer<IVmsSubscriberClient> mSubscriberOnHalDisconnected;
 
     private IBinder mToken;
     private VmsHalService mHalService;
@@ -81,12 +88,10 @@ public class VmsHalServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        mHalService = new VmsHalService(mVehicleHal);
-        mHalService.setVmsSubscriberService(mSubscriberService);
-
-        mToken = new Binder();
-        mPublisherClient = IVmsPublisherClient.Stub.asInterface(mHalService.getPublisherClient());
-        mPublisherClient.setVmsPublisherService(mToken, mPublisherService);
+        mHalService = new VmsHalService(mVehicleHal, () -> (long) CORE_ID);
+        mHalService.setPublisherConnectionCallbacks(
+                mPublisherOnHalConnected, mPublisherOnHalDisconnected);
+        mHalService.setVmsSubscriberService(mSubscriberService, mSubscriberOnHalDisconnected);
 
         VehiclePropConfig propConfig = new VehiclePropConfig();
         propConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
@@ -97,16 +102,68 @@ public class VmsHalServiceTest {
         mHalService.init();
         waitForHandlerCompletion();
 
+        // Verify START_SESSION message was sent
+        InOrder initOrder =
+                Mockito.inOrder(mPublisherOnHalConnected, mSubscriberService, mVehicleHal);
+        initOrder.verify(mVehicleHal).subscribeProperty(mHalService,
+                VehicleProperty.VEHICLE_MAP_SERVICE);
+        initOrder.verify(mVehicleHal).set(createHalMessage(
+                VmsMessageType.START_SESSION, // Message type
+                CORE_ID,                      // Core ID
+                -1));                          // Client ID (unknown)
+
+        // Verify no more interections until handshake received
+        initOrder.verifyNoMoreInteractions();
+
+        // Send START_SESSION response from client
+        sendHalMessage(createHalMessage(
+                VmsMessageType.START_SESSION,  // Message type
+                0,                             // Core ID (unknown)
+                CLIENT_ID                      // Client ID
+        ));
+        waitForHandlerCompletion();
+
+        // Verify client is marked as connected
+        ArgumentCaptor<IBinder> publisherCaptor = ArgumentCaptor.forClass(IBinder.class);
+        initOrder.verify(mPublisherOnHalConnected).accept(publisherCaptor.capture());
+        mPublisherClient = IVmsPublisherClient.Stub.asInterface(publisherCaptor.getValue());
+
+        mToken = new Binder();
+        mPublisherClient.setVmsPublisherService(mToken, mPublisherService);
+
         ArgumentCaptor<IVmsSubscriberClient> subscriberCaptor = ArgumentCaptor.forClass(
                 IVmsSubscriberClient.class);
-        verify(mSubscriberService).addVmsSubscriberToNotifications(subscriberCaptor.capture());
+        initOrder.verify(mSubscriberService).addVmsSubscriberToNotifications(
+                subscriberCaptor.capture());
         mSubscriberClient = subscriberCaptor.getValue();
-        reset(mSubscriberService);
-        verify(mVehicleHal).set(createHalMessage(
+
+        initOrder.verify(mSubscriberService).getAvailableLayers();
+        initOrder.verify(mVehicleHal).set(createHalMessage(
                 VmsMessageType.AVAILABILITY_CHANGE, // Message type
                 0,                                  // Sequence number
                 0));                                // # of associated layers
-        reset(mVehicleHal);
+
+        initOrder.verifyNoMoreInteractions();
+        reset(mPublisherOnHalConnected, mSubscriberService, mVehicleHal);
+    }
+
+    @Test
+    public void testCoreId_IntegerOverflow() throws Exception {
+        mHalService = new VmsHalService(mVehicleHal, () -> (long) Integer.MAX_VALUE + CORE_ID);
+
+        VehiclePropConfig propConfig = new VehiclePropConfig();
+        propConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
+        mHalService.takeSupportedProperties(Collections.singleton(propConfig));
+
+        when(mSubscriberService.getAvailableLayers()).thenReturn(
+                new VmsAvailableLayers(Collections.emptySet(), 0));
+        mHalService.init();
+        waitForHandlerCompletion();
+
+        verify(mVehicleHal).set(createHalMessage(
+                VmsMessageType.START_SESSION, // Message type
+                CORE_ID,                      // Core ID
+                -1));                          // Client ID (unknown)
     }
 
     @Test
@@ -506,6 +563,40 @@ public class VmsHalServiceTest {
     }
 
     /**
+     * START_SESSION message format:
+     * <ul>
+     * <li>Message type
+     * <li>Core ID
+     * <li>Client ID
+     * </ul>
+     */
+    @Test
+    public void testHandleStartSessionEvent() throws Exception {
+        when(mSubscriberService.getAvailableLayers()).thenReturn(
+                new VmsAvailableLayers(Collections.emptySet(), 5));
+
+        VehiclePropValue request = createHalMessage(
+                VmsMessageType.START_SESSION,  // Message type
+                0,                             // Core ID (unknown)
+                CLIENT_ID                      // Client ID
+        );
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.START_SESSION,  // Message type
+                CORE_ID,                               // Core ID
+                CLIENT_ID                              // Client ID
+        );
+
+        sendHalMessage(request);
+        InOrder inOrder = Mockito.inOrder(mVehicleHal);
+        inOrder.verify(mVehicleHal).set(response);
+        inOrder.verify(mVehicleHal).set(createHalMessage(
+                VmsMessageType.AVAILABILITY_CHANGE, // Message type
+                5,                                  // Sequence number
+                0));                                // # of associated layers
+    }
+
+    /**
      * AVAILABILITY_CHANGE message format:
      * <ul>
      * <li>Message type
@@ -865,9 +956,7 @@ public class VmsHalServiceTest {
 
     private void waitForHandlerCompletion() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
-        mHalService.getHandler().post(() -> {
-            latch.countDown();
-        });
+        mHalService.getHandler().post(latch::countDown);
         latch.await(5, TimeUnit.SECONDS);
     }
 }
