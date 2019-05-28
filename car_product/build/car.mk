@@ -39,8 +39,7 @@ PRODUCT_PACKAGES += \
     EmbeddedKitchenSinkApp \
     VmsPublisherClientSample \
     VmsSubscriberClientSample \
-    android.car.cluster.loggingrenderer \
-    DirectRenderingClusterSample \
+    DirectRenderingCluster \
     GarageModeTestApp \
 
 # SEPolicy for test apps / services
