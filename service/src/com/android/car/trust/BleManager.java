@@ -54,6 +54,9 @@ public abstract class BleManager {
     private static final int BLE_RETRY_LIMIT = 5;
     private static final int BLE_RETRY_INTERVAL_MS = 1000;
 
+    private static final int GATT_SERVER_RETRY_LIMIT = 20;
+    private static final int GATT_SERVER_RETRY_DELAY_MS = 200;
+
     // https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth
     // .service.generic_access.xml
     private static final UUID GENERIC_ACCESS_PROFILE_UUID =
@@ -71,6 +74,10 @@ public abstract class BleManager {
     private BluetoothGattServer mGattServer;
     private BluetoothGatt mBluetoothGatt;
     private int mAdvertiserStartCount;
+    private int mGattServerRetryStartCount;
+    private BluetoothGattService mBluetoothGattService;
+    private AdvertiseCallback mAdvertiseCallback;
+    private AdvertiseData mData;
 
     BleManager(Context context) {
         mContext = context;
@@ -97,32 +104,38 @@ public abstract class BleManager {
             return;
         }
 
+        mBluetoothGattService = service;
+        mAdvertiseCallback = advertiseCallback;
+        mData = data;
+        mGattServerRetryStartCount = 0;
+        mBluetoothManager = (BluetoothManager) mContext.getSystemService(
+            Context.BLUETOOTH_SERVICE);
+        openGattServer();
+    }
+
+    private void openGattServer() {
         // Only open one Gatt server.
-        if (mGattServer == null) {
+        if (mGattServer != null) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Opening a new GATT Server");
+                Log.d(TAG, "Gatt Server created, retry count: " + mGattServerRetryStartCount);
             }
-            mBluetoothManager = (BluetoothManager) mContext.getSystemService(
-                    Context.BLUETOOTH_SERVICE);
-            mGattServer = mBluetoothManager.openGattServer(mContext, mGattServerCallback);
-
-            if (mGattServer == null) {
-                Log.e(TAG, "Gatt Server not created");
-                return;
-            }
-        }
-
-        mGattServer.clearServices();
-        mGattServer.addService(service);
-
-        AdvertiseSettings settings = new AdvertiseSettings.Builder()
+            mGattServer.clearServices();
+            mGattServer.addService(mBluetoothGattService);
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
                 .setConnectable(true)
                 .build();
-
-        mAdvertiserStartCount = 0;
-        startAdvertisingInternally(settings, data, advertiseCallback);
+            mAdvertiserStartCount = 0;
+            startAdvertisingInternally(settings, mData, mAdvertiseCallback);
+            mGattServerRetryStartCount = 0;
+        } else if (mGattServerRetryStartCount < GATT_SERVER_RETRY_LIMIT) {
+            mGattServer = mBluetoothManager.openGattServer(mContext, mGattServerCallback);
+            mGattServerRetryStartCount++;
+            mHandler.postDelayed(() -> openGattServer(), GATT_SERVER_RETRY_DELAY_MS);
+        } else {
+            Log.e(TAG, "Gatt server not created - exceeded retry limit.");
+        }
     }
 
     private void startAdvertisingInternally(AdvertiseSettings settings, AdvertiseData data,
@@ -132,6 +145,9 @@ public abstract class BleManager {
         }
 
         if (mAdvertiser != null) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Advertiser created, retry count: " + mAdvertiserStartCount);
+            }
             mAdvertiser.startAdvertising(settings, data, advertiseCallback);
             mAdvertiserStartCount = 0;
         } else if (mAdvertiserStartCount < BLE_RETRY_LIMIT) {
