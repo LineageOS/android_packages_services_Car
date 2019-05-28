@@ -16,6 +16,7 @@
 package com.android.car;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.car.Car;
 import android.car.VehicleAreaType;
@@ -30,7 +31,9 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_0.VmsAvailabilityStateIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
+import android.hardware.automotive.vehicle.V2_0.VmsStartSessionMessageIntegerValuesIndex;
 import android.os.UserHandle;
 import android.util.Log;
 import android.util.Pair;
@@ -86,8 +89,23 @@ public class MockedVmsTestBase extends MockedCarTestBase {
         mVmsSubscriberManager.setVmsSubscriberClientCallback(Executors.newSingleThreadExecutor(),
                 mSubscriberClient);
 
-        // Validate layer availability sent to HAL
+        // Validate session handshake
         List<Integer> v = mHalClient.receiveMessage().value.int32Values;
+        assertEquals(VmsMessageType.START_SESSION,
+                (int) v.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE));
+        int coreId = v.get(VmsStartSessionMessageIntegerValuesIndex.SERVICE_ID);
+        assertTrue(coreId > 0);
+        assertEquals(-1, (int) v.get(VmsStartSessionMessageIntegerValuesIndex.CLIENT_ID));
+
+        // Send handshake acknowledgement
+        mHalClient.sendMessage(
+                VmsMessageType.START_SESSION,
+                coreId,
+                12345 // Client ID
+        );
+
+        // Validate layer availability sent to HAL
+        v = mHalClient.receiveMessage().value.int32Values;
         assertEquals(VmsMessageType.AVAILABILITY_CHANGE,
                 (int) v.get(VmsAvailabilityStateIntegerValuesIndex.MESSAGE_TYPE));
         assertEquals(0,

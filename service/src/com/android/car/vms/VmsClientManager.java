@@ -76,13 +76,14 @@ public class VmsClientManager implements CarServiceBase {
     private final Handler mHandler;
     private final CarUserService mUserService;
     private final CarUserManagerHelper mUserManagerHelper;
-    private final IBinder mHalClient;
     private final int mMillisBeforeRebind;
 
     @GuardedBy("mListeners")
     private final ArrayList<ConnectionListener> mListeners = new ArrayList<>();
     @GuardedBy("mSystemClients")
     private final Map<String, ClientConnection> mSystemClients = new ArrayMap<>();
+    @GuardedBy("mSystemClients")
+    private IBinder mHalClient;
     @GuardedBy("mSystemClients")
     private boolean mSystemUserUnlocked;
 
@@ -132,9 +133,9 @@ public class VmsClientManager implements CarServiceBase {
         mHandler = new Handler(Looper.getMainLooper());
         mUserService = userService;
         mUserManagerHelper = userManagerHelper;
-        mHalClient = halService.getPublisherClient();
         mMillisBeforeRebind = mContext.getResources().getInteger(
                 com.android.car.R.integer.millisecondsBeforeRebindToVmsPublisher);
+        halService.setPublisherConnectionCallbacks(this::onHalConnected, this::onHalDisconnected);
     }
 
     @Override
@@ -273,8 +274,10 @@ public class VmsClientManager implements CarServiceBase {
     }
 
     private void notifyListenerOfConnectedClients(ConnectionListener listener) {
-        listener.onClientConnected(HAL_CLIENT_NAME, mHalClient);
         synchronized (mSystemClients) {
+            if (mHalClient != null) {
+                listener.onClientConnected(HAL_CLIENT_NAME, mHalClient);
+            }
             mSystemClients.values().forEach(conn -> conn.notifyIfConnected(listener));
         }
         synchronized (mCurrentUserClients) {
@@ -295,6 +298,20 @@ public class VmsClientManager implements CarServiceBase {
             for (ConnectionListener listener : mListeners) {
                 listener.onClientDisconnected(clientName);
             }
+        }
+    }
+
+    private void onHalConnected(IBinder halClient) {
+        synchronized (mSystemClients) {
+            mHalClient = halClient;
+            notifyListenersOnClientConnected(HAL_CLIENT_NAME, mHalClient);
+        }
+    }
+
+    private void onHalDisconnected() {
+        synchronized (mSystemClients) {
+            mHalClient = null;
+            notifyListenersOnClientDisconnected(HAL_CLIENT_NAME);
         }
     }
 
