@@ -59,8 +59,5 @@ allow carservice_app procfsinspector:binder call;
 # To access /sys/fs/<type>/<partition>/lifetime_write_kbytes
 allow carservice_app sysfs_fs_lifetime_write:file { getattr open read };
 
-# For allowing dumpstate to be called by CarBugreportManagerService only in userdebug or eng builds.
-userdebug_or_eng(`
 set_prop(carservice_app, ctl_start_prop)
 unix_socket_connect(carservice_app, dumpstate, dumpstate)
-')
