@@ -53,9 +53,12 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     car-service-lib-for-test \
     com.android.car.test.utils \
     junit \
-    mockito-target-minus-junit4 \
+    mockito-target-inline-minus-junit4 \
     frameworks-base-testutils \
     truth-prebuilt
 
+LOCAL_JNI_SHARED_LIBRARIES := \
+    # mockito-target-inline dependency \
+    libdexmakerjvmtiagent \
 
 include $(BUILD_PACKAGE)
