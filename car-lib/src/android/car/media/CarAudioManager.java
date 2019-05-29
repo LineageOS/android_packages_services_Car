@@ -412,6 +412,71 @@ public final class CarAudioManager implements CarManagerBase {
     }
 
     /**
+     * Gets the audio zones currently available
+     *
+     * @return audio zone ids
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public @NonNull int[] getAudioZoneIds() {
+        try {
+            return mService.getAudioZoneIds();
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Gets the audio zone id currently mapped to uId,
+     * defaults to PRIMARY_AUDIO_ZONE if no mapping exist
+     *
+     * @param uid The uid to map
+     * @return zone id mapped to uid
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public int getZoneIdForUid(int uid) {
+        try {
+            return mService.getZoneIdForUid(uid);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Maps the audio zone id to uid
+     *
+     * @param zoneId The audio zone id
+     * @param uid The uid to map
+     * @return true if the uid is successfully mapped
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public boolean setZoneIdForUid(int zoneId, int uid) {
+        try {
+            return mService.setZoneIdForUid(zoneId, uid);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Clears the current zone mapping of the uid
+     *
+     * @param uid The uid to clear
+     * @return true if the zone was successfully cleared
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public boolean clearZoneIdForUid(int uid) {
+        try {
+            return mService.clearZoneIdForUid(uid);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
      * Gets array of {@link AudioAttributes} usages for a volume group in a zone.
      *
      * @param zoneId The zone id whose volume group is queried.
