@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Per motivi di sicurezza, questa attività non è disponibile durante la guida.\nPotrai continuare quando avrai parcheggiato."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Seleziona <xliff:g id="EXIT_BUTTON">%s</xliff:g> per ricominciare con le funzionalità sicure dell\'app."</string>
     <string name="exit_button" msgid="5829638404777671253">"Indietro"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Info debug"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"Lettura dei dati diagnostici"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Consente di leggere i dati diagnostici dell\'automobile."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"Cancellazione dei dati diagnostici"</string>

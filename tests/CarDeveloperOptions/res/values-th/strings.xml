@@ -6702,8 +6702,7 @@
     <skip />
     <!-- no translation found for launch_by_default (6106985160202769725) -->
     <skip />
-    <!-- no translation found for app_launch_domain_links_title (2987289657348349133) -->
-    <skip />
+    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"การเปิดลิงก์"</string>
     <!-- no translation found for app_launch_open_domain_urls_title (8595126859922391331) -->
     <skip />
     <!-- no translation found for app_launch_open_domain_urls_summary (6803029846855502366) -->
@@ -6794,8 +6793,7 @@
     <skip />
     <!-- no translation found for tap_to_wake_summary (8485222120721006793) -->
     <skip />
-    <!-- no translation found for domain_urls_title (7939209950373945367) -->
-    <skip />
+    <string name="domain_urls_title" msgid="7939209950373945367">"การเปิดลิงก์"</string>
     <!-- no translation found for domain_urls_summary_none (5401203416941265109) -->
     <skip />
     <!-- no translation found for domain_urls_summary_one (3893975485064803435) -->

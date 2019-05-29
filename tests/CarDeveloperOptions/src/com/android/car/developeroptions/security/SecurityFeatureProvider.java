@@ -19,14 +19,10 @@ package com.android.car.developeroptions.security;
 import android.content.Context;
 
 import com.android.internal.widget.LockPatternUtils;
-import com.android.car.developeroptions.security.trustagent.TrustAgentManager;
 
 
 /** FeatureProvider for security. */
 public interface SecurityFeatureProvider {
-
-    /** Returns the {@link TrustAgentManager} bound to this {@link SecurityFeatureProvider}. */
-    TrustAgentManager getTrustAgentManager();
 
     /**
      * Returns a {@link LockPatternUtils} instance bound to application context.

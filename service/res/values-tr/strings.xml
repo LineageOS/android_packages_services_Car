@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Güvenliğiniz için bu etkinlik sürüş sırasında gerçekleştirilemez.\nDevam etmek için park edene dek bekleyin."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Güvenli uygulama özellikleriyle baştan başlamak için <xliff:g id="EXIT_BUTTON">%s</xliff:g> düğmesini seçin."</string>
     <string name="exit_button" msgid="5829638404777671253">"Geri"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Hata Ayıklama Bilgileri"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"teşhis verilerini okuma"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Araçtan teşhis verilerini okuma."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"teşhis verilerini temizleme"</string>

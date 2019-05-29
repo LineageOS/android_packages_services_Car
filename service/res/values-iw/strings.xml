@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"מטעמי בטיחות, פעילות זו אינה זמינה בזמן נהיגה.\nכדי להמשיך, צריך להמתין עד לחניית הרכב."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"כדי להפעיל מחדש את האפליקציה במצב בטוח, יש ללחוץ על <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"הקודם"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"קריאת נתוני אבחון"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"קריאת נתוני אבחון מהרכב."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"מחיקת נתוני האבחון"</string>

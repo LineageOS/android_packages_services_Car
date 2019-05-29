@@ -18,16 +18,13 @@ package com.android.car.developeroptions.security.screenlock;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
-import android.text.TextUtils;
 
 import androidx.preference.Preference;
 import androidx.preference.TwoStatePreference;
 
-import com.android.internal.widget.LockPatternUtils;
 import com.android.car.developeroptions.R;
 import com.android.car.developeroptions.core.PreferenceControllerMixin;
-import com.android.car.developeroptions.overlay.FeatureFactory;
-import com.android.car.developeroptions.security.trustagent.TrustAgentManager;
+import com.android.internal.widget.LockPatternUtils;
 import com.android.settingslib.core.AbstractPreferenceController;
 
 public class PowerButtonInstantLockPreferenceController extends AbstractPreferenceController
@@ -37,15 +34,12 @@ public class PowerButtonInstantLockPreferenceController extends AbstractPreferen
 
     private final int mUserId;
     private final LockPatternUtils mLockPatternUtils;
-    private final TrustAgentManager mTrustAgentManager;
 
     public PowerButtonInstantLockPreferenceController(Context context, int userId,
             LockPatternUtils lockPatternUtils) {
         super(context);
         mUserId = userId;
         mLockPatternUtils = lockPatternUtils;
-        mTrustAgentManager = FeatureFactory.getFactory(context)
-                .getSecurityFeatureProvider().getTrustAgentManager();
     }
 
     @Override
@@ -71,15 +65,7 @@ public class PowerButtonInstantLockPreferenceController extends AbstractPreferen
     public void updateState(Preference preference) {
         ((TwoStatePreference) preference).setChecked(
                 mLockPatternUtils.getPowerButtonInstantlyLocks(mUserId));
-        final CharSequence trustAgentLabel = mTrustAgentManager.getActiveTrustAgentLabel(
-                mContext, mLockPatternUtils);
-        if (!TextUtils.isEmpty(trustAgentLabel)) {
-            preference.setSummary(mContext.getString(
-                    R.string.lockpattern_settings_power_button_instantly_locks_summary,
-                    trustAgentLabel));
-        } else {
-            preference.setSummary(R.string.summary_placeholder);
-        }
+        preference.setSummary(R.string.summary_placeholder);
     }
 
     @Override

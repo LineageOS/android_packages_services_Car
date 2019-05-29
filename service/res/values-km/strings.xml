@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"ដើម្បី​សុវត្ថិភាព​របស់អ្នក សកម្មភាពនេះ​មិនអាចប្រើបានទេ ពេល​កំពុងបើកបរ។\nដើម្បីបន្ត សូមរង់ចាំ​រហូតទាល់តែ​អ្នកចត​រថយន្តរួច។"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"ដើម្បី​ចាប់ផ្តើមឡើងវិញ​ដោយប្រើ​មុខងារកម្មវិធី​ដែលមានសុវត្ថិភាព សូមជ្រើសរើស <xliff:g id="EXIT_BUTTON">%s</xliff:g> ។"</string>
     <string name="exit_button" msgid="5829638404777671253">"ថយក្រោយ"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"ព័ត៌មានជួសជុល"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"អានទិន្នន័យ​វិភាគ"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"អាន​អំពីទិន្នន័យ​វិភាគពី​រថយន្ត។"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"សម្អាត​ទិន្នន័យ​វិភាគ"</string>

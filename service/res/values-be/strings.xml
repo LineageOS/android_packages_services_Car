@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Дзеля вашай бяспекі гэта дзеянне недаступнае, калі вы за рулём.\nСпачатку прыпаркуйцеся."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Каб перазапусціць праграму ў бяспечным рэжыме, націсніце кнопку \"<xliff:g id="EXIT_BUTTON">%s</xliff:g>\"."</string>
     <string name="exit_button" msgid="5829638404777671253">"Назад"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"атрымліваць даныя дыягностыкі"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Счытванне дыягнастычных даных аўтамабіля"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ачысціць даныя дыягностыкі"</string>

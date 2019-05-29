@@ -69,7 +69,6 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Z bezpečnostných dôvodov nie je táto aktivita k dispozícii počas jazdy.\nAk chcete pokračovať, počkajte, kým budete parkovať."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Ak chcete začať odznova s bezpečnými funkciami aplikácie, vyberte tlačidlo <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Späť"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Informácie o ladení"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"čítať diagnostické údaje"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Čítanie diagnostických údajov z auta."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"vymazať diagnostické údaje"</string>

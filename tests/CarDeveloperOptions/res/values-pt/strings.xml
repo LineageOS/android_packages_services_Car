@@ -3865,8 +3865,7 @@
     <skip />
     <!-- no translation found for accessibility_screen_magnification_navbar_configuration_warning (6477234309484795550) -->
     <skip />
-    <!-- no translation found for accessibility_global_gesture_preference_title (3842279082831426816) -->
-    <skip />
+    <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Atalho do volume"</string>
     <!-- no translation found for accessibility_shortcut_service_title (3516052294376744060) -->
     <skip />
     <!-- no translation found for accessibility_shortcut_service_on_lock_screen_title (1279441617927949980) -->
