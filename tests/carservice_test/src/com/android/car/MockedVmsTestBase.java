@@ -16,6 +16,7 @@
 package com.android.car;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.car.Car;
 import android.car.VehicleAreaType;
@@ -30,13 +31,17 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_0.VmsAvailabilityStateIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
+import android.hardware.automotive.vehicle.V2_0.VmsStartSessionMessageIntegerValuesIndex;
 import android.os.UserHandle;
 import android.util.Log;
 import android.util.Pair;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
+
+import org.junit.Before;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -73,10 +78,8 @@ public class MockedVmsTestBase extends MockedCarTestBase {
                 .addAreaConfig(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 0, 0);
     }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
+    @Before
+    public void setUpVms() throws Exception {
         // Trigger VmsClientManager to bind to the MockPublisherClient
         getContext().sendBroadcastAsUser(new Intent(Intent.ACTION_USER_UNLOCKED), UserHandle.ALL);
 
@@ -86,8 +89,23 @@ public class MockedVmsTestBase extends MockedCarTestBase {
         mVmsSubscriberManager.setVmsSubscriberClientCallback(Executors.newSingleThreadExecutor(),
                 mSubscriberClient);
 
-        // Validate layer availability sent to HAL
+        // Validate session handshake
         List<Integer> v = mHalClient.receiveMessage().value.int32Values;
+        assertEquals(VmsMessageType.START_SESSION,
+                (int) v.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE));
+        int coreId = v.get(VmsStartSessionMessageIntegerValuesIndex.SERVICE_ID);
+        assertTrue(coreId > 0);
+        assertEquals(-1, (int) v.get(VmsStartSessionMessageIntegerValuesIndex.CLIENT_ID));
+
+        // Send handshake acknowledgement
+        mHalClient.sendMessage(
+                VmsMessageType.START_SESSION,
+                coreId,
+                12345 // Client ID
+        );
+
+        // Validate layer availability sent to HAL
+        v = mHalClient.receiveMessage().value.int32Values;
         assertEquals(VmsMessageType.AVAILABILITY_CHANGE,
                 (int) v.get(VmsAvailabilityStateIntegerValuesIndex.MESSAGE_TYPE));
         assertEquals(0,
@@ -107,16 +125,12 @@ public class MockedVmsTestBase extends MockedCarTestBase {
         return mVmsSubscriberManager;
     }
 
-    Pair<VmsLayer, byte[]> receiveDataMessage() throws InterruptedException {
-        return receiveWithTimeout(mSubscriberClient.mMessages);
-    }
-
-    VmsAvailableLayers receiveLayerAvailability() throws InterruptedException {
-        return receiveWithTimeout(mSubscriberClient.mAvailableLayers);
-    }
-
-    MockPublisherClient getMockPublisherClient() throws InterruptedException {
-        sPublisherIsReady.await(2L, TimeUnit.SECONDS);
+    MockPublisherClient getMockPublisherClient() {
+        try {
+            sPublisherIsReady.await(2L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return sPublisherClient;
     }
 
@@ -145,7 +159,7 @@ public class MockedVmsTestBase extends MockedCarTestBase {
             mSubscriptionState.add(subscriptionState);
         }
 
-        VmsSubscriptionState receiveSubscriptionState() throws InterruptedException {
+        VmsSubscriptionState receiveSubscriptionState() {
             return receiveWithTimeout(mSubscriptionState);
         }
     }
@@ -166,11 +180,11 @@ public class MockedVmsTestBase extends MockedCarTestBase {
             mAvailableLayers.add(availableLayers);
         }
 
-        Pair<VmsLayer, byte[]> receiveMessage() throws InterruptedException {
+        Pair<VmsLayer, byte[]> receiveMessage() {
             return receiveWithTimeout(mMessages);
         }
 
-        VmsAvailableLayers receiveLayerAvailability() throws InterruptedException {
+        VmsAvailableLayers receiveLayerAvailability() {
             return receiveWithTimeout(mAvailableLayers);
         }
     }
@@ -201,12 +215,16 @@ public class MockedVmsTestBase extends MockedCarTestBase {
                             .build());
         }
 
-        VehiclePropValue receiveMessage() throws InterruptedException {
+        VehiclePropValue receiveMessage() {
             return receiveWithTimeout(mMessages);
         }
     }
 
-    private static <T> T receiveWithTimeout(BlockingQueue<T> queue) throws InterruptedException {
-        return queue.poll(2L, TimeUnit.SECONDS);
+    private static <T> T receiveWithTimeout(BlockingQueue<T> queue) {
+        try {
+            return queue.poll(2L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -40,7 +40,8 @@
 
     <string name="inputService" translatable="false">android.car.input.service/.DefaultInputService</string>
 
-    <string name="instrumentClusterRendererService" translatable="false">android.car.cluster.sample/.ClusterRenderingServiceImpl</string>
+    <!--  Service responsible for displaying information on the car instrument cluster. -->
+    <string name="instrumentClusterRendererService" translatable="false">android.car.cluster/.ClusterRenderingService</string>
 
     <!--  Whether to enable Activity blocking for safety. When Activity blocking is enabled,
           only whitelisted safe Activities will be allowed while car is not parked. -->
