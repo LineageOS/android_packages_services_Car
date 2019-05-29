@@ -209,6 +209,9 @@ public abstract class BleManager {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "stopGattServer");
         }
+        if (mBluetoothGatt != null) {
+            mBluetoothGatt.disconnect();
+        }
         mGattServer.close();
         mGattServer = null;
     }
