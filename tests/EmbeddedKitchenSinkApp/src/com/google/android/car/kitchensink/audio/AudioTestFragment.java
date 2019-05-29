@@ -20,9 +20,12 @@ import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.CarAppFocusManager.OnAppFocusChangedListener;
 import android.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
+import android.car.media.CarAudioManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFocusRequest;
@@ -36,8 +39,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -46,6 +52,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.CarEmulator;
 import com.google.android.car.kitchensink.R;
+
+import java.util.Arrays;
 
 public class AudioTestFragment extends Fragment {
     private static final String TAG = "CAR.AUDIO.KS";
@@ -75,6 +83,10 @@ public class AudioTestFragment extends Fragment {
     private AudioAttributes mRadioAudioAttrib;
     private AudioAttributes mSystemSoundAudioAttrib;
     private CarEmulator mCarEmulator;
+    private CarAudioManager mCarAudioManager;
+    private Spinner mZoneSpinner;
+    ArrayAdapter<Integer> mZoneAdapter;
+    private int mOldZonePosition;
 
     private final AudioManager.OnAudioFocusChangeListener mNavFocusListener = (focusChange) -> {
         Log.i(TAG, "Nav focus change:" + focusChange);
@@ -113,6 +125,19 @@ public class AudioTestFragment extends Fragment {
                         CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
                 mAppFocusManager.addFocusListener(listener,
                         CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
+
+                mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
+
+                //take care of zone selection
+                int[] zoneList = mCarAudioManager.getAudioZoneIds();
+                Integer[] zoneArray = Arrays.stream(zoneList).boxed().toArray(Integer[]::new);
+                mZoneAdapter = new ArrayAdapter<>(mContext,
+                        android.R.layout.simple_spinner_item, zoneArray);
+                mZoneAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                mZoneSpinner.setAdapter(mZoneAdapter);
+                mZoneSpinner.setEnabled(true);
+
+
             }
             @Override
             public void onServiceDisconnected(ComponentName name) {
@@ -283,7 +308,44 @@ public class AudioTestFragment extends Fragment {
                 mCarEmulator = null;
             }
         });
+
+        //Zone Spinner
+        mZoneSpinner = view.findViewById(R.id.zone_spinner);
+        mZoneSpinner.setEnabled(false);
+        mZoneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                handleZoneSelection();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
         return view;
+    }
+
+    public void handleZoneSelection() {
+        int position = mZoneSpinner.getSelectedItemPosition();
+        int zone = mZoneAdapter.getItem(position);
+        Log.d(TAG, "Zone Selected: " + zone);
+        try {
+            ApplicationInfo info = mContext.getPackageManager().getApplicationInfo(
+                    mContext.getPackageName(), 0);
+            int uid = info.uid;
+            Log.d(TAG, "handleZoneSelection App uid: " + uid);
+            if (mCarAudioManager.setZoneIdForUid(zone, uid)) {
+                Log.d(TAG, "Changed uid " + uid + " sound to zone " + zone);
+                mOldZonePosition = position;
+            } else {
+                Log.d(TAG, "Filed to changed uid " + uid + " sound to zone " + zone);
+                mZoneSpinner.setSelection(mOldZonePosition);
+            }
+
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "handleZoneSelection Failed to find name: " , e);
+        }
     }
 
     @Override
