@@ -16,6 +16,7 @@
 package com.android.car.audio;
 
 import android.car.media.CarAudioManager;
+import android.media.AudioDeviceInfo;
 import android.util.Log;
 import android.view.DisplayAddress;
 
@@ -72,6 +73,19 @@ import java.util.Set;
         Preconditions.checkArgumentInRange(groupId, 0, mVolumeGroups.size() - 1,
                 "groupId(" + groupId + ") is out of range");
         return mVolumeGroups.get(groupId);
+    }
+
+    /**
+     * @return Snapshot of available {@link AudioDeviceInfo}s in List.
+     */
+    List<AudioDeviceInfo> getAudioDeviceInfos() {
+        final List<AudioDeviceInfo> devices = new ArrayList<>();
+        for (CarVolumeGroup group : mVolumeGroups) {
+            for (int busNumber : group.getBusNumbers()) {
+                devices.add(group.getCarAudioDeviceInfoForBus(busNumber).getAudioDeviceInfo());
+            }
+        }
+        return devices;
     }
 
     int getVolumeGroupCount() {
