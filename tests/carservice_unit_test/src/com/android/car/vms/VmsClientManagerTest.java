@@ -60,6 +60,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.util.function.Consumer;
+
 @SmallTest
 public class VmsClientManagerTest {
     private static final String HAL_CLIENT_NAME = "VmsHalClient";
@@ -84,7 +86,8 @@ public class VmsClientManagerTest {
 
     @Mock
     private VmsHalService mHal;
-    private IBinder mHalClient;
+    private Consumer<IBinder> mHalClientConnected;
+    private Runnable mHalClientDisconnected;
 
     @Mock
     private VmsClientManager.ConnectionListener mConnectionListener;
@@ -115,13 +118,18 @@ public class VmsClientManagerTest {
         mUserId = 10;
         when(mUserManager.getCurrentForegroundUserId()).thenAnswer((invocation) -> mUserId);
 
-        mHalClient = new Binder();
-        when(mHal.getPublisherClient()).thenReturn(mHalClient);
-
         mClientManager = new VmsClientManager(mContext, mUserService, mUserManager, mHal);
         mClientManager.registerConnectionListener(mConnectionListener);
-        verify(mConnectionListener).onClientConnected(HAL_CLIENT_NAME, mHalClient);
-        reset(mConnectionListener);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Consumer<IBinder>> onClientConnectedCaptor =
+                ArgumentCaptor.forClass(Consumer.class);
+        ArgumentCaptor<Runnable> onClientDisconnectedCaptor =
+                ArgumentCaptor.forClass(Runnable.class);
+        verify(mHal).setPublisherConnectionCallbacks(
+                onClientConnectedCaptor.capture(), onClientDisconnectedCaptor.capture());
+        mHalClientConnected = onClientConnectedCaptor.getValue();
+        mHalClientDisconnected = onClientDisconnectedCaptor.getValue();
     }
 
     @After
@@ -130,6 +138,7 @@ public class VmsClientManagerTest {
         verify(mContext, atLeast(0)).getResources();
         verify(mContext, atLeast(0)).getPackageManager();
         verifyNoMoreInteractions(mContext);
+        verifyNoMoreInteractions(mHal);
     }
 
     @Test
@@ -162,18 +171,28 @@ public class VmsClientManagerTest {
         VmsClientManager.ConnectionListener listener =
                 Mockito.mock(VmsClientManager.ConnectionListener.class);
         mClientManager.registerConnectionListener(listener);
-        verify(listener).onClientConnected(HAL_CLIENT_NAME, mHalClient);
+    }
+
+    @Test
+    public void testRegisterConnectionListener_AfterHalClientConnected() {
+        IBinder halClient = bindHalClient();
+
+        VmsClientManager.ConnectionListener listener =
+                Mockito.mock(VmsClientManager.ConnectionListener.class);
+        mClientManager.registerConnectionListener(listener);
+        verify(listener).onClientConnected(HAL_CLIENT_NAME, halClient);
     }
 
     @Test
     public void testRegisterConnectionListener_AfterClientsConnected() {
+        IBinder halClient = bindHalClient();
         IBinder systemBinder = bindSystemClient();
         IBinder userBinder = bindUserClient();
 
         VmsClientManager.ConnectionListener listener =
                 Mockito.mock(VmsClientManager.ConnectionListener.class);
         mClientManager.registerConnectionListener(listener);
-        verify(listener).onClientConnected(HAL_CLIENT_NAME, mHalClient);
+        verify(listener).onClientConnected(HAL_CLIENT_NAME, halClient);
         verify(listener).onClientConnected(eq(SYSTEM_CLIENT_NAME), eq(systemBinder));
         verify(listener).onClientConnected(eq(USER_CLIENT_NAME), eq(userBinder));
     }
@@ -334,6 +353,18 @@ public class VmsClientManagerTest {
     }
 
     @Test
+    public void testHalClientConnected() {
+        IBinder binder = bindHalClient();
+        verify(mConnectionListener).onClientConnected(eq(HAL_CLIENT_NAME), eq(binder));
+    }
+
+    private IBinder bindHalClient() {
+        IBinder binder = new Binder();
+        mHalClientConnected.accept(binder);
+        return binder;
+    }
+
+    @Test
     public void testOnSystemServiceConnected() {
         IBinder binder = bindSystemClient();
         verify(mConnectionListener).onClientConnected(eq(SYSTEM_CLIENT_NAME), eq(binder));
@@ -365,6 +396,14 @@ public class VmsClientManagerTest {
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceConnected(null, binder);
         return binder;
+    }
+
+    @Test
+    public void testOnHalClientDisconnected() throws Exception {
+        bindHalClient();
+        mHalClientDisconnected.run();
+
+        verify(mConnectionListener).onClientDisconnected(eq(HAL_CLIENT_NAME));
     }
 
     @Test

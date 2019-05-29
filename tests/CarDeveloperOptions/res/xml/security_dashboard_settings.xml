@@ -133,13 +133,6 @@
         android:fragment="com.android.car.developeroptions.security.EncryptionAndCredential" />
 
     <Preference
-        android:order="70"
-        android:key="manage_trust_agents"
-        android:title="@string/manage_trust_agents"
-        android:summary="@string/summary_placeholder"
-        android:fragment="com.android.car.developeroptions.security.trustagent.TrustAgentSettings" />
-
-    <Preference
         android:order="80"
         android:key="screen_pinning_settings"
         android:title="@string/screen_pinning_title"

@@ -22,17 +22,14 @@ import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.os.UserHandle;
 import android.provider.Settings;
-import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.preference.Preference;
 
-import com.android.internal.widget.LockPatternUtils;
 import com.android.car.developeroptions.R;
 import com.android.car.developeroptions.core.PreferenceControllerMixin;
 import com.android.car.developeroptions.display.TimeoutListPreference;
-import com.android.car.developeroptions.overlay.FeatureFactory;
-import com.android.car.developeroptions.security.trustagent.TrustAgentManager;
+import com.android.internal.widget.LockPatternUtils;
 import com.android.settingslib.RestrictedLockUtils;
 import com.android.settingslib.RestrictedLockUtilsInternal;
 import com.android.settingslib.core.AbstractPreferenceController;
@@ -44,7 +41,6 @@ public class LockAfterTimeoutPreferenceController extends AbstractPreferenceCont
 
     private final int mUserId;
     private final LockPatternUtils mLockPatternUtils;
-    private final TrustAgentManager mTrustAgentManager;
     private final DevicePolicyManager mDPM;
 
     public LockAfterTimeoutPreferenceController(Context context, int userId,
@@ -53,8 +49,6 @@ public class LockAfterTimeoutPreferenceController extends AbstractPreferenceCont
         mUserId = userId;
         mLockPatternUtils = lockPatternUtils;
         mDPM = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        mTrustAgentManager = FeatureFactory.getFactory(context)
-                .getSecurityFeatureProvider().getTrustAgentManager();
     }
 
     @Override
@@ -137,20 +131,7 @@ public class LockAfterTimeoutPreferenceController extends AbstractPreferenceCont
                     best = i;
                 }
             }
-
-            final CharSequence trustAgentLabel = mTrustAgentManager
-                    .getActiveTrustAgentLabel(mContext, mLockPatternUtils);
-            if (!TextUtils.isEmpty(trustAgentLabel)) {
-                if (Long.valueOf(values[best].toString()) == 0) {
-                    summary = mContext.getString(R.string.lock_immediately_summary_with_exception,
-                            trustAgentLabel);
-                } else {
-                    summary = mContext.getString(R.string.lock_after_timeout_summary_with_exception,
-                            entries[best], trustAgentLabel);
-                }
-            } else {
-                summary = mContext.getString(R.string.lock_after_timeout_summary, entries[best]);
-            }
+            summary = mContext.getString(R.string.lock_after_timeout_summary, entries[best]);
         }
         preference.setSummary(summary);
     }

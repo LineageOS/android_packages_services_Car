@@ -30,8 +30,6 @@ import com.android.car.developeroptions.biometrics.fingerprint.FingerprintStatus
 import com.android.car.developeroptions.dashboard.DashboardFragment;
 import com.android.car.developeroptions.enterprise.EnterprisePrivacyPreferenceController;
 import com.android.car.developeroptions.search.BaseSearchIndexProvider;
-import com.android.car.developeroptions.security.trustagent.ManageTrustAgentsPreferenceController;
-import com.android.car.developeroptions.security.trustagent.TrustAgentListPreferenceController;
 import com.android.car.developeroptions.widget.PreferenceCategoryController;
 import com.android.settingslib.core.AbstractPreferenceController;
 import com.android.settingslib.core.lifecycle.Lifecycle;
@@ -82,10 +80,6 @@ public class SecuritySettings extends DashboardFragment {
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (use(TrustAgentListPreferenceController.class)
-                .handleActivityResult(requestCode, resultCode)) {
-            return;
-        }
         if (use(LockUnificationPreferenceController.class)
                 .handleActivityResult(requestCode, resultCode, data)) {
             return;
@@ -105,12 +99,10 @@ public class SecuritySettings extends DashboardFragment {
             Lifecycle lifecycle, SecuritySettings host) {
         final List<AbstractPreferenceController> controllers = new ArrayList<>();
         controllers.add(new EnterprisePrivacyPreferenceController(context));
-        controllers.add(new ManageTrustAgentsPreferenceController(context));
         controllers.add(new ScreenPinningPreferenceController(context));
         controllers.add(new SimLockPreferenceController(context));
         controllers.add(new EncryptionStatusPreferenceController(context,
                 PREF_KEY_ENCRYPTION_SECURITY_PAGE));
-        controllers.add(new TrustAgentListPreferenceController(context, host, lifecycle));
 
         final List<AbstractPreferenceController> securityPreferenceControllers = new ArrayList<>();
         securityPreferenceControllers.add(new FaceStatusPreferenceController(context));
