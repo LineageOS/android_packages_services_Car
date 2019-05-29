@@ -21,12 +21,14 @@ import android.car.CarBugreportManager.CarBugreportManagerCallback;
 import android.car.ICarBugreportCallback;
 import android.car.ICarBugreportService;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
-import android.os.Build;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.ParcelFileDescriptor;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
@@ -81,33 +83,47 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
 
     @Override
     public void init() {
-        // Initialize handler only if build is debuggable.
-        if (Build.IS_DEBUGGABLE) {
-            mHandlerThread = new HandlerThread(TAG);
-            mHandlerThread.start();
-            mHandler = new Handler(mHandlerThread.getLooper());
-        }
+        mHandlerThread = new HandlerThread(TAG);
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
     }
 
     @Override
     public void release() {
-        if (mHandlerThread != null) {
-            mHandlerThread.quitSafely();
-        }
+        mHandlerThread.quitSafely();
     }
 
     @Override
     @RequiresPermission(android.Manifest.permission.DUMP)
     public void requestZippedBugreport(ParcelFileDescriptor data, ParcelFileDescriptor progress,
             ICarBugreportCallback callback) {
-        if (mHandler == null) {
-            // bugreport manager service is only available if the build is not a user build.
-            reportError(callback, CarBugreportManagerCallback.CAR_BUGREPORT_SERVICE_NOT_AVAILABLE);
-            return;
-        }
 
+        // Check the caller has proper permission
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.DUMP,
-                "requestBugreport");
+                "requestZippedBugreport");
+        // Check the caller is signed with platform keys
+        PackageManager pm = mContext.getPackageManager();
+        int callingUid = Binder.getCallingUid();
+        if (pm.checkSignatures(Process.myUid(), callingUid) != PackageManager.SIGNATURE_MATCH) {
+            throw new SecurityException("Caller " + pm.getNameForUid(callingUid)
+                            + " does not have the right signature");
+        }
+        // Check the caller is the default designated bugreport app
+        String defaultAppPkgName = mContext.getString(R.string.default_car_bugreport_application);
+        String[] packageNamesForCallerUid = pm.getPackagesForUid(callingUid);
+        boolean found = false;
+        if (packageNamesForCallerUid != null) {
+            for (String packageName : packageNamesForCallerUid) {
+                if (defaultAppPkgName.equals(packageName)) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found) {
+            throw new SecurityException("Caller " +  pm.getNameForUid(callingUid)
+                    + " is not a designated bugreport app");
+        }
 
         synchronized (mLock) {
             requestZippedBugReportLocked(data, progress, callback);
