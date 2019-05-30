@@ -449,7 +449,7 @@ public class ICarImpl extends ICar.Stub {
                     + " without permission " + android.Manifest.permission.DUMP);
             return;
         }
-        if (args == null || args.length == 0) {
+        if (args == null || args.length == 0 || (args.length > 0 && "-a".equals(args[0]))) {
             writer.println("*dump car service*");
 
             writer.println("*FutureConfig, DEFAULT:" + FeatureConfiguration.DEFAULT);
