@@ -57,8 +57,8 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     frameworks-base-testutils \
     truth-prebuilt
 
+# mockito-target-inline dependency
 LOCAL_JNI_SHARED_LIBRARIES := \
-    # mockito-target-inline dependency \
     libdexmakerjvmtiagent \
 
 include $(BUILD_PACKAGE)
