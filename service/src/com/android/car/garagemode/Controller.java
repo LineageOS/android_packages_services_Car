@@ -28,6 +28,7 @@ import android.os.Looper;
 import com.android.car.CarLocalServices;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -102,6 +103,13 @@ public class Controller implements CarPowerStateListenerWithCompletion {
      */
     boolean isGarageModeActive() {
         return mGarageMode.isGarageModeActive();
+    }
+
+    /**
+     * @return The names of the jobs that Garage Mode is waiting for
+     */
+    List<String> pendingGarageModeJobs() {
+        return mGarageMode.pendingJobs();
     }
 
     /**
