@@ -120,13 +120,13 @@ public class CarHvacManagerTest extends CarApiTestBase {
 
             for (int areaId : areaIds) {
                 assertTrue(property.hasArea(areaId));
-                int min = property.getMinValue(areaId);
-                int max = property.getMaxValue(areaId);
+                int min = property.getMinValue(areaId) == null ? 0 : property.getMinValue(areaId);
+                int max = property.getMaxValue(areaId) == null ? 0 : property.getMaxValue(areaId);
                 assertTrue(min <= max);
             }
         } else {
-            int min = property.getMinValue();
-            int max = property.getMaxValue();
+            int min = property.getMinValue() == null ? 0 : property.getMinValue();
+            int max = property.getMaxValue() == null ? 0 : property.getMinValue();
             assertTrue(min <= max);
             for (int i = 0; i < 32; i++) {
                 assertFalse(property.hasArea(0x1 << i));
@@ -143,15 +143,17 @@ public class CarHvacManagerTest extends CarApiTestBase {
             assertTrue(areaIds.length > 0);
             assertEquals(areaIds.length, property.getAreaCount());
 
-            for (int areId : areaIds) {
-                assertTrue(property.hasArea(areId));
-                float min = property.getMinValue(areId);
-                float max = property.getMaxValue(areId);
+            for (int areaId : areaIds) {
+                assertTrue(property.hasArea(areaId));
+                float min =
+                        property.getMinValue(areaId) == null ? 0f : property.getMinValue(areaId);
+                float max =
+                        property.getMaxValue(areaId) == null ? 0f : property.getMinValue(areaId);
                 assertTrue(min <= max);
             }
         } else {
-            float min = property.getMinValue();
-            float max = property.getMaxValue();
+            float min = property.getMinValue() == null ? 0f : property.getMinValue();
+            float max = property.getMaxValue() == null ? 0f : property.getMinValue();
             assertTrue(min <= max);
             for (int i = 0; i < 32; i++) {
                 assertFalse(property.hasArea(0x1 << i));
