@@ -140,12 +140,19 @@ public class InputHalService extends HalServiceBase {
                             KeyEvent.ACTION_DOWN : KeyEvent.ACTION_UP;
             int code = v.value.int32Values.get(1);
             int display = v.value.int32Values.get(2);
+            int indentsCount = v.value.int32Values.size() < 4 ? 1 : v.value.int32Values.get(3);
             if (DBG) {
-                Log.i(CarLog.TAG_INPUT, "hal event code:" + code + ", action:" + action +
-                        ", display:" + display);
+                Log.i(CarLog.TAG_INPUT, new StringBuilder()
+                                        .append("hal event code:").append(code)
+                                        .append(", action:").append(action)
+                                        .append(", display: ").append(display)
+                                        .append(", number of indents: ").append(indentsCount)
+                                        .toString());
             }
-
-            dispatchKeyEvent(listener, action, code, display);
+            while (indentsCount > 0) {
+                indentsCount--;
+                dispatchKeyEvent(listener, action, code, display);
+            }
         }
     }
 
