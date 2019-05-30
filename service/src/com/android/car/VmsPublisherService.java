@@ -76,7 +76,7 @@ public class VmsPublisherService implements CarServiceBase, VmsClientManager.Con
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*" + getClass().getSimpleName() + "*");
-        writer.println("mPublisherProxies:" + mPublisherProxies.keySet());
+        writer.println("mPublisherProxies: " + mPublisherProxies.size());
     }
 
     @Override

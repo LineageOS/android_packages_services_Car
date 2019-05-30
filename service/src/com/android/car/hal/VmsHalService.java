@@ -283,15 +283,15 @@ public class VmsHalService extends HalServiceBase {
 
     @Override
     public void dump(PrintWriter writer) {
-        writer.println(TAG);
-        writer.println("VmsProperty " + (mIsSupported ? "" : "not") + " supported.");
+        writer.println("*VMS HAL*");
 
-        writer.println(
-                "VmsPublisherService " + (mPublisherService != null ? "" : "not") + " registered.");
+        writer.println("VmsProperty: " + (mIsSupported ? "supported" : "unsupported"));
+        writer.println("VmsPublisherService: "
+                + (mPublisherService != null ? "registered " : "unregistered"));
         writer.println("mSubscriptionStateSequence: " + mSubscriptionStateSequence);
 
-        writer.println("VmsSubscriberService " + (mSubscriberService != null ? "" : "not")
-                + " registered.");
+        writer.println("VmsSubscriberService: "
+                + (mSubscriberService != null ? "registered" : "unregistered"));
         writer.println("mAvailableLayersSequence: " + mAvailableLayersSequence);
     }
 
