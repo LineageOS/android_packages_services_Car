@@ -74,6 +74,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter android:priority="-1">
+                <action android:name="android.settings.PROCESS_WIFI_EASY_CONNECT_URI" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="DPP"/>
+            </intent-filter>
+            <intent-filter android:priority="-1">
                 <action android:name="android.settings.USER_DICTIONARY_SETTINGS" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
