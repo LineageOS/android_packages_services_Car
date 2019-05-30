@@ -22,7 +22,8 @@
             android:targetPackage="com.android.car.carservice_unittest"
             android:label="Unit Tests for Car APIs"/>
 
-    <application android:label="CarServiceUnitTest">
+    <application android:label="CarServiceUnitTest"
+            android:debuggable="true">
         <uses-library android:name="android.test.runner" />
     </application>
 </manifest>

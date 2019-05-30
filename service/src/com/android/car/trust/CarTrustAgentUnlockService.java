@@ -83,7 +83,9 @@ public class CarTrustAgentUnlockService {
     public void setTrustedDeviceUnlockEnabled(boolean isEnabled) {
         SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
         editor.putBoolean(TRUSTED_DEVICE_UNLOCK_ENABLED_KEY, isEnabled);
-        editor.apply();
+        if (!editor.commit()) {
+            Log.wtf(TAG, "Unlock Enable Failed. Enable? " + isEnabled);
+        }
     }
     /**
      * Set a delegate that implements {@link CarTrustAgentUnlockDelegate}. The delegate will be

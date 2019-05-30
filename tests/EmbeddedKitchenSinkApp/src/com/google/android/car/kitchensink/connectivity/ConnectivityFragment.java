@@ -500,6 +500,8 @@ public class ConnectivityFragment extends Fragment {
                 .setOnClickListener(v -> enableBluetoothIntent());
         view.findViewById(R.id.networkDisableBluetoothIntent)
                 .setOnClickListener(v -> disableBluetoothIntent());
+        view.findViewById(R.id.networkDiscoverableBluetoothIntent)
+                .setOnClickListener(v -> discoverableBluetoothIntent());
 
         return view;
     }
@@ -526,6 +528,12 @@ public class ConnectivityFragment extends Fragment {
         Intent disableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_DISABLE);
         disableBluetooth.putExtra(Intent.EXTRA_PACKAGE_NAME, getContext().getPackageName());
         startActivity(disableBluetooth);
+    }
+
+    private void discoverableBluetoothIntent() {
+        Intent discoverableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableBluetooth.putExtra(Intent.EXTRA_PACKAGE_NAME, getContext().getPackageName());
+        startActivity(discoverableBluetooth);
     }
 
     @Override
