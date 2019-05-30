@@ -531,7 +531,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
                 notifyEscrowTokenReceived(value);
                 break;
             case ENROLLMENT_STATE_HANDLE:
-                // TODO(danharms): React to ACK. Shut down server?
+                mCarTrustAgentBleManager.disconnectRemoteDevice();
                 break;
             default:
                 // Should never get here
