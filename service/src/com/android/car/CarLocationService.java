@@ -125,6 +125,11 @@ public class CarLocationService extends BroadcastReceiver implements
                     }
                 });
                 break;
+            case CarPowerStateListener.SUSPEND_EXIT:
+                deleteCacheFile();
+                if (future != null) {
+                    future.complete(null);
+                }
             default:
                 // This service does not need to do any work for these events but should still
                 // notify the CarPowerManager that it may proceed.
@@ -153,7 +158,7 @@ public class CarLocationService extends BroadcastReceiver implements
             boolean locationEnabled = locationManager.isLocationEnabled();
             logd("isLocationEnabled(): " + locationEnabled);
             if (!locationEnabled) {
-                asyncOperation(() -> deleteCacheFile());
+                deleteCacheFile();
             }
         } else if (action == LocationManager.PROVIDERS_CHANGED_ACTION
                 && shouldCheckLocationPermissions()) {
@@ -163,7 +168,7 @@ public class CarLocationService extends BroadcastReceiver implements
                     locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             logd("isProviderEnabled('gps'): " + gpsEnabled);
             if (!gpsEnabled) {
-                asyncOperation(() -> deleteCacheFile());
+                deleteCacheFile();
             }
         }
     }
@@ -188,7 +193,6 @@ public class CarLocationService extends BroadcastReceiver implements
         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (location == null) {
             logd("Not storing null location");
-            deleteCacheFile();
         } else {
             logd("Storing location: " + location);
             AtomicFile atomicFile = new AtomicFile(getLocationCacheFile());
@@ -250,6 +254,7 @@ public class CarLocationService extends BroadcastReceiver implements
         long currentTime = System.currentTimeMillis();
         if (location.getTime() + TTL_THIRTY_DAYS_MS < currentTime) {
             logd("Location expired.");
+            deleteCacheFile();
         } else {
             location.setTime(currentTime);
             long elapsedTime = SystemClock.elapsedRealtimeNanos();
@@ -297,7 +302,6 @@ public class CarLocationService extends BroadcastReceiver implements
                 }
             }
             reader.endObject();
-            deleteCacheFile();
         } catch (FileNotFoundException e) {
             Log.d(TAG, "Location cache file not found.");
         } catch (IOException e) {

@@ -292,10 +292,10 @@ public class CarLocationServiceTest {
 
     /**
      * Test that the {@link CarLocationService} stores the {@link LocationManager}'s last known
-     * location upon power state-changed SUSPEND events.
+     * location upon power state-changed SHUTDOWN_PREPARE events.
      */
     @Test
-    public void testStoresLocationUponStateChanged() throws Exception {
+    public void testStoresLocationUponShutdownPrepare() throws Exception {
         long currentTime = System.currentTimeMillis();
         long elapsedTime = SystemClock.elapsedRealtimeNanos();
         Location timbuktu = new Location(LocationManager.GPS_PROVIDER);
@@ -367,8 +367,24 @@ public class CarLocationServiceTest {
         mCarLocationService.init();
         mCarLocationService.onReceive(mMockContext,
                 new Intent(LocationManager.MODE_CHANGED_ACTION));
-        mLatch.await();
         verify(mMockLocationManager, times(1)).isLocationEnabled();
+        assertFalse(getLocationCacheFile().exists());
+    }
+
+    /**
+     * Test that the {@link CarLocationService} deletes location_cache.json when the system resumes
+     * from suspend-to-ram.
+     */
+    @Test
+    public void testDeletesCacheFileUponSuspendExit() throws Exception {
+        when(mMockContext.getSystemService(Context.LOCATION_SERVICE))
+                .thenReturn(mMockLocationManager);
+        when(mMockLocationManager.isLocationEnabled()).thenReturn(false);
+        mCarLocationService.init();
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_EXIT, future);
+        assertTrue(future.isDone());
+        verify(mMockLocationManager, times(0)).isLocationEnabled();
         assertFalse(getLocationCacheFile().exists());
     }
 
@@ -385,7 +401,6 @@ public class CarLocationServiceTest {
         mCarLocationService.init();
         mCarLocationService.onReceive(mMockContext,
                 new Intent(LocationManager.PROVIDERS_CHANGED_ACTION));
-        mLatch.await();
         verify(mMockLocationManager, times(1))
                 .isProviderEnabled(LocationManager.GPS_PROVIDER);
         assertFalse(getLocationCacheFile().exists());
