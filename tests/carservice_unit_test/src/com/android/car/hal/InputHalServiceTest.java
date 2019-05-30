@@ -181,6 +181,28 @@ public class InputHalServiceTest {
         assertThat(event.getRepeatCount()).isEqualTo(0);
     }
 
+    /**
+     * Test for handling rotary knob event.
+     */
+    @Test
+    public void handlesRepeatedKeyWithIndents() {
+        subscribeListener();
+        KeyEvent event = dispatchSingleEventWithIndents(KeyEvent.KEYCODE_VOLUME_UP, 5);
+        assertThat(event.getAction()).isEqualTo(KeyEvent.ACTION_DOWN);
+        assertThat(event.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_VOLUME_UP);
+        assertThat(event.getEventTime()).isEqualTo(0L);
+        assertThat(event.getDownTime()).isEqualTo(0L);
+        assertThat(event.getRepeatCount()).isEqualTo(4);
+
+        when(mUptimeSupplier.getAsLong()).thenReturn(5L);
+        event = dispatchSingleEventWithIndents(KeyEvent.KEYCODE_VOLUME_UP, 5);
+        assertThat(event.getAction()).isEqualTo(KeyEvent.ACTION_DOWN);
+        assertThat(event.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_VOLUME_UP);
+        assertThat(event.getEventTime()).isEqualTo(5L);
+        assertThat(event.getDownTime()).isEqualTo(5L);
+        assertThat(event.getRepeatCount()).isEqualTo(9);
+    }
+
     @Test
     public void handlesKeyUp_withoutKeyDown() {
         subscribeListener();
@@ -233,6 +255,27 @@ public class InputHalServiceTest {
         ArgumentCaptor<KeyEvent> captor = ArgumentCaptor.forClass(KeyEvent.class);
         reset(mInputListener);
         mInputHalService.handleHalEvents(ImmutableList.of(makeKeyPropValue(action, code)));
+        verify(mInputListener).onKeyEvent(captor.capture(), eq(DISPLAY));
+        reset(mInputListener);
+        return captor.getValue();
+    }
+
+    private VehiclePropValue makeKeyPropValueWithIndents(int code, int indents) {
+        VehiclePropValue v = new VehiclePropValue();
+        v.prop = VehicleProperty.HW_KEY_INPUT;
+        // Only Key.down can have indents.
+        v.value.int32Values.add(VehicleHwKeyInputAction.ACTION_DOWN);
+        v.value.int32Values.add(code);
+        v.value.int32Values.add(DISPLAY);
+        v.value.int32Values.add(indents);
+        return v;
+    }
+
+    private KeyEvent dispatchSingleEventWithIndents(int code, int indents) {
+        ArgumentCaptor<KeyEvent> captor = ArgumentCaptor.forClass(KeyEvent.class);
+        reset(mInputListener);
+        mInputHalService.handleHalEvents(
+                ImmutableList.of(makeKeyPropValueWithIndents(code, indents)));
         verify(mInputListener).onKeyEvent(captor.capture(), eq(DISPLAY));
         reset(mInputListener);
         return captor.getValue();
