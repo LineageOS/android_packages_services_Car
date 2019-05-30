@@ -63,6 +63,7 @@ class GarageMode {
 
     private boolean mGarageModeActive;
     private JobScheduler mJobScheduler;
+    private List<String> mPendingJobs = new ArrayList<>();
     private Handler mHandler;
     private Runnable mRunnable = new Runnable() {
         @Override
@@ -129,6 +130,10 @@ class GarageMode {
         return mGarageModeActive;
     }
 
+    synchronized List<String> pendingJobs() {
+        return mPendingJobs;
+    }
+
     void enterGarageMode(CompletableFuture<Void> future) {
         LOG.d("Entering GarageMode");
         synchronized (this) {
@@ -141,9 +146,7 @@ class GarageMode {
         ArrayList<Integer> startedUsers =
                 CarLocalServices.getService(CarUserService.class).startAllBackgroundUsers();
         synchronized (this) {
-            for (Integer user : startedUsers) {
-                mStartedBackgroundUsers.add(user);
-            }
+            mStartedBackgroundUsers.addAll(startedUsers);
         }
     }
 
@@ -224,14 +227,21 @@ class GarageMode {
         mHandler.removeCallbacks(mRunnable);
     }
 
-    private int numberOfJobsRunning() {
+    private synchronized int numberOfJobsRunning() {
         List<JobInfo> startedJobs = mJobScheduler.getStartedJobs();
         int count = 0;
+        List<String> currentPendingJobs = new ArrayList<>();
         for (JobSnapshot snap : mJobScheduler.getAllJobSnapshots()) {
             if (startedJobs.contains(snap.getJobInfo())
                     && snap.getJobInfo().isRequireDeviceIdle()) {
+                currentPendingJobs.add(snap.getJobInfo().toString());
                 count++;
             }
+        }
+        if (count > 0) {
+            // We have something pending, so update the list.
+            // (Otherwise, keep the old list.)
+            mPendingJobs = currentPendingJobs;
         }
         return count;
     }
