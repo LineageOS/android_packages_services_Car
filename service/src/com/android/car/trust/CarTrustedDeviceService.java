@@ -202,8 +202,9 @@ public class CarTrustedDeviceService implements CarServiceBase {
             }
         } else {
             mUniqueId = UUID.randomUUID();
-            prefs.edit().putString(UNIQUE_ID_KEY, mUniqueId.toString()).commit();
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (!prefs.edit().putString(UNIQUE_ID_KEY, mUniqueId.toString()).commit()) {
+                mUniqueId = null;
+            } else if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "Generated new trusted unique id: "
                         + prefs.getString(UNIQUE_ID_KEY, ""));
             }
@@ -235,14 +236,19 @@ public class CarTrustedDeviceService implements CarServiceBase {
      *
      * @param deviceId did of trusted device
      * @param encryptionKey encryption key
+     * @return {@code true} if the operation succeeded
      */
-    void saveEncryptionKey(String deviceId, byte[] encryptionKey) {
+    boolean saveEncryptionKey(String deviceId, byte[] encryptionKey) {
         byte[] encryptedKey = encryptWithKeyStore(KEY_ALIAS, encryptionKey);
-        getSharedPrefs()
+        if (encryptedKey == null) {
+            return false;
+        }
+
+        return getSharedPrefs()
                 .edit()
                 .putString(PREF_ENCRYPTION_KEY_PREFIX + deviceId,
                         Base64.encodeToString(encryptedKey, Base64.DEFAULT))
-                .apply();
+                .commit();
     }
 
     /**
