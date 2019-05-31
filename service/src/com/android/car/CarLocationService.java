@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import android.car.drivingstate.CarDrivingStateEvent;
+import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion;
@@ -52,8 +54,8 @@ import java.util.concurrent.CompletableFuture;
  * This service stores the last known location from {@link LocationManager} when a car is parked
  * and restores the location when the car is powered on.
  */
-public class CarLocationService extends BroadcastReceiver implements
-        CarServiceBase, CarPowerStateListenerWithCompletion {
+public class CarLocationService extends BroadcastReceiver implements CarServiceBase,
+        CarPowerStateListenerWithCompletion {
     private static final String TAG = "CarLocationService";
     private static final String FILENAME = "location_cache.json";
     private static final boolean DBG = true;
@@ -73,10 +75,9 @@ public class CarLocationService extends BroadcastReceiver implements
     private HandlerThread mHandlerThread;
     private Handler mHandler;
     private CarPowerManager mCarPowerManager;
+    private CarDrivingStateService mCarDrivingStateService;
 
-    public CarLocationService(
-            Context context,
-            CarUserManagerHelper carUserManagerHelper) {
+    public CarLocationService(Context context, CarUserManagerHelper carUserManagerHelper) {
         logd("constructed");
         mContext = context;
         mCarUserManagerHelper = carUserManagerHelper;
@@ -90,6 +91,16 @@ public class CarLocationService extends BroadcastReceiver implements
         filter.addAction(LocationManager.MODE_CHANGED_ACTION);
         filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
         mContext.registerReceiver(this, filter);
+        mCarDrivingStateService = CarLocalServices.getService(CarDrivingStateService.class);
+        if (mCarDrivingStateService != null) {
+            CarDrivingStateEvent event = mCarDrivingStateService.getCurrentDrivingState();
+            if (event != null && event.eventValue == CarDrivingStateEvent.DRIVING_STATE_MOVING) {
+                deleteCacheFile();
+            } else {
+                mCarDrivingStateService.registerDrivingStateChangeListener(
+                        mICarDrivingStateChangeEventListener);
+            }
+        }
         mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
         if (mCarPowerManager != null) { // null case happens for testing.
             mCarPowerManager.setListenerWithCompletion(CarLocationService.this);
@@ -101,6 +112,10 @@ public class CarLocationService extends BroadcastReceiver implements
         logd("release");
         if (mCarPowerManager != null) {
             mCarPowerManager.clearListener();
+        }
+        if (mCarDrivingStateService != null) {
+            mCarDrivingStateService.unregisterDrivingStateChangeListener(
+                    mICarDrivingStateChangeEventListener);
         }
         mContext.unregisterReceiver(this);
     }
@@ -172,6 +187,22 @@ public class CarLocationService extends BroadcastReceiver implements
             }
         }
     }
+
+    private final ICarDrivingStateChangeListener mICarDrivingStateChangeEventListener =
+            new ICarDrivingStateChangeListener.Stub() {
+                @Override
+                public void onDrivingStateChanged(CarDrivingStateEvent event) {
+                    logd("onDrivingStateChanged " + event);
+                    if (event != null
+                            && event.eventValue == CarDrivingStateEvent.DRIVING_STATE_MOVING) {
+                        deleteCacheFile();
+                        if (mCarDrivingStateService != null) {
+                            mCarDrivingStateService.unregisterDrivingStateChangeListener(
+                                    mICarDrivingStateChangeEventListener);
+                        }
+                    }
+                }
+            };
 
     /**
      * Tells whether or not we should check location permissions for the sake of deleting the
