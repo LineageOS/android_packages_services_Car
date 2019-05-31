@@ -88,8 +88,7 @@ class BLEMessageV1Factory {
             + (FIXED_32_SIZE + FIELD_NUMBER_ENCODING_SIZE)
             + (FIXED_32_SIZE + FIELD_NUMBER_ENCODING_SIZE);
 
-    private BLEMessageV1Factory() {
-    }
+    private BLEMessageV1Factory() {}
 
     /**
      * Method used to generate a single message, the packet number and total packets will set to 1

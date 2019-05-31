@@ -20,6 +20,7 @@ import android.annotation.IntDef;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
@@ -50,6 +51,16 @@ import java.util.UUID;
 class CarTrustAgentBleManager extends BleManager {
 
     private static final String TAG = "CarTrustBLEManager";
+
+    /**
+     * The UUID of the Client Characteristic Configuration Descriptor. This descriptor is
+     * responsible for specifying if a characteristic can be subscribed to for notifications.
+     *
+     * @see <a href="https://www.bluetooth.com/specifications/gatt/descriptors/">
+     *      GATT Descriptors</a>
+     */
+    private static final UUID CLIENT_CHARACTERISTIC_CONFIG =
+            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     /** @hide */
     @IntDef(prefix = {"TRUSTED_DEVICE_OPERATION_"}, value = {
@@ -83,8 +94,8 @@ class CarTrustAgentBleManager extends BleManager {
 
     // Unlock Service and Characteristic UUIDs
     private UUID mUnlockServiceUuid;
-    private UUID mUnlockEscrowTokenUuid;
-    private UUID mUnlockTokenHandleUuid;
+    private UUID mUnlockClientWriteUuid;
+    private UUID mUnlockServerWriteUuid;
     private BluetoothGattService mUnlockGattService;
 
     private BLEMessagePayloadStream mBleMessagePayloadStream = new BLEMessagePayloadStream();
@@ -141,21 +152,18 @@ class CarTrustAgentBleManager extends BleManager {
         if (!mBleMessagePayloadStream.isComplete()) {
             return;
         }
+
         if (uuid.equals(mEnrollmentClientWriteUuid)) {
             if (getEnrollmentService() != null) {
                 getEnrollmentService().onEnrollmentDataReceived(
                         mBleMessagePayloadStream.toByteArray());
             }
-        } else if (uuid.equals(mUnlockEscrowTokenUuid)) {
+        } else if (uuid.equals(mUnlockClientWriteUuid)) {
             if (getUnlockService() != null) {
-                getUnlockService().onUnlockTokenReceived(mBleMessagePayloadStream.toByteArray());
-
-            }
-        } else if (uuid.equals(mUnlockTokenHandleUuid)) {
-            if (getUnlockService() != null) {
-                getUnlockService().onUnlockHandleReceived(mBleMessagePayloadStream.toByteArray());
+                getUnlockService().onUnlockDataReceived(mBleMessagePayloadStream.toByteArray());
             }
         }
+
         mBleMessagePayloadStream.reset();
     }
 
@@ -224,8 +232,8 @@ class CarTrustAgentBleManager extends BleManager {
 
     /**
      * Setup the BLE GATT server for Enrollment. The GATT server for Enrollment comprises of one
-     * GATT Service and 2 characteristics - one for the escrow token to be generated and sent from
-     * the phone and the other for the handle generated and sent by the Head unit.
+     * GATT Service and 2 characteristics - one for the phone to write to and one for the head unit
+     * to write to.
      */
     void setupEnrollmentBleServer() {
         mEnrollmentServiceUuid = UUID.fromString(
@@ -238,17 +246,19 @@ class CarTrustAgentBleManager extends BleManager {
         mEnrollmentGattService = new BluetoothGattService(mEnrollmentServiceUuid,
                 BluetoothGattService.SERVICE_TYPE_PRIMARY);
 
-        // Characteristic to describe the escrow token being used for unlock
+        // Characteristic the connected bluetooth device will write to.
         BluetoothGattCharacteristic clientCharacteristic =
                 new BluetoothGattCharacteristic(mEnrollmentClientWriteUuid,
                         BluetoothGattCharacteristic.PROPERTY_WRITE,
                         BluetoothGattCharacteristic.PERMISSION_WRITE);
 
-        // Characteristic to describe the handle being used for this escrow token
+        // Characteristic that this manager will write to.
         BluetoothGattCharacteristic serverCharacteristic =
                 new BluetoothGattCharacteristic(mEnrollmentServerWriteUuid,
                         BluetoothGattCharacteristic.PROPERTY_NOTIFY,
                         BluetoothGattCharacteristic.PERMISSION_READ);
+
+        addDescriptorToCharacteristic(serverCharacteristic);
 
         mEnrollmentGattService.addCharacteristic(clientCharacteristic);
         mEnrollmentGattService.addCharacteristic(serverCharacteristic);
@@ -257,32 +267,42 @@ class CarTrustAgentBleManager extends BleManager {
     /**
      * Setup the BLE GATT server for Unlocking the Head unit. The GATT server for this phase also
      * comprises of 1 Service and 2 characteristics. However both the token and the handle are sent
-     * ftrom the phone to the head unit.
+     * from the phone to the head unit.
      */
     void setupUnlockBleServer() {
         mUnlockServiceUuid = UUID.fromString(getContext().getString(R.string.unlock_service_uuid));
-        mUnlockEscrowTokenUuid = UUID
-                .fromString(getContext().getString(R.string.unlock_escrow_token_uuid));
-        mUnlockTokenHandleUuid = UUID
-                .fromString(getContext().getString(R.string.unlock_handle_uuid));
+        mUnlockClientWriteUuid = UUID
+                .fromString(getContext().getString(R.string.unlock_client_write_uuid));
+        mUnlockServerWriteUuid = UUID
+                .fromString(getContext().getString(R.string.unlock_server_write_uuid));
 
         mUnlockGattService = new BluetoothGattService(mUnlockServiceUuid,
                 BluetoothGattService.SERVICE_TYPE_PRIMARY);
 
-        // Characteristic to describe the escrow token being used for unlock
-        BluetoothGattCharacteristic tokenCharacteristic = new BluetoothGattCharacteristic(
-                mUnlockEscrowTokenUuid,
+        // Characteristic the connected bluetooth device will write to.
+        BluetoothGattCharacteristic clientCharacteristic = new BluetoothGattCharacteristic(
+                mUnlockClientWriteUuid,
                 BluetoothGattCharacteristic.PROPERTY_WRITE,
                 BluetoothGattCharacteristic.PERMISSION_WRITE);
 
-        // Characteristic to describe the handle being used for this escrow token
-        BluetoothGattCharacteristic handleCharacteristic = new BluetoothGattCharacteristic(
-                mUnlockTokenHandleUuid,
-                BluetoothGattCharacteristic.PROPERTY_WRITE,
-                BluetoothGattCharacteristic.PERMISSION_WRITE);
+        // Characteristic that this manager will write to.
+        BluetoothGattCharacteristic serverCharacteristic = new BluetoothGattCharacteristic(
+                mUnlockServerWriteUuid,
+                BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+                BluetoothGattCharacteristic.PERMISSION_READ);
 
-        mUnlockGattService.addCharacteristic(tokenCharacteristic);
-        mUnlockGattService.addCharacteristic(handleCharacteristic);
+        addDescriptorToCharacteristic(serverCharacteristic);
+
+        mUnlockGattService.addCharacteristic(clientCharacteristic);
+        mUnlockGattService.addCharacteristic(serverCharacteristic);
+    }
+
+    private void addDescriptorToCharacteristic(BluetoothGattCharacteristic characteristic) {
+        BluetoothGattDescriptor descriptor = new BluetoothGattDescriptor(
+                CLIENT_CHARACTERISTIC_CONFIG,
+                BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE);
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        characteristic.addDescriptor(descriptor);
     }
 
     void startEnrollmentAdvertising() {
@@ -340,28 +360,49 @@ class CarTrustAgentBleManager extends BleManager {
         stopGattServer();
     }
 
-    /**
-     * Sends the given message to the specified device.
-     *
-     * @param device  The device to send the message to.
-     * @param message A message to send.
-     */
-    void sendMessage(BluetoothDevice device, byte[] message, OperationType operation,
+    void sendUnlockMessage(BluetoothDevice device, byte[] message, OperationType operation,
             boolean isPayloadEncrypted) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "sendMessage to: " + device.getAddress());
-        }
-        BluetoothGattCharacteristic serverCharacteristic = mEnrollmentGattService
+        BluetoothGattCharacteristic writeCharacteristic = mUnlockGattService
+                .getCharacteristic(mUnlockServerWriteUuid);
+
+        sendMessage(device, writeCharacteristic, message, operation, isPayloadEncrypted);
+    }
+
+    void sendEnrollmentMessage(BluetoothDevice device, byte[] message, OperationType operation,
+            boolean isPayloadEncrypted) {
+        BluetoothGattCharacteristic writeCharacteristic = mEnrollmentGattService
                 .getCharacteristic(mEnrollmentServerWriteUuid);
+
+        sendMessage(device, writeCharacteristic, message, operation, isPayloadEncrypted);
+    }
+
+    /**
+     * Sends the given message to the specified device and characteristic.
+     *
+     * @param device The device to send the message to.
+     * @param characteristic The characteristic to write to.
+     * @param message A message to send.
+     * @param operation The type of operation this message represents.
+     * @param isPayloadEncrypted {@code true} if the message is encrypted.
+     */
+    private void sendMessage(BluetoothDevice device, BluetoothGattCharacteristic characteristic,
+            byte[] message, OperationType operation, boolean isPayloadEncrypted) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "sendMessage to: " + device.getAddress() + "; and characteristic UUID: "
+                    + characteristic.getUuid());
+        }
+
         List<BLEMessage> bleMessages = BLEMessageV1Factory.makeBLEMessages(message, operation,
                 mMtuSize, isPayloadEncrypted);
+
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "sending " + bleMessages.size() + " messages to device");
         }
+
         for (BLEMessage bleMessage : bleMessages) {
             // TODO(b/131719066) get acknowledgement from the phone then continue to send packets
-            serverCharacteristic.setValue(bleMessage.toByteArray());
-            notifyCharacteristicChanged(device, serverCharacteristic, false);
+            characteristic.setValue(bleMessage.toByteArray());
+            notifyCharacteristicChanged(device, characteristic, false);
         }
     }
 
