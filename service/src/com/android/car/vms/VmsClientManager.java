@@ -337,6 +337,9 @@ public class VmsClientManager implements CarServiceBase {
             mHalClient = null;
             notifyListenersOnClientDisconnected(HAL_CLIENT_NAME);
         }
+        synchronized (mRebindCounts) {
+            mRebindCounts.computeIfAbsent(HAL_CLIENT_NAME, k -> new AtomicLong()).incrementAndGet();
+        }
     }
 
     class ClientConnection implements ServiceConnection {
