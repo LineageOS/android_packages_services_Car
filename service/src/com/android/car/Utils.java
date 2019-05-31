@@ -15,15 +15,16 @@
  */
 package com.android.car;
 
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
 import android.util.SparseArray;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.UUID;
@@ -251,6 +252,30 @@ public class Utils {
     public static String generateRandomNumberString(int length) {
         return String.format("%0" + length + "d",
                 ThreadLocalRandom.current().nextInt((int) Math.pow(10, length)));
+    }
+
+
+    /**
+     * Concatentate the given 2 byte arrays
+     *
+     * @param a input array 1
+     * @param b input array 2
+     * @return concatenated array of arrays 1 and 2
+     */
+    @Nullable
+    public static byte[] concatByteArrays(@Nullable byte[] a, @Nullable byte[] b) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            if (a != null) {
+                outputStream.write(a);
+            }
+            if (b != null) {
+                outputStream.write(b);
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        return outputStream.toByteArray();
     }
 
 }
