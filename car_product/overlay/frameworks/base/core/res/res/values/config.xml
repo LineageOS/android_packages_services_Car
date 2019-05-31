@@ -80,5 +80,8 @@
          display, this value should be true. -->
     <bool name="config_perDisplayFocusEnabled">true</bool>
 
+    <!-- True if the device supports split screen as a form of multi-window. -->
+    <bool name="config_supportsSplitScreenMultiWindow">false</bool>
+
     <string name="config_dataUsageSummaryComponent">com.android.car.settings/com.android.car.settings.datausage.DataWarningAndLimitActivity</string>
 </resources>
