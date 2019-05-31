@@ -243,6 +243,7 @@ public class CarTrustAgentUnlockService {
             queueMessageForLog("onRemoteDeviceConnected (addr:" + device.getAddress() + ")");
             mRemoteUnlockDevice = device;
         }
+        resetEncryptionState();
         mCurrentUnlockState = UNLOCK_STATE_WAITING_FOR_UNIQUE_ID;
     }
 
@@ -255,6 +256,7 @@ public class CarTrustAgentUnlockService {
         synchronized (mDeviceLock) {
             mRemoteUnlockDevice = null;
         }
+        resetEncryptionState();
         mCurrentUnlockState = UNLOCK_STATE_WAITING_FOR_UNIQUE_ID;
     }
 
@@ -570,6 +572,7 @@ public class CarTrustAgentUnlockService {
         synchronized (mHandleLock) {
             mUnlockHandle = null;
         }
+        resetEncryptionState();
     }
 
     void dump(PrintWriter writer) {
