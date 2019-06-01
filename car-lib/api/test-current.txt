@@ -7,6 +7,14 @@ package android.car.content.pm {
 
 }
 
+package android.car.drivingstate {
+
+  public final class CarDrivingStateManager {
+    method public void injectDrivingState(int);
+  }
+
+}
+
 package android.car.media {
 
   public final class CarAudioManager {
