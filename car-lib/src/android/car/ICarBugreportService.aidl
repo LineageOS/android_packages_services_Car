@@ -26,13 +26,6 @@ import android.car.ICarBugreportCallback;
  interface ICarBugreportService {
 
     /**
-     * Starts bugreport service to capture a bugreport.
-     * This method will be removed once all the clients transition to the new API.
-     * @deprecated
-     */
-    void requestBugreport(in ParcelFileDescriptor pfd, ICarBugreportCallback callback) = 1;
-
-    /**
      * Starts bugreport service to capture a zipped bugreport. The caller needs to provide
      * two file descriptors. The "output" file descriptor will be used to provide the actual
      * zip file and the "progress" descriptor will be used to provide the progress information.
@@ -43,6 +36,6 @@ import android.car.ICarBugreportCallback;
      *     here</a>
      */
     void requestZippedBugreport(in ParcelFileDescriptor output, in ParcelFileDescriptor progress,
-        ICarBugreportCallback callback) = 2;
+        ICarBugreportCallback callback) = 1;
  }
 

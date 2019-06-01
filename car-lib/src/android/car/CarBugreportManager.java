@@ -139,31 +139,6 @@ public final class CarBugreportManager implements CarManagerBase {
     }
 
     /**
-     * Request a bug report. An old style flat bugreport is generated in the background.
-     * The fd is closed when bugreport is written or if an exception happens.
-     * This API will be removed once the clients move the new API.
-     *
-     * @param fd  the dump file
-     * @param callback  the callback for reporting dump status
-     * @deprecated  use requestZippedbugreport instead.
-     */
-    @RequiresPermission(android.Manifest.permission.DUMP)
-    public void requestBugreport(@NonNull ParcelFileDescriptor fd,
-            @NonNull CarBugreportManagerCallback callback) {
-        try {
-            Preconditions.checkNotNull(fd);
-            Preconditions.checkNotNull(callback);
-            CarBugreportManagerCallbackWrapper wrapper =
-                    new CarBugreportManagerCallbackWrapper(callback, mHandler);
-            mService.requestBugreport(fd, wrapper);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        } finally {
-            IoUtils.closeQuietly(fd);
-        }
-    }
-
-    /**
      * Request a bug report. An zipped bugreport is generated in the background.
      * The file descriptors are closed when bugreport is written or if an exception happens.
      * The progress protocol is described
