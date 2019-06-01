@@ -6,9 +6,16 @@ option java_package = "com.android.car.BLEStreamProtos";
 option java_outer_classname = "VersionExchangeProto";
 
 message BLEVersionExchange {
-  // Required.
-  int32 minSupportedVersion = 1;
+  // Minimum supported protobuf version.
+  int32 minSupportedMessagingVersion = 1;
 
-  // Required.
-  int32 maxSupportedVersion = 2;
+  // Maximum supported protobuf version.
+  int32 maxSupportedMessagingVersion = 2;
+
+  // Minimum supported version of the encryption engine.
+  int32 minSupportedSecurityVersion = 3;
+
+  // Maximum supported version of the encryption engine.
+  int32 maxSupportedSecurityVersion = 4;
+
 }
