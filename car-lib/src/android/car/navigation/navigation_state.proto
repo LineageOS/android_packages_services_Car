@@ -1,0 +1,501 @@
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package android.car.cluster.navigation;
+
+option java_package = "android.car.cluster.navigation";
+option java_outer_classname = "NavigationState";
+
+// A reference to an image. This message encapsulates a 'content://' style URI
+// plus additional metadata about image.
+//
+// Sizing: The aspect ratio of the image is given in aspect_ratio.
+//         By appending a 'w' and 'h' parameter to the image URL, a specific
+//         size can be requested. There is no guarantee that the specific size
+//         requested will actually be returned, however.
+// Margins: The images should not have internal margins.
+// Format: Content URI must reference a file with MIME type
+//         'image/png', 'image/jpeg' or 'image/bmp'.
+// Color: Images can be either "tintable" or not. A "tintable" image is such that
+//        all its content is defined in its alpha channel, while its color
+//        (all other channels) can be altered without losing information
+//        (e.g.: icons). A non "tintable" images contains information in all its
+//        channels (e.g.: photos).
+// Caching: Given the same image reference and the same requested size,
+//          it is assumed that the exact same image will always be returned.
+//          This means that it should be safe to cache an image once requested
+//          the first time, using this image reference plus requested size as key,
+//          for as long as needed.
+message ImageReference {
+  // A URI that can be used to retrieve an image from the producer,
+  // or empty if this image reference is not properly formed.
+  //
+  // Consumers must specify a desired image size,
+  // by adding the following two parameters to the received URI:
+  //   w: width desired maximum width (must be greater than 0)
+  //   h: height desired maximum height (must be greater than 0)
+  //
+  // For example, if the producer provides
+  // content_uri = “content://some.package.name/some/path”, the consumer
+  // must request “content://some.package.name/some/path?w=<width>&h=<height>”.
+  //
+  // Producers can optionally use these size constraints to provide an
+  // optimized version of the image, but the resulting image might still
+  // not match the requested size.
+  string content_uri = 1;
+
+  // The aspect ratio of the image, being width divided by height.
+  double aspect_radio = 2;
+
+  // Indicates whether this image is "tintable" or not.
+  // An image is "tintable" when all its content is defined in its
+  // alpha-channel, designed to be colorized
+  // (e.g. using android.graphics.PorterDuff.Mode#SRC_ATOP image composition).
+  bool is_tintable = 3;
+}
+
+// Distance along the planned route between relevant points in the navigation
+message Distance {
+  // Possible units used to display this distance.
+  enum Unit {
+    // Display unit is unknown to the consumer,
+    // in which case, the distance shouldn't be displayed.
+    UNKNOWN = 0;
+    METERS = 1;
+    KILOMETERS = 2;
+    MILES = 3;
+    FEET = 4;
+    YARDS = 5;
+  }
+
+  // The distance in meters.
+  int32 meters = 1;
+
+  //  The distance measured in the unit indicated at display_units, already
+  //  internationalized and ready for display, or empty if no distance value
+  //  was provided. In the later case, the consumer shouldn't display this
+  //  distance to the driver.
+  //
+  //  This distance is for display only (it might be a rounded representation
+  //  of the actual distance) and it should mirror the distance displayed
+  //  by the producer in its own UI.
+  //
+  //  For example, a distance of 1200 meters in ES_es locale could be
+  //  represented with display_value of "1,2" and display_units of KILOMETERS.
+  //    string display_value = 2;
+  //
+  //  The distance unit (adjusted to the current user's locale and/or location).
+  Unit display_units = 3;
+}
+
+// Information about a maneuver that the driver will be required to perform.
+message Maneuver {
+  enum Type {
+    // Maneuver type is unknown to the consumer, in which case the consumer
+    // shouldn't show any maneuver information.
+    UNKNOWN = 0;
+
+    // Starting point of the navigation (e.g. "Start driving on Main St.")
+    DEPART = 1;
+
+    // No turn, but the street name changes (e.g. "Continue on Main St.")
+    NAME_CHANGE = 2;
+
+    // No turn (0-10 degrees). Used when we just wish to say
+    // "Keep left" or "Keep right". Note that this is used in contrast to
+    // STRAIGHT for disambiguating cases where there is more than one option
+    // to go into the same general direction.
+    KEEP_LEFT = 3;
+    KEEP_RIGHT = 4;
+
+    // Slight turn at an intersection
+    // from 10 (included) to 45 (excluded) degrees.
+    TURN_SLIGHT_LEFT = 5;
+    TURN_SLIGHT_RIGHT = 6;
+
+    // Regular turn at an intersection
+    // from 45 (included) to 135 (excluded) degrees.
+    TURN_NORMAL_LEFT = 7;
+    TURN_NORMAL_RIGHT = 8;
+
+    // Sharp turn at an intersection
+    // from 135 (included) to 175 (excluded) degrees.
+    TURN_SHARP_LEFT = 9;
+    TURN_SHARP_RIGHT = 10;
+
+    // A turn onto the opposite side of the same street (175-180 degrees).
+    U_TURN_LEFT = 11;
+    U_TURN_RIGHT = 12;
+
+    // A turn to enter a turnpike or freeway.
+    // See TURN_NORMAL_LEFT, TURN_SLIGHT_RIGHT, etc
+    // for the difference between slight, sharp, etc.
+    ON_RAMP_SLIGHT_LEFT = 13;
+    ON_RAMP_SLIGHT_RIGHT = 14;
+    ON_RAMP_NORMAL_LEFT = 15;
+    ON_RAMP_NORMAL_RIGHT = 16;
+    ON_RAMP_SHARP_LEFT = 17;
+    ON_RAMP_SHARP_RIGHT = 18;
+    ON_RAMP_U_TURN_LEFT = 19;
+    ON_RAMP_U_TURN_RIGHT = 20;
+
+    // A turn to exit a turnpike or freeway.
+    // See TURN_NORMAL_LEFT, TURN_SLIGHT_RIGHT, etc
+    // for the difference between slight, sharp, etc.
+    OFF_RAMP_SLIGHT_LEFT = 21;
+    OFF_RAMP_SLIGHT_RIGHT = 22;
+    OFF_RAMP_NORMAL_LEFT = 23;
+    OFF_RAMP_NORMAL_RIGHT = 24;
+
+    // Road diverges (e.g. "Keep left/right at the fork").
+    FORK_LEFT = 25;
+    FORK_RIGHT = 26;
+
+    // Current road joins another (e.g. "Merge left/right onto Main St.").
+    MERGE_LEFT = 27;
+    MERGE_RIGHT = 28;
+
+    // Roundabout entrance on which the current road ends
+    // (e.g. "Enter the roundabout").
+    ROUNDABOUT_ENTER = 29;
+
+    // Used when leaving a roundabout when the step starts in it
+    // (e.g. "Exit the roundabout").
+    ROUNDABOUT_EXIT = 30;
+
+    // The following are entrance and exit
+    // (e.g. "At the roundabout, take Nth exit") on a clockwise roundabout
+    // (as seen from above, typical for left-hand drive countries)
+    // where the exit is a particular turn amount (sharp right, vs normal left,
+    // etc - see the definitions for TURN_SHARP_LEFT, TURN_SLIGHT_RIGHT, etc
+    // for a definition of what "sharp" vs. "normal" vs. "slight" is.
+    ROUNDABOUT_ENTER_AND_EXIT_CW_SHARP_RIGHT = 31;
+    ROUNDABOUT_ENTER_AND_EXIT_CW_NORMAL_RIGHT = 32;
+    ROUNDABOUT_ENTER_AND_EXIT_CW_SLIGHT_RIGHT = 33;
+    ROUNDABOUT_ENTER_AND_EXIT_CW_STRAIGHT = 34;
+    ROUNDABOUT_ENTER_AND_EXIT_CW_SHARP_LEFT = 35;
+    ROUNDABOUT_ENTER_AND_EXIT_CW_NORMAL_LEFT = 36;
+    ROUNDABOUT_ENTER_AND_EXIT_CW_SLIGHT_LEFT = 37;
+    ROUNDABOUT_ENTER_AND_EXIT_CW_U_TURN = 38;
+
+    // The following are entrance and exit
+    // (e.g. "At the roundabout, take Nth exit") on a counter-clockwise
+    // roundabout (as seen from above, typical for right-hand drive countries)
+    // where the exit is a particular turn amount (sharp right, vs normal left,
+    // etc - see the definitions for TURN_SHARP_LEFT, TURN_SLIGHT_RIGHT, etc
+    // for a definition of what "sharp" vs. "normal" vs. "slight" is.
+    ROUNDABOUT_ENTER_AND_EXIT_CCW_SHARP_RIGHT = 39;
+    ROUNDABOUT_ENTER_AND_EXIT_CCW_NORMAL_RIGHT = 40;
+    ROUNDABOUT_ENTER_AND_EXIT_CCW_SLIGHT_RIGHT = 41;
+    ROUNDABOUT_ENTER_AND_EXIT_CCW_STRAIGHT = 42;
+    ROUNDABOUT_ENTER_AND_EXIT_CCW_SHARP_LEFT = 43;
+    ROUNDABOUT_ENTER_AND_EXIT_CCW_NORMAL_LEFT = 44;
+    ROUNDABOUT_ENTER_AND_EXIT_CCW_SLIGHT_LEFT = 45;
+    ROUNDABOUT_ENTER_AND_EXIT_CCW_U_TURN = 46;
+
+    // Driver should steer straight.
+    STRAIGHT = 47;
+
+    // Drive towards a boat ferry for vehicles (e.g. "Take the ferry").
+    FERRY_BOAT = 48;
+
+    // Drive towards a train ferry for vehicles (e.g. "Take the train").
+    FERRY_TRAIN = 49;
+
+    // Arrival to a destination where the direction is unknown.
+    DESTINATION = 50;
+
+    // Arrival to a destination located in a particular direction
+    // (straight ahead, left side of the road, right side of the road).
+    DESTINATION_STRAIGHT = 51;
+    DESTINATION_LEFT = 52;
+    DESTINATION_RIGHT = 53;
+  }
+
+  // The type of the maneuver.
+  Type type = 1;
+
+  // The roundabout exit number, starting from 1 to designate the first exit
+  // after joining the roundabout, and increasing in circulation order.
+  // Only relevant if type is ROUNDABOUT_EXIT or any variation of
+  // ROUNDABOUT_ENTER_AND_EXIT.
+  //
+  // For example, if the driver is joining a counter-clockwise roundabout
+  // with 4 exits, then the exit to the right would be exit #1, the one
+  // straight ahead would be exit #2, the one to the left would be exit #3
+  // and the one used by the driver to join the roundabout would be exit #4.
+  int32 roundabout_exit_number = 2;
+
+  // A reference to an image representing this maneuver,
+  // or not present if image representation is not available.
+  ImageReference icon = 3;
+}
+
+// Configuration of a single lane of a road at a particular point in the
+// navigation. It describes all possible directions the driver could go
+// from this lane, and indicates which directions the driver could take
+// to stay on the navigation route.
+message Lane {
+  // One of the possible directions a driver can go when using a particular
+  // lane at a particular step in the navigation. This can be used by the
+  // consumer to choose what icon or icons to combine in order to display
+  // a lane configuration to the user.
+  message LaneDirection {
+    enum Shape {
+      // The shape is unknown,
+      // in which case the consumer shouldn't show any lane information at all.
+      UNKNOWN = 0;
+
+      // No turn.
+      STRAIGHT = 1;
+
+      // Slight turn (10-45 degrees).
+      SLIGHT_LEFT = 2;
+
+      // Slight turn (10-45 degrees).
+      SLIGHT_RIGHT = 3;
+
+      // Regular turn (45-135 degrees).
+      NORMAL_LEFT = 4;
+
+      // Regular turn (45-135 degrees).
+      NORMAL_RIGHT = 5;
+
+      // Sharp turn (135-175 degrees).
+      SHARP_LEFT = 6;
+
+      // Sharp turn (135-175 degrees).
+      SHARP_RIGHT = 7;
+
+      // A turn onto the opposite side of the same street (175-180 degrees).
+      U_TURN_LEFT = 8;
+
+      // A turn onto the opposite side of the same street (175-180 degrees).
+      U_TURN_RIGHT = 9;
+    }
+
+    // The shape of this lane direction.
+    Shape shape = 1;
+
+    // True if this is a direction the driver should take in order to stay
+    // in the navigation route, or false if it will take the drive off
+    // the navigation route.
+    bool is_highlighted = 2;
+  }
+
+  // The possible directions a driver can take from this lane.
+  repeated LaneDirection lane_directions = 1;
+}
+
+// An instruction to a user to perform an action during their drive composed of
+// a sequence of graphic elements (e.g.: text, images) to be displayed
+// one after another.
+//
+// Each sequence will have a plain text representation in `alternate_text`
+// and in the case of the absence of a rich representation,
+// the sequence of elements in elements may be left empty.
+// The textual representation may also be used as a fallback for when the
+// elements fail to render.
+message Cue {
+  // One item in the sequence that makes up a Cue,
+  // a sequence of graphic elements that can be displayed one after another.
+  //
+  // A CueElement can contain text and a graphic element as its representation.
+  // Consumers must attempt to render the graphic element if present.
+  // In case of failure to render the CueElement.image, consumers should use
+  // CueElement.text.
+  // If that is empty, consumers must not render any CueElements
+  // and instead use Cue.alternate_text.
+  //
+  // New graphic element types might be added in the future.
+  // If such elements are unknown to the consumer,
+  // they will be delivered to the consumer as text.
+  message CueElement {
+    // The textual representation of this element.
+    //
+    // If image is provided, then this is used as a fallback in the case of
+    // render failures, otherwise this is the string to be used when rendering
+    // this element.
+    string text = 1;
+
+    // An image representing this element.
+    //
+    // This representation should be used over the textual representation
+    // whenever possible. In case of failure to render, initial fallback to
+    // text should be used. Fallback of the entire Cue's text should be used
+    // if `text` above is not provided (empty string).
+    ImageReference image = 2;
+  }
+
+  // The sequence of graphic elements.
+  //
+  // If no rich cue representation is available,
+  // the list may be empty and alternate_text should be used as a fallback.
+  repeated CueElement elements = 1;
+
+  // The plain-text string representing the content of this Cue.
+  string alternate_text = 2;
+}
+
+// An action that the driver should take in order to remain on the current
+// navigation route.
+//
+// For example: turning onto a street, taking a highway exit and merging onto
+// a different highway, continuing straight through a roundabout, etc.
+message Step {
+  // The distance from the current position to the point where
+  // this navigation step should be executed.
+  Distance distance = 1;
+
+  // The maneuver to be performed on this step,
+  // or not present if this step doesn't involve a maneuver.
+  Maneuver maneuver = 2;
+
+  // The configuration of road lanes at the point where the driver should
+  // execute this step, or an empty list if lane configuration metadata
+  // is not available. Lane configurations are listed from left to right.
+  repeated Lane lanes = 3;
+
+  // An image representing the lane configuration at this point in the
+  // navigation, or not present if the lanes configuration image was not
+  // provided. The image, if provided, is expected to contain:
+  //   - A representation of all lanes, one next to the other in a single row.
+  //   - For each lane, a set of arrows, representing each possible driving
+  //     direction (e.g.: straight, left turn, etc.) within such lane.
+  //   - Each of such driving directions that would keep the driver within
+  //     the navigation route should be highlighted.
+  // Lane configuration images are expected to be displayed in a canvas
+  // with fixed height and variable width.
+  ImageReference lanes_image = 4;
+
+  // Auxiliary instructions on how to complete this navigation step,
+  // described as a Cue object containing a sequence of texts
+  // (e.g.: "onto", "Wallaby way") and images (e.g.: road badge of a highway).
+  // If space is not enough to display the complete content of this Cue
+  // instance, consumers must display the beginning of these instructions,
+  // cutting as much from the end as needed.
+  Cue cue = 5;
+}
+
+// An object representing a latitude/longitude pair. This is expressed as a pair
+// of doubles representing degrees latitude and degrees longitude. Unless
+// specified otherwise, this must conform to the
+// <a href="http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf">WGS84
+// standard</a>. Values must be within normalized ranges.
+//
+// Copied from:
+// https://github.com/googleapis/googleapis/blob/master/google/type/latlng.proto
+message LatLng {
+  // The latitude in degrees. It must be in the range [-90.0, +90.0].
+  double latitude = 1;
+  // The longitude in degrees. It must be in the range [-180.0, +180.0].
+  double longitude = 2;
+}
+
+// Final or intermediate stop in a navigation route.
+message Destination {
+  // Congestion level on the way to a destination,
+  // compared to ideal driving conditions.
+  enum Traffic {
+    // Traffic information is not available
+    UNKNOWN = 0;
+
+    // High amount of traffic
+    HIGH = 1;
+
+    // Intermediate amount of traffic
+    MEDIUM = 2;
+
+    // Traffic level close to free flow
+    LOW = 3;
+  }
+
+  // The name of the destination (formatted for the current user's locale),
+  // or empty if destination name is unknown.
+  string title = 1;
+
+  // The address of the destination (formatted for the current user's locale),
+  // or empty if there is no address associated with this destination
+  string address = 2;
+
+  // The travel distance along the route from the current position to this
+  // destination, or not set if distance was not provided or is unknown.
+  Distance distance = 3;
+
+  // The estimated time at arrival at this destination,
+  // or not set if it was not provided or is unknown.
+  // Represents seconds of UTC time since Unix epoch
+  // 1970-01-01T00:00:00Z. Must be from from 0001-01-01T00:00:00Z to
+  // 9999-12-31T23:59:59Z inclusive.
+  int64 estimated_time_at_arrival_seconds = 4;
+
+  // The timezone at destination
+  string zone_id = 5;
+
+  // The geo-location of this destination,
+  // or not set if not provided or unknown.
+  LatLng location = 6;
+
+  // The congestion level on the route to this destination,
+  // compared to to ideal driving conditions.
+  Traffic traffic = 7;
+
+  // The estimated duration between now and arrival,
+  // formatted by the producer(formatted for the current user's locale).
+  // This allows producers to specify roundings as they wish. Example: "7 min".
+  string formatted_duration_until_arrival = 8;
+}
+
+// The description for a road.
+message Road {
+  // Name of the road, for example "Main St" or "101-S".
+  string name = 1;
+}
+
+// Navigation state data to be displayed on the instrument cluster of a car.
+// This is composed of:
+//   - a list of destinations
+//   - the immediate step or steps in order to drive towards those destinations
+message NavigationStateProto {
+  // The navigation steps, in order of execution.
+  // It is up to the producer to decide how many steps in advance will be
+  // provided (and need not be truncated by an upcoming destination).
+  repeated Step steps = 1;
+
+  // The destinations and intermediate stops in the navigation,
+  // sorted in the order in which the driver will arrive to them.
+  repeated Destination destinations = 2;
+
+  // The current road being driven, may not be set if the road
+  // being driven is unknown. This indicates where the driver is at the moment.
+  Road current_road = 3;
+
+  enum ServiceStatus {
+    // Default service status,
+    // indicating that navigation state data is valid and up-to-date.
+    NORMAL = 0;
+
+    // New navigation information is being fetched, and an updated navigation
+    // state will be provided soon. Consumers can use this signal
+    // to display a progress indicator to the user.
+    REROUTING = 1;
+  }
+
+  // Current status of the navigation.
+  ServiceStatus service_status = 4;
+}
