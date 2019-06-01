@@ -16,6 +16,8 @@
 
 package android.car.encryptionrunner;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 /**
  * Factory that creates encryption runner.
  */
@@ -36,7 +38,8 @@ public class EncryptionRunnerFactory {
      * Creates a new {@link EncryptionRunner} one that doesn't actually do encryption but is useful
      * for testing.
      */
-    static EncryptionRunner newDummyRunner() {
+    @VisibleForTesting
+    public static EncryptionRunner newDummyRunner() {
         return new DummyEncryptionRunner();
     }
 }
