@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothGattService;
@@ -176,8 +177,14 @@ public abstract class BleManager {
      */
     protected void notifyCharacteristicChanged(BluetoothDevice device,
             BluetoothGattCharacteristic characteristic, boolean confirm) {
-        if (mGattServer != null) {
-            mGattServer.notifyCharacteristicChanged(device, characteristic, confirm);
+        if (mGattServer == null) {
+            return;
+        }
+
+        boolean result = mGattServer.notifyCharacteristicChanged(device, characteristic, confirm);
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "notifyCharacteristicChanged succeeded: " + result);
         }
     }
 
@@ -224,6 +231,9 @@ public abstract class BleManager {
         }
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "stopGattServer");
+        }
+        if (mBluetoothGatt != null) {
+            mBluetoothGatt.disconnect();
         }
         mGattServer.close();
         mGattServer = null;
@@ -338,6 +348,19 @@ public abstract class BleManager {
                             offset, value);
                     onCharacteristicWrite(device, requestId, characteristic,
                             preparedWrite, responseNeeded, offset, value);
+                }
+
+                @Override
+                public void onDescriptorWriteRequest(BluetoothDevice device, int requestId,
+                        BluetoothGattDescriptor descriptor, boolean preparedWrite,
+                        boolean responseNeeded, int offset, byte[] value) {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "Write request for descriptor: " + descriptor.getUuid()
+                                + "; value: " + Utils.byteArrayToHexString(value));
+                    }
+
+                    mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS,
+                            offset, value);
                 }
 
                 @Override

@@ -19,6 +19,8 @@ package android.car.drivingstate;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.annotation.TestApi;
+import android.car.Car;
 import android.car.CarManagerBase;
 import android.content.Context;
 import android.os.Handler;
@@ -26,15 +28,18 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
 
 /**
  * API to register and get driving state related information in a car.
+ *
  * @hide
  */
 @SystemApi
+@TestApi
 public final class CarDrivingStateManager implements CarManagerBase {
     private static final String TAG = "CarDrivingStateMgr";
     private static final boolean DBG = false;
@@ -64,7 +69,10 @@ public final class CarDrivingStateManager implements CarManagerBase {
 
     /**
      * Listener Interface for clients to implement to get updated on driving state changes.
+     *
+     * @hide
      */
+    @SystemApi
     public interface CarDrivingStateEventListener {
         /**
          * Called when the car's driving state changes.
@@ -77,7 +85,10 @@ public final class CarDrivingStateManager implements CarManagerBase {
      * Register a {@link CarDrivingStateEventListener} to listen for driving state changes.
      *
      * @param listener  {@link CarDrivingStateEventListener}
+     *
+     * @hide
      */
+    @SystemApi
     public synchronized void registerListener(@NonNull CarDrivingStateEventListener listener) {
         if (listener == null) {
             if (VDBG) {
@@ -107,7 +118,10 @@ public final class CarDrivingStateManager implements CarManagerBase {
     /**
      * Unregister the registered {@link CarDrivingStateEventListener} for the given driving event
      * type.
+     *
+     * @hide
      */
+    @SystemApi
     public synchronized void unregisterListener() {
         if (mDrvStateEventListener == null) {
             if (DBG) {
@@ -128,11 +142,35 @@ public final class CarDrivingStateManager implements CarManagerBase {
      * Get the current value of the car's driving state.
      *
      * @return {@link CarDrivingStateEvent} corresponding to the given eventType
+     *
+     * @hide
      */
     @Nullable
+    @SystemApi
     public CarDrivingStateEvent getCurrentCarDrivingState() {
         try {
             return mDrivingService.getCurrentDrivingState();
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Notify registered driving state change listener about injected event.
+     *
+     * @param drivingState Value in {@link CarDrivingStateEvent.CarDrivingState}.
+     *
+     * Requires Permission:
+     * {@link Car#PERMISSION_CONTROL_APP_BLOCKING}
+     *
+     * @hide
+     */
+    @TestApi
+    public void injectDrivingState(int drivingState) {
+        CarDrivingStateEvent event = new CarDrivingStateEvent(
+                drivingState, SystemClock.elapsedRealtimeNanos());
+        try {
+            mDrivingService.injectDrivingState(event);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }

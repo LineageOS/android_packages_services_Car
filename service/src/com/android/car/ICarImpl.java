@@ -150,7 +150,7 @@ public class ICarImpl extends ICar.Stub {
                 mAppFocusService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(
                 serviceContext, mCarAudioService, this);
-        mVmsBrokerService = new VmsBrokerService();
+        mVmsBrokerService = new VmsBrokerService(mContext.getPackageManager());
         mVmsClientManager = new VmsClientManager(
                 serviceContext, mCarUserService, mUserManagerHelper, mHal.getVmsHal());
         mVmsSubscriberService = new VmsSubscriberService(
@@ -169,9 +169,9 @@ public class ICarImpl extends ICar.Stub {
 
         CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
-        CarLocalServices.addService(CarTrustedDeviceService.class,
-                mCarTrustedDeviceService);
+        CarLocalServices.addService(CarTrustedDeviceService.class, mCarTrustedDeviceService);
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
+        CarLocalServices.addService(CarDrivingStateService.class, mCarDrivingStateService);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
@@ -449,7 +449,7 @@ public class ICarImpl extends ICar.Stub {
                     + " without permission " + android.Manifest.permission.DUMP);
             return;
         }
-        if (args == null || args.length == 0) {
+        if (args == null || args.length == 0 || (args.length > 0 && "-a".equals(args[0]))) {
             writer.println("*dump car service*");
 
             writer.println("*FutureConfig, DEFAULT:" + FeatureConfiguration.DEFAULT);
@@ -702,19 +702,19 @@ public class ICarImpl extends ICar.Stub {
             switch (arg) {
                 case PARAM_ON_MODE:
                     mGarageModeService.forceStartGarageMode();
+                    writer.println("Garage mode: " + mGarageModeService.isGarageModeActive());
                     break;
                 case PARAM_OFF_MODE:
                     mGarageModeService.stopAndResetGarageMode();
+                    writer.println("Garage mode: " + mGarageModeService.isGarageModeActive());
                     break;
                 case PARAM_QUERY_MODE:
-                    // Nothing to do. Always query at the end anyway.
+                    mGarageModeService.dump(writer);
                     break;
                 default:
                     writer.println("Unknown value. Valid argument: " + PARAM_ON_MODE + "|"
                             + PARAM_OFF_MODE + "|" + PARAM_QUERY_MODE);
-                    return;
             }
-            writer.println("Garage mode: " + mGarageModeService.isGarageModeActive());
         }
 
         /**
