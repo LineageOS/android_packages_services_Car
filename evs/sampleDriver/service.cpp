@@ -42,12 +42,14 @@ using namespace android;
 
 int main() {
     ALOGI("EVS Hardware Enumerator service is starting");
+
+    // Start a thread to listen video device addition events.
+    std::atomic<bool> running { true };
+    std::thread ueventHandler(EvsEnumerator::EvsUeventThread, std::ref(running));
+
     android::sp<IEvsEnumerator> service = new EvsEnumerator();
 
     configureRpcThreadpool(1, true /* callerWillJoin */);
-
-    std::atomic<bool> running { true };
-    std::thread ueventHandler(EvsEnumerator::EvsUeventThread, std::ref(running));
 
     // Register our service -- if somebody is already registered by our name,
     // they will be killed (their thread pool will throw an exception).

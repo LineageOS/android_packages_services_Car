@@ -23,6 +23,7 @@ import com.android.car.CarServiceBase;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 /**
  * Main service container for car Garage Mode.
@@ -63,11 +64,24 @@ public class GarageModeService implements CarServiceBase {
 
     /**
      * Dumps useful information about GarageMode
-     * @param writer
+     * @param writer Where to dump the information
      */
     @Override
     public void dump(PrintWriter writer) {
-        writer.println("GarageModeInProgress " + mController.isGarageModeActive());
+        boolean isActive = mController.isGarageModeActive();
+        writer.println("GarageModeInProgress " + isActive);
+        List<String> jobs = mController.pendingGarageModeJobs();
+        if (isActive) {
+            writer.println("GarageMode is currently waiting for " + jobs.size() + " jobs:");
+        } else {
+            writer.println("GarageMode was last waiting for " + jobs.size() + " jobs:");
+        }
+        // Dump the names of the jobs that GM is/was waiting for
+        int jobNumber = 1;
+        for (String job : jobs) {
+            writer.println("   " + jobNumber + ": " + job);
+            jobNumber++;
+        }
     }
 
     /**

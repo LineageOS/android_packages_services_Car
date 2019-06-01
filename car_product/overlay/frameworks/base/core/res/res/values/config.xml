@@ -48,6 +48,7 @@
     <!-- Allow smart unlock immediately after boot because the user shouldn't have to enter a pin
          code to unlock their car head unit. -->
     <bool name="config_strongAuthRequiredOnBoot">false</bool>
+    <string name="config_defaultTrustAgent" translatable="false">com.android.car/com.android.car.trust.CarBleTrustAgent</string>
     <!-- Show Navigation Bar -->
     <bool name="config_showNavigationBar">true</bool>
 
@@ -79,6 +80,9 @@
     <!-- Whether the system enables per-display focus. If the system has the input method for each
          display, this value should be true. -->
     <bool name="config_perDisplayFocusEnabled">true</bool>
+
+    <!-- True if the device supports split screen as a form of multi-window. -->
+    <bool name="config_supportsSplitScreenMultiWindow">false</bool>
 
     <string name="config_dataUsageSummaryComponent">com.android.car.settings/com.android.car.settings.datausage.DataWarningAndLimitActivity</string>
 </resources>
