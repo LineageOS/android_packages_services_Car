@@ -33,10 +33,12 @@ import androidx.annotation.Nullable;
 
 import com.android.car.BLEStreamProtos.BLEMessageProto.BLEMessage;
 import com.android.car.BLEStreamProtos.BLEOperationProto.OperationType;
+import com.android.car.BLEStreamProtos.VersionExchangeProto.BLEVersionExchange;
 import com.android.car.CarLocalServices;
 import com.android.car.R;
 import com.android.car.Utils;
 
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
@@ -99,6 +101,10 @@ class CarTrustAgentBleManager extends BleManager {
     private BluetoothGattService mUnlockGattService;
 
     private BLEMessagePayloadStream mBleMessagePayloadStream = new BLEMessagePayloadStream();
+    // This is a boolean because there's only one supported version.
+    private boolean mIsVersionExchanged;
+    private static final int MESSAGING_VERSION = 1;
+    private static final int SECURITY_VERSION = 1;
 
     CarTrustAgentBleManager(Context context) {
         super(context);
@@ -116,6 +122,11 @@ class CarTrustAgentBleManager extends BleManager {
                 && device.getName() == null) {
             retrieveDeviceName(device);
         }
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Reset mIsVersionExchanged to false.");
+        }
+        mIsVersionExchanged = false;
         getTrustedDeviceService().onRemoteDeviceConnected(device);
     }
 
@@ -124,6 +135,10 @@ class CarTrustAgentBleManager extends BleManager {
         if (getTrustedDeviceService() != null) {
             getTrustedDeviceService().onRemoteDeviceDisconnected(device);
         }
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Reset mIsVersionExchanged to false.");
+        }
+        mIsVersionExchanged = false;
     }
 
     @Override
@@ -145,6 +160,19 @@ class CarTrustAgentBleManager extends BleManager {
         UUID uuid = characteristic.getUuid();
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onCharacteristicWrite received uuid: " + uuid);
+        }
+        if (!mIsVersionExchanged) {
+            if (uuid.equals(mEnrollmentClientWriteUuid)) {
+                resolveBLEVersion(device, value, mEnrollmentGattService
+                        .getCharacteristic(mEnrollmentServerWriteUuid));
+            } else if (uuid.equals(mUnlockClientWriteUuid)) {
+                resolveBLEVersion(device, value, mUnlockGattService
+                        .getCharacteristic(mUnlockServerWriteUuid));
+            } else {
+                Log.e(TAG, "Invalid UUID, disconnect remote device.");
+                disconnectRemoteDevice();
+            }
+            return;
         }
         // This write operation is not thread safe individually, but is guarded by the callback
         // here.
@@ -228,6 +256,44 @@ class CarTrustAgentBleManager extends BleManager {
             mRandomName = getTrustedDeviceService().getRandomName();
         }
         return mRandomName;
+    }
+
+    private void resolveBLEVersion(BluetoothDevice device, byte[] value,
+            BluetoothGattCharacteristic characteristic) {
+        BLEVersionExchange versionExchange;
+        try {
+            versionExchange = BLEVersionExchange.parseFrom(value);
+        } catch (IOException e) {
+            disconnectRemoteDevice();
+            Log.e(TAG, "Could not parse version exchange message", e);
+            return;
+        }
+        int minMessagingVersion = versionExchange.getMinSupportedMessagingVersion();
+        int minSecurityVersion = versionExchange.getMinSupportedSecurityVersion();
+        // The supported versions for the communication and security protocol.
+        // Only v1 is supported at this time.
+        // TODO:(b/134094617) get supported versions from BleMessageFactory
+        if (minMessagingVersion != MESSAGING_VERSION || minSecurityVersion != SECURITY_VERSION) {
+            Log.e(TAG, "No supported version (minMessagingVersion: " + minMessagingVersion
+                    + ", minSecurityVersion" + minSecurityVersion + ")");
+            disconnectRemoteDevice();
+            return;
+        }
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Resolved version to (minMessagingVersion: " + minMessagingVersion
+                    + ", minSecurityVersion" + minSecurityVersion + ")");
+        }
+        BLEVersionExchange headUnitVersion = BLEVersionExchange.newBuilder()
+                .setMinSupportedMessagingVersion(MESSAGING_VERSION)
+                .setMaxSupportedMessagingVersion(MESSAGING_VERSION)
+                .setMinSupportedSecurityVersion(SECURITY_VERSION)
+                .setMinSupportedSecurityVersion(SECURITY_VERSION)
+                .build();
+        setValueOnCharacteristicAndNotify(device, headUnitVersion.toByteArray(), characteristic);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Sent supported versioned to the phone.");
+        }
+        mIsVersionExchanged = true;
     }
 
     /**
@@ -378,6 +444,7 @@ class CarTrustAgentBleManager extends BleManager {
 
     /**
      * Sends the given message to the specified device and characteristic.
+     * The message will be splited into multiple messages wrapped in BLEMessage proto.
      *
      * @param device The device to send the message to.
      * @param characteristic The characteristic to write to.
@@ -401,9 +468,14 @@ class CarTrustAgentBleManager extends BleManager {
 
         for (BLEMessage bleMessage : bleMessages) {
             // TODO(b/131719066) get acknowledgement from the phone then continue to send packets
-            characteristic.setValue(bleMessage.toByteArray());
-            notifyCharacteristicChanged(device, characteristic, false);
+            setValueOnCharacteristicAndNotify(device, bleMessage.toByteArray(), characteristic);
         }
+    }
+
+    void setValueOnCharacteristicAndNotify(BluetoothDevice device, byte[] message,
+            BluetoothGattCharacteristic characteristic) {
+        characteristic.setValue(message);
+        notifyCharacteristicChanged(device, characteristic, false);
     }
 
     private final AdvertiseCallback mEnrollmentAdvertisingCallback = new AdvertiseCallback() {
