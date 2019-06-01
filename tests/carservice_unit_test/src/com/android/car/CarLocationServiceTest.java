@@ -28,6 +28,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.drivingstate.CarDrivingStateEvent;
+import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
@@ -73,6 +75,7 @@ import java.util.stream.Collectors;
  * 2. {@link LocationManager} provides dummy {@link Location}s.
  * 3. {@link CarUserManagerHelper} tells whether or not the system user is headless.
  * 4. {@link SystemInterface} tells where to store system files.
+ * 5. {@link CarDrivingStateService} tells about driving state changes.
  */
 @RunWith(AndroidJUnit4.class)
 public class CarLocationServiceTest {
@@ -90,6 +93,8 @@ public class CarLocationServiceTest {
     private CarUserManagerHelper mMockCarUserManagerHelper;
     @Mock
     private SystemInterface mMockSystemInterface;
+    @Mock
+    private CarDrivingStateService mMockCarDrivingStateService;
 
     /**
      * Initialize all of the objects with the @Mock annotation.
@@ -111,6 +116,9 @@ public class CarLocationServiceTest {
         };
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.addService(SystemInterface.class, mMockSystemInterface);
+        CarLocalServices.removeServiceForTest(CarDrivingStateService.class);
+        CarLocalServices.addService(CarDrivingStateService.class, mMockCarDrivingStateService);
+        when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempDirectory);
     }
 
     @After
@@ -142,10 +150,13 @@ public class CarLocationServiceTest {
      */
     @Test
     public void testRegistersToReceiveEvents() {
-        ArgumentCaptor<IntentFilter> argument = ArgumentCaptor.forClass(IntentFilter.class);
+        ArgumentCaptor<IntentFilter> intentFilterArgument = ArgumentCaptor.forClass(
+                IntentFilter.class);
         mCarLocationService.init();
-        verify(mMockContext).registerReceiver(eq(mCarLocationService), argument.capture());
-        IntentFilter intentFilter = argument.getValue();
+        verify(mMockContext).registerReceiver(eq(mCarLocationService),
+                intentFilterArgument.capture());
+        verify(mMockCarDrivingStateService).registerDrivingStateChangeListener(any());
+        IntentFilter intentFilter = intentFilterArgument.getValue();
         assertEquals(3, intentFilter.countActions());
         String[] actions = {intentFilter.getAction(0), intentFilter.getAction(1),
                 intentFilter.getAction(2)};
@@ -159,8 +170,10 @@ public class CarLocationServiceTest {
      */
     @Test
     public void testUnregistersEventReceivers() {
+        mCarLocationService.init();
         mCarLocationService.release();
         verify(mMockContext).unregisterReceiver(mCarLocationService);
+        verify(mMockCarDrivingStateService).unregisterDrivingStateChangeListener(any());
     }
 
     /**
@@ -177,7 +190,6 @@ public class CarLocationServiceTest {
         ArgumentCaptor<Location> argument = ArgumentCaptor.forClass(Location.class);
         when(mMockContext.getSystemService(Context.LOCATION_SERVICE))
                 .thenReturn(mMockLocationManager);
-        when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempDirectory);
         when(mMockLocationManager.injectLocation(argument.capture())).thenReturn(true);
         when(mMockCarUserManagerHelper.isHeadlessSystemUser()).thenReturn(true);
 
@@ -304,7 +316,6 @@ public class CarLocationServiceTest {
         timbuktu.setAccuracy(13.75f);
         timbuktu.setTime(currentTime);
         timbuktu.setElapsedRealtimeNanos(elapsedTime);
-        when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempDirectory);
         when(mMockContext.getSystemService(Context.LOCATION_SERVICE))
                 .thenReturn(mMockLocationManager);
         when(mMockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER))
@@ -326,7 +337,7 @@ public class CarLocationServiceTest {
      * Test that the {@link CarLocationService} does not throw an exception on SUSPEND_EXIT events.
      */
     @Test
-    public void testDoesNotThrowExceptionUponStateChanged() {
+    public void testDoesNotThrowExceptionUponPowerStateChanged() {
         try {
             mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_ENTER, null);
             mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_EXIT, null);
@@ -361,12 +372,16 @@ public class CarLocationServiceTest {
      */
     @Test
     public void testDeletesCacheFileWhenLocationIsDisabled() throws Exception {
+        writeCacheFile("{\"provider\":\"latitude\":16.7666,\"longitude\": \"accuracy\":1.0}");
         when(mMockContext.getSystemService(Context.LOCATION_SERVICE))
                 .thenReturn(mMockLocationManager);
         when(mMockLocationManager.isLocationEnabled()).thenReturn(false);
         mCarLocationService.init();
+        assertTrue(getLocationCacheFile().exists());
+
         mCarLocationService.onReceive(mMockContext,
                 new Intent(LocationManager.MODE_CHANGED_ACTION));
+
         verify(mMockLocationManager, times(1)).isLocationEnabled();
         assertFalse(getLocationCacheFile().exists());
     }
@@ -394,15 +409,46 @@ public class CarLocationServiceTest {
      */
     @Test
     public void testDeletesCacheFileWhenTheGPSProviderIsDisabled() throws Exception {
+        writeCacheFile("{\"provider\":\"latitude\":16.7666,\"longitude\": \"accuracy\":1.0}");
         when(mMockContext.getSystemService(Context.LOCATION_SERVICE))
                 .thenReturn(mMockLocationManager);
         when(mMockLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)).thenReturn(
                 false);
         mCarLocationService.init();
+        assertTrue(getLocationCacheFile().exists());
+
         mCarLocationService.onReceive(mMockContext,
                 new Intent(LocationManager.PROVIDERS_CHANGED_ACTION));
+
         verify(mMockLocationManager, times(1))
                 .isProviderEnabled(LocationManager.GPS_PROVIDER);
+        assertFalse(getLocationCacheFile().exists());
+    }
+
+    /**
+     * Test that the {@link CarLocationService} deletes location_cache.json when the car enters a
+     * moving driving state.
+     */
+    @Test
+    public void testDeletesCacheFileWhenDrivingStateBecomesMoving() throws Exception {
+        writeCacheFile("{\"provider\":\"latitude\":16.7666,\"longitude\": \"accuracy\":1.0}");
+        when(mMockContext.getSystemService(Context.LOCATION_SERVICE))
+                .thenReturn(mMockLocationManager);
+        when(mMockLocationManager.isLocationEnabled()).thenReturn(false);
+        mCarLocationService.init();
+        ArgumentCaptor<ICarDrivingStateChangeListener> changeListenerArgument =
+                ArgumentCaptor.forClass(ICarDrivingStateChangeListener.class);
+        verify(mMockCarDrivingStateService).registerDrivingStateChangeListener(
+                changeListenerArgument.capture());
+        ICarDrivingStateChangeListener changeListener = changeListenerArgument.getValue();
+        assertTrue(getLocationCacheFile().exists());
+
+        changeListener.onDrivingStateChanged(
+                new CarDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_MOVING,
+                        SystemClock.elapsedRealtimeNanos()));
+
+        verify(mMockLocationManager, times(0)).isLocationEnabled();
+        verify(mMockCarDrivingStateService, times(1)).unregisterDrivingStateChangeListener(any());
         assertFalse(getLocationCacheFile().exists());
     }
 

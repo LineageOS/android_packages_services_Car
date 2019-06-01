@@ -219,6 +219,7 @@ public class CarTrustAgentUnlockService {
         // Also disconnect from the peer.
         if (mRemoteUnlockDevice != null) {
             mCarTrustAgentBleManager.disconnectRemoteDevice();
+            mRemoteUnlockDevice = null;
         }
     }
 
@@ -243,6 +244,7 @@ public class CarTrustAgentUnlockService {
             queueMessageForLog("onRemoteDeviceConnected (addr:" + device.getAddress() + ")");
             mRemoteUnlockDevice = device;
         }
+        resetEncryptionState();
         mCurrentUnlockState = UNLOCK_STATE_WAITING_FOR_UNIQUE_ID;
     }
 
@@ -255,6 +257,7 @@ public class CarTrustAgentUnlockService {
         synchronized (mDeviceLock) {
             mRemoteUnlockDevice = null;
         }
+        resetEncryptionState();
         mCurrentUnlockState = UNLOCK_STATE_WAITING_FOR_UNIQUE_ID;
     }
 
@@ -570,6 +573,7 @@ public class CarTrustAgentUnlockService {
         synchronized (mHandleLock) {
             mUnlockHandle = null;
         }
+        resetEncryptionState();
     }
 
     void dump(PrintWriter writer) {
