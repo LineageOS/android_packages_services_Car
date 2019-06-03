@@ -122,15 +122,15 @@ droidstubs {
             api_file: ":android-car-last-released-api",
             removed_api_file: "api/removed.txt",
             args: " -hide 2 -hide 3 -hide 4 -hide 5 -hide 6 -hide 24 -hide 25 -hide 26 -hide 27 " +
-                  " -warning 7 -warning 8 -warning 9 -warning 10 -warning 11 -warning 12 " +
-                  " -warning 13 -warning 14 -warning 15 -warning 16 -warning 17 -warning 18 -hide 113 ",
+                " -warning 7 -warning 8 -warning 9 -warning 10 -warning 11 -warning 12 " +
+                " -warning 13 -warning 14 -warning 15 -warning 16 -warning 17 -warning 18 -hide 113 ",
         },
         current: {
             api_file: "api/current.txt",
             removed_api_file: "api/removed.txt",
             args: " -error 2 -error 3 -error 4 -error 5 -error 6 -error 7 -error 8 -error 9 -error 10 -error 11 " +
-                  " -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 " +
-                  " -error 21 -error 23 -error 24 -error 25 -hide 113 ",
+                " -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 " +
+                " -error 21 -error 23 -error 24 -error 25 -hide 113 ",
         },
     },
 }
@@ -149,15 +149,15 @@ droidstubs {
             api_file: ":android-car-last-released-system-api",
             removed_api_file: "api/system-removed.txt",
             args: " -hide 2 -hide 3 -hide 4 -hide 5 -hide 6 -hide 24 -hide 25 -hide 26 -hide 27 " +
-                  " -warning 7 -warning 8 -warning 9 -warning 10 -warning 11 -warning 12 " +
-                  " -warning 13 -warning 14 -warning 15 -warning 16 -warning 17 -warning 18 -hide 113 ",
+                " -warning 7 -warning 8 -warning 9 -warning 10 -warning 11 -warning 12 " +
+                " -warning 13 -warning 14 -warning 15 -warning 16 -warning 17 -warning 18 -hide 113 ",
         },
         current: {
             api_file: "api/system-current.txt",
             removed_api_file: "api/system-removed.txt",
             args: " -error 2 -error 3 -error 4 -error 5 -error 6 -error 7 -error 8 -error 9 -error 10 -error 11 " +
-                  " -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 " +
-                  " -error 21 -error 23 -error 24 -error 25 -hide 113 ",
+                " -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 " +
+                " -error 21 -error 23 -error 24 -error 25 -hide 113 ",
         },
     },
 }
@@ -211,4 +211,26 @@ java_library_static {
         },
     },
     compile_dex: true,
+}
+
+// Export the api/system-current.txt file.
+filegroup {
+    name: "car-api-system-current.txt",
+    visibility: [
+        "//cts/tests/signature/api",
+    ],
+    srcs: [
+        "api/system-current.txt",
+    ],
+}
+
+// Export the api/system-removed.txt file.
+filegroup {
+    name: "car-api-system-removed.txt",
+    visibility: [
+        "//cts/tests/signature/api",
+    ],
+    srcs: [
+        "api/system-removed.txt",
+    ],
 }
