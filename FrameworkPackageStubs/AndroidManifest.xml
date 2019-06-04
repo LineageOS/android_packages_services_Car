@@ -136,6 +136,16 @@
             </intent-filter>
         </activity>
 
+        <!-- Ignore Battery Optimization Setting -->
+        <activity android:name=".Stubs$IgnoreBatteryOptimizationSettingsStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <!-- WebView Setting -->
         <activity android:name=".Stubs$WebViewSettingsStub"
                   android:label="@string/stub_name"
