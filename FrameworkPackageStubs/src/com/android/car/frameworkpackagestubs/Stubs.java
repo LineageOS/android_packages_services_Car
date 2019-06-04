@@ -92,4 +92,9 @@ public final class Stubs {
      * Stub activity for setting events.
      */
     public static class SettingsStub extends BaseActivity { }
+
+    /**
+     * Stub activity for webview setting.
+     */
+    public static class WebViewSettingsStub extends BaseActivity { }
 }
