@@ -135,5 +135,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <!-- WebView Setting -->
+        <activity android:name=".Stubs$WebViewSettingsStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.settings.WEBVIEW_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
