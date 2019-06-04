@@ -94,6 +94,11 @@ public final class Stubs {
     public static class SettingsStub extends BaseActivity { }
 
     /**
+     * Stub activity for ignore battery optimization setting.
+     */
+    public static class IgnoreBatteryOptimizationSettingsStub extends BaseActivity { }
+
+    /**
      * Stub activity for webview setting.
      */
     public static class WebViewSettingsStub extends BaseActivity { }
