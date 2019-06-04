@@ -99,6 +99,11 @@ public final class Stubs {
     public static class IgnoreBatteryOptimizationSettingsStub extends BaseActivity { }
 
     /**
+     * Stub activity for request ignore battery optimization.
+     */
+    public static class RequestIgnoreBatteryOptimizationsStub extends BaseActivity { }
+
+    /**
      * Stub activity for webview setting.
      */
     public static class WebViewSettingsStub extends BaseActivity { }
