@@ -172,6 +172,7 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(CarTrustedDeviceService.class, mCarTrustedDeviceService);
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
         CarLocalServices.addService(CarDrivingStateService.class, mCarDrivingStateService);
+        CarLocalServices.addService(PerUserCarServiceHelper.class, mPerUserCarServiceHelper);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
