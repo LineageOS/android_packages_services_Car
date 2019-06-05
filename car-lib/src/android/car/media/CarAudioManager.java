@@ -29,6 +29,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.Display;
+import android.view.DisplayAddress;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +73,18 @@ public final class CarAudioManager implements CarManagerBase {
     @SystemApi
     public static final String AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS =
             "android.car.media.AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS";
+
+    /**
+     * Extra for {@link android.media.AudioAttributes.Builder#addBundle(Bundle)}: when used in an
+     * {@link android.media.AudioFocusRequest}, the requester should receive all audio focus for the
+     * the zone. If the zone id is not defined: the audio focus request will default to the
+     * currently mapped zone for the requesting uid or {@link CarAudioManager.PRIMARY_AUDIO_ZONE}
+     * if no uid mapping currently exist.
+     *
+     * @hide
+     */
+    public static final String AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID =
+            "android.car.media.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID";
 
     private final ICarAudio mService;
     private final List<CarVolumeCallback> mCarVolumeCallbacks;
@@ -471,6 +485,43 @@ public final class CarAudioManager implements CarManagerBase {
     public boolean clearZoneIdForUid(int uid) {
         try {
             return mService.clearZoneIdForUid(uid);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Get the zone id for the display
+     *
+     * @param  display display to query
+     * @return zone id for display or
+     * CarAudioManager.PRIMARY_AUDIO_ZONE if no match is found.
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public int getZoneIdForDisplay(Display display) {
+        DisplayAddress address = display.getAddress();
+        if (address instanceof DisplayAddress.Physical) {
+            DisplayAddress.Physical physicalAddress = (DisplayAddress.Physical) address;
+            if (physicalAddress != null) {
+                return getZoneIdForDisplayPortId(physicalAddress.getPort());
+            }
+        }
+        return PRIMARY_AUDIO_ZONE;
+    }
+
+    /**
+     * Get the zone id for the display port id passed in
+     *
+     * @param  displayPortId display port id to query
+     * @return zone id for display port id or
+     * CarAudioManager.PRIMARY_AUDIO_ZONE if no match is found.
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public int getZoneIdForDisplayPortId(byte displayPortId) {
+        try {
+            return mService.getZoneIdForDisplayPortId(displayPortId);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
