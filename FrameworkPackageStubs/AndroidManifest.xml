@@ -135,5 +135,47 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <!-- Ignore Background Data Restriction Setting -->
+        <activity android:name=".Stubs$IgnoreBackgroundDataRestrictionsSettingsStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.settings.IGNORE_BACKGROUND_DATA_RESTRICTIONS_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </activity>
+
+        <!-- Ignore Battery Optimization Setting -->
+        <activity android:name=".Stubs$IgnoreBatteryOptimizationSettingsStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Request Ignore Battery Optimization Setting -->
+        <activity android:name=".Stubs$RequestIgnoreBatteryOptimizationsStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </activity>
+
+        <!-- WebView Setting -->
+        <activity android:name=".Stubs$WebViewSettingsStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.settings.WEBVIEW_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
