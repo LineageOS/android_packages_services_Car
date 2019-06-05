@@ -16,10 +16,10 @@
 
 <resources>
 
-  <string name="launcher_activity_message">Uninstall this after CTS finishs\n\n
+  <string name="launcher_activity_message" translatable="false">Uninstall this after CTS finishs\n\n
     To uninstall, you can use Setting app or run the following command:\n
     adb uninstall com.android.car.dummylauncher
   </string>
-    <string name="app_name">Dummy Launcher for CTS</string>
+  <string name="app_name" translatable="false">Dummy Launcher for CTS</string>
 
 </resources>
