@@ -552,6 +552,23 @@ public class VehicleHal extends IVehicleCallback.Stub {
         onPropertyEvent(Lists.newArrayList(v));
     }
 
+    /**
+     * Inject an error event.
+     *
+     * @param property the Vehicle property Id as defined in the HAL
+     * @param zone Zone for the event to inject
+     * @param errorCode Error code return from HAL
+     */
+    public void injectOnPropertySetError(String property, String zone, String errorCode) {
+        if (zone == null || property == null || errorCode == null) {
+            return;
+        }
+        int propId = Integer.decode(property);
+        int zoneId = Integer.decode(zone);
+        int errorId = Integer.decode(errorCode);
+        onPropertySetError(errorId, propId, zoneId);
+    }
+
     private static class VehiclePropertyEventInfo {
         private int eventCount;
         private VehiclePropValue lastEvent;
