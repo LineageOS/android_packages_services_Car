@@ -17,11 +17,13 @@
 package com.android.car.audio;
 
 import android.annotation.NonNull;
+import android.car.media.CarAudioManager;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.android.car.CarLog;
@@ -101,7 +103,7 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     int reevaluateAndRegainAudioFocus(AudioFocusInfo afi) {
-        CarAudioFocus focus = getFocusForUid(afi.getClientUid());
+        CarAudioFocus focus = getFocusForAudioFocusInfo(afi);
         return focus.reevaluateAndRegainAudioFocus(afi);
     }
 
@@ -125,7 +127,7 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     @Override
     public void onAudioFocusRequest(AudioFocusInfo afi, int requestResult) {
-        CarAudioFocus focus = getFocusForUid(afi.getClientUid());
+        CarAudioFocus focus = getFocusForAudioFocusInfo(afi);
         focus.onAudioFocusRequest(afi, requestResult);
     }
 
@@ -136,15 +138,30 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      */
     @Override
     public void onAudioFocusAbandon(AudioFocusInfo afi) {
-        CarAudioFocus focus = getFocusForUid(afi.getClientUid());
+        CarAudioFocus focus = getFocusForAudioFocusInfo(afi);
         focus.onAudioFocusAbandon(afi);
     }
 
-    private CarAudioFocus getFocusForUid(int uid) {
-        //getZoneIdForUid defaults to returning default zoneId
+    private CarAudioFocus getFocusForAudioFocusInfo(AudioFocusInfo afi) {
+        //getFocusForAudioFocusInfo defaults to returning default zoneId
         //if uid has not been mapped, thus the value returned will be
         //default zone focus
-        int zoneId = mCarAudioService.getZoneIdForUid(uid);
+        int zoneId = mCarAudioService.getZoneIdForUid(afi.getClientUid());
+
+        // If the bundle attribute for AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID has been assigned
+        // Use zone id from that instead.
+        Bundle bundle = afi.getAttributes().getBundle();
+
+        if (bundle != null) {
+            int bundleZoneId =
+                    bundle.getInt(CarAudioManager.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID,
+                            -1);
+            // check if the zone id is within current zones bounds
+            if ((bundleZoneId >= 0)
+                    && (bundleZoneId < mCarAudioService.getAudioZoneIds().length)) {
+                zoneId = bundleZoneId;
+            }
+        }
 
         CarAudioFocus focus =  mFocusZones.get(zoneId);
         return focus;
