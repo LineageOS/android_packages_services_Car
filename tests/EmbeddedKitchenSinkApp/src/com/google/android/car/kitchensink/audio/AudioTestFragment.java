@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.hardware.display.DisplayManager;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFocusRequest;
@@ -36,12 +37,15 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Display;
+import android.view.DisplayAddress;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -53,7 +57,9 @@ import androidx.fragment.app.Fragment;
 import com.google.android.car.kitchensink.CarEmulator;
 import com.google.android.car.kitchensink.R;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class AudioTestFragment extends Fragment {
     private static final String TAG = "CAR.AUDIO.KS";
@@ -69,6 +75,7 @@ public class AudioTestFragment extends Fragment {
     private AudioPlayer mVrPlayer;
     private AudioPlayer mSystemPlayer;
     private AudioPlayer mWavPlayer;
+    private AudioPlayer mMusicPlayerForSelectedDisplay;
     private HwAudioSource mHwAudioSource;
     private AudioPlayer[] mAllPlayers;
 
@@ -82,11 +89,17 @@ public class AudioTestFragment extends Fragment {
     private AudioAttributes mVrAudioAttrib;
     private AudioAttributes mRadioAudioAttrib;
     private AudioAttributes mSystemSoundAudioAttrib;
+    private AudioAttributes mMusicAudioAttribForDisplay;
     private CarEmulator mCarEmulator;
     private CarAudioManager mCarAudioManager;
     private Spinner mZoneSpinner;
     ArrayAdapter<Integer> mZoneAdapter;
+    private Spinner mDisplaySpinner;
+    ArrayAdapter<Integer> mDisplayAdapter;
+    private LinearLayout mDisplayLayout;
     private int mOldZonePosition;
+
+    private static int sDefaultExtraTestScreenPortId = 1;
 
     private final AudioManager.OnAudioFocusChangeListener mNavFocusListener = (focusChange) -> {
         Log.i(TAG, "Nav focus change:" + focusChange);
@@ -137,7 +150,9 @@ public class AudioTestFragment extends Fragment {
                 mZoneSpinner.setAdapter(mZoneAdapter);
                 mZoneSpinner.setEnabled(true);
 
-
+                if (mCarAudioManager.isDynamicRoutingEnabled()) {
+                    setUpDisplayPlayer();
+                }
             }
             @Override
             public void onServiceDisconnected(ComponentName name) {
@@ -162,7 +177,14 @@ public class AudioTestFragment extends Fragment {
         mSystemSoundAudioAttrib = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
             .build();
+        // Create a display audio attribute
+        mMusicAudioAttribForDisplay = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .build();
 
+
+        mMusicPlayerForSelectedDisplay = new AudioPlayer(mContext, R.raw.well_worth_the_wait,
+                mMusicAudioAttribForDisplay);
         mMusicPlayer = new AudioPlayer(mContext, R.raw.well_worth_the_wait,
             mMusicAudioAttrib);
         mMusicPlayerShort = new AudioPlayer(mContext, R.raw.ring_classic_01,
@@ -323,6 +345,33 @@ public class AudioTestFragment extends Fragment {
             }
         });
 
+
+        mDisplayLayout = view.findViewById(R.id.audio_display_layout);
+
+        mDisplaySpinner = view.findViewById(R.id.display_spinner);
+        mDisplaySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                handleDisplaySelection();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        // Manage buttons for audio player for displays
+        view.findViewById(R.id.button_display_media_play_start).setOnClickListener(v -> {
+            startDisplayAudio();
+        });
+        view.findViewById(R.id.button_display_media_play_once).setOnClickListener(v -> {
+            startDisplayAudio();
+            // play only for 1 sec and stop
+            mHandler.postDelayed(() -> mMusicPlayerForSelectedDisplay.stop(), 1000);
+        });
+        view.findViewById(R.id.button_display_media_play_stop)
+                .setOnClickListener(v -> mMusicPlayerForSelectedDisplay.stop());
+
         return view;
     }
 
@@ -459,6 +508,84 @@ public class AudioTestFragment extends Fragment {
         }
         mAudioManager.abandonAudioFocus(mRadioFocusListener, mRadioAudioAttrib);
     }
+
+    private void setUpDisplayPlayer() {
+        DisplayManager displayManager =  (DisplayManager) mContext.getSystemService(
+                Context.DISPLAY_SERVICE);
+        Display[] displays = displayManager.getDisplays();
+        List<Integer> displayList = new ArrayList<>();
+        for (Display display : displays) {
+            DisplayAddress.Physical physical = (DisplayAddress.Physical) display.getAddress();
+            if (physical != null) {
+                displayList.add((int) physical.getPort());
+                Log.d(TAG, "Found Display Port " + physical.getPort());
+            } else {
+                Log.d(TAG, "Found Display with no physical " + display.getDisplayId());
+            }
+        }
+        // If only one display is available add another display for testing
+        if (displayList.size() == 1) {
+            displayList.add(sDefaultExtraTestScreenPortId);
+        }
+
+        //take care of display selection
+        Integer[] displayArray = displayList.stream().toArray(Integer[]::new);
+        mDisplayAdapter = new ArrayAdapter<>(mContext,
+                android.R.layout.simple_spinner_item, displayArray);
+        mDisplayAdapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item);
+        mDisplaySpinner.setAdapter(mDisplayAdapter);
+        createDisplayAudioPlayer();
+    }
+
+    private void createDisplayAudioPlayer() {
+        byte selectedDisplayPortId = mDisplayAdapter.getItem(
+                mDisplaySpinner.getSelectedItemPosition()).byteValue();
+        int zoneIdForDisplayId = mCarAudioManager.getZoneIdForDisplayPortId(selectedDisplayPortId);
+        Log.d(TAG, "Setting Bundle to zone " + zoneIdForDisplayId);
+        Bundle bundle = new Bundle();
+        bundle.putInt(CarAudioManager.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID,
+                zoneIdForDisplayId);
+        mMusicAudioAttribForDisplay = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .addBundle(bundle)
+                .build();
+
+        mMusicPlayerForSelectedDisplay = new AudioPlayer(mContext,
+                R.raw.well_worth_the_wait,
+                mMusicAudioAttribForDisplay);
+
+        mDisplayLayout.findViewById(R.id.audio_display_layout)
+                .setVisibility(View.VISIBLE);
+    }
+
+    private void startDisplayAudio() {
+        byte selectedDisplayPortId = mDisplayAdapter.getItem(
+                mDisplaySpinner.getSelectedItemPosition()).byteValue();
+        int zoneIdForDisplayId = mCarAudioManager.getZoneIdForDisplayPortId(selectedDisplayPortId);
+        Log.d(TAG, "Starting display audio in zone " + zoneIdForDisplayId);
+        // Direct audio to the correct source
+        // TODO: Figure out a way to facilitate this for the user
+        // Currently there is no way of distinguishing apps from the same package to different zones
+        // One suggested way would be to create a unique id for each focus requester that is also
+        // share with the audio router
+        if (zoneIdForDisplayId == CarAudioManager.PRIMARY_AUDIO_ZONE) {
+            mMusicPlayerForSelectedDisplay.start(true, false,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+        } else {
+            // Route everything else to rear seat
+            mMusicPlayerForSelectedDisplay.start(true, false,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, "bus100_rear_seat");
+        }
+    }
+
+    public void handleDisplaySelection() {
+        if (mMusicPlayerForSelectedDisplay != null && mMusicPlayerForSelectedDisplay.isPlaying()) {
+            mMusicPlayerForSelectedDisplay.stop();
+        }
+        createDisplayAudioPlayer();
+    }
+
 
     private class FocusHandler {
         private static final String AUDIO_FOCUS_STATE_GAIN = "gain";
