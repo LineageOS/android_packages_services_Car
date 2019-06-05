@@ -562,6 +562,12 @@ public class CarPropertyManager implements CarManagerBase {
             listeners.forEach(new Consumer<CarPropertyEventCallback>() {
                 @Override
                 public void accept(CarPropertyEventCallback listener) {
+                    if (DBG) {
+                        Log.d(TAG, new StringBuilder().append("onErrorEvent for ")
+                                        .append("property: ").append(value.getPropertyId())
+                                        .append(" areaId: ").append(value.getAreaId())
+                                        .toString());
+                    }
                     listener.onErrorEvent(value.getPropertyId(), value.getAreaId());
                 }
             });
