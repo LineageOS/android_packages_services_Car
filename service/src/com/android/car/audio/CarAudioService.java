@@ -49,6 +49,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.DisplayAddress;
 import android.view.KeyEvent;
 
 import com.android.car.BinderInterfaceContainer;
@@ -931,6 +932,30 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Gets the zone id for the display port id.
+     * @param displayPortId display port id to match
+     * @return zone id for the display port id or
+     * CarAudioManager.PRIMARY_AUDIO_ZONE if none are found
+     */
+    @Override
+    public int getZoneIdForDisplayPortId(byte displayPortId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        synchronized (mImplLock) {
+            for (int index = 0; index < mCarAudioZones.length; index++) {
+                CarAudioZone zone = mCarAudioZones[index];
+                List<DisplayAddress.Physical> displayAddresses = zone.getPhysicalDisplayAddresses();
+                if (displayAddresses.stream().anyMatch(displayAddress->
+                        displayAddress.getPort() == displayPortId)) {
+                    return index;
+                }
+            }
+
+            // Everything else defaults to primary audio zone
+            return CarAudioManager.PRIMARY_AUDIO_ZONE;
+        }
     }
 
     @Override
