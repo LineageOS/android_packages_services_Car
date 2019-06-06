@@ -28,14 +28,7 @@ import android.car.ICarBugreportCallback;
     /**
      * Starts bugreport service to capture a zipped bugreport. The caller needs to provide
      * two file descriptors. The "output" file descriptor will be used to provide the actual
-     * zip file and the "progress" descriptor will be used to provide the progress information.
-     * Both of these descriptors are written by the service and will be read by the client.
-     *
-     * The progress protocol is described
-     * <a href="https://android.googlesource.com/platform/frameworks/native/+/master/cmds/bugreportz/readme.md">
-     *     here</a>
+     * zip file. The file descriptor is written by the service and will be read by the client.
      */
-    void requestZippedBugreport(in ParcelFileDescriptor output, in ParcelFileDescriptor progress,
-        ICarBugreportCallback callback) = 1;
+    void requestZippedBugreport(in ParcelFileDescriptor output, ICarBugreportCallback callback) = 1;
  }
-

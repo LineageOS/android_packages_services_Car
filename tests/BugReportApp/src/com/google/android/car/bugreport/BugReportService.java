@@ -89,7 +89,6 @@ public class BugReportService extends Service {
     // http://cs/android/frameworks/base/core/java/android/app/ActivityView.java
     private static final String ACTIVITY_VIEW_VIRTUAL_DISPLAY = "ActivityViewVirtualDisplay";
     private static final String OUTPUT_ZIP_FILE = "output_file.zip";
-    private static final String PROGRESS_FILE = "progress.txt";
 
     private static final String MESSAGE_FAILURE_DUMPSTATE = "Failed to grab dumpstate";
     private static final String MESSAGE_FAILURE_ZIP = "Failed to zip files";
@@ -250,31 +249,19 @@ public class BugReportService extends Service {
     private void dumpStateToFile() {
         Log.i(TAG, "Dumpstate to file");
         File outputFile = FileUtils.getFile(this, mMetaBugReport.getTimestamp(), OUTPUT_ZIP_FILE);
-        File progressFile = FileUtils.getFile(this, mMetaBugReport.getTimestamp(), PROGRESS_FILE);
 
-        ParcelFileDescriptor outFd = null;
-        ParcelFileDescriptor progressFd = null;
-        try {
-            outFd = ParcelFileDescriptor.open(outputFile,
-                    ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE);
-
-            progressFd = ParcelFileDescriptor.open(progressFile,
-                    ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE);
-
-            requestBugReport(outFd, progressFd);
+        try (ParcelFileDescriptor outFd = ParcelFileDescriptor.open(outputFile,
+                ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE)) {
+            requestBugReport(outFd);
         } catch (IOException | RuntimeException e) {
             Log.e(TAG, "Failed to grab dump state", e);
             BugStorageUtils.setBugReportStatus(this, mMetaBugReport, Status.STATUS_WRITE_FAILED,
                     MESSAGE_FAILURE_DUMPSTATE);
             sendStatusInformation(R.string.toast_status_dump_state_failed);
-        } finally {
-            IoUtils.closeQuietly(outFd);
-            IoUtils.closeQuietly(progressFd);
         }
     }
 
-    // In Android Q and above, use the CarBugreportManager API
-    private void requestBugReport(ParcelFileDescriptor outFd, ParcelFileDescriptor progressFd) {
+    private void requestBugReport(ParcelFileDescriptor outFd) {
         if (DEBUG) {
             Log.d(TAG, "Requesting a bug report from CarBugReportManager.");
         }
@@ -288,12 +275,17 @@ public class BugReportService extends Service {
             }
 
             @Override
+            public void onProgress(float progress) {
+                Log.d(TAG, "bugreport progress received " + progress);
+            }
+
+            @Override
             public void onFinished() {
                 Log.i(TAG, "Bugreport finished");
                 scheduleZipTask();
             }
         };
-        mBugreportManager.requestZippedBugreport(outFd, progressFd, mCallback);
+        mBugreportManager.requestZippedBugreport(outFd, mCallback);
     }
 
     private void scheduleZipTask() {
@@ -371,10 +363,6 @@ public class BugReportService extends Service {
                     continue;
                 }
                 String filename = file.getName();
-                if (filename.equals(PROGRESS_FILE)) {
-                    // Progress file is already part of zipped bugreport - skip it.
-                    continue;
-                }
                 // only for the OUTPUT_FILE, we add invidiual entries to zip file
                 if (filename.equals(OUTPUT_ZIP_FILE)) {
                     extractZippedFileToOutputStream(file, zipStream);
