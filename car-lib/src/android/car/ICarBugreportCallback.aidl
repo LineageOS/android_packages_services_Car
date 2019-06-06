@@ -29,6 +29,13 @@ oneway interface ICarBugreportCallback {
     void onError(int errorCode);
 
     /**
+     * Called when the bugreport progress changes. Progress value is a number between 0.0 and 100.0.
+     *
+     * <p>Never called after {@link #onError()} or {@link onFinished()}.
+     */
+    void onProgress(float progress);
+
+    /**
      * Called when taking bugreport finishes successfully.
      */
     void onFinished();
