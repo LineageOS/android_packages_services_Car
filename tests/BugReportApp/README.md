@@ -1,5 +1,7 @@
 # AAE BugReport App
 
+BugReport App for Android Automotive OS.
+
 ## Flow
 
 1. User long presses Notification icon
@@ -15,3 +17,17 @@
     and when finished it updates MetaBugReport using BugStorageProvider.
 9. BugStorageProvider is running under u0, it schedules UploadJob.
 10. UploadJob runs SimpleUploaderAsyncTask to upload the bugreport.
+
+Bug reports are zipped and uploaded to GCS. GCS enables creating Pub/Sub
+notifications that can be used to track when new  bug reports are uploaded.
+
+## Configuration
+
+UI and upload configs are located in `res/` directory. Resources can be
+[overlayed](https://source.android.com/setup/develop/new-device#use-resource-overlays)
+for specific products.
+
+### Upload configuration
+
+BugReport app uses `res/raw/gcs_credentials.json` for authentication and
+`res/values/configs.xml` for obtaining GCS bucket name.
