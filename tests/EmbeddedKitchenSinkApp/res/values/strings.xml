@@ -132,7 +132,7 @@
     <string name="mock_audio_on" translatable="false">Audio Mocking On</string>
     <string name="mock_audio_off" translatable="false">Audio Mocking Off</string>
     <string name="select_zone" translatable="false">Select Zone</string>
-
+    <string name="select_display" translatable="false">Select Display</string>
 
     <!-- keyboard test fragment -->
     <string name="keyboard_test_title" translatable="false">Keyboard Test</string>
