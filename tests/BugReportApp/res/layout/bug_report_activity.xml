@@ -30,7 +30,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/bug_report_title_size"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/bugreport_text"
             android:gravity="center"
             android:text="@string/bugreport_dialog_title"/>
@@ -44,30 +44,26 @@
             android:layout_marginTop="@dimen/bug_report_voice_recording_margin_top"
             android:layout_width="match_parent"
             android:layout_height="@dimen/bug_report_voice_recording_height"
-            android:textSize="@dimen/bug_report_text_size"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/bugreport_text"
             android:gravity="center"
             android:visibility="gone"
             android:text="@string/bugreport_dialog_recording_finished"/>
         <Button
             android:id="@+id/button_submit"
+            style="@style/standard_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bug_report_button_margin_top"
             android:padding="@dimen/bug_report_primary_button_padding"
-            android:background="@color/bugreport_button_background"
-            android:textColor="@color/bugreport_button_foreground"
-            android:textSize="@dimen/bug_report_button_text_size"
             android:text="@string/bugreport_dialog_submit"/>
         <Button
             android:id="@+id/button_cancel"
+            style="@style/standard_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bug_report_button_margin_top"
             android:padding="@dimen/bug_report_secondary_button_padding"
-            android:background="@color/bugreport_button_background"
-            android:textColor="@color/bugreport_button_foreground"
-            android:textSize="@dimen/bug_report_button_text_size"
             android:text="@string/bugreport_dialog_cancel"/>
     </LinearLayout>
 
@@ -80,27 +76,34 @@
         android:visibility="gone"
         android:orientation="vertical">
         <TextView
+            android:id="@+id/in_progress_title_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/bug_report_title_size"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/bugreport_text"
             android:gravity="center"
             android:text="@string/bugreport_dialog_in_progress_title"/>
         <ProgressBar
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bug_report_progress_bar_margin_top"
-            android:layout_gravity="center"/>
+            android:max="100"/>
+        <TextView
+            android:id="@+id/progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/bugreport_text"
+            android:text="0%"/>
         <Button
             android:id="@+id/button_close"
+            style="@style/standard_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bug_report_button_margin_top"
             android:padding="@dimen/bug_report_secondary_button_padding"
-            android:background="@color/bugreport_button_background"
-            android:textColor="@color/bugreport_button_foreground"
-            android:textSize="@dimen/bug_report_button_text_size"
             android:text="@string/bugreport_dialog_close"/>
     </LinearLayout>
 </LinearLayout>
