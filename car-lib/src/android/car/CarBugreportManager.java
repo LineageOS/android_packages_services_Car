@@ -16,6 +16,7 @@
 
 package android.car;
 
+import android.annotation.FloatRange;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
@@ -74,6 +75,16 @@ public final class CarBugreportManager implements CarManagerBase {
         public static final int CAR_BUGREPORT_SERVICE_NOT_AVAILABLE = 4;
 
         /**
+         * Called when bugreport progress changes.
+         *
+         * <p>It's never called after {@link #onError} or {@link #onFinished}.
+         *
+         * @param progress - a number in [0.0, 100.0].
+         */
+        public void onProgress(@FloatRange(from = 0f, to = 100f) float progress) {
+        }
+
+        /**
          * Called on an error condition with one of the error codes listed above.
          *
          * @param errorCode the error code that defines failure reason.
@@ -110,6 +121,15 @@ public final class CarBugreportManager implements CarManagerBase {
         }
 
         @Override
+        public void onProgress(@FloatRange(from = 0f, to = 100f) float progress) {
+            CarBugreportManagerCallback callback = mWeakCallback.get();
+            Handler handler = mWeakHandler.get();
+            if (handler != null && callback != null) {
+                handler.post(() -> callback.onProgress(progress));
+            }
+        }
+
+        @Override
         public void onError(@CarBugreportManagerCallback.CarBugreportErrorCode int errorCode) {
             CarBugreportManagerCallback callback = mWeakCallback.get();
             Handler handler = mWeakHandler.get();
@@ -123,7 +143,7 @@ public final class CarBugreportManager implements CarManagerBase {
             CarBugreportManagerCallback callback = mWeakCallback.get();
             Handler handler = mWeakHandler.get();
             if (handler != null && callback != null) {
-                handler.post(() -> callback.onFinished());
+                handler.post(callback::onFinished);
             }
         }
     }
@@ -139,37 +159,30 @@ public final class CarBugreportManager implements CarManagerBase {
     }
 
     /**
-     * Request a bug report. An zipped bugreport is generated in the background.
-     * The file descriptors are closed when bugreport is written or if an exception happens.
-     * The progress protocol is described
-     * <a href="https://android.googlesource.com/platform/frameworks/native/+/master/cmds/bugreportz/readme.md">
-     *     here</a>
+     * Request a bug report. A zipped bugreport is generated in the background.
+     *
+     * <p>The file descriptor is closed when bugreport is written or if an exception happens.
      *
      * @param output the zipped bugreport file
-     * @param progress the progress information that includes failure/success status.
      * @param callback  the callback for reporting dump status
      */
     @RequiresPermission(android.Manifest.permission.DUMP)
-    public void requestZippedBugreport(@NonNull ParcelFileDescriptor output,
-            @NonNull ParcelFileDescriptor progress,
-            @NonNull CarBugreportManagerCallback callback) {
+    public void requestZippedBugreport(
+            @NonNull ParcelFileDescriptor output, @NonNull CarBugreportManagerCallback callback) {
         Preconditions.checkNotNull(output);
-        Preconditions.checkNotNull(progress);
         Preconditions.checkNotNull(callback);
         try {
             CarBugreportManagerCallbackWrapper wrapper =
                     new CarBugreportManagerCallbackWrapper(callback, mHandler);
-            mService.requestZippedBugreport(output, progress, wrapper);
+            mService.requestZippedBugreport(output, wrapper);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         } finally {
             IoUtils.closeQuietly(output);
-            IoUtils.closeQuietly(progress);
         }
     }
 
     @Override
     public void onCarDisconnected() {
     }
-
 }
