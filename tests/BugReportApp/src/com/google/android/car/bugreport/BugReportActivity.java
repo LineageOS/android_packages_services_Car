@@ -280,6 +280,8 @@ public class BugReportActivity extends Activity {
                 + Arrays.toString(permissions);
         Log.w(TAG, text);
         Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+        BugStorageUtils.setBugReportStatus(this, mMetaBugReport,
+                Status.STATUS_USER_CANCELLED, text);
         finish();
     }
 
