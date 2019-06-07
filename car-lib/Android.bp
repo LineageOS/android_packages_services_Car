@@ -12,6 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+filegroup {
+    name: "libcarpowermanager_aidl",
+    srcs: [
+        "src/android/car/ICar.aidl",
+        "src/android/car/hardware/power/ICarPower.aidl",
+        "src/android/car/hardware/power/ICarPowerStateListener.aidl",
+    ],
+    path: "src",
+}
+
 cc_library {
     name: "libcarpowermanager",
 
@@ -40,9 +50,7 @@ cc_library {
     ],
 
     srcs: [
-        "src/android/car/ICar.aidl",
-        "src/android/car/hardware/power/ICarPower.aidl",
-        "src/android/car/hardware/power/ICarPowerStateListener.aidl",
+        ":libcarpowermanager_aidl",
         "native/CarPowerManager/CarPowerManager.cpp",
     ],
 }
