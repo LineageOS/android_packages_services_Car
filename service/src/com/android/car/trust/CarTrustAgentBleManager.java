@@ -37,11 +37,14 @@ import com.android.car.BLEStreamProtos.VersionExchangeProto.BLEVersionExchange;
 import com.android.car.CarLocalServices;
 import com.android.car.R;
 import com.android.car.Utils;
+import com.android.car.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.UUID;
 
 /**
@@ -100,11 +103,11 @@ class CarTrustAgentBleManager extends BleManager {
     private UUID mUnlockServerWriteUuid;
     private BluetoothGattService mUnlockGattService;
 
+    private Queue<BLEMessage> mMessageQueue = new LinkedList<>();
     private BLEMessagePayloadStream mBleMessagePayloadStream = new BLEMessagePayloadStream();
+
     // This is a boolean because there's only one supported version.
     private boolean mIsVersionExchanged;
-    private static final int MESSAGING_VERSION = 1;
-    private static final int SECURITY_VERSION = 1;
 
     CarTrustAgentBleManager(Context context) {
         super(context);
@@ -116,6 +119,7 @@ class CarTrustAgentBleManager extends BleManager {
         if (getTrustedDeviceService() == null) {
             return;
         }
+
         // Retrieving device name only happens in enrollment, the retrieved device name will be
         // stored in sharedPreference for further use.
         if (mCurrentTrustedDeviceOperation == TRUSTED_DEVICE_OPERATION_ENROLLMENT
@@ -123,9 +127,7 @@ class CarTrustAgentBleManager extends BleManager {
             retrieveDeviceName(device);
         }
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Reset mIsVersionExchanged to false.");
-        }
+        mMessageQueue.clear();
         mIsVersionExchanged = false;
         getTrustedDeviceService().onRemoteDeviceConnected(device);
     }
@@ -135,9 +137,8 @@ class CarTrustAgentBleManager extends BleManager {
         if (getTrustedDeviceService() != null) {
             getTrustedDeviceService().onRemoteDeviceDisconnected(device);
         }
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Reset mIsVersionExchanged to false.");
-        }
+
+        mMessageQueue.clear();
         mIsVersionExchanged = false;
     }
 
@@ -161,23 +162,37 @@ class CarTrustAgentBleManager extends BleManager {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onCharacteristicWrite received uuid: " + uuid);
         }
+
         if (!mIsVersionExchanged) {
-            if (uuid.equals(mEnrollmentClientWriteUuid)) {
-                resolveBLEVersion(device, value, mEnrollmentGattService
-                        .getCharacteristic(mEnrollmentServerWriteUuid));
-            } else if (uuid.equals(mUnlockClientWriteUuid)) {
-                resolveBLEVersion(device, value, mUnlockGattService
-                        .getCharacteristic(mUnlockServerWriteUuid));
-            } else {
-                Log.e(TAG, "Invalid UUID, disconnect remote device.");
-                disconnectRemoteDevice();
-            }
+            resolveBLEVersion(device, value, uuid);
             return;
         }
+
+        BLEMessage message;
+        try {
+            message = BLEMessage.parseFrom(value);
+        } catch (InvalidProtocolBufferException e) {
+            Log.e(TAG, "Can not parse BLE message", e);
+            return;
+        }
+
+        if (message.getOperation() == OperationType.ACK) {
+            handleClientAckMessage(device, uuid);
+            return;
+        }
+
         // This write operation is not thread safe individually, but is guarded by the callback
         // here.
-        mBleMessagePayloadStream.write(value);
+        try {
+            mBleMessagePayloadStream.write(message);
+        } catch (IOException e) {
+            Log.e(TAG, "Can write the BLE message's payload", e);
+            return;
+        }
+
         if (!mBleMessagePayloadStream.isComplete()) {
+            // If it's not complete, make sure the client knows that this message was received.
+            sendAcknowledgmentMessage(device, uuid);
             return;
         }
 
@@ -259,40 +274,39 @@ class CarTrustAgentBleManager extends BleManager {
     }
 
     private void resolveBLEVersion(BluetoothDevice device, byte[] value,
-            BluetoothGattCharacteristic characteristic) {
-        BLEVersionExchange versionExchange;
+            UUID clientCharacteristicUUID) {
+        BluetoothGattCharacteristic characteristic =
+                getCharacteristicForWrite(clientCharacteristicUUID);
+
+        if (characteristic == null) {
+            Log.e(TAG, "Invalid UUID (" + clientCharacteristicUUID
+                    + ") during version exchange; disconnecting from remote device.");
+            disconnectRemoteDevice();
+            return;
+        }
+
+        BLEVersionExchange deviceVersion;
         try {
-            versionExchange = BLEVersionExchange.parseFrom(value);
-        } catch (IOException e) {
+            deviceVersion = BLEVersionExchange.parseFrom(value);
+        } catch (InvalidProtocolBufferException e) {
             disconnectRemoteDevice();
             Log.e(TAG, "Could not parse version exchange message", e);
             return;
         }
-        int minMessagingVersion = versionExchange.getMinSupportedMessagingVersion();
-        int minSecurityVersion = versionExchange.getMinSupportedSecurityVersion();
-        // The supported versions for the communication and security protocol.
-        // Only v1 is supported at this time.
-        // TODO:(b/134094617) get supported versions from BleMessageFactory
-        if (minMessagingVersion != MESSAGING_VERSION || minSecurityVersion != SECURITY_VERSION) {
-            Log.e(TAG, "No supported version (minMessagingVersion: " + minMessagingVersion
-                    + ", minSecurityVersion" + minSecurityVersion + ")");
+
+        if (!BLEVersionExchangeResolver.hasSupportedVersion(deviceVersion)) {
+            Log.e(TAG, "No supported version found during version exchange.");
             disconnectRemoteDevice();
             return;
         }
+
+        BLEVersionExchange headunitVersion = BLEVersionExchangeResolver.makeVersionExchange();
+        setValueOnCharacteristicAndNotify(device, headunitVersion.toByteArray(), characteristic);
+
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Resolved version to (minMessagingVersion: " + minMessagingVersion
-                    + ", minSecurityVersion" + minSecurityVersion + ")");
+            Log.d(TAG, "Sent supported version to the phone.");
         }
-        BLEVersionExchange headUnitVersion = BLEVersionExchange.newBuilder()
-                .setMinSupportedMessagingVersion(MESSAGING_VERSION)
-                .setMaxSupportedMessagingVersion(MESSAGING_VERSION)
-                .setMinSupportedSecurityVersion(SECURITY_VERSION)
-                .setMinSupportedSecurityVersion(SECURITY_VERSION)
-                .build();
-        setValueOnCharacteristicAndNotify(device, headUnitVersion.toByteArray(), characteristic);
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Sent supported versioned to the phone.");
-        }
+
         mIsVersionExchanged = true;
     }
 
@@ -443,6 +457,34 @@ class CarTrustAgentBleManager extends BleManager {
     }
 
     /**
+     * Handles an ACK from the client.
+     *
+     * <p>An ACK means that the client has successfully received a partial BLEMessage, meaning the
+     * next part of the message can be sent.
+     *
+     * @param device The client device.
+     * @param clientCharacteristicUUID The UUID of the characteristic on the device that the ACK
+     *                                 was written to.
+     */
+    private void handleClientAckMessage(BluetoothDevice device, UUID clientCharacteristicUUID) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Received ACK from client. Attempting to write next message in queue. "
+                    + "UUID: " + clientCharacteristicUUID);
+        }
+
+        BluetoothGattCharacteristic writeCharacteristic =
+                getCharacteristicForWrite(clientCharacteristicUUID);
+
+        if (writeCharacteristic == null) {
+            Log.e(TAG, "No corresponding write characteristic found for writing next message in"
+                    + " queue. UUID: " + clientCharacteristicUUID);
+            return;
+        }
+
+        writeNextMessageInQueue(device, writeCharacteristic);
+    }
+
+    /**
      * Sends the given message to the specified device and characteristic.
      * The message will be splited into multiple messages wrapped in BLEMessage proto.
      *
@@ -466,16 +508,76 @@ class CarTrustAgentBleManager extends BleManager {
             Log.d(TAG, "sending " + bleMessages.size() + " messages to device");
         }
 
-        for (BLEMessage bleMessage : bleMessages) {
-            // TODO(b/131719066) get acknowledgement from the phone then continue to send packets
-            setValueOnCharacteristicAndNotify(device, bleMessage.toByteArray(), characteristic);
-        }
+        mMessageQueue.addAll(bleMessages);
+        writeNextMessageInQueue(device, characteristic);
     }
 
-    void setValueOnCharacteristicAndNotify(BluetoothDevice device, byte[] message,
+    /**
+     * Writes the next message in {@link #mMessageQueue} to the given characteristic.
+     *
+     * <p>If the message queue is empty, then this method will do nothing.
+     */
+    private void writeNextMessageInQueue(BluetoothDevice device,
+            BluetoothGattCharacteristic characteristic) {
+        if (mMessageQueue.isEmpty()) {
+            Log.e(TAG, "Call to write next message in queue, but the message queue is empty");
+            return;
+        }
+
+        setValueOnCharacteristicAndNotify(device, mMessageQueue.remove().toByteArray(),
+                characteristic);
+    }
+
+    private void sendAcknowledgmentMessage(BluetoothDevice device, UUID clientCharacteristicUUID) {
+        BluetoothGattCharacteristic writeCharacteristic =
+                getCharacteristicForWrite(clientCharacteristicUUID);
+
+        if (writeCharacteristic == null) {
+            Log.e(TAG, "No corresponding write characteristic found for sending ACK. UUID: "
+                    + clientCharacteristicUUID);
+            return;
+        }
+
+        setValueOnCharacteristicAndNotify(device,
+                BLEMessageV1Factory.makeAcknowledgementMessage().toByteArray(),
+                writeCharacteristic);
+    }
+
+    /**
+     * Sets the given message on the specified characteristic.
+     *
+     * <p>Upon successfully setting of the value, any listeners on the characteristic will be
+     * notified that its value has changed.
+     *
+     * @param device The device has own the given characteristic.
+     * @param message The message to set as the characteristic's value.
+     * @param characteristic The characteristic to set the value on.
+     */
+    private void setValueOnCharacteristicAndNotify(BluetoothDevice device, byte[] message,
             BluetoothGattCharacteristic characteristic) {
         characteristic.setValue(message);
         notifyCharacteristicChanged(device, characteristic, false);
+    }
+
+    /**
+     * Returns the characteristic that can be written to based on the given UUID.
+     *
+     * <p>The UUID will be one that corresponds to either enrollment or unlock. This method will
+     * return the write characteristic for enrollment or unlock respectively.
+     *
+     * @return The write characteristic or {@code null} if the UUID is invalid.
+     */
+    @Nullable
+    private BluetoothGattCharacteristic getCharacteristicForWrite(UUID uuid) {
+        if (uuid.equals(mEnrollmentClientWriteUuid)) {
+            return mEnrollmentGattService.getCharacteristic(mEnrollmentServerWriteUuid);
+        }
+
+        if (uuid.equals(mUnlockClientWriteUuid)) {
+            return mUnlockGattService.getCharacteristic(mUnlockServerWriteUuid);
+        }
+
+        return null;
     }
 
     private final AdvertiseCallback mEnrollmentAdvertisingCallback = new AdvertiseCallback() {
