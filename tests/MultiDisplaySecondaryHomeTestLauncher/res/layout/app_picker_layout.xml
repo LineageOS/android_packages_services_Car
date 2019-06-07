@@ -27,8 +27,10 @@
         android:visibility="invisible">
 
         <LinearLayout
+            android:id="@+id/FloatingSheetHeader"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop = "@dimen/app_grid_margin_top"
             android:layout_marginStart="@dimen/app_grid_margin_left"
             android:layout_marginEnd="@dimen/app_grid_margin_right"
             android:orientation="vertical">
