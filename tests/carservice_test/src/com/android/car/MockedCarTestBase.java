@@ -311,6 +311,9 @@ public class MockedCarTestBase {
 
         @Override
         public void refreshDisplayBrightness() {}
+
+        @Override
+        public void reconfigureSecondaryDisplays() {}
     }
 
     static final class MockIOInterface implements IOInterface {
