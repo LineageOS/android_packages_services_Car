@@ -372,7 +372,7 @@ public class CarPropertyService extends ICarProperty.Stub
         List<Client> clients = mPropIdClientMap.get(property);
         if (clients != null) {
             List<CarPropertyEvent> eventList = new LinkedList<>();
-            eventList.add(createErrorEvent(property, area));
+            eventList.add(CarPropertyEvent.createErrorEvent(property, area));
             for (Client c : clients) {
                 try {
                     c.getListener().onEvent(eventList);
@@ -386,10 +386,5 @@ public class CarPropertyService extends ICarProperty.Stub
             Log.e(TAG, "onPropertySetError called with no listener registered for propId=0x"
                     + toHexString(property));
         }
-    }
-
-    private static CarPropertyEvent createErrorEvent(int property, int area) {
-        return new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_ERROR,
-                new CarPropertyValue<>(property, area, null));
     }
 }
