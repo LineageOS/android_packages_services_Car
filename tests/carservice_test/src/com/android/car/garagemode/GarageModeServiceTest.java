@@ -18,6 +18,7 @@ package com.android.car.garagemode;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +62,7 @@ public class GarageModeServiceTest {
         when(mMockController.isGarageModeActive()).thenReturn(true);
 
         mService.dump(mMockPrintWriter);
-        verify(mMockPrintWriter).println(mCaptorString.capture());
+        verify(mMockPrintWriter, atLeastOnce()).println(mCaptorString.capture());
         List<String> strings = mCaptorString.getAllValues();
         assertThat(strings.get(0)).isEqualTo("GarageModeInProgress true");
     }
