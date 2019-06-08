@@ -15,20 +15,11 @@
  */
 
 package android.car;
+import android.location.Location;
 
-import android.car.ICarBugreportCallback;
-
-/**
- * Binder interface for {@link android.car.CarBugreportManager}.
- *
- * @hide
- */
- interface ICarBugreportService {
-
-    /**
-     * Starts bugreport service to capture a zipped bugreport. The caller needs to provide
-     * two file descriptors. The "output" file descriptor will be used to provide the actual
-     * zip file. The file descriptor is written by the service and will be read by the client.
-     */
-    void requestZippedBugreport(in ParcelFileDescriptor output, ICarBugreportCallback callback) = 1;
- }
+/** @hide */
+interface ILocationManagerProxy {
+    boolean isLocationEnabled();
+    boolean injectLocation(in Location location);
+    Location getLastKnownLocation(in String provider);
+}
