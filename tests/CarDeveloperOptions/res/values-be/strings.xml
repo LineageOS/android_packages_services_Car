@@ -2051,7 +2051,7 @@
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Слыхавы апарат"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Няма падключаных слыхавых апаратаў"</string>
     <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"Дадаць слыхавыя апараты"</string>
-    <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Каб спалучыць слыхавы апарат, націсніце на яго назву на наступным экране."</string>
+    <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Каб спалучыць слыхавы апарат, націсн. на яго на наступ. экране."</string>
     <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Пераканайцеся, што слыхавы апарат знаходзіцца ў рэжыме спалучэння."</string>
     <string name="accessibility_hearingaid_active_device_summary" msgid="6081382497207168885">"Прылада <xliff:g id="DEVICE_NAME">%1$s</xliff:g> актыўная"</string>
     <!-- no translation found for show_number_hearingaid_count (7906547154695855096) -->
@@ -2072,8 +2072,8 @@
     <string name="accessibility_vibration_summary_medium" msgid="3141272492346527298">"Уключана умераная вібрацыя пры выкліках і атрыманні апавяшчэнняў"</string>
     <string name="accessibility_vibration_summary_high" msgid="4188677504368202861">"Уключана моцная вібрацыя пры выкліках і атрыманні апавяшчэнняў"</string>
     <string name="accessibility_vibration_intensity_off" msgid="4427927348723998194">"Выключана"</string>
-    <string name="accessibility_vibration_intensity_low" msgid="8250688473513963211">"Слабая"</string>
-    <string name="accessibility_vibration_intensity_medium" msgid="2249931147940383011">"Умераная"</string>
+    <string name="accessibility_vibration_intensity_low" msgid="8250688473513963211">"Слабы"</string>
+    <string name="accessibility_vibration_intensity_medium" msgid="2249931147940383011">"Умераны"</string>
     <string name="accessibility_vibration_intensity_high" msgid="7850793704772123134">"Моцная"</string>
     <string name="accessibility_menu_item_settings" msgid="6809813639403725032">"Налады"</string>
     <string name="accessibility_feature_state_on" msgid="8649102771420898911">"Уключана"</string>

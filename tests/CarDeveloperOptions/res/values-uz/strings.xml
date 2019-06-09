@@ -3296,7 +3296,7 @@
     <string name="notification_channels_other" msgid="1615988645667411530">"Boshqa"</string>
     <!-- no translation found for notification_group_summary (3744856747513344999) -->
     <string name="no_channels" msgid="8884254729302501652">"Bu ilova hech qanday bildirishnoma joylamagan"</string>
-    <string name="app_settings_link" msgid="8465287765715790984">"Boshqa sozlamalar ilovada"</string>
+    <string name="app_settings_link" msgid="8465287765715790984">"Ilovadagi boshqa sozlamalar"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"Barcha ilovalar uchun yoniq"</string>
     <!-- no translation found for app_notification_listing_summary_others (1161774065480666519) -->
     <!-- no translation found for deleted_channels (7741359084299446208) -->
