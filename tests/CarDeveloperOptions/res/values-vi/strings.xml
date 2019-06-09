@@ -2020,7 +2020,7 @@
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Con trỏ chuột lớn"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Xóa hiệu ứng động"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Âm thanh đơn âm"</string>
-    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Kết hợp kênh khi phát âm thanh"</string>
+    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Kết hợp các kênh khi phát âm thanh"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"Cân bằng âm thanh"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"Bên trái"</string>
     <string name="accessibility_toggle_master_balance_right_label" msgid="7757024572140589558">"Bên phải"</string>
