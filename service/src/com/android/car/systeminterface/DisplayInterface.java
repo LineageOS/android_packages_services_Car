@@ -31,12 +31,16 @@ import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings.SettingNotFoundException;
 import android.provider.Settings.System;
 import android.util.Log;
 import android.view.Display;
+import android.view.DisplayAddress;
+import android.view.IWindowManager;
 
 import com.android.car.CarLog;
 import com.android.car.CarPowerManagementService;
@@ -59,9 +63,15 @@ public interface DisplayInterface {
     void refreshDisplayBrightness();
 
     /**
+     * Reconfigure all secondary displays due to b/131909551
+     */
+    void reconfigureSecondaryDisplays();
+    /**
      * Default implementation of display operations
      */
     class DefaultImpl implements DisplayInterface, OnUsersUpdateListener {
+        static final String TAG = DisplayInterface.class.getSimpleName();
+
         private final ActivityManager mActivityManager;
         private final ContentResolver mContentResolver;
         private final Context mContext;
@@ -210,6 +220,33 @@ public interface DisplayInterface {
             // We need to reset last value
             mLastBrightnessLevel = -1;
             refreshDisplayBrightness();
+        }
+
+        @Override
+        public void reconfigureSecondaryDisplays() {
+            IWindowManager wm = IWindowManager.Stub
+                    .asInterface(ServiceManager.getService(Context.WINDOW_SERVICE));
+            if (wm == null) {
+                Log.e(TAG, "reconfigureSecondaryDisplays IWindowManager not available");
+                return;
+            }
+            Display[] displays = mDisplayManager.getDisplays();
+            for (Display display : displays) {
+                if (display.getDisplayId() == Display.DEFAULT_DISPLAY) { // skip main
+                    continue;
+                }
+                // Only use physical secondary displays
+                if (display.getAddress() instanceof DisplayAddress.Physical) {
+                    int displayId = display.getDisplayId();
+                    try {
+                        // Do not change the mode but this triggers reconfiguring.
+                        int windowingMode = wm.getWindowingMode(displayId);
+                        wm.setWindowingMode(displayId, windowingMode);
+                    } catch (RemoteException e) {
+                        Log.e(CarLog.TAG_SERVICE, "cannot access IWindowManager", e);
+                    }
+                }
+            }
         }
     }
 }
