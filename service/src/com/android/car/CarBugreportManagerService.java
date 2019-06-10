@@ -120,8 +120,8 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
             throw new SecurityException("Caller " + pm.getNameForUid(callingUid)
                             + " does not have the right signature");
         }
-        // Check the caller is the default designated bugreport app
-        String defaultAppPkgName = mContext.getString(R.string.default_car_bugreport_application);
+        // Check if the caller is the designated bugreport app
+        String defaultAppPkgName = mContext.getString(R.string.config_car_bugreport_application);
         String[] packageNamesForCallerUid = pm.getPackagesForUid(callingUid);
         boolean found = false;
         if (packageNamesForCallerUid != null) {

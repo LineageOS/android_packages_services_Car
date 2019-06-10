@@ -207,4 +207,8 @@
 
     <string name="token_handle_shared_preferences" translatable="false">com.android.car.trust.TOKEN_HANDLE</string>
 
+    <!-- The package name of the default bugreport application that can use CarBugreportServiceManager.
+         There is no default bugreporting app.-->
+    <string name="config_car_bugreport_application" translatable="false"></string>
+
 </resources>

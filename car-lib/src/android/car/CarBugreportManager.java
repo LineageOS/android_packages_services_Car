@@ -163,6 +163,11 @@ public final class CarBugreportManager implements CarManagerBase {
      *
      * <p>The file descriptor is closed when bugreport is written or if an exception happens.
      *
+     * <p>This method is enabled only for one bug reporting app. It can be configured using
+     * {@code config_car_bugreport_application} string that is defined in
+     * {@code packages/services/Car/service/res/values/config.xml}. To learn more please
+     * see {@code packages/services/Car/tests/BugReportApp/README.md}.
+     *
      * @param output the zipped bugreport file
      * @param callback  the callback for reporting dump status
      */
