@@ -16,6 +16,7 @@
 package com.google.android.car.bugreport;
 
 import static com.google.android.car.bugreport.BugReportService.EXTRA_META_BUG_REPORT;
+import static com.google.android.car.bugreport.BugReportService.MAX_PROGRESS_VALUE;
 
 import android.Manifest;
 import android.app.Activity;
@@ -33,6 +34,8 @@ import android.os.UserManager;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -63,6 +66,9 @@ public class BugReportActivity extends Activity {
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
+    private TextView mInProgressTitleText;
+    private ProgressBar mProgressBar;
+    private TextView mProgressText;
     private VoiceRecordingView mVoiceRecordingView;
     private View mVoiceRecordingFinishedView;
     private View mSubmitBugReportLayout;
@@ -99,6 +105,9 @@ public class BugReportActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.bug_report_activity);
 
+        mInProgressTitleText = findViewById(R.id.in_progress_title_text);
+        mProgressBar = findViewById(R.id.progress_bar);
+        mProgressText = findViewById(R.id.progress_text);
         mVoiceRecordingView = findViewById(R.id.voice_recording_view);
         mVoiceRecordingFinishedView = findViewById(R.id.voice_recording_finished_text_view);
         mSubmitBugReportLayout = findViewById(R.id.submit_bug_report_layout);
@@ -128,6 +137,9 @@ public class BugReportActivity extends Activity {
         if (!mBugReportServiceStarted && mAudioRecordingStarted) {
             cancelAudioMessageRecording();
         }
+        if (mBound) {
+            mService.removeBugReportProgressListener();
+        }
         mAudioRecordingStarted = false;
     }
 
@@ -142,21 +154,20 @@ public class BugReportActivity extends Activity {
         }
     }
 
-    private void checkStatus() {
-        if (mBound && mService.isCollectingBugReport()) {
-            scheduleStatusCheck();
-        } else {
-            finish();
+    private void onProgressChanged(float progress) {
+        int progressValue = (int) progress;
+        mProgressBar.setProgress(progressValue);
+        mProgressText.setText(progressValue + "%");
+        if (progressValue == MAX_PROGRESS_VALUE) {
+            mInProgressTitleText.setText(R.string.bugreport_dialog_in_progress_title_finished);
         }
-    }
-
-    private void scheduleStatusCheck() {
-        mHandler.postDelayed(this::checkStatus, 1000);
     }
 
     private void showInProgressUi() {
         mSubmitBugReportLayout.setVisibility(View.GONE);
         mInProgressLayout.setVisibility(View.VISIBLE);
+        mInProgressTitleText.setText(R.string.bugreport_dialog_in_progress_title);
+        onProgressChanged(mService.getBugReportProgress());
     }
 
     private void showSubmitBugReportUi(boolean isRecording) {
@@ -171,11 +182,17 @@ public class BugReportActivity extends Activity {
         }
     }
 
+    /**
+     * Initializes MetaBugReport in a local DB and starts audio recording.
+     *
+     * <p>This method expected to be called when the activity is started and bound to the service.
+     */
     private void startAudioMessageRecording() {
+        mService.setBugReportProgressListener(this::onProgressChanged);
+
         if (mService.isCollectingBugReport()) {
             Log.i(TAG, "Bug report is already being collected.");
             showInProgressUi();
-            scheduleStatusCheck();
             return;
         }
 
@@ -263,6 +280,8 @@ public class BugReportActivity extends Activity {
                 + Arrays.toString(permissions);
         Log.w(TAG, text);
         Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+        BugStorageUtils.setBugReportStatus(this, mMetaBugReport,
+                Status.STATUS_USER_CANCELLED, text);
         finish();
     }
 

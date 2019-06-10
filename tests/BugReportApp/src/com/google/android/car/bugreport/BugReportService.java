@@ -17,6 +17,7 @@ package com.google.android.car.bugreport;
 
 import static com.google.android.car.bugreport.PackageUtils.getPackageVersion;
 
+import android.annotation.FloatRange;
 import android.annotation.Nullable;
 import android.annotation.StringRes;
 import android.app.Notification;
@@ -32,10 +33,13 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
+
+import com.google.common.util.concurrent.AtomicDouble;
 
 import libcore.io.IoUtils;
 
@@ -89,31 +93,65 @@ public class BugReportService extends Service {
     // http://cs/android/frameworks/base/core/java/android/app/ActivityView.java
     private static final String ACTIVITY_VIEW_VIRTUAL_DISPLAY = "ActivityViewVirtualDisplay";
     private static final String OUTPUT_ZIP_FILE = "output_file.zip";
-    private static final String PROGRESS_FILE = "progress.txt";
 
     private static final String MESSAGE_FAILURE_DUMPSTATE = "Failed to grab dumpstate";
     private static final String MESSAGE_FAILURE_ZIP = "Failed to zip files";
 
-    // Binder given to clients
+    private static final int PROGRESS_HANDLER_EVENT_PROGRESS = 1;
+    private static final String PROGRESS_HANDLER_DATA_PROGRESS = "progress";
+
+    static final float MAX_PROGRESS_VALUE = 100f;
+
+    /** Binder given to clients. */
     private final IBinder mBinder = new ServiceBinder();
+
+    private final AtomicBoolean mIsCollectingBugReport = new AtomicBoolean(false);
+    private final AtomicDouble mBugReportProgress = new AtomicDouble(0);
 
     private MetaBugReport mMetaBugReport;
     private NotificationManager mNotificationManager;
     private NotificationChannel mNotificationChannel;
-    private AtomicBoolean mIsCollectingBugReport = new AtomicBoolean(false);
-    private Handler mHandler;
     private ScheduledExecutorService mSingleThreadExecutor;
+    private BugReportProgressListener mBugReportProgressListener;
     private Car mCar;
     private CarBugreportManager mBugreportManager;
     private CarBugreportManager.CarBugreportManagerCallback mCallback;
 
-    /**
-     * Client binder.
-     */
+    /** A handler on the main thread. */
+    private Handler mHandler;
+
+    /** A listener that's notified when bugreport progress changes. */
+    interface BugReportProgressListener {
+        /**
+         * Called when bug report progress changes.
+         *
+         * @param progress - a bug report progress in [0.0, 100.0].
+         */
+        void onProgress(float progress);
+    }
+
+    /** Client binder. */
     public class ServiceBinder extends Binder {
         BugReportService getService() {
             // Return this instance of LocalService so clients can call public methods
             return BugReportService.this;
+        }
+    }
+
+    /** A handler on a main thread. */
+    private class BugReportHandler extends Handler {
+        @Override
+        public void handleMessage(Message message) {
+            switch (message.what) {
+                case PROGRESS_HANDLER_EVENT_PROGRESS:
+                    if (mBugReportProgressListener != null) {
+                        float progress = message.getData().getFloat(PROGRESS_HANDLER_DATA_PROGRESS);
+                        mBugReportProgressListener.onProgress(progress);
+                    }
+                    break;
+                default:
+                    Log.d(TAG, "Unknown event " + message.what + ", ignoring.");
+            }
         }
     }
 
@@ -125,8 +163,8 @@ public class BugReportService extends Service {
                 getString(R.string.notification_bugreport_channel_name),
                 NotificationManager.IMPORTANCE_MIN);
         mNotificationManager.createNotificationChannel(mNotificationChannel);
-        mHandler = new Handler();
         mSingleThreadExecutor = Executors.newSingleThreadScheduledExecutor();
+        mHandler = new BugReportHandler();
         mCar = Car.createCar(this);
         try {
             mBugreportManager = (CarBugreportManager) mCar.getCarManager(Car.CAR_BUGREPORT_SERVICE);
@@ -145,6 +183,7 @@ public class BugReportService extends Service {
         Log.i(TAG, String.format("Will start collecting bug report, version=%s",
                 getPackageVersion(this)));
         mIsCollectingBugReport.set(true);
+        mBugReportProgress.set(0);
 
         Notification notification =
                 new Notification.Builder(this, NOTIFICATION_STATUS_CHANNEL_ID)
@@ -162,8 +201,24 @@ public class BugReportService extends Service {
         return START_NOT_STICKY;
     }
 
+    /** Returns true if bugreporting is in progress. */
     public boolean isCollectingBugReport() {
         return mIsCollectingBugReport.get();
+    }
+
+    /** Returns current bugreport progress. */
+    public float getBugReportProgress() {
+        return (float) mBugReportProgress.get();
+    }
+
+    /** Sets a bugreport progress listener. The listener is called on a main thread. */
+    public void setBugReportProgressListener(BugReportProgressListener listener) {
+        mBugReportProgressListener = listener;
+    }
+
+    /** Removes the bugreport progress listener. */
+    public void removeBugReportProgressListener() {
+        mBugReportProgressListener = null;
     }
 
     @Override
@@ -171,7 +226,7 @@ public class BugReportService extends Service {
         return mBinder;
     }
 
-    private void sendStatusInformation(@StringRes int resId) {
+    private void showToast(@StringRes int resId) {
         // run on ui thread.
         mHandler.post(() -> Toast.makeText(this, getText(resId), Toast.LENGTH_LONG).show());
     }
@@ -214,7 +269,7 @@ public class BugReportService extends Service {
             return result;
         } catch (IOException | InterruptedException e) {
             Log.e(TAG, "screencap process failed: ", e);
-            sendStatusInformation(R.string.toast_status_screencap_failed);
+            showToast(R.string.toast_status_screencap_failed);
         }
         return null;
     }
@@ -250,31 +305,26 @@ public class BugReportService extends Service {
     private void dumpStateToFile() {
         Log.i(TAG, "Dumpstate to file");
         File outputFile = FileUtils.getFile(this, mMetaBugReport.getTimestamp(), OUTPUT_ZIP_FILE);
-        File progressFile = FileUtils.getFile(this, mMetaBugReport.getTimestamp(), PROGRESS_FILE);
 
-        ParcelFileDescriptor outFd = null;
-        ParcelFileDescriptor progressFd = null;
-        try {
-            outFd = ParcelFileDescriptor.open(outputFile,
-                    ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE);
-
-            progressFd = ParcelFileDescriptor.open(progressFile,
-                    ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE);
-
-            requestBugReport(outFd, progressFd);
+        try (ParcelFileDescriptor outFd = ParcelFileDescriptor.open(outputFile,
+                ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE)) {
+            requestBugReport(outFd);
         } catch (IOException | RuntimeException e) {
             Log.e(TAG, "Failed to grab dump state", e);
             BugStorageUtils.setBugReportStatus(this, mMetaBugReport, Status.STATUS_WRITE_FAILED,
                     MESSAGE_FAILURE_DUMPSTATE);
-            sendStatusInformation(R.string.toast_status_dump_state_failed);
-        } finally {
-            IoUtils.closeQuietly(outFd);
-            IoUtils.closeQuietly(progressFd);
+            showToast(R.string.toast_status_dump_state_failed);
         }
     }
 
-    // In Android Q and above, use the CarBugreportManager API
-    private void requestBugReport(ParcelFileDescriptor outFd, ParcelFileDescriptor progressFd) {
+    private void sendProgressEventToHandler(float progress) {
+        Message message = new Message();
+        message.what = PROGRESS_HANDLER_EVENT_PROGRESS;
+        message.getData().putFloat(PROGRESS_HANDLER_DATA_PROGRESS, progress);
+        mHandler.sendMessage(message);
+    }
+
+    private void requestBugReport(ParcelFileDescriptor outFd) {
         if (DEBUG) {
             Log.d(TAG, "Requesting a bug report from CarBugReportManager.");
         }
@@ -282,18 +332,30 @@ public class BugReportService extends Service {
             @Override
             public void onError(int errorCode) {
                 Log.e(TAG, "Bugreport failed " + errorCode);
-                sendStatusInformation(R.string.toast_status_failed);
+                showToast(R.string.toast_status_failed);
                 // TODO(b/133520419): show this error on Info page or add to zip file.
                 scheduleZipTask();
+                // We let the UI know that bug reporting is finished, because the next step is to
+                // zip everything and upload.
+                mBugReportProgress.set(MAX_PROGRESS_VALUE);
+                sendProgressEventToHandler(MAX_PROGRESS_VALUE);
+            }
+
+            @Override
+            public void onProgress(@FloatRange(from = 0f, to = MAX_PROGRESS_VALUE) float progress) {
+                mBugReportProgress.set(progress);
+                sendProgressEventToHandler(progress);
             }
 
             @Override
             public void onFinished() {
                 Log.i(TAG, "Bugreport finished");
                 scheduleZipTask();
+                mBugReportProgress.set(MAX_PROGRESS_VALUE);
+                sendProgressEventToHandler(MAX_PROGRESS_VALUE);
             }
         };
-        mBugreportManager.requestZippedBugreport(outFd, progressFd, mCallback);
+        mBugreportManager.requestZippedBugreport(outFd, mCallback);
     }
 
     private void scheduleZipTask() {
@@ -311,10 +373,10 @@ public class BugReportService extends Service {
             Log.e(TAG, "Failed to zip files", e);
             BugStorageUtils.setBugReportStatus(this, mMetaBugReport, Status.STATUS_WRITE_FAILED,
                     MESSAGE_FAILURE_ZIP);
-            sendStatusInformation(R.string.toast_status_failed);
+            showToast(R.string.toast_status_failed);
         }
         mIsCollectingBugReport.set(false);
-        sendStatusInformation(R.string.toast_status_finished);
+        showToast(R.string.toast_status_finished);
     }
 
     @Override
@@ -371,10 +433,6 @@ public class BugReportService extends Service {
                     continue;
                 }
                 String filename = file.getName();
-                if (filename.equals(PROGRESS_FILE)) {
-                    // Progress file is already part of zipped bugreport - skip it.
-                    continue;
-                }
                 // only for the OUTPUT_FILE, we add invidiual entries to zip file
                 if (filename.equals(OUTPUT_ZIP_FILE)) {
                     extractZippedFileToOutputStream(file, zipStream);
