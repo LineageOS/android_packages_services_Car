@@ -18,7 +18,6 @@ package com.google.android.car.bugreport;
 import static com.google.android.car.bugreport.PackageUtils.getPackageVersion;
 
 import android.annotation.FloatRange;
-import android.annotation.Nullable;
 import android.annotation.StringRes;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -28,15 +27,14 @@ import android.car.Car;
 import android.car.CarBugreportManager;
 import android.car.CarNotConnectedException;
 import android.content.Intent;
-import android.hardware.display.DisplayManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.view.Display;
 import android.widget.Toast;
 
 import com.google.common.util.concurrent.AtomicDouble;
@@ -52,9 +50,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -90,9 +86,8 @@ public class BugReportService extends Service {
     private static final String NOTIFICATION_STATUS_CHANNEL_ID = "BUGREPORT_STATUS_CHANNEL_ID";
     private static final int BUGREPORT_IN_PROGRESS_NOTIF_ID = 1;
 
-    // http://cs/android/frameworks/base/core/java/android/app/ActivityView.java
-    private static final String ACTIVITY_VIEW_VIRTUAL_DISPLAY = "ActivityViewVirtualDisplay";
     private static final String OUTPUT_ZIP_FILE = "output_file.zip";
+    private static final String EXTRA_OUTPUT_ZIP_FILE = "extra_output_file.zip";
 
     private static final String MESSAGE_FAILURE_DUMPSTATE = "Failed to grab dumpstate";
     private static final String MESSAGE_FAILURE_ZIP = "Failed to zip files";
@@ -232,61 +227,12 @@ public class BugReportService extends Service {
     }
 
     private void collectBugReport() {
-        // Order is important when capturing. Screenshot should be first
-        mSingleThreadExecutor.schedule(
-                this::takeAllScreenshots, ACTIVITY_FINISH_DELAY, TimeUnit.MILLISECONDS);
-        mSingleThreadExecutor.schedule(
-                this::grabBtSnoopLog, ACTIVITY_FINISH_DELAY, TimeUnit.MILLISECONDS);
-        mSingleThreadExecutor.schedule(
-                this::dumpStateToFile, ACTIVITY_FINISH_DELAY, TimeUnit.MILLISECONDS);
-    }
-
-    private void takeAllScreenshots() {
-        for (int displayId : getAvailableDisplayIds()) {
-            takeScreenshot(displayId);
+        if (Build.IS_USERDEBUG || Build.IS_ENG) {
+            mSingleThreadExecutor.schedule(
+                    this::grabBtSnoopLog, ACTIVITY_FINISH_DELAY, TimeUnit.MILLISECONDS);
         }
-    }
-
-    @Nullable
-    private File takeScreenshot(int displayId) {
-        Log.i(TAG, String.format("takeScreenshot displayId=%d", displayId));
-        File result = FileUtils.getFileWithSuffix(this, mMetaBugReport.getTimestamp(),
-                "-" + displayId + "-screenshot.png");
-        try {
-            if (DEBUG) {
-                Log.d(TAG, "Screen output: " + result.getName());
-            }
-
-            java.lang.Process process = Runtime.getRuntime()
-                    .exec("/system/bin/screencap -d " + displayId + " -p "
-                            + result.getAbsolutePath());
-
-            // Waits for the command to finish.
-            int err = process.waitFor();
-            if (DEBUG) {
-                Log.d(TAG, "screencap process finished: " + err);
-            }
-            return result;
-        } catch (IOException | InterruptedException e) {
-            Log.e(TAG, "screencap process failed: ", e);
-            showToast(R.string.toast_status_screencap_failed);
-        }
-        return null;
-    }
-
-    private List<Integer> getAvailableDisplayIds() {
-        DisplayManager displayManager = getSystemService(DisplayManager.class);
-        ArrayList<Integer> displayIds = new ArrayList<>();
-        for (Display d : displayManager.getDisplays()) {
-            Log.v(TAG,
-                    "getAvailableDisplayIds: d.Name=" + d.getName() + ", d.id=" + d.getDisplayId());
-            // We skip virtual displays as they are not captured by screencap.
-            if (d.getName().contains(ACTIVITY_VIEW_VIRTUAL_DISPLAY)) {
-                continue;
-            }
-            displayIds.add(d.getDisplayId());
-        }
-        return displayIds;
+        mSingleThreadExecutor.schedule(
+                this::saveBugReport, ACTIVITY_FINISH_DELAY, TimeUnit.MILLISECONDS);
     }
 
     private void grabBtSnoopLog() {
@@ -302,13 +248,16 @@ public class BugReportService extends Service {
         }
     }
 
-    private void dumpStateToFile() {
+    private void saveBugReport() {
         Log.i(TAG, "Dumpstate to file");
         File outputFile = FileUtils.getFile(this, mMetaBugReport.getTimestamp(), OUTPUT_ZIP_FILE);
-
+        File extraOutputFile = FileUtils.getFile(this, mMetaBugReport.getTimestamp(),
+                EXTRA_OUTPUT_ZIP_FILE);
         try (ParcelFileDescriptor outFd = ParcelFileDescriptor.open(outputFile,
+                ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE);
+             ParcelFileDescriptor extraOutFd = ParcelFileDescriptor.open(extraOutputFile,
                 ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE)) {
-            requestBugReport(outFd);
+            requestBugReport(outFd, extraOutFd);
         } catch (IOException | RuntimeException e) {
             Log.e(TAG, "Failed to grab dump state", e);
             BugStorageUtils.setBugReportStatus(this, mMetaBugReport, Status.STATUS_WRITE_FAILED,
@@ -324,7 +273,7 @@ public class BugReportService extends Service {
         mHandler.sendMessage(message);
     }
 
-    private void requestBugReport(ParcelFileDescriptor outFd) {
+    private void requestBugReport(ParcelFileDescriptor outFd, ParcelFileDescriptor extraOutFd) {
         if (DEBUG) {
             Log.d(TAG, "Requesting a bug report from CarBugReportManager.");
         }
@@ -355,7 +304,7 @@ public class BugReportService extends Service {
                 sendProgressEventToHandler(MAX_PROGRESS_VALUE);
             }
         };
-        mBugreportManager.requestZippedBugreport(outFd, mCallback);
+        mBugreportManager.requestBugreport(outFd, extraOutFd, mCallback);
     }
 
     private void scheduleZipTask() {
@@ -433,8 +382,9 @@ public class BugReportService extends Service {
                     continue;
                 }
                 String filename = file.getName();
-                // only for the OUTPUT_FILE, we add invidiual entries to zip file
-                if (filename.equals(OUTPUT_ZIP_FILE)) {
+
+                // only for the zipped output file, we add invidiual entries to zip file
+                if (filename.equals(OUTPUT_ZIP_FILE) || filename.equals(EXTRA_OUTPUT_ZIP_FILE)) {
                     extractZippedFileToOutputStream(file, zipStream);
                 } else {
                     FileInputStream reader = new FileInputStream(file);
