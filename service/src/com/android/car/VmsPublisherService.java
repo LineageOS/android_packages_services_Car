@@ -119,16 +119,14 @@ public class VmsPublisherService implements CarServiceBase, VmsClientManager.Con
         mContext = context;
         mClientManager = clientManager;
         mBrokerService = brokerService;
-    }
-
-    @Override
-    public void init() {
         mClientManager.registerConnectionListener(this);
     }
 
     @Override
+    public void init() {}
+
+    @Override
     public void release() {
-        mClientManager.unregisterConnectionListener(this);
         mPublisherProxies.values().forEach(PublisherProxy::unregister);
         mPublisherProxies.clear();
     }
