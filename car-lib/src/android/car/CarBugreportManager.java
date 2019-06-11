@@ -159,26 +159,34 @@ public final class CarBugreportManager implements CarManagerBase {
     }
 
     /**
-     * Request a bug report. A zipped bugreport is generated in the background.
+     * Request a bug report. A zipped (i.e. legacy) bugreport is generated in the background
+     * using dumpstate. This API also generates extra files that does not exist in the legacy
+     * bugreport and makes them available through a extra output file. Currently the extra
+     * output contains the screenshots for all the physical displays.
      *
      * <p>The file descriptor is closed when bugreport is written or if an exception happens.
      *
      * @param output the zipped bugreport file
+     * @param extraOutput a zip file that contains extra files generated for automotive.
      * @param callback  the callback for reporting dump status
      */
     @RequiresPermission(android.Manifest.permission.DUMP)
-    public void requestZippedBugreport(
-            @NonNull ParcelFileDescriptor output, @NonNull CarBugreportManagerCallback callback) {
+    public void requestBugreport(
+            @NonNull ParcelFileDescriptor output,
+            @NonNull ParcelFileDescriptor extraOutput,
+            @NonNull CarBugreportManagerCallback callback) {
         Preconditions.checkNotNull(output);
+        Preconditions.checkNotNull(extraOutput);
         Preconditions.checkNotNull(callback);
         try {
             CarBugreportManagerCallbackWrapper wrapper =
                     new CarBugreportManagerCallbackWrapper(callback, mHandler);
-            mService.requestZippedBugreport(output, wrapper);
+            mService.requestBugreport(output, extraOutput, wrapper);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         } finally {
             IoUtils.closeQuietly(output);
+            IoUtils.closeQuietly(extraOutput);
         }
     }
 
