@@ -170,7 +170,7 @@ public class VmsPublisherService implements CarServiceBase, VmsClientManager.Con
         publisherProxy.register();
         try {
             publisherClient.setVmsPublisherService(publisherToken, publisherProxy);
-        } catch (RemoteException e) {
+        } catch (Throwable e) {
             Log.e(TAG, "unable to configure publisher: " + publisherName, e);
             return;
         }
@@ -296,7 +296,7 @@ public class VmsPublisherService implements CarServiceBase, VmsClientManager.Con
         public void onSubscriptionChange(VmsSubscriptionState subscriptionState) {
             try {
                 mPublisherClient.onVmsSubscriptionChange(subscriptionState);
-            } catch (RemoteException e) {
+            } catch (Throwable e) {
                 Log.e(TAG, String.format("Unable to send subscription state to: %s", mName), e);
             }
         }
