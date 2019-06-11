@@ -21,11 +21,14 @@ import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Process;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
@@ -219,8 +222,9 @@ public abstract class VmsPublisherClientService extends Service {
         }
 
         @Override
-        public void setVmsPublisherService(IBinder token, IVmsPublisherService service)
-                throws RemoteException {
+        public void setVmsPublisherService(IBinder token, IVmsPublisherService service) {
+            assertSystemOrSelf();
+
             VmsPublisherClientService vmsPublisherClientService = mVmsPublisherClientService.get();
             if (vmsPublisherClientService == null) return;
             if (DBG) {
@@ -233,8 +237,9 @@ public abstract class VmsPublisherClientService extends Service {
         }
 
         @Override
-        public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState)
-                throws RemoteException {
+        public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState) {
+            assertSystemOrSelf();
+
             VmsPublisherClientService vmsPublisherClientService = mVmsPublisherClientService.get();
             if (vmsPublisherClientService == null) return;
             if (DBG) {
@@ -254,6 +259,13 @@ public abstract class VmsPublisherClientService extends Service {
             handler.sendMessage(
                     handler.obtainMessage(VmsEventHandler.ON_SUBSCRIPTION_CHANGE_EVENT,
                             subscriptionState));
+        }
+
+        private void assertSystemOrSelf() {
+            if (!(Binder.getCallingUid() == UserHandle.USER_SYSTEM
+                    || Binder.getCallingPid() == Process.myPid())) {
+                throw new SecurityException("Caller must be system user or same process");
+            }
         }
     }
 
