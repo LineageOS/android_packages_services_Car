@@ -16,6 +16,10 @@
 
 package com.android.car.trust;
 
+import static com.android.car.trust.EventLog.BLUETOOTH_STATE_CHANGED;
+import static com.android.car.trust.EventLog.USER_UNLOCKED;
+import static com.android.car.trust.EventLog.logUnlockEvent;
+
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.car.trust.TrustedDeviceInfo;
@@ -232,6 +236,7 @@ public class CarBleTrustAgent extends TrustAgentService {
         if (!mIsDeviceLocked) {
             return;
         }
+        logUnlockEvent(BLUETOOTH_STATE_CHANGED, state);
         switch (state) {
             case BluetoothAdapter.STATE_BLE_ON:
                 int uid = ActivityManager.getCurrentUser();
@@ -313,6 +318,7 @@ public class CarBleTrustAgent extends TrustAgentService {
                 return;
             } else {
                 unlockUserInternally(user, token, handle);
+                logUnlockEvent(USER_UNLOCKED);
             }
 
         }
