@@ -52,7 +52,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 /**
- * Bugreport service for cars. Should *only* be used on userdebug or eng builds.
+ * Bugreport service for cars.
  */
 public class CarBugreportManagerService extends ICarBugreportService.Stub implements
         CarServiceBase {
@@ -75,8 +75,10 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
     // definition.
     private static final String BUGREPORT_PROGRESS_SOCKET = "car_br_progress_socket";
     private static final String BUGREPORT_OUTPUT_SOCKET = "car_br_output_socket";
+    private static final String BUGREPORT_EXTRA_OUTPUT_SOCKET = "car_br_extra_output_socket";
 
     private static final int SOCKET_CONNECTION_MAX_RETRY = 10;
+    private static final int SOCKET_CONNECTION_RETRY_DELAY_IN_MS = 5000;
 
     private final Context mContext;
     private final Object mLock = new Object();
@@ -108,7 +110,8 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
 
     @Override
     @RequiresPermission(android.Manifest.permission.DUMP)
-    public void requestZippedBugreport(ParcelFileDescriptor data, ICarBugreportCallback callback) {
+    public void requestBugreport(ParcelFileDescriptor output, ParcelFileDescriptor extraOutput,
+            ICarBugreportCallback callback) {
 
         // Check the caller has proper permission
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.DUMP,
@@ -138,23 +141,24 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
         }
 
         synchronized (mLock) {
-            requestZippedBugReportLocked(data, callback);
+            requestBugReportLocked(output, extraOutput, callback);
         }
     }
 
     @GuardedBy("mLock")
-    private void requestZippedBugReportLocked(
-            ParcelFileDescriptor data, ICarBugreportCallback callback) {
+    private void requestBugReportLocked(ParcelFileDescriptor output,
+            ParcelFileDescriptor extraOutput, ICarBugreportCallback callback) {
         if (mIsServiceRunning) {
             Slog.w(TAG, "Bugreport Service already running");
             reportError(callback, CarBugreportManagerCallback.CAR_BUGREPORT_IN_PROGRESS);
             return;
         }
         mIsServiceRunning = true;
-        mHandler.post(() -> startBugreportd(data, callback));
+        mHandler.post(() -> startBugreportd(output, extraOutput, callback));
     }
 
-    private void startBugreportd(ParcelFileDescriptor data, ICarBugreportCallback callback) {
+    private void startBugreportd(ParcelFileDescriptor output, ParcelFileDescriptor extraOutput,
+            ICarBugreportCallback callback) {
         Slog.i(TAG, "Starting " + BUGREPORTD_SERVICE);
         try {
             SystemProperties.set("ctl.start", BUGREPORTD_SERVICE);
@@ -163,7 +167,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
             reportError(callback, CAR_BUGREPORT_DUMPSTATE_FAILED);
             return;
         }
-        processBugreportSockets(data, callback);
+        processBugreportSockets(output, extraOutput, callback);
         synchronized (mLock) {
             mIsServiceRunning = false;
         }
@@ -196,9 +200,14 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
         }
     }
 
-    private void handleFinished(ParcelFileDescriptor output, ICarBugreportCallback callback) {
+    private void handleFinished(ParcelFileDescriptor output, ParcelFileDescriptor extraOutput,
+            ICarBugreportCallback callback) {
         Slog.i(TAG, "Finished reading bugreport");
-        if (!copySocketToPfd(output, callback)) {
+        // copysockettopfd calls callback.onError on error
+        if (!copySocketToPfd(output, BUGREPORT_OUTPUT_SOCKET, callback)) {
+            return;
+        }
+        if (!copySocketToPfd(extraOutput, BUGREPORT_EXTRA_OUTPUT_SOCKET, callback)) {
             return;
         }
         try {
@@ -216,7 +225,8 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
      * {@code FAIL:message} accordingly.
      */
     private void processBugreportSockets(
-            ParcelFileDescriptor output, ICarBugreportCallback callback) {
+            ParcelFileDescriptor output, ParcelFileDescriptor extraOutput,
+            ICarBugreportCallback callback) {
         LocalSocket localSocket = connectSocket(BUGREPORT_PROGRESS_SOCKET);
         if (localSocket == null) {
             reportError(callback, CAR_BUGREPORT_DUMPSTATE_CONNECTION_FAILED);
@@ -235,7 +245,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
                     reportError(callback, CAR_BUGREPORT_DUMPSTATE_FAILED);
                     return;
                 } else if (line.startsWith(OK_PREFIX)) {
-                    handleFinished(output, callback);
+                    handleFinished(output, extraOutput, callback);
                     return;
                 } else if (!line.startsWith(BEGIN_PREFIX)) {
                     Slog.w(TAG, "Received unknown progress line from dumpstate: " + line);
@@ -250,8 +260,8 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
     }
 
     private boolean copySocketToPfd(
-            ParcelFileDescriptor pfd, ICarBugreportCallback callback) {
-        LocalSocket localSocket = connectSocket(BUGREPORT_OUTPUT_SOCKET);
+            ParcelFileDescriptor pfd, String remoteSocket, ICarBugreportCallback callback) {
+        LocalSocket localSocket = connectSocket(remoteSocket);
         if (localSocket == null) {
             reportError(callback, CAR_BUGREPORT_DUMPSTATE_CONNECTION_FAILED);
             return false;
@@ -292,8 +302,15 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
         // keep retrying until success or reaching timeout.
         int retryCount = 0;
         while (true) {
-            // First connection always fails, so we wait 1 second before trying to connect.
-            SystemClock.sleep(/* ms= */ 1000);
+            // There are a few factors impacting the socket delay:
+            // 1. potential system slowness
+            // 2. car-bugreportd takes the screenshots early (before starting dumpstate). This
+            //    should be taken into account as the socket opens after screenshots are
+            //    captured.
+            // Therefore we are generous in setting the timeout. Most cases should not even
+            // come close to the timeouts, but since bugreports are taken when there is a
+            // system issue, it is hard to guess.
+            SystemClock.sleep(SOCKET_CONNECTION_RETRY_DELAY_IN_MS);
             try {
                 socket.connect(new LocalSocketAddress(socketName,
                         LocalSocketAddress.Namespace.RESERVED));
@@ -304,7 +321,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
                             + " after " + retryCount + " retries", e);
                     return null;
                 }
-                Log.i(TAG, "Failed to connect to" + socketName + ". Will try again "
+                Log.i(TAG, "Failed to connect to " + socketName + ". Will try again "
                         + e.getMessage());
             }
         }
