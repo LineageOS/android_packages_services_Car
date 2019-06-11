@@ -1,6 +1,7 @@
 service car-bugreportd /system/bin/car-bugreportd
     socket car_br_progress_socket stream 0660 shell log
     socket car_br_output_socket stream 0660 shell log
+    socket car_br_extra_output_socket stream 0660 shell log
     class core
     user shell
     group log
