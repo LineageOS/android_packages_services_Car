@@ -155,12 +155,14 @@
          Every item in this array contains a flatten component name of a service that needs to be
          started and a list of parameters after hashtag symbol. Here's the format:
 
-         <item>com.bar.foo/.Service#bind={true|false},user={all|system|foreground},trigger={asap,userUnlocked}</item>
+         <item>com.bar.foo/.Service#bind={bind|start|startForeground},user={all|system|foreground},
+         trigger={asap,userUnlocked}</item>
 
-         bind: indicates whether service needs to be bound or started, if the value is 'true'
-               the service will be bound by calling Context#bindService(...), otherwise it will
-               be started using Context#startService. If service was bound it will be restarted
-               unless it is constantly crashing. The default value is 'false'
+         bind: bind - start service with Context#bindService
+               start - start service with Context#startService
+               startForeground - start service with Context#startForegroundService
+               If service was bound it will be restarted unless it is constantly crashing.
+               The default value is 'start'
          user: all - the service will be bound/started for system and all foreground users
                system - the service will be started/bound only for system user (u0)
                foreground - the service will be bound/started only for foreground users
@@ -175,7 +177,7 @@
          is no longer foreground.
      -->
     <string-array translatable="false" name="config_earlyStartupServices">
-        <!-- list your services here -->
+        <item>com.android.car.messenger/.MessengerService#bind=startForeground,user=foreground,trigger=userUnlocked</item>
     </string-array>
 
     <string name="config_TetheredProjectionAccessPointSsid" translatable="false">CarAP</string>
@@ -206,5 +208,9 @@
     <string name="unlock_server_write_uuid" translatable="false">5e2a68a3-27be-43f9-8d1e-4546976fabd7</string>
 
     <string name="token_handle_shared_preferences" translatable="false">com.android.car.trust.TOKEN_HANDLE</string>
+
+    <!-- The package name of the default bugreport application that can use CarBugreportServiceManager.
+         There is no default bugreporting app.-->
+    <string name="config_car_bugreport_application" translatable="false"></string>
 
 </resources>

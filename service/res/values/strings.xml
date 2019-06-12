@@ -261,8 +261,5 @@
 
     <!-- The package name of the media application that will be selected as the default [CHAR LIMIT=NONE] -->
     <string name="default_media_application" translatable="false">com.android.bluetooth</string>
-    <!-- The package name of the default bugreport application that can use CarBugreportServiceManager.
-         There is no default bugreporting app.-->
-    <string name="default_car_bugreport_application" translatable="false"></string>
 
 </resources>

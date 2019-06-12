@@ -108,6 +108,8 @@ public class VmsPublisherServiceTest {
     @Before
     public void setUp() {
         mPublisherService = new VmsPublisherService(mContext, mBrokerService, mClientManager);
+        verify(mClientManager).registerConnectionListener(mPublisherService);
+
         mPublisherClient = new MockPublisherClient();
         mPublisherClient2 = new MockPublisherClient();
         when(mBrokerService.getSubscribersForLayerFromPublisher(LAYER, PUBLISHER_ID))
@@ -118,7 +120,6 @@ public class VmsPublisherServiceTest {
     @Test
     public void testInit() {
         mPublisherService.init();
-        verify(mClientManager).registerConnectionListener(mPublisherService);
     }
 
     @Test
@@ -637,7 +638,6 @@ public class VmsPublisherServiceTest {
     @Test
     public void testRelease() {
         mPublisherService.release();
-        verify(mClientManager).unregisterConnectionListener(mPublisherService);
     }
 
     private class MockPublisherClient extends IVmsPublisherClient.Stub {
