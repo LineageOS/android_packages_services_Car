@@ -16,6 +16,8 @@
 
 package com.android.car.multidisplay.launcher;
 
+import static com.android.car.multidisplay.launcher.PinnedAppListViewModel.PINNED_APPS_KEY;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.ActivityOptions;
@@ -45,8 +47,6 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory;
-
-import static com.android.car.multidisplay.launcher.PinnedAppListViewModel.PINNED_APPS_KEY;
 
 import com.android.car.multidisplay.R;
 
@@ -90,7 +90,7 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
         // get system insets and apply padding accordingly to the content view
         mRootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        mRootView.setOnApplyWindowInsetsListener((v, insets) -> {
+        mRootView.setOnApplyWindowInsetsListener((view, insets) -> {
             mRootView.setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
             mAppDrawerHeader = findViewById(R.id.FloatingSheetHeader);
             mAppDrawerHeader.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
