@@ -187,21 +187,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Set last active user.
-     *
-     * @param userId last active user id.
-     * @param skipGlobalSetting whether to skip set the global settings value.
-     * @deprecated Use {@link #setLastActiveUser(int)} instead.
-     */
-    @Deprecated
-    public void setLastActiveUser(int userId, boolean skipGlobalSetting) {
-        if (!skipGlobalSetting) {
-            Settings.Global.putInt(
-                    mContext.getContentResolver(), Settings.Global.LAST_ACTIVE_USER_ID, userId);
-        }
-    }
-
-    /**
      * Get user id for the last active user.
      *
      * @return user id of the last active user.
@@ -529,28 +514,8 @@ public final class CarUserManagerHelper {
      * @param userInfo User to check against system user.
      * @return {@code true} if system user, {@code false} otherwise.
      */
-    public boolean isSystemUser(UserInfo userInfo) {
+    private boolean isSystemUser(UserInfo userInfo) {
         return userInfo.id == UserHandle.USER_SYSTEM;
-    }
-
-    /**
-     * Checks whether the user is last active user.
-     *
-     * @param userInfo User to check against last active user.
-     * @return {@code true} if is last active user, {@code false} otherwise.
-     */
-    public boolean isLastActiveUser(UserInfo userInfo) {
-        return userInfo.id == getLastActiveUser();
-    }
-
-    /**
-     * Checks whether passed in user is the foreground user.
-     *
-     * @param userInfo User to check.
-     * @return {@code true} if foreground user, {@code false} otherwise.
-     */
-    public boolean isForegroundUser(UserInfo userInfo) {
-        return getCurrentForegroundUserId() == userInfo.id;
     }
 
     /**
@@ -570,20 +535,6 @@ public final class CarUserManagerHelper {
      */
     public boolean isForegroundUserGuest() {
         return getCurrentForegroundUserInfo().isGuest();
-    }
-
-    /**
-     * Checks if the foreground user is a demo user.
-     */
-    public boolean isForegroundUserDemo() {
-        return getCurrentForegroundUserInfo().isDemo();
-    }
-
-    /**
-     * Checks if the foreground user is ephemeral.
-     */
-    public boolean isForegroundUserEphemeral() {
-        return getCurrentForegroundUserInfo().isEphemeral();
     }
 
     /**
@@ -623,7 +574,7 @@ public final class CarUserManagerHelper {
      * @param restriction Restriction to check. Should be a UserManager.* restriction.
      * @return Whether that restriction exists for the foreground user.
      */
-    public boolean foregroundUserHasUserRestriction(String restriction) {
+    private boolean foregroundUserHasUserRestriction(String restriction) {
         return hasUserRestriction(restriction, getCurrentForegroundUserInfo());
     }
 
@@ -632,16 +583,6 @@ public final class CarUserManagerHelper {
      */
     public boolean canForegroundUserAddUsers() {
         return !foregroundUserHasUserRestriction(UserManager.DISALLOW_ADD_USER);
-    }
-
-    /**
-     * Checks if the current process user can modify accounts. Demo and Guest users cannot modify
-     * accounts even if the DISALLOW_MODIFY_ACCOUNTS restriction is not applied.
-     */
-    public boolean canForegroundUserModifyAccounts() {
-        return !foregroundUserHasUserRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS)
-            && !isForegroundUserDemo()
-            && !isForegroundUserGuest();
     }
 
     /**
@@ -688,14 +629,6 @@ public final class CarUserManagerHelper {
         return mUserManager.isGuestUser();
     }
 
-    /**
-     * Check is the calling app is running as a restricted profile user (ie. a LinkedUser).
-     * Restricted profiles are only available when {@link #isHeadlessSystemUser()} is false.
-     */
-    public boolean isCurrentProcessRestrictedProfileUser() {
-        return mUserManager.isRestrictedProfile();
-    }
-
     // Current process user restriction accessors
 
     /**
@@ -738,7 +671,7 @@ public final class CarUserManagerHelper {
      * <p>For instance switching users is not allowed if the user is in a phone call,
      * or {@link #{UserManager.DISALLOW_USER_SWITCH} is set.
      */
-    public boolean canCurrentProcessSwitchUsers() {
+    private boolean canCurrentProcessSwitchUsers() {
         boolean inIdleCallState = TelephonyManager.getDefault().getCallState()
                 == TelephonyManager.CALL_STATE_IDLE;
         boolean disallowUserSwitching =
@@ -1011,7 +944,7 @@ public final class CarUserManagerHelper {
      * @param userInfo User whose avatar should be returned.
      * @return Default user icon
      */
-    public Bitmap getUserDefaultIcon(UserInfo userInfo) {
+    private Bitmap getUserDefaultIcon(UserInfo userInfo) {
         return UserIcons.convertToBitmap(
             UserIcons.getDefaultUserIcon(mContext.getResources(), userInfo.id, false));
     }
