@@ -459,7 +459,12 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     private void unregisterProjectionReceiverClient(IBinder token) {
         synchronized (mLock) {
             ProjectionReceiverClient client = mProjectionReceiverClients.remove(token);
-            if (client != null && TextUtils.equals(
+            if (client == null) {
+                Log.w(TAG, "Projection receiver client for token " + token + " doesn't exist");
+                return;
+            }
+            token.unlinkToDeath(client.mDeathRecipient, 0);
+            if (TextUtils.equals(
                     client.mProjectionStatus.getPackageName(), mCurrentProjectionPackage)) {
                 mCurrentProjectionPackage = null;
                 mCurrentProjectionState = PROJECTION_STATE_INACTIVE;
