@@ -17,7 +17,6 @@
 package com.android.car.trust;
 
 import android.annotation.NonNull;
-import android.util.Log;
 
 import com.android.car.BLEStreamProtos.BLEMessageProto.BLEMessage;
 
@@ -26,11 +25,9 @@ import java.io.IOException;
 
 /**
  * Manage a stream in which the {@code payload} field of
- * {@link com.android.car.trust.BLEStream.BLEMessage}
- * is written to.
+ * {@link com.android.car.trust.BLEStream.BLEMessage} is written to.
  */
 class BLEMessagePayloadStream {
-    private static final String TAG = "BLEMessagePayloadStream";
     private ByteArrayOutputStream mPendingData = new ByteArrayOutputStream();
     private boolean mIsComplete;
 
@@ -42,20 +39,13 @@ class BLEMessagePayloadStream {
     }
 
     /**
-     * Extracts the payload from the given bytes and writes it to the stream.
+     * Extracts the payload from the given {@code BLEMessage} and writes it to the stream.
      *
-     * @param value The bytes that represent a {@link com.android.car.trust.BLEStream.BLEMessage}
+     * @param message The {@link com.android.car.trust.BLEStream.BLEMessage} to parse.
      */
-    public void write(byte[] value) {
-        try {
-            BLEMessage message = BLEMessage.parseFrom(value);
-            mPendingData.write(message.getPayload().toByteArray());
-            if (message.getPacketNumber() == message.getTotalPackets()) {
-                mIsComplete = true;
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Can not parse BLE message", e);
-        }
+    public void write(BLEMessage message) throws IOException {
+        mPendingData.write(message.getPayload().toByteArray());
+        mIsComplete = message.getPacketNumber() == message.getTotalPackets();
     }
 
     /**
