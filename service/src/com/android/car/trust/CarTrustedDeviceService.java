@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
+import android.sysprop.CarProperties;
 import android.util.Base64;
 import android.util.Log;
 
@@ -71,12 +72,23 @@ public class CarTrustedDeviceService implements CarServiceBase {
     private static final String KEYSTORE_PROVIDER = "AndroidKeyStore";
     private static final String IV_SPEC_SEPARATOR = ";";
 
+    // Device name length is limited by available bytes in BLE advertisement data packet.
+    //
+    // BLE advertisement limits data packet length to 31
+    // Currently we send:
+    // - 18 bytes for 16 chars UUID: 16 bytes + 2 bytes for header;
+    // - 3 bytes for advertisement being connectable;
+    // which leaves 10 bytes.
+    // Subtracting 2 bytes used by header, we have 8 bytes for device name.
+    private static final int DEVICE_NAME_LENGTH_LIMIT = 8;
+    // Limit prefix to 4 chars and fill the rest with randomly generated name. Use random name
+    // to improve uniqueness in paired device name.
+    private static final int DEVICE_NAME_PREFIX_LIMIT = 4;
+
     // The length of the authentication tag for a cipher in GCM mode. The GCM specification states
     // that this length can only have the values {128, 120, 112, 104, 96}. Using the highest
     // possible value.
     private static final int GCM_AUTHENTICATION_TAG_LENGTH = 128;
-
-    private static final int RANDOM_NAME_LENGTH = 6;
 
     private final Context mContext;
     private CarTrustAgentEnrollmentService mCarTrustAgentEnrollmentService;
@@ -84,7 +96,7 @@ public class CarTrustedDeviceService implements CarServiceBase {
     private CarTrustAgentBleManager mCarTrustAgentBleManager;
     private SharedPreferences mTrustAgentTokenPreferences;
     private UUID mUniqueId;
-    private String mRandomName;
+    private String mEnrollmentDeviceName;
 
     public CarTrustedDeviceService(Context context) {
         mContext = context;
@@ -286,17 +298,22 @@ public class CarTrustedDeviceService implements CarServiceBase {
     }
 
     /**
-     * Get generated random name for enrollment
+     * Returns the name that should be used for the device during enrollment of a trusted device.
      *
-     * @return a random name for enrollment
+     * <p>The returned name will be a combination of a prefix sysprop and randomized digits.
      */
-    String getRandomName() {
-        if (mRandomName == null) {
-            // Create random RANDOM_NAME_LENGTH digit number for name
-            mRandomName = Utils.generateRandomNumberString(RANDOM_NAME_LENGTH);
-        }
+    String getEnrollmentDeviceName() {
+        if (mEnrollmentDeviceName == null) {
+            String deviceNamePrefix =
+                    CarProperties.trusted_device_device_name_prefix().orElse("");
+            deviceNamePrefix = deviceNamePrefix.substring(
+                    0, Math.min(deviceNamePrefix.length(), DEVICE_NAME_PREFIX_LIMIT));
 
-        return mRandomName;
+            int randomNameLength = DEVICE_NAME_LENGTH_LIMIT - deviceNamePrefix.length();
+            String randomName = Utils.generateRandomNumberString(randomNameLength);
+            mEnrollmentDeviceName = deviceNamePrefix + randomName;
+        }
+        return mEnrollmentDeviceName;
     }
 
     /**

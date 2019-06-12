@@ -43,7 +43,7 @@ public class VendorServiceInfoTest {
     @Test
     public void multipleHashTags() {
         exception.expect(IllegalArgumentException.class);
-        VendorServiceInfo.parse(SERVICE_NAME + "#user=system#bind=true");
+        VendorServiceInfo.parse(SERVICE_NAME + "#user=system#bind=bind");
     }
 
     @Test
@@ -64,6 +64,7 @@ public class VendorServiceInfoTest {
         assertThat(info.getIntent().getComponent())
                 .isEqualTo(ComponentName.unflattenFromString(SERVICE_NAME));
         assertThat(info.shouldBeBound()).isFalse();
+        assertThat(info.shouldBeStartedInForeground()).isFalse();
         assertThat(info.isSystemUserService()).isTrue();
         assertThat(info.isForegroundUserService()).isTrue();
         assertThat(info.shouldStartOnUnlock()).isTrue();
@@ -71,16 +72,25 @@ public class VendorServiceInfoTest {
 
     @Test
     public void startService() {
-        VendorServiceInfo info = VendorServiceInfo.parse(SERVICE_NAME + "#bind=false");
+        VendorServiceInfo info = VendorServiceInfo.parse(SERVICE_NAME + "#bind=start");
         assertThat(info.shouldBeBound()).isFalse();
+        assertThat(info.shouldBeStartedInForeground()).isFalse();
         assertThat(info.getIntent().getComponent())
                 .isEqualTo(ComponentName.unflattenFromString(SERVICE_NAME));
     }
 
     @Test
     public void bindService() {
-        VendorServiceInfo info = VendorServiceInfo.parse(SERVICE_NAME + "#bind=true");
+        VendorServiceInfo info = VendorServiceInfo.parse(SERVICE_NAME + "#bind=bind");
         assertThat(info.shouldBeBound()).isTrue();
+        assertThat(info.shouldBeStartedInForeground()).isFalse();
+    }
+
+    @Test
+    public void startServiceInForeground() {
+        VendorServiceInfo info = VendorServiceInfo.parse(SERVICE_NAME + "#bind=startForeground");
+        assertThat(info.shouldBeBound()).isFalse();
+        assertThat(info.shouldBeStartedInForeground()).isTrue();
     }
 
     @Test
@@ -131,7 +141,7 @@ public class VendorServiceInfoTest {
     @Test
     public void allArgs() {
         VendorServiceInfo info = VendorServiceInfo.parse(SERVICE_NAME
-                + "#bind=true,user=foreground,trigger=userUnlocked");
+                + "#bind=bind,user=foreground,trigger=userUnlocked");
         assertThat(info.getIntent().getComponent())
                 .isEqualTo(ComponentName.unflattenFromString(SERVICE_NAME));
         assertThat(info.shouldBeBound()).isTrue();

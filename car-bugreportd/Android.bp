@@ -29,7 +29,11 @@ cc_binary {
     ],
     shared_libs: [
         "libbase",
-        "liblog",
         "libcutils",
+        "libgui",
+        "libhwui",
+        "liblog",
+        "libui",
+        "libziparchive",
     ],
 }
