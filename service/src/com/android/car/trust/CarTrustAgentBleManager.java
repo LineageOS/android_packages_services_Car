@@ -85,7 +85,7 @@ class CarTrustAgentBleManager extends BleManager {
     private CarTrustAgentUnlockService mCarTrustAgentUnlockService;
     private String mOriginalBluetoothName;
     private byte[] mUniqueId;
-    private String mRandomName;
+    private String mEnrollmentDeviceName;
     private int mMtuSize = 20;
 
     // Enrollment Service and Characteristic UUIDs
@@ -247,15 +247,15 @@ class CarTrustAgentBleManager extends BleManager {
     }
 
     @Nullable
-    private String getRandomName() {
-        if (mRandomName != null) {
-            return mRandomName;
+    private String getEnrollmentDeviceName() {
+        if (mEnrollmentDeviceName != null) {
+            return mEnrollmentDeviceName;
         }
 
         if (getTrustedDeviceService() != null) {
-            mRandomName = getTrustedDeviceService().getRandomName();
+            mEnrollmentDeviceName = getTrustedDeviceService().getEnrollmentDeviceName();
         }
-        return mRandomName;
+        return mEnrollmentDeviceName;
     }
 
     private void resolveBLEVersion(BluetoothDevice device, byte[] value,
@@ -374,17 +374,17 @@ class CarTrustAgentBleManager extends BleManager {
     void startEnrollmentAdvertising() {
         mCurrentTrustedDeviceOperation = TRUSTED_DEVICE_OPERATION_ENROLLMENT;
         // Replace name to ensure it is small enough to be advertised
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        String name = getRandomName();
-        if (mOriginalBluetoothName == null) {
-            mOriginalBluetoothName = adapter.getName();
-        }
+        String name = getEnrollmentDeviceName();
         if (name != null) {
+            BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+            if (mOriginalBluetoothName == null) {
+                mOriginalBluetoothName = adapter.getName();
+            }
             adapter.setName(name);
-        }
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Changing bluetooth adapter name from "
-                    + mOriginalBluetoothName + " to " + name);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Changing bluetooth adapter name from "
+                        + mOriginalBluetoothName + " to " + name);
+            }
         }
         startAdvertising(mEnrollmentGattService,
                 new AdvertiseData.Builder()

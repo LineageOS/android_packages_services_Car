@@ -6,3 +6,4 @@
 /system/bin/car-bugreportd  u:object_r:dumpstate_exec:s0
 /dev/socket/car_br_progress_socket  u:object_r:dumpstate_socket:s0
 /dev/socket/car_br_output_socket  u:object_r:dumpstate_socket:s0
+/dev/socket/car_br_extra_output_socket u:object_r:dumpstate_socket:s0
