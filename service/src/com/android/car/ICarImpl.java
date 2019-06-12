@@ -33,6 +33,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.Trace;
+import android.os.UserManager;
 import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
@@ -121,10 +122,12 @@ public class ICarImpl extends ICar.Stub {
         mHal = new VehicleHal(vehicle);
         mVehicleInterfaceName = vehicleInterfaceName;
         mUserManagerHelper = new CarUserManagerHelper(serviceContext);
+        UserManager userManager =
+                (UserManager) serviceContext.getSystemService(Context.USER_SERVICE);
         final Resources res = mContext.getResources();
         final int maxRunningUsers = res.getInteger(
                 com.android.internal.R.integer.config_multiuserMaxRunningUsers);
-        mCarUserService = new CarUserService(serviceContext, mUserManagerHelper,
+        mCarUserService = new CarUserService(serviceContext, mUserManagerHelper, userManager,
                 ActivityManager.getService(), maxRunningUsers);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),

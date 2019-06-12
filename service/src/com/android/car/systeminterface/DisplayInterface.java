@@ -21,10 +21,11 @@ import static com.android.settingslib.display.BrightnessUtils.convertGammaToLine
 import static com.android.settingslib.display.BrightnessUtils.convertLinearToGamma;
 
 import android.app.ActivityManager;
-import android.car.userlib.CarUserManagerHelper;
-import android.car.userlib.CarUserManagerHelper.OnUsersUpdateListener;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
@@ -69,7 +70,7 @@ public interface DisplayInterface {
     /**
      * Default implementation of display operations
      */
-    class DefaultImpl implements DisplayInterface, OnUsersUpdateListener {
+    class DefaultImpl implements DisplayInterface {
         static final String TAG = DisplayInterface.class.getSimpleName();
 
         private final ActivityManager mActivityManager;
@@ -82,7 +83,6 @@ public interface DisplayInterface {
         private final WakeLockInterface mWakeLockInterface;
         private CarPowerManagementService mService;
         private boolean mDisplayStateSet;
-        private CarUserManagerHelper mCarUserManagerHelper;
         private int mLastBrightnessLevel = -1;
 
         private ContentObserver mBrightnessObserver =
@@ -112,6 +112,13 @@ public interface DisplayInterface {
             }
         };
 
+        private final BroadcastReceiver mUserChangeReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                onUsersUpdate();
+            }
+        };
+
         DefaultImpl(Context context, WakeLockInterface wakeLockInterface) {
             mActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
             mContext = context;
@@ -121,8 +128,17 @@ public interface DisplayInterface {
             mMaximumBacklight = mPowerManager.getMaximumScreenBrightnessSetting();
             mMinimumBacklight = mPowerManager.getMinimumScreenBrightnessSetting();
             mWakeLockInterface = wakeLockInterface;
-            mCarUserManagerHelper = new CarUserManagerHelper(context);
-            mCarUserManagerHelper.registerOnUsersUpdateListener(this);
+
+            // TODO(b/135472254): It's unclear if this class actually needs all of these signals.
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Intent.ACTION_USER_REMOVED);
+            filter.addAction(Intent.ACTION_USER_ADDED);
+            filter.addAction(Intent.ACTION_USER_INFO_CHANGED);
+            filter.addAction(Intent.ACTION_USER_SWITCHED);
+            filter.addAction(Intent.ACTION_USER_STOPPED);
+            filter.addAction(Intent.ACTION_USER_UNLOCKED);
+            mContext.registerReceiverAsUser(
+                    mUserChangeReceiver, UserHandle.ALL, filter, null, null);
         }
 
         @Override
@@ -211,8 +227,7 @@ public interface DisplayInterface {
             }
         }
 
-        @Override
-        public void onUsersUpdate() {
+        private void onUsersUpdate() {
             if (mService == null) {
                 // CarPowerManagementService is not connected yet
                 return;

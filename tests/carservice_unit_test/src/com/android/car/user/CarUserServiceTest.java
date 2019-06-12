@@ -16,6 +16,9 @@
 
 package com.android.car.user;
 
+import static android.content.pm.UserInfo.FLAG_EPHEMERAL;
+import static android.content.pm.UserInfo.FLAG_GUEST;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
@@ -44,11 +47,13 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.util.ArrayList;
 
@@ -63,45 +68,34 @@ import java.util.ArrayList;
  */
 @RunWith(AndroidJUnit4.class)
 public class CarUserServiceTest {
+    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+    @Mock private Context mMockContext;
+    @Mock private Context mApplicationContext;
+    @Mock private LocationManager mLocationManager;
+    @Mock private CarUserManagerHelper mCarUserManagerHelper;
+    @Mock private IActivityManager mMockedIActivityManager;
+    @Mock private UserManager mMockedUserManager;
+
     private CarUserService mCarUserService;
-
-    @Mock
-    private Context mMockContext;
-
-    @Mock
-    private Context mApplicationContext;
-
-    @Mock
-    private LocationManager mLocationManager;
-
-    @Mock
-    private CarUserManagerHelper mCarUserManagerHelper;
-
-    private static final String DEFAULT_ADMIN_NAME = "defaultName";
-
-    @Mock
-    private IActivityManager mMockedIActivityManager;
-
-    @Mock
-    private UserManager mMockedUserManager;
-
     private boolean mUser0TaskExecuted;
-
 
     /**
      * Initialize all of the objects with the @Mock annotation.
      */
     @Before
-    public void setUpMocks() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void setUpMocks() {
         doReturn(mApplicationContext).when(mMockContext).getApplicationContext();
         doReturn(mLocationManager).when(mMockContext).getSystemService(Context.LOCATION_SERVICE);
         doReturn(InstrumentationRegistry.getTargetContext().getContentResolver())
                 .when(mMockContext).getContentResolver();
-        doReturn(mMockedUserManager).when(mMockContext).getSystemService(Context.USER_SERVICE);
         doReturn(false).when(mMockedUserManager).isUserUnlockingOrUnlocked(anyInt());
-        mCarUserService = new CarUserService(mMockContext, mCarUserManagerHelper,
-                mMockedIActivityManager, 3);
+        mCarUserService =
+                new CarUserService(
+                        mMockContext,
+                        mCarUserManagerHelper,
+                        mMockedUserManager,
+                        mMockedIActivityManager,
+                        3);
 
         doReturn(new ArrayList<>()).when(mCarUserManagerHelper).getAllUsers();
 
@@ -139,16 +133,15 @@ public class CarUserServiceTest {
      */
     @Test
     public void testDisableModifyAccountsForHeadlessSystemUserOnFirstRun() {
-        // Mock system user.
-        UserInfo systemUser = new UserInfo();
-        systemUser.id = UserHandle.USER_SYSTEM;
-        doReturn(systemUser).when(mCarUserManagerHelper).getSystemUserInfo();
         doReturn(true).when(mCarUserManagerHelper).isHeadlessSystemUser();
 
         mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
 
-        verify(mCarUserManagerHelper)
-                .setUserRestriction(systemUser, UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
+        verify(mMockedUserManager)
+                .setUserRestriction(
+                        UserManager.DISALLOW_MODIFY_ACCOUNTS,
+                        true,
+                        UserHandle.of(UserHandle.USER_SYSTEM));
     }
 
     /**
@@ -157,16 +150,15 @@ public class CarUserServiceTest {
      */
     @Test
     public void testDisableModifyAccountsForRegularSystemUserOnFirstRun() {
-        // Mock system user.
-        UserInfo systemUser = new UserInfo();
-        systemUser.id = UserHandle.USER_SYSTEM;
-        doReturn(systemUser).when(mCarUserManagerHelper).getSystemUserInfo();
         doReturn(false).when(mCarUserManagerHelper).isHeadlessSystemUser();
 
         mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
 
-        verify(mCarUserManagerHelper, never())
-                .setUserRestriction(systemUser, UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
+        verify(mMockedUserManager, never())
+                .setUserRestriction(
+                        UserManager.DISALLOW_MODIFY_ACCOUNTS,
+                        true,
+                        UserHandle.of(UserHandle.USER_SYSTEM));
     }
 
     /**
@@ -175,16 +167,14 @@ public class CarUserServiceTest {
      */
     @Test
     public void testDoesNotSetSystemUserRestrictions_IfRestrictionsAlreadySet() {
-        // Mock system user.
-        UserInfo systemUser = new UserInfo();
-        systemUser.id = UserHandle.USER_SYSTEM;
-        doReturn(systemUser).when(mCarUserManagerHelper).getSystemUserInfo();
-
         putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
         mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
 
-        verify(mCarUserManagerHelper, never())
-                .setUserRestriction(systemUser, UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
+        verify(mMockedUserManager, never())
+                .setUserRestriction(
+                        UserManager.DISALLOW_MODIFY_ACCOUNTS,
+                        true,
+                        UserHandle.of(UserHandle.USER_SYSTEM));
     }
 
     /**
@@ -223,7 +213,8 @@ public class CarUserServiceTest {
         Intent intent = new Intent(Intent.ACTION_USER_SWITCHED);
         intent.putExtra(Intent.EXTRA_USER_HANDLE, lastActiveUserId);
 
-        doReturn(true).when(mCarUserManagerHelper).isPersistentUser(lastActiveUserId);
+        UserInfo persistentUser = new UserInfo(lastActiveUserId, "persistent user", 0);
+        doReturn(persistentUser).when(mMockedUserManager).getUserInfo(lastActiveUserId);
 
         mCarUserService.onReceive(mMockContext, intent);
 
@@ -281,10 +272,19 @@ public class CarUserServiceTest {
         final int user3 = 103;
         final int user4Guest = 104;
         final int user5 = 105;
-        doReturn(true).when(mCarUserManagerHelper).isPersistentUser(user1);
-        doReturn(true).when(mCarUserManagerHelper).isPersistentUser(user2);
-        doReturn(true).when(mCarUserManagerHelper).isPersistentUser(user3);
-        doReturn(true).when(mCarUserManagerHelper).isPersistentUser(user5);
+
+        UserInfo user1Info = new UserInfo(user1, "user1", 0);
+        UserInfo user2Info = new UserInfo(user2, "user2", 0);
+        UserInfo user3Info = new UserInfo(user3, "user3", 0);
+        UserInfo user4GuestInfo = new UserInfo(
+                user4Guest, "user4Guest", FLAG_EPHEMERAL | FLAG_GUEST);
+        UserInfo user5Info = new UserInfo(user5, "user5", 0);
+
+        doReturn(user1Info).when(mMockedUserManager).getUserInfo(user1);
+        doReturn(user2Info).when(mMockedUserManager).getUserInfo(user2);
+        doReturn(user3Info).when(mMockedUserManager).getUserInfo(user3);
+        doReturn(user4GuestInfo).when(mMockedUserManager).getUserInfo(user4Guest);
+        doReturn(user5Info).when(mMockedUserManager).getUserInfo(user5);
 
         doReturn(user1).when(mCarUserManagerHelper).getCurrentForegroundUserId();
         mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
@@ -329,9 +329,14 @@ public class CarUserServiceTest {
         final int user2 = 102;
         final int user3 = 103;
 
-        doReturn(true).when(mCarUserManagerHelper).isPersistentUser(user1);
-        doReturn(true).when(mCarUserManagerHelper).isPersistentUser(user2);
-        doReturn(true).when(mCarUserManagerHelper).isPersistentUser(user3);
+        UserInfo user1Info = new UserInfo(user1, "user1", 0);
+        UserInfo user2Info = new UserInfo(user2, "user2", 0);
+        UserInfo user3Info = new UserInfo(user3, "user3", 0);
+
+        doReturn(user1Info).when(mMockedUserManager).getUserInfo(user1);
+        doReturn(user2Info).when(mMockedUserManager).getUserInfo(user2);
+        doReturn(user3Info).when(mMockedUserManager).getUserInfo(user3);
+
         doReturn(user1).when(mCarUserManagerHelper).getCurrentForegroundUserId();
         mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
         mCarUserService.setUserLockStatus(user1, true);
@@ -387,13 +392,5 @@ public class CarUserServiceTest {
         return Settings.Global.getInt(
                 InstrumentationRegistry.getTargetContext().getContentResolver(),
                 key, /* default= */ 0);
-    }
-
-    private UserInfo mockAdmin(int adminId) {
-        UserInfo admin = new UserInfo(adminId, DEFAULT_ADMIN_NAME,
-                UserInfo.FLAG_ADMIN);
-        doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser();
-
-        return admin;
     }
 }
