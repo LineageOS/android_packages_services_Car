@@ -44,8 +44,9 @@
                 <Spinner
                     android:id="@+id/spinner"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:theme="@style/Spinner"/>
 
                 <ImageButton
                     android:id="@+id/RefreshButton"
@@ -59,8 +60,10 @@
                 android:id="@+id/NewInstanceCheckBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/app_grid_margin_left"
                 android:layout_marginTop="@dimen/app_grid_margin_top"
-                android:text="@string/new_instance" />
+                android:text="@string/new_instance"
+                android:textSize="20dp"/>
 
             <GridView
                 android:id="@+id/app_grid"
@@ -79,5 +82,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
+        android:scaleX="@dimen/app_picker_fab_scale"
+        android:scaleY="@dimen/app_picker_fab_scale"
+        android:layout_margin="@dimen/app_picker_scaled_margin"
         android:src="@drawable/ic_apps"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
