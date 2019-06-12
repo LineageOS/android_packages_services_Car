@@ -31,6 +31,7 @@ import android.car.encryptionrunner.HandshakeMessage;
 import android.car.trust.TrustedDeviceInfo;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.RemoteException;
 
 import androidx.test.InstrumentationRegistry;
@@ -53,14 +54,17 @@ import java.util.UUID;
 @RunWith(AndroidJUnit4.class)
 public class CarTrustAgentEnrollmentServiceTest {
 
-    private static final int TEST_HANDLE1 = 1;
-    private static final int TEST_HANDLE2 = 2;
+    private static final long TEST_HANDLE1 = 1L;
+    private static final long TEST_HANDLE2 = 2L;
+    // Random uuid for test
+    private static final UUID TEST_ID1 = UUID.fromString("9a138a69-7c29-400f-9e71-fc29516f9f8b");
+    private static final UUID TEST_ID2 = UUID.fromString("3e344860-e688-4cce-8411-16161b61ad57");
     private static final String TEST_TOKEN = "test_escrow_token";
     private static final String ADDRESS = "00:11:22:33:AA:BB";
     private static final String DEFAULT_NAME = "My Device";
-    private static final TrustedDeviceInfo DEVICE_INFO_FOR_HANDLE1 = new TrustedDeviceInfo(
+    private static final TrustedDeviceInfo DEVICE_INFO1 = new TrustedDeviceInfo(
             TEST_HANDLE1, ADDRESS, DEFAULT_NAME);
-    private static final TrustedDeviceInfo DEVICE_INFO_FOR_HANDLE2 = new TrustedDeviceInfo(
+    private static final TrustedDeviceInfo DEVICE_INFO2 = new TrustedDeviceInfo(
             TEST_HANDLE2, ADDRESS, DEFAULT_NAME);
 
     private Context mContext;
@@ -71,6 +75,7 @@ public class CarTrustAgentEnrollmentServiceTest {
     @Mock
     private CarTrustAgentBleManager mMockCarTrustAgentBleManager;
 
+    @Mock
     private CarTrustAgentEnrollmentService.CarTrustAgentEnrollmentRequestDelegate mEnrollDelegate =
             new CarTrustAgentEnrollmentService.CarTrustAgentEnrollmentRequestDelegate() {
                 @Override
@@ -107,7 +112,6 @@ public class CarTrustAgentEnrollmentServiceTest {
         // Need to clear the shared preference
         mCarTrustAgentEnrollmentService.onEscrowTokenRemoved(TEST_HANDLE1, mUserId);
         mCarTrustAgentEnrollmentService.onEscrowTokenRemoved(TEST_HANDLE2, mUserId);
-
     }
 
     @Test
@@ -175,7 +179,7 @@ public class CarTrustAgentEnrollmentServiceTest {
     @Test
     public void testOnEscrowTokenActiveStateChange_true_addTrustedDevice() {
         // Set up the service to go through the handshake
-        setupEncryptionHandshake();
+        setupEncryptionHandshake(TEST_ID1);
 
         // Token has been activated and added to the shared preference
         mCarTrustAgentEnrollmentService.onEscrowTokenActiveStateChanged(
@@ -184,15 +188,30 @@ public class CarTrustAgentEnrollmentServiceTest {
         verify(mMockCarTrustAgentBleManager).sendEnrollmentMessage(eq(mBluetoothDevice), any(),
                 any(), eq(true));
         assertThat(mCarTrustAgentEnrollmentService.getEnrolledDeviceInfosForUser(
-                mUserId)).containsExactly(DEVICE_INFO_FOR_HANDLE1);
+                mUserId)).containsExactly(DEVICE_INFO1);
         assertThat(mCarTrustAgentEnrollmentService.isEscrowTokenActive(TEST_HANDLE1,
                 mUserId)).isTrue();
     }
 
     @Test
+    public void testOnEscrowTokenActiveStateChange_addDuplicateDevice() {
+        // Set up the service to go through the handshake
+        setupEncryptionHandshake(TEST_ID1);
+
+        // Enroll device
+        mCarTrustAgentEnrollmentService.onEscrowTokenActiveStateChanged(
+                TEST_HANDLE1, /* isTokenActive= */ true, mUserId);
+
+        // Enroll same device again
+        mCarTrustAgentEnrollmentService.onEscrowTokenActiveStateChanged(
+                TEST_HANDLE2, /* isTokenActive= */ true, mUserId);
+        verify(mEnrollDelegate).removeEscrowToken(eq(TEST_HANDLE1), eq(mUserId));
+    }
+
+    @Test
     public void testOnEscrowTokenActiveStateChange_false_doNotAddTrustedDevice() {
         // Set up the service to go through the handshake
-        setupEncryptionHandshake();
+        setupEncryptionHandshake(TEST_ID1);
 
         // Token activation fail
         mCarTrustAgentEnrollmentService.onEscrowTokenActiveStateChanged(
@@ -204,29 +223,44 @@ public class CarTrustAgentEnrollmentServiceTest {
 
     @Test
     public void testOnEscrowTokenRemoved_removeOneTrustedDevice() {
-        setupEncryptionHandshake();
+        setupEncryptionHandshake(TEST_ID1);
+        SharedPreferences sharedPrefs = mCarTrustedDeviceService.getSharedPrefs();
         mCarTrustAgentEnrollmentService.onEscrowTokenActiveStateChanged(
                 TEST_HANDLE1, /* isTokenActive= */ true,
                 mUserId);
+
+        assertThat(mCarTrustAgentEnrollmentService.getEnrolledDeviceInfosForUser(
+                mUserId)).containsExactly(DEVICE_INFO1);
+        assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE1)).isEqualTo(
+                mUserId);
+        assertThat(sharedPrefs.getLong(TEST_ID1.toString(), -1)).isEqualTo(TEST_HANDLE1);
+
         mCarTrustAgentEnrollmentService.onEscrowTokenActiveStateChanged(
                 TEST_HANDLE2, /* isTokenActive= */ true,
                 mUserId);
 
         assertThat(mCarTrustAgentEnrollmentService.getEnrolledDeviceInfosForUser(
-                mUserId)).containsExactly(DEVICE_INFO_FOR_HANDLE1, DEVICE_INFO_FOR_HANDLE2);
-        assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE1)).isEqualTo(
-                mUserId);
+                mUserId)).containsExactly(DEVICE_INFO1, DEVICE_INFO2);
         assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE2)).isEqualTo(
                 mUserId);
+        assertThat(sharedPrefs.getLong(TEST_ID1.toString(), -1)).isEqualTo(TEST_HANDLE2);
 
         // Remove all handles
         mCarTrustAgentEnrollmentService.onEscrowTokenRemoved(TEST_HANDLE1, mUserId);
 
         assertThat(mCarTrustAgentEnrollmentService.getEnrolledDeviceInfosForUser(
-                mUserId)).containsExactly(DEVICE_INFO_FOR_HANDLE2);
+                mUserId)).containsExactly(DEVICE_INFO2);
         assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE1)).isEqualTo(-1);
         assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE2)).isEqualTo(
                 mUserId);
+        assertThat(sharedPrefs.getLong(TEST_ID1.toString(), -1)).isEqualTo(TEST_HANDLE2);
+
+        mCarTrustAgentEnrollmentService.onEscrowTokenRemoved(TEST_HANDLE2, mUserId);
+
+        assertThat(mCarTrustAgentEnrollmentService.getEnrolledDeviceInfosForUser(
+            mUserId)).isEmpty();
+        assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE2)).isEqualTo(-1);
+        assertThat(sharedPrefs.getLong(TEST_ID1.toString(), -1)).isEqualTo(-1);
     }
 
     @Test
@@ -236,17 +270,16 @@ public class CarTrustAgentEnrollmentServiceTest {
 
     @Test
     public void testGetUserHandleByTokenHandle_existingHandle() {
-        setupEncryptionHandshake();
+        setupEncryptionHandshake(TEST_ID1);
         mCarTrustAgentEnrollmentService.onEscrowTokenActiveStateChanged(
                 TEST_HANDLE1, /* isTokenActive= */ true, mUserId);
         assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE1)).isEqualTo(
                 mUserId);
     }
 
-    private void setupEncryptionHandshake() {
+    private void setupEncryptionHandshake(UUID uuid) {
         mCarTrustAgentEnrollmentService.setEncryptionRunner(
                 EncryptionRunnerFactory.newDummyRunner());
-        UUID uuid = UUID.randomUUID();
         mCarTrustAgentEnrollmentService.onEnrollmentDataReceived(Utils.uuidToBytes(uuid));
         mCarTrustAgentEnrollmentService.onEnrollmentDataReceived(
                 DummyEncryptionRunner.INIT.getBytes());
