@@ -75,6 +75,10 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     static final byte[] CONFIRMATION_SIGNAL = "True".getBytes();
     //Arbirary log size
     private static final int MAX_LOG_SIZE = 20;
+    // This delimiter separates deviceId and deviceInfo, so it has to differ from the
+    // TrustedDeviceInfo delimiter. Once new API can be added, deviceId will be added to
+    // TrustedDeviceInfo and this delimiter will be removed.
+    private static final char DEVICE_INFO_DELIMITER = '#';
 
     private final CarTrustedDeviceService mTrustedDeviceService;
     // List of clients listening to Enrollment state change events.
@@ -90,8 +94,8 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     @GuardedBy("mRemoteDeviceLock")
     private BluetoothDevice mRemoteEnrollmentDevice;
     private final Map<Long, Boolean> mTokenActiveStateMap = new HashMap<>();
-    private String mDeviceName;
-    private String mDeviceId;
+    private String mClientDeviceName;
+    private String mClientDeviceId;
     private final Context mContext;
 
     private EncryptionRunner mEncryptionRunner = EncryptionRunnerFactory.newRunner();
@@ -312,12 +316,13 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         Set<String> enrolledDeviceInfos = mTrustedDeviceService.getSharedPrefs().getStringSet(
                 String.valueOf(uid), new HashSet<>());
         List<TrustedDeviceInfo> trustedDeviceInfos = new ArrayList<>(enrolledDeviceInfos.size());
-        for (String deviceInfo : enrolledDeviceInfos) {
-            trustedDeviceInfos.add(TrustedDeviceInfo.deserialize(deviceInfo));
+        for (String deviceInfoWithId : enrolledDeviceInfos) {
+            TrustedDeviceInfo deviceInfo = extractDeviceInfo(deviceInfoWithId);
+            if (deviceInfo != null) {
+                trustedDeviceInfos.add(deviceInfo);
+            }
         }
         return trustedDeviceInfos;
-
-
     }
 
     /**
@@ -391,16 +396,21 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
                 Log.e(TAG, "onEscrowTokenRemoved dispatch failed", e);
             }
         }
-        SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
+        SharedPreferences sharedPrefs = mTrustedDeviceService.getSharedPrefs();
+        SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.remove(String.valueOf(handle));
-        Set<String> deviceInfos = mTrustedDeviceService.getSharedPrefs().getStringSet(
-                String.valueOf(uid), new HashSet<>());
+        Set<String> deviceInfos = sharedPrefs.getStringSet(String.valueOf(uid), new HashSet<>());
         Iterator<String> iterator = deviceInfos.iterator();
         while (iterator.hasNext()) {
-            String deviceInfoString = iterator.next();
-            if (TrustedDeviceInfo.deserialize(deviceInfoString).getHandle() == handle) {
+            String deviceIdAndInfo = iterator.next();
+            TrustedDeviceInfo info = extractDeviceInfo(deviceIdAndInfo);
+            if (info != null && info.getHandle() == handle) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, "Removing trusted device handle: " + handle);
+                    Log.d(TAG, "Removing trusted device: " + info);
+                }
+                String clientDeviceId = extractDeviceId(deviceIdAndInfo);
+                if (clientDeviceId != null && sharedPrefs.getLong(clientDeviceId, -1) == handle) {
+                    editor.remove(clientDeviceId);
                 }
                 iterator.remove();
                 break;
@@ -434,31 +444,37 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             return;
         }
 
+        // Avoid storing duplicate info for same device by checking if there is already device info
+        // and deleting it.
+        SharedPreferences sharedPrefs = mTrustedDeviceService.getSharedPrefs();
+        if (sharedPrefs.contains(mClientDeviceId)) {
+            removeEscrowToken(sharedPrefs.getLong(mClientDeviceId, -1), uid);
+        }
         mTokenActiveStateMap.put(handle, isTokenActive);
-        Set<String> deviceInfo = mTrustedDeviceService.getSharedPrefs().getStringSet(
-                String.valueOf(uid), new HashSet<>());
-        String deviceName;
+        Set<String> deviceInfo = sharedPrefs.getStringSet(String.valueOf(uid), new HashSet<>());
+        String clientDeviceName;
         if (mRemoteEnrollmentDevice.getName() != null) {
-            deviceName = mRemoteEnrollmentDevice.getName();
-        } else if (mDeviceName != null) {
-            deviceName = mDeviceName;
+            clientDeviceName = mRemoteEnrollmentDevice.getName();
+        } else if (mClientDeviceName != null) {
+            clientDeviceName = mClientDeviceName;
             mCarTrustAgentBleManager.sendEnrollmentMessage(mRemoteEnrollmentDevice,
                     mEncryptionKey.encryptData(Utils.longToBytes(handle)),
                     OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */ true);
         } else {
-            deviceName = mContext.getString(R.string.trust_device_default_name);
+            clientDeviceName = mContext.getString(R.string.trust_device_default_name);
         }
         StringBuffer log = new StringBuffer()
-                .append("trustedDeviceAdded (handle:").append(handle)
+                .append("trustedDeviceAdded (id:").append(mClientDeviceId)
+                .append(", handle:").append(handle)
                 .append(", uid:").append(uid)
                 .append(", addr:").append(mRemoteEnrollmentDevice.getAddress())
-                .append(", name:").append(deviceName).append(")");
+                .append(", name:").append(clientDeviceName).append(")");
         addEnrollmentServiceLog(log.toString());
-        deviceInfo.add(new TrustedDeviceInfo(handle, mRemoteEnrollmentDevice.getAddress(),
-                deviceName).serialize());
+        deviceInfo.add(serializeDeviceInfoWithId(new TrustedDeviceInfo(handle,
+                    mRemoteEnrollmentDevice.getAddress(), clientDeviceName), mClientDeviceId));
 
         // To conveniently get the devices info regarding certain user.
-        SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
+        SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putStringSet(String.valueOf(uid), deviceInfo);
         if (!editor.commit()) {
             Log.e(TAG, "Writing DeviceInfo to shared prefs Failed");
@@ -471,6 +487,15 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         editor.putInt(String.valueOf(handle), uid);
         if (!editor.commit()) {
             Log.e(TAG, "Writing (handle, uid) to shared prefs Failed");
+            removeEscrowToken(handle, uid);
+            dispatchEnrollmentFailure(ENROLLMENT_HANDSHAKE_FAILURE);
+            return;
+        }
+
+        // To check if the device has already been mapped to a handle
+        editor.putLong(mClientDeviceId, handle);
+        if (!editor.commit()) {
+            Log.e(TAG, "Writing (identifier, handle) to shared prefs Failed");
             removeEscrowToken(handle, uid);
             dispatchEnrollmentFailure(ENROLLMENT_HANDSHAKE_FAILURE);
             return;
@@ -583,7 +608,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     }
 
     void onDeviceNameRetrieved(String deviceName) {
-        mDeviceName = deviceName;
+        mClientDeviceName = deviceName;
     }
 
     private void notifyDeviceIdReceived(byte[] id) {
@@ -592,9 +617,9 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             Log.e(TAG, "Invalid device id sent");
             return;
         }
-        mDeviceId = deviceId.toString();
+        mClientDeviceId = deviceId.toString();
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Received device id: " + mDeviceId);
+            Log.d(TAG, "Received device id: " + mClientDeviceId);
         }
         UUID uniqueId = mTrustedDeviceService.getUniqueId();
         if (uniqueId == null) {
@@ -760,7 +785,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
 
         mEncryptionState = HandshakeState.FINISHED;
         mEncryptionKey = message.getKey();
-        if (!mTrustedDeviceService.saveEncryptionKey(mDeviceId, mEncryptionKey.asBytes())) {
+        if (!mTrustedDeviceService.saveEncryptionKey(mClientDeviceId, mEncryptionKey.asBytes())) {
             resetEnrollmentStateOnFailure();
             dispatchEnrollmentFailure(ENROLLMENT_HANDSHAKE_FAILURE);
             return;
@@ -945,6 +970,46 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
                 Log.e(TAG, "onEnrollmentHandshakeFailure dispatch failed", e);
             }
         }
+    }
+
+    /**
+     * Currently, we store a map of uid -> a set of deviceId+deviceInfo strings
+     * This method extracts deviceInfo from a device+deviceInfo string, which should be
+     * created by {@link #serializeDeviceInfoWithId(TrustedDeviceInfo, String)}
+     *
+     * @param deviceInfoWithId deviceId+deviceInfo string
+     */
+    @Nullable
+    private static TrustedDeviceInfo extractDeviceInfo(String deviceInfoWithId) {
+        int delimiterIndex = deviceInfoWithId.indexOf(DEVICE_INFO_DELIMITER);
+        if (delimiterIndex < 0) {
+            return null;
+        }
+        return TrustedDeviceInfo.deserialize(deviceInfoWithId.substring(delimiterIndex + 1));
+    }
+
+    /**
+     * Extract deviceId from a deviceId+deviceInfo string which should be created by
+     * {@link #serializeDeviceInfoWithId(TrustedDeviceInfo, String)}
+     *
+     * @param deviceInfoWithId deviceId+deviceInfo string
+     */
+    @Nullable
+    private static String extractDeviceId(String deviceInfoWithId) {
+        int delimiterIndex = deviceInfoWithId.indexOf(DEVICE_INFO_DELIMITER);
+        if (delimiterIndex < 0) {
+            return null;
+        }
+        return deviceInfoWithId.substring(0, delimiterIndex);
+    }
+
+    // Create deviceId+deviceInfo string
+    private static String serializeDeviceInfoWithId(TrustedDeviceInfo info, String id) {
+        return new StringBuilder()
+            .append(id)
+            .append(DEVICE_INFO_DELIMITER)
+            .append(info.serialize())
+            .toString();
     }
 
     /**
