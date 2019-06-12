@@ -30,6 +30,7 @@ import android.car.cluster.navigation.NavigationState.Maneuver;
 import android.car.cluster.navigation.NavigationState.NavigationStateProto;
 import android.car.cluster.navigation.NavigationState.Road;
 import android.car.cluster.navigation.NavigationState.Step;
+import android.car.cluster.navigation.NavigationState.Timestamp;
 import android.car.navigation.CarNavigationStatusManager;
 import android.os.Bundle;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -70,6 +71,7 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         LatLng latLng = LatLng.newBuilder().build();
         Destination destination = Destination.newBuilder().build();
         Road road = Road.newBuilder().build();
+        Timestamp timestamp = Timestamp.newBuilder().build();
         NavigationStateProto navigationStateProto = NavigationStateProto.newBuilder().build();
 
         assertNotNull(imageReference);
@@ -83,6 +85,7 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         assertNotNull(latLng);
         assertNotNull(destination);
         assertNotNull(road);
+        assertNotNull(timestamp);
         assertNotNull(navigationStateProto);
 
         assertNotNull(ImageReference.parseFrom(imageReference.toByteArray()));
@@ -96,9 +99,9 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         assertNotNull(LatLng.parseFrom(latLng.toByteArray()));
         assertNotNull(Destination.parseFrom(destination.toByteArray()));
         assertNotNull(Road.parseFrom(road.toByteArray()));
+        assertNotNull(Timestamp.parseFrom(timestamp.toByteArray()));
         assertNotNull(NavigationStateProto.parseFrom(navigationStateProto.toByteArray()));
     }
-
 
     public void testSendEvent() throws Exception {
         if (mCarNavigationManager == null) {
