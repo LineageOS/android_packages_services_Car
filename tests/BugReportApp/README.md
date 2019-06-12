@@ -21,7 +21,17 @@ BugReport App for Android Automotive OS.
 Bug reports are zipped and uploaded to GCS. GCS enables creating Pub/Sub
 notifications that can be used to track when new  bug reports are uploaded.
 
-## Configuration
+## System configuration
+
+BugReport app uses `CarBugreportServiceManager` to collect bug reports and
+screenshots. `CarBugreportServiceManager` allows only one bug report app to
+use it's APIs, by default it's none.
+
+To allow AAE BugReport app to access the API, you need to overlay
+`config_car_bugreport_application` in `packages/services/Car/service/res/values/config.xml`
+with value `com.google.android.car.bugreport`.
+
+## App Configuration
 
 UI and upload configs are located in `res/` directory. Resources can be
 [overlayed](https://source.android.com/setup/develop/new-device#use-resource-overlays)

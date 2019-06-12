@@ -53,17 +53,28 @@ class VendorServiceInfo {
     })
     @interface Trigger {}
 
-    private final boolean mBind;
+    private static final int BIND = 0;
+    private static final int START = 1;
+    private static final int START_FOREGROUND = 2;
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+            BIND,
+            START,
+            START_FOREGROUND,
+    })
+    @interface Bind {}
+
+    private final @Bind int mBind;
     private final @UserScope int mUserScope;
     private final @Trigger int mTrigger;
     private final ComponentName mComponentName;
 
-    private VendorServiceInfo(ComponentName componentName, boolean bind, @UserScope int userScope,
+    private VendorServiceInfo(ComponentName componentName, @Bind int bind, @UserScope int userScope,
             @Trigger int trigger) {
         mComponentName = componentName;
-        mBind = bind;
         mUserScope = userScope;
         mTrigger = trigger;
+        mBind = bind;
     }
 
     boolean isSystemUserService() {
@@ -83,7 +94,11 @@ class VendorServiceInfo {
     }
 
     boolean shouldBeBound() {
-        return mBind;
+        return mBind == BIND;
+    }
+
+    boolean shouldBeStartedInForeground() {
+        return mBind == START_FOREGROUND;
     }
 
     Intent getIntent() {
@@ -102,11 +117,11 @@ class VendorServiceInfo {
 
         final ComponentName cn = ComponentName.unflattenFromString(serviceParamTokens[0]);
         if (cn == null) {
-            throw new IllegalArgumentException("Failed to parse service info: "
-                    + rawServiceInfo + ", expected a single '#' symbol");
+            throw new IllegalArgumentException("Failed to unflatten component name from: "
+                    + rawServiceInfo);
         }
 
-        boolean bind = false;
+        int bind = START;
         int userScope = USER_SCOPE_ALL;
         int trigger = TRIGGER_UNLOCKED;
 
@@ -121,7 +136,15 @@ class VendorServiceInfo {
 
                 switch (key) {
                     case KEY_BIND:
-                        bind = TextUtils.equals("true", val.toLowerCase());
+                        if ("bind".equals(val)) {
+                            bind = BIND;
+                        } else if ("start".equals(val)) {
+                            bind = START;
+                        } else if ("startForeground".equals(val)) {
+                            bind = START_FOREGROUND;
+                        } else {
+                            throw new IllegalArgumentException("Unexpected bind option: " + val);
+                        }
                         break;
                     case KEY_USER_SCOPE:
                         if ("all".equals(val)) {
