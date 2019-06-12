@@ -300,6 +300,9 @@ class VendorServiceController implements CarUserService.UserCallback {
             Intent intent = mVendorServiceInfo.getIntent();
             if (mVendorServiceInfo.shouldBeBound()) {
                 return mContext.bindServiceAsUser(intent, this, BIND_AUTO_CREATE, mHandler, mUser);
+            } else if (mVendorServiceInfo.shouldBeStartedInForeground()) {
+                mStarted = mContext.startForegroundServiceAsUser(intent, mUser) != null;
+                return mStarted;
             } else {
                 mStarted = mContext.startServiceAsUser(intent, mUser) != null;
                 return mStarted;
