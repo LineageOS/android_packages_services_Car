@@ -170,6 +170,11 @@ public class VmsClientManager implements CarServiceBase {
 
     @Override
     public void dump(PrintWriter writer) {
+        dumpMetrics(writer);
+    }
+
+    @Override
+    public void dumpMetrics(PrintWriter writer) {
         writer.println("*" + getClass().getSimpleName() + "*");
         synchronized (mSystemClients) {
             writer.println("mHalClient: " + (mHalClient != null ? "connected" : "disconnected"));

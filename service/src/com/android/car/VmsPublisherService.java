@@ -133,6 +133,11 @@ public class VmsPublisherService implements CarServiceBase, VmsClientManager.Con
 
     @Override
     public void dump(PrintWriter writer) {
+        dumpMetrics(writer);
+    }
+
+    @Override
+    public void dumpMetrics(PrintWriter writer) {
         writer.println("*" + getClass().getSimpleName() + "*");
         writer.println("mPublisherProxies: " + mPublisherProxies.size());
         synchronized (mPacketCounts) {
