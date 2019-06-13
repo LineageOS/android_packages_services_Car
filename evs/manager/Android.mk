@@ -20,6 +20,7 @@ LOCAL_SHARED_LIBRARIES := \
     libhidltransport \
     libhardware \
     android.hardware.automotive.evs@1.0 \
+    libhwbinder
 
 
 LOCAL_INIT_RC := android.automotive.evs.manager@1.0.rc
