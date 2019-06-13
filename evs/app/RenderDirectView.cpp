@@ -65,8 +65,9 @@ bool RenderDirectView::activate() {
 void RenderDirectView::deactivate() {
     // Release our video texture
     // We can't hold onto it because some other Render object might need the same camera
-    // TODO:  If start/stop costs become a problem, we could share video textures
-    mTexture = nullptr;
+    // TODO(b/131492626):  investigate whether sharing video textures can save
+    // the time.
+  mTexture = nullptr;
 }
 
 
