@@ -208,19 +208,6 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             synchronized (CarInputService.this) {
                 mCarInputListener = ICarInputListener.Stub.asInterface(binder);
             }
-
-            try {
-                binder.linkToDeath(() -> CarServiceUtils.runOnMainSync(() -> {
-                    Log.w(CarLog.TAG_INPUT, "Input service died. Trying to rebind...");
-                    synchronized (CarInputService.this) {
-                        mCarInputListener = null;
-                        // Try to rebind with input service.
-                        mCarInputListenerBound = bindCarInputService();
-                    }
-                }), 0);
-            } catch (RemoteException e) {
-                Log.e(CarLog.TAG_INPUT, e.getMessage(), e);
-            }
         }
 
         @Override
@@ -228,8 +215,6 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             Log.d(CarLog.TAG_INPUT, "onServiceDisconnected, name: " + name);
             synchronized (CarInputService.this) {
                 mCarInputListener = null;
-                // Try to rebind with input service.
-                mCarInputListenerBound = bindCarInputService();
             }
         }
     };
