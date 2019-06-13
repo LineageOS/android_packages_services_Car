@@ -51,7 +51,6 @@ import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -273,9 +272,12 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private class MediaControllerCallback extends MediaController.Callback {
 
         private final MediaController mMediaController;
+        private int mPreviousPlaybackState;
 
         private MediaControllerCallback(MediaController mediaController) {
             mMediaController = mediaController;
+            PlaybackState state = mediaController.getPlaybackState();
+            mPreviousPlaybackState = (state == null) ? PlaybackState.STATE_NONE : state.getState();
         }
 
         private void register() {
@@ -288,10 +290,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
         @Override
         public void onPlaybackStateChanged(@Nullable PlaybackState state) {
-            if (state.getState() == PlaybackState.STATE_PLAYING) {
-                updatePrimaryMediaSourceWithCurrentlyPlaying(
-                        Collections.singletonList(mMediaController));
+            if (state.getState() == PlaybackState.STATE_PLAYING
+                    && state.getState() != mPreviousPlaybackState) {
+                setPrimaryMediaSource(mMediaController.getPackageName());
             }
+            mPreviousPlaybackState = state.getState();
         }
     }
 

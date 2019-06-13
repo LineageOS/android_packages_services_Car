@@ -100,6 +100,10 @@ public class CarTrustedDeviceService implements CarServiceBase {
 
     public CarTrustedDeviceService(Context context) {
         mContext = context;
+
+        // TODO(b/134695083): Decouple these classes. The services should instead register as
+        // listeners on CarTrustAgentBleManager. CarTrustAgentBleManager should not know about
+        // the services and just dispatch BLE events.
         mCarTrustAgentBleManager = new CarTrustAgentBleManager(context);
         mCarTrustAgentEnrollmentService = new CarTrustAgentEnrollmentService(mContext, this,
                 mCarTrustAgentBleManager);

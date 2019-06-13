@@ -56,6 +56,15 @@ cc_library {
 }
 
 java_library {
+    name: "android.car.cluster.navigation",
+    proto: {
+        type: "lite",
+    },
+    static_libs: ["libprotobuf-java-lite"],
+    srcs: ["src/android/car/navigation/navigation_state.proto"]
+}
+
+java_library {
     name: "android.car",
     srcs: [
         "src/**/*.java",
