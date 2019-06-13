@@ -20,6 +20,8 @@
 
 #include <dirent.h>
 #include <hardware_legacy/uevent.h>
+#include <hwbinder/IPCThreadState.h>
+#include <cutils/android_filesystem_config.h>
 
 
 using namespace std::chrono_literals;
@@ -42,6 +44,17 @@ std::condition_variable                                      EvsEnumerator::sCam
 
 // Constants
 const auto kEnumerationTimeout = 10s;
+
+
+bool EvsEnumerator::checkPermission() {
+    hardware::IPCThreadState *ipc = hardware::IPCThreadState::self();
+    if (AID_AUTOMOTIVE_EVS != ipc->getCallingUid()) {
+        ALOGE("EVS access denied: pid = %d, uid = %d", ipc->getCallingPid(), ipc->getCallingUid());
+        return false;
+    }
+
+    return true;
+}
 
 void EvsEnumerator::EvsUeventThread(std::atomic<bool>& running) {
     int status = uevent_init();
@@ -158,6 +171,10 @@ void EvsEnumerator::enumerateDevices() {
 // Methods from ::android::hardware::automotive::evs::V1_0::IEvsEnumerator follow.
 Return<void> EvsEnumerator::getCameraList(getCameraList_cb _hidl_cb)  {
     ALOGD("getCameraList");
+    if (!checkPermission()) {
+        return Void();
+    }
+
     {
         std::unique_lock<std::mutex> lock(sLock);
         if (sCameraList.size() < 1) {
@@ -192,6 +209,9 @@ Return<void> EvsEnumerator::getCameraList(getCameraList_cb _hidl_cb)  {
 
 Return<sp<IEvsCamera>> EvsEnumerator::openCamera(const hidl_string& cameraId) {
     ALOGD("openCamera");
+    if (!checkPermission()) {
+        return nullptr;
+    }
 
     // Is this a recognized camera id?
     CameraRecord *pRecord = findCameraById(cameraId);
@@ -256,6 +276,9 @@ Return<void> EvsEnumerator::closeCamera(const ::android::sp<IEvsCamera>& pCamera
 
 Return<sp<IEvsDisplay>> EvsEnumerator::openDisplay() {
     ALOGD("openDisplay");
+    if (!checkPermission()) {
+        return nullptr;
+    }
 
     // If we already have a display active, then we need to shut it down so we can
     // give exclusive access to the new caller.
@@ -295,6 +318,9 @@ Return<void> EvsEnumerator::closeDisplay(const ::android::sp<IEvsDisplay>& pDisp
 
 Return<DisplayState> EvsEnumerator::getDisplayState()  {
     ALOGD("getDisplayState");
+    if (!checkPermission()) {
+        return DisplayState::DEAD;
+    }
 
     // Do we still have a display object we think should be active?
     sp<IEvsDisplay> pActiveDisplay = sActiveDisplay.promote();
