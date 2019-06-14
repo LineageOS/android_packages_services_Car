@@ -60,7 +60,7 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Jaso instrumentu lukuaren datuak"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Erabiltzaileen esperientziaren murriztapenen konfigurazioa"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Konfiguratu erabiltzaileen esperientziaren murriztapenak"</string>
-    <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Komunikatu AOAP moduan USB gailuekin"</string>
+    <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Komunikatu AOAP moduan USB bidezko gailuekin"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Gailuekin AOAP moduan komunikatzeko baimena ematen dio aplikazioari."</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Autoaren sarrerako zerbitzua"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Kudeatu sarrerako gertaerak"</string>
@@ -69,10 +69,10 @@
     <string name="activity_blocked_text" msgid="5342114426610711378">"Zure segurtasuna bermatzeko, eginbide hau ezin da erabili gidatu bitartean.\nAurrera egiteko, itxaron autoa aparkatu arte."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Berriro hasi nahi baduzu aplikazioaren eginbide seguruekin, hautatu <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Atzera"</string>
-    <string name="car_permission_label_diag_read" msgid="7248894224877702604">"irakurri datu diagnostikoak"</string>
-    <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Irakurri autoaren datu diagnostikoak."</string>
-    <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"garbitu datu diagnostikoak"</string>
-    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"Garbitu autoaren datu diagnostikoak."</string>
+    <string name="car_permission_label_diag_read" msgid="7248894224877702604">"irakurri diagnostiko-datuak"</string>
+    <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Irakurri autoaren diagnostiko-datuak."</string>
+    <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"garbitu diagnostiko-datuak"</string>
+    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"Garbitu autoaren diagnostiko-datuak."</string>
     <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"VMS argitaratzailea"</string>
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Argitaratu VMS mezuak"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS harpideduna"</string>
