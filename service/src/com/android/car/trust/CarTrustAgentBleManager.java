@@ -49,7 +49,7 @@ import java.util.UUID;
 
 /**
  * A BLE Service that is used for communicating with the trusted peer device. This extends from a
- * more generic {@link BLEManager} and has more context on the BLE requirements for the Trusted
+ * more generic {@link BleManager} and has more context on the BLE requirements for the Trusted
  * device feature. It has knowledge on the GATT services and characteristics that are specific to
  * the Trusted Device feature.
  */
@@ -62,7 +62,7 @@ class CarTrustAgentBleManager extends BleManager {
      * responsible for specifying if a characteristic can be subscribed to for notifications.
      *
      * @see <a href="https://www.bluetooth.com/specifications/gatt/descriptors/">
-     *      GATT Descriptors</a>
+     * GATT Descriptors</a>
      */
     private static final UUID CLIENT_CHARACTERISTIC_CONFIG =
             UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
@@ -140,6 +140,7 @@ class CarTrustAgentBleManager extends BleManager {
 
         mMessageQueue.clear();
         mIsVersionExchanged = false;
+        mBleMessagePayloadStream.reset();
     }
 
     @Override
@@ -436,7 +437,6 @@ class CarTrustAgentBleManager extends BleManager {
     }
 
     void disconnectRemoteDevice() {
-        mBleMessagePayloadStream.reset();
         stopGattServer();
     }
 
@@ -488,10 +488,10 @@ class CarTrustAgentBleManager extends BleManager {
      * Sends the given message to the specified device and characteristic.
      * The message will be splited into multiple messages wrapped in BLEMessage proto.
      *
-     * @param device The device to send the message to.
-     * @param characteristic The characteristic to write to.
-     * @param message A message to send.
-     * @param operation The type of operation this message represents.
+     * @param device             The device to send the message to.
+     * @param characteristic     The characteristic to write to.
+     * @param message            A message to send.
+     * @param operation          The type of operation this message represents.
      * @param isPayloadEncrypted {@code true} if the message is encrypted.
      */
     private void sendMessage(BluetoothDevice device, BluetoothGattCharacteristic characteristic,

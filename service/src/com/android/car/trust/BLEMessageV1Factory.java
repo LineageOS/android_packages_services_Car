@@ -21,6 +21,7 @@ import android.util.Log;
 import com.android.car.BLEStreamProtos.BLEMessageProto.BLEMessage;
 import com.android.car.BLEStreamProtos.BLEOperationProto.OperationType;
 import com.android.car.protobuf.ByteString;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -172,7 +173,8 @@ class BLEMessageV1Factory {
      * Returns the header size for the proto in bytes. This method assumes that the proto
      * contain a payload.
      */
-    public static int getProtoHeaderSize(OperationType operation, boolean isPayloadEncrypted) {
+    @VisibleForTesting
+    static int getProtoHeaderSize(OperationType operation, boolean isPayloadEncrypted) {
         int isPayloadEncryptedFieldSize =
                 isPayloadEncrypted ? (BOOLEAN_FIELD_ENCODING_SIZE + FIELD_NUMBER_ENCODING_SIZE) : 0;
         int operationSize = getEncodedSize(operation.getNumber()) + FIELD_NUMBER_ENCODING_SIZE;
