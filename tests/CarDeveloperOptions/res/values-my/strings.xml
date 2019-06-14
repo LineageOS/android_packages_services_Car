@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"အလုပ်"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS နှင့် ခေါ်ဆိုမှတ်တမ်း ဝင်သုံးခွင့် ကန့်သတ်ခြင်း"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"မူရင်း ဖုန်းနှင့် မက်ဆေ့ဂျ်အက်ပ်များသာ SMS နှင့် ခေါ်ဆိုမှတ်တမ်း ခွင့်ပြုချက်များ ရရှိပါသည်"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"ကိရိယာသတ်မှတ်မှုစနစ် ကန့်သတ်ချက်များ ပိတ်ခြင်း"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"ကိရိယာသတ်မှတ်မှုစနစ်များအတွက် အသုံးပြုခွင့်ကန့်သတ်ချက် အသစ်များကို ပိတ်သည်"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"ယုံကြည်မှု အေးဂျင့်များ မရှိ"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"စက်စီမံခန့်ခွဲသူအက်ပ် အသက်သွင်းလိုသလား။"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"ဤစက်စီမံအက်ပ်ကို စတင်ရန်"</string>

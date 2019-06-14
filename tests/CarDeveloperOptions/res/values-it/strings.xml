@@ -2021,7 +2021,7 @@
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Rimuovi le animazioni"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Audio in formato mono"</string>
     <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Unisci i canali durante la riproduzione dell\'audio"</string>
-    <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"Regolazione audio"</string>
+    <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"Bilanciamento audio"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"Sinistra"</string>
     <string name="accessibility_toggle_master_balance_right_label" msgid="7757024572140589558">"Destra"</string>
     <string name="accessibility_timeout_default" msgid="9118596941362716397">"Predefinito"</string>
@@ -2065,7 +2065,7 @@
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_short_delay (4311889107742293108) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_long_delay (285663535113656440) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_long_delay (3412533824632834001) -->
-    <string name="accessibility_vibration_summary" msgid="3642516399755721924">"Squillo: <xliff:g id="SUMMARY_RING">%1$s</xliff:g>. Notifiche: <xliff:g id="SUMMARY_NOTIFICATION">%2$s</xliff:g>. Tocco: <xliff:g id="SUMMARY_TOUCH">%3$s</xliff:g>."</string>
+    <string name="accessibility_vibration_summary" msgid="3642516399755721924">"Squillo: <xliff:g id="SUMMARY_RING">%1$s</xliff:g> - Notifiche: <xliff:g id="SUMMARY_NOTIFICATION">%2$s</xliff:g> - Tocco: <xliff:g id="SUMMARY_TOUCH">%3$s</xliff:g>"</string>
     <string name="accessibility_vibration_summary_off" msgid="2894044066550518676">"Impostazione di suoneria e notifiche: off"</string>
     <string name="accessibility_vibration_summary_low" msgid="2884160616131878204">"Impostazione di suoneria e notifiche: bassa"</string>
     <string name="accessibility_vibration_summary_medium" msgid="3141272492346527298">"Impostazione di suoneria e notifiche: media"</string>
@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Lavoro"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Limita l\'accesso a SMS e registro chiamate"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Solo le app telefoniche e di messaggistica predefinite hanno le autorizzazioni di accesso a SMS e registro chiamate"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Disattiva limitazioni identificatori di dispositivi"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Disattiva le limitazioni dei nuovi accessi per gli identificatori dei dispositivi"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Non sono disponibili agenti di attendibilità"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Attivare l\'app di amministrazione?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Attiva questa app di amministrazione del dispositivo"</string>
@@ -2994,7 +2992,7 @@
     <string name="keywords_sim_status" msgid="3852088576719874387">"rete, stato rete mobile, stato servizio, intensità segnale, tipo di rete mobile, roaming, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"numero di serie, versione hardware"</string>
     <string name="keywords_android_version" msgid="4842749998088987740">"livello patch di sicurezza android, versione banda di base, versione kernel"</string>
-    <string name="keywords_dark_ui_mode" msgid="1027966176887770318">"tema, chiaro, scuro, modalità"</string>
+    <string name="keywords_dark_ui_mode" msgid="1027966176887770318">"tema, chiaro, buio, modalità"</string>
     <string name="keywords_financial_apps_sms_access" msgid="3236014691838121857">"app finanziaria, sms, autorizzazione"</string>
     <string name="keywords_systemui_theme" msgid="9150908170417305866">"tema scuro"</string>
     <string name="keywords_device_feedback" msgid="6948977907405738490">"bug"</string>
@@ -4246,8 +4244,8 @@
     <string name="mobile_data_ap_mode_disabled" msgid="2452716524753472885">"Non disponibili in modalità aereo"</string>
     <string name="force_desktop_mode" msgid="6973100177551040740">"Forza la modalità desktop"</string>
     <string name="force_desktop_mode_summary" msgid="8865007610266954719">"Forza la modalità desktop sperimentale su display secondari"</string>
-    <string name="hwui_force_dark_title" msgid="3744825212652331461">"Esegui override modalità scuro forzata"</string>
-    <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Esegue l\'override della funzionalità di modalità scuro forzata in modo che sia sempre attiva"</string>
+    <string name="hwui_force_dark_title" msgid="3744825212652331461">"Esegui override modalità buio forzata"</string>
+    <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Esegue l\'override della funzionalità di modalità buio forzata in modo che sia sempre attiva"</string>
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"Privacy"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Autorizzazioni, attività dell\'account, dati personali"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Rimuovi"</string>

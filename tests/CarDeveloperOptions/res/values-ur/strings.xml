@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"دفتر"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS اور کال لاگ تک رسائی کو محدود کریں"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"صرف ڈیفالٹ فون اور پیغام رسانی کی ایپس میں SMS اور کال لاگ کی اجازتیں ہیں"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"آلہ شناخت کاران کی پابندیاں غیرفعال کریں"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"آلہ کے شناخت کاران کے لیے رسائی کی نئی پابندیاں غیرفعال کریں"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"ٹرسٹ کے کوئی ایجنٹس دستیاب نہیں ہیں"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"آلہ کے منتظم کی ایپ فعال کریں؟"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"اس آلہ کے منتظم کی ایپ فعال کریں"</string>

@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"කාර්යාලය"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS සහ ඇමතුම් ලොග ප්‍රවේශය සීමා කරන්න"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"පෙරනිමි දුරකථන සහ පණිවිඩකරණ යෙදුම්වලට පමණක් SMS සහ ඇමතුම් ලොග අවසර ඇත"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"උපාංග හැඳුනුම්කාරක සීමා කිරීම් අබල කරන්න"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"උපාංග හැඳුනුම්කාරක සඳහා නව ප්‍රවේශ සීමා කිරීම් අබල කරන්න"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"විශ්වාසනීය ඒජන්තවරුන් නැත"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"උපාංගය පරිපාලක යෙදුම සක්‍රිය කරන්නද?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"මෙම උපාංගය පරිපාලක යෙදුම සක්‍රිය කරන්න"</string>

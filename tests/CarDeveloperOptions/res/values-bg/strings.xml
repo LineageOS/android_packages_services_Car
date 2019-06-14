@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Служебно"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Огранич. на достъпа до SMS и списъка с обажданията"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Само стандартните приложения за телефон и съобщения имат разрешения за SMS и списъка с обажданията"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Деакт. на ограниченията за идентиф. на у-вото"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Деактивиране на новите ограничения на достъпа до идентификаторите на устройството"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Няма налични trust agents"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Да се активира ли прилож. за администр.?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Активиране на това приложение за администриране на устройството"</string>

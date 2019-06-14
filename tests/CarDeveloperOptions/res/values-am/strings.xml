@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"ስራ"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"የኤስኤምኤስ እና የጥሪ ምዝግብ መዳረሻን ገድብ"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"ነባሪ የስልክ እና የመልዕክት መላላኪያ መተግበሪያዎች ብቻ የኤስኤምኤስ እና የጥሪ ምዝግብ ማስታወሻ ፈቃዶች አላቸው"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"የመሣሪያ ለዪ ገደቦችን ያሰናክሉ"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"አዲሶቹን የመዳረሻ ገደቦች ለመሣሪያ ለዪዎች ያሰናክሉ"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"ምንም የሚገኙ የተአማኒነት ወኪሎች የሉም"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"የመሣሪያ አስተዳዳሪ መተግበሪያ ገቢር ይሁን?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"የዚህ መሣሪያ አስተዳዳሪ መተግበሪያን አግብር"</string>

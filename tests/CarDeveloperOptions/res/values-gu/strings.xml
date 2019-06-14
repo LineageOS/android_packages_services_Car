@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"કાર્યાલય"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS અને કૉલ લૉગનો અ‍ૅક્સેસ પ્રતિબંધિત કરો"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"માત્ર ડિફૉલ્ટ ફોન અને સંદેશ માટેની અ‍ૅપ પાસે SMS અને કૉલ લૉગની પરવાનગીઓ હોય છે"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"ડિવાઇસ ઓળખકર્તા પ્રતિબંધોને બંધ કરો"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"ડિવાઇસ ઓળખકર્તાઓ માટે નવા ઍક્સેસ પ્રતિબંધો બંધ કરો"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"કોઈ ઉપલબ્ધ ટ્રસ્ટ એજન્ટ્સ નથી"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"ઉપકરણ વ્યવસ્થાપક ઍપ્લિકેશન સક્રિય કરીએ?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"આ ઉપકરણ વ્યવસ્થાપક ઍપ્લિકેશન સક્રિય કરો"</string>

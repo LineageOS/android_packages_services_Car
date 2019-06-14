@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"עבודה"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"הגבלת גישה ל-SMS וליומן השיחות"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"רק לאפליקציית הטלפון שהוגדרה כברירת המחדל ולאפליקציות להעברת הודעות יש הרשאות ל-SMS וליומן השיחות"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"השבתה של הגבלות מזהי מכשירים"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"השבתה של הגבלות הגישה החדשות בשביל מזהי מכשיר"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"אין סביבות מהימנות זמינות"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"האם להפעיל את אפליקציית מנהל המכשיר?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"הפעל את אפליקציית מנהל המכשיר"</string>

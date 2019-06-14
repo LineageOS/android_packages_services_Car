@@ -118,7 +118,7 @@
     <string name="bluetooth_footer_mac_message" product="device" msgid="7639919867088358038">"Gailuaren Bluetooth helbidea: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_is_disconnect_question" msgid="6180709281434591654">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> deskonektatu nahi duzu?"</string>
     <string name="bluetooth_broadcasting" msgid="8926408584599563760">"Igorpena"</string>
-    <string name="bluetooth_device" msgid="3170974107364990008">"Izenik gabeko Bluetooth gailua"</string>
+    <string name="bluetooth_device" msgid="3170974107364990008">"Izenik gabeko Bluetooth bidezko gailua"</string>
     <string name="progress_scanning" msgid="633923400401041181">"Bilatzen"</string>
     <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"Ez da Bluetooth gailurik aurkitu inguruan."</string>
     <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"Bluetooth bidez parekatzeko eskaera"</string>
@@ -126,7 +126,7 @@
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> gailuarekin parekatzeko, sakatu hau."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"Jasotako fitxategiak"</string>
     <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"Bluetooth bidez jasotako fitxategiak"</string>
-    <string name="device_picker" msgid="8345264486071697705">"Aukeratu Bluetooth gailua"</string>
+    <string name="device_picker" msgid="8345264486071697705">"Aukeratu Bluetooth bidezko gailua"</string>
     <string name="bluetooth_ask_enablement" msgid="8716802066127746062">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak Bluetooth konexioa aktibatu nahi du"</string>
     <string name="bluetooth_ask_disablement" msgid="7125319551097350783">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak Bluetooth konexioa desaktibatu nahi du"</string>
     <string name="bluetooth_ask_enablement_no_name" msgid="6105893027185475233">"Aplikazio batek Bluetooth konexioa aktibatu nahi du"</string>
@@ -746,9 +746,9 @@
     <string name="bluetooth_disconnect_pan_user_profile" msgid="5523689915196343097">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> gailuaren bidezko Interneteko konexioa deskonektatuko da."</string>
     <string name="bluetooth_disconnect_pan_nap_profile" product="tablet" msgid="8145126793699232403">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> deskonektatuko da tabletaren Interneteko konexioa partekatzeko profiletik."</string>
     <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> deskonektatuko da telefonoaren Interneteko konexioa partekatzeko profiletik."</string>
-    <string name="bluetooth_device_advanced_title" msgid="5752155558126694036">"Parekatutako Bluetooth gailua"</string>
+    <string name="bluetooth_device_advanced_title" msgid="5752155558126694036">"Parekatutako Bluetooth bidezko gailua"</string>
     <string name="bluetooth_device_advanced_online_mode_title" msgid="7665622268007450665">"Konektatu"</string>
-    <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"Konektatu Bluetooth gailura"</string>
+    <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"Konektatu Bluetooth bidezko gailura"</string>
     <string name="bluetooth_device_advanced_profile_header_title" msgid="1414487572426490659">"Erabilera"</string>
     <string name="bluetooth_device_advanced_rename_device" msgid="2270087843175307865">"Aldatu izena"</string>
     <string name="bluetooth_device_advanced_enable_opp_title" msgid="8258863155491651198">"Onartu sarrerako fitxategi-transferentziak"</string>
@@ -2314,7 +2314,7 @@
     <string name="battery_sugg_wifi" msgid="3796329601134263039">"Desaktibatu Wi‑Fi konexioa erabiltzen ari ez denean edo erabilgarri ez dagoenean."</string>
     <string name="battery_desc_bluetooth" msgid="3468061900485447679">"Bluetoothak erabilitako bateria"</string>
     <string name="battery_sugg_bluetooth_basic" msgid="6353294067057749310">"Desaktibatu Bluetooth-a erabiltzen ez duzunean."</string>
-    <string name="battery_sugg_bluetooth_headset" msgid="2421931037149315202">"Saiatu beste Bluetooth gailu batera konektatzen."</string>
+    <string name="battery_sugg_bluetooth_headset" msgid="2421931037149315202">"Saiatu beste Bluetooth bidezko gailu batera konektatzen."</string>
     <string name="battery_desc_apps" msgid="6826726880149226823">"Aplikazioak erabilitako bateria"</string>
     <string name="battery_sugg_apps_info" msgid="9175761965559743977">"Gelditu edo desinstalatu aplikazioa"</string>
     <string name="battery_sugg_apps_gps" msgid="489694612870772770">"Hautatu bateria aurrezteko modua"</string>
@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Lanekoak"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Mugatu SMSetarako eta deien erregistrorako sarbidea"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Telefonoak eta mezularitza-aplikazio lehenetsiek soilik dute SMSak eta deien erregistroa atzitzeko baimena"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Desgaitu gailu-identifikatzaileen murriztapenak"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Desgaitu gailu-identifikatzaileen sarbide-murriztapen berriak"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Ez dago agente fidagarririk erabilgarri"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Gailua administratzeko aplikazioa aktibatu?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Aktibatu gailua administratzeko aplikazioa"</string>
@@ -2974,7 +2972,7 @@
     <string name="keywords_location" msgid="6439463166207072559">"ingurua, kokapena, historia, hautematea, hauteman, GPSa"</string>
     <string name="keywords_accounts" msgid="5908945725229306088">"kontu"</string>
     <string name="keywords_users" msgid="5880705776023155640">"muga, mugatu, murriztu, murriztapen, debekatu, debeku"</string>
-    <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"testua, zuzenketa, zuzendu, soinua, dardara, automatikoa, hizkuntza, keinua, iradoki, iradokizuna, gaia, iraingarria, hitza, mota, emotikonoa, nazioartekoa"</string>
+    <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"testua, zuzenketa, zuzendu, soinua, dardara, automatikoa, hizkuntza, keinua, iradoki, iradokizuna, gaia, iraingarria, hitza, mota, emojia, nazioartekoa"</string>
     <string name="keywords_reset_apps" msgid="2645701455052020435">"berrezarri, hobespen, lehenetsi"</string>
     <string name="keywords_all_apps" msgid="846444448435698930">"aplikazioak, deskargatu, aplikazioa, sistema"</string>
     <string name="keywords_app_permissions" msgid="8539841019997048500">"aplikazioak, baimenak, segurtasuna"</string>
