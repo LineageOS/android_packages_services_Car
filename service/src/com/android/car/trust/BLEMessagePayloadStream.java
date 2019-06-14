@@ -36,6 +36,7 @@ class BLEMessagePayloadStream {
      */
     public void reset() {
         mPendingData.reset();
+        mIsComplete = false;
     }
 
     /**
