@@ -2020,7 +2020,7 @@
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"పెద్ద మౌస్ పాయింటర్"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"యానిమేషన్‌లను తీసివేయండి"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"మోనో ఆడియో"</string>
-    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"ఆడియో ప్లే చేసేటప్పుడు ఛానెల్‌లను మిళితం చేస్తుంది"</string>
+    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"ఆడియో ప్లే అవుతున్నప్పుడు ఛానెల్‌లను కలుపుతుంది"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"ఆడియో బ్యాలెన్స్"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"ఎడమ"</string>
     <string name="accessibility_toggle_master_balance_right_label" msgid="7757024572140589558">"కుడి"</string>
@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"కార్యాలయం"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS &amp; కాల్ లాగ్ యాక్సెస్‌ను పరిమితం చేయండి"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"కేవలం డిఫాల్ట్ ఫోన్ మరియు సందేశ యాప్‌లు మాత్రమే SMS &amp; లాగ్ అనుమతులను కలిగి ఉన్నాయి"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"పరికర ఐడెంటిఫైయర్ పరిమితులను నిలిపివేయండి"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"పరికర ఐడెంటిఫైయర్‌లకు కొత్త యాక్సెస్ పరిమితులను నిలిపివేయండి"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"విశ్వసనీయ ఏజెంట్‌లు అందుబాటులో లేరు"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"పరికర నిర్వాహకుల యాప్‌ను యాక్టివేట్‌ చేయాలా?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"ఈ పరికరం నిర్వాహకుల యాప్‌ను యాక్టివేట్‌ చేయి"</string>

@@ -2021,7 +2021,7 @@
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Odstranit animace"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Zvuk mono"</string>
     <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Při přehrávání zvuku kombinovat kanály"</string>
-    <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"Balance zvuku"</string>
+    <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"Vyvážení zvuku"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"Vlevo"</string>
     <string name="accessibility_toggle_master_balance_right_label" msgid="7757024572140589558">"Vpravo"</string>
     <string name="accessibility_timeout_default" msgid="9118596941362716397">"Výchozí"</string>
@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Pracovní"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Omezit přístup k SMS a seznamu hovorů"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Přístup k SMS a seznamu hovorů mají jen výchozí aplikace na telefonování a odesílání zpráv"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Deaktivace omezení identifikátoru zařízení"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Deaktivace nového omezení přístupu k identifikátorům zařízení"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Nejsou k dispozici žádní zástupci důvěryhodnosti."</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Aktivovat aplikaci pro správu zařízení?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Aktivovat tuto aplikaci pro správu zařízení"</string>

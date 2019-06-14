@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"ការងារ"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"ដាក់កំហិត​សិទ្ធិចូលប្រើ​កំណត់ហេតុ​ហៅទូរសព្ទ និងសារ SMS"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"មានតែ​ទូរសព្ទ​លំនាំដើម និងកម្មវិធី​ផ្ញើសារ​ប៉ុណ្ណោះ​ដែលអាចប្រើកំណត់ហេតុ​ហៅទូរសព្ទ និងសារ SMS បាន"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"បិទ​ការរឹតបន្តឹង​ព័ត៌មាន​សម្គាល់​ឧបករណ៍"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"បិទ​ការរឹតបន្តឹង​ការចូលប្រើ​ថ្មី សម្រាប់​ព័ត៌មាន​សម្គាល់​ឧបករណ៍"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"មិន​មាន​ភ្នាក់ងារ​ដែល​ទុក​ចិត្ត"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"បើកដំណើរការ​កម្មវិធី​អ្នក​គ្រប់គ្រង​ឧបករណ៍?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"បើកដំណើរការ​កម្មវិធី​អ្នក​គ្រប់គ្រង​ឧបករណ៍​នេះ"</string>

@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Рабочий"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Ограничение доступа к SMS и списку вызовов"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Доступ к SMS и списку вызовов есть только у приложений для звонков и обмена сообщениями, используемых по умолчанию"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Отключить ограничения идентификаторов устройства"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Отключить новые ограничения доступа для идентификаторов устройства"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Нет агентов доверия."</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Приложение администратора устройства"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Активировать приложение администратора устройства"</string>

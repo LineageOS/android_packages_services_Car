@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"କାର୍ଯ୍ୟ"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS ଏବଂ କଲ୍‍ ଲଗ୍‍ ଆକ୍ସେସ୍‍ ପ୍ରତିବନ୍ଧିତ କରନ୍ତୁ"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"କେବଳ ଡିଫଲ୍ଟ ଫୋନ୍‍ ଏବଂ ମେସେଜିଂ ଆପ୍ସରେ SMS ଏବଂ କଲ୍‍ ଲଗ୍‍ ଅନୁମତିଗୁଡ଼ିକ ରହିଛି"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"ଡିଭାଇସ୍‍ ପରିଚାୟକ ପ୍ରତିବନ୍ଧକ ଅକ୍ଷମ କରନ୍ତୁ"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"ଡିଭାଇସ୍ ଚିହ୍ନଟ କରିବା ପାଇଁ ନୂଆ ଆକ୍ସେସ୍ ପ୍ରତିବନ୍ଧ ଅକ୍ଷମ କରନ୍ତୁ"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"କୌଣସି ବିଶ୍ୱସ୍ତ ଏଜେଣ୍ଟ ଉପଲବ୍ଧ ନାହିଁ"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"ଡିଭାଇସ୍‌ ଆଡମିନ୍‌ ଆପ୍‌ ସକ୍ରିୟ କରିବେ?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"ଏହି ଡିଭାଇସ୍ ଆଡ୍‌ମିନ୍‌ ଆପ୍‌ ସକ୍ରିୟ କରନ୍ତୁ"</string>

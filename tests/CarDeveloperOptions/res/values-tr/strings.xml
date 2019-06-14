@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"İş"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS ve çağrı günlüğüne erişimi kısıtla"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Yalnızca varsayılan telefon ve mesajlaşma uygulamalarının SMS ve çağrı günlüğüne erişim izinleri vardır"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Cihaz tanımlayıcı kısıtlamalarını devre dışı bırak"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Cihaz tanımlayıcılar için yeni erişim kısıtlamalarını devre dışı bırak"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Kullanılabilir güven aracısı yok"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Cihaz yönetimi uygulaması etkinleştirilsin mi?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Bu cihaz yönetimi uygulamasını etkinleştir"</string>

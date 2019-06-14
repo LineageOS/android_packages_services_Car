@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"काम"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Restrict SMS तथा कलका लगहरूमाथिका पहुँचमा प्रतिबन्ध लगाउनुहोस्‌"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"पूर्वनिर्धारित फोन र सन्देश अनुप्रयोगहरूसँग मात्र SMS र कल लग अनुमति हुन्छ"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"यन्त्र पहिचानकर्ताका प्रतिबन्धहरूलाई असक्षम पार्नुहोस्"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"यन्त्र पहिचानकर्ताहरूका लागि पहुँचसम्बन्धी नयाँ प्रतिबन्धहरूलाई असक्षम पार्नुहोस्"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"विश्वस्त प्रतिनिधि उपलब्ध छैन"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"यन्त्रको प्रशासन सम्बन्धी अनुप्रयोगलाई सक्रिय गर्ने हो?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"यन्त्रको प्रशासन सम्बन्धी यो अनुप्रयोगलाई सक्रिय गर्नुहोस्"</string>

@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Kantor"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Batasi akses SMS &amp; log panggilan"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Hanya aplikasi telepon dan pesan default yang memiliki izin SMS &amp; log panggilan"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Nonaktifkan batasan ID perangkat"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Menonaktifkan batasan akses baru untuk ID perangkat"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Perangkat tepercaya tidak tersedia"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Aktifkan aplikasi admin perangkat?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Aktifkan aplikasi admin perangkat ini"</string>

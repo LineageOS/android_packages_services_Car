@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Serviciu"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Limitați accesul la SMS-uri și jurnalul de apeluri"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Doar aplicațiile prestabilite de telefonie și de mesagerie au permisiuni să acceseze SMS-urile și jurnalul de apeluri"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Dezactivați restricțiile pentru identificatorul dispozitivului"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Dezactivați noile restricții de acces pentru identificatorii dispozitivului"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Nu există agenți de încredere disponibili"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Activați aplicația pentru administrator?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Activați această aplicație pentru administratorul dispozitivului"</string>

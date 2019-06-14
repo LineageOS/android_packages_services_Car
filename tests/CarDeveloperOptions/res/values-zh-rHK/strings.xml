@@ -2479,8 +2479,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"公司"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"限制存取短訊和通話記錄"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"只有預設手機和短訊應用程式能夠存取短訊和通話記錄"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"停用裝置識別碼限制"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"停用裝置識別碼的新存取權限制"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"沒有信任的代理程式可供使用"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"要啟動裝置管理應用程式嗎？"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"啟動此裝置管理應用程式"</string>

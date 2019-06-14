@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"ಕೆಲಸ"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"ಎಸ್‌ಎಂಎಸ್ ಮತ್ತು ಕರೆ ಲಾಗ್ ಪ್ರವೇಶವನ್ನು ನಿರ್ಬಂಧಿಸಿ"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"ಡೀಫಾಲ್ಟ್ ಫೋನ್ ಮತ್ತು ಸಂದೇಶ ಕಳುಹಿಸುವಿಕೆ ಆ್ಯಪ್‌ಗಳು ಎಸ್‌ಎಂಎಸ್ ಮತ್ತು ಕರೆ ಲಾಗ್ ಅನುಮತಿಗಳನ್ನು ಹೊಂದಿವೆ"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"ಸಾಧನ ಗುರುತಿಸುವಿಕೆ ನಿರ್ಬಂಧಗಳನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"ಸಾಧನ ಗುರುತಿಸುವಿಕೆಗಳಿಗಾಗಿ ಹೊಸ ಪ್ರವೇಶ ನಿರ್ಬಂಧಗಳನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"ಯಾವುದೇ ವಿಶ್ವಾಸಾರ್ಹ ಏಜೆಂಟ್‌ಗಳು ಲಭ್ಯವಿಲ್ಲ"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"ಸಾಧನ ನಿರ್ವಹಣೆ ಅಪ್ಲಿಕೇಶನ್ ಸಕ್ರಿಯ ಮಾಡಬೇಕೇ?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"ಈ ಸಾಧನ ನಿರ್ವಹಣೆ ಅಪ್ಲಿಕೇಶನ್ ಸಕ್ರಿಯಗೊಳಿಸಿ"</string>

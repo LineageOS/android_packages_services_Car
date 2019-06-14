@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"ഔദ്യോഗികം"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS, കോള്‍ ചരിത്ര ആക്‌സസ് നിയന്ത്രിക്കുക"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"ഡിഫോൾട്ട് ഫോണിനും സന്ദേശമയയ്‌ക്കൽ ആപ്പുകൾക്കും മാത്രമേ SMS, കോൾ ചരിത്ര അനുമതികൾ ഉള്ളൂ"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"ഉപകരണ ഐഡന്‍റിഫയർ നിയന്ത്രണങ്ങൾ പ്രവർത്തനരഹിതമാക്കൂ"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"ഉപകരണ ഐഡന്‍റിഫയറിനുള്ള പുതിയ ആക്‌സസ് നിയന്ത്രണങ്ങൾ പ്രവർത്തനരഹിതമാക്കുക"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"ലഭ്യമായ പരിചിത ഏജന്റുകളൊന്നുമില്ല"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"ഉപകരണ അഡ്‌മിൻ ആപ്പ് സജീവമാക്കണോ?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"ഈ ഉപകരണ അഡ്‌മിൻ ആപ്പ് സജീവമാക്കുക"</string>

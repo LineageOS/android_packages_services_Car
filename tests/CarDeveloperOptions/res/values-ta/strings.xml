@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"பணியிடம்"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"மெசேஜ், அழைப்புப் பதிவு அணுகலைக் கட்டுப்படுத்துதல்"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"இயல்புநிலை மொபைலாலும் மெசேஜிங் ஆப்ஸாலும் மட்டுமே மெசேஜையும் \'அழைப்புப் பதிவையும்\' அணுக இயலும்"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"சாதன அடையாளங்காட்டி வரையறைகளை முடக்குதல்"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"சாதன அடையாளங்காட்டிகளுக்குப் புதிய அணுகல் வரையறைகளை முடக்கவும்"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"நம்பகமான ஏஜென்ட்கள் இல்லை"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"இந்த ஆப்ஸை செயல்படுத்தவா?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"இந்தச் சாதன நிர்வாகி ஆப்ஸைச் செயல்படுத்து"</string>
