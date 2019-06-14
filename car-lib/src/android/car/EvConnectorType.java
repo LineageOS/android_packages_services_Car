@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class EvConnectorType {
     /**
-     * List of EV Connector Types from VHAL
+     * List of EV Connector Types used in {@link CarInfoManager#getEvConnectorTypes()}.
      */
     public static final int UNKNOWN = 0;
     /** Connector type SAE J1772 */
@@ -44,12 +44,15 @@ public final class EvConnectorType {
     public static final int TESLA_HPWC = 7;
     /** Supercharger of Tesla */
     public static final int TESLA_SUPERCHARGER = 8;
-    /** GB/T Fast Charging Standard */
+    /** GBT_AC Fast Charging Standard */
     public static final int GBT = 9;
+    /** GBT_DC Fast Charging Standard */
+    public static final int GBT_DC = 10;
+    /** IEC_TYPE_3_AC connector */
+    public static final int SCAME = 11;
+
     /**
-     * Connector type to use when no other types apply. Before using this
-     * value, work with the AOSP community to see if the EvConnectorType enum can be
-     * extended with an appropriate value.
+     * Connector type to use when no other types apply.
      */
     public static final int OTHER = 101;
 
@@ -65,6 +68,8 @@ public final class EvConnectorType {
         TESLA_HPWC,
         TESLA_SUPERCHARGER,
         GBT,
+        GBT_DC,
+        SCAME,
         OTHER
     })
     @Retention(RetentionPolicy.SOURCE)

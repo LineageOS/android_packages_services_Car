@@ -91,9 +91,11 @@ package android.car {
     field public static final int COMBO_1 = 4; // 0x4
     field public static final int COMBO_2 = 5; // 0x5
     field public static final int GBT = 9; // 0x9
+    field public static final int GBT_DC = 10; // 0xa
     field public static final int J1772 = 1; // 0x1
     field public static final int MENNEKES = 2; // 0x2
     field public static final int OTHER = 101; // 0x65
+    field public static final int SCAME = 11; // 0xb
     field public static final int TESLA_HPWC = 7; // 0x7
     field public static final int TESLA_ROADSTER = 6; // 0x6
     field public static final int TESLA_SUPERCHARGER = 8; // 0x8
