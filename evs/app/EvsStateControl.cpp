@@ -160,8 +160,7 @@ void EvsStateControl::updateLoop() {
                     // Just running selectStateForCurrentConditions below will take care of this
                     break;
                 case Op::TOUCH_EVENT:
-                    // TODO:  Implement this given the x/y location of the touch event
-                    // Ignore for now
+                    // Implement this given the x/y location of the touch event
                     break;
                 }
                 mCommandQueue.pop();
@@ -319,7 +318,6 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
                 return false;
             }
         } else if (mCameraList[desiredState].size() > 1 || desiredState == PARKING) {
-            // TODO:  DO we want other kinds of compound view or else sequentially selected views?
             mDesiredRenderer = std::make_unique<RenderTopView>(mEvs,
                                                                mCameraList[desiredState],
                                                                mConfig);

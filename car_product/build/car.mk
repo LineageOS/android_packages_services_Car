@@ -35,7 +35,6 @@ PRODUCT_PACKAGES += \
 # This is for testing
 ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))
 PRODUCT_PACKAGES += \
-    BugReportApp \
     DefaultStorageMonitoringCompanionApp \
     EmbeddedKitchenSinkApp \
     VmsPublisherClientSample \

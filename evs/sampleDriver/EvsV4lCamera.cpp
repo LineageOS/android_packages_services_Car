@@ -158,14 +158,12 @@ Return<EvsResult> EvsV4lCamera::startVideoStream(const ::android::sp<IEvsCameraS
     ALOGI("Configuring to accept %4.4s camera data and convert to 0x%X",
           (char*)&videoSrcFormat, mFormat);
 
-    // TODO:  Simplify this by supporting only ONE fixed output format
     switch (mFormat) {
     case HAL_PIXEL_FORMAT_YCRCB_420_SP:
         switch (videoSrcFormat) {
         case V4L2_PIX_FMT_NV21:     mFillBufferFromVideo = fillNV21FromNV21;    break;
         case V4L2_PIX_FMT_YUYV:     mFillBufferFromVideo = fillNV21FromYUYV;    break;
         default:
-            // TODO:  Are there other V4L2 formats we must support?
             ALOGE("Unhandled camera output format %c%c%c%c (0x%8X)\n",
                   ((char*)&videoSrcFormat)[0],
                   ((char*)&videoSrcFormat)[1],
@@ -178,7 +176,6 @@ Return<EvsResult> EvsV4lCamera::startVideoStream(const ::android::sp<IEvsCameraS
         switch (videoSrcFormat) {
         case V4L2_PIX_FMT_YUYV:     mFillBufferFromVideo = fillRGBAFromYUYV;    break;
         default:
-            // TODO:  Are there other V4L2 formats we must support?
             ALOGE("Unhandled camera format %4.4s", (char*)&videoSrcFormat);
         }
         break;
@@ -187,12 +184,10 @@ Return<EvsResult> EvsV4lCamera::startVideoStream(const ::android::sp<IEvsCameraS
         case V4L2_PIX_FMT_YUYV:     mFillBufferFromVideo = fillYUYVFromYUYV;    break;
         case V4L2_PIX_FMT_UYVY:     mFillBufferFromVideo = fillYUYVFromUYVY;    break;
         default:
-            // TODO:  Are there other V4L2 formats we must support?
             ALOGE("Unhandled camera format %4.4s", (char*)&videoSrcFormat);
         }
         break;
     default:
-        // TODO:  Why have we told ourselves to output something we don't understand!?
         ALOGE("Unhandled output format %4.4s", (char*)&mFormat);
     }
 
