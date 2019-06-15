@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Trabalho"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Restringir o acesso ao registo de chamadas e SMS"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Apenas as aplicações de mensagens e de telefone predefinidas têm autorizações de registo de chamadas e de SMS."</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Desative as restrições de identificação de dispositivos"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Desative as novas restrições de acesso para os identificadores de dispositivos"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Nenhum agente fidedigno disponível"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Ativar aplicação admin. do dispositivo?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Ativar a aplicação de administração deste dispositivo"</string>

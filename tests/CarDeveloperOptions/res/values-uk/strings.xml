@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Робота"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Обмежити доступ до SMS і журналу викликів"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Лише додатки для дзвінків і обміну повідомленнями за умовчанням мають дозволи на доступ до SMS і журналу викликів"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Вимкнути обмеження за ідентифікаторами пристроїв"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Вимкнути нові обмеження доступу за ідентифікаторами пристроїв"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Немає довірчих агентів"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Активувати додаток адміністратора пристрою?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Активувати додаток адміністратора пристрою"</string>

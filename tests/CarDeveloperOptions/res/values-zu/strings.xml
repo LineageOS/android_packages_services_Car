@@ -2479,8 +2479,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Umsebenzi"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Khawulela i-SMS nokufinyelela kurekhodi lamakholi"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Inombolo yefoni ezenzakalelayo nezinhlelo zokusebenza zokulayeza zine-SMS kanye nezimvume zerekhodi lamakholi"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Khubaza imikhawulo yezihlonzi zedivayisi"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Khubaza imikhawulo yokufinyelela emisha yezihlonzi zedivayisi"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Abekho abenzeli bethemba abatholakalayo"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Sebenzisa uhlelo lokusebenza lomlawuli wedivayisi?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Sebenzisa lolu hlelo lokusebenza lomlawuli wedivayisi"</string>

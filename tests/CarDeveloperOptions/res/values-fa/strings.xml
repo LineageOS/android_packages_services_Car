@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"کاری"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"محدود کردن دسترسی به پیامک و گزارش تماس"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"فقط برنامه‌های پیش‌فرض تلفن و پیام‌رسانی مجوز پیامک و گزارش تماس دارند"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"غیرفعال کردن محدودیت‌های شناسهٔ دستگاه"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"غیرفعال کردن محدودیت‌های دسترسی جدید برای شناسه‌های دستگاه"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"نمایندگان مورداعتماد در دسترس نیست"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"برنامه سرپرست دستگاه فعال شود؟"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"فعال کردن این برنامه سرپرست دستگاه"</string>

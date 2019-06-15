@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"কৰ্মস্থান"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"এছএমএছ আৰু কল লগ প্ৰতিবন্ধিত কৰক"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"কেৱল ডিফ\'ল্ট ফ\'ন আৰু মেছেজিং এপতহে এছএমএছ আৰু কল লগৰ অনুমতি আছে"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"ডিভাইচ চিনাক্তকাৰীৰ সীমাবদ্ধতাসমূহ অক্ষম কৰক"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"ডিভাইচ চিনাক্তকাৰীৰ নতুন এক্সেছ সীমাবদ্ধতা অক্ষম কৰক"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"কোনো বিশ্বাসী এজেণ্ট পোৱা নগ\'ল"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"এই ডিভাইচ প্ৰশাসক এপটো সক্ৰিয় কৰেনে?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"এই ডিভাইচ এডমিন এপটো সক্ৰিয় কৰক"</string>

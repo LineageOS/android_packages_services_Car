@@ -376,8 +376,8 @@
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"기기가 암호화되지 않았습니다."</string>
     <string name="lockscreen_settings_title" msgid="1221505938891948413">"잠금 화면 표시"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"표시 내용"</string>
-    <string name="security_settings_summary" msgid="5210109100643223686">"내 위치, 화면 잠금해제, SIM 카드 잠금, 자격증명 저장소 잠금 설정"</string>
-    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"내 위치, 화면 잠금해제, 자격증명 저장소 잠금 설정"</string>
+    <string name="security_settings_summary" msgid="5210109100643223686">"내 위치, 화면 잠금해제, SIM 카드 잠금, 사용자 인증 정보 저장소 잠금 설정"</string>
+    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"내 위치, 화면 잠금해제, 사용자 인증 정보 저장소 잠금 설정"</string>
     <string name="security_passwords_title" msgid="6853942836045862315">"개인정보 보호"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"관리자가 사용 중지함"</string>
     <string name="security_status_title" msgid="1261960357751754428">"보안 상태"</string>
@@ -585,7 +585,7 @@
     <string name="face_unlock_set_unlock_password" msgid="8962344604388383659">"얼굴 인증 + 비밀번호"</string>
     <string name="face_unlock_skip_face" msgid="7173197040501143880">"얼굴 인증 없이 계속하기"</string>
     <string name="face_unlock_title" msgid="1298031162909236127">"얼굴을 사용하여 휴대전화를 잠금 해제할 수 있습니다. 이 옵션을 사용하려면 보안을 위해 백업 화면 잠금이 필요합니다."</string>
-    <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"관리자, 암호화 정책 또는 자격증명 저장소에 의해 사용 중지됨"</string>
+    <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"관리자, 암호화 정책 또는 사용자 인증 정보 저장소에 의해 사용 중지됨"</string>
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"없음"</string>
     <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"스와이프"</string>
     <string name="unlock_set_unlock_mode_pattern" msgid="8564909572968419459">"패턴"</string>
@@ -2425,7 +2425,7 @@
     <string name="tts_reset" msgid="8864073594540705579">"재설정"</string>
     <string name="tts_play" msgid="9023430029380675514">"재생"</string>
     <string name="vpn_settings_title" msgid="7008219502396889192">"VPN"</string>
-    <string name="credentials_title" msgid="7119207354982673965">"자격증명 저장소"</string>
+    <string name="credentials_title" msgid="7119207354982673965">"사용자 인증 정보 저장소"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"저장소에서 설치"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"SD 카드에서 설치"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"저장소에서 인증서 설치"</string>
@@ -2444,8 +2444,8 @@
     <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"VPN 및 앱에 사용하도록 설치됨"</string>
     <string name="credential_for_wifi" msgid="2903295786961726388">"Wi-Fi에 사용하도록 설치됨"</string>
     <string name="credentials_reset_hint" msgid="3484350477764088169">"콘텐츠를 모두 삭제하시겠습니까?"</string>
-    <string name="credentials_erased" msgid="7287088033523869085">"자격증명 저장소가 삭제되었습니다."</string>
-    <string name="credentials_not_erased" msgid="9137227570738627637">"자격증명 저장소를 삭제하지 못했습니다."</string>
+    <string name="credentials_erased" msgid="7287088033523869085">"사용자 인증 정보 저장소가 삭제되었습니다."</string>
+    <string name="credentials_not_erased" msgid="9137227570738627637">"사용자 인증 정보 저장소를 삭제하지 못했습니다."</string>
     <string name="usage_access_title" msgid="7981321142726540574">"사용 액세스 권한을 보유한 앱"</string>
     <string name="emergency_tone_title" msgid="130211364025984428">"응급 상황 다이얼링 신호"</string>
     <string name="emergency_tone_summary" msgid="8035940153401622240">"긴급 통화 중 동작 설정"</string>
@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"직장"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS 및 통화 기록 액세스 제한"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"기본 전화 및 메시지 앱에만 SMS 및 통화 기록 권한 부여"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"기기 식별자 제한 사용 중지"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"기기 식별자에 관한 새로운 액세스 제한 사용 중지"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"사용 가능한 Trust Agent 없음"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"기기 관리자 앱을 활성화하시겠습니까?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"이 기기 관리자 앱 활성화"</string>

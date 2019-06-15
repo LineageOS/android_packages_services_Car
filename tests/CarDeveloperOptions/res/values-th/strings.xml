@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"ที่ทำงาน"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"จำกัดการเข้าถึง SMS และประวัติการโทร"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"เฉพาะแอปโทรศัพท์และแอปรับส่งข้อความเริ่มต้นเท่านั้นที่มีสิทธิ์เข้าถึง SMS และประวัติการโทร"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"ปิดใช้การจำกัดตัวระบุอุปกรณ์"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"ปิดใช้การจำกัดการเข้าถึงใหม่ของตัวระบุอุปกรณ์"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"ไม่มีตัวแทนที่เชื่อถือได้"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"เปิดใช้งานแอปผู้ดูแลระบบอุปกรณ์ไหม"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"เปิดใช้งานแอปผู้ดูแลระบบอุปกรณ์นี้"</string>

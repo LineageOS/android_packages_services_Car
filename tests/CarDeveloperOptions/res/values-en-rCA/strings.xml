@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Work"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Restrict SMS &amp; call log access"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Only default phone and messaging apps have SMS &amp; call log permissions"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Disable device identifier restrictions"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Disable the new access restrictions for device identifiers"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"No available trust agents"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Activate device admin app?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Activate this device admin app"</string>

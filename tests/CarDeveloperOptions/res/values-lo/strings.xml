@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"​ບ່ອນ​ເຮັດ​ວຽກ"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"ຈຳກັດການເຂົ້າເຖິງບັນທຶກ SMS ແລະ ການໂທ"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"ມີພຽງແອັບໂທລະສັບ ແລະ ແອັບສົ່ງຂໍ້ຄວາມເລີ່ມຕົ້ນທີ່ມີສິດອະນຸຍາດບັນທຶກການໂທ ແລະ SMS"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"ປິດການນຳໃຊ້ການຈຳກັດຕົວລະບຸອຸປະກອນ"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"ປິດການນຳໃຊ້ການຈຳກັດການເຂົ້າເຖິງສຳລັບຕົວລະບຸອຸປະກອນ"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"ບໍ່​ມີ​ຕົວ​ແທນ​ການ​ເຊື່ອ​ຖື​ທີ່​ໃຊ​້​ໄດ້"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"ເປີດການນຳໃຊ້ແອັບຜູ້ເບິ່ງແຍງລະບົບອຸປະກອນບໍ?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"ເປີດນຳໃຊ້ແອັບຜູ້ເບິ່ງແຍງລະບົບອຸປະກອນນີ້"</string>

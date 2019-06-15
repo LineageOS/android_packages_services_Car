@@ -2478,8 +2478,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"दफ़्तर"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"मैसेज (एसएमएस) और कॉल लॉग एक्सेस प्रतिबंधित करें"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"सिर्फ़ डिफ़ॉल्ट फ़ोन और मैसेज-सेवा देने वाले ऐप्लिकेशन के पास मैसेज (एसएमएस) और कॉल लॉग की अनुमतियां होती हैं"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"डिवाइस पहचानकर्ता पाबंदियां हटाएं"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"डिवाइस पहचानकर्ताओं के लिए नई एक्सेस पाबंदियां बंद करें"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"कोई ट्रस्ट एजेंट उपलब्ध नहीं"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"इस डिवाइस एडमिन ऐप्लिकेशन को चालू करें?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"इस डिवाइस एडमिन ऐप्लिकेशन को चालू करें"</string>

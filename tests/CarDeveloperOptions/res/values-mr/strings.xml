@@ -2479,8 +2479,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"कार्य"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"एसएमएस आणि कॉल लॉग अॅक्सेस प्रतिबंधित करा"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"फक्त डीफॉल्ट फोन आणि मेसेजिंग अॅप्सना एसएमएस आणि कॉल लॉग परवानग्या आहेत"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"डिव्हाइस आयडेंटिफायर बंधने बंद करा"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"डिव्हाइस आयडेंटिफायरवरील नवीन अ‍ॅक्सेस बंधने बंद करा"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"कोणतेही विश्वासू एजंट उपलब्ध नाहीत"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"डिव्हाइस प्रशासक अ‍ॅप अॅक्टिव्हेट करायचे?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"हे डिव्हाइस प्रशासक अ‍ॅप अॅक्टिव्हेट करा"</string>

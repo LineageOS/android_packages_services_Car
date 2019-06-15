@@ -59,6 +59,8 @@ private:
         CameraRecord(const char *cameraId) : desc() { desc.cameraId = cameraId; }
     };
 
+    bool checkPermission();
+
     static bool qualifyCaptureDevice(const char* deviceName);
     static CameraRecord* findCameraById(const std::string& cameraId);
     static void enumerateDevices();

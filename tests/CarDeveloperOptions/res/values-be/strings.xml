@@ -2479,8 +2479,6 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Рабочыя"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Абмежаваць доступ да SMS і журналу выклікаў"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Толькі стандартныя праграмы \"Тэлефон\" і праграмы-месенджары маюць дазволы на доступ да SMS і журналу выклікаў"</string>
-    <string name="device_identifier_access_restrictions_title" msgid="122008044791489777">"Выключыць абмежаванні для ідэнтыфікатараў прылад"</string>
-    <string name="device_identifier_access_restrictions_summary" msgid="1920540491460445949">"Выключыць новыя абмежаванні доступу для ідэнтыфікатараў прылад"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Няма даступных давераных агентаў"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Актываваць праграму адміністратара?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Актываваць гэту праграму адміністратара прылады"</string>
