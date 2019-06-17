@@ -16,6 +16,7 @@
 
 package com.android.car.vms;
 
+import android.car.Car;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -23,6 +24,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -278,8 +281,18 @@ public class VmsClientManager implements CarServiceBase {
             return;
         }
 
-        if (!mContext.getPackageManager().isPackageAvailable(name.getPackageName())) {
+        ServiceInfo serviceInfo;
+        try {
+            serviceInfo = mContext.getPackageManager().getServiceInfo(name,
+                    PackageManager.MATCH_DIRECT_BOOT_AUTO);
+        } catch (PackageManager.NameNotFoundException e) {
             Log.w(TAG, "Client not installed: " + clientName);
+            return;
+        }
+
+        if (!Car.PERMISSION_BIND_VMS_CLIENT.equals(serviceInfo.permission)) {
+            Log.w(TAG, "Client service: " + clientName
+                    + " does not require " + Car.PERMISSION_BIND_VMS_CLIENT + " permission");
             return;
         }
 

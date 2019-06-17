@@ -459,6 +459,14 @@ public final class Car {
             "android.car.permission.CAR_DRIVING_STATE";
 
     /**
+     * Permission necessary to access VMS client service.
+     *
+     * @hide
+     */
+    public static final String PERMISSION_BIND_VMS_CLIENT =
+            "android.car.permission.BIND_VMS_CLIENT";
+
+    /**
      * Permissions necessary to access VMS publisher APIs.
      *
      * @hide
