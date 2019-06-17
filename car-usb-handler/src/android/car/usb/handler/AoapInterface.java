@@ -17,6 +17,7 @@ import android.content.Context;
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
 
@@ -28,17 +29,16 @@ final class AoapInterface {
     /**
      * Use Google Vendor ID when in accessory mode
      */
-    public static final int USB_ACCESSORY_VENDOR_ID = 0x18D1;
+    private static final int USB_ACCESSORY_VENDOR_ID = 0x18D1;
 
-    /**
-     * Product ID to use when in accessory mode
-     */
-    public static final int USB_ACCESSORY_PRODUCT_ID = 0x2D00;
-
-    /**
-     * Product ID to use when in accessory mode and adb is enabled
-     */
-    public static final int USB_ACCESSORY_ADB_PRODUCT_ID = 0x2D01;
+    /** Set of all accessory mode product IDs */
+    private static final ArraySet<Integer> USB_ACCESSORY_MODE_PRODUCT_ID = new ArraySet<>(4);
+    static {
+        USB_ACCESSORY_MODE_PRODUCT_ID.add(0x2D00);
+        USB_ACCESSORY_MODE_PRODUCT_ID.add(0x2D01);
+        USB_ACCESSORY_MODE_PRODUCT_ID.add(0x2D04);
+        USB_ACCESSORY_MODE_PRODUCT_ID.add(0x2D05);
+    }
 
     /**
      * Indexes for strings sent by the host via ACCESSORY_SEND_STRING
@@ -179,6 +179,6 @@ final class AoapInterface {
         final int vid = device.getVendorId();
         final int pid = device.getProductId();
         return vid == USB_ACCESSORY_VENDOR_ID
-                && (pid == USB_ACCESSORY_PRODUCT_ID || pid == USB_ACCESSORY_ADB_PRODUCT_ID);
+                && USB_ACCESSORY_MODE_PRODUCT_ID.contains(pid);
     }
 }
