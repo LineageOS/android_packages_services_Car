@@ -52,6 +52,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.UUID;
@@ -316,21 +317,42 @@ public class CarTrustAgentUnlockService {
                     // Clear the previous session key.  Need to re-enroll the trusted device.
                     mTrustedDeviceService.clearEncryptionKey(mClientDeviceId);
                     resetUnlockStateOnFailure();
+                    return;
                 }
                 // Save the current session to be used for authenticating the next session
                 mTrustedDeviceService.saveEncryptionKey(mClientDeviceId, mEncryptionKey.asBytes());
 
-                onUnlockTokenReceived(value);
-                logUnlockEvent(UNLOCK_TOKEN_RECEIVED);
+                byte[] decryptedToken;
+                try {
+                    decryptedToken = mEncryptionKey.decryptData(value);
+                } catch (SignatureException e) {
+                    Log.e(TAG, "Could not decrypt token.", e);
+                    resetUnlockStateOnFailure();
+                    return;
+                }
+
+                onUnlockTokenReceived(decryptedToken);
                 mCurrentUnlockState = UNLOCK_STATE_TOKEN_RECEIVED;
+
+                logUnlockEvent(UNLOCK_TOKEN_RECEIVED);
+
                 // Let the phone know that the token was received.
                 sendAckToClient(/* isEncrypted = */ true);
                 break;
             // TODO(b/131124919) Combine token and handle in the same packet
             case UNLOCK_STATE_TOKEN_RECEIVED:
-                logUnlockEvent(UNLOCK_HANDLE_RECEIVED);
-                onUnlockHandleReceived(value);
+                byte[] decryptedHandle;
+                try {
+                    decryptedHandle = mEncryptionKey.decryptData(value);
+                } catch (SignatureException e) {
+                    Log.e(TAG, "Could not decrypt handle.", e);
+                    resetUnlockStateOnFailure();
+                    return;
+                }
+
+                onUnlockHandleReceived(decryptedHandle);
                 mCurrentUnlockState = UNLOCK_STATE_HANDLE_RECEIVED;
+                logUnlockEvent(UNLOCK_HANDLE_RECEIVED);
                 break;
             case UNLOCK_STATE_HANDLE_RECEIVED:
                 // Should never get here because the unlock process should be completed now.
