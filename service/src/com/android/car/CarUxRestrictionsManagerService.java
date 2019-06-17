@@ -596,6 +596,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     @Override
     public void dump(PrintWriter writer) {
+        writer.println("*CarUxRestrictionsManagerService*");
         for (byte port : mCurrentUxRestrictions.keySet()) {
             CarUxRestrictions restrictions = mCurrentUxRestrictions.get(port);
             writer.printf("Port: 0x%02X UXR: %s\n", port, restrictions.toString());
