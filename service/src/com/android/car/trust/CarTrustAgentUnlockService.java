@@ -264,6 +264,11 @@ public class CarTrustAgentUnlockService {
     void onUnlockDataReceived(byte[] value) {
         switch (mCurrentUnlockState) {
             case UNLOCK_STATE_WAITING_FOR_UNIQUE_ID:
+                if (!CarTrustAgentValidator.isValidUnlockDeviceId(value)) {
+                    Log.e(TAG, "Device Id rejected by validator.");
+                    resetUnlockStateOnFailure();
+                    return;
+                }
                 mClientDeviceId = convertToDeviceId(value);
                 if (mClientDeviceId == null) {
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
