@@ -46,7 +46,7 @@ import java.util.Set;
  * Binds to publishers and configures them to use this service.
  * Notifies publishers of subscription changes.
  */
-public class VmsPublisherService implements CarServiceBase, VmsClientManager.ConnectionListener {
+public class VmsPublisherService implements CarServiceBase {
     private static final boolean DBG = true;
     private static final String TAG = "VmsPublisherService";
 
@@ -65,8 +65,8 @@ public class VmsPublisherService implements CarServiceBase, VmsClientManager.Con
             "Total packet failure size for layer %s from %s to %s: %d (bytes)\n";
 
     private final Context mContext;
-    private final VmsClientManager mClientManager;
     private final VmsBrokerService mBrokerService;
+    private final VmsClientManager mClientManager;
     private final Map<String, PublisherProxy> mPublisherProxies = Collections.synchronizedMap(
             new ArrayMap<>());
 
@@ -117,9 +117,9 @@ public class VmsPublisherService implements CarServiceBase, VmsClientManager.Con
             VmsBrokerService brokerService,
             VmsClientManager clientManager) {
         mContext = context;
-        mClientManager = clientManager;
         mBrokerService = brokerService;
-        mClientManager.registerConnectionListener(this);
+        mClientManager = clientManager;
+        mClientManager.setPublisherService(this);
     }
 
     @Override
@@ -164,11 +164,15 @@ public class VmsPublisherService implements CarServiceBase, VmsClientManager.Con
         }
     }
 
-    @Override
-    public void onClientConnected(String publisherName, IBinder binder) {
+    /**
+     * Called when a client connection is established or re-established.
+     *
+     * @param publisherName    String that uniquely identifies the service and user.
+     * @param publisherClient The client's communication channel.
+     */
+    public void onClientConnected(String publisherName, IVmsPublisherClient publisherClient) {
         if (DBG) Log.d(TAG, "onClientConnected: " + publisherName);
         IBinder publisherToken = new Binder();
-        IVmsPublisherClient publisherClient = IVmsPublisherClient.Stub.asInterface(binder);
 
         PublisherProxy publisherProxy = new PublisherProxy(publisherName, publisherToken,
                 publisherClient);
@@ -186,7 +190,11 @@ public class VmsPublisherService implements CarServiceBase, VmsClientManager.Con
         }
     }
 
-    @Override
+    /**
+     * Called when a client connection is terminated.
+     *
+     * @param publisherName String that uniquely identifies the service and user.
+     */
     public void onClientDisconnected(String publisherName) {
         if (DBG) Log.d(TAG, "onClientDisconnected: " + publisherName);
         PublisherProxy proxy = mPublisherProxies.remove(publisherName);
@@ -278,7 +286,7 @@ public class VmsPublisherService implements CarServiceBase, VmsClientManager.Con
                 try {
                     listener.onVmsMessageReceived(layer, payload);
                 } catch (RemoteException ex) {
-                    String subscriberName = mBrokerService.getPackageName(listener);
+                    String subscriberName = mClientManager.getPackageName(listener);
                     incrementPacketFailure(layer, mName, subscriberName, payloadLength);
                     Log.e(TAG, String.format("Unable to publish to listener: %s", subscriberName));
                 }
