@@ -512,6 +512,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_GET_DO_ACTIVITIES = "get-do-activities";
         private static final String COMMAND_GET_CARPROPERTYCONFIG = "get-carpropertyconfig";
         private static final String COMMAND_GET_PROPERTY_VALUE = "get-property-value";
+        private static final String COMMAND_PROJECTION_AP_TETHERING = "projection-tethering";
         private static final String COMMAND_PROJECTION_UI_MODE = "projection-ui-mode";
         private static final String COMMAND_RESUME = "resume";
         private static final String COMMAND_SUSPEND = "suspend";
@@ -556,6 +557,9 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  Enable/Disable Trusted device feature.");
             pw.println("\tremove-trusted-devices");
             pw.println("\t  Remove all trusted devices for the current foreground user.");
+            pw.println("\tprojection-tethering [true|false]");
+            pw.println("\t  Whether tethering should be used when creating access point for"
+                    + " wireless projection");
         }
 
         public void exec(String[] args, PrintWriter writer) {
@@ -649,6 +653,14 @@ public class ICarImpl extends ICar.Stub {
                         break;
                     }
                     mCarProjectionService.setUiMode(Integer.valueOf(args[1]));
+                    break;
+                case COMMAND_PROJECTION_AP_TETHERING:
+                    if (args.length != 2) {
+                        writer.println("Incorrect number of arguments");
+                        dumpHelp(writer);
+                        break;
+                    }
+                    mCarProjectionService.setAccessPointTethering(Boolean.valueOf(args[1]));
                     break;
                 case COMMAND_RESUME:
                     mCarPowerManagementService.forceSimulatedResume();
