@@ -42,6 +42,7 @@ public class NotificationFragment extends Fragment {
     private NotificationManager mManager;
     private Context mContext;
     private Handler mHandler = new Handler();
+    private int mCount = 0;
     private HashMap<Integer, Runnable> mUpdateRunnables = new HashMap<>();
 
     @Override
@@ -89,7 +90,8 @@ public class NotificationFragment extends Fragment {
         initImportanceMinButton(view);
 
         initOngoingButton(view);
-        initMessagingStyleButton(view);
+        initMessagingStyleButtonForDiffPerson(view);
+        initMessagingStyleButtonForSamePerson(view);
         initTestMessagesButton(view);
         initProgressButton(view);
         initNavigationButton(view);
@@ -240,8 +242,8 @@ public class NotificationFragment extends Fragment {
         });
     }
 
-    private void initMessagingStyleButton(View view) {
-        view.findViewById(R.id.category_message_button).setOnClickListener(v -> {
+    private void initMessagingStyleButtonForDiffPerson(View view) {
+        view.findViewById(R.id.category_message_diff_person_button).setOnClickListener(v -> {
             int id = mCurrentNotificationId++;
 
             PendingIntent replyIntent = createServiceIntent(id, "reply");
@@ -306,6 +308,47 @@ public class NotificationFragment extends Fragment {
                                     .build());
 
             mManager.notify(id, notification.build());
+        });
+    }
+
+    private void initMessagingStyleButtonForSamePerson(View view) {
+        view.findViewById(R.id.category_message_same_person_button).setOnClickListener(v -> {
+            int id = mCurrentNotificationId++;
+
+            PendingIntent replyIntent = createServiceIntent(id, "reply");
+            PendingIntent markAsReadIntent = createServiceIntent(id, "read");
+
+            Person person = new Person.Builder().setName("John Doe").build();
+            MessagingStyle messagingStyle =
+                    new MessagingStyle(person).setConversationTitle("Hello!");
+            NotificationCompat.Builder builder = new NotificationCompat
+                    .Builder(mContext, IMPORTANCE_HIGH_ID)
+                    .setContentTitle("Message from someone")
+                    .setContentText("hi")
+                    .setShowWhen(true)
+                    .setCategory(Notification.CATEGORY_MESSAGE)
+                    .setSmallIcon(R.drawable.car_ic_mode)
+                    .setAutoCancel(true)
+                    .setColor(mContext.getColor(android.R.color.holo_green_light))
+                    .addAction(
+                            new Action.Builder(R.drawable.ic_check_box, "read", markAsReadIntent)
+                                    .setSemanticAction(Action.SEMANTIC_ACTION_MARK_AS_READ)
+                                    .setShowsUserInterface(false)
+                                    .build())
+                    .addAction(
+                            new Action.Builder(R.drawable.ic_check_box, "reply", replyIntent)
+                                    .setSemanticAction(Action.SEMANTIC_ACTION_REPLY)
+                                    .setShowsUserInterface(false)
+                                    .addRemoteInput(new RemoteInput.Builder("input").build())
+                                    .build());
+
+            NotificationCompat.Builder updateNotification =
+                    builder.setStyle(messagingStyle.addMessage(
+                            new MessagingStyle.Message(
+                                    "Message " + id,
+                                    System.currentTimeMillis(),
+                                    person)));
+            mManager.notify(12345, updateNotification.build());
         });
     }
 
