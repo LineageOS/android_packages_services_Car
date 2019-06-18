@@ -451,17 +451,14 @@ public class ICarImpl extends ICar.Stub {
                     + " without permission " + android.Manifest.permission.DUMP);
             return;
         }
-        if (args == null || args.length == 0 || (args.length > 0 && "-a".equals(args[0]))) {
-            writer.println("*dump car service*");
 
+        if (args == null || args.length == 0 || (args.length > 0 && "-a".equals(args[0]))) {
+            writer.println("*Dump car service*");
             writer.println("*FutureConfig, DEFAULT:" + FeatureConfiguration.DEFAULT);
             writer.println("*Dump all services*");
-            for (CarServiceBase service : mAllServices) {
-                dumpService(service, writer);
-            }
-            if (mCarTestService != null) {
-                dumpService(mCarTestService, writer);
-            }
+
+            dumpAllServices(writer, false);
+
             writer.println("*Dump Vehicle HAL*");
             writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
             try {
@@ -471,6 +468,9 @@ public class ICarImpl extends ICar.Stub {
                 writer.println("Failed dumping: " + mHal.getClass().getName());
                 e.printStackTrace(writer);
             }
+        } else if ("--metrics".equals(args[0])) {
+            writer.println("*Dump car service metrics*");
+            dumpAllServices(writer, true);
         } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
             execShellCmd(args, writer);
         } else {
@@ -478,9 +478,23 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
-    private void dumpService(CarServiceBase service, PrintWriter writer) {
+    private void dumpAllServices(PrintWriter writer, boolean dumpMetricsOnly) {
+        for (CarServiceBase service : mAllServices) {
+            dumpService(service, writer, dumpMetricsOnly);
+        }
+        if (mCarTestService != null) {
+            dumpService(mCarTestService, writer, dumpMetricsOnly);
+        }
+
+    }
+
+    private void dumpService(CarServiceBase service, PrintWriter writer, boolean dumpMetricsOnly) {
         try {
-            service.dump(writer);
+            if (dumpMetricsOnly) {
+                service.dumpMetrics(writer);
+            } else {
+                service.dump(writer);
+            }
         } catch (Exception e) {
             writer.println("Failed dumping: " + service.getClass().getName());
             e.printStackTrace(writer);
@@ -560,6 +574,8 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\tprojection-tethering [true|false]");
             pw.println("\t  Whether tethering should be used when creating access point for"
                     + " wireless projection");
+            pw.println("\t--metrics");
+            pw.println("\t  When used with dumpsys, only metrics will be in the dumpsys output.");
         }
 
         public void exec(String[] args, PrintWriter writer) {
