@@ -26,12 +26,14 @@ import static android.net.wifi.WifiManager.EXTRA_WIFI_AP_STATE;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLING;
+import static android.net.wifi.WifiManager.WIFI_FREQUENCY_BAND_5GHZ;
 
 import android.annotation.Nullable;
 import android.app.ActivityOptions;
 import android.bluetooth.BluetoothDevice;
 import android.car.CarProjectionManager;
 import android.car.CarProjectionManager.ProjectionAccessPointCallback;
+import android.car.CarProjectionManager.ProjectionKeyEventHandler;
 import android.car.ICarProjection;
 import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
@@ -48,9 +50,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiConfiguration.GroupCipher;
-import android.net.wifi.WifiConfiguration.KeyMgmt;
-import android.net.wifi.WifiConfiguration.PairwiseCipher;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.LocalOnlyHotspotCallback;
 import android.net.wifi.WifiManager.LocalOnlyHotspotReservation;
@@ -75,16 +74,14 @@ import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 /**
- * Car projection service allows to bound to projected app to boost it prioirity.
- * It also enables proejcted applications to handle voice action requests.
+ * Car projection service allows to bound to projected app to boost it priority.
+ * It also enables projected applications to handle voice action requests.
  */
 class CarProjectionService extends ICarProjection.Stub implements CarServiceBase,
         BinderInterfaceContainer.BinderEventHandler<ICarProjectionKeyEventHandler>,
@@ -107,7 +104,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
 
     @GuardedBy("mLock")
-    private @Nullable SoftApCallback mSoftApCallback;
+    private @Nullable ProjectionSoftApCallback mSoftApCallback;
 
     @GuardedBy("mLock")
     private final HashMap<IBinder, ProjectionReceiverClient> mProjectionReceiverClients =
@@ -137,14 +134,9 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     private static final int WIFI_MODE_TETHERED = 1;
     private static final int WIFI_MODE_LOCALONLY = 2;
 
-    private static final int RAND_SSID_INT_MIN = 1000;
-    private static final int RAND_SSID_INT_MAX = 9999;
-
     // Could be one of the WIFI_MODE_* constants.
     // TODO: read this from user settings, support runtime switch
-    private int mWifiMode = WIFI_MODE_LOCALONLY;
-
-    private final WifiConfiguration mProjectionWifiConfiguration;
+    private int mWifiMode;
 
     private final ServiceConnection mConnection = new ServiceConnection() {
             @Override
@@ -176,7 +168,9 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         mCarBluetoothService = carBluetoothService;
         mKeyEventHandlers = new ProjectionKeyEventHandlerContainer(this);
         mWifiManager = context.getSystemService(WifiManager.class);
-        mProjectionWifiConfiguration = createWifiConfiguration(context);
+
+        final Resources res = mContext.getResources();
+        setAccessPointTethering(res.getBoolean(R.bool.config_projectionAccessPointTethering));
     }
 
     @Override
@@ -599,15 +593,20 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     private void startTetheredApLocked() {
         Log.d(TAG, "startTetheredApLocked");
 
-        final SoftApCallback callback = new ProjectionSoftApCallback();
-        mWifiManager.registerSoftApCallback(callback, mHandler);
+        if (mSoftApCallback == null) {
+            mSoftApCallback = new ProjectionSoftApCallback();
+            mWifiManager.registerSoftApCallback(mSoftApCallback, mHandler);
+            ensureApConfiguration();
+        }
 
-        if (!mWifiManager.startSoftAp(mProjectionWifiConfiguration)) {
-            Log.e(TAG, "Failed to start soft AP");
-            mWifiManager.unregisterSoftApCallback(callback);
-            sendApFailed(ERROR_GENERIC);
-        } else {
-            mSoftApCallback = callback;
+        if (!mWifiManager.startSoftAp(null /* use existing config*/)) {
+            // The indicates that AP might be already started.
+            if (mWifiManager.getWifiApState() == WIFI_AP_STATE_ENABLED) {
+                sendApStarted(mWifiManager.getWifiApConfiguration());
+            } else {
+                Log.e(TAG, "Failed to start soft AP");
+                sendApFailed(ERROR_GENERIC);
+            }
         }
     }
 
@@ -669,7 +668,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
                         reason = ProjectionAccessPointCallback.ERROR_INCOMPATIBLE_MODE;
                         break;
                     default:
-                        reason = ProjectionAccessPointCallback.ERROR_GENERIC;
+                        reason = ERROR_GENERIC;
 
                 }
                 sendApFailed(reason);
@@ -860,6 +859,12 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
     }
 
+    void setAccessPointTethering(boolean tetherEnabled) {
+        synchronized (mLock) {
+            mWifiMode = tetherEnabled ? WIFI_MODE_TETHERED : WIFI_MODE_LOCALONLY;
+        }
+    }
+
     private static class ProjectionKeyEventHandlerContainer
             extends BinderInterfaceContainer<ICarProjectionKeyEventHandler> {
         ProjectionKeyEventHandlerContainer(CarProjectionService service) {
@@ -897,21 +902,6 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
     }
 
-    private static WifiConfiguration createWifiConfiguration(Context context) {
-        //TODO: consider to read current AP configuration and modify only parts that matter for
-        //wireless projection (apBand, key management), do not modify password if it was set.
-        WifiConfiguration config = new WifiConfiguration();
-        config.apBand = WifiConfiguration.AP_BAND_5GHZ;
-        config.SSID = context.getResources()
-                .getString(R.string.config_TetheredProjectionAccessPointSsid)
-                + "_" + getRandomIntForDefaultSsid();
-        config.allowedKeyManagement.set(KeyMgmt.WPA2_PSK);
-        config.allowedPairwiseCiphers.set(PairwiseCipher.CCMP);
-        config.allowedGroupCiphers.set(GroupCipher.CCMP);
-        config.preSharedKey = RandomPassword.generate();
-        return config;
-    }
-
     private void registerWirelessClient(WirelessClient client) throws RemoteException {
         synchronized (mLock) {
             if (unregisterWirelessClientLocked(client.token)) {
@@ -940,18 +930,38 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         return client != null;
     }
 
+    private void ensureApConfiguration() {
+        // Always prefer 5GHz configuration whenever it is available.
+        WifiConfiguration apConfig = mWifiManager.getWifiApConfiguration();
+        if (apConfig != null && apConfig.apBand != WIFI_FREQUENCY_BAND_5GHZ
+                && mWifiManager.is5GHzBandSupported()) {
+            apConfig.apBand = WIFI_FREQUENCY_BAND_5GHZ;
+            mWifiManager.setWifiApConfiguration(apConfig);
+        }
+    }
+
     private class ProjectionSoftApCallback implements SoftApCallback {
+        private boolean mCurrentStateCall = true;
+
         @Override
         public void onStateChanged(int state, int softApFailureReason) {
             Log.i(TAG, "ProjectionSoftApCallback, onStateChanged, state: " + state
-                    + ", failed reason: softApFailureReason");
+                    + ", failed reason: " + softApFailureReason
+                    + ", currentStateCall: " + mCurrentStateCall);
+            if (mCurrentStateCall) {
+                // When callback gets registered framework always sends the current state as the
+                // first call. We should ignore current state call to be in par with
+                // local-only behavior.
+                mCurrentStateCall = false;
+                return;
+            }
 
             switch (state) {
                 case WifiManager.WIFI_AP_STATE_ENABLED: {
-                    sendApStarted(mProjectionWifiConfiguration);
+                    sendApStarted(mWifiManager.getWifiApConfiguration());
                     break;
                 }
-                case WIFI_AP_STATE_DISABLED: {
+                case WifiManager.WIFI_AP_STATE_DISABLED: {
                     sendApStopped();
                     break;
                 }
@@ -963,7 +973,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
                             reason = ProjectionAccessPointCallback.ERROR_NO_CHANNEL;
                             break;
                         default:
-                            reason = ERROR_GENERIC;
+                            reason = ProjectionAccessPointCallback.ERROR_GENERIC;
                     }
                     sendApFailed(reason);
                     break;
@@ -1028,32 +1038,6 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
                 service.unregisterWirelessClientLocked(mClient.token);
             }
         }
-    }
-
-    private static class RandomPassword {
-        private static final int PASSWORD_LENGTH = 12;
-        private static final String PW_NUMBER = "0123456789";
-        private static final String PW_LOWER_CASE = "abcdefghijklmnopqrstuvwxyz";
-        private static final String PW_UPPER_CASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-        private static final char[] SYMBOLS =
-                (PW_NUMBER + PW_LOWER_CASE + PW_UPPER_CASE).toCharArray();
-
-        static String generate() {
-            SecureRandom random = new SecureRandom();
-
-            StringBuilder password = new StringBuilder();
-            while (password.length() < PASSWORD_LENGTH) {
-                int randomIndex = random.nextInt(SYMBOLS.length);
-                password.append(SYMBOLS[randomIndex]);
-            }
-            return password.toString();
-        }
-    }
-
-    private static int getRandomIntForDefaultSsid() {
-        Random random = new Random();
-        return random.nextInt((RAND_SSID_INT_MAX - RAND_SSID_INT_MIN) + 1) + RAND_SSID_INT_MIN;
     }
 
     private static class ProjectionReceiverClient {

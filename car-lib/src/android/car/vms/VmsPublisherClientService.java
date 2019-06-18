@@ -22,6 +22,7 @@ import android.annotation.SystemApi;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -261,6 +262,11 @@ public abstract class VmsPublisherClientService extends Service {
         }
 
         private void assertSystemOrSelf() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (DBG) Log.d(TAG, "Skipping system user check");
+                return;
+            }
+
             if (!(Binder.getCallingUid() == Process.SYSTEM_UID
                     || Binder.getCallingPid() == Process.myPid())) {
                 throw new SecurityException("Caller must be system user or same process");
