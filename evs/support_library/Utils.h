@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef CAR_LIB_EVS_SUPPORT_UTILS_H
+#define CAR_LIB_EVS_SUPPORT_UTILS_H
 
-#ifndef GLERROR_H
-#define GLERROR_H
+#include <string>
 
 namespace android {
 namespace automotive {
 namespace evs {
 namespace support {
 
-const char *getEGLError(void);
-
-const char *getGLFramebufferError(void);
+class Utils {
+  public:
+    static std::string getRearCameraId();
+};
 
 }  // namespace support
 }  // namespace evs
 }  // namespace automotive
 }  // namespace android
 
-#endif  // GLERROR_H
+#endif  // CAR_LIB_EVS_SUPPORT_UTILS_H

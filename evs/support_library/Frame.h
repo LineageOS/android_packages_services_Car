@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef GLERROR_H
-#define GLERROR_H
+#ifndef CAR_LIB_EVS_SUPPORT_FRAME_H
+#define CAR_LIB_EVS_SUPPORT_FRAME_H
 
 namespace android {
 namespace automotive {
 namespace evs {
 namespace support {
 
-const char *getEGLError(void);
-
-const char *getGLFramebufferError(void);
+struct Frame {
+    unsigned width;
+    unsigned height;
+    unsigned stride;
+    uint8_t* data;
+};
 
 }  // namespace support
 }  // namespace evs
 }  // namespace automotive
 }  // namespace android
 
-#endif  // GLERROR_H
+#endif  // CAR_LIB_EVS_SUPPORT_FRAME_H

@@ -22,6 +22,10 @@
 #include <malloc.h>
 #include <png.h>
 
+namespace android {
+namespace automotive {
+namespace evs {
+namespace support {
 
 /* Create an new empty GL texture that will be filled later */
 TexWrapper::TexWrapper() {
@@ -196,3 +200,8 @@ TexWrapper* createTextureFromPng(const char * filename)
     // Return the texture
     return new TexWrapper(textureId, width, height);
 }
+
+}  // namespace support
+}  // namespace evs
+}  // namespace automotive
+}  // namespace android

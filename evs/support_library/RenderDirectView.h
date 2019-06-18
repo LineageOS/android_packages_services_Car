@@ -24,6 +24,10 @@
 #include "ConfigManager.h"
 #include "VideoTex.h"
 
+namespace android {
+namespace automotive {
+namespace evs {
+namespace support {
 
 using namespace ::android::hardware::automotive::evs::V1_0;
 
@@ -49,5 +53,9 @@ protected:
     GLuint                          mShaderProgram = 0;
 };
 
+}  // namespace support
+}  // namespace evs
+}  // namespace automotive
+}  // namespace android
 
 #endif //CAR_EVS_APP_RENDERDIRECTVIEW_H

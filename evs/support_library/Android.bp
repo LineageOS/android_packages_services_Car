@@ -19,10 +19,8 @@ cc_library_shared {
     name: "libevssupport",
 
     srcs: [
-        "EvsStateControl.cpp",
         "RenderBase.cpp",
         "RenderDirectView.cpp",
-        "RenderTopView.cpp",
         "ConfigManager.cpp",
         "glError.cpp",
         "shader.cpp",
@@ -30,6 +28,8 @@ cc_library_shared {
         "VideoTex.cpp",
         "StreamHandler.cpp",
         "FormatConvert.cpp",
+        "DisplayUseCase.cpp",
+        "Utils.cpp",
     ],
 
     shared_libs: [
@@ -44,12 +44,15 @@ cc_library_shared {
         "libhardware",
         "libpng",
         "android.hardware.automotive.evs@1.0",
-        "android.hardware.automotive.vehicle@2.0",
     ],
 
     static_libs: [
         "libmath",
         "libjsoncpp",
+    ],
+
+    required: [
+        "camera_config.json",
     ],
 
     strip: {
@@ -65,5 +68,12 @@ cc_library_shared {
         "-Wunused",
         "-Wunreachable-code",
     ],
-
 }
+
+prebuilt_etc {
+    name: "camera_config.json",
+
+    src: "config.json",
+    sub_dir: "automotive/evs_support_lib",
+}
+

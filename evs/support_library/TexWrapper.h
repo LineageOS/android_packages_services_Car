@@ -18,6 +18,10 @@
 
 #include <GLES2/gl2.h>
 
+namespace android {
+namespace automotive {
+namespace evs {
+namespace support {
 
 class TexWrapper {
 public:
@@ -39,4 +43,9 @@ protected:
 
 TexWrapper* createTextureFromPng(const char* filename);
 
-#endif // TEXWRAPPER_H
+}  // namespace support
+}  // namespace evs
+}  // namespace automotive
+}  // namespace android
+
+#endif  // TEXWRAPPER_H
