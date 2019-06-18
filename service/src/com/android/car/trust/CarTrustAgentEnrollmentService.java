@@ -589,6 +589,10 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         }
         switch (mEnrollmentState) {
             case ENROLLMENT_STATE_NONE:
+                if (!CarTrustAgentValidator.isValidEnrollmentDeviceId(value)) {
+                    Log.e(TAG, "Device id rejected by validator.");
+                    return;
+                }
                 notifyDeviceIdReceived(value);
                 break;
             case ENROLLMENT_STATE_UNIQUE_ID:
