@@ -191,7 +191,52 @@ public final class CarInfoManager implements CarManagerBase{
      *         no connector types available.
      */
     public @EvConnectorType.Enum int[] getEvConnectorTypes() {
-        return mCarPropertyMgr.getIntArrayProperty(BASIC_INFO_EV_CONNECTOR_TYPES, 0);
+        int[] valueInHal =
+                mCarPropertyMgr.getIntArrayProperty(BASIC_INFO_EV_CONNECTOR_TYPES, 0);
+        int[] connectorTypes = new int[valueInHal.length];
+        for (int i = 0; i < valueInHal.length; i++) {
+            switch (valueInHal[i]) {
+                case 1: // IEC_TYPE_1_AC
+                    connectorTypes[i] = EvConnectorType.J1772;
+                    break;
+                case 2: // IEC_TYPE_2_AC
+                    connectorTypes[i] = EvConnectorType.MENNEKES;
+                    break;
+                case 3: // IEC_TYPE_3_AC
+                    connectorTypes[i] = 11;
+                    break;
+                case 4: // IEC_TYPE_4_DC
+                    connectorTypes[i] = EvConnectorType.CHADEMO;
+                    break;
+                case 5: // IEC_TYPE_1_CCS_DC
+                    connectorTypes[i] = EvConnectorType.COMBO_1;
+                    break;
+                case 6: // IEC_TYPE_2_CCS_DC
+                    connectorTypes[i] = EvConnectorType.COMBO_2;
+                    break;
+                case 7: // TESLA_ROADSTER
+                    connectorTypes[i] = EvConnectorType.TESLA_ROADSTER;
+                    break;
+                case 8: // TESLA_HPWC
+                    connectorTypes[i] = EvConnectorType.TESLA_HPWC;
+                    break;
+                case 9: // TESLA_SUPERCHARGER
+                    connectorTypes[i] = EvConnectorType.TESLA_SUPERCHARGER;
+                    break;
+                case 10: // GBT_AC
+                    connectorTypes[i] = EvConnectorType.GBT;
+                    break;
+                case 11: // GBT_DC
+                    connectorTypes[i] = 10;
+                    break;
+                case 101: // OTHER
+                    connectorTypes[i] = EvConnectorType.OTHER;
+                    break;
+                default:
+                    connectorTypes[i] = EvConnectorType.UNKNOWN;
+            }
+        }
+        return connectorTypes;
     }
 
     /**
