@@ -55,13 +55,23 @@
                 android:textSize="30sp"/>
 
             <Button
-                android:id="@+id/category_message_button"
+                android:id="@+id/category_message_diff_person_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:background="#ffa9a8"
                 android:foreground="?android:attr/selectableItemBackground"
-                android:text="Message"
+                android:text="Message from diff person"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/category_message_same_person_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="#ffa9a8"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:text="Message from same person"
                 android:textSize="30sp"/>
 
             <Button
