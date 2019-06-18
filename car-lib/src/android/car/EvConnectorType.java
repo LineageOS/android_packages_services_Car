@@ -25,7 +25,13 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class EvConnectorType {
     /**
-     * List of EV Connector Types from VHAL
+     * List of EV Connector Types used in {@link CarInfoManager#getEvConnectorTypes()}.
+     * Beside connector types are listed here, there are two more EvConnectorTypes.
+     * The value of GBT_DC faster charging standard is 10.
+     * The value of IEC_TYPE_3_AC standard is 11.
+     * If a vehicle does not know the type, it will return UNKNOWN.
+     * The vehicle returns OTHER when no other types apply.
+     * <b>Note:</b> The connector types in Java API have different values than the ones in VHAL.
      */
     public static final int UNKNOWN = 0;
     /** Connector type SAE J1772 */
@@ -44,12 +50,21 @@ public final class EvConnectorType {
     public static final int TESLA_HPWC = 7;
     /** Supercharger of Tesla */
     public static final int TESLA_SUPERCHARGER = 8;
-    /** GB/T Fast Charging Standard */
+    /** GBT_AC Fast Charging Standard */
     public static final int GBT = 9;
     /**
-     * Connector type to use when no other types apply. Before using this
-     * value, work with the AOSP community to see if the EvConnectorType enum can be
-     * extended with an appropriate value.
+     * Map to GBT_DC in VHAL
+     * @hide
+     */
+    public static final int GBT_DC = 10;
+    /**
+     * Map to IEC_TYPE_3_AC in VHAL
+     * @hide
+     */
+    public static final int SCAME = 11;
+
+    /**
+     * Connector type to use when no other types apply.
      */
     public static final int OTHER = 101;
 
