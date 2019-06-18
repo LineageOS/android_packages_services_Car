@@ -66,9 +66,9 @@ public class VendorServiceControllerTest {
     private static final String SERVICE_START_SYSTEM_UNLOCKED = "com.andorid.car/.SystemUser";
 
     private static final String[] FAKE_SERVICES = new String[] {
-            SERVICE_BIND_ALL_USERS_ASAP + "#bind=true,user=all,trigger=asap",
-            SERVICE_BIND_FG_USER_UNLOCKED + "#bind=true,user=foreground,trigger=userUnlocked",
-            SERVICE_START_SYSTEM_UNLOCKED + "#bind=false,user=system,trigger=userUnlocked"
+            SERVICE_BIND_ALL_USERS_ASAP + "#bind=bind,user=all,trigger=asap",
+            SERVICE_BIND_FG_USER_UNLOCKED + "#bind=bind,user=foreground,trigger=userUnlocked",
+            SERVICE_START_SYSTEM_UNLOCKED + "#bind=start,user=system,trigger=userUnlocked"
     };
 
     @Rule
