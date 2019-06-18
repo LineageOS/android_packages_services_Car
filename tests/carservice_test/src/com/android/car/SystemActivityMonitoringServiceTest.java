@@ -18,6 +18,7 @@ package com.android.car;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.ComponentName;
@@ -25,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
+import android.util.Log;
 import android.view.Display;
 
 import androidx.test.InstrumentationRegistry;
@@ -45,7 +47,9 @@ import java.util.function.BooleanSupplier;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class SystemActivityMonitoringServiceTest {
-    private static final long ACTIVITY_TIME_OUT = 5000;
+    private static final String TAG = "SystemActivityMonitoringServiceTest";
+
+    private static final long ACTIVITY_TIMEOUT_MS = 5000;
     private static final long DEFAULT_TIMEOUT_SECONDS = 2;
 
     private SystemActivityMonitoringService mService;
@@ -56,15 +60,8 @@ public class SystemActivityMonitoringServiceTest {
     @Before
     public void setUp() throws Exception {
         mService = new SystemActivityMonitoringService(getContext());
-        mService.registerActivityLaunchListener(topTask -> {
-            if (!getTestContext().getPackageName().equals(topTask.topActivity.getPackageName())) {
-                return;  // Ignore activities outside of this test case.
-            }
-            synchronized (mTopTaskInfo) {
-                mTopTaskInfo[0] = topTask;
-            }
-            mActivityLaunchSemaphore.release();
-        });
+        mService.registerActivityLaunchListener(
+                new FilteredLaunchListener(/* desiredComponent= */ null));
     }
 
     @After
@@ -76,10 +73,12 @@ public class SystemActivityMonitoringServiceTest {
     @Test
     public void testActivityLaunch() throws Exception {
         ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
+        mService.registerActivityLaunchListener(new FilteredLaunchListener(activityA));
         startActivity(getContext(), activityA);
         assertTopTaskActivity(activityA);
 
         ComponentName activityB = toComponentName(getTestContext(), ActivityB.class);
+        mService.registerActivityLaunchListener(new FilteredLaunchListener(activityB));
         startActivity(getContext(), activityB);
         assertTopTaskActivity(activityB);
     }
@@ -92,10 +91,12 @@ public class SystemActivityMonitoringServiceTest {
         blockingIntent.setComponent(blockingActivity);
 
         // start a black listed activity
+        mService.registerActivityLaunchListener(new FilteredLaunchListener(blackListedActivity));
         startActivity(getContext(), blackListedActivity);
         assertTopTaskActivity(blackListedActivity);
 
         // Instead of start activity, invoke blockActivity.
+        mService.registerActivityLaunchListener(new FilteredLaunchListener(blockingActivity));
         mService.blockActivity(mTopTaskInfo[0], blockingIntent);
         assertTopTaskActivity(blockingActivity);
     }
@@ -138,7 +139,7 @@ public class SystemActivityMonitoringServiceTest {
     }
 
     private boolean topTasksHasComponent(ComponentName component) {
-        for (TopTaskInfoContainer topTaskInfoContainer: mService.getTopTasks()) {
+        for (TopTaskInfoContainer topTaskInfoContainer : mService.getTopTasks()) {
             if (topTaskInfoContainer.topActivity.equals(component)) {
                 return true;
             }
@@ -151,12 +152,14 @@ public class SystemActivityMonitoringServiceTest {
         @Override
         protected void onResume() {
             super.onResume();
-            getMainThreadHandler().postDelayed(this::finish, ACTIVITY_TIME_OUT);
+            getMainThreadHandler().postDelayed(this::finish, ACTIVITY_TIMEOUT_MS);
         }
     }
 
     public static class ActivityA extends TempActivity {}
+
     public static class ActivityB extends TempActivity {}
+
     public static class ActivityC extends TempActivity {}
 
     public static class ActivityThatFinishesImmediately extends Activity {
@@ -170,8 +173,8 @@ public class SystemActivityMonitoringServiceTest {
 
     public static class BlockingActivity extends TempActivity {}
 
-    private void assertTopTaskActivity(ComponentName activity) throws Exception{
-        assertTrue(mActivityLaunchSemaphore.tryAcquire(2, TimeUnit.SECONDS));
+    private void assertTopTaskActivity(ComponentName activity) throws Exception {
+        assertTrue(mActivityLaunchSemaphore.tryAcquire(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS));
         synchronized (mTopTaskInfo) {
             assertEquals(activity, mTopTaskInfo[0].topActivity);
         }
@@ -202,5 +205,40 @@ public class SystemActivityMonitoringServiceTest {
         options.setLaunchDisplayId(displayId);
 
         ctx.startActivity(intent, options.toBundle());
+    }
+
+    private class FilteredLaunchListener
+            implements SystemActivityMonitoringService.ActivityLaunchListener {
+
+        @Nullable
+        private final ComponentName mDesiredComponent;
+
+        /**
+         * Creates an instance of an
+         * {@link com.android.car.SystemActivityMonitoringService.ActivityLaunchListener}
+         * that filters based on the component name or does not filter if component name is null.
+         */
+        FilteredLaunchListener(@Nullable ComponentName desiredComponent) {
+            mDesiredComponent = desiredComponent;
+        }
+
+        @Override
+        public void onActivityLaunch(TopTaskInfoContainer topTask) {
+            // Ignore activities outside of this test case
+            if (!getTestContext().getPackageName().equals(topTask.topActivity.getPackageName())) {
+                Log.d(TAG, "Component launched from other package: "
+                        + topTask.topActivity.getClassName());
+                return;
+            }
+            if (!topTask.topActivity.equals(mDesiredComponent)) {
+                Log.d(TAG, "Unexpected component: " + topTask.topActivity.getClassName());
+                return;
+            }
+
+            synchronized (mTopTaskInfo) {
+                mTopTaskInfo[0] = topTask;
+            }
+            mActivityLaunchSemaphore.release();
+        }
     }
 }

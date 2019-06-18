@@ -51,6 +51,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class MockedVmsTestBase extends MockedCarTestBase {
+    public static final long PUBLISHER_BIND_TIMEOUT_SECS = 2L;
+
     private static final String TAG = "MockedVmsTestBase";
     private static CountDownLatch sPublisherIsReady = new CountDownLatch(1);
     private static MockPublisherClient sPublisherClient;
@@ -127,7 +129,9 @@ public class MockedVmsTestBase extends MockedCarTestBase {
 
     MockPublisherClient getMockPublisherClient() {
         try {
-            sPublisherIsReady.await(2L, TimeUnit.SECONDS);
+            assertTrue(
+                    "Timeout while waiting for publisher client to be ready",
+                    sPublisherIsReady.await(PUBLISHER_BIND_TIMEOUT_SECS, TimeUnit.SECONDS));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

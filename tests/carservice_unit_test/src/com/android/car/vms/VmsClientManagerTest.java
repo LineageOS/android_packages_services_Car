@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import android.car.Car;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -38,6 +39,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Handler;
@@ -65,8 +67,15 @@ import java.util.function.Consumer;
 @SmallTest
 public class VmsClientManagerTest {
     private static final String HAL_CLIENT_NAME = "VmsHalClient";
+    private static final String SYSTEM_CLIENT = "com.google.android.apps.vms.test/.VmsSystemClient";
+    private static final ComponentName SYSTEM_CLIENT_COMPONENT =
+            ComponentName.unflattenFromString(SYSTEM_CLIENT);
     private static final String SYSTEM_CLIENT_NAME =
             "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsSystemClient U=0";
+
+    private static final String USER_CLIENT = "com.google.android.apps.vms.test/.VmsUserClient";
+    private static final ComponentName USER_CLIENT_COMPONENT =
+            ComponentName.unflattenFromString(USER_CLIENT);
     private static final String USER_CLIENT_NAME =
             "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsUserClient U=10";
     @Rule
@@ -97,23 +106,21 @@ public class VmsClientManagerTest {
     private ArgumentCaptor<ServiceConnection> mConnectionCaptor;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         resetContext();
-        when(mPackageManager.isPackageAvailable(any())).thenReturn(true);
+        ServiceInfo serviceInfo = new ServiceInfo();
+        serviceInfo.permission = Car.PERMISSION_BIND_VMS_CLIENT;
+        when(mPackageManager.getServiceInfo(any(), anyInt())).thenReturn(serviceInfo);
 
         when(mResources.getInteger(
                 com.android.car.R.integer.millisecondsBeforeRebindToVmsPublisher)).thenReturn(
                 5);
         when(mResources.getStringArray(
                 com.android.car.R.array.vmsPublisherSystemClients)).thenReturn(
-                new String[]{
-                        "com.google.android.apps.vms.test/.VmsSystemClient"
-                });
+                new String[]{ SYSTEM_CLIENT });
         when(mResources.getStringArray(
                 com.android.car.R.array.vmsPublisherUserClients)).thenReturn(
-                new String[]{
-                        "com.google.android.apps.vms.test/.VmsUserClient"
-                });
+                new String[]{ USER_CLIENT });
 
         mUserId = 10;
         when(mUserManager.getCurrentForegroundUserId()).thenAnswer((invocation) -> mUserId);
@@ -207,6 +214,28 @@ public class VmsClientManagerTest {
     }
 
     @Test
+    public void testSystemUserUnlocked_ClientNotFound() throws Exception {
+        when(mPackageManager.getServiceInfo(eq(SYSTEM_CLIENT_COMPONENT), anyInt()))
+                .thenThrow(new PackageManager.NameNotFoundException());
+        notifySystemUserUnlocked();
+
+        // Process will not be bound
+        verifySystemBind(0);
+    }
+
+    @Test
+    public void testSystemUserUnlocked_WrongPermission() throws Exception {
+        ServiceInfo serviceInfo = new ServiceInfo();
+        serviceInfo.permission = Car.PERMISSION_VMS_PUBLISHER;
+        when(mPackageManager.getServiceInfo(eq(SYSTEM_CLIENT_COMPONENT), anyInt()))
+                .thenReturn(serviceInfo);
+        notifySystemUserUnlocked();
+
+        // Process will not be bound
+        verifySystemBind(0);
+    }
+
+    @Test
     public void testSystemUserUnlocked_BindFailed() {
         when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), any())).thenReturn(false);
         notifySystemUserUnlocked();
@@ -228,17 +257,34 @@ public class VmsClientManagerTest {
     }
 
     @Test
-    public void testUserSwitched() {
-        notifyUserSwitched();
-    }
-
-    @Test
     public void testUserUnlocked() {
         notifyUserUnlocked();
         notifyUserUnlocked();
 
         // Multiple events should only trigger a single bind, when successful
         verifyUserBind(1);
+    }
+
+    @Test
+    public void testUserUnlocked_ClientNotFound() throws Exception {
+        when(mPackageManager.getServiceInfo(eq(USER_CLIENT_COMPONENT), anyInt()))
+                .thenThrow(new PackageManager.NameNotFoundException());
+        notifyUserUnlocked();
+
+        // Process will not be bound
+        verifyUserBind(0);
+    }
+
+    @Test
+    public void testUserUnlocked_WrongPermission() throws Exception {
+        ServiceInfo serviceInfo = new ServiceInfo();
+        serviceInfo.permission = Car.PERMISSION_VMS_PUBLISHER;
+        when(mPackageManager.getServiceInfo(eq(USER_CLIENT_COMPONENT), anyInt()))
+                .thenReturn(serviceInfo);
+        notifyUserUnlocked();
+
+        // Process will not be bound
+        verifyUserBind(0);
     }
 
     @Test
@@ -321,6 +367,14 @@ public class VmsClientManagerTest {
 
         verifySystemBind(2); // Failure state will trigger another attempt
         verifyUserBind(1);
+    }
+
+    @Test
+    public void testUserSwitched() {
+        notifyUserSwitched();
+
+        // Clients are not bound on user switch alone
+        verifyUserBind(0);
     }
 
     @Test
@@ -593,20 +647,16 @@ public class VmsClientManagerTest {
     }
 
     private void verifySystemBind(int times) {
-        verifyBind(times, "com.google.android.apps.vms.test/.VmsSystemClient",
-                UserHandle.SYSTEM);
+        verifyBind(times, SYSTEM_CLIENT_COMPONENT, UserHandle.SYSTEM);
     }
 
     private void verifyUserBind(int times) {
-        verifyBind(times, "com.google.android.apps.vms.test/.VmsUserClient",
-                UserHandle.of(mUserId));
+        verifyBind(times, USER_CLIENT_COMPONENT, UserHandle.of(mUserId));
     }
 
-    private void verifyBind(int times, String componentName,
-            UserHandle user) {
-        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+    private void verifyBind(int times, ComponentName componentName, UserHandle user) {
         Intent expectedService = new Intent();
-        expectedService.setComponent(ComponentName.unflattenFromString(componentName));
+        expectedService.setComponent(componentName);
         verify(mContext, times(times)).bindServiceAsUser(
                 argThat((service) -> service.filterEquals(expectedService)),
                 mConnectionCaptor.capture(),
