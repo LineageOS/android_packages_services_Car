@@ -53,6 +53,7 @@
         <item name="android:textAppearanceListItem">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
+        <item name="android:textAppearanceButton">@*android:style/Widget.DeviceDefault.Button</item>
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
         <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
         <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
@@ -68,6 +69,7 @@
         <item name="android:textColorHint">@*android:color/car_body2</item>
         <item name="android:textColorPrimary">@*android:color/text_color_primary</item>
         <item name="android:textColorSecondary">@*android:color/car_body2</item>
+        <item name="android:windowTitleStyle">?android:attr/textAppearanceLarge</item>
     </style>
 
     <style name="Theme.DeviceDefault.Dialog.NoActionBar" parent="android:Theme.DeviceDefault.Dialog">
@@ -76,6 +78,10 @@
     </style>
 
     <style name="Theme.DeviceDefault.Dialog.Alert" parent="android:Theme.Material.Dialog.Alert">
+        <item name="android:textAppearanceLarge">@*android:style/TextAppearance.DeviceDefault.Large</item>
+        <item name="android:textAppearanceMedium">@*android:style/TextAppearance.DeviceDefault.Medium</item>
+        <item name="android:textAppearanceSmall">@*android:style/TextAppearance.DeviceDefault.Small</item>
+        <item name="android:textAppearanceButton">@*android:style/Widget.DeviceDefault.Button</item>
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
         <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
         <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
@@ -94,6 +100,7 @@
         <item name="android:textAppearanceListItem">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
+        <item name="android:windowTitleStyle">?android:attr/textAppearanceLarge</item>
     </style>
 
     <style name="Theme.DeviceDefault.Settings.Dialog" parent="android:Theme.DeviceDefault.Dialog.Alert">
