@@ -920,7 +920,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     @Override
     public void dump(PrintWriter writer) {
         synchronized (this) {
-            writer.println("*PackageManagementService*");
+            writer.println("*CarPackageManagerService*");
             writer.println("mEnableActivityBlocking:" + mEnableActivityBlocking);
             writer.println("mHasParsedPackages:" + mHasParsedPackages);
             List<String> restrictions = new ArrayList<>(mUxRestrictionsListeners.size());
@@ -931,6 +931,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                         displayId, (listener.isRestricted() ? "restricted" : "unrestricted")));
             }
             writer.println("Display Restrictions:\n" + String.join("\n", restrictions));
+            writer.println(" Blocked activity log:");
             writer.println(String.join("\n", mBlockedActivityLogs));
             writer.print(dumpPoliciesLocked(true));
         }

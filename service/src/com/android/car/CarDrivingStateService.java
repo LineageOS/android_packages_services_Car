@@ -284,6 +284,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
 
     @Override
     public void dump(PrintWriter writer) {
+        writer.println("*CarDrivingStateService*");
         writer.println("Driving state change log:");
         for (Utils.TransitionLog tLog : mTransitionLogs) {
             writer.println(tLog);
