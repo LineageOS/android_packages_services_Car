@@ -3050,7 +3050,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"Tonos"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Vibraciones"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Sonidos de encendido"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"Transcripción instantánea"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"Subtítulos instantáneos"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"Subtítulos automáticos multimedia"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Nunca"</string>
     <!-- no translation found for zen_mode_settings_summary_on (6061723291126091396) -->

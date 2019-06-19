@@ -4244,8 +4244,8 @@
     <string name="mobile_data_ap_mode_disabled" msgid="2452716524753472885">"Non disponibili in modalità aereo"</string>
     <string name="force_desktop_mode" msgid="6973100177551040740">"Forza la modalità desktop"</string>
     <string name="force_desktop_mode_summary" msgid="8865007610266954719">"Forza la modalità desktop sperimentale su display secondari"</string>
-    <string name="hwui_force_dark_title" msgid="3744825212652331461">"Esegui override modalità buio forzata"</string>
-    <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Esegue l\'override della funzionalità di modalità buio forzata in modo che sia sempre attiva"</string>
+    <string name="hwui_force_dark_title" msgid="3744825212652331461">"Esegui override modalità Buio forzata"</string>
+    <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Esegue l\'override della funzionalità di modalità Buio forzata in modo che sia sempre attiva"</string>
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"Privacy"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Autorizzazioni, attività dell\'account, dati personali"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Rimuovi"</string>

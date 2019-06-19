@@ -3050,7 +3050,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"Tonuak"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Dardara"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Pizteko soinuak"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"Berehalako transkripzioa"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"Istanteko azpitituluak"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"Ezarri azpitituluak automatikoki"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Inoiz ez"</string>
     <!-- no translation found for zen_mode_settings_summary_on (6061723291126091396) -->
