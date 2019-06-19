@@ -26,6 +26,8 @@ import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelUuid;
 import android.util.Log;
 
@@ -46,6 +48,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A BLE Service that is used for communicating with the trusted peer device. This extends from a
@@ -80,6 +83,8 @@ class CarTrustAgentBleManager extends BleManager {
     private static final int TRUSTED_DEVICE_OPERATION_NONE = 0;
     private static final int TRUSTED_DEVICE_OPERATION_ENROLLMENT = 1;
     private static final int TRUSTED_DEVICE_OPERATION_UNLOCK = 2;
+    private static final long BLE_MESSAGE_RETRY_DELAY_MS = TimeUnit.SECONDS.toMillis(2);
+    private static final int BLE_MESSAGE_RETRY_LIMIT = 20;
 
     @TrustedDeviceOperation
     private int mCurrentTrustedDeviceOperation = TRUSTED_DEVICE_OPERATION_NONE;
@@ -108,6 +113,9 @@ class CarTrustAgentBleManager extends BleManager {
 
     // This is a boolean because there's only one supported version.
     private boolean mIsVersionExchanged;
+    private int mBleMessageRetryStartCount;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private Runnable mSendRepeatedBleMessage;
 
     CarTrustAgentBleManager(Context context) {
         super(context);
@@ -130,6 +138,10 @@ class CarTrustAgentBleManager extends BleManager {
         mMessageQueue.clear();
         mIsVersionExchanged = false;
         getTrustedDeviceService().onRemoteDeviceConnected(device);
+        if (mSendRepeatedBleMessage != null) {
+            mHandler.removeCallbacks(mSendRepeatedBleMessage);
+            mSendRepeatedBleMessage = null;
+        }
     }
 
     @Override
@@ -141,6 +153,11 @@ class CarTrustAgentBleManager extends BleManager {
         mMessageQueue.clear();
         mIsVersionExchanged = false;
         mBleMessagePayloadStream.reset();
+
+        if (mSendRepeatedBleMessage != null) {
+            mHandler.removeCallbacks(mSendRepeatedBleMessage);
+        }
+        mSendRepeatedBleMessage = null;
     }
 
     @Override
@@ -462,7 +479,7 @@ class CarTrustAgentBleManager extends BleManager {
      * <p>An ACK means that the client has successfully received a partial BLEMessage, meaning the
      * next part of the message can be sent.
      *
-     * @param device The client device.
+     * @param device                   The client device.
      * @param clientCharacteristicUUID The UUID of the characteristic on the device that the ACK
      *                                 was written to.
      */
@@ -480,7 +497,12 @@ class CarTrustAgentBleManager extends BleManager {
                     + " queue. UUID: " + clientCharacteristicUUID);
             return;
         }
-
+        if (mSendRepeatedBleMessage != null) {
+            mHandler.removeCallbacks(mSendRepeatedBleMessage);
+            mSendRepeatedBleMessage = null;
+        }
+        // Previous message has been sent successfully so we can start the next message.
+        mMessageQueue.remove();
         writeNextMessageInQueue(device, writeCharacteristic);
     }
 
@@ -523,9 +545,34 @@ class CarTrustAgentBleManager extends BleManager {
             Log.e(TAG, "Call to write next message in queue, but the message queue is empty");
             return;
         }
-
-        setValueOnCharacteristicAndNotify(device, mMessageQueue.remove().toByteArray(),
-                characteristic);
+        // When there is only one message, no ACKs are sent, so we no need to retry based on ACKs.
+        if (mMessageQueue.size() == 1) {
+            setValueOnCharacteristicAndNotify(device, mMessageQueue.remove().toByteArray(),
+                    characteristic);
+            return;
+        }
+        mBleMessageRetryStartCount = 0;
+        mSendRepeatedBleMessage = new Runnable() {
+            @Override
+            public void run() {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "BLE message sending... " + "retry count: "
+                            + mBleMessageRetryStartCount);
+                }
+                if (mBleMessageRetryStartCount < BLE_MESSAGE_RETRY_LIMIT) {
+                    setValueOnCharacteristicAndNotify(device, mMessageQueue.peek().toByteArray(),
+                            characteristic);
+                    mBleMessageRetryStartCount++;
+                    mHandler.postDelayed(this, BLE_MESSAGE_RETRY_DELAY_MS);
+                } else {
+                    Log.e(TAG, "Error during BLE message sending - exceeded retry limit.");
+                    mHandler.removeCallbacks(this);
+                    mCarTrustAgentEnrollmentService.terminateEnrollmentHandshake();
+                    mSendRepeatedBleMessage = null;
+                }
+            }
+        };
+        mHandler.post(mSendRepeatedBleMessage);
     }
 
     private void sendAcknowledgmentMessage(BluetoothDevice device, UUID clientCharacteristicUUID) {
@@ -549,8 +596,8 @@ class CarTrustAgentBleManager extends BleManager {
      * <p>Upon successfully setting of the value, any listeners on the characteristic will be
      * notified that its value has changed.
      *
-     * @param device The device has own the given characteristic.
-     * @param message The message to set as the characteristic's value.
+     * @param device         The device has own the given characteristic.
+     * @param message        The message to set as the characteristic's value.
      * @param characteristic The characteristic to set the value on.
      */
     private void setValueOnCharacteristicAndNotify(BluetoothDevice device, byte[] message,
