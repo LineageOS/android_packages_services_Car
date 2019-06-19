@@ -26,6 +26,9 @@ import java.lang.annotation.RetentionPolicy;
 public final class EvConnectorType {
     /**
      * List of EV Connector Types used in {@link CarInfoManager#getEvConnectorTypes()}.
+     * If a vehicle does not know the type, it will return UNKNOWN.
+     * The vehicle returns OTHER when no other types apply.
+     * <b>Note:</b> The connector types in Java API have different values than the ones in VHAL.
      */
     public static final int UNKNOWN = 0;
     /** Connector type SAE J1772 */

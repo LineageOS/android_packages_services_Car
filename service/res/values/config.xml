@@ -180,8 +180,6 @@
         <item>com.android.car.messenger/.MessengerService#bind=startForeground,user=foreground,trigger=userUnlocked</item>
     </string-array>
 
-    <string name="config_TetheredProjectionAccessPointSsid" translatable="false">CarAP</string>
-
     <!-- The consent activity that must be shown for every unknown mobile device before projection
          gets started.  The format is: com.your.package/com.your.Activity  -->
     <string name="config_projectionConsentActivity" translatable="false"/>
@@ -196,6 +194,12 @@
 
     <!-- UI mode for projection activity. See ProjectionOptions class for possible values. -->
     <integer name="config_projectionUiMode" translatable="false">0</integer>
+
+    <!-- Configure whether access point created for wireless projection should be in tethered mode.
+         This will allow mobile device to use Internet provided by the vehicle during projection.
+         If this value is true then tethering is enabled. Otherwise, local-only hotspot will be
+         created. -->
+    <bool name="config_projectionAccessPointTethering" translatable="false">false</bool>
 
     <!-- service/characteristics uuid for adding new escrow token -->
     <string name="enrollment_service_uuid" translatable="false">5e2a68a4-27be-43f9-8d1e-4546976fabd7</string>
