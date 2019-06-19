@@ -505,9 +505,6 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Sending handle: " + handle);
         }
-        mCarTrustAgentBleManager.sendEnrollmentMessage(mRemoteEnrollmentDevice,
-                mEncryptionKey.encryptData(Utils.longToBytes(handle)),
-                OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */ true);
         mHandle = handle;
     }
 
