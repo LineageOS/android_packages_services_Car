@@ -41,3 +41,28 @@ for specific products.
 
 BugReport app uses `res/raw/gcs_credentials.json` for authentication and
 `res/values/configs.xml` for obtaining GCS bucket name.
+
+## Testing
+
+### Manually testing the app using the test script
+
+BugReportApp comes with `utils/bugreport_app_tester.py` script that automates
+many of the BugReportApp testing process. Please follow these instructions
+to test the app:
+
+1. Connect the device to your computer.
+2. Make sure the device has Internet.
+3. Run the script: `$ python bugreport_app_tester.py`
+   * The script works on python 2.7 and above.
+   * If multiple devices connected, see the usage
+     `$ python bugreport_app_tester.py --help`.
+   * Warning: the script will delete all the bug reports on the device.
+4. Script might take up to 10 minutes to finish.
+   * It might fail to upload bugreport when time/time-zone is invalid.
+   * In rare cases it might not upload the bugreport, depending Android's
+     task scheduling rules.
+5. Please manually verify the script's results.
+6. Please manually verify bug report contents.
+   * Images - the should contain screenshots of all the physical displays.
+   * Audio files - they should contain the audio message you recorded.
+   * Dumpstate (bugreport) - it should contain logs and other information.
