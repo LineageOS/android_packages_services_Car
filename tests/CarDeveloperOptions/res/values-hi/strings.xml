@@ -826,7 +826,7 @@
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"उपयोग करने के लिए, कोई संगत नेटवर्क रेटिंग प्रदाता चुनें"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"प्रमाणपत्र इंस्टॉल करें"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"जगह की और सटीक जानकारी देने के लिए, ऐप्लिकेशन और सेवाएं किसी भी समय वाई-फ़ाई ढूंढने के लिए डिवाइस को स्कैन कर सकती हैं. ऐसा वाई-फ़ाई बंद होने पर भी किया जा सकता है. उदाहरण के लिए, इसका इस्तेमाल जगह से जुड़ी सुविधाओं और सेवाओं में सुधार करने के लिए किया जा सकता है. आप <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>स्कैनिंग सेटिंग<xliff:g id="LINK_END_1">LINK_END</xliff:g> में जाकर इस सुविधा को बदल सकते हैं."</string>
-    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"जगह की सटीकता को बेहतर बनाने के लिए, <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>स्कैनिंग सेटिंग<xliff:g id="LINK_END_1">LINK_END</xliff:g> में वाई-फ़ाई स्कैन करना चालू करें."</string>
+    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"जगह के बारे में जानकारी को सटीक बनाने के लिए, <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>स्कैनिंग सेटिंग<xliff:g id="LINK_END_1">LINK_END</xliff:g> में वाई-फ़ाई स्कैन करना चालू करें."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"फिर से न दिखाएं"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"प्रयोग में नहीं रहने के दौरान वाई-फ़ाई चालू रखें"</string>
     <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"सुलाएं मोड में वाई-फ़ाई चालू"</string>
@@ -945,7 +945,7 @@
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (WPS उपलब्‍ध)"</string>
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"मोबाइल और इंटरनेट सेवा देने वाली कंपनी वाई-फ़ाई नेटवर्क"</string>
     <string name="wifi_carrier_content" msgid="3467402515071949783">"<xliff:g id="NAME">%1$s</xliff:g> से कनेक्ट करें"</string>
-    <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"जगह की सटीकता को बेहतर बनाने और दुसरे कामों के लिए, Wi-Fi बंद होने पर भी <xliff:g id="APP_NAME">%1$s</xliff:g> नेटवर्क को स्कैन करना चालू करना चाहता है.\n\nउन सभी ऐप को इसकी अनुमति दें जो स्कैन करना चाहते हैं?"</string>
+    <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"जगह की जानकारी को सटीक बनाने और दूसरे कामों के लिए, वाई-फ़ाई बंद होने पर भी <xliff:g id="APP_NAME">%1$s</xliff:g> नेटवर्क को स्कैन करना चालू करना चाहता है.\n\nउन सभी ऐप्लिकेशन को इसकी अनुमति दें जो स्कैन करना चाहते हैं?"</string>
     <string name="wifi_scan_always_turnoff_message" msgid="556993843641750002">"इसे बंद करने के लिए, ओवरफ़्लो मेन्यू में बेहतर पर जाएं."</string>
     <string name="wifi_scan_always_confirm_allow" msgid="8857664849515496237">"अनुमति दें"</string>
     <string name="wifi_scan_always_confirm_deny" msgid="6190909841125369403">"अस्वीकार करें"</string>
