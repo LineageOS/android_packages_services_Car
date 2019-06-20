@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.car.multidisplaytest.draw.DrawTestFragment;
 import com.google.android.car.multidisplaytest.ime.InputTestFragment;
+import com.google.android.car.multidisplaytest.present.PresentTestFragment;
 import com.google.android.car.multidisplaytest.touch.TouchTestFragment;
 
 import java.util.Arrays;
@@ -108,7 +109,8 @@ public class MDTest extends FragmentActivity {
     private final List<MenuEntry> mMenuEntries = Arrays.asList(
             new FragmentMenuEntry("Touch test", TouchTestFragment.class),
             new FragmentMenuEntry("IME test", InputTestFragment.class),
-            new FragmentMenuEntry("Draw test", DrawTestFragment.class)
+            new FragmentMenuEntry("Draw test", DrawTestFragment.class),
+            new FragmentMenuEntry("Present test", PresentTestFragment.class)
     );
 
     @Override
