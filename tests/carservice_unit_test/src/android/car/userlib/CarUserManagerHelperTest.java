@@ -123,17 +123,6 @@ public class CarUserManagerHelperTest {
         assertThat(mCarUserManagerHelper.isHeadlessSystemUser()).isTrue();
     }
 
-    @Test
-    public void checkIsSystemUser() {
-        UserInfo testInfo = new UserInfo();
-
-        testInfo.id = UserHandle.USER_SYSTEM;
-        assertThat(mCarUserManagerHelper.isSystemUser(testInfo)).isTrue();
-
-        testInfo.id = UserHandle.USER_SYSTEM + 2; // Make it different than system id.
-        assertThat(mCarUserManagerHelper.isSystemUser(testInfo)).isFalse();
-    }
-
     // System user will not be returned when calling get all users.
     @Test
     public void testHeadlessUser0GetAllUsers_NotReturnSystemUser() {
@@ -236,17 +225,6 @@ public class CarUserManagerHelperTest {
         doReturn(true).when(mUserManager)
                 .hasUserRestriction(UserManager.DISALLOW_REMOVE_USER);
         assertThat(mCarUserManagerHelper.canCurrentProcessRemoveUsers()).isFalse();
-    }
-
-    @Test
-    public void testCurrentProcessCanSwitchUsers() {
-        doReturn(false).when(mUserManager)
-                .hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
-        assertThat(mCarUserManagerHelper.canCurrentProcessSwitchUsers()).isTrue();
-
-        doReturn(true).when(mUserManager)
-                .hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
-        assertThat(mCarUserManagerHelper.canCurrentProcessSwitchUsers()).isFalse();
     }
 
     @Test
@@ -429,20 +407,6 @@ public class CarUserManagerHelperTest {
         // Test that non-admins cannot create new admins.
         doReturn(false).when(mUserManager).isAdminUser(); // Current user non-admin.
         assertThat(mCarUserManagerHelper.createNewAdminUser(newAdminName)).isNull();
-    }
-
-    @Test
-    public void testSystemUserCanCreateAdmins() {
-        String newAdminName = "Test new admin";
-        UserInfo expectedAdmin = new UserInfo();
-        expectedAdmin.name = newAdminName;
-
-        doReturn(expectedAdmin).when(mUserManager).createUser(newAdminName, UserInfo.FLAG_ADMIN);
-
-        // System user can create admins.
-        doReturn(true).when(mUserManager).isSystemUser();
-        UserInfo actualAdmin = mCarUserManagerHelper.createNewAdminUser(newAdminName);
-        assertThat(actualAdmin).isEqualTo(expectedAdmin);
     }
 
     @Test
