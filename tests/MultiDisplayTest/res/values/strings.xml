@@ -22,4 +22,9 @@
         Presentation and the DisplayManager to show content on other Displays.\n
         Selecting a Display will open a Presentation on it</string>
     <string name="presentation_show_all_displays" translatable="false">Show all displays</string>
+    <string name="presentation_photo_text">Showing photo #%1$d on display #%2$d: %3$s.</string>
+    <string name="presentation_info_button">Info</string>
+    <string name="presentation_display_id_text">Display #%1$d: %2$s</string>
+    <string name="presentation_alert_info_text">Display #%1$d Info</string>
+    <string name="presentation_alert_dismiss_text">OK</string>
 </resources>
