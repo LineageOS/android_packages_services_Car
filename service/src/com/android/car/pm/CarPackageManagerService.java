@@ -69,6 +69,8 @@ import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
+import com.google.android.collect.Sets;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -133,13 +135,11 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     // Information related to when the installed packages should be parsed for building a white and
     // black list
-    private final List<String> mPackageManagerActions = Arrays.asList(
+    private final Set<String> mPackageManagerActions = Sets.newArraySet(
             Intent.ACTION_PACKAGE_ADDED,
             Intent.ACTION_PACKAGE_CHANGED,
-            Intent.ACTION_PACKAGE_DATA_CLEARED,
             Intent.ACTION_PACKAGE_REMOVED,
-            Intent.ACTION_PACKAGE_REPLACED,
-            Intent.ACTION_PACKAGE_FULLY_REMOVED);
+            Intent.ACTION_PACKAGE_REPLACED);
 
     private final PackageParsingEventReceiver mPackageParsingEventReceiver =
             new PackageParsingEventReceiver();
@@ -179,6 +179,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     /**
      * int display id of the blocked task.
+     *
      * @hide
      */
     public static final String BLOCKING_INTENT_EXTRA_DISPLAY_ID = "display_id";
@@ -657,9 +658,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
      * - whitelist from resource config;
      * - activity declared as Distraction Optimized (D.O.) in manifest;
      * - blacklist from resource config - package/activity blacklisted will not exist
-     *                                    in returned whitelist.
+     * in returned whitelist.
      *
-     * @param userId Parse packages installed for user.
+     * @param userId          Parse packages installed for user.
      * @param configWhitelist Whitelist from config.
      * @param configBlacklist Blacklist from config.
      */
@@ -940,7 +941,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private String dumpPoliciesLocked(boolean dumpAll) {
         StringBuilder sb = new StringBuilder();
         if (dumpAll) {
-            sb.append("**System white list**\n");
+            sb.append("**System whitelist**\n");
             for (AppBlockingPackageInfoWrapper wrapper : mActivityWhitelistMap.values()) {
                 sb.append(wrapper.toString() + "\n");
             }
@@ -1090,10 +1091,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
      * Creates an intent to start blocking activity.
      *
      * @param blockingActivity the activity to launch
-     * @param blockedActivity the activity being blocked
-     * @param blockedTaskId the blocked task id, which contains the blocked activity
+     * @param blockedActivity  the activity being blocked
+     * @param blockedTaskId    the blocked task id, which contains the blocked activity
      * @param taskRootActivity root activity of the blocked task
-     *
      * @return an intent to launch the blocking activity.
      */
     private static Intent createBlockingActivityIntent(ComponentName blockingActivity,
@@ -1120,7 +1120,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
      * Enable/Disable activity blocking by correspondingly enabling/disabling broadcasting UXR
      * changes in {@link CarUxRestrictionsManagerService}. This is only available in
      * engineering builds for development convenience.
-     *
      */
     @Override
     public synchronized void setEnableActivityBlocking(boolean enable) {
@@ -1450,7 +1449,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
 
         private boolean isPackageManagerAction(String action) {
-            return mPackageManagerActions.indexOf(action) != -1;
+            return mPackageManagerActions.contains(action);
         }
 
         /**
