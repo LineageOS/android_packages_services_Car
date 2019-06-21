@@ -35,12 +35,14 @@ import android.os.UserManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import java.util.List;
 
 /**
@@ -51,13 +53,13 @@ import java.util.List;
  * handlers will be captured, and user will be presented with choice to assign default handler.
  * After that handler will be launched.
  */
-public class UsbHostManagementActivity extends Activity
-        implements UsbHostController.UsbHostControllerCallbacks {
+public class UsbHostManagementActivity extends Activity {
     private static final String TAG = UsbHostManagementActivity.class.getSimpleName();
 
     private HandlersAdapter mListAdapter;
     private ListView mHandlersList;
-    private LinearLayout mProgressInfo;
+    private TextView mHandlerTitle;
+    private LinearLayout mUsbHandlersDialog;
     private UsbHostController mController;
     private PackageManager mPackageManager;
 
@@ -107,13 +109,15 @@ public class UsbHostManagementActivity extends Activity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.usb_host);
-        mHandlersList = (ListView) findViewById(R.id.usb_handlers_list);
-        mProgressInfo = (LinearLayout) findViewById(R.id.usb_handlers_progress);
+        mUsbHandlersDialog = findViewById(R.id.usb_handlers_dialog);
+        mHandlersList = findViewById(R.id.usb_handlers_list);
+        mHandlerTitle = findViewById(R.id.usb_handler_heading);
         mListAdapter = new HandlersAdapter(this);
         mHandlersList.setAdapter(mListAdapter);
         mHandlersList.setOnItemClickListener(mHandlerClickListener);
-        mController = new UsbHostController(this, this);
+        mController = new UsbHostController(this, new UsbCallbacks());
         mPackageManager = getPackageManager();
     }
 
@@ -146,47 +150,53 @@ public class UsbHostManagementActivity extends Activity
         }
     }
 
-    @Override
-    public void shutdown() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                finish();
-            }
-        });
-    }
+    class UsbCallbacks implements UsbHostController.UsbHostControllerCallbacks {
+        private boolean mProcessing = false;
 
-    @Override
-    public void processingStateChanged(final boolean processing) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mProgressInfo.setVisibility(processing ? View.VISIBLE : View.GONE);
-            }
-        });
-    }
+        @Override
+        public void shutdown() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    finish();
+                }
+            });
+        }
 
-  @Override
-  public void titleChanged(final String title) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                setTitle(title);
-            }
-        });
-    }
+        @Override
+        public void processingStarted() {
+            mProcessing = true;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mProcessing && !mListAdapter.isEmpty()) {
+                        mUsbHandlersDialog.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+        }
 
-  @Override
-  public void optionsUpdated(final List<UsbDeviceSettings> options) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mListAdapter.clear();
-                mListAdapter.addAll(options);
-            }
-        });
-    }
+        @Override
+        public void titleChanged(final String title) {
+            runOnUiThread(() -> mHandlerTitle.setText(title));
+        }
 
+        @Override
+        public void optionsUpdated(final List<UsbDeviceSettings> options) {
+            if (options != null && !options.isEmpty()) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mProcessing) {
+                            mUsbHandlersDialog.setVisibility(View.VISIBLE);
+                        }
+                        mListAdapter.clear();
+                        mListAdapter.addAll(options);
+                    }
+                });
+            }
+        }
+    }
 
     @Override
     public void onNewIntent(Intent intent) {

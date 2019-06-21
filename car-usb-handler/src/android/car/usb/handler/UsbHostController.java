@@ -45,7 +45,7 @@ public final class UsbHostController
         /** Host controller ready for shutdown */
         void shutdown();
         /** Change of processing state */
-        void processingStateChanged(boolean processing);
+        void processingStarted();
         /** Title of processing changed */
         void titleChanged(String title);
         /** Options for USB device changed */
@@ -157,7 +157,7 @@ public final class UsbHostController
             Log.w(TAG, "Currently, other device is being processed");
         }
         mCallback.optionsUpdated(mEmptyList);
-        mCallback.processingStateChanged(true);
+        mCallback.processingStarted();
 
         UsbDeviceSettings settings = mUsbSettingsStorage.getSettings(device);
 
@@ -205,7 +205,6 @@ public final class UsbHostController
             Log.d(TAG, "onHandlersResolveComplete: " + device);
         }
         if (deviceMatchedActiveDevice(device)) {
-            mCallback.processingStateChanged(false);
             if (handlers.isEmpty()) {
                 onDeviceDispatched();
             } else if (handlers.size() == 1) {
