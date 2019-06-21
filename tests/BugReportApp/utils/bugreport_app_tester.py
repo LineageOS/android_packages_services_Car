@@ -55,7 +55,6 @@ PENDING_BUGREPORTS_DIR = ('/data/user/0/%s/bug_reports_pending' %
                           BUGREPORT_PACKAGE)
 SQLITE_DB_DIR = '/data/user/0/%s/databases' % BUGREPORT_PACKAGE
 SQLITE_DB_PATH = SQLITE_DB_DIR + '/bugreport.db'
-DATA_DIR = 'bugreport-app-data'  # It will write files to $PWD/DATA_DIR/.
 
 # The statuses are from `src/com/google/android/car/bugreport/Status.java.
 STATUS_WRITE_PENDING = 0
@@ -473,20 +472,15 @@ class BugreportAppTester(object):
       result.append('   - %s' % dumpstate_validation)
     return result
 
-  def _write_files_to_data_dir(self, files):
-    """Writes files to DATA_DIR."""
-    data_dir_path = os.path.join(os.getcwd(), DATA_DIR)
-    try:
-      os.makedirs(data_dir_path)
-    except OSError:
-      pass
+  def _write_files_to_data_dir(self, files, data_dir):
+    """Writes files to data_dir."""
     for file in files:
-      if (not self._is_image(file) or self._is_audio(file) or
-          self._is_dumpstate(file)):
+      if (not (self._is_image(file) or self._is_audio(file) or
+          self._is_dumpstate(file))):
         continue
-      with open(os.path.join(data_dir_path, file.name), 'wb') as wfile:
+      with open(os.path.join(data_dir, file.name), 'wb') as wfile:
         wfile.write(file.content)
-    print('Files have been written to %s' % data_dir_path)
+    print('Files have been written to %s' % data_dir)
 
   def _process_bugreport(self, meta_bugreport):
     """Checks zip file contents, returns validation results.
@@ -499,7 +493,7 @@ class BugreportAppTester(object):
     """
     print('Processing bugreport id=%s, timestamp=%s' %
           (meta_bugreport.id, meta_bugreport.timestamp))
-    tmpdir = tempfile.mkdtemp(prefix='aae-bugreport-', suffix='zip')
+    tmpdir = tempfile.mkdtemp(prefix='aae-bugreport-', suffix='zip', dir=".")
     zippath = tmpdir + '/bugreport.zip'
     exit_code, stdout_lines = self._device.adb(
         ['pull', meta_bugreport.filepath, zippath])
@@ -513,9 +507,8 @@ class BugreportAppTester(object):
     files = self._extract_important_files(zippath)
     results = self._validate_files(files, zippath, meta_bugreport)
 
-    self._write_files_to_data_dir(files)
+    self._write_files_to_data_dir(files, tmpdir)
 
-    shutil.rmtree(tmpdir, ignore_errors=True)
     return results
 
   def run(self):
@@ -561,8 +554,7 @@ class BugreportAppTester(object):
 
     print('\n'.join(check_results))
     print()
-    print('Unzipped files have been written to %s/' % DATA_DIR)
-    print('Please verify their contents.')
+    print('Please verify the contents of files.')
 
 
 def main():
