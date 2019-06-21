@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.os.Handler;
 import android.os.Looper;
@@ -198,6 +199,19 @@ public final class UsbHostController
         mUsbResolver.release();
     }
 
+    private boolean isDeviceAoapPossible(UsbDevice device) {
+        if (AoapInterface.isDeviceInAoapMode(device)) {
+            return true;
+        }
+
+        UsbManager usbManager = mContext.getSystemService(UsbManager.class);
+        UsbDeviceConnection connection = UsbUtil.openConnection(usbManager, device);
+        boolean aoapSupported = AoapInterface.isSupported(mContext, device, connection);
+        connection.close();
+
+        return aoapSupported;
+    }
+
     @Override
     public void onHandlersResolveCompleted(
             UsbDevice device, List<UsbDeviceSettings> handlers) {
@@ -210,8 +224,8 @@ public final class UsbHostController
             } else if (handlers.size() == 1) {
                 applyDeviceSettings(handlers.get(0));
             } else {
-                if (AoapInterface.isDeviceInAoapMode(device)) {
-                    // Device is in AOAP mode, if we have just single AOAP handler then use it
+                if (isDeviceAoapPossible(device)) {
+                    // Device supports AOAP mode, if we have just single AOAP handler then use it
                     // instead of showing disambiguation dialog to the user.
                     UsbDeviceSettings aoapHandler = getSingleAoapDeviceHandlerOrNull(handlers);
                     if (aoapHandler != null) {
