@@ -25,7 +25,7 @@
     <application android:label="@string/app_name" android:icon="@drawable/ic_launcher"
                  android:directBootAware="true">
         <activity android:name=".UsbHostManagementActivity"
-                  android:theme="@android:style/Theme.Material.Light.Dialog"
+                  android:theme="@android:style/Theme.DeviceDefault.Dialog"
                   android:launchMode="singleTop">
             <meta-data
                 android:name="distractionOptimized"
