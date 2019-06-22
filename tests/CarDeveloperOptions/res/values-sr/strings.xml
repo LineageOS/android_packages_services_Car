@@ -304,8 +304,8 @@
     <string name="cellular_data_summary" msgid="8817717603450318646">"Омогућава потрошњу података на моб. мрежи"</string>
     <string name="allow_data_usage_title" msgid="5381624105803294315">"Дозволи потр. подат. у ромингу"</string>
     <string name="roaming" msgid="8860308342135146004">"Роминг"</string>
-    <string name="roaming_enable" msgid="2108142024297441116">"Повежи са услугом за податке током роминга"</string>
-    <string name="roaming_disable" msgid="1915440242079953809">"Повезивање са услугом за податке током роминга"</string>
+    <string name="roaming_enable" msgid="2108142024297441116">"Повежи са услугом за податке у ромингу"</string>
+    <string name="roaming_disable" msgid="1915440242079953809">"Повежи са услугом за податке у ромингу"</string>
     <string name="roaming_reenable_message" msgid="8388505868655113258">"Веза за пренос података је прекинута зато што сте напустили матичну мрежу са искљученим преносом података у ромингу."</string>
     <string name="roaming_turn_it_on_button" msgid="4370846458830537578">"Укључи"</string>
     <string name="roaming_warning" msgid="5488050911277592868">"Могу да настану значајни трошкови."</string>
@@ -424,7 +424,11 @@
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Користи отис. прста за"</string>
     <string name="fingerprint_add_title" msgid="6840343900784463856">"Додај отисак прста"</string>
     <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"закључавање екрана"</string>
-    <!-- no translation found for security_settings_fingerprint_preference_summary (2033416761172877041) -->
+    <plurals name="security_settings_fingerprint_preference_summary" formatted="false" msgid="2033416761172877041">
+      <item quantity="one">Подешен је <xliff:g id="COUNT_1">%1$d</xliff:g> отисак прста </item>
+      <item quantity="few">Подешена су <xliff:g id="COUNT_1">%1$d</xliff:g> отиска прстију</item>
+      <item quantity="other">Подешено је <xliff:g id="COUNT_1">%1$d</xliff:g> отисака прстију</item>
+    </plurals>
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"Откључајте отиском прста"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"Користите отисак прста"</string>
@@ -465,16 +469,14 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Урадићу то касније"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Прескочити подешавање отиска прста?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Изабрали сте да користите отисак прста као један начин за откључавање телефона. Ако сада прескочите, мораћете касније да обавите ово подешавање. За подешавање је потребно само око минут времена."</string>
-    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (1384438077720821127) -->
-    <skip />
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Заштитите таблет помоћу опције закључавања екрана да нико не би могао да га користи ако га изгубите или вам га украду. Опција закључавања екрана вам треба и да бисте подесили отисак прста. Додирните Откажи, па подесите PIN или одаберите другу опцију закључавања екрана."</string>
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7207112623501771824) -->
     <skip />
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7623975730623531606) -->
     <skip />
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (2998863111689476550) -->
     <skip />
-    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (6780557259734235952) -->
-    <skip />
+    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Заштитите уређај помоћу опције закључавања екрана да нико не би могао да га користи ако га изгубите или вам га украду. Опција закључавања екрана вам треба и да бисте подесили потврду идентитета лицем. Додирните Откажи, па подесите PIN или одаберите другу опцију закључавања екрана."</string>
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (8541640018478926775) -->
     <skip />
     <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
@@ -650,7 +652,11 @@
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"Превише нетачних покушаја. Избрисаћемо овог корисника."</string>
     <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"Превише нетачних покушаја. Избрисаћемо овај профил за Work и његове податке."</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"Одбаци"</string>
-    <!-- no translation found for lockpassword_password_too_short (694091983183310827) -->
+    <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
+      <item quantity="one">Мора да садржи најмање <xliff:g id="COUNT_1">%d</xliff:g> знак</item>
+      <item quantity="few">Мора да садржи најмање <xliff:g id="COUNT_1">%d</xliff:g> знака</item>
+      <item quantity="other">Мора да садржи најмање <xliff:g id="COUNT_1">%d</xliff:g> знакова</item>
+    </plurals>
     <!-- no translation found for lockpassword_pin_too_short (6805936168283187298) -->
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"Настави"</string>
     <!-- no translation found for lockpassword_password_too_long (7994068708438608179) -->
@@ -728,13 +734,11 @@
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Напредни Bluetooth"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Када је Bluetooth укључен, уређај може да комуницира са другим Bluetooth уређајима у близини."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Док је Bluetooth укључен, уређај може да комуницира са другим Bluetooth уређајима у близини.\n\nРади бољег доживљаја на уређају, апликације и услуге и даље могу у било ком тренутку да траже уређаје у близини, чак и када је Bluetooth искључен. Ово може да се користи, на пример, за побољшање функција и услуга заснованих на локацији. То можете да промените у "<annotation id="link">"подешавањима скенирања"</annotation>"."</string>
-    <!-- no translation found for ble_scan_notify_text (6290170236546386932) -->
-    <skip />
+    <string name="ble_scan_notify_text" msgid="6290170236546386932">"Да би побољшале тачност локације, системске апликације и услуге ће и даље препознавати Bluetooth уређаје, чак и када је Bluetooth искључен. Ово можете да промените у <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>подешавањима скенирања<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Повезивање није успело. Покушајте поново."</string>
     <string name="device_details_title" msgid="726517818032923222">"Детаљи о уређају"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Bluetooth адреса уређаја: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <!-- no translation found for bluetooth_unpair_dialog_title (3669848977755142047) -->
-    <skip />
+    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Желите ли да заборавите уређај?"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Телефон неће више бити упарен са уређајем <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Таблет неће више бити упарен са уређајем <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Уређај неће више бити упарен са уређајем <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
@@ -812,8 +816,7 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Обавештења о отвореним мрежама"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Обавести ме кад год је доступна јавна мрежа високог квалитета"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Аутоматски укључи Wi‑Fi"</string>
-    <!-- no translation found for wifi_wakeup_summary (1152699417411690) -->
-    <skip />
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi ће се поново укључити у близини сачуваних мрежа високог квалитета, као што је кућна мрежа"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Није доступно јер је локација искључена. Укључите "<annotation id="link">"локацију"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Недоступно је јер је искључено Wi‑Fi скенирање"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Да бисте користили функцију, изаберите добављача оцене мреже"</string>
@@ -868,8 +871,7 @@
     <string name="wifi_ssid" msgid="6746270925975522641">"Име мреже"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Унесите SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Безбедност"</string>
-    <!-- no translation found for wifi_hidden_network (6647772204699776833) -->
-    <skip />
+    <string name="wifi_hidden_network" msgid="6647772204699776833">"Скривена мрежа"</string>
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Ако рутер не емитује ИД мреже, али желите да га повежете на мрежу у будућности, можете да подесите мрежу тако да буде сакривена.\n\nТо може да доведе до безбедносног ризика јер телефон редовно емитује сигнал да би пронашао мрежу.\n\nПодешавање мреже тако да буде сакривена не мења подешавања рутера."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Јачина сигнала"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Статус"</string>
@@ -977,7 +979,11 @@
     <string name="wifi_cancel" msgid="7618417075930426635">"Откажи"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"Желите ли да уређај заборави мрежу?"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"Све лозинке за ову мрежу ће бити избрисане"</string>
-    <!-- no translation found for wifi_saved_access_points_summary (6199295921035663421) -->
+    <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
+      <item quantity="one">%d мрежа</item>
+      <item quantity="few">%d мреже</item>
+      <item quantity="other">%d мрежа</item>
+    </plurals>
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"Напредна Wi-Fi подешавања"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC адреса"</string>
@@ -1252,13 +1258,16 @@
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"Пронађено је више SIM картица"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"Изаберите жељену SIM картицу за мобилне податке."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"Користити <xliff:g id="CARRIER">%1$s</xliff:g> за моб. податке?"</string>
-    <!-- no translation found for sim_change_data_message (51004703157782900) -->
-    <skip />
+    <string name="sim_change_data_message" msgid="51004703157782900">"Користите <xliff:g id="CARRIER2_0">%2$s</xliff:g> за мобилне податке. Ако пређете на <xliff:g id="CARRIER1">%1$s</xliff:g>, <xliff:g id="CARRIER2_1">%2$s</xliff:g> се више неће користити за мобилне податке."</string>
     <string name="sim_change_data_ok" msgid="7491552537317573235">"Користи <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"Ажурирати жељени SIM?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> је једина SIM картица у уређају. Желите ли да користите ову SIM картицу за мобилне податке, позиве и SMS поруке?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Нетачан SIM PIN кôд. Сада морате да контактирате мобилног оператера да бисте откључали уређај."</string>
-    <!-- no translation found for wrong_pin_code (2934318793525717627) -->
+    <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
+      <item quantity="one">Нетачан SIM PIN кôд. Имате још <xliff:g id="NUMBER_1">%d</xliff:g> покушај.</item>
+      <item quantity="few">Нетачан SIM PIN кôд. Имате још <xliff:g id="NUMBER_1">%d</xliff:g> покушаја.</item>
+      <item quantity="other">Нетачан SIM PIN кôд. Имате још <xliff:g id="NUMBER_1">%d</xliff:g> покушаја.</item>
+    </plurals>
     <string name="pin_failed" msgid="4877356137480446727">"Радња са SIM PIN кодом није успела!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Ажурирања система"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
@@ -2020,7 +2029,7 @@
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Велики показивач миша"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Уклони анимације"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Моно звук"</string>
-    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Комбинујте канале када пуштате аудио садржај"</string>
+    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Комбинуј канале при пуштању аудио садржаја"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"Баланс звука"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"Лево"</string>
     <string name="accessibility_toggle_master_balance_right_label" msgid="7757024572140589558">"Десно"</string>
@@ -2060,7 +2069,11 @@
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Ова услуга није исправна."</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"Прикажи у Брзим подешавањима"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"Режим исправљања"</string>
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_extremely_short_delay (3810676455925024813) -->
+    <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
+      <item quantity="one">Изузетно кратак период (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
+      <item quantity="few">Изузетно кратак период (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
+      <item quantity="other">Изузетно кратак период (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
+    </plurals>
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_short_delay (8720846747098057703) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_short_delay (4311889107742293108) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_long_delay (285663535113656440) -->
@@ -2214,7 +2227,11 @@
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Уређај сте користили дуже него обично. Батерија може да се испразни раније од очекиваног.\n\nНајвише коришћене апликације од потпуног пуњења:"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"Укључује активности у позадини са великом потрошњом"</string>
     <!-- no translation found for battery_tip_restrict_title (7140926804142734420) -->
-    <!-- no translation found for battery_tip_restrict_handled_title (5509363095891806748) -->
+    <plurals name="battery_tip_restrict_handled_title" formatted="false" msgid="5509363095891806748">
+      <item quantity="one">%2$d апликација је недавно ограничена</item>
+      <item quantity="few">%2$d апликације су недавно ограничене</item>
+      <item quantity="other">%2$d апликација је недавно ограничено</item>
+    </plurals>
     <!-- no translation found for battery_tip_restrict_summary (984148373944071669) -->
     <!-- no translation found for battery_tip_restrict_handled_summary (469696766640020557) -->
     <!-- no translation found for battery_tip_restrict_app_dialog_title (3042021435866172168) -->
@@ -2710,8 +2727,7 @@
     <string name="trusted_credentials_user_tab" msgid="4368592735325224612">"Корисник"</string>
     <string name="trusted_credentials_disable_label" msgid="2495224975071022858">"Онемогући"</string>
     <string name="trusted_credentials_enable_label" msgid="8991649977058280799">"Омогући"</string>
-    <!-- no translation found for trusted_credentials_remove_label (530728557358501000) -->
-    <skip />
+    <string name="trusted_credentials_remove_label" msgid="530728557358501000">"Уклони"</string>
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"Имај поверења"</string>
     <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"Желите ли да омогућите системски CA сертификат?"</string>
     <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"Желите ли да онемогућите системски CA сертификат?"</string>
@@ -2735,7 +2751,11 @@
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"Мрежа се можда надгледа"</string>
     <string name="done_button" msgid="7652373284597307008">"Готово"</string>
     <!-- no translation found for ssl_ca_cert_dialog_title (7323708984446517980) -->
-    <!-- no translation found for ssl_ca_cert_info_message_device_owner (9046046586061880100) -->
+    <plurals name="ssl_ca_cert_info_message_device_owner" formatted="false" msgid="9046046586061880100">
+      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> је инсталирао ауторитете за издавање сертификата на уређају, што може да му омогући да прати активности уређаја на мрежи, укључујући имејлове, апликације и безбедне веб-сајтове.\n\nКонтактирајте администратора да бисте добили више информација о овим сертификатима.</item>
+      <item quantity="few"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> су инсталирала ауторитете за издавање сертификата на уређају, што може да им омогући да прате активности уређаја на мрежи, укључујући имејлове, апликације и безбедне веб-сајтове.\n\nКонтактирајте администратора да бисте добили више информација о овим сертификатима.</item>
+      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> су инсталирала ауторитете за издавање сертификата на уређају, што може да им омогући да прате активности уређаја на мрежи, укључујући имејлове, апликације и безбедне веб-сајтове.\n\nКонтактирајте администратора да бисте добили више информација о овим сертификатима.</item>
+    </plurals>
     <!-- no translation found for ssl_ca_cert_info_message (8271858091418779584) -->
     <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"Трећа страна може да прати вашу активност на мрежи, укључујући е-пошту, апликације и безбедне веб-сајтове.\n\nТо омогућава поуздани акредитив који је инсталиран на уређају."</string>
     <!-- no translation found for ssl_ca_cert_settings_button (3227175122066058245) -->
@@ -3132,7 +3152,11 @@
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Укључено"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Питај сваки пут (ако се не укључује аутоматски)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Док не искључите (ако се не укључује аутоматски)"</string>
-    <!-- no translation found for zen_mode_duration_summary_time_hours (8872000022033647725) -->
+    <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
+      <item quantity="one"><xliff:g id="NUM_HOURS">%d</xliff:g> сат (ако се не укључује аутоматски)</item>
+      <item quantity="few"><xliff:g id="NUM_HOURS">%d</xliff:g> сата (ако се не укључује аутоматски)</item>
+      <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> сати (ако се не укључује аутоматски)</item>
+    </plurals>
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> мин (ако се не укључује аутоматски)"</string>
     <!-- no translation found for zen_mode_sound_summary_summary_off_info (8527428833487709278) -->
     <string name="zen_category_behavior" msgid="7695750848671443532">"Искључи звук уређаја али дозволи изузетке"</string>
@@ -3469,7 +3493,11 @@
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"%d. ниво"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
-    <!-- no translation found for notifications_categories_off (7173464913755425293) -->
+    <plurals name="notifications_categories_off" formatted="false" msgid="7173464913755425293">
+      <item quantity="one">Искључена је <xliff:g id="COUNT_1">%d</xliff:g> категорија</item>
+      <item quantity="few">Искључене су <xliff:g id="COUNT_1">%d</xliff:g> категорије</item>
+      <item quantity="other">Искључено је <xliff:g id="COUNT_1">%d</xliff:g> категорија</item>
+    </plurals>
     <!-- no translation found for permissions_summary (2750853128045095961) -->
     <!-- no translation found for runtime_permissions_summary (3166036683687471356) -->
     <!-- no translation found for runtime_permissions_additional_count (2068102378805218668) -->
@@ -3539,7 +3567,11 @@
     <string name="additional_battery_info" msgid="6877663897819271203">"Обавештења о коришћењу"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"Прикажи коришћење батерије"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"Прикажи коришћење апликација"</string>
-    <!-- no translation found for power_high_usage_summary (4658343710126205199) -->
+    <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
+      <item quantity="one"><xliff:g id="NUMBER">%2$d</xliff:g> апликација се понаша на неуобичајен начин</item>
+      <item quantity="few"><xliff:g id="NUMBER">%2$d</xliff:g> апликације се понашају на неуобичајен начин</item>
+      <item quantity="other"><xliff:g id="NUMBER">%2$d</xliff:g> апликација се понаша на неуобичајен начин</item>
+    </plurals>
     <!-- no translation found for power_high_usage_title (63134064262760835) -->
     <string name="high_power_filter_on" msgid="5294209328473386403">"Без оптимизације"</string>
     <string name="high_power_on" msgid="3573501822510580334">"Без оптимизације"</string>
@@ -3614,7 +3646,11 @@
     <string name="average_used" msgid="3022736210190754669">"Просек коришћења (%)"</string>
     <string name="free_memory" msgid="4758919141048544927">"Слободно"</string>
     <string name="memory_usage_apps" msgid="2839241373381152354">"Меморија коју користе апликације"</string>
-    <!-- no translation found for memory_usage_apps_summary (1235024908546944704) -->
+    <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
+      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> апликација је користила меморију у претходном периоду од <xliff:g id="DURATION_1">%2$s</xliff:g></item>
+      <item quantity="few"><xliff:g id="COUNT">%1$d</xliff:g> апликације су користиле меморију у претходном периоду од <xliff:g id="DURATION_1">%2$s</xliff:g></item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> апликација је користило меморију у претходном периоду од <xliff:g id="DURATION_1">%2$s</xliff:g></item>
+    </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"Учесталост"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Максимум коришћења"</string>
     <string name="no_data_usage" msgid="903383745620135746">"Не користе се никакви подаци"</string>
@@ -3684,8 +3720,7 @@
     <string name="data_usage_summary_format" msgid="7788095271598602797">"Искоришћено је <xliff:g id="AMOUNT">%1$s</xliff:g> података"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"<xliff:g id="AMOUNT">^1</xliff:g> потрошено на Wi‑Fi мреже"</string>
     <!-- no translation found for notification_summary (761061343339229103) -->
-    <!-- no translation found for notification_summary_none (5003043219430054784) -->
-    <skip />
+    <string name="notification_summary_none" msgid="5003043219430054784">"Укључено за све апликације"</string>
     <string name="apps_summary" msgid="8355759446490212195">"Инсталираних апликација: <xliff:g id="COUNT">%1$d</xliff:g>"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"Инсталиране су 24 апликације"</string>
     <string name="storage_summary" msgid="4835916510511133784">"У употреби <xliff:g id="PERCENTAGE">%1$s</xliff:g> – <xliff:g id="FREE_SPACE">%2$s</xliff:g> слободно"</string>
@@ -3784,7 +3819,11 @@
     <string name="data_usage_template" msgid="6848274347956096882">"Искористили сте <xliff:g id="ID_1">%1$s</xliff:g> у периоду <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="configure" msgid="8232696842838580549">"Конфигуришите"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Друге апликације које су трошиле податке"</string>
-    <!-- no translation found for data_saver_unrestricted_summary (6046013861315713697) -->
+    <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
+      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> апликација има дозволу да користи неограничену количину података када је Уштеда података укључена</item>
+      <item quantity="few"><xliff:g id="COUNT">%1$d</xliff:g> апликације имају дозволу да користе неограничену количину података када је Уштеда података укључена</item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> апликација има дозволу да користи неограничену количину података када је Уштеда података укључена</item>
+    </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"Примарни подаци"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Wi‑Fi подаци"</string>
     <string name="data_used" msgid="1063553292806661784">"Потрошили сте <xliff:g id="ID_1">^1</xliff:g>"</string>
@@ -3901,7 +3940,11 @@
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"Организација не дозвољава личним апликацијама да приступају радном календару"</string>
     <!-- no translation found for hours (135936773984899873) -->
     <!-- no translation found for minutes (4624073557955858160) -->
-    <!-- no translation found for seconds (6942674168513274363) -->
+    <plurals name="seconds" formatted="false" msgid="6942674168513274363">
+      <item quantity="one"><xliff:g id="NUMBER">%s</xliff:g> секунда</item>
+      <item quantity="few"><xliff:g id="NUMBER">%s</xliff:g> секунде</item>
+      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> секунди</item>
+    </plurals>
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"Управљај меморијским простором"</string>
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Да би ослободио меморијски простор, менаџер меморијског простора уклања резервне копије слика и видео снимака са уређаја."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Уклоните слике и видео"</string>
@@ -3914,8 +3957,7 @@
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Брзи покрети за контролу телефона"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Брзи покрети за контролу таблета"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Брзи покрети за контролу уређаја"</string>
-    <!-- no translation found for double_tap_power_for_camera_title (5480829329052517484) -->
-    <skip />
+    <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Прелазак на камеру"</string>
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Да бисте брзо отворили камеру, двапут притисните дугме за напајање. Ово функционише на сваком екрану."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Брзо отворите камеру"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Окретање камере"</string>
@@ -4169,8 +4211,7 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Користи податке преко мобилне мреже"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Телефон ће аутоматски прећи на овог оператера када буде у домету"</string>
     <string name="calls_preference" msgid="2076353032705811243">"Подешавање позива"</string>
-    <!-- no translation found for sms_preference (8449270011976880) -->
-    <skip />
+    <string name="sms_preference" msgid="8449270011976880">"Жељена подешавања за SMS"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Питај сваки пут"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Додајте мрежу"</string>
     <!-- no translation found for mobile_network_summary_count (6222822873390636020) -->
@@ -4253,8 +4294,7 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Желите ли да уклоните овај предлог?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Предлог је уклоњен"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Опозови"</string>
-    <!-- no translation found for low_storage_summary (4562224870189133400) -->
-    <skip />
+    <string name="low_storage_summary" msgid="4562224870189133400">"Преостало је мало слободног меморијског простора. <xliff:g id="PERCENTAGE">%1$s</xliff:g> је искоришћено – <xliff:g id="FREE_SPACE">%2$s</xliff:g> је слободно"</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Пошаљите повратне информације"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Желите ли да нам пошаљете повратне информације за овај предлог?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"Копирано је у привремену меморију: <xliff:g id="COPY_CONTENT">%1$s</xliff:g>"</string>
@@ -4267,7 +4307,11 @@
     <!-- no translation found for accessibility_usage_summary (2604152087205501644) -->
     <string name="manage_app_notification" msgid="9072118910762792295">"Управљајте обавештењима апликације <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="no_suggested_app" msgid="509257628685025383">"Нема предложене апликације"</string>
-    <!-- no translation found for notification_few_channel_count_summary (5165639207390218085) -->
+    <plurals name="notification_few_channel_count_summary" formatted="false" msgid="5165639207390218085">
+      <item quantity="one"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> канал за обавештења.</item>
+      <item quantity="few"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> канала за обавештења.</item>
+      <item quantity="other"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> канала за обавештења.</item>
+    </plurals>
     <string name="notification_many_channel_count_summary" msgid="9205641731142529086">"<xliff:g id="NOTIFICATION_CHANNEL_COUNT">%1$d</xliff:g> канал за обавештења. Додирните да бисте управљали свим."</string>
     <string name="recently_installed_app" msgid="6491959945747808096">"Недавно сте инсталирали ову апликацију."</string>
     <string name="media_output_panel_title" msgid="8429272102437211530">"Промените излаз"</string>

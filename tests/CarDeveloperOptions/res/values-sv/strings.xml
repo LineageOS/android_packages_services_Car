@@ -424,7 +424,10 @@
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Använd avtryck för"</string>
     <string name="fingerprint_add_title" msgid="6840343900784463856">"Lägg till fingeravtryck"</string>
     <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"skärmlås"</string>
-    <!-- no translation found for security_settings_fingerprint_preference_summary (2033416761172877041) -->
+    <plurals name="security_settings_fingerprint_preference_summary" formatted="false" msgid="2033416761172877041">
+      <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> fingeravtryck har konfigurerats</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%1$d</xliff:g> fingeravtryck har konfigurerats</item>
+    </plurals>
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"Lås upp med fingeravtryck"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"Använda ditt fingeravtryck"</string>
@@ -465,16 +468,14 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Gör det senare"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Hoppa över fingeravtryckskonfigurering?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Du har valt att låsa upp mobilen med hjälp av ditt fingeravtryck. Om du hoppar över konfigureringen nu måste du slutföra den senare. Konfigureringen tar bara en minut eller två."</string>
-    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (1384438077720821127) -->
-    <skip />
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Skydda surfplattan med ett skärmlåsalternativ så att den inte går att använda om den tappas bort eller blir stulen. Du måste även använda ett skärmlåsalternativ om du vill konfigurera fingeravtryck. Tryck på Avbryt och ställ sedan in en pinkod eller ett annat skärmlåsalternativ."</string>
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7207112623501771824) -->
     <skip />
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7623975730623531606) -->
     <skip />
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (2998863111689476550) -->
     <skip />
-    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (6780557259734235952) -->
-    <skip />
+    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Skydda enheten med ett skärmlåsalternativ så att den inte går att använda om den tappas bort eller blir stulen. Du måste även använda ett skärmlåsalternativ om du vill konfigurera ansiktsautentisering. Tryck på Avbryt och ställ sedan in en pinkod eller ett annat skärmlåsalternativ."</string>
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (8541640018478926775) -->
     <skip />
     <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
@@ -650,7 +651,10 @@
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"För många felaktiga försök. Den här användaren raderas."</string>
     <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"För många felaktiga försök. Den här jobbprofilen och dess data raderas."</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"Ignorera"</string>
-    <!-- no translation found for lockpassword_password_too_short (694091983183310827) -->
+    <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
+      <item quantity="other">Måste innehåll minst <xliff:g id="COUNT_1">%d</xliff:g> tecken</item>
+      <item quantity="one">Måste innehåll minst <xliff:g id="COUNT_0">%d</xliff:g> tecken</item>
+    </plurals>
     <!-- no translation found for lockpassword_pin_too_short (6805936168283187298) -->
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"Fortsätt"</string>
     <!-- no translation found for lockpassword_password_too_long (7994068708438608179) -->
@@ -728,13 +732,11 @@
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Avancerad Bluetooth"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"När Bluetooth har aktiverats kan enheten kommunicera med andra Bluetooth-enheter i närheten."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"När Bluetooth är aktiverat kan enheten kommunicera med andra Bluetooth-enheter i närheten.\n\nÄven när Bluetooth är inaktiverat kan appar och tjänster när som helst söka efter enheter i närheten för att förbättra användningen av enheten. Funktionen kan till exempel användas till att förbättra platsbaserade funktioner och tjänster. Du kan ändra inställningen i "<annotation id="link">"genomsökningsinställningarna"</annotation>"."</string>
-    <!-- no translation found for ble_scan_notify_text (6290170236546386932) -->
-    <skip />
+    <string name="ble_scan_notify_text" msgid="6290170236546386932">"För att förbättra platsangivelserna kan systemtjänster och -appar fortfarande upptäcka Bluetooth-enheter. Du kan ändra detta i <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>sökinställningarna<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Det gick inte att ansluta. Försök igen."</string>
     <string name="device_details_title" msgid="726517818032923222">"Enhetsinformation"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Enhetens Bluetooth-adress: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <!-- no translation found for bluetooth_unpair_dialog_title (3669848977755142047) -->
-    <skip />
+    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Vill du glömma enheten?"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Mobilen kopplas bort från <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Surfplattan kopplas bort från <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Enheten kopplas bort från <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
@@ -812,8 +814,7 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Avisering om öppet nätverk"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Meddela om tillgängliga offentliga nätverk av hög kvalitet"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Aktivera Wi‑Fi automatiskt"</string>
-    <!-- no translation found for wifi_wakeup_summary (1152699417411690) -->
-    <skip />
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi aktiveras i närheten av sparade nätverk av hög kvalitet, till exempel ditt hemnätverk"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Ej tillgängligt eftersom platsåtkomst har inaktiverats. Aktivera "<annotation id="link">"plats"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Detta är inte tillgängligt eftersom Wi‑Fi-sökning har inaktiverats"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Du måste välja en leverantör av nätverksbetyg om du vill använda nätverket"</string>
@@ -868,8 +869,7 @@
     <string name="wifi_ssid" msgid="6746270925975522641">"Nätverksnamn"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Ange SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Säkerhet"</string>
-    <!-- no translation found for wifi_hidden_network (6647772204699776833) -->
-    <skip />
+    <string name="wifi_hidden_network" msgid="6647772204699776833">"Dolt nätverk"</string>
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Om routern inte sänder ut ett nätverks-id men du vill ansluta till nätverket i framtiden kan du ange att nätverket ska vara dolt.\n\nDetta kan innebära en säkerhetsrisk eftersom mobilen regelbundet sänder ut en signal för att hitta nätverket.\n\nRouterinställningarna ändras inte om du anger att nätverket ska vara dolt."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Signalstyrka"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Status"</string>
@@ -977,7 +977,10 @@
     <string name="wifi_cancel" msgid="7618417075930426635">"Avbryt"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"Ska nätverket glömmas?"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"Alla lösenord för nätverket tas bort"</string>
-    <!-- no translation found for wifi_saved_access_points_summary (6199295921035663421) -->
+    <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
+      <item quantity="other">%d nätverk</item>
+      <item quantity="one">1 nätverk</item>
+    </plurals>
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"Avancerat för Wi-Fi"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC-adress"</string>
@@ -1252,13 +1255,15 @@
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"Flera SIM-kort har hittats"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"Välj vilket SIM-kort du vill använda för mobildatan."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"Ska mobildata från <xliff:g id="CARRIER">%1$s</xliff:g> användas?"</string>
-    <!-- no translation found for sim_change_data_message (51004703157782900) -->
-    <skip />
+    <string name="sim_change_data_message" msgid="51004703157782900">"Du använder mobildata från <xliff:g id="CARRIER2_0">%2$s</xliff:g>. Om du byter till <xliff:g id="CARRIER1">%1$s</xliff:g> används inte längre mobildata från <xliff:g id="CARRIER2_1">%2$s</xliff:g>."</string>
     <string name="sim_change_data_ok" msgid="7491552537317573235">"Använd <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"Uppdatera primärt SIM-kort?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> är det enda SIM-kortet i enheten. Vill du använda det här SIM-kortet för mobildata, samtal och SMS?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Du angav fel pinkod för SIM-kortet och måste nu kontakta operatören för att låsa upp enheten."</string>
-    <!-- no translation found for wrong_pin_code (2934318793525717627) -->
+    <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
+      <item quantity="other">Du angav fel pinkod för SIM-kortet. <xliff:g id="NUMBER_1">%d</xliff:g> försök återstår.</item>
+      <item quantity="one">Du angav fel pinkod för SIM-kortet. <xliff:g id="NUMBER_0">%d</xliff:g> försök återstår innan du måste kontakta operatören för att låsa upp enheten.</item>
+    </plurals>
     <string name="pin_failed" msgid="4877356137480446727">"Det gick inte att låsa upp med pinkoden för SIM-kortet."</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Systemuppdateringar"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
@@ -2060,7 +2065,10 @@
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Tjänsten fungerar inte."</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"Visa i Snabbinställningar"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"Korrigeringsläge"</string>
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_extremely_short_delay (3810676455925024813) -->
+    <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
+      <item quantity="other">Extremt kort fördröjning (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
+      <item quantity="one">Extremt kort fördröjning (<xliff:g id="CLICK_DELAY_LABEL_0">%1$d</xliff:g> ms)</item>
+    </plurals>
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_short_delay (8720846747098057703) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_short_delay (4311889107742293108) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_long_delay (285663535113656440) -->
@@ -2214,7 +2222,10 @@
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Enheten har använts mer än vanligt. Batteriet kan ta slut snabbare än beräknat.\n\nDe mest använda apparna sedan den senaste laddningen:"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"Inkluderar batterikrävande aktivitet i bakgrunden"</string>
     <!-- no translation found for battery_tip_restrict_title (7140926804142734420) -->
-    <!-- no translation found for battery_tip_restrict_handled_title (5509363095891806748) -->
+    <plurals name="battery_tip_restrict_handled_title" formatted="false" msgid="5509363095891806748">
+      <item quantity="other">%2$d appar har nyligen begränsats</item>
+      <item quantity="one">%1$s har nyligen begränsats</item>
+    </plurals>
     <!-- no translation found for battery_tip_restrict_summary (984148373944071669) -->
     <!-- no translation found for battery_tip_restrict_handled_summary (469696766640020557) -->
     <!-- no translation found for battery_tip_restrict_app_dialog_title (3042021435866172168) -->
@@ -2710,8 +2721,7 @@
     <string name="trusted_credentials_user_tab" msgid="4368592735325224612">"Användare"</string>
     <string name="trusted_credentials_disable_label" msgid="2495224975071022858">"Inaktivera"</string>
     <string name="trusted_credentials_enable_label" msgid="8991649977058280799">"Aktivera"</string>
-    <!-- no translation found for trusted_credentials_remove_label (530728557358501000) -->
-    <skip />
+    <string name="trusted_credentials_remove_label" msgid="530728557358501000">"Ta bort"</string>
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"Ange som betrott"</string>
     <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"Vill du att systemets CA-certifikat ska aktiveras?"</string>
     <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"Vill du att systemets CA-certifikat ska inaktiveras?"</string>
@@ -2735,7 +2745,10 @@
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"Nätverket kan vara övervakat"</string>
     <string name="done_button" msgid="7652373284597307008">"Klart"</string>
     <!-- no translation found for ssl_ca_cert_dialog_title (7323708984446517980) -->
-    <!-- no translation found for ssl_ca_cert_info_message_device_owner (9046046586061880100) -->
+    <plurals name="ssl_ca_cert_info_message_device_owner" formatted="false" msgid="9046046586061880100">
+      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> har installerat certifikatutfärdare för enheten. Detta innebär att nätverksaktivitet på enheten, som e-postmeddelanden, appar och säkra webbplatser, kan kontrolleras.\n\nKontakta administratören om du vill veta mer om certifikaten.</item>
+      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> har installerat en certifikatutfärdare för enheten. Detta innebär att nätverksaktivitet på enheten, som e-postmeddelanden, appar och säkra webbplatser, kan kontrolleras.\n\nKontakta administratören om du vill veta mer om certifikatet.</item>
+    </plurals>
     <!-- no translation found for ssl_ca_cert_info_message (8271858091418779584) -->
     <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"Din nätverksaktivitet, inklusive e-post, appar och säkra webbplatser, kan övervakas av tredje part.\n\nDetta är möjligt eftersom betrodda autentiseringsuppgifter har installerats på enheten."</string>
     <!-- no translation found for ssl_ca_cert_settings_button (3227175122066058245) -->
@@ -3132,7 +3145,10 @@
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"På"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Fråga varje gång (om det inte aktiveras automatiskt)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Tills du inaktiverar det (om det inte aktiveras automatiskt)"</string>
-    <!-- no translation found for zen_mode_duration_summary_time_hours (8872000022033647725) -->
+    <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
+      <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> timmar (om det inte aktiveras automatiskt)</item>
+      <item quantity="one">1 timme (om det inte aktiveras automatiskt)</item>
+    </plurals>
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> minuter (om det inte aktiveras automatiskt)"</string>
     <!-- no translation found for zen_mode_sound_summary_summary_off_info (8527428833487709278) -->
     <string name="zen_category_behavior" msgid="7695750848671443532">"Stäng av ljudet men tillåt undantag"</string>
@@ -3469,7 +3485,10 @@
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"Nivå %d"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
-    <!-- no translation found for notifications_categories_off (7173464913755425293) -->
+    <plurals name="notifications_categories_off" formatted="false" msgid="7173464913755425293">
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> kategorier har inaktiverats</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> kategori har inaktiverats</item>
+    </plurals>
     <!-- no translation found for permissions_summary (2750853128045095961) -->
     <!-- no translation found for runtime_permissions_summary (3166036683687471356) -->
     <!-- no translation found for runtime_permissions_additional_count (2068102378805218668) -->
@@ -3539,7 +3558,10 @@
     <string name="additional_battery_info" msgid="6877663897819271203">"Aviseringar om användning"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"Visa enhetsanvändning"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"Visa appanvändning"</string>
-    <!-- no translation found for power_high_usage_summary (4658343710126205199) -->
+    <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
+      <item quantity="other"><xliff:g id="NUMBER">%2$d</xliff:g> appar fungerar inte normalt</item>
+      <item quantity="one"><xliff:g id="APP">%1$s</xliff:g> fungerar inte normalt</item>
+    </plurals>
     <!-- no translation found for power_high_usage_title (63134064262760835) -->
     <string name="high_power_filter_on" msgid="5294209328473386403">"Inte optimerade"</string>
     <string name="high_power_on" msgid="3573501822510580334">"Inte optimerad"</string>
@@ -3614,7 +3636,10 @@
     <string name="average_used" msgid="3022736210190754669">"Genomsnittsanvändning (%)"</string>
     <string name="free_memory" msgid="4758919141048544927">"Ledigt"</string>
     <string name="memory_usage_apps" msgid="2839241373381152354">"Minne som används av appar"</string>
-    <!-- no translation found for memory_usage_apps_summary (1235024908546944704) -->
+    <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> appar har använt minne under <xliff:g id="DURATION_1">%2$s</xliff:g></item>
+      <item quantity="one">1 app har använt minne under <xliff:g id="DURATION_0">%2$s</xliff:g></item>
+    </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"Frekvens"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Maximal användning"</string>
     <string name="no_data_usage" msgid="903383745620135746">"Ingen data används"</string>
@@ -3684,8 +3709,7 @@
     <string name="data_usage_summary_format" msgid="7788095271598602797">"<xliff:g id="AMOUNT">%1$s</xliff:g> data används"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"<xliff:g id="AMOUNT">^1</xliff:g> används via Wi‑Fi"</string>
     <!-- no translation found for notification_summary (761061343339229103) -->
-    <!-- no translation found for notification_summary_none (5003043219430054784) -->
-    <skip />
+    <string name="notification_summary_none" msgid="5003043219430054784">"Aktiverat för alla appar"</string>
     <string name="apps_summary" msgid="8355759446490212195">"<xliff:g id="COUNT">%1$d</xliff:g> appar har installerats"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"24 appar har installerats"</string>
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> används – <xliff:g id="FREE_SPACE">%2$s</xliff:g> ledigt"</string>
@@ -3784,7 +3808,10 @@
     <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> användes <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="configure" msgid="8232696842838580549">"Konfigurera"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Andra appar som är inkluderade i användningen"</string>
-    <!-- no translation found for data_saver_unrestricted_summary (6046013861315713697) -->
+    <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> appar har obegränsad dataåtkomst när Databesparing är aktiverat</item>
+      <item quantity="one">1 app har obegränsad dataåtkomst när Databesparing är aktiverat</item>
+    </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"Primär data"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Wi‑Fi-data"</string>
     <string name="data_used" msgid="1063553292806661784">"<xliff:g id="ID_1">^1</xliff:g> har använts"</string>
@@ -3901,7 +3928,10 @@
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"Organisationen tillåter inte åtkomst till jobbkalendern via personliga appar"</string>
     <!-- no translation found for hours (135936773984899873) -->
     <!-- no translation found for minutes (4624073557955858160) -->
-    <!-- no translation found for seconds (6942674168513274363) -->
+    <plurals name="seconds" formatted="false" msgid="6942674168513274363">
+      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> sekunder</item>
+      <item quantity="one">1 sekund</item>
+    </plurals>
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"Hantera lagring"</string>
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Lagringshanteraren tar bort säkerhetskopior av foton och videor från enheten för att frigöra lagringsutrymme."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Ta bort foton och videor"</string>
@@ -3914,8 +3944,7 @@
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Styr mobilen med snabba rörelser"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Styr surfplattan med snabba rörelser"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Styr enheten med snabba rörelser"</string>
-    <!-- no translation found for double_tap_power_for_camera_title (5480829329052517484) -->
-    <skip />
+    <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Hoppa till kameran"</string>
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Tryck två gånger på strömbrytaren för att snabbt öppna kameran. Du kan göra det på alla skärmar."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Öppna kameran snabbt"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Vänd kameran"</string>
@@ -4169,8 +4198,7 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Få åtkomst till data via mobilt nätverk"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Mobilen byter automatiskt till den här operatören när den är inom räckvidd"</string>
     <string name="calls_preference" msgid="2076353032705811243">"Angiven för samtal"</string>
-    <!-- no translation found for sms_preference (8449270011976880) -->
-    <skip />
+    <string name="sms_preference" msgid="8449270011976880">"Angiven för sms"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Fråga varje gång"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Lägg till ett nätverk"</string>
     <!-- no translation found for mobile_network_summary_count (6222822873390636020) -->
@@ -4253,8 +4281,7 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Ska förslaget tas bort?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Förslaget har tagits bort"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Ångra"</string>
-    <!-- no translation found for low_storage_summary (4562224870189133400) -->
-    <skip />
+    <string name="low_storage_summary" msgid="4562224870189133400">"Ont om lagringsutrymme. <xliff:g id="PERCENTAGE">%1$s</xliff:g> används, <xliff:g id="FREE_SPACE">%2$s</xliff:g> ledigt"</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Skicka feedback"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Vill du ge oss feedback på det här förslaget?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g> har kopierats till urklipp."</string>
@@ -4267,7 +4294,10 @@
     <!-- no translation found for accessibility_usage_summary (2604152087205501644) -->
     <string name="manage_app_notification" msgid="9072118910762792295">"Hantera aviseringar från <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="no_suggested_app" msgid="509257628685025383">"Inga föreslagna appar"</string>
-    <!-- no translation found for notification_few_channel_count_summary (5165639207390218085) -->
+    <plurals name="notification_few_channel_count_summary" formatted="false" msgid="5165639207390218085">
+      <item quantity="other"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> aviseringskanaler.</item>
+      <item quantity="one"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_0">%1$d</xliff:g> aviseringskanal.</item>
+    </plurals>
     <string name="notification_many_channel_count_summary" msgid="9205641731142529086">"<xliff:g id="NOTIFICATION_CHANNEL_COUNT">%1$d</xliff:g> aviseringskanaler. Tryck för att hantera alla."</string>
     <string name="recently_installed_app" msgid="6491959945747808096">"Du installerade nyligen den här appen."</string>
     <string name="media_output_panel_title" msgid="8429272102437211530">"Utdata som styrs med reglaget"</string>
