@@ -230,8 +230,9 @@ public class SystemActivityMonitoringServiceTest {
                         + topTask.topActivity.getClassName());
                 return;
             }
-            if (!topTask.topActivity.equals(mDesiredComponent)) {
-                Log.d(TAG, "Unexpected component: " + topTask.topActivity.getClassName());
+            if (mDesiredComponent != null && !topTask.topActivity.equals(mDesiredComponent)) {
+                Log.d(TAG, String.format("Unexpected component: %s. Expected: %s",
+                        topTask.topActivity.getClassName(), mDesiredComponent));
                 return;
             }
 
