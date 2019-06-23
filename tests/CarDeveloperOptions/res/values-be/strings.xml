@@ -424,12 +424,7 @@
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Выкарыст. адбітак для"</string>
     <string name="fingerprint_add_title" msgid="6840343900784463856">"Дадаць адбітак пальца"</string>
     <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"блакіроўка экрана"</string>
-    <plurals name="security_settings_fingerprint_preference_summary" formatted="false" msgid="2033416761172877041">
-      <item quantity="one"><xliff:g id="COUNT_1">%1$d</xliff:g> адбітак пальца наладжаны</item>
-      <item quantity="few"><xliff:g id="COUNT_1">%1$d</xliff:g> адбіткі пальца наладжаныя</item>
-      <item quantity="many"><xliff:g id="COUNT_1">%1$d</xliff:g> адбіткаў пальца наладжана</item>
-      <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> адбітка пальца наладжана</item>
-    </plurals>
+    <!-- no translation found for security_settings_fingerprint_preference_summary (2033416761172877041) -->
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"Разблакірав. адбіткам пальца"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"Выкарыстоўв. адбітак пальца"</string>
@@ -470,14 +465,16 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Пазней"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Прапусціць усталёўку адбітка пальца?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Вы вырашылі выкарыстоўваць свой адбітак пальца як адзін са спосабоў разблакіроўкі тэлефона. Калі вы прапусціце гэты крок зараз, вам трэба будзе ўсталяваць гэты спосаб пазней. Усталёўка займае ўсяго каля хвіліны."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Абараніце планшэт з дапамогай опцыі блакіроўкі экрана, каб ніхто не змог ім карыстацца ў выпадку прапажы ці крадзяжу. Опцыя блакіроўкі экрана таксама спатрэбіцца вам, каб наладзіць лічбавы адбітак. Націсніце \"Скасаваць\", а потым задайце PIN-код ці выберыце іншую опцыю блакіроўкі экрана."</string>
+    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (1384438077720821127) -->
+    <skip />
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7207112623501771824) -->
     <skip />
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7623975730623531606) -->
     <skip />
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (2998863111689476550) -->
     <skip />
-    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Абараніце прыладу з дапамогай опцыі блакіроўкі экрана, каб ніхто не змог ёю карыстацца ў выпадку прапажы ці крадзяжу. Опцыя блакіроўкі экрана таксама спатрэбіцца вам, каб наладзіць распазнаванне твару. Націсніце \"Скасаваць\", а потым задайце PIN-код ці выберыце іншую опцыю блакіроўкі экрана."</string>
+    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (6780557259734235952) -->
+    <skip />
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (8541640018478926775) -->
     <skip />
     <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
@@ -653,12 +650,7 @@
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"Занадта шмат няўдалых спроб. Гэты карыстальнік будзе выдалены."</string>
     <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"Занадта шмат няўдалых спроб. Гэты рабочы профіль і звязаныя з ім даныя будуць выдалены."</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"Адхіліць"</string>
-    <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
-      <item quantity="one">Пароль павінен змяшчаць не менш за <xliff:g id="COUNT_1">%d</xliff:g> сімвал</item>
-      <item quantity="few">Пароль павінен змяшчаць не менш за <xliff:g id="COUNT_1">%d</xliff:g> сімвалы</item>
-      <item quantity="many">Пароль павінен змяшчаць не менш за <xliff:g id="COUNT_1">%d</xliff:g> сімвалаў</item>
-      <item quantity="other">Пароль павінен змяшчаць не менш за <xliff:g id="COUNT_1">%d</xliff:g> сімвала</item>
-    </plurals>
+    <!-- no translation found for lockpassword_password_too_short (694091983183310827) -->
     <!-- no translation found for lockpassword_pin_too_short (6805936168283187298) -->
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"Працягнуць"</string>
     <!-- no translation found for lockpassword_password_too_long (7994068708438608179) -->
@@ -736,11 +728,13 @@
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Пашыраны Bluetooth"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Калі Bluetooth уключаны, ваша прылада можа звязвацца з іншымі прыладамі з Bluetooth, якія знаходзяцца побач."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Калі Bluetooth уключаны, прылада можа абменьвацца данымі з іншымі прыладамі Bluetooth паблізу.\n\nПраграмы і сэрвісы будуць шукаць прылады паблізу, нават калі Bluetooth выключаны. Гэту функцыю можна выкарыстоўваць для паляпшэння працы прылады, напрыклад, для больш дакладнага вызначэння месцазнаходжання. Вы можаце змяніць гэта ў "<annotation id="link">"наладах сканіравання"</annotation>"."</string>
-    <string name="ble_scan_notify_text" msgid="6290170236546386932">"Для паляпшэння дакладнасці вызначэння месцазнаходжання сістэмныя праграмы і службы могуць знаходзіць прылады Bluetooth. Вы можаце змяніць гэта ў <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>наладах сканіравання<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <!-- no translation found for ble_scan_notify_text (6290170236546386932) -->
+    <skip />
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Не атрымалася ўсталяваць злучэнне. Паўтарыце спробу."</string>
     <string name="device_details_title" msgid="726517818032923222">"Звесткі пра прыладу"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Адрас Bluetooth прылады: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Выдаліць прыладу?"</string>
+    <!-- no translation found for bluetooth_unpair_dialog_title (3669848977755142047) -->
+    <skip />
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Ваш тэлефон больш не будзе злучаны з прыладай <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Ваш планшэт больш не будзе злучаны з прыладай <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Ваша прылада больш не будзе злучана з прыладай <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
@@ -818,7 +812,8 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Апавяшчэнне пра адкрытыя сеткі"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Апавяшчаць, калі даступная высакаякасная сетка агульнага доступу"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Уключаць Wi‑Fi аўтаматычна"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi будзе ўключацца аўтаматычна побач з захаванымі высакаякаснымі сеткамі, напрыклад вашай дамашняй сеткай"</string>
+    <!-- no translation found for wifi_wakeup_summary (1152699417411690) -->
+    <skip />
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Недаступна, таму што выключана вызначэнне месцазнаходжання. Уключыце "<annotation id="link">"Вызначаць месцазнаходжанне"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Недаступна, бо выключаны пошук сетак Wi-Fi"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Для выкарыстання функцыі выберыце пастаўшчыка паслугі ацэнкі сеткі"</string>
@@ -852,7 +847,7 @@
     <string name="wifi_menu_p2p" msgid="4945665601551289791">"Wi‑Fi Direct"</string>
     <string name="wifi_menu_scan" msgid="9082691677803181629">"Сканаваць"</string>
     <string name="wifi_menu_advanced" msgid="5984484498045511072">"Пашыраныя налады"</string>
-    <string name="wifi_menu_configure" msgid="52192491120701266">"Наладзіць"</string>
+    <string name="wifi_menu_configure" msgid="52192491120701266">"Канфігураваць"</string>
     <string name="wifi_menu_connect" msgid="3984327567173931219">"Падключыцца да сеткі"</string>
     <string name="wifi_menu_remember" msgid="717257200269700641">"Запомніць сетку"</string>
     <string name="wifi_menu_forget" msgid="7561140554450163075">"Забыцца пра сетку"</string>
@@ -873,7 +868,8 @@
     <string name="wifi_ssid" msgid="6746270925975522641">"Імя сеткі"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Увядзіце SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Бяспека"</string>
-    <string name="wifi_hidden_network" msgid="6647772204699776833">"Схаваная сетка"</string>
+    <!-- no translation found for wifi_hidden_network (6647772204699776833) -->
+    <skip />
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Калі маршрутызатар не перадае ідэнтыфікатар сеткі, але дапускаецца падключэнне да яе ў будучыні, сетку можна \"схаваць\".\n\nГэта пагражае бяспецы, таму што тэлефон будзе рэгулярна перадаваць сігнал для пошуку сеткі.\n\n\"Схаваная\" сетка не зменіць налады маршрутызатара."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Магутнасць сігналу"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Стан"</string>
@@ -929,7 +925,7 @@
     <string name="wifi_dpp_sharing_wifi_with_this_device" msgid="2540529164687476827">"Wi‑Fi абагульваецца з гэтай прыладай…"</string>
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"Ідзе падключэнне…"</string>
     <string name="wifi_dpp_share_hotspot" msgid="847987212473038179">"Абагульванне хот-спота"</string>
-    <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Пацвердзіце, што гэта вы"</string>
+    <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Спраўдзіце, што гэта вы"</string>
     <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"Пароль Wi-Fi: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Пароль хот-спота: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_add_device" msgid="1347056725253936358">"Дадаць прыладу"</string>
@@ -981,12 +977,7 @@
     <string name="wifi_cancel" msgid="7618417075930426635">"Скасаваць"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"Выдаліць сетку?"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"Усе паролі для гэтай сеткі будуць выдалены"</string>
-    <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
-      <item quantity="one">%d сетка</item>
-      <item quantity="few">%d сеткі</item>
-      <item quantity="many">%d сетак</item>
-      <item quantity="other">%d сеткі</item>
-    </plurals>
+    <!-- no translation found for wifi_saved_access_points_summary (6199295921035663421) -->
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"Пашыраны Wi-Fi"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC-адрас"</string>
@@ -1053,12 +1044,12 @@
     <string name="wifi_calling_settings_title" msgid="626821542308601806">"Wi-Fi-тэлефанія"</string>
     <string name="wifi_calling_suggestion_title" msgid="1402265373543523970">"Выклікі па Wi‑Fi"</string>
     <string name="wifi_calling_suggestion_summary" msgid="198402175473169630">"Званіце па сетцы Wi‑Fi, калі няма сотавай сувязі"</string>
-    <string name="wifi_calling_mode_title" msgid="3350624859819920176">"Параметры выклікаў"</string>
-    <string name="wifi_calling_mode_dialog_title" msgid="652534533091724333">"Параметры выклікаў"</string>
-    <string name="wifi_calling_roaming_mode_title" msgid="2059151080231602753">"Параметры роўмінгу"</string>
+    <string name="wifi_calling_mode_title" msgid="3350624859819920176">"Прыярытэт выклікаў"</string>
+    <string name="wifi_calling_mode_dialog_title" msgid="652534533091724333">"Прыярытэт выклікаў"</string>
+    <string name="wifi_calling_roaming_mode_title" msgid="2059151080231602753">"Налады роўмінгу"</string>
     <!-- no translation found for wifi_calling_roaming_mode_summary (620031651074963360) -->
     <skip />
-    <string name="wifi_calling_roaming_mode_dialog_title" msgid="4018579440109122790">"Параметры роўмінгу"</string>
+    <string name="wifi_calling_roaming_mode_dialog_title" msgid="4018579440109122790">"Налады роўмінгу"</string>
     <!-- no translation found for wifi_calling_mode_choices:0 (7952573372663890448) -->
     <!-- no translation found for wifi_calling_mode_choices:1 (2552412793005571845) -->
     <!-- no translation found for wifi_calling_mode_choices:2 (742811521969300868) -->
@@ -1262,17 +1253,13 @@
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"Знойдзена некалькі SIM-карт"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"Выберыце SIM-карту, якую вы б хацелі выкарыстоўваць для мабільнай перадачы даных."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"Выкарыстоўваць <xliff:g id="CARRIER">%1$s</xliff:g> для трафіка?"</string>
-    <string name="sim_change_data_message" msgid="51004703157782900">"Вы карыстаецеся паслугамі аператара \"<xliff:g id="CARRIER2_0">%2$s</xliff:g>\" для мабільнай перадачы даных. Пры пераключэнні на аператара \"<xliff:g id="CARRIER1">%1$s</xliff:g>\", <xliff:g id="CARRIER2_1">%2$s</xliff:g> больш не будзе выкарыстоўвацца для мабільнай перадачы даных."</string>
+    <!-- no translation found for sim_change_data_message (51004703157782900) -->
+    <skip />
     <string name="sim_change_data_ok" msgid="7491552537317573235">"Выкарыстоўваць аператара <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"Змяніць пажаданую SIM-карту?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> з\'яўляецца адзінай SIM-картай на вашай прыладзе. Вы хочаце выкарыстоўваць гэту SIM-карту для мабільнай перадачы даных, выклікаў і SMS-паведамленняў?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Няправільны PIN-код SIM-карты, цяпер вы павінны звязацца з аператарам для разблакіроўкі прылады."</string>
-    <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
-      <item quantity="one">Няправільны PIN-код SIM-карты, у вас засталася <xliff:g id="NUMBER_1">%d</xliff:g> спроба.</item>
-      <item quantity="few">Няправільны PIN-код SIM-карты, у вас засталося <xliff:g id="NUMBER_1">%d</xliff:g> спробы.</item>
-      <item quantity="many">Няправільны PIN-код SIM-карты, у вас засталося <xliff:g id="NUMBER_1">%d</xliff:g> спроб.</item>
-      <item quantity="other">Няправільны PIN-код SIM-карты, у вас засталося <xliff:g id="NUMBER_1">%d</xliff:g> спробы.</item>
-    </plurals>
+    <!-- no translation found for wrong_pin_code (2934318793525717627) -->
     <string name="pin_failed" msgid="4877356137480446727">"Разблакір. SIM PIN-кодам не атрымалася!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Абнаўленні сiстэмы"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
@@ -2074,12 +2061,7 @@
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Сэрвіс працуе некарэктна."</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"Паказваць у Хуткіх наладах"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"Рэжым карэкцыі"</string>
-    <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
-      <item quantity="one">Надзвычай кароткая затрымка (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> мс)</item>
-      <item quantity="few">Надзвычай кароткая затрымка (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> мс)</item>
-      <item quantity="many">Надзвычай кароткая затрымка (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> мс)</item>
-      <item quantity="other">Надзвычай кароткая затрымка (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> мс)</item>
-    </plurals>
+    <!-- no translation found for accessibilty_autoclick_preference_subtitle_extremely_short_delay (3810676455925024813) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_short_delay (8720846747098057703) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_short_delay (4311889107742293108) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_long_delay (285663535113656440) -->
@@ -2233,12 +2215,7 @@
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Ваша прылада выкарыстоўваецца больш, чым звычайна. Акумулятар хутка разрадзіцца.\n\nПраграмы з высокім спажываннем энергіі (з моманту апошняй зарадкі):"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"Утрымлівае энергазатратныя дзеянні ў фонавым рэжыме"</string>
     <!-- no translation found for battery_tip_restrict_title (7140926804142734420) -->
-    <plurals name="battery_tip_restrict_handled_title" formatted="false" msgid="5509363095891806748">
-      <item quantity="one">Нядаўна вы абмежавалі працу %2$d праграмы</item>
-      <item quantity="few">Нядаўна вы абмежавалі працу %2$d праграм</item>
-      <item quantity="many">Нядаўна вы абмежавалі працу %2$d праграм</item>
-      <item quantity="other">Нядаўна вы абмежавалі працу %2$d праграмы</item>
-    </plurals>
+    <!-- no translation found for battery_tip_restrict_handled_title (5509363095891806748) -->
     <!-- no translation found for battery_tip_restrict_summary (984148373944071669) -->
     <!-- no translation found for battery_tip_restrict_handled_summary (469696766640020557) -->
     <!-- no translation found for battery_tip_restrict_app_dialog_title (3042021435866172168) -->
@@ -2734,7 +2711,8 @@
     <string name="trusted_credentials_user_tab" msgid="4368592735325224612">"Карыстальнік"</string>
     <string name="trusted_credentials_disable_label" msgid="2495224975071022858">"Адключыць"</string>
     <string name="trusted_credentials_enable_label" msgid="8991649977058280799">"Уключыць"</string>
-    <string name="trusted_credentials_remove_label" msgid="530728557358501000">"Выдаліць"</string>
+    <!-- no translation found for trusted_credentials_remove_label (530728557358501000) -->
+    <skip />
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"Давяраць"</string>
     <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"Уключыць сістэмны сертыфікат ЦС?"</string>
     <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"Адключыць сістэмны сертыфікат ЦС?"</string>
@@ -2758,12 +2736,7 @@
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"За сеткай можа назіраць"</string>
     <string name="done_button" msgid="7652373284597307008">"Гатова"</string>
     <!-- no translation found for ssl_ca_cert_dialog_title (7323708984446517980) -->
-    <plurals name="ssl_ca_cert_info_message_device_owner" formatted="false" msgid="9046046586061880100">
-      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> усталяваў цэнтр сертыфікацыі на вашай прыладзе, які можа дазволіць яму кантраляваць сеткавую дзейнасць вашай прылады, у тым ліку электронную пошту, праграмы і бяспечныя вэб-сайты.\n\nДля атрымання дадатковай інфармацыі аб гэтых сертыфікатах звярніцеся да адміністратара.</item>
-      <item quantity="few"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> усталяваў цэнтр сертыфікацыі на вашай прыладзе, які можа дазволіць яму кантраляваць сеткавую дзейнасць вашай прылады, у тым ліку электронную пошту, праграмы і бяспечныя вэб-сайты.\n\nДля атрымання дадатковай інфармацыі аб гэтых сертыфікатах звярніцеся да адміністратара.</item>
-      <item quantity="many"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> усталяваў цэнтр сертыфікацыі на вашай прыладзе, які можа дазволіць яму кантраляваць сеткавую дзейнасць вашай прылады, у тым ліку электронную пошту, праграмы і бяспечныя вэб-сайты.\n\nДля атрымання дадатковай інфармацыі аб гэтых сертыфікатах звярніцеся да адміністратара.</item>
-      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> усталяваў цэнтр сертыфікацыі на вашай прыладзе, які можа дазволіць яму кантраляваць сеткавую дзейнасць вашай прылады, у тым ліку электронную пошту, праграмы і бяспечныя вэб-сайты.\n\nДля атрымання дадатковай інфармацыі аб гэтых сертыфікатах звярніцеся да адміністратара.</item>
-    </plurals>
+    <!-- no translation found for ssl_ca_cert_info_message_device_owner (9046046586061880100) -->
     <!-- no translation found for ssl_ca_cert_info_message (8271858091418779584) -->
     <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"Трэцяя асоба мае магчымасць маніторынгу вашай сеткавай актыўнасці, у тым ліку электроннай пошты, дадаткаў і абароненых вэб-сайтаў.\n\nГэта магчыма з-за даверанага сертыфіката, усталяванага на вашай прыладзе."</string>
     <!-- no translation found for ssl_ca_cert_settings_button (3227175122066058245) -->
@@ -3079,7 +3052,7 @@
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Вібрацыя"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Гукі пры ўключэнні"</string>
     <string name="live_caption_title" msgid="7926591158657997051">"Імгненныя субцітры"</string>
-    <string name="live_caption_summary" msgid="9064771862352393125">"Аўтаматычна дадаваць субцітры"</string>
+    <string name="live_caption_summary" msgid="9064771862352393125">"Мультымедыя \"Аўтаматычныя цітры\""</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Ніколі"</string>
     <!-- no translation found for zen_mode_settings_summary_on (6061723291126091396) -->
     <string name="zen_mode_settings_title" msgid="3425263414594779244">"Не турбаваць"</string>
@@ -3160,12 +3133,7 @@
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Уключана"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Заўсёды пытацца (калі рэжым не быў уключаны аўтаматычна)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Пакуль не будзе выключана (калі рэжым не быў уключаны аўтаматычна)"</string>
-    <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
-      <item quantity="one"><xliff:g id="NUM_HOURS">%d</xliff:g> гадзіна (калі рэжым не быў уключаны аўтаматычна)</item>
-      <item quantity="few"><xliff:g id="NUM_HOURS">%d</xliff:g> гадзіны (калі рэжым не быў уключаны аўтаматычна)</item>
-      <item quantity="many"><xliff:g id="NUM_HOURS">%d</xliff:g> гадзін (калі рэжым не быў уключаны аўтаматычна)</item>
-      <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> гадзіны (калі рэжым не быў уключаны аўтаматычна)</item>
-    </plurals>
+    <!-- no translation found for zen_mode_duration_summary_time_hours (8872000022033647725) -->
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> хв (калі рэжым не быў уключаны аўтаматычна)"</string>
     <!-- no translation found for zen_mode_sound_summary_summary_off_info (8527428833487709278) -->
     <string name="zen_category_behavior" msgid="7695750848671443532">"Адключыць гук прылады, аднак дазволіць выключэнні з правілаў"</string>
@@ -3503,12 +3471,7 @@
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"Узровень %d"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
-    <plurals name="notifications_categories_off" formatted="false" msgid="7173464913755425293">
-      <item quantity="one">Выключана <xliff:g id="COUNT_1">%d</xliff:g> катэгорыя</item>
-      <item quantity="few">Выключана <xliff:g id="COUNT_1">%d</xliff:g> катэгорыі</item>
-      <item quantity="many">Выключана <xliff:g id="COUNT_1">%d</xliff:g> катэгорый</item>
-      <item quantity="other">Выключана <xliff:g id="COUNT_1">%d</xliff:g> катэгорыі</item>
-    </plurals>
+    <!-- no translation found for notifications_categories_off (7173464913755425293) -->
     <!-- no translation found for permissions_summary (2750853128045095961) -->
     <!-- no translation found for runtime_permissions_summary (3166036683687471356) -->
     <!-- no translation found for runtime_permissions_additional_count (2068102378805218668) -->
@@ -3578,12 +3541,7 @@
     <string name="additional_battery_info" msgid="6877663897819271203">"Абвесткі аб выкарыстанні"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"Уся інфармацыя пра выкарыстанне"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"Выкарыстанне зараду праграмамі"</string>
-    <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
-      <item quantity="one"><xliff:g id="NUMBER">%2$d</xliff:g> праграма працуе няправільна</item>
-      <item quantity="few"><xliff:g id="NUMBER">%2$d</xliff:g> праграмы працуюць няправільна</item>
-      <item quantity="many"><xliff:g id="NUMBER">%2$d</xliff:g> праграм працуюць няправільна</item>
-      <item quantity="other"><xliff:g id="NUMBER">%2$d</xliff:g> праграмы працуюць няправільна</item>
-    </plurals>
+    <!-- no translation found for power_high_usage_summary (4658343710126205199) -->
     <!-- no translation found for power_high_usage_title (63134064262760835) -->
     <string name="high_power_filter_on" msgid="5294209328473386403">"Не аптымізаваныя"</string>
     <string name="high_power_on" msgid="3573501822510580334">"Не аптымізавана"</string>
@@ -3658,12 +3616,7 @@
     <string name="average_used" msgid="3022736210190754669">"Сярэдняе значэнне (%)"</string>
     <string name="free_memory" msgid="4758919141048544927">"Свабодна"</string>
     <string name="memory_usage_apps" msgid="2839241373381152354">"Выкарыстанне памяці праграмамі"</string>
-    <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
-      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> праграма выкарыстоўвала памяць за апошнія <xliff:g id="DURATION_1">%2$s</xliff:g></item>
-      <item quantity="few"><xliff:g id="COUNT">%1$d</xliff:g> праграмы выкарыстоўвалі памяць за апошнія <xliff:g id="DURATION_1">%2$s</xliff:g></item>
-      <item quantity="many"><xliff:g id="COUNT">%1$d</xliff:g> праграм выкарыстоўвалі памяць за апошнія <xliff:g id="DURATION_1">%2$s</xliff:g></item>
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> праграм выкарыстоўвалі памяць за апошнія <xliff:g id="DURATION_1">%2$s</xliff:g></item>
-    </plurals>
+    <!-- no translation found for memory_usage_apps_summary (1235024908546944704) -->
     <string name="running_frequency" msgid="7545170806968474449">"Частата"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Максімальнае выкарыстанне"</string>
     <string name="no_data_usage" msgid="903383745620135746">"Даныя не выкарыстоўваюцца"</string>
@@ -3733,7 +3686,8 @@
     <string name="data_usage_summary_format" msgid="7788095271598602797">"<xliff:g id="AMOUNT">%1$s</xliff:g> трафіка выкарыстана"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"Wi-Fi выкарыстоўвае <xliff:g id="AMOUNT">^1</xliff:g>"</string>
     <!-- no translation found for notification_summary (761061343339229103) -->
-    <string name="notification_summary_none" msgid="5003043219430054784">"Уключаны для ўсіх праграм"</string>
+    <!-- no translation found for notification_summary_none (5003043219430054784) -->
+    <skip />
     <string name="apps_summary" msgid="8355759446490212195">"Усталявана праграм: <xliff:g id="COUNT">%1$d</xliff:g>"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"Усталявана 24 праграмы"</string>
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> выкарыстана – <xliff:g id="FREE_SPACE">%2$s</xliff:g> свабодна"</string>
@@ -3832,12 +3786,7 @@
     <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> выкарыстоўвалася <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="configure" msgid="8232696842838580549">"Наладзіць"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Іншыя праграмы, уключаныя ў выкарыстанне даных"</string>
-    <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> праграма можа выкарыстоўваць трафік неабмежавана, калі ўключана Эканомія трафіка</item>
-      <item quantity="few"><xliff:g id="COUNT">%1$d</xliff:g> праграмы могуць выкарыстоўваць трафік неабмежавана, калі ўключана Эканомія трафіка</item>
-      <item quantity="many"><xliff:g id="COUNT">%1$d</xliff:g> праграм могуць выкарыстоўваць трафік неабмежавана, калі ўключана Эканомія трафіка</item>
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> праграмы могуць выкарыстоўваць трафік неабмежавана, калі ўключана Эканомія трафіка</item>
-    </plurals>
+    <!-- no translation found for data_saver_unrestricted_summary (6046013861315713697) -->
     <string name="data_usage_title" msgid="7874606430902201083">"Асноўныя даныя"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Трафік Wi‑Fi"</string>
     <string name="data_used" msgid="1063553292806661784">"Выкарыстана: <xliff:g id="ID_1">^1</xliff:g>"</string>
@@ -3954,12 +3903,7 @@
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"Ваша арганізацыя не дазваляе асабістым праграмам мець доступ да працоўнага календара"</string>
     <!-- no translation found for hours (135936773984899873) -->
     <!-- no translation found for minutes (4624073557955858160) -->
-    <plurals name="seconds" formatted="false" msgid="6942674168513274363">
-      <item quantity="one"><xliff:g id="NUMBER">%s</xliff:g> секунда</item>
-      <item quantity="few"><xliff:g id="NUMBER">%s</xliff:g> секунды</item>
-      <item quantity="many"><xliff:g id="NUMBER">%s</xliff:g> секунд</item>
-      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> секунды</item>
-    </plurals>
+    <!-- no translation found for seconds (6942674168513274363) -->
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"Кіраванне сховішчам"</string>
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Каб вызваліць месца ў сховішчы, Менеджар сховішча выдаляе фота і відэа, для якіх створаны рэзервовыя копіі, з вашай прылады."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Выдаліць фота і відэа"</string>
@@ -3972,7 +3916,8 @@
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Хуткія жэсты для кіравання вашым тэлефонам"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Хуткія жэсты для кіравання вашым планшэтам"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Хуткія жэсты для кіравання вашай прыладай"</string>
-    <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Перайсці да камеры"</string>
+    <!-- no translation found for double_tap_power_for_camera_title (5480829329052517484) -->
+    <skip />
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Каб хутка адкрыць камеру, двойчы націсніце кнопку сілкавання. Працуе на любым экране."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Хуткае адкрыццё камеры"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Змена камеры"</string>
@@ -4017,7 +3962,7 @@
     <string name="domain_url_section_title" msgid="206403507921518321">"Усталяваныя праграмы"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"Ваша сховішча зараз знаходзіцца пад кіраваннем менеджара сховішча"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"Уліковыя запісы - <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
-    <string name="configure_section_header" msgid="6988981883075615136">"Наладка"</string>
+    <string name="configure_section_header" msgid="6988981883075615136">"Наладзіць"</string>
     <string name="auto_sync_account_title" msgid="2394463123733529506">"Аўтаматычна сінхранізаваць даныя"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"Аўтаматычна сінхранізаваць асабістыя даныя"</string>
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"Аўтаматычна сінхранізаваць працоўныя даныя"</string>
@@ -4225,8 +4170,9 @@
     <string name="mobile_data_settings_title" msgid="3439626666647519547">"Мабільная перадача даных"</string>
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Доступ да даных па мабільнай сетцы"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Калі сігнал гэтага аператара будзе ў межах дасягальнасці, тэлефон аўтаматычна пераключыцца на яго"</string>
-    <string name="calls_preference" msgid="2076353032705811243">"Параметры выклікаў"</string>
-    <string name="sms_preference" msgid="8449270011976880">"Параметры SMS"</string>
+    <string name="calls_preference" msgid="2076353032705811243">"Прыярытэт выклікаў"</string>
+    <!-- no translation found for sms_preference (8449270011976880) -->
+    <skip />
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Заўсёды пытацца"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Дадаць сетку"</string>
     <!-- no translation found for mobile_network_summary_count (6222822873390636020) -->
@@ -4309,7 +4255,8 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Выдаліць гэту прапанову?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Прапанова выдалена"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Адрабіць"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"Не хапае памяці. Скарыстана <xliff:g id="PERCENTAGE">%1$s</xliff:g>, засталося <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
+    <!-- no translation found for low_storage_summary (4562224870189133400) -->
+    <skip />
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Адправіць водгук"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Хочаце напісаць водгук на гэту прапанову?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"Скапіравана ў буфер абмену: <xliff:g id="COPY_CONTENT">%1$s</xliff:g>."</string>
@@ -4322,12 +4269,7 @@
     <!-- no translation found for accessibility_usage_summary (2604152087205501644) -->
     <string name="manage_app_notification" msgid="9072118910762792295">"Кіраванне апавяшчэннямі праграмы \"<xliff:g id="APP_NAME">%1$s</xliff:g>\""</string>
     <string name="no_suggested_app" msgid="509257628685025383">"Няма прапанаваных праграм"</string>
-    <plurals name="notification_few_channel_count_summary" formatted="false" msgid="5165639207390218085">
-      <item quantity="one"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> канал апавяшчэння.</item>
-      <item quantity="few"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> каналы апавяшчэння.</item>
-      <item quantity="many"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> каналаў апавяшчэння.</item>
-      <item quantity="other"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> канала апавяшчэння.</item>
-    </plurals>
+    <!-- no translation found for notification_few_channel_count_summary (5165639207390218085) -->
     <string name="notification_many_channel_count_summary" msgid="9205641731142529086">"Каналаў апавяшчэння: <xliff:g id="NOTIFICATION_CHANNEL_COUNT">%1$d</xliff:g>. Каб кіраваць усімі, націсніце тут."</string>
     <string name="recently_installed_app" msgid="6491959945747808096">"Вы нядаўна ўсталявалі гэту праграму."</string>
     <string name="media_output_panel_title" msgid="8429272102437211530">"Пераключыць вывад"</string>

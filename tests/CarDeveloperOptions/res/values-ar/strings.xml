@@ -424,14 +424,7 @@
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"استخدام بصمة الإصبع في"</string>
     <string name="fingerprint_add_title" msgid="6840343900784463856">"إضافة بصمة إصبع"</string>
     <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"قفل الشاشة"</string>
-    <plurals name="security_settings_fingerprint_preference_summary" formatted="false" msgid="2033416761172877041">
-      <item quantity="zero">عدم إعداد أي بصمة إصبع (<xliff:g id="COUNT_1">%1$d</xliff:g>)</item>
-      <item quantity="two">تم إعداد بصمتي إصبع (<xliff:g id="COUNT_1">%1$d</xliff:g>)</item>
-      <item quantity="few">تم إعداد <xliff:g id="COUNT_1">%1$d</xliff:g> بصمات إصبع</item>
-      <item quantity="many">تم إعداد <xliff:g id="COUNT_1">%1$d</xliff:g> بصمة إصبع</item>
-      <item quantity="other">تم إعداد <xliff:g id="COUNT_1">%1$d</xliff:g> من بصمات الإصبع</item>
-      <item quantity="one">تم إعداد بصمة إصبع واحدة (<xliff:g id="COUNT_0">%1$d</xliff:g>)</item>
-    </plurals>
+    <!-- no translation found for security_settings_fingerprint_preference_summary (2033416761172877041) -->
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"فتح القفل باستخدام بصمة الإصبع"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"استخدام بصمة الإصبع"</string>
@@ -472,14 +465,16 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"تنفيذ ذلك لاحقًا"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"هل تريد تخطي إعداد بصمة الإصبع؟"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"لقد اخترت استخدام بصمة الإصبع كوسيلة لإلغاء تأمين هاتفك. إذا تخطيت ذلك الآن، فستحتاج إلى إعداده لاحقًا. لن يستغرق منك الإعداد سوى دقيقة تقريبًا."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"يمكنك حماية جهازك اللوحي بتفعيل خيار قفل الشاشة حتى لا يتمكَّن أي شخص من استخدامه في حال فقدانه أو سرقته. وتحتاج أيضًا إلى خيار قفل الشاشة لإعداد بصمة الإصبع. انقر على \"إلغاء\" ثُم حدِّد رقم تعريف شخصيًا أو اختَر خيارًا آخر لقفل الشاشة."</string>
+    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (1384438077720821127) -->
+    <skip />
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7207112623501771824) -->
     <skip />
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7623975730623531606) -->
     <skip />
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (2998863111689476550) -->
     <skip />
-    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"يمكنك حماية جهازك بتفعيل خيار قفل الشاشة حتى لا يتمكَّن أي شخص من استخدامه في حال فقدانه أو سرقته. وتحتاج أيضًا إلى خيار قفل الشاشة لإعداد مصادقة الوجه. انقر على \"إلغاء\" ثُم حدِّد رقم تعريف شخصيًا أو اختَر خيارًا آخر لقفل الشاشة."</string>
+    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (6780557259734235952) -->
+    <skip />
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (8541640018478926775) -->
     <skip />
     <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
@@ -655,14 +650,7 @@
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"لقد استنفدت عدد المحاولات غير الصحيحة وسيتم حذف هذا المستخدم."</string>
     <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"لقد استنفدت عدد المحاولات غير الصحيحة وسيتم حذف الملف الشخصي للعمل وبياناته."</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"تجاهل"</string>
-    <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
-      <item quantity="zero">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT_1">%d</xliff:g> حرف على الأقل.</item>
-      <item quantity="two">يجب أن تحتوي كلمة المرور على حرفين (<xliff:g id="COUNT_1">%d</xliff:g>) على الأقل.</item>
-      <item quantity="few">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT_1">%d</xliff:g> أحرف على الأقل.</item>
-      <item quantity="many">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT_1">%d</xliff:g> حرفًا على الأقل.</item>
-      <item quantity="other">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT_1">%d</xliff:g> حرف على الأقل.</item>
-      <item quantity="one">يجب أن تحتوي كلمة المرور على حرف واحد (<xliff:g id="COUNT_0">%d</xliff:g>) على الأقل.</item>
-    </plurals>
+    <!-- no translation found for lockpassword_password_too_short (694091983183310827) -->
     <!-- no translation found for lockpassword_pin_too_short (6805936168283187298) -->
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"متابعة"</string>
     <!-- no translation found for lockpassword_password_too_long (7994068708438608179) -->
@@ -740,11 +728,13 @@
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"إعدادات بلوتوث المتقدمة"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"عند تشغيل البلوتوث، يمكن للجهاز التواصل مع أجهزة البلوتوث الأخرى القريبة."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"عند تشغيل البلوتوث، يمكن للجهاز التواصل مع أجهزة البلوتوث الأخرى القريبة.\n\nولتحسين تجربة استخدام الجهاز، يمكن للتطبيقات والخدمات أيضًا البحث عن الأجهزة القريبة في أي وقت، حتى عند إيقاف البلوتوث. ويمكن استخدام هذا الإجراء لتحسين الميزات والخدمات المستندة إلى الموقع الجغرافي مثلاً. وبإمكانك تغيير هذا الإعداد في "<annotation id="link">"إعدادات البحث"</annotation>"."</string>
-    <string name="ble_scan_notify_text" msgid="6290170236546386932">"لتحسين دقة الموقع، سيظل بإمكان تطبيقات وخدمات النظام اكتشاف أجهزة بلوتوث. ويمكنك تغيير ذلك من خلال <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>إعدادات البحث<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <!-- no translation found for ble_scan_notify_text (6290170236546386932) -->
+    <skip />
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"تعذر الاتصال. يُرجى إعادة المحاولة."</string>
     <string name="device_details_title" msgid="726517818032923222">"تفاصيل الجهاز"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"عنوان البلوتوث للجهاز: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"هل تريد إلغاء إقران الجهاز؟"</string>
+    <!-- no translation found for bluetooth_unpair_dialog_title (3669848977755142047) -->
+    <skip />
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"لن يتم إقران هاتفك بعد الآن بجهاز <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"لن يتم إقران جهازك اللوحي بعد الآن بجهاز <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"لن يتم إقران جهازك بعد الآن بجهاز <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
@@ -822,7 +812,8 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"الإشعار بوجود شبكات مفتوحة"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"الإشعار عند توفر شبكة عامة عالية الجودة"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"تشغيل اتّصال Wi‑Fi تلقائيًا"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"إعادة تشغيل اتّصال Wi‑Fi بالقرب من الشبكات المحفوظة العالية الجودة، مثل الشبكة المنزلية"</string>
+    <!-- no translation found for wifi_wakeup_summary (1152699417411690) -->
+    <skip />
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"غير متاحة نظرًا لإيقاف خدمة الموقع. شغّل خدمة "<annotation id="link">"الموقع"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"غير متاح لأن ميزة \"البحث عن شبكات Wi‑Fi\" غير مفعّلة"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"لاستخدام الميزة، اختر مقدِّم خدمة تقييم شبكة"</string>
@@ -877,7 +868,8 @@
     <string name="wifi_ssid" msgid="6746270925975522641">"اسم الشبكة"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"يُرجى إدخال اسم SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"الأمان"</string>
-    <string name="wifi_hidden_network" msgid="6647772204699776833">"شبكة مخفية"</string>
+    <!-- no translation found for wifi_hidden_network (6647772204699776833) -->
+    <skip />
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"إذا لم يكن جهاز التوجيه يبث معرّف شبكة وتريد الاتصال به في المستقبل، يمكنك تعيين الشبكة كشبكة مخفية.\n\nربما ينشئ هذا خطرًا أمنيًا حيث سيبث هاتفك إشارته بانتظام للعثور على الشبكة.\n\nلن يؤدي تعيين الشبكة كشبكة مخفية إلى تغيير إعدادات جهاز التوجيه."</string>
     <string name="wifi_signal" msgid="696548364467704808">"قوة الإشارة"</string>
     <string name="wifi_status" msgid="3439931558930689940">"الحالة"</string>
@@ -985,14 +977,7 @@
     <string name="wifi_cancel" msgid="7618417075930426635">"إلغاء"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"هل تريد حذف الشبكة؟"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"سيتم حذف جميع كلمات المرور لهذه الشبكة"</string>
-    <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
-      <item quantity="zero">%d شبكة</item>
-      <item quantity="two">شبكتان (%d)</item>
-      <item quantity="few">%d شبكات</item>
-      <item quantity="many">%d شبكة</item>
-      <item quantity="other">%d شبكة</item>
-      <item quantity="one">شبكة واحدة</item>
-    </plurals>
+    <!-- no translation found for wifi_saved_access_points_summary (6199295921035663421) -->
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"إعدادات Wi-Fi المتقدمة"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"عنوان Mac"</string>
@@ -1267,19 +1252,13 @@
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"تم العثور على بطاقات SIM متعددة"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"اختر شريحة SIM المفضلة لبيانات الجوّال."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"هل تريد بيانات الجوّال من <xliff:g id="CARRIER">%1$s</xliff:g>؟"</string>
-    <string name="sim_change_data_message" msgid="51004703157782900">"أنت تستخدم <xliff:g id="CARRIER2_0">%2$s</xliff:g> للاتصال ببيانات الجوّال. عند التبديل إلى <xliff:g id="CARRIER1">%1$s</xliff:g>، لن يتم استخدام <xliff:g id="CARRIER2_1">%2$s</xliff:g> مرة أخرى للاتصال ببيانات الجوّال."</string>
+    <!-- no translation found for sim_change_data_message (51004703157782900) -->
+    <skip />
     <string name="sim_change_data_ok" msgid="7491552537317573235">"استخدام <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"هل تريد تحديث شريحة SIM المفضلة؟"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> هي شريحة SIM الوحيدة في جهازك، فهل تريد استخدام هذه الشريحة لبيانات الجوال والمكالمات والرسائل القصيرة SMS؟"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"رمز \"رقم التعريف الشخصي\" لبطاقة SIM غير صحيح، ويلزمك الاتصال الآن بمشغّل شبكة الجوّال لإلغاء قفل الجهاز."</string>
-    <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
-      <item quantity="zero">رمز رقم التعريف الشخصي لبطاقة SIM غير صحيح، ولم يتبق لديك أي محاولات (<xliff:g id="NUMBER_1">%d</xliff:g>).</item>
-      <item quantity="two">رمز رقم التعريف الشخصي لبطاقة SIM غير صحيح، ويتبقى لديك محاولتان (<xliff:g id="NUMBER_1">%d</xliff:g>).</item>
-      <item quantity="few">رمز رقم التعريف الشخصي لبطاقة SIM غير صحيح، ويتبقى لديك <xliff:g id="NUMBER_1">%d</xliff:g> محاولات.</item>
-      <item quantity="many">رمز رقم التعريف الشخصي لبطاقة SIM غير صحيح، ويتبقى لديك <xliff:g id="NUMBER_1">%d</xliff:g> محاولة.</item>
-      <item quantity="other">رمز رقم التعريف الشخصي لبطاقة SIM غير صحيح، ويتبقى لديك <xliff:g id="NUMBER_1">%d</xliff:g> من المحاولات.</item>
-      <item quantity="one">رمزPIN لبطاقة SIM غير صحيح، ولديك محاولة واحدة (<xliff:g id="NUMBER_0">%d</xliff:g>) يجب أن تتصل بعدها بمشغّل شبكة الجوّال لإلغاء قفل الجهاز.</item>
-    </plurals>
+    <!-- no translation found for wrong_pin_code (2934318793525717627) -->
     <string name="pin_failed" msgid="4877356137480446727">"تعذّر إتمام عملية \"رقم التعريف الشخصي\" لبطاقة SIM!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"تحديثات النظام"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
@@ -2081,14 +2060,7 @@
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"هذه الخدمة مُعطَّلة."</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"إظهار في الإعدادات السريعة"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"وضع التصحيح"</string>
-    <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
-      <item quantity="zero">مهلة قصيرة للغاية (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> مللي ثانية)</item>
-      <item quantity="two">مهلة قصيرة للغاية (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> مللي ثانية)</item>
-      <item quantity="few">مهلة قصيرة للغاية (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> مللي ثانية)</item>
-      <item quantity="many">مهلة قصيرة للغاية (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> مللي ثانية)</item>
-      <item quantity="other">مهلة قصيرة للغاية (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> مللي ثانية)</item>
-      <item quantity="one">مهلة قصيرة للغاية (<xliff:g id="CLICK_DELAY_LABEL_0">%1$d</xliff:g> مللي ثانية)</item>
-    </plurals>
+    <!-- no translation found for accessibilty_autoclick_preference_subtitle_extremely_short_delay (3810676455925024813) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_short_delay (8720846747098057703) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_short_delay (4311889107742293108) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_long_delay (285663535113656440) -->
@@ -2242,14 +2214,7 @@
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"تم استخدام جهازك أكثر من المعتاد. قد ينفد شحن البطارية قبل الوقت المتوقّع.\n\nالتطبيقات الأكثر استخدامًا منذ آخر شحن كامل:"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"يشمل النشاط الكثيف لطاقة البطارية في الخلفية"</string>
     <!-- no translation found for battery_tip_restrict_title (7140926804142734420) -->
-    <plurals name="battery_tip_restrict_handled_title" formatted="false" msgid="5509363095891806748">
-      <item quantity="zero">تم تقييد %2$d تطبيق مؤخرًا.</item>
-      <item quantity="two">تم تقييد تطبيقين (%2$d) مؤخرًا.</item>
-      <item quantity="few">تم تقييد %2$d تطبيقات مؤخرًا.</item>
-      <item quantity="many">تم تقييد %2$d تطبيقًا مؤخرًا.</item>
-      <item quantity="other">تم تقييد %2$d تطبيق مؤخرًا.</item>
-      <item quantity="one">تم تقييد %1$s مؤخرًا.</item>
-    </plurals>
+    <!-- no translation found for battery_tip_restrict_handled_title (5509363095891806748) -->
     <!-- no translation found for battery_tip_restrict_summary (984148373944071669) -->
     <!-- no translation found for battery_tip_restrict_handled_summary (469696766640020557) -->
     <!-- no translation found for battery_tip_restrict_app_dialog_title (3042021435866172168) -->
@@ -2745,7 +2710,8 @@
     <string name="trusted_credentials_user_tab" msgid="4368592735325224612">"المستخدم"</string>
     <string name="trusted_credentials_disable_label" msgid="2495224975071022858">"إيقاف"</string>
     <string name="trusted_credentials_enable_label" msgid="8991649977058280799">"تفعيل"</string>
-    <string name="trusted_credentials_remove_label" msgid="530728557358501000">"إزالة"</string>
+    <!-- no translation found for trusted_credentials_remove_label (530728557358501000) -->
+    <skip />
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"موثوق به"</string>
     <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"هل تريد تفعيل شهادة CA للنظام؟"</string>
     <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"هل تريد إيقاف شهادة CA للنظام؟"</string>
@@ -2769,14 +2735,7 @@
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"قد تكون الشبكة خاضعة للمراقبة"</string>
     <string name="done_button" msgid="7652373284597307008">"تم"</string>
     <!-- no translation found for ssl_ca_cert_dialog_title (7323708984446517980) -->
-    <plurals name="ssl_ca_cert_info_message_device_owner" formatted="false" msgid="9046046586061880100">
-      <item quantity="zero">تم بواسطة <xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> تثبيت شهادات مرجعية على جهازك، مما يسمح بمراقبة أنشطة الشبكة على جهازك، بما في ذلك الرسائل الإلكترونية والتطبيقات ومواقع الويب الآمنة.\n\nللحصول على مزيد من المعلومات حول هذه الشهادات، يمكنك الاتصال بالمشرف.</item>
-      <item quantity="two">تم بواسطة <xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> تثبيت شهادتين مرجعيتين على جهازك، مما يسمح بمراقبة أنشطة الشبكة على جهازك، بما في ذلك الرسائل الإلكترونية والتطبيقات ومواقع الويب الآمنة.\n\nللحصول على مزيد من المعلومات حول هذه الشهادات، يمكنك الاتصال بالمشرف.</item>
-      <item quantity="few">تم بواسطة <xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> تثبيت شهادات مرجعية على جهازك، مما يسمح بمراقبة أنشطة الشبكة على جهازك، بما في ذلك الرسائل الإلكترونية والتطبيقات ومواقع الويب الآمنة.\n\nللحصول على مزيد من المعلومات حول هذه الشهادات، يمكنك الاتصال بالمشرف.</item>
-      <item quantity="many">تم بواسطة <xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> تثبيت شهادات مرجعية على جهازك، مما يسمح بمراقبة أنشطة الشبكة على جهازك، بما في ذلك الرسائل الإلكترونية والتطبيقات ومواقع الويب الآمنة.\n\nللحصول على مزيد من المعلومات حول هذه الشهادات، يمكنك الاتصال بالمشرف.</item>
-      <item quantity="other">تم بواسطة <xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> تثبيت شهادات مرجعية على جهازك، مما يسمح بمراقبة أنشطة الشبكة على جهازك، بما في ذلك الرسائل الإلكترونية والتطبيقات ومواقع الويب الآمنة.\n\nللحصول على مزيد من المعلومات حول هذه الشهادات، يمكنك الاتصال بالمشرف.</item>
-      <item quantity="one">تم بواسطة <xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> تثبيت شهادة مرجعية على جهازك، مما يسمح بمراقبة أنشطة الشبكة على جهازك، بما في ذلك الرسائل الإلكترونية والتطبيقات ومواقع الويب الآمنة.\n\nللحصول على مزيد من المعلومات حول هذه الشهادة، يمكنك الاتصال بالمشرف.</item>
-    </plurals>
+    <!-- no translation found for ssl_ca_cert_info_message_device_owner (9046046586061880100) -->
     <!-- no translation found for ssl_ca_cert_info_message (8271858091418779584) -->
     <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"يُمكن لأي جهة خارجية مراقبة نشاط الشبكة، بما في ذلك الرسائل الإلكترونية والتطبيقات ومواقع الويب الآمنة.\n\nويُمكن لبيانات اعتماد موثوقة ومثبتة على جهاز الكمبيوتر إتاحة إجراء ذلك."</string>
     <!-- no translation found for ssl_ca_cert_settings_button (3227175122066058245) -->
@@ -3091,8 +3050,8 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"النغمات"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"الاهتزازات"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"أصوات تشغيل الجهاز"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"النسخ النصي التلقائي"</string>
-    <string name="live_caption_summary" msgid="9064771862352393125">"شرح تلقائي للوسائط"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"الترجمة المباشرة"</string>
+    <string name="live_caption_summary" msgid="9064771862352393125">"ترجمة تلقائية للوسائط"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"مطلقًا"</string>
     <!-- no translation found for zen_mode_settings_summary_on (6061723291126091396) -->
     <string name="zen_mode_settings_title" msgid="3425263414594779244">"وضع \"عدم الإزعاج\""</string>
@@ -3173,14 +3132,7 @@
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"قيد التفعيل"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"الطلب في كل مرة (ما لم يتم تفعيل الميزة تلقائيًا)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"إلى أن يتم إيقافها (ما لم يتم تفعيل الميزة تلقائيًا)"</string>
-    <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
-      <item quantity="zero"><xliff:g id="NUM_HOURS">%d</xliff:g> ساعة (ما لم يتم تفعيل الميزة تلقائيًا)</item>
-      <item quantity="two">ساعتان (<xliff:g id="NUM_HOURS">%d</xliff:g>) (ما لم يتم تفعيل الميزة تلقائيًا)</item>
-      <item quantity="few"><xliff:g id="NUM_HOURS">%d</xliff:g> ساعات (ما لم يتم تفعيل الميزة تلقائيًا)</item>
-      <item quantity="many"><xliff:g id="NUM_HOURS">%d</xliff:g> ساعة (ما لم يتم تفعيل الميزة تلقائيًا)</item>
-      <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> ساعة (ما لم يتم تفعيل الميزة تلقائيًا)</item>
-      <item quantity="one">ساعة واحدة (ما لم يتم تفعيل الميزة تلقائيًا)</item>
-    </plurals>
+    <!-- no translation found for zen_mode_duration_summary_time_hours (8872000022033647725) -->
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> دقيقة (ما لم يتم تفعيل الميزة تلقائيًا)"</string>
     <!-- no translation found for zen_mode_sound_summary_summary_off_info (8527428833487709278) -->
     <string name="zen_category_behavior" msgid="7695750848671443532">"كتْم صوت الجهاز مع السماح باستثناءات"</string>
@@ -3517,14 +3469,7 @@
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"المستوى %d"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
-    <plurals name="notifications_categories_off" formatted="false" msgid="7173464913755425293">
-      <item quantity="zero">تم إيقاف <xliff:g id="COUNT_1">%d</xliff:g> فئة</item>
-      <item quantity="two">تم إيقاف فئتين (<xliff:g id="COUNT_1">%d</xliff:g>)</item>
-      <item quantity="few">تم إيقاف <xliff:g id="COUNT_1">%d</xliff:g> فئات</item>
-      <item quantity="many">تم إيقاف <xliff:g id="COUNT_1">%d</xliff:g> فئة</item>
-      <item quantity="other">تم إيقاف <xliff:g id="COUNT_1">%d</xliff:g> فئة</item>
-      <item quantity="one">تم إيقاف <xliff:g id="COUNT_0">%d</xliff:g> فئة</item>
-    </plurals>
+    <!-- no translation found for notifications_categories_off (7173464913755425293) -->
     <!-- no translation found for permissions_summary (2750853128045095961) -->
     <!-- no translation found for runtime_permissions_summary (3166036683687471356) -->
     <!-- no translation found for runtime_permissions_additional_count (2068102378805218668) -->
@@ -3594,14 +3539,7 @@
     <string name="additional_battery_info" msgid="6877663897819271203">"تنبيهات الاستخدام"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"عرض الاستخدام الكامل للجهاز"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"عرض استخدام التطبيق"</string>
-    <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
-      <item quantity="zero">يعمل <xliff:g id="NUMBER">%2$d</xliff:g> تطبيق بشكل غير طبيعي</item>
-      <item quantity="two">يعمل تطبيقان (<xliff:g id="NUMBER">%2$d</xliff:g>) بشكل غير طبيعي</item>
-      <item quantity="few">تعمل <xliff:g id="NUMBER">%2$d</xliff:g> تطبيقات بشكل غير طبيعي</item>
-      <item quantity="many">يعمل <xliff:g id="NUMBER">%2$d</xliff:g> تطبيقًا بشكل غير طبيعي</item>
-      <item quantity="other">يعمل <xliff:g id="NUMBER">%2$d</xliff:g> تطبيق بشكل غير طبيعي</item>
-      <item quantity="one">يعمل تطبيق واحد (<xliff:g id="APP">%1$s</xliff:g>) بشكل غير طبيعي</item>
-    </plurals>
+    <!-- no translation found for power_high_usage_summary (4658343710126205199) -->
     <!-- no translation found for power_high_usage_title (63134064262760835) -->
     <string name="high_power_filter_on" msgid="5294209328473386403">"بدون تحسين"</string>
     <string name="high_power_on" msgid="3573501822510580334">"بدون تحسين"</string>
@@ -3676,14 +3614,7 @@
     <string name="average_used" msgid="3022736210190754669">"متوسط استخدام الذاكرة (%)"</string>
     <string name="free_memory" msgid="4758919141048544927">"الذاكرة المتاحة"</string>
     <string name="memory_usage_apps" msgid="2839241373381152354">"الذاكرة المستخدمة بواسطة التطبيقات"</string>
-    <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
-      <item quantity="zero">استخدمت <xliff:g id="COUNT">%1$d</xliff:g> من التطبيقات الذاكرة في آخر <xliff:g id="DURATION_1">%2$s</xliff:g></item>
-      <item quantity="two">استخدم تطبيقان (<xliff:g id="COUNT">%1$d</xliff:g>) الذاكرة في آخر <xliff:g id="DURATION_1">%2$s</xliff:g></item>
-      <item quantity="few">استخدمت <xliff:g id="COUNT">%1$d</xliff:g> تطبيقات الذاكرة في آخر <xliff:g id="DURATION_1">%2$s</xliff:g></item>
-      <item quantity="many">استخدم <xliff:g id="COUNT">%1$d</xliff:g> تطبيقًا الذاكرة في آخر <xliff:g id="DURATION_1">%2$s</xliff:g></item>
-      <item quantity="other">استخدمت <xliff:g id="COUNT">%1$d</xliff:g> من التطبيقات الذاكرة في آخر <xliff:g id="DURATION_1">%2$s</xliff:g></item>
-      <item quantity="one">استخدم تطبيق واحد الذاكرة في آخر <xliff:g id="DURATION_0">%2$s</xliff:g></item>
-    </plurals>
+    <!-- no translation found for memory_usage_apps_summary (1235024908546944704) -->
     <string name="running_frequency" msgid="7545170806968474449">"معدل الاستخدام"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"الاستخدام الأقصى"</string>
     <string name="no_data_usage" msgid="903383745620135746">"لم يتم استخدام أي بيانات"</string>
@@ -3753,7 +3684,8 @@
     <string name="data_usage_summary_format" msgid="7788095271598602797">"تم استخدام <xliff:g id="AMOUNT">%1$s</xliff:g> من البيانات"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"تم استخدام <xliff:g id="AMOUNT">^1</xliff:g> على Wi‑Fi"</string>
     <!-- no translation found for notification_summary (761061343339229103) -->
-    <string name="notification_summary_none" msgid="5003043219430054784">"مفعّلة لكلّ التطبيقات"</string>
+    <!-- no translation found for notification_summary_none (5003043219430054784) -->
+    <skip />
     <string name="apps_summary" msgid="8355759446490212195">"تم تثبيت <xliff:g id="COUNT">%1$d</xliff:g> تطبيق"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"٢٤ تطبيقًا مثبَّتًا"</string>
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> مستخدمة - <xliff:g id="FREE_SPACE">%2$s</xliff:g> فارغة"</string>
@@ -3852,14 +3784,7 @@
     <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> مستخدمة خلال <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="configure" msgid="8232696842838580549">"تهيئة"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"التطبيقات الأخرى المضمّنة في الاستخدام"</string>
-    <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="zero">هناك <xliff:g id="COUNT">%1$d</xliff:g> تطبيق مسموح له باستخدام البيانات بدون قيود عند تفعيل ميزة \"توفير البيانات\"</item>
-      <item quantity="two">هناك تطبيقان (<xliff:g id="COUNT">%1$d</xliff:g>) مسموح لهما باستخدام البيانات بدون قيود عند تشغيل توفير البيانات</item>
-      <item quantity="few">هناك <xliff:g id="COUNT">%1$d</xliff:g> تطبيقات مسموح لها باستخدام البيانات بدون قيود عند تفعيل ميزة \"توفير البيانات\"</item>
-      <item quantity="many">هناك <xliff:g id="COUNT">%1$d</xliff:g> تطبيقًا مسموح لها باستخدام البيانات بدون قيود عند تفعيل ميزة \"توفير البيانات\"</item>
-      <item quantity="other">هناك <xliff:g id="COUNT">%1$d</xliff:g> تطبيق مسموح له باستخدام البيانات بدون قيود عند تفعيل ميزة \"توفير البيانات\"</item>
-      <item quantity="one">هناك تطبيق واحد مسموح له باستخدام البيانات بدون قيود عند تفعيل ميزة \"توفير البيانات\"</item>
-    </plurals>
+    <!-- no translation found for data_saver_unrestricted_summary (6046013861315713697) -->
     <string name="data_usage_title" msgid="7874606430902201083">"البيانات الأساسية"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"بيانات Wi‑Fi"</string>
     <string name="data_used" msgid="1063553292806661784">"<xliff:g id="ID_1">^1</xliff:g> مستخدَم"</string>
@@ -3976,14 +3901,7 @@
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"لا تسمح مؤسستك للتطبيقات الشخصية بالوصول إلى تقويم العمل."</string>
     <!-- no translation found for hours (135936773984899873) -->
     <!-- no translation found for minutes (4624073557955858160) -->
-    <plurals name="seconds" formatted="false" msgid="6942674168513274363">
-      <item quantity="zero"><xliff:g id="NUMBER">%s</xliff:g> ثانية</item>
-      <item quantity="two">ثانيتان (<xliff:g id="NUMBER">%s</xliff:g>)</item>
-      <item quantity="few"><xliff:g id="NUMBER">%s</xliff:g> ثوانٍ</item>
-      <item quantity="many"><xliff:g id="NUMBER">%s</xliff:g> ثانية</item>
-      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> ثانية</item>
-      <item quantity="one">ثانية واحدة</item>
-    </plurals>
+    <!-- no translation found for seconds (6942674168513274363) -->
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"إدارة مساحة التخزين"</string>
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"للمساعدة في تفريغ مساحة التخزين، يزيل مدير مساحة التخزين من جهاز الصور والفيديوهات التي تم الاحتفاظ بنسخة احتياطية منها."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"إزالة الصور والفيديوهات"</string>
@@ -3996,7 +3914,8 @@
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"إيماءات سريعة للتحكم في الهاتف"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"إيماءات سريعة للتحكم في جهازك اللوحي"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"إيماءات سريعة للتحكم في جهازك"</string>
-    <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"الانتقال سريعًا إلى الكاميرا"</string>
+    <!-- no translation found for double_tap_power_for_camera_title (5480829329052517484) -->
+    <skip />
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"لفتح الكاميرا سريعًا، يمكنك الضغط على زر التشغيل مرتين. ويعمل ذلك في أي شاشة."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"فتح الكاميرا بسرعة"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"قلب عدسة الكاميرا"</string>
@@ -4250,7 +4169,8 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"الوصول إلى البيانات باستخدام شبكة الجوّال"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"سيتم تبديل الهاتف تلقائيًا إلى مشغّل شبكة الجوّال هذا عند وجوده داخل النطاق."</string>
     <string name="calls_preference" msgid="2076353032705811243">"خيار المكالمات المفضَّل"</string>
-    <string name="sms_preference" msgid="8449270011976880">"خيار SMS المفضَّل"</string>
+    <!-- no translation found for sms_preference (8449270011976880) -->
+    <skip />
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"الطلب في كل مرة"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"إضافة شبكة"</string>
     <!-- no translation found for mobile_network_summary_count (6222822873390636020) -->
@@ -4333,7 +4253,8 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"هل تريد إزالة هذا الاقتراح؟"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"تمت إزالة الاقتراح."</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"تراجع"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"مساحة التخزين منخفضة. <xliff:g id="PERCENTAGE">%1$s</xliff:g> مُستخدَمة - <xliff:g id="FREE_SPACE">%2$s</xliff:g> فارغة"</string>
+    <!-- no translation found for low_storage_summary (4562224870189133400) -->
+    <skip />
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"إرسال تعليقات"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"هل ترغب في إرسال تعليقات إلينا بشأن هذا الاقتراح؟"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"تمّ نسخ <xliff:g id="COPY_CONTENT">%1$s</xliff:g> إلى الحافظة."</string>
@@ -4346,14 +4267,7 @@
     <!-- no translation found for accessibility_usage_summary (2604152087205501644) -->
     <string name="manage_app_notification" msgid="9072118910762792295">"إدارة إشعارات <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="no_suggested_app" msgid="509257628685025383">"لا يوجد اقتراح بأيّ جهاز."</string>
-    <plurals name="notification_few_channel_count_summary" formatted="false" msgid="5165639207390218085">
-      <item quantity="zero"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> قناة للإشعارات.</item>
-      <item quantity="two">قناتان (<xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g>) للإشعارات.</item>
-      <item quantity="few"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> قنوات للإشعارات.</item>
-      <item quantity="many"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> قناة للإشعارات.</item>
-      <item quantity="other"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> قناة للإشعارات.</item>
-      <item quantity="one"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_0">%1$d</xliff:g> قناة للإشعارات.</item>
-    </plurals>
+    <!-- no translation found for notification_few_channel_count_summary (5165639207390218085) -->
     <string name="notification_many_channel_count_summary" msgid="9205641731142529086">"<xliff:g id="NOTIFICATION_CHANNEL_COUNT">%1$d</xliff:g> قناة للإشعارات. انقُر لإدارتها."</string>
     <string name="recently_installed_app" msgid="6491959945747808096">"لقد ثبّت هذا التطبيق مؤخرًا."</string>
     <string name="media_output_panel_title" msgid="8429272102437211530">"تبديل جهاز إخراج الصوت"</string>

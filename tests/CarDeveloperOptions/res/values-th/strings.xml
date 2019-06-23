@@ -424,10 +424,7 @@
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"ใช้ลายนิ้วมือเพื่อ"</string>
     <string name="fingerprint_add_title" msgid="6840343900784463856">"เพิ่มลายนิ้วมือ"</string>
     <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"ล็อกหน้าจอ"</string>
-    <plurals name="security_settings_fingerprint_preference_summary" formatted="false" msgid="2033416761172877041">
-      <item quantity="other">ตั้งค่าลายนิ้วมือ <xliff:g id="COUNT_1">%1$d</xliff:g> รายการ</item>
-      <item quantity="one">ตั้งค่าลายนิ้วมือ <xliff:g id="COUNT_0">%1$d</xliff:g> รายการ</item>
-    </plurals>
+    <!-- no translation found for security_settings_fingerprint_preference_summary (2033416761172877041) -->
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"ปลดล็อกด้วยลายนิ้วมือ"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"การใช้ลายนิ้วมือ"</string>
@@ -468,14 +465,16 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"ข้ามไปก่อน"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"ข้ามการตั้งค่าลายนิ้วมือไหม"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"คุณได้เลือกที่จะใช้ลายนิ้วมือเป็นวิธีการหนึ่งในการปลดล็อกโทรศัพท์ หากคุณข้ามในตอนนี้ คุณจะต้องตั้งค่าฟีเจอร์นี้ในภายหลัง การตั้งค่าจะใช้เวลาราว 1 นาทีเท่านั้น"</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"ปกป้องแท็บเล็ตด้วยตัวเลือกล็อกหน้าจอเพื่อไม่ให้ผู้อื่นใช้ได้หากแท็บเล็ตสูญหายหรือถูกขโมย คุณยังต้องใช้ตัวเลือกล็อกหน้าจอเพื่อตั้งค่าลายนิ้วมือด้วย แตะ \"ยกเลิก\" แล้วตั้ง PIN หรือเลือกตัวเลือกอื่นสำหรับการล็อกหน้าจอ"</string>
+    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (1384438077720821127) -->
+    <skip />
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7207112623501771824) -->
     <skip />
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7623975730623531606) -->
     <skip />
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (2998863111689476550) -->
     <skip />
-    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"ปกป้องอุปกรณ์ด้วยตัวเลือกล็อกหน้าจอเพื่อไม่ให้ผู้อื่นใช้ได้หากอุปกรณ์สูญหายหรือถูกขโมย คุณยังต้องใช้ตัวเลือกล็อกหน้าจอเพื่อตั้งค่าการตรวจสอบสิทธิ์ด้วยใบหน้าด้วย แตะ \"ยกเลิก\" แล้วตั้ง PIN หรือเลือกตัวเลือกอื่นสำหรับการล็อกหน้าจอ"</string>
+    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (6780557259734235952) -->
+    <skip />
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (8541640018478926775) -->
     <skip />
     <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
@@ -651,10 +650,7 @@
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"ใช้ความพยายามหลายครั้งเกินไป ระบบจะลบผู้ใช้รายนี้"</string>
     <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"ใช้ความพยายามหลายครั้งเกินไป ระบบจะลบโปรไฟล์งานนี้และข้อมูลในโปรไฟล์"</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"ปิด"</string>
-    <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
-      <item quantity="other">ต้องมีอักขระอย่างน้อย <xliff:g id="COUNT_1">%d</xliff:g> ตัว</item>
-      <item quantity="one">ต้องมีอักขระอย่างน้อย <xliff:g id="COUNT_0">%d</xliff:g> ตัว</item>
-    </plurals>
+    <!-- no translation found for lockpassword_password_too_short (694091983183310827) -->
     <!-- no translation found for lockpassword_pin_too_short (6805936168283187298) -->
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"ดำเนินการต่อ"</string>
     <!-- no translation found for lockpassword_password_too_long (7994068708438608179) -->
@@ -732,11 +728,13 @@
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"บลูทูธขั้นสูง"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"เมื่อเปิดบลูทูธ อุปกรณ์ของคุณจะสื่อสารกับอุปกรณ์บลูทูธที่อยู่ใกล้ๆ ได้"</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"เมื่อเปิดใช้งานบลูทูธ อุปกรณ์ของคุณจะสื่อสารกับอุปกรณ์บลูทูธเครื่องอื่นในบริเวณใกล้เคียงได้\n\nเพื่อปรับปรุงประสบการณ์การใช้งานอุปกรณ์ แอปและบริการต่างๆ จะยังคงสแกนหาอุปกรณ์ใกล้เคียงตลอดเวลาแม้บลูทูธจะปิดอยู่ การตั้งค่านี้ใช้เพื่อปรับปรุงสิ่งต่างๆ เช่น ฟีเจอร์และบริการตามสถานที่ คุณสามารถเปลี่ยนแปลงการตั้งค่านี้ได้ใน"<annotation id="link">"การตั้งค่าการสแกน"</annotation>"."</string>
-    <string name="ble_scan_notify_text" msgid="6290170236546386932">"แอปและบริการของระบบจะยังสามารถตรวจหาอุปกรณ์บลูทูธได้อยู่เพื่อปรับปรุงความแม่นยำของตำแหน่ง คุณสามารถเปลี่ยนแปลงฟีเจอร์นี้ได้ใน<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>การตั้งค่าการสแกน<xliff:g id="LINK_END_1">LINK_END</xliff:g>"</string>
+    <!-- no translation found for ble_scan_notify_text (6290170236546386932) -->
+    <skip />
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"ไม่สามารถเชื่อมต่อ โปรดลองอีกครั้ง"</string>
     <string name="device_details_title" msgid="726517818032923222">"รายละเอียดอุปกรณ์"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"ที่อยู่บลูทูธของอุปกรณ์: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"ไม่จำอุปกรณ์ใช่ไหม"</string>
+    <!-- no translation found for bluetooth_unpair_dialog_title (3669848977755142047) -->
+    <skip />
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"โทรศัพท์ของคุณจะไม่จับคู่กับ <xliff:g id="DEVICE_NAME">%1$s</xliff:g> อีกต่อไป"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"แท็บเล็ตของคุณจะไม่จับคู่กับ <xliff:g id="DEVICE_NAME">%1$s</xliff:g> อีกต่อไป"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"อุปกรณ์ของคุณจะไม่จับคู่กับ <xliff:g id="DEVICE_NAME">%1$s</xliff:g> อีกต่อไป"</string>
@@ -814,7 +812,8 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"การแจ้งเตือนเครือข่ายแบบเปิด"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"แจ้งเตือนเมื่อมีเครือข่ายสาธารณะคุณภาพสูงพร้อมใช้งาน"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"เปิด Wi‑Fi อัตโนมัติ"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi จะเปิดอีกครั้งเมื่ออยู่ใกล้เครือข่ายคุณภาพสูงที่บันทึกไว้ เช่น เครือข่ายที่บ้านของคุณ"</string>
+    <!-- no translation found for wifi_wakeup_summary (1152699417411690) -->
+    <skip />
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"ไม่พร้อมใช้งานเนื่องจากตำแหน่งปิดอยู่ โปรดเปิด"<annotation id="link">"ตำแหน่ง"</annotation></string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"ไม่พร้อมใช้งานเพราะการสแกนหา Wi‑Fi ปิดอยู่"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"ในการใช้งาน ให้เลือกผู้ให้บริการจัดอันดับเครือข่าย"</string>
@@ -869,7 +868,8 @@
     <string name="wifi_ssid" msgid="6746270925975522641">"ชื่อเครือข่าย"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"ป้อน SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"ความปลอดภัย"</string>
-    <string name="wifi_hidden_network" msgid="6647772204699776833">"เครือข่ายที่ซ่อนอยู่"</string>
+    <!-- no translation found for wifi_hidden_network (6647772204699776833) -->
+    <skip />
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"หากเราเตอร์ไม่ส่งสัญญาณรหัสเครือข่ายแต่คุณต้องการเชื่อมต่อเครือข่ายในอนาคต คุณตั้งค่าเพื่อซ่อนเครือข่ายได้\n\nการดำเนินการนี้อาจก่อให้เกิดความเสี่ยงด้านความปลอดภัยเพราะโทรศัพท์จะส่งสัญญาณเพื่อค้นหาเครือข่ายเป็นประจำ\n\nการตั้งค่าเพื่อซ่อนเครือข่ายจะไม่เปลี่ยนแปลงการตั้งค่าเราเตอร์"</string>
     <string name="wifi_signal" msgid="696548364467704808">"ความแรงสัญญาณ"</string>
     <string name="wifi_status" msgid="3439931558930689940">"สถานะ"</string>
@@ -977,10 +977,7 @@
     <string name="wifi_cancel" msgid="7618417075930426635">"ยกเลิก"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"ไม่จำเครือข่ายใช่ไหม"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"ระบบจะลบรหัสผ่านทั้งหมดของเครือข่ายนี้"</string>
-    <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
-      <item quantity="other">%d เครือข่าย</item>
-      <item quantity="one">1 เครือข่าย</item>
-    </plurals>
+    <!-- no translation found for wifi_saved_access_points_summary (6199295921035663421) -->
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"WiFi ขั้นสูง"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"ที่อยู่ Mac"</string>
@@ -1255,15 +1252,13 @@
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"พบหลายซิม"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"เลือกซิมที่คุณต้องการใช้อินเทอร์เน็ตมือถือ"</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"ใช้อินเทอร์เน็ตมือถือของ <xliff:g id="CARRIER">%1$s</xliff:g> ไหม"</string>
-    <string name="sim_change_data_message" msgid="51004703157782900">"คุณกำลังใช้อินเทอร์เน็ตมือถือของ <xliff:g id="CARRIER2_0">%2$s</xliff:g> หากเปลี่ยนเป็น <xliff:g id="CARRIER1">%1$s</xliff:g> ระบบจะหยุดใช้อินเทอร์เน็ตมือถือของ <xliff:g id="CARRIER2_1">%2$s</xliff:g>"</string>
+    <!-- no translation found for sim_change_data_message (51004703157782900) -->
+    <skip />
     <string name="sim_change_data_ok" msgid="7491552537317573235">"ใช้ <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"อัปเดตซิมการ์ดที่ต้องการไหม"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> เป็นซิมเดียวที่อยู่ในอุปกรณ์ของคุณ คุณต้องการใช้ซิมนี้เพื่อใช้อินเทอร์เน็ตมือถือ โทรออก และส่งข้อความ SMS หรือไม่"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"รหัส PIN ของซิมไม่ถูกต้อง ตอนนี้คุณต้องติดต่อผู้ให้บริการเพื่อปลดล็อกอุปกรณ์ของคุณ"</string>
-    <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
-      <item quantity="other">รหัส PIN ของซิมไม่ถูกต้อง คุณพยายามได้อีก <xliff:g id="NUMBER_1">%d</xliff:g> ครั้ง</item>
-      <item quantity="one">รหัส PIN ของซิมไม่ถูกต้อง คุณพยายามได้อีก <xliff:g id="NUMBER_0">%d</xliff:g> ครั้งก่อนที่จะต้องติดต่อผู้ให้บริการเพื่อปลดล็อกอุปกรณ์</item>
-    </plurals>
+    <!-- no translation found for wrong_pin_code (2934318793525717627) -->
     <string name="pin_failed" msgid="4877356137480446727">"การปลดล็อกด้วย PIN ของซิมล้มเหลว!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"การอัปเดตระบบ"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
@@ -2065,10 +2060,7 @@
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"บริการนี้ทำงานผิดปกติ"</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"แสดงในการตั้งค่าด่วน"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"โหมดแก้ไข"</string>
-    <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
-      <item quantity="other">เวลาหน่วงสั้นที่สุด (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> มิลลิวินาที)</item>
-      <item quantity="one">เวลาหน่วงสั้นที่สุด (<xliff:g id="CLICK_DELAY_LABEL_0">%1$d</xliff:g> มิลลิวินาที)</item>
-    </plurals>
+    <!-- no translation found for accessibilty_autoclick_preference_subtitle_extremely_short_delay (3810676455925024813) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_short_delay (8720846747098057703) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_short_delay (4311889107742293108) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_long_delay (285663535113656440) -->
@@ -2222,10 +2214,7 @@
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"มีการใช้งานอุปกรณ์มากกว่าปกติ แบตเตอรี่อาจหมดเร็วกว่าที่คาดไว้\n\nแอปที่คุณใช้มากที่สุดนับตั้งแต่การชาร์จครั้งล่าสุดมีดังนี้"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"รวมกิจกรรมในเบื้องหลังที่ใช้พลังงานมาก"</string>
     <!-- no translation found for battery_tip_restrict_title (7140926804142734420) -->
-    <plurals name="battery_tip_restrict_handled_title" formatted="false" msgid="5509363095891806748">
-      <item quantity="other">จำกัดแอป %2$d แอปเมื่อเร็วๆ นี้</item>
-      <item quantity="one">จำกัดแอป %1$s แอปเมื่อเร็วๆ นี้</item>
-    </plurals>
+    <!-- no translation found for battery_tip_restrict_handled_title (5509363095891806748) -->
     <!-- no translation found for battery_tip_restrict_summary (984148373944071669) -->
     <!-- no translation found for battery_tip_restrict_handled_summary (469696766640020557) -->
     <!-- no translation found for battery_tip_restrict_app_dialog_title (3042021435866172168) -->
@@ -2721,7 +2710,8 @@
     <string name="trusted_credentials_user_tab" msgid="4368592735325224612">"ผู้ใช้"</string>
     <string name="trusted_credentials_disable_label" msgid="2495224975071022858">"ปิดใช้งาน"</string>
     <string name="trusted_credentials_enable_label" msgid="8991649977058280799">"เปิดใช้งาน"</string>
-    <string name="trusted_credentials_remove_label" msgid="530728557358501000">"นำออก"</string>
+    <!-- no translation found for trusted_credentials_remove_label (530728557358501000) -->
+    <skip />
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"เชื่อถือได้"</string>
     <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"เปิดใช้งานระบบใบรับรอง CA หรือไม่"</string>
     <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"ปิดใช้งานระบบใบรับรอง CA หรือไม่"</string>
@@ -2745,10 +2735,7 @@
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"เครือข่ายอาจถูกตรวจสอบ"</string>
     <string name="done_button" msgid="7652373284597307008">"เสร็จสิ้น"</string>
     <!-- no translation found for ssl_ca_cert_dialog_title (7323708984446517980) -->
-    <plurals name="ssl_ca_cert_info_message_device_owner" formatted="false" msgid="9046046586061880100">
-      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> ได้ติดตั้งใบรับรอง CA บนอุปกรณ์ของคุณ ซึ่งอาจช่วยในการตรวจสอบกิจกรรมเครือข่ายของอุปกรณ์ได้ รวมถึงอีเมล แอป และเว็บไซต์ที่ปลอดภัย\n\nโปรดติดต่อผู้ดูแลระบบสำหรับข้อมูลเพิ่มเติมเกี่ยวกับใบรับรองเหล่านี้</item>
-      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> ได้ติดตั้งใบรับรอง CA บนอุปกรณ์ของคุณ ซึ่งอาจช่วยในการตรวจสอบกิจกรรมเครือข่ายของอุปกรณ์ได้ รวมถึงอีเมล แอป และเว็บไซต์ที่ปลอดภัย\n\nโปรดติดต่อผู้ดูแลระบบสำหรับข้อมูลเพิ่มเติมเกี่ยวกับใบรับรองนี้</item>
-    </plurals>
+    <!-- no translation found for ssl_ca_cert_info_message_device_owner (9046046586061880100) -->
     <!-- no translation found for ssl_ca_cert_info_message (8271858091418779584) -->
     <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"บุคคลที่สามสามารถตรวจสอบกิจกรรมทางเครือข่ายของคุณได้ รวมทั้งอีเมล แอป และเว็บไซต์ที่ปลอดภัย\n\nข้อมูลรับรองที่เชื่อถือได้ที่ติดตั้งในอุปกรณ์ของคุณทำให้การดำเนินการนี้เป็นไปได้"</string>
     <!-- no translation found for ssl_ca_cert_settings_button (3227175122066058245) -->
@@ -3145,10 +3132,7 @@
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"เปิด"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"ถามทุกครั้ง (ยกเว้นที่เปิดโดยอัตโนมัติ)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"จนกว่าคุณจะปิด (ยกเว้นที่เปิดโดยอัตโนมัติ)"</string>
-    <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
-      <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> ชั่วโมง (ยกเว้นที่เปิดโดยอัตโนมัติ)</item>
-      <item quantity="one">1 ชั่วโมง (ยกเว้นที่เปิดโดยอัตโนมัติ)</item>
-    </plurals>
+    <!-- no translation found for zen_mode_duration_summary_time_hours (8872000022033647725) -->
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> นาที (ยกเว้นที่เปิดโดยอัตโนมัติ)"</string>
     <!-- no translation found for zen_mode_sound_summary_summary_off_info (8527428833487709278) -->
     <string name="zen_category_behavior" msgid="7695750848671443532">"ปิดเสียงอุปกรณ์ แต่อนุญาตข้อยกเว้น"</string>
@@ -3485,10 +3469,7 @@
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"ระดับ %d"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
-    <plurals name="notifications_categories_off" formatted="false" msgid="7173464913755425293">
-      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> หมวดหมู่ปิดอยู่</item>
-      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> หมวดหมู่ปิดอยู่</item>
-    </plurals>
+    <!-- no translation found for notifications_categories_off (7173464913755425293) -->
     <!-- no translation found for permissions_summary (2750853128045095961) -->
     <!-- no translation found for runtime_permissions_summary (3166036683687471356) -->
     <!-- no translation found for runtime_permissions_additional_count (2068102378805218668) -->
@@ -3558,10 +3539,7 @@
     <string name="additional_battery_info" msgid="6877663897819271203">"การแจ้งเตือนการใช้งาน"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"แสดงการใช้งานอุปกรณ์แบบเต็ม"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"แสดงการใช้งานแอป"</string>
-    <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
-      <item quantity="other"><xliff:g id="NUMBER">%2$d</xliff:g> แอปมีลักษณะการทำงานผิดปกติ</item>
-      <item quantity="one"><xliff:g id="APP">%1$s</xliff:g> มีลักษณะการทำงานผิดปกติ</item>
-    </plurals>
+    <!-- no translation found for power_high_usage_summary (4658343710126205199) -->
     <!-- no translation found for power_high_usage_title (63134064262760835) -->
     <string name="high_power_filter_on" msgid="5294209328473386403">"ไม่ได้เพิ่มประสิทธิภาพ"</string>
     <string name="high_power_on" msgid="3573501822510580334">"ไม่ได้เพิ่มประสิทธิภาพ"</string>
@@ -3636,10 +3614,7 @@
     <string name="average_used" msgid="3022736210190754669">"การใช้โดยเฉลี่ย (%)"</string>
     <string name="free_memory" msgid="4758919141048544927">"เหลือ"</string>
     <string name="memory_usage_apps" msgid="2839241373381152354">"หน่วยความจำที่แอปใช้"</string>
-    <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> แอปใช้หน่วยความจำใน <xliff:g id="DURATION_1">%2$s</xliff:g>ที่ผ่านมา</item>
-      <item quantity="one">1 แอปใช้หน่วยความจำใน <xliff:g id="DURATION_0">%2$s</xliff:g>ที่ผ่านมา</item>
-    </plurals>
+    <!-- no translation found for memory_usage_apps_summary (1235024908546944704) -->
     <string name="running_frequency" msgid="7545170806968474449">"ความถี่"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"การใช้งานสูงสุด"</string>
     <string name="no_data_usage" msgid="903383745620135746">"ไม่ได้ใช้อินเทอร์เน็ต"</string>
@@ -3709,7 +3684,8 @@
     <string name="data_usage_summary_format" msgid="7788095271598602797">"ใช้อินเทอร์เน็ตไป <xliff:g id="AMOUNT">%1$s</xliff:g>"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"ใช้ไป <xliff:g id="AMOUNT">^1</xliff:g> จาก Wi‑Fi"</string>
     <!-- no translation found for notification_summary (761061343339229103) -->
-    <string name="notification_summary_none" msgid="5003043219430054784">"เปิดสำหรับแอปทั้งหมด"</string>
+    <!-- no translation found for notification_summary_none (5003043219430054784) -->
+    <skip />
     <string name="apps_summary" msgid="8355759446490212195">"ติดตั้งแล้ว <xliff:g id="COUNT">%1$d</xliff:g> แอป"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"ติดตั้งแล้ว 24 แอป"</string>
     <string name="storage_summary" msgid="4835916510511133784">"ใช้ไป <xliff:g id="PERCENTAGE">%1$s</xliff:g> - เหลือ <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
@@ -3808,10 +3784,7 @@
     <string name="data_usage_template" msgid="6848274347956096882">"ใช้ไป <xliff:g id="ID_1">%1$s</xliff:g> ช่วงวันที่ <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="configure" msgid="8232696842838580549">"กำหนดค่า"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"แอปอื่นๆ ที่รวมอยู่ในการใช้งาน"</string>
-    <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> แอปได้รับอนุญาตให้ใช้อินเทอร์เน็ตได้ไม่จำกัดเมื่อเปิดโปรแกรมประหยัดอินเทอร์เน็ต</item>
-      <item quantity="one">1 แอปได้รับอนุญาตให้ใช้อินเทอร์เน็ตได้ไม่จำกัดเมื่อเปิดโปรแกรมประหยัดอินเทอร์เน็ต</item>
-    </plurals>
+    <!-- no translation found for data_saver_unrestricted_summary (6046013861315713697) -->
     <string name="data_usage_title" msgid="7874606430902201083">"ข้อมูลหลัก"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"อินเทอร์เน็ตจาก Wi‑Fi"</string>
     <string name="data_used" msgid="1063553292806661784">"ใช้ไป <xliff:g id="ID_1">^1</xliff:g>"</string>
@@ -3928,10 +3901,7 @@
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"องค์กรไม่อนุญาตให้แอปส่วนตัวเข้าถึง Work Calendar"</string>
     <!-- no translation found for hours (135936773984899873) -->
     <!-- no translation found for minutes (4624073557955858160) -->
-    <plurals name="seconds" formatted="false" msgid="6942674168513274363">
-      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> วินาที</item>
-      <item quantity="one">1 วินาที</item>
-    </plurals>
+    <!-- no translation found for seconds (6942674168513274363) -->
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"จัดการพื้นที่เก็บข้อมูล"</string>
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"ตัวจัดการพื้นที่เก็บข้อมูลจะนำรูปภาพและวิดีโอที่สำรองไว้ออกจากอุปกรณ์ของคุณ เพื่อช่วยเพิ่มพื้นที่เก็บข้อมูล"</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"นำรูปภาพและวิดีโอออก"</string>
@@ -3944,7 +3914,8 @@
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"ท่าทางสัมผัสด่วนสำหรับการควบคุมโทรศัพท์"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"ท่าทางสัมผัสด่วนสำหรับการควบคุมแท็บเล็ต"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"ท่าทางสัมผัสด่วนสำหรับการควบคุมอุปกรณ์"</string>
-    <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"ข้ามไปที่กล้อง"</string>
+    <!-- no translation found for double_tap_power_for_camera_title (5480829329052517484) -->
+    <skip />
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"หากต้องการเปิดกล้องอย่างรวดเร็ว ให้กดปุ่มเปิด/ปิด 2 ครั้งจากหน้าจอใดก็ได้"</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"เปิดกล้องถ่ายรูปได้อย่างรวดเร็ว"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"พลิกกล้อง"</string>
@@ -4198,7 +4169,8 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"เข้าถึงอินเทอร์เน็ตโดยใช้เครือข่ายมือถือ"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"โทรศัพท์จะเปลี่ยนไปใช้ผู้ให้บริการรายนี้โดยอัตโนมัติเมื่ออยู่ในพื้นที่ให้บริการ"</string>
     <string name="calls_preference" msgid="2076353032705811243">"ค่ากำหนดการโทร"</string>
-    <string name="sms_preference" msgid="8449270011976880">"ค่ากำหนด SMS"</string>
+    <!-- no translation found for sms_preference (8449270011976880) -->
+    <skip />
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"ถามทุกครั้ง"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"เพิ่มเครือข่าย"</string>
     <!-- no translation found for mobile_network_summary_count (6222822873390636020) -->
@@ -4281,7 +4253,8 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"นำคำแนะนำนี้ออกไหม"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"นำคำแนะนำออกแล้ว"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"เลิกทำ"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"พื้นที่เก็บข้อมูลเหลือน้อย ใช้ไป <xliff:g id="PERCENTAGE">%1$s</xliff:g> - เหลือ <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
+    <!-- no translation found for low_storage_summary (4562224870189133400) -->
+    <skip />
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"ส่งความคิดเห็น"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"ต้องการส่งความคิดเห็นเกี่ยวกับคำแนะนำนี้ถึงเราไหม"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"คัดลอก <xliff:g id="COPY_CONTENT">%1$s</xliff:g> ไปยังคลิปบอร์ดแล้ว"</string>
@@ -4294,10 +4267,7 @@
     <!-- no translation found for accessibility_usage_summary (2604152087205501644) -->
     <string name="manage_app_notification" msgid="9072118910762792295">"จัดการการแจ้งเตือนของ<xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="no_suggested_app" msgid="509257628685025383">"ไม่มีแอปพลิเคชันแนะนำ"</string>
-    <plurals name="notification_few_channel_count_summary" formatted="false" msgid="5165639207390218085">
-      <item quantity="other">ช่องทางการแจ้งเตือน <xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> ช่องทาง</item>
-      <item quantity="one">ช่องทางการแจ้งเตือน <xliff:g id="NOTIFICATION_CHANNEL_COUNT_0">%1$d</xliff:g> ช่องทาง</item>
-    </plurals>
+    <!-- no translation found for notification_few_channel_count_summary (5165639207390218085) -->
     <string name="notification_many_channel_count_summary" msgid="9205641731142529086">"ช่องทางการแจ้งเตือน <xliff:g id="NOTIFICATION_CHANNEL_COUNT">%1$d</xliff:g> ช่องทาง แตะเพื่อจัดการทั้งหมด"</string>
     <string name="recently_installed_app" msgid="6491959945747808096">"คุณเพิ่งติดตั้งแอปนี้"</string>
     <string name="media_output_panel_title" msgid="8429272102437211530">"เปลี่ยนเอาต์พุต"</string>

@@ -424,10 +424,7 @@
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"ଏହା ପାଇଁ ଆଙ୍ଗୁଠି ଚିହ୍ନର ବ୍ୟବହାର କରନ୍ତୁ"</string>
     <string name="fingerprint_add_title" msgid="6840343900784463856">"ଟିପଚିହ୍ନ ଯୋଡ଼ନ୍ତୁ"</string>
     <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"ସ୍କ୍ରୀନ୍‌ ଲକ୍‌"</string>
-    <plurals name="security_settings_fingerprint_preference_summary" formatted="false" msgid="2033416761172877041">
-      <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> ଆଙ୍ଗୁଠି ଚିହ୍ନଗୁଡ଼ିକର ସେଟ୍‌ ଅପ୍‌</item>
-      <item quantity="one"><xliff:g id="COUNT_0">%1$d</xliff:g> ଆଙ୍ଗୁଠି ଚିହ୍ନ ସେଟ୍‌ ଅପ୍‌</item>
-    </plurals>
+    <!-- no translation found for security_settings_fingerprint_preference_summary (2033416761172877041) -->
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"ଆଙ୍ଗୁଠି ଚିହ୍ନ ଅନ୍‌ଲକ୍‌ କରନ୍ତୁ"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"ନିଜ ଟିପଚିହ୍ନ ବ୍ୟବହାର କରନ୍ତୁ"</string>
@@ -468,14 +465,16 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"ଏହାକୁ ପରେ କରନ୍ତୁ"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"ଆଙ୍ଗୁଠି ଚିହ୍ନ ସେଟଅପ ଛାଡ଼ିଦେବେ?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"ଫୋନ୍‌କୁ ଅନ୍‌ଲକ୍‌ କରିବା ପାଇଁ ନିଜ ଆଙ୍ଗୁଠି ଚିହ୍ନକୁ ଗୋଟିଏ ମାର୍ଗ ଭାବେ ଆପଣ ବାଛିଛନ୍ତି। ଯଦି ଆପଣ ଏବେ ଛାଡ଼ିଦେବେ, ତେବେ ଏହାକୁ ପରେ ସେଟ୍‌ କରିବାକୁ ପଡ଼ିବ। ସେଟ୍‌ଅପ୍‌ରେ ପ୍ରାୟ କେବଳ ଗୋଟିଏ ମିନିଟ୍‌ ସମୟ ଲାଗିବ।"</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"ଏକ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ସାହାଯ୍ୟରେ ଆପଣଙ୍କର ଟାବ୍‌ଲେଟ୍‌କୁ ସୁରକ୍ଷିତ ରଖନ୍ତୁ, ଯାହା ଫଳରେ ଏହା ହଜିଗଲେ କିମ୍ବା ଚୋରି ହୋଇଗଲେ, କେହି ଏହାକୁ ବ୍ୟବହାର କରିପାରିବେ ନାହିଁ। ଆପଣ ମଧ୍ୟ୍ୟ ଆଙ୍ଗୁଠି ଟିହ୍ନ ସେଟ୍ ଅପ୍ କରିବାକୁ ଏକ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ଆବଶ୍ୟକ କରନ୍ତି। ବାତିଲ୍ କରନ୍ତୁରେ ଟାପ୍ କରନ୍ତୁ, ତାପରେ ଏକ PIN ସେଟ୍ କରନ୍ତୁ କିମ୍ବା ଅନ୍ୟ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ବାଛନ୍ତୁ।"</string>
+    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (1384438077720821127) -->
+    <skip />
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7207112623501771824) -->
     <skip />
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7623975730623531606) -->
     <skip />
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (2998863111689476550) -->
     <skip />
-    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"ଏକ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ସାହାଯ୍ୟରେ ଆପଣଙ୍କର ଡିଭାଇସ୍‌କୁ ସୁରକ୍ଷିତ ରଖନ୍ତୁ, ଯାହା ଫଳରେ ଏହା ହଜିଗଲେ କିମ୍ବା ଚୋରି ହୋଇଗଲେ, କେହି ଏହାକୁ ବ୍ୟବହାର କରିପାରିବେ ନାହିଁ। ଆପଣ ମଧ୍ୟ୍ୟ ମୁହଁ ପ୍ରମାଣିକିକରଣ ସେଟ୍ ଅପ୍ କରିବାକୁ ଏକ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ଆବଶ୍ୟକ କରନ୍ତି। ବାତିଲ୍ କରନ୍ତୁରେ ଟାପ୍ କରନ୍ତୁ, ତାପରେ ଏକ PIN ସେଟ୍ କରନ୍ତୁ କିମ୍ବା ଅନ୍ୟ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ବାଛନ୍ତୁ।"</string>
+    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (6780557259734235952) -->
+    <skip />
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (8541640018478926775) -->
     <skip />
     <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
@@ -651,10 +650,7 @@
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"ଅନେକ ଭୁଲ ପ୍ରୟାସ। ଏହି ଉପଯୋଗକର୍ତ୍ତାଙ୍କୁ ଡିଲିଟ୍‍ କରିଦିଆଯିବ।"</string>
     <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"ବହୁତ ଅଧିକ ଭୁଲ ପ୍ରୟାସ। ଏହି କାର୍ଯ୍ୟ ପ୍ରୋଫାଇଲ୍‌ ଓ ତାହାର ଡାଟାକୁ ଡିଲିଟ୍‌ କରିଦିଆଯିବ।"</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"ଖାରଜ କରନ୍ତୁ"</string>
-    <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
-      <item quantity="other">ଅତିକମ୍‌‌ରେ <xliff:g id="COUNT_1">%d</xliff:g>ଟି ଅକ୍ଷରବିଶିଷ୍ଟ ହେବା ଦରକାର</item>
-      <item quantity="one">ଅତିକମ୍‌ରେ <xliff:g id="COUNT_0">%d</xliff:g>ଟି ଅକ୍ଷର ରହିବା ଦରକାର</item>
-    </plurals>
+    <!-- no translation found for lockpassword_password_too_short (694091983183310827) -->
     <!-- no translation found for lockpassword_pin_too_short (6805936168283187298) -->
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"ଜାରି ରଖନ୍ତୁ"</string>
     <!-- no translation found for lockpassword_password_too_long (7994068708438608179) -->
@@ -732,11 +728,13 @@
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"ଉନ୍ନତ ବ୍ଲୁଟୂଥ୍‍‌"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"ଆପଣଙ୍କ ବ୍ଲୁଟୂଥ ଚାଲୁଥିବା ବେଳେ ଆପଣଙ୍କ ଡିଭାଇସ ଆଖପାଖରେ ଥିବା ବ୍ଲୁଟୂଥ ଡିଭାଇସଗୁଡ଼ିକ ସହ ଯୋଗାଯୋଗ କରିପାରିବ"</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"ବ୍ଲୁଟୂଥ୍‍ ଚାଲୁ ଥିବାବେଳେ ଆପଣଙ୍କ ଡିଭାଇସ୍, ଆଖପାଖରେ ଥିବା ଅନ୍ୟ ବ୍ଲୁଟୂଥ୍‍ ଡିଭାଇସ୍ ସହିତ ଯୋଗାଯୋଗ କରିପାରିବ। \n\nଡିଭାଇସ୍‌ର ଅନୁଭବକୁ ଉନ୍ନତ କରିବା ପାଇଁ ବ୍ଲୁଟୂଥ୍‍ ବନ୍ଦ ଥିଲେ ମଧ୍ୟ ଆପ୍ ଓ ସେବାଗୁଡ଼ିକ ନିକଟସ୍ଥ ଯେକୌଣସି ଡିଭାଇସ୍‌କୁ ଖୋଜିପାରିବେ। ଉଦାହରଣସ୍ଵରୂପ, ଲୋକେସନ୍ ଆଧାରିତ ଫିଚର୍ ଓ ସେବାଗୁଡ଼ିକ ପାଇଁ ବ୍ୟବହାର କରାଯାଇପାରିବ। ଆପଣ ଏହାକୁ "<annotation id="link">"ସ୍କାନିଙ୍ଗ ସେଟିଙ୍ଗ"</annotation>" ମଧ୍ୟରେ ବଳାଇପାରିବେ।"</string>
-    <string name="ble_scan_notify_text" msgid="6290170236546386932">"ଲୋକେସନ୍‌ ସଠିକତାକୁ ଉନ୍ନତ କରିବା ପାଇଁ, ସିଷ୍ଟମ୍‌ ଆପ୍‍ ଓ ସେବାଗୁଡ଼ିକ ବ୍ଲୁଟୂଥ୍‍‌ ଡିଭାଇସ୍‌ଗୁଡ଼ିକୁ ଚିହ୍ନଟ କରିପାରିବେ। ଆପଣ ଏହାକୁ <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>ଖୋଜିବା ସେଟିଙ୍ଗରେ<xliff:g id="LINK_END_1">LINK_END</xliff:g>ବଦଳାଇପାରିବେ।"</string>
+    <!-- no translation found for ble_scan_notify_text (6290170236546386932) -->
+    <skip />
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"ସଂଯୋଗ କରିପାରୁନାହିଁ। ପୁଣିଥରେ ଚେଷ୍ଟା କରନ୍ତୁ।"</string>
     <string name="device_details_title" msgid="726517818032923222">"ଡିଭାଇସ୍‌ର ବିବରଣୀ"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"ଡିଭାଇସ୍‌ର ବ୍ଲୁଟୂଥ୍‍‌ ଠିକଣା ହେଉଛି: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"ଡିଭାଇସ୍‌ଟିକୁ ଭୁଲିଯିବେ?"</string>
+    <!-- no translation found for bluetooth_unpair_dialog_title (3669848977755142047) -->
+    <skip />
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ସହିତ ଆପଣଙ୍କ ଫୋନ୍‌ ଆଉ ପେୟାର୍‌ ହେବନାହିଁ"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"ଆପଣଙ୍କ ଟାବଲେଟ୍‌ ଏବେ <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ସହ ପେୟାର୍‌ ହୋଇ ରହିବନାହିଁ"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ସହ ଆପଣଙ୍କ ଡିଭାଇସ୍‌ ଆଉ ପେୟାର୍‌ ହୋଇପାରିବ ନାହିଁ"</string>
@@ -814,7 +812,8 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"ଓପନ୍ ନେଟ୍‌ୱାର୍କ ବିଜ୍ଞପ୍ତି"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"ଏକ ଉଚ୍ଚ-ଗୁଣବତ୍ତା ବିଶିଷ୍ଟ ପବ୍ଲିକ୍‌ ନେଟ୍‌ୱର୍କ ଉପଲବ୍ଧ ଥିବାବେଳେ ସୂଚିତ କରନ୍ତୁ"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"ୱାଇ-ଫାଇ ସ୍ୱଚାଳିତ ଭାବେ ଅନ୍‌ କରନ୍ତୁ"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"ଆପଣଙ୍କର ହୋମ୍ ନେଟ୍‌ୱର୍କ ଭଳି ସେଭ୍ ହୋଇଥିବା ଉଚ୍ଚ କ୍ୱାଲିଟୀର ନେଟ୍‌ୱର୍କଗୁଡ଼ିକ ନିକଟରେ ୱାଇ-ଫାଇ ପୁଣିଥରେ ଅନ୍ ହେବ"</string>
+    <!-- no translation found for wifi_wakeup_summary (1152699417411690) -->
+    <skip />
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"ଉପଲବ୍ଧ ନାହିଁ, କାରଣ ଲୋକେସନ୍ ବନ୍ଦ ଅଛି। "<annotation id="link">"ଲୋକେସନ୍"</annotation>"କୁ ଚାଲୁ କରନ୍ତୁ।"</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"ୱାଇ-ଫାଇ ସ୍କାନ୍‌ କରିବା ବନ୍ଦ ଥିବା କାରଣରୁ ଉପଲବ୍ଧ ନାହିଁ"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"ବ୍ୟବହାର କରିବାକୁ, ଏକ ନେଟୱର୍କ ରେଟିଙ୍ଗ୍‌ ପ୍ରଦାତା ବାଛନ୍ତୁ"</string>
@@ -869,7 +868,8 @@
     <string name="wifi_ssid" msgid="6746270925975522641">"ନେଟ୍‌ୱାର୍କର ନାମ"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSID ପ୍ରବେଶ କରନ୍ତୁ"</string>
     <string name="wifi_security" msgid="9136702039496152831">"ସୁରକ୍ଷା"</string>
-    <string name="wifi_hidden_network" msgid="6647772204699776833">"ଲୁଚିଥିବା ନେଟ୍‌ୱର୍କ"</string>
+    <!-- no translation found for wifi_hidden_network (6647772204699776833) -->
+    <skip />
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"ଯଦି ଆପଣଙ୍କ ରାଉଟର୍ ଗୋଟିଏ ନେଟ୍‌ୱର୍କ IDକୁ ପ୍ରସାରଣ ନକରେ କିନ୍ତୁ ଭବିଷ୍ୟତରେ ଆପଣ ତାହା ସହିତ କନେକ୍ଟ କରିବାକୁ ଚାହୁଁଛନ୍ତି, ତେବେ ଆପଣ ନେଟ୍‌ୱର୍କକୁ ଲୁକ୍କାୟିତ ଭାବେ ସେଟ୍ କରିପାରିବେ। \n\n ଏହା ଗୋଟିଏ ସୁରକ୍ଷା ପ୍ରଶ୍ନବାଚୀ ସୃଷ୍ଟି କରିପାରେ, କାରଣ ଆପଣଙ୍କ ଫୋନ୍ ନେଟ୍‌ୱର୍କ ପ୍ରାପ୍ତ କରିବା ପାଇଁ ନିୟମିତ ଭାବେ ନିଜର ସିଗନାଲ୍‌କୁ ପ୍ରସାରିତ କରିବ। \n\nଲୁକ୍କାୟିତ ଭାବେ ନେଟୱର୍କକୁ ସେଟ୍ କରିବା ଦ୍ଵାରା ରାଉଟର୍‌ର ସେଟିଙ୍ଗ ବଦଳିବ ନାହିଁ।"</string>
     <string name="wifi_signal" msgid="696548364467704808">"ସିଗ୍ନାଲ୍‌ର ଶକ୍ତି"</string>
     <string name="wifi_status" msgid="3439931558930689940">"ସ୍ଥିତି"</string>
@@ -977,10 +977,7 @@
     <string name="wifi_cancel" msgid="7618417075930426635">"କ୍ୟାନ୍ସଲ୍‌"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"ନେଟୱର୍କକୁ ଭୁଲିଯିବେ?"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"ଏହି ନେଟ୍‌ୱର୍କ ପାଇଁ ଥିବା ସବୁ ପାସ୍‌ୱର୍ଡକୁ ଡିଲିଟ୍ କରିଦିଆଯିବ"</string>
-    <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
-      <item quantity="other">%d ନେଟୱାର୍କଗୁଡିକ</item>
-      <item quantity="one">1 ନେଟୱାର୍କ</item>
-    </plurals>
+    <!-- no translation found for wifi_saved_access_points_summary (6199295921035663421) -->
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"ଉନ୍ନତ ୱାଇ-ଫାଇ"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC ଠିକଣା"</string>
@@ -1255,15 +1252,13 @@
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"ଏକାଧିକ ସିମ୍‌ ମିଳିଛି"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"ମୋବାଇଲ୍‌ ଡାଟା ପାଇଁ ନିଜ ପସନ୍ଦର SIM ବାଛନ୍ତୁ।"</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"ମୋବାଇଲ୍ ଡାଟା ପାଇଁ <xliff:g id="CARRIER">%1$s</xliff:g> ବ୍ୟବହାର କରିବେ?"</string>
-    <string name="sim_change_data_message" msgid="51004703157782900">"ମୋବାଇଲ୍ ଡାଟା ପାଇଁ ଆପଣ <xliff:g id="CARRIER2_0">%2$s</xliff:g> ବ୍ୟବହାର କରୁଛନ୍ତି। ଯଦି ଆପଣ <xliff:g id="CARRIER1">%1$s</xliff:g>କୁ ସ୍ବିଚ୍ କରୁଛନ୍ତି, ତେବେ ମୋବାଇଲ୍ ଡାଟା ପାଇଁ ଆଉ <xliff:g id="CARRIER2_1">%2$s</xliff:g> ବ୍ୟବହୃତ ହେବ ନାହିଁ।"</string>
+    <!-- no translation found for sim_change_data_message (51004703157782900) -->
+    <skip />
     <string name="sim_change_data_ok" msgid="7491552537317573235">"<xliff:g id="CARRIER">%1$s</xliff:g> ବ୍ୟବହାର କରନ୍ତୁ"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"ନିଜ ପସନ୍ଦର ସିମ୍‌ କାର୍ଡକୁ ଅପଡେଟ୍‌ କରିବେ?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> ହେଉଛି ଆପଣଙ୍କ ଡିଭାଇସ୍‌ରେ ଥିବା ଏକମାତ୍ର SIM। ମୋବାଇଲ୍‌ ଡାଟା, କଲ୍‌ ଓ SMS ପାଇଁ ଏହାକୁ ହିଁ ବ୍ୟବହାର କରିବେ?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"ଭୁଲ SIM PIN କୋଡ୍‌, ଆପଣଙ୍କ ଡିଭାଇସ୍‌କୁ ଅନଲକ୍‌ କରିବା ପାଇଁ ଏବେ ହିଁ ନିଜ କେରିଅର୍‌ଙ୍କ ସହ ସମ୍ପର୍କ କରନ୍ତୁ।"</string>
-    <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
-      <item quantity="other">SIMର PIN କୋଡ୍‌ଟି ଭୁଲ୍‌, ଆପଣ ଆଉ <xliff:g id="NUMBER_1">%d</xliff:g> ଥର ପ୍ରୟାସ କରିପାରିବେ।</item>
-      <item quantity="one">SIMର PIN କୋଡ୍‌ଟି ଭୁଲ୍‌, ଆପଣଙ୍କ ଡିଭାଇସ୍‌ ଅନଲକ୍‌ କରିବାକୁ ଆପଣ ଆଉ <xliff:g id="NUMBER_0">%d</xliff:g> ଥର ପ୍ରୟାସ କରିପାରିବେ, ତା\'ପରେ ଆପଣଙ୍କୁ ନିଜ କେରିଅର୍‌ଙ୍କ ସହିତ ଯୋଗାଯୋଗ କରିବାକୁ ହେବ।</item>
-    </plurals>
+    <!-- no translation found for wrong_pin_code (2934318793525717627) -->
     <string name="pin_failed" msgid="4877356137480446727">"ସିମ୍‌ ପିନ୍‌ କାମ ବିଫଳ ହେଲା!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"ସିଷ୍ଟମ୍‌ ଅପଡେଟ୍‌‍"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
@@ -2065,10 +2060,7 @@
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"ଏହି ସେବା ଠିକ୍‌ରୂପେ କାମ କରୁ ନାହିଁ।"</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"ଦ୍ରୁତ ସେଟିଙ୍ଗରେ ଦେଖାନ୍ତୁ"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"ସଂଶୋଧନ ମୋଡ୍"</string>
-    <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
-      <item quantity="other">ବହୁତ କମ ବିଳମ୍ୱ (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ମି.ସେ.)</item>
-      <item quantity="one">ବହୁତ କମ ବିଳମ୍ୱ (<xliff:g id="CLICK_DELAY_LABEL_0">%1$d</xliff:g> ମି.ସେ.)</item>
-    </plurals>
+    <!-- no translation found for accessibilty_autoclick_preference_subtitle_extremely_short_delay (3810676455925024813) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_short_delay (8720846747098057703) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_short_delay (4311889107742293108) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_long_delay (285663535113656440) -->
@@ -2222,10 +2214,7 @@
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"ଆପଣଙ୍କ ଡିଭାଇସ୍ ସାଧାରଣ ତୁଳନାରେ ଅଧିକ ବ୍ୟବହାର କରାଯାଇଛି। ଆଶା କରାଯାଉଥିବା ସମୟଠାରୁ ଆପଣଙ୍କ ବ୍ୟାଟେରୀ ଶୀଘ୍ର ସରି ଯାଇପାରେ।\n\nପୂର୍ଣ୍ଣ ଚାର୍ଜ ହେବା ପରଠାରୁ ଅଧିକ ବ୍ୟବହୃତ ଆପ୍ସ।"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"ଉଚ୍ଚ-ଶକ୍ତି ପୃଷ୍ଟଭୂମୀ କାର୍ଯ୍ୟ ଅନ୍ତର୍ଭୁକ୍ତ କରେ"</string>
     <!-- no translation found for battery_tip_restrict_title (7140926804142734420) -->
-    <plurals name="battery_tip_restrict_handled_title" formatted="false" msgid="5509363095891806748">
-      <item quantity="other">%2$dଟି ଆପ୍‌କୁ ସମ୍ପ୍ରତି ପ୍ରତିବନ୍ଧିତ କରାଯାଇଛି</item>
-      <item quantity="one">%1$sଟି ଆପ୍‌କୁ ସମ୍ପ୍ରତି ପ୍ରତିବନ୍ଧିତ କରାଯାଇଛି</item>
-    </plurals>
+    <!-- no translation found for battery_tip_restrict_handled_title (5509363095891806748) -->
     <!-- no translation found for battery_tip_restrict_summary (984148373944071669) -->
     <!-- no translation found for battery_tip_restrict_handled_summary (469696766640020557) -->
     <!-- no translation found for battery_tip_restrict_app_dialog_title (3042021435866172168) -->
@@ -2721,7 +2710,8 @@
     <string name="trusted_credentials_user_tab" msgid="4368592735325224612">"ଉପଯୋଗକର୍ତ୍ତା"</string>
     <string name="trusted_credentials_disable_label" msgid="2495224975071022858">"ଅକ୍ଷମ"</string>
     <string name="trusted_credentials_enable_label" msgid="8991649977058280799">"ସକ୍ଷମ"</string>
-    <string name="trusted_credentials_remove_label" msgid="530728557358501000">"ଅପସାରଣ କରନ୍ତୁ"</string>
+    <!-- no translation found for trusted_credentials_remove_label (530728557358501000) -->
+    <skip />
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"ବିଶ୍ୱାସ କରନ୍ତୁ"</string>
     <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"ସିଷ୍ଟମ୍‌ CA ସର୍ଟିଫିକେଟ୍‌ ସକ୍ଷମ କରିବେ?"</string>
     <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"ସିଷ୍ଟମ୍‌ CA ସର୍ଟିଫିକେଟ୍‌ ଅକ୍ଷମ କରିବେ?"</string>
@@ -2745,10 +2735,7 @@
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"ନେଟୱାର୍କ ନୀରିକ୍ଷଣ କରାଯାଇ ପାରେ"</string>
     <string name="done_button" msgid="7652373284597307008">"ହୋଇଗଲା"</string>
     <!-- no translation found for ssl_ca_cert_dialog_title (7323708984446517980) -->
-    <plurals name="ssl_ca_cert_info_message_device_owner" formatted="false" msgid="9046046586061880100">
-      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> ଆପଣଙ୍କ ଡିଭାଇସ୍‌ରେ ଏକ ସର୍ଟିଫିକେଟ୍‌ ଅଧିକାର ଇନଷ୍ଟଲ୍‌ କରିଛି, ଯାହା ଇମେଲ୍‌, ଆପ୍‌ ଓ ସୁରକ୍ଷିତ ୱେବସାଇଟ୍‌ଗୁଡ଼ିକ ସମେତ ଆପଣଙ୍କ ଡିଭାଇସ୍‌ ନେଟ୍‌ୱର୍କ କାର୍ଯ୍ୟକଳାପର ତଦାରଖ କରିବା ପାଇଁ ସେଗୁଡ଼ିକୁ ଅନୁମତି ଦେବ।\n\nଏହି ସର୍ଟିଫିକେଟ୍‌ଗୁଡ଼ିକ ବିଷୟରେ ଅଧିକ ଜାଣିବା ପାଇଁ, ନିଜ ଆଡମିନ୍‌ଙ୍କ ସହ ଯୋଗାଯୋଗ କରନ୍ତୁ।</item>
-      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> ଆପଣଙ୍କ ଡିଭାଇସ୍‌ରେ ଏକ ସର୍ଟିଫିକେଟ୍‌ ଅଧିକାର ଇନଷ୍ଟଲ୍‌ କରିଛି, ଯାହା ଇମେଲ୍‌, ଆପ୍‌ ଓ ସୁରକ୍ଷିତ ୱେବସାଇଟ୍‌ଗୁଡ଼ିକ ସମେତ ଆପଣଙ୍କ ଡିଭାଇସ୍‌ ନେଟ୍‌ୱର୍କ କାର୍ଯ୍ୟକଳାପର ତଦାରଖ କରିବା ପାଇଁ ସେଗୁଡ଼ିକୁ ଅନୁମତି ଦେବ।\n\nଏହି ସର୍ଟିଫିକେଟ୍‌ ବିଷୟରେ ଅଧିକ ଜାଣିବା ପାଇଁ, ନିଜ ଆଡମିନ୍‌ଙ୍କ ସହ ଯୋଗାଯୋଗ କରନ୍ତୁ।</item>
-    </plurals>
+    <!-- no translation found for ssl_ca_cert_info_message_device_owner (9046046586061880100) -->
     <!-- no translation found for ssl_ca_cert_info_message (8271858091418779584) -->
     <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"ଇମେଲ୍‌, ଆପ୍‌ ଏବଂ ନିରାପଦ ୱେବ୍‌ସାଇଟ୍‌ଗୁଡ଼ିକ ଅନ୍ତର୍ଭୂକ୍ତ କରି ଏକ ତୃତୀୟ ପକ୍ଷ ଆପଣଙ୍କ ନେଟୱାର୍କ୍ ଗତିବିଧି ମନିଟର୍‌ କରିପାରିବେ।\n\nଆପଣଙ୍କ ଡିଭାଇସ୍‌ରେ ଇନ୍‌ଷ୍ଟଲ୍‌ କରାଯାଇଥିବା ତଥ୍ୟ ଏହା କରାଇବାରେ ସମ୍ଭବ କରାଉଛି।"</string>
     <!-- no translation found for ssl_ca_cert_settings_button (3227175122066058245) -->
@@ -3145,10 +3132,7 @@
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"ଅନ୍"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"ପ୍ରତ୍ୟେକ ଥର ପଚାରନ୍ତୁ (ସ୍ୱଚାଳିତ ଭାବେ ଚାଲୁ ନହୋଇଥିଲେ)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"ଆପଣ ବନ୍ଦ ନକରିବା ପର୍ଯ୍ୟନ୍ତ (ସ୍ୱଚାଳିତ ଭାବେ ଚାଲୁ ନହୋଇଥିଲେ)"</string>
-    <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
-      <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> ଘଣ୍ଟା (ସ୍ୱଚାଳିତ ଭାବେ ଚାଲୁ ନହୋଇଥିଲେ)</item>
-      <item quantity="one">1 ଘଣ୍ଟା (ସ୍ୱଚାଳିତ ଭାବେ ଚାଲୁ ନହୋଇଥିଲେ)</item>
-    </plurals>
+    <!-- no translation found for zen_mode_duration_summary_time_hours (8872000022033647725) -->
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> ମିନିଟ୍ (ସ୍ୱଚାଳିତ ଭାବେ ଚାଲୁ ନହୋଇଥିଲେ)"</string>
     <!-- no translation found for zen_mode_sound_summary_summary_off_info (8527428833487709278) -->
     <string name="zen_category_behavior" msgid="7695750848671443532">"ଡିଭାଇସ୍‌ ମ୍ୟୁଟ୍‌ କରନ୍ତୁ କିନ୍ତୁ ବ୍ୟତିକ୍ରମଗୁଡ଼ିକୁ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
@@ -3485,10 +3469,7 @@
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"ସ୍ତର %d"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
-    <plurals name="notifications_categories_off" formatted="false" msgid="7173464913755425293">
-      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g>ଟି ବର୍ଗକୁ ବନ୍ଦ କରାଯାଇଛି</item>
-      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g>ଟି ବର୍ଗକୁ ବନ୍ଦ କରାଯାଇଛି</item>
-    </plurals>
+    <!-- no translation found for notifications_categories_off (7173464913755425293) -->
     <!-- no translation found for permissions_summary (2750853128045095961) -->
     <!-- no translation found for runtime_permissions_summary (3166036683687471356) -->
     <!-- no translation found for runtime_permissions_additional_count (2068102378805218668) -->
@@ -3558,10 +3539,7 @@
     <string name="additional_battery_info" msgid="6877663897819271203">"ବ୍ୟବହାର ସତର୍କଗୁଡିକ"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"ପୂର୍ଣ୍ଣ ଡିଭାଇସ୍‌ ବ୍ୟବହାର ଦେଖାନ୍ତୁ"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"ଆପ୍‌ର ବ୍ୟବହାର ଦେଖନ୍ତୁ"</string>
-    <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
-      <item quantity="other"><xliff:g id="NUMBER">%2$d</xliff:g> ଟି ଆପ୍‌ ଅସାମାନ୍ୟ ବ୍ୟବହାର କରୁଛି</item>
-      <item quantity="one"><xliff:g id="APP">%1$s</xliff:g> ଅସାମାନ୍ୟ ବ୍ୟବହାର କରୁଛି</item>
-    </plurals>
+    <!-- no translation found for power_high_usage_summary (4658343710126205199) -->
     <!-- no translation found for power_high_usage_title (63134064262760835) -->
     <string name="high_power_filter_on" msgid="5294209328473386403">"ଅନୁକୂଳିତ ନୁହେଁ"</string>
     <string name="high_power_on" msgid="3573501822510580334">"ଅନୁକୁଳିତ ନୁହେଁ"</string>
@@ -3636,10 +3614,7 @@
     <string name="average_used" msgid="3022736210190754669">"(%) ହାରାହାରି ବ୍ୟବହାର"</string>
     <string name="free_memory" msgid="4758919141048544927">"ଖାଲି"</string>
     <string name="memory_usage_apps" msgid="2839241373381152354">"ଆପ୍‌ଗୁଡ଼ିକ ଦ୍ୱାରା ବ୍ୟବହୃତ ମେମୋରୀ"</string>
-    <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> ଟି ଆପ୍‌ ବିଗତ <xliff:g id="DURATION_1">%2$s</xliff:g> ରେ ମେମୋରୀ ବ୍ୟବହାର କଲା</item>
-      <item quantity="one">1 ଆପ୍‌ ବିଗତ <xliff:g id="DURATION_0">%2$s</xliff:g> ରେ ମେମୋରୀ ବ୍ୟବହାର କଲା</item>
-    </plurals>
+    <!-- no translation found for memory_usage_apps_summary (1235024908546944704) -->
     <string name="running_frequency" msgid="7545170806968474449">"ବାରମ୍ଵାରତା"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"ସର୍ବାଧିକ ବ୍ୟବହାର"</string>
     <string name="no_data_usage" msgid="903383745620135746">"କୌଣସି ଡାଟା ବ୍ୟବହୃତ ହୋଇନାହିଁ"</string>
@@ -3709,7 +3684,8 @@
     <string name="data_usage_summary_format" msgid="7788095271598602797">"<xliff:g id="AMOUNT">%1$s</xliff:g> ଡାଟା ବ୍ୟବହୃତ"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"<xliff:g id="AMOUNT">^1</xliff:g> ୱାଇ-ଫାଇରେ ବ୍ୟବହୃତ ହୋଇଛି"</string>
     <!-- no translation found for notification_summary (761061343339229103) -->
-    <string name="notification_summary_none" msgid="5003043219430054784">"ସମସ୍ତ ଆପ୍‌ ପାଇଁ ଚାଲୁ ରହିଛି"</string>
+    <!-- no translation found for notification_summary_none (5003043219430054784) -->
+    <skip />
     <string name="apps_summary" msgid="8355759446490212195">"<xliff:g id="COUNT">%1$d</xliff:g>ଟି ଆପ୍‌ ଇନ୍‌ଷ୍ଟଲ୍‌ ହୋଇଛି"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"24ଟି ଆପ୍‌ ଇନ୍‌ଷ୍ଟଲ୍‌ ହେଲା"</string>
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> ବ୍ୟବହୃତ - <xliff:g id="FREE_SPACE">%2$s</xliff:g> ଖାଲି"</string>
@@ -3808,10 +3784,7 @@
     <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> ବ୍ୟବହୃତ <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="configure" msgid="8232696842838580549">"କନଫିଗ୍ୟୁର କରନ୍ତୁ"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"ବ୍ୟବହାରରେ ଅନ୍ତର୍ଭୁକ୍ତ ଅନ୍ୟ ଆପ୍‌ଗୁଡ଼ିକ"</string>
-    <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other">ଡାଟା ସେଭର୍‌ ଅନ୍‌ ଥିବାବେଳେ <xliff:g id="COUNT">%1$d</xliff:g>ଟି ଆପ୍‌ ଅପ୍ରତିବନ୍ଧିତ ଡାଟା ବ୍ୟବହାର କରିପାରିବ</item>
-      <item quantity="one">ଡାଟା ସେଭର୍‌ ଅନ୍‌ ଥିବାବେଳେ 1ଟି ଆପ୍‌ ଅପ୍ରତିବନ୍ଧିତ ଡାଟା ବ୍ୟବହାର କରିପାରିବ</item>
-    </plurals>
+    <!-- no translation found for data_saver_unrestricted_summary (6046013861315713697) -->
     <string name="data_usage_title" msgid="7874606430902201083">"ପ୍ରାଥମିକ ଡାଟା"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"ୱାଇ-ଫାଇ ଡାଟା"</string>
     <string name="data_used" msgid="1063553292806661784">"<xliff:g id="ID_1">^1</xliff:g> ବ୍ୟବହୃତ"</string>
@@ -3928,10 +3901,7 @@
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"ଆପଣଙ୍କର ୱର୍କ କ୍ୟାଲେଣ୍ଡର୍‌କୁ ଆକ୍ସେସ୍ କରିବା ପାଇଁ ଆପଣଙ୍କ ସଂସ୍ଥା ବ୍ୟକ୍ତିଗତ ଆପ୍ସକୁ ଅନୁମତି ଦେବନାହିଁ"</string>
     <!-- no translation found for hours (135936773984899873) -->
     <!-- no translation found for minutes (4624073557955858160) -->
-    <plurals name="seconds" formatted="false" msgid="6942674168513274363">
-      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> ସେକେଣ୍ଡ</item>
-      <item quantity="one">୧ ସେକେଣ୍ଡ</item>
-    </plurals>
+    <!-- no translation found for seconds (6942674168513274363) -->
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"ଷ୍ଟୋରେଜ୍‌ ପରିଚାଳନା କରନ୍ତୁ"</string>
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"ଷ୍ଟୋରେଜ୍‌ ସ୍ପେସ୍‌ ଖାଲି କରିବା ପାଇଁ, ଷ୍ଟୋରେଜ୍‌ ମ୍ୟାନେଜର୍‌ ଆପଣଙ୍କ ଡିଭାଇସ୍‌ରୁ ବ୍ୟାକ୍‌ଅପ୍‌ ନିଆଯାଇଥିବା ଫୋଟୋ ଏବଂ ଭିଡିଓଗୁଡ଼ିକ କାଢ଼ିଦେଇଥାଏ।"</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"ଫୋଟୋ ଓ ଭିଡିଓଗୁଡ଼ିକ କାଢ଼ିଦିଅନ୍ତୁ"</string>
@@ -3944,7 +3914,8 @@
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"ଆପଣଙ୍କ ଫୋନ୍‌ ନିୟନ୍ତ୍ରଣ କରିବା ପାଇଁ ତୁରନ୍ତ କରାଯାଉଥିବା ଜେଶ୍ଚର୍"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"ଟାବ୍‌ଲେଟ୍‌ ନିୟନ୍ତ୍ରଣ ପାଇଁ ଶର୍ଟକଟ୍‌"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"ଆପଣଙ୍କ ଡିଭାଇସ୍‌ ନିୟନ୍ତ୍ରଣ କରିବାକୁ ଦ୍ରୁତ ଜେଶ୍ଚର୍"</string>
-    <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"କ୍ୟାମେରାକୁ ଯାଆନ୍ତୁ"</string>
+    <!-- no translation found for double_tap_power_for_camera_title (5480829329052517484) -->
+    <skip />
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"କ୍ୟାମେରା ତୁରନ୍ତ ଖୋଲିବାକୁ, ପାୱାର୍‌ ବଟନ୍‌ ଦୁଇଥର ଦବାନ୍ତୁ। ଯେକୌଣସି ସ୍କ୍ରୀନ୍‌ରୁ କାମ କରେ।"</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"କ୍ୟାମେରା ଦ୍ରୁତଭାବେ ଖୋଲନ୍ତୁ"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"କ୍ୟାମେରା ଫ୍ଲିପ୍ କରନ୍ତୁ"</string>
@@ -3964,7 +3935,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"ସମୟ, ବିଜ୍ଞପ୍ତି, ଏବଂ ଅନ୍ୟ ସୂଚନା ଦେଖିବାକୁ, ଆପଣଙ୍କ ଫୋନ୍‌ ଉଠାନ୍ତୁ।"</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"ସମୟ, ବିଜ୍ଞପ୍ତି, ଏବଂ ଅନ୍ୟ ସୂଚନା ଦେଖିବାକୁ, ଆପଣଙ୍କ ଟାବ୍‌ଲେଟ୍‌ ଉଠାନ୍ତୁ।"</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"ସମୟ, ବିଜ୍ଞପ୍ତି, ଏବଂ ଅନ୍ୟ ସୂଚନା ଦେଖିବାକୁ, ଆପଣଙ୍କ ଡିଭାଇସ୍‌ ଉଠାନ୍ତୁ।"</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"ଫୋନ୍ ଚେକ୍ କରିବାକୁ ଟାପ୍ କରନ୍ତୁ"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"ଫୋନ୍ ଯାଞ୍ଚ କରିବାକୁ ଟାପ୍ କରନ୍ତୁ"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"ଟାବ୍‍‍ଲେଟ୍ ଯାଞ୍ଚ କରିବା ପାଇଁ ଟାପ୍ କରନ୍ତୁ"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"ଡିଭାଇସ୍ ଯାଞ୍ଚ କରିବାକୁ ଟାପ୍ କରନ୍ତୁ"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"ସମୟ, ବିଜ୍ଞପ୍ତି, ଏବଂ ଅନ୍ୟ ସୂଚନାର ଯାଞ୍ଚ କରିବା ପାଇଁ, ଆପଣଙ୍କ ସ୍କ୍ରିନ୍‌କୁ ଟାପ୍ କରନ୍ତୁ।"</string>
@@ -4198,7 +4169,8 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"ମୋବାଇଲ୍ ନେଟ୍‌ୱର୍କକୁ ବ୍ୟବହାର କରି ଡାଟା ଆକ୍ସେସ୍ କରନ୍ତୁ"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"ରେଞ୍ଜରେ ରହିଲେ ଫୋନ୍ ସ୍ୱଚାଳିତ ଭାବେ ଏହି ବାହକକୁ ସ୍ବିଚ୍ ହୋଇଯିବ"</string>
     <string name="calls_preference" msgid="2076353032705811243">"କଲ୍‌ ପାଇଁ ଅଗ୍ରାଧିକାର"</string>
-    <string name="sms_preference" msgid="8449270011976880">"SMS ଅଗ୍ରାଧିକାର"</string>
+    <!-- no translation found for sms_preference (8449270011976880) -->
+    <skip />
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"ପ୍ରତ୍ୟେକ ଥର ପଚାରନ୍ତୁ"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"ଗୋଟିଏ ନେଟ୍‌ୱର୍କ ଯୋଗ କରନ୍ତୁ"</string>
     <!-- no translation found for mobile_network_summary_count (6222822873390636020) -->
@@ -4281,7 +4253,8 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"ଏହି ମତାମତ କାଢ଼ିଦେବେ?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"ସୁପାରିଶକୁ କାଢ଼ି ଦିଆଯାଇଛି"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"ପୂର୍ବବତ୍ କରନ୍ତୁ"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"ଷ୍ଟୋରେଜ୍‍ କମ୍‍ ଅଛି। <xliff:g id="PERCENTAGE">%1$s</xliff:g> ବ୍ୟବହୃତ ହୋଇଛି - <xliff:g id="FREE_SPACE">%2$s</xliff:g> ଖାଲି ଅଛି"</string>
+    <!-- no translation found for low_storage_summary (4562224870189133400) -->
+    <skip />
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"ପ୍ରତିକ୍ରିୟା ପଠାନ୍ତୁ"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"ଆପଣ ଏହି ମତାମତ ଉପରେ ଆମକୁ ପ୍ରତିକ୍ରିୟା ଦେବାକୁ ଚାହିଁବେ?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g> କ୍ଲିପ୍‌ବୋର୍ଡରେ କପି କରାଯାଇଛି"</string>
@@ -4294,10 +4267,7 @@
     <!-- no translation found for accessibility_usage_summary (2604152087205501644) -->
     <string name="manage_app_notification" msgid="9072118910762792295">"<xliff:g id="APP_NAME">%1$s</xliff:g> ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକୁ ପରିଚାଳନା କରନ୍ତୁ"</string>
     <string name="no_suggested_app" msgid="509257628685025383">"କୌଣସି ପ୍ରସ୍ତାବିତ ଆପ୍ଲିକେସନ୍ ନାହିଁ"</string>
-    <plurals name="notification_few_channel_count_summary" formatted="false" msgid="5165639207390218085">
-      <item quantity="other"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g>ଟି ବିଜ୍ଞପ୍ତି ଚ୍ୟାନେଲ୍।</item>
-      <item quantity="one"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_0">%1$d</xliff:g>ଟି ବିଜ୍ଞପ୍ତି ଚ୍ୟାନେଲ୍।</item>
-    </plurals>
+    <!-- no translation found for notification_few_channel_count_summary (5165639207390218085) -->
     <string name="notification_many_channel_count_summary" msgid="9205641731142529086">"<xliff:g id="NOTIFICATION_CHANNEL_COUNT">%1$d</xliff:g>ଟି ବିଜ୍ଞପ୍ତି ଚ୍ୟାନେଲ୍। ସବୁ ପରିଚାଳନା କରିବାକୁ ଟାପ୍ କରନ୍ତୁ।"</string>
     <string name="recently_installed_app" msgid="6491959945747808096">"ଆପଣ ସମ୍ପ୍ରତ୍ତି ଏହି ଆପ୍‌କୁ ଇନ୍‌ଷ୍ଟଲ୍ କରିଛନ୍ତି।"</string>
     <string name="media_output_panel_title" msgid="8429272102437211530">"ଆଉଟ୍‌ପୁଟ୍ ସ୍ବିଚ୍ କରନ୍ତୁ"</string>

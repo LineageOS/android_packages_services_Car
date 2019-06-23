@@ -424,10 +424,7 @@
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Gamit fingerprint para"</string>
     <string name="fingerprint_add_title" msgid="6840343900784463856">"Magdagdag ng fingerprint"</string>
     <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"screen lock"</string>
-    <plurals name="security_settings_fingerprint_preference_summary" formatted="false" msgid="2033416761172877041">
-      <item quantity="one"><xliff:g id="COUNT_1">%1$d</xliff:g> fingerprint ang naka-set up</item>
-      <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> na fingerprint ang naka-set up</item>
-    </plurals>
+    <!-- no translation found for security_settings_fingerprint_preference_summary (2033416761172877041) -->
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"I-unlock ng fingerprint"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"Gamitin ang iyong fingerprint"</string>
@@ -468,14 +465,16 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Gawin ito sa ibang pagkakataon"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Laktawan ang pag-set up ng fingerprint?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Pinili mong gamitin ang iyong fingerprint bilang isang paraan upang i-unlock ang iyong telepono. Kung lalaktaw ka ngayon, kakailanganin mo itong i-set up sa ibang pagkakataon. Tumatagal lang nang isang minuto o higit pa ang pag-setup."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Protektahan ang iyong tablet sa pamamagitan ng opsyon sa lock ng screen para walang makakagamit nito kapag nawala o ninakaw ito. Kailangan mo rin ng opsyon sa lock ng screen para i-set up ang fingerprint. I-tap ang Kanselahin, pagkatapos ay magtakda ng PIN o pumili ng ibang opsyon sa lock ng screen."</string>
+    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (1384438077720821127) -->
+    <skip />
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7207112623501771824) -->
     <skip />
     <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7623975730623531606) -->
     <skip />
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (2998863111689476550) -->
     <skip />
-    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Protektahan ang iyong device sa pamamagitan ng opsyon sa lock ng screen para walang makakagamit nito kapag nawala o ninakaw ito. Kailangan mo rin ng opsyon sa lock ng screen para i-set up ang pag-authenticate ng mukha. I-tap ang Kanselahin, pagkatapos ay magtakda ng PIN o pumili ng ibang opsyon sa lock ng screen."</string>
+    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (6780557259734235952) -->
+    <skip />
     <!-- no translation found for face_lock_screen_setup_skip_dialog_text (8541640018478926775) -->
     <skip />
     <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
@@ -651,10 +650,7 @@
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"Masyadong maraming maling pagsubok. Made-delete ang user na ito."</string>
     <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"Masyadong maraming maling pagsubok. Made-delete ang profile sa trabaho na ito at ang data nito."</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"I-dismiss"</string>
-    <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
-      <item quantity="one">Dapat ay may kahit <xliff:g id="COUNT_1">%d</xliff:g> character</item>
-      <item quantity="other">Dapat ay may kahit <xliff:g id="COUNT_1">%d</xliff:g> na character</item>
-    </plurals>
+    <!-- no translation found for lockpassword_password_too_short (694091983183310827) -->
     <!-- no translation found for lockpassword_pin_too_short (6805936168283187298) -->
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"Magpatuloy"</string>
     <!-- no translation found for lockpassword_password_too_long (7994068708438608179) -->
@@ -732,11 +728,13 @@
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Advanced na Bluetooth"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Kapag naka-on ang Bluetooth, maaaring makipag-ugnayan ang device mo sa ibang kalapit na Bluetooth device."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Kapag naka-on ang Bluetooth, maaaring makipag-ugnayan ang iyong device sa iba pang kalapit na Bluetooth device.\n\nPara mapaganda ang karanasan sa device, maaari pa ring mag-scan ang mga app at serbisyo ng mga kalapit na device anumang oras, kahit na naka-off ang Bluetooth. Magagamit ito, halimbawa, para pahusayin ang mga feature at serbisyong batay sa lokasyon. Mababago mo ito sa "<annotation id="link">"mga setting ng pag-scan"</annotation>"."</string>
-    <string name="ble_scan_notify_text" msgid="6290170236546386932">"Upang pahusayin ang katumpakan ng lokasyon, maaari pa ring mag-detect ng mga Bluetooth device ang mga app at serbisyo ng system. Maaari mo itong baguhin sa <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>mga setting ng pag-scan<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <!-- no translation found for ble_scan_notify_text (6290170236546386932) -->
+    <skip />
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Hindi makakonekta. Subukang muli."</string>
     <string name="device_details_title" msgid="726517818032923222">"Mga detalye ng device"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Bluetooth address ng device: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Kalimutan ang device?"</string>
+    <!-- no translation found for bluetooth_unpair_dialog_title (3669848977755142047) -->
+    <skip />
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Hindi na ipapares ang iyong telepono sa <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Hindi na ipapares ang iyong tablet sa <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Hindi na ipapares ang iyong device sa <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
@@ -814,7 +812,8 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Notification sa open network"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Mag-abiso kapag may available na pampublikong network na may mataas na kalidad"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Awtomatikong i-on ang Wi‑Fi"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Mag-o-on ulit ang Wi‑Fi kapag malapit sa mga naka-save na network na may mataas na kalidad, gaya ng iyong home network"</string>
+    <!-- no translation found for wifi_wakeup_summary (1152699417411690) -->
+    <skip />
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Hindi available dahil naka-off ang lokasyon. I-on ang "<annotation id="link">"lokasyon"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Hindi available dahil naka-off ang pag-scan ng Wi‑Fi"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Upang magamit, pumili ng provider ng rating ng network"</string>
@@ -869,7 +868,8 @@
     <string name="wifi_ssid" msgid="6746270925975522641">"Pangalan ng network"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Ilagay ang SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Seguridad"</string>
-    <string name="wifi_hidden_network" msgid="6647772204699776833">"Nakatagong network"</string>
+    <!-- no translation found for wifi_hidden_network (6647772204699776833) -->
+    <skip />
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Kung hindi nagbo-broadcast ng network ID ang iyong router ngunit gusto mong kumonekta rito sa hinaharap, maaari mong itakda ang network bilang nakatago.\n\nMaaari itong magdulot ng panganib sa seguridad dahil regular na ibo-broadcast ng iyong telepono ang signal nito para mahanap ang network.\n\nKahit na itakda ang network bilang nakatago, hindi nito mababago ang mga setting ng iyong router."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Lakas ng signal"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Katayuan"</string>
@@ -977,10 +977,7 @@
     <string name="wifi_cancel" msgid="7618417075930426635">"Kanselahin"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"Kalimutan ang network?"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"Made-delete ang lahat ng password para sa network na ito"</string>
-    <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
-      <item quantity="one">%d network</item>
-      <item quantity="other">%d na network</item>
-    </plurals>
+    <!-- no translation found for wifi_saved_access_points_summary (6199295921035663421) -->
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"Advanced na Wi-Fi"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC address"</string>
@@ -1255,15 +1252,13 @@
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"Maraming SIM ang nakita"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"Piliin ang mas gusto mong sim para sa mobile data."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"Gamitin ang <xliff:g id="CARRIER">%1$s</xliff:g> sa mobile data?"</string>
-    <string name="sim_change_data_message" msgid="51004703157782900">"Ginagamit mo ang <xliff:g id="CARRIER2_0">%2$s</xliff:g> para sa mobile data. Kung lilipat ka sa <xliff:g id="CARRIER1">%1$s</xliff:g>, hindi na gagamitin ang <xliff:g id="CARRIER2_1">%2$s</xliff:g> para sa mobile data."</string>
+    <!-- no translation found for sim_change_data_message (51004703157782900) -->
+    <skip />
     <string name="sim_change_data_ok" msgid="7491552537317573235">"Gamitin ang <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"I-update ang gustong SIM card?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> lang ang SIM sa iyong device. Gusto mo bang gamitin ang SIM na ito para sa mobile data, mga tawag, at SMS message?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Maling PIN code ng SIM, dapat ka nang makipag-ugnay sa iyong carrier upang i-unlock ang iyong device."</string>
-    <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
-      <item quantity="one">Maling PIN code ng SIM, <xliff:g id="NUMBER_1">%d</xliff:g> subok na lang bago mo kailanganing makipag-ugnayan sa carrier mo para i-unlock ang device.</item>
-      <item quantity="other">Maling PIN code ng SIM, <xliff:g id="NUMBER_1">%d</xliff:g> subok na lang bago mo kailanganing makipag-ugnayan sa carrier mo para i-unlock ang device.</item>
-    </plurals>
+    <!-- no translation found for wrong_pin_code (2934318793525717627) -->
     <string name="pin_failed" msgid="4877356137480446727">"Nabigo ang operasyon ng PIN ng SIM!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Mga pag-update ng system"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
@@ -2065,10 +2060,7 @@
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Hindi gumagana nang maayos ang serbisyong ito."</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"Ipakita sa Mga Mabilisang Setting"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"Correction mode"</string>
-    <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
-      <item quantity="one">Sobrang ikling pagkaantala (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
-      <item quantity="other">Sobrang ikling pagkaantala (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> na ms)</item>
-    </plurals>
+    <!-- no translation found for accessibilty_autoclick_preference_subtitle_extremely_short_delay (3810676455925024813) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_short_delay (8720846747098057703) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_short_delay (4311889107742293108) -->
     <!-- no translation found for accessibilty_autoclick_preference_subtitle_long_delay (285663535113656440) -->
@@ -2222,10 +2214,7 @@
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Nagamit ang iyong device nang mas madalas kaysa sa karaniwan. Puwedeng maubos ang iyong baterya nang mas mabilis kaysa sa inaasahan.\n\nMga app na pinakamadalas gamitin mula noong napuno ang baterya:"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"Kasama ang aktibidad sa background na malakas kumonsumo ng baterya"</string>
     <!-- no translation found for battery_tip_restrict_title (7140926804142734420) -->
-    <plurals name="battery_tip_restrict_handled_title" formatted="false" msgid="5509363095891806748">
-      <item quantity="one">%2$d app ang pinaghigpitan kamakailan</item>
-      <item quantity="other">%2$d na app ang pinaghigpitan kamakailan</item>
-    </plurals>
+    <!-- no translation found for battery_tip_restrict_handled_title (5509363095891806748) -->
     <!-- no translation found for battery_tip_restrict_summary (984148373944071669) -->
     <!-- no translation found for battery_tip_restrict_handled_summary (469696766640020557) -->
     <!-- no translation found for battery_tip_restrict_app_dialog_title (3042021435866172168) -->
@@ -2721,7 +2710,8 @@
     <string name="trusted_credentials_user_tab" msgid="4368592735325224612">"User"</string>
     <string name="trusted_credentials_disable_label" msgid="2495224975071022858">"I-disable"</string>
     <string name="trusted_credentials_enable_label" msgid="8991649977058280799">"I-enable"</string>
-    <string name="trusted_credentials_remove_label" msgid="530728557358501000">"Alisin"</string>
+    <!-- no translation found for trusted_credentials_remove_label (530728557358501000) -->
+    <skip />
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"Pagkatiwalaan"</string>
     <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"I-enable ang CA certificate system?"</string>
     <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"I-disable ang CA certificate system?"</string>
@@ -2745,10 +2735,7 @@
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"Maaaring sinusubaybayan ang network"</string>
     <string name="done_button" msgid="7652373284597307008">"Tapos na"</string>
     <!-- no translation found for ssl_ca_cert_dialog_title (7323708984446517980) -->
-    <plurals name="ssl_ca_cert_info_message_device_owner" formatted="false" msgid="9046046586061880100">
-      <item quantity="one">Nag-install ang <xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> ng mga certificate authority sa iyong device, na maaaring magbigay-daan sa mga itong masubaybayan ang aktibidad sa network ng iyong device, kabilang ang mga email, app at secure na website.\nPara sa higit pang impormasyon tungkol sa mga certificate na ito, makipag-ugnayan sa iyong admin.\n</item>
-      <item quantity="other">Nag-install ang <xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> ng mga certificate authority sa iyong device, na maaaring magbigay-daan sa mga itong masubaybayan ang aktibidad sa network ng iyong device, kabilang ang mga email, app at secure na website.\nPara sa higit pang impormasyon tungkol sa mga certificate na ito, makipag-ugnayan sa iyong admin.\n</item>
-    </plurals>
+    <!-- no translation found for ssl_ca_cert_info_message_device_owner (9046046586061880100) -->
     <!-- no translation found for ssl_ca_cert_info_message (8271858091418779584) -->
     <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"May kakayahan ang isang third party na subaybayan ang aktibidad ng iyong network, kabilang ang mga email, apps, at mga secure website.\n\nGinagawa itong posible ng isang pinagkakatiwalaang credential na naka-install sa iyong device."</string>
     <!-- no translation found for ssl_ca_cert_settings_button (3227175122066058245) -->
@@ -3145,10 +3132,7 @@
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Naka-on"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Magtanong palagi (maliban na lang kung awtomatikong na-on)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Hanggang sa i-off mo (maliban na lang kung awtomatikong na-on)"</string>
-    <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
-      <item quantity="one"><xliff:g id="NUM_HOURS">%d</xliff:g> oras (maliban na lang kung awtomatikong na-on)</item>
-      <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> na oras (maliban na lang kung awtomatikong na-on)</item>
-    </plurals>
+    <!-- no translation found for zen_mode_duration_summary_time_hours (8872000022033647725) -->
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> (na) minuto (maliban na lang kung awtomatikong na-on)"</string>
     <!-- no translation found for zen_mode_sound_summary_summary_off_info (8527428833487709278) -->
     <string name="zen_category_behavior" msgid="7695750848671443532">"I-mute ang device ngunit pahintulutan ang mga exception"</string>
@@ -3485,10 +3469,7 @@
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"Antas %d"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
-    <plurals name="notifications_categories_off" formatted="false" msgid="7173464913755425293">
-      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> kategorya ang na-off</item>
-      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> na kategorya ang na-off</item>
-    </plurals>
+    <!-- no translation found for notifications_categories_off (7173464913755425293) -->
     <!-- no translation found for permissions_summary (2750853128045095961) -->
     <!-- no translation found for runtime_permissions_summary (3166036683687471356) -->
     <!-- no translation found for runtime_permissions_additional_count (2068102378805218668) -->
@@ -3558,10 +3539,7 @@
     <string name="additional_battery_info" msgid="6877663897819271203">"Mga alerto sa paggamit"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"Ipakita ang paggamit ng device"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"Ipakita ang paggamit ng app"</string>
-    <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
-      <item quantity="one">Hindi gumagana nang maayos ang <xliff:g id="NUMBER">%2$d</xliff:g> app</item>
-      <item quantity="other">Hindi gumagana nang maayos ang <xliff:g id="NUMBER">%2$d</xliff:g> na app</item>
-    </plurals>
+    <!-- no translation found for power_high_usage_summary (4658343710126205199) -->
     <!-- no translation found for power_high_usage_title (63134064262760835) -->
     <string name="high_power_filter_on" msgid="5294209328473386403">"Hindi naka-optimize"</string>
     <string name="high_power_on" msgid="3573501822510580334">"Hindi naka-optimize"</string>
@@ -3636,10 +3614,7 @@
     <string name="average_used" msgid="3022736210190754669">"Average na ginamit (%)"</string>
     <string name="free_memory" msgid="4758919141048544927">"Libre"</string>
     <string name="memory_usage_apps" msgid="2839241373381152354">"Memory na ginamit ng mga app"</string>
-    <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
-      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> app ang gumamit ng memory sa nakaraang <xliff:g id="DURATION_1">%2$s</xliff:g></item>
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> na app ang gumamit ng memory sa nakaraang <xliff:g id="DURATION_1">%2$s</xliff:g></item>
-    </plurals>
+    <!-- no translation found for memory_usage_apps_summary (1235024908546944704) -->
     <string name="running_frequency" msgid="7545170806968474449">"Dalas"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Maximum na paggamit"</string>
     <string name="no_data_usage" msgid="903383745620135746">"Walang nagamit na data"</string>
@@ -3709,7 +3684,8 @@
     <string name="data_usage_summary_format" msgid="7788095271598602797">"<xliff:g id="AMOUNT">%1$s</xliff:g> ng data ang nagamit"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"<xliff:g id="AMOUNT">^1</xliff:g> ang nagamit sa Wi‑Fi"</string>
     <!-- no translation found for notification_summary (761061343339229103) -->
-    <string name="notification_summary_none" msgid="5003043219430054784">"Naka-on para sa lahat ng app"</string>
+    <!-- no translation found for notification_summary_none (5003043219430054784) -->
+    <skip />
     <string name="apps_summary" msgid="8355759446490212195">"<xliff:g id="COUNT">%1$d</xliff:g> (na) app ang naka-install"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"24 na naka-install na app"</string>
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> ang nagamit - <xliff:g id="FREE_SPACE">%2$s</xliff:g> ang bakante"</string>
@@ -3808,10 +3784,7 @@
     <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> ang nagamit noong <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="configure" msgid="8232696842838580549">"I-configure"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Iba pang mga app na kasama sa paggamit"</string>
-    <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> app ang pinapayagang gumamit ng hindi pinaghihigpitang data kapag naka-on ang Data Saver</item>
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> na app ang pinapayagang gumamit ng hindi pinaghihigpitang data kapag naka-on ang Data Saver</item>
-    </plurals>
+    <!-- no translation found for data_saver_unrestricted_summary (6046013861315713697) -->
     <string name="data_usage_title" msgid="7874606430902201083">"Pangunahing data"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Wi‑Fi data"</string>
     <string name="data_used" msgid="1063553292806661784">"<xliff:g id="ID_1">^1</xliff:g> ang nagamit"</string>
@@ -3928,10 +3901,7 @@
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"Hindi pinapayagan ng iyong organisasyon ang mga personal na app na i-access ang iyong kalendaryo sa trabaho"</string>
     <!-- no translation found for hours (135936773984899873) -->
     <!-- no translation found for minutes (4624073557955858160) -->
-    <plurals name="seconds" formatted="false" msgid="6942674168513274363">
-      <item quantity="one"><xliff:g id="NUMBER">%s</xliff:g> segundo</item>
-      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> na segundo</item>
-    </plurals>
+    <!-- no translation found for seconds (6942674168513274363) -->
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"Pamahalaan ang storage"</string>
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Upang tumulong na magbakante ng space sa storage, inaalis ng storage manager ang mga naka-back up na larawan at video mula sa iyong device."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Alisin ang mga larawan at video"</string>
@@ -3944,7 +3914,8 @@
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Mga mabilisang galaw upang makontrol ang iyong telepono"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Mga mabilisang galaw upang kontrolin ang iyong tablet"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Mga mabilisang galaw upang kontrolin ang iyong device"</string>
-    <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Pumunta sa camera"</string>
+    <!-- no translation found for double_tap_power_for_camera_title (5480829329052517484) -->
+    <skip />
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Para mabuksan kaagad ang camera, pindutin ang power button nang dalawang beses. Gumagana ito sa anumang screen."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Mabilisang buksan ang camera"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Lumipat ng camera"</string>
@@ -4198,7 +4169,8 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"I-access ang data gamit ang mobile network"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Awtomatikong lilipat sa carrier na ito ang telepono kapag may signal ito"</string>
     <string name="calls_preference" msgid="2076353032705811243">"Kagustuhan sa mga tawag"</string>
-    <string name="sms_preference" msgid="8449270011976880">"Kagustuhan sa SMS"</string>
+    <!-- no translation found for sms_preference (8449270011976880) -->
+    <skip />
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Itanong palagi"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Magdagdag ng network"</string>
     <!-- no translation found for mobile_network_summary_count (6222822873390636020) -->
@@ -4281,7 +4253,8 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Alisin ang suhestiyong ito?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Inalis ang suhestyon"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"I-undo"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"Paubos na ang storage. <xliff:g id="PERCENTAGE">%1$s</xliff:g> ang ginagamit - <xliff:g id="FREE_SPACE">%2$s</xliff:g> ang bakante"</string>
+    <!-- no translation found for low_storage_summary (4562224870189133400) -->
+    <skip />
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Magpadala ng feedback"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Gusto mo ba kaming bigyan ng feedback sa suhestyong ito?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"Kinopya sa clipboard ang <xliff:g id="COPY_CONTENT">%1$s</xliff:g>."</string>
@@ -4294,10 +4267,7 @@
     <!-- no translation found for accessibility_usage_summary (2604152087205501644) -->
     <string name="manage_app_notification" msgid="9072118910762792295">"Pamahalaan ang mga notification ng <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="no_suggested_app" msgid="509257628685025383">"Walang iminumungkahing application"</string>
-    <plurals name="notification_few_channel_count_summary" formatted="false" msgid="5165639207390218085">
-      <item quantity="one"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> notification channel.</item>
-      <item quantity="other"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> na notification channel.</item>
-    </plurals>
+    <!-- no translation found for notification_few_channel_count_summary (5165639207390218085) -->
     <string name="notification_many_channel_count_summary" msgid="9205641731142529086">"<xliff:g id="NOTIFICATION_CHANNEL_COUNT">%1$d</xliff:g> (na) notification channel. I-tap para pamahalaan ang lahat."</string>
     <string name="recently_installed_app" msgid="6491959945747808096">"Na-install mo kamakailan ang app na ito."</string>
     <string name="media_output_panel_title" msgid="8429272102437211530">"Output ng Switch"</string>
