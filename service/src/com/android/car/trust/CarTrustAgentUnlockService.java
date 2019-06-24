@@ -532,8 +532,6 @@ public class CarTrustAgentUnlockService {
                 mTrustedDeviceService.getUserHandleByTokenHandle(Utils.bytesToLong(handle)),
                 phoneCredentials.getEscrowToken().toByteArray(),
                 Utils.bytesToLong(handle));
-
-        resetEncryptionState();
     }
 
     /**
