@@ -88,4 +88,7 @@
     <bool name="config_supportsSystemDecorsOnSecondaryDisplays">false</bool>
 
     <string name="config_dataUsageSummaryComponent">com.android.car.settings/com.android.car.settings.datausage.DataWarningAndLimitActivity</string>
+
+    <!-- Controls whether system buttons use all caps for text -->
+    <bool name="config_buttonTextAllCaps">false</bool>
 </resources>
