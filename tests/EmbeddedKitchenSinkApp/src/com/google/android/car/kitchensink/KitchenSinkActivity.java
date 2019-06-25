@@ -77,9 +77,12 @@ import java.util.List;
 
 public class KitchenSinkActivity extends FragmentActivity {
     private static final String TAG = "KitchenSinkActivity";
+    private static final String LAST_FRAGMENT_TAG = "lastFragmentTag";
+    private static final String DEFAULT_FRAGMENT_TAG = "";
     private RecyclerView mMenu;
     private Button mMenuButton;
     private View mKitchenContent;
+    private String mLastFragmentTag = DEFAULT_FRAGMENT_TAG;
 
     private interface ClickHandler {
         void onClick();
@@ -150,6 +153,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             if (fragment != null) {
                 KitchenSinkActivity.this.showFragment(fragment);
                 toggleMenuVisibility();
+                mLastFragmentTag = fragment.getTag();
             } else {
                 Log.e(TAG, "cannot show fragment for " + getText());
             }
@@ -254,6 +258,21 @@ public class KitchenSinkActivity extends FragmentActivity {
         onNewIntent(getIntent());
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // The app is being started for the first time.
+        if (savedInstanceState == null) {
+            return;
+        }
+
+        // The app is being reloaded, restores the last fragment UI.
+        mLastFragmentTag = savedInstanceState.getString(LAST_FRAGMENT_TAG);
+        if (mLastFragmentTag != DEFAULT_FRAGMENT_TAG) {
+            toggleMenuVisibility();
+        }
+    }
+
     private void toggleMenuVisibility() {
         boolean menuVisible = mMenu.getVisibility() == View.VISIBLE;
         mMenu.setVisibility(menuVisible ? View.GONE : View.VISIBLE);
@@ -286,6 +305,12 @@ public class KitchenSinkActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume");
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(LAST_FRAGMENT_TAG, mLastFragmentTag);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
