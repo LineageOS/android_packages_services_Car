@@ -1,6 +1,7 @@
 # AAE BugReport App
 
-BugReport App for Android Automotive OS.
+A test tool that is intended to show how to access Android Automotive OS bugreporting APIs.
+It stores all bugreports in user 0 context and then allows uploading them to GCS.
 
 ## Flow
 
