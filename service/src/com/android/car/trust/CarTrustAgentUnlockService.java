@@ -21,7 +21,7 @@ import static com.android.car.trust.EventLog.RECEIVED_DEVICE_ID;
 import static com.android.car.trust.EventLog.REMOTE_DEVICE_CONNECTED;
 import static com.android.car.trust.EventLog.START_UNLOCK_ADVERTISING;
 import static com.android.car.trust.EventLog.STOP_UNLOCK_ADVERTISING;
-import static com.android.car.trust.EventLog.UNLOCK_CREDIENTIALS_RECEIVED;
+import static com.android.car.trust.EventLog.UNLOCK_CREDENTIALS_RECEIVED;
 import static com.android.car.trust.EventLog.UNLOCK_ENCRYPTION_STATE;
 import static com.android.car.trust.EventLog.UNLOCK_SERVICE_INIT;
 import static com.android.car.trust.EventLog.WAITING_FOR_CLIENT_AUTH;
@@ -330,7 +330,7 @@ public class CarTrustAgentUnlockService {
 
                 processCredentials(decryptedCredentials);
                 mCurrentUnlockState = UNLOCK_STATE_PHONE_CREDENTIALS_RECEIVED;
-                logUnlockEvent(UNLOCK_CREDIENTIALS_RECEIVED);
+                logUnlockEvent(UNLOCK_CREDENTIALS_RECEIVED);
 
                 // Let the phone know that the token was received.
                 sendAckToClient(/* isEncrypted = */ true);
@@ -532,8 +532,6 @@ public class CarTrustAgentUnlockService {
                 mTrustedDeviceService.getUserHandleByTokenHandle(Utils.bytesToLong(handle)),
                 phoneCredentials.getEscrowToken().toByteArray(),
                 Utils.bytesToLong(handle));
-
-        resetEncryptionState();
     }
 
     /**
