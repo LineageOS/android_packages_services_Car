@@ -310,9 +310,6 @@
     <string name="usb_pref_delete_cancel" translatable="false">Cancel</string>
     <string name="usb_resolving_handlers" translatable="false">Getting supported handlers</string>
 
-    <!-- Action to start assistant activity -->
-    <string name="assistant_activity_action" translatable="false">"com.google.android.demandspace.START"</string>
-
     <!-- Virtual Display -->
     <string name="av_start_activity" translatable="false">Start Activity</string>
     <string name="av_resize" translatable="false">Resize</string>
