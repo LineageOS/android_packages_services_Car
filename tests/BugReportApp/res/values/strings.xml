@@ -22,6 +22,7 @@
 
     <string name="bugreport_dialog_submit" translatable="false">Submit</string>
     <string name="bugreport_dialog_cancel" translatable="false">Cancel</string>
+    <string name="bugreport_dialog_show_bugreports" translatable="false">Show Bug Reports</string>
     <string name="bugreport_dialog_close" translatable="false">Close</string>
     <string name="bugreport_dialog_title" translatable="false">Speak &amp; Describe The Issue</string>
     <string name="bugreport_dialog_recording_finished" translatable="false">Recording finished</string>
