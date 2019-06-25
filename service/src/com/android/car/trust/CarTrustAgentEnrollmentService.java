@@ -465,9 +465,6 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             clientDeviceName = mRemoteEnrollmentDevice.getName();
         } else if (mClientDeviceName != null) {
             clientDeviceName = mClientDeviceName;
-            mCarTrustAgentBleManager.sendEnrollmentMessage(mRemoteEnrollmentDevice,
-                    mEncryptionKey.encryptData(Utils.longToBytes(handle)),
-                    OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */ true);
         } else {
             clientDeviceName = mContext.getString(R.string.trust_device_default_name);
         }
@@ -513,6 +510,9 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             Log.d(TAG, "Sending handle: " + handle);
         }
         mHandle = handle;
+        mCarTrustAgentBleManager.sendEnrollmentMessage(mRemoteEnrollmentDevice,
+                mEncryptionKey.encryptData(Utils.longToBytes(handle)),
+                OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */ true);
     }
 
     void onEnrollmentAdvertiseStartSuccess() {
