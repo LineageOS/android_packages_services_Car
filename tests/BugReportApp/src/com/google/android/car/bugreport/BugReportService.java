@@ -22,6 +22,7 @@ import android.annotation.StringRes;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.car.Car;
 import android.car.CarBugreportManager;
@@ -78,13 +79,21 @@ public class BugReportService extends Service {
     // It is ugly to have a timeout, but it is ok here because such a delay should not really
     // cause bugreport to be tainted with so many other events. If in the future we want to change
     // this, the best option is probably to wait for onDetach events from view tree.
-    private static final int ACTIVITY_FINISH_DELAY = 1000; //in milliseconds
+    private static final int ACTIVITY_FINISH_DELAY_MILLIS = 1000;
 
     private static final String BT_SNOOP_LOG_LOCATION = "/data/misc/bluetooth/logs/btsnoop_hci.log";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    private static final String NOTIFICATION_STATUS_CHANNEL_ID = "BUGREPORT_STATUS_CHANNEL_ID";
+    /** Notifications on this channel will silently appear in notification bar. */
+    private static final String PROGRESS_CHANNEL_ID = "BUGREPORT_PROGRESS_CHANNEL";
+
+    /** Notifications on this channel will pop-up. */
+    private static final String STATUS_CHANNEL_ID = "BUGREPORT_STATUS_CHANNEL";
+
     private static final int BUGREPORT_IN_PROGRESS_NOTIF_ID = 1;
+
+    /** The notification is shown when bugreport is collected. */
+    static final int BUGREPORT_FINISHED_NOTIF_ID = 2;
 
     private static final String OUTPUT_ZIP_FILE = "output_file.zip";
     private static final String EXTRA_OUTPUT_ZIP_FILE = "extra_output_file.zip";
@@ -105,7 +114,6 @@ public class BugReportService extends Service {
 
     private MetaBugReport mMetaBugReport;
     private NotificationManager mNotificationManager;
-    private NotificationChannel mNotificationChannel;
     private ScheduledExecutorService mSingleThreadExecutor;
     private BugReportProgressListener mBugReportProgressListener;
     private Car mCar;
@@ -143,6 +151,7 @@ public class BugReportService extends Service {
                         float progress = message.getData().getFloat(PROGRESS_HANDLER_DATA_PROGRESS);
                         mBugReportProgressListener.onProgress(progress);
                     }
+                    showProgressNotification();
                     break;
                 default:
                     Log.d(TAG, "Unknown event " + message.what + ", ignoring.");
@@ -153,11 +162,14 @@ public class BugReportService extends Service {
     @Override
     public void onCreate() {
         mNotificationManager = getSystemService(NotificationManager.class);
-        mNotificationChannel = new NotificationChannel(
-                NOTIFICATION_STATUS_CHANNEL_ID,
+        mNotificationManager.createNotificationChannel(new NotificationChannel(
+                PROGRESS_CHANNEL_ID,
                 getString(R.string.notification_bugreport_channel_name),
-                NotificationManager.IMPORTANCE_MIN);
-        mNotificationManager.createNotificationChannel(mNotificationChannel);
+                NotificationManager.IMPORTANCE_DEFAULT));
+        mNotificationManager.createNotificationChannel(new NotificationChannel(
+                STATUS_CHANNEL_ID,
+                getString(R.string.notification_bugreport_channel_name),
+                NotificationManager.IMPORTANCE_HIGH));
         mSingleThreadExecutor = Executors.newSingleThreadScheduledExecutor();
         mHandler = new BugReportHandler();
         mCar = Car.createCar(this);
@@ -180,12 +192,8 @@ public class BugReportService extends Service {
         mIsCollectingBugReport.set(true);
         mBugReportProgress.set(0);
 
-        Notification notification =
-                new Notification.Builder(this, NOTIFICATION_STATUS_CHANNEL_ID)
-                        .setContentTitle(getText(R.string.notification_bugreport_started))
-                        .setSmallIcon(R.drawable.download_animation)
-                        .build();
-        startForeground(BUGREPORT_IN_PROGRESS_NOTIF_ID, notification);
+        startForeground(BUGREPORT_IN_PROGRESS_NOTIF_ID, buildProgressNotification());
+        showProgressNotification();
 
         Bundle extras = intent.getExtras();
         mMetaBugReport = extras.getParcelable(EXTRA_META_BUG_REPORT);
@@ -194,6 +202,25 @@ public class BugReportService extends Service {
 
         // If the service process gets killed due to heavy memory pressure, do not restart.
         return START_NOT_STICKY;
+    }
+
+    /** Shows an updated progress notification. */
+    private void showProgressNotification() {
+        if (isCollectingBugReport()) {
+            mNotificationManager.notify(
+                    BUGREPORT_IN_PROGRESS_NOTIF_ID, buildProgressNotification());
+        }
+    }
+
+    private Notification buildProgressNotification() {
+        return new Notification.Builder(this, PROGRESS_CHANNEL_ID)
+                .setContentTitle(getText(R.string.notification_bugreport_in_progress))
+                .setSubText(String.format("%.1f%%", mBugReportProgress.get()))
+                .setSmallIcon(R.drawable.download_animation)
+                .setCategory(Notification.CATEGORY_STATUS)
+                .setOngoing(true)
+                .setProgress((int) MAX_PROGRESS_VALUE, (int) mBugReportProgress.get(), false)
+                .build();
     }
 
     /** Returns true if bugreporting is in progress. */
@@ -229,10 +256,10 @@ public class BugReportService extends Service {
     private void collectBugReport() {
         if (Build.IS_USERDEBUG || Build.IS_ENG) {
             mSingleThreadExecutor.schedule(
-                    this::grabBtSnoopLog, ACTIVITY_FINISH_DELAY, TimeUnit.MILLISECONDS);
+                    this::grabBtSnoopLog, ACTIVITY_FINISH_DELAY_MILLIS, TimeUnit.MILLISECONDS);
         }
         mSingleThreadExecutor.schedule(
-                this::saveBugReport, ACTIVITY_FINISH_DELAY, TimeUnit.MILLISECONDS);
+                this::saveBugReport, ACTIVITY_FINISH_DELAY_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     private void grabBtSnoopLog() {
@@ -311,6 +338,25 @@ public class BugReportService extends Service {
         mSingleThreadExecutor.submit(this::zipDirectoryAndScheduleForUpload);
     }
 
+    /**
+     * Shows a clickable bugreport finished notification. When clicked it opens
+     * {@link BugReportInfoActivity}.
+     */
+    private void showBugReportFinishedNotification() {
+        Intent intent = new Intent(getApplicationContext(), BugReportInfoActivity.class);
+        PendingIntent startBugReportInfoActivity =
+                PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+        Notification notification = new Notification
+                .Builder(getApplicationContext(), STATUS_CHANNEL_ID)
+                .setContentTitle(getText(R.string.notification_bugreport_finished_title))
+                .setContentText(getText(R.string.notification_bugreport_finished_text))
+                .setCategory(Notification.CATEGORY_STATUS)
+                .setSmallIcon(R.drawable.ic_upload)
+                .setContentIntent(startBugReportInfoActivity)
+                .build();
+        mNotificationManager.notify(BUGREPORT_FINISHED_NOTIF_ID, notification);
+    }
+
     private void zipDirectoryAndScheduleForUpload() {
         try {
             // When OutputStream from openBugReportFile is closed, BugStorageProvider automatically
@@ -318,6 +364,7 @@ public class BugReportService extends Service {
             zipDirectoryToOutputStream(
                     FileUtils.createTempDir(this, mMetaBugReport.getTimestamp()),
                     BugStorageUtils.openBugReportFile(this, mMetaBugReport));
+            showBugReportFinishedNotification();
         } catch (IOException e) {
             Log.e(TAG, "Failed to zip files", e);
             BugStorageUtils.setBugReportStatus(this, mMetaBugReport, Status.STATUS_WRITE_FAILED,
@@ -326,6 +373,7 @@ public class BugReportService extends Service {
         }
         mIsCollectingBugReport.set(false);
         showToast(R.string.toast_status_finished);
+        mHandler.post(() -> stopForeground(true));
     }
 
     @Override
