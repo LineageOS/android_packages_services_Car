@@ -372,12 +372,12 @@ int runCommand(int timeout_secs, const char* file, std::vector<const char*> args
     return status;
 }
 
-void takeScreenshotForDisplayId(int id, const char* tmp_dir,
+void takeScreenshotForDisplayId(PhysicalDisplayId id, const char* tmp_dir,
         std::vector<std::string>* extra_files) {
     std::string id_as_string = std::to_string(id);
     std::string filename = std::string(tmp_dir) + kScreenshotPrefix + id_as_string + ".png";
     std::vector<const char*> args { "-p", "-d", id_as_string.c_str(), filename.c_str(), nullptr };
-    ALOGI("capturing screen for display (%d) as %s", id, filename.c_str());
+    ALOGI("capturing screen for display (%s) as %s", id_as_string.c_str(), filename.c_str());
     int status = runCommand(10, "/system/bin/screencap", args);
     if (status == 0) {
         LOG(INFO) << "Screenshot saved for display:" << id_as_string;
