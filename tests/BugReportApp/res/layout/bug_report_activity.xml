@@ -65,6 +65,15 @@
             android:layout_marginTop="@dimen/bug_report_button_margin_top"
             android:padding="@dimen/bug_report_secondary_button_padding"
             android:text="@string/bugreport_dialog_cancel"/>
+        <Button
+            android:id="@+id/button_show_bugreports"
+            style="@style/standard_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/bug_report_button_margin_top"
+            android:padding="@dimen/bug_report_small_button_padding"
+            android:visibility="gone"
+            android:text="@string/bugreport_dialog_show_bugreports"/>
     </LinearLayout>
 
     <LinearLayout
