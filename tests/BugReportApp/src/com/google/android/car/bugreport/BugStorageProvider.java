@@ -253,7 +253,8 @@ public class BugStorageProvider extends ContentProvider {
     }
 
     /**
-     * This is called when the OutputStream is requested by {@link BugStorageUtils#insertBugReport}.
+     * This is called when the OutputStream is requested by
+     * {@link BugStorageUtils#openBugReportFile}.
      *
      * It expects the file to be a zip file and schedules an upload under the primary user.
      */
