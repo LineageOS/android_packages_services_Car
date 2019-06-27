@@ -38,6 +38,11 @@ UI and upload configs are located in `res/` directory. Resources can be
 [overlayed](https://source.android.com/setup/develop/new-device#use-resource-overlays)
 for specific products.
 
+### System Properties
+
+- `android.car.bugreport.disableautoupload` - set it to `true` to disable auto-upload to Google
+   Cloud, and allow users to manually upload or copy the bugreports to flash drive.
+
 ### Upload configuration
 
 BugReport app uses `res/raw/gcs_credentials.json` for authentication and
