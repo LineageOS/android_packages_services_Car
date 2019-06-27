@@ -199,7 +199,7 @@ final class BugStorageUtils {
     }
 
     /**
-     * returns empty string if the column is not found. Otherwise returns the column value.
+     * Returns the column value. If the column is not found returns empty string.
      */
     private static String getString(Cursor c, String colName) {
         int colIndex = c.getColumnIndex(colName);
@@ -211,7 +211,7 @@ final class BugStorageUtils {
     }
 
     /**
-     * Set bugreport status to uploaded successfully.
+     * Sets bugreport status to uploaded successfully.
      */
     public static void setUploadSuccess(Context context, MetaBugReport bugReport) {
         setBugReportStatus(context, bugReport, Status.STATUS_UPLOAD_SUCCESS,
@@ -219,15 +219,16 @@ final class BugStorageUtils {
     }
 
     /**
-     * Set bugreport status to upload failed.
+     * Sets bugreport status to upload failed.
      */
     public static void setUploadFailed(Context context, MetaBugReport bugReport, Exception e) {
         setBugReportStatus(context, bugReport, Status.STATUS_UPLOAD_FAILED, getRootCauseMessage(e));
     }
 
     /**
-     * A transient error has occurred. Set bugreport status pending, and update the message
-     * to last exception message.
+     * Sets bugreport status pending, and update the message to last exception message.
+     *
+     * <p>Used when a transient error has occurred.
      */
     public static void setUploadRetry(Context context, MetaBugReport bugReport, Exception e) {
         setBugReportStatus(context, bugReport, Status.STATUS_UPLOAD_PENDING,
@@ -235,8 +236,9 @@ final class BugStorageUtils {
     }
 
     /**
-     * A transient error has occurred. Set bugreport status pending and update the message to
-     * last message.
+     * Sets bugreport status pending and update the message to last message.
+     *
+     * <p>Used when a transient error has occurred.
      */
     public static void setUploadRetry(Context context, MetaBugReport bugReport, String msg) {
         setBugReportStatus(context, bugReport, Status.STATUS_UPLOAD_PENDING, msg);
