@@ -28,6 +28,8 @@
     <string name="bugreport_dialog_recording_finished" translatable="false">Recording finished</string>
     <string name="bugreport_dialog_in_progress_title" translatable="false">A bug report is already being collected</string>
     <string name="bugreport_dialog_in_progress_title_finished" translatable="false">A bug report has been collected</string>
+    <string name="bugreport_move_button_text" translatable="false">Move</string>
+    <string name="bugreport_upload_button_text" translatable="false">Upload</string>
 
     <string name="toast_permissions_denied" translatable="false">Please grant permissions</string>
     <string name="toast_bug_report_in_progress" translatable="false">Bug report already being collected</string>
