@@ -45,6 +45,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.UserHandle;
+import android.os.UserManager;
 
 import androidx.test.filters.SmallTest;
 
@@ -78,6 +79,8 @@ public class VmsClientManagerTest {
             ComponentName.unflattenFromString(USER_CLIENT);
     private static final String USER_CLIENT_NAME =
             "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsUserClient U=10";
+    private static final String USER_CLIENT_NAME_U11 =
+            "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsUserClient U=11";
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock
@@ -88,9 +91,11 @@ public class VmsClientManagerTest {
     private Resources mResources;
 
     @Mock
+    private UserManager mUserManager;
+    @Mock
     private CarUserService mUserService;
     @Mock
-    private CarUserManagerHelper mUserManager;
+    private CarUserManagerHelper mUserManagerHelper;
     private int mUserId;
 
     @Mock
@@ -123,9 +128,11 @@ public class VmsClientManagerTest {
                 new String[]{ USER_CLIENT });
 
         mUserId = 10;
-        when(mUserManager.getCurrentForegroundUserId()).thenAnswer((invocation) -> mUserId);
+        when(mUserManagerHelper.getCurrentForegroundUserId()).thenAnswer((invocation) -> mUserId);
+        when(mContext.getSystemService(eq(Context.USER_SERVICE))).thenReturn(mUserManager);
+        when(mUserManager.isUserUnlocked(any())).thenReturn(false);
 
-        mClientManager = new VmsClientManager(mContext, mUserService, mUserManager, mHal);
+        mClientManager = new VmsClientManager(mContext, mUserService, mUserManagerHelper, mHal);
         mClientManager.registerConnectionListener(mConnectionListener);
 
         @SuppressWarnings("unchecked")
@@ -142,6 +149,7 @@ public class VmsClientManagerTest {
     @After
     public void tearDown() throws Exception {
         Thread.sleep(10); // Time to allow for delayed rebinds to settle
+        verify(mContext, atLeast(0)).getSystemService(eq(Context.USER_SERVICE));
         verify(mContext, atLeast(0)).getResources();
         verify(mContext, atLeast(0)).getPackageManager();
         verifyNoMoreInteractions(mContext);
@@ -381,6 +389,15 @@ public class VmsClientManagerTest {
     public void testUserSwitchedAndUnlocked() {
         notifyUserSwitched();
         notifyUserUnlocked();
+
+        // Multiple events should only trigger a single bind, when successful
+        verifyUserBind(1);
+    }
+
+    @Test
+    public void testUserSwitchedAlreadyUnlocked() {
+        when(mUserManager.isUserUnlocked(mUserId)).thenReturn(true);
+        notifyUserSwitched();
 
         // Multiple events should only trigger a single bind, when successful
         verifyUserBind(1);
