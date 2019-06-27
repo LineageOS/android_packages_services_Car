@@ -22,7 +22,10 @@
     <string name="allow" msgid="128867119174713893">"අවසර දෙන්න"</string>
     <string name="deny" msgid="3998166389989144025">"ප්‍රතික්ෂේප කරන්න"</string>
     <string name="device_info_default" msgid="1548919563979154348">"නොදනී"</string>
-    <!-- no translation found for show_dev_countdown (3953785659137161981) -->
+    <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
+      <item quantity="one">ඔබට දැන් සංවර්ධකයකු වීමට ඇත්තේ පියවර <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> කි.</item>
+      <item quantity="other">ඔබට දැන් සංවර්ධකයකු වීමට ඇත්තේ පියවර <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> කි.</item>
+    </plurals>
     <string name="show_dev_on" msgid="9075712234786224065">"ඔබ දැන් වර්ධකයෙකි"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"අවශ්‍ය නැත, ඔබ දැනටමත් වර්ධකයෙකි."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"කරුණාකර පළමුව සංවර්ධක විකල්ප සබල කරන්න."</string>
@@ -266,7 +269,10 @@
     <string name="language_picker_title" msgid="7807759931261107686">"භාෂා"</string>
     <string name="locale_remove_menu" msgid="3395565699934985486">"ඉවත් කරන්න"</string>
     <string name="add_a_language" msgid="4103889327406274800">"භාෂාවක් එක් කරන්න"</string>
-    <!-- no translation found for dlg_remove_locales_title (7362450618787242592) -->
+    <plurals name="dlg_remove_locales_title" formatted="false" msgid="7362450618787242592">
+      <item quantity="one">තෝරා ගත් භාෂා ඉවත් කරන්නද?</item>
+      <item quantity="other">තෝරා ගත් භාෂා ඉවත් කරන්නද?</item>
+    </plurals>
     <string name="dlg_remove_locales_message" msgid="5179370688876343176">"පෙළ වෙනත් භාෂාවකින් සංදර්ශනය කරනු ඇත."</string>
     <string name="dlg_remove_locales_error_title" msgid="9090578326002163975">"සියලු භාෂා ඉවත් කළ නොහැකිය"</string>
     <string name="dlg_remove_locales_error_message" msgid="6799897638891903618">"අඩු තරමින් එක් මනාප භාෂාවක් තබා ගන්න"</string>
@@ -365,7 +371,10 @@
     <string name="location_settings_title" msgid="2707201457572301030">"ස්ථානය"</string>
     <string name="location_settings_master_switch_title" msgid="3108016866082816733">"ස්ථානය භාවිත කරන්න"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"ක්‍රියාවිරහිතයි"</string>
-    <!-- no translation found for location_settings_summary_location_on (7893342914540884818) -->
+    <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
+      <item quantity="one">ක්‍රියාත්මකයි - යෙදුම් <xliff:g id="COUNT_1">%1$d</xliff:g>කට ස්ථානයට ප්‍රවේශ විය හැකිය</item>
+      <item quantity="other">ක්‍රියාත්මකයි - යෙදුම් <xliff:g id="COUNT_1">%1$d</xliff:g>කට ස්ථානයට ප්‍රවේශ විය හැකිය</item>
+    </plurals>
     <string name="location_settings_loading_app_permission_stats" msgid="7818169326621327628">"පූරණය වේ…"</string>
     <string name="account_settings_title" msgid="7870321267198486578">"ගිණුම්"</string>
     <string name="security_settings_title" msgid="8228075165942416425">"ආරක්ෂාව"</string>
@@ -424,7 +433,10 @@
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"මෙය සඳහා ඇඟිලි සලකුණු භාවිත කරන්න"</string>
     <string name="fingerprint_add_title" msgid="6840343900784463856">"ඇඟිලි සලකුණ එක් කරන්න"</string>
     <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"තිර අගුල"</string>
-    <!-- no translation found for security_settings_fingerprint_preference_summary (2033416761172877041) -->
+    <plurals name="security_settings_fingerprint_preference_summary" formatted="false" msgid="2033416761172877041">
+      <item quantity="one">ඇඟිලි සලකුණු පිහිටුවීම් <xliff:g id="COUNT_1">%1$d</xliff:g></item>
+      <item quantity="other">ඇඟිලි සලකුණු පිහිටුවීම් <xliff:g id="COUNT_1">%1$d</xliff:g></item>
+    </plurals>
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"ඇඟිලි සලකුණින් අගුළු හරින්න"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"ඔබේ ඇඟිලි සලකුණ භාවිත කරන්න"</string>
@@ -446,10 +458,8 @@
     <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"උපාංග ආරක්ෂණ විශේෂාංග ක්‍රියාත්මක නොකරනු ඇත. මෙම දුරකථනය නැති වුවහොත් හෝ සොරකම් කළහොත්, වෙනත් අය එය භාවිත කිරීම වැළැක්වීමට ඔබට නොහැකි වනු ඇත."</string>
     <string name="skip_anyway_button_label" msgid="4437815969645175429">"කෙසේ වෙතත් මග හරින්න"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"ආපසු යන්න"</string>
-    <!-- no translation found for skip_lock_screen_dialog_button_label (6706047245716780006) -->
-    <skip />
-    <!-- no translation found for cancel_lock_screen_dialog_button_label (2534925227627658819) -->
-    <skip />
+    <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"මඟ හරින්න"</string>
+    <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"අවලංගු කරන්න"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"සංවේදකය ස්පර්ශ කරන්න"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"එය ඔබගේ දුරකථනය පිටුපස ඇත. ඔබේ දබරැඟිල්ල භාවිත කරන්න."</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"උපාංගයේ ඇඟිලි සලකුණු සංවේදකයේ පිහිටීම නිරූපණය"</string>
@@ -465,24 +475,16 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"පසුව එය කරන්න"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"ඇඟිලි සලකුණ පිහිටුවීම මග හරින්නද?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"ඔබ ඔබේ දුරකථනය අගුලු හැරීමේ එක් ක්‍රමයක් ලෙස ඔබේ ඇඟිලි සලකුණ භාවිත කිරීම තෝරා ඇත. ඔබ දැන් මග හැරියොත්, ඔබට මෙය පසුව පිහිටුවීමට අවශ්‍ය වනු ඇත. පිහිටුවීම මිනිත්තුවක් හෝ කිහිපයක් ගනු ඇත."</string>
-    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (1384438077720821127) -->
-    <skip />
-    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7207112623501771824) -->
-    <skip />
-    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7623975730623531606) -->
-    <skip />
-    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (2998863111689476550) -->
-    <skip />
-    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (6780557259734235952) -->
-    <skip />
-    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (8541640018478926775) -->
-    <skip />
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"ඔබේ ටැබ්ලටය අහිමි වූ හෝ සොරකම් කළ විට කිසිවෙකුට එය භාවිතා කිරීමට නොහැකි වනු ඇති පරිදි තිර අගුළු විකල්පයක් සමඟ ආරක්ෂා කර ගන්න. ඔබට ඇඟිලි සලකුණ පිහිටුවීමට තිර අගුළු විකල්පයකුත් අවශ්‍යයි. අවලංගු කරන්න තට්ටු කර, PIN එකක් සකසන්න හෝ වෙනත් තිර අගුළු විකල්පයක් තෝරා ගන්න."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"ඔබේ උපාංගය අහිමි වූ හෝ සොරකම් කළ විට කිසිවෙකුට එය භාවිතා කිරීමට නොහැකි වනු ඇති පරිදි තිර අගුළු විකල්පයක් සමඟ ආරක්ෂා කර ගන්න. ඔබට ඇඟිලි සලකුණ පිහිටුවීමට තිර අගුළු විකල්පයකුත් අවශ්‍යයි. අවලංගු කරන්න තට්ටු කර, PIN එකක් සකසන්න හෝ වෙනත් තිර අගුළු විකල්පයක් තෝරා ගන්න."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"ඔබේ දුරකථනය අහිමි වූ හෝ සොරකම් කළ විට කිසිවෙකුට එය භාවිතා කිරීමට නොහැකි වනු ඇති පරිදි තිර අගුළු විකල්පයක් සමඟ ආරක්ෂා කර ගන්න. ඔබට ඇඟිලි සලකුණ පිහිටුවීමට තිර අගුළු විකල්පයකුත් අවශ්‍යයි. අවලංගු කරන්න තට්ටු කර, PIN එකක් සකසන්න හෝ වෙනත් තිර අගුළු විකල්පයක් තෝරා ගන්න."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"ඔබේ ටැබ්ලටය අහිමි වූ හෝ සොරකම් කළ විට කිසිවෙකුට එය භාවිතා කිරීමට නොහැකි වනු ඇති පරිදි තිර අගුළු විකල්පයක් සමඟ ආරක්ෂා කර ගන්න. ඔබට මුහුණ සත්‍යාපනය පිහිටුවීමට තිර අගුළු විකල්පයකුත් අවශ්‍යයි. අවලංගු කරන්න තට්ටු කර, PIN එකක් සකසන්න හෝ වෙනත් තිර අගුළු විකල්පයක් තෝරා ගන්න."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"ඔබේ උපාංගය අහිමි වූ හෝ සොරකම් කළ විට කිසිවෙකුට එය භාවිතා කිරීමට නොහැකි වනු ඇති පරිදි තිර අගුළු විකල්පයක් සමඟ ආරක්ෂා කර ගන්න. ඔබට මුහුණ සත්‍යාපනය පිහිටුවීමට තිර අගුළු විකල්පයකුත් අවශ්‍යයි. අවලංගු කරන්න තට්ටු කර, PIN එකක් සකසන්න හෝ වෙනත් තිර අගුළු විකල්පයක් තෝරා ගන්න."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"ඔබේ දුරකථනය අහිමි වූ හෝ සොරකම් කළ විට කිසිවෙකුට එය භාවිතා කිරීමට නොහැකි වනු ඇති පරිදි තිර අගුළු විකල්පයක් සමඟ ආරක්ෂා කර ගන්න. ඔබට මුහුණ සත්‍යාපනය පිහිටුවීමට තිර අගුළු විකල්පයකුත් අවශ්‍යයි. අවලංගු කරන්න තට්ටු කර, PIN එකක් සකසන්න හෝ වෙනත් තිර අගුළු විකල්පයක් තෝරා ගන්න."</string>
     <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
     <skip />
-    <!-- no translation found for lock_screen_password_skip_title (3725788215672959827) -->
-    <skip />
-    <!-- no translation found for lock_screen_pattern_skip_title (4237030500353932005) -->
-    <skip />
+    <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"මුරපදය පිහිටුවීම මඟ හරින්න ද?"</string>
+    <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"රටාව පිහිටුවීම මඟ හරින්න ද?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"තිර අගුළු දැමීම සකසන්න"</string>
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"නිමයි"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"අපොයි, එය සංවේදකය නොවෙයි"</string>
@@ -650,11 +652,23 @@
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"වැරදි උත්සාහයන් ඉතා වැඩි ගණනකි. මෙම පරිශීලකයා මකනු ඇත."</string>
     <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"වැරදි උත්සාහයන් ඉතා වැඩි ගණනකි. මෙම කාර්යාල පැතිකඩ සහ එහි දත්ත මකනු ඇත."</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"ඉවතලන්න"</string>
-    <!-- no translation found for lockpassword_password_too_short (694091983183310827) -->
-    <!-- no translation found for lockpassword_pin_too_short (6805936168283187298) -->
+    <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
+      <item quantity="one">අඩු තරමින් අනුලකුණු <xliff:g id="COUNT_1">%d</xliff:g>ක් තිබිය යුතුය</item>
+      <item quantity="other">අඩු තරමින් අනුලකුණු <xliff:g id="COUNT_1">%d</xliff:g>ක් තිබිය යුතුය</item>
+    </plurals>
+    <plurals name="lockpassword_pin_too_short" formatted="false" msgid="6805936168283187298">
+      <item quantity="one">PIN හි අඩු තරමින් ඉලක්කම් <xliff:g id="COUNT_1">%d</xliff:g>ක් තිබිය යුතුය</item>
+      <item quantity="other">PIN හි අඩු තරමින් ඉලක්කම් <xliff:g id="COUNT_1">%d</xliff:g>ක් තිබිය යුතුය</item>
+    </plurals>
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"කරගෙන යන්න"</string>
-    <!-- no translation found for lockpassword_password_too_long (7994068708438608179) -->
-    <!-- no translation found for lockpassword_pin_too_long (6219380667452617286) -->
+    <plurals name="lockpassword_password_too_long" formatted="false" msgid="7994068708438608179">
+      <item quantity="one">අනුලකුණු <xliff:g id="NUMBER_1">%d</xliff:g>කට වඩා අඩු විය යුතුය</item>
+      <item quantity="other">අනුලකුණු <xliff:g id="NUMBER_1">%d</xliff:g>කට වඩා අඩු විය යුතුය</item>
+    </plurals>
+    <plurals name="lockpassword_pin_too_long" formatted="false" msgid="6219380667452617286">
+      <item quantity="one">ඉලක්කම් <xliff:g id="NUMBER_1">%d</xliff:g>කට වඩා අඩු විය යුතුය</item>
+      <item quantity="other">ඉලක්කම් <xliff:g id="NUMBER_1">%d</xliff:g>කට වඩා අඩු විය යුතුය</item>
+    </plurals>
     <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"0-9 දක්වා ඉලක්කම් පමණක් අඩංගු විය යුතුය"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"උපාංග පරිපාලක මෑත PIN එකක් භාවිතා කිරීමට අවසර නොදේ"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"ඔබගේ IT පරිපාලක විසින් සුලබ PIN අවහිර කරනු ලැබේ. වෙනත් PIN එකක් උත්සාහ කරන්න."</string>
@@ -662,12 +676,30 @@
     <string name="lockpassword_password_requires_alpha" msgid="7017799931349816346">"අඩු තරමින් එක් අකුරක් තිබිය යුතුය"</string>
     <string name="lockpassword_password_requires_digit" msgid="6856775151626646011">"අඩු තරමින් එක් ඉලක්කමක් තිබිය යුතුය"</string>
     <string name="lockpassword_password_requires_symbol" msgid="5859035635265756172">"අඩු තරමින් එක් සංකේතයක් තිබිය යුතුය"</string>
-    <!-- no translation found for lockpassword_password_requires_letters (7383825189441790620) -->
-    <!-- no translation found for lockpassword_password_requires_lowercase (477315194231617994) -->
-    <!-- no translation found for lockpassword_password_requires_uppercase (6026476732572657588) -->
-    <!-- no translation found for lockpassword_password_requires_numeric (5072581827825645338) -->
-    <!-- no translation found for lockpassword_password_requires_symbols (8393058207948961650) -->
-    <!-- no translation found for lockpassword_password_requires_nonletter (3692485784007607387) -->
+    <plurals name="lockpassword_password_requires_letters" formatted="false" msgid="7383825189441790620">
+      <item quantity="one">අඩු තරමින් අකුරු <xliff:g id="COUNT">%d</xliff:g>ක් අඩංගු විය යුතුය</item>
+      <item quantity="other">අඩු තරමින් අකුරු <xliff:g id="COUNT">%d</xliff:g>ක් අඩංගු විය යුතුය</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_lowercase" formatted="false" msgid="477315194231617994">
+      <item quantity="one">අඩු තරමින් සිම්පල් අකුරු <xliff:g id="COUNT">%d</xliff:g>ක් අඩංගු විය යුතුය</item>
+      <item quantity="other">අඩු තරමින් සිම්පල් අකුරු <xliff:g id="COUNT">%d</xliff:g>ක් අඩංගු විය යුතුය</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_uppercase" formatted="false" msgid="6026476732572657588">
+      <item quantity="one">අඩු තරමින් කැපිටල් අකුරු <xliff:g id="COUNT">%d</xliff:g>ක් අඩංගු විය යුතුය</item>
+      <item quantity="other">අඩු තරමින් කැපිටල් අකුරු <xliff:g id="COUNT">%d</xliff:g>ක් අඩංගු විය යුතුය</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_numeric" formatted="false" msgid="5072581827825645338">
+      <item quantity="one">අඩු තරමින් සංඛ්‍යාමය ඉලක්කම් <xliff:g id="COUNT">%d</xliff:g>ක් අඩංගු විය යුතුය</item>
+      <item quantity="other">අඩු තරමින් සංඛ්‍යාමය ඉලක්කම් <xliff:g id="COUNT">%d</xliff:g>ක් අඩංගු විය යුතුය</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_symbols" formatted="false" msgid="8393058207948961650">
+      <item quantity="one">අඩු තරමින් විශේෂ සංකේත <xliff:g id="COUNT">%d</xliff:g>ක් අඩංගු විය යුතුය</item>
+      <item quantity="other">අඩු තරමින් විශේෂ සංකේත <xliff:g id="COUNT">%d</xliff:g>ක් අඩංගු විය යුතුය</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
+      <item quantity="one">අඩු තරමින් අකුරු නොවන අනුලකුණු <xliff:g id="COUNT">%d</xliff:g>ක් අඩංගු විය යුතුය</item>
+      <item quantity="other">අඩු තරමින් අකුරු නොවන අනුලකුණු <xliff:g id="COUNT">%d</xliff:g>ක් අඩංගු විය යුතුය</item>
+    </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"උපාංග පරිපාලක මෑත මුරපදයක් භාවිතා කිරීමට අවසර නොදේ."</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ඔබගේ IT පරිපාලක විසින් සුලබ මුරපද අවහිර කරනු ලැබේ. වෙනත් මුරපදයක් උත්සාහ කරන්න."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"ආරෝහණ, අවරෝහණ හෝ ප්‍රනරාවර්ත අනුක්‍රමයේ අංක වෙත අවසර නැත"</string>
@@ -680,11 +712,17 @@
     <string name="lock_setup" msgid="8710689848703935088">"සැකසීම අවසන්."</string>
     <string name="manage_device_admin" msgid="322047441168191695">"උපාංග පරිපාලක යෙදුම්"</string>
     <string name="number_of_device_admins_none" msgid="8519193548630223132">"ක්‍රියාකාරී යෙදුම් නොමැත"</string>
-    <!-- no translation found for number_of_device_admins (6445613288828151224) -->
+    <plurals name="number_of_device_admins" formatted="false" msgid="6445613288828151224">
+      <item quantity="one">සක්‍රිය යෙදුම් <xliff:g id="COUNT_1">%d</xliff:g></item>
+      <item quantity="other">සක්‍රිය යෙදුම් <xliff:g id="COUNT_1">%d</xliff:g></item>
+    </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"විශ්වාසනීය ඒජන්තවරුන්"</string>
     <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"භාවිතා කිරීමට, මුලින්ම තීර අගුල සකසන්න"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"කිසිවක් නැත"</string>
-    <!-- no translation found for manage_trust_agents_summary_on (5550538038916606097) -->
+    <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
+      <item quantity="one">විශ්වාස ඒජන්ත <xliff:g id="COUNT">%d</xliff:g>ක්</item>
+      <item quantity="other">විශ්වාස ඒජන්ත <xliff:g id="COUNT">%d</xliff:g>ක්</item>
+    </plurals>
     <string name="bluetooth_quick_toggle_title" msgid="7410319268406112792">"බ්ලූටූත්"</string>
     <string name="bluetooth_quick_toggle_summary" msgid="3951769568065428093">"බ්ලූටූත් සබල කරන්න"</string>
     <string name="bluetooth_settings" msgid="5228032727293770389">"බ්ලූටූත්"</string>
@@ -728,13 +766,11 @@
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"දියුණු බ්ලූටූත්"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"බ්ලූටූත් සබල විට, ඔබගේ උපාංගයට අවට ඇති බ්ලූටූත් උපාංග සමඟ සන්නිවේදනය කළ හැක."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"බ්ලූටූත් ක්‍රියාත්මක විට, ඔබගේ උපාංගයට වෙනත් බ්ලූටූත් උපාංග සමඟ සන්නිවේදනය කළ හැකිය.\n\nඋපාංග අත්දැකීම වැඩි දියුණු කිරීම සඳහා, ඕනෑම අවස්ථාවක අවට උපාංග සඳහා ස්කෑන් කිරීමට යෙදුම් සහ සේවාවලට හැකිය. උදාහරණයක් ලෙස, ස්ථානය-පදනම් වූ විශේෂාංග සහ සේවා වැඩි දියුණු කිරීම සඳහා මෙය භාවිත කළ හැකි අතර ඔබට මෙය "<annotation id="link">"ස්කෑන් කිරීමේ සැකසීම්"</annotation>" තුළ වෙනස් කළ හැකිය."</string>
-    <!-- no translation found for ble_scan_notify_text (6290170236546386932) -->
-    <skip />
+    <string name="ble_scan_notify_text" msgid="6290170236546386932">"ස්ථාන නිරවද්‍යතාව වැඩිදියුණු කිරීමට පද්ධති යෙදුම් සහ සේවාවලට තවමත්, බ්ලූටූත් උපාංග අනාවරණය කර ගැනීමට හැකිය. ඔබට මෙය <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>ස්කෑන් කිරීමේ සැකසීම්<xliff:g id="LINK_END_1">LINK_END</xliff:g> තුළ වෙනස් කළ හැකිය."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"සම්බන්ධ වීමට නොහැකි විය. නැවත උත්සාහ කරන්න."</string>
     <string name="device_details_title" msgid="726517818032923222">"උපාංග විස්තර"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"උපාංගයේ බ්ලූටූත් ලිපිනය: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <!-- no translation found for bluetooth_unpair_dialog_title (3669848977755142047) -->
-    <skip />
+    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"උපාංගය අමතකද?"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"ඔබගේ දුරකථනය තවදුරටත් <xliff:g id="DEVICE_NAME">%1$s</xliff:g> සමග යුගල නොකරනු ඇත"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"ඔබගේ ටැබ්ලට් පරිගණකය තවදුරටත් <xliff:g id="DEVICE_NAME">%1$s</xliff:g> සමග යුගල නොකරනු ඇත"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"ඔබගේ උපාංගය තවදුරටත් <xliff:g id="DEVICE_NAME">%1$s</xliff:g> සමග යුගල නොකරනු ඇත"</string>
@@ -812,8 +848,7 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"විවෘත ජාල දැනුම්දීම"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"ඉහළ ගුණත්වයේ විවෘත ජාලයක් ලබා ගත හැකි විට දැනුම් දෙන්න"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Wi‑Fi ස්වයංක්‍රියව නැවත සබල කරන්න"</string>
-    <!-- no translation found for wifi_wakeup_summary (1152699417411690) -->
-    <skip />
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"ඔබගේ නිවෙස් ජාලය වැනි සුරැකි ඉහළ ගුණත්ව ජාල අවට ස්වයංක්‍රියව නැවත Wi-Fi සබල කරන්න"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"ස්ථානය ක්‍රියාවිරහිත කර ඇති නිසා ලබා ගත නොහැකිය. "<annotation id="link">"ස්ථානය"</annotation>" ක්‍රියාත්මක කරන්න."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Wi-Fi ස්කෑන් කිරීම ක්‍රියාවිරහිත කර ඇති නිසා ලබා ගත නොහැකිය"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"භාවිත කිරීමට, ජාල ඇගයීම් සපයන්නකු තෝරන්න"</string>
@@ -868,8 +903,7 @@
     <string name="wifi_ssid" msgid="6746270925975522641">"ජාල නම"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSID ඇතුලත් කරන්න"</string>
     <string name="wifi_security" msgid="9136702039496152831">"ආරක්ෂාව"</string>
-    <!-- no translation found for wifi_hidden_network (6647772204699776833) -->
-    <skip />
+    <string name="wifi_hidden_network" msgid="6647772204699776833">"සඟවන ලද ජාලය"</string>
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"ඔබගේ රවුටරය ජාල ID එකක් විකාශ නොකරන්නේ නම්, නමුත් ඔබ අනාගතයේදී එය සමඟ සම්බන්ධ වීමට කැමති නම්, ඔබට ජාලය සැඟවූ ලෙස සැකසිය හැකිය.\n\nඔබේ දුරකථනය ජාලය සොයා ගැනීමට එහි සංඥාව නිතර විකාශය කරනු ඇති නිසා මෙය ආරක්ෂක අවදානමක් ඇති කළ හැකිය.\n\nජාලය සැඟවූ ලෙස සැකසීම ඔබේ රවුටර සැකසීම් වෙනස් නොකරයි."</string>
     <string name="wifi_signal" msgid="696548364467704808">"සංඥා ප්‍රබලතාව"</string>
     <string name="wifi_status" msgid="3439931558930689940">"තත්වය"</string>
@@ -977,7 +1011,10 @@
     <string name="wifi_cancel" msgid="7618417075930426635">"අවලංගු කරන්න"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"ජාලය අමතක කරන්නද?"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"මෙම ජාලය සඳහා සියලු මුරපද මකනු ඇත"</string>
-    <!-- no translation found for wifi_saved_access_points_summary (6199295921035663421) -->
+    <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
+      <item quantity="one">ජාල %dක්</item>
+      <item quantity="other">ජාල %dක්</item>
+    </plurals>
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"උසස් Wi‑Fi"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC ලිපිනය"</string>
@@ -1050,21 +1087,22 @@
     <!-- no translation found for wifi_calling_roaming_mode_summary (620031651074963360) -->
     <skip />
     <string name="wifi_calling_roaming_mode_dialog_title" msgid="4018579440109122790">"රෝමිං මනාප"</string>
-    <!-- no translation found for wifi_calling_mode_choices:0 (7952573372663890448) -->
-    <!-- no translation found for wifi_calling_mode_choices:1 (2552412793005571845) -->
-    <!-- no translation found for wifi_calling_mode_choices:2 (742811521969300868) -->
+  <string-array name="wifi_calling_mode_choices">
+    <item msgid="7952573372663890448">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
+    <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
+    <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
+  </string-array>
     <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:1 (4421333712484542489) -->
     <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
-    <!-- no translation found for wifi_calling_mode_choices_without_wifi_only:0 (3658897985297386665) -->
-    <!-- no translation found for wifi_calling_mode_choices_without_wifi_only:1 (4191802193352447215) -->
+  <string-array name="wifi_calling_mode_choices_without_wifi_only">
+    <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
+    <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
+  </string-array>
     <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:1 (2271962426654621656) -->
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Wi‑Fi නොලැබේ නම්, ජංගම ජාලය භාවිත කරන්න"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"ජංගම ජාලය නොලැබේ නම්, Wi-Fi භාවිත කරන්න"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Wi‑Fi ඔස්සේ ඇමතුම. Wi‑Fi අහිමි වූයේ නම්, ඇමතුම අවසන් වෙයි."</string>
-    <!-- no translation found for wifi_calling_off_explanation (1653424723742898015) -->
-    <skip />
+    <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"Wi-Fi ඇමතීම සක්‍රීය වූ විට, ඔබේ දුරකථනයට ඔබේ මනාපයට සහ සංඥා ප්‍රබලතාවට අනුව, Wi-Fi ජාල හරහා හෝ ඔබේ වාහකයේ ජාලය හරහා ඇමතුම් ප්‍රතියොමු කළ හැක. මෙම විශේෂාංගය සක්‍රීය කිරීමට පෙර, ගාස්තු සහ අනෙකුත් විස්තර පිළිබඳව ඔබේ වාහකය සමඟ පරීක්‍ෂා කර ගන්න.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
     <string name="emergency_address_title" msgid="5779915349686787024">"හදිසි අවස්ථා ලිපිනය"</string>
     <string name="emergency_address_summary" msgid="478668478569851714">"ඔබ Wi-Fi හරහා හදිසි ඇමතුමක් ලබා ගන්නා විට ඔබගේ ස්ථානය ලෙස භාවිතා වේ"</string>
@@ -1252,13 +1290,15 @@
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"SIM කිහිපයක් සොයාගන්නා ලදි."</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"ජංගම දත්ත සඳහා ඔබ කැමති SIM එක තෝරන්න."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"ජංගම දත්ත සඳහා <xliff:g id="CARRIER">%1$s</xliff:g> භාවිත කරන්නේද?"</string>
-    <!-- no translation found for sim_change_data_message (51004703157782900) -->
-    <skip />
+    <string name="sim_change_data_message" msgid="51004703157782900">"ඔබ ජංගම දත්ත සඳහා <xliff:g id="CARRIER2_0">%2$s</xliff:g> භාවිත කරයි. ඔබ <xliff:g id="CARRIER1">%1$s</xliff:g> වෙත මාරු වන්නේ නම්, ජංගම දත්ත සඳහා <xliff:g id="CARRIER2_1">%2$s</xliff:g>තවදුරටත් භාවිත නොකෙරේ."</string>
     <string name="sim_change_data_ok" msgid="7491552537317573235">"<xliff:g id="CARRIER">%1$s</xliff:g> භාවිත කරන්න"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"යාවත්කාලීන වලට මනාප කළ SIM කාඩ්පත කුමක්ද?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> ඔබගේ උපාංගය තුළ ඇති එකම අලුත් SIM එකය. ජංගම දත්ත, ඇමතුම්, සහ SMS පණිවිඩ සඳහා මෙම SIM එක භාවිත කිරීමට ඔබට අවශ්‍යද?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"වැරදී SIM PIN කේතයකි, ඔබගේ දුරකතනයේ අඟුල හැරීමට ඔබගේ වාහකයා ඔබ දැන් සම්බන්ධ කරගත යුතුය."</string>
-    <!-- no translation found for wrong_pin_code (2934318793525717627) -->
+    <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
+      <item quantity="one">වැරදී SIM PIN කේතයකි, ඔබගේ දුරකථනයේ අඟුල හැරීමට ඔබගේ වාහකයා සම්බන්ධ කරගැනීමට පෙර ඔබ සතුව තවත් උත්සාහයන් <xliff:g id="NUMBER_1">%d</xliff:g> ක් ඉතිරිව ඇත.</item>
+      <item quantity="other">වැරදී SIM PIN කේතයකි, ඔබගේ දුරකථනයේ අඟුල හැරීමට ඔබගේ වාහකයා සම්බන්ධ කරගැනීමට පෙර ඔබ සතුව තවත් උත්සාහයන් <xliff:g id="NUMBER_1">%d</xliff:g> ක් ඉතිරිව ඇත.</item>
+    </plurals>
     <string name="pin_failed" msgid="4877356137480446727">"SIM PIN ක්‍රියාවලිය අපොහොසත් විය!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"පද්ධති යාවත්කාලීන"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
@@ -1603,7 +1643,10 @@
     <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"කාර්යාල පැතිකඩ සඳහා ස්ථානය"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"යෙදුම් අවසරය"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"ස්ථානය ක්‍රියාවිරහිතයි"</string>
-    <!-- no translation found for location_app_permission_summary_location_on (7904821382328758218) -->
+    <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
+      <item quantity="one"> යෙදුම් <xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g>කින් <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g>කට අසීමිත ප්‍රවේශය ඇත</item>
+      <item quantity="other"> යෙදුම් <xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g>කින් <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g>කට අසීමිත ප්‍රවේශය ඇත</item>
+    </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"මෑත ස්ථාන ප්‍රවේශය"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"විස්තර බලන්න"</string>
     <string name="location_no_recent_apps" msgid="77502059586413278">"මෑතකදී යෙදුම් කිසිවක් ස්ථානය ඉල්ලා නැත"</string>
@@ -1615,8 +1658,7 @@
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Wi‑Fi ක්‍රියාවිරහිත විට පවා, ඕනෑම අවස්ථාවක Wi‑Fi ජාල සඳහා ස්කෑන් කිරීමට යෙදුම් සහ සේවාවලට ඉඩ දෙන්න. උදාහරණයක් ලෙස, ස්ථානය-පදනම් වූ විශේෂාංග සහ සේවා වැඩි දියුණු කිරීම සඳහා මෙය භාවිත කළ හැකිය."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"බ්ලූටූත් පරිලෝකනය"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"බ්ලූටූත් ක්‍රියාවිරහිත විට පවා, ඕනෑම අවස්ථාවක අවට උපාංග සඳහා ස්කෑන් කිරීමට යෙදුම් සහ සේවාවලට ඉඩ දෙන්න. උදාහරණයක් ලෙස, ස්ථානය-පදනම් වූ විශේෂාංග සහ සේවා වැඩි දියුණු කිරීම සඳහා මෙය භාවිත කළ හැකිය."</string>
-    <!-- no translation found for managed_profile_location_services (224925483299159541) -->
-    <skip />
+    <string name="managed_profile_location_services" msgid="224925483299159541">"වැඩ සඳහා ස්ථානීය සේවා"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi-Fi සහ ජංගම ජාල ස්ථාන"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"ඔබගේ ස්ථානය ඉක්මනින් තීරණය කිරීමට යෙදුම් හට Google හි ස්ථාන සේවා භාවිතා කිරීමට ඉඩ දෙන්න. නිර්නාමික ස්ථාන දත්ත එකතු කර Google වෙත යැවෙනු ඇත."</string>
     <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"Wi‑Fi මඟින් ස්ථානය හඳුනාගන්නා ලදි"</string>
@@ -1758,7 +1800,10 @@
     <string name="cache_header_label" msgid="3202284481380361966">"හැඹිලිය"</string>
     <string name="clear_cache_btn_text" msgid="107507684844780651">"හැඹිලිය හිස් කරන්න"</string>
     <string name="cache_size_label" msgid="6205173678102220499">"හැඹිලිය"</string>
-    <!-- no translation found for uri_permissions_text (8938478333743197020) -->
+    <plurals name="uri_permissions_text" formatted="false" msgid="8938478333743197020">
+      <item quantity="one">අයිතම %d</item>
+      <item quantity="other">අයිතම %d</item>
+    </plurals>
     <string name="clear_uri_btn_text" msgid="3528618179883855727">"ප්‍රවේශය හිස් කරන්න"</string>
     <string name="controls_label" msgid="5609285071259457221">"පාලක"</string>
     <string name="force_stop" msgid="9213858124674772386">"බලෙන් නවත්වන්න"</string>
@@ -2053,18 +2098,36 @@
     <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"ඔබගේ ශ්‍රවණාධාරක යුගල කිරීමට, ඊළඟ තිරයේ ඔබේ උපාංගය සොයා තට්ටු කරන්න."</string>
     <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"ඔබේ යුගල ප්‍රකාරයක ඇති බව සහතික කර ගන්න."</string>
     <string name="accessibility_hearingaid_active_device_summary" msgid="6081382497207168885">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ක්‍රියාත්මකයි"</string>
-    <!-- no translation found for show_number_hearingaid_count (7906547154695855096) -->
+    <plurals name="show_number_hearingaid_count" formatted="false" msgid="7906547154695855096">
+      <item quantity="one">සුරැකි ශ්‍රවණාධාර <xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g></item>
+      <item quantity="other">සුරැකි ශ්‍රවණාධාර <xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g></item>
+    </plurals>
     <string name="accessibility_summary_state_enabled" msgid="7357731696603247963">"ක්‍රියාත්මකයි"</string>
     <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"ක්‍රියාවිරහිතයි"</string>
     <string name="accessibility_summary_state_stopped" msgid="3170264683616172746">"ක්‍රියා නොකරයි. තොරතුරු සඳහා තට්ටු කරන්න."</string>
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"මෙම සේවාව නිසි පරිදි ක්‍රියා නොකරයි."</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"ඉක්මන් සැකසීම් තුළ පෙන්වන්න"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"නිවැරදි කිරීම් ප්‍රකාරය"</string>
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_extremely_short_delay (3810676455925024813) -->
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_short_delay (8720846747098057703) -->
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_short_delay (4311889107742293108) -->
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_long_delay (285663535113656440) -->
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_long_delay (3412533824632834001) -->
+    <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
+      <item quantity="one">අතිශයින්ම කෙටි ප්‍රමාදය (මිලිතත්පර <xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g>)</item>
+      <item quantity="other">අතිශයින්ම කෙටි ප්‍රමාදය (මිලිතත්පර <xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g>)</item>
+    </plurals>
+    <plurals name="accessibilty_autoclick_preference_subtitle_very_short_delay" formatted="false" msgid="8720846747098057703">
+      <item quantity="one">ඉතා කෙටි ප්‍රමාදය (මිලිතත්පර <xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g>)</item>
+      <item quantity="other">ඉතා කෙටි ප්‍රමාදය (මිලිතත්පර <xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g>)</item>
+    </plurals>
+    <plurals name="accessibilty_autoclick_preference_subtitle_short_delay" formatted="false" msgid="4311889107742293108">
+      <item quantity="one">කෙටි ප්‍රමාදය (මිලිතත්පර <xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g>)</item>
+      <item quantity="other">කෙටි ප්‍රමාදය (මිලිතත්පර <xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g>)</item>
+    </plurals>
+    <plurals name="accessibilty_autoclick_preference_subtitle_long_delay" formatted="false" msgid="285663535113656440">
+      <item quantity="one">දිගු ප්‍රමාදය (මිලිතත්පර <xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g>)</item>
+      <item quantity="other">දිගු ප්‍රමාදය (මිලිතත්පර <xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g>)</item>
+    </plurals>
+    <plurals name="accessibilty_autoclick_preference_subtitle_very_long_delay" formatted="false" msgid="3412533824632834001">
+      <item quantity="one">ඉතා දිගු ප්‍රමාදය (මිලිතත්පර <xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g>)</item>
+      <item quantity="other">ඉතා දිගු ප්‍රමාදය (මිලිතත්පර <xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g>)</item>
+    </plurals>
     <string name="accessibility_vibration_summary" msgid="3642516399755721924">"නාදය <xliff:g id="SUMMARY_RING">%1$s</xliff:g>, දැනුම්දීම <xliff:g id="SUMMARY_NOTIFICATION">%2$s</xliff:g>, ස්පර්ශය <xliff:g id="SUMMARY_TOUCH">%3$s</xliff:g>"</string>
     <string name="accessibility_vibration_summary_off" msgid="2894044066550518676">"නාද සහ දැනුම්දීම ක්‍රියාවිරහිත ලෙස සකසා ඇත"</string>
     <string name="accessibility_vibration_summary_low" msgid="2884160616131878204">"නාද සහ දැනුම්දීම පහළට සකසා ඇත"</string>
@@ -2124,8 +2187,14 @@
     <string name="settings_button" msgid="8557747862035866953">"සැකසීම්"</string>
     <string name="print_settings" msgid="7886184656544483072">"මුද්‍රණය කිරීම්"</string>
     <string name="print_settings_summary_no_service" msgid="634173687975841526">"ක්‍රියාවිරහිතයි"</string>
-    <!-- no translation found for print_settings_summary (7580293760281445137) -->
-    <!-- no translation found for print_jobs_summary (6180308415569432845) -->
+    <plurals name="print_settings_summary" formatted="false" msgid="7580293760281445137">
+      <item quantity="one">මුද්‍රණ සේවා <xliff:g id="COUNT">%1$d</xliff:g>ක් සක්‍රියයි</item>
+      <item quantity="other">මුද්‍රණ සේවා <xliff:g id="COUNT">%1$d</xliff:g>ක් සක්‍රියයි</item>
+    </plurals>
+    <plurals name="print_jobs_summary" formatted="false" msgid="6180308415569432845">
+      <item quantity="one">මුද්‍රණ කාර්යයන් <xliff:g id="COUNT">%1$d</xliff:g></item>
+      <item quantity="other">මුද්‍රණ කාර්යයන් <xliff:g id="COUNT">%1$d</xliff:g></item>
+    </plurals>
     <string name="print_settings_title" msgid="2886445296786932763">"මුද්‍රණ සේවා"</string>
     <string name="print_no_services_installed" msgid="3387777739528003794">"සේවා ස්ථාපනය කර නැත"</string>
     <string name="print_no_printers_found" msgid="5090925427392294881">"මුද්‍රක සොයා නොගැනුණි"</string>
@@ -2213,11 +2282,26 @@
     <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"ඔබේ ටැබ්ලටය සාමාන්‍යයට වඩා වැඩිපුර භාවිත කර ඇත. ඔබගේ බැටරිය බලාපොරොත්තු වූවාට වඩා ඉක්මනින් අවසන් විය හැක.\n\nසම්පූර්ණ ආරෝපණයේ සිට වැඩිම වශයෙන් භාවිත කළ යෙදුම්:"</string>
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"ඔබේ උපාංගය සාමාන්‍යයට වඩා වැඩිපුර භාවිත කර ඇත. ඔබගේ බැටරිය බලාපොරොත්තු වූවාට වඩා ඉක්මනින් අවසන් විය හැක.\n\nසම්පූර්ණ ආරෝපණයේ සිට වැඩිම වශයෙන් භාවිත කළ යෙදුම්:"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"ඉහළ බල පසුබිම් ක්‍රියාකාරකම ඇතුළු ය"</string>
-    <!-- no translation found for battery_tip_restrict_title (7140926804142734420) -->
-    <!-- no translation found for battery_tip_restrict_handled_title (5509363095891806748) -->
-    <!-- no translation found for battery_tip_restrict_summary (984148373944071669) -->
-    <!-- no translation found for battery_tip_restrict_handled_summary (469696766640020557) -->
-    <!-- no translation found for battery_tip_restrict_app_dialog_title (3042021435866172168) -->
+    <plurals name="battery_tip_restrict_title" formatted="false" msgid="7140926804142734420">
+      <item quantity="one">යෙදුම් %1$dක් සීමා කරන්න</item>
+      <item quantity="other">යෙදුම් %1$dක් සීමා කරන්න</item>
+    </plurals>
+    <plurals name="battery_tip_restrict_handled_title" formatted="false" msgid="5509363095891806748">
+      <item quantity="one">යෙදුම් %2$dක් මෑතකදී සීමා කර ඇත</item>
+      <item quantity="other">යෙදුම් %2$dක් මෑතකදී සීමා කර ඇත</item>
+    </plurals>
+    <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
+      <item quantity="one">යෙදුම් %2$dකට ඉහළ පසුබිම් බැටරි භාවිතයක් ඇත</item>
+      <item quantity="other">යෙදුම් %2$dකට ඉහළ පසුබිම් බැටරි භාවිතයක් ඇත</item>
+    </plurals>
+    <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
+      <item quantity="one">මෙම යෙදුම් පසුබිම තුළ ධාවනය කළ නොහැකිය</item>
+      <item quantity="other">මෙම යෙදුම් පසුබිම තුළ ධාවනය කළ නොහැකිය</item>
+    </plurals>
+    <plurals name="battery_tip_restrict_app_dialog_title" formatted="false" msgid="3042021435866172168">
+      <item quantity="one">යෙදුම් %1$dක් සිමා කරන්නද?</item>
+      <item quantity="other">යෙදුම් %1$dක් සිමා කරන්නද?</item>
+    </plurals>
     <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"බැටරිය සුරැකීමට, <xliff:g id="APP">%1$s</xliff:g> පසුබිමින් බැටරිය භාවිත කිරීම නවත්වන්න. මෙම යෙදුම නිසියාකාරව ක්‍රියා නොකළ හැකි අතර දැනුම්දීම් ප්‍රමාද විය හැකිය."</string>
     <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"බැටරිය සුරැකීමට, මෙම යෙදුම් පසුබිමින් බැටරිය භාවිත කිරීම නවත්වන්න. මෙම යෙදුම නිසියාකාරව ක්‍රියා නොකළ හැකි අතර දැනුම්දීම් ප්‍රමාද විය හැකිය.\n\nයෙදුම්:"</string>
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"බැටරිය සුරැකීමට, මෙම යෙදුම් පසුබිමින් බැටරිය භාවිත කිරීම නවත්වන්න. මෙම යෙදුම නිසියාකාරව ක්‍රියා නොකළ හැකි අතර දැනුම්දීම් ප්‍රමාද විය හැකිය.\n\nයෙදුම්:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
@@ -2236,14 +2320,20 @@
     <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"බැටරි කළමනාකරු යෙදුම් බැටරිය අඩු කරන බව හඳුනා ගන්නා විට, මෙම යෙදුම් සීමා කිරීමට ඔබට විකල්පයක් ඇත. සීමා කළ යෙදුම් නිසියාකාරව ක්‍රියා නොකළ හැකි අතර දැනුම්දීම් ප්‍රමාද විය හැකිය."</string>
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"බැටරි කළමනාකරු යෙදුම් බැටරිය අඩු කරන බව හඳුනා ගන්නා විට, මෙම යෙදුම් සීමා කිරීමට ඔබට විකල්පයක් ඇත. සීමා කළ යෙදුම් නිසියාකාරව ක්‍රියා නොකළ හැකි අතර දැනුම්දීම් ප්‍රමාද විය හැකිය."</string>
     <string name="restricted_app_title" msgid="4957644700640127606">"සීමා කළ යෙදුම්"</string>
-    <!-- no translation found for restricted_app_summary (7609538735465186040) -->
+    <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
+      <item quantity="one">යෙදුම් %1$dක් සඳහා බැටරි භාවිතය සීමා කරමින්</item>
+      <item quantity="other">යෙදුම් %1$dක් සඳහා බැටරි භාවිතය සීමා කරමින්</item>
+    </plurals>
     <string name="restricted_app_time_summary" msgid="5205881852523135226">"සීමා කළ <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"මෙම යෙදුම් පසුබිමින් බැටරිය භාවිත කර ඇත. සීමා කළ යෙදුම් නිසියාකාරව ක්‍රියා නොකළ හැකි අතර දැනුම්දීම් ප්‍රමාද විය හැකිය."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"බැටරි කළමනාකරු භාවිත කරන්න"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"යෙදුම් බැටරිය අඩු කරන විට හඳුනා ගන්න"</string>
     <string name="battery_manager_on" msgid="5626982529932239656">"ක්‍රියාත්මකයි / යෙදුම් බැටරිය අඩු කරන විට හඳුනා ගනිමින්"</string>
     <string name="battery_manager_off" msgid="9114027524232450371">"ක්‍රියාවිරහිතයි"</string>
-    <!-- no translation found for battery_manager_app_restricted (6721813588142691216) -->
+    <plurals name="battery_manager_app_restricted" formatted="false" msgid="6721813588142691216">
+      <item quantity="one">යෙදුම් %1$dක් සීමා කර ඇත</item>
+      <item quantity="other">යෙදුම් %1$dක් සීමා කර ඇත</item>
+    </plurals>
     <string name="battery_header_title_alternate" msgid="1161081105263761743">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">%</xliff:g>"</font></small>""</string>
     <string name="dialog_stop_title" msgid="4354544579084434590">"යෙදුම නවත්වන්නද?"</string>
     <string name="dialog_stop_message" product="default" msgid="1361660290824872555">"<xliff:g id="APP">%1$s</xliff:g> ඔබේ දුරකථනය අවදියෙන් තබා ගන්නා නිසා ඔබේ දුරකථනයට සාමාන්‍ය පරිදි බැටරිය කළමනාකරණය කළ නොහැකිය.\n\nමෙම ගැටලුව විසඳීමට උත්සාහ කිරීමට, ඔබට යෙදුම නැවැත්විය හැකිය.\n\nමෙය දිගටම සිදු වන්නේ නම්, බැටරි කාර්ය සාධනය වැඩි දියුණු කිරීමට ඔබ යෙදුම අස්ථාපනය කිරීම අවශ්‍ය විය හැකිය."</string>
@@ -2710,8 +2800,7 @@
     <string name="trusted_credentials_user_tab" msgid="4368592735325224612">"පරිශීලක"</string>
     <string name="trusted_credentials_disable_label" msgid="2495224975071022858">"අබල කරන්න"</string>
     <string name="trusted_credentials_enable_label" msgid="8991649977058280799">"සබල කරන්න"</string>
-    <!-- no translation found for trusted_credentials_remove_label (530728557358501000) -->
-    <skip />
+    <string name="trusted_credentials_remove_label" msgid="530728557358501000">"ඉවත් කරන්න"</string>
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"විශ්වාසයි"</string>
     <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"පද්ධති CA සහතිකය සබල කරන්නද?"</string>
     <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"පද්ධති CA සහතිකය අබල කරන්නද?"</string>
@@ -2734,11 +2823,23 @@
     <string name="additional_system_update_settings_list_item_title" msgid="8674710454802166341">"අමතර පද්ධති යාවත්කාල කිරීම්"</string>
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"ඇතැම් විට ජාලය නිරීක්ෂණය විය හැක"</string>
     <string name="done_button" msgid="7652373284597307008">"අවසන්"</string>
-    <!-- no translation found for ssl_ca_cert_dialog_title (7323708984446517980) -->
-    <!-- no translation found for ssl_ca_cert_info_message_device_owner (9046046586061880100) -->
-    <!-- no translation found for ssl_ca_cert_info_message (8271858091418779584) -->
+    <plurals name="ssl_ca_cert_dialog_title" formatted="false" msgid="7323708984446517980">
+      <item quantity="one">සහතික විශ්වාස කරන්න හෝ ඉවත් කරන්න</item>
+      <item quantity="other">සහතික විශ්වාස කරන්න හෝ ඉවත් කරන්න</item>
+    </plurals>
+    <plurals name="ssl_ca_cert_info_message_device_owner" formatted="false" msgid="9046046586061880100">
+      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> ඔබේ උපාංගය මත සහතික අධිකාරි ස්ථාපනය කර ඇත, එය ඔවුන්ට ඊ-තැපැල්, යෙදුම්, සහ ආරක්ෂිත වෙබ් අඩවි ඇතුළු, ඔබේ උපාංග ජාල ක්‍රියාකාරකම් නිරීක්ෂණය කිරීමට ඉඩ දිය හැකිය.\n\nමෙම සහතික ගැන තවත් තොරතුරු සඳහා, ඔබේ පරිපාලක අමතන්න.</item>
+      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> ඔබේ උපාංගය මත සහතික අධිකාරියක් ස්ථාපනය කර ඇත, එය ඔවුන්ට ඊ-තැපැල්, යෙදුම්, සහ ආරක්ෂිත වෙබ් අඩවි ඇතුළු, ඔබේ උපාංග ජාල ක්‍රියාකාරකම් නිරීක්ෂණය කිරීමට ඉඩ දිය හැකිය.\n\nමෙම සහතික ගැන තවත් තොරතුරු සඳහා, ඔබේ පරිපාලක අමතන්න.</item>
+    </plurals>
+    <plurals name="ssl_ca_cert_info_message" formatted="false" msgid="8271858091418779584">
+      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> ඔබේ කාර්යාල පැතිකඩ සඳහා සහතික අධිකාරි ස්ථාපනය කර ඇත, එය ඔවුන්ට ඊ-තැපැල්, යොදුම්, සහ ආරක්ෂිත වෙබ් අඩවි ඇතුළු, කාර්යාල ජාල ක්‍රියාකාරකම් නිරීක්ෂණය කිරීමට ඉඩ දිය හැකිය.\n\nමෙම සහතික ගැන තවත් තොරතුරු සඳහා, ඔබේ පරිපාලක අමතන්න.</item>
+      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> ඔබේ කාර්යාල පැතිකඩ සඳහා සහතික අධිකාරි ස්ථාපනය කර ඇත, එය ඔවුන්ට ඊ-තැපැල්, යොදුම්, සහ ආරක්ෂිත වෙබ් අඩවි ඇතුළු, කාර්යාල ජාල ක්‍රියාකාරකම් නිරීක්ෂණය කිරීමට ඉඩ දිය හැකිය.\n\nමෙම සහතික ගැන තවත් තොරතුරු සඳහා, ඔබේ පරිපාලක අමතන්න.</item>
+    </plurals>
     <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"ඊ-තැපැල්, යෙදුම්, සහ ආරක්ෂිත වෙබ් අඩවි ඇතුලත්ව ඔබේ ජාල ක්‍රියාකාරකම්, අධීක්ෂණය කිරීමට තෙවන පාර්ශවයට ඇත.\n\nඔබගේ උපාංගයේ ස්ථාපිත විශ්වාසී අක්තපත්‍ර මෙය සිදුවීම කරයි."</string>
-    <!-- no translation found for ssl_ca_cert_settings_button (3227175122066058245) -->
+    <plurals name="ssl_ca_cert_settings_button" formatted="false" msgid="3227175122066058245">
+      <item quantity="one">සහතික පරීක්ෂා කරන්න</item>
+      <item quantity="other">සහතික පරීක්ෂා කරන්න</item>
+    </plurals>
     <string name="user_settings_title" msgid="7917598650933179545">"බහු පරිශීලකයන්"</string>
     <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"නව පරිශීලකයින් එක් කිරීමෙන් ඔබේ උපාංගය බෙදා ගන්න. සෑම පරිශීලකයෙකුටම අභිරුචි මුල් පිටු, තිර, ගිණුම්, යෙදුම්, සැකසීම් සහ තවත් දේ සඳහා ඔබේ උපාංගයේ පෞද්ගලික ඉඩක් ඇත."</string>
     <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"නව පරිශීලකයින් එක් කිරීමෙන් ඔබේ් ටැබ්ලට උපාංගය බෙදා ගන්න. සෑම පරිශීලකයෙකුටම අභිරුචි මුල් පිටු, තිර, ගිණුම්, යෙදුම්, සැකසීම් සහ තවත් දේ සඳහා ඔබේ ටැබ්ලට් උපාංගයේ පෞද්ගලික ඉඩක් ඇත."</string>
@@ -2919,7 +3020,10 @@
     <string name="sim_selection_required_pref" msgid="8738591348923992419">"තේරීමක් අවශ්‍යයි"</string>
     <string name="sim_selection_channel_title" msgid="5671915549529226023">"SIM තේරීම"</string>
     <string name="dashboard_title" msgid="3343056553551876215">"සැකසීම්"</string>
-    <!-- no translation found for settings_suggestion_header_summary_hidden_items (4475734332610696843) -->
+    <plurals name="settings_suggestion_header_summary_hidden_items" formatted="false" msgid="4475734332610696843">
+      <item quantity="one">සඟවන ලද අයිතම %dක් පෙන්වන්න</item>
+      <item quantity="other">සඟවන ලද අයිතම %dක් පෙන්වන්න</item>
+    </plurals>
     <string name="network_dashboard_title" msgid="8288134139584687806">"ජාලය සහ අන්තර්ජාලය"</string>
     <string name="network_dashboard_summary_mobile" msgid="5560545061217580626">"ජංගම"</string>
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"දත්ත භාවිතය"</string>
@@ -3053,7 +3157,10 @@
     <string name="live_caption_title" msgid="7926591158657997051">"සජීවී සිරස්තලය"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"මාධ්‍ය ස්වයංක්‍රීයව සිරස්තල"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"කිසි විටක නැත"</string>
-    <!-- no translation found for zen_mode_settings_summary_on (6061723291126091396) -->
+    <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
+      <item quantity="one"><xliff:g id="ON_COUNT">%d</xliff:g>ක් සබලයි</item>
+      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g>ක් සබලයි</item>
+    </plurals>
     <string name="zen_mode_settings_title" msgid="3425263414594779244">"බාධා නොකරන්න"</string>
     <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"බාධා නොකරන්න ක්‍රියාත්මක කරන්න"</string>
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"ව්‍යතිරේක"</string>
@@ -3132,9 +3239,15 @@
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"ක්‍රියාත්මකයි"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"සැම විටම ඉලලන්න (ස්වයංක්‍රියව ක්‍රියාත්මක කරන්නේ නම් මිස)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"ඔබ ක්‍රියාවිරහිත කරන තෙක් (ස්වයංක්‍රියව ක්‍රියාත්මක කරන්නේ නම් මිස)"</string>
-    <!-- no translation found for zen_mode_duration_summary_time_hours (8872000022033647725) -->
+    <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
+      <item quantity="one">පැය <xliff:g id="NUM_HOURS">%d</xliff:g> (ස්වයංක්‍රියව ක්‍රියාත්මක කරන්නේ නම් මිස)</item>
+      <item quantity="other">පැය <xliff:g id="NUM_HOURS">%d</xliff:g> (ස්වයංක්‍රියව ක්‍රියාත්මක කරන්නේ නම් මිස)</item>
+    </plurals>
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"මිනිත්තු <xliff:g id="NUM_MINUTES">%d</xliff:g> (ස්වයංක්‍රියව ක්‍රියාත්මක කරන්නේ නම් මිස)"</string>
-    <!-- no translation found for zen_mode_sound_summary_summary_off_info (8527428833487709278) -->
+    <plurals name="zen_mode_sound_summary_summary_off_info" formatted="false" msgid="8527428833487709278">
+      <item quantity="one">කාල සටහන් <xliff:g id="ON_COUNT">%d</xliff:g>ක් ස්වයංක්‍රියව ක්‍රියාත්මක කළ හැකිය</item>
+      <item quantity="other">කාල සටහන් <xliff:g id="ON_COUNT">%d</xliff:g>ක් ස්වයංක්‍රියව ක්‍රියාත්මක කළ හැකිය</item>
+    </plurals>
     <string name="zen_category_behavior" msgid="7695750848671443532">"උපාංගය නිහඬ කරන්න, නමුත් ව්‍යාතිරේක ඉඩ දෙන්න"</string>
     <string name="zen_category_exceptions" msgid="2139670640033601899">"ව්‍යතිරේක"</string>
     <string name="zen_category_schedule" msgid="989629666210114164">"කාල සටහන"</string>
@@ -3243,7 +3356,10 @@
     <string name="manage_notification_access_title" msgid="5348743662189787547">"දැනුම්දීම් ප්‍රවේශනය"</string>
     <string name="work_profile_notification_access_blocked_summary" msgid="8148871282484870576">"කාර්යාල පැතිකඩ දැනුම් දීම්වලට පිවිසීම අවහිර කර ඇත"</string>
     <string name="manage_notification_access_summary_zero" msgid="236809421271593016">"යෙදුම්වලට දැනුම් දීම් කියවිය නොහැක"</string>
-    <!-- no translation found for manage_notification_access_summary_nonzero (8496218948429646792) -->
+    <plurals name="manage_notification_access_summary_nonzero" formatted="false" msgid="8496218948429646792">
+      <item quantity="one">යෙදුම් %d කට දැනුම්දීම් කියවිය හැක</item>
+      <item quantity="other">යෙදුම් %d කට දැනුම්දීම් කියවිය හැක</item>
+    </plurals>
     <string name="notification_assistant_title" msgid="8216604031352764011">"දැනුම්දීම් සහායක"</string>
     <string name="no_notification_assistant" msgid="9140123568386413264">"සහායක නැත"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"ස්ථාපිත යෙදුම් කිසිවක් දැනුම්දීම් ප්‍රවේශය ඉල්ලා නැත."</string>
@@ -3276,12 +3392,21 @@
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"ඔබගේ ඉල්ලීම මත, Android මෙම දැනුම්දීම් සමූහය මෙම උපාංගය මත දිස් වීම අවහිර කරමින් ඇත"</string>
     <string name="notification_channels" msgid="956764228116145956">"ප්‍රවර්ග"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"වෙනත්"</string>
-    <!-- no translation found for notification_group_summary (3744856747513344999) -->
+    <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
+      <item quantity="one">ප්‍රවර්ග <xliff:g id="COUNT_1">%d</xliff:g></item>
+      <item quantity="other">ප්‍රවර්ග <xliff:g id="COUNT_1">%d</xliff:g></item>
+    </plurals>
     <string name="no_channels" msgid="8884254729302501652">"මෙම යෙදුම දැනුම්දීම් කිසිවක් පළ කර නැත"</string>
     <string name="app_settings_link" msgid="8465287765715790984">"අමතර සැකසීම් යෙදුම තුළ ඇත"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"සියලු යෙදුම් සඳහා ක්‍රියාත්මකයි"</string>
-    <!-- no translation found for app_notification_listing_summary_others (1161774065480666519) -->
-    <!-- no translation found for deleted_channels (7741359084299446208) -->
+    <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
+      <item quantity="one">යෙදුම් <xliff:g id="COUNT_1">%d</xliff:g>ක් සඳහා ක්‍රියාවිරහිතයි</item>
+      <item quantity="other">යෙදුම් <xliff:g id="COUNT_1">%d</xliff:g>ක් සඳහා ක්‍රියාවිරහිතයි</item>
+    </plurals>
+    <plurals name="deleted_channels" formatted="false" msgid="7741359084299446208">
+      <item quantity="one">ප්‍රවර්ග <xliff:g id="COUNT_1">%d</xliff:g>ක් මකා දමන ලදි</item>
+      <item quantity="other">ප්‍රවර්ග <xliff:g id="COUNT_1">%d</xliff:g>ක් මකා දමන ලදි</item>
+    </plurals>
     <string name="notification_toggle_on" msgid="5119816745741139542">"ක්‍රියාත්මකයි"</string>
     <string name="notification_toggle_off" msgid="5289843670514922751">"ක්‍රියාවිරහිතයි"</string>
     <string name="app_notification_block_title" msgid="7898269373875294367">"සියල්ල අවහිර කරන්න"</string>
@@ -3350,7 +3475,10 @@
     <string name="zen_mode_calls_footer" msgid="6319824006810688433">"අවසර දුන් ඇමතුම් ශබ්ද නැඟීම තහවුරු කිරීමට, ඔබේ උපාංගය නාද වීමට, කම්පා වීමට, හෝ නිහඬ වීමට සකසා තිබේදැයි පරීක්‍ෂා කරන්න."</string>
     <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ සඳහා එන ඇමතුම් අවහිර වේ. ඔබට ඔබේ මිතුරන්, පවුලේ අය හෝ වෙනත් සම්බන්ධතාවලට ඔබ කරා ළඟා වීමට ඉඩ දීමට සැකසීම් සීරුමාරු කළ හැකිය."</string>
     <string name="zen_mode_starred_contacts_title" msgid="7099621384597127058">"තරු ලකුණු යෙදූ සම්බන්ධතා"</string>
-    <!-- no translation found for zen_mode_starred_contacts_summary_additional_contacts (1904181007981570805) -->
+    <plurals name="zen_mode_starred_contacts_summary_additional_contacts" formatted="false" msgid="1904181007981570805">
+      <item quantity="one">තවත් <xliff:g id="NUM_PEOPLE">%d</xliff:g></item>
+      <item quantity="other">තවත් <xliff:g id="NUM_PEOPLE">%d</xliff:g></item>
+    </plurals>
     <string name="zen_mode_messages" msgid="2908722562188394107">"පෙළ පණිවිඩවලට ඉඩ දෙන්න"</string>
     <string name="zen_mode_messages_footer" msgid="5048951937714668561">"අවසර දුන් පණිවුඩ ශබ්ද නැඟීම තහවුරු කිරීමට, ඔබේ උපාංගය නාද වීමට, කම්පා වීමට, හෝ නිහඬ වීමට සකසා තිබේදැයි පරීක්‍ෂා කරන්න."</string>
     <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ සඳහා එන පෙළ පණිවිඩ අවහිර වේ. ඔබට ඔබේ මිතුරන්, පවුලේ අය හෝ වෙනත් සම්බන්ධතාවලට ඔබ කරා ළඟා වීමට ඉඩ දීමට සැකසීම් සීරුමාරු කළ හැකිය."</string>
@@ -3375,7 +3503,10 @@
     <string name="zen_mode_events" msgid="5784076928339534984">"සිදුවීම් ඉඩ දෙන්න"</string>
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"ප්‍රතික්ෂේප කිරිමට යෙදුම්වලට ඉඩ දෙන්න"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"යෙදුම් ව්‍යතිරේක"</string>
-    <!-- no translation found for zen_mode_bypassing_apps_subtext (8723144434730871572) -->
+    <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
+      <item quantity="one">යෙදුම් <xliff:g id="NUMBER">%1$d</xliff:g>කින් දැනුම්දීම්වලට බාධා නොකරන්න ප්‍රතික්ෂේප කළ හැකිය</item>
+      <item quantity="other">යෙදුම් <xliff:g id="NUMBER">%1$d</xliff:g>කින් දැනුම්දීම්වලට බාධා නොකරන්න ප්‍රතික්ෂේප කළ හැකිය</item>
+    </plurals>
     <string name="zen_mode_events_list" msgid="8578102701815684873">"සිදුවීම්"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"ඕනෑම කෙනෙක්"</string>
     <string name="zen_mode_contacts_callers" msgid="3116829245339716399">"සම්බන්ධතා"</string>
@@ -3395,8 +3526,14 @@
     <string name="zen_mode_end_time" msgid="3188578493250909972">"අවසන් වන වේලාව"</string>
     <string name="zen_mode_end_time_next_day_summary_format" msgid="1598612215612648214">"මීළඟ දිනයේ <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
     <string name="zen_mode_summary_alarms_only_indefinite" msgid="2470936648971337656">"දින නියමයක් නොමැතිව සීනු පමණක් වෙත මාරු වෙන්න"</string>
-    <!-- no translation found for zen_mode_summary_alarms_only_by_minute (7192429395424304796) -->
-    <!-- no translation found for zen_mode_summary_alarms_only_by_hour (4198430986970707666) -->
+    <plurals name="zen_mode_summary_alarms_only_by_minute" formatted="false" msgid="7192429395424304796">
+      <item quantity="one">මිනිත්තු <xliff:g id="DURATION">%1$d</xliff:g> ක් සඳහා සීනු පමණක් වෙත මාරු වෙන්න (<xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g> තෙක්)</item>
+      <item quantity="other">මිනිත්තු <xliff:g id="DURATION">%1$d</xliff:g> ක් සඳහා සීනු පමණක් වෙත මාරු වෙන්න (<xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g> තෙක්)</item>
+    </plurals>
+    <plurals name="zen_mode_summary_alarms_only_by_hour" formatted="false" msgid="4198430986970707666">
+      <item quantity="one"><xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g> තෙක් පැය <xliff:g id="DURATION">%1$d</xliff:g> ක් සඳහා සීනු පමණක් වෙත මාරු වෙන්න</item>
+      <item quantity="other"><xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g> තෙක් පැය <xliff:g id="DURATION">%1$d</xliff:g> ක් සඳහා සීනු පමණක් වෙත මාරු වෙන්න</item>
+    </plurals>
     <string name="zen_mode_summary_alarms_only_by_time" msgid="2462898862757904560">"<xliff:g id="FORMATTEDTIME">%1$s</xliff:g> පමණක් දක්වා ඇති සීනු වෙත මාරු වෙන්න"</string>
     <string name="zen_mode_summary_always" msgid="2703276042913200837">"සෑම විටම බාධා කිරීම වෙත මාරු වෙන්න"</string>
     <string name="zen_mode_screen_on" msgid="7098470659072167219">"තිරය ක්‍රියාත්මක විට"</string>
@@ -3469,10 +3606,22 @@
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"%d මට්ටම"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
-    <!-- no translation found for notifications_categories_off (7173464913755425293) -->
-    <!-- no translation found for permissions_summary (2750853128045095961) -->
-    <!-- no translation found for runtime_permissions_summary (3166036683687471356) -->
-    <!-- no translation found for runtime_permissions_additional_count (2068102378805218668) -->
+    <plurals name="notifications_categories_off" formatted="false" msgid="7173464913755425293">
+      <item quantity="one">ප්‍රවර්ග <xliff:g id="COUNT_1">%d</xliff:g>ක් ක්‍රියාවිරහිත කරන ලදී</item>
+      <item quantity="other">ප්‍රවර්ග <xliff:g id="COUNT_1">%d</xliff:g>ක් ක්‍රියාවිරහිත කරන ලදී</item>
+    </plurals>
+    <plurals name="permissions_summary" formatted="false" msgid="2750853128045095961">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> අවසර ලබාදෙන ලදි</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> අවසර ලබාදෙන ලදි</item>
+    </plurals>
+    <plurals name="runtime_permissions_summary" formatted="false" msgid="3166036683687471356">
+      <item quantity="one">අවසර <xliff:g id="COUNT_3">%d</xliff:g> න් <xliff:g id="COUNT_2">%d</xliff:g> ක් ලබා දෙන ලදී</item>
+      <item quantity="other">අවසර <xliff:g id="COUNT_3">%d</xliff:g> න් <xliff:g id="COUNT_2">%d</xliff:g> ක් ලබා දෙන ලදී</item>
+    </plurals>
+    <plurals name="runtime_permissions_additional_count" formatted="false" msgid="2068102378805218668">
+      <item quantity="one">අමතර අවසර <xliff:g id="COUNT_1">%d</xliff:g></item>
+      <item quantity="other">අමතර අවසර <xliff:g id="COUNT_1">%d</xliff:g></item>
+    </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"අවසර ලබා දී නැත"</string>
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"අවසර ඉල්ලා නැත"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"සියලු යෙදුම්"</string>
@@ -3498,7 +3647,10 @@
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"<xliff:g id="DOMAIN">%s</xliff:g> විවෘත කරන්න"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"විවෘත <xliff:g id="DOMAIN">%s</xliff:g> සහ අනෙකුත් URL"</string>
     <string name="domain_urls_apps_summary_off" msgid="1110203970617922543">"සහය දක්වන සබැඳි විවෘත කරන යෙදුම නොමැත"</string>
-    <!-- no translation found for domain_urls_apps_summary_on (3571309605151815405) -->
+    <plurals name="domain_urls_apps_summary_on" formatted="false" msgid="3571309605151815405">
+      <item quantity="one">සහය දක්වන සබැඳි විවෘත කරන යෙදුම් <xliff:g id="COUNT">%d</xliff:g>ක්</item>
+      <item quantity="other">සහය දක්වන සබැඳි විවෘත කරන යෙදුම් <xliff:g id="COUNT">%d</xliff:g>ක්</item>
+    </plurals>
     <string name="app_link_open_always" msgid="7723587434377688415">"මෙම යෙදුම තුළ විවෘත කරන්න"</string>
     <string name="app_link_open_ask" msgid="4054678686331517561">"සෑම විටම අසන්න"</string>
     <string name="app_link_open_never" msgid="5774359835242754350">"මෙම යෙදුම තුළ විවෘත නොකරන්න"</string>
@@ -3539,8 +3691,14 @@
     <string name="additional_battery_info" msgid="6877663897819271203">"භාවිත ඇඟවීම්"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"පූර්ණ උපාංග භාවිතය පෙන්වන්න"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"යෙදුම් භාවිතය පෙන්වන්න"</string>
-    <!-- no translation found for power_high_usage_summary (4658343710126205199) -->
-    <!-- no translation found for power_high_usage_title (63134064262760835) -->
+    <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
+      <item quantity="one">යෙදුම් <xliff:g id="NUMBER">%2$d</xliff:g>ක් අසාමාන්‍ය ලෙස හැසිරෙමින් ඇත</item>
+      <item quantity="other">යෙදුම් <xliff:g id="NUMBER">%2$d</xliff:g>ක් අසාමාන්‍ය ලෙස හැසිරෙමින් ඇත</item>
+    </plurals>
+    <plurals name="power_high_usage_title" formatted="false" msgid="63134064262760835">
+      <item quantity="one">යෙදුම් බැටරිය බැස යාමට හේතු වේ</item>
+      <item quantity="other">යෙදුම් බැටරිය බැස යාමට හේතු වේ</item>
+    </plurals>
     <string name="high_power_filter_on" msgid="5294209328473386403">"ප්‍රශස්තකරණය වී නොමැත"</string>
     <string name="high_power_on" msgid="3573501822510580334">"ප්‍රශස්තකරණය වී නොමැත"</string>
     <string name="high_power_off" msgid="5906679734326490426">"බැටරි භාවිතය ප්‍රශස්තකරණය"</string>
@@ -3614,7 +3772,10 @@
     <string name="average_used" msgid="3022736210190754669">"සාමාන්‍ය භාවිතය (%)"</string>
     <string name="free_memory" msgid="4758919141048544927">"භාවිතා නොකළ"</string>
     <string name="memory_usage_apps" msgid="2839241373381152354">"යෙදුම් මඟින් භාවිතා කළ මතකය"</string>
-    <!-- no translation found for memory_usage_apps_summary (1235024908546944704) -->
+    <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
+      <item quantity="one">අන්තිම <xliff:g id="DURATION_1">%2$s</xliff:g> තුළ මතකය යෙදුම් <xliff:g id="COUNT">%1$d</xliff:g> ක් භාවිතා කරන ලදි</item>
+      <item quantity="other">අන්තිම <xliff:g id="DURATION_1">%2$s</xliff:g> තුළ මතකය යෙදුම් <xliff:g id="COUNT">%1$d</xliff:g> ක් භාවිතා කරන ලදි</item>
+    </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"සංඛ්‍යාතය"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"උපරිම භාවිතය"</string>
     <string name="no_data_usage" msgid="903383745620135746">"දත්ත භාවිතා කර නැත"</string>
@@ -3683,9 +3844,11 @@
     <string name="keyboard_disconnected" msgid="3068615097201531871">"සම්බන්ධ නැති"</string>
     <string name="data_usage_summary_format" msgid="7788095271598602797">"දත්තවලින් <xliff:g id="AMOUNT">%1$s</xliff:g> භාවිතයි"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"<xliff:g id="AMOUNT">^1</xliff:g> Wi-Fi මත භාවිත වේ"</string>
-    <!-- no translation found for notification_summary (761061343339229103) -->
-    <!-- no translation found for notification_summary_none (5003043219430054784) -->
-    <skip />
+    <plurals name="notification_summary" formatted="false" msgid="761061343339229103">
+      <item quantity="one">යෙදුම් <xliff:g id="COUNT">%d</xliff:g>කට අක්‍රියයි</item>
+      <item quantity="other">යෙදුම් <xliff:g id="COUNT">%d</xliff:g>කට අක්‍රියයි</item>
+    </plurals>
+    <string name="notification_summary_none" msgid="5003043219430054784">"සියලු යෙදුම් සඳහා ක්‍රියාත්මකයි"</string>
     <string name="apps_summary" msgid="8355759446490212195">"යෙදුම් <xliff:g id="COUNT">%1$d</xliff:g>ක් ස්ථාපනය කරන ලදී"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"යෙදුම් 24ක් ස්ථාපනය කරන ලදී"</string>
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> භාවිත කරන ලදී - <xliff:g id="FREE_SPACE">%2$s</xliff:g> හිස්ය"</string>
@@ -3747,8 +3910,14 @@
     <string name="suggestions_title" msgid="5923757323945800980">"යෝජනා"</string>
     <string name="suggestions_summary" msgid="1020388234814391540">"+<xliff:g id="ID_1">%1$d</xliff:g>"</string>
     <string name="suggestions_more_title" msgid="2074600543626216244">"තවත් +<xliff:g id="ID_1">%1$d</xliff:g>"</string>
-    <!-- no translation found for suggestions_collapsed_title (2039648015513016616) -->
-    <!-- no translation found for suggestions_collapsed_summary (3875961424499822336) -->
+    <plurals name="suggestions_collapsed_title" formatted="false" msgid="2039648015513016616">
+      <item quantity="one">යෝජනා <xliff:g id="COUNT">%1$d</xliff:g></item>
+      <item quantity="other">යෝජනා <xliff:g id="COUNT">%1$d</xliff:g></item>
+    </plurals>
+    <plurals name="suggestions_collapsed_summary" formatted="false" msgid="3875961424499822336">
+      <item quantity="one">යෝජනා +<xliff:g id="COUNT">%1$d</xliff:g></item>
+      <item quantity="other">යෝජනා +<xliff:g id="COUNT">%1$d</xliff:g></item>
+    </plurals>
     <string name="suggestion_remove" msgid="8139144680393078781">"ඉවත් කරන්න"</string>
     <string name="color_temperature" msgid="3059566380033851354">"සිසිල් වර්ණ උෂ්ණත්වය"</string>
     <string name="color_temperature_desc" msgid="136940760965483490">"වඩා සිසිල් සංදර්ශක වර්ණ භාවිත කිරීම"</string>
@@ -3773,7 +3942,10 @@
     <string name="cell_data_warning_and_limit" msgid="3846150001253927594">"<xliff:g id="ID_1">^1</xliff:g> දත්ත අනතුරු ඇඟවීම / <xliff:g id="ID_2">^2</xliff:g> දත්ත සීමාව"</string>
     <string name="billing_cycle_fragment_summary" msgid="4926047002107855543">"<xliff:g id="ID_1">%1$s</xliff:g> දින මාසිකව"</string>
     <string name="network_restrictions" msgid="196294262243618198">"ජාලය සීමා කිරීම්"</string>
-    <!-- no translation found for network_restrictions_summary (1664494781594839837) -->
+    <plurals name="network_restrictions_summary" formatted="false" msgid="1664494781594839837">
+      <item quantity="one">සීමා <xliff:g id="COUNT">%1$d</xliff:g>ක්</item>
+      <item quantity="other">සීමා <xliff:g id="COUNT">%1$d</xliff:g>ක්</item>
+    </plurals>
     <string name="operator_warning" msgid="4676042739221117031">"උපාංග ගිණුම්ගත කිරීමෙන් වාහක දත්ත ගිණුම්ගත කිරීම වෙනස් විය හැකිය"</string>
     <string name="data_used_template" msgid="761605393453849477">"<xliff:g id="ID_1">%1$s</xliff:g> භාවිත විය"</string>
     <string name="set_data_warning" msgid="8115980184415563941">"දත්ත අනතුරු ඇඟවීම සකසන්න"</string>
@@ -3784,14 +3956,20 @@
     <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> <xliff:g id="ID_2">%2$s</xliff:g> භාවිත කළ"</string>
     <string name="configure" msgid="8232696842838580549">"වින්‍යාස කිරීම"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"භාවිතය තුළ ඇතුළත් වෙනත් යෙදුම්"</string>
-    <!-- no translation found for data_saver_unrestricted_summary (6046013861315713697) -->
+    <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
+      <item quantity="one">දත්ත සුරැකුම ක්‍රියාත්මක විට බාධා නොකළ දත්ත භාවිත කිරීමට යොදුම් <xliff:g id="COUNT">%1$d</xliff:g>කට ඉඩ දෙන ලදී</item>
+      <item quantity="other">දත්ත සුරැකුම ක්‍රියාත්මක විට බාධා නොකළ දත්ත භාවිත කිරීමට යොදුම් <xliff:g id="COUNT">%1$d</xliff:g>කට ඉඩ දෙන ලදී</item>
+    </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"ප්‍රාථමික දත්ත"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Wi-Fi දත්ත"</string>
     <string name="data_used" msgid="1063553292806661784">"<xliff:g id="ID_1">^1</xliff:g> භාවිත විය"</string>
     <string name="data_used_formatted" msgid="9150356955895106822">"<xliff:g id="ID_1">^1</xliff:g> <xliff:g id="ID_2">^2</xliff:g> භාවිත කරන ලදී"</string>
     <string name="data_overusage" msgid="1570432641791021533">"<xliff:g id="ID_1">^1</xliff:g> අවසන්ය"</string>
     <string name="data_remaining" msgid="2048075003610039742">"<xliff:g id="ID_1">^1</xliff:g>ක් ඉතිරිය"</string>
-    <!-- no translation found for billing_cycle_days_left (148479292242207382) -->
+    <plurals name="billing_cycle_days_left" formatted="false" msgid="148479292242207382">
+      <item quantity="one">දින %dක් ඉතිරිව ඇත</item>
+      <item quantity="other">දින %dක් ඉතිරිව ඇත</item>
+    </plurals>
     <string name="billing_cycle_none_left" msgid="1329748082366602901">"කාලය ඉතිරිව නැත"</string>
     <string name="billing_cycle_less_than_one_day_left" msgid="855800570587142182">"දින 1කට වඩා අඩුවෙන් ඉතිරිව ඇත"</string>
     <string name="carrier_and_update_text" msgid="4100603877929297103">"<xliff:g id="ID_1">^1</xliff:g> විසින් <xliff:g id="ID_2">^2</xliff:g>කට පෙර යාවත්. කරන ලදී"</string>
@@ -3868,7 +4046,10 @@
     <string name="overlay_option_device_default" msgid="165508753381657697">"උපාංගයේ පෙරනිමිය"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"උඩැතිරිය යෙදීමට අසමත් විය"</string>
     <string name="special_access" msgid="1453926335914696206">"විශේෂ යෙදුම් ප්‍රවේශය"</string>
-    <!-- no translation found for special_access_summary (5182092345063909346) -->
+    <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
+      <item quantity="one">යෙදුම් <xliff:g id="COUNT">%d</xliff:g>කට සීමා නොකළ දත්ත භාවිතා කළ හැක</item>
+      <item quantity="other">යෙදුම් <xliff:g id="COUNT">%d</xliff:g>කට සීමා නොකළ දත්ත භාවිතා කළ හැක</item>
+    </plurals>
     <string name="special_access_more" msgid="7086690625048471400">"තවත් බලන්න"</string>
     <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"සැබවින්ම පරිශීලක දත්ත මකා ගොනු සංකේතනයට පරිවර්තනය කරන්නද?"</string>
     <string name="button_confirm_convert_fbe" msgid="419832223125147297">"මකා පරිවර්තනය කරන්න"</string>
@@ -3899,9 +4080,18 @@
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"හරස් පැතිකඩ දින දර්ශනය"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"ඔබේ පුද්ගලික දින දර්ශනයෙහි කාර්ය සිදුවිම් පෙන්වන්න"</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"ඔබේ සංවිධානය ඔබේ කාර්යාල දින දර්ශනය වෙත ප්‍රවේශ වීමට පුද්ගලික යෙදුම්වලට අවසර නොදෙයි."</string>
-    <!-- no translation found for hours (135936773984899873) -->
-    <!-- no translation found for minutes (4624073557955858160) -->
-    <!-- no translation found for seconds (6942674168513274363) -->
+    <plurals name="hours" formatted="false" msgid="135936773984899873">
+      <item quantity="one">පැය <xliff:g id="NUMBER">%s</xliff:g></item>
+      <item quantity="other">පැය <xliff:g id="NUMBER">%s</xliff:g></item>
+    </plurals>
+    <plurals name="minutes" formatted="false" msgid="4624073557955858160">
+      <item quantity="one">මිනිත්තු <xliff:g id="NUMBER">%s</xliff:g></item>
+      <item quantity="other">මිනිත්තු <xliff:g id="NUMBER">%s</xliff:g></item>
+    </plurals>
+    <plurals name="seconds" formatted="false" msgid="6942674168513274363">
+      <item quantity="one">තත්පර <xliff:g id="NUMBER">%s</xliff:g></item>
+      <item quantity="other">තත්පර <xliff:g id="NUMBER">%s</xliff:g></item>
+    </plurals>
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"ගබඩාව කළමනාකරණය කරන්න"</string>
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"ගබඩා ඉඩ නිදහස් කර ගැනීමට උදවු වීමට, ගබඩා කළමනාකරු ඔබේ උපාංගය වෙතින් උපස්ථ කළ ඡායාරූප සහ වීඩියෝ ඉවත් කරයි."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"ඡායාරූප සහ වීඩියෝ ඉවත් කරන්න"</string>
@@ -3914,8 +4104,7 @@
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"ඔබගේ දුරකථනය පාලනය කිරීමට ඉක්මන් ඉංගිත"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"ඔබගේ ටැබ්ලට් පරිගණකය පාලනය කිරීමට ඉක්මන් ඉංගිත"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"ඔබගේ උපාංගය පාලනය කිරීමට ඉක්මන් ඉංගිත"</string>
-    <!-- no translation found for double_tap_power_for_camera_title (5480829329052517484) -->
-    <skip />
+    <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"කැමරාව වෙත පනින්න"</string>
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"ඉක්මනින් කැමරාව විවෘත කිරීමට, බල බොත්තම දෙවරක් ඔබන්න. ඕනෑම තිරයක සිට ක්‍රියා කරයි."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"කැමරාව ඉක්මනින් විවෘත කරන්න"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"ෆ්ලිප් කැමරාව"</string>
@@ -3985,12 +4174,18 @@
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"කිසිවක් නැත"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"ස්ථාපනය කළ යෙදුම්"</string>
     <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"යෙදුම් ගණන ඇස්තමේන්තු කර ඇත. Play Store පිටත ස්ථාපනය කර ඇති යෙදුම් අඩංගු නොවිය හැක."</string>
-    <!-- no translation found for enterprise_privacy_number_packages_lower_bound (5161417161943060602) -->
+    <plurals name="enterprise_privacy_number_packages_lower_bound" formatted="false" msgid="5161417161943060602">
+      <item quantity="one">අඩුම වශයෙන් යෙදුම් <xliff:g id="COUNT_1">%d</xliff:g>ක්</item>
+      <item quantity="other">අඩුම වශයෙන් යෙදුම් <xliff:g id="COUNT_1">%d</xliff:g>ක්</item>
+    </plurals>
     <string name="enterprise_privacy_location_access" msgid="110406267468274216">"ස්ථාන අවසර"</string>
     <string name="enterprise_privacy_microphone_access" msgid="4586428105675460207">"මයික්‍රොෆෝන අවසර"</string>
     <string name="enterprise_privacy_camera_access" msgid="2366392786153103482">"කැමරා අවසර"</string>
     <string name="enterprise_privacy_enterprise_set_default_apps" msgid="6142937923758931242">"පෙරනිමි යෙදුම්"</string>
-    <!-- no translation found for enterprise_privacy_number_packages (1480745164313890415) -->
+    <plurals name="enterprise_privacy_number_packages" formatted="false" msgid="1480745164313890415">
+      <item quantity="one">යෙදුම් <xliff:g id="COUNT_1">%d</xliff:g>ක්</item>
+      <item quantity="other">යෙදුම් <xliff:g id="COUNT_1">%d</xliff:g>ක්</item>
+    </plurals>
     <string name="enterprise_privacy_input_method" msgid="5885916325874284011">"පෙරනිමි යතුරු පුවරුව"</string>
     <string name="enterprise_privacy_input_method_name" msgid="439610095825218563">"<xliff:g id="APP_LABEL">%s</xliff:g> වෙත සකසන්න"</string>
     <string name="enterprise_privacy_always_on_vpn_device" msgid="2022700916516458213">"සැම විට ක්‍රියාත්මක VPN ක්‍රියාත්මකයි"</string>
@@ -4000,22 +4195,37 @@
     <string name="enterprise_privacy_ca_certs_device" msgid="7715658848470643878">"විශ්වාසි අක්තපත්‍ර"</string>
     <string name="enterprise_privacy_ca_certs_personal" msgid="1356447417193483802">"ඔබගේ පුද්ගලික පැතිකඩෙහි විශ්වාසී අක්තපත්‍ර"</string>
     <string name="enterprise_privacy_ca_certs_work" msgid="836419648894546893">"ඔබගේ වැඩ පැතිකඩෙහි විශ්වාසී අක්තපත්‍ර"</string>
-    <!-- no translation found for enterprise_privacy_number_ca_certs (7953528945502561752) -->
+    <plurals name="enterprise_privacy_number_ca_certs" formatted="false" msgid="7953528945502561752">
+      <item quantity="one">අඩුම වශයෙන් CA සහතික <xliff:g id="COUNT_1">%d</xliff:g>ක්</item>
+      <item quantity="other">අඩුම වශයෙන් CA සහතික <xliff:g id="COUNT_1">%d</xliff:g>ක්</item>
+    </plurals>
     <string name="enterprise_privacy_lock_device" msgid="1533125067038409945">"පරිපාලකට උපාංගය අගුලු දැමීමට සහ මුරපදය යළි සැකසීමට හැකිය"</string>
     <string name="enterprise_privacy_wipe_device" msgid="7555287990273929922">"පරිපාලකට සියලු උපාංග දත්ත මැකීමට හැකිය"</string>
     <string name="enterprise_privacy_failed_password_wipe_device" msgid="4101502079202483156">"සියලු උපාංග දත්ත මකාදැමීමට පෙර අසාර්ථක මුරපද උත්සහ"</string>
     <string name="enterprise_privacy_failed_password_wipe_work" msgid="2881646286634693392">"කාර්යාල පැතිකඩ දත්ත මකාදැමීමට පෙර අසාර්ථක මුරපද උත්සහ"</string>
-    <!-- no translation found for enterprise_privacy_number_failed_password_wipe (562550414712223382) -->
+    <plurals name="enterprise_privacy_number_failed_password_wipe" formatted="false" msgid="562550414712223382">
+      <item quantity="one">උත්සහ <xliff:g id="COUNT_1">%d</xliff:g>ක්</item>
+      <item quantity="other">උත්සහ <xliff:g id="COUNT_1">%d</xliff:g>ක්</item>
+    </plurals>
     <string name="do_disclosure_generic" msgid="2925786401209052566">"මෙම උපාංගය ඔබගේ සංවිධානය විසින් කළමනාකරණය කරනු ලැබේ."</string>
     <string name="do_disclosure_with_name" msgid="3148721462670362163">"මෙම උපාංගය <xliff:g id="ORGANIZATION_NAME">%s</xliff:g> මගින් කළමනාකරණය කෙරේ"</string>
     <string name="do_disclosure_learn_more_separator" msgid="702345537118848010">" "</string>
     <string name="learn_more" msgid="6844160787130206258">"තව දැන ගන්න"</string>
-    <!-- no translation found for default_camera_app_title (8762954032197483848) -->
+    <plurals name="default_camera_app_title" formatted="false" msgid="8762954032197483848">
+      <item quantity="one">කැමරා යෙදුම්</item>
+      <item quantity="other">කැමරා යෙදුම්</item>
+    </plurals>
     <string name="default_calendar_app_title" msgid="6484001237347739255">"දින දර්ශන යෙදුම"</string>
     <string name="default_contacts_app_title" msgid="1050372162465746272">"සම්බන්ධතා යෙදුම"</string>
-    <!-- no translation found for default_email_app_title (6875559046625447168) -->
+    <plurals name="default_email_app_title" formatted="false" msgid="6875559046625447168">
+      <item quantity="one">ඊ-තැපැල් සේවාදායක යෙදුම්</item>
+      <item quantity="other">ඊ-තැපැල් සේවාදායක යෙදුම්</item>
+    </plurals>
     <string name="default_map_app_title" msgid="6919751358166607185">"සිතියම් යෙදුම"</string>
-    <!-- no translation found for default_phone_app_title (7593838689002912108) -->
+    <plurals name="default_phone_app_title" formatted="false" msgid="7593838689002912108">
+      <item quantity="one">දුරකථන යෙදුම්</item>
+      <item quantity="other">දුරකථන යෙදුම්</item>
+    </plurals>
     <string name="app_names_concatenation_template_2" msgid="8267577900046506189">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>"</string>
     <string name="app_names_concatenation_template_3" msgid="5129064036161862327">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>, <xliff:g id="THIRD_APP_NAME">%3$s</xliff:g>"</string>
     <string name="storage_photos_videos" msgid="1890829312367477559">"ඡායාරූප සහ වීඩියෝ"</string>
@@ -4169,11 +4379,13 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"ජංගම ජාලය භාවිතයෙන් දත්ත වෙත ප්‍රවේශ වන්න"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"දුරකථනය පරාසය තුළ තිබෙන විට ස්වයංක්‍රීයව වාහකය වෙත මාරු වෙයි"</string>
     <string name="calls_preference" msgid="2076353032705811243">"ඇමතුම් මනාපය"</string>
-    <!-- no translation found for sms_preference (8449270011976880) -->
-    <skip />
+    <string name="sms_preference" msgid="8449270011976880">"කෙටි පණිවුඩ මනාප"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"සැම විටම අසන්න"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"ජාලයක් එක් කරන්න"</string>
-    <!-- no translation found for mobile_network_summary_count (6222822873390636020) -->
+    <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">
+      <item quantity="one">SIMs <xliff:g id="COUNT_1">%1$d</xliff:g></item>
+      <item quantity="other">SIMs <xliff:g id="COUNT_1">%1$d</xliff:g></item>
+    </plurals>
     <string name="default_for_calls" msgid="8706651147900549897">"ඇමතුම් සඳහා පෙරනිමි"</string>
     <string name="default_for_sms" msgid="5180640397787496162">"කෙටි පණිවුඩ සඳහා පෙරනිමි"</string>
     <string name="default_for_calls_and_sms" msgid="3109837505015103510">"ඇමතුම් සහ කෙටි පණිවුඩ සඳහා පෙරනිමි"</string>
@@ -4233,7 +4445,10 @@
     <string name="network_connection_errorstate_dialog_message" msgid="1599445930536043943">"යම් දෙයක් ඇත. යෙදුම උපාංගයක් තේරීමට කළ ඉල්ලීම අවලංගු කර ඇත."</string>
     <string name="network_connection_connect_successful" msgid="888912275986965748">"සම්බන්ධතාව සාර්ථකයි"</string>
     <string name="network_connection_request_dialog_showall" msgid="396928496030183071">"සියල්ල පෙන්වන්න"</string>
-    <!-- no translation found for show_bluetooth_devices (7451733907387872891) -->
+    <plurals name="show_bluetooth_devices" formatted="false" msgid="7451733907387872891">
+      <item quantity="one">උපාංග <xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g>ක් සම්බන්ධිතය</item>
+      <item quantity="other">උපාංග <xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g>ක් සම්බන්ධිතය</item>
+    </plurals>
     <string name="no_bluetooth_devices" msgid="4338224958734305244">"බ්ලූටූත් උපාංග නැත"</string>
     <string name="bluetooth_left_name" msgid="4393660998014637355">"වම"</string>
     <string name="bluetooth_right_name" msgid="8356091262762973801">"දකුණ"</string>
@@ -4253,8 +4468,7 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"මෙම යෝජනාව ඉවත් කරන්නද?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"යෝජනාව ඉවත් කළා"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"අස් කරන්න"</string>
-    <!-- no translation found for low_storage_summary (4562224870189133400) -->
-    <skip />
+    <string name="low_storage_summary" msgid="4562224870189133400">"ගබඩාව අඩුය. <xliff:g id="PERCENTAGE">%1$s</xliff:g> භාවිත කර ඇත <xliff:g id="FREE_SPACE">%2$s</xliff:g> නිදහස්ය"</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"ප්‍රතිපෝෂණය යවන්න"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"ඔබ මෙම යෝජනාව ගැන අපට ප්‍රතිපෝෂණ ලබා දීමට කැමතිද?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g> පසුරු පුවරුවට පිටපත් කෙරිණි."</string>
@@ -4262,12 +4476,21 @@
     <string name="permission_bar_chart_empty_text" msgid="5893326513700540130">"යෙදුම් 0ක් අවසර භාවිත කළා"</string>
     <string name="permission_bar_chart_title" msgid="874145405516650073">"අවසාන පැය 24 තුළ අවසර භාවිතය"</string>
     <string name="permission_bar_chart_details" msgid="942094334321073927">"උපකරණ පුවරුවේ ඇති සියල්ල බලන්න"</string>
-    <!-- no translation found for permission_bar_chart_label (2831305719356562097) -->
+    <plurals name="permission_bar_chart_label" formatted="false" msgid="2831305719356562097">
+      <item quantity="one">යෙදුම් <xliff:g id="NUMBER">%s</xliff:g>ක්</item>
+      <item quantity="other">යෙදුම් <xliff:g id="NUMBER">%s</xliff:g>ක්</item>
+    </plurals>
     <string name="accessibility_usage_title" msgid="3920601240120963611">"ප්‍රවේශ්‍යතා භාවිතය"</string>
-    <!-- no translation found for accessibility_usage_summary (2604152087205501644) -->
+    <plurals name="accessibility_usage_summary" formatted="false" msgid="2604152087205501644">
+      <item quantity="one">යෙදුම් <xliff:g id="SERVICE_COUNT">%1$d</xliff:g>කට ඔබේ උපාංගය වෙත පූර්ණ ප්‍රවේශය තිබේ</item>
+      <item quantity="other">යෙදුම් <xliff:g id="SERVICE_COUNT">%1$d</xliff:g>කට ඔබේ උපාංගය වෙත පූර්ණ ප්‍රවේශය තිබේ</item>
+    </plurals>
     <string name="manage_app_notification" msgid="9072118910762792295">"<xliff:g id="APP_NAME">%1$s</xliff:g> දැනුම්දීම් කළමනා කරන්න"</string>
     <string name="no_suggested_app" msgid="509257628685025383">"යෝජිත යෙදුම් නැත"</string>
-    <!-- no translation found for notification_few_channel_count_summary (5165639207390218085) -->
+    <plurals name="notification_few_channel_count_summary" formatted="false" msgid="5165639207390218085">
+      <item quantity="one">දැනුම්දීම් නාලිකා <xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g>ක්.</item>
+      <item quantity="other">දැනුම්දීම් නාලිකා <xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g>ක්.</item>
+    </plurals>
     <string name="notification_many_channel_count_summary" msgid="9205641731142529086">"දැනුම්දීම් නාලිකා <xliff:g id="NOTIFICATION_CHANNEL_COUNT">%1$d</xliff:g>ක්. සියල්ල කළමනා කිරීමට තට්ටු කරන්න."</string>
     <string name="recently_installed_app" msgid="6491959945747808096">"ඔබ මෑතකදී මෙම යෙදුම ස්ථාපිත කළා."</string>
     <string name="media_output_panel_title" msgid="8429272102437211530">"ප්‍රතිදාන මාරු කරන්න"</string>
