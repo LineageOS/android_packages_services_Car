@@ -58,4 +58,16 @@ class JobSchedulingUtils {
                     .setBackoffCriteria(RETRY_DELAY_IN_MS, JobInfo.BACKOFF_POLICY_LINEAR)
                     .build());
     }
+
+    /** uploadByDefault switches app behavior between two workflows.
+     *
+     * Returns true if collected bugreports are uploaded automatically.
+     *
+     * Otherwise, it maps to an alternative workflow that requires user action after bugreport
+     * is successfully written. A user then has an option to choose whether to upload the bugreport
+     * or copy it to an external drive.
+     */
+    static boolean uploadByDefault() {
+        return true;
+    }
 }
