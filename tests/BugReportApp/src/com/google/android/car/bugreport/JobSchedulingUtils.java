@@ -19,6 +19,7 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+import android.os.SystemProperties;
 import android.util.Log;
 
 /**
@@ -31,10 +32,18 @@ class JobSchedulingUtils {
     private static final int RETRY_DELAY_IN_MS = 5_000;
 
     /**
+     * The system property to disable auto-upload when bug reports are collected. When auto-upload
+     * is disabled, the app waits for user action on collected bug reports: user can either
+     * upload to Google Cloud or copy to flash drive.
+     */
+    private static final String PROP_DISABLE_AUTO_UPLOAD =
+            "android.car.bugreport.disableautoupload";
+
+    /**
      * Schedule an upload job.
-     *  1. require network connectivity
-     *  2. good quality network (large upload size)
-     *  3. persist across reboots
+     * 1. require network connectivity
+     * 2. good quality network (large upload size)
+     * 3. persist across reboots
      */
     static void scheduleUploadJob(Context context) {
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
@@ -53,21 +62,20 @@ class JobSchedulingUtils {
         // NOTE: Don't set estimated network bytes, because we want bug reports to be uploaded
         //       without any constraints.
         jobScheduler.schedule(new JobInfo.Builder(UPLOAD_JOB_ID,
-                    new ComponentName(context, UploadJob.class))
-                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                    .setBackoffCriteria(RETRY_DELAY_IN_MS, JobInfo.BACKOFF_POLICY_LINEAR)
-                    .build());
+                new ComponentName(context, UploadJob.class))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setBackoffCriteria(RETRY_DELAY_IN_MS, JobInfo.BACKOFF_POLICY_LINEAR)
+                .build());
     }
 
-    /** uploadByDefault switches app behavior between two workflows.
+    /**
+     * Returns true if collected bugreports should be uploaded automatically.
      *
-     * Returns true if collected bugreports are uploaded automatically.
-     *
-     * Otherwise, it maps to an alternative workflow that requires user action after bugreport
-     * is successfully written. A user then has an option to choose whether to upload the bugreport
-     * or copy it to an external drive.
+     * <p>If it returns false, the app maps to an alternative workflow that requires user action
+     * after bugreport is successfully written. A user then has an option to choose whether to
+     * upload the bugreport or copy it to an external drive.
      */
     static boolean uploadByDefault() {
-        return true;
+        return !SystemProperties.getBoolean(PROP_DISABLE_AUTO_UPLOAD, false);
     }
 }
