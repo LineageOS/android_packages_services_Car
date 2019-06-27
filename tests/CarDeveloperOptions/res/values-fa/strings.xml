@@ -22,7 +22,10 @@
     <string name="allow" msgid="128867119174713893">"مجاز است"</string>
     <string name="deny" msgid="3998166389989144025">"اجازه ندارد"</string>
     <string name="device_info_default" msgid="1548919563979154348">"ناشناس"</string>
-    <!-- no translation found for show_dev_countdown (3953785659137161981) -->
+    <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
+      <item quantity="one">اکنون <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> قدم با برنامه‌نویس شدن فاصله دارید.</item>
+      <item quantity="other">اکنون <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> قدم با برنامه‌نویس شدن فاصله دارید.</item>
+    </plurals>
     <string name="show_dev_on" msgid="9075712234786224065">"شما اکنون یک برنامه‌نویس هستید!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"نیازی نیست، شما در حال حاضر یک برنامه‌نویس هستید."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"لطفاً ابتدا گزینه‌های تولیدکننده را فعال کنید."</string>
@@ -266,7 +269,10 @@
     <string name="language_picker_title" msgid="7807759931261107686">"زبان‌ها"</string>
     <string name="locale_remove_menu" msgid="3395565699934985486">"برداشتن"</string>
     <string name="add_a_language" msgid="4103889327406274800">"افزودن زبان"</string>
-    <!-- no translation found for dlg_remove_locales_title (7362450618787242592) -->
+    <plurals name="dlg_remove_locales_title" formatted="false" msgid="7362450618787242592">
+      <item quantity="one">زبان‌های انتخابی حذف شوند؟</item>
+      <item quantity="other">زبان‌های انتخابی حذف شوند؟</item>
+    </plurals>
     <string name="dlg_remove_locales_message" msgid="5179370688876343176">"نوشتار به زبان دیگری نشان داده می‌شود."</string>
     <string name="dlg_remove_locales_error_title" msgid="9090578326002163975">"همه زبان‌ها حذف نمی‌شوند"</string>
     <string name="dlg_remove_locales_error_message" msgid="6799897638891903618">"حداقل یک زبان برگزیده را حفظ کنید"</string>
@@ -365,7 +371,10 @@
     <string name="location_settings_title" msgid="2707201457572301030">"مکان"</string>
     <string name="location_settings_master_switch_title" msgid="3108016866082816733">"استفاده از مکان"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"خاموش"</string>
-    <!-- no translation found for location_settings_summary_location_on (7893342914540884818) -->
+    <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
+      <item quantity="one">روشن - <xliff:g id="COUNT_1">%1$d</xliff:g> برنامه می‌توانند به مکان دسترسی داشته باشند</item>
+      <item quantity="other">روشن - <xliff:g id="COUNT_1">%1$d</xliff:g> برنامه می‌توانند به مکان دسترسی داشته باشند</item>
+    </plurals>
     <string name="location_settings_loading_app_permission_stats" msgid="7818169326621327628">"درحال بارگیری…"</string>
     <string name="account_settings_title" msgid="7870321267198486578">"حساب‌ها"</string>
     <string name="security_settings_title" msgid="8228075165942416425">"امنیت"</string>
@@ -381,7 +390,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"حریم خصوصی"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"غیرفعال‌شده توسط سرپرست"</string>
     <string name="security_status_title" msgid="1261960357751754428">"وضعیت امنیتی"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"قفل صفحه، باز کردن قفل با چهره"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"قفل صفحه، بازگشایی با چهره"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"قفل صفحه، اثرانگشت"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"قفل صفحه"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"چهره افزوده شد"</string>
@@ -418,13 +427,16 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"حذف داده‌های چهره"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"می‌توانید از چهره‌تان برای باز کردن قفل دستگاه و دسترسی به برنامه‌ها استفاده کنید. "<annotation id="url">"بیشتر بدانید"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"داده‌های چهره حذف شود؟"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"داده‌هایی که face unlock‌ ضبط کرده است، به‌طور دائم و ایمن حذف می‌شود. پس از برداشته شدن داده‌ها، برای باز کردن قفل تلفن، ورود به سیستم برنامه‌ها، و تأیید پرداخت‌ها، به پین، الگو، یا گذرواژه نیاز دارید."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"داده‌هایی که «بازگشایی با چهره»‌ ضبط کرده است، به‌طور دائم و ایمن حذف می‌شود. پس از برداشته شدن داده‌ها، برای باز کردن قفل تلفن، ورود به سیستم برنامه‌ها، و تأیید پرداخت‌ها، به پین، الگو، یا گذرواژه نیاز دارید."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"اثر انگشت"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"مدیریت اثر انگشت"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"استفاده از اثر انگشت برای"</string>
     <string name="fingerprint_add_title" msgid="6840343900784463856">"افزودن اثر انگشت"</string>
     <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"قفل صفحه"</string>
-    <!-- no translation found for security_settings_fingerprint_preference_summary (2033416761172877041) -->
+    <plurals name="security_settings_fingerprint_preference_summary" formatted="false" msgid="2033416761172877041">
+      <item quantity="one"><xliff:g id="COUNT_1">%1$d</xliff:g> تنظیم اثر انگشت</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> تنظیم اثر انگشت</item>
+    </plurals>
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"بازکردن قفل با اثر انگشت"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"استفاده از اثرانگشت"</string>
@@ -446,10 +458,8 @@
     <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"قابلیت‌های محافظت از دستگاه روشن نمی‌شوند. اگر تلفن گم یا دزدیده شود، نمی‌توانید مانع استفاده دیگران از آن شوید."</string>
     <string name="skip_anyway_button_label" msgid="4437815969645175429">"در هر حال رد شود"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"برگشت"</string>
-    <!-- no translation found for skip_lock_screen_dialog_button_label (6706047245716780006) -->
-    <skip />
-    <!-- no translation found for cancel_lock_screen_dialog_button_label (2534925227627658819) -->
-    <skip />
+    <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"رد شدن"</string>
+    <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"لغو"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"حسگر را لمس کنید"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"در پشت تلفنتان قرار دارد. از انگشت اشاره‌تان استفاده کنید."</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"تصویر دستگاه و مکان حسگر اثر انگشت"</string>
@@ -465,24 +475,16 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"بعداً انجام شود"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"از تنظیم اثر انگشت رد می‌شوید؟"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"انتخاب کرده‌اید که از اثر انگشتتان به‌عنوان روشی برای باز کردن قفل تلفن استفاده کنید. اگر اکنون این مرحله را رد کنید، باید بعداً آن را تنظیم کنید. تنظیم فقط یک دقیقه یا همین حدود طول می‌کشد."</string>
-    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (1384438077720821127) -->
-    <skip />
-    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7207112623501771824) -->
-    <skip />
-    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7623975730623531606) -->
-    <skip />
-    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (2998863111689476550) -->
-    <skip />
-    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (6780557259734235952) -->
-    <skip />
-    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (8541640018478926775) -->
-    <skip />
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"از رایانه لوحی‌تان با گزینه قفل صفحه محافظت کنید تا درصورت گم شدن یا به سرقت رفتن هیچ فردی نتواند از آن استفاده کند. همچنین به گزینه قفل صفحه نیاز دارید تا اثرانگشت را راه‌اندازی کنید. روی «لغو» ضربه بزنید و سپس پین تنظیم کنید یا گزینه قفل صفحه دیگری را انتخاب کنید."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"از دستگاهتان با گزینه قفل صفحه محافظت کنید تا درصورت گم شدن یا به سرقت رفتن هیچ فردی نتواند از آن استفاده کند. همچنین به گزینه قفل صفحه نیاز دارید تا اثرانگشت را راه‌اندازی کنید. روی «لغو» ضربه بزنید و سپس پین تنظیم کنید یا گزینه قفل صفحه دیگری را انتخاب کنید."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"از تلفنتان با گزینه قفل صفحه محافظت کنید تا درصورت گم شدن یا به سرقت رفتن هیچ فردی نتواند از آن استفاده کند. همچنین به گزینه قفل صفحه نیاز دارید تا اثرانگشت را راه‌اندازی کنید. روی «لغو» ضربه بزنید و سپس پین تنظیم کنید یا گزینه قفل صفحه دیگری را انتخاب کنید."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"از رایانه لوحی‌تان با گزینه قفل صفحه محافظت کنید تا درصورت گم شدن یا به سرقت رفتن هیچ فردی نتواند از آن استفاده کند. همچنین به گزینه قفل صفحه نیاز دارید تا احراز هویت ازطرق چهره را راه‌اندازی کنید. روی «لغو» ضربه بزنید و سپس پین تنظیم کنید یا گزینه قفل صفحه دیگری را انتخاب کنید."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"از دستگاهتان با گزینه قفل صفحه محافظت کنید تا درصورت گم شدن یا به سرقت رفتن هیچ فردی نتواند از آن استفاده کند. همچنین به گزینه قفل صفحه نیاز دارید تا احراز هویت ازطرق چهره را راه‌اندازی کنید. روی «لغو» ضربه بزنید و سپس پین تنظیم کنید یا گزینه قفل صفحه دیگری را انتخاب کنید."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"از تلفنتان با گزینه قفل صفحه محافظت کنید تا درصورت گم شدن یا به سرقت رفتن هیچ فردی نتواند از آن استفاده کند. همچنین به گزینه قفل صفحه نیاز دارید تا احراز هویت ازطرق چهره را راه‌اندازی کنید. روی «لغو» ضربه بزنید و سپس پین تنظیم کنید یا گزینه قفل صفحه دیگری را انتخاب کنید."</string>
     <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
     <skip />
-    <!-- no translation found for lock_screen_password_skip_title (3725788215672959827) -->
-    <skip />
-    <!-- no translation found for lock_screen_pattern_skip_title (4237030500353932005) -->
-    <skip />
+    <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"راه‌اندازی گذرواژه رد شود؟"</string>
+    <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"راه‌اندازی الگو رد شود؟"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"تنظیم قفل صفحه"</string>
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"تمام"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"اووه، آن حسگر نیست"</string>
@@ -650,11 +652,23 @@
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"تلاش‌های اشتباه بسیار زیادی انجام شده است. این کاربر حذف خواهد شد."</string>
     <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"تلاش‌های اشتباه بسیار زیادی انجام شده است. این نمایه کاری و داده‌های آن‌ حذف خواهند شد."</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"نپذیرفتن"</string>
-    <!-- no translation found for lockpassword_password_too_short (694091983183310827) -->
-    <!-- no translation found for lockpassword_pin_too_short (6805936168283187298) -->
+    <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
+      <item quantity="one">باید حداقل <xliff:g id="COUNT_1">%d</xliff:g> نویسه داشته باشد</item>
+      <item quantity="other">باید حداقل <xliff:g id="COUNT_1">%d</xliff:g> نویسه داشته باشد</item>
+    </plurals>
+    <plurals name="lockpassword_pin_too_short" formatted="false" msgid="6805936168283187298">
+      <item quantity="one">پین باید حداقل <xliff:g id="COUNT_1">%d</xliff:g> رقم داشته باشد</item>
+      <item quantity="other">پین باید حداقل <xliff:g id="COUNT_1">%d</xliff:g> رقم داشته باشد</item>
+    </plurals>
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"ادامه"</string>
-    <!-- no translation found for lockpassword_password_too_long (7994068708438608179) -->
-    <!-- no translation found for lockpassword_pin_too_long (6219380667452617286) -->
+    <plurals name="lockpassword_password_too_long" formatted="false" msgid="7994068708438608179">
+      <item quantity="one">باید کمتر از <xliff:g id="NUMBER_1">%d</xliff:g> نویسه باشد</item>
+      <item quantity="other">باید کمتر از <xliff:g id="NUMBER_1">%d</xliff:g> نویسه باشد</item>
+    </plurals>
+    <plurals name="lockpassword_pin_too_long" formatted="false" msgid="6219380667452617286">
+      <item quantity="one">باید کمتر از <xliff:g id="NUMBER_1">%d</xliff:g> رقم باشد</item>
+      <item quantity="other">باید کمتر از <xliff:g id="NUMBER_1">%d</xliff:g> رقم باشد</item>
+    </plurals>
     <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"فقط می‌تواند شامل اعداد ۰ تا ۹ باشد"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"سرپرست دستگاه اجازه استفاده از پین اخیر را نمی‌دهد"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"پین‌های رایج توسط سرپرست فناوری اطلاعات شما مسدود شده‌اند. پین متفاوتی را امتحان کنید."</string>
@@ -662,12 +676,30 @@
     <string name="lockpassword_password_requires_alpha" msgid="7017799931349816346">"باید حداقل یک حرف داشته باشد"</string>
     <string name="lockpassword_password_requires_digit" msgid="6856775151626646011">"باید حداقل یک عدد داشته باشد"</string>
     <string name="lockpassword_password_requires_symbol" msgid="5859035635265756172">"باید حداقل یک نماد داشته باشد"</string>
-    <!-- no translation found for lockpassword_password_requires_letters (7383825189441790620) -->
-    <!-- no translation found for lockpassword_password_requires_lowercase (477315194231617994) -->
-    <!-- no translation found for lockpassword_password_requires_uppercase (6026476732572657588) -->
-    <!-- no translation found for lockpassword_password_requires_numeric (5072581827825645338) -->
-    <!-- no translation found for lockpassword_password_requires_symbols (8393058207948961650) -->
-    <!-- no translation found for lockpassword_password_requires_nonletter (3692485784007607387) -->
+    <plurals name="lockpassword_password_requires_letters" formatted="false" msgid="7383825189441790620">
+      <item quantity="one">باید حداقل <xliff:g id="COUNT">%d</xliff:g> حرف داشته باشد</item>
+      <item quantity="other">باید حداقل <xliff:g id="COUNT">%d</xliff:g> حرف داشته باشد</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_lowercase" formatted="false" msgid="477315194231617994">
+      <item quantity="one">باید حداقل <xliff:g id="COUNT">%d</xliff:g> حرف کوچک داشته باشد</item>
+      <item quantity="other">باید حداقل <xliff:g id="COUNT">%d</xliff:g> حرف کوچک داشته باشد</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_uppercase" formatted="false" msgid="6026476732572657588">
+      <item quantity="one">باید حداقل <xliff:g id="COUNT">%d</xliff:g> حرف بزرگ داشته باشد</item>
+      <item quantity="other">باید حداقل <xliff:g id="COUNT">%d</xliff:g> حرف بزرگ داشته باشد</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_numeric" formatted="false" msgid="5072581827825645338">
+      <item quantity="one">باید حداقل <xliff:g id="COUNT">%d</xliff:g> عدد داشته باشد</item>
+      <item quantity="other">باید حداقل <xliff:g id="COUNT">%d</xliff:g> عدد داشته باشد</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_symbols" formatted="false" msgid="8393058207948961650">
+      <item quantity="one">باید حداقل <xliff:g id="COUNT">%d</xliff:g> نماد ویژه داشته باشد</item>
+      <item quantity="other">باید حداقل <xliff:g id="COUNT">%d</xliff:g> نماد ویژه داشته باشد</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
+      <item quantity="one">باید حداقل <xliff:g id="COUNT">%d</xliff:g> نویسه غیرحرف داشته باشد</item>
+      <item quantity="other">باید حداقل <xliff:g id="COUNT">%d</xliff:g> نویسه غیرحرف داشته باشد</item>
+    </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"سرپرست دستگاه اجازه استفاده از گذرواژه اخیر را نمی‌دهد"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"گذرواژه‌های رایج توسط سرپرست فناوری اطلاعات شما مسدود شده‌اند. گذرواژه متفاوتی را امتحان کنید."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"ترتیب صعودی، نزولی یا تکراری ارقام مجاز نیست"</string>
@@ -680,11 +712,17 @@
     <string name="lock_setup" msgid="8710689848703935088">"راه‌اندازی کامل شد."</string>
     <string name="manage_device_admin" msgid="322047441168191695">"برنامه‌های سرپرست دستگاه"</string>
     <string name="number_of_device_admins_none" msgid="8519193548630223132">"برنامه فعالی موجود نیست"</string>
-    <!-- no translation found for number_of_device_admins (6445613288828151224) -->
+    <plurals name="number_of_device_admins" formatted="false" msgid="6445613288828151224">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> برنامه فعال</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> برنامه فعال</item>
+    </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"نمایندگان مورداعتماد"</string>
     <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"برای استفاده، نخست قفل صفحه را تنظیم کنید"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"هیچ‌کدام"</string>
-    <!-- no translation found for manage_trust_agents_summary_on (5550538038916606097) -->
+    <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
+      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> نماینده معتمد فعال</item>
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> نماینده معتمد فعال</item>
+    </plurals>
     <string name="bluetooth_quick_toggle_title" msgid="7410319268406112792">"بلوتوث"</string>
     <string name="bluetooth_quick_toggle_summary" msgid="3951769568065428093">"روشن کردن بلوتوث"</string>
     <string name="bluetooth_settings" msgid="5228032727293770389">"بلوتوث"</string>
@@ -728,13 +766,11 @@
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"بلوتوث پیشرفته"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"با بلوتوث روشن، دستگاهتان می‌تواند با دستگاه‌های بلوتوث اطراف در ارتباط باشد."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"وقتی بلوتوث روشن است،‌ دستگاهتان می‌تواند با سایر دستگاه‌های بلوتوث این اطراف ارتباط برقرار کند.\n\nبرای بهبود تجربه دستگاه، برنامه‌ها و سرویس‌ها همچنان می‌توانند در هرزمانی دستگاه‌های اطراف را اسکن کنند (حتی وقتی بلوتوث خاموش است). می‌توان از این ویژگی مثلاً برای بهبود ویژگی‌ها و سرویس‌های مکان‌مبنا استفاده کرد. می‌توانید انتخابتان را در "<annotation id="link">"تنظمیات اسکن"</annotation>" تغییر دهید."</string>
-    <!-- no translation found for ble_scan_notify_text (6290170236546386932) -->
-    <skip />
+    <string name="ble_scan_notify_text" msgid="6290170236546386932">"برای بهبود صحت مکان، برنامه‌ها و سرویس‌های سیستم همچنان می‌توانند دستگاه‌های بلوتوث را شناسایی کنند. می‌توانید این مورد را در <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>تنظیمات اسکن<xliff:g id="LINK_END_1">LINK_END</xliff:g> تغییر دهید."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"متصل نشد. دوباره امتحان کنید."</string>
     <string name="device_details_title" msgid="726517818032923222">"جزئیات دستگاه"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"نشانی بلوتوث دستگاه: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <!-- no translation found for bluetooth_unpair_dialog_title (3669848977755142047) -->
-    <skip />
+    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"دستگاه فراموش شود؟"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"تلفنتان دیگر با <xliff:g id="DEVICE_NAME">%1$s</xliff:g> مرتبط نخواهد بود"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"رایانه لوحی‌تان دیگر با <xliff:g id="DEVICE_NAME">%1$s</xliff:g> مرتبط نخواهد بود"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"دستگاهتان دیگر با <xliff:g id="DEVICE_NAME">%1$s</xliff:g> مرتبط نخواهد بود"</string>
@@ -812,8 +848,7 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"باز کردن اعلان شبکه"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"وقتی شبکه عمومی‌ای با کیفیت خوب در دسترس است، اطلاع داده شود"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"روشن شدن خودکار Wi-Fi"</string>
-    <!-- no translation found for wifi_wakeup_summary (1152699417411690) -->
-    <skip />
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi-Fi درنزدیکی شبکه‌های با کیفیت بالای ذخیره‌شده (ازجمله شبکه خانه‌تان) دوباره روشن می‌شود."</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"در دسترس نیست چون «مکان» خاموش است. "<annotation id="link">"مکان"</annotation>" را روشن کنید."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"در دسترس نیست چون «اسکن کردن Wi‑Fi» خاموش است"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"برای استفاده، یک ارائه‌دهنده رتبه‌بندی شبکه انتخاب کنید"</string>
@@ -868,8 +903,7 @@
     <string name="wifi_ssid" msgid="6746270925975522641">"نام شبکه"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSID را وارد کنید"</string>
     <string name="wifi_security" msgid="9136702039496152831">"امنیت"</string>
-    <!-- no translation found for wifi_hidden_network (6647772204699776833) -->
-    <skip />
+    <string name="wifi_hidden_network" msgid="6647772204699776833">"شبکه مخفی"</string>
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"اگر رهیابتان شناسه شبکه را پخش عمومی نمی‌کند اما می‌خواهید در آینده به آن متصل شوید، می‌توانید شبکه را به‌عنوان پنهان تنظیم کنید.\n\nاین کار می‌تواند خطر امنیتی ایجاد کند زیرا تلفن شما سیگنالش را به‌طور منظم برای پیدا کردن شبکه پخش عمومی می‌کند.\n\nتنظیم کردن شبکه به‌عنوان پنهان، تنظیمات رهیاب را تغییر نخواهد داد."</string>
     <string name="wifi_signal" msgid="696548364467704808">"قدرت سیگنال"</string>
     <string name="wifi_status" msgid="3439931558930689940">"وضعیت"</string>
@@ -977,7 +1011,10 @@
     <string name="wifi_cancel" msgid="7618417075930426635">"لغو"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"شبکه فراموش شود؟"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"همه گذرواژه‌های این شبکه حذف خواهند شد"</string>
-    <!-- no translation found for wifi_saved_access_points_summary (6199295921035663421) -->
+    <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
+      <item quantity="one">%d شبکه</item>
+      <item quantity="other">%d شبکه</item>
+    </plurals>
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"Wi-Fi پیشرفته"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"آدرس MAC"</string>
@@ -1050,21 +1087,22 @@
     <!-- no translation found for wifi_calling_roaming_mode_summary (620031651074963360) -->
     <skip />
     <string name="wifi_calling_roaming_mode_dialog_title" msgid="4018579440109122790">"تنظیم برگزیده فراگردی"</string>
-    <!-- no translation found for wifi_calling_mode_choices:0 (7952573372663890448) -->
-    <!-- no translation found for wifi_calling_mode_choices:1 (2552412793005571845) -->
-    <!-- no translation found for wifi_calling_mode_choices:2 (742811521969300868) -->
+  <string-array name="wifi_calling_mode_choices">
+    <item msgid="7952573372663890448">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
+    <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
+    <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
+  </string-array>
     <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:1 (4421333712484542489) -->
     <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
-    <!-- no translation found for wifi_calling_mode_choices_without_wifi_only:0 (3658897985297386665) -->
-    <!-- no translation found for wifi_calling_mode_choices_without_wifi_only:1 (4191802193352447215) -->
+  <string-array name="wifi_calling_mode_choices_without_wifi_only">
+    <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
+    <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
+  </string-array>
     <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:1 (2271962426654621656) -->
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"استفاده از شبکه تلفن همراه، درصورت عدم‌دسترسی به Wi-Fi"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"اگر شبکه تلفن همراه دردسترس نبود، از Wi-Fi استفاده شود"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"تماس ازطریق Wi-Fi. اگر اتصال Wi-Fi قطع شود، تماس متوقف می‌شود."</string>
-    <!-- no translation found for wifi_calling_off_explanation (1653424723742898015) -->
-    <skip />
+    <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"اگر تماس ازطریق Wi-Fi روشن باشد، تلفن شما می‌تواند براساس اولویتتان و اینکه چه سیگنالی قوی‌تر است، تماس‌ها را ازطریق شبکه‌های Wi-Fi یا شبکه شرکت مخابراتی‌تان هدایت کند. قبل از روشن کردن این ویژگی، هزینه‌ها و سایر جزئیات را با شرکت مخابراتی‌تان بررسی کنید.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
     <string name="emergency_address_title" msgid="5779915349686787024">"نشانی اضطراری"</string>
     <string name="emergency_address_summary" msgid="478668478569851714">"وقتی ازطریق Wi-Fi تماس اضطراری برقرار می‌کنید به‌عنوان مکان شما استفاده می‌شود"</string>
@@ -1252,13 +1290,15 @@
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"چندین سیم‌کارت یافت شد"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"سیم‌کارتی را که برای داده شبکه تلفن همراه ترجیح می‌دهید، انتخاب کنید."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"استفاده از <xliff:g id="CARRIER">%1$s</xliff:g> برای داده همراه؟"</string>
-    <!-- no translation found for sim_change_data_message (51004703157782900) -->
-    <skip />
+    <string name="sim_change_data_message" msgid="51004703157782900">"برای داده تلفن همراه، از <xliff:g id="CARRIER2_0">%2$s</xliff:g> استفاده می‌کنید. اگر به <xliff:g id="CARRIER1">%1$s</xliff:g> جابه‌جا شوید، دیگر <xliff:g id="CARRIER2_1">%2$s</xliff:g> برای داده تلفن همراه استفاده نمی‌شود."</string>
     <string name="sim_change_data_ok" msgid="7491552537317573235">"استفاده از <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"سیم‌کارت ترجیجی به‌روز شود؟"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> تنها سیم‌کارت در دستگاه شما است. می‌خواهید از این سیم‌کارت برای داده شبکه تلفن همراه، تماس تلفنی و پیامک استفاده کنید؟"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"کد پین سیم کارت اشتباه است، اکنون برای گشودن قفل دستگاهتان باید با شرکت مخابراتی تماس بگیرید."</string>
-    <!-- no translation found for wrong_pin_code (2934318793525717627) -->
+    <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
+      <item quantity="one">کد پین سیم‌کارت اشتباه است، <xliff:g id="NUMBER_1">%d</xliff:g> بار دیگر می‌توانید تلاش کنید.</item>
+      <item quantity="other">کد پین سیم‌کارت اشتباه است، <xliff:g id="NUMBER_1">%d</xliff:g> بار دیگر می‌توانید تلاش کنید.</item>
+    </plurals>
     <string name="pin_failed" msgid="4877356137480446727">"عملیات پین سیم کارت ناموفق بود!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"به‌روزرسانی‌های سیستم"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
@@ -1603,7 +1643,10 @@
     <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"محل نمایه کارتان"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"مجوز برنامه"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"مکان خاموش است"</string>
-    <!-- no translation found for location_app_permission_summary_location_on (7904821382328758218) -->
+    <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
+      <item quantity="one"> <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g> مورد از <xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g> برنامه دسترسی نامحدود دارد</item>
+      <item quantity="other"> <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g> مورد از <xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g> برنامه دسترسی نامحدود دارد</item>
+    </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"دسترسی مکان اخیر"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"مشاهده جزئیات"</string>
     <string name="location_no_recent_apps" msgid="77502059586413278">"به تازگی هیچ برنامه‌ای موقعیت مکانی را درخواست نکرده است"</string>
@@ -1615,8 +1658,7 @@
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"به برنامه‌ها و سرویس‌ها اجازه دهید درهر زمانی (حتی وقتی Wi‑Fi خاموش است) شبکه‌های Wi‑Fi را اسکن کنند. برای مثال این مورد مي‌تواند برای بهبود ویژگی‌ها و سرویس‌های مکان‌مبنا استفاده شود."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"اسکن کردن بلوتوث"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"به برنامه‌ها و سرویس‌ها اجازه دهید درهر زمانی (حتی وقتی «بلوتوث» خاموش است) دستگاه‌های اطراف را اسکن کنند. برای مثال این مورد مي‌تواند برای بهبود ویژگی‌ها و سرویس‌های مکان‌مبنا استفاده شود."</string>
-    <!-- no translation found for managed_profile_location_services (224925483299159541) -->
-    <skip />
+    <string name="managed_profile_location_services" msgid="224925483299159541">"خدمات مکان برای کار"</string>
     <string name="location_network_based" msgid="1535812159327454835">"مکان شبکه تلفن همراه و Wi-Fi"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"به برنامه‌ها اجازه داده شود با سرویس مکان Google مکانتان را سریع‌تر تخمین بزنند. داده‌های مکان ناشناس جمع‌آوری شده و به Google ارسال خواهد شد."</string>
     <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"موقعیت مکانی تعیین شده توسط Wi-Fi"</string>
@@ -1758,7 +1800,10 @@
     <string name="cache_header_label" msgid="3202284481380361966">"حافظهٔ پنهان"</string>
     <string name="clear_cache_btn_text" msgid="107507684844780651">"پاک کردن حافظهٔ پنهان"</string>
     <string name="cache_size_label" msgid="6205173678102220499">"حافظهٔ پنهان"</string>
-    <!-- no translation found for uri_permissions_text (8938478333743197020) -->
+    <plurals name="uri_permissions_text" formatted="false" msgid="8938478333743197020">
+      <item quantity="one">%d مورد</item>
+      <item quantity="other">%d مورد</item>
+    </plurals>
     <string name="clear_uri_btn_text" msgid="3528618179883855727">"پاک کردن دسترسی"</string>
     <string name="controls_label" msgid="5609285071259457221">"کنترل ها"</string>
     <string name="force_stop" msgid="9213858124674772386">"توقف اجباری"</string>
@@ -2053,18 +2098,36 @@
     <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"برای مرتبط‌سازی سمعکتان، دستگاهتان را در صفحه بعدی پیدا کنید و روی آن ضربه بزنید."</string>
     <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"مطمئن شوید سمعکتان در حالت مرتبط‌سازی باشد."</string>
     <string name="accessibility_hearingaid_active_device_summary" msgid="6081382497207168885">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> فعال"</string>
-    <!-- no translation found for show_number_hearingaid_count (7906547154695855096) -->
+    <plurals name="show_number_hearingaid_count" formatted="false" msgid="7906547154695855096">
+      <item quantity="one"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> سمعک ذخیره‌شده</item>
+      <item quantity="other"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> سمعک ذخیره‌شده</item>
+    </plurals>
     <string name="accessibility_summary_state_enabled" msgid="7357731696603247963">"روشن"</string>
     <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"خاموش"</string>
     <string name="accessibility_summary_state_stopped" msgid="3170264683616172746">"کار نمی‌کند. برای دریافت اطلاعات ضربه بزنید."</string>
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"این سرویس درست کار نمی‌کند."</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"نمایش در تنظیمات سریع"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"حالت تصحیح"</string>
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_extremely_short_delay (3810676455925024813) -->
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_short_delay (8720846747098057703) -->
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_short_delay (4311889107742293108) -->
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_long_delay (285663535113656440) -->
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_long_delay (3412533824632834001) -->
+    <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
+      <item quantity="one">تأخیر فوق‌العاده کوتاه (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> میلی‌ثانیه)</item>
+      <item quantity="other">تأخیر فوق‌العاده کوتاه (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> میلی‌ثانیه)</item>
+    </plurals>
+    <plurals name="accessibilty_autoclick_preference_subtitle_very_short_delay" formatted="false" msgid="8720846747098057703">
+      <item quantity="one">تأخیر بسیار کوتاه (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> میلی‌ثانیه)</item>
+      <item quantity="other">تأخیر بسیار کوتاه (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> میلی‌ثانیه)</item>
+    </plurals>
+    <plurals name="accessibilty_autoclick_preference_subtitle_short_delay" formatted="false" msgid="4311889107742293108">
+      <item quantity="one">تأخیر کوتاه (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> میلی‌ثانیه)</item>
+      <item quantity="other">تأخیر کوتاه (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> میلی‌ثانیه)</item>
+    </plurals>
+    <plurals name="accessibilty_autoclick_preference_subtitle_long_delay" formatted="false" msgid="285663535113656440">
+      <item quantity="one">تأخیر طولانی (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> میلی‌ثانیه)</item>
+      <item quantity="other">تأخیر طولانی (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> میلی‌ثانیه)</item>
+    </plurals>
+    <plurals name="accessibilty_autoclick_preference_subtitle_very_long_delay" formatted="false" msgid="3412533824632834001">
+      <item quantity="one">تأخیر بسیار طولانی (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> میلی‌ثانیه)</item>
+      <item quantity="other">تأخیر بسیار طولانی (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> میلی‌ثانیه)</item>
+    </plurals>
     <string name="accessibility_vibration_summary" msgid="3642516399755721924">"به صدا در آوردن زنگ <xliff:g id="SUMMARY_RING">%1$s</xliff:g>، اعلان <xliff:g id="SUMMARY_NOTIFICATION">%2$s</xliff:g>، لمس کردن <xliff:g id="SUMMARY_TOUCH">%3$s</xliff:g>"</string>
     <string name="accessibility_vibration_summary_off" msgid="2894044066550518676">"زنگ زدن و اعلان روی «خاموش» تنظیم شده است"</string>
     <string name="accessibility_vibration_summary_low" msgid="2884160616131878204">"زنگ زدن و اعلان روی «خفیف» تنظیم شده است"</string>
@@ -2124,8 +2187,14 @@
     <string name="settings_button" msgid="8557747862035866953">"تنظیمات"</string>
     <string name="print_settings" msgid="7886184656544483072">"چاپ کردن"</string>
     <string name="print_settings_summary_no_service" msgid="634173687975841526">"خاموش"</string>
-    <!-- no translation found for print_settings_summary (7580293760281445137) -->
-    <!-- no translation found for print_jobs_summary (6180308415569432845) -->
+    <plurals name="print_settings_summary" formatted="false" msgid="7580293760281445137">
+      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> سرویس چاپ روشن است</item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> سرویس چاپ روشن است</item>
+    </plurals>
+    <plurals name="print_jobs_summary" formatted="false" msgid="6180308415569432845">
+      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> کار چاپی</item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> کار چاپی</item>
+    </plurals>
     <string name="print_settings_title" msgid="2886445296786932763">"خدمات چاپ"</string>
     <string name="print_no_services_installed" msgid="3387777739528003794">"سرویسی نصب نشده است"</string>
     <string name="print_no_printers_found" msgid="5090925427392294881">"هیچ چاپگری یافت نشد"</string>
@@ -2213,11 +2282,26 @@
     <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"از رایانه لوحی بیش از حد معمول استفاده شده است. ممکن است باتری آن زودتر از موعد موردانتظار تمام شود.\n\nپراستفاده‌ترین برنامه‌ها از زمان شارژ کامل:"</string>
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"از دستگاه بیش از حد معمول استفاده شده است. ممکن است باتری آن زودتر از موعد موردانتظار تمام شود.\n\nپراستفاده‌ترین برنامه‌ها از زمان شارژ کامل:"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"شامل فعالیت پس‌زمینه با شارژ بالا"</string>
-    <!-- no translation found for battery_tip_restrict_title (7140926804142734420) -->
-    <!-- no translation found for battery_tip_restrict_handled_title (5509363095891806748) -->
-    <!-- no translation found for battery_tip_restrict_summary (984148373944071669) -->
-    <!-- no translation found for battery_tip_restrict_handled_summary (469696766640020557) -->
-    <!-- no translation found for battery_tip_restrict_app_dialog_title (3042021435866172168) -->
+    <plurals name="battery_tip_restrict_title" formatted="false" msgid="7140926804142734420">
+      <item quantity="one">%1$d برنامه را محدود کنید</item>
+      <item quantity="other">%1$d برنامه را محدود کنید</item>
+    </plurals>
+    <plurals name="battery_tip_restrict_handled_title" formatted="false" msgid="5509363095891806748">
+      <item quantity="one">%2$d برنامه اخیراً محدود شده است</item>
+      <item quantity="other">%2$d برنامه اخیراً محدود شده است</item>
+    </plurals>
+    <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
+      <item quantity="one">%2$d مصرف باتری در پس‌زمینه بالایی دارد</item>
+      <item quantity="other">%2$d مصرف باتری در پس‌زمینه بالایی دارد</item>
+    </plurals>
+    <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
+      <item quantity="one">این برنامه‌ها نمی‌تواند در پس‌زمینه اجرا شود</item>
+      <item quantity="other">این برنامه‌ها نمی‌تواند در پس‌زمینه اجرا شود</item>
+    </plurals>
+    <plurals name="battery_tip_restrict_app_dialog_title" formatted="false" msgid="3042021435866172168">
+      <item quantity="one">%1$d برنامه محدود شود؟</item>
+      <item quantity="other">%1$d برنامه محدود شود؟</item>
+    </plurals>
     <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"برای صرفه‌جویی در شارژ باتری،‌ مصرف پس‌زمینه‌ای <xliff:g id="APP">%1$s</xliff:g> از باتری را متوقف کنید. ممکن است این برنامه درست کار نکند و اعلان‌ها با تأخیر همراه باشد."</string>
     <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"برای صرفه‌جویی در شارژ باتری،‌ مصرف پس‌زمینه‌ای این برنامه‌ها از باتری را متوقف کنید. ممکن است برنامه‌های محدودشده درست کار نکند و اعلان‌ها با تأخیر همراه باشد.\n\nبرنامه‌ها:"</string>
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"برای صرفه‌جویی در شارژ باتری،‌ مصرف پس‌زمینه‌ای این برنامه‌ها از باتری را متوقف کنید. ممکن است برنامه‌های محدودشده درست کار نکند و اعلان‌ها با تأخیر همراه باشد.\n\nبرنامه‌ها:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
@@ -2236,14 +2320,20 @@
     <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"وقتی «مدیر باتری» برنامه‌هایی را شناسایی می‌کند که شارژ باتری را تخلیه می‌کنند می‌توانید انتخاب کنید آن برنامه‌ها را محدود کنید. ممکن است برنامه‌های محدودشده عملکرد درستی نداشته باشند و اعلان‌ها با تأخیر همراه باشد."</string>
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"وقتی «مدیر باتری» برنامه‌هایی را شناسایی می‌کند که شارژ باتری را تخلیه می‌کنند می‌توانید انتخاب کنید آن برنامه‌ها را محدود کنید. ممکن است برنامه‌های محدودشده عملکرد درستی نداشته باشند و اعلان‌ها با تأخیر همراه باشد."</string>
     <string name="restricted_app_title" msgid="4957644700640127606">"برنامه‌های محدودشده"</string>
-    <!-- no translation found for restricted_app_summary (7609538735465186040) -->
+    <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
+      <item quantity="one">محدود کردن مصرف باتری برای %1$d برنامه</item>
+      <item quantity="other">محدود کردن مصرف باتری برای %1$d برنامه</item>
+    </plurals>
     <string name="restricted_app_time_summary" msgid="5205881852523135226">"محدودشده در: <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"این برنامه‌ها در پس‌زمینه از باتری استفاده می‌کند. ممکن است برنامه‌های محدودشده درست کار نکند و اعلان‌هایشان با تأخیر همراه باشد."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"استفاده از مدیر باتری"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"تخلیه شدن شارژ باتری توسط برنامه‌ها شناسایی شود"</string>
     <string name="battery_manager_on" msgid="5626982529932239656">"روشن / تخلیه شدن شارژ باتری توسط برنامه‌ها شناسایی می‌شود"</string>
     <string name="battery_manager_off" msgid="9114027524232450371">"خاموش"</string>
-    <!-- no translation found for battery_manager_app_restricted (6721813588142691216) -->
+    <plurals name="battery_manager_app_restricted" formatted="false" msgid="6721813588142691216">
+      <item quantity="one">%1$d برنامه محدود شد</item>
+      <item quantity="other">%1$d برنامه محدود شد</item>
+    </plurals>
     <string name="battery_header_title_alternate" msgid="1161081105263761743">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">%</xliff:g>"</font></small>""</string>
     <string name="dialog_stop_title" msgid="4354544579084434590">"برنامه متوقف شود؟"</string>
     <string name="dialog_stop_message" product="default" msgid="1361660290824872555">"تلفنتان نمی‌تواند به‌طور عادی میزان استفاده از شارژ باتری را مدیریت کند، زیرا <xliff:g id="APP">%1$s</xliff:g> آن را بیدار نگه می‌دارد.\n\nبرای برطرف کردن این مشکل، می‌توانید برنامه را متوقف کنید.\n\nاگر مشکل ادامه داشت، ممکن است لازم باشد برنامه را حذف نصب کنید تا عملکرد باتری بهبود یابد."</string>
@@ -2710,8 +2800,7 @@
     <string name="trusted_credentials_user_tab" msgid="4368592735325224612">"کاربر"</string>
     <string name="trusted_credentials_disable_label" msgid="2495224975071022858">"غیرفعال کردن"</string>
     <string name="trusted_credentials_enable_label" msgid="8991649977058280799">"فعال کردن"</string>
-    <!-- no translation found for trusted_credentials_remove_label (530728557358501000) -->
-    <skip />
+    <string name="trusted_credentials_remove_label" msgid="530728557358501000">"حذف کردن"</string>
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"اعتماد"</string>
     <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"گواهی CA سیستم فعال شود؟"</string>
     <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"گواهی CA سیستم غیرفعال شود؟"</string>
@@ -2734,11 +2823,23 @@
     <string name="additional_system_update_settings_list_item_title" msgid="8674710454802166341">"به‌روزرسانی‌های دیگر سیستم"</string>
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"ممکن است شبکه پایش شود"</string>
     <string name="done_button" msgid="7652373284597307008">"تمام"</string>
-    <!-- no translation found for ssl_ca_cert_dialog_title (7323708984446517980) -->
-    <!-- no translation found for ssl_ca_cert_info_message_device_owner (9046046586061880100) -->
-    <!-- no translation found for ssl_ca_cert_info_message (8271858091418779584) -->
+    <plurals name="ssl_ca_cert_dialog_title" formatted="false" msgid="7323708984446517980">
+      <item quantity="one">اعتماد یا حذف گواهی</item>
+      <item quantity="other">اعتماد یا حذف گواهی‌ها</item>
+    </plurals>
+    <plurals name="ssl_ca_cert_info_message_device_owner" formatted="false" msgid="9046046586061880100">
+      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> مرجع‌های صدور گواهی در دستگاهتان نصب کرده است که ممکن است به او اجازه دهند فعالیت‌های کاری دستگاه، از جمله ایمیل‌ها، برنامه‌ها و وب‌سایت‌های ایمن را کنترل کند.\n\nبرای کسب اطلاعات بیشتر درباره این گواهی‌ها، با سرپرستتان تماس بگیرید.</item>
+      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> مرجع‌های صدور گواهی در دستگاهتان نصب کرده است که ممکن است به او اجازه دهند فعالیت‌های کاری دستگاه، از جمله ایمیل‌ها، برنامه‌ها و وب‌سایت‌های ایمن را کنترل کند.\n\nبرای کسب اطلاعات بیشتر درباره این گواهی‌ها، با سرپرستتان تماس بگیرید.</item>
+    </plurals>
+    <plurals name="ssl_ca_cert_info_message" formatted="false" msgid="8271858091418779584">
+      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> مرجع صدور گواهی‌ای برای نمایه کاری شما نصب کرده است که ممکن است به او اجازه دهد فعالیت‌های کاری شبکه، از جمله ایمیل‌ها، برنامه‌ها و وب‌سایت‌های ایمن را کنترل کند.\n\nبرای کسب اطلاعات بیشتر درباره این گواهی‌ها، با سرپرستتان تماس بگیرید.</item>
+      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> مرجع صدور گواهی‌ای برای نمایه کاری شما نصب کرده است که ممکن است به او اجازه دهد فعالیت‌های کاری شبکه، از جمله ایمیل‌ها، برنامه‌ها و وب‌سایت‌های ایمن را کنترل کند.\n\nبرای کسب اطلاعات بیشتر درباره این گواهی‌ها، با سرپرستتان تماس بگیرید.</item>
+    </plurals>
     <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"شخص ثالتی می‌تواند روی فعالیت‌های شبکه شما ازجمله ایمیل‌ها، برنامه‌ها و وب‌سایت‌های ایمن نظارت داشته باشد.\n\nاعتبارنامه مطمئن نصب‌شده در دستگاهتان این کار را شدنی می‌کند."</string>
-    <!-- no translation found for ssl_ca_cert_settings_button (3227175122066058245) -->
+    <plurals name="ssl_ca_cert_settings_button" formatted="false" msgid="3227175122066058245">
+      <item quantity="one">بررسی گواهی</item>
+      <item quantity="other">بررسی گواهی‌ها</item>
+    </plurals>
     <string name="user_settings_title" msgid="7917598650933179545">"چندین کاربر"</string>
     <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"با افزودن کاربران جدید، از دستگاهتان به‌صورت مشترک استفاده کنید. هر کاربر فضایی شخصی برای سفارشی کردن صفحه‌های اصلی، حساب‌ها، برنامه‌ها، تنظیمات و موارد دیگر در دستگاه شما دارد."</string>
     <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"با افزودن کاربران جدید، از رایانه لوحی‌تان به‌صورت مشترک استفاده کنید. هر کاربر فضایی شخصی برای سفارشی کردن صفحه‌های اصلی، حساب‌ها، برنامه‌ها، تنظیمات و موارد دیگر در رایانه لوحی شما دارد."</string>
@@ -2919,7 +3020,10 @@
     <string name="sim_selection_required_pref" msgid="8738591348923992419">"انتخاب مورد نیاز است"</string>
     <string name="sim_selection_channel_title" msgid="5671915549529226023">"انتخاب سیم‌کارت"</string>
     <string name="dashboard_title" msgid="3343056553551876215">"تنظیمات"</string>
-    <!-- no translation found for settings_suggestion_header_summary_hidden_items (4475734332610696843) -->
+    <plurals name="settings_suggestion_header_summary_hidden_items" formatted="false" msgid="4475734332610696843">
+      <item quantity="one">نمایش %d مورد پنهان</item>
+      <item quantity="other">نمایش %d مورد پنهان</item>
+    </plurals>
     <string name="network_dashboard_title" msgid="8288134139584687806">"شبکه و اینترنت"</string>
     <string name="network_dashboard_summary_mobile" msgid="5560545061217580626">"دستگاه همراه"</string>
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"مصرف داده"</string>
@@ -2987,7 +3091,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"پرداخت کردن، ضربه زدن، پرداخت‌ها"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"پشتیبان‌گیری، پشتیبان"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"اشاره"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"چهره، باز کردن قفل، احراز هویت، ورود به سیستم"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"چهره، بازگشایی، احراز هویت، ورود به سیستم"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei، ‏meid،‏ min، نسخه prl، ‏imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"شبکه، وضعیت شبکه همراه، وضعیت سرویس، شدت سیگنال، نوع شبکه همراه، فراگردی، iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"شماره سریال، نسخه سخت‌افزار"</string>
@@ -3053,7 +3157,10 @@
     <string name="live_caption_title" msgid="7926591158657997051">"برنگاشت زنده"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"رسانه زیرنویس خودکار"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"هرگز"</string>
-    <!-- no translation found for zen_mode_settings_summary_on (6061723291126091396) -->
+    <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
+      <item quantity="one"><xliff:g id="ON_COUNT">%d</xliff:g> مورد فعال شد</item>
+      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> مورد فعال شد</item>
+    </plurals>
     <string name="zen_mode_settings_title" msgid="3425263414594779244">"مزاحم نشوید"</string>
     <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"روشن کردن «مزاحم نشوید»"</string>
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"استثناها"</string>
@@ -3132,9 +3239,15 @@
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"روشن"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"هربار پرسیده شود (مگراینکه به‌صورت خودکار روشن شود)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"تا وقتی آن را خاموش کنید (مگراینکه به‌صورت خودکار روشن شود)"</string>
-    <!-- no translation found for zen_mode_duration_summary_time_hours (8872000022033647725) -->
+    <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
+      <item quantity="one"><xliff:g id="NUM_HOURS">%d</xliff:g> ساعت (مگراینکه به‌صورت خودکار روشن شود)</item>
+      <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> ساعت (مگراینکه به‌صورت خودکار روشن شود)</item>
+    </plurals>
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> دقیقه (مگراینکه به‌صورت خودکار روشن شود)"</string>
-    <!-- no translation found for zen_mode_sound_summary_summary_off_info (8527428833487709278) -->
+    <plurals name="zen_mode_sound_summary_summary_off_info" formatted="false" msgid="8527428833487709278">
+      <item quantity="one"><xliff:g id="ON_COUNT">%d</xliff:g> زمان‌بندی می‌تواند به‌طور خودکار روشن شود</item>
+      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> زمان‌بندی می‌تواند به‌طور خودکار روشن شود</item>
+    </plurals>
     <string name="zen_category_behavior" msgid="7695750848671443532">"صامت کردن دستگاه، جز در موارد استثنا"</string>
     <string name="zen_category_exceptions" msgid="2139670640033601899">"استثناها"</string>
     <string name="zen_category_schedule" msgid="989629666210114164">"زمان‌بندی"</string>
@@ -3243,7 +3356,10 @@
     <string name="manage_notification_access_title" msgid="5348743662189787547">"دسترسی به اعلان"</string>
     <string name="work_profile_notification_access_blocked_summary" msgid="8148871282484870576">"دسترسی به اعلان‌های نمایه کاری مسدود شده است"</string>
     <string name="manage_notification_access_summary_zero" msgid="236809421271593016">"برنامه‌ها نمی‌توانند اعلان‌ها را بخوانند"</string>
-    <!-- no translation found for manage_notification_access_summary_nonzero (8496218948429646792) -->
+    <plurals name="manage_notification_access_summary_nonzero" formatted="false" msgid="8496218948429646792">
+      <item quantity="one">%d برنامه می‌تواند اعلان‌ها را بخواند</item>
+      <item quantity="other">%d برنامه می‌تواند اعلان‌ها را بخواند</item>
+    </plurals>
     <string name="notification_assistant_title" msgid="8216604031352764011">"دستیار اعلان"</string>
     <string name="no_notification_assistant" msgid="9140123568386413264">"دستیار وجود ندارد"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"هیچ برنامه نصب‌شده‌ای دسترسی به اعلان را درخواست نکرده است."</string>
@@ -3276,12 +3392,21 @@
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"طبق درخواست شما، Android این گروه از اعلان‌ها را مسدود می‌کند تا در این دستگاه نشان داده نشوند"</string>
     <string name="notification_channels" msgid="956764228116145956">"دسته‌ها"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"موارد دیگر"</string>
-    <!-- no translation found for notification_group_summary (3744856747513344999) -->
+    <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> دسته</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> دسته</item>
+    </plurals>
     <string name="no_channels" msgid="8884254729302501652">"این برنامه هیچ اعلانی پست نکرده است"</string>
     <string name="app_settings_link" msgid="8465287765715790984">"تنظیمات بیشتر در برنامه"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"برای همه برنامه‌ها روشن‌ است"</string>
-    <!-- no translation found for app_notification_listing_summary_others (1161774065480666519) -->
-    <!-- no translation found for deleted_channels (7741359084299446208) -->
+    <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
+      <item quantity="one">برای <xliff:g id="COUNT_1">%d</xliff:g> برنامه خاموش است</item>
+      <item quantity="other">برای <xliff:g id="COUNT_1">%d</xliff:g> برنامه خاموش است</item>
+    </plurals>
+    <plurals name="deleted_channels" formatted="false" msgid="7741359084299446208">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> دسته حذف‌ شد</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> دسته حذف‌ شد</item>
+    </plurals>
     <string name="notification_toggle_on" msgid="5119816745741139542">"روشن"</string>
     <string name="notification_toggle_off" msgid="5289843670514922751">"خاموش"</string>
     <string name="app_notification_block_title" msgid="7898269373875294367">"مسدود کردن همه"</string>
@@ -3350,7 +3475,10 @@
     <string name="zen_mode_calls_footer" msgid="6319824006810688433">"برای اطمینان از ایجاد صدا هنگام دریافت تماس‌های مجاز، بررسی کنید دستگاهتان برای به صدا در آوردن زنگ، لرزش یا حالت بی‌صدا تنظیم شده باشد."</string>
     <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"تماس‌های ورودی برای «<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>» مسدود می‌شود. برای اینکه به دوستان و خانواده و سایر مخاطبین امکان دسترسی به خودتان بدهید، می‌توانید تنظیمات را تغییر دهید."</string>
     <string name="zen_mode_starred_contacts_title" msgid="7099621384597127058">"مخاطبین ستاره‌دار"</string>
-    <!-- no translation found for zen_mode_starred_contacts_summary_additional_contacts (1904181007981570805) -->
+    <plurals name="zen_mode_starred_contacts_summary_additional_contacts" formatted="false" msgid="1904181007981570805">
+      <item quantity="one"><xliff:g id="NUM_PEOPLE">%d</xliff:g> نفر دیگر</item>
+      <item quantity="other"><xliff:g id="NUM_PEOPLE">%d</xliff:g> نفر دیگر</item>
+    </plurals>
     <string name="zen_mode_messages" msgid="2908722562188394107">"اجازه به پیامک‌ها"</string>
     <string name="zen_mode_messages_footer" msgid="5048951937714668561">"برای اینکه ببینید پیام‌های مجاز صدا دارند، ببینید دستگاهتان روی زنگ زدن، یا لرزش، یا حالت بی‌صدا تنظیم کرده‌اید یا نه."</string>
     <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"پیام‌های نوشتاری ورودی به‌مدت «<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>» مسدود می‌شود. برای اینکه به دوستان و خانواده و سایر مخاطبین امکان دسترسی به خودتان بدهید، می‌توانید تنظیمات را تغییر دهید."</string>
@@ -3375,7 +3503,10 @@
     <string name="zen_mode_events" msgid="5784076928339534984">"مجاز کردن رویدادها"</string>
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"مجاز کردن برنامه‌ها برای لغو"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"برنامه‌های مستثنا"</string>
-    <!-- no translation found for zen_mode_bypassing_apps_subtext (8723144434730871572) -->
+    <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
+      <item quantity="one">اعلان‌های <xliff:g id="NUMBER">%1$d</xliff:g> برنامه می‌تواند «مزاحم نشوید» را نادیده بگیرد</item>
+      <item quantity="other">اعلان‌های <xliff:g id="NUMBER">%1$d</xliff:g> برنامه می‌تواند «مزاحم نشوید» را نادیده بگیرد</item>
+    </plurals>
     <string name="zen_mode_events_list" msgid="8578102701815684873">"رویدادها"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"همه"</string>
     <string name="zen_mode_contacts_callers" msgid="3116829245339716399">"مخاطبین"</string>
@@ -3395,8 +3526,14 @@
     <string name="zen_mode_end_time" msgid="3188578493250909972">"زمان پایان"</string>
     <string name="zen_mode_end_time_next_day_summary_format" msgid="1598612215612648214">"<xliff:g id="FORMATTED_TIME">%s</xliff:g> روز بعد"</string>
     <string name="zen_mode_summary_alarms_only_indefinite" msgid="2470936648971337656">"تغییر به «فقط هشدارها» به‌صورت نامحدود"</string>
-    <!-- no translation found for zen_mode_summary_alarms_only_by_minute (7192429395424304796) -->
-    <!-- no translation found for zen_mode_summary_alarms_only_by_hour (4198430986970707666) -->
+    <plurals name="zen_mode_summary_alarms_only_by_minute" formatted="false" msgid="7192429395424304796">
+      <item quantity="one">تغییر در هشدارها تنها به مدت <xliff:g id="DURATION">%1$d</xliff:g> دقیقه (تا <xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g>)</item>
+      <item quantity="other">تغییر در هشدارها تنها به مدت <xliff:g id="DURATION">%1$d</xliff:g> دقیقه (تا <xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g>)</item>
+    </plurals>
+    <plurals name="zen_mode_summary_alarms_only_by_hour" formatted="false" msgid="4198430986970707666">
+      <item quantity="one">تغییر در هشدارها تنها به مدت <xliff:g id="DURATION">%1$d</xliff:g> ساعت تا <xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g></item>
+      <item quantity="other">تغییر در هشدارها تنها به مدت <xliff:g id="DURATION">%1$d</xliff:g> ساعت تا <xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g></item>
+    </plurals>
     <string name="zen_mode_summary_alarms_only_by_time" msgid="2462898862757904560">"تغییر به «فقط هشدارها» تا <xliff:g id="FORMATTEDTIME">%1$s</xliff:g>"</string>
     <string name="zen_mode_summary_always" msgid="2703276042913200837">"تغییر در «همیشه وقفه»"</string>
     <string name="zen_mode_screen_on" msgid="7098470659072167219">"وقتی صفحه‌نمایش روشن است"</string>
@@ -3469,10 +3606,22 @@
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"سطح %d"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
-    <!-- no translation found for notifications_categories_off (7173464913755425293) -->
-    <!-- no translation found for permissions_summary (2750853128045095961) -->
-    <!-- no translation found for runtime_permissions_summary (3166036683687471356) -->
-    <!-- no translation found for runtime_permissions_additional_count (2068102378805218668) -->
+    <plurals name="notifications_categories_off" formatted="false" msgid="7173464913755425293">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> دسته خاموش شد</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> دسته خاموش شد</item>
+    </plurals>
+    <plurals name="permissions_summary" formatted="false" msgid="2750853128045095961">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> مجوز اعطا شده</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> مجوز اعطا شده</item>
+    </plurals>
+    <plurals name="runtime_permissions_summary" formatted="false" msgid="3166036683687471356">
+      <item quantity="one">‏<xliff:g id="COUNT_2">%d</xliff:g> از <xliff:g id="COUNT_3">%d</xliff:g> اجازه اعطا شد</item>
+      <item quantity="other">‏<xliff:g id="COUNT_2">%d</xliff:g> از <xliff:g id="COUNT_3">%d</xliff:g> اجازه اعطا شد</item>
+    </plurals>
+    <plurals name="runtime_permissions_additional_count" formatted="false" msgid="2068102378805218668">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> مجوز اضافی</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> مجوز اضافی</item>
+    </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"اجازه‌ای داده نشده"</string>
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"اجازه‌ای درخواست نشده"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"همه برنامه‌ها"</string>
@@ -3498,7 +3647,10 @@
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"باز کردن <xliff:g id="DOMAIN">%s</xliff:g>"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"باز کردن <xliff:g id="DOMAIN">%s</xliff:g> و نشانی‌های وب دیگر"</string>
     <string name="domain_urls_apps_summary_off" msgid="1110203970617922543">"برنامه‌ای برای باز کردن پیوندهای پشتیبانی‌شده موجود نیست"</string>
-    <!-- no translation found for domain_urls_apps_summary_on (3571309605151815405) -->
+    <plurals name="domain_urls_apps_summary_on" formatted="false" msgid="3571309605151815405">
+      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> برنامه برای باز کردن پیوندهای پشتیبانی‌شده</item>
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> برنامه برای باز کردن پیوندهای پشتیبانی‌شده</item>
+    </plurals>
     <string name="app_link_open_always" msgid="7723587434377688415">"در این برنامه باز شود"</string>
     <string name="app_link_open_ask" msgid="4054678686331517561">"هر بار پرسیده شود"</string>
     <string name="app_link_open_never" msgid="5774359835242754350">"در این برنامه باز نشود"</string>
@@ -3539,8 +3691,14 @@
     <string name="additional_battery_info" msgid="6877663897819271203">"هشدارهای استفاده"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"نمایش اطلاعات کامل درباره مصرف دستگاه"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"نمایش مصرف برنامه"</string>
-    <!-- no translation found for power_high_usage_summary (4658343710126205199) -->
-    <!-- no translation found for power_high_usage_title (63134064262760835) -->
+    <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
+      <item quantity="one"><xliff:g id="NUMBER">%2$d</xliff:g> برنامه رفتار غیرعادی دارند</item>
+      <item quantity="other"><xliff:g id="NUMBER">%2$d</xliff:g> برنامه رفتار غیرعادی دارند</item>
+    </plurals>
+    <plurals name="power_high_usage_title" formatted="false" msgid="63134064262760835">
+      <item quantity="one">برنامه‌ها باتری را خالی می‌کنند</item>
+      <item quantity="other">برنامه‌ها باتری را خالی می‌کنند</item>
+    </plurals>
     <string name="high_power_filter_on" msgid="5294209328473386403">"بهینه‌نشده"</string>
     <string name="high_power_on" msgid="3573501822510580334">"بهینه نشده"</string>
     <string name="high_power_off" msgid="5906679734326490426">"بهینه‌سازی مصرف باتری"</string>
@@ -3614,7 +3772,10 @@
     <string name="average_used" msgid="3022736210190754669">"مصرف متوسط (%)"</string>
     <string name="free_memory" msgid="4758919141048544927">"آزاد"</string>
     <string name="memory_usage_apps" msgid="2839241373381152354">"حافظه مصرف شده توسط برنامه‌ها"</string>
-    <!-- no translation found for memory_usage_apps_summary (1235024908546944704) -->
+    <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
+      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> برنامه در <xliff:g id="DURATION_1">%2$s</xliff:g> گذشته از حافظه استفاده کرده‌اند</item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> برنامه در <xliff:g id="DURATION_1">%2$s</xliff:g> گذشته از حافظه استفاده کرده‌اند</item>
+    </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"تعداد دفعات اجرا"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"حداکثر مصرف"</string>
     <string name="no_data_usage" msgid="903383745620135746">"هیچ داده‌ای مصرف نشده است"</string>
@@ -3683,9 +3844,11 @@
     <string name="keyboard_disconnected" msgid="3068615097201531871">"متصل نیست"</string>
     <string name="data_usage_summary_format" msgid="7788095271598602797">"<xliff:g id="AMOUNT">%1$s</xliff:g> داده استفاده‌شده"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"<xliff:g id="AMOUNT">^1</xliff:g> داده مصرفی در Wi‑Fi"</string>
-    <!-- no translation found for notification_summary (761061343339229103) -->
-    <!-- no translation found for notification_summary_none (5003043219430054784) -->
-    <skip />
+    <plurals name="notification_summary" formatted="false" msgid="761061343339229103">
+      <item quantity="one">خاموش برای <xliff:g id="COUNT">%d</xliff:g> برنامه</item>
+      <item quantity="other">خاموش برای <xliff:g id="COUNT">%d</xliff:g> برنامه</item>
+    </plurals>
+    <string name="notification_summary_none" msgid="5003043219430054784">"برای همه برنامه‌ها روشن‌ است"</string>
     <string name="apps_summary" msgid="8355759446490212195">"<xliff:g id="COUNT">%1$d</xliff:g> برنامه نصب‌شده"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"۲۴ برنامه نصب شده است"</string>
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> استفاده‌شده - <xliff:g id="FREE_SPACE">%2$s</xliff:g> آزاد"</string>
@@ -3747,8 +3910,14 @@
     <string name="suggestions_title" msgid="5923757323945800980">"پیشنهادات"</string>
     <string name="suggestions_summary" msgid="1020388234814391540">"+<xliff:g id="ID_1">%1$d</xliff:g>"</string>
     <string name="suggestions_more_title" msgid="2074600543626216244">"+<xliff:g id="ID_1">%1$d</xliff:g> مورد دیگر"</string>
-    <!-- no translation found for suggestions_collapsed_title (2039648015513016616) -->
-    <!-- no translation found for suggestions_collapsed_summary (3875961424499822336) -->
+    <plurals name="suggestions_collapsed_title" formatted="false" msgid="2039648015513016616">
+      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> پیشنهاد</item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> پیشنهاد</item>
+    </plurals>
+    <plurals name="suggestions_collapsed_summary" formatted="false" msgid="3875961424499822336">
+      <item quantity="one">+<xliff:g id="COUNT">%1$d</xliff:g> پیشنهاد</item>
+      <item quantity="other">+<xliff:g id="COUNT">%1$d</xliff:g> پیشنهاد</item>
+    </plurals>
     <string name="suggestion_remove" msgid="8139144680393078781">"حذف"</string>
     <string name="color_temperature" msgid="3059566380033851354">"دمای رنگ سرد"</string>
     <string name="color_temperature_desc" msgid="136940760965483490">"استفاده از رنگ‌های سردتر نمایشگر"</string>
@@ -3773,7 +3942,10 @@
     <string name="cell_data_warning_and_limit" msgid="3846150001253927594">"<xliff:g id="ID_1">^1</xliff:g> هشدار داده / <xliff:g id="ID_2">^2</xliff:g> حدمجاز داده"</string>
     <string name="billing_cycle_fragment_summary" msgid="4926047002107855543">"روز <xliff:g id="ID_1">%1$s</xliff:g> هر ماه"</string>
     <string name="network_restrictions" msgid="196294262243618198">"محدودیت‌های شبکه"</string>
-    <!-- no translation found for network_restrictions_summary (1664494781594839837) -->
+    <plurals name="network_restrictions_summary" formatted="false" msgid="1664494781594839837">
+      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> محدودیت</item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> محدودیت</item>
+    </plurals>
     <string name="operator_warning" msgid="4676042739221117031">"روش شرکت مخابراتی برای اندازه‌گیری مصرف داده ممکن است با روش دستگاهتان متفاوت باشد."</string>
     <string name="data_used_template" msgid="761605393453849477">"<xliff:g id="ID_1">%1$s</xliff:g> مصرف شده"</string>
     <string name="set_data_warning" msgid="8115980184415563941">"تنظیم هشدار داده"</string>
@@ -3784,14 +3956,20 @@
     <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> در <xliff:g id="ID_2">%2$s</xliff:g> مصرف شد"</string>
     <string name="configure" msgid="8232696842838580549">"پیکربندی"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"برنامه‌های دیگری که در استفاده گنجانده شده"</string>
-    <!-- no translation found for data_saver_unrestricted_summary (6046013861315713697) -->
+    <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
+      <item quantity="one">هنگام روشن بودن «صرفه‌جویی داده»، <xliff:g id="COUNT">%1$d</xliff:g> برنامه می‌تواند از داده نامحدود استفاده کند</item>
+      <item quantity="other">هنگام روشن بودن «صرفه‌جویی داده»، <xliff:g id="COUNT">%1$d</xliff:g> برنامه می‌تواند از داده نامحدود استفاده کند</item>
+    </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"داده اصلی"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"داده Wi‑Fi"</string>
     <string name="data_used" msgid="1063553292806661784">"<xliff:g id="ID_1">^1</xliff:g> مصرف‌شده"</string>
     <string name="data_used_formatted" msgid="9150356955895106822">"<xliff:g id="ID_1">^1</xliff:g> <xliff:g id="ID_2">^2</xliff:g> مصرف شده است"</string>
     <string name="data_overusage" msgid="1570432641791021533">"<xliff:g id="ID_1">^1</xliff:g> بیش از محدودیت داده"</string>
     <string name="data_remaining" msgid="2048075003610039742">"<xliff:g id="ID_1">^1</xliff:g> باقی مانده است"</string>
-    <!-- no translation found for billing_cycle_days_left (148479292242207382) -->
+    <plurals name="billing_cycle_days_left" formatted="false" msgid="148479292242207382">
+      <item quantity="one">%d روز باقی‌مانده است</item>
+      <item quantity="other">%d روز باقی‌مانده است</item>
+    </plurals>
     <string name="billing_cycle_none_left" msgid="1329748082366602901">"هیچ زمانی باقی نمانده است"</string>
     <string name="billing_cycle_less_than_one_day_left" msgid="855800570587142182">"کمتر از ۱ روز باقی مانده است"</string>
     <string name="carrier_and_update_text" msgid="4100603877929297103">"<xliff:g id="ID_2">^2</xliff:g> قبل <xliff:g id="ID_1">^1</xliff:g> به‌روزرسانی کرد"</string>
@@ -3868,7 +4046,10 @@
     <string name="overlay_option_device_default" msgid="165508753381657697">"پیش‌فرض دستگاه"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"همپوشانی اعمال نشد"</string>
     <string name="special_access" msgid="1453926335914696206">"دسترسی ویژه برنامه"</string>
-    <!-- no translation found for special_access_summary (5182092345063909346) -->
+    <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
+      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> برنامه می‌تواند از داده نامحدود استفاده کند</item>
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> برنامه می‌تواند از داده نامحدود استفاده کند</item>
+    </plurals>
     <string name="special_access_more" msgid="7086690625048471400">"مشاهده محتوای بیشتر"</string>
     <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"واقعاً داده‌های کاربر پاک شود و به رمزگذاری فایل تبدیل شود؟"</string>
     <string name="button_confirm_convert_fbe" msgid="419832223125147297">"پاک کردن و تبدیل کردن"</string>
@@ -3899,9 +4080,18 @@
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"تقویم در همه نمایه‌ها"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"نمایش رویدادهای کاری در تقویم شخصی"</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"سازمانتان اجازه نمی‌دهد برنامه‌های شخصی به تقویم کاری‌تان دسترسی یابند"</string>
-    <!-- no translation found for hours (135936773984899873) -->
-    <!-- no translation found for minutes (4624073557955858160) -->
-    <!-- no translation found for seconds (6942674168513274363) -->
+    <plurals name="hours" formatted="false" msgid="135936773984899873">
+      <item quantity="one"><xliff:g id="NUMBER">%s</xliff:g> ساعت</item>
+      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> ساعت</item>
+    </plurals>
+    <plurals name="minutes" formatted="false" msgid="4624073557955858160">
+      <item quantity="one"><xliff:g id="NUMBER">%s</xliff:g> دقیقه</item>
+      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> دقیقه</item>
+    </plurals>
+    <plurals name="seconds" formatted="false" msgid="6942674168513274363">
+      <item quantity="one">‏<xliff:g id="NUMBER">%s</xliff:g> ثانیه</item>
+      <item quantity="other">‏<xliff:g id="NUMBER">%s</xliff:g> ثانیه</item>
+    </plurals>
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"مدیریت حافظه"</string>
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"برای کمک به خالی کردن فضای ذخیره‌سازی، مدیر ذخیره‌سازی عکس‌ها و ویدیوهای پشتیبان‌گیری‌شده را از دستگاهتان پاک می‌کند."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"پاک کردن عکس‌ها و ویدئوها"</string>
@@ -3914,8 +4104,7 @@
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"اشاره‌های سریع برای کنترل تلفن"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"اشاره‌های سریع برای کنترل رایانه لوحی"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"اشاره‌های سریع برای کنترل دستگاه"</string>
-    <!-- no translation found for double_tap_power_for_camera_title (5480829329052517484) -->
-    <skip />
+    <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"رفتن به دوربین"</string>
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"برای باز کردن سریع دوربین، دکمه روشن/خاموش را دو بار فشار دهید. در همه صفحه‌ها کار می‌کند."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"باز کردن سریع دوربین"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"چرخاندن دوربین"</string>
@@ -3924,7 +4113,7 @@
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"برای رفتن به یک برنامه دیگر، انگشتتان را روی دکمه اصلی به بالا تند بکشید. برای دیدن همه برنامه‌ها، انگشتتان را دوباره تند به بالا بکشید. دیگر در سمت چپ پایین صفحه‌نمایش، دکمه نمای کلی ندارید."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"دکمه صفحه اصلی جدید را امتحان کنید"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"برای تغییر برنامه‌ها، اشاره جدید را روشن کنید"</string>
-    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"دو ضربه سریع برای بررسی تلفن"</string>
+    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"دو ضربه برای چک کردن تلفن"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"برای بررسی رایانه لوحی، دو ضربه سریع بزنید"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"برای بررسی دستگاه، دو ضربه سریع بزنید"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"برای بررسی زمان، اعلان‌ها و اطلاعات دیگر، روی صفحه‌نمایش دو ضربه سریع بزنید."</string>
@@ -3935,7 +4124,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"برای بررسی زمان، اعلان‌ها و اطلاعات دیگر، تلفنتان را انتخاب کنید"</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"برای بررسی زمان، اعلان‌ها و اطلاعات دیگر، رایانه لوحی‌تان را انتخاب کنید"</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"برای بررسی زمان، اعلان‌ها و اطلاعات دیگر، دستگاهتان را انتخاب کنید"</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"ضربه زدن برای بررسی تلفن"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"ضربه برای چک کردن تلفن"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"ضربه زدن برای بررسی رایانه لوحی"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"ضربه زدن برای بررسی دستگاه"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"برای بررسی زمان، اعلان‌ها و اطلاعات دیگر، روی صفحه‌نمایش ضربه بزنید."</string>
@@ -3985,12 +4174,18 @@
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"هیچ‌کدام"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"برنامه‌ها نصب‌‌ شدند"</string>
     <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"تعداد برنامه‌ها تخمینی است و ممکن است شامل برنامه‌های نصب‌شده از خارج از «فروشگاه Play» نباشد."</string>
-    <!-- no translation found for enterprise_privacy_number_packages_lower_bound (5161417161943060602) -->
+    <plurals name="enterprise_privacy_number_packages_lower_bound" formatted="false" msgid="5161417161943060602">
+      <item quantity="one">حداقل <xliff:g id="COUNT_1">%d</xliff:g> برنامه</item>
+      <item quantity="other">حداقل <xliff:g id="COUNT_1">%d</xliff:g> برنامه</item>
+    </plurals>
     <string name="enterprise_privacy_location_access" msgid="110406267468274216">"مجوزهای دسترسی به موقعیت مکانی"</string>
     <string name="enterprise_privacy_microphone_access" msgid="4586428105675460207">"مجوزهای دسترسی به میکروفون"</string>
     <string name="enterprise_privacy_camera_access" msgid="2366392786153103482">"مجوزهای دسترسی به دوربین"</string>
     <string name="enterprise_privacy_enterprise_set_default_apps" msgid="6142937923758931242">"برنامه‌های پیش‌فرض"</string>
-    <!-- no translation found for enterprise_privacy_number_packages (1480745164313890415) -->
+    <plurals name="enterprise_privacy_number_packages" formatted="false" msgid="1480745164313890415">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> برنامه</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> برنامه</item>
+    </plurals>
     <string name="enterprise_privacy_input_method" msgid="5885916325874284011">"صفحه‌کلید پیش‌فرض"</string>
     <string name="enterprise_privacy_input_method_name" msgid="439610095825218563">"تنظیم روی <xliff:g id="APP_LABEL">%s</xliff:g>"</string>
     <string name="enterprise_privacy_always_on_vpn_device" msgid="2022700916516458213">"«VPN همیشه روشن» روشن شد"</string>
@@ -4000,22 +4195,37 @@
     <string name="enterprise_privacy_ca_certs_device" msgid="7715658848470643878">"اطلاعات کاربری مطمئن"</string>
     <string name="enterprise_privacy_ca_certs_personal" msgid="1356447417193483802">"اطلاعات کاربری مطمئن در نمایه شخصی شما"</string>
     <string name="enterprise_privacy_ca_certs_work" msgid="836419648894546893">"اطلاعات کاربری مطمئن در نمایه کاری شما"</string>
-    <!-- no translation found for enterprise_privacy_number_ca_certs (7953528945502561752) -->
+    <plurals name="enterprise_privacy_number_ca_certs" formatted="false" msgid="7953528945502561752">
+      <item quantity="one">حداقل <xliff:g id="COUNT_1">%d</xliff:g> گواهینامه مرکز صدور گواهی</item>
+      <item quantity="other">حداقل <xliff:g id="COUNT_1">%d</xliff:g> گواهینامه مرکز صدور گواهی</item>
+    </plurals>
     <string name="enterprise_privacy_lock_device" msgid="1533125067038409945">"سرپرست می‌تواند دستگاه را قفل و گذرواژه را بازنشانی کند"</string>
     <string name="enterprise_privacy_wipe_device" msgid="7555287990273929922">"سرپرست می‌تواند همه داده‌های دستگاه را پاک کند"</string>
     <string name="enterprise_privacy_failed_password_wipe_device" msgid="4101502079202483156">"ورود گذرواژه ناموفق، پیش از حذف همه اطلاعات دستگاه"</string>
     <string name="enterprise_privacy_failed_password_wipe_work" msgid="2881646286634693392">"ورود گذرواژه ناموفق، پیش از حذف داده‌های نمایه کاری"</string>
-    <!-- no translation found for enterprise_privacy_number_failed_password_wipe (562550414712223382) -->
+    <plurals name="enterprise_privacy_number_failed_password_wipe" formatted="false" msgid="562550414712223382">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> بار</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> بار</item>
+    </plurals>
     <string name="do_disclosure_generic" msgid="2925786401209052566">"این دستگاه را سازمانتان مدیریت می‌کند."</string>
     <string name="do_disclosure_with_name" msgid="3148721462670362163">"این دستگاه توسط <xliff:g id="ORGANIZATION_NAME">%s</xliff:g> مدیریت می‌شود."</string>
     <string name="do_disclosure_learn_more_separator" msgid="702345537118848010">" "</string>
     <string name="learn_more" msgid="6844160787130206258">"بیشتر بدانید"</string>
-    <!-- no translation found for default_camera_app_title (8762954032197483848) -->
+    <plurals name="default_camera_app_title" formatted="false" msgid="8762954032197483848">
+      <item quantity="one">برنامه‌های دوربین</item>
+      <item quantity="other">برنامه‌های دوربین</item>
+    </plurals>
     <string name="default_calendar_app_title" msgid="6484001237347739255">"برنامه تقویم"</string>
     <string name="default_contacts_app_title" msgid="1050372162465746272">"برنامه مخاطبین"</string>
-    <!-- no translation found for default_email_app_title (6875559046625447168) -->
+    <plurals name="default_email_app_title" formatted="false" msgid="6875559046625447168">
+      <item quantity="one">برنامه‌های کارخواه ایمیل </item>
+      <item quantity="other">برنامه‌های کارخواه ایمیل </item>
+    </plurals>
     <string name="default_map_app_title" msgid="6919751358166607185">"برنامه نقشه"</string>
-    <!-- no translation found for default_phone_app_title (7593838689002912108) -->
+    <plurals name="default_phone_app_title" formatted="false" msgid="7593838689002912108">
+      <item quantity="one">برنامه‌های تلفن</item>
+      <item quantity="other">برنامه‌های تلفن</item>
+    </plurals>
     <string name="app_names_concatenation_template_2" msgid="8267577900046506189">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>، <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>"</string>
     <string name="app_names_concatenation_template_3" msgid="5129064036161862327">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>، <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>، <xliff:g id="THIRD_APP_NAME">%3$s</xliff:g>"</string>
     <string name="storage_photos_videos" msgid="1890829312367477559">"عکس و ویدیو"</string>
@@ -4040,7 +4250,7 @@
     <string name="debug_autofill_category" msgid="6262526615416295645">"تکمیل خودکار"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"سطح گزارش‌دهی"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"حداکثر درخواست در هر جلسه"</string>
-    <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"حداکثر تعداد پایگاه‌های داده قابل مشاهده"</string>
+    <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"حداکثر مجموعه داده‌های مرئی"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"بازنشانی به مقادیر پیش‌فرض"</string>
     <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"گزینه‌های برنامه‌نویس تکمیل خودکار بازنشانی شد"</string>
     <string name="device_theme" msgid="8992291311481135893">"طرح زمینه دستگاه"</string>
@@ -4169,11 +4379,13 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"دسترسی به داده‌ها با استفاده از شبکه تلفن همراه"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"تلفن، وقتی در محدوده باشد، به‌طور خودکار به این شرکت مخابراتی جابه‌جا می‌شود"</string>
     <string name="calls_preference" msgid="2076353032705811243">"تنظیمات ترجیحی تماس‌ها"</string>
-    <!-- no translation found for sms_preference (8449270011976880) -->
-    <skip />
+    <string name="sms_preference" msgid="8449270011976880">"اولویت‌ها پیامک"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"هربار پرسیده شود"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"افزودن شبکه"</string>
-    <!-- no translation found for mobile_network_summary_count (6222822873390636020) -->
+    <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">
+      <item quantity="one"><xliff:g id="COUNT_1">%1$d</xliff:g> سیم‌کارت</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> سیم‌کارت</item>
+    </plurals>
     <string name="default_for_calls" msgid="8706651147900549897">"پیش‌فرض برای تماس‌ها"</string>
     <string name="default_for_sms" msgid="5180640397787496162">"پیش‌فرض برای پیامک"</string>
     <string name="default_for_calls_and_sms" msgid="3109837505015103510">"پیش‌فرض برای تماس‌ها و پیامک"</string>
@@ -4233,7 +4445,10 @@
     <string name="network_connection_errorstate_dialog_message" msgid="1599445930536043943">"مشکلی رخ داد. برنامه درخواست انتخاب دستگاه را لغو کرد."</string>
     <string name="network_connection_connect_successful" msgid="888912275986965748">"اتصال برقرار شد"</string>
     <string name="network_connection_request_dialog_showall" msgid="396928496030183071">"نمایش همه"</string>
-    <!-- no translation found for show_bluetooth_devices (7451733907387872891) -->
+    <plurals name="show_bluetooth_devices" formatted="false" msgid="7451733907387872891">
+      <item quantity="one"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> دستگاه متصل</item>
+      <item quantity="other"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> دستگاه متصل</item>
+    </plurals>
     <string name="no_bluetooth_devices" msgid="4338224958734305244">"هیچ دستگاه بلوتوثی وجود ندارد"</string>
     <string name="bluetooth_left_name" msgid="4393660998014637355">"چپ"</string>
     <string name="bluetooth_right_name" msgid="8356091262762973801">"راست"</string>
@@ -4253,8 +4468,7 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"این پیشنهاد حذف شود؟"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"پیشنهاد برداشته شد"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"واگرد"</string>
-    <!-- no translation found for low_storage_summary (4562224870189133400) -->
-    <skip />
+    <string name="low_storage_summary" msgid="4562224870189133400">"فضای ذخیره‌سازی کم است. <xliff:g id="PERCENTAGE">%1$s</xliff:g> استفاده‌شده - <xliff:g id="FREE_SPACE">%2$s</xliff:g> آزاد"</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"ارسال بازخورد"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"آیا می‌خوهید درباره این پیشنهاد بازخورد ارائه کنید؟"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g> در بریده‌دان کپی شد."</string>
@@ -4262,12 +4476,21 @@
     <string name="permission_bar_chart_empty_text" msgid="5893326513700540130">"هیچ برنامه‌ای از مجوزها استفاده نکرده است"</string>
     <string name="permission_bar_chart_title" msgid="874145405516650073">"پراستفاده‌ترین مجوز در ۲۴ ساعت گذشته"</string>
     <string name="permission_bar_chart_details" msgid="942094334321073927">"دیدن همه موارد در داشبورد"</string>
-    <!-- no translation found for permission_bar_chart_label (2831305719356562097) -->
+    <plurals name="permission_bar_chart_label" formatted="false" msgid="2831305719356562097">
+      <item quantity="one"><xliff:g id="NUMBER">%s</xliff:g> برنامه</item>
+      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> برنامه</item>
+    </plurals>
     <string name="accessibility_usage_title" msgid="3920601240120963611">"کاربرد دسترس‌پذیری"</string>
-    <!-- no translation found for accessibility_usage_summary (2604152087205501644) -->
+    <plurals name="accessibility_usage_summary" formatted="false" msgid="2604152087205501644">
+      <item quantity="one"><xliff:g id="SERVICE_COUNT">%1$d</xliff:g> برنامه به دستگاهتان دسترسی کامل دارد</item>
+      <item quantity="other"><xliff:g id="SERVICE_COUNT">%1$d</xliff:g> برنامه به دستگاهتان دسترسی کامل دارد</item>
+    </plurals>
     <string name="manage_app_notification" msgid="9072118910762792295">"مدیریت اعلان‌های <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="no_suggested_app" msgid="509257628685025383">"برنامه پیشنهادشده‌ای وجود ندارد"</string>
-    <!-- no translation found for notification_few_channel_count_summary (5165639207390218085) -->
+    <plurals name="notification_few_channel_count_summary" formatted="false" msgid="5165639207390218085">
+      <item quantity="one"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> کانال اعلان.</item>
+      <item quantity="other"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> کانال اعلان.</item>
+    </plurals>
     <string name="notification_many_channel_count_summary" msgid="9205641731142529086">"<xliff:g id="NOTIFICATION_CHANNEL_COUNT">%1$d</xliff:g> کانال اعلان. برای مدیریت همه آن‌ها ضربه بزنید."</string>
     <string name="recently_installed_app" msgid="6491959945747808096">"این برنامه را اخیراً نصب کرده‌اید."</string>
     <string name="media_output_panel_title" msgid="8429272102437211530">"تغییر خروجی"</string>
