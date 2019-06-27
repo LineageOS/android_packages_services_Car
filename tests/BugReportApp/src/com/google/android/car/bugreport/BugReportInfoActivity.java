@@ -18,6 +18,7 @@ package com.google.android.car.bugreport;
 import static com.google.android.car.bugreport.PackageUtils.getPackageVersion;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ public class BugReportInfoActivity extends Activity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private NotificationManager mNotificationManager;
 
     private static class BugReportInfoTask extends AsyncTask<Void, Void, List<MetaBugReport>> {
         private final WeakReference<BugReportInfoActivity> mBugReportInfoActivityWeakReference;
@@ -78,6 +80,8 @@ public class BugReportInfoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.bug_report_info_activity);
 
+        mNotificationManager = getSystemService(NotificationManager.class);
+
         mRecyclerView = findViewById(R.id.rv_bug_report_info);
         mRecyclerView.setHasFixedSize(true);
         // use a linear layout manager
@@ -95,12 +99,22 @@ public class BugReportInfoActivity extends Activity {
                 this::onStartBugReportButtonClick);
         ((TextView) findViewById(R.id.version_text_view)).setText(
                 String.format("v%s", getPackageVersion(this)));
+
+        cancelBugReportFinishedNotification();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         new BugReportInfoTask(this).execute();
+    }
+
+    /**
+     * Dismisses {@link BugReportService#BUGREPORT_FINISHED_NOTIF_ID}, otherwise the notification
+     * will stay there forever if this activity opened through the App Launcher.
+     */
+    private void cancelBugReportFinishedNotification() {
+        mNotificationManager.cancel(BugReportService.BUGREPORT_FINISHED_NOTIF_ID);
     }
 
     private void onQuitButtonClick(View view) {
