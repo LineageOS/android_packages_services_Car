@@ -264,7 +264,8 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     /** Tells whether the current foreground user is the headless system user. */
     private boolean isCurrentUserHeadlessSystemUser() {
         int currentUserId = ActivityManager.getCurrentUser();
-        return mCarUserManagerHelper.isHeadlessSystemUser() && currentUserId == 0;
+        return mCarUserManagerHelper.isHeadlessSystemUser()
+                && currentUserId == UserHandle.USER_SYSTEM;
     }
 
     /**
