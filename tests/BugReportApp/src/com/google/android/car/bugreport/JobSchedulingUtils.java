@@ -40,10 +40,15 @@ class JobSchedulingUtils {
             "android.car.bugreport.disableautoupload";
 
     /**
-     * Schedule an upload job.
-     * 1. require network connectivity
-     * 2. good quality network (large upload size)
-     * 3. persist across reboots
+     * Schedules an upload job under the current user.
+     *
+     * <p>Make sure this method is called under the primary user.
+     *
+     * <ul>
+     *   <li>require network connectivity
+     *   <li>good quality network (large upload size)
+     *   <li>persist across reboots
+     * </ul>
      */
     static void scheduleUploadJob(Context context) {
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
