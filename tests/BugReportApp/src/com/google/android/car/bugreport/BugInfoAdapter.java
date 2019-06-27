@@ -77,7 +77,6 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
     private final List<MetaBugReport> mDataset;
     private final ItemClickedListener mItemClickedListener;
 
-
     BugInfoAdapter(List<MetaBugReport> dataSet, ItemClickedListener itemClickedListener) {
         mDataset = dataSet;
         mItemClickedListener = itemClickedListener;
@@ -115,9 +114,5 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
     @Override
     public int getItemCount() {
         return mDataset.size();
-    }
-
-    public MetaBugReport getDataItemAt(int position) {
-        return mDataset.get(position);
     }
 }
