@@ -253,6 +253,12 @@ public class BugStorageProvider extends ContentProvider {
             // notify registered content observers
             getContext().getContentResolver().notifyChange(uri, null);
         }
+        Integer status = values.getAsInteger(COLUMN_STATUS);
+        // When the status is set to STATUS_UPLOAD_PENDING, we schedule an UploadJob under the
+        // current user, which is the primary user.
+        if (status != null && status.equals(Status.STATUS_UPLOAD_PENDING.getValue())) {
+            JobSchedulingUtils.scheduleUploadJob(BugStorageProvider.this.getContext());
+        }
         return rowCount;
     }
 
@@ -309,7 +315,6 @@ public class BugStorageProvider extends ContentProvider {
                     // is ready for upload
                     status = JobSchedulingUtils.uploadByDefault() ? Status.STATUS_UPLOAD_PENDING
                             : Status.STATUS_PENDING_USER_ACTION;
-                    JobSchedulingUtils.scheduleUploadJob(BugStorageProvider.this.getContext());
                 } else {
                     // We log it and ignore it
                     Log.e(TAG, "Bug report file write failed ", e);
@@ -320,6 +325,9 @@ public class BugStorageProvider extends ContentProvider {
                 values.put(COLUMN_STATUS, status.getValue());
                 db.update(BUG_REPORTS_TABLE, values, COLUMN_ID + "=?",
                         new String[]{ uri.getLastPathSegment() });
+                if (status == Status.STATUS_UPLOAD_PENDING) {
+                    JobSchedulingUtils.scheduleUploadJob(BugStorageProvider.this.getContext());
+                }
                 Log.i(TAG, "Finished adding bugreport " + path + " " + uri);
             });
         } catch (IOException e) {
