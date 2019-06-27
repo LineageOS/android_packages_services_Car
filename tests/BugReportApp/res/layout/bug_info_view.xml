@@ -60,6 +60,14 @@
             android:textColor="@android:color/holo_blue_dark"
             android:textSize="28sp" />
 
+        <Button
+            android:id="@+id/bug_info_upload_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/bug_report_user_action_button_padding"
+            android:textSize="@dimen/bug_report_button_text_size"
+            android:text="@string/bugreport_upload_button_text" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -102,6 +110,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="28sp" />
+
+        <Button
+            android:id="@+id/bug_info_move_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/bug_report_user_action_button_padding"
+            android:textSize="@dimen/bug_report_button_text_size"
+            android:text="@string/bugreport_move_button_text" />
 
     </LinearLayout>
 
