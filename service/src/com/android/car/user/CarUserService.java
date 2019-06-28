@@ -53,6 +53,8 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
     private final Context mContext;
     private final CarUserManagerHelper mCarUserManagerHelper;
     private final IActivityManager mAm;
+    private final UserManager mUserManager;
+    private final int mMaxRunningUsers;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -71,11 +73,6 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
     @GuardedBy("mLock")
     private final ArrayList<Integer> mBackgroundUsersRestartedHere = new ArrayList<>();
 
-    private final int mMaxRunningUsers;
-
-    private final UserManager mUserManager;
-
-
     private final CopyOnWriteArrayList<UserCallback> mUserCallbacks = new CopyOnWriteArrayList<>();
 
     /** Interface for callbacks related to user activities. */
@@ -87,8 +84,8 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
     }
 
     public CarUserService(
-                @Nullable Context context, @Nullable CarUserManagerHelper carUserManagerHelper,
-                IActivityManager am, int maxRunningUsers) {
+            @Nullable Context context, @Nullable CarUserManagerHelper carUserManagerHelper,
+            UserManager userManager, IActivityManager am, int maxRunningUsers) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "constructed");
         }
@@ -96,7 +93,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         mCarUserManagerHelper = carUserManagerHelper;
         mAm = am;
         mMaxRunningUsers = maxRunningUsers;
-        mUserManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
+        mUserManager = userManager;
     }
 
     @Override
@@ -160,11 +157,14 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
             // Update last active user if the switched-to user is a persistent, non-system user.
             final int currentUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
-            if (currentUser > UserHandle.USER_SYSTEM
-                        && mCarUserManagerHelper.isPersistentUser(currentUser)) {
+            if (currentUser > UserHandle.USER_SYSTEM && isPersistentUser(currentUser)) {
                 mCarUserManagerHelper.setLastActiveUser(currentUser);
             }
         }
+    }
+
+    private boolean isPersistentUser(int userId) {
+        return !mUserManager.getUserInfo(userId).isEphemeral();
     }
 
     /** Add callback to listen to user activity events. */
@@ -200,7 +200,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
                 }
             } else { // none user0
                 Integer user = userHandle;
-                if (mCarUserManagerHelper.isPersistentUser(userHandle)) {
+                if (isPersistentUser(userHandle)) {
                     // current foreground user should stay in top priority.
                     if (userHandle == mCarUserManagerHelper.getCurrentForegroundUserId()) {
                         mBackgroundUsersToRestart.remove(user);
@@ -346,13 +346,13 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
 
     private void setSystemUserRestrictions() {
         // Disable adding accounts for system user.
-        mCarUserManagerHelper.setUserRestriction(mCarUserManagerHelper.getSystemUserInfo(),
-                UserManager.DISALLOW_MODIFY_ACCOUNTS, /* enable= */ true);
+        UserHandle systemUserHandle = UserHandle.of(UserHandle.USER_SYSTEM);
+        mUserManager.setUserRestriction(
+                UserManager.DISALLOW_MODIFY_ACCOUNTS, /* value= */ true, systemUserHandle);
 
         // Disable Location service for system user.
         LocationManager locationManager =
                 (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.setLocationEnabledForUser(
-                /* enabled= */ false, UserHandle.of(UserHandle.USER_SYSTEM));
+        locationManager.setLocationEnabledForUser(/* enabled= */ false, systemUserHandle);
     }
 }

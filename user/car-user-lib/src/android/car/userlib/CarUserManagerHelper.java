@@ -281,15 +281,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Gets UserInfo for the system user.
-     *
-     * @return {@link UserInfo} for the system user.
-     */
-    public UserInfo getSystemUserInfo() {
-        return mUserManager.getUserInfo(UserHandle.USER_SYSTEM);
-    }
-
-    /**
      * Gets UserInfo for the current foreground user.
      *
      * Concept of foreground user is relevant for the multi-user deployment. Foreground user
@@ -538,17 +529,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Checks if the given user is non-ephemeral.
-     *
-     * @param userId User to check
-     * @return {@code true} if given user is persistent user.
-     */
-    public boolean isPersistentUser(int userId) {
-        UserInfo user = mUserManager.getUserInfo(userId);
-        return !user.isEphemeral();
-    }
-
-    /**
      * Returns whether this user can be removed from the system.
      *
      * @param userInfo User to be removed
@@ -600,13 +580,6 @@ public final class CarUserManagerHelper {
     }
 
     // Current process user information accessors
-
-    /**
-     * Checks whether this process is running under the system user.
-     */
-    public boolean isCurrentProcessSystemUser() {
-        return mUserManager.isSystemUser();
-    }
 
     /**
      * Checks if the calling app is running in a demo user.
@@ -702,18 +675,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Creates a new user on the system with a default user name. This user name is set during
-     * constrution. The created user would be granted admin role. Only admins can create other
-     * admins.
-     *
-     * @return Newly created admin user, null if failed to create a user.
-     */
-    @Nullable
-    public UserInfo createNewAdminUser() {
-        return createNewAdminUser(getDefaultAdminName());
-    }
-
-    /**
      * Creates a new user on the system, the created user would be granted admin role.
      * Only admins can create other admins.
      *
@@ -721,8 +682,8 @@ public final class CarUserManagerHelper {
      * @return Newly created admin user, null if failed to create a user.
      */
     @Nullable
-    public UserInfo createNewAdminUser(String userName) {
-        if (!(isCurrentProcessAdminUser() || isCurrentProcessSystemUser())) {
+    private UserInfo createNewAdminUser(String userName) {
+        if (!(isCurrentProcessAdminUser() || mUserManager.isSystemUser())) {
             // Only Admins or System user can create other privileged users.
             Log.e(TAG, "Only admin users and system user can create other admins.");
             return null;

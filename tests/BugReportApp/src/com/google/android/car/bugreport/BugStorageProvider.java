@@ -173,12 +173,6 @@ public class BugStorageProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public String getType(@NonNull Uri uri) {
-        return null;
-    }
-
-    @Nullable
-    @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         String table;
         if (values == null) {
@@ -204,6 +198,16 @@ public class BugStorageProvider extends ContentProvider {
             return resultUri;
         }
         return null;
+    }
+
+    @Nullable
+    @Override
+    public String getType(@NonNull Uri uri) {
+        if (mUriMatcher.match(uri) != URL_MATCHED_BUG_REPORT_ID_URI) {
+            throw new IllegalArgumentException("unknown uri:" + uri);
+        }
+        // We only store zip files in this provider.
+        return "application/zip";
     }
 
     @Override
@@ -249,6 +253,12 @@ public class BugStorageProvider extends ContentProvider {
             // notify registered content observers
             getContext().getContentResolver().notifyChange(uri, null);
         }
+        Integer status = values.getAsInteger(COLUMN_STATUS);
+        // When the status is set to STATUS_UPLOAD_PENDING, we schedule an UploadJob under the
+        // current user, which is the primary user.
+        if (status != null && status.equals(Status.STATUS_UPLOAD_PENDING.getValue())) {
+            JobSchedulingUtils.scheduleUploadJob(BugStorageProvider.this.getContext());
+        }
         return rowCount;
     }
 
@@ -291,12 +301,20 @@ public class BugStorageProvider extends ContentProvider {
         int modeBits = ParcelFileDescriptor.parseMode(mode);
         try {
             return ParcelFileDescriptor.open(new File(path), modeBits, mHandler, e -> {
+                if (mode.equals("r")) {
+                    Log.i(TAG, "File " + path + " opened in read-only mode.");
+                    return;
+                } else if (!mode.equals("w")) {
+                    Log.e(TAG, "Only read-only or write-only mode supported; mode=" + mode);
+                    return;
+                }
+                Log.i(TAG, "File " + path + " opened in write-only mode.");
                 Status status;
                 if (e == null) {
                     // success writing the file. Update the field to indicate bugreport
                     // is ready for upload
-                    status = Status.STATUS_UPLOAD_PENDING;
-                    JobSchedulingUtils.scheduleUploadJob(BugStorageProvider.this.getContext());
+                    status = JobSchedulingUtils.uploadByDefault() ? Status.STATUS_UPLOAD_PENDING
+                            : Status.STATUS_PENDING_USER_ACTION;
                 } else {
                     // We log it and ignore it
                     Log.e(TAG, "Bug report file write failed ", e);
@@ -307,6 +325,9 @@ public class BugStorageProvider extends ContentProvider {
                 values.put(COLUMN_STATUS, status.getValue());
                 db.update(BUG_REPORTS_TABLE, values, COLUMN_ID + "=?",
                         new String[]{ uri.getLastPathSegment() });
+                if (status == Status.STATUS_UPLOAD_PENDING) {
+                    JobSchedulingUtils.scheduleUploadJob(BugStorageProvider.this.getContext());
+                }
                 Log.i(TAG, "Finished adding bugreport " + path + " " + uri);
             });
         } catch (IOException e) {

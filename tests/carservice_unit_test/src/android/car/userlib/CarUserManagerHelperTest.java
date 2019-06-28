@@ -45,12 +45,14 @@ import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,16 +70,12 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CarUserManagerHelperTest {
-    @Mock
-    private Context mContext;
-    @Mock
-    private UserManager mUserManager;
-    @Mock
-    private ActivityManager mActivityManager;
-    @Mock
-    private CarUserManagerHelper.OnUsersUpdateListener mTestListener;
-    @Mock
-    private TestableFrameworkWrapper mTestableFrameworkWrapper;
+    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+    @Mock private Context mContext;
+    @Mock private UserManager mUserManager;
+    @Mock private ActivityManager mActivityManager;
+    @Mock private CarUserManagerHelper.OnUsersUpdateListener mTestListener;
+    @Mock private TestableFrameworkWrapper mTestableFrameworkWrapper;
 
     private static final String GUEST_USER_NAME = "testGuest";
     private static final String TEST_USER_NAME = "testUser";
@@ -90,8 +88,7 @@ public class CarUserManagerHelperTest {
     private UserInfo mForegroundUser;
 
     @Before
-    public void setUpMocksAndVariables() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void setUpMocksAndVariables() {
         doReturn(mUserManager).when(mContext).getSystemService(Context.USER_SERVICE);
         doReturn(mActivityManager).when(mContext).getSystemService(Context.ACTIVITY_SERVICE);
         doReturn(InstrumentationRegistry.getTargetContext().getResources())
@@ -324,89 +321,6 @@ public class CarUserManagerHelperTest {
         // Add normal user. Limit is reached
         mockGetUsers(user1, user2, user3, user4, user5, user6);
         assertThat(mCarUserManagerHelper.isUserLimitReached()).isTrue();
-    }
-
-    @Test
-    public void testCreateNewAdminUserCallsCreateUser() {
-        // Make sure current user is admin, since only admins can create other admins.
-        doReturn(true).when(mUserManager).isAdminUser();
-
-        mCarUserManagerHelper.createNewAdminUser(TEST_USER_NAME);
-        verify(mUserManager).createUser(TEST_USER_NAME, UserInfo.FLAG_ADMIN);
-    }
-
-    @Test
-    public void testCreateNewAdminUserReturnsNullUsers() {
-        // Make sure current user is admin, since only admins can create other admins.
-        doReturn(true).when(mUserManager).isAdminUser();
-
-        doReturn(null).when(mUserManager).createUser(TEST_USER_NAME, UserInfo.FLAG_ADMIN);
-        assertThat(mCarUserManagerHelper.createNewAdminUser(TEST_USER_NAME)).isNull();
-    }
-
-    @Test
-    public void testCreateNewAdminUserReturnsCreatedUser() {
-        // Make sure current user is admin, since only admins can create other admins.
-        doReturn(true).when(mUserManager).isAdminUser();
-
-        UserInfo newUser = new UserInfo();
-        newUser.name = TEST_USER_NAME;
-        doReturn(newUser).when(mUserManager).createUser(TEST_USER_NAME, UserInfo.FLAG_ADMIN);
-        assertThat(mCarUserManagerHelper.createNewAdminUser(TEST_USER_NAME)).isEqualTo(newUser);
-    }
-
-    @Test
-    public void testCreateNewAdminUserWithDefaultUserNameCallsCreateUser() {
-        // Make sure current user is admin, since only admins can create other admins.
-        doReturn(true).when(mUserManager).isAdminUser();
-
-        mCarUserManagerHelper.createNewAdminUser();
-        verify(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
-    }
-
-    @Test
-    public void testCreateNewAdminUserWithDefaultUserNameReturnsNullUsers() {
-        // Make sure current user is admin, since only admins can create other admins.
-        doReturn(true).when(mUserManager).isAdminUser();
-
-        doReturn(null).when(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
-        assertThat(mCarUserManagerHelper.createNewAdminUser(DEFAULT_ADMIN_NAME)).isNull();
-    }
-
-    @Test
-    public void testCreateNewAdminUserWithDefaultUserNameReturnsCreatedUser() {
-        // Make sure current user is admin, since only admins can create other admins.
-        doReturn(true).when(mUserManager).isAdminUser();
-
-        UserInfo newUser = new UserInfo();
-        newUser.name = DEFAULT_ADMIN_NAME;
-        doReturn(newUser).when(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
-        assertThat(mCarUserManagerHelper.createNewAdminUser()).isEqualTo(newUser);
-    }
-
-    @Test
-    public void testAdminsCanCreateAdmins() {
-        String newAdminName = "Test new admin";
-        UserInfo expectedAdmin = new UserInfo();
-        expectedAdmin.name = newAdminName;
-        doReturn(expectedAdmin).when(mUserManager).createUser(newAdminName, UserInfo.FLAG_ADMIN);
-
-        // Admins can create other admins.
-        doReturn(true).when(mUserManager).isAdminUser();
-        UserInfo actualAdmin = mCarUserManagerHelper.createNewAdminUser(newAdminName);
-        assertThat(actualAdmin).isEqualTo(expectedAdmin);
-    }
-
-    @Test
-    public void testNonAdminsCanNotCreateAdmins() {
-        String newAdminName = "Test new admin";
-        UserInfo expectedAdmin = new UserInfo();
-        expectedAdmin.name = newAdminName;
-        doReturn(expectedAdmin).when(mUserManager).createUser(newAdminName, UserInfo.FLAG_ADMIN);
-
-        // Test that non-admins cannot create new admins.
-        doReturn(false).when(mUserManager).isAdminUser(); // Current user non-admin.
-        assertThat(mCarUserManagerHelper.createNewAdminUser(newAdminName)).isNull();
     }
 
     @Test

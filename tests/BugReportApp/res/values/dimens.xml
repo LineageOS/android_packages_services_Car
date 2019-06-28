@@ -28,6 +28,8 @@
     <dimen name="bug_report_primary_button_padding">52dp</dimen>
     <dimen name="bug_report_secondary_button_padding">30dp</dimen>
     <dimen name="bug_report_small_button_padding">16dp</dimen>
+    <dimen name="bug_report_button_text_size">28dp</dimen>
+    <dimen name="bug_report_user_action_button_padding">5dp</dimen>
 
     <!-- ProgressBar dimensions -->
     <dimen name="bug_report_progress_bar_margin_top">32dp</dimen>

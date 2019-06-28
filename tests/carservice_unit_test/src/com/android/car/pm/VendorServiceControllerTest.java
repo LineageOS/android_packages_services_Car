@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Looper;
@@ -89,14 +90,16 @@ public class VendorServiceControllerTest {
     public void setUp() {
         mContext = new ServiceLauncherContext(ApplicationProvider.getApplicationContext());
         mUserManagerHelper = Mockito.spy(new CarUserManagerHelper(mContext));
-        mCarUserService = new CarUserService(mContext, mUserManagerHelper,
+        mCarUserService = new CarUserService(mContext, mUserManagerHelper, mUserManager,
                 ActivityManager.getService(), 2 /* max running users */);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
 
         mController = new VendorServiceController(mContext,
                 Looper.getMainLooper(), mUserManagerHelper);
 
-        when(mUserManagerHelper.isPersistentUser(anyInt())).thenReturn(true);
+        UserInfo persistentFgUser = new UserInfo(FG_USER_ID, "persistent user", 0);
+        when(mUserManager.getUserInfo(FG_USER_ID)).thenReturn(persistentFgUser);
+
         // Let's pretend system is not fully loaded, current user is system.
         when(mUserManagerHelper.getCurrentForegroundUserId()).thenReturn(UserHandle.USER_SYSTEM);
         // ..and by default all users are locked
