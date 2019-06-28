@@ -349,7 +349,9 @@ public class BugReportService extends Service {
         Notification notification = new Notification
                 .Builder(getApplicationContext(), STATUS_CHANNEL_ID)
                 .setContentTitle(getText(R.string.notification_bugreport_finished_title))
-                .setContentText(getText(R.string.notification_bugreport_finished_text))
+                .setContentText(getText(JobSchedulingUtils.uploadByDefault()
+                        ? R.string.notification_bugreport_auto_upload_finished_text
+                        : R.string.notification_bugreport_manual_upload_finished_text))
                 .setCategory(Notification.CATEGORY_STATUS)
                 .setSmallIcon(R.drawable.ic_upload)
                 .setContentIntent(startBugReportInfoActivity)
