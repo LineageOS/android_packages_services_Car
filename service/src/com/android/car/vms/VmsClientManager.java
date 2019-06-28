@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.ArrayMap;
 import android.util.Log;
 
@@ -52,7 +53,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * according to the Android user lifecycle.
  */
 public class VmsClientManager implements CarServiceBase {
-    private static final boolean DBG = false;
+    private static final boolean DBG = true;
     private static final String TAG = "VmsClientManager";
     private static final String HAL_CLIENT_NAME = "VmsHalClient";
 
@@ -78,6 +79,7 @@ public class VmsClientManager implements CarServiceBase {
 
     private final Context mContext;
     private final Handler mHandler;
+    private final UserManager mUserManager;
     private final CarUserService mUserService;
     private final CarUserManagerHelper mUserManagerHelper;
     private final int mMillisBeforeRebind;
@@ -112,16 +114,18 @@ public class VmsClientManager implements CarServiceBase {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (DBG) Log.d(TAG, "Received " + intent);
-            switch (intent.getAction()) {
-                case Intent.ACTION_USER_SWITCHED:
-                    terminateUserClients();
-                    break;
-                case Intent.ACTION_USER_UNLOCKED:
+            synchronized (mCurrentUserClients) {
+                int currentUserId = mUserManagerHelper.getCurrentForegroundUserId();
+                if (mCurrentUser != currentUserId) {
+                    terminate(mCurrentUserClients);
+                }
+                mCurrentUser = currentUserId;
+
+                if (Intent.ACTION_USER_UNLOCKED.equals(intent.getAction())
+                        || mUserManager.isUserUnlocked(mCurrentUser)) {
                     bindToSystemClients();
                     bindToUserClients();
-                    break;
-                default:
-                    Log.e(TAG, "Unexpected intent received: " + intent);
+                }
             }
         }
     };
@@ -138,6 +142,7 @@ public class VmsClientManager implements CarServiceBase {
             CarUserManagerHelper userManagerHelper, VmsHalService halService) {
         mContext = context;
         mHandler = new Handler(Looper.getMainLooper());
+        mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mUserService = userService;
         mUserManagerHelper = userManagerHelper;
         mMillisBeforeRebind = mContext.getResources().getInteger(
@@ -243,8 +248,6 @@ public class VmsClientManager implements CarServiceBase {
 
     private void bindToUserClients() {
         synchronized (mCurrentUserClients) {
-            terminateUserClients();
-
             // To avoid the risk of double-binding, clients running as the system user must only
             // ever be bound in bindToSystemClients().
             // In a headless multi-user system, the system user will never be in the foreground.
@@ -260,16 +263,6 @@ public class VmsClientManager implements CarServiceBase {
             for (String clientName : clientNames) {
                 bind(mCurrentUserClients, clientName, currentUserHandle);
             }
-        }
-    }
-
-    private void terminateUserClients() {
-        synchronized (mCurrentUserClients) {
-            int currentUserId = mUserManagerHelper.getCurrentForegroundUserId();
-            if (mCurrentUser != currentUserId) {
-                terminate(mCurrentUserClients);
-            }
-            mCurrentUser = currentUserId;
         }
     }
 
