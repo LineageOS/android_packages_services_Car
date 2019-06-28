@@ -281,8 +281,6 @@ public class BugReportActivity extends Activity {
         BugStorageUtils.setBugReportStatus(this, mMetaBugReport, Status.STATUS_USER_CANCELLED, "");
         Log.i(TAG, "Bug report is cancelled");
         mAudioRecordingStarted = false;
-        Toast.makeText(this, getString(R.string.toast_bugreport_cancelled),
-                Toast.LENGTH_SHORT).show();
     }
 
     private void buttonCancelClick(View view) {

@@ -33,7 +33,6 @@
 
     <string name="toast_permissions_denied" translatable="false">Please grant permissions</string>
     <string name="toast_bug_report_in_progress" translatable="false">Bug report already being collected</string>
-    <string name="toast_bugreport_cancelled" translatable="false">Bug report is cancelled</string>
     <string name="toast_timed_out" translatable="false">Timed out, cancelling</string>
     <string name="toast_status_failed" translatable="false">Bug report failed</string>
     <string name="toast_status_finished" translatable="false">Bug report finished</string>
