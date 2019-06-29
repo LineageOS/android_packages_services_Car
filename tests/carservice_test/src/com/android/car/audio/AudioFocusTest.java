@@ -24,6 +24,7 @@ import android.media.AudioManager;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.RequiresDevice;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -130,6 +131,7 @@ public class AudioFocusTest {
         testExclusiveInteractions(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, true);
     }
 
+    @RequiresDevice
     @Test
     public void exclusiveInteractionsTransientMayDuck_requestGrantedAndFocusLossSent()
             throws Exception {
@@ -146,6 +148,7 @@ public class AudioFocusTest {
                 true);
     }
 
+    @RequiresDevice
     @Test
     public void rejectedInteractions_focusRequestRejected() throws Exception {
         // Test different paired interaction between different usages
@@ -212,6 +215,7 @@ public class AudioFocusTest {
         testConcurrentInteractions(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, true);
     }
 
+    @RequiresDevice
     @Test
     public void concurrentInteractionsTransientGainMayDuck_requestGrantedAndNoFocusLossSent()
             throws Exception {

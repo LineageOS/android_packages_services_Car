@@ -32,6 +32,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.view.KeyEvent;
 
+import androidx.test.filters.RequiresDevice;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
@@ -271,6 +272,7 @@ public class InputHalServiceTest {
         return v;
     }
 
+    @RequiresDevice
     private KeyEvent dispatchSingleEventWithIndents(int code, int indents) {
         ArgumentCaptor<KeyEvent> captor = ArgumentCaptor.forClass(KeyEvent.class);
         reset(mInputListener);
