@@ -45,6 +45,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.KeyEvent;
 
 import com.android.internal.annotations.GuardedBy;
@@ -90,6 +91,8 @@ public abstract class InstrumentClusterRenderingService extends Service {
      */
     @Deprecated
     private static final int NAVIGATION_STATE_EVENT_ID = 1;
+    private static final String BITMAP_QUERY_WIDTH = "w";
+    private static final String BITMAP_QUERY_HEIGHT = "h";
 
     private final Object mLock = new Object();
     private RendererBinder mRendererBinder;
@@ -99,6 +102,15 @@ public abstract class InstrumentClusterRenderingService extends Service {
     private ComponentName mNavigationComponent;
     @GuardedBy("mLock")
     private ContextOwner mNavContextOwner;
+
+    private static final int IMAGE_CACHE_SIZE_BYTES = 4 * 1024 * 1024; /* 4 mb */
+    private final LruCache<String, Bitmap> mCache = new LruCache<String, Bitmap>(
+            IMAGE_CACHE_SIZE_BYTES) {
+        @Override
+        protected int sizeOf(String key, Bitmap value) {
+            return value.getByteCount();
+        }
+    };
 
     private static class ContextOwner {
         final int mUid;
@@ -200,7 +212,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, String.format("updateNavigationActivity (mActivityOptions: %s, "
-                    + "mActivityState: %s, mNavContextOwnerUid: %s)", mActivityOptions,
+                            + "mActivityState: %s, mNavContextOwnerUid: %s)", mActivityOptions,
                     mActivityState, contextOwner));
         }
 
@@ -335,7 +347,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *
      * @param activityOptions contains information of how to start cluster activity (on what display
      *                        or activity stack).
-     *
      * @hide
      */
     public void setClusterActivityLaunchOptions(ActivityOptions activityOptions) {
@@ -358,7 +369,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *
      * @param state pass information about activity state, see
      *              {@link android.car.cluster.ClusterActivityState}
-     *
      * @hide
      */
     public void setClusterActivityState(ClusterActivityState state) {
@@ -484,10 +494,19 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * </ul>
      * This is a costly operation. Returned bitmaps should be cached and fetching should be done on
      * a secondary thread.
+     *
+     * Will be deprecated. Replaced by {@link #getBitmap(Uri, int, int)}.
      */
     @Nullable
     public Bitmap getBitmap(Uri uri) {
         try {
+            if (uri.getQueryParameter(BITMAP_QUERY_WIDTH).isEmpty() || uri.getQueryParameter(
+                    BITMAP_QUERY_HEIGHT).isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Uri must have '" + BITMAP_QUERY_WIDTH + "' and '" + BITMAP_QUERY_HEIGHT
+                                + "' query parameters");
+            }
+
             ContextOwner contextOwner = getNavigationContextOwner();
             if (contextOwner == null) {
                 Log.e(TAG, "No context owner available while fetching: " + uri);
@@ -520,6 +539,80 @@ public abstract class InstrumentClusterRenderingService extends Service {
             } else {
                 Log.e(TAG, "Failed to create pipe for uri string: " + uri);
             }
+        } catch (Throwable e) {
+            Log.e(TAG, "Unable to fetch uri: " + uri, e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Fetches a bitmap from the navigation context owner (application holding navigation focus)
+     * of the given width and height. The fetched bitmaps are cached.
+     * It returns null if:
+     * <ul>
+     * <li>there is no navigation context owner
+     * <li>or if the {@link Uri} is invalid
+     * <li>or if it references a process other than the current navigation context owner
+     * </ul>
+     * This is a costly operation. Returned bitmaps should be fetched on a secondary thread.
+     *
+     * @hide
+     */
+    @Nullable
+    public Bitmap getBitmap(Uri uri, int width, int height) throws InvalidSizeException {
+        if (width <= 0 || height <= 0) {
+            throw new InvalidSizeException("Width and height must be > 0");
+        }
+
+        try {
+            ContextOwner contextOwner = getNavigationContextOwner();
+            if (contextOwner == null) {
+                Log.e(TAG, "No context owner available while fetching: " + uri);
+                return null;
+            }
+
+            uri = uri.buildUpon()
+                    .appendQueryParameter(BITMAP_QUERY_WIDTH, String.valueOf(width))
+                    .appendQueryParameter(BITMAP_QUERY_HEIGHT, String.valueOf(height))
+                    .build();
+
+            String host = uri.getHost();
+
+            if (!contextOwner.mAuthorities.contains(host)) {
+                Log.e(TAG, "Uri points to an authority not handled by the current context owner: "
+                        + uri + " (valid authorities: " + contextOwner.mAuthorities + ")");
+                return null;
+            }
+
+            // Add user to URI to make the request to the right instance of content provider
+            // (see ContentProvider#getUserIdFromAuthority()).
+            int userId = UserHandle.getUserId(contextOwner.mUid);
+            Uri filteredUid = uri.buildUpon().encodedAuthority(userId + "@" + host).build();
+
+            Bitmap bitmap = mCache.get(uri.toString());
+            if (bitmap == null) {
+                // Fetch the bitmap
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Requesting bitmap: " + uri);
+                }
+                ParcelFileDescriptor fileDesc = getContentResolver()
+                        .openFileDescriptor(filteredUid, "r");
+                if (fileDesc != null) {
+                    bitmap = BitmapFactory.decodeFileDescriptor(fileDesc.getFileDescriptor());
+                    fileDesc.close();
+                    return bitmap;
+                } else {
+                    Log.e(TAG, "Failed to create pipe for uri string: " + uri);
+                }
+
+                if (bitmap.getWidth() != width || bitmap.getHeight() != height) {
+                    bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+                }
+                mCache.put(uri.toString(), bitmap);
+            }
+
+            return bitmap;
         } catch (Throwable e) {
             Log.e(TAG, "Unable to fetch uri: " + uri, e);
         }
