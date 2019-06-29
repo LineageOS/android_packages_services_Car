@@ -170,7 +170,6 @@ public class BugReportActivity extends Activity {
         if (mBound) {
             mService.removeBugReportProgressListener();
         }
-        mAudioRecordingStarted = false;
     }
 
     @Override
@@ -273,13 +272,15 @@ public class BugReportActivity extends Activity {
      * Cancels bugreporting by stopping audio recording and deleting temp files.
      */
     private void cancelAudioMessageRecording() {
+        if (!mAudioRecordingStarted) {
+            return;
+        }
         stopAudioRecording();
         File tempDir = FileUtils.getTempDir(this, mMetaBugReport.getTimestamp());
-        Log.i(TAG, "Bug report is cancelled");
         new DeleteDirectoryAsyncTask().execute(tempDir);
         BugStorageUtils.setBugReportStatus(this, mMetaBugReport, Status.STATUS_USER_CANCELLED, "");
-        Toast.makeText(this, getString(R.string.toast_bugreport_cancelled),
-                Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "Bug report is cancelled");
+        mAudioRecordingStarted = false;
     }
 
     private void buttonCancelClick(View view) {
@@ -296,8 +297,13 @@ public class BugReportActivity extends Activity {
      * in the background and closing {@link BugReportInfoActivity} will not open it again.
      */
     private void buttonShowBugReportsClick(View view) {
+        cancelAudioMessageRecording();
+        // Delete the bugreport from database, otherwise pressing "Show Bugreports" button will
+        // create unnecessary cancelled bugreports.
+        if (mMetaBugReport != null) {
+            BugStorageUtils.deleteBugReport(this, mMetaBugReport.getId());
+        }
         Intent intent = new Intent(this, BugReportInfoActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
     }

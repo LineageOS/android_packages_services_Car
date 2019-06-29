@@ -28,10 +28,11 @@
     <string name="bugreport_dialog_recording_finished" translatable="false">Recording finished</string>
     <string name="bugreport_dialog_in_progress_title" translatable="false">A bug report is already being collected</string>
     <string name="bugreport_dialog_in_progress_title_finished" translatable="false">A bug report has been collected</string>
+    <string name="bugreport_move_button_text" translatable="false">Move</string>
+    <string name="bugreport_upload_button_text" translatable="false">Upload</string>
 
     <string name="toast_permissions_denied" translatable="false">Please grant permissions</string>
     <string name="toast_bug_report_in_progress" translatable="false">Bug report already being collected</string>
-    <string name="toast_bugreport_cancelled" translatable="false">Bug report is cancelled</string>
     <string name="toast_timed_out" translatable="false">Timed out, cancelling</string>
     <string name="toast_status_failed" translatable="false">Bug report failed</string>
     <string name="toast_status_finished" translatable="false">Bug report finished</string>
@@ -42,6 +43,7 @@
     <!-- Notification strings -->
     <string name="notification_bugreport_in_progress" translatable="false">Bug report is in progress</string>
     <string name="notification_bugreport_finished_title" translatable="false">Bug report is collected</string>
-    <string name="notification_bugreport_finished_text" translatable="false">Please upload it when the car is parked</string>
+    <string name="notification_bugreport_manual_upload_finished_text" translatable="false">Please upload it when the car is parked</string>
+    <string name="notification_bugreport_auto_upload_finished_text" translatable="false">The report will be upload automatically</string>
     <string name="notification_bugreport_channel_name" translatable="false">Bug report status channel</string>
 </resources>

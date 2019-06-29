@@ -22,7 +22,10 @@
     <string name="allow" msgid="128867119174713893">"Salli"</string>
     <string name="deny" msgid="3998166389989144025">"Hylkää"</string>
     <string name="device_info_default" msgid="1548919563979154348">"Tuntematon"</string>
-    <!-- no translation found for show_dev_countdown (3953785659137161981) -->
+    <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
+      <item quantity="other">Enää <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> vaihetta, niin sinusta tulee kehittäjä.</item>
+      <item quantity="one">Enää <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> vaihe, niin sinusta tulee kehittäjä.</item>
+    </plurals>
     <string name="show_dev_on" msgid="9075712234786224065">"Olet nyt kehittäjä!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"Ei tarvitse klikata, olet jo kehittäjä."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"Ota kehittäjäasetukset ensin käyttöön."</string>
@@ -266,7 +269,10 @@
     <string name="language_picker_title" msgid="7807759931261107686">"Kielet"</string>
     <string name="locale_remove_menu" msgid="3395565699934985486">"Poista"</string>
     <string name="add_a_language" msgid="4103889327406274800">"Lisää kieli"</string>
-    <!-- no translation found for dlg_remove_locales_title (7362450618787242592) -->
+    <plurals name="dlg_remove_locales_title" formatted="false" msgid="7362450618787242592">
+      <item quantity="other">Poistetaanko valitut kielet?</item>
+      <item quantity="one">Poistetaanko valittu kieli?</item>
+    </plurals>
     <string name="dlg_remove_locales_message" msgid="5179370688876343176">"Teksti näytetään toisella kielellä."</string>
     <string name="dlg_remove_locales_error_title" msgid="9090578326002163975">"Kaikkia kieliä ei voi poistaa"</string>
     <string name="dlg_remove_locales_error_message" msgid="6799897638891903618">"Jätä ainakin yksi ensisijainen kieli"</string>
@@ -365,7 +371,10 @@
     <string name="location_settings_title" msgid="2707201457572301030">"Sijainti"</string>
     <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Käytä sijaintia"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Pois käytöstä"</string>
-    <!-- no translation found for location_settings_summary_location_on (7893342914540884818) -->
+    <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
+      <item quantity="other">Käytössä – <xliff:g id="COUNT_1">%1$d</xliff:g> sovellusta voi käyttää sijaintia</item>
+      <item quantity="one">Käytössä – <xliff:g id="COUNT_0">%1$d</xliff:g> sovellus voi käyttää sijaintia</item>
+    </plurals>
     <string name="location_settings_loading_app_permission_stats" msgid="7818169326621327628">"Ladataan…"</string>
     <string name="account_settings_title" msgid="7870321267198486578">"Tilit"</string>
     <string name="security_settings_title" msgid="8228075165942416425">"Suojaus"</string>
@@ -424,7 +433,10 @@
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Sormenj. käyttökohde"</string>
     <string name="fingerprint_add_title" msgid="6840343900784463856">"Lisää sormenjälki"</string>
     <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"näytön lukitus"</string>
-    <!-- no translation found for security_settings_fingerprint_preference_summary (2033416761172877041) -->
+    <plurals name="security_settings_fingerprint_preference_summary" formatted="false" msgid="2033416761172877041">
+      <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> tunnistetiedostoa määritetty</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%1$d</xliff:g> tunnistetiedosto määritetty</item>
+    </plurals>
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"Avaa sormenjäljellä"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"Sormenjäljen käyttäminen"</string>
@@ -446,10 +458,8 @@
     <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"Laitteen suojausominaisuuksia ei oteta käyttöön. Et voi estää puhelimen käyttöä, jos se varastetaan tai katoaa."</string>
     <string name="skip_anyway_button_label" msgid="4437815969645175429">"Ohita silti"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"Takaisin"</string>
-    <!-- no translation found for skip_lock_screen_dialog_button_label (6706047245716780006) -->
-    <skip />
-    <!-- no translation found for cancel_lock_screen_dialog_button_label (2534925227627658819) -->
-    <skip />
+    <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Ohita"</string>
+    <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"Peruuta"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"Kosketa tunnistinta"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Se on puhelimen takaosassa. Käytä etusormea."</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"Laitteen ja sormenjälkianturin sijainnin kuva."</string>
@@ -465,24 +475,16 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Tee myöhemmin"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Ohitetaanko sormenjäljen määritys?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Olet valinnut sormenjäljen yhdeksi tavaksi avata puhelimesi lukitus. Jos ohitat tämän nyt, sinun on määritettävä se myöhemmin. Määritys kestää vain noin minuutin."</string>
-    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (1384438077720821127) -->
-    <skip />
-    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7207112623501771824) -->
-    <skip />
-    <!-- no translation found for fingerprint_lock_screen_setup_skip_dialog_text (7623975730623531606) -->
-    <skip />
-    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (2998863111689476550) -->
-    <skip />
-    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (6780557259734235952) -->
-    <skip />
-    <!-- no translation found for face_lock_screen_setup_skip_dialog_text (8541640018478926775) -->
-    <skip />
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Suojaa tablettiasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi sormenjälkitunnistuksen. Valitse Peruuta, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"Suojaa laitettasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi sormenjälkitunnistuksen. Valitse Peruuta, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"Suojaa puhelintasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi sormenjälkitunnistuksen. Valitse Peruuta, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Suojaa tablettiasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi kasvojentunnistuksen. Valitse Peruuta, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Suojaa laitettasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi kasvojentunnistuksen. Valitse Peruuta, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Suojaa puhelintasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi kasvojentunnistuksen. Valitse Peruuta, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
     <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
     <skip />
-    <!-- no translation found for lock_screen_password_skip_title (3725788215672959827) -->
-    <skip />
-    <!-- no translation found for lock_screen_pattern_skip_title (4237030500353932005) -->
-    <skip />
+    <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Ohitetaanko salasanan asetus?"</string>
+    <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Ohitetaanko kuvion asetus?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Ota näytön lukitus käyttöön"</string>
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"Valmis"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Hups, anturi ei ole siinä."</string>
@@ -650,11 +652,23 @@
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"Liian monta virheellistä yritystä. Tämä käyttäjä poistetaan."</string>
     <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"Liian monta virheellistä yritystä. Tämä työprofiili ja sen tiedot poistetaan."</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"Hylkää"</string>
-    <!-- no translation found for lockpassword_password_too_short (694091983183310827) -->
-    <!-- no translation found for lockpassword_pin_too_short (6805936168283187298) -->
+    <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
+      <item quantity="other">Salasanassa täytyy olla vähintään <xliff:g id="COUNT_1">%d</xliff:g> merkkiä.</item>
+      <item quantity="one">Salasanassa täytyy olla vähintään <xliff:g id="COUNT_0">%d</xliff:g> merkki.</item>
+    </plurals>
+    <plurals name="lockpassword_pin_too_short" formatted="false" msgid="6805936168283187298">
+      <item quantity="other">PIN-koodissa täytyy olla vähintään <xliff:g id="COUNT_1">%d</xliff:g> numeroa.</item>
+      <item quantity="one">PIN-koodissa täytyy olla vähintään <xliff:g id="COUNT_0">%d</xliff:g> numero.</item>
+    </plurals>
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"Jatka"</string>
-    <!-- no translation found for lockpassword_password_too_long (7994068708438608179) -->
-    <!-- no translation found for lockpassword_pin_too_long (6219380667452617286) -->
+    <plurals name="lockpassword_password_too_long" formatted="false" msgid="7994068708438608179">
+      <item quantity="other">Salasanassa saa olla enintään <xliff:g id="NUMBER_1">%d</xliff:g> merkkiä.</item>
+      <item quantity="one">Salasanassa saa olla enintään <xliff:g id="NUMBER_0">%d</xliff:g> merkki.</item>
+    </plurals>
+    <plurals name="lockpassword_pin_too_long" formatted="false" msgid="6219380667452617286">
+      <item quantity="other">PIN-koodissa saa olla enintään <xliff:g id="NUMBER_1">%d</xliff:g> numeroa.</item>
+      <item quantity="one">PIN-koodissa saa olla enintään <xliff:g id="NUMBER_0">%d</xliff:g> numero.</item>
+    </plurals>
     <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"PIN-koodi saa sisältää vain numeroita 0–9."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Järjestelmänvalvoja esti PIN-koodin, koska sitä on käytetty hiljattain."</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IT-järjestelmänvalvoja on estänyt yleiset PIN-koodit. Kokeile eri PIN-koodia."</string>
@@ -662,12 +676,30 @@
     <string name="lockpassword_password_requires_alpha" msgid="7017799931349816346">"Salasanassa täytyy olla vähintään yksi kirjain."</string>
     <string name="lockpassword_password_requires_digit" msgid="6856775151626646011">"Salasanassa täytyy olla vähintään yksi numero."</string>
     <string name="lockpassword_password_requires_symbol" msgid="5859035635265756172">"Salasanassa täytyy olla vähintään yksi symboli."</string>
-    <!-- no translation found for lockpassword_password_requires_letters (7383825189441790620) -->
-    <!-- no translation found for lockpassword_password_requires_lowercase (477315194231617994) -->
-    <!-- no translation found for lockpassword_password_requires_uppercase (6026476732572657588) -->
-    <!-- no translation found for lockpassword_password_requires_numeric (5072581827825645338) -->
-    <!-- no translation found for lockpassword_password_requires_symbols (8393058207948961650) -->
-    <!-- no translation found for lockpassword_password_requires_nonletter (3692485784007607387) -->
+    <plurals name="lockpassword_password_requires_letters" formatted="false" msgid="7383825189441790620">
+      <item quantity="other">Salasanassa on oltava vähintään <xliff:g id="COUNT">%d</xliff:g> kirjainta.</item>
+      <item quantity="one">Salasanassa on oltava vähintään 1 kirjain.</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_lowercase" formatted="false" msgid="477315194231617994">
+      <item quantity="other">Salasanassa on oltava vähintään <xliff:g id="COUNT">%d</xliff:g> pientä kirjainta.</item>
+      <item quantity="one">Salasanassa on oltava vähintään 1 pieni kirjain.</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_uppercase" formatted="false" msgid="6026476732572657588">
+      <item quantity="other">Salasanassa on oltava vähintään <xliff:g id="COUNT">%d</xliff:g> isoa kirjainta.</item>
+      <item quantity="one">Salasanassa on oltava vähintään 1 iso kirjain.</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_numeric" formatted="false" msgid="5072581827825645338">
+      <item quantity="other">Salasanassa on oltava vähintään <xliff:g id="COUNT">%d</xliff:g> numeroa.</item>
+      <item quantity="one">Salasanassa on oltava vähintään 1 numero.</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_symbols" formatted="false" msgid="8393058207948961650">
+      <item quantity="other">Salasanassa on oltava vähintään <xliff:g id="COUNT">%d</xliff:g> erikoismerkkiä.</item>
+      <item quantity="one">Salasanassa on oltava vähintään 1 erikoismerkki.</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
+      <item quantity="other">Salasanassa on oltava vähintään <xliff:g id="COUNT">%d</xliff:g> merkkiä, jotka eivät ole kirjaimia.</item>
+      <item quantity="one">Salasanassa on oltava vähintään 1 merkki, joka ei ole kirjain.</item>
+    </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Järjestelmänvalvoja esti salasanan, koska sitä on käytetty hiljattain."</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IT-järjestelmänvalvoja on estänyt yleiset salasanat. Kokeile eri salasanaa."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"Nousevat, laskevat tai toistuvat numerosarjat on kielletty."</string>
@@ -680,11 +712,17 @@
     <string name="lock_setup" msgid="8710689848703935088">"Asennus on valmis."</string>
     <string name="manage_device_admin" msgid="322047441168191695">"Laitteenhallintasovellukset"</string>
     <string name="number_of_device_admins_none" msgid="8519193548630223132">"Ei aktiivisia sovelluksia"</string>
-    <!-- no translation found for number_of_device_admins (6445613288828151224) -->
+    <plurals name="number_of_device_admins" formatted="false" msgid="6445613288828151224">
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> aktiivista sovellusta</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> aktiivinen sovellus</item>
+    </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"Luotettavat tahot"</string>
     <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Käytä asettamalla ensin näytön lukitus."</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"–"</string>
-    <!-- no translation found for manage_trust_agents_summary_on (5550538038916606097) -->
+    <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> aktiivista luotettavaa tahoa</item>
+      <item quantity="one">1 aktiivinen luotettava taho</item>
+    </plurals>
     <string name="bluetooth_quick_toggle_title" msgid="7410319268406112792">"Bluetooth"</string>
     <string name="bluetooth_quick_toggle_summary" msgid="3951769568065428093">"Ota Bluetooth-yhteys käyttöön"</string>
     <string name="bluetooth_settings" msgid="5228032727293770389">"Bluetooth"</string>
@@ -728,13 +766,11 @@
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Bluetooth-lisäasetukset"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Kun Bluetooth on käytössä, laite voi viestiä lähiympäristön Bluetooth-laitteiden kanssa."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Kun Bluetooth on käytössä, laitteesi voi kommunikoida muiden lähellä olevien Bluetooth-laitteiden kanssa.\n\nParantaakseen laitteen käyttökokemusta sovellukset ja palvelut voivat silti hakea lähellä olevia laitteita aina, vaikka Bluetooth olisi pois käytöstä. Näin voidaan esimerkiksi kehittää sijaintiin perustuvia ominaisuuksia ja palveluita. Voit muokata tätä asetusta "<annotation id="link">"hakuasetuksissa"</annotation>"."</string>
-    <!-- no translation found for ble_scan_notify_text (6290170236546386932) -->
-    <skip />
+    <string name="ble_scan_notify_text" msgid="6290170236546386932">"Parantaakseen sijainnin tarkkuutta järjestelmäsovellukset ja -palvelut voivat edelleen havaita Bluetooth-laitteita. Voit muuttaa tätä <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>etsintäasetuksissa<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Yhteyttä ei voi muodostaa. Yritä uudelleen."</string>
     <string name="device_details_title" msgid="726517818032923222">"Laitteen tiedot"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Laitteen Bluetooth-osoite: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <!-- no translation found for bluetooth_unpair_dialog_title (3669848977755142047) -->
-    <skip />
+    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Unohdetaanko laite?"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ei ole enää puhelimen pari."</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ei ole enää tabletin pari."</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ei ole enää laitteen pari."</string>
@@ -812,8 +848,7 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Avaa verkkoilmoitus"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Ilmoita, kun käytettävissä on laadukkaita julkisia verkkoja."</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Ota Wi-Fi käyttöön automaattisesti"</string>
-    <!-- no translation found for wifi_wakeup_summary (1152699417411690) -->
-    <skip />
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi-Fi otetaan automaattisesti käyttöön, kun lähistöllä on kotiverkkosi tai muita laadukkaita tallennettuja verkkoja."</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Ei käytettävissä, koska sijainti on poistettu käytöstä. Ota "<annotation id="link">"sijainti"</annotation>" käyttöön."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Ei käytettävissä, koska Wi‑Fi-haku on pois päältä."</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Valitse verkon arviointipalvelu, jotta voit käyttää tätä."</string>
@@ -868,8 +903,7 @@
     <string name="wifi_ssid" msgid="6746270925975522641">"Verkon nimi"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Anna SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Suojaus"</string>
-    <!-- no translation found for wifi_hidden_network (6647772204699776833) -->
-    <skip />
+    <string name="wifi_hidden_network" msgid="6647772204699776833">"Piilotettu verkko"</string>
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jos reitittimesi ei lähetä verkkotunnusta, mutta haluat muodostaa siihen yhteyden myöhemmin, voit piilottaa verkon.\n\nTästä voi aiheutua turvallisuusriski, koska puhelimesi lähettää signaaliaan säännöllisesti löytääkseen verkon.\n\nVerkon piilottaminen ei muuta reititinasetuksiasi."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Signaalin vahvuus"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Tila"</string>
@@ -977,7 +1011,10 @@
     <string name="wifi_cancel" msgid="7618417075930426635">"Peruuta"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"Unohdetaanko verkko?"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"Kaikki tämän verkon salasanat poistetaan."</string>
-    <!-- no translation found for wifi_saved_access_points_summary (6199295921035663421) -->
+    <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
+      <item quantity="other">%d verkkoa</item>
+      <item quantity="one">1 verkko</item>
+    </plurals>
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"Wi-Fi-lisäasetukset"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC-osoite"</string>
@@ -1050,21 +1087,22 @@
     <!-- no translation found for wifi_calling_roaming_mode_summary (620031651074963360) -->
     <skip />
     <string name="wifi_calling_roaming_mode_dialog_title" msgid="4018579440109122790">"Roaming-asetus"</string>
-    <!-- no translation found for wifi_calling_mode_choices:0 (7952573372663890448) -->
-    <!-- no translation found for wifi_calling_mode_choices:1 (2552412793005571845) -->
-    <!-- no translation found for wifi_calling_mode_choices:2 (742811521969300868) -->
+  <string-array name="wifi_calling_mode_choices">
+    <item msgid="7952573372663890448">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
+    <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
+    <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
+  </string-array>
     <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:1 (4421333712484542489) -->
     <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
-    <!-- no translation found for wifi_calling_mode_choices_without_wifi_only:0 (3658897985297386665) -->
-    <!-- no translation found for wifi_calling_mode_choices_without_wifi_only:1 (4191802193352447215) -->
+  <string-array name="wifi_calling_mode_choices_without_wifi_only">
+    <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
+    <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
+  </string-array>
     <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:1 (2271962426654621656) -->
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Jos Wi-Fi-yhteys ei ole käytettävissä, käytä mobiiliverkkoa"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Jos mobiiliverkkoa ei ole saatavilla, käytä Wi-Fi-yhteyttä."</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Soita Wi-Fi-yhteyden kautta. Jos Wi-Fi-yhteys katkeaa, puhelu päättyy."</string>
-    <!-- no translation found for wifi_calling_off_explanation (1653424723742898015) -->
-    <skip />
+    <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"Kun Wi-Fi-puhelut on käytössä, puhelimesi voi ohjata puhelut Wi-Fi-verkkojen tai operaattorisi verkon kautta, riippuen asetuksistasi ja siitä, kummassa on voimakkaampi signaali. Ennen kuin otat tämän ominaisuuden käyttöön, tarkista maksut ja muut tiedot operaattoriltasi.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
     <string name="emergency_address_title" msgid="5779915349686787024">"Hätäosoite"</string>
     <string name="emergency_address_summary" msgid="478668478569851714">"Sijaintisi, kun soitat hätäpuhelun Wi-Fillä"</string>
@@ -1252,13 +1290,15 @@
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"SIM-kortteja löytyi useita"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"Valitse SIM-kortti mobiilidatan käyttöä varten."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"Käytetäänkö mobiilidataa (<xliff:g id="CARRIER">%1$s</xliff:g>)?"</string>
-    <!-- no translation found for sim_change_data_message (51004703157782900) -->
-    <skip />
+    <string name="sim_change_data_message" msgid="51004703157782900">"Käytät mobiilidataa (<xliff:g id="CARRIER2_0">%2$s</xliff:g>). Jos <xliff:g id="CARRIER1">%1$s</xliff:g> otetaan käyttöön, <xliff:g id="CARRIER2_1">%2$s</xliff:g> ei enää käytä mobiilidataa."</string>
     <string name="sim_change_data_ok" msgid="7491552537317573235">"Valitse <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"Päivitä ensisij. SIM-kortti?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> on laitteesi ainoa SIM-kortti. Haluatko käyttää korttia mobiilidataan, puheluihin ja tekstiviesteihin?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Virheellinen SIM-kortin PIN-koodi. Sinun on nyt otettava yhteys operaattoriin laitteen lukituksen avaamiseksi."</string>
-    <!-- no translation found for wrong_pin_code (2934318793525717627) -->
+    <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
+      <item quantity="other">Virheellinen SIM-kortin PIN-koodi. Sinulla on <xliff:g id="NUMBER_1">%d</xliff:g> yritystä jäljellä.</item>
+      <item quantity="one">Virheellinen SIM-kortin PIN-koodi. Sinulla on <xliff:g id="NUMBER_0">%d</xliff:g> yritys jäljellä, ennen kuin sinun on otettava yhteyttä operaattoriin laitteen lukituksen avaamiseksi.</item>
+    </plurals>
     <string name="pin_failed" msgid="4877356137480446727">"SIM-kortin PIN-toiminto epäonnistui!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Järjestelmäpäivitykset"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
@@ -1603,7 +1643,10 @@
     <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Työprofiilin sijainti"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"Sovelluksen käyttöoikeus"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"Sijainti on poissa käytöstä."</string>
-    <!-- no translation found for location_app_permission_summary_location_on (7904821382328758218) -->
+    <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
+      <item quantity="other"><xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g>/<xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g> sovelluksella on rajattomat käyttöoikeudet</item>
+      <item quantity="one"> <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_0">%1$d</xliff:g>/<xliff:g id="TOTAL_LOCATION_APP_COUNT_1">%2$d</xliff:g> sovelluksella on rajattomat käyttöoikeudet</item>
+    </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"Viimeaikainen sijainnin käyttö"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"Näytä tiedot"</string>
     <string name="location_no_recent_apps" msgid="77502059586413278">"Mikään sovellus ei ole pyytänyt sijaintia äskettäin"</string>
@@ -1615,8 +1658,7 @@
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Salli sovellusten ja palvelujen hakea Wi‑Fi-verkkoja aina, vaikka Wi-Fi olisi pois käytöstä. Näin voidaan esimerkiksi kehittää sijaintiin perustuvia ominaisuuksia ja palveluja."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth-haku"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Salli sovellusten ja palvelujen hakea lähellä olevia laitteita aina, vaikka Bluetooth olisi pois käytöstä. Näin voidaan esimerkiksi kehittää sijaintiin perustuvia ominaisuuksia ja palveluja."</string>
-    <!-- no translation found for managed_profile_location_services (224925483299159541) -->
-    <skip />
+    <string name="managed_profile_location_services" msgid="224925483299159541">"Sijaintipalvelut työkäyttöön"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi-Fi- ja mobiiliverkkosijainti"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"Anna sovellusten arvioida sijaintisi Googlen sijaintipalvelulla. Anonyymejä sijaintitietoja kerätään ja lähetetään Googlelle."</string>
     <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"Sijainti on määritetty Wi-Fi-yhteyden perusteella"</string>
@@ -1758,7 +1800,10 @@
     <string name="cache_header_label" msgid="3202284481380361966">"Välimuisti"</string>
     <string name="clear_cache_btn_text" msgid="107507684844780651">"Tyhjennä välimuisti"</string>
     <string name="cache_size_label" msgid="6205173678102220499">"Välimuisti"</string>
-    <!-- no translation found for uri_permissions_text (8938478333743197020) -->
+    <plurals name="uri_permissions_text" formatted="false" msgid="8938478333743197020">
+      <item quantity="other">%d kohdetta</item>
+      <item quantity="one">1 kohde</item>
+    </plurals>
     <string name="clear_uri_btn_text" msgid="3528618179883855727">"Poista käyttöoikeus"</string>
     <string name="controls_label" msgid="5609285071259457221">"Hallinta"</string>
     <string name="force_stop" msgid="9213858124674772386">"Pakota lopetus"</string>
@@ -2053,18 +2098,36 @@
     <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Muodosta pari kuulolaitteen kanssa etsimällä se seuraavalta näytöltä ja napauttamalla sitä."</string>
     <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Varmista, että kuulolaitteesi on laiteparin muodostustilassa."</string>
     <string name="accessibility_hearingaid_active_device_summary" msgid="6081382497207168885">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> aktiivinen"</string>
-    <!-- no translation found for show_number_hearingaid_count (7906547154695855096) -->
+    <plurals name="show_number_hearingaid_count" formatted="false" msgid="7906547154695855096">
+      <item quantity="other"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> tallennettua kuulolaitetta</item>
+      <item quantity="one"><xliff:g id="NUMBER_DEVICE_COUNT_0">%1$d</xliff:g> tallennettu kuulolaite</item>
+    </plurals>
     <string name="accessibility_summary_state_enabled" msgid="7357731696603247963">"Käytössä"</string>
     <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"Pois käytöstä"</string>
     <string name="accessibility_summary_state_stopped" msgid="3170264683616172746">"Palvelu ei toimi. Katso lisätietoja napauttamalla."</string>
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Tämä palvelu ei toimi oikein."</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"Näytä pika-asetuksissa"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"Korjaustila"</string>
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_extremely_short_delay (3810676455925024813) -->
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_short_delay (8720846747098057703) -->
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_short_delay (4311889107742293108) -->
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_long_delay (285663535113656440) -->
-    <!-- no translation found for accessibilty_autoclick_preference_subtitle_very_long_delay (3412533824632834001) -->
+    <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
+      <item quantity="other">Äärimmäisen lyhyt viive (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
+      <item quantity="one">Äärimmäisen lyhyt viive (<xliff:g id="CLICK_DELAY_LABEL_0">%1$d</xliff:g> ms)</item>
+    </plurals>
+    <plurals name="accessibilty_autoclick_preference_subtitle_very_short_delay" formatted="false" msgid="8720846747098057703">
+      <item quantity="other">Erittäin lyhyt viive (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
+      <item quantity="one">Erittäin lyhyt viive (<xliff:g id="CLICK_DELAY_LABEL_0">%1$d</xliff:g> ms)</item>
+    </plurals>
+    <plurals name="accessibilty_autoclick_preference_subtitle_short_delay" formatted="false" msgid="4311889107742293108">
+      <item quantity="other">Lyhyt viive (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
+      <item quantity="one">Lyhyt viive (<xliff:g id="CLICK_DELAY_LABEL_0">%1$d</xliff:g> ms)</item>
+    </plurals>
+    <plurals name="accessibilty_autoclick_preference_subtitle_long_delay" formatted="false" msgid="285663535113656440">
+      <item quantity="other">Pitkä viive (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
+      <item quantity="one">Pitkä viive (<xliff:g id="CLICK_DELAY_LABEL_0">%1$d</xliff:g> ms)</item>
+    </plurals>
+    <plurals name="accessibilty_autoclick_preference_subtitle_very_long_delay" formatted="false" msgid="3412533824632834001">
+      <item quantity="other">Erittäin pitkä viive (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
+      <item quantity="one">Erittäin pitkä viive (<xliff:g id="CLICK_DELAY_LABEL_0">%1$d</xliff:g> ms)</item>
+    </plurals>
     <string name="accessibility_vibration_summary" msgid="3642516399755721924">"Soittoääni <xliff:g id="SUMMARY_RING">%1$s</xliff:g>, ilmoitus <xliff:g id="SUMMARY_NOTIFICATION">%2$s</xliff:g>, kosketus <xliff:g id="SUMMARY_TOUCH">%3$s</xliff:g>"</string>
     <string name="accessibility_vibration_summary_off" msgid="2894044066550518676">"Puhelu- ja ilmoitusvärinä on pois käytöstä"</string>
     <string name="accessibility_vibration_summary_low" msgid="2884160616131878204">"Puhelu- ja ilmoitusvärinä on heikko"</string>
@@ -2124,8 +2187,14 @@
     <string name="settings_button" msgid="8557747862035866953">"Asetukset"</string>
     <string name="print_settings" msgid="7886184656544483072">"Tulostus"</string>
     <string name="print_settings_summary_no_service" msgid="634173687975841526">"Pois käytöstä"</string>
-    <!-- no translation found for print_settings_summary (7580293760281445137) -->
-    <!-- no translation found for print_jobs_summary (6180308415569432845) -->
+    <plurals name="print_settings_summary" formatted="false" msgid="7580293760281445137">
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> tulostuspalvelua käytössä</item>
+      <item quantity="one">1 tulostuspalvelu käytössä</item>
+    </plurals>
+    <plurals name="print_jobs_summary" formatted="false" msgid="6180308415569432845">
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> tulostustyötä</item>
+      <item quantity="one">1 tulostustyö</item>
+    </plurals>
     <string name="print_settings_title" msgid="2886445296786932763">"Tulostuspalvelut"</string>
     <string name="print_no_services_installed" msgid="3387777739528003794">"Ei asennettuja palveluita"</string>
     <string name="print_no_printers_found" msgid="5090925427392294881">"Tulostimia ei löydy"</string>
@@ -2213,11 +2282,26 @@
     <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"Tablettia on käytetty tavallista enemmän. Akku voi loppua odotettua aiemmin.\n\nKäytetyimmät sovellukset edellisen latauksen jälkeen:"</string>
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Laitetta on käytetty tavallista enemmän. Akku voi loppua odotettua aiemmin.\n\nKäytetyimmät sovellukset edellisen latauksen jälkeen:"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"Sisältää virtaa paljon kuluttavat taustatoiminnot"</string>
-    <!-- no translation found for battery_tip_restrict_title (7140926804142734420) -->
-    <!-- no translation found for battery_tip_restrict_handled_title (5509363095891806748) -->
-    <!-- no translation found for battery_tip_restrict_summary (984148373944071669) -->
-    <!-- no translation found for battery_tip_restrict_handled_summary (469696766640020557) -->
-    <!-- no translation found for battery_tip_restrict_app_dialog_title (3042021435866172168) -->
+    <plurals name="battery_tip_restrict_title" formatted="false" msgid="7140926804142734420">
+      <item quantity="other">Rajoita %1$d sovellusta</item>
+      <item quantity="one">Rajoita %1$d sovellusta</item>
+    </plurals>
+    <plurals name="battery_tip_restrict_handled_title" formatted="false" msgid="5509363095891806748">
+      <item quantity="other">%2$d viime aikoina rajoitettua sovellusta</item>
+      <item quantity="one">%1$s viime aikoina rajoitettu sovellus</item>
+    </plurals>
+    <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
+      <item quantity="other">%2$d sovellusta käyttää paljon akkua taustalla</item>
+      <item quantity="one">%1$s sovellus käyttää paljon akkua taustalla</item>
+    </plurals>
+    <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
+      <item quantity="other">Nämä sovellukset eivät voi toimia taustalla</item>
+      <item quantity="one">Tämä sovellus ei voi toimia taustalla</item>
+    </plurals>
+    <plurals name="battery_tip_restrict_app_dialog_title" formatted="false" msgid="3042021435866172168">
+      <item quantity="other">Rajoitetaanko %1$d sovellusta?</item>
+      <item quantity="one">Rajoitetaanko sovellusta?</item>
+    </plurals>
     <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"Akun säästämiseksi voit estää sovellusta <xliff:g id="APP">%1$s</xliff:g> kuluttamasta virtaa taustalla. Sovellus ei ehkä toimi oikein ja ilmoitukset voidaan näyttää viiveellä."</string>
     <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Akun säästämiseksi voit estää näitä sovelluksia kuluttamasta virtaa taustalla. Rajoitetut sovellukset eivät ehkä toimi oikein ja ilmoituksia voidaan näyttää viiveellä.\n\nSovellukset:"</string>
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Akun säästämiseksi voit estää näitä sovelluksia kuluttamasta virtaa taustalla. Rajoitetut sovellukset eivät ehkä toimi oikein ja ilmoituksia voidaan näyttää viiveellä.\n\nSovellukset:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
@@ -2236,14 +2320,20 @@
     <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"Voit rajoittaa sovelluksia, joiden virranhallinta havaitsee käyttävän paljon virtaa. Rajoitetut sovellukset eivät ehkä toimi oikein ja ilmoituksia voidaan näyttää viiveellä."</string>
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"Voit rajoittaa sovelluksia, joiden virranhallinta havaitsee käyttävän paljon virtaa. Rajoitetut sovellukset eivät ehkä toimi oikein ja ilmoituksia voidaan näyttää viiveellä."</string>
     <string name="restricted_app_title" msgid="4957644700640127606">"Rajoitetut sovellukset"</string>
-    <!-- no translation found for restricted_app_summary (7609538735465186040) -->
+    <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
+      <item quantity="other">%1$d sovelluksen akunkäyttöä rajoitetaan</item>
+      <item quantity="one">%1$d sovelluksen akunkäyttöä rajoitetaan</item>
+    </plurals>
     <string name="restricted_app_time_summary" msgid="5205881852523135226">"Rajoitettu <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"Nämä sovellukset kuluttavat virtaa taustalla. Rajoitetut sovellukset eivät ehkä toimi oikein ja ilmoituksia voidaan näyttää viiveellä."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Käytä virranhallintaa"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Tunnista akkua kuluttavat sovellukset"</string>
     <string name="battery_manager_on" msgid="5626982529932239656">"Käytössä / sovellusten runsas akunkäyttö havaitaan"</string>
     <string name="battery_manager_off" msgid="9114027524232450371">"Pois käytöstä"</string>
-    <!-- no translation found for battery_manager_app_restricted (6721813588142691216) -->
+    <plurals name="battery_manager_app_restricted" formatted="false" msgid="6721813588142691216">
+      <item quantity="other">%1$d sovellusta rajoitettu</item>
+      <item quantity="one">%1$d sovellus rajoitettu</item>
+    </plurals>
     <string name="battery_header_title_alternate" msgid="1161081105263761743">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">%</xliff:g>"</font></small>""</string>
     <string name="dialog_stop_title" msgid="4354544579084434590">"Lopetetaanko sovellus?"</string>
     <string name="dialog_stop_message" product="default" msgid="1361660290824872555">"Puhelin ei voi hallita akunkäyttöä normaalisti, koska <xliff:g id="APP">%1$s</xliff:g> pitää näyttöä aktivoituna.\n\nOngelman korjaamiseksi voit pakottaa sovelluksen lopetuksen.\n\nJos tämä tapahtuu toistuvasti, akun optimointi voi edellyttää sovelluksen poistamista."</string>
@@ -2710,8 +2800,7 @@
     <string name="trusted_credentials_user_tab" msgid="4368592735325224612">"Käyttäjä"</string>
     <string name="trusted_credentials_disable_label" msgid="2495224975071022858">"Poista käytöstä"</string>
     <string name="trusted_credentials_enable_label" msgid="8991649977058280799">"Ota käyttöön"</string>
-    <!-- no translation found for trusted_credentials_remove_label (530728557358501000) -->
-    <skip />
+    <string name="trusted_credentials_remove_label" msgid="530728557358501000">"Poista"</string>
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"Luota"</string>
     <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"Otetaanko järjestelmän CA-varmenne käyttöön?"</string>
     <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"Poistetaanko järjestelmän CA-varmenne käytöstä?"</string>
@@ -2734,11 +2823,23 @@
     <string name="additional_system_update_settings_list_item_title" msgid="8674710454802166341">"Järjestelmän lisäpäivitykset"</string>
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"Verkkoa saatetaan valvoa"</string>
     <string name="done_button" msgid="7652373284597307008">"Valmis"</string>
-    <!-- no translation found for ssl_ca_cert_dialog_title (7323708984446517980) -->
-    <!-- no translation found for ssl_ca_cert_info_message_device_owner (9046046586061880100) -->
-    <!-- no translation found for ssl_ca_cert_info_message (8271858091418779584) -->
+    <plurals name="ssl_ca_cert_dialog_title" formatted="false" msgid="7323708984446517980">
+      <item quantity="other">Luota varmenteisiin tai poista niitä</item>
+      <item quantity="one">Luota varmenteeseen tai poista se</item>
+    </plurals>
+    <plurals name="ssl_ca_cert_info_message_device_owner" formatted="false" msgid="9046046586061880100">
+      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> on asentanut laitteellesi varmenteen myöntäjiä, mikä mahdollistaa verkkotoimintasi (kuten sähköpostin, sovellusten ja suojattujen verkkosivustojen käytön) seuraamisen.\n\nSaat lisätietoja varmenteista järjestelmänvalvojaltasi.</item>
+      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> on asentanut laitteellesi varmenteen myöntäjän, mikä mahdollistaa verkkotoimintasi (kuten sähköpostin, sovellusten ja suojattujen verkkosivustojen käytön) seuraamisen.\n\nSaat lisätietoja varmenteesta järjestelmänvalvojaltasi.</item>
+    </plurals>
+    <plurals name="ssl_ca_cert_info_message" formatted="false" msgid="8271858091418779584">
+      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> on asentanut työprofiiliisi varmenteen myöntäjiä, mikä mahdollistaa toimintasi (kuten sähköpostin, sovellusten ja suojattujen verkkosivustojen käytön) seuraamisen työverkossa.\n\nSaat lisätietoja varmenteista järjestelmänvalvojaltasi.</item>
+      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> on asentanut työprofiiliisi varmenteen myöntäjän, mikä mahdollistaa toimintasi (kuten sähköpostin, sovellusten ja suojattujen verkkosivustojen käytön) seuraamisen työverkossa.\n\nSaat lisätietoja varmenteesta järjestelmänvalvojaltasi.</item>
+    </plurals>
     <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"Kolmas osapuoli pystyy seuraamaan toimiasi verkossa, esimerkiksi sähköpostiviestien, sovellusten ja turvallisten verkkosivustojen käyttöä.\n\nLaitteeseesi asennettu luotettu varmenne tekee tämän mahdolliseksi."</string>
-    <!-- no translation found for ssl_ca_cert_settings_button (3227175122066058245) -->
+    <plurals name="ssl_ca_cert_settings_button" formatted="false" msgid="3227175122066058245">
+      <item quantity="other">Tarkista varmenteet</item>
+      <item quantity="one">Tarkista varmenne</item>
+    </plurals>
     <string name="user_settings_title" msgid="7917598650933179545">"Useita käyttäjiä"</string>
     <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"Jaa laitteesi lisäämällä uusia käyttäjiä. Kullakin käyttäjällä on laitteella oma tila räätälöityjä aloitusnäyttöjä, tilejä, sovelluksia, asetuksia ja muita tietoja varten."</string>
     <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"Jaa tablettisi lisäämällä uusia käyttäjiä. Kullakin käyttäjällä on laitteella oma tila räätälöityjä aloitusnäyttöjä, tilejä, sovelluksia, asetuksia ja muita tietoja varten."</string>
@@ -2919,7 +3020,10 @@
     <string name="sim_selection_required_pref" msgid="8738591348923992419">"Valinta on pakollinen"</string>
     <string name="sim_selection_channel_title" msgid="5671915549529226023">"SIM-valinta"</string>
     <string name="dashboard_title" msgid="3343056553551876215">"Asetukset"</string>
-    <!-- no translation found for settings_suggestion_header_summary_hidden_items (4475734332610696843) -->
+    <plurals name="settings_suggestion_header_summary_hidden_items" formatted="false" msgid="4475734332610696843">
+      <item quantity="other">Näytä %d piilotettua kohdetta</item>
+      <item quantity="one">Näytä %d piilotettu kohde</item>
+    </plurals>
     <string name="network_dashboard_title" msgid="8288134139584687806">"Verkko ja internet"</string>
     <string name="network_dashboard_summary_mobile" msgid="5560545061217580626">"mobiili"</string>
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"datan käyttö"</string>
@@ -3053,7 +3157,10 @@
     <string name="live_caption_title" msgid="7926591158657997051">"Live-tekstitys"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"Tekstitä media automaattisesti"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Ei koskaan"</string>
-    <!-- no translation found for zen_mode_settings_summary_on (6061723291126091396) -->
+    <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
+      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> käytössä</item>
+      <item quantity="one">1 käytössä</item>
+    </plurals>
     <string name="zen_mode_settings_title" msgid="3425263414594779244">"Älä häiritse"</string>
     <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"Ota Älä häiritse ‑tila käyttöön"</string>
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"Poikkeukset"</string>
@@ -3132,9 +3239,15 @@
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Käytössä"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Kysy aina (paitsi jos se käynnistyy automaattisesti)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Kunnes poistat sen käytöstä (paitsi jos se käynnistyy automaattisesti)"</string>
-    <!-- no translation found for zen_mode_duration_summary_time_hours (8872000022033647725) -->
+    <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
+      <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> tuntia (paitsi jos se käynnistyy automaattisesti)</item>
+      <item quantity="one">1 tunti (paitsi jos se käynnistyy automaattisesti)</item>
+    </plurals>
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> minuuttia (paitsi jos se käynnistyy automaattisesti)"</string>
-    <!-- no translation found for zen_mode_sound_summary_summary_off_info (8527428833487709278) -->
+    <plurals name="zen_mode_sound_summary_summary_off_info" formatted="false" msgid="8527428833487709278">
+      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> aikataulua voi käynnistyä automaattisesti</item>
+      <item quantity="one">1 aikataulu voi käynnistyä automaattisesti</item>
+    </plurals>
     <string name="zen_category_behavior" msgid="7695750848671443532">"Mykistä laite, mutta salli poikkeukset"</string>
     <string name="zen_category_exceptions" msgid="2139670640033601899">"Poikkeukset"</string>
     <string name="zen_category_schedule" msgid="989629666210114164">"Aikataulu"</string>
@@ -3243,7 +3356,10 @@
     <string name="manage_notification_access_title" msgid="5348743662189787547">"Pääsy ilmoituksiin"</string>
     <string name="work_profile_notification_access_blocked_summary" msgid="8148871282484870576">"Työprofiilin ilmoitusten käyttö on estetty."</string>
     <string name="manage_notification_access_summary_zero" msgid="236809421271593016">"Sovellukset eivät voi lukea ilmoituksia"</string>
-    <!-- no translation found for manage_notification_access_summary_nonzero (8496218948429646792) -->
+    <plurals name="manage_notification_access_summary_nonzero" formatted="false" msgid="8496218948429646792">
+      <item quantity="other">%d sovellusta voi lukea ilmoituksia</item>
+      <item quantity="one">%d sovellus voi lukea ilmoituksia</item>
+    </plurals>
     <string name="notification_assistant_title" msgid="8216604031352764011">"Ilmoitusapuri"</string>
     <string name="no_notification_assistant" msgid="9140123568386413264">"Ei apuria"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Yksikään asennettu sovellus ei ole pyytänyt ilmoituksien käyttöoikeutta."</string>
@@ -3276,12 +3392,21 @@
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"Android estää pyynnöstäsi tähän ryhmään kuuluvien ilmoituksien näyttämisen tällä laitteella."</string>
     <string name="notification_channels" msgid="956764228116145956">"Luokat"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"Muut"</string>
-    <!-- no translation found for notification_group_summary (3744856747513344999) -->
+    <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> luokkaa</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> luokka</item>
+    </plurals>
     <string name="no_channels" msgid="8884254729302501652">"Tämä sovellus ei ole lähettänyt ilmoituksia."</string>
     <string name="app_settings_link" msgid="8465287765715790984">"Lisäasetukset sovelluksessa"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"Käytössä kaikissa sovelluksissa"</string>
-    <!-- no translation found for app_notification_listing_summary_others (1161774065480666519) -->
-    <!-- no translation found for deleted_channels (7741359084299446208) -->
+    <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
+      <item quantity="other">Poistettu <xliff:g id="COUNT_1">%d</xliff:g> sovelluksen käytöstä</item>
+      <item quantity="one">Poistettu <xliff:g id="COUNT_0">%d</xliff:g> sovelluksen käytöstä</item>
+    </plurals>
+    <plurals name="deleted_channels" formatted="false" msgid="7741359084299446208">
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> luokkaa poistettu</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> luokka poistettu</item>
+    </plurals>
     <string name="notification_toggle_on" msgid="5119816745741139542">"Käytössä"</string>
     <string name="notification_toggle_off" msgid="5289843670514922751">"Pois käytöstä"</string>
     <string name="app_notification_block_title" msgid="7898269373875294367">"Estä kaikki"</string>
@@ -3350,7 +3475,10 @@
     <string name="zen_mode_calls_footer" msgid="6319824006810688433">"Varmista sallittujen puhelujen kuuluminen tarkistamalla, onko laitteen tila soittoääni, värinä vai äänetön."</string>
     <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"Saapuvat puhelut estetään: <xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>. Voit määrittää asetukset niin, että ystävät, perheenjäsenet tai muut yhteyshenkilöt saavat sinuun yhteyden."</string>
     <string name="zen_mode_starred_contacts_title" msgid="7099621384597127058">"Tähdelliset yhteystiedot"</string>
-    <!-- no translation found for zen_mode_starred_contacts_summary_additional_contacts (1904181007981570805) -->
+    <plurals name="zen_mode_starred_contacts_summary_additional_contacts" formatted="false" msgid="1904181007981570805">
+      <item quantity="other"><xliff:g id="NUM_PEOPLE">%d</xliff:g> muuta</item>
+      <item quantity="one">1 muu</item>
+    </plurals>
     <string name="zen_mode_messages" msgid="2908722562188394107">"Salli tekstiviestit"</string>
     <string name="zen_mode_messages_footer" msgid="5048951937714668561">"Varmista sallittujen viestien kuuluminen tarkistamalla, onko laitteen tila soittoääni, värinä vai äänetön."</string>
     <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"Saapuvat tekstiviestit estetään: <xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>. Voit määrittää asetukset niin, että ystävät, perheenjäsenet tai muut yhteyshenkilöt saavat sinuun yhteyden."</string>
@@ -3375,7 +3503,10 @@
     <string name="zen_mode_events" msgid="5784076928339534984">"Salli tapahtumat"</string>
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Salli ohittaminen sovelluksille"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Lisää poikkeuksia"</string>
-    <!-- no translation found for zen_mode_bypassing_apps_subtext (8723144434730871572) -->
+    <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
+      <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> sovelluksen ilmoitukset voivat ohittaa Älä häiritse ‑tilan</item>
+      <item quantity="one">1 sovelluksen ilmoitukset voivat ohittaa Älä häiritse ‑tilan</item>
+    </plurals>
     <string name="zen_mode_events_list" msgid="8578102701815684873">"tapahtumat"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"kuka tahansa"</string>
     <string name="zen_mode_contacts_callers" msgid="3116829245339716399">"yhteyshenkilöt"</string>
@@ -3395,8 +3526,14 @@
     <string name="zen_mode_end_time" msgid="3188578493250909972">"Päättymisaika"</string>
     <string name="zen_mode_end_time_next_day_summary_format" msgid="1598612215612648214">"<xliff:g id="FORMATTED_TIME">%s</xliff:g> seuraavana päivänä"</string>
     <string name="zen_mode_summary_alarms_only_indefinite" msgid="2470936648971337656">"Ota vain herätykset käyttöön toistaiseksi."</string>
-    <!-- no translation found for zen_mode_summary_alarms_only_by_minute (7192429395424304796) -->
-    <!-- no translation found for zen_mode_summary_alarms_only_by_hour (4198430986970707666) -->
+    <plurals name="zen_mode_summary_alarms_only_by_minute" formatted="false" msgid="7192429395424304796">
+      <item quantity="other">Ota vain herätykset käyttöön <xliff:g id="DURATION">%1$d</xliff:g> minuutiksi <xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g> asti.</item>
+      <item quantity="one">Ota vain herätykset käyttöön yhdeksi minuutiksi <xliff:g id="FORMATTEDTIME_0">%2$s</xliff:g> asti.</item>
+    </plurals>
+    <plurals name="zen_mode_summary_alarms_only_by_hour" formatted="false" msgid="4198430986970707666">
+      <item quantity="other">Ota vain herätykset käyttöön <xliff:g id="DURATION">%1$d</xliff:g> yhdeksi tunniksi <xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g> asti.</item>
+      <item quantity="one">Ota vain herätykset käyttöön yhdeksi tunniksi <xliff:g id="FORMATTEDTIME_0">%2$s</xliff:g> asti.</item>
+    </plurals>
     <string name="zen_mode_summary_alarms_only_by_time" msgid="2462898862757904560">"Ota vain herätykset käyttöön kello <xliff:g id="FORMATTEDTIME">%1$s</xliff:g> asti."</string>
     <string name="zen_mode_summary_always" msgid="2703276042913200837">"Salli keskeytykset aina."</string>
     <string name="zen_mode_screen_on" msgid="7098470659072167219">"Kun näyttö on päällä"</string>
@@ -3469,10 +3606,22 @@
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"Taso %d"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
-    <!-- no translation found for notifications_categories_off (7173464913755425293) -->
-    <!-- no translation found for permissions_summary (2750853128045095961) -->
-    <!-- no translation found for runtime_permissions_summary (3166036683687471356) -->
-    <!-- no translation found for runtime_permissions_additional_count (2068102378805218668) -->
+    <plurals name="notifications_categories_off" formatted="false" msgid="7173464913755425293">
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> luokkaa poistettu käytöstä</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> luokka poistettu käytöstä</item>
+    </plurals>
+    <plurals name="permissions_summary" formatted="false" msgid="2750853128045095961">
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> käyttöoikeutta myönnetty</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> käyttöoikeus myönnetty</item>
+    </plurals>
+    <plurals name="runtime_permissions_summary" formatted="false" msgid="3166036683687471356">
+      <item quantity="other"><xliff:g id="COUNT_2">%d</xliff:g>/<xliff:g id="COUNT_3">%d</xliff:g> lupaa myönnetty.</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g>/<xliff:g id="COUNT_1">%d</xliff:g> lupaa myönnetty.</item>
+    </plurals>
+    <plurals name="runtime_permissions_additional_count" formatted="false" msgid="2068102378805218668">
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> lisäkäyttölupaa</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> lisäkäyttölupa</item>
+    </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"Käyttöoikeuksia ei ole myönnetty"</string>
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Käyttöoikeuksia ei ole pyydetty"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"Kaikki sovellukset"</string>
@@ -3498,7 +3647,10 @@
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"Avaa <xliff:g id="DOMAIN">%s</xliff:g>"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"Avaa <xliff:g id="DOMAIN">%s</xliff:g> ja muut URL-osoitteet."</string>
     <string name="domain_urls_apps_summary_off" msgid="1110203970617922543">"Ei tuettuja linkkejä avaavia sovelluksia"</string>
-    <!-- no translation found for domain_urls_apps_summary_on (3571309605151815405) -->
+    <plurals name="domain_urls_apps_summary_on" formatted="false" msgid="3571309605151815405">
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> sovellusta avaa tuettuja linkkejä</item>
+      <item quantity="one">Yksi sovellus avaa tuettuja linkkejä</item>
+    </plurals>
     <string name="app_link_open_always" msgid="7723587434377688415">"Avaa tässä sovelluksessa."</string>
     <string name="app_link_open_ask" msgid="4054678686331517561">"Kysy aina."</string>
     <string name="app_link_open_never" msgid="5774359835242754350">"Älä avaa tässä sovelluksessa."</string>
@@ -3539,8 +3691,14 @@
     <string name="additional_battery_info" msgid="6877663897819271203">"Käyttöilmoitukset"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"Näytä kaikki laitteen käyttö"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"Näytä sovelluksen käyttö"</string>
-    <!-- no translation found for power_high_usage_summary (4658343710126205199) -->
-    <!-- no translation found for power_high_usage_title (63134064262760835) -->
+    <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
+      <item quantity="other"><xliff:g id="NUMBER">%2$d</xliff:g> sovellusta toimii epätavallisesti.</item>
+      <item quantity="one"><xliff:g id="APP">%1$s</xliff:g> toimii epätavallisesti.</item>
+    </plurals>
+    <plurals name="power_high_usage_title" formatted="false" msgid="63134064262760835">
+      <item quantity="other">Sovellukset kuluttavat akkua</item>
+      <item quantity="one"><xliff:g id="APP">%1$s</xliff:g> kuluttaa akkua</item>
+    </plurals>
     <string name="high_power_filter_on" msgid="5294209328473386403">"Ei optimointia"</string>
     <string name="high_power_on" msgid="3573501822510580334">"Ei optimointia"</string>
     <string name="high_power_off" msgid="5906679734326490426">"Akun käyttöä optimoidaan."</string>
@@ -3614,7 +3772,10 @@
     <string name="average_used" msgid="3022736210190754669">"Käytetty keskimäärin (%)"</string>
     <string name="free_memory" msgid="4758919141048544927">"Vapaana"</string>
     <string name="memory_usage_apps" msgid="2839241373381152354">"Sovellusten käyttämä muisti"</string>
-    <!-- no translation found for memory_usage_apps_summary (1235024908546944704) -->
+    <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
+      <item quantity="other">viimeiset <xliff:g id="DURATION_1">%2$s</xliff:g>: <xliff:g id="COUNT">%1$d</xliff:g> sovellusta käytti muistia</item>
+      <item quantity="one">viimeiset <xliff:g id="DURATION_0">%2$s</xliff:g>: 1 sovellus käytti muistia</item>
+    </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"Toistuvuus"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Enimmäiskäyttö"</string>
     <string name="no_data_usage" msgid="903383745620135746">"Dataa ei käytetty"</string>
@@ -3683,9 +3844,11 @@
     <string name="keyboard_disconnected" msgid="3068615097201531871">"Ei yhteyttä"</string>
     <string name="data_usage_summary_format" msgid="7788095271598602797">"<xliff:g id="AMOUNT">%1$s</xliff:g> datasta käytetty"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"<xliff:g id="AMOUNT">^1</xliff:g> käytetty Wi‑Fillä"</string>
-    <!-- no translation found for notification_summary (761061343339229103) -->
-    <!-- no translation found for notification_summary_none (5003043219430054784) -->
-    <skip />
+    <plurals name="notification_summary" formatted="false" msgid="761061343339229103">
+      <item quantity="other">Poissa <xliff:g id="COUNT">%d</xliff:g> sovelluksen käytöstä</item>
+      <item quantity="one">Poissa 1 sovelluksen käytöstä</item>
+    </plurals>
+    <string name="notification_summary_none" msgid="5003043219430054784">"Käytössä kaikissa sovelluksissa"</string>
     <string name="apps_summary" msgid="8355759446490212195">"<xliff:g id="COUNT">%1$d</xliff:g> sovellusta asennettu"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"24 sovellusta asennettu"</string>
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> käytetty – <xliff:g id="FREE_SPACE">%2$s</xliff:g> vapaana"</string>
@@ -3747,8 +3910,14 @@
     <string name="suggestions_title" msgid="5923757323945800980">"Ehdotukset"</string>
     <string name="suggestions_summary" msgid="1020388234814391540">"+<xliff:g id="ID_1">%1$d</xliff:g>"</string>
     <string name="suggestions_more_title" msgid="2074600543626216244">"+<xliff:g id="ID_1">%1$d</xliff:g> muuta"</string>
-    <!-- no translation found for suggestions_collapsed_title (2039648015513016616) -->
-    <!-- no translation found for suggestions_collapsed_summary (3875961424499822336) -->
+    <plurals name="suggestions_collapsed_title" formatted="false" msgid="2039648015513016616">
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> ehdotusta</item>
+      <item quantity="one">1 ehdotus</item>
+    </plurals>
+    <plurals name="suggestions_collapsed_summary" formatted="false" msgid="3875961424499822336">
+      <item quantity="other">+<xliff:g id="COUNT">%1$d</xliff:g> ehdotusta</item>
+      <item quantity="one">+1 ehdotus</item>
+    </plurals>
     <string name="suggestion_remove" msgid="8139144680393078781">"Poista"</string>
     <string name="color_temperature" msgid="3059566380033851354">"Viileä värilämpötila"</string>
     <string name="color_temperature_desc" msgid="136940760965483490">"Käytä viileämpiä värilämpötiloja"</string>
@@ -3773,7 +3942,10 @@
     <string name="cell_data_warning_and_limit" msgid="3846150001253927594">"Datavaroitus <xliff:g id="ID_1">^1</xliff:g> / Dataraja <xliff:g id="ID_2">^2</xliff:g>"</string>
     <string name="billing_cycle_fragment_summary" msgid="4926047002107855543">"Joka kuukauden <xliff:g id="ID_1">%1$s</xliff:g>. päivä"</string>
     <string name="network_restrictions" msgid="196294262243618198">"Verkkorajoitukset"</string>
-    <!-- no translation found for network_restrictions_summary (1664494781594839837) -->
+    <plurals name="network_restrictions_summary" formatted="false" msgid="1664494781594839837">
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> rajoitusta</item>
+      <item quantity="one">1 rajoitus</item>
+    </plurals>
     <string name="operator_warning" msgid="4676042739221117031">"Operaattorin mittaama datan määrä voi erota laitteen mittaustuloksesta."</string>
     <string name="data_used_template" msgid="761605393453849477">"<xliff:g id="ID_1">%1$s</xliff:g> käytetty"</string>
     <string name="set_data_warning" msgid="8115980184415563941">"Aseta datankäyttövaroitus"</string>
@@ -3784,14 +3956,20 @@
     <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> käytetty <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="configure" msgid="8232696842838580549">"Määritä"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Muut datan käyttöön laskettavat sovellukset"</string>
-    <!-- no translation found for data_saver_unrestricted_summary (6046013861315713697) -->
+    <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> sovellusta saa käyttää rajattomasti dataa, kun Data Saver on käytössä.</item>
+      <item quantity="one">1 sovellus saa käyttää rajattomasti dataa, kun Data Saver on käytössä.</item>
+    </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"Ensisijainen Data"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Wi‑Fi-data"</string>
     <string name="data_used" msgid="1063553292806661784">"<xliff:g id="ID_1">^1</xliff:g> käytetty"</string>
     <string name="data_used_formatted" msgid="9150356955895106822">"<xliff:g id="ID_1">^1</xliff:g> <xliff:g id="ID_2">^2</xliff:g> käytetty"</string>
     <string name="data_overusage" msgid="1570432641791021533">"<xliff:g id="ID_1">^1</xliff:g> yli rajan"</string>
     <string name="data_remaining" msgid="2048075003610039742">"<xliff:g id="ID_1">^1</xliff:g> jäljellä"</string>
-    <!-- no translation found for billing_cycle_days_left (148479292242207382) -->
+    <plurals name="billing_cycle_days_left" formatted="false" msgid="148479292242207382">
+      <item quantity="other">%d päivää jäljellä</item>
+      <item quantity="one">%d päivä jäljellä</item>
+    </plurals>
     <string name="billing_cycle_none_left" msgid="1329748082366602901">"Ei aikaa jäljellä"</string>
     <string name="billing_cycle_less_than_one_day_left" msgid="855800570587142182">"Alle 1 päivä jäljellä"</string>
     <string name="carrier_and_update_text" msgid="4100603877929297103">"<xliff:g id="ID_1">^1</xliff:g> asensi päivityksen <xliff:g id="ID_2">^2</xliff:g> sitten"</string>
@@ -3868,7 +4046,10 @@
     <string name="overlay_option_device_default" msgid="165508753381657697">"Laitteen oletusasetus"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Peittokuvan piirto epäonnistui"</string>
     <string name="special_access" msgid="1453926335914696206">"Sovellusten erikoiskäyttö"</string>
-    <!-- no translation found for special_access_summary (5182092345063909346) -->
+    <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> sovelluksen datankäyttöä ei rajoiteta.</item>
+      <item quantity="one">1 sovelluksen datankäyttöä ei rajoiteta.</item>
+    </plurals>
     <string name="special_access_more" msgid="7086690625048471400">"Katso lisää"</string>
     <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"Haluatko varmasti poistaa käyttäjätiedot ja ottaa tiedostojen salauksen käyttöön?"</string>
     <string name="button_confirm_convert_fbe" msgid="419832223125147297">"Poista ja salaa"</string>
@@ -3899,9 +4080,18 @@
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Profiilienvälinen kalenteri"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"Näytä työtapahtumat omassa kalenterissa"</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"Organisaatio ei salli henkilökohtaisten sovellusten käyttää työkalenteriasi."</string>
-    <!-- no translation found for hours (135936773984899873) -->
-    <!-- no translation found for minutes (4624073557955858160) -->
-    <!-- no translation found for seconds (6942674168513274363) -->
+    <plurals name="hours" formatted="false" msgid="135936773984899873">
+      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> tuntia</item>
+      <item quantity="one">1 tunti</item>
+    </plurals>
+    <plurals name="minutes" formatted="false" msgid="4624073557955858160">
+      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> minuuttia</item>
+      <item quantity="one">1 minuutti</item>
+    </plurals>
+    <plurals name="seconds" formatted="false" msgid="6942674168513274363">
+      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> sekuntia</item>
+      <item quantity="one">1 sekunti</item>
+    </plurals>
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"Tallennustilan hallinnointi"</string>
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Tallennustilan hallinta vapauttaa tilaa poistamalla varmuuskopioituja kuvia ja videoita laitteeltasi."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Poista kuvia ja videoita"</string>
@@ -3914,8 +4104,7 @@
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Puhelin ohjaamisen pikaeleet"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Tabletin ohjaamisen pikaeleet"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Laitten ohjaamisen pikaeleet"</string>
-    <!-- no translation found for double_tap_power_for_camera_title (5480829329052517484) -->
-    <skip />
+    <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Kameraan siirtyminen"</string>
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Avaa kamera nopeasti painamalla virtapainiketta kahdesti. Tämä toimii miltä tahansa näytöltä."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Avaa kamera nopeasti"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Kameran vaihtaminen"</string>
@@ -3985,12 +4174,18 @@
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"Ei mitään"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"Asennetut sovellukset"</string>
     <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"Sovellusten lukumäärä on arvio. Luku ei välttämättä sisällä sovelluksia, jotka on asennettu muualta kuin Play Kaupasta."</string>
-    <!-- no translation found for enterprise_privacy_number_packages_lower_bound (5161417161943060602) -->
+    <plurals name="enterprise_privacy_number_packages_lower_bound" formatted="false" msgid="5161417161943060602">
+      <item quantity="other">Vähintään <xliff:g id="COUNT_1">%d</xliff:g> sovellusta</item>
+      <item quantity="one">Vähintään <xliff:g id="COUNT_0">%d</xliff:g> sovellus</item>
+    </plurals>
     <string name="enterprise_privacy_location_access" msgid="110406267468274216">"Sijainnin käyttöoikeudet"</string>
     <string name="enterprise_privacy_microphone_access" msgid="4586428105675460207">"Mikrofonin käyttöoikeudet"</string>
     <string name="enterprise_privacy_camera_access" msgid="2366392786153103482">"Kameran käyttöoikeudet"</string>
     <string name="enterprise_privacy_enterprise_set_default_apps" msgid="6142937923758931242">"Oletussovellukset"</string>
-    <!-- no translation found for enterprise_privacy_number_packages (1480745164313890415) -->
+    <plurals name="enterprise_privacy_number_packages" formatted="false" msgid="1480745164313890415">
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> sovellusta</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> sovellus</item>
+    </plurals>
     <string name="enterprise_privacy_input_method" msgid="5885916325874284011">"Oletusnäppäimistö"</string>
     <string name="enterprise_privacy_input_method_name" msgid="439610095825218563">"Asetettu: <xliff:g id="APP_LABEL">%s</xliff:g>"</string>
     <string name="enterprise_privacy_always_on_vpn_device" msgid="2022700916516458213">"Aina käytössä oleva VPN päällä"</string>
@@ -4000,22 +4195,37 @@
     <string name="enterprise_privacy_ca_certs_device" msgid="7715658848470643878">"Luotetut kirjautumistiedot"</string>
     <string name="enterprise_privacy_ca_certs_personal" msgid="1356447417193483802">"Henkilökohtaisen profiilin luotetut kirjautumistiedot"</string>
     <string name="enterprise_privacy_ca_certs_work" msgid="836419648894546893">"Työprofiilin luotetut kirjautumistiedot"</string>
-    <!-- no translation found for enterprise_privacy_number_ca_certs (7953528945502561752) -->
+    <plurals name="enterprise_privacy_number_ca_certs" formatted="false" msgid="7953528945502561752">
+      <item quantity="other">Vähintään <xliff:g id="COUNT_1">%d</xliff:g> CA-varmennetta</item>
+      <item quantity="one">Vähintään <xliff:g id="COUNT_0">%d</xliff:g> CA-varmenne</item>
+    </plurals>
     <string name="enterprise_privacy_lock_device" msgid="1533125067038409945">"Järjestelmänvalvoja voi lukita laitteen ja vaihtaa salasanan"</string>
     <string name="enterprise_privacy_wipe_device" msgid="7555287990273929922">"Järjestelmänvalvoja voi poistaa kaikki laitteen tiedot."</string>
     <string name="enterprise_privacy_failed_password_wipe_device" msgid="4101502079202483156">"Epäonnistuneet salasanan kirjoitusyritykset ennen kaikkien laitteen tietojen poistamista"</string>
     <string name="enterprise_privacy_failed_password_wipe_work" msgid="2881646286634693392">"Epäonnistuneet salasanan kirjoitusyritykset ennen kaikkien työprofiilin tietojen poistamista"</string>
-    <!-- no translation found for enterprise_privacy_number_failed_password_wipe (562550414712223382) -->
+    <plurals name="enterprise_privacy_number_failed_password_wipe" formatted="false" msgid="562550414712223382">
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> yritystä</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> yritys</item>
+    </plurals>
     <string name="do_disclosure_generic" msgid="2925786401209052566">"Organisaatiosi hallinnoi tätä laitetta."</string>
     <string name="do_disclosure_with_name" msgid="3148721462670362163">"Tätä laitetta hallitsee <xliff:g id="ORGANIZATION_NAME">%s</xliff:g>."</string>
     <string name="do_disclosure_learn_more_separator" msgid="702345537118848010">" "</string>
     <string name="learn_more" msgid="6844160787130206258">"Lue lisää"</string>
-    <!-- no translation found for default_camera_app_title (8762954032197483848) -->
+    <plurals name="default_camera_app_title" formatted="false" msgid="8762954032197483848">
+      <item quantity="other">Kamerasovellukset</item>
+      <item quantity="one">Kamerasovellus</item>
+    </plurals>
     <string name="default_calendar_app_title" msgid="6484001237347739255">"Kalenterisovellus"</string>
     <string name="default_contacts_app_title" msgid="1050372162465746272">"Yhteystietosovellus"</string>
-    <!-- no translation found for default_email_app_title (6875559046625447168) -->
+    <plurals name="default_email_app_title" formatted="false" msgid="6875559046625447168">
+      <item quantity="other">Sähköpostisovellukset</item>
+      <item quantity="one">Sähköpostisovellus</item>
+    </plurals>
     <string name="default_map_app_title" msgid="6919751358166607185">"Karttasovellus"</string>
-    <!-- no translation found for default_phone_app_title (7593838689002912108) -->
+    <plurals name="default_phone_app_title" formatted="false" msgid="7593838689002912108">
+      <item quantity="other">Puhelinsovellukset</item>
+      <item quantity="one">Puhelinsovellus</item>
+    </plurals>
     <string name="app_names_concatenation_template_2" msgid="8267577900046506189">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>"</string>
     <string name="app_names_concatenation_template_3" msgid="5129064036161862327">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>, <xliff:g id="THIRD_APP_NAME">%3$s</xliff:g>"</string>
     <string name="storage_photos_videos" msgid="1890829312367477559">"Kuvat ja videot"</string>
@@ -4169,11 +4379,13 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Käytä mobiiliverkon dataa."</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Puhelin vaihtaa automaattisesti tähän operaattoriin, kun se on kantoalueella."</string>
     <string name="calls_preference" msgid="2076353032705811243">"Puheluasetus"</string>
-    <!-- no translation found for sms_preference (8449270011976880) -->
-    <skip />
+    <string name="sms_preference" msgid="8449270011976880">"Tekstiviestiasetus"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Kysy aina"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Lisää verkko"</string>
-    <!-- no translation found for mobile_network_summary_count (6222822873390636020) -->
+    <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">
+      <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> SIM-korttia</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%1$d</xliff:g> SIM-kortti</item>
+    </plurals>
     <string name="default_for_calls" msgid="8706651147900549897">"Puhelujen oletus"</string>
     <string name="default_for_sms" msgid="5180640397787496162">"Tekstiviestien oletus"</string>
     <string name="default_for_calls_and_sms" msgid="3109837505015103510">"Puhelujen ja tekstiviestien oletus"</string>
@@ -4233,7 +4445,10 @@
     <string name="network_connection_errorstate_dialog_message" msgid="1599445930536043943">"Jokin meni vikaan. Sovellus peruutti laitteenvalintapyynnön."</string>
     <string name="network_connection_connect_successful" msgid="888912275986965748">"Yhteyden muodostus onnistui"</string>
     <string name="network_connection_request_dialog_showall" msgid="396928496030183071">"Näytä kaikki"</string>
-    <!-- no translation found for show_bluetooth_devices (7451733907387872891) -->
+    <plurals name="show_bluetooth_devices" formatted="false" msgid="7451733907387872891">
+      <item quantity="other"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> laitetta yhdistetty</item>
+      <item quantity="one"><xliff:g id="NUMBER_DEVICE_COUNT_0">%1$d</xliff:g> laite yhdistetty</item>
+    </plurals>
     <string name="no_bluetooth_devices" msgid="4338224958734305244">"Ei Bluetooth-laitteita"</string>
     <string name="bluetooth_left_name" msgid="4393660998014637355">"Vasen"</string>
     <string name="bluetooth_right_name" msgid="8356091262762973801">"Oikea"</string>
@@ -4253,8 +4468,7 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Poistetaanko tämä ehdotus?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Ehdotus poistettu"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Kumoa"</string>
-    <!-- no translation found for low_storage_summary (4562224870189133400) -->
-    <skip />
+    <string name="low_storage_summary" msgid="4562224870189133400">"Tallennustila on vähissä. <xliff:g id="PERCENTAGE">%1$s</xliff:g> käytössä – <xliff:g id="FREE_SPACE">%2$s</xliff:g> vapaana"</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Lähetä palautetta"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Haluatko antaa palautetta tästä ehdotuksesta?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g> kopioitiin leikepöydälle"</string>
@@ -4262,12 +4476,21 @@
     <string name="permission_bar_chart_empty_text" msgid="5893326513700540130">"0 sovellusta käytti käyttöoikeuksia"</string>
     <string name="permission_bar_chart_title" msgid="874145405516650073">"Käyttöoikeudet viimeisten 24 tunnin ajalta"</string>
     <string name="permission_bar_chart_details" msgid="942094334321073927">"Näytä kaikki ohjauspaneelissa"</string>
-    <!-- no translation found for permission_bar_chart_label (2831305719356562097) -->
+    <plurals name="permission_bar_chart_label" formatted="false" msgid="2831305719356562097">
+      <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> sovellusta</item>
+      <item quantity="one">1 sovellus</item>
+    </plurals>
     <string name="accessibility_usage_title" msgid="3920601240120963611">"Esteetön käyttö"</string>
-    <!-- no translation found for accessibility_usage_summary (2604152087205501644) -->
+    <plurals name="accessibility_usage_summary" formatted="false" msgid="2604152087205501644">
+      <item quantity="other"><xliff:g id="SERVICE_COUNT">%1$d</xliff:g> sovelluksella on laitteesi täydet käyttöoikeudet</item>
+      <item quantity="one">1 sovelluksella on laitteesi täydet käyttöoikeudet</item>
+    </plurals>
     <string name="manage_app_notification" msgid="9072118910762792295">"Ilmoitusten määritys: <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="no_suggested_app" msgid="509257628685025383">"Ei sovellusehdotuksia"</string>
-    <!-- no translation found for notification_few_channel_count_summary (5165639207390218085) -->
+    <plurals name="notification_few_channel_count_summary" formatted="false" msgid="5165639207390218085">
+      <item quantity="other"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> ilmoituskanavaa.</item>
+      <item quantity="one"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_0">%1$d</xliff:g> ilmoituskanava.</item>
+    </plurals>
     <string name="notification_many_channel_count_summary" msgid="9205641731142529086">"<xliff:g id="NOTIFICATION_CHANNEL_COUNT">%1$d</xliff:g> ilmoituskanavaa. Napauta määrittääksesi kaikki."</string>
     <string name="recently_installed_app" msgid="6491959945747808096">"Asensit tämän sovelluksen äskettäin."</string>
     <string name="media_output_panel_title" msgid="8429272102437211530">"Vaihda syötettä"</string>
