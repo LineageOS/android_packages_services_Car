@@ -129,16 +129,12 @@ public interface DisplayInterface {
             mMinimumBacklight = mPowerManager.getMinimumScreenBrightnessSetting();
             mWakeLockInterface = wakeLockInterface;
 
-            // TODO(b/135472254): It's unclear if this class actually needs all of these signals.
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(Intent.ACTION_USER_REMOVED);
-            filter.addAction(Intent.ACTION_USER_ADDED);
-            filter.addAction(Intent.ACTION_USER_INFO_CHANGED);
-            filter.addAction(Intent.ACTION_USER_SWITCHED);
-            filter.addAction(Intent.ACTION_USER_STOPPED);
-            filter.addAction(Intent.ACTION_USER_UNLOCKED);
             mContext.registerReceiverAsUser(
-                    mUserChangeReceiver, UserHandle.ALL, filter, null, null);
+                    mUserChangeReceiver,
+                    UserHandle.ALL,
+                    new IntentFilter(Intent.ACTION_USER_SWITCHED),
+                    null,
+                    null);
         }
 
         @Override
@@ -148,7 +144,7 @@ public interface DisplayInterface {
                 int linear = System.getIntForUser(
                         mContentResolver,
                         System.SCREEN_BRIGHTNESS,
-                        mActivityManager.getCurrentUser());
+                        ActivityManager.getCurrentUser());
                 gamma = convertLinearToGamma(linear, mMinimumBacklight, mMaximumBacklight);
             } catch (SettingNotFoundException e) {
                 Log.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS:  " + e);
@@ -187,7 +183,7 @@ public interface DisplayInterface {
                     mContentResolver,
                     System.SCREEN_BRIGHTNESS,
                     linear,
-                    mActivityManager.getCurrentUser());
+                    ActivityManager.getCurrentUser());
         }
 
         @Override
