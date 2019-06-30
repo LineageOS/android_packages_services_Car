@@ -18,6 +18,20 @@ package com.google.android.car.kitchensink.cluster;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarAppFocusManager;
+import android.car.CarNotConnectedException;
+import android.car.cluster.navigation.NavigationState;
+import android.car.cluster.navigation.NavigationState.Cue;
+import android.car.cluster.navigation.NavigationState.Cue.CueElement;
+import android.car.cluster.navigation.NavigationState.Destination;
+import android.car.cluster.navigation.NavigationState.Destination.Traffic;
+import android.car.cluster.navigation.NavigationState.Distance;
+import android.car.cluster.navigation.NavigationState.Lane;
+import android.car.cluster.navigation.NavigationState.Lane.LaneDirection;
+import android.car.cluster.navigation.NavigationState.Maneuver;
+import android.car.cluster.navigation.NavigationState.NavigationStateProto;
+import android.car.cluster.navigation.NavigationState.Road;
+import android.car.cluster.navigation.NavigationState.Step;
+import android.car.cluster.navigation.NavigationState.Timestamp;
 import android.car.navigation.CarNavigationStatusManager;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
@@ -33,12 +47,9 @@ import android.widget.Toast;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
-import androidx.car.cluster.navigation.NavigationState;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.R;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -59,7 +70,7 @@ public class InstrumentClusterFragment extends Fragment {
     private CarAppFocusManager mCarAppFocusManager;
     private Car mCarApi;
     private Timer mTimer;
-    private NavigationState[] mNavStateData;
+    private NavigationStateProto[] mNavStateData;
     private Button mTurnByTurnButton;
 
     private ServiceConnection mCarServiceConnection = new ServiceConnection() {
@@ -80,22 +91,23 @@ public class InstrumentClusterFragment extends Fragment {
 
     private final CarAppFocusManager.OnAppFocusOwnershipCallback mFocusCallback =
             new CarAppFocusManager.OnAppFocusOwnershipCallback() {
-        @Override
-        public void onAppFocusOwnershipLost(@CarAppFocusManager.AppFocusType int appType) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onAppFocusOwnershipLost, appType: " + appType);
-            }
-            Toast.makeText(getContext(), getText(R.string.cluster_nav_app_context_loss),
-                    Toast.LENGTH_LONG).show();
-        }
+                @Override
+                public void onAppFocusOwnershipLost(@CarAppFocusManager.AppFocusType int appType) {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "onAppFocusOwnershipLost, appType: " + appType);
+                    }
+                    Toast.makeText(getContext(), getText(R.string.cluster_nav_app_context_loss),
+                            Toast.LENGTH_LONG).show();
+                }
 
-        @Override
-        public void onAppFocusOwnershipGranted(@CarAppFocusManager.AppFocusType int appType) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onAppFocusOwnershipGranted, appType: " + appType);
-            }
-        }
-    };
+                @Override
+                public void onAppFocusOwnershipGranted(
+                        @CarAppFocusManager.AppFocusType int appType) {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "onAppFocusOwnershipGranted, appType: " + appType);
+                    }
+                }
+            };
     private CarAppFocusManager.OnAppFocusChangedListener mOnAppFocusChangedListener =
             (appType, active) -> {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -114,21 +126,68 @@ public class InstrumentClusterFragment extends Fragment {
         mCarApi.connect();
     }
 
-    /**
-     * Loads sample navigation data from the "nav_state_data.json" file.
-     */
     @NonNull
-    private NavigationState[] getNavStateData() {
-        try {
-            Gson gson = new GsonBuilder().create();
-            String navStateData = getRawResourceAsString(R.raw.nav_state_data);
-            NavigationState[] navigationState = gson.fromJson(navStateData,
-                    NavigationState[].class);
-            return navigationState;
-        } catch (IOException ex) {
-            Log.e(TAG, "Unable to read navigation state data", ex);
-            return new NavigationState[0];
-        }
+    private NavigationStateProto[] getNavStateData() {
+        NavigationStateProto[] navigationStateArray = new NavigationStateProto[1];
+
+        navigationStateArray[0] = NavigationStateProto.newBuilder()
+                .addSteps(Step.newBuilder()
+                        .setManeuver(Maneuver.newBuilder()
+                                .setType(Maneuver.Type.DEPART)
+                                .build())
+                        .setDistance(Distance.newBuilder()
+                                .setMeters(300)
+                                .setDisplayUnits(Distance.Unit.FEET)
+                                .setDisplayValue("0.5")
+                                .build())
+                        .setCue(Cue.newBuilder()
+                                .addElements(CueElement.newBuilder()
+                                        .setText("Stay on ")
+                                        .build())
+                                .addElements(CueElement.newBuilder()
+                                        .setText("US 101 ")
+                                        .setImage(NavigationState.ImageReference.newBuilder()
+                                                .setAspectRatio(1.153846)
+                                                .setContentUri(
+                                                        "content://com.google.android.car"
+                                                                + ".kitchensink.cluster"
+                                                                + ".clustercontentprovider/img"
+                                                                + "/US_101.png")
+                                                .build())
+                                        .build())
+                                .build())
+                        .addLanes(Lane.newBuilder()
+                                .addLaneDirections(LaneDirection.newBuilder()
+                                        .setShape(LaneDirection.Shape.SLIGHT_LEFT)
+                                        .setIsHighlighted(false)
+                                        .build())
+                                .addLaneDirections(LaneDirection.newBuilder()
+                                        .setShape(LaneDirection.Shape.STRAIGHT)
+                                        .setIsHighlighted(true)
+                                        .build())
+                                .build())
+                        .build())
+                .setCurrentRoad(Road.newBuilder()
+                        .setName("On something really long st")
+                        .build())
+                .addDestinations(Destination.newBuilder()
+                        .setTitle("Home")
+                        .setAddress("123 Main st")
+                        .setDistance(Distance.newBuilder()
+                                .setMeters(2000)
+                                .setDisplayValue("2")
+                                .setDisplayUnits(Distance.Unit.KILOMETERS)
+                                .build())
+                        .setEstimatedTimeAtArrival(Timestamp.newBuilder()
+                                .setSeconds(1592610807)
+                                .build())
+                        .setFormattedDurationUntilArrival("45 min")
+                        .setZoneId("America/Los_Angeles")
+                        .setTraffic(Traffic.HIGH)
+                        .build())
+                .build();
+
+        return navigationStateArray;
     }
 
     /**
@@ -216,11 +275,15 @@ public class InstrumentClusterFragment extends Fragment {
     /**
      * Sends one update of the navigation state through the {@link CarNavigationStatusManager}
      */
-    private void sendTurn(@NonNull NavigationState state) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("navstate", state.toParcelable());
-        mCarNavigationStatusManager.sendEvent(1, bundle);
-        Log.i(TAG, "Sending nav state: " + state);
+    private void sendTurn(@NonNull NavigationStateProto state) {
+        try {
+            Bundle bundle = new Bundle();
+            bundle.putByteArray("navstate2", state.toByteArray());
+            mCarNavigationStatusManager.sendEvent(1, bundle);
+            Log.i(TAG, "Sending nav state: " + state);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to send turn information.", e);
+        }
     }
 
     private void initCluster() {
@@ -260,7 +323,7 @@ public class InstrumentClusterFragment extends Fragment {
                 != PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "Requesting: " + android.car.Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER);
 
-            requestPermissions(new String[] {android.car.Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER},
+            requestPermissions(new String[]{android.car.Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER},
                     DISPLAY_IN_CLUSTER_PERMISSION_REQUEST);
         } else {
             Log.i(TAG, "All required permissions granted");
