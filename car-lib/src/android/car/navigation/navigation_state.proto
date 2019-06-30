@@ -106,6 +106,8 @@ message Distance {
 
 // Information about a maneuver that the driver will be required to perform.
 message Maneuver {
+
+  // Next ID: 57
   enum Type {
     // Maneuver type is unknown, no maneuver information should be displayed.
     UNKNOWN = 0;
@@ -168,6 +170,7 @@ message Maneuver {
     // Current road joins another (e.g. "Merge left/right onto Main St.").
     MERGE_LEFT = 27;
     MERGE_RIGHT = 28;
+    MERGE_SIDE_UNSPECIFIED = 54;
 
     // Roundabout entrance on which the current road ends (e.g. "Enter the
     // roundabout").
@@ -183,6 +186,7 @@ message Maneuver {
     // (sharp right, vs. normal left, etc. - see the definitions for
     // TURN_SHARP_LEFT, TURN_SLIGHT_RIGHT, etc., for a definition of what "sharp"
     // vs. "normal" vs. "slight" is.
+    ROUNDABOUT_ENTER_AND_EXIT_CW = 55;
     ROUNDABOUT_ENTER_AND_EXIT_CW_SHARP_RIGHT = 31;
     ROUNDABOUT_ENTER_AND_EXIT_CW_NORMAL_RIGHT = 32;
     ROUNDABOUT_ENTER_AND_EXIT_CW_SLIGHT_RIGHT = 33;
@@ -198,6 +202,7 @@ message Maneuver {
     // amount (sharp right, vs. normal left, etc. - see the definitions for
     // TURN_SHARP_LEFT, TURN_SLIGHT_RIGHT, etc., for a definition of what "sharp"
     // vs. "normal" vs. "slight" is.
+    ROUNDABOUT_ENTER_AND_EXIT_CCW = 56;
     ROUNDABOUT_ENTER_AND_EXIT_CCW_SHARP_RIGHT = 39;
     ROUNDABOUT_ENTER_AND_EXIT_CCW_NORMAL_RIGHT = 40;
     ROUNDABOUT_ENTER_AND_EXIT_CCW_SLIGHT_RIGHT = 41;
