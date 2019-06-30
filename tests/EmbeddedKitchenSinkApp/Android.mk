@@ -52,7 +52,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     vehicle-hal-support-lib \
     com.android.car.keventreader-client \
     guava \
-    kitchensink-gson
+    kitchensink-gson \
+    android.car.cluster.navigation
 
 LOCAL_JAVA_LIBRARIES += android.car
 
