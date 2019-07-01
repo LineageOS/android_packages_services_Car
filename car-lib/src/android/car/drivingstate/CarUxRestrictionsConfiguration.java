@@ -568,7 +568,10 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             in.readTypedList(restrictions, RestrictionsPerSpeedRange.CREATOR);
             mPassengerUxRestrictions.put(drivingState, restrictions);
         }
-        mPhysicalPort = in.readByte();
+        boolean nullPhysicalPort = in.readBoolean();
+        byte physicalPort = in.readByte();
+        mPhysicalPort = nullPhysicalPort ? null : physicalPort;
+
         mMaxContentDepth = in.readInt();
         mMaxCumulativeContentItems = in.readInt();
         mMaxStringLength = in.readInt();
@@ -582,7 +585,11 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         for (int drivingState : DRIVING_STATES) {
             dest.writeTypedList(mPassengerUxRestrictions.get(drivingState));
         }
-        dest.writeByte(mPhysicalPort);
+        boolean nullPhysicalPort = mPhysicalPort == null;
+        dest.writeBoolean(nullPhysicalPort);
+        // When physical port is null, 0 should be skipped.
+        dest.writeByte(nullPhysicalPort ? ((byte) 0) : mPhysicalPort.byteValue());
+
         dest.writeInt(mMaxContentDepth);
         dest.writeInt(mMaxCumulativeContentItems);
         dest.writeInt(mMaxStringLength);
