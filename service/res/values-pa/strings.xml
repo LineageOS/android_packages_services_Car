@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"ਕਾਰ ਦੀ ਜਾਣਕਾਰੀ"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"ਤੁਹਾਡੀ ਕਾਰ ਦੀ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ"</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"ਕਾਰ ਦਾ ਕੈਬਿਨ"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"ਦਰਵਾਜ਼ੇ, ਸ਼ੀਸ਼ੇ, ਸੀਟਾਂ ਅਤੇ ਤਾਕੀਆਂ ਸਮੇਤ ਤੁਹਾਡੀ ਕਾਰ ਦੇ ਉਪਸਾਧਨਾਂ ਤੱਕ ਪਹੁੰਚ।"</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"ਕਾਰ ਦਾ ਕੈਮਰਾ"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"ਤੁਹਾਡੀ ਕਾਰ ਦੇ ਕੈਮਰੇ ਤੱਕ ਪਹੁੰਚ।"</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"ਕਾਰ ਊਰਜਾ"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"ਤੁਹਾਡੀ ਕਾਰ ਦੀ ਊਰਜਾ ਸੰਬੰਧੀ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ।"</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"ਕਾਰ ਦਾ Hvac ਸਿਸਟਮ"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"ਤੁਹਾਡੀ ਕਾਰ ਦੇ hvac ਸਿਸਟਮ ਤੱਕ ਪਹੁੰਚ।"</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"ਕਾਰ ਮਾਈਲੇਜ"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"ਤੁਹਾਡੀ ਕਾਰ ਦੀ ਮਾਈਲੇਜ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ।"</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"ਕਾਰ ਦੀ ਗਤੀ"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"ਤੁਹਾਡੀ ਕਾਰ ਦੀ ਗਤੀ ਤੱਕ ਪਹੁੰਚ।"</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"ਵਾਹਨ ਦੀ ਗਤੀ ਦੀ ਸਥਿਤੀ"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"ਤੁਹਾਡੀ ਕਾਰ ਦੀ ਗਤੀ ਦੀ ਸਥਿਤੀ ਤੱਕ ਪਹੁੰਚ"</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"ਕਾਰ ਵਿਕਰੇਤਾ ਚੈਨਲ"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"ਕਾਰ ਦੀ ਖਾਸ ਜਾਣਕਾਰੀ ਦੇ ਵਟਾਂਦਰੇ ਲਈ ਤੁਹਾਡੀ ਕਾਰ ਦੇ ਵਿਕਰੇਤਾ ਚੈਨਲ ਤੱਕ ਪਹੁੰਚ।"</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"ਕਾਰ ਦਾ ਰੇਡੀਓ"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"ਤੁਹਾਡੀ ਕਾਰ ਦੇ ਰੇਡੀਓ ਤੱਕ ਪਹੁੰਚ।"</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"ਕਾਰ ਦੀ ਯੋਜਨਾਬੰਦੀ"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"ਕਾਰ ਦੇ ਆਡੀਓ ਦੀ ਅਵਾਜ਼"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"ਕਾਰ ਦੀਆਂ ਆਡੀਓ ਸੈਟਿੰਗਾਂ"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"ਕਾਰ ਡਿਸਪਲੇ \'ਤੇ ਫ਼ੋਨ ਇੰਟਰਫੇਸ ਪ੍ਰੋਜੈਕਟ।"</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"ਵਾਹਨ HAL ਦੀ ਨਕਲ ਕਰੋ"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"ਅੰਦਰੂਨੀ ਜਾਂਚ ਦੇ ਉਦੇਸ਼ ਲਈ ਤੁਹਾਡੀ ਕਾਰ ਦੇ ਵਾਹਨ HAL ਦੀ ਨਕਲ।"</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"ਤੁਹਾਡੀ ਕਾਰ ਦੇ ਆਡੀਓ ਦੀ ਅਵਾਜ਼ ਨੂੰ ਕੰਟਰੋਲ।"</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"ਆਪਣੀ ਕਾਰ ਦੀਆਂ ਆਡੀਓ ਸੈਟਿੰਗਾਂ ਨੂੰ ਕੰਟਰੋਲ ਕਰੋ।"</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"ਐਪਲੀਕੇਸ਼ਨ ਬਲਾਕਿੰਗ"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"ਗੱਡੀ ਚਲਾਉਣ ਵੇਲੇ ਐਪਲੀਕੇਸ਼ਨ ਬਲਾਕਿੰਗ \'ਤੇ ਕੰਟਰੋਲ।"</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"ਨੈਵੀਗੇਸ਼ਨ ਪ੍ਰਬੰਧਕ"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"ਇੰਸਟਰੂਮੈਂਟ ਕਲੱਸਟਰ ਨੂੰ ਨੈਵੀਗੇਸ਼ਨ ਡਾਟੇ ਦੀ ਰਿਪੋਰਟ"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"ਇੰਸਟਰੂਮੈਂਟ ਕਲੱਸਟਰ \'ਤੇ ਸਿੱਧੀ ਰੈਂਡਰਿੰਗ"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"ਕਿਸੇ ਐਪ ਨੂੰ ਇੰਸਟਰੂਮੈਂਟ ਕਲੱਸਟਰ ਵਿੱਚ ਦਿਖਣ ਵਾਲੀਆਂ ਸਰਗਰਮੀਆਂ ਦੀ ਘੋਸ਼ਣਾ ਕਰਨ ਦਿਓ"</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"ਇੰਸਟਰੂਮੈਂਟ ਕਲੱਸਟਰ ਕੰਟਰੋਲ"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"ਇੰਸਟਰੂਮੈਂਟ ਕਲੱਸਟਰ ਵਿੱਚ ਐਪਾਂ ਲਾਂਚ ਕਰੋ"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ਇੰਸਟਰੂਮੈਂਟ ਕਲੱਸਟਰ ਰੈਂਡਰਿੰਗ"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ਇੰਸਟਰੂਮੈਂਟ ਕਲੱਸਟਰ ਡਾਟਾ ਪ੍ਰਾਪਤ ਕਰੋ"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX ਪਾਬੰਦੀਆਂ ਦਾ ਸੰਰੂਪਣ"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX ਪਾਬੰਦੀਆਂ ਦਾ ਸੰਰੂਪਣ ਕਰੋ"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"ਕਾਰ ਇਨਪੁੱਟ ਸਰਵਿਸ"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ਇਨਪੁੱਟ ਇਵੈਂਟਾਂ ਦੀ ਸੰਭਾਲ"</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ਬੱਸ ਅਸਫਲ ਰਹੀ"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ਬੱਸ ਕੰਮ ਨਹੀਂ ਕਰਦੀ। ਹੈੱਡ ਯੂਨਿਟ ਬਾਕਸ ਨੂੰ ਅਨਪਲੱਗ ਕਰੋ ਅਤੇ ਦੁਬਾਰਾ ਪਲੱਗ ਲਗਾ ਕੇ ਕਾਰ ਨੂੰ ਮੁੜ-ਚਾਲੂ ਕਰੋ"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"ਤੁਹਾਡੀ ਸੁਰੱਖਿਆ ਲਈ, ਗੱਡੀ ਚਲਾਉਣ ਵੇਲੇ ਇਹ ਸਰਗਰਮੀ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।\nਜਾਰੀ ਰੱਖਣ ਲਈ, ਗੱਡੀ ਰੋਕਣ ਤੱਕ ਉਡੀਕ ਕਰੋ।"</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"ਸੁਰੱਖਿਅਤ ਐਪ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ ਨਾਲ ਮੁੜ ਤੋਂ ਸ਼ੁਰੂ ਕਰਨ ਲਈ, <xliff:g id="EXIT_BUTTON">%s</xliff:g> ਚੁਣੋ।"</string>
+    <string name="exit_button" msgid="5829638404777671253">"ਪਿੱਛੇ"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"ਡੀਬੱਗ ਜਾਣਕਾਰੀ"</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"ਤਸ਼ਖੀਸੀ ਡਾਟਾ"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"ਕਾਰ ਦਾ ਤਸ਼ਖੀਸੀ ਡਾਟਾ ਪੜ੍ਹੋ"</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"ਤਸ਼ਖੀਸੀ ਡਾਟਾ"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"ਕਾਰ ਦਾ ਤਸ਼ਖੀਸੀ ਡਾਟਾ ਕਲੀਅਰ ਕਰਨਾ"</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"VMS ਪ੍ਰਕਾਸ਼ਕ"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"vms ਸੁਨੇਹੇ ਪ੍ਰਕਾਸ਼ਿਤ"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"VMS ਗਾਹਕ"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"vms ਸੁਨੇਹੇ ਗਾਹਕੀ ਲਓ"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"ਫਲੈਸ਼ ਸਟੋਰੇਜ ਦਾ ਨਿਰੀਖਣ"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ਫਲੈਸ਼ ਸਟੋਰੇਜ ਵਰਤੋਂ ਦਾ ਨਿਰੀਖਣ"</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"ਗੱਡੀ ਚਲਾਉਣ ਦੀ ਸਥਿਤੀ"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"ਗੱਡੀ ਚਲਾਉਣ ਵੇਲੇ ਸਥਿਤੀ ਵਿੱਚ ਹੋਣ ਵਾਲੀਆਂ ਤਬਦੀਲੀਆਂ ਨੂੰ ਸੁਣੋ"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"ਇੰਜਣ ਦੇ ਵੇਰਵੇ"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"ਤੁਹਾਡੀ ਕਾਰ ਦੇ ਇੰਜਣ ਦੀ ਵੇਰਵੇ ਸਹਿਤ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"ਊਰਜਾ ਪੋਰਟ"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"ਊਰਜਾ ਪੋਰਟਾਂ ਤੱਕ ਪਹੁੰਚ"</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"ਕਾਰ ਦੀ ਪਛਾਣ"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"ਕਾਰ ਦੀ ਪਛਾਣ ਤੱਕ ਪਹੁੰਚ"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"ਕਾਰ ਦੇ ਦਰਵਾਜ਼ੇ"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"ਕਾਰ ਦੇ ਦਰਵਾਜ਼ਿਆਂ \'ਤੇ ਕੰਟਰੋਲ"</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"ਕਾਰ ਦੀਆਂ ਤਾਕੀਆਂ"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"ਕਾਰ ਦੀਆਂ ਤਾਕੀਆਂ \'ਤੇ ਕੰਟਰੋਲ"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"ਕਾਰ ਦੇ ਸ਼ੀਸ਼ੇ"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"ਕਾਰ ਦੇ ਸ਼ੀਸ਼ਿਆਂ \'ਤੇ ਕੰਟਰੋਲ"</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"ਕਾਰ ਦੀਆਂ ਸੀਟਾਂ"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"ਕਾਰ ਦੀਆਂ ਸੀਟਾਂ \'ਤੇ ਕੰਟਰੋਲ"</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"ਕਾਰ ਦੀ ਮੁੱਢਲੀ ਜਾਣਕਾਰੀ"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"ਕਾਰ ਦੀ ਮੁੱਢਲੀ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"ਕਾਰ ਦੀਆਂ ਬਾਹਰੀ ਲਾਈਟਾਂ"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"ਕਾਰ ਦੀਆਂ ਬਾਹਰੀ ਲਾਈਟਾਂ ਦੀ ਸਥਿਤੀ ਤੱਕ ਪਹੁੰਚ"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"ਕਾਰ ਦੀਆਂ ਬਾਹਰੀ ਲਾਈਟਾਂ"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"ਕਾਰ ਦੀਆਂ ਬਾਹਰੀ ਲਾਈਟਾਂ \'ਤੇ ਕੰਟਰੋਲ"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"ਕਾਰ ਦਾ ਬਾਹਰੀ ਤਾਪਮਾਨ"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"ਕਾਰ ਦੇ ਬਾਹਰੀ ਤਾਪਮਾਨ ਤੱਕ ਪਹੁੰਚ"</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"ਕਾਰ ਦੇ ਟਾਇਰ"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"ਕਾਰ ਦੇ ਟਾਇਰ ਸੰਬੰਧੀ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ"</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"ਕਾਰ ਦੀ ਪਾਵਰਟ੍ਰੇਨ"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"ਕਾਰ ਦੀ ਪਾਵਰਟ੍ਰੇਨ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ"</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"ਕਾਰ ਦੀ ਪਾਵਰ"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"ਕਾਰ ਦੀ ਪਾਵਰ ਸਥਿਤੀ ਤੱਕ ਪਹੁੰਚ"</string>
+</resources>

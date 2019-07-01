@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"ಕಾರಿನ ಮಾಹಿತಿ"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"ನಿಮ್ಮ ಕಾರಿನ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ"</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"ಕಾರಿನ ಕ್ಯಾಬಿನ್"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"ಬಾಗಿಲುಗಳು, ಕನ್ನಡಿಗಳು, ಆಸನಗಳು ಮತ್ತು ಕಿಟಿಕಿಗಳು ಸಹಿತ ನಿಮ್ಮ ಕಾರಿನ ಭಾಗಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"ಕಾರಿನ ಕ್ಯಾಮರ"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"ನಿಮ್ಮ ಕಾರಿನ ಕ್ಯಾಮರವನ್ನು(ಗಳನ್ನು) ಪ್ರವೇಶಿಸಿ."</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"ಕಾರಿನ ಶಕ್ತಿ"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"ನಿಮ್ಮ ಕಾರಿನ ಶಕ್ತಿ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ."</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"ಕಾರಿನ ಎಚ್‌ವಿಎಸಿ"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"ಕಾರಿನ ಎಚ್‌ವಿಎಸಿಯ ಮಾಹಿತಿನ್ನು ಪಡೆಯಿರಿ."</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"ಕಾರಿನ ಮೈಲೇಜ್"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"ನಿಮ್ಮ ಕಾರ್‌ನ ಮೈಲೇಜ್‌‌ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ."</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"ಕಾರಿನ ವೇಗ"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"ಕಾರಿನ ವೇಗದ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"ವಾಹನದ ಚಲನಶೀಲ ಸ್ಥಿತಿ"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"ಕಾರಿನ ಚಲನಶೀಲ ಸ್ಥಿತಿಯ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ"</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"ಕಾರಿನ ಮಾರಾಟಗಾರ ಚಾನಲ್"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"ನಿಮ್ಮ ಕಾರಿನ ನಿರ್ದಿಷ್ಟ ಮಾಹಿತಿಯನ್ನು ವಿನಿಮಯ ಮಾಡಿಕೊಳ್ಳಲು, ನಿಮ್ಮ ಕಾರಿನ ಮಾರಾಟಗಾರ ಚಾನಲ್ ಅನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"ಕಾರಿನ ರೇಡಿಯೊ"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"ಕಾರಿನ ರೇಡಿಯೋವನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"ಕಾರಿನ ಪ್ರೊಜೆಕ್ಷನ್"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"ಕಾರಿನ ಆಡಿಯೋ ವಾಲ್ಯೂಮ್"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"ಕಾರಿನ ಆಡಿಯೋ ಆಯ್ಕೆಗಳು"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"ಫೋನ್ ಇಂಟರ್‌ಫೇಸ್ ಅನ್ನು ಕಾರಿನ ಪರದೆಯಲ್ಲಿ ಪ್ರದರ್ಶಿಸಿ."</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"ವಾಹನ ಎಚ್‌ಎಎಲ್ ಅನ್ನು ಅನುಕರಿಸು"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"ನಿಮ್ಮ ಕಾರಿನ ವಾಹನ ಎಚ್‌ಎಎಲ್ ಅನ್ನು ಆಂತರಿಕ ಪರೀಕ್ಷೆಗಾಗಿ ಅನುಕರಿಸಿ"</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"ಕಾರಿನ ಆಡಿಯೋ ವಾಲ್ಯೂಮ್ ಅನ್ನು ನಿಯಂತ್ರಿಸು."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"ನಿಮ್ಮ ಕಾರಿನ ಆಡಿಯೋ ಆಯ್ಕೆಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"ಅಪ್ಲಿಕೇಶನ್ ನಿರ್ಬಂಧ"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"ಅಪ್ಲಿಕೇಶನ್ ನಿರ್ಬಂಧನೆಯನ್ನು ವಾಹನ ಚಲಾಯಿಸುತ್ತಿರುವಾಗ ನಿಯಂತ್ರಿಸಿ."</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"ನ್ಯಾವಿಗೇಷನ್ ಮ್ಯಾನೇಜರ್"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"ನ್ಯಾವಿಗೇಶನ್ ಮಾಹಿತಿಯನ್ನು ಸಲಕರಣೆ ಸಂಚಯಕ್ಕೆ ವರದಿ ಮಾಡಿ"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"ಸಲಕರಣೆ ಸಂಚಯಕ್ಕೆ ನೇರ ವರ್ಗಾವಣೆ"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"ಸಲಕರಣೆ ಸಂಚಯದಲ್ಲಿ ಚಟುವಟಿಕೆಗಳ ಘೋಷಣೆಯನ್ನು ಪ್ರದರ್ಶಿಸಲು ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಅನುವು ಮಾಡಿ"</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"ಸಲಕರಣೆ ಸಂಚಯ ನಿಯಂತ್ರಣ"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"ಸಲಕರಣೆ ಸಂಚಯದಲ್ಲಿ ಆಪ್‌ಗಳನ್ನು ಪ್ರಾರಂಭಿಸಿ"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ಸಲಕರಣೆ ಸಂಚಯ ತೋರಿಸು"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ಸಲಕರಣೆ ಸಂಚಯ ಮಾಹಿತಿಯನ್ನು ಸ್ವೀಕರಿಸು"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX ನಿರ್ಬಂಧಗಳ ಸಂರಚನೆ"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"ಯುಎಕ್ಸ್ ನಿರ್ಬಂಧಗಳನ್ನು ಸಂರಚಿಸು"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"ಕಾರಿನ ಇನ್‌ಪುಟ್ ಸೇವೆ"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ಊಡಿಕೆ ಘಟನೆಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"ಸಿಎಎನ್ ಬಸ್ ಕೆಟ್ಟಿದೆ"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ಬಸ್ ಸ್ಪಂದಿಸುತ್ತಿಲ್ಲ. ಹೆಡ್ ಯುನಿಟ್ ಪೆಟ್ಟಿಗೆಯನ್ನು ಅನ್‌ಪ್ಲಗ್ ಮಾಡಿ ಮತ್ತೆ ಪ್ಲಗ್ ಮಾಡಿ ಕಾರನ್ನು ಪುನರಾರಂಭಿಸಿ"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"ನಿಮ್ಮ ಸುರಕ್ಷೆಗಾಗಿ, ಈ ಚಟುವಟಿಕೆಯು ವಾಹನ ಚಲಾಯಿಸುತ್ತಿರುವಾಗ ಲಭ್ಯವಿಲ್ಲ. ಮುಂದುವರೆಯಲು \n ಮಾಡಿ, ನೀವು ಪಾರ್ಕ್ ಮಾಡುವ ತನಕ ಕಾಯಿರಿ."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"ಆಪ್‌ನ ಸುರಕ್ಷೆ ಗುಣಲಕ್ಷಣಗಳನ್ನು ಒಳಗೊಂಡು ಮತ್ತೆ ಪ್ರಾರಂಭಿಸಲು, <xliff:g id="EXIT_BUTTON">%s</xliff:g> ಆಯ್ಕೆ ಮಾಡಿ."</string>
+    <string name="exit_button" msgid="5829638404777671253">"ಹಿಂದಕ್ಕೆ"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"ಡೀಬಗ್ ಮಾಹಿ"</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"ಪರಿಶೀಲನೆಯ ಮಾಹಿತಿ"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"ಕಾರಿನಿಂದ ಅದರ ಪರಿಶೀಲನೆಯ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ"</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"ಪರಿಶೀಲನೆಯ ಮಾಹಿತಿ"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"ಕಾರಿನಿಂದ ಪರಿಶೀಲನಾ ಮಾಹಿತಿಯನ್ನು ಅಳಿಸಿ"</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"ವಿಎಂಎಸ್ ಪ್ರಕಾಶಕ"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"ವಿಎಂಎಸ್ ಸಂದೇಶಗಳನ್ನು ಪ್ರಕಟಿಸು"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"VMS ಸಬ್‌ಸ್ಕ್ರೈಬರ್"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"vms ಸಂದೇಶಗಳಿಗೆ ಸಬ್‌ಸ್ಕ್ರೈಬರ್ ಆಗಿ"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"ಫ್ಲಾಶ್ ಸಂಗ್ರಹದ ಉಸ್ತುವಾರಿ"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ಫ್ಲಾಶ್ ಸಂಗ್ರಹ ಬಳಕೆಯ ಉಸ್ತುವಾರಿ"</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"ವಾಹನ ಚಾಲನಾ ಸ್ಥಿತಿ"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"ಚಾಲನೆಯ ಸ್ಥಿತಿಯ ಬದಲಾವಣೆಯನ್ನು ಆಲಿಸಿ"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"ಇಂಜಿನ್ ವಿವರ"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"ಕಾರಿನ ಇಂಜಿನಿನ ವಿವರವಾದ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯು"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"ಶಕ್ತಿ ಕಿಂಡಿಗಳು"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"ಶಕ್ತಿ ಕಿಂಡಿಗಳನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"ಕಾರು ಪರಿಚಯ"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"ಕಾರಿನ ಗುರುತನ್ನು ಪಡೆಯಿರಿ"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"ಕಾರಿನ ಬಾಗಿಲುಗಳು"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"ಕಾರಿನ ಬಾಗಿಲುಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"ಕಾರಿನ ಕಿಟಿಕಿಗಳು"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"ಕಾರಿನ ಕಿಟಿಕಿಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"ಕಾರಿನ ಕನ್ನಡಿಗಳು"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"ಕಾರಿನ ಕನ್ನಡಿಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"ಕಾರಿನ ಆಸನಗಳು"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"ಕಾರಿನ ಆಸನಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"ಕಾರಿನ ಮೂಲಭೂತ ಮಾಹಿತಿ"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"ಕಾರಿನ ಮೂಲಭೂತ ಮಾಹಿತಿ ಪಡೆಯಿರಿ"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"ಕಾರಿನ ಬಾಹ್ಯ ದೀಪಗಳು"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"ಕಾರಿನ ಬಾಹ್ಯ ದೀಪಗಳ ಸ್ಥಿತಿಯ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"ಕಾರಿನ ಬಾಹ್ಯ ದೀಪಗಳು"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"ಕಾರಿನ ಬಾಹ್ಯ ದೀಪಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"ಕಾರಿನ ಬಾಹ್ಯ ತಾಪಮಾನ"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"ಕಾರಿನ ಬಾಹ್ಯ ತಾಪಮಾನವನ್ನು ತಿಳಿಯಿರಿ"</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"ಕಾರಿನ ಟಯರ್‌ಗಳು"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"ಕಾರಿನ ಟಯರ್ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ"</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"ಕಾರ್ ಪವರ್‌ಟ್ರೈನ್"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"ಕಾರಿನ ಪವರ್‌ಟ್ರೈನ್ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯು"</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"ಕಾರಿನ ಶಕ್ತಿ"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"ಕಾರಿನ ಶಕ್ತಿಯ ಸ್ಥಿತಿಯ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ"</string>
+</resources>

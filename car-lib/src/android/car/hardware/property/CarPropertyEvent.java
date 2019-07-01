@@ -16,6 +16,7 @@
 
 package android.car.hardware.property;
 
+import android.annotation.NonNull;
 import android.car.hardware.CarPropertyValue;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -69,7 +70,7 @@ public class CarPropertyEvent implements Parcelable {
     /**
      * Constructor for {@link CarPropertyEvent}.
      */
-    public CarPropertyEvent(int eventType, CarPropertyValue<?> carPropertyValue) {
+    public CarPropertyEvent(int eventType, @NonNull CarPropertyValue<?> carPropertyValue) {
         mEventType  = eventType;
         mCarPropertyValue = carPropertyValue;
     }

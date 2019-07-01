@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"Automobilio informacija"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"Pasiekti automobilio informaciją."</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"Automobilio salonas"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Pasiekti automobilio priedus, įskaitant duris, veidrodėlius, sėdynes ir langus."</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"Automobilio fotoaparatas"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"Pasiekti automobilio fotoaparatą (-us)."</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"Automobilio energija"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Pasiekti automobilio energijos informaciją."</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Automobilio HVAC"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Pasiekti automobilio HVAC."</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"Automobilio rida"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Pasiekti automobilio ridos informaciją."</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"Automobilio greitis"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Pasiekti automobilio greičio informaciją."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Transporto priemonės varomosios jėgos būsena"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"Pasiekti automobilio varomosios jėgos būseną."</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Automobilio paslaugų teikėjo kanalas"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Pasiekti automobilio paslaugų teikėjo kanalą, kad būtų galima siųsti ir gauti automobilio informaciją."</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"Automobilio radijas"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"Pasiekti automobilio radiją."</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"Automobilio projekcija"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Automobilio garsų garsumas"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Automobilio garso nustatymai"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"Projektuoti telefono sąsają automobilio ekrane."</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"Imituoti transporto priemonės HAL"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Imituoti automobilio transporto priemonės HAL vidinio testavimo tikslais."</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Valdyti automobilio garsų garsumą."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Valdyti automobilio garso nustatymus."</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Programos blokavimas"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Valdyti programos blokavimą vairuojant."</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Navigacijos tvarkymo priemonė"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Pranešti navigacijos duomenis instrumentų blokiniui."</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Tiesioginis pateikimas instrumentų blokinyje"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Leisti programai skelbti veiklą, kuri turėtų būti pateikta instrumentų blokinyje"</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Instrumentų blokinio valdymas"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Pristatyti programas instrumentų blokinyje"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Instrumentų blokinio pateikimas"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Gauti instrumentų blokinio duomenis"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"NP apribojimų konfigūravimas"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Konfigūruoti NP apribojimus"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Automobilio įvesties paslauga"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Apdoroti įvesties įvykius."</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN BUS klaida"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN BUS nereaguoja. Atjunkite ir vėl prijunkite pagrindinio įtaiso dėžutę."</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"Siekiant užtikrinti jūsų saugą, ši veikla nepasiekiama vairuojant.\nJei norite tęsti, palaukite, kol sustosite."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"Jei norite pradėti iš naujo naudodami saugias programos funkcijas, pasirinkite <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
+    <string name="exit_button" msgid="5829638404777671253">"Atgal"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"Der. inf."</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Diagnostikos duomenys"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Skaityti automobilio diagnostikos duomenis."</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Diagnostikos duomenys"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"Išvalyti diagnostikos duomenis iš automobilio."</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"VMS leidėjas"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"Skelbti VMS pranešimus."</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"VMS prenumeratorius"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"Prenumeruoti VMS pranešimus."</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Atmintuko stebėjimas"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Stebėti atmintuko naudojimą."</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Vairavimo būsena"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Klausyti vairavimo būsenos pakeitimų."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Išsami variklio informacija"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"Pasiekti išsamią automobilio variklio informaciją."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Energijos prievadai"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Pasiekti energijos prievadus."</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Automobilio identifikavimo duomenys"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"Pasiekti automobilio identifikavimo duomenis"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Automobilio durys"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"Valdyti automobilio duris."</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Automobilio langai"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"Valdyti automobilio langus."</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"Automobilio veidrodėliai"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"Valdyti automobilio veidrodėlius."</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Automobilio sėdynės"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Valdyti automobilio sėdynes."</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"Pagrindinė automobilio informacija"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Pasiekti pagrindinę automobilio informaciją."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Automobilio išoriniai žibintai"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"Pasiekti automobilio išorinių žibintų būseną."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"Automobilio išoriniai žibintai"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"Valdyti automobilio išorinius žibintus"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"Automobilio išorės temperatūra"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"Pasiekti automobilio išorės temperatūrą."</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"Automobilio padangos"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"Pasiekti automobilio padangų informaciją."</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"Automobilio transmisija"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"Pasiekti automobilio transmisijos informaciją."</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"Automobilio maitinimas"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"Pasiekti automobilio maitinimo būseną."</string>
+</resources>

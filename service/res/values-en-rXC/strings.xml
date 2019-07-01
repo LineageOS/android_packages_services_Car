@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‎‏‎‏‏‏‏‎‏‏‎‎‎‏‎‏‎‎‏‏‎‎‎‎‎‎‎‎‎‎‎‎‏‎‎‎‏‎‎‎‏‎‏‏‎‏‎‏‏‏‏‏‏‏‏‎‏‎Car information‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‎‎‏‎‎‎‎‎‏‎‏‎‏‎‎‎‎‏‎‏‏‏‎‎‏‎‏‏‎‏‎‏‏‏‏‎‏‎‎‎‎‏‎‎‏‎‏‏‏‎‏‏‏‎‏‎‏‎Access your car’s information.‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‏‎‏‏‎‎‎‎‎‎‎‎‏‎‎‏‎‎‏‏‏‏‏‎‏‎‏‎‏‏‏‏‏‎‎‎‎‏‎‏‎‏‏‎‏‎‏‎‏‏‎‎‏‎‎‏‏‎Car Cabin‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‎‎‏‏‎‎‏‎‎‎‏‎‎‏‏‏‏‏‎‎‎‏‏‏‏‏‎‏‏‏‎‏‎‎‏‏‎‎‏‎‎‎‎‏‎‏‎‏‎‎‎‎‏‏‏‏‎‎Access your car’s accessories, including doors, mirrors, seats, and windows.‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‎‎‎‏‏‏‎‎‏‏‎‏‏‏‏‏‏‎‏‏‎‏‎‏‏‏‎‏‎‏‏‏‏‏‎‏‏‎‏‎‏‎‏‎‎‎‏‎‎‏‏‎‎‎‎‏‏‎‎Car Camera‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‎‎‏‎‏‏‏‎‎‏‏‏‏‎‏‏‎‏‎‏‎‏‎‎‎‏‎‎‏‏‎‎‏‏‏‏‎‏‎‏‏‏‎‏‏‏‏‏‏‏‏‎‏‏‎‎‏‎‎Access your car’s camera(s).‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‏‏‏‎‎‏‎‏‎‎‎‎‏‏‏‎‎‏‏‏‎‎‎‎‏‎‎‏‎‏‎‎‏‎‏‏‎‎‏‏‎‎‎‏‏‏‎‏‎‎‏‎‏‎‏‏‎‎‏‎Car energy‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‏‏‏‎‎‎‏‎‏‏‎‎‎‏‏‏‎‏‎‏‎‎‏‏‎‏‏‏‏‎‎‏‎‎‏‏‏‏‏‏‎‏‎‏‎‏‎‎‎‏‎‏‏‎‎‏‏‏‏‎Access your car’s energy information.‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‎‏‎‏‏‎‏‏‎‏‎‏‎‎‏‎‏‏‏‎‏‎‎‏‎‎‏‏‎‏‏‎‎‎‎‎‏‏‎‏‎‏‏‏‎‎‏‏‏‏‏‎‏‎‎‎Car Hvac‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‏‎‎‎‎‎‏‏‎‎‏‏‎‏‏‎‏‎‎‎‎‎‎‎‏‎‎‎‏‏‏‎‎‏‎‏‏‎‏‏‎‎‏‏‏‏‏‎‎‏‏‎‏‏‏‎‎‏‏‎Access your car’s hvac.‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‏‏‎‏‎‎‎‏‎‎‎‎‏‎‏‎‏‏‎‎‏‏‎‎‏‏‎‎‏‏‎‎‎‎‏‏‎‎‎‎‎‎‎‎‎‏‏‎‏‎‏‎‎‎‏‎‏‏‎Car mileage‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‎‏‏‏‎‏‎‎‎‏‏‏‎‎‎‏‎‏‏‏‎‎‏‎‎‏‎‏‎‏‏‏‎‏‏‎‎‎‏‎‎‎‏‏‎‎‏‏‎‎‎‎‎‎‎‎‎‏‎‎Access your car’s mileage information.‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‏‏‎‎‎‎‏‏‏‎‏‏‎‎‎‏‎‎‏‏‏‎‏‎‎‎‎‏‏‏‏‎‎‏‏‎‏‏‏‎‎‎‎‎‎‏‏‏‏‎‎‏‎‏‎‎‏‎Car speed‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‎‎‎‏‏‎‏‎‏‏‏‏‎‏‎‏‎‏‎‏‏‏‏‏‏‏‎‏‎‎‎‏‎‏‎‎‎‎‎‎‏‏‏‎‎‏‎‏‏‎‎‎‏‏‎‎‎‏‎Access your car’s speed.‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‎‏‏‏‎‏‏‏‏‎‏‏‎‎‏‏‏‎‏‎‎‎‏‎‏‎‎‎‏‏‏‎‎‎‏‎‏‏‎‏‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‎‎‏‎Vehicle dynamics state‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‎‎‏‎‏‎‏‎‎‎‏‏‎‏‏‏‎‏‎‎‏‏‏‏‏‎‏‏‎‎‏‏‏‏‎‏‏‏‎‎‎‏‏‏‏‎‎‎‎‎‏‏‏‎‎‏‎Access your car’s dynamics state‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‎‎‎‎‎‎‏‎‏‏‏‎‏‏‏‏‎‎‎‎‎‏‏‏‏‎‏‏‏‏‏‏‎‏‏‏‏‏‏‏‎‎‎‏‎‏‏‏‏‎‏‏‎Car vendor channel‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‎‎‏‎‎‏‏‏‎‏‎‎‎‎‏‏‏‎‎‏‎‏‏‏‏‎‏‎‎‎‎‎‎‏‏‎‏‎‏‎‏‏‏‎‏‎‏‎‎‎‎‏‎‏‏‎‎‏‏‎Access your car’s vendor channel to exchange car-specific information.‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‎‎‏‎‎‎‏‎‏‏‎‏‏‏‎‎‏‏‎‎‎‏‏‏‎‏‏‏‎‏‏‏‏‏‏‎‎‏‏‎‏‎‎‏‏‏‏‎‎‏‏‏‏‎‏‎‎‎‎‏‎Car Radio‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‏‏‎‏‏‏‏‏‏‎‏‎‏‏‏‏‏‎‎‎‎‏‎‏‏‎‎‏‏‏‏‏‎‏‎‏‎‏‎‎‏‏‏‏‏‎‎‏‎‏‏‏‏‎‏‎‏‎‎‎Access your car’s radio.‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‎‏‎‏‎‏‎‎‏‏‏‏‏‏‏‎‏‏‎‏‏‏‏‏‏‏‏‏‎‎‏‏‎‎‎‏‏‎‏‏‏‏‎‎‏‏‏‎‎‏‏‏‏‎‎‏‎‎Car Projection‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‎‎‏‎‏‎‏‎‎‏‎‏‎‎‎‎‎‏‎‎‎‎‎‎‏‎‎‏‏‎‎‎‏‎‏‎‎‎‏‎‏‏‏‏‎‎‏‎‏‏‏‎‎‎‏‎‎‏‎‎‎Car Audio Volume‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‎‎‎‎‏‎‏‎‏‏‎‏‏‎‎‏‎‎‎‏‏‏‎‏‎‎‏‎‎‎‏‎‏‎‎‏‎‏‎‏‏‎‏‏‏‏‏‏‏‏‎‎‏‎‏‏‏‎Car Audio Settings‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‏‎‏‎‎‏‏‎‎‎‏‎‏‎‎‎‏‏‎‏‏‎‎‏‎‏‏‏‏‎‎‏‎‏‏‎‎‎‏‎‎‏‏‏‏‎‎‏‏‏‏‏‏‏‎‎‏‏‏‎Project phone interface on car display.‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‎‎‎‏‏‎‎‏‎‏‎‎‎‎‏‏‏‎‎‎‎‎‎‎‎‎‏‏‏‏‎‏‎‏‎‎‎‎‎‏‎‎‎‏‏‏‎‎‏‏‏‏‎‏‏‎‎Emulate vehicle HAL‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‎‎‏‎‏‎‏‎‎‎‏‎‎‏‎‎‏‏‎‏‎‎‎‏‎‎‏‏‏‎‏‏‏‏‎‎‏‏‎‏‏‏‎‏‏‏‎‎‏‎‎‏‎‎‎‎‏‏‎Emulate your car’s vehicle HAL for internal testing purpose.‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‎‏‏‏‎‎‏‎‎‏‏‏‏‎‏‎‏‎‏‎‏‏‎‎‎‎‏‏‎‏‎‏‎‎‎‏‏‎‎‏‎‎‎‎‏‏‎‎‎‎‏‏‎‎‎‏‎Control your car’s audio volume.‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‎‏‏‏‏‎‎‏‏‏‏‎‎‏‎‎‏‎‎‎‏‏‎‏‎‏‎‏‎‏‏‎‏‏‎‎‏‎‏‎‎‎‏‏‏‎‎‎‎‎‏‎‎‏‎‎‎‎‏‎Control your car’s audio settings.‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‎‏‏‎‏‎‏‏‏‏‎‎‏‏‏‎‎‏‏‏‎‎‏‎‎‎‎‏‏‎‏‏‏‎‎‎‏‎‏‎‎‏‎‎‎‎‏‎‏‎‏‎‎Application blocking‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‎‏‎‏‎‎‎‎‏‎‏‎‎‎‎‎‎‎‏‏‏‏‏‏‎‎‎‏‎‎‏‏‏‎‎‎‏‎‏‎‏‎‏‏‏‎‏‏‏‎‏‏‏‏‏‏‎‎Control application blocking while driving.‎‏‎‎‏‎"</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‎‏‏‏‎‏‎‎‎‎‏‏‏‎‎‎‏‎‏‏‏‎‎‎‎‎‎‎‎‎‎‏‎‎‏‎‏‏‏‎‏‎‎‏‎‏‏‏‏‏‏‏‏‏‏‏‎‏‎Navigation Manager‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‎‏‏‏‏‎‎‎‏‎‏‏‎‏‏‏‎‎‎‏‎‎‏‎‏‏‎‏‏‏‏‎‎‎‏‎‏‎‏‎‎‎‏‏‎‏‎‏‏‎‎‎‏‏‎‎‎‏‎Report navigation data to instrument cluster‎‏‎‎‏‎"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‏‏‏‏‎‎‏‏‎‎‎‎‎‏‎‎‎‎‎‏‎‎‎‏‎‏‎‎‎‏‎‎‏‏‏‏‏‎‏‏‏‎‏‎‏‏‏‏‏‎‎‏‎‏‏‏‏‎‎‎Direct rendering to instrument cluster‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‏‎‏‎‎‎‎‎‏‏‏‏‎‏‏‎‏‎‏‎‎‏‏‎‏‎‏‏‏‎‎‎‏‏‏‎‏‎‏‏‎‎‎‏‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎Allow an application to declare activities to be displayed in the instrument cluster‎‏‎‎‏‎"</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‎‏‏‎‎‏‎‏‏‏‎‏‎‏‏‏‎‏‎‏‎‎‎‎‎‏‎‎‎‏‏‏‏‏‏‏‏‏‎‏‎‏‎‎‏‏‏‎‏‎‎‏‎‏‎‏‎‏‎‎Instrument cluster control‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‎‎‎‏‎‏‎‎‎‎‎‏‏‎‏‎‎‎‎‎‎‏‏‎‏‏‎‎‎‏‎‏‎‎‎‎‏‏‏‎‏‏‏‏‏‎Launch apps in the instrument cluster‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‎‏‏‏‎‏‎‏‏‏‏‏‎‎‎‎‎‏‎‏‎‏‎‎‏‏‎‎‏‏‏‏‏‏‏‏‎‏‎‎‏‎‎‏‎‎‏‏‏‎‎‏‎‏‎‎Instrument Cluster Rendering‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‎‏‏‎‎‏‏‎‏‎‎‏‎‎‎‎‏‎‎‏‎‏‏‏‏‎‎‎‏‏‏‏‏‏‏‎‏‏‎‎‏‎‏‎‏‏‎‏‏‎‎‏‏‎‏‏‏‏‏‏‎Receive instrument cluster data‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‎‎‏‏‎‎‎‏‏‎‏‏‎‎‏‏‏‏‏‎‎‎‏‏‏‏‏‎‏‏‏‏‏‏‏‎‏‎‏‎‏‏‎‎‏‎‎‏‎‏‏‏‏‏‏‎‏‎UX Restrictions Configuration‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‏‎‏‎‎‎‏‎‎‏‏‎‏‎‏‏‏‎‏‎‎‎‏‏‏‎‎‎‎‎‏‏‏‏‎‏‏‏‎‎‎‏‎‎‎‎‎‎‏‏‏‎‏‎‎‎‏‎Configure UX Restrictions‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‎‎‏‏‏‏‎‏‎‏‏‏‎‏‎‎‎‎‎‏‎‎‏‎‎‏‎‏‎‎‏‏‎‎‏‏‎‏‏‏‎‏‏‏‎‎‎‏‏‏‎‏‎‏‎‏‏‎‎Car Input Service‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‏‏‏‎‎‏‎‏‏‏‎‎‎‏‎‏‏‏‎‎‏‎‎‏‏‎‎‏‏‏‏‏‎‎‏‎‎‎‎‏‏‏‎‎‏‎‏‎‎‎‏‏‏‏‏‏‎‏‎‎Handle input events‎‏‎‎‏‎"</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‎‎‎‎‏‏‎‎‏‎‎‎‎‏‎‏‎‎‏‎‎‏‎‎‏‎‏‏‎‏‏‎‎‏‏‏‎‎‏‎‏‏‎‏‎‏‎‏‎‏‎‎‎‎‎‏‎‏‎‎CAN bus failed‎‏‎‎‏‎"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‎‎‏‎‏‎‎‎‎‎‎‏‏‎‎‎‏‏‏‎‎‏‎‎‏‎‏‏‎‎‎‏‏‏‎‎‏‎‎‏‏‎‎‏‎‏‏‏‎‎‏‏‏‏‏‏‏‎‏‎CAN bus does not respond. Unplug and plug back headunit box and restart the car‎‏‎‎‏‎"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‏‎‎‎‏‎‎‎‏‏‎‎‎‎‎‎‎‎‏‏‎‎‎‏‎‎‎‏‏‎‏‎‏‏‏‎‎‏‏‏‏‎‏‏‏‏‏‎‏‏‎‏‎‏‎‎‏‎‎For your safety, this activity isn’t available while driving.‎‏‎‎‏‏‎\n‎‏‎‎‏‏‏‎To continue, wait until you’re parked.‎‏‎‎‏‎"</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‏‎‏‏‏‎‎‎‎‏‎‏‏‏‏‎‎‎‎‏‎‎‎‎‎‎‏‏‎‏‏‎‏‏‏‎‏‎‏‎‎‎‎‏‎‏‏‎‏‎‎‎‎‏‎‏‎To start over with safe app features, select ‎‏‎‎‏‏‎<xliff:g id="EXIT_BUTTON">%s</xliff:g>‎‏‎‎‏‏‏‎.‎‏‎‎‏‎"</string>
+    <string name="exit_button" msgid="5829638404777671253">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‎‎‏‏‏‎‎‏‏‏‎‎‎‎‏‎‎‏‎‎‏‏‏‏‏‎‎‎‎‎‏‏‎‏‏‎‏‏‏‏‏‏‎‏‏‏‏‎‏‎‎‏‎‏‎‏‎‏‎Back‎‏‎‎‏‎"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‎‎‏‏‎‎‎‎‏‎‏‎‏‏‏‏‎‎‏‎‏‎‎‎‎‏‎‎‎‎‏‎‎‎‏‏‏‎‎‏‎‏‏‎‎‏‎‎‎‎‏‎‏‎‎‏‎‎‎Debug Info‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‎‏‏‎‎‏‏‏‏‎‏‏‎‏‎‎‎‏‏‏‎‏‏‎‏‎‎‏‎‎‏‎‏‏‏‏‏‏‏‎‎‏‎‏‏‎‏‎‎‏‏‎‎‎‎‏‏‏‎‎Diagnostic Data‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‏‏‎‏‏‎‏‏‏‎‎‏‎‏‎‎‎‎‏‏‎‏‏‏‏‏‎‎‎‏‎‎‎‎‏‎‎‎‏‎‏‏‏‏‎‏‎‎‎‎‎‏‏‏‎‎‎‏‎Read diagnostic data from the car‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‎‏‎‎‏‏‏‎‏‏‏‎‎‎‎‎‏‎‎‎‏‏‎‎‏‏‏‎‎‎‎‎‎‏‏‏‏‏‏‎‏‎‏‎‏‏‏‎‏‏‏‎‏‎‎‎‎‏‎Diagnostic Data‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‏‎‎‏‏‏‏‎‏‏‏‏‎‏‏‏‎‏‏‏‏‏‎‎‎‏‏‎‏‎‎‎‎‎‎‎‏‏‎‎‎‎‏‎‎‏‎‏‏‎‏‎‎‎‎‏‎Clear diagnostic data from the car‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‏‏‎‏‎‎‎‏‏‎‏‏‎‏‎‎‎‎‎‎‏‏‎‏‏‎‎‏‎‏‎‏‎‏‎‎‎‎‎‎‏‎‏‏‎‏‎‏‎‎‎‏‏‎‎‎‎‎VMS publisher‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‎‎‎‏‎‎‏‏‎‎‎‏‎‏‎‏‎‏‎‎‎‏‎‏‎‎‏‏‎‎‎‏‏‎‏‏‏‏‏‎‎‏‏‎‏‎‎‏‎‎‎‏‏‏‎‏‏‎Publish vms messages‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‏‏‎‏‎‎‎‏‎‎‎‎‏‏‎‎‎‏‏‏‏‏‎‎‎‎‎‏‏‎‎‏‎‏‎‎‎‏‏‏‎‎‎‎‎‏‏‎‎‎‎‎‏‎‏‎‎‏‎‎VMS subscriber‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‎‎‎‎‎‎‏‎‏‎‎‎‏‎‏‏‎‎‏‎‎‏‎‎‎‎‎‎‏‎‎‏‎‏‎‏‎‏‏‎‎‎‎‏‎‎‏‎‎‎‏‏‎‎‏‎‎Subscribe to vms messages‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‎‎‎‎‏‎‎‏‏‎‏‎‏‏‎‏‏‏‏‏‎‏‎‎‏‏‏‎‎‏‏‏‏‏‎‏‎‏‏‎‎‏‎‏‎‏‎‎‎‏‎‏‏‏‏‎‏‎‏‎Flash storage monitoring‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‎‎‏‏‎‎‏‏‏‎‎‏‏‎‏‎‎‏‎‏‎‏‎‎‎‎‎‎‏‎‎‎‎‏‎‎‏‏‎‎‏‏‎‎‎‎‏‏‎‏‎‎‎‏‎‏‏‎‎Monitor flash storage usage‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‎‎‎‎‏‏‏‎‏‏‏‏‏‎‎‏‎‎‎‏‎‏‏‏‎‎‏‏‏‎‏‏‎‏‏‏‏‎‎‏‎‎‎‏‎‏‎‎‏‏‎‏‏‏‏‎‎‎‎Driving State‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‎‎‎‏‎‏‎‏‎‎‎‏‎‎‏‏‎‏‏‏‎‏‏‏‎‎‎‏‎‎‏‎‎‎‏‎‏‎‏‎‏‏‎‏‎‏‏‎‏‏‎‎‎‎‏‎‏‎‎‎Listen to Driving state changes‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‏‎‎‎‎‏‎‏‏‎‎‏‏‎‎‏‏‏‎‏‏‏‏‎‏‎‏‏‎‏‎‎‎‎‎‏‏‏‎‎‎‎‏‏‎‎‎‎‎‎‎‎‏‎Engine Detailed‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‎‏‎‏‎‎‎‏‎‏‎‎‏‎‎‏‎‎‎‏‏‎‎‎‎‏‏‏‏‏‏‎‎‎‏‎‏‎‎‎‎‏‎‏‎‏‏‎‏‎‎‎‏‏‏‏‏‎Access your car’s detailed engine information‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‎‏‏‎‎‏‎‏‏‎‎‏‎‎‏‎‏‏‏‎‏‏‎‏‎‏‏‎‏‏‎‎‎‏‎‏‎‎‎‎‏‏‎‏‎‏‏‏‎‏‏‎‏‎‏‎‏‎‎‎Energy Ports‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‏‎‏‏‏‏‏‎‎‏‎‎‏‎‏‎‏‎‏‏‏‏‎‎‏‎‎‎‏‎‎‏‏‏‏‎‎‎‎‏‎‏‏‏‎‎‎‏‏‏‏‎‏‏‎‎‎Access energy ports‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‎‎‎‏‎‎‎‎‏‏‎‏‎‏‏‎‎‎‏‏‏‎‎‎‏‏‎‎‏‎‏‏‎‎‎‏‎‎‎‏‎‎‎‎‎Car identification‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‏‎‎‎‏‎‏‏‎‎‏‎‏‏‏‎‎‎‎‏‎‎‏‎‏‏‎‎‏‏‎‎‎‏‎‎‏‏‎‏‏‏‏‏‎‏‏‎‏‎‎‏‏‏‎‏‎‏‎Access car’s identification‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‎‏‏‎‏‎‎‎‎‏‎‏‏‎‎‏‎‎‎‎‎‎‎‏‎‏‏‏‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‎‎‎‏‏‎‏‎‎‏‎‏‎Car Doors‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‎‎‏‎‏‏‎‏‏‎‏‎‏‏‏‎‎‎‏‎‎‎‎‏‏‏‎‏‎‎‏‎‏‏‎‏‎‏‎‏‎‎‎‏‏‏‎‏‏‎‎‏‏‏‎‏‎‎‏‎Control car’s doors‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‏‏‏‎‎‏‎‏‏‏‎‎‏‏‏‏‎‎‏‎‏‎‎‏‏‏‎‏‏‏‏‏‎‎‎‏‏‏‎‏‏‎‏‎‎‏‎‏‎‏‎‎‎‎‎‏‎Car Windows‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‏‏‎‏‏‏‎‏‎‏‎‎‎‏‎‏‎‏‎‏‎‏‎‎‏‎‎‏‎‎‎‏‎‏‏‏‎‏‎‏‎‎‎‎‎‏‏‎‎‎‎‏‏‏‏‏‎‎Control car’s windows‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‏‎‎‎‎‏‎‎‎‏‏‎‏‎‎‎‏‏‏‎‎‏‎‏‎‏‏‎‏‏‏‏‏‏‎‎‎‎‏‎‎‎‏‏‏‎‎‏‎‎‏‏‎‎‏‎‎‎Car Mirrors‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‏‎‎‏‎‏‏‎‎‎‏‏‏‎‎‏‎‏‎‎‎‏‏‏‎‎‎‎‏‎‏‏‎‏‏‏‏‎‏‏‎‎‎‎‏‎‎‎‏‏‎‏‎‎‏‎‏‎‎‎Control car’s mirrors‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‎‎‎‎‏‏‏‎‏‏‏‎‎‎‎‎‏‏‎‏‏‎‎‎‏‏‎‎‎‎‏‎‎‏‎‎‏‏‏‏‎‎‎‏‎‎‏‎‏‏‎‎‎‎‏‏‎‏‏‎Car Seats‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‏‏‎‎‏‏‎‎‎‎‏‎‎‏‏‎‎‏‏‎‏‎‏‎‏‎‏‎‏‏‏‎‎‏‎‏‎‎‏‏‎‎‏‏‎‏‏‎‎‏‎‎‏‏‏‎‏‏‏‎Control car’s seats‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‎‎‏‎‎‎‎‎‎‏‎‎‏‏‏‏‎‎‏‏‏‎‎‎‏‏‎‏‎‎‎‏‎‎‏‎‎‏‏‏‏‎‎‎‎‎‎‎‎‏‎‎‏‎‏‏‏‎Car basic information‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‏‏‏‏‎‎‎‏‏‏‎‎‎‎‎‎‏‎‎‎‏‎‏‏‎‎‎‏‎‏‎‎‎‎‏‎‏‎‏‏‎‎‏‎‏‎‏‎‏‏‎‏‎‏‎‏‎‎‎‎Access car basic information‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‎‏‏‏‎‎‎‏‎‏‏‎‏‎‏‏‎‎‏‏‏‎‎‎‏‏‏‎‏‏‎‎‎‏‏‎‏‎‏‎‏‏‎‎‎‎‏‏‎‎‎‎‏‎‎‎‎‎‎Car exterior lights‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‏‏‎‎‎‎‎‎‎‎‏‏‏‏‏‎‎‏‎‎‏‎‎‎‎‏‏‎‎‏‎‎‏‎‎‎‎‏‎‎‏‎‏‏‎‏‏‏‎‏‏‏‏‏‏‎‏‎‎Access car exterior lights state‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‏‏‎‏‏‎‏‎‏‏‏‎‎‎‏‎‎‏‏‎‎‏‎‏‎‎‏‏‏‎‎‎‏‏‎‏‏‏‏‎‏‎‎‏‎‎‏‏‏‏‏‏‏‏‎‎‏‎‎Car exterior lights‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‏‏‎‏‏‎‎‏‎‏‎‏‎‎‏‏‎‎‏‏‎‏‏‎‎‎‏‎‏‎‎‏‏‎‏‏‏‎‎‏‏‎‎‏‎‏‏‎‏‏‏‏‎‏‎‏‎‎Control car exterior lights‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_car_interior_lights" msgid="8621712545425524831">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‎‏‎‎‏‏‎‎‏‏‏‏‎‎‏‏‏‏‎‎‎‎‏‎‏‎‏‏‎‎‏‏‎‎‏‏‏‏‎‎‎‎‎‏‎‎‎‎‏‎‏‏‏‏‏‎Car interior lights‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="840227872922412645">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‏‏‏‎‏‎‏‎‎‏‎‎‎‏‎‏‏‎‏‏‎‎‏‏‎‎‎‏‏‏‎‏‏‏‏‏‏‎‏‏‎‎‎‎‏‎‎‏‏‎‎‏‏‎‎‏‎‏‎Access car interior lights state‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_control_car_interior_lights" msgid="3491592176569557684">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‎‎‎‎‏‏‏‎‏‎‎‏‎‏‎‎‎‎‎‏‎‎‏‎‏‎‏‏‏‎‏‏‎‎‎‏‏‏‏‎‏‏‎‎‎‏‎‎‎‏‎‏‎‏‏‎‏‎‎‎Car interior lights‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_control_car_interior_lights" msgid="3824832232269219288">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‏‎‏‎‎‎‏‎‏‎‎‏‎‎‎‏‎‎‎‏‎‏‎‎‏‏‎‏‎‎‎‎‎‎‏‏‏‎‏‏‏‏‏‎‎‎‎‎‏‎‏‏‏‎‏‏‎‎‎‎Control car interior lights‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‏‏‎‏‏‎‏‎‏‎‎‎‏‏‏‎‎‎‎‏‏‎‏‎‎‎‏‏‏‎‏‏‎‎‏‏‎‏‎‎‎‎‎‏‏‎‏‎‏‏‏‎‏‏‎‏‏‎Car exterior temperature‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‎‎‏‏‎‎‎‏‎‏‎‎‏‏‎‏‏‏‏‎‎‎‏‏‎‎‏‎‏‏‏‎‏‏‎‏‏‏‎‎‏‏‎‏‏‎‏‎‏‏‏‎‏‎‏‏‏‎Access car exterior temperature‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‎‏‏‎‎‎‏‎‏‎‏‏‎‏‎‏‎‏‏‏‏‏‎‏‏‏‏‎‎‎‏‎‎‏‎‏‎‏‎‏‎‏‎‎‎‎‎‎‎‎‏‎‎‏‎‏‏‎Car tires‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‎‏‎‎‎‎‏‎‏‎‎‏‏‏‎‏‏‎‏‎‏‏‎‎‎‏‎‏‏‎‎‎‏‎‏‏‎‎‏‎‎‎‏‎‏‏‏‏‏‏‎‎‏‏‏‏‎‎‎Access car tire information‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_car_steering" msgid="8647938979297456216">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‎‎‎‎‎‎‎‏‏‏‎‏‎‎‏‏‎‏‎‏‎‏‏‏‎‏‏‎‏‎‏‎‎‎‏‎‎‎‏‏‏‎‏‏‏‎‎‎‎‎‏‎‏‏‎‎‎‎Car Steering‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_steering" msgid="2260536897255153934">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‏‎‏‎‏‏‏‏‏‎‎‎‎‏‎‏‎‎‏‎‏‎‏‎‎‏‏‎‎‏‎‏‎‏‎‎‎‏‏‏‎‏‎‏‎‎‎‎‏‎‎‎‎‏‏‏‎‎Access car steering angle information‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_read_car_display_units" msgid="6460802833740285024">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‎‏‏‎‏‎‏‎‎‏‎‏‏‎‎‎‎‏‏‏‏‏‎‎‏‎‎‏‎‎‏‏‎‎‏‏‏‎‏‏‎‏‎‏‎‎‎‏‎‎‎‏‏‎‎‎‎‎‎Car Display Units‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_read_car_display_units" msgid="7488927661568759471">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‏‏‏‎‏‏‏‎‎‎‎‎‎‏‎‎‎‎‎‎‎‏‏‏‏‎‏‏‏‎‎‎‎‏‏‎‎‏‏‏‎‎‎‏‎‏‏‎‏‎‏‎‏‏‏‏‎Read display units‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_control_car_display_units" msgid="6898209531910065261">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‏‎‏‏‏‎‏‏‎‏‎‏‏‏‎‏‎‎‎‎‎‏‎‏‎‏‎‏‏‏‏‏‏‎‏‏‎‏‏‎‏‎‎‎‏‏‎‎‎‏‏‎‏‏‎‏‎Car Display Units‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_control_car_display_units" msgid="5701046407628424738">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‏‎‎‎‏‏‏‏‎‎‎‏‎‏‏‏‏‏‎‎‎‎‎‎‎‏‎‎‏‎‏‏‎‏‎‏‏‎‏‎‏‏‎‎‎‎‏‏‎‎‎‏‎‎‎‏‎‎Control display units‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‏‎‏‏‎‏‎‏‎‏‎‎‏‏‏‎‏‏‎‏‏‏‎‎‏‏‏‏‎‏‏‏‏‎‏‏‎‏‎‎‏‏‏‎‏‎‎‏‎‎‎‎‏‏‎‎‎‎Car Powertrain‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‏‎‏‎‏‎‎‎‎‏‏‏‏‏‎‏‏‎‏‎‏‏‏‏‏‎‏‎‎‏‏‏‏‏‏‎‎‎‎‎‎‎‏‎‎‎‎‎‏‎‎‏‏‎‎‎‎‎‎‎Access car powertrain information‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‎‏‎‏‏‏‏‎‎‏‎‏‎‏‎‎‎‎‏‏‏‏‏‏‎‎‎‎‏‏‎‎‎‎‏‎‏‎‎‎‏‏‎‏‏‏‎‎‎‎‏‏‏‏‎‏‎‎‏‎Car Power‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‎‏‎‎‎‏‏‎‏‎‎‏‏‏‏‎‎‎‏‎‎‏‏‏‎‏‎‏‎‎‏‎‏‎‎‏‏‏‎‏‎‎‏‏‏‎‎‎‎‏‎‎‎‎‏‏‎Access car power state‎‏‎‎‏‎"</string>
+</resources>

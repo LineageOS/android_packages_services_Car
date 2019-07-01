@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"차량 정보"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"차량 정보에 액세스"</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"차량 실내"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"차량의 도어, 미러, 시트, 윈도와 같은 부속품에 액세스"</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"차량 카메라"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"차량 카메라에 액세스"</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"차량 에너지"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"차량 에너지 정보에 액세스"</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"차량 공조기"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"차량 공조기에 액세스합니다."</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"차량 주행거리"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"차량 주행거리 정보에 액세스"</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"차량 속도"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"차량 속도에 액세스"</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"차량 운동 상태"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"차량 운동 상태에 액세스"</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"차량 공급업체 채널"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"차량 정보 교환을 위해 차량 공급업체 채널에 액세스"</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"차량 라디오"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"차량 라디오에 액세스"</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"차량 프로젝션"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"차량 오디오 볼륨"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"차량 오디오 설정"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"차량 디스플레이에 스마트폰 인터페이스 표시"</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"차량 HAL 에뮬레이션"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"내부 테스트 목적으로 차량의 HAL을 에뮬레이션"</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"차량 오디오 볼륨 제어"</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"차량 오디오 설정 제어"</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"애플리케이션 차단"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"운전 중 애플리케이션 차단 제어"</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"내비게이션 관리자"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"내비게이션 데이터를 계기판에 보냄"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"계기판으로 렌더링 보내기"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"애플리케이션이 계기판에 표시할 활동을 선언하도록 허용"</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"계기판 제어"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"계기판에서 앱 실행"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"계기판 렌더링"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"계기판 데이터 수신"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX 제한사항 설정"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX 제한사항 설정"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"차량 입력 서비스"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"입력 이벤트 처리"</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 버스 실패"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN 버스가 응답하지 않습니다. 헤드유닛 박스를 분리한 후 다시 연결한 다음 시동을 다시 걸어 보세요."</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"안전을 위해 운전 중에는 이용할 수 없는 활동입니다.\n계속하려면 먼저 주차하세요."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"안전한 앱 기능으로 다시 시작하려면 <xliff:g id="EXIT_BUTTON">%s</xliff:g>을(를) 선택하세요."</string>
+    <string name="exit_button" msgid="5829638404777671253">"뒤로"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"디버그 정보"</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"진단 데이터"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"차량의 진단 데이터 읽기"</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"진단 데이터"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"차량에서 진단 데이터 삭제"</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"VMS 게시자"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"VMS 메시지 게시"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"VMS 구독자"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"VMS 메시지 구독"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"플래시 저장소 모니터링"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"플래시 저장소 사용 모니터링"</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"운전 상태"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"운전 상태 변화 감지"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"상세한 엔진 정보"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"차량의 상세한 엔진 정보에 액세스"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"에너지 포트"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"에너지 포트에 액세스"</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"차량 ID"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"차량 ID에 액세스"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"차량 도어"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"차량 도어 제어"</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"차량 윈도"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"차량 윈도 제어"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"차량 미러"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"차량 미러 제어"</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"차량 시트"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"차량 시트 제어"</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"차량 기본 정보"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"차량 기본 정보 액세스"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"차량 외부 조명"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"차량 외부 조명 상태에 액세스"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"차량 외부 조명"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"차량 외부 조명 제어"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"차량 외부 온도"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"차량 외부 온도 액세스"</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"차량 타이어"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"차량 타이어 정보에 액세스"</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"차량 동력 전달 장치"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"차량 동력 전달 장치 정보에 액세스"</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"차량 전원"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"전원 상태 액세스"</string>
+</resources>

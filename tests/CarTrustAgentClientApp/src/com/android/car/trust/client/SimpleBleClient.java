@@ -32,64 +32,22 @@ import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A simple client that supports the scanning and connecting to available BLE devices. Should be
  * used along with {@link SimpleBleServer}.
  */
 public class SimpleBleClient {
-    public interface ClientCallback {
-        /**
-         * Called when a device that has a matching service UUID is found.
-         **/
-        void onDeviceConnected(BluetoothDevice device);
-
-        void onDeviceDisconnected();
-
-        void onCharacteristicChanged(BluetoothGatt gatt,
-                BluetoothGattCharacteristic characteristic);
-
-        /**
-         * Called for each {@link BluetoothGattService} that is discovered on the
-         * {@link BluetoothDevice} after a matching scan result and connection.
-         *
-         * @param service {@link BluetoothGattService} that has been discovered.
-         */
-        void onServiceDiscovered(BluetoothGattService service);
-    }
-
-    /**
-     * Wrapper class to allow queuing of BLE actions. The BLE stack allows only one action to be
-     * executed at a time.
-     */
-    public static class BleAction {
-        public static final int ACTION_WRITE = 0;
-        public static final int ACTION_READ = 1;
-
-        private int mAction;
-        private BluetoothGattCharacteristic mCharacteristic;
-
-        public BleAction(BluetoothGattCharacteristic characteristic, int action) {
-            mAction = action;
-            mCharacteristic = characteristic;
-        }
-
-        public int getAction() {
-            return mAction;
-        }
-
-        public BluetoothGattCharacteristic getCharacteristic() {
-            return mCharacteristic;
-        }
-    }
-
-    private static final long SCAN_TIME_MS = 10000;
+    private static final String TAG = "SimpleBleClient";
+    private static final long SCAN_TIME_MS = TimeUnit.SECONDS.toMillis(10);
 
     private final Queue<BleAction> mBleActionQueue = new ConcurrentLinkedQueue<BleAction>();
     private final List<ClientCallback> mCallbacks = new ArrayList<>();
@@ -99,7 +57,7 @@ public class SimpleBleClient {
     private BluetoothGatt mBtGatt;
     private ParcelUuid mServiceUuid;
 
-    public SimpleBleClient(@NonNull Context context) {
+    public SimpleBleClient(Context context) {
         mContext = context;
         BluetoothManager btManager = (BluetoothManager) mContext.getSystemService(
                 Context.BLUETOOTH_SERVICE);
@@ -126,15 +84,20 @@ public class SimpleBleClient {
         ScanSettings.Builder settings = new ScanSettings.Builder();
         settings.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
 
-        Log.d(Utils.LOG_TAG, "Start scanning for uuid: " + mServiceUuid.getUuid());
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Start scanning for uuid: " + mServiceUuid.getUuid());
+        }
+
         mScanner.startScan(filters, settings.build(), mScanCallback);
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Stopping Scanner");
+                }
                 mScanner.stopScan(mScanCallback);
-                Log.d(Utils.LOG_TAG, "Stopping Scanner");
             }
         }, SCAN_TIME_MS);
     }
@@ -207,14 +170,16 @@ public class SimpleBleClient {
         executeAction(mBleActionQueue.peek());
     }
 
-    private void executeAction(BleAction action) {
+    private void executeAction(@Nullable BleAction action) {
         if (action == null) {
             return;
         }
 
-        Log.d(Utils.LOG_TAG, "Executing BLE Action type: " + action.getAction());
-        int actionType = action.getAction();
-        switch (actionType) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Executing BLE Action type: " + action.getAction());
+        }
+
+        switch (action.getAction()) {
             case BleAction.ACTION_WRITE:
                 mBtGatt.writeCharacteristic(action.getCharacteristic());
                 break;
@@ -222,6 +187,7 @@ public class SimpleBleClient {
                 mBtGatt.readCharacteristic(action.getCharacteristic());
                 break;
             default:
+                Log.e(TAG, "Encountered unknown BlueAction: " + action.getAction());
         }
     }
 
@@ -254,19 +220,25 @@ public class SimpleBleClient {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             BluetoothDevice device = result.getDevice();
-            Log.d(Utils.LOG_TAG, "Scan result found: " + result.getScanRecord().getServiceUuids());
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Scan result found: " + result.getScanRecord().getServiceUuids());
+            }
 
             if (!hasServiceUuid(result)) {
                 return;
             }
 
             for (ParcelUuid uuid : result.getScanRecord().getServiceUuids()) {
-                Log.d(Utils.LOG_TAG, "Scan result UUID: " + uuid);
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Scan result UUID: " + uuid);
+                }
+
                 if (uuid.equals(mServiceUuid)) {
                     // This client only supports connecting to one service.
                     // Once we find one, stop scanning and open a GATT connection to the device.
                     mScanner.stopScan(mScanCallback);
-                    mBtGatt = device.connectGatt(mContext, false /* autoConnect */, mGattCallback);
+                    mBtGatt = device.connectGatt(mContext, /* autoConnect= */ false, mGattCallback);
                     return;
                 }
             }
@@ -274,15 +246,17 @@ public class SimpleBleClient {
 
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
-            for (ScanResult r : results) {
-                Log.d(Utils.LOG_TAG, "Batch scanResult: " + r.getDevice().getName()
-                        + " " + r.getDevice().getAddress());
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                for (ScanResult r : results) {
+                    Log.d(TAG, "Batch scanResult: " + r.getDevice().getName()
+                            + " " + r.getDevice().getAddress());
+                }
             }
         }
 
         @Override
         public void onScanFailed(int errorCode) {
-            Log.e(Utils.LOG_TAG, "Scan failed: " + errorCode);
+            Log.e(TAG, "Scan failed: " + errorCode);
         }
     };
 
@@ -291,29 +265,37 @@ public class SimpleBleClient {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
 
-            String state = "";
-
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                state = "Connected";
-                mBtGatt.discoverServices();
-                for (ClientCallback callback : mCallbacks) {
-                    callback.onDeviceConnected(gatt.getDevice());
-                }
-
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                state = "Disconnected";
-                for (ClientCallback callback : mCallbacks) {
-                    callback.onDeviceDisconnected();
-                }
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Gatt connection status: " + getStatus(status)
+                        + " newState: " + newState);
             }
-            Log.d(Utils.LOG_TAG, "Gatt connection status: " + getStatus(status)
-                    + " newState: " + state);
+
+            switch (newState) {
+                case BluetoothProfile.STATE_CONNECTED:
+                    mBtGatt.discoverServices();
+                    for (ClientCallback callback : mCallbacks) {
+                        callback.onDeviceConnected(gatt.getDevice());
+                    }
+                    break;
+
+                case BluetoothProfile.STATE_DISCONNECTED:
+                    for (ClientCallback callback : mCallbacks) {
+                        callback.onDeviceDisconnected();
+                    }
+                    break;
+
+                default:
+                    // Do nothing.
+            }
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             super.onServicesDiscovered(gatt, status);
-            Log.d(Utils.LOG_TAG, "onServicesDiscovered: " + status);
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onServicesDiscovered: " + status);
+            }
 
             List<BluetoothGattService> services = gatt.getServices();
             if (services == null || services.size() <= 0) {
@@ -322,7 +304,10 @@ public class SimpleBleClient {
 
             // Notify clients of newly discovered services.
             for (BluetoothGattService service : mBtGatt.getServices()) {
-                Log.d(Utils.LOG_TAG, "Found service: " + service.getUuid() + " notifying clients");
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Found service: " + service.getUuid() + " notifying clients");
+                }
+
                 for (ClientCallback callback : mCallbacks) {
                     callback.onServiceDiscovered(service);
                 }
@@ -332,14 +317,20 @@ public class SimpleBleClient {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt,
                 BluetoothGattCharacteristic characteristic, int status) {
-            Log.d(Utils.LOG_TAG, "onCharacteristicWrite: " + status);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onCharacteristicWrite: " + status);
+            }
+
             processNextAction();
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                 BluetoothGattCharacteristic characteristic, int status) {
-            Log.d(Utils.LOG_TAG, "onCharacteristicRead:" + new String(characteristic.getValue()));
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onCharacteristicRead:" + new String(characteristic.getValue()));
+            }
+
             processNextAction();
         }
 
@@ -352,4 +343,63 @@ public class SimpleBleClient {
             processNextAction();
         }
     };
+
+    /**
+     * Wrapper class to allow queuing of BLE actions. The BLE stack allows only one action to be
+     * executed at a time.
+     */
+    private static class BleAction {
+        public static final int ACTION_WRITE = 0;
+        public static final int ACTION_READ = 1;
+
+        @IntDef({ ACTION_WRITE, ACTION_READ })
+        public @interface ActionType {}
+
+        private final int mAction;
+        private final BluetoothGattCharacteristic mCharacteristic;
+
+        BleAction(BluetoothGattCharacteristic characteristic, @ActionType int action) {
+            mAction = action;
+            mCharacteristic = characteristic;
+        }
+
+        @ActionType
+        public int getAction() {
+            return mAction;
+        }
+
+        public BluetoothGattCharacteristic getCharacteristic() {
+            return mCharacteristic;
+        }
+    }
+
+    /**
+     * Callback for classes that wish to be notified of BLE updates.
+     */
+    public interface ClientCallback {
+        /**
+         * Called when a device that has a matching service UUID is found.
+         **/
+        void onDeviceConnected(BluetoothDevice device);
+
+        /** Called when the currently connected device has been disconnected. */
+        void onDeviceDisconnected();
+
+        /**
+         * Called when a characteristic has been changed.
+         *
+         * @param gatt The GATT client the characteristic is associated with.
+         * @param characteristic The characteristic that has been changed.
+         */
+        void onCharacteristicChanged(BluetoothGatt gatt,
+                BluetoothGattCharacteristic characteristic);
+
+        /**
+         * Called for each {@link BluetoothGattService} that is discovered on the
+         * {@link BluetoothDevice} after a matching scan result and connection.
+         *
+         * @param service {@link BluetoothGattService} that has been discovered.
+         */
+        void onServiceDiscovered(BluetoothGattService service);
+    }
 }

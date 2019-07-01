@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"Інформація про автомобіль"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"Доступ до інформації про автомобіль."</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"Салон автомобіля"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Доступ до другорядного обладнання автомобіля (зокрема, дверей, дзеркал, сидінь і вікон)."</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"Камера автомобіля"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"Доступ до камер автомобіля."</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"Енергоспоживання автомобіля"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Доступ до інформації про енергоспоживання автомобіля."</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Система клімат-контролю автомобіля"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Доступ до системи клімат-контролю автомобіля."</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"Пробіг автомобіля"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Доступ до інформації про пробіг автомобіля."</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"Швидкість автомобіля"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Доступ до інформації про швидкість автомобіля."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Стан динаміки автомобіля"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"Доступ до стану динаміки автомобіля"</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Канал виробника автомобіля"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Доступ до каналу виробника для обміну інформацією про автомобіль."</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"Автомобільний радіоприймач"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"Доступ до автомобільного радіоприймача."</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"Проекція на екран автомобіля"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Гучність аудіосистеми автомобіля"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Налаштування аудіосистеми автомобіля"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"Проекція інтерфейсу телефона на екран автомобіля."</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"Емуляція рівня HAL автомобіля"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Імітація рівня HAL автомобіля для внутрішнього тестування."</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Керування гучністю аудіосистеми автомобіля."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Керування налаштуваннями аудіосистеми автомобіля."</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Блокування додатків"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Керування блокуванням додатків під час поїздки."</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Навігатор"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Передавання даних навігації на панель приладів"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Відображення безпосередньо на панелі приладів"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Дозволити додатку оголошувати дії, які показуватимуться на панелі приладів"</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Керування панеллю приладів"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Запуск додатків на панелі приладів"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Відображення панелі приладів"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Отримувати дані з панелі приладів"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Конфігурація обмежень використання функцій"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Налаштувати обмеження щодо використання функцій"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Сервіс даних про вхідні події автомобіля"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Обробка вхідних подій"</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"Помилка CAN-шини"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-шина не відповідає. Від’єднайте та знову під’єднайте головний пристрій аудіосистеми й заведіть автомобіль ще раз"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"Задля вашої безпеки ці дії недоступні під час поїздки.\nЩоб продовжити, зупиніть автомобіль."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"Щоб почати знову з безпечними функціями додатка, натисніть кнопку \"<xliff:g id="EXIT_BUTTON">%s</xliff:g>\"."</string>
+    <string name="exit_button" msgid="5829638404777671253">"Назад"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Дані діагностики"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Перегляд даних діагностики автомобіля"</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Дані діагностики"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"Очищення даних діагностики автомобіля"</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"Автор дорожніх повідомлень"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"Публікація дорожніх повідомлень"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"Отримувач дорожніх повідомлень"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"Підписка на дорожні повідомлення"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Відстеження флеш-пам’яті"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Відстеження використання флеш-пам’яті"</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Стан кермування"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Відстеження змін стану кермування"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Детальна інформація про двигун"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"Доступ до детальної інформації про двигун автомобіля"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Кришка паливного бака/порт заряджання"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Доступ до кришки паливного бака чи порту заряджання автомобіля"</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Ідентифікаційний номер автомобіля"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"Доступ до ідентифікаційного номера автомобіля"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Двері автомобіля"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"Керування дверима автомобіля"</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Вікна автомобіля"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"Керування вікнами автомобіля"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"Дзеркала автомобіля"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"Керування дзеркалами автомобіля"</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Автомобільні сидіння"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Керування сидіннями автомобіля"</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"Основна інформація про автомобіль"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Доступ до основної інформації про автомобіль"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Зовнішні світлові прилади автомобіля"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"Доступ до стану зовнішніх світлових приладів автомобіля"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"Зовнішнє освітлення автомобіля"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"Керування зовнішніми світловими приладами автомобіля"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"Зовнішня температура автомобіля"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"Доступ до зовнішньої температури автомобіля"</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"Автомобільні шини"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"Доступ до інформації про шини автомобіля"</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"Трансмісія автомобіля"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"Доступ до інформації про трансмісію автомобіля"</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"Заряд автомобіля"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"Доступ до рівня заряду автомобіля"</string>
+</resources>

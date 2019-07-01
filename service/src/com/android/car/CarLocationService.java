@@ -16,16 +16,19 @@
 
 package com.android.car;
 
-import android.car.hardware.CarPropertyValue;
-import android.car.hardware.property.CarPropertyEvent;
-import android.car.hardware.property.ICarPropertyEventListener;
-import android.car.user.CarUserManagerHelper;
+import android.app.ActivityManager;
+import android.car.ICarUserService;
+import android.car.ILocationManagerProxy;
+import android.car.drivingstate.CarDrivingStateEvent;
+import android.car.drivingstate.ICarDrivingStateChangeListener;
+import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion;
+import android.car.userlib.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
@@ -38,8 +41,10 @@ import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
 
+import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -47,17 +52,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * This service stores the last known location from {@link LocationManager} when a car is parked
  * and restores the location when the car is powered on.
  */
 public class CarLocationService extends BroadcastReceiver implements CarServiceBase,
-        CarPowerManagementService.PowerEventProcessingHandler {
+        CarPowerStateListenerWithCompletion {
     private static final String TAG = "CarLocationService";
     private static final String FILENAME = "location_cache.json";
-    private static final boolean DBG = false;
+    private static final boolean DBG = true;
     // The accuracy for the stored timestamp
     private static final long GRANULARITY_ONE_DAY_MS = 24 * 60 * 60 * 1000L;
     // The time-to-live for the cached location
@@ -68,22 +73,83 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     // Used internally for mHandlerThread synchronization
     private final Object mLock = new Object();
 
+    // Used internally for mILocationManagerProxy synchronization
+    private final Object mLocationManagerProxyLock = new Object();
+
     private final Context mContext;
-    private final CarPowerManagementService mCarPowerManagementService;
-    private final CarPropertyService mCarPropertyService;
-    private final CarPropertyEventListener mCarPropertyEventListener;
     private final CarUserManagerHelper mCarUserManagerHelper;
     private int mTaskCount = 0;
     private HandlerThread mHandlerThread;
     private Handler mHandler;
+    private CarPowerManager mCarPowerManager;
+    private CarDrivingStateService mCarDrivingStateService;
+    private PerUserCarServiceHelper mPerUserCarServiceHelper;
 
-    public CarLocationService(Context context, CarPowerManagementService carPowerManagementService,
-            CarPropertyService carPropertyService, CarUserManagerHelper carUserManagerHelper) {
+    // Allows us to interact with the {@link LocationManager} as the foreground user.
+    private ILocationManagerProxy mILocationManagerProxy;
+
+    // Maintains mILocationManagerProxy for the current foreground user.
+    private final PerUserCarServiceHelper.ServiceCallback mUserServiceCallback =
+            new PerUserCarServiceHelper.ServiceCallback() {
+                @Override
+                public void onServiceConnected(ICarUserService carUserService) {
+                    logd("Connected to PerUserCarService");
+                    if (carUserService == null) {
+                        logd("ICarUserService is null. Cannot get location manager proxy");
+                        return;
+                    }
+                    synchronized (mLocationManagerProxyLock) {
+                        try {
+                            mILocationManagerProxy = carUserService.getLocationManagerProxy();
+                        } catch (RemoteException e) {
+                            Log.e(TAG, "RemoteException from ICarUserService", e);
+                            return;
+                        }
+                    }
+                    int currentUser = ActivityManager.getCurrentUser();
+                    logd("Current user: " + currentUser);
+                    if (mCarUserManagerHelper.isHeadlessSystemUser()
+                            && currentUser > UserHandle.USER_SYSTEM) {
+                        asyncOperation(() -> loadLocation());
+                    }
+                }
+
+                @Override
+                public void onPreUnbind() {
+                    logd("Before Unbinding from PerCarUserService");
+                    synchronized (mLocationManagerProxyLock) {
+                        mILocationManagerProxy = null;
+                    }
+                }
+
+                @Override
+                public void onServiceDisconnected() {
+                    logd("Disconnected from PerUserCarService");
+                    synchronized (mLocationManagerProxyLock) {
+                        mILocationManagerProxy = null;
+                    }
+                }
+            };
+
+    private final ICarDrivingStateChangeListener mICarDrivingStateChangeEventListener =
+            new ICarDrivingStateChangeListener.Stub() {
+                @Override
+                public void onDrivingStateChanged(CarDrivingStateEvent event) {
+                    logd("onDrivingStateChanged " + event);
+                    if (event != null
+                            && event.eventValue == CarDrivingStateEvent.DRIVING_STATE_MOVING) {
+                        deleteCacheFile();
+                        if (mCarDrivingStateService != null) {
+                            mCarDrivingStateService.unregisterDrivingStateChangeListener(
+                                    mICarDrivingStateChangeEventListener);
+                        }
+                    }
+                }
+            };
+
+    public CarLocationService(Context context, CarUserManagerHelper carUserManagerHelper) {
         logd("constructed");
         mContext = context;
-        mCarPowerManagementService = carPowerManagementService;
-        mCarPropertyService = carPropertyService;
-        mCarPropertyEventListener = new CarPropertyEventListener();
         mCarUserManagerHelper = carUserManagerHelper;
     }
 
@@ -91,21 +157,41 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     public void init() {
         logd("init");
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_USER_SWITCHED);
-        filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
         filter.addAction(LocationManager.MODE_CHANGED_ACTION);
-        filter.addAction(LocationManager.GPS_ENABLED_CHANGE_ACTION);
         mContext.registerReceiver(this, filter);
-        mCarPropertyService.registerListener(VehicleProperty.IGNITION_STATE, 0,
-                mCarPropertyEventListener);
-        mCarPowerManagementService.registerPowerEventProcessingHandler(this);
+        mCarDrivingStateService = CarLocalServices.getService(CarDrivingStateService.class);
+        if (mCarDrivingStateService != null) {
+            CarDrivingStateEvent event = mCarDrivingStateService.getCurrentDrivingState();
+            if (event != null && event.eventValue == CarDrivingStateEvent.DRIVING_STATE_MOVING) {
+                deleteCacheFile();
+            } else {
+                mCarDrivingStateService.registerDrivingStateChangeListener(
+                        mICarDrivingStateChangeEventListener);
+            }
+        }
+        mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
+        if (mCarPowerManager != null) { // null case happens for testing.
+            mCarPowerManager.setListenerWithCompletion(CarLocationService.this);
+        }
+        mPerUserCarServiceHelper = CarLocalServices.getService(PerUserCarServiceHelper.class);
+        if (mPerUserCarServiceHelper != null) {
+            mPerUserCarServiceHelper.registerServiceCallback(mUserServiceCallback);
+        }
     }
 
     @Override
     public void release() {
         logd("release");
-        mCarPropertyService.unregisterListener(VehicleProperty.IGNITION_STATE,
-                mCarPropertyEventListener);
+        if (mCarPowerManager != null) {
+            mCarPowerManager.clearListener();
+        }
+        if (mCarDrivingStateService != null) {
+            mCarDrivingStateService.unregisterDrivingStateChangeListener(
+                    mICarDrivingStateChangeEventListener);
+        }
+        if (mPerUserCarServiceHelper != null) {
+            mPerUserCarServiceHelper.unregisterServiceCallback(mUserServiceCallback);
+        }
         mContext.unregisterReceiver(this);
     }
 
@@ -113,90 +199,96 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     public void dump(PrintWriter writer) {
         writer.println(TAG);
         writer.println("Context: " + mContext);
-        writer.println("CarPropertyService: " + mCarPropertyService);
         writer.println("MAX_LOCATION_INJECTION_ATTEMPTS: " + MAX_LOCATION_INJECTION_ATTEMPTS);
     }
 
     @Override
-    public long onPrepareShutdown(boolean shuttingDown) {
-        logd("onPrepareShutdown " + shuttingDown);
-        asyncOperation(() -> storeLocation());
-        return 100;
-    }
-
-    @Override
-    public void onPowerOn(boolean displayOn) {
-    }
-
-    @Override
-    public int getWakeupTime() {
-        return 0;
+    public void onStateChanged(int state, CompletableFuture<Void> future) {
+        logd("onStateChanged: " + state);
+        switch (state) {
+            case CarPowerStateListener.SHUTDOWN_PREPARE:
+                asyncOperation(() -> {
+                    storeLocation();
+                    // Notify the CarPowerManager that it may proceed to shutdown or suspend.
+                    if (future != null) {
+                        future.complete(null);
+                    }
+                });
+                break;
+            case CarPowerStateListener.SUSPEND_EXIT:
+                deleteCacheFile();
+                if (future != null) {
+                    future.complete(null);
+                }
+            default:
+                // This service does not need to do any work for these events but should still
+                // notify the CarPowerManager that it may proceed.
+                if (future != null) {
+                    future.complete(null);
+                }
+                break;
+        }
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         logd("onReceive " + intent);
-        String action = intent.getAction();
-        if (action == Intent.ACTION_LOCKED_BOOT_COMPLETED) {
-            // If the system user is not headless, then we can inject location as soon as the
-            // system has completed booting.
-            if (!mCarUserManagerHelper.isHeadlessSystemUser()) {
-                logd("not headless on boot complete");
-                asyncOperation(() -> loadLocation());
+        // If the system user is headless but the current user is still the system user, then we
+        // should not delete the location cache file due to missing location permissions.
+        if (isCurrentUserHeadlessSystemUser()) {
+            logd("Current user is headless system user.");
+            return;
+        }
+        synchronized (mLocationManagerProxyLock) {
+            if (mILocationManagerProxy == null) {
+                logd("Null location manager.");
+                return;
             }
-        } else if (action == Intent.ACTION_USER_SWITCHED) {
-            int userHandle = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
-            logd("USER_SWITCHED: " + userHandle);
-            if (mCarUserManagerHelper.isHeadlessSystemUser()
-                    && userHandle > UserHandle.USER_SYSTEM) {
-                asyncOperation(() -> loadLocation());
-            }
-        } else if (action == LocationManager.MODE_CHANGED_ACTION
-                && shouldCheckLocationPermissions()) {
-            LocationManager locationManager =
-                    (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-            boolean locationEnabled = locationManager.isLocationEnabled();
-            logd("isLocationEnabled(): " + locationEnabled);
-            if (!locationEnabled) {
-                asyncOperation(() -> deleteCacheFile());
-            }
-        } else if (action == LocationManager.GPS_ENABLED_CHANGE_ACTION
-                && shouldCheckLocationPermissions()) {
-            LocationManager locationManager =
-                    (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-            boolean gpsEnabled =
-                    locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            logd("isProviderEnabled('gps'): " + gpsEnabled);
-            if (!gpsEnabled) {
-                asyncOperation(() -> deleteCacheFile());
+            String action = intent.getAction();
+            try {
+                if (action == LocationManager.MODE_CHANGED_ACTION) {
+                    boolean locationEnabled = mILocationManagerProxy.isLocationEnabled();
+                    logd("isLocationEnabled(): " + locationEnabled);
+                    if (!locationEnabled) {
+                        deleteCacheFile();
+                    }
+                } else {
+                    logd("Unexpected intent.");
+                }
+            } catch (RemoteException e) {
+                Log.e(TAG, "RemoteException from ILocationManagerProxy", e);
             }
         }
     }
 
-    /**
-     * Tells whether or not we should check location permissions for the sake of deleting the
-     * location cache file when permissions are lacking.  If the system user is headless but the
-     * current user is still the system user, then we should not respond to a lack of location
-     * permissions.
-     */
-    private boolean shouldCheckLocationPermissions() {
-        return !(mCarUserManagerHelper.isHeadlessSystemUser()
-                && mCarUserManagerHelper.isCurrentProcessSystemUser());
+    /** Tells whether the current foreground user is the headless system user. */
+    private boolean isCurrentUserHeadlessSystemUser() {
+        int currentUserId = ActivityManager.getCurrentUser();
+        return mCarUserManagerHelper.isHeadlessSystemUser() && currentUserId == 0;
     }
 
     /**
-     * Gets the last known location from the LocationManager and store it in a file.
+     * Gets the last known location from the location manager proxy and store it in a file.
      */
     private void storeLocation() {
-        LocationManager locationManager =
-                (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location location = null;
+        synchronized (mLocationManagerProxyLock) {
+            if (mILocationManagerProxy == null) {
+                logd("Null location manager proxy.");
+                return;
+            }
+            try {
+                location = mILocationManagerProxy.getLastKnownLocation(
+                        LocationManager.GPS_PROVIDER);
+            } catch (RemoteException e) {
+                Log.e(TAG, "RemoteException from ILocationManagerProxy", e);
+            }
+        }
         if (location == null) {
             logd("Not storing null location");
-            deleteCacheFile();
         } else {
             logd("Storing location: " + location);
-            AtomicFile atomicFile = new AtomicFile(mContext.getFileStreamPath(FILENAME));
+            AtomicFile atomicFile = new AtomicFile(getLocationCacheFile());
             FileOutputStream fos = null;
             try {
                 fos = atomicFile.startWrite();
@@ -247,14 +339,15 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     }
 
     /**
-     * Reads a previously stored location and attempts to inject it into the LocationManager.
+     * Reads a previously stored location and attempts to inject it into the location manager proxy.
      */
     private void loadLocation() {
         Location location = readLocationFromCacheFile();
-        logd("Read location from " + location.getTime());
+        logd("Read location from timestamp " + location.getTime());
         long currentTime = System.currentTimeMillis();
         if (location.getTime() + TTL_THIRTY_DAYS_MS < currentTime) {
             logd("Location expired.");
+            deleteCacheFile();
         } else {
             location.setTime(currentTime);
             long elapsedTime = SystemClock.elapsedRealtimeNanos();
@@ -267,7 +360,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
 
     private Location readLocationFromCacheFile() {
         Location location = new Location((String) null);
-        AtomicFile atomicFile = new AtomicFile(mContext.getFileStreamPath(FILENAME));
+        AtomicFile atomicFile = new AtomicFile(getLocationCacheFile());
         try (FileInputStream fis = atomicFile.openRead()) {
             JsonReader reader = new JsonReader(new InputStreamReader(fis, "UTF-8"));
             reader.beginObject();
@@ -302,7 +395,6 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                 }
             }
             reader.endObject();
-            deleteCacheFile();
         } catch (FileNotFoundException e) {
             Log.d(TAG, "Location cache file not found.");
         } catch (IOException e) {
@@ -314,8 +406,8 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     }
 
     private void deleteCacheFile() {
-        logd("Deleting cache file");
-        mContext.deleteFile(FILENAME);
+        boolean deleted = getLocationCacheFile().delete();
+        logd("Deleted cache file: " + deleted);
     }
 
     /**
@@ -323,9 +415,18 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
      * initialized or has not updated its handle to the current user yet.
      */
     private void injectLocation(Location location, int attemptCount) {
-        LocationManager locationManager =
-                (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        boolean success = locationManager.injectLocation(location);
+        boolean success = false;
+        synchronized (mLocationManagerProxyLock) {
+            if (mILocationManagerProxy == null) {
+                logd("Null location manager proxy.");
+            } else {
+                try {
+                    success = mILocationManagerProxy.injectLocation(location);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "RemoteException from ILocationManagerProxy", e);
+                }
+            }
+        }
         logd("Injected location " + location + " with result " + success + " on attempt "
                 + attemptCount);
         if (success) {
@@ -337,6 +438,13 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         } else {
             logd("No location injected.");
         }
+    }
+
+    private File getLocationCacheFile() {
+        SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
+        File file = new File(systemInterface.getSystemCarDir(), FILENAME);
+        logd("File: " + file);
+        return file;
     }
 
     @VisibleForTesting
@@ -372,25 +480,6 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     private static void logd(String msg) {
         if (DBG) {
             Log.d(TAG, msg);
-        }
-    }
-
-    private class CarPropertyEventListener extends ICarPropertyEventListener.Stub {
-        @Override
-        public void onEvent(List<CarPropertyEvent> events) throws RemoteException {
-            for (CarPropertyEvent event : events) {
-                if (event.getEventType() == CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE) {
-                    CarPropertyValue value = event.getCarPropertyValue();
-                    if (value.getPropertyId() == VehicleProperty.IGNITION_STATE) {
-                        int ignitionState = (Integer) value.getValue();
-                        logd("property ignition value: " + ignitionState);
-                        if (ignitionState == VehicleIgnitionState.OFF) {
-                            logd("ignition off");
-                            asyncOperation(() -> storeLocation());
-                        }
-                    }
-                }
-            }
         }
     }
 }
