@@ -349,7 +349,7 @@
     <string name="lock_after_timeout" msgid="7755520959071097304">"Автокулпу"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> уктагандан кийин"</string>
     <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Көшүү режимине өтөөрү менен, кулпуланбаган экран <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> кызматында колдоого алынбаса"</string>
-    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g> кызматында кулпуланбаган экран колдоого алынбаса, көшүү режимине өткөндөн <xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> кийин"</string>
+    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"Кулпуланбаган экран <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g> кызматында колдоого алынбаса, көшүү режимине өткөндөн <xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> кийин"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"Кулпуланган экрандан ээсинин маалыматы көрсөтүлсүн"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Экрандагы текст"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Виджеттерди жандыруу"</string>
