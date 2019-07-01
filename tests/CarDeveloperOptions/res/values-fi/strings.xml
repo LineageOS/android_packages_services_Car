@@ -3058,7 +3058,7 @@
     <string name="keywords_display" msgid="355147521915213375">"näyttö, kosketusnäyttö"</string>
     <string name="keywords_display_brightness_level" msgid="7649410848561920512">"himmeä näyttö, kosketusnäyttö, akku, kirkas"</string>
     <string name="keywords_display_night_display" msgid="3647370193110044967">"himmeä näyttö, yö, sävytys, yötila, kirkkaus, näytön väri, väri, värit"</string>
-    <string name="keywords_display_wallpaper" msgid="1202089324795933197">"tausta, räätälöidä, näytön muokkaaminen"</string>
+    <string name="keywords_display_wallpaper" msgid="1202089324795933197">"tausta, personoida, näytön muokkaaminen"</string>
     <string name="keywords_display_font_size" msgid="1496431330244040196">"tekstin koko"</string>
     <string name="keywords_display_cast_screen" msgid="5744566533025100355">"heijasta, suoratoista, näytön peilaus, näytön jakaminen, peilaus, jaa näyttö, näytön suoratoisto"</string>
     <string name="keywords_storage" msgid="7704519289838065803">"levytila, levy, kiintolevy, laitteen käyttö"</string>
