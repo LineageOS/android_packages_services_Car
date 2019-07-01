@@ -4101,9 +4101,9 @@
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Manuel"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Frigør plads nu"</string>
     <string name="gesture_preference_title" msgid="583646591518373785">"Bevægelser"</string>
-    <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Styr din telefon med hurtige bevægelser"</string>
-    <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Styr din tablet med hurtige bevægelser"</string>
-    <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Styr din enhed med hurtige bevægelser"</string>
+    <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Styr din telefon med håndtegn"</string>
+    <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Styr din tablet med håndtegn"</string>
+    <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Styr din enhed med håndtegn"</string>
     <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Åbn kamera"</string>
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Du kan åbne dit kamera hurtigt ved at trykke to gange på afbryderknappen. Denne genvej fungerer fra enhver skærm."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Åbn kameraet hurtigt"</string>
