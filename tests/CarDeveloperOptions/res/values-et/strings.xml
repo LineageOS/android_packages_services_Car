@@ -1760,7 +1760,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Tee muster nähtavaks"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Muuda profiilimuster nähtavaks"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Vibreeri puudutamisel"</string>
-    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Lukus toitenupu vajutamisel"</string>
+    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Lukustamine toitenupuga"</string>
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Välja arvatud siis, kui <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> hoiab seadet avatuna"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Määra avamismuster"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Muuda avamismustrit"</string>

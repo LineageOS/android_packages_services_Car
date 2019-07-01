@@ -126,7 +126,7 @@
     <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"Tak ada prngkt Bluetooth terdekat."</string>
     <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"Permintaan penyandingan bluetooth"</string>
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"Permintaan penyandingan"</string>
-    <string name="bluetooth_notif_message" msgid="6612367890895077938">"Tap untuk menyandingkan dengan <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
+    <string name="bluetooth_notif_message" msgid="6612367890895077938">"Ketuk untuk menyandingkan dengan <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"File yang diterima"</string>
     <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"File yang diterima melalui Bluetooth"</string>
     <string name="device_picker" msgid="8345264486071697705">"Pilih perangkat Bluetooth"</string>
@@ -153,7 +153,7 @@
     <string name="bluetooth_turning_on" msgid="6935183036449748493">"Menyalakan Bluetooth..."</string>
     <string name="bluetooth_turning_off" msgid="9214026723789756620">"Mematikan Bluetooth…"</string>
     <string name="bluetooth_connection_permission_request" msgid="2382506002340643398">"Permintaan sambungan bluetooth"</string>
-    <string name="bluetooth_connection_notif_message" msgid="6824654400460127108">"Tap untuk menyambung ke \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\"."</string>
+    <string name="bluetooth_connection_notif_message" msgid="6824654400460127108">"Ketuk untuk menyambung ke \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\"."</string>
     <string name="bluetooth_connection_dialog_text" msgid="5454660775522235951">"Sambungkan ke \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\"?"</string>
     <string name="bluetooth_phonebook_request" msgid="3728325388092719230">"Permintaan akses buku telepon"</string>
     <string name="bluetooth_pb_acceptance_dialog_text" msgid="2880630715123354820">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> ingin mengakses kontak dan histori panggilan. Berikan akses ke <xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>?"</string>
@@ -394,7 +394,7 @@
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Kunci layar, sidik jari"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Kunci layar"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Wajah ditambahkan"</string>
-    <string name="security_settings_face_preference_summary_none" msgid="8427755590493904386">"Tap untuk menyiapkan autentikasi wajah"</string>
+    <string name="security_settings_face_preference_summary_none" msgid="8427755590493904386">"Ketuk untuk menyiapkan autentikasi wajah"</string>
     <string name="security_settings_face_preference_title" msgid="2630071872604654381">"Autentikasi wajah"</string>
     <string name="security_settings_face_enroll_introduction_accessibility" msgid="1563255314851533140">"Gunakan penyiapan aksesibilitas"</string>
     <string name="security_settings_face_enroll_introduction_accessibility_diversity" msgid="1130222333285509856"></string>
@@ -475,12 +475,12 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Lakukan nanti"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Lewati penyiapan sidik jari?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Anda telah memilih untuk menggunakan sidik jari sebagai satu cara untuk membuka kunci perangkat. Jika dilewati sekarang, Anda harus menyiapkannya nanti. Penyiapan hanya memerlukan waktu sekitar satu menit."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Lindungi tablet Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika tablet Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan sidik jari. Tap Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"Lindungi perangkat Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika perangkat Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan sidik jari. Tap Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"Lindungi ponsel Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika ponsel Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan sidik jari. Tap Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Lindungi tablet Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika tablet Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan autentikasi wajah. Tap Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Lindungi perangkat Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika perangkat Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan autentikasi wajah. Tap Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Lindungi ponsel Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika ponsel Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan autentikasi wajah. Tap Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Lindungi tablet Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika tablet Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan sidik jari. Ketuk Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"Lindungi perangkat Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika perangkat Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan sidik jari. Ketuk Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"Lindungi ponsel Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika ponsel Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan sidik jari. Ketuk Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Lindungi tablet Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika tablet Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan autentikasi wajah. Ketuk Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Lindungi perangkat Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika perangkat Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan autentikasi wajah. Ketuk Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Lindungi ponsel Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika ponsel Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan autentikasi wajah. Ketuk Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
     <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
     <skip />
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Lewati Penyiapan Sandi?"</string>
@@ -812,7 +812,7 @@
     <string name="wifi_band_24ghz" msgid="2973143764653628618">"2,4 GHz"</string>
     <string name="wifi_band_5ghz" msgid="6469832209748522207">"5 GHz"</string>
     <string name="wifi_sign_in_button_text" msgid="7573695522292386360">"Login"</string>
-    <string name="wifi_tap_to_sign_in" msgid="1075925570550560453">"Tap di sini untuk login ke jaringan"</string>
+    <string name="wifi_tap_to_sign_in" msgid="1075925570550560453">"Ketuk di sini untuk login ke jaringan"</string>
     <string name="tx_link_speed" msgid="4557508597788146162">"<xliff:g id="TRANSMIT_LINK_SPEED">%1$d</xliff:g> Mbps"</string>
     <string name="rx_link_speed" msgid="3735337600274627581">"<xliff:g id="RECEIVE_LINK_SPEED">%1$d</xliff:g> Mbps"</string>
     <string name="wifi_ask_enable" msgid="925862998663619616">"<xliff:g id="REQUESTER">%s</xliff:g> ingin mengaktifkan Wi-Fi"</string>
@@ -898,8 +898,8 @@
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"Aktifkan"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"Pemindaian Wi-Fi diaktifkan"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"Opsi lanjutan"</string>
-    <string name="wifi_advanced_toggle_description_expanded" msgid="1506697245302596510">"Opsi Lanjutan daftar tarik-turun. Tap dua kali untuk menciutkan."</string>
-    <string name="wifi_advanced_toggle_description_collapsed" msgid="3014965593695454879">"Opsi Lanjutan daftar tarik-turun. Tap dua kali untuk meluaskan."</string>
+    <string name="wifi_advanced_toggle_description_expanded" msgid="1506697245302596510">"Opsi Lanjutan daftar tarik-turun. Ketuk dua kali untuk menciutkan."</string>
+    <string name="wifi_advanced_toggle_description_collapsed" msgid="3014965593695454879">"Opsi Lanjutan daftar tarik-turun. Ketuk dua kali untuk meluaskan."</string>
     <string name="wifi_ssid" msgid="6746270925975522641">"Nama jaringan"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Masukkan SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Keamanan"</string>
@@ -1926,7 +1926,7 @@
     <string name="service_stop_description" msgid="4184180745938573707">"Layanan ini dimulai oleh aplikasinya. Menghentikan layanan dapat mengakibatkan gagalnya apl."</string>
     <string name="heavy_weight_stop_description" msgid="7444148811046611463">"Apl ini tidak dapat dihentikan dengan aman. Jika Anda menghentikannya, beberapa pekerjaan yang sedang dilakukan mungkin akan hilang."</string>
     <string name="background_process_stop_description" msgid="8971810208873038109">"Ini adalah proses apl lama yang masih berjalan seandainya dibutuhkan lagi. Biasanya tidak ada alasan untuk menghentikannya."</string>
-    <string name="service_manage_description" msgid="8058123524402833082">"<xliff:g id="CLIENT_NAME">%1$s</xliff:g>: sedang digunakan. Tap Setelan untuk mengontrolnya."</string>
+    <string name="service_manage_description" msgid="8058123524402833082">"<xliff:g id="CLIENT_NAME">%1$s</xliff:g>: sedang digunakan. Ketuk Setelan untuk mengontrolnya."</string>
     <string name="main_running_process_description" msgid="7733268956566861797">"Proses utama sedang digunakan."</string>
     <string name="process_service_in_use_description" msgid="2253782391122637651">"Layanan <xliff:g id="COMP_NAME">%1$s</xliff:g> sedang digunakan."</string>
     <string name="process_provider_in_use_description" msgid="7841332986505618569">"Penyedia <xliff:g id="COMP_NAME">%1$s</xliff:g> sedang digunakan."</string>
@@ -2042,18 +2042,18 @@
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"Tanda fitur"</string>
     <string name="talkback_title" msgid="3717960404234260050">"TalkBack"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"Pembaca layar khusus untuk orang yang mengalami kebutaan atau gangguan penglihatan"</string>
-    <string name="select_to_speak_summary" msgid="7514180457557735421">"Tap item di layar untuk mendengar item tersebut dibacakan"</string>
+    <string name="select_to_speak_summary" msgid="7514180457557735421">"Ketuk item di layar untuk mendengar item tersebut dibacakan"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Teks"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Pembesaran"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Perbesar dengan tap 3 kali"</string>
     <string name="accessibility_screen_magnification_navbar_title" msgid="400655612610761242">"Memperbesar dengan tombol"</string>
     <string name="accessibility_screen_magnification_state_navbar_gesture" msgid="1863831350878995600">"Memperbesar dengan tombol &amp; tap 3 kali"</string>
     <string name="accessibility_preference_magnification_summary" msgid="753307741814376312">"Zoom in di layar"</string>
-    <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"Tap 3 kali untuk memperbesar"</string>
-    <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"Tap tombol untuk zoom"</string>
+    <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"Ketuk 3 kali untuk memperbesar"</string>
+    <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"Ketuk tombol untuk zoom"</string>
     <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"Untuk melakukan zoom"</b>", tap layar 3 kali dengan cepat.\n"<ul><li>"Tarik menggunakan 2 jari atau lebih untuk men-scroll"</li>\n<li>"Cubit menggunakan 2 jari atau lebih untuk menyesuaikan zoom"</li></ul>\n\n<b>"Untuk melakukan zoom sementara"</b>", tap layar 3 kali dengan cepat dan tahan jari pada tap ke-3.\n"<ul><li>"Tarik untuk memindahkan zoom ke bagian layar yang lain"</li>\n<li>"Angkat jari untuk memperkecil"</li></ul>\n\n"Anda tidak dapat memperbesar keyboard dan menu navigasi."</string>
-    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Jika pembesaran diaktifkan, gunakan tombol Aksesibilitas di bagian bawah layar untuk memperbesar dengan cepat.\n\n"<b>"Untuk melakukan zoom"</b>", tap tombol Aksesibilitas, kemudian tap layar di bagian mana saja.\n"<ul><li>"Tarik menggunakan 2 jari atau lebih untuk men-scroll"</li>\n<li>"Cubit menggunakan 2 jari atau lebih untuk menyesuaikan zoom"</li></ul>\n\n<b>"Untuk melakukan zoom sementara"</b>", tap tombol Aksesibilitas, kemudian sentuh &amp; tahan layar di bagian mana saja.\n"<ul><li>"Tarik untuk memindahkan zoom ke bagian layar yang lain"</li>\n<li>"Angkat jari untuk memperkecil"</li></ul>\n\n"Anda tidak dapat memperbesar keyboard atau menu navigasi."</string>
-    <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Tombol Aksesibilitas disetel ke <xliff:g id="SERVICE">%1$s</xliff:g>. Untuk menggunakan fitur pembesaran, sentuh &amp; tahan tombol Aksesibilitas, kemudian pilih pembesaran."</string>
+    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Jika pembesaran diaktifkan, gunakan tombol Aksesibilitas di bagian bawah layar untuk memperbesar dengan cepat.\n\n"<b>"Untuk melakukan zoom"</b>", tap tombol Aksesibilitas, kemudian tap layar di bagian mana saja.\n"<ul><li>"Tarik menggunakan 2 jari atau lebih untuk men-scroll"</li>\n<li>"Cubit menggunakan 2 jari atau lebih untuk menyesuaikan zoom"</li></ul>\n\n<b>"Untuk melakukan zoom sementara"</b>", tap tombol Aksesibilitas, kemudian sentuh lama layar di bagian mana saja.\n"<ul><li>"Tarik untuk memindahkan zoom ke bagian layar yang lain"</li>\n<li>"Angkat jari untuk memperkecil"</li></ul>\n\n"Anda tidak dapat memperbesar keyboard atau menu navigasi."</string>
+    <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Tombol Aksesibilitas disetel ke <xliff:g id="SERVICE">%1$s</xliff:g>. Untuk menggunakan fitur pembesaran, sentuh lama tombol Aksesibilitas, kemudian pilih pembesaran."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Pintasan tombol volume"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Layanan pintasan"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Izinkan dari layar kunci"</string>
@@ -2078,7 +2078,7 @@
     <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"Waktu ambil tindakan"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Pilih durasi pesan yang ingin dibaca, namun hanya terlihat sementara, ditampilkan.\n\nTidak semua aplikasi mendukung setelan ini."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Pilih durasi tampilan pesan yang perlu ditindak, namun hanya terlihat sementara.\n\nTidak semua aplikasi mendukung setelan ini."</string>
-    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Penundaan sentuh &amp; tahan"</string>
+    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Jeda sentuh lama"</string>
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Inversi warna"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Mungkin memengaruhi performa"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Lama singgah"</string>
@@ -2104,7 +2104,7 @@
     </plurals>
     <string name="accessibility_summary_state_enabled" msgid="7357731696603247963">"Aktif"</string>
     <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"Nonaktif"</string>
-    <string name="accessibility_summary_state_stopped" msgid="3170264683616172746">"Tidak berfungsi. Tap untuk melihat infonya."</string>
+    <string name="accessibility_summary_state_stopped" msgid="3170264683616172746">"Tidak berfungsi. Ketuk untuk melihat infonya."</string>
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Layanan ini tidak berfungsi."</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"Tampilkan di Setelan Cepat"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"Mode koreksi"</string>
@@ -2609,7 +2609,7 @@
     <string name="settings_backup_summary" msgid="2563360505501354777">"Cadangkan setelan saya"</string>
     <string name="sync_menu_sync_now" msgid="3840755364554567507">"Sinkronkan sekarang"</string>
     <string name="sync_menu_sync_cancel" msgid="5111231351104284704">"Batal sinkronisasi"</string>
-    <string name="sync_one_time_sync" msgid="6005174168405784256">"Tap untuk menyinkronkan sekarang<xliff:g id="LAST_SYNC_TIME">
+    <string name="sync_one_time_sync" msgid="6005174168405784256">"Ketuk untuk menyinkronkan sekarang<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
     <string name="sync_calendar" msgid="6573708019827519372">"Kalender"</string>
@@ -2620,7 +2620,7 @@
     <string name="preference_change_password_title" msgid="7243527448378789274">"Ubah sandi"</string>
     <string name="header_account_settings" msgid="8586173964125512219">"Setelan akun"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"Hapus akun"</string>
-    <string name="header_add_an_account" msgid="8482614556580804956">"Tambah akun"</string>
+    <string name="header_add_an_account" msgid="8482614556580804956">"Tambahkan akun"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Hapus akun?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Menghapus akun ini akan menghapus semua pesan, kontak, dan data lain akun tersebut dari tablet!"</string>
     <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Menghapus akun ini akan menghapus semua pesan, kontak, dan data lainnya akun tersebut dari ponsel!"</string>
@@ -2982,9 +2982,9 @@
     <string name="sim_settings_title" msgid="8818243954752261922">"Kartu SIM"</string>
     <string name="sim_settings_summary" msgid="6516330865408217800">"<xliff:g id="SIM_NAME">%1$s</xliff:g> - <xliff:g id="SIM_NUMBER">%2$s</xliff:g>"</string>
     <string name="sim_cards_changed_message" msgid="1012486903583092731">"Kartu SIM telah diubah"</string>
-    <string name="sim_cards_changed_message_summary" msgid="5753692480107865077">"Tap untuk menyetel aktivitas"</string>
+    <string name="sim_cards_changed_message_summary" msgid="5753692480107865077">"Ketuk untuk menyetel aktivitas"</string>
     <string name="sim_cellular_data_unavailable" msgid="1832472508352891641">"Data seluler tidak tersedia"</string>
-    <string name="sim_cellular_data_unavailable_summary" msgid="3093797406601964131">"Tap untuk memilih SIM data"</string>
+    <string name="sim_cellular_data_unavailable_summary" msgid="3093797406601964131">"Ketuk untuk memilih SIM data"</string>
     <string name="sim_calls_always_use" msgid="5322696995795851734">"Selalu gunakan ini untuk telepon"</string>
     <string name="select_sim_for_data" msgid="2099705792885526394">"Pilih SIM untuk data"</string>
     <string name="select_sim_for_sms" msgid="2481682560233370731">"Pilih SIM untuk SMS"</string>
@@ -3014,7 +3014,7 @@
     <string name="preferred_network_offload_popup" msgid="204626698006378960">"Penonaktifan Siaran Nama Jaringan akan mencegah sambungan otomatis ke jaringan tersembunyi."</string>
     <string name="sim_signal_strength" msgid="6426261068520364170">"<xliff:g id="DBM">%1$d</xliff:g> dBm <xliff:g id="ASU">%2$d</xliff:g> asu"</string>
     <string name="sim_notification_title" msgid="2457890173055955672">"Kartu SIM diganti."</string>
-    <string name="sim_notification_summary" msgid="6421556454979313850">"Tap untuk menyiapkan"</string>
+    <string name="sim_notification_summary" msgid="6421556454979313850">"Ketuk untuk menyiapkan"</string>
     <string name="sim_pref_divider" msgid="4967718397875240190">"SIM pilihan untuk"</string>
     <string name="sim_calls_ask_first_prefs_title" msgid="8209265235625420102">"Selalu tanya"</string>
     <string name="sim_selection_required_pref" msgid="8738591348923992419">"Perlu dipilih"</string>
@@ -3548,7 +3548,7 @@
     <string name="switch_on_text" msgid="7100491749799298324">"Aktif"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"Nonaktif"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"Pin ke layar"</string>
-    <string name="screen_pinning_description" msgid="3814537379086412278">"Jika setelan ini diaktifkan, Anda dapat menggunakan fitur pin ke layar agar layar saat ini tetap ditampilkan hingga Anda melepas pin.\n\nUntuk menggunakan fitur pin ke layar:\n\n1. Pastikan fitur pin ke layar diaktifkan\n\n2. Buka Ringkasan\n\n3. Tap ikon aplikasi di bagian atas layar, lalu tap Pin"</string>
+    <string name="screen_pinning_description" msgid="3814537379086412278">"Jika setelan ini diaktifkan, Anda dapat menggunakan fitur pin ke layar agar layar saat ini tetap ditampilkan hingga Anda melepas pin.\n\nUntuk menggunakan fitur pin ke layar:\n\n1. Pastikan fitur pin ke layar diaktifkan\n\n2. Buka Ringkasan\n\n3. Ketuk ikon aplikasi di bagian atas layar, lalu tap Pin"</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Minta pola pembuka kunci sebelum melepas pin"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Minta PIN sebelum lepas pin"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Minta sandi sebelum melepas pin"</string>
@@ -3640,8 +3640,8 @@
     <string name="unknown_app" msgid="2312052973570376877">"Aplikasi tak dikenal"</string>
     <string name="app_permissions" msgid="3215958256821756086">"Pengelola izin"</string>
     <string name="app_permissions_summary" msgid="8785798165776061594">"Aplikasi menggunakan <xliff:g id="APPS">%1$s</xliff:g>"</string>
-    <string name="tap_to_wake" msgid="1902991239401652323">"Tap untuk membangunkan"</string>
-    <string name="tap_to_wake_summary" msgid="8485222120721006793">"Tap layar dua kali di mana saja untuk membangunkan perangkat"</string>
+    <string name="tap_to_wake" msgid="1902991239401652323">"Ketuk untuk membangunkan"</string>
+    <string name="tap_to_wake_summary" msgid="8485222120721006793">"Ketuk layar dua kali di mana saja untuk membangunkan perangkat"</string>
     <string name="domain_urls_title" msgid="7939209950373945367">"Membuka link"</string>
     <string name="domain_urls_summary_none" msgid="5401203416941265109">"Jangan buka link yang didukung"</string>
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"Buka <xliff:g id="DOMAIN">%s</xliff:g>"</string>
@@ -4113,10 +4113,10 @@
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Untuk beralih aplikasi, geser tombol Layar utama ke atas. Geser ke atas lagi untuk melihat semua aplikasi. Berfungsi dari layar mana saja. Tidak ada lagi tombol Ringkasan di kanan bawah layar."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"Coba tombol Layar utama yang baru"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Aktifkan gestur baru untuk beralih aplikasi"</string>
-    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Tap dua kali untuk memeriksa ponsel"</string>
-    <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Tap dua kali untuk memeriksa tablet"</string>
-    <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Tap dua kali untuk memeriksa perangkat"</string>
-    <string name="ambient_display_summary" msgid="4882910328216411109">"Untuk memeriksa waktu, notifikasi, dan info lainnya, tap dua kali layar Anda."</string>
+    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Ketuk dua kali untuk memeriksa ponsel"</string>
+    <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Ketuk dua kali untuk memeriksa tablet"</string>
+    <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Ketuk dua kali untuk memeriksa perangkat"</string>
+    <string name="ambient_display_summary" msgid="4882910328216411109">"Untuk memeriksa waktu, notifikasi, dan info lainnya, ketuk dua kali layar Anda."</string>
     <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Angkat untuk memeriksa ponsel"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Angkat untuk memeriksa tablet"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Angkat untuk memeriksa perangkat"</string>
@@ -4125,8 +4125,8 @@
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Untuk memeriksa waktu, notifikasi, dan info lainnya, ambil tablet Anda."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Untuk memeriksa waktu, notifikasi, dan info lainnya, ambil perangkat Anda."</string>
     <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Ketuk untuk memeriksa ponsel"</string>
-    <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Tap untuk memeriksa tablet"</string>
-    <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Tap untuk memeriksa perangkat"</string>
+    <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Ketuk untuk memeriksa tablet"</string>
+    <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Ketuk untuk memeriksa perangkat"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Untuk memeriksa waktu, notifikasi, dan info lainnya, tap layar Anda."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Usapkan sidik jari untuk melihat notifikasi"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Usapkan sidik jari"</string>
@@ -4491,7 +4491,7 @@
       <item quantity="other"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_1">%1$d</xliff:g> saluran notifikasi.</item>
       <item quantity="one"><xliff:g id="NOTIFICATION_CHANNEL_COUNT_0">%1$d</xliff:g> saluran notifikasi.</item>
     </plurals>
-    <string name="notification_many_channel_count_summary" msgid="9205641731142529086">"<xliff:g id="NOTIFICATION_CHANNEL_COUNT">%1$d</xliff:g> saluran notifikasi. Tap untuk mengelola semua."</string>
+    <string name="notification_many_channel_count_summary" msgid="9205641731142529086">"<xliff:g id="NOTIFICATION_CHANNEL_COUNT">%1$d</xliff:g> saluran notifikasi. Ketuk untuk mengelola semua."</string>
     <string name="recently_installed_app" msgid="6491959945747808096">"Anda baru saja menginstal aplikasi ini."</string>
     <string name="media_output_panel_title" msgid="8429272102437211530">"Ganti keluaran"</string>
     <string name="media_output_panel_summary_of_playing_device" msgid="7425231720911606911">"Sedang diputar di <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>

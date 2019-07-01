@@ -558,7 +558,7 @@
     <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"Изберете резервен метод за заклучување на екранот"</string>
     <string name="setup_lock_settings_options_button_label" msgid="4197315143877977385">"Опции за заклучување на екранот"</string>
     <string name="setup_lock_settings_options_dialog_title" msgid="5241946349173768827">"Опции за заклучување на екранот"</string>
-    <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"Заклучување на екран"</string>
+    <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"Заклучување екран"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_immediately" msgid="5596186270725220642">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g>/веднаш по режим во мирување"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g>/<xliff:g id="TIMEOUT_STRING">%2$s</xliff:g> по режим во мирување"</string>
     <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"Закл. работен профил"</string>
