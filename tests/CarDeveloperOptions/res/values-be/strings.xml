@@ -3435,7 +3435,7 @@
     <string name="notification_channel_summary_low" msgid="7753266237705850510">"Сярэдняя важнасць"</string>
     <string name="notification_channel_summary_default" msgid="7529537115678964164">"Высокая важнасць"</string>
     <string name="notification_channel_summary_high" msgid="8145287829836059819">"Надзвычайная важнасць"</string>
-    <string name="notification_switch_label" msgid="8127781780859504064">"Паказваць апавяшчэнні"</string>
+    <string name="notification_switch_label" msgid="8127781780859504064">"Уключыць апавяшчэнні"</string>
     <string name="default_notification_assistant" msgid="6526952155788472774">"Памочнік па апавяшчэннях"</string>
     <string name="notifications_sent_daily" msgid="6874886521964822824">"~<xliff:g id="NUMBER">%1$s</xliff:g> у дзень"</string>
     <string name="notifications_sent_weekly" msgid="5859675428990259432">"~<xliff:g id="NUMBER">%1$s</xliff:g> у тыдзень"</string>
@@ -3506,7 +3506,7 @@
     <string name="notification_toggle_off" msgid="5289843670514922751">"Выключана"</string>
     <string name="app_notification_block_title" msgid="7898269373875294367">"Блакіраваць усё"</string>
     <string name="app_notification_block_summary" msgid="4502146897785692336">"Ніколі не паказваць гэтыя апавяшчэнні"</string>
-    <string name="notification_content_block_title" msgid="2805138591864484587">"Паказваць апавяшчэнні"</string>
+    <string name="notification_content_block_title" msgid="2805138591864484587">"Уключыць апавяшчэнні"</string>
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Ніколі не паказваць апавяшчэнні на \"шторцы\" або на перыферыйных прыладах"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Паказваць значок апавяшчэнняў"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Паказваць значок апавяшчэнняў"</string>
