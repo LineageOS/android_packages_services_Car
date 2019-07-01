@@ -1760,7 +1760,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"ಪ್ಯಾಟರ್ನ್ ಕಾಣಿಸುವಂತೆ ಮಾಡು"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"ಪ್ರೊಫೈಲ್ ಪ್ಯಾಟರ್ನ್ ಕಾಣಿಸುವಂತೆ ಮಾಡಿ"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"ಟ್ಯಾಪ್ ಮಾಡಿದಾಗ ವೈಬ್ರೇಟ್‌ ಆಗು"</string>
-    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"ಪವರ್ ಬಟನ್ ಲಾಕ್ ಆಗುತ್ತದೆ"</string>
+    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"ಪವರ್ ಬಟನ್ ತಕ್ಷಣವೇ ಲಾಕ್ ಆಗುತ್ತದೆ"</string>
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"<xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> ಮೂಲಕ ಅನ್‌ಲಾಕ್ ಮಾಡಿದ ಸ್ಥಿತಿಯನ್ನು ಹೊರತುಪಡಿಸಿ"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"ಅನ್‌ಲಾಕ್ ನಮೂನೆಯನ್ನು ಹೊಂದಿಸಿ"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"ಅನ್‌ಲಾಕ್ ನಮೂನೆಯನ್ನು ಬದಲಾಯಿಸಿ"</string>

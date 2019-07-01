@@ -3170,8 +3170,8 @@
     <string name="media_volume_option_title" msgid="3553411883305505682">"Volum media"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Volumul proiectării"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"Volumul apelului"</string>
-    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Volum alarmă"</string>
-    <string name="ring_volume_option_title" msgid="2038924918468372264">"Volum sonerie"</string>
+    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Volumul alarmei"</string>
+    <string name="ring_volume_option_title" msgid="2038924918468372264">"Volumul soneriei"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Volumul notificărilor"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Ton de sonerie al telefonului"</string>
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Sunet de notificare prestabilit"</string>
