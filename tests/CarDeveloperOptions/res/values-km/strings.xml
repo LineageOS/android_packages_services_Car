@@ -4316,7 +4316,7 @@
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"កុំឱ្យរោទ៍"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"ចុច​ប៊ូតុង​ថាមពល និង​ប៊ូតុងដំឡើង​កម្រិតសំឡេង​ព្រមគ្នា ដើម្បី"</string>
-    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"ផ្លូវកាត់​ដើម្បី​ការពារ​ការរោទ៍"</string>
+    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"ផ្លូវកាត់​ដើម្បី​ទប់ស្កាត់​ការរោទ៍"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"ញ័រ"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"បិទ​សំឡេង"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"មិន​ធ្វើ​អ្វី​សោះ"</string>

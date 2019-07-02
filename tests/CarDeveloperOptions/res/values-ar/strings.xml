@@ -1837,7 +1837,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"إظهار نقش الملف الشخصي"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"اهتزاز عند النقر"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"القفل فورًا باستخدام زر التشغيل"</string>
-    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"باستثناء عندما ميزة <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> تبقي الجهاز مفتوحًا"</string>
+    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"إلّا عند إبقاء القفل مفتوحًا بواسطة <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"تعيين نقش فتح القفل"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"تغيير نقش فتح القفل"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"كيفية رسم نقش لفتح القفل"</string>
