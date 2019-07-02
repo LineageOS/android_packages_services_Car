@@ -3334,7 +3334,7 @@
     <string name="notification_importance_low" msgid="7609797151662295364">"Sessiz bir şekilde göster"</string>
     <string name="notification_importance_default" msgid="4091563759103917166">"Ses çıkar"</string>
     <string name="notification_importance_high" msgid="7973764540402436656">"Ses çıkar ve ekranda göster"</string>
-    <string name="notification_importance_high_silent" msgid="3177662759865661155">"Ekranda pop-up pencerede göster"</string>
+    <string name="notification_importance_high_silent" msgid="3177662759865661155">"Ekranda göster"</string>
     <string name="notification_importance_min_title" msgid="705872537330744154">"Küçült"</string>
     <string name="notification_importance_low_title" msgid="2956199021781786232">"Orta"</string>
     <string name="notification_importance_default_title" msgid="7985549807203332482">"Yüksek"</string>
