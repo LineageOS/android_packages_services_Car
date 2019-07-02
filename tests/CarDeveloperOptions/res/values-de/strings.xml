@@ -3334,11 +3334,11 @@
     <string name="notification_importance_low" msgid="7609797151662295364">"Ohne Ton anzeigen"</string>
     <string name="notification_importance_default" msgid="4091563759103917166">"Akustisches Signal"</string>
     <string name="notification_importance_high" msgid="7973764540402436656">"Akustisches Signal und Bildschirmbenachrichtigung"</string>
-    <string name="notification_importance_high_silent" msgid="3177662759865661155">"Auf Bildschirm aufpoppen"</string>
+    <string name="notification_importance_high_silent" msgid="3177662759865661155">"Pop-up-Benachrichtigungen"</string>
     <string name="notification_importance_min_title" msgid="705872537330744154">"Minimieren"</string>
     <string name="notification_importance_low_title" msgid="2956199021781786232">"Mittel"</string>
     <string name="notification_importance_default_title" msgid="7985549807203332482">"Hoch"</string>
-    <string name="notification_importance_high_title" msgid="7258373094258585858">"Auf Bildschirm aufpoppen"</string>
+    <string name="notification_importance_high_title" msgid="7258373094258585858">"Pop-up-Benachrichtigungen"</string>
     <string name="notification_block_title" msgid="2570364198866886906">"Blockieren"</string>
     <string name="notification_silence_title" msgid="6959637402003838093">"Ohne Ton anzeigen"</string>
     <string name="notification_alert_title" msgid="750683027055192648">"Benachrichtigung"</string>
