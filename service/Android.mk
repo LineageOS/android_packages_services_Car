@@ -27,6 +27,8 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(car_service_sources)
 
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+
 LOCAL_USE_AAPT2 := true
 
 LOCAL_PACKAGE_NAME := CarService
