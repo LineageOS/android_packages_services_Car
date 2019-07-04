@@ -482,8 +482,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (CarPowerManagementService.this) {
             mLastSleepEntryTime = SystemClock.elapsedRealtime();
         }
+        int nextListenerState;
         if (simulatedMode) {
             simulateSleepByLooping();
+            nextListenerState = CarPowerStateListener.SHUTDOWN_CANCELLED;
         } else {
             boolean sleepSucceeded = mSystemInterface.enterDeepSleep();
             if (!sleepSucceeded) {
@@ -491,11 +493,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 Log.e(CarLog.TAG_POWER, "Sleep did not succeed. Now attempting to shut down.");
                 mSystemInterface.shutdown();
             }
+            nextListenerState = CarPowerStateListener.SUSPEND_EXIT;
         }
         // On wake, reset nextWakeup time. If not set again, system will suspend/shutdown forever.
         mNextWakeupSec = 0;
         mSystemInterface.refreshDisplayBrightness();
-        onApPowerStateChange(CpmsState.WAIT_FOR_VHAL, CarPowerStateListener.SUSPEND_EXIT);
+        onApPowerStateChange(CpmsState.WAIT_FOR_VHAL, nextListenerState);
     }
 
     private boolean needPowerStateChangeLocked(CpmsState newState) {
@@ -915,6 +918,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * Invoked using "adb shell dumpsys activity service com.android.car resume".
      */
     public void forceSimulatedResume() {
+        PowerHandler handler;
+        synchronized (this) {
+            // Cancel Garage Mode in case it's running
+            mPendingPowerStates.addFirst(new CpmsState(CpmsState.WAIT_FOR_VHAL,
+                                                       CarPowerStateListener.SHUTDOWN_CANCELLED));
+            handler = mHandler;
+        }
+        handler.handlePowerStateChange();
+
         synchronized (mSimulationSleepObject) {
             mWakeFromSimulatedSleep = true;
             mSimulationSleepObject.notify();
