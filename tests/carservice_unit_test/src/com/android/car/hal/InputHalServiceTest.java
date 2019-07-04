@@ -185,6 +185,7 @@ public class InputHalServiceTest {
     /**
      * Test for handling rotary knob event.
      */
+    @RequiresDevice
     @Test
     public void handlesRepeatedKeyWithIndents() {
         subscribeListener();
@@ -272,7 +273,6 @@ public class InputHalServiceTest {
         return v;
     }
 
-    @RequiresDevice
     private KeyEvent dispatchSingleEventWithIndents(int code, int indents) {
         ArgumentCaptor<KeyEvent> captor = ArgumentCaptor.forClass(KeyEvent.class);
         reset(mInputListener);
