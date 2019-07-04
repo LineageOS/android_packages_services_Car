@@ -30,6 +30,7 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.CarUxRestrictionsConfiguration.Builder;
 import android.car.drivingstate.CarUxRestrictionsConfiguration.DrivingStateRestrictions;
+import android.os.Parcel;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
@@ -629,6 +630,58 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
                 .build();
 
         assertFalse(one.equals(other));
+    }
+
+    public void testParcelableConfiguration() {
+        CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
+                .setPhysicalPort((byte) 1)
+                .setMaxStringLength(1)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .setUxRestrictions(DRIVING_STATE_PARKED,
+                        new DrivingStateRestrictions().setRestrictions(
+                                UX_RESTRICTIONS_FULLY_RESTRICTED))
+                .setUxRestrictions(DRIVING_STATE_PARKED, new DrivingStateRestrictions()
+                        .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER))
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions())
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER)
+                        .setSpeedRange(new Builder.SpeedRange(0f, 5f)))
+                .build();
+        Parcel parcel = Parcel.obtain();
+        config.writeToParcel(parcel, 0);
+
+        // Reset parcel data position for reading.
+        parcel.setDataPosition(0);
+
+        CarUxRestrictionsConfiguration deserialized =
+                CarUxRestrictionsConfiguration.CREATOR.createFromParcel(parcel);
+        assertEquals(deserialized, config);
+    }
+
+    public void testParcelableConfiguration_serializeNullPhysicalPort() {
+        // Not setting physical port leaves it null.
+        CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
+                .setMaxStringLength(1)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions())
+                .setUxRestrictions(DRIVING_STATE_PARKED,
+                        new DrivingStateRestrictions().setRestrictions(
+                                UX_RESTRICTIONS_FULLY_RESTRICTED))
+                .build();
+        Parcel parcel = Parcel.obtain();
+        config.writeToParcel(parcel, 0);
+
+        // Reset parcel data position for reading.
+        parcel.setDataPosition(0);
+
+        CarUxRestrictionsConfiguration deserialized =
+                CarUxRestrictionsConfiguration.CREATOR.createFromParcel(parcel);
+        assertEquals(deserialized, config);
+        assertTrue(deserialized.getPhysicalPort() == null);
     }
 
     /**
