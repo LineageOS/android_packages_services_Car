@@ -191,18 +191,6 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testUserCanBeRemoved() {
-        UserInfo testInfo = new UserInfo();
-
-        // System user cannot be removed.
-        testInfo.id = UserHandle.USER_SYSTEM;
-        assertThat(mCarUserManagerHelper.canUserBeRemoved(testInfo)).isFalse();
-
-        testInfo.id = UserHandle.USER_SYSTEM + 2; // Make it different than system id.
-        assertThat(mCarUserManagerHelper.canUserBeRemoved(testInfo)).isTrue();
-    }
-
-    @Test
     public void testCurrentProcessCanAddUsers() {
         doReturn(false).when(mUserManager)
                 .hasUserRestriction(UserManager.DISALLOW_ADD_USER);
@@ -250,14 +238,6 @@ public class CarUserManagerHelperTest {
                 .hasUserRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS);
 
         assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isFalse();
-    }
-
-    @Test
-    public void testGetMaxSupportedUsers() {
-        setMaxSupportedUsers(11);
-
-        // Max users - headless system user.
-        assertThat(mCarUserManagerHelper.getMaxSupportedUsers()).isEqualTo(10);
     }
 
     @Test
@@ -474,14 +454,6 @@ public class CarUserManagerHelperTest {
         Drawable scaledIcon = mCarUserManagerHelper.scaleUserIcon(fakeIcon, 300);
         assertThat(scaledIcon.getIntrinsicWidth()).isEqualTo(300);
         assertThat(scaledIcon.getIntrinsicHeight()).isEqualTo(300);
-    }
-
-    @Test
-    public void testSetUserName() {
-        UserInfo testInfo = createUserInfoForId(mCurrentProcessUser.id + 3);
-        String newName = "New Test Name";
-        mCarUserManagerHelper.setUserName(testInfo, newName);
-        verify(mUserManager).setUserName(mCurrentProcessUser.id + 3, newName);
     }
 
     @Test
