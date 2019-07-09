@@ -1933,7 +1933,7 @@
     <string name="runningservicedetails_stop_dlg_title" msgid="6022380394950336262">"Systemdienst beenden?"</string>
     <string name="runningservicedetails_stop_dlg_text" product="tablet" msgid="7619909495973395025">"Wenn du diesen Dienst beendest, funktionieren möglicherweise einige Funktionen deines Tablets nicht mehr richtig, bis du es aus- und wieder einschaltest."</string>
     <string name="runningservicedetails_stop_dlg_text" product="default" msgid="8168850859827213988">"Wenn du diesen Dienst beendest, funktionieren möglicherweise einige Funktionen deines Telefons nicht mehr richtig, bis du es aus- und wieder einschaltest."</string>
-    <string name="language_input_gesture_title" msgid="7547999017999159601">"Sprachen, Eingabe und Bewegungen"</string>
+    <string name="language_input_gesture_title" msgid="7547999017999159601">"Sprachen, Eingabe und Gesten"</string>
     <string name="language_input_gesture_summary_on_with_assist" msgid="315262339899294132"></string>
     <string name="language_input_gesture_summary_on_non_assist" msgid="6054599939153669225"></string>
     <string name="language_input_gesture_summary_off" msgid="4108509077072348546"></string>
@@ -3076,7 +3076,7 @@
     <string name="keywords_location" msgid="6439463166207072559">"in der nähe, ort, standort, verlauf, berichterstellung, bericht erstellung, bericht erstellen, berichte erstellen, GPS"</string>
     <string name="keywords_accounts" msgid="5908945725229306088">"konto"</string>
     <string name="keywords_users" msgid="5880705776023155640">"einschränkung, einschränken, eingeschränkt"</string>
-    <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"text korrektur, textkorrektur, korrigieren, sound, ton, vibrieren, automatisch, sprache, bewegung, vorschlagen, vorschlag, design, anstößig, wort, eingeben, emoji, international"</string>
+    <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"text korrektur, textkorrektur, korrigieren, sound, ton, vibrieren, automatisch, sprache, bewegung, vorschlagen, vorschlag, design, anstößig, wort, eingeben, emoji, international, geste, touch-geste"</string>
     <string name="keywords_reset_apps" msgid="2645701455052020435">"zurücksetzen, einstellungen, standard, standardeinstellung"</string>
     <string name="keywords_all_apps" msgid="846444448435698930">"apps, download, anwendungen, system"</string>
     <string name="keywords_app_permissions" msgid="8539841019997048500">"apps, berechtigungen, sicherheit"</string>
@@ -3087,10 +3087,10 @@
     <string name="keywords_lockscreen" msgid="4936846554280830394">"zum entsperren über das display streichen, zum entsperren wischen, passwort, muster, pin"</string>
     <string name="keywords_profile_challenge" msgid="8653718001253979611">"herausforderung bei der arbeit, arbeit, profil"</string>
     <string name="keywords_unification" msgid="2020759909366983593">"arbeitsprofil, verwaltetes profil, gruppieren, gruppierung, arbeit, profil"</string>
-    <string name="keywords_gesture" msgid="5031323247529869644">"Bewegungen"</string>
+    <string name="keywords_gesture" msgid="5031323247529869644">"Bewegungen, gesten, touch-gesten"</string>
     <string name="keywords_payment_settings" msgid="4745023716567666052">"Bezahlen, tippen, Zahlungen"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"Sicherung, sicherung"</string>
-    <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"Bewegung"</string>
+    <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"bewegung, geste, touch-geste"</string>
     <string name="keywords_face_unlock" msgid="651615819291927262">"Face, Unlock, Gesichtserkennung, Anmeldung"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl version, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"netzwerk, status des mobilfunknetz, servicestatus, signalstärke, art des mobilfunknetzes, roaming, iccid"</string>
@@ -4100,7 +4100,7 @@
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Automatisch"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Manuell"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Jetzt Speicherplatz freigeben"</string>
-    <string name="gesture_preference_title" msgid="583646591518373785">"Bewegungen"</string>
+    <string name="gesture_preference_title" msgid="583646591518373785">"Gesten und Bewegungen"</string>
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Gesten zum Steuern deines Smartphones"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Gesten zum Steuern deines Tablets"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Gesten zum Steuern deines Geräts"</string>
@@ -4112,7 +4112,7 @@
     <string name="double_twist_for_camera_suggestion_title" msgid="5932411386316771246">"Schnell Selfies aufnehmen"</string>
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Wenn du auf der Startbildschirmtaste nach oben wischst, kannst du zwischen Apps wechseln. Wenn du wieder nach oben wischst, siehst du alle Apps. Dies funktioniert auf allen Displays. Es gibt rechts auf deinem Display keine Übersichtsschaltfläche mehr."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"Neue Startbildschirmtaste ausprobieren"</string>
-    <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Neue Bewegung zum Wechseln von Apps aktivieren"</string>
+    <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Neue Touch-Geste zum Wechseln von Apps aktivieren"</string>
     <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Für Blick aufs Display doppeltippen"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Doppeltippen für schnellen Blick auf das Display des Tablets"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Doppeltippen für schnellen Blick auf das Display des Geräts"</string>

@@ -248,14 +248,14 @@
     <string name="band_mode_failed" msgid="8350123391471974137">"Ezin izan da egin"</string>
     <string name="band_mode_succeeded" msgid="5516613616395402809">"Ongi"</string>
     <string name="sdcard_changes_instructions" msgid="4138217393448114001">"Aldaketek USB kablea berriro konektatzean izango dute eragina."</string>
-    <string name="sdcard_settings_screen_mass_storage_text" msgid="7486030250999007641">"Gaitu USB biltegiratze masiboa"</string>
+    <string name="sdcard_settings_screen_mass_storage_text" msgid="7486030250999007641">"Gaitu USB bidezko biltegiratze masiboa"</string>
     <string name="sdcard_settings_total_bytes_label" msgid="6461741874400909157">"Byteak, guztira:"</string>
     <string name="sdcard_settings_not_present_status" product="nosdcard" msgid="5419085128792417589">"Ez da USB memoria muntatu."</string>
     <string name="sdcard_settings_not_present_status" product="default" msgid="5831286239151349794">"Ez dago SD txartelik."</string>
     <string name="sdcard_settings_available_bytes_label" msgid="2392868635606041278">"Byte erabilgarriak:"</string>
     <string name="sdcard_settings_mass_storage_status" product="nosdcard" msgid="5888349723543445382">"USB memoria bilt. masibo gisa."</string>
     <string name="sdcard_settings_mass_storage_status" product="default" msgid="637014061735266364">"SD txartela biltegiratze masiboko gailu gisa erabiltzen ari da."</string>
-    <string name="sdcard_settings_unmounted_status" product="nosdcard" msgid="1489916516292644696">"Segurtasunez ken daiteke USB memoria."</string>
+    <string name="sdcard_settings_unmounted_status" product="nosdcard" msgid="1489916516292644696">"Segurua da USB bidezko memoria kentzea."</string>
     <string name="sdcard_settings_unmounted_status" product="default" msgid="6250598657624241686">"Segurtasunez ken daiteke SD txartela."</string>
     <string name="sdcard_settings_bad_removal_status" product="nosdcard" msgid="4694941967864756404">"USB mem. erabili bitartean kendu da"</string>
     <string name="sdcard_settings_bad_removal_status" product="default" msgid="2079348895479890677">"SD txart. erabili bitartean kendu da"</string>
@@ -1381,20 +1381,20 @@
     <string name="sd_mount_summary" product="default" msgid="6849124618494311233"></string>
     <string name="sd_format" product="nosdcard" msgid="918370986254863144">"Ezabatu USB memoria"</string>
     <string name="sd_format" product="default" msgid="1346245995138883960">"Ezabatu SD txartela"</string>
-    <string name="sd_format_summary" product="nosdcard" msgid="1179857727779521920">"Barneko USB memoriako datu guztiak ezabatzen diru, hala nola, musika eta argazkiak."</string>
+    <string name="sd_format_summary" product="nosdcard" msgid="1179857727779521920">"USB bidezko barneko memoriako guztia ezabatzen du; adib., musika eta argazkiak."</string>
     <string name="sd_format_summary" product="default" msgid="4284028411908176234">"SD txarteleko datu guztiak ezabatzen ditu, besteak beste, musika eta argazkiak."</string>
     <string name="memory_clear_cache_title" msgid="4306793268129306684">"Cachean gordetako datuak garbitu?"</string>
     <string name="memory_clear_cache_message" msgid="6723120398411410031">"Aplikazio guztien cachean gordetako datuak garbituko dira."</string>
     <string name="mtp_ptp_mode_summary" msgid="6074099855478444183">"MTP edo PTP funtzioa aktibo dago"</string>
     <string name="dlg_confirm_unmount_title" product="nosdcard" msgid="3843209947310774105">"USB memoria desmuntatu?"</string>
     <string name="dlg_confirm_unmount_title" product="default" msgid="4400426555375434431">"SD txartela desmuntatu?"</string>
-    <string name="dlg_confirm_unmount_text" product="nosdcard" msgid="1423648405874813948">"USB memoria desmuntatzen baduzu, erabiltzen ari zaren aplikazio batzuk gelditu egingo dira eta agian ez dira erabilgarri egongo USB memoria berriro muntatu arte."</string>
+    <string name="dlg_confirm_unmount_text" product="nosdcard" msgid="1423648405874813948">"USB bidezko memoria desmuntatzen baduzu, erabiltzen ari zaren aplikazio batzuk gelditu egingo dira eta agian ez dira erabilgarri egongo USB bidezko memoria berriro muntatu arte."</string>
     <string name="dlg_confirm_unmount_text" product="default" msgid="4099391737780732622">"SD txartela desmuntatzen baduzu, erabiltzen ari zaren aplikazio batzuk gelditu egingo dira eta agian ez dira erabilgarri egongo SD txartela berriro muntatu arte."</string>
     <string name="dlg_error_unmount_title" product="nosdcard" msgid="3132640848329117857"></string>
     <string name="dlg_error_unmount_title" product="default" msgid="3132640848329117857"></string>
-    <string name="dlg_error_unmount_text" product="nosdcard" msgid="4710773826053117136">"Ezin izan da USB memoria desmuntatu. Saiatu berriro geroago."</string>
+    <string name="dlg_error_unmount_text" product="nosdcard" msgid="4710773826053117136">"Ezin izan da USB bidezko memoria desmuntatu. Saiatu berriro geroago."</string>
     <string name="dlg_error_unmount_text" product="default" msgid="8243603872321575219">"Ezin izan da SD txartela desmuntatu. Saiatu berriro geroago."</string>
-    <string name="unmount_inform_text" product="nosdcard" msgid="2460118115494815052">"USB memoria desmuntatu egingo da."</string>
+    <string name="unmount_inform_text" product="nosdcard" msgid="2460118115494815052">"USB bidezko memoria desmuntatu egingo da."</string>
     <string name="unmount_inform_text" product="default" msgid="6467461731634304997">"SD txartela desmuntatu egingo da."</string>
     <string name="sd_ejecting_title" msgid="595074246815112145">"Desmuntatzen"</string>
     <string name="sd_ejecting_summary" msgid="5708943172014003213">"Desmuntatzea abian da"</string>
@@ -1585,11 +1585,11 @@
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"Musika"</li>\n<li>"Argazkiak"</li>\n<li>"Bestelako erabiltzaile-datuak"</li></string>
     <string name="master_clear_desc_also_erases_esim" msgid="4497260499055258773"><li>"eSIM txartelak"</li></string>
     <string name="master_clear_desc_no_cancel_mobile_plan" msgid="6072668588881679461">\n\n"Horrek ez du utziko bertan behera operadorearekin kontratatuta duzun zerbitzu-plana."</string>
-    <string name="master_clear_desc_erase_external_storage" product="nosdcard" msgid="2723272952715259307">\n\n"Musika, irudiak eta bestelako erabiltzaile-datuak garbitzeko, "<b>"USB memoria"</b>" ezabatu behar da."</string>
+    <string name="master_clear_desc_erase_external_storage" product="nosdcard" msgid="2723272952715259307">\n\n"Musika, irudiak eta bestelako erabiltzaile-datuak garbitzeko, "<b>"USB bidezko memoria"</b>" ezabatu behar da."</string>
     <string name="master_clear_desc_erase_external_storage" product="default" msgid="9003555775524798797">\n\n"Musika, irudiak eta bestelako erabiltzaile-datuak garbitzeko, "<b>"SD txartela"</b>" ezabatu behar da."</string>
     <string name="erase_external_storage" product="nosdcard" msgid="8989746770347525207">"Ezabatu USB memoria"</string>
     <string name="erase_external_storage" product="default" msgid="194249742376770215">"Ezabatu SD txartela"</string>
-    <string name="erase_external_storage_description" product="nosdcard" msgid="8020275102431496261">"Ezabatu barneko USB memoriako datu guztiak, adibidez, musika edo argazkiak"</string>
+    <string name="erase_external_storage_description" product="nosdcard" msgid="8020275102431496261">"Ezabatu USB bidezko barneko memoriako datu guztiak; adibidez, musika edo argazkiak"</string>
     <string name="erase_external_storage_description" product="default" msgid="5029355708082861798">"Ezabatu SD txarteleko datu guztiak, besteak beste, musika edo argazkiak."</string>
     <string name="master_clear_button_text" product="tablet" msgid="8000547818499182920">"Ezabatu datu guztiak"</string>
     <string name="master_clear_button_text" product="default" msgid="8000547818499182920">"Ezabatu datu guztiak"</string>
@@ -1846,7 +1846,7 @@
     <string name="filter_apps_disabled" msgid="5394488790555678117">"Desgaitutako aplikazioak"</string>
     <string name="filter_apps_third_party" msgid="3985794876813232322">"Deskargatutakoak"</string>
     <string name="filter_apps_running" msgid="6852975378502426359">"Abian"</string>
-    <string name="filter_apps_onsdcard" product="nosdcard" msgid="3501701148760911442">"USB memoria"</string>
+    <string name="filter_apps_onsdcard" product="nosdcard" msgid="3501701148760911442">"USB bidezko memoria"</string>
     <string name="filter_apps_onsdcard" product="default" msgid="135989136394672864">"SD txartelean"</string>
     <string name="not_installed" msgid="6432131218496140253">"Ez dago instalatuta erabiltzaile honentzat"</string>
     <string name="installed" msgid="4824212968888080451">"Instalatuta"</string>
