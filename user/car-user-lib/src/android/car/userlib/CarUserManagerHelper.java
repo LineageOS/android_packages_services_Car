@@ -449,7 +449,7 @@ public final class CarUserManagerHelper {
      *
      * @return Maximum number of users that can be present on the device.
      */
-    public int getMaxSupportedUsers() {
+    private int getMaxSupportedUsers() {
         if (isHeadlessSystemUser()) {
             return mTestableFrameworkWrapper.userManagerGetMaxSupportedUsers() - 1;
         }
@@ -500,16 +500,6 @@ public final class CarUserManagerHelper {
     // User information accessors
 
     /**
-     * Checks whether the user is system user.
-     *
-     * @param userInfo User to check against system user.
-     * @return {@code true} if system user, {@code false} otherwise.
-     */
-    private boolean isSystemUser(UserInfo userInfo) {
-        return userInfo.id == UserHandle.USER_SYSTEM;
-    }
-
-    /**
      * Checks whether passed in user is the user that's running the current process.
      *
      * @param userInfo User to check.
@@ -526,16 +516,6 @@ public final class CarUserManagerHelper {
      */
     public boolean isForegroundUserGuest() {
         return getCurrentForegroundUserInfo().isGuest();
-    }
-
-    /**
-     * Returns whether this user can be removed from the system.
-     *
-     * @param userInfo User to be removed
-     * @return {@code true} if they can be removed, {@code false} otherwise.
-     */
-    public boolean canUserBeRemoved(UserInfo userInfo) {
-        return !isSystemUser(userInfo);
     }
 
     /**
@@ -773,7 +753,7 @@ public final class CarUserManagerHelper {
      * @return {@code true} if user is successfully removed, {@code false} otherwise.
      */
     public boolean removeUser(UserInfo userInfo, String guestUserName) {
-        if (isSystemUser(userInfo)) {
+        if (userInfo.id == UserHandle.USER_SYSTEM) {
             Log.w(TAG, "User " + userInfo.id + " is system user, could not be removed.");
             return false;
         }
@@ -950,16 +930,6 @@ public final class CarUserManagerHelper {
         Bitmap scaledIcon = Bitmap.createScaledBitmap(
                 icon, desiredSize, desiredSize, true /* filter */);
         return new BitmapDrawable(mContext.getResources(), scaledIcon);
-    }
-
-    /**
-     * Sets new Username for the user.
-     *
-     * @param user User whose name should be changed.
-     * @param name New username.
-     */
-    public void setUserName(UserInfo user, String name) {
-        mUserManager.setUserName(user.id, name);
     }
 
     private void registerReceiver() {
