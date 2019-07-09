@@ -3154,7 +3154,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"Tons"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Vibrações"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Ativar sons"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"Transcrição instantânea"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"Legendas instantâneas"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"Multimédia com legendas automáticas"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Nunca"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
