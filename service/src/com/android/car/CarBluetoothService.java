@@ -92,7 +92,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
 
         @Override
         public void onPreUnbind() {
-            logd("Before Unbinding from PerCarUserService");
+            logd("Before Unbinding from PerUserCarService");
             destroyUser();
         }
 
