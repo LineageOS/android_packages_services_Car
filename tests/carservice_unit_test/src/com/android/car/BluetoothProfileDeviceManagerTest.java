@@ -41,6 +41,7 @@ import android.test.suitebuilder.annotation.Suppress;
 import android.text.TextUtils;
 
 import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.RequiresDevice;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.android.internal.util.test.BroadcastInterceptingContext;
@@ -68,6 +69,7 @@ import java.util.List;
  * Run:
  * atest BluetoothProfileDeviceManagerTest
  */
+@RequiresDevice
 @RunWith(AndroidJUnit4.class)
 public class BluetoothProfileDeviceManagerTest {
     private static final int CONNECT_LATENCY_MS = 100;

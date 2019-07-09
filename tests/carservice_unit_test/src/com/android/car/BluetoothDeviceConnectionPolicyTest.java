@@ -31,6 +31,7 @@ import android.provider.Settings;
 import android.test.mock.MockContentProvider;
 import android.test.mock.MockContentResolver;
 
+import androidx.test.filters.RequiresDevice;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
@@ -49,6 +50,7 @@ import org.mockito.stubbing.Answer;
  * Run:
  * atest BluetoothDeviceConnectionPolicyTest
  */
+@RequiresDevice
 @RunWith(AndroidJUnit4.class)
 public class BluetoothDeviceConnectionPolicyTest {
     private BluetoothDeviceConnectionPolicy mPolicy;
