@@ -150,6 +150,24 @@ package android.car {
     field public static final int VEHICLE_AREA_TYPE_WINDOW = 2; // 0x2
   }
 
+  public final class VehicleGear {
+    method public static String toString(int);
+    field public static final int GEAR_DRIVE = 8; // 0x8
+    field public static final int GEAR_EIGHTH = 2048; // 0x800
+    field public static final int GEAR_FIFTH = 256; // 0x100
+    field public static final int GEAR_FIRST = 16; // 0x10
+    field public static final int GEAR_FOURTH = 128; // 0x80
+    field public static final int GEAR_NEUTRAL = 1; // 0x1
+    field public static final int GEAR_NINTH = 4096; // 0x1000
+    field public static final int GEAR_PARK = 4; // 0x4
+    field public static final int GEAR_REVERSE = 2; // 0x2
+    field public static final int GEAR_SECOND = 32; // 0x20
+    field public static final int GEAR_SEVENTH = 1024; // 0x400
+    field public static final int GEAR_SIXTH = 512; // 0x200
+    field public static final int GEAR_THIRD = 64; // 0x40
+    field public static final int GEAR_UNKNOWN = 0; // 0x0
+  }
+
   public final class VehiclePropertyIds {
     ctor public VehiclePropertyIds();
     method public static String toString(int);
