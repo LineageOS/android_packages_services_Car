@@ -28,6 +28,7 @@ android_app {
         "androidx.legacy_legacy-support-v4",
         "androidx-constraintlayout_constraintlayout",
         "androidx-constraintlayout_constraintlayout-solver",
+        "car-apps-common-bp",
     ],
 
     owner: "google",
