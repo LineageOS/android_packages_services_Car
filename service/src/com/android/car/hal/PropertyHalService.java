@@ -93,7 +93,7 @@ public class PropertyHalService extends HalServiceBase {
     public interface PropertyHalListener {
         /**
          * This event is sent whenever the property value is updated
-         * @param event
+         * @param events
          */
         void onPropertyChange(List<CarPropertyEvent> events);
         /**

@@ -140,7 +140,7 @@ public class DiagnosticHalService extends  HalServiceBase{
      * Returns a unique token to be used to map this property to a higher-level sensor
      * This token will be stored in {@link DiagnosticHalService#mSensorTypeToConfig} to allow
      * callers to go from unique sensor identifiers to VehiclePropConfig objects
-     * @param config
+     * @param propConfig
      * @return SENSOR_TYPE_INVALID or a locally unique token
      */
     protected int getTokenForProperty(VehiclePropConfig propConfig) {

@@ -407,7 +407,7 @@ public class PropertyHalServiceIds {
 
     /**
      * @param propId Property ID
-     * @return Read permission string for given property ID. NULL if property ID dose not exist or
+     * @return Read permission string for given property ID. NULL if property ID does not exist or
      * the property is not available for reading.
      */
     @Nullable
@@ -426,7 +426,7 @@ public class PropertyHalServiceIds {
 
     /**
      * @param propId Property ID
-     * @return Write permission string for given property ID. NULL if property ID dose not exist or
+     * @return Write permission string for given property ID. NULL if property ID does not exist or
      * the property is not writable.
      */
     @Nullable

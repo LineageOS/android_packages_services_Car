@@ -116,7 +116,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
 
                 @Override
                 public void onPreUnbind() {
-                    logd("Before Unbinding from PerCarUserService");
+                    logd("Before Unbinding from PerUserCarService");
                     synchronized (mLocationManagerProxyLock) {
                         mILocationManagerProxy = null;
                     }
