@@ -3984,7 +3984,7 @@
     <string name="data_saver_on" msgid="7281809065420480881">"Activado"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Desactivado"</string>
     <string name="data_saver_switch_title" msgid="8244008132112735207">"Usar ahorro de datos"</string>
-    <string name="unrestricted_app_title" msgid="4390661122069905122">"Uso no restringido de datos"</string>
+    <string name="unrestricted_app_title" msgid="4390661122069905122">"Uso de datos no restringido"</string>
     <string name="unrestricted_app_summary" msgid="2829141815077800483">"No restringir datos si el ahorro de datos está activado"</string>
     <string name="home_app" msgid="3695063566006954160">"Aplicación de página principal"</string>
     <string name="no_default_home" msgid="1518949210961918497">"Sin aplicación de inicio predeterminada"</string>

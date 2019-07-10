@@ -3065,7 +3065,7 @@
     <string name="keywords_battery" msgid="3860198379310375112">"penggunaan daya, isi daya"</string>
     <string name="keywords_spell_checker" msgid="6032411442958278879">"ejaan, kamus, periksaejaan, koreksi-otomatis"</string>
     <string name="keywords_voice_input" msgid="569012518085308407">"pengenal, masukan, ucapan, ucapkan, bahasa, handsfree, hands free, pengenalan, menyinggung, kata, audio, histori, bluetooth headset"</string>
-    <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"beri nilai, bahasa, default, ucapkan, berbicara, text to speech, aksesibilitas, pembaca layar, tunanetra"</string>
+    <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"beri rating, bahasa, default, ucapkan, berbicara, text to speech, aksesibilitas, pembaca layar, tunanetra"</string>
     <string name="keywords_date_and_time" msgid="4434079919474174978">"jam, militer"</string>
     <string name="keywords_network_reset" msgid="2064330046866583215">"setel ulang, memulihkan, pabrik"</string>
     <string name="keywords_factory_data_reset" msgid="5865739790670615499">"hapus total, hapus, pulihkan, kosongkan, hilangkan, reset ke setelan pabrik"</string>
