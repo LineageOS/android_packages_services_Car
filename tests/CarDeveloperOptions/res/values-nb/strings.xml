@@ -1806,7 +1806,7 @@
     </plurals>
     <string name="clear_uri_btn_text" msgid="3528618179883855727">"Fjern tilgang"</string>
     <string name="controls_label" msgid="5609285071259457221">"Kontroller"</string>
-    <string name="force_stop" msgid="9213858124674772386">"Tving stopp"</string>
+    <string name="force_stop" msgid="9213858124674772386">"Tving avslutning"</string>
     <string name="total_size_label" msgid="3929917501176594692">"Totalt"</string>
     <string name="application_size_label" msgid="175357855490253032">"Appstørrelse"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"USB-lagring for app"</string>
