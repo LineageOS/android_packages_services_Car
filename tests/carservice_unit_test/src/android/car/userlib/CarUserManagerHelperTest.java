@@ -32,8 +32,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
@@ -188,28 +186,6 @@ public class CarUserManagerHelperTest {
         // Should not return guests.
         assertThat(mCarUserManagerHelper.getAllUsersExceptGuests())
                 .containsExactly(user1, user2);
-    }
-
-    @Test
-    public void testCurrentProcessCanAddUsers() {
-        doReturn(false).when(mUserManager)
-                .hasUserRestriction(UserManager.DISALLOW_ADD_USER);
-        assertThat(mCarUserManagerHelper.canCurrentProcessAddUsers()).isTrue();
-
-        doReturn(true).when(mUserManager)
-                .hasUserRestriction(UserManager.DISALLOW_ADD_USER);
-        assertThat(mCarUserManagerHelper.canCurrentProcessAddUsers()).isFalse();
-    }
-
-    @Test
-    public void testCurrentProcessCanRemoveUsers() {
-        doReturn(false).when(mUserManager)
-                .hasUserRestriction(UserManager.DISALLOW_REMOVE_USER);
-        assertThat(mCarUserManagerHelper.canCurrentProcessRemoveUsers()).isTrue();
-
-        doReturn(true).when(mUserManager)
-                .hasUserRestriction(UserManager.DISALLOW_REMOVE_USER);
-        assertThat(mCarUserManagerHelper.canCurrentProcessRemoveUsers()).isFalse();
     }
 
     @Test
@@ -449,14 +425,6 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testScaleUserIcon() {
-        Bitmap fakeIcon = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-        Drawable scaledIcon = mCarUserManagerHelper.scaleUserIcon(fakeIcon, 300);
-        assertThat(scaledIcon.getIntrinsicWidth()).isEqualTo(300);
-        assertThat(scaledIcon.getIntrinsicHeight()).isEqualTo(300);
-    }
-
-    @Test
     public void testIsCurrentProcessSystemUser() {
         doReturn(true).when(mUserManager).isAdminUser();
         assertThat(mCarUserManagerHelper.isCurrentProcessAdminUser()).isTrue();
@@ -479,22 +447,6 @@ public class CarUserManagerHelperTest {
         doReturn(true).when(mUserManager).isAdminUser();
         mCarUserManagerHelper.grantAdminPermissions(testInfo);
         verify(mUserManager).setUserAdmin(userId);
-    }
-
-    @Test
-    public void testSetUserRestriction() {
-        int userId = 20;
-        UserInfo testInfo = createUserInfoForId(userId);
-
-        mCarUserManagerHelper.setUserRestriction(
-                testInfo, UserManager.DISALLOW_ADD_USER, /* enable= */ true);
-        verify(mUserManager).setUserRestriction(
-                UserManager.DISALLOW_ADD_USER, true, UserHandle.of(userId));
-
-        mCarUserManagerHelper.setUserRestriction(
-                testInfo, UserManager.DISALLOW_REMOVE_USER, /* enable= */ false);
-        verify(mUserManager).setUserRestriction(
-                UserManager.DISALLOW_REMOVE_USER, false, UserHandle.of(userId));
     }
 
     @Test
