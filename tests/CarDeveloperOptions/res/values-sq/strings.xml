@@ -510,12 +510,12 @@
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"Enkripto tabletin"</string>
     <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"Enkripto telefonin"</string>
     <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"I enkriptuar"</string>
-    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"Mund të enkriptosh llogaritë e tua, cilësimet, aplikacionet e shkarkuara dhe të dhënat e tyre, klipet \"media\" (muzikë e fotografi) si dhe skedarë të tjerë. Pasi të kesh enkriptuar tabletin, do të të nevojitet një kod PIN numerik apo fjalëkalim që të shkyçësh ekranin për ta deshifruar atë çdo herë që e ndez. E vetmja mënyrë tjetër për të deshifruar tabletin është rivendosja në gjendje fabrike, duke spastruar të gjitha të dhënat.\n\nEnkriptimi zgjat një orë ose më shumë. Kur të fillosh, sigurohu të kesh baterinë e ngarkuar dhe ta mbash tabletin në prizë gjatë gjithë procesit. Nëse e ndërpret, do të humbësh disa nga të dhënat ose të gjitha."</string>
-    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"Mund të enkriptosh llogaritë e tua, cilësimet, aplikacionet e shkarkuara dhe të dhënat e tyre, klipet \"media\" (muzikë e fotografi) si dhe skedarë të tjerë. Pasi ta kesh enkriptuar telefonin, do të të nevojitet një kod PIN numerik apo fjalëkalim që të shkyçësh ekranin e për ta deshifruar atë çdo herë që e ndez. E vetmja mënyrë tjetër për të deshifruar telefonin është rivendosja në gjendje fabrike, duke spastruar të gjitha të dhënat.\n\nEnkriptimi zgjat një orë ose më shumë. Kur të fillosh, sigurohu të kesh baterinë e ngarkuar dhe ta mbash telefonin në prizë gjatë gjithë procesit. Nëse e ndërpret, do të humbësh disa nga të dhënat ose të gjitha."</string>
+    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"Mund të enkriptosh llogaritë e tua, cilësimet, aplikacionet e shkarkuara dhe të dhënat e tyre, klipet \"media\" (muzikë e fotografi) si dhe skedarë të tjerë. Pasi të kesh enkriptuar tabletin, do të të nevojitet një kod PIN numerik apo fjalëkalim që të shkyçësh ekranin për ta deshifruar atë çdo herë që e ndez. E vetmja mënyrë tjetër për të deshifruar tabletin është rivendosja në gjendje fabrike, duke spastruar të gjitha të dhënat.\n\nEnkriptimi zgjat një orë ose më shumë. Kur të fillosh, sigurohu të kesh baterinë e karikuar dhe ta mbash tabletin në prizë gjatë gjithë procesit. Nëse e ndërpret, do të humbësh disa nga të dhënat ose të gjitha."</string>
+    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"Mund të enkriptosh llogaritë e tua, cilësimet, aplikacionet e shkarkuara dhe të dhënat e tyre, klipet \"media\" (muzikë e fotografi) si dhe skedarë të tjerë. Pasi ta kesh enkriptuar telefonin, do të të nevojitet një kod PIN numerik apo fjalëkalim që të shkyçësh ekranin e për ta deshifruar atë çdo herë që e ndez. E vetmja mënyrë tjetër për të deshifruar telefonin është rivendosja në gjendje fabrike, duke spastruar të gjitha të dhënat.\n\nEnkriptimi zgjat një orë ose më shumë. Kur të fillosh, sigurohu të kesh baterinë e karikuar dhe ta mbash telefonin në prizë gjatë gjithë procesit. Nëse e ndërpret, do të humbësh disa nga të dhënat ose të gjitha."</string>
     <string name="crypt_keeper_button_text" product="tablet" msgid="7918671468758813824">"Enkripto tabletin"</string>
     <string name="crypt_keeper_button_text" product="default" msgid="8737394386627318489">"Enkripto telefonin"</string>
     <string name="crypt_keeper_low_charge_text" msgid="1422879728632636311">"Ngarko baterinë dhe provo përsëri."</string>
-    <string name="crypt_keeper_unplugged_text" msgid="6597684068340036200">"Vëre ngarkuesin në prizë dhe provo përsëri."</string>
+    <string name="crypt_keeper_unplugged_text" msgid="6597684068340036200">"Vëre karikuesin në prizë dhe provo përsëri."</string>
     <string name="crypt_keeper_dialog_need_password_title" msgid="8532211509636340535">"Nuk ka një kod PIN ose fjalëkalim të ekranit të kyçjes"</string>
     <string name="crypt_keeper_dialog_need_password_message" msgid="1341590897367808702">"Duhet të caktosh një PIN të ekranit të kyçjes ose një fjalëkalim para se të mund të nisësh enkriptimin."</string>
     <string name="crypt_keeper_confirm_title" msgid="8884417036062084547">"Të enkriptohet?"</string>
@@ -904,7 +904,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Fut SSID-në"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Siguria"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Rrjet i fshehur"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Nëse rrugëzuesi nuk po transmeton një ID rrjeti, por dëshiron të lidhesh me të në të ardhmen, mund ta caktosh rrjetin si të fshehur.\n\nKjo mund të krijojë një rrezik për sigurinë pasi telefoni yt do të transmetojë rregullisht sinjalin e tij për të gjetur rrjetin.\n\nCaktimi i rrjetit si të fshehur nuk do të ndryshojë cilësimet e rrugëzuesit."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Nëse rrugëzuesi nuk po transmeton një ID rrjeti, por dëshiron të lidhesh me të në të ardhmen, mund ta caktosh rrjetin si të fshehur.\n\nKjo mund të krijojë një rrezik për sigurinë pasi telefoni yt do të transmetojë rregullisht sinjalin e tij për të gjetur rrjetin.\n\nCaktimi i rrjetit si të fshehur nuk do të ndryshojë cilësimet e router-it."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Fuqia e sinjalit"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Statusi"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Shpejtësia e lidhjes së transmetimit"</string>
@@ -1473,7 +1473,7 @@
     <string name="storage_wizard_migrate_confirm_body" msgid="7297723787416643076"><b>"Zhvendosja kërkon rreth <xliff:g id="TIME">^1</xliff:g> dhe do të lirojë <xliff:g id="SIZE">^2</xliff:g> nga <xliff:g id="NAME">^3</xliff:g>."</b></string>
     <string name="storage_wizard_migrate_confirm_next" msgid="6539804689462991087">"Zhvendos"</string>
     <string name="storage_wizard_migrate_progress_title" msgid="7542196688665109833">"Po zhvendos të dhënat..."</string>
-    <string name="storage_wizard_migrate_details" msgid="4269509141637554985">"Gjatë zhvendosjes: \n• <xliff:g id="NAME">^1</xliff:g> nuk duhet të hiqet. \n• Disa apl. nuk do të funksionojnë si duhet. \n• Mbaje pajisjen të ngarkuar."</string>
+    <string name="storage_wizard_migrate_details" msgid="4269509141637554985">"Gjatë zhvendosjes: \n• <xliff:g id="NAME">^1</xliff:g> nuk duhet të hiqet. \n• Disa apl. nuk do të funksionojnë si duhet. \n• Mbaje pajisjen të karikuar."</string>
     <string name="storage_wizard_ready_title" msgid="4905921139763520341">"<xliff:g id="NAME">^1</xliff:g> është gati për përdorim"</string>
     <string name="storage_wizard_ready_external_body" msgid="8785407468656286236">"<xliff:g id="NAME">^1</xliff:g> është gati për t\'u përdorur me fotografitë dhe skedarët e tjerë."</string>
     <string name="storage_wizard_ready_internal_body" msgid="2258287496678469217">"<xliff:g id="NAME">^1</xliff:g> po funksionon. \n\nPër të zhvendosur fotografitë, skedarët dhe të dhënat e aplikacioneve te kjo pajisje, shko te Cilësimet &gt; Hapësira ruajtëse."</string>
@@ -1505,8 +1505,8 @@
     <string name="storage_wizard_migrate_v2_checklist" msgid="6283777617014793600">"Gjatë zhvendosjes:"</string>
     <string name="storage_wizard_migrate_v2_checklist_media" msgid="4626548613088549096">"Mos e hiq <xliff:g id="NAME">^1</xliff:g>"</string>
     <string name="storage_wizard_migrate_v2_checklist_apps" msgid="6041914027863793837">"Disa aplikacione nuk do të funksionojnë"</string>
-    <string name="storage_wizard_migrate_v2_checklist_battery" product="tablet" msgid="5086689918108465503">"Mbaje këtë tablet të ngarkuar"</string>
-    <string name="storage_wizard_migrate_v2_checklist_battery" product="default" msgid="7801835366851130972">"Mbaje këtë telefon të ngarkuar"</string>
+    <string name="storage_wizard_migrate_v2_checklist_battery" product="tablet" msgid="5086689918108465503">"Mbaje këtë tablet të karikuar"</string>
+    <string name="storage_wizard_migrate_v2_checklist_battery" product="default" msgid="7801835366851130972">"Mbaje këtë telefon të karikuar"</string>
     <string name="storage_wizard_migrate_v2_now" msgid="6818811520564682413">"Zhvendos përmbajtjen"</string>
     <string name="storage_wizard_migrate_v2_later" msgid="4909412563144649085">"Zhvendose përmbajtjen më vonë"</string>
     <string name="storage_wizard_migrate_progress_v2_title" msgid="1796255772658203586">"Përmbajtja po zhvendoset…"</string>
@@ -2225,7 +2225,7 @@
     <string name="power_usage_not_available" msgid="7040527428065650339">"Të dhënat nuk ofrohen."</string>
     <string name="power_usage_level_and_status" msgid="8873534076894160727">"<xliff:g id="LEVEL">%1$s</xliff:g> - <xliff:g id="STATUS">%2$s</xliff:g>"</string>
     <string name="power_discharge_remaining" msgid="3461915627093471868">"<xliff:g id="REMAIN">%1$s</xliff:g> të mbetura"</string>
-    <string name="power_charge_remaining" msgid="2730510256218879651">"<xliff:g id="UNTIL_CHARGED">%1$s</xliff:g> për të ngarkuar"</string>
+    <string name="power_charge_remaining" msgid="2730510256218879651">"<xliff:g id="UNTIL_CHARGED">%1$s</xliff:g> për të karikuar"</string>
     <string name="background_activity_title" msgid="7207836362312111483">"Kufizimi i përdorimit në sfond"</string>
     <string name="background_activity_summary" msgid="582372194738538145">"Lejo që aplikacioni të ekzekutohet në sfond"</string>
     <string name="background_activity_summary_disabled" msgid="457944930942085876">"Nuk lejohet që aplikacioni të ekzekutohet në sfond"</string>
@@ -3062,7 +3062,7 @@
     <string name="keywords_display_font_size" msgid="1496431330244040196">"madhësia e tekstit"</string>
     <string name="keywords_display_cast_screen" msgid="5744566533025100355">"projektoj, transmetoj, Pasqyrimi i ekranit, Ndarja e ekranit, pasqyrimi, ndaj ekranin, transmetimi i ekranit"</string>
     <string name="keywords_storage" msgid="7704519289838065803">"hapësirë, disk, njësi disku e ngurtë, përdorimi i pajisjes"</string>
-    <string name="keywords_battery" msgid="3860198379310375112">"përdorimi i energjisë, ngarkim"</string>
+    <string name="keywords_battery" msgid="3860198379310375112">"përdorimi i energjisë, karikim"</string>
     <string name="keywords_spell_checker" msgid="6032411442958278879">"gërmëzim, fjalor, kontroll ortografik, korrigjim automatik"</string>
     <string name="keywords_voice_input" msgid="569012518085308407">"njohës, hyrje, fjalim, fol, gjuhë, pa duar, dorë, falas, njohje, ofenduese, fjalë, audio, historik, aparat, bluetooth"</string>
     <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"vlerëso, gjuhë e parazgjedhur, fol, duke folur, tts, qasje, lexues ekrani, i verbër"</string>

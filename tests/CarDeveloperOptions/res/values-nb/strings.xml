@@ -1806,7 +1806,7 @@
     </plurals>
     <string name="clear_uri_btn_text" msgid="3528618179883855727">"Fjern tilgang"</string>
     <string name="controls_label" msgid="5609285071259457221">"Kontroller"</string>
-    <string name="force_stop" msgid="9213858124674772386">"Tving stopp"</string>
+    <string name="force_stop" msgid="9213858124674772386">"Tving avslutning"</string>
     <string name="total_size_label" msgid="3929917501176594692">"Totalt"</string>
     <string name="application_size_label" msgid="175357855490253032">"Appstørrelse"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"USB-lagring for app"</string>
@@ -2696,7 +2696,7 @@
     <string name="data_usage_app_restrict_dialog_title" msgid="750037964591673167">"Vil du begrense bruken av bakgrunnsdata?"</string>
     <string name="data_usage_app_restrict_dialog" msgid="4022530391896478031">"Denne funksjonen kan gjøre at apper som er avhengig av bakgrunnsdata slutter å fungere når bare  mobilnettverk er tilgjengelige.\n\nDu finner bedre egnede alternativer for databruk i appens innstillinger."</string>
     <string name="data_usage_restrict_denied_dialog" msgid="18928292832775805">"Begrensning av bakgrunnsdata er bare mulig når du har angitt en grense for mobildata."</string>
-    <string name="data_usage_auto_sync_on_dialog_title" msgid="2342323408229702005">"Vil du slå på auto-synkronisering?"</string>
+    <string name="data_usage_auto_sync_on_dialog_title" msgid="2342323408229702005">"Slå på auto-synkronisering?"</string>
     <string name="data_usage_auto_sync_on_dialog" product="tablet" msgid="4935430284683238901">"Alle endringene du gjør i kontoene dine på nettet, kopieres auto­matisk til nettbrettet ditt.\n\nNoen kontoer kan også auto­matisk kopiere endringer du gjør på nettbrettet til nettet. Google-kontoer fungerer på denne måten."</string>
     <string name="data_usage_auto_sync_on_dialog" product="default" msgid="5004823486046340090">"Alle endringene du gjør i kontoene dine på nettet, kopieres auto­matisk til telefonen din.\n\nNoen kontoer kan også auto­matisk kopiere endringer du gjør på telefonen, til nettet. Google-kontoer fungerer på denne måten."</string>
     <string name="data_usage_auto_sync_off_dialog_title" msgid="7105334544291643305">"Vil du slå av auto-synkronisering?"</string>
