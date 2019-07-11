@@ -70,7 +70,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     /**
      * Create a CarBluetoothUserService instance.
      *
-     * @param serice - A reference to a PerUserCarService, so we can use its context to receive
+     * @param service - A reference to a PerUserCarService, so we can use its context to receive
      *                 updates as a particular user.
      */
     public CarBluetoothUserService(PerUserCarService service) {
