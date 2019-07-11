@@ -831,7 +831,7 @@
     <string name="android_beam_off_summary" msgid="7365818039159364600">"Mati"</string>
     <string name="nfc_disabled_summary" msgid="2181777971122724361">"Tidak tersedia karena NFC nonaktif"</string>
     <string name="android_beam_label" msgid="5340299879556025708">"Android Beam"</string>
-    <string name="android_beam_explained" msgid="4501176353247859329">"Jika fitur ini diaktifkan, Anda dapat membagikan konten aplikasi lewat beaming ke perangkat lain yang mendukung NFC, yaitu dengan saling menempelkan perangkat. Anda dapat membagikan halaman web, video YouTube, kontak, dan lainnya.\n\nCukup tempelkan perangkat (biasanya saling membelakangi), lalu tap layar. Konten yang dibagikan secara beaming bergantung pada aplikasi."</string>
+    <string name="android_beam_explained" msgid="4501176353247859329">"Jika fitur ini diaktifkan, Anda dapat membagikan konten aplikasi lewat beaming ke perangkat lain yang mendukung NFC, yaitu dengan saling menempelkan perangkat. Anda dapat membagikan halaman web, video YouTube, kontak, dan lainnya.\n\nCukup tempelkan perangkat (biasanya saling membelakangi), lalu ketuk layar. Konten yang dibagikan secara beaming bergantung pada aplikasi."</string>
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi‑Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Nyalakan Wi-Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi‑Fi"</string>
@@ -1450,7 +1450,7 @@
     <string name="storage_detail_other" msgid="9164851767437306618">"Lainnya"</string>
     <string name="storage_detail_system" msgid="6784247618772153283">"Sistem"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"Jelajahi <xliff:g id="NAME">^1</xliff:g>"</string>
-    <string name="storage_detail_dialog_other" msgid="5073511663616043370">"Lainnya meliputi file bersama yang disimpan oleh aplikasi, file yang didownload dari internet atau Bluetooth, file Android, dan sebagainya. \n\nUntuk melihat konten <xliff:g id="NAME">^1</xliff:g> yang ditampilkan, tap Jelajahi."</string>
+    <string name="storage_detail_dialog_other" msgid="5073511663616043370">"Lainnya meliputi file bersama yang disimpan oleh aplikasi, file yang didownload dari internet atau Bluetooth, file Android, dan sebagainya. \n\nUntuk melihat konten <xliff:g id="NAME">^1</xliff:g> yang ditampilkan, ketuk Jelajahi."</string>
     <string name="storage_detail_dialog_system" msgid="1472572861360014226">"Sistem menyertakan file yang digunakan untuk menjalankan Android versi <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> mungkin telah menyimpan foto, musik, aplikasi, atau data lain, menggunakan penyimpanan <xliff:g id="SIZE">^2</xliff:g>. \n\nUntuk melihat detailnya, beralih ke <xliff:g id="USER_1">^1</xliff:g>."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"Siapkan <xliff:g id="NAME">^1</xliff:g>"</string>
@@ -1995,7 +1995,7 @@
     <string name="user_dict_settings_edit_dialog_title" msgid="6492621665762797309">"Edit kata"</string>
     <string name="user_dict_settings_context_menu_edit_title" msgid="4577283176672181497">"Edit"</string>
     <string name="user_dict_settings_context_menu_delete_title" msgid="670470172230144069">"Hapus"</string>
-    <string name="user_dict_settings_empty_text" msgid="2774939221998982609">"Tidak ada kata-kata dalam kamus pengguna. Untuk menambahkan kata, tap tombol Tambahkan (+)."</string>
+    <string name="user_dict_settings_empty_text" msgid="2774939221998982609">"Tidak ada kata-kata dalam kamus pengguna. Untuk menambahkan kata, ketuk Tambahkan (+)."</string>
     <string name="user_dict_settings_all_languages" msgid="8839702015353418176">"Untuk semua bahasa"</string>
     <string name="user_dict_settings_more_languages" msgid="8345984308635521364">"Bahasa lainnya..."</string>
     <string name="testing" msgid="4255916838792186365">"Menguji"</string>
@@ -2045,14 +2045,14 @@
     <string name="select_to_speak_summary" msgid="7514180457557735421">"Ketuk item di layar untuk mendengar item tersebut dibacakan"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Teks"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Pembesaran"</string>
-    <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Perbesar dengan tap 3 kali"</string>
+    <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Perbesar dengan ketuk 3 kali"</string>
     <string name="accessibility_screen_magnification_navbar_title" msgid="400655612610761242">"Memperbesar dengan tombol"</string>
-    <string name="accessibility_screen_magnification_state_navbar_gesture" msgid="1863831350878995600">"Memperbesar dengan tombol &amp; tap 3 kali"</string>
+    <string name="accessibility_screen_magnification_state_navbar_gesture" msgid="1863831350878995600">"Memperbesar dengan tombol &amp; ketuk 3 kali"</string>
     <string name="accessibility_preference_magnification_summary" msgid="753307741814376312">"Zoom in di layar"</string>
     <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"Ketuk 3 kali untuk memperbesar"</string>
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"Ketuk tombol untuk zoom"</string>
-    <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"Untuk melakukan zoom"</b>", tap layar 3 kali dengan cepat.\n"<ul><li>"Tarik menggunakan 2 jari atau lebih untuk men-scroll"</li>\n<li>"Cubit menggunakan 2 jari atau lebih untuk menyesuaikan zoom"</li></ul>\n\n<b>"Untuk melakukan zoom sementara"</b>", tap layar 3 kali dengan cepat dan tahan jari pada tap ke-3.\n"<ul><li>"Tarik untuk memindahkan zoom ke bagian layar yang lain"</li>\n<li>"Angkat jari untuk memperkecil"</li></ul>\n\n"Anda tidak dapat memperbesar keyboard dan menu navigasi."</string>
-    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Jika pembesaran diaktifkan, gunakan tombol Aksesibilitas di bagian bawah layar untuk memperbesar dengan cepat.\n\n"<b>"Untuk melakukan zoom"</b>", tap tombol Aksesibilitas, kemudian tap layar di bagian mana saja.\n"<ul><li>"Tarik menggunakan 2 jari atau lebih untuk men-scroll"</li>\n<li>"Cubit menggunakan 2 jari atau lebih untuk menyesuaikan zoom"</li></ul>\n\n<b>"Untuk melakukan zoom sementara"</b>", tap tombol Aksesibilitas, kemudian sentuh lama layar di bagian mana saja.\n"<ul><li>"Tarik untuk memindahkan zoom ke bagian layar yang lain"</li>\n<li>"Angkat jari untuk memperkecil"</li></ul>\n\n"Anda tidak dapat memperbesar keyboard atau menu navigasi."</string>
+    <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"Untuk melakukan zoom"</b>", ketuk layar 3 kali dengan cepat.\n"<ul><li>"Tarik menggunakan 2 jari atau lebih untuk men-scroll"</li>\n<li>"Cubit menggunakan 2 jari atau lebih untuk menyesuaikan zoom"</li></ul>\n\n<b>"Untuk melakukan zoom sementara"</b>", ketuk layar 3 kali dengan cepat dan tahan jari pada ketukan ketiga.\n"<ul><li>"Tarik untuk memindahkan zoom ke bagian layar yang lain"</li>\n<li>"Angkat jari untuk memperkecil"</li></ul>\n\n"Anda tidak dapat memperbesar keyboard dan menu navigasi."</string>
+    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Jika pembesaran diaktifkan, gunakan tombol Aksesibilitas di bagian bawah layar untuk memperbesar dengan cepat.\n\n"<b>"Untuk melakukan zoom"</b>", ketuk Aksesibilitas, kemudian ketuk layar di bagian mana saja.\n"<ul><li>"Tarik menggunakan 2 jari atau lebih untuk men-scroll"</li>\n<li>"Cubit menggunakan 2 jari atau lebih untuk menyesuaikan zoom"</li></ul>\n\n<b>"Untuk melakukan zoom sementara"</b>", ketuk Aksesibilitas, kemudian sentuh lama layar di bagian mana saja.\n"<ul><li>"Tarik untuk memindahkan zoom ke bagian layar yang lain"</li>\n<li>"Angkat jari untuk memperkecil"</li></ul>\n\n"Anda tidak dapat memperbesar keyboard atau menu navigasi."</string>
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Tombol Aksesibilitas disetel ke <xliff:g id="SERVICE">%1$s</xliff:g>. Untuk menggunakan fitur pembesaran, sentuh lama tombol Aksesibilitas, kemudian pilih pembesaran."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Pintasan tombol volume"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Layanan pintasan"</string>
@@ -2095,7 +2095,7 @@
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Alat bantu dengar"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Tidak ada alat bantu dengar yang terhubung"</string>
     <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"Tambahkan alat bantu dengar"</string>
-    <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Untuk menyambungkan alat bantu, temukan dan tap perangkat Anda di layar berikutnya."</string>
+    <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Untuk menyambungkan alat bantu, temukan dan ketuk perangkat Anda di layar berikutnya."</string>
     <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Pastikan alat bantu dengar Anda dalam mode penyambungan."</string>
     <string name="accessibility_hearingaid_active_device_summary" msgid="6081382497207168885">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> aktif"</string>
     <plurals name="show_number_hearingaid_count" formatted="false" msgid="7906547154695855096">
@@ -3044,7 +3044,7 @@
     <string name="keywords_wifi" msgid="8477688080895466846">"wifi, wi-fi, sambungan jaringan, internet, nirkabel, data, wi fi"</string>
     <string name="keywords_wifi_notify_open_networks" msgid="1031260564121854773">"Notifikasi Wi‑Fi, notifikasi wi‑fi"</string>
     <string name="keywords_auto_brightness" msgid="5007188989783072428">"Kecerahan otomatis"</string>
-    <string name="keywords_vibrate_on_touch" msgid="3615173661462446877">"Hentikan getaran, tap, keyboard"</string>
+    <string name="keywords_vibrate_on_touch" msgid="3615173661462446877">"Hentikan getaran, ketukan, keyboard"</string>
     <string name="keywords_time_format" msgid="8265826377023617424">"Gunakan format 24 jam"</string>
     <string name="keywords_storage_files" msgid="1995055540202216399">"Download"</string>
     <string name="keywords_app_default" msgid="1265502485415708667">"Buka dengan"</string>
@@ -3065,7 +3065,7 @@
     <string name="keywords_battery" msgid="3860198379310375112">"penggunaan daya, isi daya"</string>
     <string name="keywords_spell_checker" msgid="6032411442958278879">"ejaan, kamus, periksaejaan, koreksi-otomatis"</string>
     <string name="keywords_voice_input" msgid="569012518085308407">"pengenal, masukan, ucapan, ucapkan, bahasa, handsfree, hands free, pengenalan, menyinggung, kata, audio, histori, bluetooth headset"</string>
-    <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"beri nilai, bahasa, default, ucapkan, berbicara, text to speech, aksesibilitas, pembaca layar, tunanetra"</string>
+    <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"beri rating, bahasa, default, ucapkan, berbicara, text to speech, aksesibilitas, pembaca layar, tunanetra"</string>
     <string name="keywords_date_and_time" msgid="4434079919474174978">"jam, militer"</string>
     <string name="keywords_network_reset" msgid="2064330046866583215">"setel ulang, memulihkan, pabrik"</string>
     <string name="keywords_factory_data_reset" msgid="5865739790670615499">"hapus total, hapus, pulihkan, kosongkan, hilangkan, reset ke setelan pabrik"</string>
@@ -3146,7 +3146,7 @@
     <string name="docking_sounds_title" msgid="2573137471605541366">"Memasang suara di dok"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Suara sentuhan"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Getaran saat disentuh"</string>
-    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Info via sentuhan untuk tap, keyboard, dan lainnya"</string>
+    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Info via sentuhan untuk ketukan, keyboard, dan lainnya"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Dok pemutaran speaker"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"Semua audio"</string>
     <string name="dock_audio_media_enabled" msgid="2873275045878628153">"Hanya audio media"</string>
@@ -3301,7 +3301,7 @@
     <string name="notification_badging_title" msgid="6311699476970264712">"Izinkan titik notifikasi"</string>
     <string name="notification_bubbles_title" msgid="9196562435741861317">"Balon"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Mengakses konten aplikasi dengan cepat dari mana saja menggunakan pintasan floating"</string>
-    <string name="bubbles_feature_education" msgid="8979109826818881018">"Beberapa notifikasi dan konten lainnya dapat muncul sebagai balon di layar. Untuk membuka balon, tap balon tersebut. Untuk menutupnya, tarik ke bawah layar."</string>
+    <string name="bubbles_feature_education" msgid="8979109826818881018">"Beberapa notifikasi dan konten lainnya dapat muncul sebagai balon di layar. Untuk membuka balon, ketuk balon tersebut. Untuk menutupnya, tarik ke bawah layar."</string>
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Balon"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"Izinkan <xliff:g id="APP_NAME">%1$s</xliff:g> menampilkan beberapa notifikasi sebagai balon"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Aktifkan balon"</string>
@@ -3548,7 +3548,7 @@
     <string name="switch_on_text" msgid="7100491749799298324">"Aktif"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"Nonaktif"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"Pin ke layar"</string>
-    <string name="screen_pinning_description" msgid="3814537379086412278">"Jika setelan ini diaktifkan, Anda dapat menggunakan fitur pin ke layar agar layar saat ini tetap ditampilkan hingga Anda melepas pin.\n\nUntuk menggunakan fitur pin ke layar:\n\n1. Pastikan fitur pin ke layar diaktifkan\n\n2. Buka Ringkasan\n\n3. Ketuk ikon aplikasi di bagian atas layar, lalu tap Pin"</string>
+    <string name="screen_pinning_description" msgid="3814537379086412278">"Jika setelan ini diaktifkan, Anda dapat menggunakan fitur pin ke layar agar layar saat ini tetap ditampilkan hingga Anda melepas pin.\n\nUntuk menggunakan fitur pin ke layar:\n\n1. Pastikan fitur pin ke layar diaktifkan\n\n2. Buka Ringkasan\n\n3. Ketuk ikon aplikasi di bagian atas layar, lalu ketuk Pin"</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Minta pola pembuka kunci sebelum melepas pin"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Minta PIN sebelum lepas pin"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Minta sandi sebelum melepas pin"</string>
@@ -4127,7 +4127,7 @@
     <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Ketuk untuk memeriksa ponsel"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Ketuk untuk memeriksa tablet"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Ketuk untuk memeriksa perangkat"</string>
-    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Untuk memeriksa waktu, notifikasi, dan info lainnya, tap layar Anda."</string>
+    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Untuk memeriksa waktu, notifikasi, dan info lainnya, ketuk layar Anda."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Usapkan sidik jari untuk melihat notifikasi"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Usapkan sidik jari"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Untuk memeriksa notifikasi, usapkan jari ke bawah pada sensor sidik jari di bagian belakang ponsel."</string>
