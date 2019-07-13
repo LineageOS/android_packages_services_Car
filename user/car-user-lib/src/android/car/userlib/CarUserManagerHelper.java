@@ -510,23 +510,14 @@ public final class CarUserManagerHelper {
     // Foreground user information accessors.
 
     /**
-     * Returns whether a user has a restriction.
-     *
-     * @param restriction Restriction to check. Should be a UserManager.* restriction.
-     * @param userInfo the user whose restriction is to be checked
-     */
-    private boolean hasUserRestriction(String restriction, UserInfo userInfo) {
-        return mUserManager.hasUserRestriction(restriction, userInfo.getUserHandle());
-    }
-
-    /**
      * Return whether the foreground user has a restriction.
      *
      * @param restriction Restriction to check. Should be a UserManager.* restriction.
      * @return Whether that restriction exists for the foreground user.
      */
     private boolean foregroundUserHasUserRestriction(String restriction) {
-        return hasUserRestriction(restriction, getCurrentForegroundUserInfo());
+        return mUserManager.hasUserRestriction(
+                restriction, UserHandle.of(getCurrentForegroundUserId()));
     }
 
     /**
@@ -553,24 +544,10 @@ public final class CarUserManagerHelper {
     // Current process user information accessors
 
     /**
-     * Checks if the calling app is running in a demo user.
-     */
-    public boolean isCurrentProcessDemoUser() {
-        return mUserManager.isDemoUser();
-    }
-
-    /**
      * Checks if the calling app is running as an admin user.
      */
     public boolean isCurrentProcessAdminUser() {
         return mUserManager.isAdminUser();
-    }
-
-    /**
-     * Checks if the calling app is running as a guest user.
-     */
-    public boolean isCurrentProcessGuestUser() {
-        return mUserManager.isGuestUser();
     }
 
     // Current process user restriction accessors
@@ -591,8 +568,8 @@ public final class CarUserManagerHelper {
      */
     public boolean canCurrentProcessModifyAccounts() {
         return !isCurrentProcessUserHasRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS)
-            && !isCurrentProcessDemoUser()
-            && !isCurrentProcessGuestUser();
+            && !mUserManager.isDemoUser()
+            && !mUserManager.isGuestUser();
     }
 
     /**
