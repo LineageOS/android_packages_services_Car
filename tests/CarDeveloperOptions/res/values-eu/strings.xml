@@ -90,7 +90,7 @@
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11. kapitulua: Esmeraldazko Oz hiri harrigarria"</string>
     <string name="font_size_preview_text_body" msgid="6803085337474390845">"Begiak betaurreko berdeekin babestuta bazituzten ere, Dorothy eta haren lagunak txundituta geratu ziren Hiri zoragarri haren distira lehenbizikoz ikustean. Kaleak etxe ederrez josita zeuden; marmol berdezkoak ziren, eta esmeralda distiratsuz zeuden apainduta. Marmol berde hartaz egindako espaloian ibili ziren, eta lauzen junturak esmeraldazko errenkadak zirela nabaritu zuten, bata bestearen ondoan estu-estu jarriak, eguzkitan dir-dir egiten. Leihoen kristalak berdeak ziren. Hiria estaltzen zuen zeruak kutsu berdea zuen, eta berdeak ziren eguzki-izpiak ere. \n\nJende asko zebilen hara eta hona: gizonak, emakumeak eta haurrak, guztiak berdez jantziak eta azal berdexkakoak. Zalantzaz begiratzen zieten Dorothyri eta haren lagun talde xelebreari, eta haurrak amaren atzean ezkutatzen ziren lehoia ikusi bezain laster. Hala ere, inork ez zien txintik ere esan. Denda asko zeuden kalean, eta salgai guztiak berdeak zirela antzeman zuen Dorothyk. Gozoki berdeak eta krispeta berdeak eros zitezkeen, baita zapata berdeak, kapela berdeak eta askotariko jantzi berdeak ere. Gizon bat limonada berdea saltzen ari zen, eta haur batzuek erosi ziotenean, txanpon berdeekin ordaindu zutela ikusi zuen Dorothyk. \n\nEz zegoen zaldirik edo inolako animaliarik; gizonek orgatxo berdeak bultzatuta eramaten zituzten gauzak batetik bestera. Denak zeuden pozik, alai eta zoriontsu."</string>
     <string name="font_size_save" msgid="8652044574655753921">"Ados"</string>
-    <string name="sdcard_setting" product="nosdcard" msgid="1533784309105748696">"USB memoria"</string>
+    <string name="sdcard_setting" product="nosdcard" msgid="1533784309105748696">"USB bidezko memoria"</string>
     <string name="sdcard_setting" product="default" msgid="8398782065765523178">"SD txartela"</string>
     <string name="bluetooth" msgid="1564520421786841227">"Bluetooth-a"</string>
     <string name="bluetooth_is_discoverable" msgid="6748888489356326898">"Inguruko Bluetooth gailu guztietarako ikusgai (<xliff:g id="DISCOVERABLE_TIME_PERIOD">%1$s</xliff:g>)"</string>
@@ -250,17 +250,17 @@
     <string name="sdcard_changes_instructions" msgid="4138217393448114001">"Aldaketek USB kablea berriro konektatzean izango dute eragina."</string>
     <string name="sdcard_settings_screen_mass_storage_text" msgid="7486030250999007641">"Gaitu USB bidezko biltegiratze masiboa"</string>
     <string name="sdcard_settings_total_bytes_label" msgid="6461741874400909157">"Byteak, guztira:"</string>
-    <string name="sdcard_settings_not_present_status" product="nosdcard" msgid="5419085128792417589">"Ez da USB memoria muntatu."</string>
+    <string name="sdcard_settings_not_present_status" product="nosdcard" msgid="5419085128792417589">"Ez da muntatu USB memoria."</string>
     <string name="sdcard_settings_not_present_status" product="default" msgid="5831286239151349794">"Ez dago SD txartelik."</string>
     <string name="sdcard_settings_available_bytes_label" msgid="2392868635606041278">"Byte erabilgarriak:"</string>
-    <string name="sdcard_settings_mass_storage_status" product="nosdcard" msgid="5888349723543445382">"USB memoria bilt. masibo gisa."</string>
+    <string name="sdcard_settings_mass_storage_status" product="nosdcard" msgid="5888349723543445382">"USB bidezko memoria bilt. masibo gisa."</string>
     <string name="sdcard_settings_mass_storage_status" product="default" msgid="637014061735266364">"SD txartela biltegiratze masiboko gailu gisa erabiltzen ari da."</string>
     <string name="sdcard_settings_unmounted_status" product="nosdcard" msgid="1489916516292644696">"Segurua da USB bidezko memoria kentzea."</string>
     <string name="sdcard_settings_unmounted_status" product="default" msgid="6250598657624241686">"Segurtasunez ken daiteke SD txartela."</string>
-    <string name="sdcard_settings_bad_removal_status" product="nosdcard" msgid="4694941967864756404">"USB mem. erabili bitartean kendu da"</string>
+    <string name="sdcard_settings_bad_removal_status" product="nosdcard" msgid="4694941967864756404">"Abian zela kendu da USB bidezko memoria"</string>
     <string name="sdcard_settings_bad_removal_status" product="default" msgid="2079348895479890677">"SD txart. erabili bitartean kendu da"</string>
     <string name="sdcard_settings_used_bytes_label" msgid="1254929038284900156">"Erabilitako byteak:"</string>
-    <string name="sdcard_settings_scanning_status" product="nosdcard" msgid="4807897851513791634">"USB memorian bilatzen…"</string>
+    <string name="sdcard_settings_scanning_status" product="nosdcard" msgid="4807897851513791634">"USB bidezko memorian bilatzen…"</string>
     <string name="sdcard_settings_scanning_status" product="default" msgid="67933353112027726">"SD txartelean bilatzen…"</string>
     <string name="sdcard_settings_read_only_status" product="nosdcard" msgid="7959964366461613091">"USBa irakurtzeko muntatu da."</string>
     <string name="sdcard_settings_read_only_status" product="default" msgid="8854112253788893415">"SD txartela irakurtzeko soilik muntatu da."</string>
@@ -287,7 +287,7 @@
     <string name="display_label" msgid="7638908513729850802">"Pantaila"</string>
     <string name="phone_info_label" product="tablet" msgid="7700004946924618112">"Tabletaren informazioa"</string>
     <string name="phone_info_label" product="default" msgid="2006702119092932148">"Telefonoaren informazioa"</string>
-    <string name="sd_card_settings_label" product="nosdcard" msgid="3433188145440984933">"USB memoria"</string>
+    <string name="sd_card_settings_label" product="nosdcard" msgid="3433188145440984933">"USB bidezko memoria"</string>
     <string name="sd_card_settings_label" product="default" msgid="1074813865245983607">"SD txartela"</string>
     <string name="proxy_settings_label" msgid="7219106162267925123">"Proxy-ezarpenak"</string>
     <string name="cancel" msgid="2582602392048772404">"Utzi"</string>
@@ -1322,7 +1322,7 @@
     <string name="storage_settings_for_app" msgid="3028887232073069965">"Memoria eta cachea"</string>
     <string name="storage_usb_settings" msgid="4470138799276333403">"Memoria"</string>
     <string name="storage_settings_title" msgid="7348362600789024415">"Memoriaren ezarpenak"</string>
-    <string name="storage_settings_summary" product="nosdcard" msgid="600267641559698394">"Desmuntatu USB memoria, ikusi erabilgarri dagoen memoria"</string>
+    <string name="storage_settings_summary" product="nosdcard" msgid="600267641559698394">"Desmuntatu USB bidezko memoria; ikusi erabilgarri dagoen memoria"</string>
     <string name="storage_settings_summary" product="default" msgid="6233147555590816245">"Desmuntatu SD txartela, ikusi memoria erabilgarria"</string>
     <string name="imei_multi_sim" msgid="6462221220123699987">"IMEI zk. (%1$d. SIM zirrikitua)"</string>
     <string name="status_number" product="tablet" msgid="1594311542611046121">"MDN"</string>
@@ -1356,7 +1356,7 @@
     <string name="status_up_time" msgid="77128395333934087">"Berrabiarazi ondoren abian izandako denbora"</string>
     <string name="status_awake_time" msgid="1251959094010776954">"Aktibo egondako denbora"</string>
     <string name="internal_memory" msgid="8632841998435408869">"Barneko memoria"</string>
-    <string name="sd_memory" product="nosdcard" msgid="1377713983817298275">"USB memoria"</string>
+    <string name="sd_memory" product="nosdcard" msgid="1377713983817298275">"USB bidezko memoria"</string>
     <string name="sd_memory" product="default" msgid="8242711740477072757">"SD txartela"</string>
     <string name="memory_available" msgid="7135654170847536323">"Erabilgarri"</string>
     <string name="memory_available_read_only" msgid="9125440204248584531">"Erabilgarri (irakurtzeko soilik)"</string>
@@ -1371,9 +1371,9 @@
     <string name="memory_media_cache_usage" msgid="1307620682751377717">"Cachean gordetako datuak"</string>
     <string name="sd_eject" product="nosdcard" msgid="3016608823130472449">"Desmuntatu partekatutako memoria"</string>
     <string name="sd_eject" product="default" msgid="4943338855474925396">"Desmuntatu SD txartela"</string>
-    <string name="sd_eject_summary" product="nosdcard" msgid="8571017212318899178">"Desmuntatu barneko USB memoria"</string>
+    <string name="sd_eject_summary" product="nosdcard" msgid="8571017212318899178">"Desmuntatu USB bidezko barneko memoria"</string>
     <string name="sd_eject_summary" product="default" msgid="6862319750744376533">"Desmuntatu SD txartela, kentzeko prest egon dadin"</string>
-    <string name="sd_insert_summary" product="nosdcard" msgid="6192416378231939330">"Sartu muntatu beharreko USB memoria"</string>
+    <string name="sd_insert_summary" product="nosdcard" msgid="6192416378231939330">"Sartu muntatu beharreko USB bidezko memoria"</string>
     <string name="sd_insert_summary" product="default" msgid="2977039502204165858">"Sartu muntatu beharreko SD txartela"</string>
     <string name="sd_mount" product="nosdcard" msgid="5935852779173473289">"Muntatu USB memoria"</string>
     <string name="sd_mount" product="default" msgid="2909681528683834308">"Muntatu SD txartela"</string>
@@ -1587,7 +1587,7 @@
     <string name="master_clear_desc_no_cancel_mobile_plan" msgid="6072668588881679461">\n\n"Horrek ez du utziko bertan behera operadorearekin kontratatuta duzun zerbitzu-plana."</string>
     <string name="master_clear_desc_erase_external_storage" product="nosdcard" msgid="2723272952715259307">\n\n"Musika, irudiak eta bestelako erabiltzaile-datuak garbitzeko, "<b>"USB bidezko memoria"</b>" ezabatu behar da."</string>
     <string name="master_clear_desc_erase_external_storage" product="default" msgid="9003555775524798797">\n\n"Musika, irudiak eta bestelako erabiltzaile-datuak garbitzeko, "<b>"SD txartela"</b>" ezabatu behar da."</string>
-    <string name="erase_external_storage" product="nosdcard" msgid="8989746770347525207">"Ezabatu USB memoria"</string>
+    <string name="erase_external_storage" product="nosdcard" msgid="8989746770347525207">"Ezabatu USB bidezko memoria"</string>
     <string name="erase_external_storage" product="default" msgid="194249742376770215">"Ezabatu SD txartela"</string>
     <string name="erase_external_storage_description" product="nosdcard" msgid="8020275102431496261">"Ezabatu USB bidezko barneko memoriako datu guztiak; adibidez, musika edo argazkiak"</string>
     <string name="erase_external_storage_description" product="default" msgid="5029355708082861798">"Ezabatu SD txarteleko datu guztiak, besteak beste, musika edo argazkiak."</string>
@@ -1809,9 +1809,9 @@
     <string name="force_stop" msgid="9213858124674772386">"Behartu gelditzera"</string>
     <string name="total_size_label" msgid="3929917501176594692">"Guztira"</string>
     <string name="application_size_label" msgid="175357855490253032">"Aplikazioaren tamaina"</string>
-    <string name="external_code_size_label" msgid="3434421216268309411">"USB memoriaren aplikazioa"</string>
+    <string name="external_code_size_label" msgid="3434421216268309411">"USB bidezko memoriaren aplikazioa"</string>
     <string name="data_size_label" msgid="7790201846922671662">"Erabiltzaile-datuak"</string>
-    <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB memoriaren datuak"</string>
+    <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB bidezko memoriaren datuak"</string>
     <string name="external_data_size_label" product="default" msgid="1097584278225902734">"SD txartela"</string>
     <string name="uninstall_text" msgid="4859715815689705801">"Desinstalatu"</string>
     <string name="uninstall_all_users_text" msgid="2620518509352561416">"Desinstalatu erabiltzaile guztientzat"</string>
@@ -1925,7 +1925,7 @@
     <string name="service_manage" msgid="7045214643721276662">"Ezarpenak"</string>
     <string name="service_stop_description" msgid="4184180745938573707">"Zerbitzua bere aplikazioak hasi du. Gelditzen baduzu, agian aplikazioak huts egingo du."</string>
     <string name="heavy_weight_stop_description" msgid="7444148811046611463">"Ezin da aplikazioa modu seguruan gelditu. Geldituz gero, uneko lan batzuk gal ditzakezu."</string>
-    <string name="background_process_stop_description" msgid="8971810208873038109">"Aplikazio-prozesu zaharra da hau, baina geroago behar bada erabiltzeko ari da exekutatzen. Normalean ez dago hori gelditzeko arrazoirik."</string>
+    <string name="background_process_stop_description" msgid="8971810208873038109">"Aplikazio-prozesu hau zaharra da, baina abian da oraindik ere, badaezpada berriro behar bada. Normalean ez dago hura gelditzeko arrazoirik."</string>
     <string name="service_manage_description" msgid="8058123524402833082">"<xliff:g id="CLIENT_NAME">%1$s</xliff:g>: beste norbait ari da erabiltzen. Zuk kontrolatzeko, saka ezazu Ezarpenak."</string>
     <string name="main_running_process_description" msgid="7733268956566861797">"Abian den prozesu nagusia."</string>
     <string name="process_service_in_use_description" msgid="2253782391122637651">"<xliff:g id="COMP_NAME">%1$s</xliff:g> zerbitzua abian da."</string>
@@ -2296,7 +2296,7 @@
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Aplikazio hauek ezin dira exekutatu atzeko planoan</item>
-      <item quantity="one">Aplikazio hau ezin da exekutatu atzeko planoan</item>
+      <item quantity="one">Aplikazio hau ezin da abiarazi atzeko planoan</item>
     </plurals>
     <plurals name="battery_tip_restrict_app_dialog_title" formatted="false" msgid="3042021435866172168">
       <item quantity="other">%1$d aplikazio mugatu nahi dituzu?</item>
@@ -2368,7 +2368,7 @@
     <string name="usage_type_cpu_foreground" msgid="5496661858574622156">"PUZaren aurreko planoa"</string>
     <string name="usage_type_wake_lock" msgid="6729977238748413476">"Mantendu aktibo"</string>
     <string name="usage_type_gps" msgid="5914062195732419196">"GPS"</string>
-    <string name="usage_type_wifi_running" msgid="4192567991891907030">"Wi-Fia exekutatzen"</string>
+    <string name="usage_type_wifi_running" msgid="4192567991891907030">"Wifiaren erabilera"</string>
     <string name="usage_type_phone" product="tablet" msgid="4279605085824633501">"Tableta"</string>
     <string name="usage_type_phone" product="default" msgid="3901842461077646153">"Telefonoa"</string>
     <string name="usage_type_data_send" msgid="6339880867171142725">"Bidalitako pakete mugikorrak"</string>
@@ -3371,9 +3371,9 @@
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Desaktibatu"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Utzi"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Errealitate birtualeko laguntza-zerbitzuak"</string>
-    <string name="no_vr_listeners" msgid="7675484190394450979">"Ez dago errealitate birtualeko laguntza-zerbitzu gisa exekutatzea eskatu duen aplikaziorik instalatuta."</string>
+    <string name="no_vr_listeners" msgid="7675484190394450979">"Ez dago errealitate birtualeko laguntza-zerbitzu gisa abiaraztea eskatu duen aplikaziorik instalatuta."</string>
     <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"<xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari errealitate birtualeko zerbitzuak atzitzeko baimena eman nahi diozu?"</string>
-    <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"Aplikazioak errealitate birtualean erabiltzen dituzunean exekutatu ahal izango da  <xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g>."</string>
+    <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"Aplikazioak errealitate birtualean erabiltzen dituzunean abiarazi ahal izango da  <xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g>."</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"Errealitate birtualeko moduan"</string>
     <string name="display_vr_pref_low_persistence" msgid="3132583929174794245">"Murriztu lausotzea (gomendatua)"</string>
     <string name="display_vr_pref_off" msgid="4681320968818852691">"Murriztu distira"</string>
@@ -3678,9 +3678,9 @@
     <string name="usage_access_description" msgid="2178083292760305207">"Erabilera-datuek zer beste aplikazio eta zer maiztasunekin erabiltzen dituzun jakiteko baimena ematen die aplikazioei, baita zer operadore duzun, zer hizkuntza-ezarpen dituzun eta beste xehetasun batzuk ere."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"Memoria"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"Memoriaren xehetasunak"</string>
-    <string name="always_running" msgid="5320183445080208766">"Beti ari da exekutatzen (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
-    <string name="sometimes_running" msgid="3830146615620696644">"Noizbehinka exekutatzen da (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
-    <string name="rarely_running" msgid="7726208127642450037">"Ez da ia inoiz exekutatzen (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
+    <string name="always_running" msgid="5320183445080208766">"Beti dago abian (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
+    <string name="sometimes_running" msgid="3830146615620696644">"Noizbehinka abiarazten da (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
+    <string name="rarely_running" msgid="7726208127642450037">"Ez da ia inoiz abiarazten (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
     <string name="memory_max_use" msgid="5493310646751769451">"Gehienekoa"</string>
     <string name="memory_avg_use" msgid="3686245197961237899">"Batez besteko erabilera"</string>
     <string name="memory_max_desc" msgid="2013027702130684764">"Gehienekoa: <xliff:g id="MEMORY">%1$s</xliff:g>"</string>
@@ -3704,8 +3704,8 @@
     <string name="high_power_off" msgid="5906679734326490426">"Bateria optimizatu egiten da"</string>
     <string name="high_power_system" msgid="739584574711292753">"Bateria-optimizazioa ez dago erabilgarri"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Ez aplikatu bateria-optimizazioa. Aukera horrekin, bizkorrago agortuko da bateria."</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"Beti atzeko planoan exekutatzeko baimena eman nahi diozu aplikazioari?"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioari atzeko planoan beti exekutatzeko baimena emanez gero, baliteke bateriak gutxiago irautea. \n\nAukera hori aldatzeko, sakatu Ezarpenak &gt; Aplikazioak eta jakinarazpenak."</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"Beti atzeko planoan abiarazteko baimena eman nahi diozu aplikazioari?"</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioari atzeko planoan beti abiarazteko baimena emanez gero, baliteke bateriak gutxiago irautea. \n\nAukera hori aldatzeko, sakatu Ezarpenak &gt; Aplikazioak eta jakinarazpenak."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Bateriaren <xliff:g id="PERCENTAGE">%1$s</xliff:g> erabili du bateria guztiz kargatu zenetik"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Bateriaren kudeaketa"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"Ez du bateriarik erabili bateria guztiz kargatu zenetik"</string>
