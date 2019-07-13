@@ -27,8 +27,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -512,19 +510,12 @@ public final class CarUserManagerHelper {
     // Foreground user information accessors.
 
     /**
-     * Checks if the foreground user is a guest user.
-     */
-    public boolean isForegroundUserGuest() {
-        return getCurrentForegroundUserInfo().isGuest();
-    }
-
-    /**
      * Returns whether a user has a restriction.
      *
      * @param restriction Restriction to check. Should be a UserManager.* restriction.
      * @param userInfo the user whose restriction is to be checked
      */
-    public boolean hasUserRestriction(String restriction, UserInfo userInfo) {
+    private boolean hasUserRestriction(String restriction, UserInfo userInfo) {
         return mUserManager.hasUserRestriction(restriction, userInfo.getUserHandle());
     }
 
@@ -602,20 +593,6 @@ public final class CarUserManagerHelper {
         return !isCurrentProcessUserHasRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS)
             && !isCurrentProcessDemoUser()
             && !isCurrentProcessGuestUser();
-    }
-
-    /**
-     * Checks if the user running the current process can add new users.
-     */
-    public boolean canCurrentProcessAddUsers() {
-        return !isCurrentProcessUserHasRestriction(UserManager.DISALLOW_ADD_USER);
-    }
-
-    /**
-     * Checks if the user running the current process can remove users.
-     */
-    public boolean canCurrentProcessRemoveUsers() {
-        return !isCurrentProcessUserHasRestriction(UserManager.DISALLOW_REMOVE_USER);
     }
 
     /**
@@ -698,8 +675,10 @@ public final class CarUserManagerHelper {
 
         // Each non-admin has sms and outgoing call restrictions applied by the UserManager on
         // creation. We want to enable these permissions by default in the car.
-        setUserRestriction(user, UserManager.DISALLOW_SMS, /* enable= */ false);
-        setUserRestriction(user, UserManager.DISALLOW_OUTGOING_CALLS, /* enable= */ false);
+        mUserManager.setUserRestriction(
+                UserManager.DISALLOW_SMS, /* enable= */ false, user.getUserHandle());
+        mUserManager.setUserRestriction(
+                UserManager.DISALLOW_OUTGOING_CALLS, /* enable= */ false, user.getUserHandle());
 
         assignDefaultIcon(user);
         return user;
@@ -713,7 +692,7 @@ public final class CarUserManagerHelper {
      */
     private void setDefaultNonAdminRestrictions(UserInfo userInfo, boolean enable) {
         for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
-            setUserRestriction(userInfo, restriction, enable);
+            mUserManager.setUserRestriction(restriction, enable, userInfo.getUserHandle());
         }
     }
 
@@ -725,21 +704,8 @@ public final class CarUserManagerHelper {
      */
     private void setOptionalNonAdminRestrictions(UserInfo userInfo, boolean enable) {
         for (String restriction : OPTIONAL_NON_ADMIN_RESTRICTIONS) {
-            setUserRestriction(userInfo, restriction, enable);
+            mUserManager.setUserRestriction(restriction, enable, userInfo.getUserHandle());
         }
-    }
-
-    /**
-     * Sets the value of the specified restriction for the specified user.
-     *
-     * @param userInfo the user whose restriction is to be changed
-     * @param restriction the key of the restriction
-     * @param enable the value for the restriction. if true, turns the restriction ON, if false,
-     *               turns the restriction OFF.
-     */
-    public void setUserRestriction(UserInfo userInfo, String restriction, boolean enable) {
-        UserHandle userHandle = UserHandle.of(userInfo.id);
-        mUserManager.setUserRestriction(restriction, enable, userHandle);
     }
 
     /**
@@ -917,19 +883,6 @@ public final class CarUserManagerHelper {
         }
 
         return picture;
-    }
-
-    /**
-     * Method for scaling a Bitmap icon to a desirable size.
-     *
-     * @param icon Bitmap to scale.
-     * @param desiredSize Wanted size for the icon.
-     * @return Drawable for the icon, scaled to the new size.
-     */
-    public Drawable scaleUserIcon(Bitmap icon, int desiredSize) {
-        Bitmap scaledIcon = Bitmap.createScaledBitmap(
-                icon, desiredSize, desiredSize, true /* filter */);
-        return new BitmapDrawable(mContext.getResources(), scaledIcon);
     }
 
     private void registerReceiver() {

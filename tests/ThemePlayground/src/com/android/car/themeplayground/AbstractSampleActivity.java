@@ -62,6 +62,8 @@ public abstract class AbstractSampleActivity extends Activity implements
                 return startSampleActivity(WidgetsSamples.class);
             case R.id.recycler_view:
                 return startSampleActivity(RecyclerViewSamples.class);
+            case R.id.paged_recycler_view:
+                return startSampleActivity(PagedRecyclerViewSamples.class);
             case R.id.default_themes:
                 return startSampleActivity(DefaultThemeSamples.class);
             case R.id.multiple_intent:

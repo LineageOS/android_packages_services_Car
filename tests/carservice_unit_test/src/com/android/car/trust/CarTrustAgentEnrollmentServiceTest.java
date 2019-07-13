@@ -245,7 +245,7 @@ public class CarTrustAgentEnrollmentServiceTest {
                 mUserId);
         assertThat(sharedPrefs.getLong(TEST_ID1.toString(), -1)).isEqualTo(TEST_HANDLE2);
 
-        // Remove all handles
+        // Remove one handle
         mCarTrustAgentEnrollmentService.onEscrowTokenRemoved(TEST_HANDLE1, mUserId);
 
         assertThat(mCarTrustAgentEnrollmentService.getEnrolledDeviceInfosForUser(
@@ -254,13 +254,6 @@ public class CarTrustAgentEnrollmentServiceTest {
         assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE2)).isEqualTo(
                 mUserId);
         assertThat(sharedPrefs.getLong(TEST_ID1.toString(), -1)).isEqualTo(TEST_HANDLE2);
-
-        mCarTrustAgentEnrollmentService.onEscrowTokenRemoved(TEST_HANDLE2, mUserId);
-
-        assertThat(mCarTrustAgentEnrollmentService.getEnrolledDeviceInfosForUser(
-            mUserId)).isEmpty();
-        assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE2)).isEqualTo(-1);
-        assertThat(sharedPrefs.getLong(TEST_ID1.toString(), -1)).isEqualTo(-1);
     }
 
     @Test
