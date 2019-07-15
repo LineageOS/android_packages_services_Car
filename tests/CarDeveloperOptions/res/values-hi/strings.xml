@@ -318,7 +318,7 @@
     <string name="roaming_warning_multiuser" product="tablet" msgid="7090388691615686893">"जब आप डेटा रोमिंग की अनुमति देते हैं, तो हो सकता है कि आपको ज़्यादा रोमिंग शुल्क लगे!\n\nयह सेटिंग इस टैबलेट के सभी उपयोगकर्ताओं को प्रभावित करती है."</string>
     <string name="roaming_warning_multiuser" product="default" msgid="6999819541078827556">"जब आप डेटा रोमिंग की अनुमति देते हैं, तो हो सकता है कि आपको ज़्यादा रोमिंग शुल्क लगे!\n\nयह सेटिंग इस फ़ोन के सभी उपयोगकर्ताओं को प्रभावित करती है."</string>
     <string name="roaming_reenable_title" msgid="6985082191178297921">"डेटा रोमिंग की अनुमति दें?"</string>
-    <string name="networks" msgid="3073876464102136771">"ऑपरेटर चयन"</string>
+    <string name="networks" msgid="3073876464102136771">"ऑपरेटर चुनें"</string>
     <string name="sum_carrier_select" msgid="8964744180598499121">"कोई नेटवर्क ऑपरेटर चुनें"</string>
     <string name="date_and_time_settings_title" msgid="7827088656940910631">"तारीख और समय"</string>
     <string name="date_and_time_settings_title_setup_wizard" msgid="1573030770187844365">"तारीख और समय सेट करें"</string>
@@ -474,7 +474,7 @@
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"जब आपको यह आइकॉन दिखाई दे, तब पहचान के लिए या खरीदारियों को मंज़ूरी देने के लिए अपना फ़िंगरप्रिंट इस्तेमाल करें"</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"इसे बाद में करें"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"फ़िंगरप्रिंट सेटअप छोड़ें?"</string>
-    <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"आपने अपने फ़ोन को अनलॉक करने के एक तरीके के रूप में अपने फ़िंगरप्रिंट का उपयोग करने का चयन किया है. अगर आप इसे अभी छोड़ते हैं, तो आपको इसे बाद में सेट करना होगा. सेटअप में करीब एक मिनट लगता है."</string>
+    <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"आपने अपने फ़ोन को अनलॉक करने के एक तरीके के रूप में अपने फ़िंगरप्रिंट का उपयोग करने का चुनाव किया है. अगर आप इसे अभी छोड़ते हैं, तो आपको इसे बाद में सेट करना होगा. सेटअप में करीब एक मिनट लगता है."</string>
     <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"अपने टैबलेट को \'स्क्रीन लॉक\' की मदद से सुरक्षित रखें ताकि इसके खोने या चोरी होने पर, कोई इसका इस्तेमाल न कर पाए. आपको फ़िंगरप्रिंट सेट करने के लिए भी, \'स्क्रीन लॉक\' सुविधा की ज़रूरत है. \'रद्द करें\' पर टैप करें. इसके बाद, कोई पिन सेट करें या \'स्क्रीन लॉक\' का कोई दूसरा विकल्प चुनें."</string>
     <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"अपने डिवाइस को \'स्क्रीन लॉक\' की मदद से सुरक्षित रखें ताकि इसके खोने या चोरी होने पर, कोई इसका इस्तेमाल न कर पाए. आपको फ़िंगरप्रिंट सेट करने के लिए भी, \'स्क्रीन लॉक\' सुविधा की ज़रूरत है. \'रद्द करें\' पर टैप करें. इसके बाद, कोई पिन सेट करें या \'स्क्रीन लॉक\' का कोई दूसरा विकल्प चुनें."</string>
     <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"अपने फ़ोन को \'स्क्रीन लॉक\' की मदद से सुरक्षित रखें ताकि इसके खोने या चोरी होने पर, कोई इसका इस्तेमाल न कर पाए. आपको फ़िंगरप्रिंट सेट करने के लिए भी, \'स्क्रीन लॉक\' सुविधा की ज़रूरत है. \'रद्द करें\' पर टैप करें. इसके बाद, कोई पिन सेट करें या \'स्क्रीन लॉक\' का कोई दूसरा विकल्प चुनें."</string>
@@ -3017,7 +3017,7 @@
     <string name="sim_notification_summary" msgid="6421556454979313850">"सेट करने के लिए टैप करें"</string>
     <string name="sim_pref_divider" msgid="4967718397875240190">"इसके लिए पसंदीदा सिम"</string>
     <string name="sim_calls_ask_first_prefs_title" msgid="8209265235625420102">"हर बार पूछें"</string>
-    <string name="sim_selection_required_pref" msgid="8738591348923992419">"चयन आवश्यक है"</string>
+    <string name="sim_selection_required_pref" msgid="8738591348923992419">"चुनना ज़रूरी है"</string>
     <string name="sim_selection_channel_title" msgid="5671915549529226023">"सिम का चुनाव"</string>
     <string name="dashboard_title" msgid="3343056553551876215">"सेटिंग"</string>
     <plurals name="settings_suggestion_header_summary_hidden_items" formatted="false" msgid="4475734332610696843">
@@ -4246,7 +4246,7 @@
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(उपयोगकर्ता <xliff:g id="USER">%s</xliff:g> के लिए बंद है)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"अपने आप भरने की सेवा"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"ऑटो, भरना, ऑटोमैटिक भरना"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;पक्का करें कि आप इस ऐप्लिकेशन पर भरोसा करते हैं&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google ऑटोमैटिक भरना&gt;%1$s&lt;/xliff:g&gt; ऑटोमैटिक भरी जा सकने वाली चीज़ें निर्धारित करने के लिए आपकी स्क्रीन पर मौजूद चीज़ों का उपयोग करता है."</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;पक्का करें कि आप इस ऐप्लिकेशन पर भरोसा करते हैं&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google ऑटोमैटिक भरना&gt;%1$s&lt;/xliff:g&gt; ऑटोमैटिक भरी जा सकने वाली चीज़ें तय करने के लिए आपकी स्क्रीन पर मौजूद चीज़ों का इस्तेमाल करता है."</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"अपने आप भरने की सुविधा (ऑटो फ़िल)"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"लॉग की गई जानकारी का लेवल"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"हर सत्र में ज़्यादा से ज़्यादा इतने अनुरोध शामिल कर सकते हैं"</string>
