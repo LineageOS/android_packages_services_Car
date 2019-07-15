@@ -39,6 +39,8 @@ import java.util.List;
     /* Utility class has no public constructor */
     private CarPropertyUtils() {}
 
+    private static final int[] DEFAULT_AREAIDS = {VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL};
+
     /** Converts {@link VehiclePropValue} to {@link CarPropertyValue} */
     static CarPropertyValue<?> toCarPropertyValue(
             VehiclePropValue halValue, int propertyId) {
@@ -136,17 +138,12 @@ import java.util.List;
      */
     static CarPropertyConfig<?> toCarPropertyConfig(VehiclePropConfig p, int propertyId) {
         int areaType = getVehicleAreaType(p.prop & VehicleArea.MASK);
-        // Create list of areaIds for this property
-        int[] areas = new int[p.areaConfigs.size()];
-        for (int i=0; i<p.areaConfigs.size(); i++) {
-            areas[i] = p.areaConfigs.get(i).areaId;
-        }
 
         Class<?> clazz = getJavaClass(p.prop & VehiclePropertyType.MASK);
         if (p.areaConfigs.isEmpty()) {
             return CarPropertyConfig
                     .newBuilder(clazz, propertyId, areaType, /* capacity */ 1)
-                    .addAreas(areas)
+                    .addAreas(DEFAULT_AREAIDS)
                     .setAccess(p.access)
                     .setChangeMode(p.changeMode)
                     .setConfigArray(p.configArray)
