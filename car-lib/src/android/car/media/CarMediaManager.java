@@ -18,6 +18,7 @@ package android.car.media;
 import android.annotation.RequiresPermission;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.content.ComponentName;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -53,7 +54,7 @@ public final class CarMediaManager implements CarManagerBase {
          * Called when the primary media source is changed
          * @hide
          */
-        void onMediaSourceChanged(String packageName);
+        void onMediaSourceChanged(ComponentName componentName);
     }
 
     /**
@@ -62,7 +63,7 @@ public final class CarMediaManager implements CarManagerBase {
      * @hide
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    public synchronized String getMediaSource() {
+    public synchronized ComponentName getMediaSource() {
         try {
             return mService.getMediaSource();
         } catch (RemoteException e) {
@@ -76,9 +77,9 @@ public final class CarMediaManager implements CarManagerBase {
      * @hide
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    public synchronized void setMediaSource(String packageName) {
+    public synchronized void setMediaSource(ComponentName componentName) {
         try {
-            mService.setMediaSource(packageName);
+            mService.setMediaSource(componentName);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -94,8 +95,8 @@ public final class CarMediaManager implements CarManagerBase {
         try {
             ICarMediaSourceListener binderCallback = new ICarMediaSourceListener.Stub() {
                 @Override
-                public void onMediaSourceChanged(String packageName) {
-                    callback.onMediaSourceChanged(packageName);
+                public void onMediaSourceChanged(ComponentName componentName) {
+                    callback.onMediaSourceChanged(componentName);
                 }
             };
             mCallbackMap.put(callback, binderCallback);
