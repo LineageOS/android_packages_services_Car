@@ -43,7 +43,7 @@ public class BLEMessagePayloadStreamTest {
     private static final byte[] TEST_MESSAGE_PAYLOAD = "testMessage".getBytes();
     private static final int TEST_SINGLE_MESSAGE_SIZE =
             TEST_MESSAGE_PAYLOAD.length + BLEMessageV1Factory.getProtoHeaderSize(
-                    OPERATION_TYPE, IS_MESSAGE_ENCRYPTED);
+                    OPERATION_TYPE, TEST_MESSAGE_PAYLOAD.length, IS_MESSAGE_ENCRYPTED);
 
     private BLEMessagePayloadStream mBLEMessagePayloadStream;
     private List<BLEMessage> mBleMessages;
