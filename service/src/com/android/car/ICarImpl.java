@@ -249,6 +249,7 @@ public class ICarImpl extends ICar.Stub {
     public void setUserLockStatus(int userHandle, int unlocked) {
         assertCallingFromSystemProcess();
         mCarUserService.setUserLockStatus(userHandle, unlocked == 1);
+        mCarMediaService.setUserLockStatus(userHandle, unlocked == 1);
     }
 
     @Override
