@@ -259,7 +259,7 @@
     <!-- The default name of device enrolled as trust device [CHAR LIMIT=NONE] -->
     <string name="trust_device_default_name">My Device</string>
 
-    <!-- The package name of the media application that will be selected as the default [CHAR LIMIT=NONE] -->
-    <string name="default_media_application" translatable="false">com.android.bluetooth</string>
+    <!-- The ComponentName of the media source that will be selected as the default [CHAR LIMIT=NONE] -->
+    <string name="default_media_source" translatable="false">com.android.bluetooth/com.android.bluetooth.avrcpcontroller.BluetoothMediaBrowserService</string>
 
 </resources>
