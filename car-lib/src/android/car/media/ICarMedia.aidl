@@ -17,6 +17,7 @@
 package android.car.media;
 
 import android.car.media.ICarMediaSourceListener;
+import android.content.ComponentName;
 
 /**
  * Binder interface for {@link android.car.media.CarMediaManager}.
@@ -25,8 +26,8 @@ import android.car.media.ICarMediaSourceListener;
  * @hide
  */
 interface ICarMedia {
-    String getMediaSource();
-    void setMediaSource(in String mediaSource);
+    ComponentName getMediaSource();
+    void setMediaSource(in ComponentName mediaSource);
     void registerMediaSourceListener(in ICarMediaSourceListener callback);
     void unregisterMediaSourceListener(in ICarMediaSourceListener callback);
 }
