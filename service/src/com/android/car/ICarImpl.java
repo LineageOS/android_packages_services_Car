@@ -51,6 +51,7 @@ import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.car.ICarServiceHelper;
+import com.android.internal.util.ArrayUtils;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -536,6 +537,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_SUSPEND = "suspend";
         private static final String COMMAND_ENABLE_TRUSTED_DEVICE = "enable-trusted-device";
         private static final String COMMAND_REMOVE_TRUSTED_DEVICES = "remove-trusted-devices";
+        private static final String COMMAND_SET_UID_TO_ZONE = "set-zoneid-for-uid";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -580,6 +582,18 @@ public class ICarImpl extends ICar.Stub {
                     + " wireless projection");
             pw.println("\t--metrics");
             pw.println("\t  When used with dumpsys, only metrics will be in the dumpsys output.");
+            pw.println("\tset-zoneid-for-uid [zoneid] [uid]");
+            pw.println("\t Maps the audio zoneid to uid.");
+        }
+
+        private String runSetZoneIdForUid(String zoneString, String uidString) {
+            int uid = Integer.parseInt(uidString);
+            int zoneId = Integer.parseInt(zoneString);
+            if (!ArrayUtils.contains(mCarAudioService.getAudioZoneIds(), zoneId)) {
+                return  "zoneid " + zoneId + " not found";
+            }
+            mCarAudioService.setZoneIdForUid(zoneId, uid);
+            return null;
         }
 
         public void exec(String[] args, PrintWriter writer) {
@@ -705,6 +719,18 @@ public class ICarImpl extends ICar.Stub {
                     mCarTrustedDeviceService.getCarTrustAgentEnrollmentService()
                             .removeAllTrustedDevices(
                                     mUserManagerHelper.getCurrentForegroundUserId());
+                    break;
+                case COMMAND_SET_UID_TO_ZONE:
+                    if (args.length != 3) {
+                        writer.println("Incorrect number of arguments");
+                        dumpHelp(writer);
+                        break;
+                    }
+                    String results = runSetZoneIdForUid(args[1], args[2]);
+                    if (results != null) {
+                        writer.println(results);
+                        dumpHelp(writer);
+                    }
                     break;
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
