@@ -425,15 +425,6 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testIsCurrentProcessSystemUser() {
-        doReturn(true).when(mUserManager).isAdminUser();
-        assertThat(mCarUserManagerHelper.isCurrentProcessAdminUser()).isTrue();
-
-        doReturn(false).when(mUserManager).isAdminUser();
-        assertThat(mCarUserManagerHelper.isCurrentProcessAdminUser()).isFalse();
-    }
-
-    @Test
     public void testGrantAdminPermissions() {
         int userId = 30;
         UserInfo testInfo = createUserInfoForId(userId);
