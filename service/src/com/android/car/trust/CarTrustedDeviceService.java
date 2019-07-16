@@ -24,13 +24,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
-import android.sysprop.CarProperties;
 import android.util.Base64;
 import android.util.Log;
 
 import com.android.car.CarServiceBase;
 import com.android.car.R;
-import com.android.car.Utils;
+import com.android.car.trust.CarTrustAgentBleManager.BleEventCallback;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -62,7 +61,7 @@ import javax.crypto.spec.GCMParameterSpec;
  * {@link CarTrustAgentUnlockService} for handling unlock/auth.
  *
  */
-public class CarTrustedDeviceService implements CarServiceBase {
+public class CarTrustedDeviceService implements CarServiceBase, BleEventCallback {
     private static final String TAG = CarTrustedDeviceService.class.getSimpleName();
 
     private static final String UNIQUE_ID_KEY = "CTABM_unique_id";
@@ -71,19 +70,6 @@ public class CarTrustedDeviceService implements CarServiceBase {
     private static final String CIPHER_TRANSFORMATION = "AES/GCM/NoPadding";
     private static final String KEYSTORE_PROVIDER = "AndroidKeyStore";
     private static final String IV_SPEC_SEPARATOR = ";";
-
-    // Device name length is limited by available bytes in BLE advertisement data packet.
-    //
-    // BLE advertisement limits data packet length to 31
-    // Currently we send:
-    // - 18 bytes for 16 chars UUID: 16 bytes + 2 bytes for header;
-    // - 3 bytes for advertisement being connectable;
-    // which leaves 10 bytes.
-    // Subtracting 2 bytes used by header, we have 8 bytes for device name.
-    private static final int DEVICE_NAME_LENGTH_LIMIT = 8;
-    // Limit prefix to 4 chars and fill the rest with randomly generated name. Use random name
-    // to improve uniqueness in paired device name.
-    private static final int DEVICE_NAME_PREFIX_LIMIT = 4;
 
     // The length of the authentication tag for a cipher in GCM mode. The GCM specification states
     // that this length can only have the values {128, 120, 112, 104, 96}. Using the highest
@@ -96,18 +82,13 @@ public class CarTrustedDeviceService implements CarServiceBase {
     private CarTrustAgentBleManager mCarTrustAgentBleManager;
     private SharedPreferences mTrustAgentTokenPreferences;
     private UUID mUniqueId;
-    private String mEnrollmentDeviceName;
 
     public CarTrustedDeviceService(Context context) {
         mContext = context;
-
-        // TODO(b/134695083): Decouple these classes. The services should instead register as
-        // listeners on CarTrustAgentBleManager. CarTrustAgentBleManager should not know about
-        // the services and just dispatch BLE events.
         mCarTrustAgentBleManager = new CarTrustAgentBleManager(context);
         mCarTrustAgentEnrollmentService = new CarTrustAgentEnrollmentService(mContext, this,
                 mCarTrustAgentBleManager);
-        mCarTrustAgentUnlockService = new CarTrustAgentUnlockService(this,
+        mCarTrustAgentUnlockService = new CarTrustAgentUnlockService(mContext, this,
                 mCarTrustAgentBleManager);
     }
 
@@ -115,6 +96,7 @@ public class CarTrustedDeviceService implements CarServiceBase {
     public synchronized void init() {
         mCarTrustAgentEnrollmentService.init();
         mCarTrustAgentUnlockService.init();
+        mCarTrustAgentBleManager.addBleEventCallback(this);
     }
 
     @Override
@@ -148,18 +130,26 @@ public class CarTrustedDeviceService implements CarServiceBase {
         return getSharedPrefs().getInt(String.valueOf(handle), -1);
     }
 
-    void onRemoteDeviceConnected(BluetoothDevice device) {
+    /**
+     * Called when a remote device is connected
+     *
+     * @param device the remote device
+     */
+    @Override
+    public void onRemoteDeviceConnected(BluetoothDevice device) {
         mCarTrustAgentEnrollmentService.onRemoteDeviceConnected(device);
         mCarTrustAgentUnlockService.onRemoteDeviceConnected(device);
     }
 
-    void onRemoteDeviceDisconnected(BluetoothDevice device) {
+    @Override
+    public void onRemoteDeviceDisconnected(BluetoothDevice device) {
         mCarTrustAgentEnrollmentService.onRemoteDeviceDisconnected(device);
         mCarTrustAgentUnlockService.onRemoteDeviceDisconnected(device);
     }
 
-    void onDeviceNameRetrieved(String deviceName) {
-        mCarTrustAgentEnrollmentService.onDeviceNameRetrieved(deviceName);
+    @Override
+    public void onClientDeviceNameRetrieved(String deviceName) {
+        mCarTrustAgentEnrollmentService.onClientDeviceNameRetrieved(deviceName);
     }
 
     void cleanupBleService() {
@@ -171,6 +161,7 @@ public class CarTrustedDeviceService implements CarServiceBase {
         mCarTrustAgentBleManager.stopUnlockAdvertising();
     }
 
+    // This should be called only after user 0 is unlocked.
     SharedPreferences getSharedPrefs() {
         if (mTrustAgentTokenPreferences != null) {
             return mTrustAgentTokenPreferences;
@@ -208,6 +199,7 @@ public class CarTrustedDeviceService implements CarServiceBase {
 
     /**
      * Get the unique id for head unit. Persists on device until factory reset.
+     * This should be called only after user 0 is unlocked.
      *
      * @return unique id, or null if unable to retrieve generated id (this should never happen)
      */
@@ -299,25 +291,6 @@ public class CarTrustedDeviceService implements CarServiceBase {
             return;
         }
         getSharedPrefs().edit().remove(deviceId);
-    }
-
-    /**
-     * Returns the name that should be used for the device during enrollment of a trusted device.
-     *
-     * <p>The returned name will be a combination of a prefix sysprop and randomized digits.
-     */
-    String getEnrollmentDeviceName() {
-        if (mEnrollmentDeviceName == null) {
-            String deviceNamePrefix =
-                    CarProperties.trusted_device_device_name_prefix().orElse("");
-            deviceNamePrefix = deviceNamePrefix.substring(
-                    0, Math.min(deviceNamePrefix.length(), DEVICE_NAME_PREFIX_LIMIT));
-
-            int randomNameLength = DEVICE_NAME_LENGTH_LIMIT - deviceNamePrefix.length();
-            String randomName = Utils.generateRandomNumberString(randomNameLength);
-            mEnrollmentDeviceName = deviceNamePrefix + randomName;
-        }
-        return mEnrollmentDeviceName;
     }
 
     /**
