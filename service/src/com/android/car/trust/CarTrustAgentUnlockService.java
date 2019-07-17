@@ -35,13 +35,16 @@ import android.car.encryptionrunner.EncryptionRunnerFactory;
 import android.car.encryptionrunner.HandshakeException;
 import android.car.encryptionrunner.HandshakeMessage;
 import android.car.encryptionrunner.Key;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.android.car.BLEStreamProtos.BLEOperationProto.OperationType;
 import com.android.car.PhoneAuthProtos.PhoneAuthProto.PhoneCredentials;
+import com.android.car.R;
 import com.android.car.Utils;
 import com.android.car.protobuf.InvalidProtocolBufferException;
+import com.android.car.trust.CarTrustAgentBleManager.SendMessageCallback;
 import com.android.internal.annotations.GuardedBy;
 
 import com.google.security.cryptauth.lib.securegcm.D2DConnectionContext;
@@ -130,6 +133,8 @@ public class CarTrustAgentUnlockService {
     private CarTrustAgentUnlockDelegate mUnlockDelegate;
     private String mClientDeviceId;
     private final Queue<String> mLogQueue = new LinkedList<>();
+    private final UUID mUnlockClientWriteUuid;
+    private SendMessageCallback mSendMessageCallback;
 
     // Locks
     private final Object mDeviceLock = new Object();
@@ -146,10 +151,13 @@ public class CarTrustAgentUnlockService {
     private D2DConnectionContext mPrevContext;
     private D2DConnectionContext mCurrentContext;
 
-    CarTrustAgentUnlockService(CarTrustedDeviceService service,
+    CarTrustAgentUnlockService(Context context, CarTrustedDeviceService service,
             CarTrustAgentBleManager bleService) {
         mTrustedDeviceService = service;
         mCarTrustAgentBleManager = bleService;
+        mUnlockClientWriteUuid = UUID.fromString(context
+                .getString(R.string.unlock_client_write_uuid));
+        mSendMessageCallback = () -> mCarTrustAgentBleManager.disconnectRemoteDevice();
     }
 
     /**
@@ -205,6 +213,7 @@ public class CarTrustAgentUnlockService {
 
         logUnlockEvent(START_UNLOCK_ADVERTISING);
         queueMessageForLog("startUnlockAdvertising");
+        mCarTrustAgentBleManager.setUniqueId(mTrustedDeviceService.getUniqueId());
         mCarTrustAgentBleManager.startUnlockAdvertising();
     }
 
@@ -225,6 +234,8 @@ public class CarTrustAgentUnlockService {
     void init() {
         logUnlockEvent(UNLOCK_SERVICE_INIT);
         mCarTrustAgentBleManager.setupUnlockBleServer();
+        mCarTrustAgentBleManager.addDataReceivedListener(mUnlockClientWriteUuid,
+                this::onUnlockDataReceived);
     }
 
     void release() {
@@ -349,7 +360,8 @@ public class CarTrustAgentUnlockService {
         byte[] ack = isEncrypted ? mEncryptionKey.encryptData(ACKNOWLEDGEMENT_MESSAGE)
                 : ACKNOWLEDGEMENT_MESSAGE;
         mCarTrustAgentBleManager.sendUnlockMessage(mRemoteUnlockDevice, ack,
-                OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */ isEncrypted);
+                OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */ isEncrypted,
+                mSendMessageCallback);
     }
 
     @Nullable
@@ -379,7 +391,7 @@ public class CarTrustAgentUnlockService {
                 mCarTrustAgentBleManager.sendUnlockMessage(mRemoteUnlockDevice,
                         mHandshakeMessage.getNextMessage(),
                         OperationType.ENCRYPTION_HANDSHAKE,
-                        /* isPayloadEncrypted= */ false);
+                        /* isPayloadEncrypted= */ false, mSendMessageCallback);
                 logUnlockEvent(UNLOCK_ENCRYPTION_STATE, mEncryptionState);
                 break;
 
@@ -406,7 +418,8 @@ public class CarTrustAgentUnlockService {
                 // control shouldn't get here with Ukey2
                 mCarTrustAgentBleManager.sendUnlockMessage(mRemoteUnlockDevice,
                         mHandshakeMessage.getNextMessage(),
-                        OperationType.ENCRYPTION_HANDSHAKE, /*isPayloadEncrypted= */false);
+                        OperationType.ENCRYPTION_HANDSHAKE, /*isPayloadEncrypted= */false,
+                        mSendMessageCallback);
                 break;
             case HandshakeMessage.HandshakeState.VERIFICATION_NEEDED:
             case HandshakeMessage.HandshakeState.FINISHED:
@@ -481,7 +494,8 @@ public class CarTrustAgentUnlockService {
         }
         // send to client
         mCarTrustAgentBleManager.sendUnlockMessage(mRemoteUnlockDevice, resumeBytes,
-                OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */false);
+                OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */false,
+                mSendMessageCallback);
     }
 
     @Nullable
