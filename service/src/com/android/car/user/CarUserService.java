@@ -172,7 +172,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         mUserCallbacks.add(callback);
     }
 
-    /** Removes previuosly added callback to lilsten user events. */
+    /** Removes previously added callback to listen user events. */
     public void removeUserCallback(UserCallback callback) {
         mUserCallbacks.remove(callback);
     }
