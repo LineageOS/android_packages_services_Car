@@ -183,6 +183,9 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.HVAC_DEFROSTER, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
+        mProps.put(VehicleProperty.HVAC_ELECTRIC_DEFROSTER_ON, new Pair<>(
+                    Car.PERMISSION_CONTROL_CAR_CLIMATE,
+                    Car.PERMISSION_CONTROL_CAR_CLIMATE));
         mProps.put(VehicleProperty.HVAC_AC_ON, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
