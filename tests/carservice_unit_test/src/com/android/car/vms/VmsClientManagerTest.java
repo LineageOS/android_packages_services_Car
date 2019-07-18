@@ -47,7 +47,6 @@ import android.os.IBinder;
 import android.os.UserHandle;
 import android.os.UserManager;
 
-import androidx.test.filters.RequiresDevice;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.hal.VmsHalService;
@@ -488,26 +487,63 @@ public class VmsClientManagerTest {
         connection.onServiceConnected(null, new Binder());
         connection.onServiceDisconnected(null);
 
-        verify(mContext).unbindService(connection);
         verify(mConnectionListener).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
 
         Thread.sleep(10);
+        verify(mContext).unbindService(connection);
         verifySystemBind(1);
     }
 
     @Test
-    public void testOnSystemServiceDisconnected_ServiceNotConnected() throws Exception {
+    public void testOnSystemServiceDisconnected_ServiceReboundByAndroid() throws Exception {
         notifySystemUserUnlocked();
         verifySystemBind(1);
         resetContext();
 
         ServiceConnection connection = mConnectionCaptor.getValue();
+        connection.onServiceConnected(null, new Binder());
         connection.onServiceDisconnected(null);
 
+        verify(mConnectionListener).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
+
+        IBinder binder = new Binder();
+        connection.onServiceConnected(null, binder);
+        verify(mConnectionListener).onClientConnected(eq(SYSTEM_CLIENT_NAME), eq(binder));
+        // No more interactions (verified by tearDown)
+    }
+
+
+    @Test
+    public void testOnSystemServiceBindingDied() throws Exception {
+        notifySystemUserUnlocked();
+        verifySystemBind(1);
+        resetContext();
+
+        ServiceConnection connection = mConnectionCaptor.getValue();
+        connection.onServiceConnected(null, new Binder());
+        connection.onServiceDisconnected(null);
+        connection.onBindingDied(null);
+
+        verify(mConnectionListener).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
+
+        Thread.sleep(10);
         verify(mContext).unbindService(connection);
+        verifySystemBind(1);
+    }
+
+    @Test
+    public void testOnSystemServiceBindingDied_ServiceNotConnected() throws Exception {
+        notifySystemUserUnlocked();
+        verifySystemBind(1);
+        resetContext();
+
+        ServiceConnection connection = mConnectionCaptor.getValue();
+        connection.onBindingDied(null);
+
         verifyZeroInteractions(mConnectionListener);
 
         Thread.sleep(10);
+        verify(mContext).unbindService(connection);
         verifySystemBind(1);
     }
 
@@ -521,27 +557,62 @@ public class VmsClientManagerTest {
         connection.onServiceConnected(null, new Binder());
         connection.onServiceDisconnected(null);
 
-        verify(mContext).unbindService(connection);
         verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
 
         Thread.sleep(10);
+        verify(mContext).unbindService(connection);
         verifyUserBind(1);
     }
 
     @Test
-    @RequiresDevice
-    public void testOnUserServiceDisconnected_ServiceNotConnected() throws Exception {
+    public void testOnUserServiceDisconnected_ServiceReboundByAndroid() throws Exception {
         notifyUserUnlocked();
         verifyUserBind(1);
         resetContext();
 
         ServiceConnection connection = mConnectionCaptor.getValue();
+        connection.onServiceConnected(null, new Binder());
         connection.onServiceDisconnected(null);
 
+        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
+
+        IBinder binder = new Binder();
+        connection.onServiceConnected(null, binder);
+        verify(mConnectionListener).onClientConnected(eq(USER_CLIENT_NAME), eq(binder));
+        // No more interactions (verified by tearDown)
+    }
+
+    @Test
+    public void testOnUserServiceBindingDied() throws Exception {
+        notifyUserUnlocked();
+        verifyUserBind(1);
+        resetContext();
+
+        ServiceConnection connection = mConnectionCaptor.getValue();
+        connection.onServiceConnected(null, new Binder());
+        connection.onServiceDisconnected(null);
+        connection.onBindingDied(null);
+
+        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
+
+        Thread.sleep(10);
         verify(mContext).unbindService(connection);
+        verifyUserBind(1);
+    }
+
+    @Test
+    public void testOnUserServiceBindingDied_ServiceNotConnected() throws Exception {
+        notifyUserUnlocked();
+        verifyUserBind(1);
+        resetContext();
+
+        ServiceConnection connection = mConnectionCaptor.getValue();
+        connection.onBindingDied(null);
+
         verifyZeroInteractions(mConnectionListener);
 
         Thread.sleep(10);
+        verify(mContext).unbindService(connection);
         verifyUserBind(1);
     }
 
