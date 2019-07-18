@@ -17,7 +17,6 @@
 package android.car.testapi;
 
 import android.car.Car;
-import android.car.IAppFocus;
 import android.car.ICar;
 import android.car.ICarBluetooth;
 import android.car.cluster.IInstrumentClusterManagerService;
@@ -106,9 +105,16 @@ public class FakeCar {
         return mService.mCarProjection;
     }
 
+    /**
+     * Returns the test controller to change the behavior of the underlying
+     * {@link android.car.CarAppFocusManager}
+     */
+    public CarAppFocusController getAppFocusController() {
+        return mService.mAppFocus;
+    }
+
     private static class FakeCarService extends ICar.Stub {
         @Mock ICarAudio.Stub mCarAudio;
-        @Mock IAppFocus.Stub mAppFocus;
         @Mock ICarPackageManager.Stub mCarPackageManager;
         @Mock ICarDiagnostic.Stub mCarDiagnostic;
         @Mock ICarPower.Stub mCarPower;
@@ -121,11 +127,13 @@ public class FakeCar {
         @Mock ICarUxRestrictionsManager.Stub mCarUxRestriction;
         @Mock ICarConfigurationManager.Stub mCarConfigurationManager;
 
+        private final FakeAppFocusService mAppFocus;
         private final FakeCarPropertyService mCarProperty;
         private final FakeCarProjectionService mCarProjection;
 
         FakeCarService(Context context) {
             MockitoAnnotations.initMocks(this);
+            mAppFocus = new FakeAppFocusService(context);
             mCarProperty = new FakeCarPropertyService();
             mCarProjection = new FakeCarProjectionService(context);
         }
