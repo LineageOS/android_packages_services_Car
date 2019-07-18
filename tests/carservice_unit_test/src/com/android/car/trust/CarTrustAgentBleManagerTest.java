@@ -18,6 +18,8 @@ package com.android.car.trust;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -27,6 +29,7 @@ import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.BLEStreamProtos.BLEOperationProto.OperationType;
 import com.android.car.R;
+import com.android.car.trust.CarTrustAgentBleManager.SendMessageCallback;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -65,7 +68,7 @@ public class CarTrustAgentBleManagerTest {
         // Make sure the length of the message queue is greater than 1.
         mCarTrustAgentBleManager.onMtuSizeChanged(TEST_SINGLE_MESSAGE_SIZE - 1);
         mCarTrustAgentBleManager.sendEnrollmentMessage(mBluetoothDevice, TEST_DATA,
-                OperationType.CLIENT_MESSAGE, true);
+                OperationType.CLIENT_MESSAGE, true, any(SendMessageCallback.class));
         for (int i = 0; i < mCarTrustAgentBleManager.mBleMessageRetryLimit; i++) {
             Thread.sleep(mCarTrustAgentBleManager.BLE_MESSAGE_RETRY_DELAY_MS);
             assertThat(mCarTrustAgentBleManager.mBleMessageRetryStartCount).isEqualTo(i + 1);
@@ -76,7 +79,7 @@ public class CarTrustAgentBleManagerTest {
     public void testRetrySendingMessage_receivedACK_stopRetry() throws InterruptedException {
         mCarTrustAgentBleManager.onMtuSizeChanged(TEST_SINGLE_MESSAGE_SIZE - 1);
         mCarTrustAgentBleManager.sendEnrollmentMessage(mBluetoothDevice, TEST_DATA,
-                OperationType.CLIENT_MESSAGE, true);
+                OperationType.CLIENT_MESSAGE, true, any(SendMessageCallback.class));
         Thread.sleep(mCarTrustAgentBleManager.BLE_MESSAGE_RETRY_DELAY_MS);
         // Retried once.
         assertThat(mCarTrustAgentBleManager.mBleMessageRetryStartCount).isEqualTo(1);
