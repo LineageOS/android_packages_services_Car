@@ -15,7 +15,8 @@ package android.car {
     field public static final String APP_FOCUS_SERVICE = "app_focus";
     field public static final String AUDIO_SERVICE = "audio";
     field public static final String CAR_CONFIGURATION_SERVICE = "configuration";
-    field public static final String CAR_EXTRA_MEDIA_PACKAGE = "android.car.intent.extra.MEDIA_PACKAGE";
+    field public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION = "android.media.session.BROWSE_SERVICE";
+    field public static final String CAR_EXTRA_MEDIA_COMPONENT = "android.car.intent.extra.MEDIA_COMPONENT";
     field public static final String CAR_INTENT_ACTION_MEDIA_TEMPLATE = "android.car.intent.action.MEDIA_TEMPLATE";
     field public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
     field public static final String CAR_OCCUPANT_ZONE_SERVICE = "car_occupant_zone_service";

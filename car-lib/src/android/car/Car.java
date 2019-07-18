@@ -568,25 +568,22 @@ public final class Car {
     /**
      * Used as a string extra field with {@link #CAR_INTENT_ACTION_MEDIA_TEMPLATE} to specify the
      * MediaBrowserService that user wants to start the media on.
-     *
-     * @hide
      */
     public static final String CAR_EXTRA_MEDIA_COMPONENT =
             "android.car.intent.extra.MEDIA_COMPONENT";
 
     /**
-     * Used as a string extra field with {@link #CAR_INTENT_ACTION_MEDIA_TEMPLATE} to specify the
-     * media app that user wants to start the media on. Note: this is not the templated media app.
      *
-     * This is being deprecated. Use {@link #CAR_EXTRA_MEDIA_COMPONENT} instead.
+     * @deprecated Use{@link #CAR_EXTRA_MEDIA_COMPONENT} instead.
+     * @removed Using this for specifying MediaBrowserService was not supported since API level 29
+     * and above. Apps must use {@link #CAR_EXTRA_MEDIA_COMPONENT} instead.
      */
+    @Deprecated
     public static final String CAR_EXTRA_MEDIA_PACKAGE = "android.car.intent.extra.MEDIA_PACKAGE";
 
     /**
      * Used as a string extra field of media session to specify the service corresponding to the
      * session.
-     *
-     * @hide
      */
     public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION =
             "android.media.session.BROWSE_SERVICE";
