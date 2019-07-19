@@ -37,6 +37,8 @@ import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.os.Binder;
 import android.os.IBinder;
 
+import androidx.test.filters.RequiresDevice;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -571,6 +573,7 @@ public class VmsHalServiceTest {
      * </ul>
      */
     @Test
+    @RequiresDevice
     public void testHandleStartSessionEvent() throws Exception {
         when(mSubscriberService.getAvailableLayers()).thenReturn(
                 new VmsAvailableLayers(Collections.emptySet(), 5));

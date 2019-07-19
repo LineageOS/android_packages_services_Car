@@ -26,6 +26,8 @@ import android.os.Looper;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
+import androidx.test.filters.RequiresDevice;
+
 import org.junit.Assert;
 
 import java.util.concurrent.Semaphore;
@@ -212,6 +214,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         manager2.removeFocusListener(change2);
     }
 
+    @RequiresDevice
     public void testFilter() throws Exception {
         CarAppFocusManager manager1 = createManager(getContext(), mEventThread);
         CarAppFocusManager manager2 = createManager(getContext(), mEventThread);
@@ -267,6 +270,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         return car;
     }
 
+    @RequiresDevice
     public void testMultipleChangeListenersPerManager() throws Exception {
         CarAppFocusManager manager = createManager();
         FocusChangedListener listener = new FocusChangedListener();
