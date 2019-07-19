@@ -15,7 +15,6 @@ LOCAL_SRC_FILES := \
     TexWrapper.cpp \
     VideoTex.cpp \
     StreamHandler.cpp \
-    WindowSurface.cpp \
     FormatConvert.cpp \
     RenderPixelCopy.cpp
 
@@ -25,7 +24,6 @@ LOCAL_SHARED_LIBRARIES := \
     liblog \
     libutils \
     libui \
-    libgui \
     libhidlbase \
     libhidltransport \
     libEGL \
