@@ -4250,7 +4250,7 @@
     <string name="debug_autofill_category" msgid="6262526615416295645">"IsiOtomatis"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"Level logging"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"Permintaan maks per sesi"</string>
-    <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Jumlah dataset maks yang terlihat"</string>
+    <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Jumlah set data maks yang terlihat"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"Setel ulang ke nilai default"</string>
     <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Opsi developer IsiOtomatis telah direset"</string>
     <string name="device_theme" msgid="8992291311481135893">"Tema perangkat"</string>

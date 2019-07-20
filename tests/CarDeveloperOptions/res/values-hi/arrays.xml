@@ -144,7 +144,7 @@
   <string-array name="app_install_location_entries">
     <item msgid="6621866711026016227">"आंतरिक डिवाइस मेमोरी"</item>
     <item msgid="3186681694079967527">"निकाले जाने योग्‍य SD कार्ड"</item>
-    <item msgid="6902033473986647035">"सिस्‍टम को निर्धारित करने दें"</item>
+    <item msgid="6902033473986647035">"सिस्‍टम को तय करने दें"</item>
   </string-array>
   <string-array name="app_ops_categories">
     <item msgid="1102693344156734891">"जगह"</item>
