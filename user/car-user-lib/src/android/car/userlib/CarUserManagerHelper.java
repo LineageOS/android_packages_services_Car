@@ -541,15 +541,6 @@ public final class CarUserManagerHelper {
         return (inIdleCallState && !disallowUserSwitching);
     }
 
-    // Current process user information accessors
-
-    /**
-     * Checks if the calling app is running as an admin user.
-     */
-    public boolean isCurrentProcessAdminUser() {
-        return mUserManager.isAdminUser();
-    }
-
     // Current process user restriction accessors
 
     /**
@@ -596,7 +587,7 @@ public final class CarUserManagerHelper {
             Manifest.permission.MANAGE_USERS
     })
     public void grantAdminPermissions(UserInfo user) {
-        if (!isCurrentProcessAdminUser()) {
+        if (!mUserManager.isAdminUser()) {
             Log.w(TAG, "Only admin users can assign admin permissions.");
             return;
         }
@@ -617,7 +608,7 @@ public final class CarUserManagerHelper {
      */
     @Nullable
     private UserInfo createNewAdminUser(String userName) {
-        if (!(isCurrentProcessAdminUser() || mUserManager.isSystemUser())) {
+        if (!(mUserManager.isAdminUser() || mUserManager.isSystemUser())) {
             // Only Admins or System user can create other privileged users.
             Log.e(TAG, "Only admin users and system user can create other admins.");
             return null;
@@ -706,7 +697,7 @@ public final class CarUserManagerHelper {
             return removeLastAdmin(userInfo);
         }
 
-        if (!isCurrentProcessAdminUser() && !isCurrentProcessUser(userInfo)) {
+        if (!mUserManager.isAdminUser() && !isCurrentProcessUser(userInfo)) {
             // If the caller is non-admin, they can only delete themselves.
             Log.e(TAG, "Non-admins cannot remove other users.");
             return false;
