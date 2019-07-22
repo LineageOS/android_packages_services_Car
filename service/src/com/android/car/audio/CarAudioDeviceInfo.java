@@ -97,6 +97,10 @@ import java.io.PrintWriter;
         return mAudioDeviceInfo.getPort();
     }
 
+    String getAddress() {
+        return mAudioDeviceInfo.getAddress();
+    }
+
     int getBusNumber() {
         return mBusNumber;
     }

@@ -237,7 +237,7 @@ import java.util.Set;
             if (TAG_CONTEXT.equals(parser.getName())) {
                 group.bind(
                         parseContextNumber(parser.getAttributeValue(NAMESPACE, ATTR_CONTEXT_NAME)),
-                        busNumber, mBusToCarAudioDeviceInfo.get(busNumber));
+                        mBusToCarAudioDeviceInfo.get(busNumber));
             }
             // Always skip to upper level since we're at the lowest.
             skip(parser);

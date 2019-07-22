@@ -113,16 +113,16 @@ import java.util.List;
     private void setupAudioDynamicRoutingForGroup(CarVolumeGroup group,
             AudioPolicy.Builder builder) {
         // Note that one can not register audio mix for same bus more than once.
-        for (int busNumber : group.getBusNumbers()) {
+        for (String address : group.getAddresses()) {
             boolean hasContext = false;
-            CarAudioDeviceInfo info = group.getCarAudioDeviceInfoForBus(busNumber);
+            CarAudioDeviceInfo info = group.getCarAudioDeviceInfoForAddress(address);
             AudioFormat mixFormat = new AudioFormat.Builder()
                     .setSampleRate(info.getSampleRate())
                     .setEncoding(info.getEncodingFormat())
                     .setChannelMask(info.getChannelCount())
                     .build();
             AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
-            for (int contextNumber : group.getContextsForBus(busNumber)) {
+            for (int contextNumber : group.getContextsForAddress(address)) {
                 hasContext = true;
                 int[] usages = getUsagesForContext(contextNumber);
                 for (int usage : usages) {
@@ -130,14 +130,14 @@ import java.util.List;
                             new AudioAttributes.Builder().setUsage(usage).build(),
                             AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
                 }
-                Log.d(CarLog.TAG_AUDIO, "Bus number: " + busNumber
+                Log.d(CarLog.TAG_AUDIO, "Address: " + address
                         + " contextNumber: " + contextNumber
                         + " sampleRate: " + info.getSampleRate()
                         + " channels: " + info.getChannelCount()
                         + " usages: " + Arrays.toString(usages));
             }
             if (hasContext) {
-                // It's a valid case that an audio output bus is defined in
+                // It's a valid case that an audio output address is defined in
                 // audio_policy_configuration and no context is assigned to it.
                 // In such case, do not build a policy mix with zero rules.
                 AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())

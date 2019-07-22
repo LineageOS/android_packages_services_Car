@@ -81,8 +81,8 @@ import java.util.Set;
     List<AudioDeviceInfo> getAudioDeviceInfos() {
         final List<AudioDeviceInfo> devices = new ArrayList<>();
         for (CarVolumeGroup group : mVolumeGroups) {
-            for (int busNumber : group.getBusNumbers()) {
-                devices.add(group.getCarAudioDeviceInfoForBus(busNumber).getAudioDeviceInfo());
+            for (String address : group.getAddresses()) {
+                devices.add(group.getCarAudioDeviceInfoForAddress(address).getAudioDeviceInfo());
             }
         }
         return devices;
@@ -121,33 +121,31 @@ import java.util.Set;
      *
      * - One context should not appear in two groups
      * - All contexts are assigned
-     * - One bus should not appear in two groups
+     * - One device should not appear in two groups
      * - All gain controllers in the same group have same step value
      *
-     * Note that it is fine that there are buses not appear in any group, those buses may be
-     * reserved for other usages.
-     * Step value validation is done in {@link CarVolumeGroup#bind(int, int, CarAudioDeviceInfo)}
+     * Note that it is fine that there are devices which do not appear in any group. Those devices
+     * may be reserved for other purposes.
+     * Step value validation is done in {@link CarVolumeGroup#bind(int, CarAudioDeviceInfo)}
      */
     boolean validateVolumeGroups() {
         Set<Integer> contextSet = new HashSet<>();
-        Set<Integer> busNumberSet = new HashSet<>();
+        Set<String> addresses = new HashSet<>();
         for (CarVolumeGroup group : mVolumeGroups) {
             // One context should not appear in two groups
             for (int context : group.getContexts()) {
-                if (contextSet.contains(context)) {
+                if (!contextSet.add(context)) {
                     Log.e(CarLog.TAG_AUDIO, "Context appears in two groups: " + context);
                     return false;
                 }
-                contextSet.add(context);
             }
 
-            // One bus should not appear in two groups
-            for (int busNumber : group.getBusNumbers()) {
-                if (busNumberSet.contains(busNumber)) {
-                    Log.e(CarLog.TAG_AUDIO, "Bus appears in two groups: " + busNumber);
+            // One address should not appear in two groups
+            for (String address : group.getAddresses()) {
+                if (!addresses.add(address)) {
+                    Log.e(CarLog.TAG_AUDIO, "Address appears in two groups: " + address);
                     return false;
                 }
-                busNumberSet.add(busNumber);
             }
         }
 

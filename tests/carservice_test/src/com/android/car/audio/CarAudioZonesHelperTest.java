@@ -50,6 +50,10 @@ public class CarAudioZonesHelperTest {
     private SparseArray<CarAudioDeviceInfo> mBusToMockCarAudioDeviceInfo;
     private Context mContext;
     private InputStream mInputStream;
+    private static final String BUS_0_ADDRESS = "bus0_media_out";
+    private static final String BUS_1_ADDRESS = "bus1_navigation_out";
+    private static final String BUS_3_ADDRESS = "bus3_call_ring_out";
+    private static final String BUS_100_ADDRESS = "bus100_rear_seat";
 
     @Before
     public void setUp() {
@@ -67,15 +71,15 @@ public class CarAudioZonesHelperTest {
 
     private SparseArray<CarAudioDeviceInfo> generateBusToCarDeviceInfo() {
         SparseArray<CarAudioDeviceInfo> busToCarAudioDeviceInfo = new SparseArray<>();
-        busToCarAudioDeviceInfo.put(0, generateCarAudioDeviceInfo());
-        busToCarAudioDeviceInfo.put(1, generateCarAudioDeviceInfo());
-        busToCarAudioDeviceInfo.put(3, generateCarAudioDeviceInfo());
-        busToCarAudioDeviceInfo.put(100, generateCarAudioDeviceInfo());
+        busToCarAudioDeviceInfo.put(0, generateCarAudioDeviceInfo(BUS_0_ADDRESS));
+        busToCarAudioDeviceInfo.put(1, generateCarAudioDeviceInfo(BUS_1_ADDRESS));
+        busToCarAudioDeviceInfo.put(3, generateCarAudioDeviceInfo(BUS_3_ADDRESS));
+        busToCarAudioDeviceInfo.put(100, generateCarAudioDeviceInfo(BUS_100_ADDRESS));
 
         return busToCarAudioDeviceInfo;
     }
 
-    private CarAudioDeviceInfo generateCarAudioDeviceInfo() {
+    private CarAudioDeviceInfo generateCarAudioDeviceInfo(String address) {
         CarAudioDeviceInfo cadiMock = Mockito.mock(CarAudioDeviceInfo.class);
         AudioGain audioGainMock = Mockito.mock(AudioGain.class);
         when(audioGainMock.stepValue()).thenReturn(1);
@@ -83,6 +87,7 @@ public class CarAudioZonesHelperTest {
         when(cadiMock.getDefaultGain()).thenReturn(2);
         when(cadiMock.getMaxGain()).thenReturn(5);
         when(cadiMock.getMinGain()).thenReturn(0);
+        when(cadiMock.getAddress()).thenReturn(address);
         return cadiMock;
     }
 
@@ -133,7 +138,7 @@ public class CarAudioZonesHelperTest {
     }
 
     @Test
-    public void loadAudioZones_parsesBuses() throws IOException, XmlPullParserException {
+    public void loadAudioZones_parsesAddresses() throws IOException, XmlPullParserException {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, mInputStream,
                 mBusToMockCarAudioDeviceInfo);
 
@@ -141,10 +146,10 @@ public class CarAudioZonesHelperTest {
 
         CarAudioZone primaryZone = zones[0];
         CarVolumeGroup volumeGroup = primaryZone.getVolumeGroups()[0];
-        int[] busNumbers = volumeGroup.getBusNumbers();
-        assertEquals(2, busNumbers.length);
-        assertEquals(0, busNumbers[0]);
-        assertEquals(3, busNumbers[1]);
+        List<String> addresses = volumeGroup.getAddresses();
+        assertEquals(2, addresses.size());
+        assertEquals(BUS_0_ADDRESS, addresses.get(0));
+        assertEquals(BUS_3_ADDRESS, addresses.get(1));
     }
 
     @Test
@@ -157,14 +162,14 @@ public class CarAudioZonesHelperTest {
         CarAudioZone primaryZone = zones[0];
         CarVolumeGroup volumeGroup = primaryZone.getVolumeGroups()[0];
         int[] expectedContextForBus0 = {ContextNumber.MUSIC};
-        assertArrayEquals(expectedContextForBus0, volumeGroup.getContextsForBus(0));
+        assertArrayEquals(expectedContextForBus0, volumeGroup.getContextsForAddress(BUS_0_ADDRESS));
 
         int[] expectedContextForBus100 = new int[]{ContextNumber.MUSIC, ContextNumber.NAVIGATION,
                 ContextNumber.VOICE_COMMAND, ContextNumber.CALL_RING, ContextNumber.CALL,
                 ContextNumber.ALARM, ContextNumber.NOTIFICATION, ContextNumber.SYSTEM_SOUND};
         CarAudioZone rearSeatEntertainmentZone = zones[1];
         CarVolumeGroup rseVolumeGroup = rearSeatEntertainmentZone.getVolumeGroups()[0];
-        int[] contextForBus100 = rseVolumeGroup.getContextsForBus(100);
+        int[] contextForBus100 = rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS);
         assertArrayEquals(expectedContextForBus100, contextForBus100);
     }
 

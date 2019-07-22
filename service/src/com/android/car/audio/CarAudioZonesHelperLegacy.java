@@ -82,7 +82,7 @@ import java.util.List;
             // Binding audio device to volume group.
             for (int contextNumber : group.getContexts()) {
                 int busNumber = mContextToBus.get(contextNumber);
-                group.bind(contextNumber, busNumber, mBusToCarAudioDeviceInfo.get(busNumber));
+                group.bind(contextNumber, mBusToCarAudioDeviceInfo.get(busNumber));
             }
         }
         return new CarAudioZone[] { zone };
