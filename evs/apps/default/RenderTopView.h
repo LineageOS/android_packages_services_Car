@@ -27,7 +27,8 @@
 #include <math/mat4.h>
 
 
-using namespace ::android::hardware::automotive::evs::V1_0;
+using namespace ::android::hardware::automotive::evs::V1_1;
+using ::android::hardware::automotive::evs::V1_0::IEvsEnumerator;
 
 
 /*

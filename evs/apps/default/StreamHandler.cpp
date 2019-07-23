@@ -22,6 +22,8 @@
 #include <log/log.h>
 #include <cutils/native_handle.h>
 
+using ::android::hardware::automotive::evs::V1_0::EvsResult;
+
 
 StreamHandler::StreamHandler(android::sp <IEvsCamera> pCamera) :
     mCamera(pCamera)
@@ -92,7 +94,7 @@ bool StreamHandler::newFrameAvailable() {
 }
 
 
-const BufferDesc& StreamHandler::getNewFrame() {
+const BufferDesc_1_1& StreamHandler::getNewFrame() {
     std::unique_lock<std::mutex> lock(mLock);
 
     if (mHeldBuffer >= 0) {
@@ -112,37 +114,64 @@ const BufferDesc& StreamHandler::getNewFrame() {
 }
 
 
-void StreamHandler::doneWithFrame(const BufferDesc& buffer) {
+void StreamHandler::doneWithFrame(const BufferDesc_1_1& bufDesc_1_1) {
     std::unique_lock<std::mutex> lock(mLock);
 
     // We better be getting back the buffer we original delivered!
-    if ((mHeldBuffer < 0) || (buffer.bufferId != mBuffers[mHeldBuffer].bufferId)) {
-        ALOGE("StreamHandler::doneWithFrame got an unexpected buffer!");
+    if ((mHeldBuffer < 0) || (bufDesc_1_1.bufferId != mBuffers[mHeldBuffer].bufferId)) {
+        ALOGE("StreamHandler::doneWithFrame got an unexpected bufDesc_1_1!");
     }
 
     // Send the buffer back to the underlying camera
-    mCamera->doneWithFrame(mBuffers[mHeldBuffer]);
+    mCamera->doneWithFrame_1_1(mBuffers[mHeldBuffer]);
 
     // Clear the held position
     mHeldBuffer = -1;
 }
 
 
-Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
-    ALOGD("Received a frame from the camera (%p)", buffer.memHandle.getNativeHandle());
+Return<void> StreamHandler::deliverFrame(const BufferDesc_1_0& bufDesc_1_0) {
+    ALOGI("Ignores a frame delivered from v1.0 EVS service.");
+    mCamera->doneWithFrame(bufDesc_1_0);
 
-    // Take the lock to protect our frame slots and running state variable
-    {
+    return Void();
+}
+
+
+Return<void> StreamHandler::notifyEvent(const EvsEvent& event) {
+    auto type = event.getDiscriminator();
+    if (type == EvsEvent::hidl_discriminator::info) {
+        switch(event.info()) {
+            case EvsEventType::STREAM_STOPPED:
+            {
+                {
+                    std::lock_guard<std::mutex> lock(mLock);
+
+                    // Signal that the last frame has been received and the stream is stopped
+                    mRunning = false;
+                }
+                ALOGI("Received a STREAM_STOPPED event");
+                break;
+            }
+            default:
+                ALOGE("Unknown event id 0x%X", event.info());
+                break;
+        }
+    } else {
+        const BufferDesc_1_1& bufDesc_1_1 = event.buffer();
+        ALOGD("Received a frame event from the camera (%p)",
+              bufDesc_1_1.buffer.nativeHandle.getNativeHandle());
+
+        // Take the lock to protect our frame slots and running state variable
         std::unique_lock <std::mutex> lock(mLock);
-
-        if (buffer.memHandle.getNativeHandle() == nullptr) {
+        if (bufDesc_1_1.buffer.nativeHandle.getNativeHandle() == nullptr) {
             // Signal that the last frame has been received and the stream is stopped
             mRunning = false;
         } else {
             // Do we already have a "ready" frame?
             if (mReadyBuffer >= 0) {
                 // Send the previously saved buffer back to the camera unused
-                mCamera->doneWithFrame(mBuffers[mReadyBuffer]);
+                mCamera->doneWithFrame_1_1(mBuffers[mReadyBuffer]);
 
                 // We'll reuse the same ready buffer index
             } else if (mHeldBuffer >= 0) {
@@ -154,12 +183,14 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
             }
 
             // Save this frame until our client is interested in it
-            mBuffers[mReadyBuffer] = buffer;
+            mBuffers[mReadyBuffer] = bufDesc_1_1;
         }
-    }
 
-    // Notify anybody who cares that things have changed
-    mSignal.notify_all();
+        // Notify anybody who cares that things have changed
+        lock.unlock();
+        mSignal.notify_all();
+    }
 
     return Void();
 }
+

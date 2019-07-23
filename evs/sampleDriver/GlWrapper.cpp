@@ -360,40 +360,54 @@ void GlWrapper::hideWindow() {
 }
 
 
-bool GlWrapper::updateImageTexture(const BufferDesc& buffer) {
+bool GlWrapper::updateImageTexture(const BufferDesc_1_0& buffer) {
+    BufferDesc_1_1 newBuffer = {};
+    AHardwareBuffer_Desc* pDesc =
+        reinterpret_cast<AHardwareBuffer_Desc *>(&newBuffer.buffer.description);
+    pDesc->width = buffer.width;
+    pDesc->height = buffer.height;
+    pDesc->layers = 1;
+    pDesc->format = buffer.format;
+    pDesc->usage = buffer.usage;
+    pDesc->stride = buffer.stride;
+    newBuffer.buffer.nativeHandle = buffer.memHandle;
+    newBuffer.pixelSize = buffer.pixelSize;
+    newBuffer.bufferId = buffer.bufferId;
+
+    return updateImageTexture(newBuffer);
+}
+
+
+bool GlWrapper::updateImageTexture(const BufferDesc_1_1& aFrame) {
 
     // If we haven't done it yet, create an "image" object to wrap the gralloc buffer
     if (mKHRimage == EGL_NO_IMAGE_KHR) {
         // create a temporary GraphicBuffer to wrap the provided handle
+        const AHardwareBuffer_Desc* pDesc =
+            reinterpret_cast<const AHardwareBuffer_Desc *>(&aFrame.buffer.description);
         sp<GraphicBuffer> pGfxBuffer = new GraphicBuffer(
-                buffer.width,
-                buffer.height,
-                buffer.format,
-                1,      /* layer count */
-                buffer.usage,
-                buffer.stride,
-                const_cast<native_handle_t*>(buffer.memHandle.getNativeHandle()),
+                pDesc->width,
+                pDesc->height,
+                pDesc->format,
+                pDesc->layers,
+                pDesc->usage,
+                pDesc->stride,
+                const_cast<native_handle_t*>(aFrame.buffer.nativeHandle.getNativeHandle()),
                 false   /* keep ownership */
         );
         if (pGfxBuffer.get() == nullptr) {
-            ALOGE("Failed to allocate GraphicsBuffer to wrap our native handle");
+            ALOGE("Failed to allocate GraphicBuffer to wrap our native handle");
             return false;
         }
-
 
         // Get a GL compatible reference to the graphics buffer we've been given
         EGLint eglImageAttributes[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
         EGLClientBuffer cbuf = static_cast<EGLClientBuffer>(pGfxBuffer->getNativeBuffer());
-// TODO:  If we pass in a context, we get "bad context" back
-#if 0
-        mKHRimage = eglCreateImageKHR(mDisplay, mContext,
-                                      EGL_NATIVE_BUFFER_ANDROID, cbuf,
+        mKHRimage = eglCreateImageKHR(mDisplay,
+                                      EGL_NO_CONTEXT,
+                                      EGL_NATIVE_BUFFER_ANDROID,
+                                      cbuf,
                                       eglImageAttributes);
-#else
-        mKHRimage = eglCreateImageKHR(mDisplay, EGL_NO_CONTEXT,
-                                      EGL_NATIVE_BUFFER_ANDROID, cbuf,
-                                      eglImageAttributes);
-#endif
         if (mKHRimage == EGL_NO_IMAGE_KHR) {
             ALOGE("error creating EGLImage: %s", getEGLError());
             return false;

@@ -140,7 +140,7 @@ void VideoCapture::close() {
     assert(mRunMode == STOPPED);
 
     if (isOpen()) {
-        ALOGD("closing video device file handled %d", mDeviceFd);
+        ALOGD("closing video device file handle %d", mDeviceFd);
         ::close(mDeviceFd);
         mDeviceFd = -1;
     }
