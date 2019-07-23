@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
-import android.media.AudioGain;
 import android.util.SparseArray;
 import android.view.DisplayAddress;
 
@@ -81,9 +80,7 @@ public class CarAudioZonesHelperTest {
 
     private CarAudioDeviceInfo generateCarAudioDeviceInfo(String address) {
         CarAudioDeviceInfo cadiMock = Mockito.mock(CarAudioDeviceInfo.class);
-        AudioGain audioGainMock = Mockito.mock(AudioGain.class);
-        when(audioGainMock.stepValue()).thenReturn(1);
-        when(cadiMock.getAudioGain()).thenReturn(audioGainMock);
+        when(cadiMock.getStepValue()).thenReturn(1);
         when(cadiMock.getDefaultGain()).thenReturn(2);
         when(cadiMock.getMaxGain()).thenReturn(5);
         when(cadiMock.getMinGain()).thenReturn(0);

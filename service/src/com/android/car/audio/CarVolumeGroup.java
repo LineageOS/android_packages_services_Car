@@ -139,10 +139,10 @@ import java.util.Map;
      */
     void bind(int contextNumber, CarAudioDeviceInfo info) {
         if (mAddressToCarAudioDeviceInfo.size() == 0) {
-            mStepSize = info.getAudioGain().stepValue();
+            mStepSize = info.getStepValue();
         } else {
             Preconditions.checkArgument(
-                    info.getAudioGain().stepValue() == mStepSize,
+                    info.getStepValue() == mStepSize,
                     "Gain controls within one group must have same step value");
         }
 

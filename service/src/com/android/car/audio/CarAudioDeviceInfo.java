@@ -66,6 +66,7 @@ import java.io.PrintWriter;
     private final int mDefaultGain;
     private final int mMaxGain;
     private final int mMinGain;
+    private final int mStepValue;
 
     /**
      * We need to store the current gain because it is not accessible from the current
@@ -85,6 +86,7 @@ import java.io.PrintWriter;
         mDefaultGain = audioGain.defaultValue();
         mMaxGain = audioGain.maxValue();
         mMinGain = audioGain.minValue();
+        mStepValue = audioGain.stepValue();
 
         mCurrentGain = -1; // Not initialized till explicitly set
     }
@@ -127,6 +129,10 @@ import java.io.PrintWriter;
 
     int getChannelCount() {
         return mChannelCount;
+    }
+
+    int getStepValue() {
+        return mStepValue;
     }
 
     // Input is in millibels
