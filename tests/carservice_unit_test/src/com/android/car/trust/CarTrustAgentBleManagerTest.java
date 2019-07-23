@@ -46,6 +46,9 @@ public class CarTrustAgentBleManagerTest {
 
     private static final String ADDRESS = "00:11:22:33:AA:BB";
     private static final byte[] TEST_DATA = "testtest".getBytes();
+    // Buffer time used to make sure certain that certain statement been executed before the
+    // assertion.
+    private static final int BUFFER_TIME_MS = 20;
     private static final int TEST_SINGLE_MESSAGE_SIZE =
             TEST_DATA.length + BLEMessageV1Factory.getProtoHeaderSize(OperationType.CLIENT_MESSAGE,
                     true);
@@ -69,8 +72,8 @@ public class CarTrustAgentBleManagerTest {
         mCarTrustAgentBleManager.onMtuSizeChanged(TEST_SINGLE_MESSAGE_SIZE - 1);
         mCarTrustAgentBleManager.sendEnrollmentMessage(mBluetoothDevice, TEST_DATA,
                 OperationType.CLIENT_MESSAGE, true, any(SendMessageCallback.class));
-        for (int i = 0; i < mCarTrustAgentBleManager.mBleMessageRetryLimit; i++) {
-            Thread.sleep(mCarTrustAgentBleManager.BLE_MESSAGE_RETRY_DELAY_MS);
+        for (int i = 1; i < mCarTrustAgentBleManager.mBleMessageRetryLimit; i++) {
+            Thread.sleep(mCarTrustAgentBleManager.BLE_MESSAGE_RETRY_DELAY_MS + BUFFER_TIME_MS);
             assertThat(mCarTrustAgentBleManager.mBleMessageRetryStartCount).isEqualTo(i + 1);
         }
     }
@@ -80,9 +83,9 @@ public class CarTrustAgentBleManagerTest {
         mCarTrustAgentBleManager.onMtuSizeChanged(TEST_SINGLE_MESSAGE_SIZE - 1);
         mCarTrustAgentBleManager.sendEnrollmentMessage(mBluetoothDevice, TEST_DATA,
                 OperationType.CLIENT_MESSAGE, true, any(SendMessageCallback.class));
-        Thread.sleep(mCarTrustAgentBleManager.BLE_MESSAGE_RETRY_DELAY_MS);
+        Thread.sleep(mCarTrustAgentBleManager.BLE_MESSAGE_RETRY_DELAY_MS + BUFFER_TIME_MS);
         // Retried once.
-        assertThat(mCarTrustAgentBleManager.mBleMessageRetryStartCount).isEqualTo(1);
+        assertThat(mCarTrustAgentBleManager.mBleMessageRetryStartCount).isEqualTo(2);
 
         // Receive acknowledge back.
         mCarTrustAgentBleManager.handleClientAckMessage(mBluetoothDevice,
