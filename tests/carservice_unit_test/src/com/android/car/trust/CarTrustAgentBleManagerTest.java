@@ -25,6 +25,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
 import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.RequiresDevice;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.BLEStreamProtos.BLEOperationProto.OperationType;
@@ -64,6 +65,7 @@ public class CarTrustAgentBleManagerTest {
     }
 
     @Test
+    @RequiresDevice
     public void testRetrySendingMessage_noACK_reachRetryLimit() throws InterruptedException {
         // Make sure the length of the message queue is greater than 1.
         mCarTrustAgentBleManager.onMtuSizeChanged(TEST_SINGLE_MESSAGE_SIZE - 1);
@@ -76,6 +78,7 @@ public class CarTrustAgentBleManagerTest {
     }
 
     @Test
+    @RequiresDevice
     public void testRetrySendingMessage_receivedACK_stopRetry() throws InterruptedException {
         mCarTrustAgentBleManager.onMtuSizeChanged(TEST_SINGLE_MESSAGE_SIZE - 1);
         mCarTrustAgentBleManager.sendEnrollmentMessage(mBluetoothDevice, TEST_DATA,
