@@ -165,7 +165,7 @@
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> તમારા સિમ કાર્ડને અ‍ૅક્સેસ કરવા માગે છે. સિમ કાર્ડની અ‍ૅક્સેસને મંજૂરી આપવું કનેક્શનના સમયગાળા માટે તમારા ઉપકરણ પર ડેટા કનેક્ટિવિટીને અક્ષમ કરશે. <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g> ને અ‍ૅક્સેસ આપો"</string>
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"તે અન્ય ઉપકરણોને \'<xliff:g id="DEVICE_NAME">^1</xliff:g>\' તરીકે દેખાય છે"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"અન્ય ઉપકરણો સાથે કનેક્ટ કરવા માટે બ્લૂટૂથ ચાલુ કરો."</string>
-    <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"તમારા ઉપકરણો"</string>
+    <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"તમારા ડિવાઇસ"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"નવા ઉપકરણ જોડો"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"તમારા ટૅબ્લેટને નજીકના બ્લૂટૂથ ઉપકરણો સાથે સંચાર કરવાની મંજૂરી આપો"</string>
     <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"તમારા ઉપકરણને નજીકના બ્લૂટૂથ ઉપકરણો સાથે સંચાર કરવાની મંજૂરી આપો"</string>

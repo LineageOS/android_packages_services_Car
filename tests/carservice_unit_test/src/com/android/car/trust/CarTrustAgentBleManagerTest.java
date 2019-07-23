@@ -47,8 +47,8 @@ public class CarTrustAgentBleManagerTest {
     private static final String ADDRESS = "00:11:22:33:AA:BB";
     private static final byte[] TEST_DATA = "testtest".getBytes();
     private static final int TEST_SINGLE_MESSAGE_SIZE =
-            TEST_DATA.length + BLEMessageV1Factory.getProtoHeaderSize(OperationType.CLIENT_MESSAGE,
-                    true);
+            TEST_DATA.length + BLEMessageV1Factory.getProtoHeaderSize(
+                    OperationType.CLIENT_MESSAGE, TEST_DATA.length, true);
 
     private CarTrustAgentBleManager mCarTrustAgentBleManager;
     private BluetoothDevice mBluetoothDevice;

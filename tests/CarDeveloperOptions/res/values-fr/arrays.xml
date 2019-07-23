@@ -404,7 +404,7 @@
     <item msgid="1930581185557754880">"Oui"</item>
   </string-array>
   <string-array name="dark_ui_mode_entries">
-    <item msgid="699295711155561081">"Foncé"</item>
+    <item msgid="699295711155561081">"Sombre"</item>
     <item msgid="5079453644557603349">"Clair"</item>
   </string-array>
   <string-array name="autofill_logging_level_entries">
