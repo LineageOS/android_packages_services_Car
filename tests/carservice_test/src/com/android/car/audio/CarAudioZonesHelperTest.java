@@ -25,13 +25,14 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
-import android.util.SparseArray;
 import android.view.DisplayAddress;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.R;
+
+import com.google.common.collect.ImmutableList;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +47,7 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class CarAudioZonesHelperTest {
-    private SparseArray<CarAudioDeviceInfo> mBusToMockCarAudioDeviceInfo;
+    private List<CarAudioDeviceInfo> mCarAudioDeviceInfos;
     private Context mContext;
     private InputStream mInputStream;
     private static final String BUS_0_ADDRESS = "bus0_media_out";
@@ -56,7 +57,7 @@ public class CarAudioZonesHelperTest {
 
     @Before
     public void setUp() {
-        mBusToMockCarAudioDeviceInfo = generateBusToCarDeviceInfo();
+        mCarAudioDeviceInfos = generateCarDeviceInfos();
         mContext = ApplicationProvider.getApplicationContext();
         mInputStream = mContext.getResources().openRawResource(R.raw.car_audio_configuration);
     }
@@ -68,14 +69,18 @@ public class CarAudioZonesHelperTest {
         }
     }
 
-    private SparseArray<CarAudioDeviceInfo> generateBusToCarDeviceInfo() {
-        SparseArray<CarAudioDeviceInfo> busToCarAudioDeviceInfo = new SparseArray<>();
-        busToCarAudioDeviceInfo.put(0, generateCarAudioDeviceInfo(BUS_0_ADDRESS));
-        busToCarAudioDeviceInfo.put(1, generateCarAudioDeviceInfo(BUS_1_ADDRESS));
-        busToCarAudioDeviceInfo.put(3, generateCarAudioDeviceInfo(BUS_3_ADDRESS));
-        busToCarAudioDeviceInfo.put(100, generateCarAudioDeviceInfo(BUS_100_ADDRESS));
+    private List<CarAudioDeviceInfo> generateCarDeviceInfos() {
+        return ImmutableList.of(
+                generateCarAudioDeviceInfo(BUS_0_ADDRESS),
+                generateCarAudioDeviceInfo(BUS_1_ADDRESS),
+                generateCarAudioDeviceInfo(BUS_3_ADDRESS),
+                generateCarAudioDeviceInfo(BUS_100_ADDRESS),
+                generateCarAudioDeviceInfo(""),
+                generateCarAudioDeviceInfo(""),
+                generateCarAudioDeviceInfo(null),
+                generateCarAudioDeviceInfo(null)
 
-        return busToCarAudioDeviceInfo;
+        );
     }
 
     private CarAudioDeviceInfo generateCarAudioDeviceInfo(String address) {
@@ -91,7 +96,7 @@ public class CarAudioZonesHelperTest {
     @Test
     public void loadAudioZones_parsesAllZones() throws IOException, XmlPullParserException {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, mInputStream,
-                mBusToMockCarAudioDeviceInfo);
+                mCarAudioDeviceInfos);
 
         CarAudioZone[] zones = cazh.loadAudioZones();
 
@@ -101,7 +106,7 @@ public class CarAudioZonesHelperTest {
     @Test
     public void loadAudioZones_parsesZoneName() throws IOException, XmlPullParserException {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, mInputStream,
-                mBusToMockCarAudioDeviceInfo);
+                mCarAudioDeviceInfos);
 
         CarAudioZone[] zones = cazh.loadAudioZones();
 
@@ -112,7 +117,7 @@ public class CarAudioZonesHelperTest {
     @Test
     public void loadAudioZones_parsesIsPrimary() throws IOException, XmlPullParserException {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, mInputStream,
-                mBusToMockCarAudioDeviceInfo);
+                mCarAudioDeviceInfos);
 
         CarAudioZone[] zones = cazh.loadAudioZones();
 
@@ -126,7 +131,7 @@ public class CarAudioZonesHelperTest {
     @Test
     public void loadAudioZones_parsesVolumeGroups() throws IOException, XmlPullParserException {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, mInputStream,
-                mBusToMockCarAudioDeviceInfo);
+                mCarAudioDeviceInfos);
 
         CarAudioZone[] zones = cazh.loadAudioZones();
 
@@ -137,7 +142,7 @@ public class CarAudioZonesHelperTest {
     @Test
     public void loadAudioZones_parsesAddresses() throws IOException, XmlPullParserException {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, mInputStream,
-                mBusToMockCarAudioDeviceInfo);
+                mCarAudioDeviceInfos);
 
         CarAudioZone[] zones = cazh.loadAudioZones();
 
@@ -152,7 +157,7 @@ public class CarAudioZonesHelperTest {
     @Test
     public void loadAudioZones_parsesContexts() throws IOException, XmlPullParserException {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, mInputStream,
-                mBusToMockCarAudioDeviceInfo);
+                mCarAudioDeviceInfos);
 
         CarAudioZone[] zones = cazh.loadAudioZones();
 
@@ -174,7 +179,7 @@ public class CarAudioZonesHelperTest {
     public void loadAudioZones_parsesPhysicalDisplayAddresses()
             throws IOException, XmlPullParserException {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, mInputStream,
-                mBusToMockCarAudioDeviceInfo);
+                mCarAudioDeviceInfos);
 
         CarAudioZone[] zones = cazh.loadAudioZones();
 
@@ -189,7 +194,7 @@ public class CarAudioZonesHelperTest {
     public void loadAudioZones_defaultsDisplayAddressesToEmptyList()
             throws IOException, XmlPullParserException {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, mInputStream,
-                mBusToMockCarAudioDeviceInfo);
+                mCarAudioDeviceInfos);
 
         CarAudioZone[] zones = cazh.loadAudioZones();
 
@@ -203,7 +208,7 @@ public class CarAudioZonesHelperTest {
         try (InputStream duplicatePortStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_duplicate_ports)) {
             CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, duplicatePortStream,
-                    mBusToMockCarAudioDeviceInfo);
+                    mCarAudioDeviceInfos);
 
             cazh.loadAudioZones();
         }
@@ -215,7 +220,7 @@ public class CarAudioZonesHelperTest {
         try (InputStream duplicatePortStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_non_numerical_port)) {
             CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, duplicatePortStream,
-                    mBusToMockCarAudioDeviceInfo);
+                    mCarAudioDeviceInfos);
 
             try {
                 cazh.loadAudioZones();

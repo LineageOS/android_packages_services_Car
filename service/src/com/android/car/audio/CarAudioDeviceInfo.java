@@ -38,28 +38,7 @@ import java.io.PrintWriter;
  */
 /* package */ class CarAudioDeviceInfo {
 
-    /**
-     * Parse device address. Expected format is BUS%d_%s, address, usage hint
-     * @return valid address (from 0 to positive) or -1 for invalid address.
-     */
-    static int parseDeviceAddress(String address) {
-        String[] words = address.split("_");
-        int addressParsed = -1;
-        if (words[0].toLowerCase().startsWith("bus")) {
-            try {
-                addressParsed = Integer.parseInt(words[0].substring(3));
-            } catch (NumberFormatException e) {
-                //ignore
-            }
-        }
-        if (addressParsed < 0) {
-            return -1;
-        }
-        return addressParsed;
-    }
-
     private final AudioDeviceInfo mAudioDeviceInfo;
-    private final int mBusNumber;
     private final int mSampleRate;
     private final int mEncodingFormat;
     private final int mChannelCount;
@@ -77,7 +56,6 @@ import java.io.PrintWriter;
 
     CarAudioDeviceInfo(AudioDeviceInfo audioDeviceInfo) {
         mAudioDeviceInfo = audioDeviceInfo;
-        mBusNumber = parseDeviceAddress(audioDeviceInfo.getAddress());
         mSampleRate = getMaxSampleRate(audioDeviceInfo);
         mEncodingFormat = getEncodingFormat(audioDeviceInfo);
         mChannelCount = getMaxChannels(audioDeviceInfo);
@@ -101,10 +79,6 @@ import java.io.PrintWriter;
 
     String getAddress() {
         return mAudioDeviceInfo.getAddress();
-    }
-
-    int getBusNumber() {
-        return mBusNumber;
     }
 
     int getDefaultGain() {
@@ -247,8 +221,7 @@ import java.io.PrintWriter;
 
     @Override
     public String toString() {
-        return "bus number: " + mBusNumber
-                + " address: " + mAudioDeviceInfo.getAddress()
+        return "address: " + mAudioDeviceInfo.getAddress()
                 + " sampleRate: " + getSampleRate()
                 + " encodingFormat: " + getEncodingFormat()
                 + " channelCount: " + getChannelCount()
@@ -258,8 +231,8 @@ import java.io.PrintWriter;
     }
 
     void dump(String indent, PrintWriter writer) {
-        writer.printf("%sCarAudioDeviceInfo Bus(%d: %s)\n ",
-                indent, mBusNumber, mAudioDeviceInfo.getAddress());
+        writer.printf("%sCarAudioDeviceInfo Device(%s)\n ",
+                indent, mAudioDeviceInfo.getAddress());
         writer.printf("%s\tsample rate / encoding format / channel count: %d %d %d\n",
                 indent, getSampleRate(), getEncodingFormat(), getChannelCount());
         writer.printf("%s\tGain values (min / max / default/ current): %d %d %d %d\n",

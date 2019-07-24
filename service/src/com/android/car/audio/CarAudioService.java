@@ -48,7 +48,6 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.DisplayAddress;
 import android.view.KeyEvent;
 
@@ -217,28 +216,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void init() {
         synchronized (mImplLock) {
             if (mUseDynamicRouting) {
-                // Enumerate all output bus device ports
-                AudioDeviceInfo[] deviceInfos = mAudioManager.getDevices(
-                        AudioManager.GET_DEVICES_OUTPUTS);
-                if (deviceInfos.length == 0) {
-                    Log.e(CarLog.TAG_AUDIO, "No output device available, ignore");
-                    return;
-                }
-                SparseArray<CarAudioDeviceInfo> busToCarAudioDeviceInfo = new SparseArray<>();
-                for (AudioDeviceInfo info : deviceInfos) {
-                    Log.v(CarLog.TAG_AUDIO, String.format("output id=%d address=%s type=%s",
-                            info.getId(), info.getAddress(), info.getType()));
-                    if (info.getType() == AudioDeviceInfo.TYPE_BUS) {
-                        final CarAudioDeviceInfo carInfo = new CarAudioDeviceInfo(info);
-                        // See also the audio_policy_configuration.xml,
-                        // the bus number should be no less than zero.
-                        if (carInfo.getBusNumber() >= 0) {
-                            busToCarAudioDeviceInfo.put(carInfo.getBusNumber(), carInfo);
-                            Log.i(CarLog.TAG_AUDIO, "Valid bus found " + carInfo);
-                        }
-                    }
-                }
-                setupDynamicRouting(busToCarAudioDeviceInfo);
+                setupDynamicRouting();
             } else {
                 Log.i(CarLog.TAG_AUDIO, "Audio dynamic routing not enabled, run in legacy mode");
                 setupLegacyVolumeChangedListener();
@@ -436,30 +414,56 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mContext.registerReceiver(mLegacyVolumeChangedReceiver, intentFilter);
     }
 
-    private void setupDynamicRouting(SparseArray<CarAudioDeviceInfo> busToCarAudioDeviceInfo) {
-        final AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
-        builder.setLooper(Looper.getMainLooper());
+    private List<CarAudioDeviceInfo> generateCarAudioDeviceInfos() {
+        AudioDeviceInfo[] deviceInfos = mAudioManager.getDevices(
+                AudioManager.GET_DEVICES_OUTPUTS);
+
+        return Arrays.stream(deviceInfos)
+                .filter(info -> info.getType() == AudioDeviceInfo.TYPE_BUS)
+                .map(CarAudioDeviceInfo::new)
+                .collect(Collectors.toList());
+    }
+
+    private CarAudioZone[] loadCarAudioConfiguration(List<CarAudioDeviceInfo> carAudioDeviceInfos) {
+        try (InputStream inputStream = new FileInputStream(mCarAudioConfigurationPath)) {
+            CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mContext, inputStream,
+                    carAudioDeviceInfos);
+            return zonesHelper.loadAudioZones();
+        } catch (IOException | XmlPullParserException e) {
+            throw new RuntimeException("Failed to parse audio zone configuration", e);
+        }
+    }
+
+    private CarAudioZone[] loadVolumeGroupConfigurationWithAudioControl(
+            List<CarAudioDeviceInfo> carAudioDeviceInfos) {
+        // In legacy mode, context -> bus mapping is done by querying IAudioControl HAL.
+        final IAudioControl audioControl = getAudioControl();
+        if (audioControl == null) {
+            throw new RuntimeException(
+                    "Dynamic routing requested but audioControl HAL not available");
+        }
+        CarAudioZonesHelperLegacy legacyHelper = new CarAudioZonesHelperLegacy(mContext,
+                R.xml.car_volume_groups, carAudioDeviceInfos, audioControl);
+        return legacyHelper.loadAudioZones();
+    }
+
+    private void loadCarAudioZones() {
+        List<CarAudioDeviceInfo> carAudioDeviceInfos = generateCarAudioDeviceInfos();
 
         mCarAudioConfigurationPath = getAudioConfigurationPath();
         if (mCarAudioConfigurationPath != null) {
-            try (InputStream inputStream = new FileInputStream(mCarAudioConfigurationPath)) {
-                CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mContext, inputStream,
-                        busToCarAudioDeviceInfo);
-                mCarAudioZones = zonesHelper.loadAudioZones();
-            } catch (IOException | XmlPullParserException e) {
-                throw new RuntimeException("Failed to parse audio zone configuration", e);
-            }
+            mCarAudioZones = loadCarAudioConfiguration(carAudioDeviceInfos);
         } else {
-            // In legacy mode, context -> bus mapping is done by querying IAudioControl HAL.
-            final IAudioControl audioControl = getAudioControl();
-            if (audioControl == null) {
-                throw new RuntimeException(
-                        "Dynamic routing requested but audioControl HAL not available");
-            }
-            CarAudioZonesHelperLegacy legacyHelper = new CarAudioZonesHelperLegacy(mContext,
-                    R.xml.car_volume_groups, busToCarAudioDeviceInfo, audioControl);
-            mCarAudioZones = legacyHelper.loadAudioZones();
+            mCarAudioZones = loadVolumeGroupConfigurationWithAudioControl(carAudioDeviceInfos);
         }
+    }
+
+    private void setupDynamicRouting() {
+        final AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
+        builder.setLooper(Looper.getMainLooper());
+
+        loadCarAudioZones();
+
         for (CarAudioZone zone : mCarAudioZones) {
             if (!zone.validateVolumeGroups()) {
                 throw new RuntimeException("Invalid volume groups configuration");
