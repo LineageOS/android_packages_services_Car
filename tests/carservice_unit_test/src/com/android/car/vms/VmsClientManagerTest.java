@@ -47,6 +47,7 @@ import android.os.IBinder;
 import android.os.UserHandle;
 import android.os.UserManager;
 
+import androidx.test.filters.RequiresDevice;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.hal.VmsHalService;
@@ -528,6 +529,7 @@ public class VmsClientManagerTest {
     }
 
     @Test
+    @RequiresDevice
     public void testOnUserServiceDisconnected_ServiceNotConnected() throws Exception {
         notifyUserUnlocked();
         verifyUserBind(1);

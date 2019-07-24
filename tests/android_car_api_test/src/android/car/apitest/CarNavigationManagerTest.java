@@ -36,6 +36,8 @@ import android.os.Bundle;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
+import androidx.test.filters.RequiresDevice;
+
 import com.google.android.collect.Lists;
 
 /**
@@ -103,6 +105,7 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         assertNotNull(NavigationStateProto.parseFrom(navigationStateProto.toByteArray()));
     }
 
+    @RequiresDevice
     public void testSendEvent() throws Exception {
         if (mCarNavigationManager == null) {
             Log.w(TAG, "Unable to run the test: "

@@ -31,6 +31,7 @@ import android.view.Display;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.RequiresDevice;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
@@ -71,6 +72,7 @@ public class SystemActivityMonitoringServiceTest {
     }
 
     @Test
+    @RequiresDevice
     public void testActivityLaunch() throws Exception {
         ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
         mService.registerActivityLaunchListener(new FilteredLaunchListener(activityA));

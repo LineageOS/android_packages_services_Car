@@ -32,6 +32,7 @@ import android.car.vms.VmsSubscriptionState;
 import android.util.Pair;
 
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.RequiresDevice;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -245,6 +246,7 @@ public class VmsPublisherSubscriberTest extends MockedVmsTestBase {
     }
 
     @Test
+    @RequiresDevice
     public void testSubscribe() {
         mSubscriber.subscribe(SUBSCRIPTION_LAYER);
         assertSubscriptionState(1, SUBSCRIPTION_LAYER);
