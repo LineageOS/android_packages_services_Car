@@ -52,9 +52,11 @@ import android.view.DisplayAddress;
 import android.view.KeyEvent;
 
 import com.android.car.BinderInterfaceContainer;
+import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.R;
+import com.android.car.user.CarUserService;
 import com.android.internal.util.Preconditions;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -88,10 +90,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     // Key to persist master mute state in system settings
     private static final String VOLUME_SETTINGS_KEY_MASTER_MUTE = "android.car.MASTER_MUTE";
 
-    // The trailing slash forms a directory-liked hierarchy and
-    // allows listening for both GROUP/MEDIA and GROUP/NAVIGATION.
-    private static final String VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX = "android.car.VOLUME_GROUP/";
-
     // CarAudioService reads configuration from the following paths respectively.
     // If the first one is found, all others are ignored.
     // If no one is found, it fallbacks to car_volume_groups.xml resource file.
@@ -100,18 +98,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             "/system/etc/car_audio_configuration.xml"
     };
 
-    /**
-     * Gets the key to persist volume for a volume group in settings
-     *
-     * @param zoneId The audio zone id
-     * @param groupId The volume group id
-     * @return Key to persist volume index for volume group in system settings
-     */
-    static String getVolumeSettingsKeyForGroup(int zoneId, int groupId) {
-        final int maskedGroupId = (zoneId << 8) + groupId;
-        return VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX + maskedGroupId;
-    }
-
     private final Object mImplLock = new Object();
 
     private final Context mContext;
@@ -119,6 +105,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final AudioManager mAudioManager;
     private final boolean mUseDynamicRouting;
     private final boolean mPersistMasterMuteState;
+
+    private final CarUserService.UserCallback  mReceiver = new CarAudioServiceUserCallback();
 
     private final AudioPolicy.AudioPolicyVolumeCallback mAudioPolicyVolumeCallback =
             new AudioPolicy.AudioPolicyVolumeCallback() {
@@ -215,6 +203,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Override
     public void init() {
         synchronized (mImplLock) {
+            CarLocalServices.getService(CarUserService.class).addUserCallback(mReceiver);
             if (mUseDynamicRouting) {
                 setupDynamicRouting();
             } else {
@@ -1042,6 +1031,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return groupId;
     }
 
+    /**
+     * Updates the volume group for user
+     * @param userId user id to update
+     */
+    private void updateVolumeGroupForUser(int userId) {
+        for (CarAudioZone zone : mCarAudioZones) {
+            zone.updateVolumeGroupsForUser(userId);
+        }
+    }
+
     @Nullable
     private static IAudioControl getAudioControl() {
         try {
@@ -1052,5 +1051,18 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Log.e(CarLog.TAG_AUDIO, "IAudioControl service not registered yet");
         }
         return null;
+    }
+
+    private class CarAudioServiceUserCallback implements  CarUserService.UserCallback {
+
+        @Override
+        public void onUserLockChanged(int userId, boolean unlocked) {
+            //Do nothing user is already loaded.
+        }
+
+        @Override
+        public void onSwitchUser(int userId) {
+            updateVolumeGroupForUser(userId);
+        }
     }
 }

@@ -181,4 +181,14 @@ import java.util.Set;
         }
         writer.println();
     }
+
+    /**
+     * Update the volume groups for the new user
+     * @param userId user id to update to
+     */
+    public void updateVolumeGroupsForUser(int userId) {
+        for (CarVolumeGroup group : mVolumeGroups) {
+            group.loadVolumesForUser(userId);
+        }
+    }
 }
