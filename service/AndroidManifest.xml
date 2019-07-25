@@ -39,6 +39,15 @@
         android:label="@string/car_permission_label_energy"
         android:description="@string/car_permission_desc_energy" />
 
+    <!-- Allows an application to adjust the vehicle's range remaining information.
+         <p>Protection level: signature|privileged
+     -->
+    <permission
+        android:name="android.car.permission.ADJUST_RANGE_REMAINING"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_adjust_range_remaining"
+        android:description="@string/car_permission_desc_adjust_range_remaining" />
+
     <!-- Allows an application to read the VIN information.
          <p>Protection level: signature|privileged
     -->
