@@ -4124,7 +4124,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Az idő, az értesítések és egyéb információk megtekintéséhez vegye kezébe telefonját."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Az idő, az értesítések és egyéb információk megtekintéséhez vegye a kezébe táblagépét."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Az idő, az értesítések és egyéb információk megtekintéséhez vegye kezébe eszközét."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Koppintson a telefon megtekintéséhez"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Koppintás a telefon megtekintéséhez"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Koppintson a táblagép megtekintéséhez"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Koppintson az eszköz megtekintéséhez"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Az idő, az értesítések és egyéb információk megtekintéséhez koppintson a képernyőre."</string>

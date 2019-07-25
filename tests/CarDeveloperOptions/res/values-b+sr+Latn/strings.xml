@@ -2880,9 +2880,9 @@
       <item quantity="other">Proveri sertifikate</item>
     </plurals>
     <string name="user_settings_title" msgid="7917598650933179545">"Više korisnika"</string>
-    <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"Delite uređaj tako što ćete dodati nove korisnike. Svaki korisnik ima lični prostor na uređaju za prilagođene početne ekrane, naloge, aplikacije, podešavanja i još mnogo toga."</string>
-    <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"Delite tablet tako što ćete dodati nove korisnike. Svaki korisnik ima lični prostor na tabletu za prilagođene početne ekrane, naloge, aplikacije, podešavanja i još mnogo toga."</string>
-    <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"Delite telefon tako što ćete dodati nove korisnike. Svaki korisnik ima lični prostor na telefonu za prilagođene početne ekrane, naloge, aplikacije, podešavanja i još mnogo toga."</string>
+    <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"Delite uređaj tako što ćete dodati nove korisnike. Svaki korisnik ima lični prostor na uređaju za prilagođene početne ekrane, naloge, aplikacije, podešavanja i drugo."</string>
+    <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"Delite tablet tako što ćete dodati nove korisnike. Svaki korisnik ima lični prostor na tabletu za prilagođene početne ekrane, naloge, aplikacije, podešavanja i drugo."</string>
+    <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"Delite telefon tako što ćete dodati nove korisnike. Svaki korisnik ima lični prostor na telefonu za prilagođene početne ekrane, naloge, aplikacije, podešavanja i drugo."</string>
     <string name="user_list_title" msgid="6670258645246192324">"Korisnici i profili"</string>
     <string name="user_add_user_or_profile_menu" msgid="4220679989900149336">"Dodaj korisnika ili profil"</string>
     <string name="user_add_user_menu" msgid="9006572936456324794">"Dodaj korisnika"</string>
