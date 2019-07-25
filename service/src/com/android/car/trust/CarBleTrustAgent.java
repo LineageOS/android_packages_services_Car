@@ -234,7 +234,7 @@ public class CarBleTrustAgent extends TrustAgentService {
 
     private void onBluetoothStateChanged(int state) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onBluetoothStateChanged: " + state);
+            Log.d(TAG, "onBluetoothStateChanged: " + BluetoothAdapter.nameForState(state));
         }
         if (!mIsDeviceLocked) {
             return;
