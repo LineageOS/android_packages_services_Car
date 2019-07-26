@@ -216,7 +216,17 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                 });
                 break;
             case CarPowerStateListener.SUSPEND_EXIT:
-                deleteCacheFile();
+                if (mCarDrivingStateService != null) {
+                    CarDrivingStateEvent event = mCarDrivingStateService.getCurrentDrivingState();
+                    if (event != null
+                            && event.eventValue == CarDrivingStateEvent.DRIVING_STATE_MOVING) {
+                        deleteCacheFile();
+                    } else {
+                        logd("Registering to receive driving state.");
+                        mCarDrivingStateService.registerDrivingStateChangeListener(
+                                mICarDrivingStateChangeEventListener);
+                    }
+                }
                 if (future != null) {
                     future.complete(null);
                 }

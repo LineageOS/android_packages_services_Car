@@ -415,19 +415,43 @@ public class CarLocationServiceTest {
 
     /**
      * Test that the {@link CarLocationService} deletes location_cache.json when the system resumes
-     * from suspend-to-ram.
+     * from suspend-to-ram if moving.
      */
     @Test
-    public void testDeletesCacheFileUponSuspendExit() throws Exception {
+    public void testDeletesCacheFileUponSuspendExitWhileMoving() throws Exception {
         mCarLocationService.init();
         when(mMockLocationManagerProxy.isLocationEnabled()).thenReturn(false);
+        when(mMockCarDrivingStateService.getCurrentDrivingState()).thenReturn(
+                new CarDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_MOVING, 0));
+        writeCacheFile("{\"provider\":\"latitude\":16.7666,\"longitude\": \"accuracy\":1.0}");
         CompletableFuture<Void> future = new CompletableFuture<>();
+        assertTrue(getLocationCacheFile().exists());
 
         mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_EXIT, future);
 
         assertTrue(future.isDone());
         verify(mMockLocationManagerProxy, times(0)).isLocationEnabled();
         assertFalse(getLocationCacheFile().exists());
+    }
+
+    /**
+     * Test that the {@link CarLocationService} registers for driving state changes when the system
+     * resumes from suspend-to-ram.
+     */
+    @Test
+    public void testRegistersForDrivingStateChangesUponSuspendExit() throws Exception {
+        mCarLocationService.init();
+        when(mMockLocationManagerProxy.isLocationEnabled()).thenReturn(false);
+        when(mMockCarDrivingStateService.getCurrentDrivingState()).thenReturn(
+                new CarDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_PARKED, 0));
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_EXIT, future);
+
+        assertTrue(future.isDone());
+        verify(mMockLocationManagerProxy, times(0)).isLocationEnabled();
+        // One of the registrations should happen during init and another during onStateChanged.
+        verify(mMockCarDrivingStateService, times(2)).registerDrivingStateChangeListener(any());
     }
 
     /**
