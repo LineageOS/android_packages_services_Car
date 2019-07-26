@@ -72,7 +72,6 @@ import java.util.stream.Collectors;
  */
 public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
-    private static final String SOURCE_KEY_DEPRECATED = "media_source";
     private static final String SOURCE_KEY = "media_source_component";
     private static final String PLAYBACK_STATE_KEY = "playback_state";
     private static final String SHARED_PREF = "com.android.car.media.car_media_service";
@@ -509,7 +508,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
      */
     private ComponentName getMediaService(@NonNull ComponentName componentName) {
         String packageName = componentName.getPackageName();
-        // TODO(b/136274456): make sure every ComponentName has a valid class name.
         String className = componentName.getClassName();
 
         PackageManager packageManager = mContext.getPackageManager();
@@ -568,17 +566,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 ComponentName componentName = ComponentName.unflattenFromString(name);
                 if (isMediaService(componentName)) {
                     return componentName;
-                }
-            }
-        } else {
-            // The old prefs use package name as key to store value.
-            serialized = mSharedPrefs.getString(SOURCE_KEY_DEPRECATED, null);
-            if (!TextUtils.isEmpty(serialized)) {
-                for (String packageName : getPackageNameList(serialized)) {
-                    ComponentName componentName = new ComponentName(packageName, "");
-                    if (isMediaService(componentName)) {
-                        return componentName;
-                    }
                 }
             }
         }
