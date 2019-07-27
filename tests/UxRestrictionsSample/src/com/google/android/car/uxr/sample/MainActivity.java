@@ -34,6 +34,7 @@ import android.os.Bundle;
 import android.util.JsonWriter;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
@@ -232,7 +233,11 @@ public class MainActivity extends AppCompatActivity
                                 .setRestrictions(passenger))
                 .build();
 
-        mCarUxRestrictionsManager.saveUxRestrictionsConfigurationForNextBoot(config);
+        if (mCarUxRestrictionsManager.saveUxRestrictionsConfigurationForNextBoot(config)) {
+            Toast.makeText(this, "Config saved successfully", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Config failed to save", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showStagedUxRestrictionsConfig() {

@@ -568,20 +568,20 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private static String dumpPropertyConfigsHelp(VehiclePropConfig config) {
         StringBuilder builder = new StringBuilder()
                 .append("Property:0x").append(toHexString(config.prop))
-                .append(",Property name:").append(VehicleProperty.toString(config.prop))
-                .append(",access:0x").append(toHexString(config.access))
-                .append(",changeMode:0x").append(toHexString(config.changeMode))
-                .append(",config:0x").append(Arrays.toString(config.configArray.toArray()))
-                .append(",fs min:").append(config.minSampleRate)
-                .append(",fs max:").append(config.maxSampleRate);
+                .append(", Property name:").append(VehicleProperty.toString(config.prop))
+                .append(", access:0x").append(toHexString(config.access))
+                .append(", changeMode:0x").append(toHexString(config.changeMode))
+                .append(", config:0x").append(Arrays.toString(config.configArray.toArray()))
+                .append(", fs min:").append(config.minSampleRate)
+                .append(", fs max:").append(config.maxSampleRate);
         for (VehicleAreaConfig area : config.areaConfigs) {
-            builder.append(",areaId :").append(toHexString(area.areaId))
-                    .append(",f min:").append(area.minFloatValue)
-                    .append(",f max:").append(area.maxFloatValue)
-                    .append(",i min:").append(area.minInt32Value)
-                    .append(",i max:").append(area.maxInt32Value)
-                    .append(",i64 min:").append(area.minInt64Value)
-                    .append(",i64 max:").append(area.maxInt64Value);
+            builder.append("\n\tareaId:0x").append(toHexString(area.areaId))
+                    .append(", f min:").append(area.minFloatValue)
+                    .append(", f max:").append(area.maxFloatValue)
+                    .append(", i min:").append(area.minInt32Value)
+                    .append(", i max:").append(area.maxInt32Value)
+                    .append(", i64 min:").append(area.minInt64Value)
+                    .append(", i64 max:").append(area.maxInt64Value);
         }
         return builder.toString();
     }
