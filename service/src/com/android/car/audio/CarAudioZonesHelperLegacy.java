@@ -56,11 +56,11 @@ import java.util.List;
     private final SparseArray<CarAudioDeviceInfo> mBusToCarAudioDeviceInfo;
 
     CarAudioZonesHelperLegacy(Context context, @XmlRes int xmlConfiguration,
-            @NonNull SparseArray<CarAudioDeviceInfo> busToCarAudioDeviceInfo,
+            @NonNull List<CarAudioDeviceInfo> carAudioDeviceInfos,
             @NonNull IAudioControl audioControl) {
         mContext = context;
         mXmlConfiguration = xmlConfiguration;
-        mBusToCarAudioDeviceInfo = busToCarAudioDeviceInfo;
+        mBusToCarAudioDeviceInfo = generateBusToCarAudioDeviceInfo(carAudioDeviceInfos);
 
         // Initialize context => bus mapping once.
         mContextToBus = new SparseIntArray();
@@ -74,6 +74,20 @@ import java.util.List;
         }
     }
 
+    private static SparseArray<CarAudioDeviceInfo> generateBusToCarAudioDeviceInfo(
+            List<CarAudioDeviceInfo> carAudioDeviceInfos) {
+        SparseArray<CarAudioDeviceInfo> busToCarAudioDeviceInfo = new SparseArray<>();
+
+        for (CarAudioDeviceInfo carAudioDeviceInfo : carAudioDeviceInfos) {
+            int busNumber = parseDeviceAddress(carAudioDeviceInfo.getAddress());
+            if (busNumber >= 0) {
+                busToCarAudioDeviceInfo.put(busNumber, carAudioDeviceInfo);
+            }
+        }
+
+        return busToCarAudioDeviceInfo;
+    }
+
     CarAudioZone[] loadAudioZones() {
         final CarAudioZone zone = new CarAudioZone(CarAudioManager.PRIMARY_AUDIO_ZONE,
                 "Primary zone");
@@ -82,7 +96,7 @@ import java.util.List;
             // Binding audio device to volume group.
             for (int contextNumber : group.getContexts()) {
                 int busNumber = mContextToBus.get(contextNumber);
-                group.bind(contextNumber, busNumber, mBusToCarAudioDeviceInfo.get(busNumber));
+                group.bind(contextNumber, mBusToCarAudioDeviceInfo.get(busNumber));
             }
         }
         return new CarAudioZone[] { zone };
@@ -143,5 +157,25 @@ import java.util.List;
 
         return new CarVolumeGroup(mContext, CarAudioManager.PRIMARY_AUDIO_ZONE, id,
                 contexts.stream().mapToInt(i -> i).filter(i -> i >= 0).toArray());
+    }
+
+    /**
+     * Parse device address. Expected format is BUS%d_%s, address, usage hint
+     * @return valid address (from 0 to positive) or -1 for invalid address.
+     */
+    private static int parseDeviceAddress(String address) {
+        String[] words = address.split("_");
+        int addressParsed = -1;
+        if (words[0].toLowerCase().startsWith("bus")) {
+            try {
+                addressParsed = Integer.parseInt(words[0].substring(3));
+            } catch (NumberFormatException e) {
+                //ignore
+            }
+        }
+        if (addressParsed < 0) {
+            return -1;
+        }
+        return addressParsed;
     }
 }
