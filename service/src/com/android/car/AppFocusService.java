@@ -28,6 +28,8 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -215,6 +217,11 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
             mHandlerThread.start();
             mDispatchHandler = new DispatchHandler(mHandlerThread.getLooper());
         }
+    }
+
+    @VisibleForTesting
+    public Looper getLooper() {
+        return mHandlerThread.getLooper();
     }
 
     @Override

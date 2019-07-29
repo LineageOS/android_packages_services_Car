@@ -11,34 +11,52 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-#
 
-LOCAL_PATH:= $(call my-dir)
+LOCAL_PATH := $(call my-dir)
 
+############################################################
+# Robolectric test target for testing car test lib classes #
+############################################################
 include $(CLEAR_VARS)
+
+LOCAL_MODULE := CarLibTests
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
-LOCAL_PACKAGE_NAME := CarLibTests
-
-LOCAL_MODULE_TAGS := tests
-LOCAL_PRIVATE_PLATFORM_APIS := true
-
-LOCAL_PROGUARD_ENABLED := disabled
+LOCAL_JAVA_RESOURCE_DIRS := config
 
 LOCAL_JAVA_LIBRARIES := \
-    android.car \
-    android.test.runner \
-    android.test.base \
-
-LOCAL_STATIC_JAVA_LIBRARIES := \
-    junit \
-    android.car.testapi \
-    androidx.test.rules \
-    androidx.test.core \
-    mockito-target-minus-junit4 \
-    com.android.car.test.utils \
+    Robolectric_all-target \
+    robolectric_android-all-stub \
+    mockito-robolectric-prebuilt \
     truth-prebuilt \
+    androidx.test.core \
+    android.car.testapi \
+    androidx.test.rules
 
-include $(BUILD_PACKAGE)
+LOCAL_INSTRUMENTATION_FOR := CarLibTestApp
+
+LOCAL_MODULE_TAGS := optional
+
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+###########################################################
+# Runner to run the CarLibTests target                    #
+###########################################################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := RunCarLibTests
+
+LOCAL_JAVA_LIBRARIES := \
+    CarLibTests \
+    Robolectric_all-target \
+    robolectric_android-all-stub \
+    mockito-robolectric-prebuilt \
+    android.car.testapi \
+    truth-prebuilt \
+    androidx.test.core \
+    androidx.test.rules
+
+LOCAL_TEST_PACKAGE := CarLibTestApp
+
+include external/robolectric-shadows/run_robotests.mk
