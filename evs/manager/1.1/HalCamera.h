@@ -68,6 +68,11 @@ public:
     void                clientStreamEnding();
     Return<void>        doneWithFrame(const BufferDesc_1_0& buffer);
     Return<void>        doneWithFrame(const BufferDesc_1_1& buffer);
+    Return<EvsResult>   setMaster(sp<VirtualCamera> virtualCamera);
+    Return<EvsResult>   unsetMaster(sp<VirtualCamera> virtualCamera);
+    Return<EvsResult>   setParameter(sp<VirtualCamera> virtualCamera,
+                                     CameraParam id, int32_t& value);
+    Return<EvsResult>   getParameter(CameraParam id, int32_t& value);
 
     // Methods from ::android::hardware::automotive::evs::V1_1::IEvsCameraStream follow.
     Return<void> deliverFrame(const BufferDesc_1_0& buffer) override;
@@ -89,6 +94,7 @@ private:
         FrameRecord(uint32_t id) : frameId(id), refCount(0) {};
     };
     std::vector<FrameRecord>        mFrames;
+    wp<VirtualCamera>               mMaster = nullptr;
 };
 
 } // namespace implementation

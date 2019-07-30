@@ -61,6 +61,12 @@ public:
     Return<EvsResult> pauseVideoStream() override;
     Return<EvsResult> resumeVideoStream() override;
     Return<EvsResult> doneWithFrame_1_1(const BufferDesc_1_1& buffer) override;
+    Return<EvsResult> setMaster() override;
+    Return<EvsResult> unsetMaster() override;
+    Return<void>      setParameter(CameraParam id, int32_t value,
+                                   setParameter_cb _hidl_cb) override;
+    Return<void>      getParameter(CameraParam id,
+                                   getParameter_cb _hidl_cb) override;
 
 
     // Implementation details
@@ -77,6 +83,7 @@ private:
     unsigned decreaseAvailableFrames_Locked(unsigned numToRemove);
 
     void forwardFrame(imageBuffer* tgt, void* data);
+    inline bool convertToV4l2CID(CameraParam id, uint32_t& v4l2cid);
 
     sp <IEvsCameraStream_1_0> mStream     = nullptr;  // The callback used to deliver each frame
     sp <IEvsCameraStream_1_1> mStream_1_1 = nullptr;  // The callback used to deliver each frame

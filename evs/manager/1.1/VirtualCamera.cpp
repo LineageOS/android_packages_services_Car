@@ -60,6 +60,9 @@ void VirtualCamera::shutdown() {
             mFramesHeld.clear();
         }
 
+        // Retire from a master client
+        mHalCamera->unsetMaster(this);
+
         // Give the underlying hardware camera the heads up that it might be time to stop
         mHalCamera->clientStreamEnding();
     }
@@ -72,8 +75,9 @@ void VirtualCamera::shutdown() {
 bool VirtualCamera::notifyEvent(const EvsEvent& event) {
     auto type = event.getDiscriminator();
     if (type == EvsEvent::hidl_discriminator::info) {
-        switch(event.info()) {
-            case EvsEventType::STREAM_STOPPED:
+        InfoEventDesc desc = event.info();
+        switch(desc.aType) {
+            case InfoEventType::STREAM_STOPPED:
                 // Warn if we got an unexpected stream termination
                 if (mStreamState != STOPPING) {
                     ALOGW("Stream unexpectedly stopped");
@@ -92,8 +96,12 @@ bool VirtualCamera::notifyEvent(const EvsEvent& event) {
                 }
                 break;
 
+            case InfoEventType::PARAMETER_CHANGED:
+                ALOGD("A camera parameter 0x%X is set to 0x%X", desc.payload[0], desc.payload[1]);
+                break;
+
             default:
-                ALOGE("Unknown event id 0x%X", event.info());
+                ALOGE("Unknown event id 0x%X", desc.aType);
                 break;
         }
 
@@ -115,9 +123,14 @@ bool VirtualCamera::notifyEvent(const EvsEvent& event) {
                   mFramesHeld.size(), mFramesAllowed);
 
             if (mStream_1_1 != nullptr) {
-                EvsEvent accident;
-                accident.info(EvsEventType::FRAME_DROPPED);
-                mStream_1_1->notifyEvent(accident);
+                EvsEvent event;
+                InfoEventDesc desc = {};
+                desc.aType = InfoEventType::FRAME_DROPPED;
+                event.info(desc);
+                auto result = mStream_1_1->notifyEvent(event);
+                if (!result.isOk()) {
+                    ALOGE("Error delivering end of stream event");
+                }
             }
 
             return false;
@@ -252,7 +265,9 @@ Return<void> VirtualCamera::stopVideoStream()  {
         if (mStream_1_1 != nullptr) {
             // v1.1 client waits for a stream stopped event
             EvsEvent event;
-            event.info(EvsEventType::STREAM_STOPPED);
+            InfoEventDesc desc = {};
+            desc.aType = InfoEventType::STREAM_STOPPED;
+            event.info(desc);
             auto result = mStream_1_1->notifyEvent(event);
             if (!result.isOk()) {
                 ALOGE("Error delivering end of stream event");
@@ -319,6 +334,33 @@ Return<EvsResult> VirtualCamera::doneWithFrame_1_1(const BufferDesc_1_1& bufDesc
     }
 
     return EvsResult::OK;
+}
+
+
+Return<EvsResult> VirtualCamera::setMaster() {
+    return mHalCamera->setMaster(this);
+}
+
+
+Return<EvsResult> VirtualCamera::unsetMaster() {
+    return mHalCamera->unsetMaster(this);
+}
+
+
+Return<void> VirtualCamera::setParameter(CameraParam id, int32_t value, setParameter_cb _hidl_cb) {
+    EvsResult status = mHalCamera->setParameter(this, id, value);
+    _hidl_cb(status, value);
+
+    return Void();
+}
+
+
+Return<void> VirtualCamera::getParameter(CameraParam id, getParameter_cb _hidl_cb) {
+    int32_t value;
+    EvsResult status = mHalCamera->getParameter(id, value);
+    _hidl_cb(status, value);
+
+    return Void();
 }
 
 

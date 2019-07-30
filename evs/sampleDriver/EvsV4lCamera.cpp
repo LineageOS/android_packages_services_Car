@@ -232,7 +232,9 @@ Return<void> EvsV4lCamera::stopVideoStream()  {
         std::unique_lock <std::mutex> lock(mAccessLock);
 
         EvsEvent event;
-        event.info(EvsEventType::STREAM_STOPPED);
+        InfoEventDesc desc = {};
+        desc.aType = InfoEventType::STREAM_STOPPED;
+        event.info(desc);
         auto result = mStream_1_1->notifyEvent(event);
         if (!result.isOk()) {
             ALOGE("Error delivering end of stream event");
@@ -300,7 +302,65 @@ Return<EvsResult> EvsV4lCamera::resumeVideoStream() {
 }
 
 
-EvsResult EvsV4lCamera::doneWithFrame_impl(const uint32_t bufferId, const buffer_handle_t memHandle) {
+Return<EvsResult> EvsV4lCamera::setMaster() {
+    /* Because EVS HW module reference implementation expects a single client at
+     * a time, this returns a success code always.
+     */
+    return EvsResult::OK;
+}
+
+
+Return<EvsResult> EvsV4lCamera::unsetMaster() {
+    /* Because EVS HW module reference implementation expects a single client at
+     * a time, there is no chance that this is called by a non-master client and
+     * therefore returns a success code always.
+     */
+    return EvsResult::OK;
+}
+
+
+Return<void> EvsV4lCamera::setParameter(CameraParam id, int32_t value,
+                                        setParameter_cb _hidl_cb) {
+    uint32_t v4l2cid = V4L2_CID_BASE;
+    if (!convertToV4l2CID(id, v4l2cid)) {
+        _hidl_cb(EvsResult::INVALID_ARG, 0);
+    } else {
+        EvsResult result = EvsResult::OK;
+        v4l2_control control = {v4l2cid, value};
+        if (mVideo.setParameter(control) < 0 ||
+            mVideo.getParameter(control) < 0) {
+            result = EvsResult::UNDERLYING_SERVICE_ERROR;
+        }
+
+        _hidl_cb(result, control.value);
+    }
+
+    return Void();
+}
+
+
+Return<void> EvsV4lCamera::getParameter(CameraParam id,
+                                        getParameter_cb _hidl_cb) {
+    uint32_t v4l2cid = V4L2_CID_BASE;
+    if (!convertToV4l2CID(id, v4l2cid)) {
+        _hidl_cb(EvsResult::INVALID_ARG, 0);
+    } else {
+        EvsResult result = EvsResult::OK;
+        v4l2_control control = {v4l2cid, 0};
+        if (mVideo.getParameter(control) < 0) {
+            result = EvsResult::INVALID_ARG;
+        }
+
+        // Report a result
+        _hidl_cb(result, control.value);
+    }
+
+    return Void();
+}
+
+
+EvsResult EvsV4lCamera::doneWithFrame_impl(const uint32_t bufferId,
+                                           const buffer_handle_t memHandle) {
     std::lock_guard <std::mutex> lock(mAccessLock);
 
     // If we've been displaced by another owner of the camera, then we can't do anything else
@@ -581,6 +641,42 @@ void EvsV4lCamera::forwardFrame(imageBuffer* /*pV4lBuff*/, void* pData) {
         }
     }
 }
+
+
+bool EvsV4lCamera::convertToV4l2CID(CameraParam id, uint32_t& v4l2cid) {
+    switch (id) {
+        case CameraParam::BRIGHTNESS:
+            v4l2cid = V4L2_CID_BRIGHTNESS;
+            break;
+        case CameraParam::CONTRAST:
+            v4l2cid = V4L2_CID_CONTRAST;
+            break;
+        case CameraParam::AUTO_WHITE_BALANCE:
+            v4l2cid = V4L2_CID_AUTO_WHITE_BALANCE;
+            break;
+        case CameraParam::WHITE_BALANCE_TEMPERATURE:
+            v4l2cid = V4L2_CID_WHITE_BALANCE_TEMPERATURE;
+            break;
+        case CameraParam::SHARPNESS:
+            v4l2cid = V4L2_CID_SHARPNESS;
+            break;
+        case CameraParam::AUTO_EXPOSURE:
+            v4l2cid = V4L2_CID_EXPOSURE_AUTO;
+            break;
+        case CameraParam::ABSOLUTE_EXPOSURE:
+            v4l2cid = V4L2_CID_EXPOSURE_ABSOLUTE;
+            break;
+        case CameraParam::ABSOLUTE_ZOOM:
+            v4l2cid = V4L2_CID_ZOOM_ABSOLUTE;
+            break;
+        default:
+            ALOGE("Camera parameter %u is not supported.", id);
+            return false;
+    }
+
+    return true;
+}
+
 
 } // namespace implementation
 } // namespace V1_1
