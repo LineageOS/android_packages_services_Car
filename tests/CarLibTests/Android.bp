@@ -12,24 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-java_library {
-    name: "android.car.testapi",
-    srcs: [
-        "src/**/*.java",
-    ],
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
-    static_libs: [
-        "android.car",
-    ],
-    libs: [
-        "mockito",
-    ],
-    installable: false,
-    dist: {
-        targets: ["dist_files"],
-    },
+android_app {
+    name: "CarLibTestApp",
+    platform_apis: true,
 }

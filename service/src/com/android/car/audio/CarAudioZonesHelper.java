@@ -19,7 +19,7 @@ import android.annotation.NonNull;
 import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
-import android.util.SparseArray;
+import android.text.TextUtils;
 import android.util.Xml;
 import android.view.DisplayAddress;
 
@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A helper class loads all audio zones from the configuration XML file.
@@ -76,7 +77,7 @@ import java.util.Set;
     }
 
     private final Context mContext;
-    private final SparseArray<CarAudioDeviceInfo> mBusToCarAudioDeviceInfo;
+    private final Map<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
     private final InputStream mInputStream;
     private final Set<Long> mPortIds;
 
@@ -84,10 +85,11 @@ import java.util.Set;
     private int mNextSecondaryZoneId;
 
     CarAudioZonesHelper(Context context, @NonNull InputStream inputStream,
-            @NonNull SparseArray<CarAudioDeviceInfo> busToCarAudioDeviceInfo) {
+            @NonNull List<CarAudioDeviceInfo> carAudioDeviceInfos) {
         mContext = context;
         mInputStream = inputStream;
-        mBusToCarAudioDeviceInfo = busToCarAudioDeviceInfo;
+        mAddressToCarAudioDeviceInfo = CarAudioZonesHelper.generateAddressToInfoMap(
+                carAudioDeviceInfos);
 
         mNextSecondaryZoneId = CarAudioManager.PRIMARY_AUDIO_ZONE + 1;
         mPortIds = new HashSet<>();
@@ -97,6 +99,13 @@ import java.util.Set;
         List<CarAudioZone> carAudioZones = new ArrayList<>();
         parseCarAudioZones(carAudioZones, mInputStream);
         return carAudioZones.toArray(new CarAudioZone[0]);
+    }
+
+    private static Map<String, CarAudioDeviceInfo> generateAddressToInfoMap(
+            List<CarAudioDeviceInfo> carAudioDeviceInfos) {
+        return carAudioDeviceInfos.stream()
+                .filter(info -> !TextUtils.isEmpty(info.getAddress()))
+                .collect(Collectors.toMap(CarAudioDeviceInfo::getAddress, info -> info));
     }
 
     private void parseCarAudioZones(List<CarAudioZone> carAudioZones, InputStream stream)
@@ -220,8 +229,7 @@ import java.util.Set;
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_AUDIO_DEVICE.equals(parser.getName())) {
                 String address = parser.getAttributeValue(NAMESPACE, ATTR_DEVICE_ADDRESS);
-                parseVolumeGroupContexts(parser, group,
-                        CarAudioDeviceInfo.parseDeviceAddress(address));
+                parseVolumeGroupContexts(parser, group, address);
             } else {
                 skip(parser);
             }
@@ -230,14 +238,14 @@ import java.util.Set;
     }
 
     private void parseVolumeGroupContexts(
-            XmlPullParser parser, CarVolumeGroup group, int busNumber)
+            XmlPullParser parser, CarVolumeGroup group, String address)
             throws XmlPullParserException, IOException {
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_CONTEXT.equals(parser.getName())) {
                 group.bind(
                         parseContextNumber(parser.getAttributeValue(NAMESPACE, ATTR_CONTEXT_NAME)),
-                        busNumber, mBusToCarAudioDeviceInfo.get(busNumber));
+                        mAddressToCarAudioDeviceInfo.get(address));
             }
             // Always skip to upper level since we're at the lowest.
             skip(parser);

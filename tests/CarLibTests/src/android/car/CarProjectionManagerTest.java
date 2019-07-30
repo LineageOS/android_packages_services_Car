@@ -38,7 +38,6 @@ import android.net.wifi.WifiConfiguration;
 import android.util.ArraySet;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,6 +49,8 @@ import org.mockito.InOrder;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,7 +59,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
+@DoNotInstrument
 public class CarProjectionManagerTest {
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();

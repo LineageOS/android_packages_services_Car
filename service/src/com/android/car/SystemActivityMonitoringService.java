@@ -268,6 +268,11 @@ public class SystemActivityMonitoringService implements CarServiceBase {
             Log.e(CarLog.TAG_AM, "cannot getTasks", e);
             return;
         }
+
+        if (infos == null) {
+            return;
+        }
+
         int focusedStackId = INVALID_STACK_ID;
         try {
             // TODO(b/66955160): Someone on the Auto-team should probably re-work the code in the
