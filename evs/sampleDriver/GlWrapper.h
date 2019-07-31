@@ -28,7 +28,6 @@
 #include <gui/Surface.h>
 #include <gui/SurfaceComposerClient.h>
 
-#include <android/hardware/automotive/evs/1.0/types.h>
 #include <android/hardware/automotive/evs/1.1/types.h>
 
 

@@ -26,7 +26,8 @@ namespace evs {
 namespace V1_1 {
 namespace implementation {
 
-using ::android::hardware::automotive::evs::V1_0::CameraDesc;
+using CameraDesc_1_0 = ::android::hardware::automotive::evs::V1_0::CameraDesc;
+using CameraDesc_1_1 = ::android::hardware::automotive::evs::V1_1::CameraDesc;
 
 bool Enumerator::init(const char* hardwareServiceName) {
     ALOGD("init");
@@ -54,13 +55,18 @@ bool Enumerator::checkPermission() {
 
 // Methods from ::android::hardware::automotive::evs::V1_0::IEvsEnumerator follow.
 Return<void> Enumerator::getCameraList(getCameraList_cb list_cb)  {
-    ALOGD("getCameraList");
-    if (!checkPermission()) {
-        return Void();
-    }
+    hardware::hidl_vec<CameraDesc_1_0> cameraList;
+    mHwEnumerator->getCameraList_1_1([&cameraList](auto cameraList_1_1) {
+        cameraList.resize(cameraList_1_1.size());
+        unsigned i = 0;
+        for (auto&& cam : cameraList_1_1) {
+            cameraList[i++] = cam.v1;
+        }
+    });
 
-    // Simply pass through to hardware layer
-    return mHwEnumerator->getCameraList(list_cb);
+    list_cb(cameraList);
+
+    return Void();
 }
 
 
@@ -78,7 +84,7 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
                         .withDefault(nullptr);
 
         pHwCamera->getCameraInfo(
-            [cameraId, &match](CameraDesc desc) {
+            [cameraId, &match](CameraDesc_1_0 desc) {
                 if (desc.cameraId == cameraId) {
                     match = true;
                 }
@@ -116,7 +122,7 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
 
     // Add the hardware camera to our list, which will keep it alive via ref count
     if (clientCamera != nullptr) {
-        mCameras.push_back(hwCamera);
+        mCameras.emplace_back(hwCamera);
     } else {
         ALOGE("Requested camera %s not found or not available", cameraId.c_str());
     }
@@ -154,6 +160,94 @@ Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera_1_0>& client
     }
 
     return Void();
+}
+
+
+// Methods from ::android::hardware::automotive::evs::V1_1::IEvsEnumerator follow.
+Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraId,
+                                                      const Stream& streamCfg) {
+    ALOGD("openCamera_1_1");
+    if (!checkPermission()) {
+        return nullptr;
+    }
+
+    // Check whether the underlying hardware camera is already open or not.
+    sp<HalCamera> hwCamera;
+    for (auto &&cam : mCameras) {
+        bool match = false;
+        auto pHwCamera = IEvsCamera_1_1::castFrom(cam->getHwCamera())
+                         .withDefault(nullptr);
+
+        if (pHwCamera == nullptr) {
+            continue;
+        }
+
+        pHwCamera->getCameraInfo_1_1(
+            [cameraId, &match](CameraDesc_1_1 desc) {
+                if (desc.v1.cameraId == cameraId) {
+                    match = true;
+                }
+            }
+        );
+
+        if (match) {
+            hwCamera = cam;
+            break;
+        }
+    }
+
+    // Try to open a hardware camera if it has not opened yet.
+    if (hwCamera == nullptr) {
+        sp<IEvsCamera_1_1> device =
+            IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera_1_1(cameraId, streamCfg))
+            .withDefault(nullptr);
+        if (device == nullptr) {
+            ALOGE("Failed to open hardware camera %s", cameraId.c_str());
+        } else {
+            hwCamera = new HalCamera(device);
+            if (hwCamera == nullptr) {
+                ALOGE("Failed to allocate camera wrapper object");
+                mHwEnumerator->closeCamera(device);
+            }
+        }
+    } else {
+        // Return null object if requested stream configuration is different
+        // from active stream's.
+        auto& activeStreamCfg = mStreamConfigs[cameraId];
+        if (streamCfg.id != activeStreamCfg.id) {
+            return nullptr;
+        }
+    }
+
+    // Construct a virtual camera wrapper for this hardware camera
+    sp<VirtualCamera> clientCamera;
+    if (hwCamera != nullptr) {
+        clientCamera = hwCamera->makeVirtualCamera();
+    }
+
+    // Add the hardware camera to our list, which will keep it alive via ref count
+    if (clientCamera != nullptr) {
+        mCameras.emplace_back(hwCamera);
+
+        // Store active stream configuration
+        mStreamConfigs[cameraId] = streamCfg;
+    } else {
+        ALOGE("Requested camera %s not found or not available", cameraId.c_str());
+    }
+
+    // Send the virtual camera object back to the client by strong pointer which will keep it alive
+    return clientCamera;
+}
+
+
+Return<void> Enumerator::getCameraList_1_1(getCameraList_1_1_cb list_cb)  {
+    ALOGD("getCameraList");
+    if (!checkPermission()) {
+        return Void();
+    }
+
+    // Simply pass through to hardware layer
+    return mHwEnumerator->getCameraList_1_1(list_cb);
 }
 
 
