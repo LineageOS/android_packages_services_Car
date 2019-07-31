@@ -4114,18 +4114,18 @@
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Para cambiar de aplicacións, pasa o dedo cara arriba no botón de inicio. Pásao de novo para ver todas as aplicacións. Este xesto funciona en calquera pantalla, así que deixarás de ter na parte inferior dereita o botón Visión xeral."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"Proba o novo botón de inicio"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Activa o novo xesto para cambiar de aplicacións"</string>
-    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Dobre toque para consultar o teléfono"</string>
+    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Dobre toque no teléfono para consultalo"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Tocar dúas veces para consultar a tableta"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Tocar dúas veces para consultar o dispositivo"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Para consultar a hora, as notificacións e outra información, toca a pantalla dúas veces."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Levantar teléfono para consultalo"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Levantar o teléfono para consultalo"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Levantar a tableta para consultala"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Levantar o dispositivo para consultalo"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Activar a pantalla de bloqueo"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Para consultar a hora, as notificacións e outros datos, colle o teléfono."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Para consultar a hora, as notificacións e outros datos, colle a tableta."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Para consultar a hora, as notificacións e outros datos, colle o dispositivo."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tocar para consultar o teléfono"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Toque no teléfono para consultalo"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Toca para consultar a tableta"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Tocar para consultar o dispositivo"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Para consultar a hora, as notificacións e outra información, toca a pantalla."</string>

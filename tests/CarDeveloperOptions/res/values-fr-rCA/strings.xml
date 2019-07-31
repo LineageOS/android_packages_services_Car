@@ -4122,8 +4122,8 @@
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Saisissez l\'appareil pour consulter les notifications"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Réactiver l\'écran"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Pour vérifier l\'heure, vos notifications et d\'autres renseignements, saisir votre téléphone."</string>
-    <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Pour vérifier l\'heure, vos notifications et d\'autres renseignements, saisissez votre tablette."</string>
-    <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Pour vérifier l\'heure, vos notifications et d\'autres renseignements, saisissez votre appareil."</string>
+    <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Pour vérifier l\'heure, vos notifications et d\'autres renseignements, saisir votre tablette."</string>
+    <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Pour vérifier l\'heure, vos notifications et d\'autres renseignements, saisir votre appareil."</string>
     <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Toucher pour vérifier le téléphone"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Toucher pour vérifier la tablette"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Toucher pour vérifier l\'appareil"</string>

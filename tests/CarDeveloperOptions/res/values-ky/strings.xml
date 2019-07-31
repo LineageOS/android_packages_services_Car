@@ -4123,9 +4123,9 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Убакытты, билдирмелерди жана башка маалыматты көрүү үчүн телефонуңузду колуңузга алыңыз."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Убакытты, билдирмелерди жана башка маалыматты көрүү үчүн планшетиңизди колуңузга алыңыз."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Убакытты, билдирмелерди жана башка маалыматты көрүү үчүн түзмөгүңүздү колуңузга алыңыз."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Телефонду текшерүү үчүн таптап коюңуз"</string>
-    <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Планшетти текшерүү үчүн таптап коюңуз"</string>
-    <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Түзмөктү текшерүү үчүн таптап коюңуз"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Телефонду текшерүү үчүн басып коюу"</string>
+    <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Планшетти текшерүү үчүн басып коюу"</string>
+    <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Түзмөктү текшерүү үчүн басып коюу"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Убакытты, билдирмелерди жана башка маалыматты көрүү үчүн экранды таптап коюңуз."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Билдирмелерди манжа изинин сенсору менен көрүү"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Манжа изинин сканери"</string>

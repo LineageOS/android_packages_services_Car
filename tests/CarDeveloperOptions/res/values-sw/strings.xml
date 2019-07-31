@@ -1403,9 +1403,9 @@
     <string name="storage_menu_rename" msgid="3731682449294417745">"Badilisha jina"</string>
     <string name="storage_menu_mount" msgid="6395893560780365473">"Pachika"</string>
     <string name="storage_menu_unmount" msgid="5041360076873514189">"Ondoa"</string>
-    <string name="storage_menu_format" msgid="4285487419855632896">"Umbiza"</string>
-    <string name="storage_menu_format_public" msgid="5361388353980722971">"Umbiza kama hifadhi inayohamishika"</string>
-    <string name="storage_menu_format_private" msgid="5288599205435858720">"Umbiza kama hifadhi ya ndani"</string>
+    <string name="storage_menu_format" msgid="4285487419855632896">"Rekebisha muundo"</string>
+    <string name="storage_menu_format_public" msgid="5361388353980722971">"Weka muundo uwe inahamishika"</string>
+    <string name="storage_menu_format_private" msgid="5288599205435858720">"Weka muundo wa hifadhi ya ndani"</string>
     <string name="storage_menu_migrate" msgid="1885806122515759703">"Hamisha data"</string>
     <string name="storage_menu_forget" msgid="4345021250834642640">"Sahau"</string>
     <string name="storage_menu_set_up" msgid="2849170579745958513">"Weka mipangilio"</string>
@@ -1498,7 +1498,7 @@
     <string name="storage_wizard_init_v2_later" msgid="2605006907172213466">"Weka mipangilio baadaye"</string>
     <string name="storage_wizard_format_confirm_v2_title" msgid="1884699177320256159">"Ungependa kuumbiza <xliff:g id="NAME">^1</xliff:g>?"</string>
     <string name="storage_wizard_format_confirm_v2_body" msgid="977657376082074305">"Unatakiwa uratibu <xliff:g id="NAME_0">^1</xliff:g> ili ihifadhi programu, faili na maudhui. \n\nHatua ya kuratibu itafuta maudhui yote yaliyo katika <xliff:g id="NAME_1">^2</xliff:g>. Ili usipoteze maudhui, hifadhi nakala kwenye <xliff:g id="NAME_2">^3</xliff:g> au kifaa kingine."</string>
-    <string name="storage_wizard_format_confirm_v2_action" msgid="5576917958786300415">"Umbiza <xliff:g id="NAME">^1</xliff:g>"</string>
+    <string name="storage_wizard_format_confirm_v2_action" msgid="5576917958786300415">"Rekebisha muundo: <xliff:g id="NAME">^1</xliff:g>"</string>
     <string name="storage_wizard_migrate_v2_title" msgid="6728034411587320249">"Utahamishia maudhu kwenye <xliff:g id="NAME">^1</xliff:g>?"</string>
     <string name="storage_wizard_migrate_v2_body" product="tablet" msgid="6943007011251294950">"Unaweza kuhamishia faili, maudhui na baadhi ya programu kwenye <xliff:g id="NAME">^1</xliff:g>. \n\nHatua hii itafuta vipengee ili upate nafasi ya <xliff:g id="SIZE">^2</xliff:g> kwenye hifadhi ya kompyuta yako kibao na inaweza kuchukua takribani <xliff:g id="DURATION">^3</xliff:g>."</string>
     <string name="storage_wizard_migrate_v2_body" product="default" msgid="3211214309775524554">"Unaweza kuhamishia faili, maudhui na baadhi ya programu kwenye <xliff:g id="NAME">^1</xliff:g>. \n\nHatua hii itafuta vipengee ili upate nafasi ya <xliff:g id="SIZE">^2</xliff:g> kwenye hifadhi ya simu yako na inaweza kuchukua takribani <xliff:g id="DURATION">^3</xliff:g>."</string>
@@ -4315,7 +4315,7 @@
     <string name="battery_suggestion_title" product="device" msgid="765005476863631528">"Boresha muda wa matumizi ya betri ya kifaa"</string>
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"Boresha muda wa matumizi ya betri ya simu yako"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
-    <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Zuia mlio wa simu"</string>
+    <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Zuia simu isilie"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Bonyeza vitufe vya Kuwasha na Kuongeza Sauti kwa pamoja ili"</string>
     <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Njia ya mkato ya kuzuia mlio"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Tetema"</string>
