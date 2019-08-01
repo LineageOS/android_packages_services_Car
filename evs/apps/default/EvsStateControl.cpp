@@ -17,6 +17,7 @@
 #include "RenderDirectView.h"
 #include "RenderTopView.h"
 #include "RenderPixelCopy.h"
+#include "FormatConvert.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -174,20 +175,7 @@ void EvsStateControl::updateLoop() {
                 ALOGE("Didn't get requested output buffer -- skipping this frame.");
             } else {
                 // Generate our output image
-                BufferDesc_1_1 bufDesc_1_1 = {};
-                AHardwareBuffer_Desc* pDesc =
-                    reinterpret_cast<AHardwareBuffer_Desc *>(&bufDesc_1_1.buffer.description);
-                pDesc->width  = tgtBuffer.width;
-                pDesc->height = tgtBuffer.height;
-                pDesc->layers = 1;
-                pDesc->format = tgtBuffer.format;
-                pDesc->usage  = static_cast<uint64_t>(tgtBuffer.usage);
-                pDesc->stride = tgtBuffer.stride;
-                bufDesc_1_1.buffer.nativeHandle = tgtBuffer.memHandle;
-                bufDesc_1_1.pixelSize = tgtBuffer.pixelSize;
-                bufDesc_1_1.bufferId = tgtBuffer.bufferId;
-
-                if (!mCurrentRenderer->drawFrame(bufDesc_1_1)) {
+                if (!mCurrentRenderer->drawFrame(convertBufferDesc(tgtBuffer))) {
                     // If drawing failed, we want to exit quickly so an app restart can happen
                     run = false;
                 }

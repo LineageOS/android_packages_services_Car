@@ -20,6 +20,12 @@
 #include <queue>
 #include <stdint.h>
 
+#include <android/hardware/automotive/evs/1.0/types.h>
+#include <android/hardware/automotive/evs/1.1/types.h>
+
+using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
+using BufferDesc_1_1 = ::android::hardware::automotive::evs::V1_1::BufferDesc;
+
 
 // Given an image buffer in NV21 format (HAL_PIXEL_FORMAT_YCRCB_420_SP), output 32bit RGBx values.
 // The NV21 format provides a Y array of 8bit values, followed by a 1/2 x 1/2 interleaved
@@ -56,5 +62,8 @@ void copyMatchedInterleavedFormats(unsigned width, unsigned height,
                                    void* src, unsigned srcStridePixels,
                                    void* dst, unsigned dstStridePixels,
                                    unsigned pixelSize);
+
+// Fill BufferDesc v1.1 with a given BufferDesc v1.0 data.
+BufferDesc_1_1 convertBufferDesc(const BufferDesc_1_0& src);
 
 #endif // EVS_VTS_FORMATCONVERT_H
