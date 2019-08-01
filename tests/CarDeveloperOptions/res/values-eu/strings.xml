@@ -4113,18 +4113,18 @@
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Aplikazioa aldatzeko, pasatu hatza gora Hasiera botoian, eta pasa ezazu berriro aplikazio guztiak ikusteko. Edozein pantailatan funtzionatzen du. Ikuspegi orokorraren botoia ez da egongo pantailaren behealdean eskuinetara."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"Probatu Hasiera botoi berria"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Aktibatu aplikazioa aldatzeko keinu berria"</string>
-    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Sakatu birritan telefonoa bertan dagoena ikusteko"</string>
+    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Sakatu birritan telefonoa pantailako informazioa ikusteko"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Sakatu birritan tableta bertan dagoela ikusteko"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Sakatu birritan gailua bertan dagoela ikusteko"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Ordua, jakinarazpenak eta bestelako informazioa ikusteko, sakatu pantaila birritan."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Jaso telefonoa bertan dagoena ikusteko"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Jaso telefonoa pantailako informazioa ikusteko"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Jaso tableta bertan dagoela ikusteko"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Jaso gailua bertan dagoela ikusteko"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Esnarazi pantaila"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Ordua, jakinarazpenak eta bestelako informazioa ikusteko, hartu telefonoa."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Ordua, jakinarazpenak eta bestelako informazioa ikusteko, hartu tableta."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Ordua, jakinarazpenak eta bestelako informazioa ikusteko, hartu gailua."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Sakatu telefonoa egiaztatzeko"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Sakatu telefonoa pantailako informazioa ikusteko"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Sakatu tableta egiaztatzeko"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Sakatu gailua egiaztatzeko"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Ordua, jakinarazpenak eta bestelako informazioa ikusteko, sakatu pantaila."</string>

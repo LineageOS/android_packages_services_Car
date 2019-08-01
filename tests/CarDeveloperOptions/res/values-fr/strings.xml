@@ -2056,7 +2056,7 @@
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Le bouton Accessibilité est défini sur <xliff:g id="SERVICE">%1$s</xliff:g>. Pour utiliser la loupe, appuyez de manière prolongée sur le bouton Accessibilité, puis sélectionnez la loupe."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Raccourci (volume)"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Service associé au raccourci"</string>
-    <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Autoriser depuis écran verrouillage"</string>
+    <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Autoriser depuis l\'écran verrouillé"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"Lorsque le raccourci est activé, vous pouvez appuyer sur les deux touches de volume pendant trois secondes pour lancer une fonctionnalité d\'accessibilité."</string>
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"Texte avec contraste élevé"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Mise à jour auto de la loupe"</string>

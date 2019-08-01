@@ -1783,7 +1783,7 @@
     <string name="applications_settings_summary" msgid="8888258399577123906">"அமைப்புகளை நிர்வகிக்கும், விரைவு துவக்கத்திற்கான குறுக்குவழிகளை அமைக்கும்"</string>
     <string name="applications_settings_header" msgid="3766501606045211098">"ஆப்ஸ் அமைப்பு"</string>
     <string name="install_applications" msgid="7745902974984889179">"அறியப்படாத மூலங்கள்"</string>
-    <string name="install_applications_title" msgid="8164828577588659496">"எல்லா பயன்பாட்டு ஆதாரங்களையும் அனுமதி"</string>
+    <string name="install_applications_title" msgid="8164828577588659496">"எல்லா ஆப்ஸ் ஆதாரங்களையும் அனுமதி"</string>
     <string name="recent_app_category_title" msgid="7688788038277126727">"சமீபத்தில் திறந்தவை"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"<xliff:g id="COUNT">%1$d</xliff:g> பயன்பாடுகளையும் காட்டு"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"அறியப்படாத பயன்பாடுகளால் உங்கள் டேப்லெட்டும் தனிப்பட்ட தரவும் அதிகம் பாதிப்பிற்கு உள்ளாகும். இந்த மூலத்திலிருந்து பயன்பாடுகளை நிறுவுவதால், அவற்றைப் பயன்படுத்தும் போது உங்கள் டேப்லெட்டுக்கு ஏதேனும் சேதம் ஏற்பட்டாலோ அல்லது தரவை இழந்தாலோ, அதற்கு நீங்கள்தான் பொறுப்பாவீர்கள் என்பதை ஏற்கிறீர்கள்."</string>
@@ -1925,7 +1925,7 @@
     <string name="service_manage" msgid="7045214643721276662">"அமைப்பு"</string>
     <string name="service_stop_description" msgid="4184180745938573707">"இந்த ஆப்ஸ் ஏற்கனவே இதன் பயன்பாட்டால் தொடங்கப்பட்டது. இதை நிறுத்துவதால் ஆப்ஸ் தோல்வியடையலாம்."</string>
     <string name="heavy_weight_stop_description" msgid="7444148811046611463">"பயன்பாட்டைப் பாதுகாப்பாக நிறுத்த முடியாது. இதை நிறுத்தினால், நீங்கள் நடப்பு செயல்கள் சிலவற்றை இழக்க நேரிடலாம்."</string>
-    <string name="background_process_stop_description" msgid="8971810208873038109">"இது பழைய பயன்பாட்டு செயல்முறையாகும், மீண்டும் தேவைப்பட்டால் வழங்குவதற்காக இன்னமும் தொடர்ந்து செயல்படுத்தப்படுகிறது. பொதுவாக அதை நிறுத்துவதற்கு எந்தக் காரணமும் இல்லை."</string>
+    <string name="background_process_stop_description" msgid="8971810208873038109">"இது பழைய ஆப்ஸ் செயல்முறையாகும், மீண்டும் தேவைப்பட்டால் வழங்குவதற்காக இன்னமும் தொடர்ந்து செயல்படுத்தப்படுகிறது. பொதுவாக அதை நிறுத்துவதற்கு எந்தக் காரணமும் இல்லை."</string>
     <string name="service_manage_description" msgid="8058123524402833082">"<xliff:g id="CLIENT_NAME">%1$s</xliff:g>: தற்போது பயன்பாட்டில் உள்ளது. அதைக் கட்டுப்படுத்த, அமைப்புகளைத் தட்டவும்."</string>
     <string name="main_running_process_description" msgid="7733268956566861797">"முக்கிய செயல்முறை பயன்பாட்டில் உள்ளது."</string>
     <string name="process_service_in_use_description" msgid="2253782391122637651">"<xliff:g id="COMP_NAME">%1$s</xliff:g> இன் சேவை பயன்பாட்டில் உள்ளது."</string>
@@ -2060,7 +2060,7 @@
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"ஷார்ட்கட் இயக்கப்பட்டிருக்கும் போது, அணுகல்தன்மை அம்சத்தைத் தொடங்க, 3 வினாடிகளுக்கு இரண்டு ஒலியளவு விசைகளையும் அழுத்தவும்."</string>
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"உரையின் உயர் மாறுபாடு"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"திரை உருப்பெருக்கத்தைத் தானாகப் புதுப்பி"</string>
-    <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"பயன்பாட்டு மாற்றங்களில் திரை உருப்பெருக்கத்தைப் புதுப்பிக்கவும்"</string>
+    <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"ஆப்ஸ் மாற்றங்களில் திரை உருப்பெருக்கத்தைப் புதுப்பிக்கவும்"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"பவர் பட்டன் அழைப்பை நிறுத்தும்"</string>
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"பெரிய மவுஸ் பாயிண்டர்"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"அனிமேஷன்களை அகற்று"</string>
@@ -2615,7 +2615,7 @@
     <string name="sync_calendar" msgid="6573708019827519372">"கேலெண்டர்"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"தொடர்புகள்"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google ஒத்திசைவுக்கு வரவேற்கிறோம்!"</font>" \nநீங்கள் எங்கிருந்தாலும் உங்கள் தொடர்புகள், சந்திப்புகள் மற்றும் பலவற்றுக்கான அணுகலை அனுமதிப்பதற்காக Google தரவை ஒத்திசைக்கிறது."</string>
-    <string name="header_application_sync_settings" msgid="4581847153669774489">"பயன்பாட்டு ஒத்திசைவு அமைப்பு"</string>
+    <string name="header_application_sync_settings" msgid="4581847153669774489">"ஆப்ஸ் ஒத்திசைவு அமைப்பு"</string>
     <string name="header_data_and_synchronization" msgid="400831816068697286">"தரவு &amp; ஒத்திசைத்தல்"</string>
     <string name="preference_change_password_title" msgid="7243527448378789274">"கடவுச்சொல்லை மாற்று"</string>
     <string name="header_account_settings" msgid="8586173964125512219">"கணக்கு அமைப்பு"</string>
@@ -3673,7 +3673,7 @@
     <string name="apps_storage" msgid="5658466038269046038">"ஆப்ஸ் சேமிப்பகம்"</string>
     <string name="usage_access" msgid="2023443456361489516">"உபயோக அணுகல்"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"உபயோக அணுகல் அனுமதி"</string>
-    <string name="app_usage_preference" msgid="5691545073101551727">"பயன்பாட்டு உபயோக விருப்பத்தேர்வுகள்"</string>
+    <string name="app_usage_preference" msgid="5691545073101551727">"ஆப்ஸ் உபயோக விருப்பத்தேர்வுகள்"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"பயன்படுத்திய நேரம்"</string>
     <string name="usage_access_description" msgid="2178083292760305207">"உபயோக அணுகலானது, நீங்கள் வேறு எந்தெந்த ஆப்ஸை எவ்வளவு அடிக்கடி பயன்படுத்துகிறீர்கள் என்று அறியும் அனுமதியை ஒரு ஆப்ஸுக்கு வழங்குகிறது. உங்கள் மொபைல் நிறுவனம், மொழி அமைப்புகள் மற்றும் பிற விவரங்களையும் அறிந்து கொள்ளும் அனுமதியும் இதில் அடங்கும்."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"நினைவகம்"</string>
