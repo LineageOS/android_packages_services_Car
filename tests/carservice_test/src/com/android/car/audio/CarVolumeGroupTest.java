@@ -104,13 +104,13 @@ public class CarVolumeGroupTest {
 
         CarAudioDeviceInfo smallestMinGain = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, 1, 2, 10);
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, smallestMinGain);
+        carVolumeGroup.bind(ContextNumber.NOTIFICATION, smallestMinGain);
 
         assertEquals(8, carVolumeGroup.getMaxGainIndex());
 
         CarAudioDeviceInfo middleMinGain = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, 1, 7, 10);
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, middleMinGain);
+        carVolumeGroup.bind(ContextNumber.VOICE_COMMAND, middleMinGain);
 
         assertEquals(8, carVolumeGroup.getMaxGainIndex());
     }
@@ -127,15 +127,28 @@ public class CarVolumeGroupTest {
 
         CarAudioDeviceInfo largestMaxGain = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, 1, 1, 10);
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, largestMaxGain);
+        carVolumeGroup.bind(ContextNumber.NOTIFICATION, largestMaxGain);
 
         assertEquals(9, carVolumeGroup.getMaxGainIndex());
 
         CarAudioDeviceInfo middleMaxGain = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, 1, 1, 7);
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, middleMaxGain);
+        carVolumeGroup.bind(ContextNumber.VOICE_COMMAND, middleMaxGain);
 
         assertEquals(9, carVolumeGroup.getMaxGainIndex());
+    }
+
+    @Test
+    public void bind_checksThatTheSameContextIsNotBoundTwice() {
+        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(mContext, 0, 0);
+
+        carVolumeGroup.bind(ContextNumber.NAVIGATION, mMediaDevice);
+
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(
+                "Context NAVIGATION has already been bound to " + MEDIA_DEVICE_ADDRESS);
+
+        carVolumeGroup.bind(ContextNumber.NAVIGATION, mMediaDevice);
     }
 
     @Test
@@ -246,7 +259,7 @@ public class CarVolumeGroupTest {
 
         CarAudioDeviceInfo minGainDevice = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, 1, MAX_GAIN);
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, minGainDevice);
+        carVolumeGroup.bind(ContextNumber.NOTIFICATION, minGainDevice);
 
         assertEquals(0, carVolumeGroup.getMinGainIndex());
     }
