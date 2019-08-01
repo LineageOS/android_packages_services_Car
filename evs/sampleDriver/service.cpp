@@ -36,7 +36,7 @@ using android::hardware::automotive::evs::V1_0::IEvsEnumerator;
 using android::hardware::automotive::evs::V1_0::IEvsDisplay;
 
 // The namespace in which all our implementation code lives
-using namespace android::hardware::automotive::evs::V1_0::implementation;
+using namespace android::hardware::automotive::evs::V1_1::implementation;
 using namespace android;
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,28 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_0_EVSCAMERAENUMERATOR_H
-#define ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_0_EVSCAMERAENUMERATOR_H
+#ifndef ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_EVSCAMERAENUMERATOR_H
+#define ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_EVSCAMERAENUMERATOR_H
 
 #include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
-#include <android/hardware/automotive/evs/1.0/IEvsCamera.h>
+#include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 
 #include <unordered_map>
 #include <thread>
 #include <atomic>
 
+using ::android::hardware::automotive::evs::V1_0::CameraDesc;
+using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
+using ::android::hardware::automotive::evs::V1_0::IEvsEnumerator;
+using EvsDisplayState = ::android::hardware::automotive::evs::V1_0::DisplayState;
+using IEvsCamera_1_0  = ::android::hardware::automotive::evs::V1_0::IEvsCamera;
+using IEvsCamera_1_1  = ::android::hardware::automotive::evs::V1_1::IEvsCamera;
+
 namespace android {
 namespace hardware {
 namespace automotive {
 namespace evs {
-namespace V1_0 {
+namespace V1_1 {
 namespace implementation {
 
 
@@ -38,12 +45,12 @@ class EvsGlDisplay;    // from EvsGlDisplay.h
 class EvsEnumerator : public IEvsEnumerator {
 public:
     // Methods from ::android::hardware::automotive::evs::V1_0::IEvsEnumerator follow.
-    Return<void> getCameraList(getCameraList_cb _hidl_cb)  override;
-    Return<sp<IEvsCamera>> openCamera(const hidl_string& cameraId) override;
-    Return<void> closeCamera(const ::android::sp<IEvsCamera>& carCamera)  override;
-    Return<sp<IEvsDisplay>> openDisplay()  override;
-    Return<void> closeDisplay(const ::android::sp<IEvsDisplay>& display)  override;
-    Return<DisplayState> getDisplayState()  override;
+    Return<void>                getCameraList(getCameraList_cb _hidl_cb)  override;
+    Return<sp<IEvsCamera_1_0>>  openCamera(const hidl_string& cameraId) override;
+    Return<void>                closeCamera(const ::android::sp<IEvsCamera_1_0>& pCamera)  override;
+    Return<sp<IEvsDisplay>>     openDisplay()  override;
+    Return<void>                closeDisplay(const ::android::sp<IEvsDisplay>& display)  override;
+    Return<EvsDisplayState>     getDisplayState()  override;
 
     // Implementation details
     EvsEnumerator();
@@ -65,6 +72,8 @@ private:
     static CameraRecord* findCameraById(const std::string& cameraId);
     static void enumerateDevices();
 
+    void closeCamera_impl(const sp<IEvsCamera_1_0>& pCamera, const std::string& cameraId);
+
     // NOTE:  All members values are static so that all clients operate on the same state
     //        That is to say, this is effectively a singleton despite the fact that HIDL
     //        constructs a new instance for each client.
@@ -82,10 +91,10 @@ private:
 };
 
 } // namespace implementation
-} // namespace V1_0
+} // namespace V1_1
 } // namespace evs
 } // namespace automotive
 } // namespace hardware
 } // namespace android
 
-#endif  // ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_0_EVSCAMERAENUMERATOR_H
+#endif  // ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_EVSCAMERAENUMERATOR_H

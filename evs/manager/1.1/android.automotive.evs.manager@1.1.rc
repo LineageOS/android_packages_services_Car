@@ -1,4 +1,4 @@
-service evs_manager /system/bin/android.automotive.evs.manager@1.0
+service evs_manager /system/bin/android.automotive.evs.manager@1.1
     class hal
     priority -20
     user automotive_evs

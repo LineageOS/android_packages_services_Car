@@ -139,19 +139,23 @@ bool RenderBase::prepareGL() {
 
 
 bool RenderBase::attachRenderTarget(const BufferDesc& tgtBuffer) {
+    const AHardwareBuffer_Desc* pDesc =
+        reinterpret_cast<const AHardwareBuffer_Desc *>(&tgtBuffer.buffer.description);
     // Hardcoded to RGBx for now
-    if (tgtBuffer.format != HAL_PIXEL_FORMAT_RGBA_8888) {
+    if (pDesc->format != HAL_PIXEL_FORMAT_RGBA_8888) {
         ALOGE("Unsupported target buffer format");
         return false;
     }
 
     // create a GraphicBuffer from the existing handle
-    sp<GraphicBuffer> pGfxBuffer = new GraphicBuffer(tgtBuffer.memHandle,
+    sp<GraphicBuffer> pGfxBuffer = new GraphicBuffer(tgtBuffer.buffer.nativeHandle,
                                                      GraphicBuffer::CLONE_HANDLE,
-                                                     tgtBuffer.width, tgtBuffer.height,
-                                                     tgtBuffer.format, 1, // layer count
+                                                     pDesc->width,
+                                                     pDesc->height,
+                                                     pDesc->format,
+                                                     pDesc->layers,
                                                      GRALLOC_USAGE_HW_RENDER,
-                                                     tgtBuffer.stride);
+                                                     pDesc->stride);
     if (pGfxBuffer.get() == nullptr) {
         ALOGE("Failed to allocate GraphicBuffer to wrap image handle");
         return false;
@@ -190,19 +194,17 @@ bool RenderBase::attachRenderTarget(const BufferDesc& tgtBuffer) {
     }
 
     // Store the size of our target buffer
-    sWidth = tgtBuffer.width;
-    sHeight = tgtBuffer.height;
+    sWidth = pDesc->width;
+    sHeight = pDesc->height;
     sAspectRatio = (float)sWidth / sHeight;
 
     // Set the viewport
     glViewport(0, 0, sWidth, sHeight);
 
-#if 1   // We don't actually need the clear if we're going to cover the whole screen anyway
+    // We don't actually need the clear if we're going to cover the whole screen anyway
     // Clear the color buffer
     glClearColor(0.8f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-#endif
-
 
     return true;
 }

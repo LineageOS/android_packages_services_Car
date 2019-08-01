@@ -22,6 +22,6 @@ const static char kManagedEnumeratorName[] = "default";
 const static char kHardwareEnumeratorName[]  = "EvsEnumeratorHw";
 
 // This is the name of the mock hardware provider selectable via command line.
-// (should match .../hardware/interfaces/automotive/evs/1.0/default/ServiceNames.h)
+// (should match .../hardware/interfaces/automotive/evs/1.1/default/ServiceNames.h)
 const static char kMockEnumeratorName[]  = "EvsEnumeratorHw-Mock";
 

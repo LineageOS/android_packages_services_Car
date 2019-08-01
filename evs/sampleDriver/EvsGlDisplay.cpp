@@ -25,7 +25,7 @@ namespace android {
 namespace hardware {
 namespace automotive {
 namespace evs {
-namespace V1_0 {
+namespace V1_1 {
 namespace implementation {
 
 static bool sDebugFirstFrameDisplayed = false;
@@ -42,7 +42,7 @@ EvsGlDisplay::EvsGlDisplay() {
 
 EvsGlDisplay::~EvsGlDisplay() {
     ALOGD("EvsGlDisplay being destroyed");
-	forceShutdown();
+    forceShutdown();
 }
 
 
@@ -73,7 +73,7 @@ void EvsGlDisplay::forceShutdown()
 
     // Put this object into an unrecoverable error state since somebody else
     // is going to own the display now.
-    mRequestedState = DisplayState::DEAD;
+    mRequestedState = EvsDisplayState::DEAD;
 }
 
 
@@ -99,25 +99,25 @@ Return<void> EvsGlDisplay::getDisplayInfo(getDisplayInfo_cb _hidl_cb)  {
  * then begin providing video.  When the display is no longer required, the client
  * is expected to request the NOT_VISIBLE state after passing the last video frame.
  */
-Return<EvsResult> EvsGlDisplay::setDisplayState(DisplayState state) {
+Return<EvsResult> EvsGlDisplay::setDisplayState(EvsDisplayState state) {
     ALOGD("setDisplayState");
     std::lock_guard<std::mutex> lock(mAccessLock);
 
-    if (mRequestedState == DisplayState::DEAD) {
+    if (mRequestedState == EvsDisplayState::DEAD) {
         // This object no longer owns the display -- it's been superceeded!
         return EvsResult::OWNERSHIP_LOST;
     }
 
     // Ensure we recognize the requested state so we don't go off the rails
-    if (state >= DisplayState::NUM_STATES) {
+    if (state >= EvsDisplayState::NUM_STATES) {
         return EvsResult::INVALID_ARG;
     }
 
     switch (state) {
-    case DisplayState::NOT_VISIBLE:
+    case EvsDisplayState::NOT_VISIBLE:
         mGlWrapper.hideWindow();
         break;
-    case DisplayState::VISIBLE:
+    case EvsDisplayState::VISIBLE:
         mGlWrapper.showWindow();
         break;
     default:
@@ -138,7 +138,7 @@ Return<EvsResult> EvsGlDisplay::setDisplayState(DisplayState state) {
  * the device layer, making it undesirable for the HAL implementation to
  * spontaneously change display states.
  */
-Return<DisplayState> EvsGlDisplay::getDisplayState()  {
+Return<EvsDisplayState> EvsGlDisplay::getDisplayState()  {
     ALOGD("getDisplayState");
     std::lock_guard<std::mutex> lock(mAccessLock);
 
@@ -156,9 +156,9 @@ Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
     ALOGV("getTargetBuffer");
     std::lock_guard<std::mutex> lock(mAccessLock);
 
-    if (mRequestedState == DisplayState::DEAD) {
+    if (mRequestedState == EvsDisplayState::DEAD) {
         ALOGE("Rejecting buffer request from object that lost ownership of the display.");
-        BufferDesc nullBuff = {};
+        BufferDesc_1_0 nullBuff = {};
         _hidl_cb(nullBuff);
         return Void();
     }
@@ -172,7 +172,7 @@ Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
         if (!mGlWrapper.initialize()) {
             // Report the failure
             ALOGE("Failed to initialize GL display");
-            BufferDesc nullBuff = {};
+            BufferDesc_1_0 nullBuff = {};
             _hidl_cb(nullBuff);
             return Void();
         }
@@ -196,14 +196,14 @@ Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
         if (result != NO_ERROR) {
             ALOGE("Error %d allocating %d x %d graphics buffer",
                   result, mBuffer.width, mBuffer.height);
-            BufferDesc nullBuff = {};
+            BufferDesc_1_0 nullBuff = {};
             _hidl_cb(nullBuff);
             mGlWrapper.shutdown();
             return Void();
         }
         if (!handle) {
             ALOGE("We didn't get a buffer handle back from the allocator");
-            BufferDesc nullBuff = {};
+            BufferDesc_1_0 nullBuff = {};
             _hidl_cb(nullBuff);
             mGlWrapper.shutdown();
             return Void();
@@ -222,7 +222,7 @@ Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
         // a previously issued buffer yet (they're behaving badly).
         // NOTE:  We have to make the callback even if we have nothing to provide
         ALOGE("getTargetBuffer called while no buffers available.");
-        BufferDesc nullBuff = {};
+        BufferDesc_1_0 nullBuff = {};
         _hidl_cb(nullBuff);
         return Void();
     } else {
@@ -242,7 +242,7 @@ Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
  * This call tells the display that the buffer is ready for display.
  * The buffer is no longer valid for use by the client after this call.
  */
-Return<EvsResult> EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc& buffer)  {
+Return<EvsResult> EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc_1_0& buffer)  {
     ALOGV("returnTargetBufferForDisplay %p", buffer.memHandle.getNativeHandle());
     std::lock_guard<std::mutex> lock(mAccessLock);
 
@@ -263,18 +263,18 @@ Return<EvsResult> EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc& b
     mFrameBusy = false;
 
     // If we've been displaced by another owner of the display, then we can't do anything else
-    if (mRequestedState == DisplayState::DEAD) {
+    if (mRequestedState == EvsDisplayState::DEAD) {
         return EvsResult::OWNERSHIP_LOST;
     }
 
     // If we were waiting for a new frame, this is it!
-    if (mRequestedState == DisplayState::VISIBLE_ON_NEXT_FRAME) {
-        mRequestedState = DisplayState::VISIBLE;
+    if (mRequestedState == EvsDisplayState::VISIBLE_ON_NEXT_FRAME) {
+        mRequestedState = EvsDisplayState::VISIBLE;
         mGlWrapper.showWindow();
     }
 
     // Validate we're in an expected state
-    if (mRequestedState != DisplayState::VISIBLE) {
+    if (mRequestedState != EvsDisplayState::VISIBLE) {
         // Not sure why a client would send frames back when we're not visible.
         ALOGW ("Got a frame returned while not visible - ignoring.\n");
     } else {
@@ -298,7 +298,7 @@ Return<EvsResult> EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc& b
 }
 
 } // namespace implementation
-} // namespace V1_0
+} // namespace V1_1
 } // namespace evs
 } // namespace automotive
 } // namespace hardware
