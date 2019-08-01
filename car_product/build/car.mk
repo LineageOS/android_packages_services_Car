@@ -211,3 +211,7 @@ PRODUCT_HIDDENAPI_STUBS_TEST := \
 
 INCLUDED_ANDROID_CAR_TO_PRODUCT_BOOT_JARS := yes
 endif
+
+# Disable Prime Shader Cache in SurfaceFlinger to make it available faster
+PRODUCT_PROPERTY_OVERRIDES += \
+    service.sf.prime_shader_cache=0
