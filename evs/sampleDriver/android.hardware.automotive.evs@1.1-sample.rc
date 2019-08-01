@@ -1,4 +1,4 @@
-service evs_driver /system/bin/android.hardware.automotive.evs@1.0-sample
+service evs_driver /system/bin/android.hardware.automotive.evs@1.1-sample
     class hal
     priority -20
     user graphics

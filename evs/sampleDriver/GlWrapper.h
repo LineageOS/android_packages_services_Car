@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_0_DISPLAY_GLWRAPPER_H
-#define ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_0_DISPLAY_GLWRAPPER_H
+#ifndef ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_DISPLAY_GLWRAPPER_H
+#define ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_DISPLAY_GLWRAPPER_H
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -29,13 +29,15 @@
 #include <gui/SurfaceComposerClient.h>
 
 #include <android/hardware/automotive/evs/1.0/types.h>
+#include <android/hardware/automotive/evs/1.1/types.h>
 
 
 using ::android::sp;
 using ::android::SurfaceComposerClient;
 using ::android::SurfaceControl;
 using ::android::Surface;
-using ::android::hardware::automotive::evs::V1_0::BufferDesc;
+using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
+using BufferDesc_1_1 = ::android::hardware::automotive::evs::V1_1::BufferDesc;
 
 
 class GlWrapper {
@@ -43,7 +45,8 @@ public:
     bool initialize();
     void shutdown();
 
-    bool updateImageTexture(const BufferDesc& buffer);
+    bool updateImageTexture(const BufferDesc_1_0& buffer);
+    bool updateImageTexture(const BufferDesc_1_1& buffer);
     void renderImageToScreen();
 
     void showWindow();
@@ -69,4 +72,4 @@ private:
     GLuint mShaderProgram = 0;
 };
 
-#endif // ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_0_DISPLAY_GLWRAPPER_H
+#endif // ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_DISPLAY_GLWRAPPER_H

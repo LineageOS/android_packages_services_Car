@@ -24,18 +24,20 @@
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
 #include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
-#include <android/hardware/automotive/evs/1.0/IEvsCamera.h>
+#include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 
 #include <thread>
 
 
-using namespace ::android::hardware::automotive::evs::V1_0;
+using namespace ::android::hardware::automotive::evs::V1_1;
 using namespace ::android::hardware::automotive::vehicle::V2_0;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
 using ::android::hardware::hidl_vec;
 using ::android::hardware::hidl_handle;
 using ::android::sp;
+using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
+using ::android::hardware::automotive::evs::V1_0::IEvsEnumerator;
 
 
 /*

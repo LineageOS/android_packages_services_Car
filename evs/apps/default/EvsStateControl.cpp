@@ -26,6 +26,12 @@
 #include <utils/SystemClock.h>
 #include <binder/IServiceManager.h>
 
+using ::android::hardware::automotive::evs::V1_0::EvsResult;
+using ::android::hardware::automotive::evs::V1_0::CameraDesc;
+using EvsDisplayState = ::android::hardware::automotive::evs::V1_0::DisplayState;
+using BufferDesc_1_0  = ::android::hardware::automotive::evs::V1_0::BufferDesc;
+using BufferDesc_1_1  = ::android::hardware::automotive::evs::V1_1::BufferDesc;
+
 static bool isSfReady() {
     const android::String16 serviceName("SurfaceFlinger");
     return android::defaultServiceManager()->checkService(serviceName) != nullptr;
@@ -58,67 +64,49 @@ EvsStateControl::EvsStateControl(android::sp <IVehicle>       pVnet,
     mGearValue.prop       = static_cast<int32_t>(VehicleProperty::GEAR_SELECTION);
     mTurnSignalValue.prop = static_cast<int32_t>(VehicleProperty::TURN_SIGNAL_STATE);
 
-#if 1
     // This way we only ever deal with cameras which exist in the system
     // Build our set of cameras for the states we support
     ALOGD("Requesting camera list");
-    mEvs->getCameraList([this, &config](hidl_vec<CameraDesc> cameraList) {
-                            ALOGI("Camera list callback received %zu cameras",
-                                  cameraList.size());
-                            for (auto&& cam: cameraList) {
-                                ALOGD("Found camera %s", cam.cameraId.c_str());
-                                bool cameraConfigFound = false;
+    mEvs->getCameraList(
+        [this, &config](hidl_vec<CameraDesc> cameraList) {
+            ALOGI("Camera list callback received %zu cameras",
+                  cameraList.size());
+            for (auto&& cam: cameraList) {
+                ALOGD("Found camera %s", cam.cameraId.c_str());
+                bool cameraConfigFound = false;
 
-                                // Check our configuration for information about this camera
-                                // Note that a camera can have a compound function string
-                                // such that a camera can be "right/reverse" and be used for both.
-                                // If more than one camera is listed for a given function, we'll
-                                // list all of them and let the UX/rendering logic use one, some
-                                // or all of them as appropriate.
-                                for (auto&& info: config.getCameras()) {
-                                    if (cam.cameraId == info.cameraId) {
-                                        // We found a match!
-                                        if (info.function.find("reverse") != std::string::npos) {
-                                            mCameraList[State::REVERSE].push_back(info);
-                                        }
-                                        if (info.function.find("right") != std::string::npos) {
-                                            mCameraList[State::RIGHT].push_back(info);
-                                        }
-                                        if (info.function.find("left") != std::string::npos) {
-                                            mCameraList[State::LEFT].push_back(info);
-                                        }
-                                        if (info.function.find("park") != std::string::npos) {
-                                            mCameraList[State::PARKING].push_back(info);
-                                        }
-                                        cameraConfigFound = true;
-                                        break;
-                                    }
-                                }
-                                if (!cameraConfigFound) {
-                                    ALOGW("No config information for hardware camera %s",
-                                          cam.cameraId.c_str());
-                                }
-                            }
+                // Check our configuration for information about this camera
+                // Note that a camera can have a compound function string
+                // such that a camera can be "right/reverse" and be used for both.
+                // If more than one camera is listed for a given function, we'll
+                // list all of them and let the UX/rendering logic use one, some
+                // or all of them as appropriate.
+                for (auto&& info: config.getCameras()) {
+                    if (cam.cameraId == info.cameraId) {
+                        // We found a match!
+                        if (info.function.find("reverse") != std::string::npos) {
+                            mCameraList[State::REVERSE].push_back(info);
                         }
+                        if (info.function.find("right") != std::string::npos) {
+                            mCameraList[State::RIGHT].push_back(info);
+                        }
+                        if (info.function.find("left") != std::string::npos) {
+                            mCameraList[State::LEFT].push_back(info);
+                        }
+                        if (info.function.find("park") != std::string::npos) {
+                            mCameraList[State::PARKING].push_back(info);
+                        }
+                        cameraConfigFound = true;
+                        break;
+                    }
+                }
+                if (!cameraConfigFound) {
+                    ALOGW("No config information for hardware camera %s",
+                          cam.cameraId.c_str());
+                }
+            }
+        }
     );
-#else // This way we use placeholders for cameras in the configuration but not reported by EVS
-    // Build our set of cameras for the states we support
-    ALOGD("Requesting camera list");
-    for (auto&& info: config.getCameras()) {
-        if (info.function.find("reverse") != std::string::npos) {
-            mCameraList[State::REVERSE].push_back(info);
-        }
-        if (info.function.find("right") != std::string::npos) {
-            mCameraList[State::RIGHT].push_back(info);
-        }
-        if (info.function.find("left") != std::string::npos) {
-            mCameraList[State::LEFT].push_back(info);
-        }
-        if (info.function.find("park") != std::string::npos) {
-            mCameraList[State::PARKING].push_back(info);
-        }
-    }
-#endif
 
     ALOGD("State controller ready");
 }
@@ -176,8 +164,8 @@ void EvsStateControl::updateLoop() {
         // If we have an active renderer, give it a chance to draw
         if (mCurrentRenderer) {
             // Get the output buffer we'll use to display the imagery
-            BufferDesc tgtBuffer = {};
-            mDisplay->getTargetBuffer([&tgtBuffer](const BufferDesc& buff) {
+            BufferDesc_1_0 tgtBuffer = {};
+            mDisplay->getTargetBuffer([&tgtBuffer](const BufferDesc_1_0& buff) {
                                           tgtBuffer = buff;
                                       }
             );
@@ -186,7 +174,20 @@ void EvsStateControl::updateLoop() {
                 ALOGE("Didn't get requested output buffer -- skipping this frame.");
             } else {
                 // Generate our output image
-                if (!mCurrentRenderer->drawFrame(tgtBuffer)) {
+                BufferDesc_1_1 bufDesc_1_1 = {};
+                AHardwareBuffer_Desc* pDesc =
+                    reinterpret_cast<AHardwareBuffer_Desc *>(&bufDesc_1_1.buffer.description);
+                pDesc->width  = tgtBuffer.width;
+                pDesc->height = tgtBuffer.height;
+                pDesc->layers = 1;
+                pDesc->format = tgtBuffer.format;
+                pDesc->usage  = static_cast<uint64_t>(tgtBuffer.usage);
+                pDesc->stride = tgtBuffer.stride;
+                bufDesc_1_1.buffer.nativeHandle = tgtBuffer.memHandle;
+                bufDesc_1_1.pixelSize = tgtBuffer.pixelSize;
+                bufDesc_1_1.bufferId = tgtBuffer.bufferId;
+
+                if (!mCurrentRenderer->drawFrame(bufDesc_1_1)) {
                     // If drawing failed, we want to exit quickly so an app restart can happen
                     run = false;
                 }
@@ -343,7 +344,7 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
     // Now set the display state based on whether we have a video feed to show
     if (mDesiredRenderer == nullptr) {
         ALOGD("Turning off the display");
-        mDisplay->setDisplayState(DisplayState::NOT_VISIBLE);
+        mDisplay->setDisplayState(EvsDisplayState::NOT_VISIBLE);
     } else {
         mCurrentRenderer = std::move(mDesiredRenderer);
 
@@ -356,7 +357,7 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
 
         // Activate the display
         ALOGD("EvsActivateDisplayTiming start time: %" PRId64 "ms", android::elapsedRealtime());
-        Return<EvsResult> result = mDisplay->setDisplayState(DisplayState::VISIBLE_ON_NEXT_FRAME);
+        Return<EvsResult> result = mDisplay->setDisplayState(EvsDisplayState::VISIBLE_ON_NEXT_FRAME);
         if (result != EvsResult::OK) {
             ALOGE("setDisplayState returned an error (%d)", (EvsResult)result);
             return false;
