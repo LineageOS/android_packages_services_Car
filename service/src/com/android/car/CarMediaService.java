@@ -91,6 +91,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private boolean mStartPlayback;
 
     private boolean mPendingInit;
+    private int mCurrentUser;
 
     private final RemoteCallbackList<ICarMediaSourceListener> mMediaSourceListeners =
             new RemoteCallbackList();
@@ -141,6 +142,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
                 Log.d(CarLog.TAG_MEDIA, "Switched to user " + ActivityManager.getCurrentUser());
             }
+            mCurrentUser = ActivityManager.getCurrentUser();
             // TODO(b/137037900): handle multiple users properly.
             updateMediaSessionCallbackForCurrentUser();
             if (mUserManager.isUserUnlocked(ActivityManager.getCurrentUser())) {
@@ -155,6 +157,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mContext = context;
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
+        mSharedPrefs = mContext.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
 
         mHandlerThread = new HandlerThread(CarLog.TAG_MEDIA);
         mHandlerThread.start();
@@ -171,6 +174,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         userSwitchFilter.addAction(Intent.ACTION_USER_SWITCHED);
         mContext.registerReceiver(mUserSwitchReceiver, userSwitchFilter);
 
+        mCurrentUser = ActivityManager.getCurrentUser();
         updateMediaSessionCallbackForCurrentUser();
     }
 
@@ -182,10 +186,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     }
 
     private void initUser() {
-        mSharedPrefs = mContext.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
         mPrimaryMediaComponent = getLastMediaSource();
-        mStartPlayback = mSharedPrefs.getInt(PLAYBACK_STATE_KEY, PlaybackState.STATE_NONE)
-                == PlaybackState.STATE_PLAYING;
+        mActiveUserMediaController = null;
+        String key = PLAYBACK_STATE_KEY + mCurrentUser;
+        mStartPlayback = mSharedPrefs.getInt(key, PlaybackState.STATE_NONE)
+            == PlaybackState.STATE_PLAYING;
         notifyListeners();
     }
 
@@ -547,20 +552,22 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
     private void saveLastMediaSource(@NonNull ComponentName component) {
         String componentName = component.flattenToString();
-        String serialized = mSharedPrefs.getString(SOURCE_KEY, null);
+        String key = SOURCE_KEY + mCurrentUser;
+        String serialized = mSharedPrefs.getString(key, null);
         if (serialized == null) {
-            mSharedPrefs.edit().putString(SOURCE_KEY, componentName).apply();
+            mSharedPrefs.edit().putString(key, componentName).apply();
         } else {
             Deque<String> componentNames = getComponentNameList(serialized);
             componentNames.remove(componentName);
             componentNames.addFirst(componentName);
-            mSharedPrefs.edit().putString(SOURCE_KEY, serializeComponentNameList(componentNames))
+            mSharedPrefs.edit().putString(key, serializeComponentNameList(componentNames))
                     .apply();
         }
     }
 
     private ComponentName getLastMediaSource() {
-        String serialized = mSharedPrefs.getString(SOURCE_KEY, null);
+        String key = SOURCE_KEY + mCurrentUser;
+        String serialized = mSharedPrefs.getString(key, null);
         if (!TextUtils.isEmpty(serialized)) {
             for (String name : getComponentNameList(serialized)) {
                 ComponentName componentName = ComponentName.unflattenFromString(name);
@@ -600,7 +607,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             mStartPlayback = false;
         }
         if (mSharedPrefs != null) {
-            mSharedPrefs.edit().putInt(PLAYBACK_STATE_KEY, state).apply();
+            String key = PLAYBACK_STATE_KEY + mCurrentUser;
+            mSharedPrefs.edit().putInt(key, state).apply();
         }
     }
 
