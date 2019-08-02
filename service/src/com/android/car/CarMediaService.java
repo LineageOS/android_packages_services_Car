@@ -75,7 +75,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private static final String SOURCE_KEY = "media_source_component";
     private static final String PLAYBACK_STATE_KEY = "playback_state";
     private static final String SHARED_PREF = "com.android.car.media.car_media_service";
-    private static final String PACKAGE_NAME_SEPARATOR = ",";
     private static final String COMPONENT_NAME_SEPARATOR = ",";
 
     private final Context mContext;
@@ -106,12 +105,15 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     /** The package name of the last media source that was removed while being primary. */
     private String mRemovedMediaSourcePackage;
 
+    private final IntentFilter mPackageUpdateFilter;
+    private boolean mIsPackageUpdateReceiverRegistered;
+
     /**
-     * Listens to {@link Intent#ACTION_PACKAGE_REMOVED} and {@link Intent#ACTION_PACKAGE_REPLACED}
-     * so we can reset the media source to null when its application is uninstalled, and restore it
-     * when the application is reinstalled.
+     * Listens to {@link Intent#ACTION_PACKAGE_REMOVED}, {@link Intent#ACTION_PACKAGE_REPLACED} and
+     * {@link Intent#ACTION_PACKAGE_ADDED} so we can reset the media source to null when its
+     * application is uninstalled, and restore it when the application is reinstalled.
      */
-    private final BroadcastReceiver mPackageRemovedReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mPackageUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getData() == null) {
@@ -140,13 +142,12 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private final BroadcastReceiver mUserSwitchReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
-                Log.d(CarLog.TAG_MEDIA, "Switched to user " + ActivityManager.getCurrentUser());
-            }
             mCurrentUser = ActivityManager.getCurrentUser();
-            // TODO(b/137037900): handle multiple users properly.
+            if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
+                Log.d(CarLog.TAG_MEDIA, "Switched to user " + mCurrentUser);
+            }
             updateMediaSessionCallbackForCurrentUser();
-            if (mUserManager.isUserUnlocked(ActivityManager.getCurrentUser())) {
+            if (mUserManager.isUserUnlocked(mCurrentUser)) {
                 initUser();
             } else {
                 mPendingInit = true;
@@ -164,12 +165,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        filter.addDataScheme("package");
-        mContext.registerReceiver(mPackageRemovedReceiver, filter);
+        mPackageUpdateFilter = new IntentFilter();
+        mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        mPackageUpdateFilter.addDataScheme("package");
 
         IntentFilter userSwitchFilter = new IntentFilter();
         userSwitchFilter.addAction(Intent.ACTION_USER_SWITCHED);
@@ -187,11 +187,18 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     }
 
     private void initUser() {
+        if (mIsPackageUpdateReceiverRegistered) {
+            mContext.unregisterReceiver(mPackageUpdateReceiver);
+        }
+        mContext.registerReceiverAsUser(mPackageUpdateReceiver, new UserHandle(mCurrentUser),
+                mPackageUpdateFilter, null, null);
+        mIsPackageUpdateReceiverRegistered = true;
+
         mPrimaryMediaComponent = getLastMediaSource();
         mActiveUserMediaController = null;
         String key = PLAYBACK_STATE_KEY + mCurrentUser;
-        mStartPlayback = mSharedPrefs.getInt(key, PlaybackState.STATE_NONE)
-            == PlaybackState.STATE_PLAYING;
+        mStartPlayback =
+                mSharedPrefs.getInt(key, PlaybackState.STATE_NONE) == PlaybackState.STATE_PLAYING;
         notifyListeners();
     }
 
@@ -609,11 +616,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private Deque<String> getComponentNameList(String serialized) {
         String[] componentNames = serialized.split(COMPONENT_NAME_SEPARATOR);
         return new ArrayDeque(Arrays.asList(componentNames));
-    }
-
-    private Deque<String> getPackageNameList(String serialized) {
-        String[] packageNames = serialized.split(PACKAGE_NAME_SEPARATOR);
-        return new ArrayDeque(Arrays.asList(packageNames));
     }
 
     private void savePlaybackState(PlaybackState playbackState) {
