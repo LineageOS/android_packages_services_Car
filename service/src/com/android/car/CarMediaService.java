@@ -83,6 +83,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private final MediaSessionManager mMediaSessionManager;
     private final MediaSessionUpdater mMediaSessionUpdater = new MediaSessionUpdater();
     private ComponentName mPrimaryMediaComponent;
+    private ComponentName mPreviousMediaComponent;
     private SharedPreferences mSharedPrefs;
     // MediaController for the current active user's active media session. This controller can be
     // null if playback has not been started yet.
@@ -204,6 +205,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         writer.println("*CarMediaService*");
         writer.println("\tCurrent media component: " + (mPrimaryMediaComponent == null ? "-"
                 : mPrimaryMediaComponent.flattenToString()));
+        writer.println("\tPrevious media component: " + (mPreviousMediaComponent == null ? "-"
+                : mPreviousMediaComponent.flattenToString()));
         if (mActiveUserMediaController != null) {
             writer.println(
                     "\tCurrent media controller: " + mActiveUserMediaController.getPackageName());
@@ -219,8 +222,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
      * @see {@link CarMediaManager#setMediaSource(ComponentName)}
      */
     @Override
-    public synchronized void setMediaSource(ComponentName componentName) {
+    public synchronized void setMediaSource(@NonNull ComponentName componentName) {
         ICarImpl.assertPermission(mContext, android.Manifest.permission.MEDIA_CONTENT_CONTROL);
+        if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
+            Log.d(CarLog.TAG_MEDIA, "Changing media source to: " + componentName.getPackageName());
+        }
         setPrimaryMediaSource(componentName);
     }
 
@@ -361,6 +367,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                     && state.getState() != mPreviousPlaybackState) {
                 ComponentName mediaSource = getMediaSource(mMediaController.getPackageName(),
                         getClassName(mMediaController));
+                if (mediaSource != null && !mediaSource.equals(mPrimaryMediaComponent)
+                        && Log.isLoggable(CarLog.TAG_MEDIA, Log.INFO)) {
+                    Log.i(CarLog.TAG_MEDIA, "Changing media source due to playback state change: "
+                            + mediaSource.flattenToString());
+                }
                 setPrimaryMediaSource(mediaSource);
             }
             mPreviousPlaybackState = state.getState();
@@ -429,6 +440,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         stop();
 
         mStartPlayback = false;
+        mPreviousMediaComponent = mPrimaryMediaComponent;
         mPrimaryMediaComponent = componentName;
         updateActiveMediaController(mMediaSessionManager
                 .getActiveSessionsForUser(null, ActivityManager.getCurrentUser()));
@@ -481,6 +493,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 String newClassName = getClassName(controller);
                 if (!matchPrimaryMediaSource(newPackageName, newClassName)) {
                     ComponentName mediaSource = getMediaSource(newPackageName, newClassName);
+                    if (Log.isLoggable(CarLog.TAG_MEDIA, Log.INFO)) {
+                        Log.i(CarLog.TAG_MEDIA,
+                                "Changing media source due to playback state change: "
+                                + mediaSource.flattenToString());
+                    }
                     setPrimaryMediaSource(mediaSource);
                 }
                 return;
