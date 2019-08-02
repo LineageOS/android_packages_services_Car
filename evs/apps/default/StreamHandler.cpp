@@ -153,6 +153,14 @@ Return<void> StreamHandler::notifyEvent(const EvsEvent& event) {
                 ALOGI("Received a STREAM_STOPPED event");
                 break;
             }
+            // Below events are ignored
+            case EvsEventType::STREAM_STARTED:
+            [[fallthrough]];
+            case EvsEventType::FRAME_DROPPED:
+            [[fallthrough]];
+            case EvsEventType::TIMEOUT:
+                ALOGI("Event 0x%X is received but ignored", event.info());
+                break;
             default:
                 ALOGE("Unknown event id 0x%X", event.info());
                 break;
