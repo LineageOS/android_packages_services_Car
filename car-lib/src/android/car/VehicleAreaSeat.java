@@ -66,4 +66,31 @@ public final class VehicleAreaSeat {
     public @interface Enum {}
     private VehicleAreaSeat() {}
 
+    /** @hide */
+    public static final int SIDE_LEFT = -1;
+    /** @hide */
+    public static final int SIDE_CENTER = 0;
+    /** @hide */
+    public static final int SIDE_RIGHT = 1;
+    /**
+     * Convert row number and side into {@link Enum}.
+     *
+     * @param rowNumber should be 1, 2 or 3
+     * @param side {@link #SIDE_LEFT}. {@link #SIDE_CENTER}, {@link #SIDE_RIGHT}.
+     *
+     * @hide */
+    @Enum
+    public static int fromRowAndSide(int rowNumber, int side) {
+        if (rowNumber < 1 || rowNumber > 3) {
+            return SEAT_UNKNOWN;
+        }
+        if (side < -1 || side > 1) {
+            return SEAT_UNKNOWN;
+        }
+        int seat = 0x1;
+        seat = seat << ((rowNumber - 1) * 4);
+        seat = seat << (side + 1);
+        return seat;
+    }
+
 }

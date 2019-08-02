@@ -18,6 +18,7 @@ package android.car {
     field public static final String CAR_EXTRA_MEDIA_PACKAGE = "android.car.intent.extra.MEDIA_PACKAGE";
     field public static final String CAR_INTENT_ACTION_MEDIA_TEMPLATE = "android.car.intent.action.MEDIA_TEMPLATE";
     field public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
+    field public static final String CAR_OCCUPANT_ZONE_SERVICE = "car_occupant_zone_service";
     field public static final String CAR_UX_RESTRICTION_SERVICE = "uxrestriction";
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
     field public static final String INFO_SERVICE = "info";
@@ -84,6 +85,40 @@ package android.car {
     ctor @Deprecated public CarNotConnectedException(String);
     ctor @Deprecated public CarNotConnectedException(String, Throwable);
     ctor @Deprecated public CarNotConnectedException(Exception);
+  }
+
+  public class CarOccupantZoneManager {
+    method @NonNull public java.util.List<android.view.Display> getAllDisplaysForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @NonNull public java.util.List<android.car.CarOccupantZoneManager.OccupantZoneInfo> getAllOccupantZones();
+    method @Nullable public android.view.Display getDisplayForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
+    method public int getDisplayType(@NonNull android.view.Display);
+    method public int getUserForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method public void registerOccupantZoneConfigChangeListener(@NonNull android.car.CarOccupantZoneManager.OccupantZoneConfigChangeListener);
+    method public void unregisterOccupantZoneConfigChangeListener(@NonNull android.car.CarOccupantZoneManager.OccupantZoneConfigChangeListener);
+    field public static final int DISPLAY_TYPE_AUXILIARY = 5; // 0x5
+    field public static final int DISPLAY_TYPE_HUD = 3; // 0x3
+    field public static final int DISPLAY_TYPE_INPUT = 4; // 0x4
+    field public static final int DISPLAY_TYPE_INSTRUMENT_CLUSTER = 2; // 0x2
+    field public static final int DISPLAY_TYPE_MAIN = 1; // 0x1
+    field public static final int DISPLAY_TYPE_UNKNOWN = 0; // 0x0
+    field public static final int OCCUPANT_TYPE_DRIVER = 0; // 0x0
+    field public static final int OCCUPANT_TYPE_FRONT_PASSENGER = 1; // 0x1
+    field public static final int OCCUPANT_TYPE_REAR_PASSENGER = 2; // 0x2
+    field public static final int ZONE_CONFIG_CHANGE_FLAG_DISPLAY = 1; // 0x1
+    field public static final int ZONE_CONFIG_CHANGE_FLAG_USER = 2; // 0x2
+  }
+
+  public static interface CarOccupantZoneManager.OccupantZoneConfigChangeListener {
+    method public void onOccupantZoneConfigChanged(int);
+  }
+
+  public static final class CarOccupantZoneManager.OccupantZoneInfo implements android.os.Parcelable {
+    method public int describeContents();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.CarOccupantZoneManager.OccupantZoneInfo> CREATOR;
+    field public final int occupantType;
+    field public final int seat;
+    field public int zoneId;
   }
 
   public final class EvConnectorType {
