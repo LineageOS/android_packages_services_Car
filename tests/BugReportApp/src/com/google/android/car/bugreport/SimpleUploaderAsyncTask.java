@@ -23,7 +23,6 @@ import android.util.Log;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.InputStreamContent;
 import com.google.api.client.json.JsonFactory;
@@ -36,9 +35,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.net.HttpRetryException;
-import java.net.SocketException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -145,16 +141,10 @@ class SimpleUploaderAsyncTask extends AsyncTask<Void, Void, Boolean> {
                 }
                 upload(bugReport);
                 BugStorageUtils.setUploadSuccess(mContext, bugReport);
-            } catch (HttpRetryException | HttpResponseException | SocketException
-                    | InterruptedIOException e) {
+            } catch (Exception e) {
                 Log.e(TAG, String.format("Failed uploading %s - likely a transient error",
                         bugReport.getTimestamp()), e);
                 BugStorageUtils.setUploadRetry(mContext, bugReport, e);
-            } catch (Exception e) {
-                Log.e(TAG,
-                        String.format("Failed uploading %s - giving up", bugReport.getTimestamp()),
-                        e);
-                BugStorageUtils.setUploadFailed(mContext, bugReport, e);
             }
         }
         return false;
