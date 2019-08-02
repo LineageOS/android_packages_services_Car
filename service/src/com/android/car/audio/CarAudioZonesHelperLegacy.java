@@ -81,6 +81,12 @@ import java.util.List;
         for (CarAudioDeviceInfo carAudioDeviceInfo : carAudioDeviceInfos) {
             int busNumber = parseDeviceAddress(carAudioDeviceInfo.getAddress());
             if (busNumber >= 0) {
+                if (busToCarAudioDeviceInfo.get(busNumber) != null) {
+                    throw new RuntimeException("Two addresses map to same bus number: "
+                            + carAudioDeviceInfo.getAddress()
+                            + " and "
+                    + busToCarAudioDeviceInfo.get(busNumber).getAddress());
+                }
                 busToCarAudioDeviceInfo.put(busNumber, carAudioDeviceInfo);
             }
         }
