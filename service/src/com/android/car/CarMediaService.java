@@ -75,7 +75,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private static final String SOURCE_KEY = "media_source_component";
     private static final String PLAYBACK_STATE_KEY = "playback_state";
     private static final String SHARED_PREF = "com.android.car.media.car_media_service";
-    private static final String PACKAGE_NAME_SEPARATOR = ",";
     private static final String COMPONENT_NAME_SEPARATOR = ",";
 
     private final Context mContext;
@@ -83,6 +82,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private final MediaSessionManager mMediaSessionManager;
     private final MediaSessionUpdater mMediaSessionUpdater = new MediaSessionUpdater();
     private ComponentName mPrimaryMediaComponent;
+    private ComponentName mPreviousMediaComponent;
     private SharedPreferences mSharedPrefs;
     // MediaController for the current active user's active media session. This controller can be
     // null if playback has not been started yet.
@@ -91,6 +91,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private boolean mStartPlayback;
 
     private boolean mPendingInit;
+    private int mCurrentUser;
 
     private final RemoteCallbackList<ICarMediaSourceListener> mMediaSourceListeners =
             new RemoteCallbackList();
@@ -104,12 +105,15 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     /** The package name of the last media source that was removed while being primary. */
     private String mRemovedMediaSourcePackage;
 
+    private final IntentFilter mPackageUpdateFilter;
+    private boolean mIsPackageUpdateReceiverRegistered;
+
     /**
-     * Listens to {@link Intent#ACTION_PACKAGE_REMOVED} and {@link Intent#ACTION_PACKAGE_REPLACED}
-     * so we can reset the media source to null when its application is uninstalled, and restore it
-     * when the application is reinstalled.
+     * Listens to {@link Intent#ACTION_PACKAGE_REMOVED}, {@link Intent#ACTION_PACKAGE_REPLACED} and
+     * {@link Intent#ACTION_PACKAGE_ADDED} so we can reset the media source to null when its
+     * application is uninstalled, and restore it when the application is reinstalled.
      */
-    private final BroadcastReceiver mPackageRemovedReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mPackageUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getData() == null) {
@@ -138,12 +142,12 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private final BroadcastReceiver mUserSwitchReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            mCurrentUser = ActivityManager.getCurrentUser();
             if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
-                Log.d(CarLog.TAG_MEDIA, "Switched to user " + ActivityManager.getCurrentUser());
+                Log.d(CarLog.TAG_MEDIA, "Switched to user " + mCurrentUser);
             }
-            // TODO(b/137037900): handle multiple users properly.
             updateMediaSessionCallbackForCurrentUser();
-            if (mUserManager.isUserUnlocked(ActivityManager.getCurrentUser())) {
+            if (mUserManager.isUserUnlocked(mCurrentUser)) {
                 initUser();
             } else {
                 mPendingInit = true;
@@ -155,22 +159,23 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mContext = context;
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
+        mSharedPrefs = mContext.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
 
         mHandlerThread = new HandlerThread(CarLog.TAG_MEDIA);
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        filter.addDataScheme("package");
-        mContext.registerReceiver(mPackageRemovedReceiver, filter);
+        mPackageUpdateFilter = new IntentFilter();
+        mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        mPackageUpdateFilter.addDataScheme("package");
 
         IntentFilter userSwitchFilter = new IntentFilter();
         userSwitchFilter.addAction(Intent.ACTION_USER_SWITCHED);
         mContext.registerReceiver(mUserSwitchReceiver, userSwitchFilter);
 
+        mCurrentUser = ActivityManager.getCurrentUser();
         updateMediaSessionCallbackForCurrentUser();
     }
 
@@ -182,10 +187,18 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     }
 
     private void initUser() {
-        mSharedPrefs = mContext.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
+        if (mIsPackageUpdateReceiverRegistered) {
+            mContext.unregisterReceiver(mPackageUpdateReceiver);
+        }
+        mContext.registerReceiverAsUser(mPackageUpdateReceiver, new UserHandle(mCurrentUser),
+                mPackageUpdateFilter, null, null);
+        mIsPackageUpdateReceiverRegistered = true;
+
         mPrimaryMediaComponent = getLastMediaSource();
-        mStartPlayback = mSharedPrefs.getInt(PLAYBACK_STATE_KEY, PlaybackState.STATE_NONE)
-                == PlaybackState.STATE_PLAYING;
+        mActiveUserMediaController = null;
+        String key = PLAYBACK_STATE_KEY + mCurrentUser;
+        mStartPlayback =
+                mSharedPrefs.getInt(key, PlaybackState.STATE_NONE) == PlaybackState.STATE_PLAYING;
         notifyListeners();
     }
 
@@ -199,6 +212,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         writer.println("*CarMediaService*");
         writer.println("\tCurrent media component: " + (mPrimaryMediaComponent == null ? "-"
                 : mPrimaryMediaComponent.flattenToString()));
+        writer.println("\tPrevious media component: " + (mPreviousMediaComponent == null ? "-"
+                : mPreviousMediaComponent.flattenToString()));
         if (mActiveUserMediaController != null) {
             writer.println(
                     "\tCurrent media controller: " + mActiveUserMediaController.getPackageName());
@@ -214,8 +229,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
      * @see {@link CarMediaManager#setMediaSource(ComponentName)}
      */
     @Override
-    public synchronized void setMediaSource(ComponentName componentName) {
+    public synchronized void setMediaSource(@NonNull ComponentName componentName) {
         ICarImpl.assertPermission(mContext, android.Manifest.permission.MEDIA_CONTENT_CONTROL);
+        if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
+            Log.d(CarLog.TAG_MEDIA, "Changing media source to: " + componentName.getPackageName());
+        }
         setPrimaryMediaSource(componentName);
     }
 
@@ -356,6 +374,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                     && state.getState() != mPreviousPlaybackState) {
                 ComponentName mediaSource = getMediaSource(mMediaController.getPackageName(),
                         getClassName(mMediaController));
+                if (mediaSource != null && !mediaSource.equals(mPrimaryMediaComponent)
+                        && Log.isLoggable(CarLog.TAG_MEDIA, Log.INFO)) {
+                    Log.i(CarLog.TAG_MEDIA, "Changing media source due to playback state change: "
+                            + mediaSource.flattenToString());
+                }
                 setPrimaryMediaSource(mediaSource);
             }
             mPreviousPlaybackState = state.getState();
@@ -424,6 +447,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         stop();
 
         mStartPlayback = false;
+        mPreviousMediaComponent = mPrimaryMediaComponent;
         mPrimaryMediaComponent = componentName;
         updateActiveMediaController(mMediaSessionManager
                 .getActiveSessionsForUser(null, ActivityManager.getCurrentUser()));
@@ -476,6 +500,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 String newClassName = getClassName(controller);
                 if (!matchPrimaryMediaSource(newPackageName, newClassName)) {
                     ComponentName mediaSource = getMediaSource(newPackageName, newClassName);
+                    if (Log.isLoggable(CarLog.TAG_MEDIA, Log.INFO)) {
+                        Log.i(CarLog.TAG_MEDIA,
+                                "Changing media source due to playback state change: "
+                                + mediaSource.flattenToString());
+                    }
                     setPrimaryMediaSource(mediaSource);
                 }
                 return;
@@ -547,20 +576,22 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
     private void saveLastMediaSource(@NonNull ComponentName component) {
         String componentName = component.flattenToString();
-        String serialized = mSharedPrefs.getString(SOURCE_KEY, null);
+        String key = SOURCE_KEY + mCurrentUser;
+        String serialized = mSharedPrefs.getString(key, null);
         if (serialized == null) {
-            mSharedPrefs.edit().putString(SOURCE_KEY, componentName).apply();
+            mSharedPrefs.edit().putString(key, componentName).apply();
         } else {
             Deque<String> componentNames = getComponentNameList(serialized);
             componentNames.remove(componentName);
             componentNames.addFirst(componentName);
-            mSharedPrefs.edit().putString(SOURCE_KEY, serializeComponentNameList(componentNames))
+            mSharedPrefs.edit().putString(key, serializeComponentNameList(componentNames))
                     .apply();
         }
     }
 
     private ComponentName getLastMediaSource() {
-        String serialized = mSharedPrefs.getString(SOURCE_KEY, null);
+        String key = SOURCE_KEY + mCurrentUser;
+        String serialized = mSharedPrefs.getString(key, null);
         if (!TextUtils.isEmpty(serialized)) {
             for (String name : getComponentNameList(serialized)) {
                 ComponentName componentName = ComponentName.unflattenFromString(name);
@@ -587,11 +618,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         return new ArrayDeque(Arrays.asList(componentNames));
     }
 
-    private Deque<String> getPackageNameList(String serialized) {
-        String[] packageNames = serialized.split(PACKAGE_NAME_SEPARATOR);
-        return new ArrayDeque(Arrays.asList(packageNames));
-    }
-
     private void savePlaybackState(PlaybackState playbackState) {
         int state = playbackState != null ? playbackState.getState() : PlaybackState.STATE_NONE;
         if (state == PlaybackState.STATE_PLAYING) {
@@ -600,7 +626,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             mStartPlayback = false;
         }
         if (mSharedPrefs != null) {
-            mSharedPrefs.edit().putInt(PLAYBACK_STATE_KEY, state).apply();
+            String key = PLAYBACK_STATE_KEY + mCurrentUser;
+            mSharedPrefs.edit().putInt(key, state).apply();
         }
     }
 
