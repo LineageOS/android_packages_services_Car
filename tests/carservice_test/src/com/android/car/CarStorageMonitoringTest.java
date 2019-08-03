@@ -41,7 +41,6 @@ import android.util.Pair;
 import android.util.SparseArray;
 
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.RequiresDevice;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.storagemonitoring.LifetimeWriteInfoProvider;
@@ -712,7 +711,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     }
 
     @Test
-    @RequiresDevice
+    // @RequiresDevice
     public void testNegativeShutdownCost() throws Exception {
         assertEquals(CarStorageMonitoringManager.SHUTDOWN_COST_INFO_MISSING,
                 mCarStorageMonitoringManager.getShutdownDiskWriteAmount());

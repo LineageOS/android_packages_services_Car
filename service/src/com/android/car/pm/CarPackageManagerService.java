@@ -1191,7 +1191,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
 
         private void requestRelease() {
-            removeMessages(MSG_INIT);
             removeMessages(MSG_SET_POLICY);
             removeMessages(MSG_UPDATE_POLICY);
             Message msg = obtainMessage(MSG_RELEASE);
