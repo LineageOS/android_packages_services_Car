@@ -138,6 +138,12 @@ import java.util.Map;
      * @param info {@link CarAudioDeviceInfo} instance relates to the physical address
      */
     void bind(int contextNumber, CarAudioDeviceInfo info) {
+        Preconditions.checkArgument(mContextToAddress.get(contextNumber) == null,
+                "Context "
+                        + ContextNumber.toString(contextNumber)
+                        + " has already been bound to "
+                        + mContextToAddress.get(contextNumber));
+
         if (mAddressToCarAudioDeviceInfo.size() == 0) {
             mStepSize = info.getStepValue();
         } else {

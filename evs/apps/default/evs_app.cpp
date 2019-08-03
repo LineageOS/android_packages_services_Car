@@ -32,9 +32,6 @@
 #include "EvsVehicleListener.h"
 #include "ConfigManager.h"
 
-// evs@1.0
-using ::android::hardware::automotive::evs::V1_0::IEvsEnumerator;
-
 // libhidl:
 using android::hardware::configureRpcThreadpool;
 using android::hardware::joinRpcThreadpool;

@@ -28,6 +28,10 @@
     <string name="car_permission_label_energy">access car\u2019s energy information</string>
     <!-- Permission text: can access your car's energy information [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_energy">Access your car\u2019s energy information.</string>
+    <!-- Permission text: can adjust value of your car's range remaining [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_adjust_range_remaining">adjust car\u2019s range remaining</string>
+    <!-- Permission text: can adjust value of your car's range remaining [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_adjust_range_remaining">Adjust car\u2019s range remaining value.</string>
     <!-- Permission text: apps can control car hvac [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_hvac">access car\u2019s hvac</string>
     <!-- Permission text: apps can control car hvac [CHAR LIMIT=NONE] -->

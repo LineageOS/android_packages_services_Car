@@ -192,9 +192,15 @@ public final class VehiclePropertyIds {
     public static final int EV_BATTERY_INSTANTANEOUS_CHARGE_RATE = 291504908;
     /**
      * Range remaining
-     * Requires permission: {@link Car#PERMISSION_ENERGY}.
+     *
+     * Meters remaining of fuel and charge.  Range remaining shall account for
+     * all energy sources in a vehicle.  For example, a hybrid car's range will
+     * be the sum of the ranges based on fuel and battery.
+     * Requires permission: {@link Car#PERMISSION_ENERGY} to read the property.
+     * Requires permission: {@link Car#PERMISSION_ADJUST_RANGE_REMAINING} to write the property.
      */
-    @RequiresPermission(Car.PERMISSION_ENERGY)
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_ADJUST_RANGE_REMAINING))
     public static final int RANGE_REMAINING = 291504904;
     /**
      * Tire pressure
@@ -395,6 +401,13 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     public static final int HVAC_SEAT_VENTILATION = 356517139;
+    /**
+     * ELECTRIC DEFROSTER
+     * Requires permission: {@link Car#PERMISSION_CONTROL_CAR_CLIMATE}.
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556;
     /**
      * Distance units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
@@ -1038,6 +1051,9 @@ public final class VehiclePropertyIds {
         }
         if (o == HVAC_SEAT_VENTILATION) {
             return "HVAC_SEAT_VENTILATION";
+        }
+        if (o == HVAC_ELECTRIC_DEFROSTER_ON) {
+            return "HVAC_ELECTRIC_DEFROSTER_ON";
         }
         if (o == DISTANCE_DISPLAY_UNITS) {
             return "DISTANCE_DISPLAY_UNITS";

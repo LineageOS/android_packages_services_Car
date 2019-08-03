@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -231,7 +231,7 @@ Return<sp<IEvsCamera_1_0>> EvsEnumerator::openCamera(const hidl_string& cameraId
         ALOGE("Failed to allocate new EvsV4lCamera object for %s\n", cameraId.c_str());
     }
 
-    return sp<IEvsCamera_1_1>(pActiveCamera);
+    return pActiveCamera;
 }
 
 

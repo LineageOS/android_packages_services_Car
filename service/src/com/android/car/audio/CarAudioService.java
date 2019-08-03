@@ -456,6 +456,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         } else {
             mCarAudioZones = loadVolumeGroupConfigurationWithAudioControl(carAudioDeviceInfos);
         }
+
+        CarAudioZonesValidator.validate(mCarAudioZones);
     }
 
     private void setupDynamicRouting() {
@@ -465,9 +467,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         loadCarAudioZones();
 
         for (CarAudioZone zone : mCarAudioZones) {
-            if (!zone.validateVolumeGroups()) {
-                throw new RuntimeException("Invalid volume groups configuration");
-            }
             // Ensure HAL gets our initial value
             zone.synchronizeCurrentGainIndex();
             Log.v(CarLog.TAG_AUDIO, "Processed audio zone: " + zone);
