@@ -214,16 +214,19 @@ public final class CarHvacManager implements CarManagerBase {
 
 
     /**
+     * Use {@link android.car.hardware.CarHvacFanDirection#FACE} instead.
      * Represents fan direction when air flows through face directed vents.
      * This constant must be used with {@link #ID_ZONED_FAN_DIRECTION} property.
      */
     public static final int FAN_DIRECTION_FACE = 0x1;
     /**
+     * Use {@link android.car.hardware.CarHvacFanDirection#FLOOR} instead.
      * Represents fan direction when air flows through floor directed vents.
      * This constant must be used with {@link #ID_ZONED_FAN_DIRECTION} property.
      */
     public static final int FAN_DIRECTION_FLOOR = 0x2;
     /**
+     * Use {@link android.car.hardware.CarHvacFanDirection#DEFROST} instead.
      * Represents fan direction when air flows through defrost vents.
      * This constant must be used with {@link #ID_ZONED_FAN_DIRECTION} property.
      */

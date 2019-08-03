@@ -396,6 +396,13 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     public static final int HVAC_SEAT_VENTILATION = 356517139;
     /**
+     * ELECTRIC DEFROSTER
+     * Requires permission: {@link Car#PERMISSION_CONTROL_CAR_CLIMATE}.
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556;
+    /**
      * Distance units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
      * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
@@ -1038,6 +1045,9 @@ public final class VehiclePropertyIds {
         }
         if (o == HVAC_SEAT_VENTILATION) {
             return "HVAC_SEAT_VENTILATION";
+        }
+        if (o == HVAC_ELECTRIC_DEFROSTER_ON) {
+            return "HVAC_ELECTRIC_DEFROSTER_ON";
         }
         if (o == DISTANCE_DISPLAY_UNITS) {
             return "DISTANCE_DISPLAY_UNITS";
