@@ -312,7 +312,7 @@ public class PropertyHalServiceIds {
                 null));
         mProps.put(VehicleProperty.RANGE_REMAINING, new Pair<>(
                 Car.PERMISSION_ENERGY,
-                null));
+                Car.PERMISSION_ADJUST_RANGE_REMAINING));
         mProps.put(VehicleProperty.TIRE_PRESSURE, new Pair<>(
                 Car.PERMISSION_TIRES,
                 null));
