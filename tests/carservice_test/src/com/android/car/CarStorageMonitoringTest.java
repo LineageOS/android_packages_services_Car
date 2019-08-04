@@ -711,7 +711,6 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     }
 
     @Test
-    // @RequiresDevice
     public void testNegativeShutdownCost() throws Exception {
         assertEquals(CarStorageMonitoringManager.SHUTDOWN_COST_INFO_MISSING,
                 mCarStorageMonitoringManager.getShutdownDiskWriteAmount());

@@ -120,6 +120,7 @@ public class MainActivity extends Activity {
                     storageMonitoringManager.getWearEstimateHistory();
             if (wearEstimateChanges.isEmpty()) {
                 finish();
+                return;
             }
 
             WearEstimateChange currentChange =
@@ -127,6 +128,7 @@ public class MainActivity extends Activity {
 
             if (!DEBUG && currentChange.isAcceptableDegradation) {
                 finish();
+                return;
             }
 
             mNotificationTextView.setText(wearChangeToString(currentChange));
