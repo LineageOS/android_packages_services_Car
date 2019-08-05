@@ -359,6 +359,7 @@ public class VmsClientManager implements CarServiceBase {
         private final String mFullName;
         private boolean mIsBound = false;
         private boolean mIsTerminated = false;
+        private boolean mRebindScheduled = false;
         private IBinder mClientService;
 
         ClientConnection(ComponentName name, UserHandle user) {
@@ -400,31 +401,52 @@ public class VmsClientManager implements CarServiceBase {
                 Log.e(TAG, "While unbinding " + mFullName, t);
             }
             mIsBound = false;
-            if (mClientService != null) {
-                notifyListenersOnClientDisconnected(mFullName);
-            }
-            mClientService = null;
         }
 
-        synchronized void rebind() {
-            unbind();
+        synchronized void scheduleRebind() {
+            if (mRebindScheduled) {
+                return;
+            }
+
             if (DBG) {
                 Log.d(TAG,
                         String.format("rebinding %s after %dms", mFullName, mMillisBeforeRebind));
             }
-            if (!mIsTerminated) {
-                mHandler.postDelayed(this::bind, mMillisBeforeRebind);
-                synchronized (mRebindCounts) {
-                    mRebindCounts.computeIfAbsent(mName.getPackageName(), k -> new AtomicLong())
-                            .incrementAndGet();
-                }
+            mHandler.postDelayed(this::doRebind, mMillisBeforeRebind);
+            mRebindScheduled = true;
+        }
+
+        synchronized void doRebind() {
+            mRebindScheduled = false;
+            // Do not rebind if the connection has been terminated, or the client service has
+            // reconnected on its own.
+            if (mIsTerminated || mClientService != null) {
+                return;
+            }
+
+            if (DBG) Log.d(TAG, "rebinding: " + mFullName);
+            // Ensure that the client is not bound before attempting to rebind.
+            // If the client is not currently bound, unbind() will have no effect.
+            unbind();
+            bind();
+            synchronized (mRebindCounts) {
+                mRebindCounts.computeIfAbsent(mName.getPackageName(), k -> new AtomicLong())
+                        .incrementAndGet();
             }
         }
 
         synchronized void terminate() {
             if (DBG) Log.d(TAG, "terminating: " + mFullName);
             mIsTerminated = true;
+            notifyOnDisconnect();
             unbind();
+        }
+
+        synchronized void notifyOnDisconnect() {
+            if (mClientService != null) {
+                notifyListenersOnClientDisconnected(mFullName);
+                mClientService = null;
+            }
         }
 
         synchronized void notifyIfConnected(ConnectionListener listener) {
@@ -443,7 +465,15 @@ public class VmsClientManager implements CarServiceBase {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             if (DBG) Log.d(TAG, "onServiceDisconnected: " + mFullName);
-            rebind();
+            notifyOnDisconnect();
+            scheduleRebind();
+        }
+
+        @Override
+        public void onBindingDied(ComponentName name) {
+            if (DBG) Log.d(TAG, "onBindingDied: " + mFullName);
+            notifyOnDisconnect();
+            scheduleRebind();
         }
 
         @Override
