@@ -845,7 +845,7 @@
     <string name="wifi_error" msgid="5605801874484465557">"錯誤"</string>
     <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"5 GHz 頻帶在這個國家/地區不受支援"</string>
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"處於飛行模式時"</string>
-    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"開啟網路通知"</string>
+    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"開放式網路通知"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"有高品質的公用網路時通知我"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"自動開啟 Wi‑Fi"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"位於已儲存的高品質 Wi‑Fi 網路範圍內 (例如家用網路) 時自動重新開啟 Wi‑Fi"</string>

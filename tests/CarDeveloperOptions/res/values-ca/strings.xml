@@ -355,7 +355,7 @@
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Missatge a la pantalla de bloqueig"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Activa els widgets"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Desactivada per l\'administrador"</string>
-    <string name="lockdown_settings_title" msgid="4534779922580115990">"Mostra l\'opció Bloqueig de seguretat"</string>
+    <string name="lockdown_settings_title" msgid="4534779922580115990">"Mostra l\'opció de bloqueig de seguretat"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"Mostra l\'opció del botó d\'engegada que desactiva Smart Lock, el desbloqueig amb l\'empremta digital i les notificacions a la pantalla de bloqueig"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Desbloqueig ampliat per a agents de confiança"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Si s\'activa, els agents de confiança mantindran el dispositiu desbloquejat durant més temps, però ja no podran desbloquejar un dispositiu bloquejat."</string>
@@ -2499,7 +2499,7 @@
     <string name="voice_input_settings" msgid="4983011614890521505">"Configuració de l\'entrada de veu"</string>
     <string name="voice_input_settings_title" msgid="6865032806501269306">"Entrada de veu"</string>
     <string name="voice_service_preference_section_title" msgid="2984112696100778038">"Serveis d\'entrada de veu"</string>
-    <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Paraula activa i interacció completes"</string>
+    <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Paraula d\'activació i interacció completes"</string>
     <string name="voice_recognizer_preference_summary" msgid="3681161319745912594">"Conversió de parla a text simple"</string>
     <string name="voice_interaction_security_warning" msgid="4986261746316889768">"Aquest servei d\'entrada de veu podrà supervisar sempre la veu i controlar les aplicacions compatibles amb l\'entrada de veu en nom teu. Procedeix de l\'aplicació <xliff:g id="VOICE_INPUT_SERVICE_APP_NAME">%s</xliff:g>. Vols activar l\'ús d\'aquest servei?"</string>
     <string name="tts_engine_preference_title" msgid="1183116842356275061">"Motor preferent"</string>
@@ -2547,7 +2547,7 @@
     <string name="backup_data_title" msgid="4461508563849583624">"Còpia de seguretat de les meves dades"</string>
     <string name="backup_data_summary" msgid="555459891017933746">"Fes una còpia de seguretat als servidors de Google de dades d\'aplicacions, contrasenyes Wi-Fi i altres opcions de configuració"</string>
     <string name="backup_configure_account_title" msgid="1534734650559070294">"Compte de còpia de seguretat"</string>
-    <string name="backup_data_management_title" msgid="6299288795610243508">"Gestiona el compte per a la còpia de seguretat"</string>
+    <string name="backup_data_management_title" msgid="6299288795610243508">"Gestiona el compte de còpia de seguretat"</string>
     <string name="include_app_data_title" msgid="6117211611131913293">"Inclou dades de l\'aplicació"</string>
     <string name="auto_restore_title" msgid="8367486774010915221">"Restauració automàtica"</string>
     <string name="auto_restore_summary" msgid="1941047568966428377">"Quan tornis a instal·lar una aplicació, restaura la configuració i les dades incloses a la còpia de seguretat"</string>

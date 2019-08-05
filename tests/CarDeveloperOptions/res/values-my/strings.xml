@@ -383,7 +383,7 @@
     <string name="decryption_settings_summary" product="default" msgid="7401802133199522441">"ဖုန်းကို အသွင်ဝှက်မထားပါ"</string>
     <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"စက်ပစ္စည်းကို အသွင်ဝှက်ထားသည်"</string>
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"စက်ပစ္စည်းကို အသွင်ဝှက်မထားပါ"</string>
-    <string name="lockscreen_settings_title" msgid="1221505938891948413">"လော့ခ်ချထားချိန် မျက်နှာပြင်ပြသမှု"</string>
+    <string name="lockscreen_settings_title" msgid="1221505938891948413">"လော့ခ်ချထားချိန် ဖန်သားပြင်ပြသမှု"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"ပြသမည့်အရာ"</string>
     <string name="security_settings_summary" msgid="5210109100643223686">"ကျွန်ုပ်၏တည်နေရာ စကရင်ကိုသော့ဖွင့်ခြင်း ဆင်းမ်ကဒ်သော့ချခြင်း ယုံကြည်စိတ်ချရသောသိုလှောင်ရာနေရာတို့ကို သတ်မှတ်မည်"</string>
     <string name="cdma_security_settings_summary" msgid="1783066617800041869">"ကျွန်ုပ်၏တည်နေရာ၊ စကရင်ပြန်ဖွင့်ခြင်း၊ ယုံကြည်စိတ်ချရသောသိုလှောင်ရာနေရာတို့အား သတ်မှတ်မည်"</string>

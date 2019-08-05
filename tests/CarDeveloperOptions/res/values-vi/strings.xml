@@ -355,8 +355,8 @@
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Thông điệp trên màn hình khóa"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Bật tiện ích"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Bị quản trị viên vô hiệu hóa"</string>
-    <string name="lockdown_settings_title" msgid="4534779922580115990">"Tùy chọn hiển thị khóa"</string>
-    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Tùy chọn hiển thị nút nguồn sẽ tắt tính năng Smart Lock, tính năng mở khóa bằng vân tay và thông báo trên màn hình khóa"</string>
+    <string name="lockdown_settings_title" msgid="4534779922580115990">"Hiển thị tùy chọn khóa"</string>
+    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Hiển thị tùy chọn nút nguồn để tắt tính năng Smart Lock, mở khóa bằng vân tay, và thông báo trên màn hình khóa"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Tác nhân tin cậy chỉ kéo dài thời gian mở khóa"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Nếu bạn bật, các tác nhân tin cậy sẽ kéo dài thời gian mở khóa, nhưng không thể mở khóa thiết bị bị khóa nữa."</string>
     <string name="trust_lost_locks_screen_title" msgid="3094736590690459372">"Khóa màn hình khi mất đi sự tin cậy"</string>
