@@ -174,7 +174,7 @@ Return<void> StreamHandler::notifyEvent(const EvsEvent& event) {
         std::unique_lock <std::mutex> lock(mLock);
         if (bufDesc_1_1.buffer.nativeHandle.getNativeHandle() == nullptr) {
             // Signal that the last frame has been received and the stream is stopped
-            mRunning = false;
+            ALOGW("Invalid null frame (id: 0x%X) is ignored", bufDesc_1_1.bufferId);
         } else {
             // Do we already have a "ready" frame?
             if (mReadyBuffer >= 0) {
