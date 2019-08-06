@@ -4124,7 +4124,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"সময়, বিজ্ঞপ্তি এবং অন্যান্য তথ্য দেখতে আপনার ফোনটি তুলে ধরুন।"</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"সময়, বিজ্ঞপ্তি এবং অন্যান্য তথ্য দেখতে আপনার ট্যাবলেটটি তুলে ধরুন।"</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"সময়, বিজ্ঞপ্তি এবং অন্যান্য তথ্য দেখতে আপনার ডিভাইসটি তুলে ধরুন।"</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"ফোন যাচাই করতে ট্যাপ করুন"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"ফোন চেক করতে ট্যাপ করুন"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"ট্যাবলেট যাচাই করতে ট্যাপ করুন"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"ডিভাইস যাচাই করতে ট্যাপ করুন"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"সময়, বিজ্ঞপ্তি এবং অন্যান্য তথ্য দেখতে আপনার স্ক্রিনে ট্যাপ করুন।"</string>

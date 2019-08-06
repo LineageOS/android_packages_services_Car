@@ -1257,7 +1257,7 @@
     <string name="doze_title" msgid="235269029233857546">"புதிய அறிவிப்புகள்"</string>
     <string name="doze_summary" msgid="6762274282827831706">"அறிவிப்புகளைப் பெறும் போது திரையை இயக்கு"</string>
     <string name="doze_always_on_title" msgid="8555184965031789941">"எப்போதும் இயக்கத்தில் வை"</string>
-    <string name="doze_always_on_summary" msgid="7654436900436328950">"நேரம், அறிவிப்பு ஐகான்கள் மற்றும் பிற தகவலைக் காட்டு. அதே நேரத்தில் பேட்டரியை அதிகமாகப் பயன்படுத்தும்."</string>
+    <string name="doze_always_on_summary" msgid="7654436900436328950">"நேரம், அறிவிப்பு ஐகான்கள் மற்றும் பிற தகவல்களைக் காட்டும். பேட்டரியை அதிகமாகப் பயன்படுத்தும்."</string>
     <string name="title_font_size" msgid="5021464556860010851">"எழுத்துரு அளவு"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"உரையைப் பெரிதாக்கும் அல்லது சிறிதாக்கும்"</string>
     <string name="sim_lock_settings" msgid="1986924650622642189">"சிம் கார்டின் பூட்டு அமைப்பு"</string>

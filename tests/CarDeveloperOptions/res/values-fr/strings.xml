@@ -1256,7 +1256,7 @@
     <string name="ambient_display_category_triggers" msgid="3496111745340047504">"Activation du mode Veille"</string>
     <string name="doze_title" msgid="235269029233857546">"Nouvelles notifications"</string>
     <string name="doze_summary" msgid="6762274282827831706">"Activer l\'écran lors de la réception de notifications"</string>
-    <string name="doze_always_on_title" msgid="8555184965031789941">"Toujours activé"</string>
+    <string name="doze_always_on_title" msgid="8555184965031789941">"Mode Always-on"</string>
     <string name="doze_always_on_summary" msgid="7654436900436328950">"Afficher l\'heure, les icônes de notification et d\'autres informations. Batterie davantage sollicitée."</string>
     <string name="title_font_size" msgid="5021464556860010851">"Taille de la police"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"Agrandir ou réduire le texte"</string>
