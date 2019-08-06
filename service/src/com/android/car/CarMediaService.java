@@ -159,7 +159,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mContext = context;
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
-        mSharedPrefs = mContext.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
 
         mHandlerThread = new HandlerThread(CarLog.TAG_MEDIA);
         mHandlerThread.start();
@@ -187,6 +186,9 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     }
 
     private void initUser() {
+        if (mSharedPrefs == null) {
+            mSharedPrefs = mContext.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
+        }
         if (mIsPackageUpdateReceiverRegistered) {
             mContext.unregisterReceiver(mPackageUpdateReceiver);
         }
