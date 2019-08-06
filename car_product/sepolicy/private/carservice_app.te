@@ -19,6 +19,7 @@ allow carservice_app wifi_service:service_manager find;
 allow carservice_app {
     accessibility_service
     activity_service
+    activity_task_service
     audio_service
     audioserver_service
     autofill_service
