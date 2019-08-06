@@ -23,8 +23,8 @@ import android.test.suitebuilder.annotation.SmallTest;
 public class VehicleGearTest extends AndroidTestCase {
 
     public void testMatchWithVehicleHal() {
-        // There's no GEAR_UNKOWN in types.hal, hardcodes 0 to match android API.
-        assertEquals(0, VehicleGear.GEAR_UNKNOWN);
+        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_UNKNOWN,
+                VehicleGear.GEAR_UNKNOWN);
 
         assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_NEUTRAL,
                 VehicleGear.GEAR_NEUTRAL);
@@ -67,7 +67,7 @@ public class VehicleGearTest extends AndroidTestCase {
     }
 
     public void testToString() {
-        assertEquals("GEAR_UNKNOWN", VehicleGear.toString(0));
+        assertEquals("GEAR_UNKNOWN", VehicleGear.toString(VehicleGear.GEAR_UNKNOWN));
 
         assertEquals("GEAR_NEUTRAL", VehicleGear.toString(VehicleGear.GEAR_NEUTRAL));
 
