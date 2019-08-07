@@ -17,14 +17,15 @@ package com.android.car.audio;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.car.media.CarAudioManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.media.AudioDevicePort;
-import android.provider.Settings;
+import android.util.Log;
 import android.util.SparseArray;
 
+import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
@@ -43,7 +44,7 @@ import java.util.Map;
  */
 /* package */ final class CarVolumeGroup {
 
-    private final ContentResolver mContentResolver;
+    private CarVolumeGroupSettings mSettingsManager;
     private final int mZoneId;
     private final int mId;
     private final SparseArray<String> mContextToAddress = new SparseArray<>();
@@ -58,16 +59,16 @@ import java.util.Map;
 
     /**
      * Constructs a {@link CarVolumeGroup} instance
-     * @param context {@link Context} instance
+     * @param Settings {@link CarVolumeGroupSettings} instance
      * @param zoneId Audio zone this volume group belongs to
      * @param id ID of this volume group
      */
-    CarVolumeGroup(Context context, int zoneId, int id) {
-        mContentResolver = context.getContentResolver();
+    CarVolumeGroup(CarVolumeGroupSettings settings, int zoneId, int id) {
+        mSettingsManager = settings;
         mZoneId = zoneId;
         mId = id;
-        mStoredGainIndex = Settings.Global.getInt(mContentResolver,
-                CarAudioService.getVolumeSettingsKeyForGroup(mZoneId, mId), -1);
+
+        updateUserId(ActivityManager.getCurrentUser());
     }
 
     /**
@@ -79,8 +80,8 @@ import java.util.Map;
      * @deprecated In favor of {@link #CarVolumeGroup(Context, int, int)}
      */
     @Deprecated
-    CarVolumeGroup(Context context, int zoneId, int id, @NonNull int[] contexts) {
-        this(context, zoneId, id);
+    CarVolumeGroup(CarVolumeGroupSettings settings, int zoneId, int id, @NonNull int[] contexts) {
+        this(settings, zoneId, id);
         // Deal with the pre-populated car audio contexts
         for (int audioContext : contexts) {
             mContextToAddress.put(audioContext, null);
@@ -165,6 +166,24 @@ import java.util.Map;
         if (info.getMinGain() < mMinGain) {
             mMinGain = info.getMinGain();
         }
+        updateCurrentGainIndex();
+    }
+
+    /**
+     * Update the user with the a new user
+     * @param userId new user
+     * @note also reloads the store gain index for the user
+     */
+    private void updateUserId(int userId) {
+        mStoredGainIndex = mSettingsManager.getStoredVolumeGainIndexForUser(userId, mZoneId, mId);
+        Log.i(CarLog.TAG_AUDIO, "updateUserId userId " + userId
+                + " mStoredGainIndex " + mStoredGainIndex);
+    }
+
+    /**
+     * Update the current gain index based on the stored gain index
+     */
+    private void updateCurrentGainIndex() {
         if (mStoredGainIndex < getMinGainIndex() || mStoredGainIndex > getMaxGainIndex()) {
             // We expected to load a value from last boot, but if we didn't (perhaps this is the
             // first boot ever?), then use the highest "default" we've seen to initialize
@@ -214,8 +233,8 @@ import java.util.Map;
         }
 
         mCurrentGainIndex = gainIndex;
-        Settings.Global.putInt(mContentResolver,
-                CarAudioService.getVolumeSettingsKeyForGroup(mZoneId, mId), gainIndex);
+        mSettingsManager.storeVolumeGainIndexForUser(ActivityManager.getCurrentUser(),
+                mZoneId, mId, gainIndex);
     }
 
     // Given a group level gain index, return the computed gain in millibells
@@ -256,6 +275,7 @@ import java.util.Map;
     /** Writes to dumpsys output */
     void dump(String indent, PrintWriter writer) {
         writer.printf("%sCarVolumeGroup(%d)\n", indent, mId);
+        writer.printf("%sUserId(%d)\n", indent, ActivityManager.getCurrentUser());
         writer.printf("%sGain values (min / max / default/ current): %d %d %d %d\n",
                 indent, mMinGain, mMaxGain,
                 mDefaultGain, getGainForIndex(mCurrentGainIndex));
@@ -273,5 +293,18 @@ import java.util.Map;
 
         // Empty line for comfortable reading
         writer.println();
+    }
+
+    /**
+     * Load volumes for new user
+     * @param userId new user to load
+     */
+    void loadVolumesForUser(int userId) {
+        //Update the volume for the new user
+        updateUserId(userId);
+        //Update the current gain index
+        updateCurrentGainIndex();
+        //Reset devices with current gain index
+        setCurrentGainIndex(getCurrentGainIndex());
     }
 }
