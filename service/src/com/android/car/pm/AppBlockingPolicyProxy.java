@@ -120,7 +120,7 @@ public class AppBlockingPolicyProxy implements ServiceConnection {
             return;
         }
         try {
-            mPolicyService.setAppBlockingPolicySetter(mSetter);
+            policy.setAppBlockingPolicySetter(mSetter);
         } catch (RemoteException e) {
             // let retry handle this
         }
