@@ -258,7 +258,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             mCarTrustAgentBleManager.disconnectRemoteDevice();
             return;
         }
-        mCarTrustAgentBleManager.sendEnrollmentMessage(mRemoteEnrollmentDevice, CONFIRMATION_SIGNAL,
+        mCarTrustAgentBleManager.sendMessage(CONFIRMATION_SIGNAL,
                 OperationType.ENCRYPTION_HANDSHAKE, /* isPayloadEncrypted= */ false,
                 mSendMessageCallback);
         setEnrollmentHandshakeAccepted();
@@ -554,7 +554,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             Log.d(TAG, "Sending handle: " + handle);
         }
         mHandle = handle;
-        mCarTrustAgentBleManager.sendEnrollmentMessage(mRemoteEnrollmentDevice,
+        mCarTrustAgentBleManager.sendMessage(
                 mEncryptionKey.encryptData(Utils.longToBytes(handle)),
                 OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */ true,
                 mSendMessageCallback);
@@ -692,7 +692,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Sending device id: " + uniqueId.toString());
         }
-        mCarTrustAgentBleManager.sendEnrollmentMessage(mRemoteEnrollmentDevice,
+        mCarTrustAgentBleManager.sendMessage(
                 Utils.uuidToBytes(uniqueId), OperationType.CLIENT_MESSAGE,
                 /* isPayloadEncrypted= */ false,
                 mSendMessageCallback);
@@ -731,8 +731,8 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
 
                 mHandshakeMessage = mEncryptionRunner.respondToInitRequest(message);
                 mEncryptionState = mHandshakeMessage.getHandshakeState();
-                mCarTrustAgentBleManager.sendEnrollmentMessage(
-                        mRemoteEnrollmentDevice, mHandshakeMessage.getNextMessage(),
+                mCarTrustAgentBleManager.sendMessage(
+                        mHandshakeMessage.getNextMessage(),
                         OperationType.ENCRYPTION_HANDSHAKE, /* isPayloadEncrypted= */ false,
                         mSendMessageCallback);
 
@@ -757,7 +757,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
                     showVerificationCode();
                     return;
                 }
-                mCarTrustAgentBleManager.sendEnrollmentMessage(mRemoteEnrollmentDevice,
+                mCarTrustAgentBleManager.sendMessage(
                         mHandshakeMessage.getNextMessage(), OperationType.ENCRYPTION_HANDSHAKE,
                         /* isPayloadEncrypted= */ false, mSendMessageCallback);
                 break;
