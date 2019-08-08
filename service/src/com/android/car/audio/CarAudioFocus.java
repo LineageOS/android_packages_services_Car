@@ -47,6 +47,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     static final int INTERACTION_EXCLUSIVE  = 1;    // Focus granted, others loose focus
     static final int INTERACTION_CONCURRENT = 2;    // Focus granted, others keep focus
 
+    private final EventLogger mFocusEventLogger;
 
     // TODO:  Make this an overlayable resource...
     //  MUSIC           = 1,        // Music playback
@@ -134,6 +135,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     CarAudioFocus(AudioManager audioManager, PackageManager packageManager) {
         mAudioManager = audioManager;
         mPackageManager = packageManager;
+        mFocusEventLogger = new EventLogger(100, "CarAudioFocus Events");
     }
 
 
@@ -147,8 +149,6 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     // This sends a focus loss message to the targeted requester.
     private void sendFocusLoss(FocusEntry loser, int lossType) {
-        Log.i(TAG, "sendFocusLoss (" + focusEventToString(lossType) + ") to "
-                + loser.getClientId());
         int result = mAudioManager.dispatchAudioFocusChange(loser.mAfi, lossType, mAudioPolicy);
         if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             // TODO:  Is this actually an error, or is it okay for an entry in the focus stack
@@ -156,6 +156,10 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             // stack?
             Log.e(TAG, "Failure to signal loss of audio focus with error: " + result);
         }
+        mFocusEventLogger.log(TAG,
+                "sendFocusLoss for client " + loser.getClientId()
+                        + " with loss type " + focusEventToString(lossType)
+                        + " resulted in " + focusRequestResponseToString(result));
     }
 
 
@@ -417,12 +421,15 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     @Override
     public synchronized void onAudioFocusRequest(AudioFocusInfo afi, int requestResult) {
-        Log.i(TAG, "onAudioFocusRequest " + afi.getClientId());
-
         int response = evaluateFocusRequest(afi);
 
         // Post our reply for delivery to the original focus requester
         mAudioManager.setFocusRequestResult(afi, response, mAudioPolicy);
+
+        mFocusEventLogger.log(TAG,
+                "onAudioFocusRequest for client " + afi.getClientId()
+                        + " with gain type " + focusEventToString(afi.getGainRequest())
+                        + " resulted in " + focusRequestResponseToString(response));
     }
 
 
@@ -433,8 +440,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      * */
     @Override
     public synchronized void onAudioFocusAbandon(AudioFocusInfo afi) {
-        Log.i(TAG, "onAudioFocusAbandon " + afi.getClientId());
-
+        mFocusEventLogger.log(TAG,
+                "onAudioFocusAbandon for client " + afi.getClientId());
         FocusEntry deadEntry = removeFocusEntry(afi);
 
         if (deadEntry != null) {
@@ -512,6 +519,11 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             // it in the focus stack?
             Log.e(TAG, "Failure to signal gain of audio focus with error: " + result);
         }
+
+        mFocusEventLogger.log(TAG,
+                "dispatchFocusGained for client " + afi.getClientId()
+                        + " with gain type " + focusEventToString(afi.getGainRequest())
+                        + " resulted in " + focusRequestResponseToString(result));
         return result;
     }
 
@@ -588,6 +600,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     public synchronized void dump(String indent, PrintWriter writer) {
         writer.printf("%s*CarAudioFocus*\n", indent);
 
+        mFocusEventLogger.dump(indent + "\t", writer);
+
         writer.printf("%s\tCurrent Focus Holders:\n", indent);
         for (String clientId : mFocusHolders.keySet()) {
             writer.printf("%s\t\t%s\n", indent, clientId);
@@ -618,5 +632,14 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             default:
                 return "unknown event " + focusEvent;
         }
+    }
+
+    private static String focusRequestResponseToString(int response) {
+        if (response == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            return "REQUEST_GRANTED";
+        } else if (response == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
+            return "REQUEST_FAILED";
+        }
+        return "REQUEST_DELAYED";
     }
 }
