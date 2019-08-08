@@ -69,40 +69,6 @@ void VirtualCamera::shutdown() {
 }
 
 
-bool VirtualCamera::deliverFrame(const BufferDesc_1_0& bufDesc_1_0) {
-    if (mStreamState == STOPPED) {
-        // A stopped stream gets no frames
-        return false;
-    } else if (mFramesHeld.size() >= mFramesAllowed) {
-        // Indicate that we declined to send the frame to the client because they're at quota
-        ALOGI("Skipping new frame as we hold %zu of %u allowed.",
-              mFramesHeld.size(), mFramesAllowed);
-        return false;
-    } else {
-        // Keep a record of this frame so we can clean up if we have to in case of client death
-        BufferDesc_1_1 bufDesc_1_1 = {};
-        AHardwareBuffer_Desc* pDesc =
-            reinterpret_cast<AHardwareBuffer_Desc *>(&bufDesc_1_1.buffer.description);
-        pDesc->width  = bufDesc_1_0.width;
-        pDesc->height = bufDesc_1_0.height;
-        pDesc->layers = 1;
-        pDesc->format = bufDesc_1_0.format;
-        pDesc->usage  = static_cast<uint64_t>(bufDesc_1_0.usage);
-        pDesc->stride = bufDesc_1_0.stride;
-        bufDesc_1_1.buffer.nativeHandle = bufDesc_1_0.memHandle;
-        bufDesc_1_1.pixelSize = bufDesc_1_0.pixelSize;
-        bufDesc_1_1.bufferId = bufDesc_1_0.bufferId;
-
-        mFramesHeld.push_back(bufDesc_1_1);
-
-        // Pass this buffer through to our client
-        mStream->deliverFrame(bufDesc_1_0);
-
-        return true;
-    }
-}
-
-
 bool VirtualCamera::notifyEvent(const EvsEvent& event) {
     auto type = event.getDiscriminator();
     if (type == EvsEvent::hidl_discriminator::info) {
@@ -115,6 +81,15 @@ bool VirtualCamera::notifyEvent(const EvsEvent& event) {
 
                 // Mark the stream as stopped.
                 mStreamState = STOPPED;
+
+                if (mStream_1_1 == nullptr) {
+                    // Send a null frame for v1.0 client
+                    BufferDesc_1_0 nullBuff = {};
+                    auto result = mStream->deliverFrame(nullBuff);
+                    if (!result.isOk()) {
+                        ALOGE("Error delivering end of stream marker");
+                    }
+                }
                 break;
 
             default:
@@ -122,11 +97,13 @@ bool VirtualCamera::notifyEvent(const EvsEvent& event) {
                 break;
         }
 
-        // Forward a received event to the client
-        auto result = mStream_1_1->notifyEvent(event);
-        if (!result.isOk()) {
-            ALOGE("Failed to forward an event");
-            return false;
+        if (mStream_1_1 != nullptr) {
+            // Forward a received event to the client
+            auto result = mStream_1_1->notifyEvent(event);
+            if (!result.isOk()) {
+                ALOGE("Failed to forward an event");
+                return false;
+            }
         }
     } else {
         if (mStreamState == STOPPED) {
@@ -137,17 +114,37 @@ bool VirtualCamera::notifyEvent(const EvsEvent& event) {
             ALOGI("Skipping new frame as we hold %zu of %u allowed.",
                   mFramesHeld.size(), mFramesAllowed);
 
-            EvsEvent accident;
-            accident.info(EvsEventType::FRAME_DROPPED);
-            mStream_1_1->notifyEvent(accident);
+            if (mStream_1_1 != nullptr) {
+                EvsEvent accident;
+                accident.info(EvsEventType::FRAME_DROPPED);
+                mStream_1_1->notifyEvent(accident);
+            }
 
             return false;
         } else {
             // Keep a record of this frame so we can clean up if we have to in case of client death
-            mFramesHeld.push_back(event.buffer());
+            BufferDesc_1_1 frame = event.buffer();
+            mFramesHeld.push_back(frame);
 
-            // Pass this buffer through to our client
-            mStream_1_1->notifyEvent(event);
+            if (mStream_1_1 != nullptr) {
+                // Pass this buffer through to our client
+                mStream_1_1->notifyEvent(event);
+            } else {
+                // Forward a frame to v1.0 client
+                BufferDesc_1_0 frame_1_0 = {};
+                AHardwareBuffer_Desc* pDesc =
+                    reinterpret_cast<AHardwareBuffer_Desc *>(&frame.buffer.description);
+                frame_1_0.width     = pDesc->width;
+                frame_1_0.height    = pDesc->height;
+                frame_1_0.format    = pDesc->format;
+                frame_1_0.usage     = pDesc->usage;
+                frame_1_0.stride    = pDesc->stride;
+                frame_1_0.memHandle = frame.buffer.nativeHandle;
+                frame_1_0.pixelSize = frame.pixelSize;
+                frame_1_0.bufferId  = frame.bufferId;
+
+                mStream->deliverFrame(frame_1_0);
+            }
         }
     }
 

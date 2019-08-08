@@ -64,7 +64,6 @@ public:
     bool              isStreaming()       { return mStreamState == RUNNING; }
 
     // Proxy to receive frames and forward them to the client's stream
-    bool              deliverFrame(const BufferDesc_1_0& buffer);
     bool              notifyEvent(const EvsEvent& event);
 
     // Methods from ::android::hardware::automotive::evs::V1_0::IEvsCamera follow.
