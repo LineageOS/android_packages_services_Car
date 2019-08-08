@@ -174,6 +174,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     @Override
     public List<CarUxRestrictionsConfiguration> getConfigs() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
         return new ArrayList<>(mCarUxRestrictionsConfigurations.values());
     }
 
@@ -415,6 +416,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     @Nullable
     public List<CarUxRestrictionsConfiguration> getStagedConfigs() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+
         File stagedConfig = getFile(CONFIG_FILENAME_STAGED);
         if (stagedConfig.exists()) {
             logd("Attempting to read staged config");
