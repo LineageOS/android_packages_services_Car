@@ -58,6 +58,9 @@
     <!-- Automotive Bluetooth pairing option -->
     <bool name="enable_pbap_pce_profile">true</bool>
 
+    <!-- Whether the device supports quick settings and its associated APIs -->
+    <bool name="config_quickSettingsSupported">false</bool>
+
     <!-- Flag indicating that the entire notification header can be clicked to expand the
          notification. If false, then the expand icon has to be clicked in order for the expand
          to occur. -->
