@@ -204,6 +204,10 @@ Return<void> HalCamera::doneWithFrame(const BufferDesc_1_1& buffer) {
 
 
 Return<void> HalCamera::deliverFrame(const BufferDesc_1_0& buffer) {
+    /* Frames are delivered via notifyEvent callback for clients that implement
+     * IEvsCameraStream v1.1 interfaces and therefore this method must not be
+     * used.
+     */
     ALOGI("A delivered frame from EVS v1.0 HW module is rejected.");
     mHwCamera->doneWithFrame(buffer);
 
