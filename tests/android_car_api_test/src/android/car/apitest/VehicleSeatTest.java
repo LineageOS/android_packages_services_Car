@@ -42,4 +42,48 @@ public class VehicleSeatTest extends AndroidTestCase {
         assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleAreaSeat.ROW_3_RIGHT,
                 VehicleAreaSeat.SEAT_ROW_3_RIGHT);
     }
+
+    public void testFromRowAndSide() {
+        assertEquals(VehicleAreaSeat.fromRowAndSide(-1, VehicleAreaSeat.SIDE_LEFT),
+                VehicleAreaSeat.SEAT_UNKNOWN);
+        assertEquals(VehicleAreaSeat.fromRowAndSide(-1, VehicleAreaSeat.SIDE_CENTER),
+                VehicleAreaSeat.SEAT_UNKNOWN);
+        assertEquals(VehicleAreaSeat.fromRowAndSide(-1, VehicleAreaSeat.SIDE_RIGHT),
+                VehicleAreaSeat.SEAT_UNKNOWN);
+
+        assertEquals(VehicleAreaSeat.fromRowAndSide(0, VehicleAreaSeat.SIDE_LEFT),
+                VehicleAreaSeat.SEAT_UNKNOWN);
+        assertEquals(VehicleAreaSeat.fromRowAndSide(0, VehicleAreaSeat.SIDE_CENTER),
+                VehicleAreaSeat.SEAT_UNKNOWN);
+        assertEquals(VehicleAreaSeat.fromRowAndSide(0, VehicleAreaSeat.SIDE_RIGHT),
+                VehicleAreaSeat.SEAT_UNKNOWN);
+
+        assertEquals(VehicleAreaSeat.fromRowAndSide(1, VehicleAreaSeat.SIDE_LEFT),
+                VehicleAreaSeat.SEAT_ROW_1_LEFT);
+        assertEquals(VehicleAreaSeat.fromRowAndSide(1, VehicleAreaSeat.SIDE_CENTER),
+                VehicleAreaSeat.SEAT_ROW_1_CENTER);
+        assertEquals(VehicleAreaSeat.fromRowAndSide(1, VehicleAreaSeat.SIDE_RIGHT),
+                VehicleAreaSeat.SEAT_ROW_1_RIGHT);
+
+        assertEquals(VehicleAreaSeat.fromRowAndSide(2, VehicleAreaSeat.SIDE_LEFT),
+                VehicleAreaSeat.SEAT_ROW_2_LEFT);
+        assertEquals(VehicleAreaSeat.fromRowAndSide(2, VehicleAreaSeat.SIDE_CENTER),
+                VehicleAreaSeat.SEAT_ROW_2_CENTER);
+        assertEquals(VehicleAreaSeat.fromRowAndSide(2, VehicleAreaSeat.SIDE_RIGHT),
+                VehicleAreaSeat.SEAT_ROW_2_RIGHT);
+
+        assertEquals(VehicleAreaSeat.fromRowAndSide(3, VehicleAreaSeat.SIDE_LEFT),
+                VehicleAreaSeat.SEAT_ROW_3_LEFT);
+        assertEquals(VehicleAreaSeat.fromRowAndSide(3, VehicleAreaSeat.SIDE_CENTER),
+                VehicleAreaSeat.SEAT_ROW_3_CENTER);
+        assertEquals(VehicleAreaSeat.fromRowAndSide(3, VehicleAreaSeat.SIDE_RIGHT),
+                VehicleAreaSeat.SEAT_ROW_3_RIGHT);
+
+        assertEquals(VehicleAreaSeat.fromRowAndSide(4, VehicleAreaSeat.SIDE_LEFT),
+                VehicleAreaSeat.SEAT_UNKNOWN);
+        assertEquals(VehicleAreaSeat.fromRowAndSide(4, VehicleAreaSeat.SIDE_CENTER),
+                VehicleAreaSeat.SEAT_UNKNOWN);
+        assertEquals(VehicleAreaSeat.fromRowAndSide(4, VehicleAreaSeat.SIDE_RIGHT),
+                VehicleAreaSeat.SEAT_UNKNOWN);
+    }
 }
