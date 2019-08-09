@@ -146,7 +146,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
                 Log.d(CarLog.TAG_MEDIA, "Switched to user " + mCurrentUser);
             }
-            updateMediaSessionCallbackForCurrentUser();
             if (mUserManager.isUserUnlocked(mCurrentUser)) {
                 initUser();
             } else {
@@ -201,6 +200,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         String key = PLAYBACK_STATE_KEY + mCurrentUser;
         mStartPlayback =
                 mSharedPrefs.getInt(key, PlaybackState.STATE_NONE) == PlaybackState.STATE_PLAYING;
+        updateMediaSessionCallbackForCurrentUser();
         notifyListeners();
     }
 
@@ -310,14 +310,35 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 null, ActivityManager.getCurrentUser()));
     }
 
+    private void prepare() {
+        if (mActiveUserMediaController != null) {
+            if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
+                Log.d(CarLog.TAG_MEDIA, "prepare " + mActiveUserMediaController.getPackageName());
+            }
+            TransportControls controls = mActiveUserMediaController.getTransportControls();
+            if (controls != null) {
+                controls.prepare();
+            } else {
+                Log.e(CarLog.TAG_MEDIA, "Can't prepare playback, transport controls unavailable "
+                        + mActiveUserMediaController.getPackageName());
+            }
+        }
+    }
+
     /**
      * Attempts to play the current source using MediaController.TransportControls.play()
      */
     private void play() {
         if (mActiveUserMediaController != null) {
+            if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
+                Log.d(CarLog.TAG_MEDIA, "playing " + mActiveUserMediaController.getPackageName());
+            }
             TransportControls controls = mActiveUserMediaController.getTransportControls();
             if (controls != null) {
                 controls.play();
+            } else {
+                Log.e(CarLog.TAG_MEDIA, "Can't start playback, transport controls unavailable "
+                        + mActiveUserMediaController.getPackageName());
             }
         }
     }
@@ -327,9 +348,15 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
      */
     private void stop() {
         if (mActiveUserMediaController != null) {
+            if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
+                Log.d(CarLog.TAG_MEDIA, "stopping " + mActiveUserMediaController.getPackageName());
+            }
             TransportControls controls = mActiveUserMediaController.getTransportControls();
             if (controls != null) {
                 controls.stop();
+            } else {
+                Log.e(CarLog.TAG_MEDIA, "Can't stop playback, transport controls unavailable "
+                        + mActiveUserMediaController.getPackageName());
             }
         }
     }
@@ -422,9 +449,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             mCallbacks = updatedCallbacks;
             updatePrimaryMediaSourceWithCurrentlyPlaying(additions);
             // If there are no playing media sources, and we don't currently have the controller
-            // for the active source, check the new active sessions for a matching controller.
+            // for the active source, check the active sessions for a matching controller. If this
+            // is called after a user switch, its possible for a matching controller to already be
+            // active before the user is unlocked, so we check all of the current controllers
             if (mActiveUserMediaController == null) {
-                updateActiveMediaController(additions);
+                updateActiveMediaController(newControllers);
             }
         }
 
@@ -656,6 +685,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         for (MediaController controller : mediaControllers) {
             if (matchPrimaryMediaSource(controller.getPackageName(), getClassName(controller))) {
                 mActiveUserMediaController = controller;
+                prepare();
                 // Specify Handler to receive callbacks on, to avoid defaulting to the calling
                 // thread; this method can be called from the MediaSessionManager callback.
                 // Using the version of this method without passing a handler causes a
