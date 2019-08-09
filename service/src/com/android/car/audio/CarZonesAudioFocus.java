@@ -179,7 +179,7 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         writer.printf("%s\tCar Zones Audio Focus Listeners:\n", indent);
         Integer[] keys = mFocusZones.keySet().stream().sorted().toArray(Integer[]::new);
         for (Integer zoneId : keys) {
-            writer.printf("%s\tZone Id: %s", indent, zoneId.toString());
+            writer.printf("%s\tZone Id: %s\n", indent, zoneId.toString());
             mFocusZones.get(zoneId).dump(indent + "\t", writer);
         }
     }
