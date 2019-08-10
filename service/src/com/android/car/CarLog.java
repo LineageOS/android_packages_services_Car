@@ -34,6 +34,7 @@ public class CarLog {
     public static final String TAG_MEDIA = "CAR.MEDIA";
     public static final String TAG_MONITORING = "CAR.MONITORING";
     public static final String TAG_NAV = "CAR.NAV";
+    public static final String TAG_OCCUPANT = "CAR.OCCUPANT";
     public static final String TAG_PACKAGE = "CAR.PACKAGE";
     public static final String TAG_POWER = "CAR.POWER";
     public static final String TAG_PROJECTION = "CAR.PROJECTION";

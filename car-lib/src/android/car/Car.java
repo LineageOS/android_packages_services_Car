@@ -90,6 +90,9 @@ public final class Car {
     /** Service name for {@link CarNavigationStatusManager} */
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
 
+    /** Service name for {@link CarOccupantZoneManager} */
+    public static final String CAR_OCCUPANT_ZONE_SERVICE = "car_occupant_zone_service";
+
     /**
      * Service name for {@link CarInstrumentClusterManager}
      *
@@ -906,6 +909,9 @@ public final class Car {
                 break;
             case PACKAGE_SERVICE:
                 manager = new CarPackageManager(binder, mContext);
+                break;
+            case CAR_OCCUPANT_ZONE_SERVICE:
+                manager = new CarOccupantZoneManager(binder, mContext, mEventHandler);
                 break;
             case CAR_NAVIGATION_SERVICE:
                 manager = new CarNavigationStatusManager(binder);

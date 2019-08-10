@@ -261,7 +261,7 @@ public final class CarInfoManager implements CarManagerBase{
     }
 
     /** @hide */
-    CarInfoManager(IBinder service) {
+    public CarInfoManager(IBinder service) {
         ICarProperty mCarPropertyService = ICarProperty.Stub.asInterface(service);
         mCarPropertyMgr = new CarPropertyManager(mCarPropertyService, null);
     }

@@ -94,6 +94,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarMediaService mCarMediaService;
     private final CarUserManagerHelper mUserManagerHelper;
     private final CarUserService mCarUserService;
+    private final CarOccupantZoneService mCarOccupantZoneService;
     private final VmsClientManager mVmsClientManager;
     private final VmsBrokerService mVmsBrokerService;
     private final VmsSubscriberService mVmsSubscriberService;
@@ -130,6 +131,7 @@ public class ICarImpl extends ICar.Stub {
                 com.android.internal.R.integer.config_multiuserMaxRunningUsers);
         mCarUserService = new CarUserService(serviceContext, mUserManagerHelper, userManager,
                 ActivityManager.getService(), maxRunningUsers);
+        mCarOccupantZoneService = new CarOccupantZoneService(serviceContext);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
                 systemInterface, mUserManagerHelper);
@@ -172,6 +174,7 @@ public class ICarImpl extends ICar.Stub {
         mCarBugreportManagerService = new CarBugreportManagerService(serviceContext);
 
         CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
+        CarLocalServices.addService(CarPropertyService.class, mCarPropertyService);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
         CarLocalServices.addService(CarTrustedDeviceService.class, mCarTrustedDeviceService);
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
@@ -185,6 +188,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarPowerManagementService);
         allServices.add(mCarPropertyService);
         allServices.add(mCarDrivingStateService);
+        allServices.add(mCarOccupantZoneService);
         allServices.add(mCarUXRestrictionsService);
         allServices.add(mCarPackageManagerService);
         allServices.add(mCarInputService);
@@ -345,6 +349,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarTrustedDeviceService.getCarTrustAgentEnrollmentService();
             case Car.CAR_MEDIA_SERVICE:
                 return mCarMediaService;
+            case Car.CAR_OCCUPANT_ZONE_SERVICE:
+                return mCarOccupantZoneService;
             case Car.CAR_BUGREPORT_SERVICE:
                 return mCarBugreportManagerService;
             default:
