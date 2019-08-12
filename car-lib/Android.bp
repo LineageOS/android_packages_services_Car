@@ -24,6 +24,7 @@ filegroup {
 
 cc_library {
     name: "libcarpowermanager",
+    vendor_available: true,
 
     aidl: {
         export_aidl_headers: true,
