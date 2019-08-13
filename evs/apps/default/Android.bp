@@ -103,6 +103,3 @@ prebuilt_etc {
     sub_dir: "automotive/evs",
 
 }
-
-// ANDROIDMK TRANSLATION ERROR: unsupported include
-// include $(BUILD_PHONY_PACKAGE)
