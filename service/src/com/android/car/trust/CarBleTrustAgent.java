@@ -199,6 +199,9 @@ public class CarBleTrustAgent extends TrustAgentService {
      * @return if the user has trusted device
      */
     private boolean hasTrustedDevice(int uid) {
+        if (mCarTrustAgentEnrollmentService == null) {
+            return false;
+        }
         List<TrustedDeviceInfo> trustedDeviceInfos = mCarTrustAgentEnrollmentService
                 .getEnrolledDeviceInfosForUser(uid);
         return trustedDeviceInfos != null && trustedDeviceInfos.size() > 0;
