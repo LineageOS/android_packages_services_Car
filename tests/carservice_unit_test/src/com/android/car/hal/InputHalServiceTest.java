@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -278,7 +279,7 @@ public class InputHalServiceTest {
         reset(mInputListener);
         mInputHalService.handleHalEvents(
                 ImmutableList.of(makeKeyPropValueWithIndents(code, indents)));
-        verify(mInputListener).onKeyEvent(captor.capture(), eq(DISPLAY));
+        verify(mInputListener, times(indents)).onKeyEvent(captor.capture(), eq(DISPLAY));
         reset(mInputListener);
         return captor.getValue();
     }
