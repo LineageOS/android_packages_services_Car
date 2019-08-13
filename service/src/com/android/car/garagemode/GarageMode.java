@@ -231,17 +231,20 @@ class GarageMode {
         List<JobInfo> startedJobs = mJobScheduler.getStartedJobs();
         int count = 0;
         List<String> currentPendingJobs = new ArrayList<>();
-        for (JobSnapshot snap : mJobScheduler.getAllJobSnapshots()) {
-            if (startedJobs.contains(snap.getJobInfo())
-                    && snap.getJobInfo().isRequireDeviceIdle()) {
-                currentPendingJobs.add(snap.getJobInfo().toString());
-                count++;
+        final List<JobSnapshot> allJobs = mJobScheduler.getAllJobSnapshots();
+        if (allJobs != null) {
+            for (JobSnapshot snap : allJobs) {
+                if (startedJobs.contains(snap.getJobInfo())
+                        && snap.getJobInfo().isRequireDeviceIdle()) {
+                    currentPendingJobs.add(snap.getJobInfo().toString());
+                    count++;
+                }
             }
-        }
-        if (count > 0) {
-            // We have something pending, so update the list.
-            // (Otherwise, keep the old list.)
-            mPendingJobs = currentPendingJobs;
+            if (count > 0) {
+                // We have something pending, so update the list.
+                // (Otherwise, keep the old list.)
+                mPendingJobs = currentPendingJobs;
+            }
         }
         return count;
     }
