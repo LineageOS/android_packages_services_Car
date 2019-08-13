@@ -123,11 +123,6 @@ public class SystemInterface implements DisplayInterface, IOInterface,
     }
 
     @Override
-    public void reconfigureSecondaryDisplays() {
-        mDisplayInterface.reconfigureSecondaryDisplays();
-    }
-
-    @Override
     public void startDisplayStateMonitoring(CarPowerManagementService service) {
         mDisplayInterface.startDisplayStateMonitoring(service);
     }
