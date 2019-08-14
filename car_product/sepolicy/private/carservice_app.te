@@ -9,8 +9,8 @@ hal_client_domain(carservice_app, hal_vehicle)
 # Allow to set boot.car_service_created property
 set_prop(carservice_app, system_prop)
 
-# Allow Car Service to register itself with ServiceManager
-allow carservice_app carservice_service:service_manager add;
+# Allow Car Service to register/access itself with ServiceManager
+add_service(carservice_app, carservice_service)
 
 allow carservice_app wifi_service:service_manager find;
 
