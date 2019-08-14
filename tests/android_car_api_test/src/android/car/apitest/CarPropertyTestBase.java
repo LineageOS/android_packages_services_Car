@@ -29,8 +29,9 @@ public class CarPropertyTestBase extends AndroidTestCase {
 
     protected static final int FLOAT_PROPERTY_ID        = 0x1160BEEF;
     protected static final int INT_ARRAY_PROPERTY_ID    = 0x0041BEEF;
-    protected static final int INT_PROPERTY_ID          = 0x0040BEFF;
-    protected static final int LONG_PROPERTY_ID         = 0x0050BEFF;
+    protected static final int INT_PROPERTY_ID          = 0x0040BEEF;
+    protected static final int LONG_PROPERTY_ID         = 0x0050BEEF;
+    protected static final int MIXED_TYPE_PROPERTY_ID   = 0x01e0BEEF;
 
     protected static final int CAR_AREA_TYPE    = 0xDEADBEEF;
     protected static final int WINDOW_DRIVER    = 0x00000001;
