@@ -225,7 +225,6 @@ public class ICarImpl extends ICar.Stub {
             service.init();
         }
         traceEnd();
-        mSystemInterface.reconfigureSecondaryDisplays();
     }
 
     void release() {

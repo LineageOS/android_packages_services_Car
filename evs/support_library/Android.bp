@@ -15,11 +15,10 @@
 //
 
 //#################################
-cc_binary {
-    name: "evs_app",
+cc_library_shared {
+    name: "libevssupport",
 
     srcs: [
-        "evs_app.cpp",
         "EvsStateControl.cpp",
         "RenderBase.cpp",
         "RenderDirectView.cpp",
@@ -31,11 +30,9 @@ cc_binary {
         "VideoTex.cpp",
         "StreamHandler.cpp",
         "FormatConvert.cpp",
-        "RenderPixelCopy.cpp",
     ],
 
     shared_libs: [
-        "libbinder",
         "libcutils",
         "liblog",
         "libutils",
@@ -47,7 +44,6 @@ cc_binary {
         "libhardware",
         "libpng",
         "android.hardware.automotive.evs@1.0",
-        "android.hardware.automotive.evs@1.1",
         "android.hardware.automotive.vehicle@2.0",
     ],
 
@@ -56,19 +52,11 @@ cc_binary {
         "libjsoncpp",
     ],
 
-    required: [
-        "config.json",
-        "CarFromTop.png",
-        "LabeledChecker.png",
-    ],
-
     strip: {
         keep_symbols: true,
     },
 
-    init_rc: ["evs_app.rc"],
-
-    cflags: ["-DLOG_TAG=\"EvsApp\""] + [
+    cflags: ["-DLOG_TAG=\"libevssupport\""] + [
         "-DGL_GLEXT_PROTOTYPES",
         "-DEGL_EGLEXT_PROTOTYPES",
     ] + [
@@ -77,29 +65,5 @@ cc_binary {
         "-Wunused",
         "-Wunreachable-code",
     ],
-
-}
-
-prebuilt_etc {
-    name: "config.json",
-
-    src: "config.json",
-    sub_dir: "automotive/evs",
-
-}
-
-prebuilt_etc {
-    name: "CarFromTop.png",
-
-    src: "CarFromTop.png",
-    sub_dir: "automotive/evs",
-
-}
-
-prebuilt_etc {
-    name: "LabeledChecker.png",
-
-    src: "LabeledChecker.png",
-    sub_dir: "automotive/evs",
 
 }
