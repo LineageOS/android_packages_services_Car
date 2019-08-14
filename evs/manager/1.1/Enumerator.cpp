@@ -41,7 +41,9 @@ bool Enumerator::init(const char* hardwareServiceName) {
 
 bool Enumerator::checkPermission() {
     hardware::IPCThreadState *ipc = hardware::IPCThreadState::self();
-    if (AID_AUTOMOTIVE_EVS != ipc->getCallingUid()) {
+    if (AID_AUTOMOTIVE_EVS != ipc->getCallingUid() &&
+        AID_ROOT != ipc->getCallingUid()) {
+
         ALOGE("EVS access denied?: pid = %d, uid = %d", ipc->getCallingPid(), ipc->getCallingUid());
         return false;
     }
