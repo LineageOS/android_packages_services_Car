@@ -359,7 +359,7 @@ public class CarTrustAgentUnlockService {
         // Let the phone know that the handle was received.
         byte[] ack = isEncrypted ? mEncryptionKey.encryptData(ACKNOWLEDGEMENT_MESSAGE)
                 : ACKNOWLEDGEMENT_MESSAGE;
-        mCarTrustAgentBleManager.sendUnlockMessage(mRemoteUnlockDevice, ack,
+        mCarTrustAgentBleManager.sendMessage(ack,
                 OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */ isEncrypted,
                 mSendMessageCallback);
     }
@@ -388,7 +388,7 @@ public class CarTrustAgentUnlockService {
 
                 mHandshakeMessage = mEncryptionRunner.respondToInitRequest(message);
                 mEncryptionState = mHandshakeMessage.getHandshakeState();
-                mCarTrustAgentBleManager.sendUnlockMessage(mRemoteUnlockDevice,
+                mCarTrustAgentBleManager.sendMessage(
                         mHandshakeMessage.getNextMessage(),
                         OperationType.ENCRYPTION_HANDSHAKE,
                         /* isPayloadEncrypted= */ false, mSendMessageCallback);
@@ -416,7 +416,7 @@ public class CarTrustAgentUnlockService {
                 }
 
                 // control shouldn't get here with Ukey2
-                mCarTrustAgentBleManager.sendUnlockMessage(mRemoteUnlockDevice,
+                mCarTrustAgentBleManager.sendMessage(
                         mHandshakeMessage.getNextMessage(),
                         OperationType.ENCRYPTION_HANDSHAKE, /*isPayloadEncrypted= */false,
                         mSendMessageCallback);
@@ -493,7 +493,7 @@ public class CarTrustAgentUnlockService {
             return;
         }
         // send to client
-        mCarTrustAgentBleManager.sendUnlockMessage(mRemoteUnlockDevice, resumeBytes,
+        mCarTrustAgentBleManager.sendMessage(resumeBytes,
                 OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */false,
                 mSendMessageCallback);
     }

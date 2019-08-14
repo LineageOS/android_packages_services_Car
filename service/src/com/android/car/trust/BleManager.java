@@ -199,6 +199,11 @@ public abstract class BleManager {
         return mContext;
     }
 
+    @Nullable
+    protected BluetoothGattServer getGattServer() {
+        return mGattServer;
+    }
+
     /**
      * Cleans up the BLE GATT server state.
      */
