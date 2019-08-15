@@ -17,6 +17,7 @@ package com.android.car.trust;
 
 import static android.bluetooth.BluetoothProfile.GATT_SERVER;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -46,7 +47,9 @@ import android.util.Log;
 import com.android.car.Utils;
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -55,7 +58,7 @@ import java.util.UUID;
  *
  * TODO(b/123248433) This could move to a separate comms library.
  */
-public abstract class BleManager {
+class BleManager {
     private static final String TAG = BleManager.class.getSimpleName();
 
     private static final int BLE_RETRY_LIMIT = 5;
@@ -76,6 +79,12 @@ public abstract class BleManager {
     private final Handler mHandler = new Handler();
 
     private final Context mContext;
+    private final Set<Callback> mCallbacks = new HashSet<>();
+    private final Set<OnCharacteristicWriteListener> mWriteListeners = new HashSet<>();
+    private final Set<OnCharacteristicReadListener> mReadListeners = new HashSet<>();
+
+    private int mMtuSize = 20;
+
     private BluetoothManager mBluetoothManager;
     private BluetoothLeAdvertiser mAdvertiser;
     private BluetoothLeScanner mScanner;
@@ -105,6 +114,69 @@ public abstract class BleManager {
     }
 
     /**
+     * Registers the given callback to be notified of various events within the {@link BleManager}.
+     *
+     * @param callback The callback to be notified.
+     */
+    void registerCallback(@NonNull Callback callback) {
+        mCallbacks.add(callback);
+    }
+
+    /**
+     * Unregisters a previously registered callback.
+     *
+     * @param callback The callback to unregister.
+     */
+    void unregisterCallback(@NonNull Callback callback) {
+        mCallbacks.remove(callback);
+    }
+
+    /**
+     * Adds a listener to be notified of a write to characteristics.
+     *
+     * @param listener The listener to notify.
+     */
+    void addOnCharacteristicWriteListener(@NonNull OnCharacteristicWriteListener listener) {
+        mWriteListeners.add(listener);
+    }
+
+    /**
+     * Removes the given listener from being notified of characteristic writes.
+     *
+     * @param listener The listener to remove.
+     */
+    void removeOnCharacteristicWriteListener(@NonNull OnCharacteristicWriteListener listener) {
+        mWriteListeners.remove(listener);
+    }
+
+    /**
+     * Adds a listener to be notified of reads to characteristics.
+     *
+     * @param listener The listener to notify.
+     */
+    void addOnCharacteristicReadListener(@NonNull OnCharacteristicReadListener listener) {
+        mReadListeners.add(listener);
+    }
+
+    /**
+     * Removes the given listener from being notified of characteristic reads.
+     *
+     * @param listener The listener to remove.
+     */
+    void removeOnCharacteristicReadistener(@NonNull OnCharacteristicReadListener listener) {
+        mReadListeners.remove(listener);
+    }
+
+    /**
+     * Returns the current MTU size.
+     *
+     * @return The size of the MTU in bytes.
+     */
+    int getMtuSize() {
+        return mMtuSize;
+    }
+
+    /**
      * Starts the GATT server with the given {@link BluetoothGattService} and begins
      * advertising.
      *
@@ -115,7 +187,7 @@ public abstract class BleManager {
      * @param data              {@link AdvertiseData} data to advertise
      * @param advertiseCallback {@link AdvertiseCallback} callback for advertiser
      */
-    protected void startAdvertising(BluetoothGattService service, AdvertiseData data,
+    void startAdvertising(BluetoothGattService service, AdvertiseData data,
             AdvertiseCallback advertiseCallback) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "startAdvertising: " + service.getUuid().toString());
@@ -131,60 +203,16 @@ public abstract class BleManager {
         mAdvertiseData = data;
         mGattServerRetryStartCount = 0;
         mBluetoothManager = (BluetoothManager) mContext.getSystemService(
-            Context.BLUETOOTH_SERVICE);
+                Context.BLUETOOTH_SERVICE);
         openGattServer();
     }
 
-    private void openGattServer() {
-        // Only open one Gatt server.
-        if (mGattServer != null) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Gatt Server created, retry count: " + mGattServerRetryStartCount);
-            }
-            mGattServer.clearServices();
-            mGattServer.addService(mBluetoothGattService);
-            AdvertiseSettings settings = new AdvertiseSettings.Builder()
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-                .setConnectable(true)
-                .build();
-            mAdvertiserStartCount = 0;
-            startAdvertisingInternally(settings, mAdvertiseData, mAdvertiseCallback);
-            mGattServerRetryStartCount = 0;
-        } else if (mGattServerRetryStartCount < GATT_SERVER_RETRY_LIMIT) {
-            mGattServer = mBluetoothManager.openGattServer(mContext, mGattServerCallback);
-            mGattServerRetryStartCount++;
-            mHandler.postDelayed(() -> openGattServer(), GATT_SERVER_RETRY_DELAY_MS);
-        } else {
-            Log.e(TAG, "Gatt server not created - exceeded retry limit.");
-        }
-    }
-
-    private void startAdvertisingInternally(AdvertiseSettings settings, AdvertiseData data,
-            AdvertiseCallback advertiseCallback) {
-        if (BluetoothAdapter.getDefaultAdapter() != null) {
-            mAdvertiser = BluetoothAdapter.getDefaultAdapter().getBluetoothLeAdvertiser();
-        }
-
-        if (mAdvertiser != null) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Advertiser created, retry count: " + mAdvertiserStartCount);
-            }
-            mAdvertiser.startAdvertising(settings, data, advertiseCallback);
-            mAdvertiserStartCount = 0;
-        } else if (mAdvertiserStartCount < BLE_RETRY_LIMIT) {
-            mHandler.postDelayed(
-                    () -> startAdvertisingInternally(settings, data, advertiseCallback),
-                    BLE_RETRY_INTERVAL_MS);
-            mAdvertiserStartCount += 1;
-        } else {
-            Log.e(TAG, "Cannot start BLE Advertisement.  BT Adapter: "
-                    + BluetoothAdapter.getDefaultAdapter() + " Advertise Retry count: "
-                    + mAdvertiserStartCount);
-        }
-    }
-
-    protected void stopAdvertising(AdvertiseCallback advertiseCallback) {
+    /**
+     * Stops the GATT server from advertising.
+     *
+     * @param advertiseCallback The callback that is associated with the advertisement.
+     */
+    void stopAdvertising(AdvertiseCallback advertiseCallback) {
         if (mAdvertiser != null) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "stopAdvertising: ");
@@ -193,8 +221,7 @@ public abstract class BleManager {
         }
     }
 
-    protected void startScanning(List<ScanFilter> filters, ScanSettings settings,
-            ScanCallback callback) {
+    void startScanning(List<ScanFilter> filters, ScanSettings settings, ScanCallback callback) {
         if (!mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Log.e(TAG, "Attempted start scanning, but system does not support BLE. Ignoring");
             return;
@@ -208,27 +235,7 @@ public abstract class BleManager {
         startScanningInternally();
     }
 
-    private void startScanningInternally() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Attempting to start scanning");
-        }
-        if (mScanner == null && BluetoothAdapter.getDefaultAdapter() != null) {
-            mScanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
-        }
-
-        if (mScanner != null) {
-            mScanner.startScan(mScanFilters, mScanSettings, mInternalScanCallback);
-            updateScannerState(ScannerState.SCANNING);
-        } else {
-            // Keep trying
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Scanner unavailable. Trying again.");
-            }
-            mHandler.postDelayed(this::startScanningInternally, BLE_RETRY_INTERVAL_MS);
-        }
-    }
-
-    protected void stopScanning() {
+    void stopScanning() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Attempting to stop scanning");
         }
@@ -239,13 +246,7 @@ public abstract class BleManager {
         updateScannerState(ScannerState.STOPPED);
     }
 
-    private void updateScannerState(ScannerState newState) {
-        synchronized (this) {
-            mScannerState = newState;
-        }
-    }
-
-    protected boolean isScanning() {
+    boolean isScanning() {
         synchronized (this) {
             return mScannerState == ScannerState.SCANNING;
         }
@@ -254,8 +255,8 @@ public abstract class BleManager {
     /**
      * Notifies the characteristic change via {@link BluetoothGattServer}
      */
-    void notifyCharacteristicChanged(BluetoothDevice device,
-            BluetoothGattCharacteristic characteristic, boolean confirm) {
+    void notifyCharacteristicChanged(@NonNull BluetoothDevice device,
+            @NonNull BluetoothGattCharacteristic characteristic, boolean confirm) {
         if (mGattServer == null) {
             return;
         }
@@ -271,15 +272,16 @@ public abstract class BleManager {
      * Connect the Gatt server of the remote device to retrieve device name.
      */
     final void retrieveDeviceName(BluetoothDevice device) {
-        mBluetoothGatt = device.connectGatt(getContext(), false, mGattCallback);
+        mBluetoothGatt = device.connectGatt(mContext, false, mGattCallback);
     }
 
-    protected Context getContext() {
-        return mContext;
-    }
-
+    /**
+     * Returns the currently opened GATT server within this manager.
+     *
+     * @return An opened GATT server or {@code null} if none have been opened.
+     */
     @Nullable
-    protected BluetoothGattServer getGattServer() {
+    BluetoothGattServer getGattServer() {
         return mGattServer;
     }
 
@@ -327,60 +329,79 @@ public abstract class BleManager {
         mGattServer = null;
     }
 
-    /**
-     * Triggered when the name of the remote device is retrieved.
-     *
-     * @param deviceName Name of the remote device.
-     */
-    protected void onDeviceNameRetrieved(@Nullable String deviceName) {
+    private void openGattServer() {
+        // Only open one Gatt server.
+        if (mGattServer != null) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Gatt Server created, retry count: " + mGattServerRetryStartCount);
+            }
+            mGattServer.clearServices();
+            mGattServer.addService(mBluetoothGattService);
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+            mAdvertiserStartCount = 0;
+            startAdvertisingInternally(settings, mAdvertiseData, mAdvertiseCallback);
+            mGattServerRetryStartCount = 0;
+        } else if (mGattServerRetryStartCount < GATT_SERVER_RETRY_LIMIT) {
+            mGattServer = mBluetoothManager.openGattServer(mContext, mGattServerCallback);
+            mGattServerRetryStartCount++;
+            mHandler.postDelayed(() -> openGattServer(), GATT_SERVER_RETRY_DELAY_MS);
+        } else {
+            Log.e(TAG, "Gatt server not created - exceeded retry limit.");
+        }
     }
 
-    /**
-     * Triggered if a remote client has requested to change the MTU for a given connection.
-     *
-     * @param size The new MTU size.
-     */
-    protected void onMtuSizeChanged(int size) {
+    private void startAdvertisingInternally(AdvertiseSettings settings, AdvertiseData data,
+            AdvertiseCallback advertiseCallback) {
+        if (BluetoothAdapter.getDefaultAdapter() != null) {
+            mAdvertiser = BluetoothAdapter.getDefaultAdapter().getBluetoothLeAdvertiser();
+        }
+
+        if (mAdvertiser != null) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Advertiser created, retry count: " + mAdvertiserStartCount);
+            }
+            mAdvertiser.startAdvertising(settings, data, advertiseCallback);
+            mAdvertiserStartCount = 0;
+        } else if (mAdvertiserStartCount < BLE_RETRY_LIMIT) {
+            mHandler.postDelayed(
+                    () -> startAdvertisingInternally(settings, data, advertiseCallback),
+                    BLE_RETRY_INTERVAL_MS);
+            mAdvertiserStartCount += 1;
+        } else {
+            Log.e(TAG, "Cannot start BLE Advertisement.  BT Adapter: "
+                    + BluetoothAdapter.getDefaultAdapter() + " Advertise Retry count: "
+                    + mAdvertiserStartCount);
+        }
     }
 
-    /**
-     * Triggered when a device (GATT client) connected.
-     *
-     * @param device Remote device that connected on BLE.
-     */
-    protected void onRemoteDeviceConnected(BluetoothDevice device) {
+    private void startScanningInternally() {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Attempting to start scanning");
+        }
+        if (mScanner == null && BluetoothAdapter.getDefaultAdapter() != null) {
+            mScanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
+        }
+
+        if (mScanner != null) {
+            mScanner.startScan(mScanFilters, mScanSettings, mInternalScanCallback);
+            updateScannerState(ScannerState.SCANNING);
+        } else {
+            // Keep trying
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Scanner unavailable. Trying again.");
+            }
+            mHandler.postDelayed(this::startScanningInternally, BLE_RETRY_INTERVAL_MS);
+        }
     }
 
-    /**
-     * Triggered when a device (GATT client) disconnected.
-     *
-     * @param device Remote device that disconnected on BLE.
-     */
-    protected void onRemoteDeviceDisconnected(BluetoothDevice device) {
-    }
-
-    /**
-     * Triggered when this BleManager receives a write request from a remote
-     * device. Sub-classes should implement how to handle requests.
-     * <p>
-     *
-     * @see BluetoothGattServerCallback#onCharacteristicWriteRequest(BluetoothDevice, int,
-     * BluetoothGattCharacteristic, boolean, boolean, int, byte[])
-     */
-    protected void onCharacteristicWrite(BluetoothDevice device, int requestId,
-            BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean
-            responseNeeded, int offset, byte[] value) {
-    }
-
-    /**
-     * Triggered when this BleManager receives a read request from a remote device.
-     * <p>
-     *
-     * @see BluetoothGattServerCallback#onCharacteristicReadRequest(BluetoothDevice, int, int,
-     * BluetoothGattCharacteristic)
-     */
-    protected void onCharacteristicRead(BluetoothDevice device,
-            int requestId, int offset, BluetoothGattCharacteristic characteristic) {
+    private void updateScannerState(ScannerState newState) {
+        synchronized (this) {
+            mScannerState = newState;
+        }
     }
 
     private final BluetoothGattServerCallback mGattServerCallback =
@@ -393,10 +414,14 @@ public abstract class BleManager {
                     }
                     switch (newState) {
                         case BluetoothProfile.STATE_CONNECTED:
-                            onRemoteDeviceConnected(device);
+                            for (Callback callback : mCallbacks) {
+                                callback.onRemoteDeviceConnected(device);
+                            }
                             break;
                         case BluetoothProfile.STATE_DISCONNECTED:
-                            onRemoteDeviceDisconnected(device);
+                            for (Callback callback : mCallbacks) {
+                                callback.onRemoteDeviceDisconnected(device);
+                            }
                             break;
                         default:
                             Log.w(TAG,
@@ -422,7 +447,10 @@ public abstract class BleManager {
 
                     mGattServer.sendResponse(device, requestId,
                             BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
-                    onCharacteristicRead(device, requestId, offset, characteristic);
+
+                    for (OnCharacteristicReadListener listener : mReadListeners) {
+                        listener.onCharacteristicRead(device, characteristic);
+                    }
                 }
 
                 @Override
@@ -436,8 +464,10 @@ public abstract class BleManager {
 
                     mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS,
                             offset, value);
-                    onCharacteristicWrite(device, requestId, characteristic,
-                            preparedWrite, responseNeeded, offset, value);
+
+                    for (OnCharacteristicWriteListener listener : mWriteListeners) {
+                        listener.onCharacteristicWrite(device, characteristic, value);
+                    }
                 }
 
                 @Override
@@ -458,7 +488,12 @@ public abstract class BleManager {
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "onMtuChanged: " + mtu + " for device " + device.getAddress());
                     }
-                    onMtuSizeChanged(mtu);
+
+                    mMtuSize = mtu;
+
+                    for (Callback callback : mCallbacks) {
+                        callback.onMtuSizeChanged(mtu);
+                    }
                 }
 
             };
@@ -518,7 +553,10 @@ public abstract class BleManager {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "BLE Device Name: " + deviceName);
                 }
-                onDeviceNameRetrieved(deviceName);
+
+                for (Callback callback : mCallbacks) {
+                    callback.onDeviceNameRetrieved(deviceName);
+                }
             } else {
                 Log.e(TAG, "Reading GAP Failed: " + status);
             }
@@ -571,4 +609,69 @@ public abstract class BleManager {
             }
         }
     };
+
+    /**
+     * Interface to be notified of various events within the {@link BleManager}.
+     */
+    interface Callback {
+         /**
+         * Triggered when the name of the remote device is retrieved.
+         *
+         * @param deviceName Name of the remote device.
+         */
+        void onDeviceNameRetrieved(@Nullable String deviceName);
+
+        /**
+         * Triggered if a remote client has requested to change the MTU for a given connection.
+         *
+         * @param size The new MTU size.
+         */
+        void onMtuSizeChanged(int size);
+
+        /**
+         * Triggered when a device (GATT client) connected.
+         *
+         * @param device Remote device that connected on BLE.
+         */
+        void onRemoteDeviceConnected(@NonNull BluetoothDevice device);
+
+        /**
+         * Triggered when a device (GATT client) disconnected.
+         *
+         * @param device Remote device that disconnected on BLE.
+         */
+        void onRemoteDeviceDisconnected(@NonNull BluetoothDevice device);
+    }
+
+    /**
+     * An interface for classes that wish to be notified of writes to a characteristic.
+     */
+    interface OnCharacteristicWriteListener {
+        /**
+         * Triggered when this BleManager receives a write request from a remote device.
+         *
+         * @param device The bluetooth device that holds the characteristic.
+         * @param characteristic The characteristic that was written to.
+         * @param value The value that was written.
+         */
+        void onCharacteristicWrite(
+                @NonNull BluetoothDevice device,
+                @NonNull BluetoothGattCharacteristic characteristic,
+                @NonNull byte[] value);
+    }
+
+    /**
+     * An interface for classes that wish to be notified of reads on a characteristic.
+     */
+    interface OnCharacteristicReadListener {
+        /**
+         * Triggered when this BleManager receives a read request from a remote device.
+         *
+         * @param device The bluetooth device that holds the characteristic.
+         * @param characteristic The characteristic that was read from.
+         */
+        void onCharacteristicRead(
+                @NonNull BluetoothDevice device,
+                @NonNull BluetoothGattCharacteristic characteristic);
+    }
 }

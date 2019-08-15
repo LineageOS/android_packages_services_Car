@@ -55,13 +55,13 @@ private val CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-008
  * @param readCharacteristicUuid [UUID] of characteristic the peripheral will write to.
  */
 internal class CarBleCentralManager(
-    context: Context,
+    private val context: Context,
+    private val bleManager: BleManager,
     private val serviceUuid: UUID,
     private val bgServiceMask: String,
     private val writeCharacteristicUuid: UUID,
     private val readCharacteristicUuid: UUID
-) : BleManager(context) {
-
+) {
     @GuardedBy("connectedDevices")
     private val connectedDevices = mutableSetOf<BleDevice>()
 
@@ -91,14 +91,14 @@ internal class CarBleCentralManager(
     }
 
     private fun startScanning() {
-        startScanning(null, scanSettings, scanCallback)
+        bleManager.startScanning(null, scanSettings, scanCallback)
     }
 
     /**
      * Stop process and disconnect from any connected devices.
      */
     fun stop() {
-        stopScanning()
+        bleManager.stopScanning()
         synchronized(connectedDevices) {
             connectedDevices.forEach { it.gatt.close() }
             connectedDevices.clear()
@@ -387,7 +387,7 @@ internal class CarBleCentralManager(
 
         // Stop scanning if we have reached the maximum connections
         if (countConnectedDevices() >= MAX_CONNECTIONS) {
-            stopScanning()
+            bleManager.stopScanning()
         }
     }
 
@@ -416,7 +416,7 @@ internal class CarBleCentralManager(
         }
 
         // Start scanning if dropping down from max
-        if (!isScanning && connectedCount < MAX_CONNECTIONS) {
+        if (!bleManager.isScanning() && connectedCount < MAX_CONNECTIONS) {
             startScanning()
         }
     }

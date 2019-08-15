@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattServer;
 import android.os.Handler;
 
 import androidx.test.runner.AndroidJUnit4;
@@ -67,9 +66,9 @@ public class BleMessageStreamV1Test {
     private BleMessageStreamV1 mBleMessageStream;
     private BluetoothDevice mBluetoothDevice;
 
+    @Mock BleManager mBleManager;
     @Mock BleMessageStreamCallback mCallbackMock;
     @Mock Handler mHandlerMock;
-    @Mock BluetoothGattServer mGattServerMock;
     @Mock BluetoothGattCharacteristic mWriteCharacteristicMock;
     @Mock BluetoothGattCharacteristic mReadCharacteristicMock;
 
@@ -89,7 +88,8 @@ public class BleMessageStreamV1Test {
 
         mBluetoothDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(ADDRESS_MOCK);
         mBleMessageStream = new BleMessageStreamV1(
-                mHandlerMock, mBluetoothDevice, mGattServerMock, mWriteCharacteristicMock);
+                mHandlerMock, mBleManager, mBluetoothDevice, mWriteCharacteristicMock,
+                mReadCharacteristicMock);
         mBleMessageStream.setCallback(mCallbackMock);
     }
 
@@ -109,6 +109,10 @@ public class BleMessageStreamV1Test {
 
         // Verify that the message was written.
         verify(mWriteCharacteristicMock).setValue(expectedMessage.toByteArray());
+
+        // Verify that there is also a notification of the characteristic change.
+        verify(mBleManager).notifyCharacteristicChanged(mBluetoothDevice,
+                mWriteCharacteristicMock, false);
     }
 
     @Test
@@ -131,9 +135,10 @@ public class BleMessageStreamV1Test {
         int numOfAcks = requiredWrites - 1;
 
         for (int i = 0; i < numOfAcks; i++) {
-            mBleMessageStream.processClientMessage(
-                    BLEMessageV1Factory.makeAcknowledgementMessage().toByteArray(),
-                    mReadCharacteristicMock);
+            mBleMessageStream.onCharacteristicWrite(
+                    mBluetoothDevice,
+                    mReadCharacteristicMock,
+                    BLEMessageV1Factory.makeAcknowledgementMessage().toByteArray());
         }
 
         // Each ACK should trigger a canceling of the retry runnable.
@@ -143,6 +148,8 @@ public class BleMessageStreamV1Test {
 
         verify(mWriteCharacteristicMock, times(requiredWrites)).setValue(
                 messageCaptor.capture());
+        verify(mBleManager, times(requiredWrites)).notifyCharacteristicChanged(mBluetoothDevice,
+                mWriteCharacteristicMock, false);
 
         List<byte[]> writtenBytes = messageCaptor.getAllValues();
         ByteArrayOutputStream reassembledMessageStream = new ByteArrayOutputStream();
@@ -186,6 +193,8 @@ public class BleMessageStreamV1Test {
         // Because there is no ACK, the write should be retried up to the limit.
         verify(mWriteCharacteristicMock, times(BleMessageStreamV1Kt.BLE_MESSAGE_RETRY_LIMIT))
                 .setValue(messageCaptor.capture());
+        verify(mBleManager, times(BleMessageStreamV1Kt.BLE_MESSAGE_RETRY_LIMIT))
+                .notifyCharacteristicChanged(mBluetoothDevice, mWriteCharacteristicMock, false);
 
         List<byte[]> writtenBytes = messageCaptor.getAllValues();
         List<byte[]> writtenPayloads = new ArrayList<>();
@@ -229,6 +238,8 @@ public class BleMessageStreamV1Test {
         // Because there is no ACK, the write should be retried up to the limit.
         verify(mWriteCharacteristicMock, times(BleMessageStreamV1Kt.BLE_MESSAGE_RETRY_LIMIT))
                 .setValue(any(byte[].class));
+        verify(mBleManager, times(BleMessageStreamV1Kt.BLE_MESSAGE_RETRY_LIMIT))
+                .notifyCharacteristicChanged(mBluetoothDevice, mWriteCharacteristicMock, false);
 
         // But the callback should only be notified once.
         verify(mCallbackMock).onWriteMessageError();
@@ -242,8 +253,10 @@ public class BleMessageStreamV1Test {
         BLEMessage clientMessage = BLEMessageV1Factory.makeBLEMessage(
                 payload, OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */ true);
 
-        mBleMessageStream.processClientMessage(clientMessage.toByteArray(),
-                mReadCharacteristicMock);
+        mBleMessageStream.onCharacteristicWrite(
+                mBluetoothDevice,
+                mReadCharacteristicMock,
+                clientMessage.toByteArray());
 
         // The callback should be notified with only the payload.
         verify(mCallbackMock).onMessageReceived(payload, READ_UUID);
@@ -264,8 +277,10 @@ public class BleMessageStreamV1Test {
                 payload, OperationType.CLIENT_MESSAGE, maxSize, /* isPayloadEncrypted= */ true);
 
         for (BLEMessage message : clientMessages) {
-            mBleMessageStream.processClientMessage(message.toByteArray(),
-                    mReadCharacteristicMock);
+            mBleMessageStream.onCharacteristicWrite(
+                    mBluetoothDevice,
+                    mReadCharacteristicMock,
+                    message.toByteArray());
         }
 
         // The callback should be notified with only the payload.
@@ -287,15 +302,19 @@ public class BleMessageStreamV1Test {
                 payload, OperationType.CLIENT_MESSAGE, maxSize, /* isPayloadEncrypted= */ true);
 
         for (BLEMessage message : clientMessages) {
-            mBleMessageStream.processClientMessage(message.toByteArray(),
-                    mReadCharacteristicMock);
+            mBleMessageStream.onCharacteristicWrite(
+                    mBluetoothDevice,
+                    mReadCharacteristicMock,
+                    message.toByteArray());
         }
 
         ArgumentCaptor<byte[]> messageCaptor = ArgumentCaptor.forClass(byte[].class);
 
-        // An ACK should be sent for each message received, except the last tone.
+        // An ACK should be sent for each message received, except the last one.
         verify(mWriteCharacteristicMock, times(clientMessages.size() - 1))
                 .setValue(messageCaptor.capture());
+        verify(mBleManager, times(clientMessages.size() - 1))
+                .notifyCharacteristicChanged(mBluetoothDevice, mWriteCharacteristicMock, false);
 
         List<byte[]> writtenValues = messageCaptor.getAllValues();
         byte[] ackMessageBytes = BLEMessageV1Factory.makeAcknowledgementMessage().toByteArray();

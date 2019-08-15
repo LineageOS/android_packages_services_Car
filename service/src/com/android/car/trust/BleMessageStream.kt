@@ -18,7 +18,6 @@ package com.android.car.trust
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattServer
 import com.android.car.BLEStreamProtos.BLEOperationProto.OperationType
 
 /**
@@ -32,11 +31,11 @@ internal interface BleMessageStream {
     /** The [BluetoothDevice] to write and receive messages from. */
     val device: BluetoothDevice
 
-    /** The GATT server on the device that holds the read and write characteristics. */
-    val gattServer: BluetoothGattServer
-
     /** The characteristic on the device to write messages to. */
     val writeCharacteristic: BluetoothGattCharacteristic
+
+    /** The characteristic that messages will be written to by the remote device. */
+    val readCharacteristic: BluetoothGattCharacteristic
 
     /** An optional callback that will be notified of the progress of writes and reads. */
     var callback: BleMessageStreamCallback?
@@ -59,19 +58,4 @@ internal interface BleMessageStream {
      * @param isPayloadEncrypted `true` if the message to send has been encrypted.
      */
     fun writeMessage(message: ByteArray, operationType: OperationType, isPayloadEncrypted: Boolean)
-
-    /**
-     * Processes a message from the client.
-     *
-     * The client should be the [device] of this stream. The message may represent a partial message
-     * from the client. The [callback] of this stream should only be notified when the message
-     * is complete.
-     *
-     * @param message The message to process.
-     * @param readCharacteristic The characteristic that the message from written to.
-     */
-    fun processClientMessage(
-        message: ByteArray,
-        readCharacteristic: BluetoothGattCharacteristic
-    )
 }

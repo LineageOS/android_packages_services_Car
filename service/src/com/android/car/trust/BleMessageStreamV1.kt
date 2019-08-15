@@ -18,7 +18,6 @@ package com.android.car.trust
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattServer
 import android.os.Handler
 import android.util.Log
 import com.android.car.BLEStreamProtos.BLEMessageProto.BLEMessage
@@ -41,9 +40,10 @@ private val BLE_MESSAGE_RETRY_DELAY_MS = TimeUnit.SECONDS.toMillis(2)
  */
 internal class BleMessageStreamV1(
     private val handler: Handler,
+    private val bleManager: BleManager,
     override val device: BluetoothDevice,
-    override val gattServer: BluetoothGattServer,
-    override val writeCharacteristic: BluetoothGattCharacteristic
+    override val writeCharacteristic: BluetoothGattCharacteristic,
+    override val readCharacteristic: BluetoothGattCharacteristic
 ) : BleMessageStream {
     // Explicitly using an ArrayDequeue here for performance when used as a queue.
     private val messageQueue = ArrayDeque<BLEMessage>()
@@ -53,6 +53,10 @@ internal class BleMessageStreamV1(
 
     override var maxWriteSize = 20
     override var callback: BleMessageStreamCallback? = null
+
+    init {
+        bleManager.addOnCharacteristicWriteListener(::onCharacteristicWrite)
+    }
 
     /**
      * Writes the given message to the `writeCharacteristic` of this stream.
@@ -98,19 +102,34 @@ internal class BleMessageStreamV1(
     /**
      * Processes a message from the client and notifies the [callback] of the success of this
      * call.
-     *
-     * @param message The message to process.
-     * @param readCharacteristic The characteristic that the message from written to.
      */
-    override fun processClientMessage(
-        message: ByteArray,
-        readCharacteristic: BluetoothGattCharacteristic
+    @VisibleForTesting
+    fun onCharacteristicWrite(
+        device: BluetoothDevice,
+        characteristic: BluetoothGattCharacteristic,
+        value: ByteArray
     ) {
+        if (this.device != device) {
+            Log.w(
+                TAG,
+                "Received a message from a device (${device.address}) that is not the " +
+                    "expected device (${device.address}) registered to this stream. Ignoring.")
+            return
+        }
+
+        if (characteristic.uuid != readCharacteristic.uuid) {
+            Log.w(
+                TAG,
+                "Received a write to a characteristic (${characteristic.uuid}) that is not the " +
+                    "expected UUID (${readCharacteristic.uuid}). Ignoring.")
+            return
+        }
+
         val bleMessage = try {
-            BLEMessage.parseFrom(message)
+            BLEMessage.parseFrom(value)
         } catch (e: InvalidProtocolBufferException) {
             Log.e(TAG, "Can not parse BLE message from client.", e)
-            callback?.onMessageReceivedError(readCharacteristic.uuid)
+            callback?.onMessageReceivedError(characteristic.uuid)
             return
         }
 
@@ -123,7 +142,7 @@ internal class BleMessageStreamV1(
             payloadStream.write(bleMessage)
         } catch (e: IOException) {
             Log.e(TAG, "Unable to parse the BLE message's payload from client.", e)
-            callback?.onMessageReceivedError(readCharacteristic.uuid)
+            callback?.onMessageReceivedError(characteristic.uuid)
             return
         }
 
@@ -133,7 +152,7 @@ internal class BleMessageStreamV1(
             return
         }
 
-        callback?.onMessageReceived(payloadStream.toByteArray(), readCharacteristic.uuid)
+        callback?.onMessageReceived(payloadStream.toByteArray(), characteristic.uuid)
         payloadStream.reset()
     }
 
@@ -180,14 +199,10 @@ internal class BleMessageStreamV1(
     private fun writeValueAndNotify(message: ByteArray) {
         writeCharacteristic.setValue(message)
 
-        val result = gattServer.notifyCharacteristicChanged(
+        bleManager.notifyCharacteristicChanged(
             device,
             writeCharacteristic,
             /* confirm= */ false)
-
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Wrote value on writeCharacteristic. Successful: $result")
-        }
     }
 
     /**

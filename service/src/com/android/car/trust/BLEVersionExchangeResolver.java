@@ -16,14 +16,13 @@
 
 package com.android.car.trust;
 
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattServer;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-
-import androidx.annotation.Nullable;
 
 import com.android.car.BLEStreamProtos.VersionExchangeProto.BLEVersionExchange;
 
@@ -42,15 +41,19 @@ class BLEVersionExchangeResolver {
      * {@link BluetoothDevice} based on the version exchange proto.
      *
      * @param versionExchange The version exchange proto to resolve
-     * @param device The device to send messages to.
-     * @param readCharacteristic The characteristic the device will use to write messages to.
-     * @param writeCharacteristic The characteristic on the device that message can be written to.
+     * @param device The remote device to send messages to.
+     * @param readCharacteristic The characteristic the remote device will use to write messages to.
+     *                           This is the characteristic this IHU will read from.
+     * @param writeCharacteristic The characteristic on the remote device that this IHU can write
+     *                            messages to.
      * @return A stream that can send message or {@code null} if resolution was not possible.
      */
     @Nullable
-    static BleMessageStream resolveToStream(BLEVersionExchange versionExchange,
-            BluetoothDevice device, BluetoothGattServer gattServer,
-            BluetoothGattCharacteristic writeCharacteristic) {
+    static BleMessageStream resolveToStream(
+            @NonNull BLEVersionExchange versionExchange,
+            @NonNull BluetoothDevice device, @NonNull BleManager bleManager,
+            @NonNull BluetoothGattCharacteristic writeCharacteristic,
+            @NonNull BluetoothGattCharacteristic readCharacteristic) {
         int minMessagingVersion = versionExchange.getMinSupportedMessagingVersion();
         int minSecurityVersion = versionExchange.getMinSupportedSecurityVersion();
 
@@ -62,7 +65,11 @@ class BLEVersionExchangeResolver {
         // Only one supported version, so ensure the minimum version matches.
         if (minMessagingVersion == MESSAGING_VERSION && minSecurityVersion == SECURITY_VERSION) {
             return new BleMessageStreamV1(
-                new Handler(Looper.getMainLooper()), device, gattServer, writeCharacteristic);
+                    new Handler(Looper.getMainLooper()),
+                    bleManager,
+                    device,
+                    writeCharacteristic,
+                    readCharacteristic);
         }
 
         return null;
@@ -72,6 +79,7 @@ class BLEVersionExchangeResolver {
      * Returns a version exchange proto with the maximum and minimum protocol and security versions
      * this device currently supports.
      */
+    @NonNull
     static BLEVersionExchange makeVersionExchange() {
         return BLEVersionExchange.newBuilder()
                 .setMinSupportedMessagingVersion(MESSAGING_VERSION)
