@@ -224,7 +224,7 @@ import java.util.stream.Collectors;
 
     private CarVolumeGroup parseVolumeGroup(XmlPullParser parser, int zoneId, int groupId)
             throws XmlPullParserException, IOException {
-        final CarVolumeGroupSettings settings = new CarVolumeGroupSettings(mContext);
+        final CarVolumeSettings settings = new CarVolumeSettings(mContext);
         final CarVolumeGroup group = new CarVolumeGroup(settings, zoneId, groupId);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;

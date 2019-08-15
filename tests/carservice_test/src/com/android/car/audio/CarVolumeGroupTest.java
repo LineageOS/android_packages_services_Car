@@ -66,7 +66,7 @@ public class CarVolumeGroupTest {
 
     @Test
     public void bind_associatesDeviceAddresses() {
-        CarVolumeGroupSettings settings =
+        CarVolumeSettings settings =
                 generateCarVolumeGroupSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
@@ -83,7 +83,7 @@ public class CarVolumeGroupTest {
 
     @Test
     public void bind_checksForSameStepSize() {
-        CarVolumeGroupSettings settings =
+        CarVolumeSettings settings =
                 generateCarVolumeGroupSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
@@ -99,7 +99,7 @@ public class CarVolumeGroupTest {
 
     @Test
     public void bind_updatesMinGainToSmallestValue() {
-        CarVolumeGroupSettings settings =
+        CarVolumeSettings settings =
                 generateCarVolumeGroupSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
@@ -124,7 +124,7 @@ public class CarVolumeGroupTest {
 
     @Test
     public void bind_updatesMaxGainToLargestValue() {
-        CarVolumeGroupSettings settings =
+        CarVolumeSettings settings =
                 generateCarVolumeGroupSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
@@ -149,7 +149,7 @@ public class CarVolumeGroupTest {
 
     @Test
     public void bind_checksThatTheSameContextIsNotBoundTwice() {
-        CarVolumeGroupSettings settings =
+        CarVolumeSettings settings =
                 generateCarVolumeGroupSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
@@ -262,7 +262,7 @@ public class CarVolumeGroupTest {
     @Test
     public void getMinGainIndex_alwaysReturnsZero() {
 
-        CarVolumeGroupSettings settings =
+        CarVolumeSettings settings =
                 generateCarVolumeGroupSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
         CarAudioDeviceInfo minGainPlusOneDevice = generateCarAudioDeviceInfo(
@@ -289,7 +289,7 @@ public class CarVolumeGroupTest {
         storedGainIndex.put(10, 2);
         storedGainIndex.put(11, 0);
 
-        CarVolumeGroupSettings settings =
+        CarVolumeSettings settings =
                 generateCarVolumeGroupSettings(users, 0 , 0, storedGainIndex);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
@@ -307,7 +307,7 @@ public class CarVolumeGroupTest {
 
     @Test
     public void loadUserStoredGainIndex_setsCurrentGainIndexToDefault() {
-        CarVolumeGroupSettings settings =
+        CarVolumeSettings settings =
                 generateCarVolumeGroupSettings(0, 0 , 0, 10);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
@@ -326,7 +326,7 @@ public class CarVolumeGroupTest {
 
     @Test
     public void bind_setsCurrentGainIndexToStoredGainIndex() {
-        CarVolumeGroupSettings settings =
+        CarVolumeSettings settings =
                 generateCarVolumeGroupSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
@@ -339,7 +339,7 @@ public class CarVolumeGroupTest {
     }
 
     private CarVolumeGroup testVolumeGroupSetup() {
-        CarVolumeGroupSettings settings =
+        CarVolumeSettings settings =
                 generateCarVolumeGroupSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
@@ -370,18 +370,18 @@ public class CarVolumeGroupTest {
         return cadiMock;
     }
 
-    private CarVolumeGroupSettings generateCarVolumeGroupSettings(int userId,
+    private CarVolumeSettings generateCarVolumeGroupSettings(int userId,
             int zoneId, int id, int storedGainIndex) {
-        CarVolumeGroupSettings settingsMock = Mockito.mock(CarVolumeGroupSettings.class);
+        CarVolumeSettings settingsMock = Mockito.mock(CarVolumeSettings.class);
         when(settingsMock.getStoredVolumeGainIndexForUser(userId, zoneId, id))
                 .thenReturn(storedGainIndex);
 
         return settingsMock;
     }
 
-    private CarVolumeGroupSettings generateCarVolumeGroupSettings(
+    private CarVolumeSettings generateCarVolumeGroupSettings(
             int zoneId, int id, int storedGainIndex) {
-        CarVolumeGroupSettings settingsMock = Mockito.mock(CarVolumeGroupSettings.class);
+        CarVolumeSettings settingsMock = Mockito.mock(CarVolumeSettings.class);
 
         when(settingsMock.getStoredVolumeGainIndexForUser(anyInt(), eq(zoneId),
                 eq(id))).thenReturn(storedGainIndex);
@@ -389,9 +389,9 @@ public class CarVolumeGroupTest {
         return settingsMock;
     }
 
-    private CarVolumeGroupSettings generateCarVolumeGroupSettings(List<Integer> users,
+    private CarVolumeSettings generateCarVolumeGroupSettings(List<Integer> users,
             int zoneId, int id, Map<Integer, Integer> storedGainIndex) {
-        CarVolumeGroupSettings settingsMock = Mockito.mock(CarVolumeGroupSettings.class);
+        CarVolumeSettings settingsMock = Mockito.mock(CarVolumeSettings.class);
         for (Integer user : users) {
             when(settingsMock.getStoredVolumeGainIndexForUser(user, zoneId,
                     id)).thenReturn(storedGainIndex.get(user));

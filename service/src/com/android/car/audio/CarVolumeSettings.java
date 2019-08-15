@@ -20,13 +20,16 @@ import android.content.Context;
 import android.provider.Settings;
 
 /**
- * Use to save/load car volume group settings
+ * Use to save/load car volume settings
  */
-public class CarVolumeGroupSettings {
+public class CarVolumeSettings {
 
     // The trailing slash forms a directory-liked hierarchy and
     // allows listening for both GROUP/MEDIA and GROUP/NAVIGATION.
     private static final String VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX = "android.car.VOLUME_GROUP/";
+
+    // Key to persist master mute state in system settings
+    private static final String VOLUME_SETTINGS_KEY_MASTER_MUTE = "android.car.MASTER_MUTE";
 
     /**
      * Gets the key to persist volume for a volume group in settings
@@ -35,14 +38,14 @@ public class CarVolumeGroupSettings {
      * @param groupId The volume group id
      * @return Key to persist volume index for volume group in system settings
      */
-    static String getVolumeSettingsKeyForGroup(int zoneId, int groupId) {
+    private static String getVolumeSettingsKeyForGroup(int zoneId, int groupId) {
         final int maskedGroupId = (zoneId << 8) + groupId;
         return VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX + maskedGroupId;
     }
 
     private final ContentResolver mContentResolver;
 
-    CarVolumeGroupSettings(Context context) {
+    CarVolumeSettings(Context context) {
         mContentResolver = context.getContentResolver();
     }
 
@@ -55,5 +58,16 @@ public class CarVolumeGroupSettings {
         Settings.System.putIntForUser(mContentResolver,
                 getVolumeSettingsKeyForGroup(zoneId, id),
                 gainIndex, userId);
+    }
+
+    void storeMasterMute(Boolean masterMuteValue) {
+        Settings.Global.putInt(mContentResolver,
+                VOLUME_SETTINGS_KEY_MASTER_MUTE,
+                masterMuteValue ? 1 : 0);
+    }
+
+    boolean getMasterMute() {
+        return Settings.Global.getInt(mContentResolver,
+                VOLUME_SETTINGS_KEY_MASTER_MUTE, 0) != 0;
     }
 }
