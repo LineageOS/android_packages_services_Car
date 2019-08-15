@@ -16,14 +16,18 @@
 
 package android.car.apitest;
 
+import android.car.VehicleAreaType;
 import android.car.hardware.CarPropertyValue;
+
+import static org.junit.Assert.assertArrayEquals;
+
 import android.test.suitebuilder.annotation.MediumTest;
 
 /**
  * Unit tests for {@link CarPropertyValue}
  */
 @MediumTest
-public class CarPropertyValueTest extends CarPropertyConfigTest {
+public class CarPropertyValueTest extends CarPropertyTestBase {
 
     public void testSimpleFloatValue() {
         CarPropertyValue<Float> floatValue =
@@ -33,6 +37,19 @@ public class CarPropertyValueTest extends CarPropertyConfigTest {
 
         CarPropertyValue<Float> valueRead = readFromParcel();
         assertEquals(10f, valueRead.getValue());
+    }
+
+    public void testMixedValue() {
+        Object[] values = {"android", 1, 2.0};
+        CarPropertyValue<Object> mixedValue =
+                new CarPropertyValue<>(MIXED_TYPE_PROPERTY_ID,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+                        values);
+        writeToParcel(mixedValue);
+        CarPropertyValue<Object[]> valueRead = readFromParcel();
+        assertArrayEquals(values, valueRead.getValue());
+        assertEquals(MIXED_TYPE_PROPERTY_ID, valueRead.getPropertyId());
+        assertEquals(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, valueRead.getAreaId());
     }
 
 }

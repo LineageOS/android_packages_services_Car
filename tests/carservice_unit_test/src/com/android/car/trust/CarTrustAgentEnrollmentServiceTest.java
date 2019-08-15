@@ -139,7 +139,7 @@ public class CarTrustAgentEnrollmentServiceTest {
         assertThat(mCarTrustAgentEnrollmentService.mEncryptionState).isEqualTo(
                 HandshakeMessage.HandshakeState.UNKNOWN);
         // send device unique id
-        verify(mMockCarTrustAgentBleManager).sendEnrollmentMessage(eq(mBluetoothDevice),
+        verify(mMockCarTrustAgentBleManager).sendMessage(
                 eq(Utils.uuidToBytes(mCarTrustedDeviceService.getUniqueId())), any(), eq(false),
                 any(SendMessageCallback.class));
 
@@ -149,7 +149,7 @@ public class CarTrustAgentEnrollmentServiceTest {
         assertThat(mCarTrustAgentEnrollmentService.mEncryptionState).isEqualTo(
                 HandshakeMessage.HandshakeState.IN_PROGRESS);
         // Send response to init handshake request
-        verify(mMockCarTrustAgentBleManager).sendEnrollmentMessage(eq(mBluetoothDevice),
+        verify(mMockCarTrustAgentBleManager).sendMessage(
                 eq(DummyEncryptionRunner.INIT_RESPONSE.getBytes()), any(), eq(false),
                 any(SendMessageCallback.class));
 
@@ -157,13 +157,13 @@ public class CarTrustAgentEnrollmentServiceTest {
                 DummyEncryptionRunner.CLIENT_RESPONSE.getBytes());
         assertThat(mCarTrustAgentEnrollmentService.mEncryptionState).isEqualTo(
                 HandshakeMessage.HandshakeState.VERIFICATION_NEEDED);
-        verify(mMockCarTrustAgentBleManager).sendEnrollmentMessage(eq(mBluetoothDevice),
+        verify(mMockCarTrustAgentBleManager).sendMessage(
                 eq(DummyEncryptionRunner.INIT_RESPONSE.getBytes()), any(), eq(false),
                 any(SendMessageCallback.class));
 
         // Completed the handshake by confirming the verification code.
         mCarTrustAgentEnrollmentService.enrollmentHandshakeAccepted(mBluetoothDevice);
-        verify(mMockCarTrustAgentBleManager).sendEnrollmentMessage(eq(mBluetoothDevice),
+        verify(mMockCarTrustAgentBleManager).sendMessage(
                 eq(mCarTrustAgentEnrollmentService.CONFIRMATION_SIGNAL), any(), eq(false),
                 any(SendMessageCallback.class));
         assertThat(mCarTrustAgentEnrollmentService.mEncryptionState).isEqualTo(
@@ -193,7 +193,7 @@ public class CarTrustAgentEnrollmentServiceTest {
         mCarTrustAgentEnrollmentService.onEscrowTokenActiveStateChanged(
                 TEST_HANDLE1, /* isTokenActive= */ true, mUserId);
 
-        verify(mMockCarTrustAgentBleManager).sendEnrollmentMessage(eq(mBluetoothDevice), any(),
+        verify(mMockCarTrustAgentBleManager).sendMessage(any(),
                 any(), eq(true), any(SendMessageCallback.class));
         assertThat(mCarTrustAgentEnrollmentService.getEnrolledDeviceInfosForUser(
                 mUserId)).containsExactly(DEVICE_INFO1);

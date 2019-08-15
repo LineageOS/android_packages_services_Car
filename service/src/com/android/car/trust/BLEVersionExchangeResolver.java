@@ -16,7 +16,14 @@
 
 package com.android.car.trust;
 
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattServer;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.android.car.BLEStreamProtos.VersionExchangeProto.BLEVersionExchange;
 
@@ -31,13 +38,19 @@ class BLEVersionExchangeResolver {
     private static final int SECURITY_VERSION = 1;
 
     /**
-     * Return whether or not the given version exchange proto has the a version that is currently
-     * supported by this device.
+     * Returns a message stream that can be used to send messages to the given
+     * {@link BluetoothDevice} based on the version exchange proto.
      *
      * @param versionExchange The version exchange proto to resolve
-     * @return {@code true} if there is a supported version.
+     * @param device The device to send messages to.
+     * @param readCharacteristic The characteristic the device will use to write messages to.
+     * @param writeCharacteristic The characteristic on the device that message can be written to.
+     * @return A stream that can send message or {@code null} if resolution was not possible.
      */
-    static boolean hasSupportedVersion(BLEVersionExchange versionExchange) {
+    @Nullable
+    static BleMessageStream resolveToStream(BLEVersionExchange versionExchange,
+            BluetoothDevice device, BluetoothGattServer gattServer,
+            BluetoothGattCharacteristic writeCharacteristic) {
         int minMessagingVersion = versionExchange.getMinSupportedMessagingVersion();
         int minSecurityVersion = versionExchange.getMinSupportedSecurityVersion();
 
@@ -47,7 +60,12 @@ class BLEVersionExchangeResolver {
         }
 
         // Only one supported version, so ensure the minimum version matches.
-        return minMessagingVersion == MESSAGING_VERSION && minSecurityVersion == SECURITY_VERSION;
+        if (minMessagingVersion == MESSAGING_VERSION && minSecurityVersion == SECURITY_VERSION) {
+            return new BleMessageStreamV1(
+                new Handler(Looper.getMainLooper()), device, gattServer, writeCharacteristic);
+        }
+
+        return null;
     }
 
     /**

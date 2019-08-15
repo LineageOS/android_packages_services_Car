@@ -16,8 +16,16 @@
 
 package android.car.apitest;
 
+import android.car.VehicleAreaType;
 import android.car.hardware.CarPropertyConfig;
 import android.test.suitebuilder.annotation.MediumTest;
+
+import static org.junit.Assert.assertArrayEquals;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 
 /**
  * Unit tests for {@link CarPropertyConfig}
@@ -162,5 +170,26 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
         } catch (ClassCastException expected) {
             // Expected. Wrote float, attempted to read integer.
         }
+    }
+
+    public void testWriteReadMixedType() {
+        List<Integer> configArray = Arrays.asList(1, 0, 1, 0, 1, 0, 0, 0, 0);
+
+        CarPropertyConfig<Object> mixedTypePropertyConfig = CarPropertyConfig
+                .newBuilder(Object.class, MIXED_TYPE_PROPERTY_ID,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addArea(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .setConfigArray(new ArrayList<Integer>(configArray))
+                .build();
+        writeToParcel(mixedTypePropertyConfig);
+
+        CarPropertyConfig<Object> configRead = readFromParcel();
+
+        assertEquals(MIXED_TYPE_PROPERTY_ID, configRead.getPropertyId());
+        assertEquals(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, configRead.getAreaType());
+        assertEquals(Object.class, configRead.getPropertyType());
+        assertEquals(1, configRead.getAreaCount());
+        assertArrayEquals(configArray.toArray(), configRead.getConfigArray().toArray());
+
     }
 }

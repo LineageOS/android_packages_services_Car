@@ -16,6 +16,8 @@
 package com.android.car.hal;
 
 import static com.android.car.hal.CarPropertyUtils.toCarPropertyValue;
+import static com.android.car.hal.CarPropertyUtils.toMixedCarPropertyValue;
+import static com.android.car.hal.CarPropertyUtils.toMixedVehiclePropValue;
 import static com.android.car.hal.CarPropertyUtils.toVehiclePropValue;
 
 import static java.lang.Integer.toHexString;
@@ -26,6 +28,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -153,6 +156,12 @@ public class PropertyHalService extends HalServiceBase {
             Log.e(CarLog.TAG_PROPERTY, "get, property not ready 0x" + toHexString(halPropId), e);
         }
 
+        if (isMixedTypeProperty(halPropId)) {
+            CarPropertyConfig<?>  propertyConfig = mProps.get(halPropId);
+            boolean containBooleanType = propertyConfig.getConfigArray().get(1) == 1;
+            return value == null ? null : toMixedCarPropertyValue(value,
+                    mgrPropId, containBooleanType);
+        }
         return value == null ? null : toCarPropertyValue(value, mgrPropId);
     }
 
@@ -192,7 +201,16 @@ public class PropertyHalService extends HalServiceBase {
             throw new IllegalArgumentException("Invalid property Id : 0x"
                     + toHexString(prop.getPropertyId()));
         }
-        VehiclePropValue halProp = toVehiclePropValue(prop, halPropId);
+
+        VehiclePropValue halProp;
+        if (isMixedTypeProperty(halPropId)) {
+            // parse mixed type property value.
+            CarPropertyConfig<?>  propertyConfig = mProps.get(prop.getPropertyId());
+            int[] configArray = propertyConfig.getConfigArray().stream().mapToInt(i->i).toArray();
+            halProp = toMixedVehiclePropValue(prop, halPropId, configArray);
+        } else {
+            halProp = toVehiclePropValue(prop, halPropId);
+        }
         try {
             mVehicleHal.set(halProp);
         } catch (PropertyTimeoutException e) {
@@ -311,7 +329,15 @@ public class PropertyHalService extends HalServiceBase {
                     Log.e(TAG, "Property is not supported: 0x" + toHexString(v.prop));
                     continue;
                 }
-                CarPropertyValue<?> propVal = toCarPropertyValue(v, mgrPropId);
+                CarPropertyValue<?> propVal;
+                if (isMixedTypeProperty(v.prop)) {
+                    // parse mixed type property value.
+                    CarPropertyConfig<?>  propertyConfig = mProps.get(v.prop);
+                    boolean containBooleanType = propertyConfig.getConfigArray().get(1) == 1;
+                    propVal = toMixedCarPropertyValue(v, mgrPropId, containBooleanType);
+                } else {
+                    propVal = toCarPropertyValue(v, mgrPropId);
+                }
                 CarPropertyEvent event = new CarPropertyEvent(
                         CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, propVal);
                 if (event != null) {
@@ -341,5 +367,9 @@ public class PropertyHalService extends HalServiceBase {
         for (CarPropertyConfig prop : mProps.values()) {
             writer.println("    " + prop.toString());
         }
+    }
+
+    private static boolean isMixedTypeProperty(int propId) {
+        return (propId & VehiclePropertyType.MASK) == VehiclePropertyType.MIXED;
     }
 }

@@ -15,8 +15,12 @@
  */
 package com.android.car.vehiclehal.test;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import static java.lang.Integer.toHexString;
 
 import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
@@ -33,10 +37,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static java.lang.Integer.toHexString;
-
 import java.io.File;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -55,6 +58,10 @@ public class CarPropertyTest extends E2eCarTestBase {
 
     private static final String CAR_HVAC_TEST_JSON = "car_hvac_test.json";
     private static final String CAR_INFO_TEST_JSON = "car_info_test.json";
+    // kMixedTypePropertyForTest property ID
+    private static final int MIXED_TYPE_PROPERTY = 0x21e01111;
+    // kMixedTypePropertyForTest default value
+    private static final Object[] DEFAULT_VALUE = {"MIXED property", true, 2, 3, 4.5f};
 
     private class CarPropertyEventReceiver implements CarPropertyEventCallback {
 
@@ -204,4 +211,42 @@ public class CarPropertyTest extends E2eCarTestBase {
                     Utils.areCarPropertyValuesEqual(actualEvent, expectedEvent));
         }
     }
+
+    /**
+     * This test will test set/get on MIX type properties. It needs a vendor property in Google
+     * Vehicle HAL. See kMixedTypePropertyForTest in google defaultConfig.h for details.
+     * @throws Exception
+     */
+    @Test
+    public void testMixedTypeProperty() throws Exception {
+        CarPropertyManager propertyManager =
+                (CarPropertyManager) mCar.getCarManager(Car.PROPERTY_SERVICE);
+        ArraySet<Integer> propConfigSet = new ArraySet<>();
+        propConfigSet.add(MIXED_TYPE_PROPERTY);
+
+        List<CarPropertyConfig> configs = propertyManager.getPropertyList(propConfigSet);
+
+        // use google HAL in the test
+        assertNotEquals("Can not find MIXED type properties in HAL",
+                0, configs.size());
+
+        // test CarPropertyConfig
+        CarPropertyConfig<?> cfg = configs.get(0);
+        List<Integer> configArrayExpected = Arrays.asList(1, 1, 0, 2, 0, 0, 1, 0, 0);
+        assertArrayEquals(configArrayExpected.toArray(), cfg.getConfigArray().toArray());
+
+        // test SET/GET methods
+        CarPropertyValue<Object[]> propertyValue = propertyManager.getProperty(Object[].class,
+                MIXED_TYPE_PROPERTY, 0);
+        assertArrayEquals(DEFAULT_VALUE, propertyValue.getValue());
+
+        Object[] expectedValue = {"MIXED property", false, 5, 4, 3.2f};
+        propertyManager.setProperty(Object[].class, MIXED_TYPE_PROPERTY, 0, expectedValue);
+        // Wait for VHAL
+        Thread.sleep(2000);
+        CarPropertyValue<Object[]> result = propertyManager.getProperty(Object[].class,
+                MIXED_TYPE_PROPERTY, 0);
+        assertArrayEquals(expectedValue, result.getValue());
+    }
+
 }
