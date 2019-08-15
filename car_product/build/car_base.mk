@@ -51,7 +51,7 @@ PRODUCT_PACKAGES += \
     libspeexresampler \
     libvariablespeed \
     libwebrtc_audio_preprocessing \
-    wifi-service \
+    InProcessWifiStack \
     A2dpSinkService \
     PackageInstaller \
     car-bugreportd \
