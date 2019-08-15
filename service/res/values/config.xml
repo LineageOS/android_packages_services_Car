@@ -20,6 +20,11 @@
 <!-- Resources to configure car service based on each OEM's preference. -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Configuration to enable media center to autoplay when the media source is changed.
+         If this is set to true, media will play automatically when a media source is selected and
+         the selected media source supports media playback. -->
+    <bool name="autoPlayOnMediaSourceChanged">false</bool>
+
     <!--  Configuration to enable usage of dynamic audio routing. If this is set to false,
           dynamic audio routing is disabled and audio works in legacy mode. It may be useful
           during initial development where audio hal does not support bus based addressing yet. -->

@@ -89,6 +89,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private MediaController mActiveUserMediaController;
     private SessionChangedListener mSessionsListener;
     private boolean mStartPlayback;
+    private boolean mPlayOnMediaSourceChanged;
 
     private boolean mPendingInit;
     private int mCurrentUser;
@@ -173,6 +174,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         userSwitchFilter.addAction(Intent.ACTION_USER_SWITCHED);
         mContext.registerReceiver(mUserSwitchReceiver, userSwitchFilter);
 
+        mPlayOnMediaSourceChanged =
+                mContext.getResources().getBoolean(R.bool.autoPlayOnMediaSourceChanged);
         mCurrentUser = ActivityManager.getCurrentUser();
         updateMediaSessionCallbackForCurrentUser();
     }
@@ -477,7 +480,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
         stop();
 
-        mStartPlayback = false;
+        mStartPlayback = mPlayOnMediaSourceChanged;
         mPreviousMediaComponent = mPrimaryMediaComponent;
         mPrimaryMediaComponent = componentName;
         updateActiveMediaController(mMediaSessionManager
