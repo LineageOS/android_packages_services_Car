@@ -1,3 +1,9 @@
+---
+Language: Java
+DisableFormat: true
+SortIncludes: false
+---
+Language: Cpp
 BasedOnStyle: Google
 AllowShortBlocksOnASingleLine: false
 AllowShortFunctionsOnASingleLine: false
@@ -11,3 +17,4 @@ PointerAlignment: Left
 TabWidth: 4
 UseTab: Never
 PenaltyExcessCharacter: 32
+---
