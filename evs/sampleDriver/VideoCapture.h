@@ -47,6 +47,9 @@ public:
 
     bool isOpen()               { return mDeviceFd >= 0; };
 
+    int setParameter(struct v4l2_control& control);
+    int getParameter(struct v4l2_control& control);
+
 private:
     void collectFrames();
     void markFrameReady();

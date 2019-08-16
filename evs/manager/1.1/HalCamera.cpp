@@ -203,6 +203,7 @@ Return<void> HalCamera::doneWithFrame(const BufferDesc_1_1& buffer) {
 }
 
 
+// Methods from ::android::hardware::automotive::evs::V1_1::IEvsCameraStream follow.
 Return<void> HalCamera::deliverFrame(const BufferDesc_1_0& buffer) {
     /* Frames are delivered via notifyEvent callback for clients that implement
      * IEvsCameraStream v1.1 interfaces and therefore this method must not be
@@ -218,8 +219,9 @@ Return<void> HalCamera::deliverFrame(const BufferDesc_1_0& buffer) {
 Return<void> HalCamera::notifyEvent(const EvsEvent& event) {
     auto type = event.getDiscriminator();
     if (type == EvsEvent::hidl_discriminator::info) {
-        ALOGD("Received an event id: %u", event.info());
-        if(event.info() == EvsEventType::STREAM_STOPPED) {
+        InfoEventDesc desc = event.info();
+        ALOGD("Received an event id: %u", desc.aType);
+        if(desc.aType == InfoEventType::STREAM_STOPPED) {
             // This event happens only when there is no more active client.
             if (mStreamState != STOPPING) {
                 ALOGW("Stream stopped unexpectedly");
@@ -273,6 +275,86 @@ Return<void> HalCamera::notifyEvent(const EvsEvent& event) {
     }
 
     return Void();
+}
+
+
+Return<EvsResult> HalCamera::setMaster(sp<VirtualCamera> virtualCamera) {
+    if (mMaster == nullptr) {
+        mMaster = virtualCamera;
+        return EvsResult::OK;
+    } else {
+        ALOGD("This camera already has a master client.");
+        return EvsResult::OWNERSHIP_LOST;
+    }
+}
+
+
+Return<EvsResult> HalCamera::unsetMaster(sp<VirtualCamera> virtualCamera) {
+    if (mMaster.promote() != virtualCamera) {
+        return EvsResult::INVALID_ARG;
+    } else {
+        ALOGD("Unset a master camera client");
+        mMaster = nullptr;
+
+        /* Notify other clients that a master role becomes available. */
+        EvsEvent event;
+        InfoEventDesc desc = {};
+        desc.aType = InfoEventType::MASTER_RELEASED;
+        event.info(desc);
+        auto cbResult = this->notifyEvent(event);
+        if (!cbResult.isOk()) {
+            ALOGE("Fail to deliver a parameter change notification");
+        }
+
+        return EvsResult::OK;
+    }
+}
+
+
+Return<EvsResult> HalCamera::setParameter(sp<VirtualCamera> virtualCamera,
+                                          CameraParam id, int32_t& value) {
+    EvsResult result = EvsResult::INVALID_ARG;
+    if (virtualCamera == mMaster.promote()) {
+        mHwCamera->setParameter(id, value,
+                                [&result, &value](auto status, auto readValue) {
+                                    result = status;
+                                    value = readValue;
+                                });
+
+        if (result == EvsResult::OK) {
+            /* Notify a parameter change */
+            EvsEvent event;
+            InfoEventDesc desc = {};
+            desc.aType = InfoEventType::PARAMETER_CHANGED;
+            desc.payload[0] = static_cast<uint32_t>(id);
+            desc.payload[1] = static_cast<uint32_t>(value);
+            event.info(desc);
+            auto cbResult = this->notifyEvent(event);
+            if (!cbResult.isOk()) {
+                ALOGE("Fail to deliver a parameter change notification");
+            }
+        }
+    } else {
+        ALOGD("A parameter change request from a non-master client is declined.");
+
+        /* Read a current value of a requested camera parameter */
+        getParameter(id, value);
+    }
+
+    return result;
+}
+
+
+Return<EvsResult> HalCamera::getParameter(CameraParam id, int32_t& value) {
+    EvsResult result = EvsResult::OK;
+    mHwCamera->getParameter(id, [&result, &value](auto status, auto readValue) {
+                                    result = status;
+                                    if (result == EvsResult::OK) {
+                                        value = readValue;
+                                    }
+    });
+
+    return result;
 }
 
 

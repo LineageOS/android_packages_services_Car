@@ -141,8 +141,9 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc_1_0& bufDesc_1_0) {
 Return<void> StreamHandler::notifyEvent(const EvsEvent& event) {
     auto type = event.getDiscriminator();
     if (type == EvsEvent::hidl_discriminator::info) {
-        switch(event.info()) {
-            case EvsEventType::STREAM_STOPPED:
+        InfoEventDesc desc = event.info();
+        switch(desc.aType) {
+            case InfoEventType::STREAM_STOPPED:
             {
                 {
                     std::lock_guard<std::mutex> lock(mLock);
@@ -153,16 +154,20 @@ Return<void> StreamHandler::notifyEvent(const EvsEvent& event) {
                 ALOGI("Received a STREAM_STOPPED event");
                 break;
             }
+            case InfoEventType::PARAMETER_CHANGED:
+                ALOGI("Camera parameter 0x%X is set to 0x%X", desc.payload[0], desc.payload[1]);
+                break;
+
             // Below events are ignored
-            case EvsEventType::STREAM_STARTED:
+            case InfoEventType::STREAM_STARTED:
             [[fallthrough]];
-            case EvsEventType::FRAME_DROPPED:
+            case InfoEventType::FRAME_DROPPED:
             [[fallthrough]];
-            case EvsEventType::TIMEOUT:
-                ALOGI("Event 0x%X is received but ignored", event.info());
+            case InfoEventType::TIMEOUT:
+                ALOGI("Event 0x%X is received but ignored", desc.aType);
                 break;
             default:
-                ALOGE("Unknown event id 0x%X", event.info());
+                ALOGE("Unknown event id 0x%X", desc.aType);
                 break;
         }
     } else {

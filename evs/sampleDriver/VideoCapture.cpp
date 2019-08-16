@@ -300,3 +300,25 @@ void VideoCapture::collectFrames() {
     ALOGD("VideoCapture thread ending");
     mRunMode = STOPPED;
 }
+
+
+int VideoCapture::setParameter(v4l2_control& control) {
+    int status = ioctl(mDeviceFd, VIDIOC_S_CTRL, &control);
+    if (status < 0) {
+        ALOGE("Failed to program a parameter value (id: 0x%X): %s",
+              control.id, strerror(errno));
+    }
+
+    return status;
+}
+
+
+int VideoCapture::getParameter(v4l2_control& control) {
+    int status = ioctl(mDeviceFd, VIDIOC_G_CTRL, &control);
+    if (status < 0) {
+        ALOGE("Failed to read a parameter value (fd: 0x%X, id: 0x%X): %s",
+              mDeviceFd, control.id, strerror(errno));
+    }
+
+    return status;
+}
