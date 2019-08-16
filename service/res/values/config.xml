@@ -201,6 +201,11 @@
          created. -->
     <bool name="config_projectionAccessPointTethering" translatable="false">false</bool>
 
+    <!-- The package name of a service to be launched by CarService to bind to an active media
+         service on the current  user.
+         TODO(b/139497602): Remove dependency on Media Center, handle in CarMediaService -->
+    <string name="serviceMediaConnection" translatable="false">com.android.car.media</string>
+
     <!-- service/characteristics uuid for adding new escrow token -->
     <string name="enrollment_service_uuid" translatable="false">5e2a68a4-27be-43f9-8d1e-4546976fabd7</string>
     <string name="enrollment_server_write_uuid" translatable="false">5e2a68a5-27be-43f9-8d1e-4546976fabd7</string>
