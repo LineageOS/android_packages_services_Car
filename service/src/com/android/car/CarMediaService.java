@@ -76,6 +76,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private static final String PLAYBACK_STATE_KEY = "playback_state";
     private static final String SHARED_PREF = "com.android.car.media.car_media_service";
     private static final String COMPONENT_NAME_SEPARATOR = ",";
+    private static final String MEDIA_CONNECTION_ACTION = "com.android.car.media.MEDIA_CONNECTION";
 
     private final Context mContext;
     private final UserManager mUserManager;
@@ -191,7 +192,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         if (mIsPackageUpdateReceiverRegistered) {
             mContext.unregisterReceiver(mPackageUpdateReceiver);
         }
-        mContext.registerReceiverAsUser(mPackageUpdateReceiver, new UserHandle(mCurrentUser),
+        UserHandle currentUser = new UserHandle(mCurrentUser);
+        mContext.registerReceiverAsUser(mPackageUpdateReceiver, currentUser,
                 mPackageUpdateFilter, null, null);
         mIsPackageUpdateReceiverRegistered = true;
 
@@ -202,6 +204,13 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 mSharedPrefs.getInt(key, PlaybackState.STATE_NONE) == PlaybackState.STATE_PLAYING;
         updateMediaSessionCallbackForCurrentUser();
         notifyListeners();
+
+        // Start a service on the current user that binds to the media browser of the current media
+        // source. We start a new service because this one runs on user 0, and MediaBrowser doesn't
+        // provide an API to connect on a specific user.
+        Intent serviceStart = new Intent(MEDIA_CONNECTION_ACTION);
+        serviceStart.setPackage(mContext.getResources().getString(R.string.serviceMediaConnection));
+        mContext.startForegroundServiceAsUser(serviceStart, currentUser);
     }
 
     @Override
@@ -308,21 +317,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 ActivityManager.getCurrentUser(), null);
         mMediaSessionUpdater.registerCallbacks(mMediaSessionManager.getActiveSessionsForUser(
                 null, ActivityManager.getCurrentUser()));
-    }
-
-    private void prepare() {
-        if (mActiveUserMediaController != null) {
-            if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
-                Log.d(CarLog.TAG_MEDIA, "prepare " + mActiveUserMediaController.getPackageName());
-            }
-            TransportControls controls = mActiveUserMediaController.getTransportControls();
-            if (controls != null) {
-                controls.prepare();
-            } else {
-                Log.e(CarLog.TAG_MEDIA, "Can't prepare playback, transport controls unavailable "
-                        + mActiveUserMediaController.getPackageName());
-            }
-        }
     }
 
     /**
@@ -685,7 +679,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         for (MediaController controller : mediaControllers) {
             if (matchPrimaryMediaSource(controller.getPackageName(), getClassName(controller))) {
                 mActiveUserMediaController = controller;
-                prepare();
                 // Specify Handler to receive callbacks on, to avoid defaulting to the calling
                 // thread; this method can be called from the MediaSessionManager callback.
                 // Using the version of this method without passing a handler causes a
