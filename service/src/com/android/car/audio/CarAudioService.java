@@ -50,7 +50,6 @@ import android.util.Log;
 import android.view.DisplayAddress;
 import android.view.KeyEvent;
 
-import com.android.car.BinderInterfaceContainer;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
@@ -149,9 +148,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     };
 
-    private final BinderInterfaceContainer<ICarVolumeCallback> mVolumeCallbackContainer =
-            new BinderInterfaceContainer<>();
-
     /**
      * Simulates {@link ICarVolumeCallback} when it's running in legacy mode.
      * This receiver assumes the intent is sent to {@link CarAudioManager#PRIMARY_AUDIO_ZONE}.
@@ -181,6 +177,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private CarZonesAudioFocus mFocusHandler;
     private String mCarAudioConfigurationPath;
     private CarAudioZone[] mCarAudioZones;
+    private final CarVolumeCallbackHandler mCarVolumeCallbackHandler;
 
     // TODO do not store uid mapping here instead use the uid
     //  device affinity in audio policy when available
@@ -194,6 +191,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mPersistMasterMuteState = mContext.getResources().getBoolean(
                 R.bool.audioPersistMasterMuteState);
         mUidToZoneMap = new HashMap<>();
+        mCarVolumeCallbackHandler = new CarVolumeCallbackHandler();
         mCarVolumeSettings = new CarVolumeSettings(mContext);
     }
 
@@ -234,7 +232,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 mContext.unregisterReceiver(mLegacyVolumeChangedReceiver);
             }
 
-            mVolumeCallbackContainer.clear();
+            mCarVolumeCallbackHandler.release();
         }
     }
 
@@ -294,14 +292,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     private void callbackGroupVolumeChange(int zoneId, int groupId, int flags) {
-        for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
-                mVolumeCallbackContainer.getInterfaces()) {
-            try {
-                callback.binderInterface.onGroupVolumeChanged(zoneId, groupId, flags);
-            } catch (RemoteException e) {
-                Log.e(CarLog.TAG_AUDIO, "Failed to callback onGroupVolumeChanged", e);
-            }
-        }
+        mCarVolumeCallbackHandler.onVolumeGroupChange(zoneId, groupId, flags);
     }
 
     private void setMasterMute(boolean mute, int flags) {
@@ -315,14 +306,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     private void callbackMasterMuteChange(int zoneId, int flags) {
-        for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
-                mVolumeCallbackContainer.getInterfaces()) {
-            try {
-                callback.binderInterface.onMasterMuteChanged(zoneId, flags);
-            } catch (RemoteException e) {
-                Log.e(CarLog.TAG_AUDIO, "Failed to callback onMasterMuteChanged", e);
-            }
-        }
+        mCarVolumeCallbackHandler.onMasterMuteChanged(zoneId, flags);
 
         // Persists master mute state if applicable
         if (mPersistMasterMuteState) {
@@ -952,8 +936,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void registerVolumeCallback(@NonNull IBinder binder) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-
-            mVolumeCallbackContainer.addBinder(ICarVolumeCallback.Stub.asInterface(binder));
+            mCarVolumeCallbackHandler.registerCallback(binder);
         }
     }
 
@@ -961,8 +944,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void unregisterVolumeCallback(@NonNull IBinder binder) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-
-            mVolumeCallbackContainer.removeBinder(ICarVolumeCallback.Stub.asInterface(binder));
+            mCarVolumeCallbackHandler.unregisterCallback(binder);
         }
     }
 
