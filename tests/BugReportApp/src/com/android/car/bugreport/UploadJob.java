@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.car.bugreport;
+package com.android.car.bugreport;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;

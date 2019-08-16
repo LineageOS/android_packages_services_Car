@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.car.bugreport;
+package com.android.car.bugreport;
 
-import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_FILEPATH;
-import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_ID;
-import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_STATUS;
-import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_STATUS_MESSAGE;
-import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_TIMESTAMP;
-import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_TITLE;
-import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_USERNAME;
+import static com.android.car.bugreport.BugStorageProvider.COLUMN_FILEPATH;
+import static com.android.car.bugreport.BugStorageProvider.COLUMN_ID;
+import static com.android.car.bugreport.BugStorageProvider.COLUMN_STATUS;
+import static com.android.car.bugreport.BugStorageProvider.COLUMN_STATUS_MESSAGE;
+import static com.android.car.bugreport.BugStorageProvider.COLUMN_TIMESTAMP;
+import static com.android.car.bugreport.BugStorageProvider.COLUMN_TITLE;
+import static com.android.car.bugreport.BugStorageProvider.COLUMN_USERNAME;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
