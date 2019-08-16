@@ -295,6 +295,17 @@ Return<EvsResult> HalCamera::unsetMaster(sp<VirtualCamera> virtualCamera) {
     } else {
         ALOGD("Unset a master camera client");
         mMaster = nullptr;
+
+        /* Notify other clients that a master role becomes available. */
+        EvsEvent event;
+        InfoEventDesc desc = {};
+        desc.aType = InfoEventType::MASTER_RELEASED;
+        event.info(desc);
+        auto cbResult = this->notifyEvent(event);
+        if (!cbResult.isOk()) {
+            ALOGE("Fail to deliver a parameter change notification");
+        }
+
         return EvsResult::OK;
     }
 }
