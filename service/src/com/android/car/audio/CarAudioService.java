@@ -44,7 +44,6 @@ import android.media.audiopolicy.AudioPolicy;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
-import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -105,6 +104,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final AudioManager mAudioManager;
     private final boolean mUseDynamicRouting;
     private final boolean mPersistMasterMuteState;
+    private final CarVolumeSettings mCarVolumeSettings;
 
     private final CarUserService.UserCallback  mReceiver = new CarAudioServiceUserCallback();
 
@@ -194,6 +194,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mPersistMasterMuteState = mContext.getResources().getBoolean(
                 R.bool.audioPersistMasterMuteState);
         mUidToZoneMap = new HashMap<>();
+        mCarVolumeSettings = new CarVolumeSettings(mContext);
     }
 
     /**
@@ -213,8 +214,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
             // Restore master mute state if applicable
             if (mPersistMasterMuteState) {
-                boolean storedMasterMute = Settings.Global.getInt(mContext.getContentResolver(),
-                        VOLUME_SETTINGS_KEY_MASTER_MUTE, 0) != 0;
+                boolean storedMasterMute = mCarVolumeSettings.getMasterMute();
                 setMasterMute(storedMasterMute, 0);
             }
         }
@@ -326,9 +326,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         // Persists master mute state if applicable
         if (mPersistMasterMuteState) {
-            Settings.Global.putInt(mContext.getContentResolver(),
-                    VOLUME_SETTINGS_KEY_MASTER_MUTE,
-                    mAudioManager.isMasterMute() ? 1 : 0);
+            mCarVolumeSettings.storeMasterMute(mAudioManager.isMasterMute());
         }
     }
 
