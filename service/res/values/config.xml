@@ -20,6 +20,11 @@
 <!-- Resources to configure car service based on each OEM's preference. -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Configuration to enable media center to autoplay when the media source is changed.
+         If this is set to true, media will play automatically when a media source is selected and
+         the selected media source supports media playback. -->
+    <bool name="autoPlayOnMediaSourceChanged">false</bool>
+
     <!--  Configuration to enable usage of dynamic audio routing. If this is set to false,
           dynamic audio routing is disabled and audio works in legacy mode. It may be useful
           during initial development where audio hal does not support bus based addressing yet. -->
@@ -200,6 +205,11 @@
          If this value is true then tethering is enabled. Otherwise, local-only hotspot will be
          created. -->
     <bool name="config_projectionAccessPointTethering" translatable="false">false</bool>
+
+    <!-- The package name of a service to be launched by CarService to bind to an active media
+         service on the current  user.
+         TODO(b/139497602): Remove dependency on Media Center, handle in CarMediaService -->
+    <string name="serviceMediaConnection" translatable="false">com.android.car.media</string>
 
     <!-- service/characteristics uuid for adding new escrow token -->
     <string name="enrollment_service_uuid" translatable="false">5e2a68a4-27be-43f9-8d1e-4546976fabd7</string>

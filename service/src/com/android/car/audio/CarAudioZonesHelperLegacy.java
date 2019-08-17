@@ -161,7 +161,7 @@ import java.util.List;
             }
         }
 
-        final CarVolumeGroupSettings settings = new CarVolumeGroupSettings(mContext);
+        final CarVolumeSettings settings = new CarVolumeSettings(mContext);
 
         return new CarVolumeGroup(settings, CarAudioManager.PRIMARY_AUDIO_ZONE, id,
                 contexts.stream().mapToInt(i -> i).filter(i -> i >= 0).toArray());

@@ -30,7 +30,7 @@ use it's APIs, by default it's none.
 
 To allow AAE BugReport app to access the API, you need to overlay
 `config_car_bugreport_application` in `packages/services/Car/service/res/values/config.xml`
-with value `com.google.android.car.bugreport`.
+with value `com.android.car.bugreport`.
 
 ## App Configuration
 

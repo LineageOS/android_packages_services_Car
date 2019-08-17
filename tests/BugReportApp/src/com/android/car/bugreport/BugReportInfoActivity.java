@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.car.bugreport;
+package com.android.car.bugreport;
 
-import static com.google.android.car.bugreport.PackageUtils.getPackageVersion;
+import static com.android.car.bugreport.PackageUtils.getPackageVersion;
 
 import android.app.Activity;
 import android.app.NotificationManager;
@@ -93,7 +93,7 @@ public class BugReportInfoActivity extends Activity {
                 }
                 BugStorageUtils.setBugReportStatus(
                         mActivity, mBugReport,
-                        com.google.android.car.bugreport.Status.STATUS_MOVE_SUCCESSFUL, "");
+                        com.android.car.bugreport.Status.STATUS_MOVE_SUCCESSFUL, "");
             } catch (IOException e) {
                 Log.e(TAG, "Failed to create the bug report in the location.", e);
                 return false;
@@ -106,7 +106,7 @@ public class BugReportInfoActivity extends Activity {
             if (!moveSuccessful) {
                 BugStorageUtils.setBugReportStatus(
                         mActivity, mBugReport,
-                        com.google.android.car.bugreport.Status.STATUS_MOVE_FAILED, "");
+                        com.android.car.bugreport.Status.STATUS_MOVE_FAILED, "");
             }
             // Refresh the UI to reflect the new status.
             new BugReportInfoTask(mActivity).execute();

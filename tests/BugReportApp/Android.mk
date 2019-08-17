@@ -54,7 +54,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     guava \
     jsr305
 
-LOCAL_REQUIRED_MODULES := privapp_whitelist_com.google.android.car.bugreport
+LOCAL_REQUIRED_MODULES := privapp_whitelist_com.android.car.bugreport
 
 include $(BUILD_PACKAGE)
 

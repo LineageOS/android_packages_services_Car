@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.car.bugreport;
+package com.android.car.bugreport;
 
-import static com.google.android.car.bugreport.PackageUtils.getPackageVersion;
+import static com.android.car.bugreport.PackageUtils.getPackageVersion;
 
 import android.annotation.FloatRange;
 import android.annotation.StringRes;
