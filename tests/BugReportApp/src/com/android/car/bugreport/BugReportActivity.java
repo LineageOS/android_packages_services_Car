@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.car.bugreport;
+package com.android.car.bugreport;
 
-import static com.google.android.car.bugreport.BugReportService.EXTRA_META_BUG_REPORT;
-import static com.google.android.car.bugreport.BugReportService.MAX_PROGRESS_VALUE;
+import static com.android.car.bugreport.BugReportService.EXTRA_META_BUG_REPORT;
+import static com.android.car.bugreport.BugReportService.MAX_PROGRESS_VALUE;
 
 import android.Manifest;
 import android.app.Activity;

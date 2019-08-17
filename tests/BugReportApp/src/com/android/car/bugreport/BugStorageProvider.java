@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.car.bugreport;
+package com.android.car.bugreport;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -44,7 +44,7 @@ import java.io.IOException;
 public class BugStorageProvider extends ContentProvider {
     private static final String TAG = BugStorageProvider.class.getSimpleName();
 
-    private static final String AUTHORITY = "com.google.android.car.bugreport";
+    private static final String AUTHORITY = "com.android.car.bugreport";
     private static final String BUG_REPORTS_TABLE = "bugreports";
     static final Uri BUGREPORT_CONTENT_URI =
             Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE);

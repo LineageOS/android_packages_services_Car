@@ -34,7 +34,7 @@
             android:textColor="@color/bugreport_text"
             android:gravity="center"
             android:text="@string/bugreport_dialog_title"/>
-        <com.google.android.car.bugreport.VoiceRecordingView
+        <com.android.car.bugreport.VoiceRecordingView
             android:id="@+id/voice_recording_view"
             android:layout_marginTop="@dimen/bug_report_voice_recording_margin_top"
             android:layout_height="@dimen/bug_report_voice_recording_height"
