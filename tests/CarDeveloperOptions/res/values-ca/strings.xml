@@ -3581,7 +3581,7 @@
     <string name="imei_information_title" msgid="7666097743700170757">"Informació sobre l\'IMEI"</string>
     <string name="imei_information_summary" msgid="716516316022275083">"Informació relativa a l\'IMEI"</string>
     <string name="slot_number" msgid="785422579177068698">"(Ranura <xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
-    <string name="launch_by_default" msgid="6106985160202769725">"Obre de manera determinada"</string>
+    <string name="launch_by_default" msgid="6106985160202769725">"Obre de manera predeterminada"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Obertura d\'enllaços"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Obrir els enllaços admesos"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Obre sense demanar-ho"</string>
