@@ -69,6 +69,7 @@ public:
     Return<void>        doneWithFrame(const BufferDesc_1_0& buffer);
     Return<void>        doneWithFrame(const BufferDesc_1_1& buffer);
     Return<EvsResult>   setMaster(sp<VirtualCamera> virtualCamera);
+    Return<EvsResult>   forceMaster(sp<VirtualCamera> virtualCamera);
     Return<EvsResult>   unsetMaster(sp<VirtualCamera> virtualCamera);
     Return<EvsResult>   setParameter(sp<VirtualCamera> virtualCamera,
                                      CameraParam id, int32_t& value);
@@ -95,6 +96,7 @@ private:
     };
     std::vector<FrameRecord>        mFrames;
     wp<VirtualCamera>               mMaster = nullptr;
+    std::mutex                      mMasterLock;
 };
 
 } // namespace implementation

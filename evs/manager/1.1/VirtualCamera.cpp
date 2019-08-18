@@ -21,6 +21,8 @@
 #include <ui/GraphicBufferAllocator.h>
 #include <ui/GraphicBufferMapper.h>
 
+using ::android::hardware::automotive::evs::V1_0::DisplayState;
+
 
 namespace android {
 namespace automotive {
@@ -98,6 +100,10 @@ bool VirtualCamera::notifyEvent(const EvsEvent& event) {
 
             case InfoEventType::PARAMETER_CHANGED:
                 ALOGD("A camera parameter 0x%X is set to 0x%X", desc.payload[0], desc.payload[1]);
+                break;
+
+            case InfoEventType::MASTER_RELEASED:
+                ALOGD("The master client has been released");
                 break;
 
             default:
@@ -339,6 +345,24 @@ Return<EvsResult> VirtualCamera::doneWithFrame_1_1(const BufferDesc_1_1& bufDesc
 
 Return<EvsResult> VirtualCamera::setMaster() {
     return mHalCamera->setMaster(this);
+}
+
+
+Return<EvsResult> VirtualCamera::forceMaster(const sp<IEvsDisplay>& display) {
+    if (display.get() == nullptr) {
+        ALOGE("%s: Passed display is invalid", __FUNCTION__);
+        return EvsResult::INVALID_ARG;
+    }
+
+    DisplayState state = display->getDisplayState();
+    if (state == DisplayState::NOT_OPEN ||
+        state == DisplayState::DEAD ||
+        state >= DisplayState::NUM_STATES) {
+        ALOGE("%s: Passed display is in invalid state", __FUNCTION__);
+        return EvsResult::INVALID_ARG;
+    }
+
+    return mHalCamera->forceMaster(this);
 }
 
 
