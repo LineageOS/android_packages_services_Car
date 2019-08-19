@@ -2628,14 +2628,14 @@
     <string name="remove_account_failed" msgid="491458185327106966">"Mabadiliko haya hayaruhusiwi na msimamizi wako"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Huwezi kusawazisha mwenyewe"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"Kwa sasa usawazishaji wa kipengee hiki umezimwa. Kubadilisha mpangilio huu, washa kwa muda data ya usuli na usawazishaji kiotomatiki."</string>
-    <string name="enter_password" msgid="2963496904625715235">"Ili uanzishe Android, weka nenosiri lako"</string>
-    <string name="enter_pin" msgid="7140938268709546890">"Ili uanzishe Android, weka PIN yako"</string>
-    <string name="enter_pattern" msgid="1653841963422825336">"Ili uanzishe Android, chora mchoro wako"</string>
+    <string name="enter_password" msgid="2963496904625715235">"Ili uwashe Android, weka nenosiri lako"</string>
+    <string name="enter_pin" msgid="7140938268709546890">"Ili uwashe Android, weka PIN yako"</string>
+    <string name="enter_pattern" msgid="1653841963422825336">"Ili uwashe Android, chora mchoro wako"</string>
     <string name="cryptkeeper_wrong_pattern" msgid="4580105105385125467">"Mchoro huo si sahihi"</string>
     <string name="cryptkeeper_wrong_password" msgid="1709534330303983166">"Nenosiri Lisilo sahihi"</string>
     <string name="cryptkeeper_wrong_pin" msgid="857757190077859245">"Nambari ya PIN si sahihi"</string>
     <string name="checking_decryption" msgid="5927759912073053101">"Inakagua..."</string>
-    <string name="starting_android" msgid="4774187626261253089">"Inaanzisha Android..."</string>
+    <string name="starting_android" msgid="4774187626261253089">"Inawasha Android..."</string>
     <string name="delete" msgid="2325292565700865366">"Futa"</string>
     <string name="misc_files" msgid="1012397035001764693">"Faili Nyinginezo"</string>
     <string name="misc_files_selected_count" msgid="1434146080729502726">"Imechaguliwa <xliff:g id="NUMBER">%1$d</xliff:g> juu ya <xliff:g id="TOTAL">%2$d</xliff:g>"</string>

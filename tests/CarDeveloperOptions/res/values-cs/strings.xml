@@ -4488,7 +4488,7 @@
     <string name="empty_networks_list" msgid="5170020017144403884">"Žádná síť nebyla nalezena."</string>
     <string name="network_query_error" msgid="525635151099480463">"Nebyla nalezena žádná síť. Zkuste to znovu."</string>
     <string name="forbidden_network" msgid="8493827960968261182">"(zakázáno)"</string>
-    <string name="no_sim_card" msgid="3708682108324275635">"Není vložena SIM karta"</string>
+    <string name="no_sim_card" msgid="3708682108324275635">"Chybí SIM karta"</string>
     <string name="preferred_network_mode_wcdma_perf_summary" msgid="6899270534608086704">"Preferovaný režim sítě: preferováno WCDMA"</string>
     <string name="preferred_network_mode_gsm_only_summary" msgid="3688217977701592962">"Preferovaný režim sítě: pouze GSM"</string>
     <string name="preferred_network_mode_wcdma_only_summary" msgid="745707973728245943">"Preferovaný režim sítě: pouze WCDMA"</string>

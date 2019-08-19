@@ -531,11 +531,11 @@
     <string name="crypt_keeper_warn_wipe" msgid="700814581500057050">"Abisua: desblokeatzeko beste <xliff:g id="COUNT">^1</xliff:g> saiakera oker egiten badituzu, gailuko datu guztiak ezabatuko dira!"</string>
     <string name="crypt_keeper_enter_password" msgid="726933635335219421">"Idatzi pasahitza"</string>
     <string name="crypt_keeper_failed_title" msgid="1906382607060855782">"Ezin izan da enkriptatu"</string>
-    <string name="crypt_keeper_failed_summary" product="tablet" msgid="7844833877734529625">"Enkriptatzea eten da eta ezin da osatu. Ondorioz, ezin izango dituzu tabletako datuak atzitu.\n\nTableta erabiltzen jarraitzeko, jatorrizko datuak berrezarri behar dituzu. Datuak berrezarri ondoren tableta konfiguratzen duzunean, Google kontuan gordetako babeskopiaren datuak leheneratu ahal izango dituzu."</string>
-    <string name="crypt_keeper_failed_summary" product="default" msgid="2895589681839090312">"Enkriptatzea eten da eta ezin da osatu. Ondorioz, ezin izango dituzu telefonoko datuak atzitu.\n\nTelefonoa erabiltzen jarraitzeko, jatorrizko datuak berrezarri behar dituzu. Datuak berrezarri ondoren telefonoa konfiguratzen duzunean, Google kontuan gordetako babeskopien datuak leheneratu ahal izango dituzu."</string>
+    <string name="crypt_keeper_failed_summary" product="tablet" msgid="7844833877734529625">"Enkriptatzea eten da eta ezin da osatu. Ondorioz, ezin izango dituzu tabletako datuak atzitu.\n\nTableta erabiltzen jarraitzeko, jatorrizko datuak berrezarri behar dituzu. Datuak berrezarri ondoren tableta konfiguratzen duzunean, Google-ko kontuan gordetako babeskopiaren datuak leheneratu ahal izango dituzu."</string>
+    <string name="crypt_keeper_failed_summary" product="default" msgid="2895589681839090312">"Enkriptatzea eten da eta ezin da osatu. Ondorioz, ezin izango dituzu telefonoko datuak atzitu.\n\nTelefonoa erabiltzen jarraitzeko, jatorrizko datuak berrezarri behar dituzu. Datuak berrezarri ondoren telefonoa konfiguratzen duzunean, Google-ko kontuan gordetako babeskopien datuak leheneratu ahal izango dituzu."</string>
     <string name="crypt_keeper_data_corrupt_title" msgid="6561535293845985713">"Ezin izan da desenkriptatu"</string>
-    <string name="crypt_keeper_data_corrupt_summary" product="tablet" msgid="7018748502706237323">"Idatzi duzun pasahitza zuzena da, baina datuak hondatuta daude. \n\nTableta erabiltzen jarraitzeko, jatorrizko datuak berrezarri beharko dituzu. Berrezarri ondoren, tableta konfiguratzen duzunean, Google kontuan egindako babeskopiak leheneratu ahal izango dituzu."</string>
-    <string name="crypt_keeper_data_corrupt_summary" product="default" msgid="5798580588985326937">"Idatzi duzun pasahitza zuzena da, baina datuak hondatuta daude. \n\nTelefonoa erabiltzen jarraitzeko, jatorrizko datuak berrezarri beharko dituzu. Berrezarri ondoren, telefonoa konfiguratzen duzunean, Google kontuan egindako babeskopiak leheneratu ahal izango dituzu."</string>
+    <string name="crypt_keeper_data_corrupt_summary" product="tablet" msgid="7018748502706237323">"Idatzi duzun pasahitza zuzena da, baina datuak hondatuta daude. \n\nTableta erabiltzen jarraitzeko, jatorrizko datuak berrezarri beharko dituzu. Berrezarri ondoren, tableta konfiguratzen duzunean, Google-ko kontuan egindako babeskopiak leheneratu ahal izango dituzu."</string>
+    <string name="crypt_keeper_data_corrupt_summary" product="default" msgid="5798580588985326937">"Idatzi duzun pasahitza zuzena da, baina datuak hondatuta daude. \n\nTelefonoa erabiltzen jarraitzeko, jatorrizko datuak berrezarri beharko dituzu. Berrezarri ondoren, telefonoa konfiguratzen duzunean, Google-ko kontuan egindako babeskopiak leheneratu ahal izango dituzu."</string>
     <string name="crypt_keeper_switch_input_method" msgid="4744137470890459582">"Aldatu idazketa-metodoa"</string>
     <string name="suggested_lock_settings_title" msgid="1518155558803371661">"Babestu telefonoa"</string>
     <string name="suggested_lock_settings_summary" product="tablet" msgid="1861066918594412519">"Ezarri pantailaren blokeoa tableta babesteko"</string>
@@ -1399,7 +1399,7 @@
     <string name="sd_ejecting_title" msgid="595074246815112145">"Desmuntatzen"</string>
     <string name="sd_ejecting_summary" msgid="5708943172014003213">"Desmuntatzea abian da"</string>
     <string name="storage_low_title" msgid="6957178208426099592">"Memoria agortzen ari da"</string>
-    <string name="storage_low_summary" msgid="4475275204869514141">"Baliteke sistemaren funtzio batzuk behar bezala ez funtzionatzea, esaterako, sinkronizazioa. Saiatu memorian tokia egiten elementu batzuk ezabatuta edo desainguratuta, adibidez, aplikazioak edo multimedia-edukia."</string>
+    <string name="storage_low_summary" msgid="4475275204869514141">"Baliteke sistemaren funtzio batzuek behar bezala ez funtzionatzea; esaterako, sinkronizazioak. Memorian tokia egiteko, ezabatu elementu batzuk (adibidez, aplikazioak edo multimedia-edukia) edo ken iezaiezu aingura."</string>
     <string name="storage_menu_rename" msgid="3731682449294417745">"Aldatu izena"</string>
     <string name="storage_menu_mount" msgid="6395893560780365473">"Muntatu"</string>
     <string name="storage_menu_unmount" msgid="5041360076873514189">"Atera"</string>
@@ -2546,7 +2546,7 @@
     <string name="personal_data_section_title" msgid="9161854418510071558">"Datu pertsonalak"</string>
     <string name="backup_data_title" msgid="4461508563849583624">"Egin nire datuen babeskopia"</string>
     <string name="backup_data_summary" msgid="555459891017933746">"Egin datuen, Wi-Fi pasahitzen eta beste ezarpenen babeskopia Google zerbitzarietan."</string>
-    <string name="backup_configure_account_title" msgid="1534734650559070294">"Babeskopien kontua"</string>
+    <string name="backup_configure_account_title" msgid="1534734650559070294">"Babesk. gordetzeko kontua"</string>
     <string name="backup_data_management_title" msgid="6299288795610243508">"Kudeatu babeskopiak gordetzeko kontua"</string>
     <string name="include_app_data_title" msgid="6117211611131913293">"Sartu aplikazioetako datuak"</string>
     <string name="auto_restore_title" msgid="8367486774010915221">"Leheneratze automatikoa"</string>
@@ -2697,8 +2697,8 @@
     <string name="data_usage_app_restrict_dialog" msgid="4022530391896478031">"Eginbide horren eraginez, baliteke atzeko planoko datuak beharrezko dituzten aplikazioek funtzionatzeari uztea, sare mugikorrak baino ez badaude erabilgarri.\n\n Datuak behar bezala erabiltzeko kontrol gehiago dituzu aplikazioaren barruko ezarpenetan."</string>
     <string name="data_usage_restrict_denied_dialog" msgid="18928292832775805">"Atzeko planoko datuak murrizteko, datu-konexioarekin erabil daitezkeen datuak mugatu behar dituzu."</string>
     <string name="data_usage_auto_sync_on_dialog_title" msgid="2342323408229702005">"Sinkronizazio automatikoa aktibatu?"</string>
-    <string name="data_usage_auto_sync_on_dialog" product="tablet" msgid="4935430284683238901">"Kontuei sarean egiten dizkiezun aldaketa guztiak automatikoki kopiatuko dira tabletan.\n\nHorrez gain, baliteke kontu batzuek tabletan egiten dituzun aldaketak sarean kopiatzea. Google kontuek horrela funtzionatzen dute."</string>
-    <string name="data_usage_auto_sync_on_dialog" product="default" msgid="5004823486046340090">"Kontuei sarean egiten dizkiezun aldaketa guztiak automatikoki kopiatuko dira telefonoan.\n\nHorrez gain, baliteke kontu batzuek telefonoan egiten dituzun aldaketak sarean kopiatzea. Google kontuek horrela funtzionatzen dute."</string>
+    <string name="data_usage_auto_sync_on_dialog" product="tablet" msgid="4935430284683238901">"Kontuei sarean egiten dizkiezun aldaketa guztiak automatikoki kopiatuko dira tabletan.\n\nHorrez gain, baliteke kontu batzuek tabletan egiten dituzun aldaketak sarean kopiatzea. Google-ko kontuek horrela funtzionatzen dute."</string>
+    <string name="data_usage_auto_sync_on_dialog" product="default" msgid="5004823486046340090">"Kontuei sarean egiten dizkiezun aldaketa guztiak automatikoki kopiatuko dira telefonoan.\n\nHorrez gain, baliteke kontu batzuek telefonoan egiten dituzun aldaketak sarean kopiatzea. Google-ko kontuek horrela funtzionatzen dute."</string>
     <string name="data_usage_auto_sync_off_dialog_title" msgid="7105334544291643305">"Sinkronizazio automatikoa desaktibatu?"</string>
     <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"Datuak eta bateria aurrezten lagunduko dizu, baina kontu bakoitza eskuz sinkronizatu beharko duzu informazio berriena biltzeko. Gainera, ez duzu berritasunen jakinarazpenik jasoko."</string>
     <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"Erabilera-zikloa berrezartzeko data"</string>

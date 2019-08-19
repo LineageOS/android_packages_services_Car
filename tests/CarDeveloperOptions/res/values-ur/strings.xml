@@ -1237,7 +1237,7 @@
     <string name="wallpaper_settings_summary_custom" msgid="8950504698015331202">"حسب ضرورت"</string>
     <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"وال پیپر تبدیل کریں"</string>
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"اپنی اسکرین کو ذاتی نوعیت کا بنائیں"</string>
-    <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"وال پیپر منتخب کریں منجانب"</string>
+    <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"وال پیپر منتخب کریں"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"اسکرین سیور"</string>
     <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"ڈاک سے منسلک یا چارج ہونے کے دوران"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"دونوں صورتوں میں"</string>
@@ -3164,7 +3164,7 @@
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"مستثنیات"</string>
     <string name="zen_mode_duration_settings_title" msgid="5522668871014735728">"ڈیفالٹ دورانیہ"</string>
     <string name="zen_mode_behavior_allow_title" msgid="2440627647424280842">"اس سے آوازیں اور وائبریشنز کی اجازت دیں"</string>
-    <string name="zen_mode_behavior_no_sound" msgid="7290387625018248748">"کوئی آواز نہیں ہے"</string>
+    <string name="zen_mode_behavior_no_sound" msgid="7290387625018248748">"کوئی آواز نہیں"</string>
     <string name="zen_mode_behavior_total_silence" msgid="371498357539257671">"مکمل خاموشی"</string>
     <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"<xliff:g id="CATEGORIES">%1$s</xliff:g> کے سوا کوئی آواز نہیں ہے"</string>
     <string name="zen_mode_behavior_alarms_only" msgid="8406622989983047562">"الارمز اور میڈیا کے علاوہ کوئی آواز نہیں ہے"</string>
