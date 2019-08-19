@@ -59,6 +59,8 @@ public class CarTrustAgentEnrollmentServiceTest {
 
     private static final long TEST_HANDLE1 = 1L;
     private static final long TEST_HANDLE2 = 2L;
+    private static final String DEVICE_ID = "device_id";
+    private static final String KEY = "key";
     // Random uuid for test
     private static final UUID TEST_ID1 = UUID.fromString("9a138a69-7c29-400f-9e71-fc29516f9f8b");
     private static final UUID TEST_ID2 = UUID.fromString("3e344860-e688-4cce-8411-16161b61ad57");
@@ -267,6 +269,17 @@ public class CarTrustAgentEnrollmentServiceTest {
     @Test
     public void testGetUserHandleByTokenHandle_nonExistentHandle() {
         assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE1)).isEqualTo(-1);
+    }
+
+    @Test
+    public void testEncryptionKeyStorage() {
+        byte[] encryptionKey = KEY.getBytes();
+        if (mCarTrustedDeviceService.saveEncryptionKey(DEVICE_ID, encryptionKey)) {
+            assertThat(mCarTrustedDeviceService.getEncryptionKey(DEVICE_ID))
+                .isEqualTo(encryptionKey);
+        }
+        mCarTrustedDeviceService.clearEncryptionKey(DEVICE_ID);
+        assertThat(mCarTrustedDeviceService.getEncryptionKey(DEVICE_ID) == null).isTrue();
     }
 
     @Test
