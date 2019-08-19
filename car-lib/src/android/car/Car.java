@@ -56,6 +56,7 @@ import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -67,6 +68,13 @@ import java.util.HashMap;
  *   Calling this API on a device with no such feature will lead to an exception.
  */
 public final class Car {
+
+    /**
+     * Binder service name of car service registered to service manager.
+     *
+     * @hide
+     */
+    public static final String CAR_SERVICE_BINDER_SERVICE_NAME = "car_service";
     /**
      * Service name for {@link CarSensorManager}, to be used in {@link #getCarManager(String)}.
      *
@@ -613,6 +621,9 @@ public final class Car {
     private static final long CAR_SERVICE_BIND_RETRY_INTERVAL_MS = 500;
     private static final long CAR_SERVICE_BIND_MAX_RETRY = 20;
 
+    private static final long CAR_SERVICE_BINDER_POLLING_INTERVAL_MS = 50;
+    private static final long CAR_SERVICE_BINDER_POLLING_MAX_RETRY = 100;
+
     private final Context mContext;
     @GuardedBy("this")
     private ICar mService;
@@ -647,7 +658,9 @@ public final class Car {
                 mService = ICar.Stub.asInterface(service);
                 mConnectionState = STATE_CONNECTED;
             }
-            mServiceConnectionListenerClient.onServiceConnected(name, service);
+            if (mServiceConnectionListenerClient != null) {
+                mServiceConnectionListenerClient.onServiceConnected(name, service);
+            }
         }
 
         public void onServiceDisconnected(ComponentName name) {
@@ -658,7 +671,9 @@ public final class Car {
             }
             // unbind explicitly and set connectionState to STATE_DISCONNECTED here.
             disconnect();
-            mServiceConnectionListenerClient.onServiceDisconnected(name);
+            if (mServiceConnectionListenerClient != null) {
+                mServiceConnectionListenerClient.onServiceDisconnected(name);
+            }
         }
     };
 
@@ -734,11 +749,54 @@ public final class Car {
      */
     @Nullable
     public static Car createCar(Context context, @Nullable Handler handler) {
-        IBinder service = ServiceManager.getService("car_service");
-        if (service == null) {
-            return null;
+        Car car = null;
+        IBinder service = null;
+        boolean started = false;
+        int retryCount = 0;
+        while (true) {
+            service = ServiceManager.getService(CAR_SERVICE_BINDER_SERVICE_NAME);
+            if (car == null) {
+                // service can be still null. The constructor is safe for null service.
+                car = new Car(context, ICar.Stub.asInterface(service), handler);
+            }
+            if (service != null) {
+                if (!started) {  // specialization for most common case.
+                    return car;
+                }
+                break;
+            }
+            if (!started) {
+                car.startCarService();
+                started = true;
+            }
+            retryCount++;
+            if (retryCount > CAR_SERVICE_BINDER_POLLING_MAX_RETRY) {
+                Log.e(CarLibLog.TAG_CAR, "cannot get car_service, waited for car service (ms):"
+                                + CAR_SERVICE_BINDER_POLLING_INTERVAL_MS
+                                * CAR_SERVICE_BINDER_POLLING_MAX_RETRY,
+                        new RuntimeException());
+                return null;
+            }
+            try {
+                Thread.sleep(CAR_SERVICE_BINDER_POLLING_INTERVAL_MS);
+            } catch (InterruptedException e) {
+                Log.e(CarLibLog.TAG_CAR, "interrupted while waiting for car_service",
+                        new RuntimeException());
+                return null;
+            }
         }
-        return new Car(context, ICar.Stub.asInterface(service), handler);
+        // Can be accessed from mServiceConnectionListener in main thread.
+        synchronized (car) {
+            if (car.mService == null) {
+                car.mService = ICar.Stub.asInterface(service);
+                Log.w(CarLibLog.TAG_CAR,
+                        "waited for car_service (ms):"
+                                + CAR_SERVICE_BINDER_POLLING_INTERVAL_MS * retryCount,
+                        new RuntimeException());
+            }
+            car.mConnectionState = STATE_CONNECTED;
+        }
+        return car;
     }
 
     private Car(Context context, ServiceConnection serviceConnectionListener,
@@ -748,6 +806,7 @@ public final class Car {
         mMainThreadEventHandler = determineMainThreadEventHandler(mEventHandler);
 
         mService = null;
+        mConnectionState = STATE_DISCONNECTED;
         mOwnsService = true;
         mServiceConnectionListenerClient = serviceConnectionListener;
     }
@@ -757,14 +816,19 @@ public final class Car {
      * Car constructor when ICar binder is already available.
      * @hide
      */
-    public Car(Context context, ICar service, @Nullable Handler handler) {
+    public Car(Context context, @Nullable ICar service, @Nullable Handler handler) {
         mContext = context;
         mEventHandler = determineEventHandler(handler);
         mMainThreadEventHandler = determineMainThreadEventHandler(mEventHandler);
 
         mService = service;
-        mOwnsService = false;
-        mConnectionState = STATE_CONNECTED;
+        if (service != null) {
+            mConnectionState = STATE_CONNECTED;
+            mOwnsService = false;
+        } else {
+            mConnectionState = STATE_DISCONNECTED;
+            mOwnsService = true;
+        }
         mServiceConnectionListenerClient = null;
     }
 
@@ -842,6 +906,12 @@ public final class Car {
         synchronized (this) {
             return mConnectionState == STATE_CONNECTING;
         }
+    }
+
+    /** @hide */
+    @VisibleForTesting
+    public ServiceConnection getServiceConnectionListener() {
+        return mServiceConnectionListener;
     }
 
     /**

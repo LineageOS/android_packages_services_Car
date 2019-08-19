@@ -62,5 +62,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
 # mockito-target-inline dependency
 LOCAL_JNI_SHARED_LIBRARIES := \
     libdexmakerjvmtiagent \
+    libstaticjvmtiagent \
 
 include $(BUILD_PACKAGE)
