@@ -279,7 +279,9 @@ Return<void> HalCamera::notifyEvent(const EvsEvent& event) {
 
 
 Return<EvsResult> HalCamera::setMaster(sp<VirtualCamera> virtualCamera) {
+    std::lock_guard<std::mutex> lock(mMasterLock);
     if (mMaster == nullptr) {
+        ALOGD("%s: %p becomes a master", __FUNCTION__, virtualCamera.get());
         mMaster = virtualCamera;
         return EvsResult::OK;
     } else {
@@ -289,7 +291,34 @@ Return<EvsResult> HalCamera::setMaster(sp<VirtualCamera> virtualCamera) {
 }
 
 
+Return<EvsResult> HalCamera::forceMaster(sp<VirtualCamera> virtualCamera) {
+    std::lock_guard<std::mutex> lock(mMasterLock);
+    sp<VirtualCamera> prevMaster = mMaster.promote();
+    if (prevMaster == virtualCamera) {
+        ALOGD("Client %p is already a master client", virtualCamera.get());
+    } else {
+        mMaster = virtualCamera;
+        if (prevMaster != nullptr) {
+            ALOGD("High priority client %p steals a master role from %p",
+                virtualCamera.get(), prevMaster.get());
+
+            /* Notify a previous master client the loss of a master role */
+            EvsEvent event;
+            InfoEventDesc desc = {};
+            desc.aType = InfoEventType::MASTER_RELEASED;
+            event.info(desc);
+            if (!prevMaster->notifyEvent(event)) {
+                ALOGE("Fail to deliver a master role lost notification");
+            }
+        }
+    }
+
+    return EvsResult::OK;
+}
+
+
 Return<EvsResult> HalCamera::unsetMaster(sp<VirtualCamera> virtualCamera) {
+    std::lock_guard<std::mutex> lock(mMasterLock);
     if (mMaster.promote() != virtualCamera) {
         return EvsResult::INVALID_ARG;
     } else {
