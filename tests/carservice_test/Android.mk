@@ -60,4 +60,6 @@ LOCAL_JAVA_LIBRARIES := \
 
 LOCAL_JNI_SHARED_LIBRARIES := libdexmakerjvmtiagent
 
+LOCAL_COMPATIBILITY_SUITE := general-tests
+
 include $(BUILD_PACKAGE)
