@@ -21,6 +21,7 @@
 #include <android/hardware/automotive/evs/1.1/types.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
+#include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
 #include <ui/GraphicBuffer.h>
 
 #include <thread>
@@ -33,6 +34,7 @@ using ::android::hardware::Void;
 using ::android::hardware::hidl_handle;
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using ::android::hardware::automotive::evs::V1_0::CameraDesc;
+using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
 using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 using BufferDesc_1_1 = ::android::hardware::automotive::evs::V1_1::BufferDesc;
 using IEvsCamera_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsCamera;
@@ -80,6 +82,7 @@ public:
     Return<EvsResult> pauseVideoStream() override { return EvsResult::UNDERLYING_SERVICE_ERROR; }
     Return<EvsResult> resumeVideoStream() override { return EvsResult::UNDERLYING_SERVICE_ERROR; }
     Return<EvsResult> setMaster() override;
+    Return<EvsResult> forceMaster(const sp<IEvsDisplay>& display) override;
     Return<EvsResult> unsetMaster() override;
     Return<void>      setParameter(CameraParam id, int32_t value,
                                    setParameter_cb _hidl_cb) override;
