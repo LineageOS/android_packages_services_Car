@@ -121,8 +121,7 @@ public class VmsClientManager implements CarServiceBase {
                 }
                 mCurrentUser = currentUserId;
 
-                if (Intent.ACTION_USER_UNLOCKED.equals(intent.getAction())
-                        || mUserManager.isUserUnlocked(mCurrentUser)) {
+                if (mUserManager.isUserUnlocked(mCurrentUser)) {
                     bindToSystemClients();
                     bindToUserClients();
                 }
@@ -235,11 +234,11 @@ public class VmsClientManager implements CarServiceBase {
     private void bindToSystemClients() {
         String[] clientNames = mContext.getResources().getStringArray(
                 R.array.vmsPublisherSystemClients);
-        Log.i(TAG, "Attempting to bind " + clientNames.length + " system client(s)");
         synchronized (mSystemClients) {
             if (!mSystemUserUnlocked) {
                 return;
             }
+            Log.i(TAG, "Attempting to bind " + clientNames.length + " system client(s)");
             for (String clientName : clientNames) {
                 bind(mSystemClients, clientName, UserHandle.SYSTEM);
             }
