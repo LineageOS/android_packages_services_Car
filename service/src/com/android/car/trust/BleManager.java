@@ -17,6 +17,7 @@ package com.android.car.trust;
 
 import static android.bluetooth.BluetoothProfile.GATT_SERVER;
 
+import android.annotation.Nullable;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -32,15 +33,20 @@ import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-
 import com.android.car.Utils;
+import com.android.internal.annotations.GuardedBy;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -72,13 +78,27 @@ public abstract class BleManager {
     private final Context mContext;
     private BluetoothManager mBluetoothManager;
     private BluetoothLeAdvertiser mAdvertiser;
+    private BluetoothLeScanner mScanner;
     private BluetoothGattServer mGattServer;
     private BluetoothGatt mBluetoothGatt;
     private int mAdvertiserStartCount;
     private int mGattServerRetryStartCount;
+    private int mScannerStartCount;
     private BluetoothGattService mBluetoothGattService;
     private AdvertiseCallback mAdvertiseCallback;
-    private AdvertiseData mData;
+    private AdvertiseData mAdvertiseData;
+    private List<ScanFilter> mScanFilters;
+    private ScanSettings mScanSettings;
+    private ScanCallback mScanCallback;
+
+    // Internally track scanner state to avoid restarting a stopped scanner
+    private enum ScannerState {
+        STOPPED,
+        STARTED,
+        SCANNING
+    }
+    @GuardedBy("this")
+    private volatile ScannerState mScannerState = ScannerState.STOPPED;
 
     BleManager(Context context) {
         mContext = context;
@@ -101,13 +121,14 @@ public abstract class BleManager {
             Log.d(TAG, "startAdvertising: " + service.getUuid().toString());
         }
         if (!mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Log.e(TAG, "System does not support BLE");
+            Log.e(TAG, "Attempted start advertising, but system does not support BLE. "
+                    + "Ignoring");
             return;
         }
 
         mBluetoothGattService = service;
         mAdvertiseCallback = advertiseCallback;
-        mData = data;
+        mAdvertiseData = data;
         mGattServerRetryStartCount = 0;
         mBluetoothManager = (BluetoothManager) mContext.getSystemService(
             Context.BLUETOOTH_SERVICE);
@@ -128,7 +149,7 @@ public abstract class BleManager {
                 .setConnectable(true)
                 .build();
             mAdvertiserStartCount = 0;
-            startAdvertisingInternally(settings, mData, mAdvertiseCallback);
+            startAdvertisingInternally(settings, mAdvertiseData, mAdvertiseCallback);
             mGattServerRetryStartCount = 0;
         } else if (mGattServerRetryStartCount < GATT_SERVER_RETRY_LIMIT) {
             mGattServer = mBluetoothManager.openGattServer(mContext, mGattServerCallback);
@@ -172,10 +193,68 @@ public abstract class BleManager {
         }
     }
 
+    protected void startScanning(List<ScanFilter> filters, ScanSettings settings,
+            ScanCallback callback) {
+        if (!mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Log.e(TAG, "Attempted start scanning, but system does not support BLE. Ignoring");
+            return;
+        }
+
+        mScannerStartCount = 0;
+        mScanFilters = filters;
+        mScanSettings = settings;
+        mScanCallback = callback;
+        updateScannerState(ScannerState.STARTED);
+        startScanningInternally();
+    }
+
+    private void startScanningInternally() {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Attempting to start scanning");
+        }
+        if (mScanner == null && BluetoothAdapter.getDefaultAdapter() != null) {
+            mScanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
+        }
+
+        if (mScanner != null) {
+            mScanner.startScan(mScanFilters, mScanSettings, mInternalScanCallback);
+            updateScannerState(ScannerState.SCANNING);
+        } else {
+            // Keep trying
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Scanner unavailable. Trying again.");
+            }
+            mHandler.postDelayed(this::startScanningInternally, BLE_RETRY_INTERVAL_MS);
+        }
+    }
+
+    protected void stopScanning() {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Attempting to stop scanning");
+        }
+        if (mScanner != null) {
+            mScanner.stopScan(mInternalScanCallback);
+        }
+        mScanCallback = null;
+        updateScannerState(ScannerState.STOPPED);
+    }
+
+    private void updateScannerState(ScannerState newState) {
+        synchronized (this) {
+            mScannerState = newState;
+        }
+    }
+
+    protected boolean isScanning() {
+        synchronized (this) {
+            return mScannerState == ScannerState.SCANNING;
+        }
+    }
+
     /**
      * Notifies the characteristic change via {@link BluetoothGattServer}
      */
-    protected void notifyCharacteristicChanged(BluetoothDevice device,
+    void notifyCharacteristicChanged(BluetoothDevice device,
             BluetoothGattCharacteristic characteristic, boolean confirm) {
         if (mGattServer == null) {
             return;
@@ -191,7 +270,7 @@ public abstract class BleManager {
     /**
      * Connect the Gatt server of the remote device to retrieve device name.
      */
-    protected final void retrieveDeviceName(BluetoothDevice device) {
+    final void retrieveDeviceName(BluetoothDevice device) {
         mBluetoothGatt = device.connectGatt(getContext(), false, mGattCallback);
     }
 
@@ -208,9 +287,13 @@ public abstract class BleManager {
      * Cleans up the BLE GATT server state.
      */
     void cleanup() {
-        // Stops the advertiser and GATT server. This needs to be done to avoid leaks
+        // Stops the advertiser, scanner and GATT server. This needs to be done to avoid leaks.
         if (mAdvertiser != null) {
             mAdvertiser.cleanup();
+        }
+
+        if (mScanner != null) {
+            mScanner.cleanup();
         }
 
         if (mGattServer != null) {
@@ -284,9 +367,10 @@ public abstract class BleManager {
      * @see BluetoothGattServerCallback#onCharacteristicWriteRequest(BluetoothDevice, int,
      * BluetoothGattCharacteristic, boolean, boolean, int, byte[])
      */
-    protected abstract void onCharacteristicWrite(BluetoothDevice device, int requestId,
+    protected void onCharacteristicWrite(BluetoothDevice device, int requestId,
             BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean
-            responseNeeded, int offset, byte[] value);
+            responseNeeded, int offset, byte[] value) {
+    }
 
     /**
      * Triggered when this BleManager receives a read request from a remote device.
@@ -295,8 +379,9 @@ public abstract class BleManager {
      * @see BluetoothGattServerCallback#onCharacteristicReadRequest(BluetoothDevice, int, int,
      * BluetoothGattCharacteristic)
      */
-    protected abstract void onCharacteristicRead(BluetoothDevice device,
-            int requestId, int offset, BluetoothGattCharacteristic characteristic);
+    protected void onCharacteristicRead(BluetoothDevice device,
+            int requestId, int offset, BluetoothGattCharacteristic characteristic) {
+    }
 
     private final BluetoothGattServerCallback mGattServerCallback =
             new BluetoothGattServerCallback() {
@@ -436,6 +521,53 @@ public abstract class BleManager {
                 onDeviceNameRetrieved(deviceName);
             } else {
                 Log.e(TAG, "Reading GAP Failed: " + status);
+            }
+        }
+    };
+
+    private final ScanCallback mInternalScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            if (mScanCallback != null) {
+                mScanCallback.onScanResult(callbackType, result);
+            }
+        }
+
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Batch scan found " + results.size() + " results.");
+            }
+            if (mScanCallback != null) {
+                mScanCallback.onBatchScanResults(results);
+            }
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            if (mScannerStartCount >= BLE_RETRY_LIMIT) {
+                Log.e(TAG, "Cannot start BLE Scanner. BT Adapter: "
+                        + BluetoothAdapter.getDefaultAdapter() + " Scanning Retry count: "
+                        + mScannerStartCount);
+                if (mScanCallback != null) {
+                    mScanCallback.onScanFailed(errorCode);
+                }
+                return;
+            }
+            mScannerStartCount++;
+            Log.w(TAG, "BLE Scanner failed to start. Error: " + errorCode + " Retry: "
+                    + mScannerStartCount);
+            switch (errorCode) {
+                case SCAN_FAILED_ALREADY_STARTED:
+                    // Do nothing
+                    break;
+                case SCAN_FAILED_APPLICATION_REGISTRATION_FAILED:
+                case SCAN_FAILED_INTERNAL_ERROR:
+                    mHandler.postDelayed(BleManager.this::startScanningInternally,
+                            BLE_RETRY_INTERVAL_MS);
+                    break;
+                default:
+                    // Other codes can be ignored
             }
         }
     };
