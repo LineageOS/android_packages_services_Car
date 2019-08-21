@@ -16,6 +16,7 @@
 
 package com.android.car.trust;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
@@ -239,7 +240,7 @@ public class CarTrustedDeviceService implements CarServiceBase, BleEventCallback
     @Nullable
     byte[] getEncryptionKey(String deviceId) {
         SharedPreferences prefs = getSharedPrefs();
-        String key = PREF_ENCRYPTION_KEY_PREFIX + deviceId;
+        String key = createSharedPrefKey(deviceId);
         if (!prefs.contains(key)) {
             return null;
         }
@@ -271,13 +272,13 @@ public class CarTrustedDeviceService implements CarServiceBase, BleEventCallback
         if (encryptedKey == null) {
             return false;
         }
-        if (getSharedPrefs().contains(deviceId)) {
+        if (getSharedPrefs().contains(createSharedPrefKey(deviceId))) {
             clearEncryptionKey(deviceId);
         }
 
         return getSharedPrefs()
                 .edit()
-                .putString(PREF_ENCRYPTION_KEY_PREFIX + deviceId, encryptedKey)
+                .putString(createSharedPrefKey(deviceId), encryptedKey)
                 .commit();
     }
 
@@ -290,7 +291,10 @@ public class CarTrustedDeviceService implements CarServiceBase, BleEventCallback
         if (deviceId == null) {
             return;
         }
-        getSharedPrefs().edit().remove(deviceId);
+        getSharedPrefs()
+            .edit()
+            .remove(createSharedPrefKey(deviceId))
+            .commit();
     }
 
     /**
@@ -390,5 +394,9 @@ public class CarTrustedDeviceService implements CarServiceBase, BleEventCallback
             Log.e(TAG, "Unable to retrieve key " + keyAlias + " from KeyStore.", e);
             throw new IllegalStateException(e);
         }
+    }
+
+    private String createSharedPrefKey(@NonNull String deviceId) {
+        return PREF_ENCRYPTION_KEY_PREFIX + deviceId;
     }
 }
