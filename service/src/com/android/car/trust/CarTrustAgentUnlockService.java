@@ -116,6 +116,7 @@ public class CarTrustAgentUnlockService {
     private int mCurrentUnlockState = UNLOCK_STATE_WAITING_FOR_UNIQUE_ID;
 
     private final CarTrustedDeviceService mTrustedDeviceService;
+    private final CarCompanionDeviceStorage mCarCompanionDeviceStorage;
     private final CarTrustAgentBleManager mCarTrustAgentBleManager;
     private CarTrustAgentUnlockDelegate mUnlockDelegate;
     private String mClientDeviceId;
@@ -142,6 +143,7 @@ public class CarTrustAgentUnlockService {
                 .getString(R.string.unlock_client_write_uuid));
         mEncryptionRunner.setIsReconnect(true);
         mSendMessageCallback = () -> mCarTrustAgentBleManager.disconnectRemoteDevice();
+        mCarCompanionDeviceStorage = new CarCompanionDeviceStorage(context);
     }
 
     /**
@@ -167,7 +169,7 @@ public class CarTrustAgentUnlockService {
      *                  back.
      */
     public void setTrustedDeviceUnlockEnabled(boolean isEnabled) {
-        SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
+        SharedPreferences.Editor editor = mCarCompanionDeviceStorage.getSharedPrefs().edit();
         editor.putBoolean(TRUSTED_DEVICE_UNLOCK_ENABLED_KEY, isEnabled);
         if (!editor.commit()) {
             Log.wtf(TAG, "Unlock Enable Failed. Enable? " + isEnabled);
@@ -187,8 +189,8 @@ public class CarTrustAgentUnlockService {
      * Start Unlock Advertising
      */
     void startUnlockAdvertising() {
-        if (!mTrustedDeviceService.getSharedPrefs().getBoolean(TRUSTED_DEVICE_UNLOCK_ENABLED_KEY,
-                true)) {
+        if (!mCarCompanionDeviceStorage.getSharedPrefs().getBoolean(
+                TRUSTED_DEVICE_UNLOCK_ENABLED_KEY, true)) {
             Log.e(TAG, "Trusted Device Unlock is disabled");
             return;
         }
@@ -197,7 +199,7 @@ public class CarTrustAgentUnlockService {
 
         logUnlockEvent(START_UNLOCK_ADVERTISING);
         queueMessageForLog("startUnlockAdvertising");
-        mCarTrustAgentBleManager.setUniqueId(mTrustedDeviceService.getUniqueId());
+        mCarTrustAgentBleManager.setUniqueId(mCarCompanionDeviceStorage.getUniqueId());
         mCarTrustAgentBleManager.startUnlockAdvertising();
     }
 
@@ -289,13 +291,14 @@ public class CarTrustAgentUnlockService {
                     Log.e(TAG, "Current session key null. Unexpected at this stage: "
                             + mCurrentUnlockState);
                     // Clear the previous session key.  Need to re-enroll the trusted device.
-                    mTrustedDeviceService.clearEncryptionKey(mClientDeviceId);
+                    mCarCompanionDeviceStorage.clearEncryptionKey(mClientDeviceId);
                     resetUnlockStateOnFailure();
                     return;
                 }
 
                 // Save the current session to be used for authenticating the next session
-                mTrustedDeviceService.saveEncryptionKey(mClientDeviceId, mEncryptionKey.asBytes());
+                mCarCompanionDeviceStorage.saveEncryptionKey(mClientDeviceId,
+                        mEncryptionKey.asBytes());
 
                 byte[] decryptedCredentials;
                 try {
@@ -336,7 +339,7 @@ public class CarTrustAgentUnlockService {
         // Validate if the id exists i.e., if the phone is enrolled already
         UUID deviceId = Utils.bytesToUUID(id);
         if (deviceId == null
-                || mTrustedDeviceService.getEncryptionKey(deviceId.toString()) == null) {
+                || mCarCompanionDeviceStorage.getEncryptionKey(deviceId.toString()) == null) {
             if (deviceId != null) {
                 Log.e(TAG, "Unknown phone connected: " + deviceId.toString());
             }
@@ -391,7 +394,7 @@ public class CarTrustAgentUnlockService {
                     return;
                 }
                 handshakeMessage = mEncryptionRunner.authenticateReconnection(
-                        message, mTrustedDeviceService.getEncryptionKey(mClientDeviceId));
+                        message, mCarCompanionDeviceStorage.getEncryptionKey(mClientDeviceId));
                 mEncryptionKey = handshakeMessage.getKey();
                 mEncryptionState = handshakeMessage.getHandshakeState();
                 logUnlockEvent(UNLOCK_ENCRYPTION_STATE, mEncryptionState);
@@ -443,7 +446,7 @@ public class CarTrustAgentUnlockService {
         byte[] handle = phoneCredentials.getHandle().toByteArray();
 
         mUnlockDelegate.onUnlockDataReceived(
-                mTrustedDeviceService.getUserHandleByTokenHandle(Utils.bytesToLong(handle)),
+                mCarCompanionDeviceStorage.getUserHandleByTokenHandle(Utils.bytesToLong(handle)),
                 phoneCredentials.getEscrowToken().toByteArray(),
                 Utils.bytesToLong(handle));
     }
