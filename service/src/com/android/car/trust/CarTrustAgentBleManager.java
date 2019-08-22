@@ -26,6 +26,7 @@ import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.content.Context;
+import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
 
@@ -125,6 +126,7 @@ class CarTrustAgentBleManager extends BleManager implements BleMessageStreamCall
     private BluetoothGattService mUnlockGattService;
 
     private BleMessageStream mMessageStream;
+    private final Handler mHandler = new Handler();
 
     // A map of enrollment/unlock client write uuid -> listener
     private final SimpleArrayMap<UUID, DataReceivedListener> mDataReceivedListeners =
@@ -410,6 +412,22 @@ class CarTrustAgentBleManager extends BleManager implements BleMessageStreamCall
                         + mOriginalBluetoothName + " to " + deviceName);
             }
         }
+
+        attemptAdvertising();
+    }
+
+    private void attemptAdvertising() {
+        // Validate the adapter name change has happened. If not, try again after delay.
+        if (mOriginalBluetoothName != null
+                && BluetoothAdapter.getDefaultAdapter().getName().equals(mOriginalBluetoothName)) {
+            mHandler.postDelayed(this::attemptAdvertising, BLE_MESSAGE_RETRY_DELAY_MS);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Adapter name change has not taken affect prior to advertising attempt. "
+                        + "Trying again.");
+            }
+            return;
+        }
+
         startAdvertising(mEnrollmentGattService,
                 new AdvertiseData.Builder()
                         .setIncludeDeviceName(true)
@@ -425,6 +443,7 @@ class CarTrustAgentBleManager extends BleManager implements BleMessageStreamCall
                         + mOriginalBluetoothName);
             }
             BluetoothAdapter.getDefaultAdapter().setName(mOriginalBluetoothName);
+            mOriginalBluetoothName = null;
         }
         if (mEnrollmentAdvertisingCallback != null) {
             stopAdvertising(mEnrollmentAdvertisingCallback);
