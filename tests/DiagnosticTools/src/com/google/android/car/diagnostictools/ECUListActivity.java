@@ -44,8 +44,6 @@ public class ECUListActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Set the layout for this activity.  You can find it
-        // in res/layout/diagnostic_tools.xml
         View view = getLayoutInflater().inflate(R.layout.diagnostic_tools, null);
         setContentView(view);
 

@@ -16,7 +16,5 @@
   -->
 
 <resources>
-    <string name="diagnostic_tools_text_text">Hello, World!</string>
-    <string name="service_center_tools_text">Hello World2</string>
     <string name="display_freeze_frame_info">Display Freeze Frame Info</string>
 </resources>
