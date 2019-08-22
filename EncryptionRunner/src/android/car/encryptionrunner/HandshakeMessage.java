@@ -33,12 +33,8 @@ public class HandshakeMessage {
      * States for handshake progress.
      */
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({
-            HandshakeState.UNKNOWN,
-            HandshakeState.IN_PROGRESS,
-            HandshakeState.VERIFICATION_NEEDED,
-            HandshakeState.FINISHED,
-            HandshakeState.INVALID})
+    @IntDef({HandshakeState.UNKNOWN, HandshakeState.IN_PROGRESS, HandshakeState.VERIFICATION_NEEDED,
+            HandshakeState.FINISHED, HandshakeState.INVALID, HandshakeState.RESUMING_SESSION,})
     public @interface HandshakeState {
         /**
          * The initial state, this value is not expected to be returned.
@@ -60,9 +56,14 @@ public class HandshakeMessage {
          * The handshake is complete and not successful.
          */
         int INVALID = 4;
+        /**
+         * The handshake is complete, but extra verification is needed.
+         */
+        int RESUMING_SESSION = 5;
     }
 
-    @HandshakeState private final int mHandshakeState;
+    @HandshakeState
+    private final int mHandshakeState;
     private final Key mKey;
     private final byte[] mNextMessage;
     private final String mVerificationCode;
@@ -121,7 +122,8 @@ public class HandshakeMessage {
     }
 
     static class Builder {
-        @HandshakeState int mHandshakeState;
+        @HandshakeState
+        int mHandshakeState;
         Key mKey;
         byte[] mNextMessage;
         String mVerificationCode;
