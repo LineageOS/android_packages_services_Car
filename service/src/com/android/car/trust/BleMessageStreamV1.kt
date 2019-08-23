@@ -40,7 +40,7 @@ private val BLE_MESSAGE_RETRY_DELAY_MS = TimeUnit.SECONDS.toMillis(2)
  */
 internal class BleMessageStreamV1(
     private val handler: Handler,
-    private val bleManager: BleManager,
+    private val blePeripheralManager: BlePeripheralManager,
     override val device: BluetoothDevice,
     override val writeCharacteristic: BluetoothGattCharacteristic,
     override val readCharacteristic: BluetoothGattCharacteristic
@@ -55,7 +55,7 @@ internal class BleMessageStreamV1(
     override var callback: BleMessageStreamCallback? = null
 
     init {
-        bleManager.addOnCharacteristicWriteListener(::onCharacteristicWrite)
+        blePeripheralManager.addOnCharacteristicWriteListener(::onCharacteristicWrite)
     }
 
     /**
@@ -199,7 +199,7 @@ internal class BleMessageStreamV1(
     private fun writeValueAndNotify(message: ByteArray) {
         writeCharacteristic.setValue(message)
 
-        bleManager.notifyCharacteristicChanged(
+        blePeripheralManager.notifyCharacteristicChanged(
             device,
             writeCharacteristic,
             /* confirm= */ false)

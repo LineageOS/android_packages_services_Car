@@ -51,7 +51,7 @@ class BLEVersionExchangeResolver {
     @Nullable
     static BleMessageStream resolveToStream(
             @NonNull BLEVersionExchange versionExchange,
-            @NonNull BluetoothDevice device, @NonNull BleManager bleManager,
+            @NonNull BluetoothDevice device, @NonNull BlePeripheralManager blePeripheralManager,
             @NonNull BluetoothGattCharacteristic writeCharacteristic,
             @NonNull BluetoothGattCharacteristic readCharacteristic) {
         int minMessagingVersion = versionExchange.getMinSupportedMessagingVersion();
@@ -66,7 +66,7 @@ class BLEVersionExchangeResolver {
         if (minMessagingVersion == MESSAGING_VERSION && minSecurityVersion == SECURITY_VERSION) {
             return new BleMessageStreamV1(
                     new Handler(Looper.getMainLooper()),
-                    bleManager,
+                    blePeripheralManager,
                     device,
                     writeCharacteristic,
                     readCharacteristic);

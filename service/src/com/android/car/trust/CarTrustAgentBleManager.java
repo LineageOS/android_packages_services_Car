@@ -49,12 +49,12 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A BLE Service that is used for communicating with the trusted peer device. This extends from a
- * more generic {@link BleManager} and has more context on the BLE requirements for the Trusted
- * device feature. It has knowledge on the GATT services and characteristics that are specific to
- * the Trusted Device feature.
+ * more generic {@link BlePeripheralManager} and has more context on the BLE requirements for the
+ * Trusted device feature. It has knowledge on the GATT services and characteristics that are
+ * specific to the Trusted Device feature.
  */
-class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Callback,
-        BleManager.OnCharacteristicWriteListener {
+class CarTrustAgentBleManager implements BleMessageStreamCallback, BlePeripheralManager.Callback,
+        BlePeripheralManager.OnCharacteristicWriteListener {
     private static final String TAG = "CarTrustBLEManager";
 
     /**
@@ -93,7 +93,7 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Ca
     static final long BLE_MESSAGE_RETRY_DELAY_MS = TimeUnit.SECONDS.toMillis(2);
 
     private final Context mContext;
-    private final BleManager mBleManager;
+    private final BlePeripheralManager mBlePeripheralManager;
 
     @TrustedDeviceOperation
     private int mCurrentTrustedDeviceOperation = TRUSTED_DEVICE_OPERATION_NONE;
@@ -137,10 +137,10 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Ca
     private final SimpleArrayMap<UUID, DataReceivedListener> mDataReceivedListeners =
             new SimpleArrayMap<>();
 
-    CarTrustAgentBleManager(Context context, BleManager bleManager) {
+    CarTrustAgentBleManager(Context context, BlePeripheralManager blePeripheralManager) {
         mContext = context;
-        mBleManager = bleManager;
-        mBleManager.registerCallback(this);
+        mBlePeripheralManager = blePeripheralManager;
+        mBlePeripheralManager.registerCallback(this);
     }
 
     /**
@@ -151,11 +151,11 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Ca
     }
 
     void cleanup() {
-        mBleManager.cleanup();
+        mBlePeripheralManager.cleanup();
     }
 
     void stopGattServer() {
-        mBleManager.stopGattServer();
+        mBlePeripheralManager.stopGattServer();
     }
 
     // Overriding some of the {@link BLEManager} methods to be specific for Trusted Device feature.
@@ -170,7 +170,7 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Ca
         // stored in sharedPreference for further use.
         if (mCurrentTrustedDeviceOperation == TRUSTED_DEVICE_OPERATION_ENROLLMENT
                 && device.getName() == null) {
-            mBleManager.retrieveDeviceName(device);
+            mBlePeripheralManager.retrieveDeviceName(device);
         }
 
         if (mMessageStream != null) {
@@ -180,14 +180,14 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Ca
 
         mSendMessageCallback = null;
 
-        mBleManager.addOnCharacteristicWriteListener(this);
+        mBlePeripheralManager.addOnCharacteristicWriteListener(this);
         mBleEventCallbacks.forEach(bleEventCallback ->
                 bleEventCallback.onRemoteDeviceConnected(device));
     }
 
     @Override
     public void onRemoteDeviceDisconnected(BluetoothDevice device) {
-        mBleManager.removeOnCharacteristicWriteListener(this);
+        mBlePeripheralManager.removeOnCharacteristicWriteListener(this);
         mBleEventCallbacks.forEach(bleEventCallback ->
                 bleEventCallback.onRemoteDeviceDisconnected(device));
 
@@ -276,7 +276,8 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Ca
         }
 
         mMessageStream = BLEVersionExchangeResolver.resolveToStream(
-                deviceVersion, device, mBleManager, writeCharacteristic, readCharacteristic);
+                deviceVersion, device, mBlePeripheralManager, writeCharacteristic,
+                readCharacteristic);
         mMessageStream.setMaxWriteSize(mMaxWriteSize);
         mMessageStream.setCallback(this);
 
@@ -289,7 +290,7 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Ca
 
         // No need for this manager to listen for any writes; the stream will handle that from now
         // on.
-        mBleManager.removeOnCharacteristicWriteListener(this);
+        mBlePeripheralManager.removeOnCharacteristicWriteListener(this);
 
         // The message stream is not used to send the IHU's version, but will be used for
         // any subsequent messages.
@@ -443,7 +444,7 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Ca
             return;
         }
 
-        mBleManager.startAdvertising(mEnrollmentGattService,
+        mBlePeripheralManager.startAdvertising(mEnrollmentGattService,
                 new AdvertiseData.Builder()
                         .setIncludeDeviceName(true)
                         .addServiceUuid(new ParcelUuid(mEnrollmentServiceUuid))
@@ -461,7 +462,7 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Ca
             mOriginalBluetoothName = null;
         }
         if (mEnrollmentAdvertisingCallback != null) {
-            mBleManager.stopAdvertising(mEnrollmentAdvertisingCallback);
+            mBlePeripheralManager.stopAdvertising(mEnrollmentAdvertisingCallback);
         }
     }
 
@@ -471,7 +472,7 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Ca
             return;
         }
         mCurrentTrustedDeviceOperation = TRUSTED_DEVICE_OPERATION_UNLOCK;
-        mBleManager.startAdvertising(mUnlockGattService,
+        mBlePeripheralManager.startAdvertising(mUnlockGattService,
                 new AdvertiseData.Builder()
                         .setIncludeDeviceName(false)
                         .addServiceData(new ParcelUuid(mUnlockServiceUuid), mUniqueId)
@@ -482,11 +483,11 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Ca
 
     void stopUnlockAdvertising() {
         mCurrentTrustedDeviceOperation = TRUSTED_DEVICE_OPERATION_NONE;
-        mBleManager.stopAdvertising(mUnlockAdvertisingCallback);
+        mBlePeripheralManager.stopAdvertising(mUnlockAdvertisingCallback);
     }
 
     void disconnectRemoteDevice() {
-        mBleManager.stopGattServer();
+        mBlePeripheralManager.stopGattServer();
     }
 
     void sendMessage(byte[] message, OperationType operation, boolean isPayloadEncrypted,
@@ -514,7 +515,7 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BleManager.Ca
     private void setValueOnCharacteristicAndNotify(BluetoothDevice device, byte[] message,
             BluetoothGattCharacteristic characteristic) {
         characteristic.setValue(message);
-        mBleManager.notifyCharacteristicChanged(device, characteristic, false);
+        mBlePeripheralManager.notifyCharacteristicChanged(device, characteristic, false);
     }
 
     /**

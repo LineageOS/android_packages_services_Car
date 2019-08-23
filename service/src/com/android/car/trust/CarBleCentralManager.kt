@@ -46,7 +46,8 @@ private const val MAX_CONNECTIONS = 7
 private val CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
 /**
- * Extension of [BleManager] for a car as a BLE central device.
+ * Communication manager for a car that maintains continuous connections with all phones in the car
+ * for the duration of a drive.
  *
  * @param context Application's [Context].
  * @param serviceUuid [UUID] of peripheral's service.
@@ -56,7 +57,7 @@ private val CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-008
  */
 internal class CarBleCentralManager(
     private val context: Context,
-    private val bleManager: BleManager,
+    private val bleCentralManager: BleCentralManager,
     private val serviceUuid: UUID,
     private val bgServiceMask: String,
     private val writeCharacteristicUuid: UUID,
@@ -91,14 +92,14 @@ internal class CarBleCentralManager(
     }
 
     private fun startScanning() {
-        bleManager.startScanning(null, scanSettings, scanCallback)
+        bleCentralManager.startScanning(null, scanSettings, scanCallback)
     }
 
     /**
      * Stop process and disconnect from any connected devices.
      */
     fun stop() {
-        bleManager.stopScanning()
+        bleCentralManager.stopScanning()
         synchronized(connectedDevices) {
             connectedDevices.forEach { it.gatt.close() }
             connectedDevices.clear()
@@ -387,7 +388,7 @@ internal class CarBleCentralManager(
 
         // Stop scanning if we have reached the maximum connections
         if (countConnectedDevices() >= MAX_CONNECTIONS) {
-            bleManager.stopScanning()
+            bleCentralManager.stopScanning()
         }
     }
 
@@ -416,7 +417,7 @@ internal class CarBleCentralManager(
         }
 
         // Start scanning if dropping down from max
-        if (!bleManager.isScanning() && connectedCount < MAX_CONNECTIONS) {
+        if (!bleCentralManager.isScanning() && connectedCount < MAX_CONNECTIONS) {
             startScanning()
         }
     }
