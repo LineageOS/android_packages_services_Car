@@ -42,4 +42,6 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
 
 LOCAL_JAVA_LIBRARIES := android.car android.test.runner android.test.base
 
+LOCAL_COMPATIBILITY_SUITE := general-tests
+
 include $(BUILD_PACKAGE)
