@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Πρόσβαση στις κάμερες του αυτοκινήτου σας."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"πρόσβαση στις πληροφορίες ενέργειας του αυτοκινήτου"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Πρόσβαση σε πληροφορίες ενέργειας του αυτοκινήτου σας."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"προσαρμόστε το εύρος αυτοκινήτου που απομένει"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Προσαρμόστε την τιμή του εύρους αυτοκινήτου που απομένει."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"πρόσβαση στο σύστημα θέρμανσης-αερισμού-κλιματισμού του αυτοκινήτου"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Πρόσβαση στο σύστημα θέρμανσης, αερισμού, και κλιματισμού του αυτοκινήτου σας."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"πρόσβαση στις πληροφορίες διανυθείσας απόστασης του αυτοκινήτου"</string>

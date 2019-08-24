@@ -389,7 +389,7 @@
     <string name="decryption_settings_summary" product="default" msgid="7401802133199522441">"Телефон не зашифровано"</string>
     <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"Пристрій зашифровано"</string>
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"Пристрій не зашифровано"</string>
-    <string name="lockscreen_settings_title" msgid="1221505938891948413">"Дисплей заблокованого екрана"</string>
+    <string name="lockscreen_settings_title" msgid="1221505938891948413">"Заблокований екран"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"Що показувати"</string>
     <string name="security_settings_summary" msgid="5210109100643223686">"Устан. Моє місцезн., розблок. екрана, блок. SIM-карти, сховища обл. даних"</string>
     <string name="cdma_security_settings_summary" msgid="1783066617800041869">"Устан. Моє місцезн., розбл. екрана, блок. схов. обл. даних"</string>

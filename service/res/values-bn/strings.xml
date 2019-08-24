@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"আপনার গাড়ির ক্যামেরা(গুলি) অ্যাক্সেস করা।"</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"আপনার গাড়ির এনার্জির তথ্য অ্যাক্সেস করা"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"আপনার গাড়ির এনার্জি তথ্য অ্যাক্সেস করা।"</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"গাড়ি আর কত সময় চলবে তা অ্যাডজাস্ট করতে পারবে"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"গাড়ি আর কত সময় চলবে তার মান অ্যাডজাস্ট করতে পারবে।"</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"গাড়ির HVAC অ্যাক্সেস করা"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"আপনার গাড়ির HVAC অ্যাক্সেস করা।"</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"গাড়ির মাইলেজ সংক্রান্ত তথ্য অ্যাক্সেস করা"</string>

@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Көліктің камераларын пайдалануға болады."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"көлік қуаты туралы ақпаратты пайдалану"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Көліктің қуаты туралы ақпаратты көруге болады."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"көліктің қалған жүріп өтетін жолын өзгерту"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Көліктің қалған жүріп өтетін жолының мәнін өзгерту"</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"көліктің климат басқару жүйесін пайдалану"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Көліктің кондиционерін пайдалануға болады."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"көліктің километражы туралы ақпаратты пайдалану"</string>

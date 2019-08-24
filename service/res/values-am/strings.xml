@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"የእርስዎን ካሜራ(ዎች) ይደርሱበት(ባቸው)።"</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"የመኪናውን የኃይል መረጃ ድረስበት"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"የእርስዎን መኪና ኃይል መረጃ ይድረሱበት።"</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"የመኪና ክልልን ቀሪ አስተካክል"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"የመኪና ክልልን ቀሪ ዋጋ አስተካክል።"</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"የመኪናውን hvac ድረስበት"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"የእርስዎን መኪና hvac ይድረሱበት።"</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"የመኪናውን የሄደበት ርቀት ብዛት መረጃ ድረስበት"</string>

@@ -4117,7 +4117,7 @@
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"برای بررسی رایانه لوحی، دو ضربه سریع بزنید"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"برای بررسی دستگاه، دو ضربه سریع بزنید"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"برای بررسی زمان، اعلان‌ها و اطلاعات دیگر، روی صفحه‌نمایش دو ضربه سریع بزنید."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"برای بررسی تلفن، آن را بردارید"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"بررسی تلفن با برداشتن"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"برای بررسی رایانه لوحی، آن را بردارید"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"برای بررسی دستگاه، آن را بردارید"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"روشن کردن نمایشگر"</string>

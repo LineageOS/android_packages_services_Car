@@ -845,7 +845,7 @@
     <string name="wifi_error" msgid="5605801874484465557">"出错"</string>
     <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"在此国家/地区无法使用 5 GHz 频段"</string>
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"正处于飞行模式下"</string>
-    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"打开网络通知"</string>
+    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"开放网络通知"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"有可用的高品质公共网络时通知我"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"自动开启 WLAN"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"位于已保存的高品质网络（例如您的家庭网络）附近时自动重新开启 WLAN"</string>
@@ -2078,7 +2078,7 @@
     <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"操作执行时长"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"请选择您需要阅读的消息的显示时间（只会暂时显示）。\n\n只有部分应用支持这项设置。"</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"请选择提示您执行操作的消息的显示时间（只会暂时显示）。\n\n部分应用可能不支持这项设置。"</string>
-    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"触摸和按住延迟"</string>
+    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"轻触并按住的延迟时间"</string>
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"颜色反转"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"可能会影响性能"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"停留时间"</string>
@@ -3096,7 +3096,7 @@
     <string name="keywords_sim_status" msgid="3852088576719874387">"网络, 移动网络状态, 服务状态, 信号强度, 移动网络类型, 漫游, ICCID"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"序列号, 硬件版本"</string>
     <string name="keywords_android_version" msgid="4842749998088987740">"Android 安全补丁程序级别, 基带版本, 内核版本"</string>
-    <string name="keywords_dark_ui_mode" msgid="1027966176887770318">"主题背景, 浅色, 夜间, 模式"</string>
+    <string name="keywords_dark_ui_mode" msgid="1027966176887770318">"主题背景, 光亮, 暗黑, 模式"</string>
     <string name="keywords_financial_apps_sms_access" msgid="3236014691838121857">"财经应用，短信，权限"</string>
     <string name="keywords_systemui_theme" msgid="9150908170417305866">"深色主题背景"</string>
     <string name="keywords_device_feedback" msgid="6948977907405738490">"错误"</string>

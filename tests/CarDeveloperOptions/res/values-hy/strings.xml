@@ -370,7 +370,7 @@
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Հաշիվներ"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Տեղադրություն"</string>
     <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Օգտագործել տեղորոշումը"</string>
-    <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Անջատած է"</string>
+    <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Անջատված է"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="one">Միացված է: Տեղադրության տվյալները հասանելի են <xliff:g id="COUNT_1">%1$d</xliff:g> հավելվածի:</item>
       <item quantity="other">Միացված է: Տեղադրության տվյալները հասանելի են <xliff:g id="COUNT_1">%1$d</xliff:g> հավելվածի:</item>
@@ -561,7 +561,7 @@
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"Էկրանի կողպում"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_immediately" msgid="5596186270725220642">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / Անմիջապես քնից հետո"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / <xliff:g id="TIMEOUT_STRING">%2$s</xliff:g> քնից հետո"</string>
-    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"Աշխատանքային պրոֆիլի փական"</string>
+    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"Աշխ․ պրոֆիլի կողպում"</string>
     <string name="unlock_set_unlock_launch_picker_change_title" msgid="32310692507029407">"Փոխել էկրանի կողպումը"</string>
     <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"Փոխել կամ կասեցնել նախշը, PIN-ը կամ գաղտնաբառի անվտանգությունը"</string>
     <string name="unlock_set_unlock_launch_picker_enable_summary" msgid="9070847611379078795">"Ընտրել էկրանի կողպման եղանակը"</string>
@@ -828,7 +828,7 @@
     <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Թույլատրել NFC-ի միջոցով վճարումներն ու տվյալների փոխանցումը միայն, երբ էկրանն ապակողպված է"</string>
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Տվյալների փոխանակում NFC-ով"</string>
-    <string name="android_beam_off_summary" msgid="7365818039159364600">"Անջատած է"</string>
+    <string name="android_beam_off_summary" msgid="7365818039159364600">"Անջատված է"</string>
     <string name="nfc_disabled_summary" msgid="2181777971122724361">"Անհասանելի է, քանի որ NFC-ն անջատված է"</string>
     <string name="android_beam_label" msgid="5340299879556025708">"Android Beam"</string>
     <string name="android_beam_explained" msgid="4501176353247859329">"Այս գործառույթը թույլ է տալիս մեկ սարքից մյուսին փոխանցել տարբեր տեսակի բովանդակություն (այդ թվում կոնտակտներ, վեբ էջեր և տեսանյութեր)՝ սարքերը միմյանց մոտ պահելով:\n\nՊարզապես մոտեցրեք սարքերը միմյանց (հիմնականում հետևի մասերով իրար) և հպեք ձեր էկրանին: Հավելվածը կորոշի, թե ինչ տվյալներ փոխանցել։"</string>
@@ -1213,7 +1213,7 @@
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Ավարտ"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"Կարգավիճակ"</string>
     <string name="night_display_temperature_title" msgid="8375126629902616296">"Ինտենսիվություն"</string>
-    <string name="night_display_summary_off" msgid="8850539785332228069">"Անջատած է / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="night_display_summary_off" msgid="8850539785332228069">"Անջատված է / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"Ավտոմատ չի միանա"</string>
     <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"Ավտոմատ կմիանա <xliff:g id="ID_1">%1$s</xliff:g>-ին"</string>
     <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"Ավտոմատ կմիանա մայրամուտին"</string>
@@ -1459,7 +1459,7 @@
     <string name="storage_wizard_init_internal_title" msgid="8750856962785644870">"Օգտագործել որպես ներքին հիշողություն"</string>
     <string name="storage_wizard_init_internal_summary" msgid="4510546464921608029">"Հավելվածները, լուսանկարները և այլ բաներ միայն այս սարքի վրա պահեստավորելու համար: Հարկավոր է ձևաչափում, որի արդյունքում այն չի աշխատի այլ սարքերի վրա:"</string>
     <string name="storage_wizard_format_confirm_title" msgid="7785358616068633439">"Ձևաչափել որպես ներքին պահեստ"</string>
-    <string name="storage_wizard_format_confirm_body" msgid="4107762933332992624">"<xliff:g id="NAME_0">^1</xliff:g>-ի անվտանգությունը ապահովելու համար այն պետք է ձևաչափել: \n\nՈրից հետո այս <xliff:g id="NAME_1">^1</xliff:g>-ը կաշխատի միայն այս սարքի վրա: \n\n"<b>"Ձևաչափումից հետո <xliff:g id="NAME_2">^1</xliff:g>-ի վրա պահեստավորված բոլոր տվյալները կջնջվեն:"</b>" Տվյալները չկորցնելու համար չմոռանաք նախ պահուստավորել դրանք:"</string>
+    <string name="storage_wizard_format_confirm_body" msgid="4107762933332992624">"<xliff:g id="NAME_0">^1</xliff:g>-ի անվտանգությունը ապահովելու համար այն պետք է ձևաչափել: \n\nԴրանից հետո այս <xliff:g id="NAME_1">^1</xliff:g>-ը կաշխատի միայն այս սարքի վրա: \n\n"<b>"Ձևաչափումից հետո <xliff:g id="NAME_2">^1</xliff:g>-ի վրա պահեստավորված բոլոր տվյալները կջնջվեն:"</b>" Տվյալները չկորցնելու համար չմոռանաք նախ պահուստավորել դրանք:"</string>
     <string name="storage_wizard_format_confirm_public_title" msgid="5866830103788091426">"Ձևաչափել որպես կրիչ"</string>
     <string name="storage_wizard_format_confirm_public_body" msgid="1451308701654703353">"Հարկավոր է ձևաչափել <xliff:g id="NAME_0">^1</xliff:g>-ը: \n\n"<b>"Ձևաչափման արդյունքում <xliff:g id="NAME_1">^1</xliff:g>-ի վրա պահեստավորած բոլոր տվյալները կջնջվեն:"</b>" Եթե չեք ցանկանում կորցնել տվյալները, նախապես պահուստավորեք դրանք:"</string>
     <string name="storage_wizard_format_confirm_next" msgid="236947984802247625">"Ջնջել և ձևաչափել"</string>
@@ -2103,7 +2103,7 @@
       <item quantity="other"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> պահված լսողական ապարատներ</item>
     </plurals>
     <string name="accessibility_summary_state_enabled" msgid="7357731696603247963">"Միացված է"</string>
-    <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"Անջատած է"</string>
+    <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"Անջատված է"</string>
     <string name="accessibility_summary_state_stopped" msgid="3170264683616172746">"Չի աշխատում: Տեղեկությունների համար հպեք:"</string>
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Այս ծառայությունը նորմալ չի աշխատում:"</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"Ցույց տալ Արագ կարգավորումներում"</string>
@@ -2329,7 +2329,7 @@
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Օգտագործել մարտկոցի կառավարիչը"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Հայտնաբերել հավելվածները, որոնք արագ սպառում են մարտկոցի լիցքը"</string>
     <string name="battery_manager_on" msgid="5626982529932239656">"Միացված է – Մարտկոցի լիցքն արագ սպառող հավելվածների հայտնաբերում"</string>
-    <string name="battery_manager_off" msgid="9114027524232450371">"Անջատած է"</string>
+    <string name="battery_manager_off" msgid="9114027524232450371">"Անջատված է"</string>
     <plurals name="battery_manager_app_restricted" formatted="false" msgid="6721813588142691216">
       <item quantity="one">Սահմանափակված է %1$d հավելված</item>
       <item quantity="other">Սահմանափակված է %1$d հավելված</item>
@@ -3234,7 +3234,7 @@
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"Միայն կարևորները"</string>
     <string name="zen_mode_and_condition" msgid="4123722186007123567">"<xliff:g id="ZEN_MODE">%1$s</xliff:g>։ <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_sound_summary_on_with_info" msgid="2539952366467518398">"Միացված է/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Անջատած է/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Անջատված է/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"Անջատված է"</string>
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Միացված է"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Հարցնել ամեն անգամ (եթե ավտոմատ չմիանա)"</string>
@@ -3400,8 +3400,8 @@
     <string name="app_settings_link" msgid="8465287765715790984">"Հավելվածի լրացուցիչ կարգավորումները"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"Միացված է բոլոր հավելվածների համար"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
-      <item quantity="one">Անջատած է <xliff:g id="COUNT_1">%d</xliff:g> հավելվածի համար</item>
-      <item quantity="other">Անջատած է <xliff:g id="COUNT_1">%d</xliff:g> հավելվածի համար</item>
+      <item quantity="one">Անջատված է <xliff:g id="COUNT_1">%d</xliff:g> հավելվածի համար</item>
+      <item quantity="other">Անջատված է <xliff:g id="COUNT_1">%d</xliff:g> հավելվածի համար</item>
     </plurals>
     <plurals name="deleted_channels" formatted="false" msgid="7741359084299446208">
       <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> categories deleted</item>
@@ -3996,7 +3996,7 @@
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"Ապակողպում այլ մատով"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"Միացված է"</string>
     <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"Միանում է լիցքի <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>-ի դեպքում"</string>
-    <string name="battery_saver_off_summary" msgid="8736555723004299721">"Անջատած է"</string>
+    <string name="battery_saver_off_summary" msgid="8736555723004299721">"Անջատված է"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"Միացնել հիմա"</string>
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"Անջատել հիմա"</string>
     <string name="not_battery_optimizing" msgid="2616044774307734160">"Մարտկոցի օպտիմալացումը չի օգտագործվում"</string>
@@ -4329,7 +4329,7 @@
     <string name="homepage_all_settings" msgid="3201220879559136116">"Բոլոր կարգավորումները"</string>
     <string name="homepage_personal_settings" msgid="7472638597249114564">"Հուշումներ"</string>
     <string name="choose_network_title" msgid="3213314359630522396">"Ընտրել ցանց"</string>
-    <string name="network_disconnected" msgid="8677203031237141594">"Անջատած է"</string>
+    <string name="network_disconnected" msgid="8677203031237141594">"Անջատված է"</string>
     <string name="network_connected" msgid="8197627827976712053">"Միացած է"</string>
     <string name="network_connecting" msgid="8798611458457547110">"Միացում…"</string>
     <string name="network_could_not_connect" msgid="552874922030763713">"Չհաջողվեց միանալ"</string>

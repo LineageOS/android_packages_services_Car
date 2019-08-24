@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Acceder a las cámaras del coche."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"acceder a la información sobre el nivel de energía del coche"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Acceder a la información sobre el nivel de energía del coche."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"Ajuste de la distancia que se puede recorrer con el combustible actual"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Valor del ajuste de la distancia que se puede recorrer con el combustible actual."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"acceder al sistema de CVAA del coche"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Acceder al sistema de CVAA del coche."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"acceder a la información del kilometraje del coche"</string>

@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Avtomobilin kameralarına giriş."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"avtomobilin enerji məlumatlarına giriş"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Avtomobilin enerji məlumatlarına giriş."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"avtomobilin yürüş məsafəsi qalığını nizamlamaq"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Avtomobilin yürüş məsafəsi qalıq dəyərini nizamlamaq."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"avtomobilin HVAC məlumatlarına giriş"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Avtomobilin HVAC mexanizminə giriş."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"avtomobilin kilometraj məlumatlarına giriş"</string>

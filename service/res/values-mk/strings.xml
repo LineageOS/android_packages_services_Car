@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Пристапува до камерите на автомобилот."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"пристапува до информациите за енергијата на автомобилот"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Пристапува до информациите за енергијата на автомобилот."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"приспособете ја преостанатата вредност на опсегот на автомобилот"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Приспособете ја преостанатата вредност на опсегот на автомобилот."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"пристапува до клима-уредот на автомобилот"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Пристапува до клима-уредот на автомобилот."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"пристапува до информациите за километража на автомобилот"</string>

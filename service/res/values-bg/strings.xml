@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Достъп до камерата или съответно камерите на автомобила ви."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"достъп до информацията за енергията на автомобила"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Достъп до информацията за енергията на автомобила."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"корекция на отсечката, която трябва да измине автомобилът"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Коригирайте стойността за отсечката, която трябва да измине автомобилът."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"достъп до ОВК системата на автомобила"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Достъп до ОВК системата на автомобила."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"достъп до информацията за километража на автомобила"</string>

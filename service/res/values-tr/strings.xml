@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Aracınızın kameralarına erişim."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"aracın enerji bilgilerine erişim"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Aracınızın enerji bilgilerine erişim."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"aracın kalan menzil değerini düzenleme"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Aracın kalan menzil değerini düzenler."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"aracın HVAC\'sine erişim"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Aracınızın HVAC\'sine erişim."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"aracın kilometre bilgilerine erişim"</string>

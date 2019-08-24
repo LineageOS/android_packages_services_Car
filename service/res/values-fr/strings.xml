@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Accéder aux caméras de la voiture."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"Accéder aux informations relatives à l\'énergie de la voiture"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Accéder aux informations énergétiques de la voiture."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"ajuster l\'autonomie restante de la voiture"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Ajustez la valeur de l\'autonomie restante de la voiture."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"Accéder aux éléments CVC de la voiture"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Accéder aux éléments CVC de la voiture"</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"Accéder aux informations sur le kilométrage de la voiture"</string>

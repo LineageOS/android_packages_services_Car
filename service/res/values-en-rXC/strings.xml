@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‎‎‏‎‏‏‏‎‎‏‏‏‏‎‏‏‎‏‎‏‎‏‎‎‎‏‎‎‏‏‎‎‏‏‏‏‎‏‎‏‏‏‎‏‏‏‏‏‏‏‏‎‏‏‎‎‏‎‎Access your car’s camera(s).‎‏‎‎‏‎"</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‏‎‏‏‎‏‎‎‏‎‏‎‎‏‎‎‎‏‏‎‎‎‎‎‎‏‏‏‎‎‎‏‎‏‎‏‏‏‏‎‏‎‎‏‎‎‏‎‎‎‏‏‏‏‎‏‏‎‎access car’s energy information‎‏‎‎‏‎"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‏‏‏‎‎‎‏‎‏‏‎‎‎‏‏‏‎‏‎‏‎‎‏‏‎‏‏‏‏‎‎‏‎‎‏‏‏‏‏‏‎‏‎‏‎‏‎‎‎‏‎‏‏‎‎‏‏‏‏‎Access your car’s energy information.‎‏‎‎‏‎"</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‏‏‏‎‏‎‎‏‎‎‏‏‎‏‏‎‎‎‏‎‎‏‎‎‏‎‎‏‏‎‏‏‎‎‏‏‎‎‏‏‎‎‎‏‏‏‏‏‎‎‎‎‎‎‏‎‏‎‎adjust car’s range remaining‎‏‎‎‏‎"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‎‎‎‏‏‏‎‎‎‎‏‏‎‎‎‎‏‎‏‎‏‏‏‏‏‎‎‏‏‏‎‎‏‎‎‏‏‏‏‎‏‏‎‎‎‏‏‎‎‏‏‎‎‏‏‎‎‎‏‎Adjust car’s range remaining value.‎‏‎‎‏‎"</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‏‎‎‏‏‎‎‏‏‏‏‎‎‏‎‎‎‎‏‏‎‏‎‎‏‎‎‏‏‎‎‏‎‎‎‎‏‏‎‏‏‏‎‏‏‏‎‎‎‏‎‏‎‏‎‎‎‏‏‎access car’s hvac‎‏‎‎‏‎"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‏‎‎‎‎‎‏‏‎‎‏‏‎‏‏‎‏‎‎‎‎‎‎‎‏‎‎‎‏‏‏‎‎‏‎‏‏‎‏‏‎‎‏‏‏‏‏‎‎‏‏‎‏‏‏‎‎‏‏‎Access your car’s hvac.‎‏‎‎‏‎"</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‎‎‎‎‏‎‏‏‎‎‎‎‎‏‎‏‎‎‏‏‎‎‏‎‏‏‏‎‏‏‎‎‎‎‏‎‏‏‎‏‏‎‏‎‎‏‎‎‏‎‏‏‏‏‎‏‎‏‏‏‎access car’s mileage information‎‏‎‎‏‎"</string>
