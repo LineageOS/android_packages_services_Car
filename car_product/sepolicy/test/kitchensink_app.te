@@ -27,6 +27,7 @@ allow kitchensink_app {
     sensorservice_service
     surfaceflinger_service
     uimode_service
+    wifi_service
 }:service_manager find;
 
 # Read and write /data/data subdirectory.
