@@ -64,5 +64,6 @@ LOCAL_COMPATIBILITY_SUITE := general-tests
 # mockito-target-inline dependency
 LOCAL_JNI_SHARED_LIBRARIES := \
     libdexmakerjvmtiagent \
+    libstaticjvmtiagent \
 
 include $(BUILD_PACKAGE)
