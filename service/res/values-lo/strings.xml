@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"ເຂົ້າເຖິງກ້ອງຂອງລົດທ່ານ."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"ເຂົ້າເຖິງຂໍ້ມູນພະລັງງານຂອງລົດ"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"ເຂົ້າເຖິງຂໍ້ມູນພະລັງງານຂອງລົດທ່ານ."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"ປັບໄລຍະແລ່ນທີ່ເຫຼືອຢູ່ຂອງລົດ"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"ປັບຄ່າໄລຍະແລ່ນທີ່ເຫຼືອຢູ່ຂອງລົດ"</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"ເຂົ້າເຖິງ HVAC ຂອງລົດ"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"ເຂົ້າເຖິງ HVAC ຂອງລົດທ່ານ."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"ເຂົ້າເຖິງຂໍ້ມູນໄລຍະໄມລ໌ຂອງລົດ"</string>

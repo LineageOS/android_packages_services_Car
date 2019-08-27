@@ -389,7 +389,7 @@
     <string name="decryption_settings_summary" product="default" msgid="7401802133199522441">"Telefon není šifrován"</string>
     <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"Zařízení je zašifrováno"</string>
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"Zařízení není šifrováno"</string>
-    <string name="lockscreen_settings_title" msgid="1221505938891948413">"Zobrazení na obrazovce uzamčení"</string>
+    <string name="lockscreen_settings_title" msgid="1221505938891948413">"Displej zámku obrazovky"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"Co zobrazit"</string>
     <string name="security_settings_summary" msgid="5210109100643223686">"Moje poloha, odemknutí obrazovky, zámek SIM, zámek úložiště pověření"</string>
     <string name="cdma_security_settings_summary" msgid="1783066617800041869">"Nastavení funkce Moje poloha, odemknutí obrazovky a zamknutí úložiště pověření"</string>
@@ -4488,7 +4488,7 @@
     <string name="empty_networks_list" msgid="5170020017144403884">"Žádná síť nebyla nalezena."</string>
     <string name="network_query_error" msgid="525635151099480463">"Nebyla nalezena žádná síť. Zkuste to znovu."</string>
     <string name="forbidden_network" msgid="8493827960968261182">"(zakázáno)"</string>
-    <string name="no_sim_card" msgid="3708682108324275635">"Není vložena SIM karta"</string>
+    <string name="no_sim_card" msgid="3708682108324275635">"Chybí SIM karta"</string>
     <string name="preferred_network_mode_wcdma_perf_summary" msgid="6899270534608086704">"Preferovaný režim sítě: preferováno WCDMA"</string>
     <string name="preferred_network_mode_gsm_only_summary" msgid="3688217977701592962">"Preferovaný režim sítě: pouze GSM"</string>
     <string name="preferred_network_mode_wcdma_only_summary" msgid="745707973728245943">"Preferovaný režim sítě: pouze WCDMA"</string>

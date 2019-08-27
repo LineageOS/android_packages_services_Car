@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Mengakses kamera mobil Anda."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"mengakses informasi energi mobil"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Mengakses informasi energi mobil Anda."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"sesuaikan jangkauan mobil yang tersisa"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Sesuaikan nilai jangkauan mobil yang tersisa."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"mengakses hvac mobil"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Mengakses hvac mobil Anda."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"mengakses informasi jarak tempuh mobil"</string>

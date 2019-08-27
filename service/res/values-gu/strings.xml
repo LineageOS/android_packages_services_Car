@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"તમારી કારના કૅમેરાને ઍક્સેસ કરવાની મંજૂરી આપો."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"કારની ઊર્જાની માહિતીને ઍક્સેસ કરો"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"તમારી કારની ઊર્જાની માહિતી ઍક્સેસ કરવાની મંજૂરી આપો."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"કારની રેંજનું બાકીનું મૂલ્ય ગોઠવો"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"કારની રેંજનું બાકીનું મૂલ્ય ગોઠવો."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"કારના HVACને ઍક્સેસ કરો"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"તમારી કારની hvac ઍક્સેસ કરો."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"કારના માઇલેજની માહિતીને ઍક્સેસ કરો"</string>

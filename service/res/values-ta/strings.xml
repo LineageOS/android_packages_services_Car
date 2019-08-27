@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"காரின் கேமராவை அணுகுதல்."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"காரின் எரிபொருள் விவரத்தை அணுக வேண்டும்"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"காரின் எரிபொருள் தகவலை அணுகுதல்."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"கார் சென்றடைய மீதமுள்ள மைலேஜின் மதிப்பை மாற்றும்"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"கார் சென்றடைய மீதமுள்ள மைலேஜின் மதிப்பை மாற்றும்."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"காரின் hvac சிஸ்டத்தை அணுக வேண்டும்"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"காரில் வெப்பம், காற்றோட்டம், குளிர்சாதன வசதி ஆகியவற்றை உள்ளடக்கிய அமைப்பை (hvac) அணுகுதல்."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"காரின் மைலேஜ் பற்றிய தகவலை அணுக வேண்டும்"</string>

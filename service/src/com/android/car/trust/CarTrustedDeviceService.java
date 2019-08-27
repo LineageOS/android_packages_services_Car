@@ -86,7 +86,8 @@ public class CarTrustedDeviceService implements CarServiceBase, BleEventCallback
 
     public CarTrustedDeviceService(Context context) {
         mContext = context;
-        mCarTrustAgentBleManager = new CarTrustAgentBleManager(context);
+        BlePeripheralManager blePeripheralManager = new BlePeripheralManager(context);
+        mCarTrustAgentBleManager = new CarTrustAgentBleManager(context, blePeripheralManager);
         mCarTrustAgentEnrollmentService = new CarTrustAgentEnrollmentService(mContext, this,
                 mCarTrustAgentBleManager);
         mCarTrustAgentUnlockService = new CarTrustAgentUnlockService(mContext, this,

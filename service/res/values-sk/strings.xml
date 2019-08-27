@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Získajte prístup ku kamerám auta."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"získať prístup k informáciám o energii auta"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Získajte prístup k informáciám o palive a energii auta."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"úprava dojazdu auta – zostatok"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Úprava zostávajúcej hodnoty dojazdu auta."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"získať prístup ku kúreniu, vzduchotechnike a klimatizácii auta"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Získajte prístup k vykurovaniu, ventilácii a klimatizácii auta."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"získať prístup k informáciám o spotrebe auta"</string>

@@ -3521,7 +3521,7 @@
     <string name="zen_mode_when" msgid="7835420687948416255">"เปิดโดยอัตโนมัติ"</string>
     <string name="zen_mode_when_never" msgid="4506296396609224524">"ไม่ใช้"</string>
     <string name="zen_mode_when_every_night" msgid="3942151668791426194">"ทุกคืน"</string>
-    <string name="zen_mode_when_weeknights" msgid="2412709309122408474">"คืนวันจันทร์-ศุกร์"</string>
+    <string name="zen_mode_when_weeknights" msgid="2412709309122408474">"คืนวันธรรมดา"</string>
     <string name="zen_mode_start_time" msgid="5979122139937561731">"เวลาเริ่มต้น"</string>
     <string name="zen_mode_end_time" msgid="3188578493250909972">"เวลาสิ้นสุด"</string>
     <string name="zen_mode_end_time_next_day_summary_format" msgid="1598612215612648214">"<xliff:g id="FORMATTED_TIME">%s</xliff:g> วันถัดไป"</string>

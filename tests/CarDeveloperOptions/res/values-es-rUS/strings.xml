@@ -4122,7 +4122,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Para consultar la hora, las notificaciones y otra información, levanta el teléfono."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Para consultar la hora, las notificaciones y otra información, levanta la tablet."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Para consultar la hora, las notificaciones y otra información, levanta el dispositivo."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Presiona para revisar el teléfono"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Presionar para revisar el teléfono"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Presiona para revisar la tablet"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Presiona para revisar el dispositivo"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Para consultar la hora, las notificaciones y otra información, presiona la pantalla."</string>

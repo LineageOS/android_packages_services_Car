@@ -1256,7 +1256,7 @@
     <string name="ambient_display_category_triggers" msgid="3496111745340047504">"Activation du mode Veille"</string>
     <string name="doze_title" msgid="235269029233857546">"Nouvelles notifications"</string>
     <string name="doze_summary" msgid="6762274282827831706">"Activer l\'écran lors de la réception de notifications"</string>
-    <string name="doze_always_on_title" msgid="8555184965031789941">"Toujours activé"</string>
+    <string name="doze_always_on_title" msgid="8555184965031789941">"Mode Always-on"</string>
     <string name="doze_always_on_summary" msgid="7654436900436328950">"Afficher l\'heure, les icônes de notification et d\'autres informations. Batterie davantage sollicitée."</string>
     <string name="title_font_size" msgid="5021464556860010851">"Taille de la police"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"Agrandir ou réduire le texte"</string>
@@ -2056,7 +2056,7 @@
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Le bouton Accessibilité est défini sur <xliff:g id="SERVICE">%1$s</xliff:g>. Pour utiliser la loupe, appuyez de manière prolongée sur le bouton Accessibilité, puis sélectionnez la loupe."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Raccourci (volume)"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Service associé au raccourci"</string>
-    <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Autoriser depuis écran verrouillage"</string>
+    <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Autoriser depuis l\'écran verrouillé"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"Lorsque le raccourci est activé, vous pouvez appuyer sur les deux touches de volume pendant trois secondes pour lancer une fonctionnalité d\'accessibilité."</string>
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"Texte avec contraste élevé"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Mise à jour auto de la loupe"</string>

@@ -16,13 +16,13 @@
 
 package com.android.car;
 
+import android.util.ArrayMap;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class VmsPublishersInfo {
     private static final String TAG = "VmsPublishersInfo";
@@ -31,9 +31,9 @@ public class VmsPublishersInfo {
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private final Map<InfoWrapper, Integer> mPublishersIds = new HashMap<>();
+    private final ArrayMap<InfoWrapper, Integer> mPublishersIds = new ArrayMap<>();
     @GuardedBy("mLock")
-    private final Map<Integer, byte[]> mPublishersInfo = new HashMap<>();
+    private final ArrayList<InfoWrapper> mPublishersInfo = new ArrayList<>();
 
     private static class InfoWrapper {
         private final byte[] mInfo;
@@ -43,7 +43,7 @@ public class VmsPublishersInfo {
         }
 
         public byte[] getInfo() {
-            return mInfo;
+            return mInfo.clone();
         }
 
         @Override
@@ -62,15 +62,24 @@ public class VmsPublishersInfo {
     }
 
     /**
-     * Returns the ID associated with the publisher info. When called for the first time for a
-     * publisher info will store the info and assign an ID
+     * Retrieves the publisher ID for the given publisher information. If the publisher information
+     * has not previously been seen, it will be assigned a new publisher ID.
+     *
+     * @param publisherInfo Publisher information to query or register.
+     * @return Publisher ID for the given publisher information.
      */
     public int getIdForInfo(byte[] publisherInfo) {
         Integer publisherId;
         InfoWrapper wrappedPublisherInfo = new InfoWrapper(publisherInfo);
         synchronized (mLock) {
-            maybeAddPublisherInfoLocked(wrappedPublisherInfo);
+            // Check if publisher is already registered
             publisherId = mPublishersIds.get(wrappedPublisherInfo);
+            if (publisherId == null) {
+                // Add the new publisher and assign it the next ID
+                mPublishersInfo.add(wrappedPublisherInfo);
+                publisherId = mPublishersInfo.size();
+                mPublishersIds.put(wrappedPublisherInfo, publisherId);
+            }
         }
         if (DBG) {
             Log.i(TAG, "Publisher ID is: " + publisherId);
@@ -78,22 +87,16 @@ public class VmsPublishersInfo {
         return publisherId;
     }
 
+    /**
+     * Returns the publisher info associated with the given publisher ID.
+     * @param publisherId Publisher ID to query.
+     * @return Publisher info associated with the ID, or an empty array if publisher ID is unknown.
+     */
     public byte[] getPublisherInfo(int publisherId) {
         synchronized (mLock) {
-            return mPublishersInfo.containsKey(publisherId)
-                    ? mPublishersInfo.get(publisherId).clone()
-                    : EMPTY_RESPONSE;
-        }
-    }
-
-    @GuardedBy("mLock")
-    private void maybeAddPublisherInfoLocked(InfoWrapper wrappedPublisherInfo) {
-        if (!mPublishersIds.containsKey(wrappedPublisherInfo)) {
-            // Assign ID to the info
-            Integer publisherId = mPublishersIds.size();
-
-            mPublishersIds.put(wrappedPublisherInfo, publisherId);
-            mPublishersInfo.put(publisherId, wrappedPublisherInfo.getInfo());
+            return publisherId < 1 || publisherId > mPublishersInfo.size()
+                    ? EMPTY_RESPONSE
+                    : mPublishersInfo.get(publisherId - 1).getInfo();
         }
     }
 }

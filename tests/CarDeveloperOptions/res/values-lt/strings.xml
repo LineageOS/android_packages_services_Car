@@ -4262,7 +4262,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Norėdami sužinoti laiką, peržiūrėti pranešimus ir kitą informaciją, paimkite telefoną."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Norėdami sužinoti laiką, peržiūrėti pranešimus ir kitą informaciją, paimkite planšetinį kompiuterį."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Norėdami sužinoti laiką, peržiūrėti pranešimus ir kitą informaciją, paimkite įrenginį."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Palieskite, kad patikrintumėte telefoną"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Telefono tikrinimas palietus"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Palieskite, kad patikrintumėte planšetinį kompiuterį"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Palieskite, kad patikrintumėte įrenginį"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Norėdami sužinoti laiką, peržiūrėti pranešimus ir kitą informaciją, palieskite ekraną."</string>

@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"存取車輛攝影機。"</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"存取車輛的能源資訊"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"存取車輛的能源資訊。"</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"調整汽車的剩餘可行駛距離"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"調整汽車的剩餘可行駛距離值。"</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"存取車輛空調"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"存取車輛空調。"</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"存取車輛的行駛里程資訊"</string>
@@ -73,8 +75,8 @@
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"讀取車輛的診斷資料。"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"清除診斷資料"</string>
     <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"清除車輛的診斷資料。"</string>
-    <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"VMS 發佈者"</string>
-    <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"發佈 VMS 訊息"</string>
+    <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"VMS 發布者"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"發布 VMS 訊息"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS 訂閱者"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"訂閱 VMS 訊息"</string>
     <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS 用戶端服務"</string>
