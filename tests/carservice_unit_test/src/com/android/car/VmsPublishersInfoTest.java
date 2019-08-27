@@ -23,9 +23,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class VmsPublishersInfoTest {
-    public static final byte[] MOCK_INFO_0 = new byte[]{2, 3, 5, 7, 11, 13, 17};
-    public static final byte[] SAME_MOCK_INFO_0 = new byte[]{2, 3, 5, 7, 11, 13, 17};
-    public static final byte[] MOCK_INFO_1 = new byte[]{2, 3, 5, 7, 11, 13, 17, 19};
+    public static final byte[] MOCK_INFO_1 = new byte[]{2, 3, 5, 7, 11, 13, 17};
+    public static final byte[] SAME_MOCK_INFO_1 = new byte[]{2, 3, 5, 7, 11, 13, 17};
+    public static final byte[] MOCK_INFO_2 = new byte[]{2, 3, 5, 7, 11, 13, 17, 19};
 
     private VmsPublishersInfo mVmsPublishersInfo;
 
@@ -36,9 +36,9 @@ public class VmsPublishersInfoTest {
 
     @Test
     public void testSingleInfo() throws Exception {
-        int id = mVmsPublishersInfo.getIdForInfo(MOCK_INFO_0);
-        assertEquals(0, id);
-        assertArrayEquals(MOCK_INFO_0, mVmsPublishersInfo.getPublisherInfo(id));
+        int id = mVmsPublishersInfo.getIdForInfo(MOCK_INFO_1);
+        assertEquals(1, id);
+        assertArrayEquals(MOCK_INFO_1, mVmsPublishersInfo.getPublisherInfo(id));
     }
 
     @Test
@@ -48,20 +48,20 @@ public class VmsPublishersInfoTest {
 
     @Test
     public void testTwoInfos() throws Exception {
-        int id0 = mVmsPublishersInfo.getIdForInfo(MOCK_INFO_0);
         int id1 = mVmsPublishersInfo.getIdForInfo(MOCK_INFO_1);
-        assertEquals(0, id0);
+        int id2 = mVmsPublishersInfo.getIdForInfo(MOCK_INFO_2);
         assertEquals(1, id1);
-        assertArrayEquals(MOCK_INFO_0, mVmsPublishersInfo.getPublisherInfo(id0));
+        assertEquals(2, id2);
         assertArrayEquals(MOCK_INFO_1, mVmsPublishersInfo.getPublisherInfo(id1));
+        assertArrayEquals(MOCK_INFO_2, mVmsPublishersInfo.getPublisherInfo(id2));
     }
 
     @Test
     public void testSingleInfoInsertedTwice() throws Exception {
-        int id = mVmsPublishersInfo.getIdForInfo(MOCK_INFO_0);
-        assertEquals(0, id);
+        int id = mVmsPublishersInfo.getIdForInfo(MOCK_INFO_1);
+        assertEquals(1, id);
 
-        int sameId = mVmsPublishersInfo.getIdForInfo(SAME_MOCK_INFO_0);
+        int sameId = mVmsPublishersInfo.getIdForInfo(SAME_MOCK_INFO_1);
         assertEquals(sameId, id);
     }
 }
