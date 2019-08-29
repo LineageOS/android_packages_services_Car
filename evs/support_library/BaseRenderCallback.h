@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef EVS_SUPPORT_LIBRARY_BASERENDERCALLBACK_H_
+#define EVS_SUPPORT_LIBRARY_BASERENDERCALLBACK_H_
 
-#ifndef GLERROR_H
-#define GLERROR_H
+#include "Frame.h"
 
 namespace android {
 namespace automotive {
 namespace evs {
 namespace support {
 
-const char *getEGLError(void);
-
-const char *getGLFramebufferError(void);
+class BaseRenderCallback {
+  public:
+    virtual void render(const Frame& in, const Frame& out) = 0;
+    virtual ~BaseRenderCallback() {
+    }
+};
 
 }  // namespace support
 }  // namespace evs
 }  // namespace automotive
 }  // namespace android
 
-#endif  // GLERROR_H
+#endif  // EVS_SUPPORT_LIBRARY_BASERENDERCALLBACK_H_

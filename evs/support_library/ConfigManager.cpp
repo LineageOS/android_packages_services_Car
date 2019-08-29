@@ -21,6 +21,10 @@
 #include <math.h>
 #include <assert.h>
 
+namespace android {
+namespace automotive {
+namespace evs {
+namespace support {
 
 static const float kDegreesToRadians = M_PI / 180.0f;
 
@@ -186,3 +190,8 @@ bool ConfigManager::initialize(const char* configFileName)
     // If we got this far, we were successful as long as we found all our child fields
     return complete;
 }
+
+}  // namespace support
+}  // namespace evs
+}  // namespace automotive
+}  // namespace android

@@ -22,16 +22,11 @@ cc_binary {
 
     shared_libs: [
         "liblog",
-        "libutils",
         "libui",
-        "libhidlbase",
-        "libhardware",
         "android.hardware.automotive.evs@1.0",
         "android.hardware.automotive.vehicle@2.0",
         "libevssupport",
     ],
-
-    static_libs: ["libjsoncpp"],
 
     include_dirs: ["packages/services/Car/evs/support_library"],
 

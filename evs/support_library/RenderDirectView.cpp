@@ -23,6 +23,10 @@
 #include <log/log.h>
 #include <math/mat4.h>
 
+namespace android {
+namespace automotive {
+namespace evs {
+namespace support {
 
 RenderDirectView::RenderDirectView(sp<IEvsEnumerator> enumerator,
                                    const ConfigManager::CameraInfo& cam) {
@@ -92,7 +96,7 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
 
 
     // Bind the texture and assign it to the shader's sampler
-    mTexture->refresh();
+    mTexture->refresh(mRenderCallback);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mTexture->glId());
 
@@ -141,3 +145,8 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
     detachRenderTarget();
     return true;
 }
+
+}  // namespace support
+}  // namespace evs
+}  // namespace automotive
+}  // namespace android

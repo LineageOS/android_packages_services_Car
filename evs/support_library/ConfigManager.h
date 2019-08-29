@@ -19,6 +19,10 @@
 #include <vector>
 #include <string>
 
+namespace android {
+namespace automotive {
+namespace evs {
+namespace support {
 
 class ConfigManager {
 public:
@@ -91,4 +95,9 @@ private:
     float mCarGraphicRearPixel;     // How many pixels from the top of the image does the car end
 };
 
-#endif // CONFIG_MANAGER_H
+}  // namespace support
+}  // namespace evs
+}  // namespace automotive
+}  // namespace android
+
+#endif  // CONFIG_MANAGER_H

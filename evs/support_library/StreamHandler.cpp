@@ -22,6 +22,10 @@
 #include <log/log.h>
 #include <cutils/native_handle.h>
 
+namespace android {
+namespace automotive {
+namespace evs {
+namespace support {
 
 StreamHandler::StreamHandler(android::sp <IEvsCamera> pCamera) :
     mCamera(pCamera)
@@ -164,3 +168,8 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
 
     return Void();
 }
+
+}  // namespace support
+}  // namespace evs
+}  // namespace automotive
+}  // namespace android

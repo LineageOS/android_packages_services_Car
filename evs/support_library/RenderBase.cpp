@@ -20,6 +20,11 @@
 #include <log/log.h>
 #include <ui/GraphicBuffer.h>
 
+namespace android {
+namespace automotive {
+namespace evs {
+namespace support {
+
 // Eventually we shouldn't need this dependency, but for now the
 // graphics allocator interface isn't fully supported on all platforms
 // and this is our work around.
@@ -215,3 +220,8 @@ void RenderBase::detachRenderTarget() {
         sKHRimage = EGL_NO_IMAGE_KHR;
     }
 }
+
+}  // namespace support
+}  // namespace evs
+}  // namespace automotive
+}  // namespace android

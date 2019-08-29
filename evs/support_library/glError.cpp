@@ -18,6 +18,10 @@
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 
+namespace android {
+namespace automotive {
+namespace evs {
+namespace support {
 
 const char *getEGLError(void) {
     switch (eglGetError()) {
@@ -73,3 +77,8 @@ const char *getGLFramebufferError(void) {
         return "Unknown error";
     }
 }
+
+}  // namespace support
+}  // namespace evs
+}  // namespace automotive
+}  // namespace android

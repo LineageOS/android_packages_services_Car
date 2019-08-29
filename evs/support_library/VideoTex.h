@@ -25,9 +25,14 @@
 
 #include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
 
-#include "TexWrapper.h"
+#include "BaseRenderCallback.h"
 #include "StreamHandler.h"
+#include "TexWrapper.h"
 
+namespace android {
+namespace automotive {
+namespace evs {
+namespace support {
 
 using namespace ::android::hardware::automotive::evs::V1_0;
 
@@ -41,7 +46,8 @@ public:
     VideoTex() = delete;
     virtual ~VideoTex();
 
-    bool refresh();     // returns true if the texture contents were updated
+    // returns true if the texture contents were updated
+    bool refresh(BaseRenderCallback* callback);
 
 private:
     VideoTex(sp<IEvsEnumerator> pEnum,
@@ -56,6 +62,10 @@ private:
 
     EGLDisplay          mDisplay;
     EGLImageKHR mKHRimage = EGL_NO_IMAGE_KHR;
+
+    // When the callback is not null, we need to make a copy of the original
+    // graphic buffer. This is the handle for the buffer copy.
+    buffer_handle_t mHandleCopy = nullptr;
 };
 
 
@@ -63,4 +73,9 @@ VideoTex* createVideoTexture(sp<IEvsEnumerator> pEnum,
                              const char * deviceName,
                              EGLDisplay glDisplay);
 
-#endif // VIDEOTEX_H
+}  // namespace support
+}  // namespace evs
+}  // namespace automotive
+}  // namespace android
+
+#endif  // VIDEOTEX_H

@@ -15,157 +15,64 @@
  */
 
 #include <stdio.h>
+#include <utils/SystemClock.h>
+#include <string>
 
-#include <hidl/HidlTransportSupport.h>
-#include <utils/Errors.h>
-#include <utils/StrongPointer.h>
-#include <utils/Log.h>
+#include <DisplayUseCase.h>
+#include <Utils.h>
 
-#include "android-base/macros.h"    // arraysize
+using ::android::automotive::evs::support::BaseRenderCallback;
+using ::android::automotive::evs::support::DisplayUseCase;
+using ::android::automotive::evs::support::Frame;
+using ::android::automotive::evs::support::Utils;
 
-#include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
-#include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
+class SimpleRenderCallback : public BaseRenderCallback {
+    void render(const Frame& inputFrame, const Frame& outputFrame) {
+        ALOGI("SimpleRenderCallback::render");
 
-#include <hwbinder/ProcessState.h>
+        if (inputFrame.data == nullptr || outputFrame.data == nullptr) {
+            ALOGE("Invalid frame data was passed to render callback");
+            return;
+        }
 
-#include <EvsStateControl.h>
-#include <EvsVehicleListener.h>
-#include <ConfigManager.h>
-
-
-// libhidl:
-using android::hardware::configureRpcThreadpool;
-using android::hardware::joinRpcThreadpool;
-
-
-// Helper to subscribe to VHal notifications
-static bool subscribeToVHal(sp<IVehicle> pVnet,
-                            sp<IVehicleCallback> listener,
-                            VehicleProperty propertyId) {
-    assert(pVnet != nullptr);
-    assert(listener != nullptr);
-
-    // Register for vehicle state change callbacks we care about
-    // Changes in these values are what will trigger a reconfiguration of the EVS pipeline
-    SubscribeOptions optionsData[] = {
-        {
-            .propId = static_cast<int32_t>(propertyId),
-            .flags  = SubscribeFlags::EVENTS_FROM_CAR
-        },
-    };
-    hidl_vec <SubscribeOptions> options;
-    options.setToExternal(optionsData, arraysize(optionsData));
-    StatusCode status = pVnet->subscribe(listener, options);
-    if (status != StatusCode::OK) {
-        ALOGW("VHAL subscription for property 0x%08X failed with code %d.", propertyId, status);
-        return false;
+        // TODO(b/130246434): Use OpenCV to implement a more meaningful
+        // callback.
+        // Swap the RGB channels.
+        int stride = inputFrame.stride;
+        uint8_t* inDataPtr = inputFrame.data;
+        uint8_t* outDataPtr = outputFrame.data;
+        for (int i = 0; i < inputFrame.width; i++)
+            for (int j = 0; j < inputFrame.height; j++) {
+                outDataPtr[(i + j * stride) * 4 + 0] =
+                    inDataPtr[(i + j * stride) * 4 + 1];
+                outDataPtr[(i + j * stride) * 4 + 1] =
+                    inDataPtr[(i + j * stride) * 4 + 2];
+                outDataPtr[(i + j * stride) * 4 + 2] =
+                    inDataPtr[(i + j * stride) * 4 + 0];
+                outDataPtr[(i + j * stride) * 4 + 3] =
+                    inDataPtr[(i + j * stride) * 4 + 3];
+            }
     }
-
-    return true;
-}
-
+};
 
 // Main entry point
-int main(int argc, char** argv)
-{
+int main() {
     ALOGI("EVS app starting\n");
 
-    // Set up default behavior, then check for command line options
-    bool useVehicleHal = true;
-    bool printHelp = false;
-    const char* evsServiceName = "EvsEnumeratorV1_0";
-    for (int i=1; i< argc; i++) {
-        if (strcmp(argv[i], "--test") == 0) {
-            useVehicleHal = false;
-        } else if (strcmp(argv[i], "--hw") == 0) {
-            evsServiceName = "EvsEnumeratorHw";
-        } else if (strcmp(argv[i], "--mock") == 0) {
-            evsServiceName = "EvsEnumeratorHw-Mock";
-        } else if (strcmp(argv[i], "--help") == 0) {
-            printHelp = true;
-        } else {
-            printf("Ignoring unrecognized command line arg '%s'\n", argv[i]);
-            printHelp = true;
-        }
-    }
-    if (printHelp) {
-        printf("Options include:\n");
-        printf("  --test   Do not talk to Vehicle Hal, but simulate 'reverse' instead\n");
-        printf("  --hw     Bypass EvsManager by connecting directly to EvsEnumeratorHw\n");
-        printf("  --mock   Connect directly to EvsEnumeratorHw-Mock\n");
+    std::string cameraId = Utils::getRearCameraId();
+    if (cameraId.empty()) {
+        ALOGE("Cannot find a valid camera");
+        return -1;
     }
 
-    // Load our configuration information
-    ConfigManager config;
-    if (!config.initialize("/system/etc/automotive/evs/config.json")) {
-        ALOGE("Missing or improper configuration for the EVS application.  Exiting.");
-        return 1;
+    DisplayUseCase useCase =
+        DisplayUseCase::createDefaultUseCase(cameraId, new SimpleRenderCallback());
+
+    // Stream the video for 5 seconds.
+    if (useCase.startVideoStreaming()) {
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        useCase.stopVideoStreaming();
     }
-
-    // Set thread pool size to one to avoid concurrent events from the HAL.
-    // This pool will handle the EvsCameraStream callbacks.
-    // Note:  This _will_ run in parallel with the EvsListener run() loop below which
-    // runs the application logic that reacts to the async events.
-    configureRpcThreadpool(1, false /* callerWillJoin */);
-
-    // Construct our async helper object
-    sp<EvsVehicleListener> pEvsListener = new EvsVehicleListener();
-
-    // Get the EVS manager service
-    ALOGI("Acquiring EVS Enumerator");
-    android::sp<IEvsEnumerator> pEvs = IEvsEnumerator::getService(evsServiceName);
-    if (pEvs.get() == nullptr) {
-        ALOGE("getService(%s) returned NULL.  Exiting.", evsServiceName);
-        return 1;
-    }
-
-    // Request exclusive access to the EVS display
-    ALOGI("Acquiring EVS Display");
-    android::sp <IEvsDisplay> pDisplay;
-    pDisplay = pEvs->openDisplay();
-    if (pDisplay.get() == nullptr) {
-        ALOGE("EVS Display unavailable.  Exiting.");
-        return 1;
-    }
-
-    // Connect to the Vehicle HAL so we can monitor state
-    sp<IVehicle> pVnet;
-    if (useVehicleHal) {
-        ALOGI("Connecting to Vehicle HAL");
-        pVnet = IVehicle::getService();
-        if (pVnet.get() == nullptr) {
-            ALOGE("Vehicle HAL getService returned NULL.  Exiting.");
-            return 1;
-        } else {
-            // Register for vehicle state change callbacks we care about
-            // Changes in these values are what will trigger a reconfiguration of the EVS pipeline
-            if (!subscribeToVHal(pVnet, pEvsListener, VehicleProperty::GEAR_SELECTION)) {
-                ALOGE("Without gear notification, we can't support EVS.  Exiting.");
-                return 1;
-            }
-            if (!subscribeToVHal(pVnet, pEvsListener, VehicleProperty::TURN_SIGNAL_STATE)) {
-                ALOGW("Didn't get turn signal notifications, so we'll ignore those.");
-            }
-        }
-    } else {
-        ALOGW("Test mode selected, so not talking to Vehicle HAL");
-    }
-
-    // Configure ourselves for the current vehicle state at startup
-    ALOGI("Constructing state controller");
-    EvsStateControl *pStateController = new EvsStateControl(pVnet, pEvs, pDisplay, config);
-    if (!pStateController->startUpdateLoop()) {
-        ALOGE("Initial configuration failed.  Exiting.");
-        return 1;
-    }
-
-    // Run forever, reacting to events as necessary
-    ALOGI("Entering running state");
-    pEvsListener->run(pStateController);
-
-    // In normal operation, we expect to run forever, but in some error conditions we'll quit.
-    // One known example is if another process preempts our registration for our service name.
-    ALOGE("EVS Listener stopped.  Exiting.");
 
     return 0;
 }
