@@ -111,6 +111,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     private static final int DEVICE_NAME_PREFIX_LIMIT = 4;
 
     private final CarTrustedDeviceService mTrustedDeviceService;
+    private final CarCompanionDeviceStorage mCarCompanionDeviceStorage;
     // List of clients listening to Enrollment state change events.
     private final List<EnrollmentStateClient> mEnrollmentStateClients = new ArrayList<>();
     // List of clients listening to BLE state changes events during enrollment.
@@ -164,6 +165,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         mCarTrustAgentBleManager = bleService;
         mEnrollmentClientWriteUuid = UUID.fromString(context
                 .getString(R.string.enrollment_client_write_uuid));
+        mCarCompanionDeviceStorage = new CarCompanionDeviceStorage(context);
     }
 
     public synchronized void init() {
@@ -198,7 +200,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
      */
     @Override
     public void startEnrollmentAdvertising() {
-        if (!mTrustedDeviceService.getSharedPrefs()
+        if (!mCarCompanionDeviceStorage.getSharedPrefs()
                 .getBoolean(TRUSTED_DEVICE_ENROLLMENT_ENABLED_KEY, true)) {
             Log.e(TAG, "Trusted Device Enrollment disabled");
             dispatchEnrollmentFailure(ENROLLMENT_NOT_ALLOWED);
@@ -281,7 +283,8 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             boolean isHandleActive = pair.getValue();
             if (!isHandleActive) {
                 long handle = pair.getKey();
-                int uid = mTrustedDeviceService.getSharedPrefs().getInt(String.valueOf(handle), -1);
+                int uid = mCarCompanionDeviceStorage.getSharedPrefs().getInt(String.valueOf(handle),
+                        -1);
                 removeEscrowToken(handle, uid);
                 it.remove();
             }
@@ -336,7 +339,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
      */
     @Override
     public void setTrustedDeviceEnrollmentEnabled(boolean isEnabled) {
-        SharedPreferences.Editor editor = mTrustedDeviceService.getSharedPrefs().edit();
+        SharedPreferences.Editor editor = mCarCompanionDeviceStorage.getSharedPrefs().edit();
         editor.putBoolean(TRUSTED_DEVICE_ENROLLMENT_ENABLED_KEY, isEnabled);
         if (!editor.commit()) {
             Log.wtf(TAG,
@@ -367,7 +370,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     @NonNull
     @Override
     public List<TrustedDeviceInfo> getEnrolledDeviceInfosForUser(int uid) {
-        Set<String> enrolledDeviceInfos = mTrustedDeviceService.getSharedPrefs().getStringSet(
+        Set<String> enrolledDeviceInfos = mCarCompanionDeviceStorage.getSharedPrefs().getStringSet(
                 String.valueOf(uid), new HashSet<>());
         List<TrustedDeviceInfo> trustedDeviceInfos = new ArrayList<>(enrolledDeviceInfos.size());
         for (String deviceInfoWithId : enrolledDeviceInfos) {
@@ -448,7 +451,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
                 Log.e(TAG, "onEscrowTokenRemoved dispatch failed", e);
             }
         }
-        SharedPreferences sharedPrefs = mTrustedDeviceService.getSharedPrefs();
+        SharedPreferences sharedPrefs = mCarCompanionDeviceStorage.getSharedPrefs();
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.remove(String.valueOf(handle));
         Set<String> deviceInfos = sharedPrefs.getStringSet(String.valueOf(uid), new HashSet<>());
@@ -498,7 +501,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
 
         // Avoid storing duplicate info for same device by checking if there is already device info
         // and deleting it.
-        SharedPreferences sharedPrefs = mTrustedDeviceService.getSharedPrefs();
+        SharedPreferences sharedPrefs = mCarCompanionDeviceStorage.getSharedPrefs();
         if (sharedPrefs.contains(mClientDeviceId)) {
             removeEscrowToken(sharedPrefs.getLong(mClientDeviceId, -1), uid);
         }
@@ -682,7 +685,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Received device id: " + mClientDeviceId);
         }
-        UUID uniqueId = mTrustedDeviceService.getUniqueId();
+        UUID uniqueId = mCarCompanionDeviceStorage.getUniqueId();
         if (uniqueId == null) {
             Log.e(TAG, "Cannot get Unique ID for the IHU");
             resetEnrollmentStateOnFailure();
@@ -848,7 +851,8 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
 
         mEncryptionState = HandshakeState.FINISHED;
         mEncryptionKey = message.getKey();
-        if (!mTrustedDeviceService.saveEncryptionKey(mClientDeviceId, mEncryptionKey.asBytes())) {
+        if (!mCarCompanionDeviceStorage.saveEncryptionKey(mClientDeviceId,
+                mEncryptionKey.asBytes())) {
             resetEnrollmentStateOnFailure();
             dispatchEnrollmentFailure(ENROLLMENT_HANDSHAKE_FAILURE);
             return;
