@@ -77,8 +77,10 @@ public class VmsClientManagerTest {
     private static final String USER_CLIENT = "com.google.android.apps.vms.test/.VmsUserClient";
     private static final ComponentName USER_CLIENT_COMPONENT =
             ComponentName.unflattenFromString(USER_CLIENT);
+    private static final int USER_ID = 10;
     private static final String USER_CLIENT_NAME =
             "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsUserClient U=10";
+    private static final int USER_ID_U11 = 11;
     private static final String USER_CLIENT_NAME_U11 =
             "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsUserClient U=11";
     @Rule
@@ -96,7 +98,7 @@ public class VmsClientManagerTest {
     private CarUserService mUserService;
     @Mock
     private CarUserManagerHelper mUserManagerHelper;
-    private int mUserId;
+    private int mForegroundUserId;
 
     @Mock
     private VmsHalService mHal;
@@ -127,10 +129,7 @@ public class VmsClientManagerTest {
                 com.android.car.R.array.vmsPublisherUserClients)).thenReturn(
                 new String[]{ USER_CLIENT });
 
-        mUserId = 10;
-        when(mUserManagerHelper.getCurrentForegroundUserId()).thenAnswer((invocation) -> mUserId);
         when(mContext.getSystemService(eq(Context.USER_SERVICE))).thenReturn(mUserManager);
-        when(mUserManager.isUserUnlocked(any())).thenReturn(false);
 
         mClientManager = new VmsClientManager(mContext, mUserService, mUserManagerHelper, mHal);
         mClientManager.registerConnectionListener(mConnectionListener);
@@ -266,18 +265,26 @@ public class VmsClientManagerTest {
 
     @Test
     public void testUserUnlocked() {
-        notifyUserUnlocked();
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
+        notifyUserUnlocked(USER_ID, true);
 
         // Multiple events should only trigger a single bind, when successful
         verifyUserBind(1);
     }
 
     @Test
+    public void testUserUnlocked_ForegroundUserNotUnlocked() {
+        notifyUserUnlocked(USER_ID, false);
+
+        // Process will not be bound
+        verifyUserBind(0);
+    }
+
+    @Test
     public void testUserUnlocked_ClientNotFound() throws Exception {
         when(mPackageManager.getServiceInfo(eq(USER_CLIENT_COMPONENT), anyInt()))
                 .thenThrow(new PackageManager.NameNotFoundException());
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
 
         // Process will not be bound
         verifyUserBind(0);
@@ -289,7 +296,7 @@ public class VmsClientManagerTest {
         serviceInfo.permission = Car.PERMISSION_VMS_PUBLISHER;
         when(mPackageManager.getServiceInfo(eq(USER_CLIENT_COMPONENT), anyInt()))
                 .thenReturn(serviceInfo);
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
 
         // Process will not be bound
         verifyUserBind(0);
@@ -299,8 +306,8 @@ public class VmsClientManagerTest {
     public void testUserUnlocked_BindFailed() {
         when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), any()))
                 .thenReturn(false);
-        notifyUserUnlocked();
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
+        notifyUserUnlocked(USER_ID, true);
 
         // Failure state will trigger another attempt
         verifyUserBind(2);
@@ -308,10 +315,10 @@ public class VmsClientManagerTest {
 
     @Test
     public void testUserUnlocked_UserBindFailed() {
-        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.of(mUserId))))
+        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.of(USER_ID))))
                 .thenReturn(false);
-        notifyUserUnlocked();
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
+        notifyUserUnlocked(USER_ID, true);
 
         // Failure state will trigger another attempt
         verifyUserBind(2);
@@ -321,8 +328,8 @@ public class VmsClientManagerTest {
     public void testUserUnlocked_BindException() {
         when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), any()))
                 .thenThrow(new SecurityException());
-        notifyUserUnlocked();
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
+        notifyUserUnlocked(USER_ID, true);
 
         // Failure state will trigger another attempt
         verifyUserBind(2);
@@ -338,7 +345,7 @@ public class VmsClientManagerTest {
 
         when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.SYSTEM)))
                 .thenReturn(true);
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
         verifySystemBind(1);
         verifyUserBind(1);
     }
@@ -353,8 +360,8 @@ public class VmsClientManagerTest {
 
         when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.SYSTEM)))
                 .thenReturn(false);
-        notifyUserUnlocked();
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
+        notifyUserUnlocked(USER_ID, true);
 
         verifySystemBind(2); // Failure state will trigger another attempt
         verifyUserBind(1);
@@ -370,8 +377,8 @@ public class VmsClientManagerTest {
 
         when(mContext.bindServiceAsUser(any(), any(), anyInt(), any(), eq(UserHandle.SYSTEM)))
                 .thenThrow(new SecurityException());
-        notifyUserUnlocked();
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
+        notifyUserUnlocked(USER_ID, true);
 
         verifySystemBind(2); // Failure state will trigger another attempt
         verifyUserBind(1);
@@ -379,36 +386,36 @@ public class VmsClientManagerTest {
 
     @Test
     public void testUserSwitched() {
-        notifyUserSwitched();
+        notifyUserSwitched(USER_ID, true);
+        notifyUserSwitched(USER_ID, true);
 
-        // Clients are not bound on user switch alone
-        verifyUserBind(0);
+        // Multiple events should only trigger a single bind, when successful
+        verifyUserBind(1);
     }
 
     @Test
     public void testUserSwitchedAndUnlocked() {
-        notifyUserSwitched();
-        notifyUserUnlocked();
+        notifyUserSwitched(USER_ID, true);
+        notifyUserUnlocked(USER_ID, true);
 
         // Multiple events should only trigger a single bind, when successful
         verifyUserBind(1);
     }
 
     @Test
-    public void testUserSwitchedAlreadyUnlocked() {
-        when(mUserManager.isUserUnlocked(mUserId)).thenReturn(true);
-        notifyUserSwitched();
+    public void testUserSwitched_ForegroundUserNotUnlocked() {
+        notifyUserSwitched(USER_ID, false);
 
-        // Multiple events should only trigger a single bind, when successful
-        verifyUserBind(1);
+        // Process will not be bound
+        verifyUserBind(0);
     }
 
     @Test
     public void testUserSwitchedToSystemUser() {
-        mUserId = UserHandle.USER_SYSTEM;
-        notifyUserSwitched();
+        notifyUserSwitched(UserHandle.USER_SYSTEM, true);
 
-        // User processes will not be bound for system user
+        // Neither user nor system processes will be bound for system user intent
+        verifySystemBind(0);
         verifyUserBind(0);
     }
 
@@ -459,7 +466,7 @@ public class VmsClientManagerTest {
     }
 
     private IBinder bindUserClient() {
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         resetContext();
 
@@ -549,7 +556,7 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnUserServiceDisconnected() throws Exception {
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         resetContext();
 
@@ -566,7 +573,7 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnUserServiceDisconnected_ServiceReboundByAndroid() throws Exception {
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         resetContext();
 
@@ -584,7 +591,7 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnUserServiceBindingDied() throws Exception {
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         resetContext();
 
@@ -602,7 +609,7 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnUserServiceBindingDied_ServiceNotConnected() throws Exception {
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         resetContext();
 
@@ -618,15 +625,30 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnUserSwitched_UserChange() {
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceConnected(null, new Binder());
         resetContext();
         reset(mConnectionListener);
 
-        mUserId = 11;
-        notifyUserSwitched();
+        notifyUserSwitched(USER_ID_U11, true);
+
+        verify(mContext).unbindService(connection);
+        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
+        verifyUserBind(1);
+    }
+
+    @Test
+    public void testOnUserSwitched_UserChange_ForegroundUserNotUnlocked() {
+        notifyUserUnlocked(USER_ID, true);
+        verifyUserBind(1);
+        ServiceConnection connection = mConnectionCaptor.getValue();
+        connection.onServiceConnected(null, new Binder());
+        resetContext();
+        reset(mConnectionListener);
+
+        notifyUserSwitched(USER_ID_U11, false);
 
         verify(mContext).unbindService(connection);
         verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
@@ -635,15 +657,14 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnUserSwitched_UserChange_ToSystemUser() {
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceConnected(null, new Binder());
         resetContext();
         reset(mConnectionListener);
 
-        mUserId = UserHandle.USER_SYSTEM;
-        notifyUserSwitched();
+        notifyUserSwitched(UserHandle.USER_SYSTEM, true);
 
         verify(mContext).unbindService(connection);
         verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
@@ -652,13 +673,25 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnUserSwitched_UserChange_ServiceNotConnected() {
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
         resetContext();
 
-        mUserId = 11;
-        notifyUserSwitched();
+        notifyUserSwitched(USER_ID_U11, true);
+
+        verify(mContext).unbindService(connection);
+        verifyUserBind(1);
+    }
+
+    @Test
+    public void testOnUserSwitched_UserChange_ServiceNotConnected_ForegroundUserNotUnlocked() {
+        notifyUserUnlocked(USER_ID, true);
+        verifyUserBind(1);
+        ServiceConnection connection = mConnectionCaptor.getValue();
+        resetContext();
+
+        notifyUserSwitched(USER_ID_U11, false);
 
         verify(mContext).unbindService(connection);
         verifyUserBind(0);
@@ -666,15 +699,14 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnUserUnlocked_UserChange() {
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceConnected(null, new Binder());
         resetContext();
         reset(mConnectionListener);
 
-        mUserId = 11;
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID_U11, true);
 
         verify(mContext).unbindService(connection);
         verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
@@ -685,15 +717,14 @@ public class VmsClientManagerTest {
     public void testOnUserUnlocked_UserChange_ToSystemUser() {
         notifySystemUserUnlocked();
         verifySystemBind(1);
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceConnected(null, new Binder());
         resetContext();
         reset(mConnectionListener);
 
-        mUserId = UserHandle.USER_SYSTEM;
-        notifyUserUnlocked();
+        notifyUserUnlocked(UserHandle.USER_SYSTEM, true);
 
         verify(mContext).unbindService(connection);
         verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
@@ -703,13 +734,12 @@ public class VmsClientManagerTest {
 
     @Test
     public void testOnUserUnlocked_UserChange_ServiceNotConnected() {
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
         resetContext();
 
-        mUserId = 11;
-        notifyUserUnlocked();
+        notifyUserUnlocked(USER_ID_U11, true);
 
         verify(mContext).unbindService(connection);
         verifyUserBind(1);
@@ -726,14 +756,24 @@ public class VmsClientManagerTest {
         mClientManager.mSystemUserUnlockedListener.run();
     }
 
-    private void notifyUserSwitched() {
-        mClientManager.mUserSwitchReceiver.onReceive(mContext,
-                new Intent(Intent.ACTION_USER_SWITCHED));
+    private void notifyUserSwitched(int foregroundUserId, boolean isForegroundUserUnlocked) {
+        notifyUserAction(foregroundUserId, isForegroundUserUnlocked, Intent.ACTION_USER_SWITCHED);
     }
 
-    private void notifyUserUnlocked() {
-        mClientManager.mUserSwitchReceiver.onReceive(mContext,
-                new Intent(Intent.ACTION_USER_UNLOCKED));
+    private void notifyUserUnlocked(int foregroundUserId, boolean isForegroundUserUnlocked) {
+        notifyUserAction(foregroundUserId, isForegroundUserUnlocked, Intent.ACTION_USER_UNLOCKED);
+    }
+
+    // Sets the current foreground user + unlock state and dispatches the specified intent action
+    private void notifyUserAction(int foregroundUserId, boolean isForegroundUserUnlocked,
+            String action) {
+        mForegroundUserId = foregroundUserId; // Member variable used by verifyUserBind()
+        when(mUserManagerHelper.getCurrentForegroundUserId()).thenReturn(foregroundUserId);
+
+        reset(mUserManager);
+        when(mUserManager.isUserUnlocked(foregroundUserId)).thenReturn(isForegroundUserUnlocked);
+
+        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent(action));
     }
 
     private void verifySystemBind(int times) {
@@ -741,7 +781,7 @@ public class VmsClientManagerTest {
     }
 
     private void verifyUserBind(int times) {
-        verifyBind(times, USER_CLIENT_COMPONENT, UserHandle.of(mUserId));
+        verifyBind(times, USER_CLIENT_COMPONENT, UserHandle.of(mForegroundUserId));
     }
 
     private void verifyBind(int times, ComponentName componentName, UserHandle user) {
