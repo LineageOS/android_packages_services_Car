@@ -16,10 +16,17 @@
 #ifndef EVS_SUPPORT_LIBRARY_BASEUSECASE_H_
 #define EVS_SUPPORT_LIBRARY_BASEUSECASE_H_
 
+#include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
+#include <string>
+
 namespace android {
 namespace automotive {
 namespace evs {
 namespace support {
+
+using namespace ::android::hardware::automotive::evs::V1_0;
+using ::android::sp;
+using ::std::string;
 
 /**
  * Base class for all the use cases in the EVS support library.
@@ -56,6 +63,13 @@ public:
     virtual void stopVideoStream() = 0;
 
     virtual ~BaseUseCase() {}
+
+protected:
+    static sp<IEvsEnumerator> getEvsEnumerator(string serviceName = kDefaultServiceName);
+
+private:
+    static const string kDefaultServiceName;
+    static sp<IEvsEnumerator> sEvs;
 };
 
 }  // namespace support
