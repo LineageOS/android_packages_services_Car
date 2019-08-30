@@ -27,7 +27,6 @@
 #include "BaseUseCase.h"
 #include "ConfigManager.h"
 #include "RenderBase.h"
-#include "StreamHandler.h"
 
 namespace android {
 namespace automotive {

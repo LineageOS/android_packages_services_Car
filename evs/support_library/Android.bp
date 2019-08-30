@@ -28,6 +28,7 @@ cc_library_shared {
         "TexWrapper.cpp",
         "VideoTex.cpp",
         "StreamHandler.cpp",
+        "StreamHandlerManager.cpp",
         "FormatConvert.cpp",
         "DisplayUseCase.cpp",
         "Utils.cpp",
