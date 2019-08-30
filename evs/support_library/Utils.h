@@ -17,15 +17,39 @@
 #define CAR_LIB_EVS_SUPPORT_UTILS_H
 
 #include <string>
+#include <vector>
 
 namespace android {
 namespace automotive {
 namespace evs {
 namespace support {
 
+using std::vector;
+using std::string;
+
 class Utils {
-  public:
-    static std::string getRearCameraId();
+public:
+    /**
+     * Gets camera ids for all the available rear view cameras. For
+     * now, we don't support dynamically adding/removing camera. In
+     * other words, the camera list won't be updated after the first
+     * time the camera list is obtained.
+     *
+     * An empty vector is returned if no rear view camera is found.
+     */
+    static vector<string> getRearViewCameraIds();
+
+    /**
+     * Gets camera id for the default rear view camera. For now, we
+     * always assume that the first element in rear view camera list
+     * is the default one.
+     *
+     * An empty string is returned if no rear view camera is found.
+     */
+    static string getDefaultRearViewCameraId();
+
+private:
+    static vector<string> sCameraIds;
 };
 
 }  // namespace support
