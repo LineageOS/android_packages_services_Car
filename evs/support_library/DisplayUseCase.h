@@ -27,6 +27,7 @@
 #include "BaseUseCase.h"
 #include "ConfigManager.h"
 #include "RenderBase.h"
+#include "StreamHandler.h"
 
 namespace android {
 namespace automotive {
@@ -64,9 +65,10 @@ class DisplayUseCase : public BaseUseCase {
     // TODO(b/130246434): Move mEvs to a center place and share among use cases.
     sp<IEvsEnumerator> mEvs;
     sp<IEvsDisplay> mDisplay;
-    ConfigManager::CameraInfo mCamera;
+    sp<IEvsCamera> mCamera;
     bool mIsReadyToRun;
     std::thread mWorkerThread;
+    sp<StreamHandler> mStreamHandler;
 };
 
 }  // namespace support
