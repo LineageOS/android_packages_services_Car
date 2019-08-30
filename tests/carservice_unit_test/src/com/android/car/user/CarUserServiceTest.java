@@ -34,8 +34,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.annotation.NonNull;
+import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
+import android.car.CarOccupantZoneManager.OccupantTypeEnum;
+import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.settings.CarSettings;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
@@ -96,6 +100,7 @@ public class CarUserServiceTest {
     private MockitoSession mSession;
     private CarUserService mCarUserService;
     private boolean mUser0TaskExecuted;
+    private FakeCarOccupantZoneService mFakeCarOccupantZoneService;
 
     /**
      * Initialize all of the objects with the @Mock annotation.
@@ -127,6 +132,7 @@ public class CarUserServiceTest {
                         mMockedIActivityManager,
                         3);
 
+        mFakeCarOccupantZoneService = new FakeCarOccupantZoneService(mCarUserService);
         // Restore default value at the beginning of each test.
         putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 0);
     }
@@ -449,6 +455,43 @@ public class CarUserServiceTest {
         assertTrue(mCarUserService.switchDriver(11));
     }
 
+    @Test
+    public void testStartPassenger() throws RemoteException {
+        int passenger1Id = 91;
+        int passenger2Id = 92;
+        int passenger3Id = 93;
+        int zone1Id = 1;
+        int zone2Id = 2;
+        doReturn(true).when(mMockedIActivityManager)
+                .startUserInBackgroundWithListener(anyInt(), eq(null));
+        assertTrue(mCarUserService.startPassenger(passenger1Id, zone1Id));
+        assertTrue(mCarUserService.startPassenger(passenger2Id, zone2Id));
+        assertFalse(mCarUserService.startPassenger(passenger3Id, zone2Id));
+    }
+
+    @Test
+    public void testStopPassenger() throws RemoteException {
+        int user1Id = 11;
+        int passenger1Id = 91;
+        int passenger2Id = 92;
+        int zoneId = 1;
+        UserInfo user1Info = new UserInfo(user1Id, "user1", NO_USER_INFO_FLAGS);
+        UserInfo passenger1Info =
+                new UserInfo(passenger1Id, "passenger1", UserInfo.FLAG_MANAGED_PROFILE);
+        associateParentChild(user1Info, passenger1Info);
+        doReturn(passenger1Info).when(mMockedUserManager).getUserInfo(passenger1Id);
+        doReturn(null).when(mMockedUserManager).getUserInfo(passenger2Id);
+        when(ActivityManager.getCurrentUser()).thenReturn(user1Id);
+        doReturn(true).when(mMockedIActivityManager)
+                .startUserInBackgroundWithListener(anyInt(), eq(null));
+        assertTrue(mCarUserService.startPassenger(passenger1Id, zoneId));
+        assertTrue(mCarUserService.stopPassenger(passenger1Id));
+        // Test of stopping an already stopped passenger.
+        assertTrue(mCarUserService.stopPassenger(passenger1Id));
+        // Test of stopping a non-existing passenger.
+        assertFalse(mCarUserService.stopPassenger(passenger2Id));
+    }
+
     private static void associateParentChild(UserInfo parent, UserInfo child) {
         parent.profileGroupId = parent.id;
         child.profileGroupId = parent.id;
@@ -508,7 +551,48 @@ public class CarUserServiceTest {
         }
     }
 
-    // TODO(b/139190199): add tests for startPassenger() and stopPassenger().
+    static final class FakeCarOccupantZoneService {
+        private final SparseArray<Integer> mZoneUserMap = new SparseArray<Integer>();
+        private final CarUserService.ZoneUserBindingHelper mZoneUserBindigHelper =
+                new CarUserService.ZoneUserBindingHelper() {
+                    @Override
+                    @NonNull
+                    public List<OccupantZoneInfo> getOccupantZones(
+                            @OccupantTypeEnum int occupantType) {
+                        return null;
+                    }
+
+                    @Override
+                    public boolean assignUserToOccupantZone(@UserIdInt int userId, int zoneId) {
+                        if (mZoneUserMap.get(zoneId) != null) {
+                            return false;
+                        }
+                        mZoneUserMap.put(zoneId, userId);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean unassignUserFromOccupantZone(@UserIdInt int userId) {
+                        for (int index = 0; index < mZoneUserMap.size(); index++) {
+                            if (mZoneUserMap.valueAt(index) == userId) {
+                                mZoneUserMap.removeAt(index);
+                                break;
+                            }
+                        }
+                        return true;
+                    }
+
+                    @Override
+                    public boolean isPassengerDisplayAvailable() {
+                        return true;
+                    }
+                };
+
+        FakeCarOccupantZoneService(CarUserService carUserService) {
+            carUserService.setZoneUserBindingHelper(mZoneUserBindigHelper);
+        }
+    }
+
 
     private void putSettingsInt(String key, int value) {
         Settings.Global.putInt(InstrumentationRegistry.getTargetContext().getContentResolver(),

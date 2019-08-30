@@ -16,11 +16,14 @@
 
 package com.android.car;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarInfoManager;
 import android.car.CarOccupantZoneManager;
+import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarOccupantZone;
 import android.car.ICarOccupantZoneCallback;
@@ -42,8 +45,10 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -137,15 +142,28 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     @VisibleForTesting
     final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
         @Override
-        public void onUserLockChanged(int userId, boolean unlocked) {
+        public void onUserLockChanged(@UserIdInt int userId, boolean unlocked) {
             // nothing to do
         }
 
         @Override
-        public void onSwitchUser(int userId) {
+        public void onSwitchUser(@UserIdInt int userId) {
             handleUserChange();
         }
     };
+
+    final CarUserService.PassengerCallback mPassengerCallback =
+            new CarUserService.PassengerCallback() {
+                @Override
+                public void onPassengerStarted(@UserIdInt int passengerId, int zoneId) {
+                    handlePassengerStarted(passengerId, zoneId);
+                }
+
+                @Override
+                public void onPassengerStopped(@UserIdInt int passengerId) {
+                    handlePassengerStopped(passengerId);
+                }
+            };
 
     @VisibleForTesting
     final DisplayManager.DisplayListener mDisplayListener =
@@ -199,8 +217,76 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
         userService.addUserCallback(mUserCallback);
+        userService.addPassengerCallback(mPassengerCallback);
         mDisplayManager.registerDisplayListener(mDisplayListener,
                 new Handler(Looper.getMainLooper()));
+        CarUserService.ZoneUserBindingHelper helper = new CarUserService.ZoneUserBindingHelper() {
+            @Override
+            @NonNull
+            public List<OccupantZoneInfo> getOccupantZones(@OccupantTypeEnum int occupantType) {
+                List<OccupantZoneInfo> zones = new ArrayList<OccupantZoneInfo>();
+                for (OccupantZoneInfo ozi : getAllOccupantZones()) {
+                    if (ozi.occupantType == occupantType) {
+                        zones.add(ozi);
+                    }
+                }
+                return zones;
+            }
+
+            @Override
+            public boolean assignUserToOccupantZone(@UserIdInt int userId, int zoneId) {
+                // Check if the user is already assigned to the other zone.
+                synchronized (mLock) {
+                    for (Map.Entry<Integer, OccupantConfig> entry :
+                            mActiveOccupantConfigs.entrySet()) {
+                        OccupantConfig config = entry.getValue();
+                        if (config.userId == userId && zoneId != entry.getKey()) {
+                            Log.w(CarLog.TAG_OCCUPANT,
+                                    "cannot assign user to two different zone simultaneously");
+                            return false;
+                        }
+                    }
+                    OccupantConfig zoneConfig = mActiveOccupantConfigs.get(zoneId);
+                    if (zoneConfig == null) {
+                        Log.w(CarLog.TAG_OCCUPANT, "cannot find the zone(" + zoneId + ")");
+                        return false;
+                    }
+                    if (zoneConfig.userId != UserHandle.USER_NULL && zoneConfig.userId != userId) {
+                        Log.w(CarLog.TAG_OCCUPANT,
+                                "other user already occupies the zone(" + zoneId + ")");
+                        return false;
+                    }
+                    zoneConfig.userId = userId;
+                    return true;
+                }
+            }
+
+            @Override
+            public boolean unassignUserFromOccupantZone(@UserIdInt int userId) {
+                synchronized (mLock) {
+                    for (OccupantConfig config : mActiveOccupantConfigs.values()) {
+                        if (config.userId == userId) {
+                            config.userId = UserHandle.USER_NULL;
+                            break;
+                        }
+                    }
+                    return true;
+                }
+            }
+
+            @Override
+            public boolean isPassengerDisplayAvailable() {
+                for (OccupantZoneInfo ozi : getAllOccupantZones()) {
+                    if (getDisplayForOccupant(ozi.zoneId,
+                            CarOccupantZoneManager.DISPLAY_TYPE_MAIN) != Display.INVALID_DISPLAY
+                            && ozi.occupantType != CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER) {
+                            return true;
+                    }
+                }
+                return false;
+            }
+        };
+        userService.setZoneUserBindingHelper(helper);
     }
 
     @Override
@@ -208,6 +294,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         mDisplayManager.unregisterDisplayListener(mDisplayListener);
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
         userService.removeUserCallback(mUserCallback);
+        userService.removePassengerCallback(mPassengerCallback);
         synchronized (mLock) {
             mOccupantsConfig.clear();
             mDisplayConfigs.clear();
@@ -217,6 +304,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     /** Return cloned mOccupantsConfig for testing */
     @VisibleForTesting
+    @NonNull
     public HashMap<Integer, OccupantZoneInfo> getOccupantsConfig() {
         synchronized (mLock) {
             return (HashMap<Integer, OccupantZoneInfo>) mOccupantsConfig.clone();
@@ -225,6 +313,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     /** Return cloned mDisplayConfigs for testing */
     @VisibleForTesting
+    @NonNull
     public HashMap<Integer, DisplayConfig> getDisplayConfigs() {
         synchronized (mLock) {
             return (HashMap<Integer, DisplayConfig>) mDisplayConfigs.clone();
@@ -233,6 +322,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     /** Return cloned mActiveOccupantConfigs for testing */
     @VisibleForTesting
+    @NonNull
     public HashMap<Integer, OccupantConfig> getActiveOccupantConfigs() {
         synchronized (mLock) {
             return (HashMap<Integer, OccupantConfig>) mActiveOccupantConfigs.clone();
@@ -601,7 +691,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         if (driverConfig != null) {
             driverConfig.userId = driverUserId;
         }
-        // TODO : handle secondary users
     }
 
     private void sendConfigChangeEvent(int changeFlags) {
@@ -621,6 +710,14 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         synchronized (mLock) {
             handleUserChangesLocked();
         }
+        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+    }
+
+    private void handlePassengerStarted(@UserIdInt int passengerId, int zoneId) {
+        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+    }
+
+    private void handlePassengerStopped(@UserIdInt int passengerId) {
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
     }
 
