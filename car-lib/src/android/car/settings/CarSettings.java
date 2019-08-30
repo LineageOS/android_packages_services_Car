@@ -76,6 +76,15 @@ public class CarSettings {
          */
         public static final String DEFAULT_USER_RESTRICTIONS_SET =
                 "android.car.DEFAULT_USER_RESTRICTIONS_SET";
+
+        /**
+         * Developer settings String used to explicitly disable the instrumentation service (when
+         * set to {@code "true"}.
+         *
+         * @hide
+         */
+        public static final String DISABLE_INSTRUMENTATION_SERVICE =
+                "android.car.DISABLE_INSTRUMENTATION_SERVICE";
     }
 
     /**
