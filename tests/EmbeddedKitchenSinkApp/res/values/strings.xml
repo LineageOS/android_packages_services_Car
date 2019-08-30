@@ -321,4 +321,10 @@
 
     <!-- Users -->
     <string name="users_apply_button" translatable="false">Apply</string>
+
+    <!-- carapi -->
+    <string name="createandconnect" translatable="false">createCarAndConnect</string>
+    <string name="disconnect" translatable="false">disconnect</string>
+    <string name="createcar" translatable="false">createCar</string>
+    <string name="createcar_with_status_change" translatable="false">createCarWithStatusChange</string>
 </resources>
