@@ -1163,7 +1163,7 @@
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"Privates Konto – <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="search_settings" msgid="5809250790214921377">"Suche"</string>
     <string name="display_settings" msgid="1045535829232307190">"Display"</string>
-    <string name="accelerometer_title" msgid="2427487734964971453">"Display automatisch drehen"</string>
+    <string name="accelerometer_title" msgid="2427487734964971453">"Bildschirm automatisch drehen"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"Farben"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Natürlich"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Verstärkt"</string>
@@ -2078,7 +2078,7 @@
     <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"Zeit zum Reagieren"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Hier kannst du auswählen, wie lange Nachrichten sichtbar sind, die du lesen musst, die aber nur vorübergehend angezeigt werden.\n\nDiese Einstellung wird nicht von allen Apps unterstützt."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Hier kannst du auswählen, wie lange Nachrichten sichtbar sind, die eine Reaktion erfordern, aber nur vorübergehend angezeigt werden.\n\nDiese Einstellung wird nicht von allen Apps unterstützt."</string>
-    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Reaktionszeit Berühren/Halten"</string>
+    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"\"Berühren und halten\"-Reaktionszeit"</string>
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Farbumkehr"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Kann sich auf die Leistung auswirken"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Verweildauer"</string>
