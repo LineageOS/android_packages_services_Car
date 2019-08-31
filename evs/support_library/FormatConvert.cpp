@@ -16,6 +16,10 @@
 
 #include "FormatConvert.h"
 
+namespace android {
+namespace automotive {
+namespace evs {
+namespace support {
 
 // Round up to the nearest multiple of the given alignment value
 template<unsigned alignment>
@@ -167,3 +171,8 @@ void copyMatchedInterleavedFormats(unsigned width, unsigned height,
         dst = (uint8_t*)dst + dstStridePixels * pixelSize;
     }
 }
+
+}  // namespace support
+}  // namespace evs
+}  // namespace automotive
+}  // namespace android

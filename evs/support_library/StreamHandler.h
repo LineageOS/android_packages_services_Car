@@ -25,6 +25,11 @@
 #include <android/hardware/automotive/evs/1.0/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
 
+namespace android {
+namespace automotive {
+namespace evs {
+namespace support {
+
 using namespace ::android::hardware::automotive::evs::V1_0;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
@@ -77,5 +82,9 @@ private:
     int                         mReadyBuffer = -1;  // Index of the newest available buffer
 };
 
+}  // namespace support
+}  // namespace evs
+}  // namespace automotive
+}  // namespace android
 
 #endif //EVS_VTS_STREAMHANDLER_H

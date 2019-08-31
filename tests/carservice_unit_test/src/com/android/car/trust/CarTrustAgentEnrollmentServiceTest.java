@@ -75,6 +75,7 @@ public class CarTrustAgentEnrollmentServiceTest {
     private Context mContext;
     private CarTrustedDeviceService mCarTrustedDeviceService;
     private CarTrustAgentEnrollmentService mCarTrustAgentEnrollmentService;
+    private CarCompanionDeviceStorage mCarCompanionDeviceStorage;
     private BluetoothDevice mBluetoothDevice;
     private int mUserId;
     @Mock
@@ -105,6 +106,7 @@ public class CarTrustAgentEnrollmentServiceTest {
         mCarTrustedDeviceService = new CarTrustedDeviceService(mContext);
         mCarTrustAgentEnrollmentService = new CarTrustAgentEnrollmentService(mContext,
                 mCarTrustedDeviceService, mMockCarTrustAgentBleManager);
+        mCarCompanionDeviceStorage = new CarCompanionDeviceStorage(mContext);
         mCarTrustedDeviceService.init();
         mCarTrustAgentEnrollmentService.init();
         mCarTrustAgentEnrollmentService.setEnrollmentRequestDelegate(mEnrollDelegate);
@@ -142,7 +144,7 @@ public class CarTrustAgentEnrollmentServiceTest {
                 HandshakeMessage.HandshakeState.UNKNOWN);
         // send device unique id
         verify(mMockCarTrustAgentBleManager).sendMessage(
-                eq(Utils.uuidToBytes(mCarTrustedDeviceService.getUniqueId())), any(), eq(false),
+                eq(Utils.uuidToBytes(mCarCompanionDeviceStorage.getUniqueId())), any(), eq(false),
                 any(SendMessageCallback.class));
 
         // Have received handshake request.
@@ -234,14 +236,14 @@ public class CarTrustAgentEnrollmentServiceTest {
     @Test
     public void testOnEscrowTokenRemoved_removeOneTrustedDevice() {
         setupEncryptionHandshake(TEST_ID1);
-        SharedPreferences sharedPrefs = mCarTrustedDeviceService.getSharedPrefs();
+        SharedPreferences sharedPrefs = mCarCompanionDeviceStorage.getSharedPrefs();
         mCarTrustAgentEnrollmentService.onEscrowTokenActiveStateChanged(
                 TEST_HANDLE1, /* isTokenActive= */ true,
                 mUserId);
 
         assertThat(mCarTrustAgentEnrollmentService.getEnrolledDeviceInfosForUser(
                 mUserId)).containsExactly(DEVICE_INFO1);
-        assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE1)).isEqualTo(
+        assertThat(mCarCompanionDeviceStorage.getUserHandleByTokenHandle(TEST_HANDLE1)).isEqualTo(
                 mUserId);
         assertThat(sharedPrefs.getLong(TEST_ID1.toString(), -1)).isEqualTo(TEST_HANDLE1);
 
@@ -251,7 +253,7 @@ public class CarTrustAgentEnrollmentServiceTest {
 
         assertThat(mCarTrustAgentEnrollmentService.getEnrolledDeviceInfosForUser(
                 mUserId)).containsExactly(DEVICE_INFO1, DEVICE_INFO2);
-        assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE2)).isEqualTo(
+        assertThat(mCarCompanionDeviceStorage.getUserHandleByTokenHandle(TEST_HANDLE2)).isEqualTo(
                 mUserId);
         assertThat(sharedPrefs.getLong(TEST_ID1.toString(), -1)).isEqualTo(TEST_HANDLE2);
 
@@ -260,26 +262,30 @@ public class CarTrustAgentEnrollmentServiceTest {
 
         assertThat(mCarTrustAgentEnrollmentService.getEnrolledDeviceInfosForUser(
                 mUserId)).containsExactly(DEVICE_INFO2);
-        assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE1)).isEqualTo(-1);
-        assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE2)).isEqualTo(
+        assertThat(mCarCompanionDeviceStorage
+                .getUserHandleByTokenHandle(TEST_HANDLE1))
+                .isEqualTo(-1);
+        assertThat(mCarCompanionDeviceStorage.getUserHandleByTokenHandle(TEST_HANDLE2)).isEqualTo(
                 mUserId);
         assertThat(sharedPrefs.getLong(TEST_ID1.toString(), -1)).isEqualTo(TEST_HANDLE2);
     }
 
     @Test
     public void testGetUserHandleByTokenHandle_nonExistentHandle() {
-        assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE1)).isEqualTo(-1);
+        assertThat(mCarCompanionDeviceStorage
+                .getUserHandleByTokenHandle(TEST_HANDLE1))
+                .isEqualTo(-1);
     }
 
     @Test
     public void testEncryptionKeyStorage() {
         byte[] encryptionKey = KEY.getBytes();
-        if (mCarTrustedDeviceService.saveEncryptionKey(DEVICE_ID, encryptionKey)) {
-            assertThat(mCarTrustedDeviceService.getEncryptionKey(DEVICE_ID))
+        if (mCarCompanionDeviceStorage.saveEncryptionKey(DEVICE_ID, encryptionKey)) {
+            assertThat(mCarCompanionDeviceStorage.getEncryptionKey(DEVICE_ID))
                 .isEqualTo(encryptionKey);
         }
-        mCarTrustedDeviceService.clearEncryptionKey(DEVICE_ID);
-        assertThat(mCarTrustedDeviceService.getEncryptionKey(DEVICE_ID) == null).isTrue();
+        mCarCompanionDeviceStorage.clearEncryptionKey(DEVICE_ID);
+        assertThat(mCarCompanionDeviceStorage.getEncryptionKey(DEVICE_ID) == null).isTrue();
     }
 
     @Test
@@ -287,7 +293,7 @@ public class CarTrustAgentEnrollmentServiceTest {
         setupEncryptionHandshake(TEST_ID1);
         mCarTrustAgentEnrollmentService.onEscrowTokenActiveStateChanged(
                 TEST_HANDLE1, /* isTokenActive= */ true, mUserId);
-        assertThat(mCarTrustedDeviceService.getUserHandleByTokenHandle(TEST_HANDLE1)).isEqualTo(
+        assertThat(mCarCompanionDeviceStorage.getUserHandleByTokenHandle(TEST_HANDLE1)).isEqualTo(
                 mUserId);
     }
 
