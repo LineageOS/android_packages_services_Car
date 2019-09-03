@@ -35,8 +35,12 @@ import android.util.JsonReader;
 import android.util.JsonWriter;
 
 import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import junit.framework.TestCase;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -47,9 +51,11 @@ import java.io.PrintWriter;
 /**
  * Unit test for UXR config and its subclasses.
  */
+@RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CarUxRestrictionsConfigurationTest extends TestCase {
 
+    @Test
     // This test verifies the expected way to build config would succeed.
     public void testConstruction() {
         new Builder().build();
@@ -85,6 +91,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
                 .build();
     }
 
+    @Test
     public void testUnspecifiedDrivingStateUsesDefaultRestriction() {
         CarUxRestrictionsConfiguration config = new Builder().build();
 
@@ -97,6 +104,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertEquals(movingRestrictions.getActiveRestrictions(), UX_RESTRICTIONS_FULLY_RESTRICTED);
     }
 
+    @Test
     public void testBuilderValidation_UnspecifiedStateUsesRestrictiveDefault() {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_MOVING, true, UX_RESTRICTIONS_FULLY_RESTRICTED)
@@ -107,6 +115,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
                 .isRequiresDistractionOptimization());
     }
 
+    @Test
     public void testBuilderValidation_NonMovingStateHasOneRestriction() {
         Builder builder = new Builder();
         builder.setUxRestrictions(DRIVING_STATE_IDLING,
@@ -121,6 +130,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testBuilderValidation_PassengerModeNoSpeedRangeOverlap() {
         Builder builder = new Builder();
         builder.setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
@@ -139,6 +149,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testBuilderValidation_PassengerModeCanSpecifySubsetOfSpeedRange() {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
@@ -152,6 +163,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
                 .isRequiresDistractionOptimization());
     }
 
+    @Test
     public void testBuilderValidation_MultipleSpeedRange_NonZeroStart() {
         Builder builder = new Builder();
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
@@ -168,6 +180,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testBuilderValidation_SpeedRange_NonZeroStart() {
         Builder builder = new Builder();
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
@@ -181,6 +194,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testBuilderValidation_SpeedRange_Overlap() {
         Builder builder = new Builder();
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
@@ -197,6 +211,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testBuilderValidation_SpeedRange_Gap() {
         Builder builder = new Builder();
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
@@ -213,6 +228,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testBuilderValidation_NonMovingStateCannotUseSpeedRange() {
         Builder builder = new Builder();
         try {
@@ -225,6 +241,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testBuilderValidation_MultipleMovingRestrictionsShouldAllContainSpeedRange() {
         Builder builder = new Builder();
         builder.setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
@@ -242,12 +259,14 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testSpeedRange_Construction() {
         new Builder.SpeedRange(0f);
         new Builder.SpeedRange(0f, 1f);
         new Builder.SpeedRange(0f, MAX_SPEED);
     }
 
+    @Test
     public void testSpeedRange_NoNegativeMin() {
         try {
             new Builder.SpeedRange(-2f, 1f);
@@ -256,6 +275,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testSpeedRange_NoNegativeMax() {
         try {
             new Builder.SpeedRange(2f, -1f);
@@ -264,6 +284,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testSpeedRange_MinCannotBeMaxSpeed() {
         try {
             new Builder.SpeedRange(MAX_SPEED, 1f);
@@ -272,6 +293,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testSpeedRange_MinGreaterThanMax() {
         try {
             new Builder.SpeedRange(5f, 2f);
@@ -280,6 +302,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testSpeedRangeComparison_DifferentMin() {
         Builder.SpeedRange s1 =
                 new Builder.SpeedRange(1f);
@@ -289,6 +312,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertTrue(s2.compareTo(s1) > 0);
     }
 
+    @Test
     public void testSpeedRangeComparison_SameMin() {
         Builder.SpeedRange s1 =
                 new Builder.SpeedRange(1f);
@@ -297,6 +321,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertTrue(s1.compareTo(s2) == 0);
     }
 
+    @Test
     public void testSpeedRangeComparison_SameMinDifferentMax() {
         Builder.SpeedRange s1 =
                 new Builder.SpeedRange(0f, 1f);
@@ -306,6 +331,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertTrue(s2.compareTo(s1) > 0);
     }
 
+    @Test
     public void testSpeedRangeComparison_MaxSpeed() {
         Builder.SpeedRange s1 =
                 new Builder.SpeedRange(0f, 1f);
@@ -315,6 +341,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertTrue(s2.compareTo(s1) > 0);
     }
 
+    @Test
     public void testSpeedRangeEquals() {
         Builder.SpeedRange s1, s2;
 
@@ -343,6 +370,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertFalse(s1.equals(s2));
     }
 
+    @Test
     public void testJsonSerialization_DefaultConstructor() {
         CarUxRestrictionsConfiguration config =
                 new Builder().build();
@@ -350,6 +378,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         verifyConfigThroughJsonSerialization(config);
     }
 
+    @Test
     public void testJsonSerialization_RestrictionParameters() {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setMaxStringLength(1)
@@ -360,6 +389,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         verifyConfigThroughJsonSerialization(config);
     }
 
+    @Test
     public void testJsonSerialization_NonMovingStateRestrictions() {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_PARKED, false, UX_RESTRICTIONS_BASELINE)
@@ -368,6 +398,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         verifyConfigThroughJsonSerialization(config);
     }
 
+    @Test
     public void testJsonSerialization_MovingStateNoSpeedRange() {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_MOVING, true, UX_RESTRICTIONS_FULLY_RESTRICTED)
@@ -376,6 +407,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         verifyConfigThroughJsonSerialization(config);
     }
 
+    @Test
     public void testJsonSerialization_MovingStateWithSpeedRange() {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
@@ -391,6 +423,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         verifyConfigThroughJsonSerialization(config);
     }
 
+    @Test
     public void testJsonSerialization_UxRestrictionMode() {
         CarUxRestrictionsConfiguration config = new Builder()
                 // Passenger mode
@@ -412,6 +445,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         verifyConfigThroughJsonSerialization(config);
     }
 
+    @Test
     public void testDump() {
         CarUxRestrictionsConfiguration[] configs = new CarUxRestrictionsConfiguration[] {
                 // Driving state with no speed range
@@ -462,6 +496,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         }
     }
 
+    @Test
     public void testDumpContainsNecessaryInfo() {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
@@ -494,6 +529,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertTrue(dump.contains("Baseline mode"));
     }
 
+    @Test
     public void testSetUxRestrictions_UnspecifiedModeDefaultsToBaseline() {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_PARKED, new DrivingStateRestrictions()
@@ -509,6 +545,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
                 config.getUxRestrictions(DRIVING_STATE_PARKED, 0f, UX_RESTRICTIONS_BASELINE)));
     }
 
+    @Test
     public void testSetUxRestrictions_PassengerMode() {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_PARKED, new DrivingStateRestrictions()
@@ -530,6 +567,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertEquals(UX_RESTRICTIONS_NO_VIDEO, baseline.getActiveRestrictions());
     }
 
+    @Test
     public void testPassengerModeFallbackToBaseline() {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
@@ -554,6 +592,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertEquals(UX_RESTRICTIONS_NO_VIDEO, baseline.getActiveRestrictions());
     }
 
+    @Test
     public void testHasSameParameters_SameParameters() {
         CarUxRestrictionsConfiguration one = new CarUxRestrictionsConfiguration.Builder()
                 .setMaxStringLength(1)
@@ -570,6 +609,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertTrue(one.hasSameParameters(other));
     }
 
+    @Test
     public void testHasSameParameters_DifferentParameters() {
         CarUxRestrictionsConfiguration one = new CarUxRestrictionsConfiguration.Builder()
                 .setMaxStringLength(2)
@@ -586,6 +626,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertFalse(one.hasSameParameters(other));
     }
 
+    @Test
     public void testConfigurationEquals() {
         CarUxRestrictionsConfiguration one = new CarUxRestrictionsConfiguration.Builder()
                 .setMaxStringLength(2)
@@ -609,6 +650,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertTrue(one.hashCode() == other.hashCode());
     }
 
+    @Test
     public void testConfigurationEquals_DifferentRestrictions() {
         CarUxRestrictionsConfiguration one = new CarUxRestrictionsConfiguration.Builder()
                 .setMaxStringLength(2)
@@ -632,6 +674,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertFalse(one.equals(other));
     }
 
+    @Test
     public void testParcelableConfiguration() {
         CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
                 .setPhysicalPort((byte) 1)
@@ -661,6 +704,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         assertEquals(deserialized, config);
     }
 
+    @Test
     public void testParcelableConfiguration_serializeNullPhysicalPort() {
         // Not setting physical port leaves it null.
         CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()

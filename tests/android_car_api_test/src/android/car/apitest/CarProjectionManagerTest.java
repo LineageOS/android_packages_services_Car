@@ -27,10 +27,17 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.Suppress;
 
 import androidx.test.filters.RequiresDevice;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @LargeTest
 public class CarProjectionManagerTest extends CarApiTestBase {
     private static final String TAG = CarProjectionManagerTest.class.getSimpleName();
@@ -68,19 +75,22 @@ public class CarProjectionManagerTest extends CarApiTestBase {
         }
     }
 
+    @Before
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mManager = (CarProjectionManager) getCar().getCarManager(Car.PROJECTION_SERVICE);
         assertNotNull(mManager);
     }
 
+    @Test
     public void testSetUnsetListeners() throws Exception {
         mManager.registerProjectionListener(
                 mListener, CarProjectionManager.PROJECTION_VOICE_SEARCH);
         mManager.unregisterProjectionListener();
     }
 
+    @Test
     public void testRegisterListenersHandleBadInput() throws Exception {
         try {
             mManager.registerProjectionListener(null, CarProjectionManager.PROJECTION_VOICE_SEARCH);
@@ -91,7 +101,8 @@ public class CarProjectionManagerTest extends CarApiTestBase {
     }
 
     public void testRegisterProjectionRunner() throws Exception {
-        Intent intent = new Intent(getContext(), TestService.class);
+        Intent intent = new Intent(
+                InstrumentationRegistry.getInstrumentation().getContext(), TestService.class);
         assertFalse(TestService.getBound());
         mManager.registerProjectionRunner(intent);
         synchronized (TestService.mLock) {

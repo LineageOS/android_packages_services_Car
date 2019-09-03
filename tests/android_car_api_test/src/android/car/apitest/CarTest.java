@@ -26,9 +26,16 @@ import android.os.Looper;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CarTest extends AndroidTestCase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
@@ -60,8 +67,10 @@ public class CarTest extends AndroidTestCase {
         mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
     }
 
+    @Test
     public void testCarConnection() throws Exception {
-        Car car = Car.createCar(getContext(), mConnectionListener);
+        Car car = Car.createCar(
+                InstrumentationRegistry.getInstrumentation().getContext(), mConnectionListener);
         assertFalse(car.isConnected());
         assertFalse(car.isConnecting());
         car.connect();
@@ -85,8 +94,10 @@ public class CarTest extends AndroidTestCase {
         assertFalse(car.isConnecting());
     }
 
+    @Test
     public void testDoubleConnect() throws Exception {
-        Car car = Car.createCar(getContext(), mConnectionListener);
+        Car car = Car.createCar(
+                InstrumentationRegistry.getInstrumentation().getContext(), mConnectionListener);
         assertFalse(car.isConnected());
         assertFalse(car.isConnecting());
         car.connect();
@@ -99,12 +110,14 @@ public class CarTest extends AndroidTestCase {
         car.disconnect();
     }
 
+    @Test
     public void testConstructorWithICar() throws Exception {
-        Car car = Car.createCar(getContext(), mConnectionListener);
+        Car car = Car.createCar(
+                InstrumentationRegistry.getInstrumentation().getContext(), mConnectionListener);
         car.connect();
         waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         assertNotNull(mICar);
-        Car car2 = new Car(getContext(), mICar, null);
+        Car car2 = new Car(InstrumentationRegistry.getInstrumentation().getContext(), mICar, null);
         assertTrue(car2.isConnected());
     }
 }

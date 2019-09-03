@@ -23,7 +23,10 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.test.AndroidTestCase;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
+
+import org.junit.After;
+import org.junit.Before;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -40,17 +43,20 @@ public class CarApiTestBase extends AndroidTestCase {
         assertTrue(Looper.getMainLooper().isCurrentThread());
     }
 
+    @Before
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
-        setContext(InstrumentationRegistry.getContext());
-        mCar = Car.createCar(getContext(), mConnectionListener);
+        setContext(InstrumentationRegistry.getInstrumentation().getContext());
+        mCar = Car.createCar(
+            InstrumentationRegistry.getInstrumentation().getContext(), mConnectionListener);
         mCar.connect();
         mConnectionListener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
     }
 
+    @After
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
         mCar.disconnect();
     }

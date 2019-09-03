@@ -19,9 +19,16 @@ import android.car.VehicleAreaSeat;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import androidx.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
 @SmallTest
 public class VehicleSeatTest extends AndroidTestCase {
 
+    @Test
     public void testMatchWithVehicleHal() {
         assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleAreaSeat.ROW_1_LEFT,
                 VehicleAreaSeat.SEAT_ROW_1_LEFT);
@@ -43,6 +50,7 @@ public class VehicleSeatTest extends AndroidTestCase {
                 VehicleAreaSeat.SEAT_ROW_3_RIGHT);
     }
 
+    @Test
     public void testFromRowAndSide() {
         assertEquals(VehicleAreaSeat.fromRowAndSide(-1, VehicleAreaSeat.SIDE_LEFT),
                 VehicleAreaSeat.SEAT_UNKNOWN);
