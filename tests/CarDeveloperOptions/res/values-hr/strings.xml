@@ -4170,13 +4170,13 @@
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Priručnik"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Oslobodi prostor odmah"</string>
     <string name="gesture_preference_title" msgid="583646591518373785">"Pokreti"</string>
-    <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Brzi pokreti za upravljanje telefonom"</string>
-    <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Brzi pokreti za upravljanje tabletom"</string>
-    <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Brzi pokreti za upravljanje uređajem"</string>
+    <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Brze kretnje za upravljanje telefonom"</string>
+    <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Brze kretnje za upravljanje tabletom"</string>
+    <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Brze kretnje za upravljanje uređajem"</string>
     <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Otvaranje fotoaparata"</string>
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Da biste brzo otvorili fotoaparat, dvaput pritisnite tipku za uključivanje/isključivanje. Funkcionira na svim zaslonima."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Brzo otvaranje fotoaparata"</string>
-    <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Prebacivanje fotoaparata"</string>
+    <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Promjena fotoaparata"</string>
     <string name="double_twist_for_camera_mode_summary" msgid="8979914206876018137"></string>
     <string name="double_twist_for_camera_suggestion_title" msgid="5932411386316771246">"Brže snimanje selfieja"</string>
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Da biste promijenili aplikaciju, prijeđite prstom prema gore po gumbu početnog zaslona. Ponovo prijeđite prstom prema gore da biste vidjeli sve aplikacije. Funkcionira na svim zaslonima. Više nećete imati gumb Pregled u donjem desnom kutu zaslona."</string>

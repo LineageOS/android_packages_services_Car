@@ -845,7 +845,7 @@
     <string name="wifi_error" msgid="5605801874484465557">"錯誤"</string>
     <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"5 GHz 頻帶在這個國家/地區不受支援"</string>
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"處於飛行模式時"</string>
-    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"開啟網路通知"</string>
+    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"開放式網路通知"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"有高品質的公用網路時通知我"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"自動開啟 Wi‑Fi"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"位於已儲存的高品質 Wi‑Fi 網路範圍內 (例如家用網路) 時自動重新開啟 Wi‑Fi"</string>
@@ -3396,7 +3396,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> 個類別</item>
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> 個類別</item>
     </plurals>
-    <string name="no_channels" msgid="8884254729302501652">"這個應用程式未發佈任何通知"</string>
+    <string name="no_channels" msgid="8884254729302501652">"這個應用程式未發布任何通知"</string>
     <string name="app_settings_link" msgid="8465287765715790984">"應用程式中的其他設定"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"已針對所有應用程式開啟這項設定"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
@@ -3753,10 +3753,10 @@
     <string name="background_check_title" msgid="4136736684290307970">"完整背景存取權"</string>
     <string name="assist_access_context_title" msgid="2274614501747710439">"使用畫面中的文字"</string>
     <string name="assist_access_context_summary" msgid="5867997494395842785">"允許小幫手應用程式存取畫面中的文字內容"</string>
-    <string name="assist_access_screenshot_title" msgid="1991014038776117688">"使用螢幕擷取畫面"</string>
+    <string name="assist_access_screenshot_title" msgid="1991014038776117688">"使用螢幕截圖"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"允許小幫手應用程式存取畫面擷圖"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"閃爍螢幕"</string>
-    <string name="assist_flash_summary" msgid="6697095786317559129">"小幫手應用程式存取螢幕或螢幕擷取畫面中的文字時，螢幕邊緣會閃爍"</string>
+    <string name="assist_flash_summary" msgid="6697095786317559129">"小幫手應用程式存取螢幕或螢幕截圖中的文字時，螢幕邊緣會閃爍"</string>
     <string name="assist_footer" msgid="7030121180457472165">"小幫手應用程式可根據你目前瀏覽的畫面資訊，為你提供協助。部分應用程式同時支援啟動器和語音輸入服務，為你提供更完善的服務。"</string>
     <string name="average_memory_use" msgid="5333366040118953945">"記憶體平均用量"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"記憶體最高用量"</string>

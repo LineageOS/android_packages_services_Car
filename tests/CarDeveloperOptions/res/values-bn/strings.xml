@@ -982,7 +982,7 @@
     <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"লোকেশন নির্ভুলতা উন্নতি ও অন্যান্য উদ্দ্যেশ্যের জন্য <xliff:g id="APP_NAME">%1$s</xliff:g> নেটওয়ার্ক স্ক্যান চালু করতে চাইছে, এমনকি ওয়াই-ফাই বন্ধ থাকা সত্ত্বেও।\n\nযে সব অ্যাপ্লিকেশানগুলি স্ক্যান করতে চাই তাদের জন্য এটির অনুমতি দেবেন?"</string>
     <string name="wifi_scan_always_turnoff_message" msgid="556993843641750002">"এটি বন্ধ করতে, ওভারফ্লো মেনুতে ‘উন্নত’ লেখায় যান"</string>
     <string name="wifi_scan_always_confirm_allow" msgid="8857664849515496237">"অনুমতি দিন"</string>
-    <string name="wifi_scan_always_confirm_deny" msgid="6190909841125369403">"আস্বীকার করুন"</string>
+    <string name="wifi_scan_always_confirm_deny" msgid="6190909841125369403">"অস্বীকার করুন"</string>
     <string name="wifi_hotspot_title" msgid="2631956539767069385">"কানেক্ট করতে প্রবেশ করবেন?"</string>
     <string name="wifi_hotspot_message" msgid="6762452611090766607">"<xliff:g id="APP_NAME">%1$s</xliff:g> এর চাহিদা অনুযায়ী নেটওয়ার্কের সাথে কানেক্ট হওয়ার পূর্বে আপনাকে অনলাইনে প্রবেশ করতে হবে।"</string>
     <string name="wifi_hotspot_connect" msgid="409079339360849653">"কানেক্ট করুন"</string>
@@ -3071,7 +3071,7 @@
     <string name="keywords_factory_data_reset" msgid="5865739790670615499">"ওয়াইপ করুন, মুছুন, ফিরিয়ে আনুন, মুছুন, সরান, ফ্যাক্টরি রিসেট করুন"</string>
     <string name="keywords_printing" msgid="8499167841024606451">"প্রিন্টার"</string>
     <string name="keywords_sounds" msgid="9155626618185269312">"স্পিকার বিপ, স্পিকার, ভলিউম, মিউট, সাইলেন্স, অডিও, মিউজিক"</string>
-    <string name="keywords_sounds_and_notifications_interruptions" msgid="7106220678170229900">"বিরক্ত করবেন না, বাধা দেওয়া, বাধা, বিরতি"</string>
+    <string name="keywords_sounds_and_notifications_interruptions" msgid="7106220678170229900">"বিরক্ত করবে না, বাধা দেওয়া, বাধা, বিরতি"</string>
     <string name="keywords_app" msgid="8058542404742867098">"RAM"</string>
     <string name="keywords_location" msgid="6439463166207072559">"আশেপাশে, লোকেশন, ইতিহাস, রিপোর্টিং, জিপিএস"</string>
     <string name="keywords_accounts" msgid="5908945725229306088">"অ্যাকাউন্ট"</string>
@@ -3123,7 +3123,7 @@
     <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"ব্যাটারি সেভার, স্টিকি, লেগে থাকা, পাওয়ার সেভার, ব্যাটারি"</string>
     <string name="default_sound" msgid="6675629744816442953">"ডিফল্ট সাউন্ড"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"রিং ভলিউম <xliff:g id="PERCENTAGE">%1$s</xliff:g> তে রয়েছে"</string>
-    <string name="sound_dashboard_summary" msgid="5187301919242823508">"ভলিউম, কম্পন, বিরক্ত করবেন না"</string>
+    <string name="sound_dashboard_summary" msgid="5187301919242823508">"ভলিউম, কম্পন, বিরক্ত করবে না"</string>
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"রিঙ্গারকে ভাইব্রেট অবস্থায় সেট করা হয়েছে"</string>
     <string name="sound_settings_summary_silent" msgid="899823817462768876">"রিঙ্গারকে নীরব অবস্থায় সেট করা হয়েছে"</string>
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"রিং ভলিউম ৮০% তে রয়েছে"</string>
@@ -3161,8 +3161,8 @@
       <item quantity="one"><xliff:g id="ON_COUNT">%d</xliff:g>টি চালু করা আছে</item>
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g>টি চালু করা আছে</item>
     </plurals>
-    <string name="zen_mode_settings_title" msgid="3425263414594779244">"বিরক্ত করবেন না"</string>
-    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"\'বিরক্ত করবেন না\' মোড চালু করুন"</string>
+    <string name="zen_mode_settings_title" msgid="3425263414594779244">"বিরক্ত করবে না"</string>
+    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"\'বিরক্ত করবে না\' মোড চালু করুন"</string>
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"ব্যতিক্রম"</string>
     <string name="zen_mode_duration_settings_title" msgid="5522668871014735728">"ডিফল্ট সময়কাল"</string>
     <string name="zen_mode_behavior_allow_title" msgid="2440627647424280842">"এগুলির সাউন্ড ও ভাইব্রেশন হবে"</string>
@@ -3178,7 +3178,7 @@
     <string name="zen_mode_automatic_rule_settings_page_title" msgid="5272888746413504692">"সময়সূচি"</string>
     <string name="zen_mode_schedule_category_title" msgid="1936785755444711221">"সময়সূচি"</string>
     <string name="zen_mode_automation_suggestion_title" msgid="4921779962633710347">"নির্দিষ্ট সময়ে ফোন সাইলেন্ট করুন"</string>
-    <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"\'বিরক্ত করবেন না\' মোডের নিয়ম সেট-আপ করুন"</string>
+    <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"\'বিরক্ত করবে না\' মোডের নিয়ম সেট-আপ করুন"</string>
     <string name="zen_mode_schedule_title" msgid="5275268813192802631">"সময়সূচি"</string>
     <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"সময়সূচি ব্যবহার করুন"</string>
     <string name="zen_mode_option_important_interruptions" msgid="5173944276846940149">"শুধুমাত্র অগ্রাধিকার"</string>
@@ -3187,14 +3187,14 @@
     <string name="zen_mode_summary_combination" msgid="6960111215170691605">"<xliff:g id="MODE">%1$s</xliff:g>: <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_visual_interruptions_settings_title" msgid="8378266552787406849">"ভিজ্যুয়াল ব্যাঘাতগুলিকে ব্লক করুন"</string>
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"ভিজুয়াল সঙ্কেতগুলি চালু করুন"</string>
-    <string name="zen_mode_settings_category" msgid="5601680733422424922">"যখন \'বিরক্ত করবেন না চালু\' থাকবে"</string>
+    <string name="zen_mode_settings_category" msgid="5601680733422424922">"যখন \'বিরক্ত করবে না চালু\' থাকবে"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"বিজ্ঞপ্তি ব্লক করুন"</string>
     <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"বিজ্ঞপ্তি থেকে কোনও সাউন্ড হবে না"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"আপনার স্ক্রিনে বিজ্ঞপ্তি দেখতে পাবেন"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"বিজ্ঞপ্তি দেখানো হলে ফোনে সাউন্ড বা ভাইব্রেশন হবে না।"</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"বিজ্ঞপ্তি থেকে কোনও কিছু দেখা বা শোনা যাবে না"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"আপনি কোনও বিজ্ঞপ্তি দেখতে বা শুনতে পাবেন না"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"নতুন অথবা আগে থেকে রয়েছে এমন বিজ্ঞপ্তির ক্ষেত্রে আপনার ফোনে ভাইব্রেশন অথবা সাউন্ড হবে না বা কোনও কিছু দেখাবে না। মনে রাখবেন, ফোনের অ্যাক্টিভিটি এবং স্ট্যাটাস সংক্রান্ত জরুরি বিজ্ঞপ্তি দেখানো হবে।\n\nআপনি ফোনে \"বিরক্ত করবেন না মোড\" বন্ধ করে রাখলে, স্ক্রিনের উপর থেকে নিচে সোয়াইপ করে মিস হওয়া বিজ্ঞপ্তিগুলি দেখুন।"</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"নতুন অথবা আগে থেকে রয়েছে এমন বিজ্ঞপ্তির ক্ষেত্রে আপনার ফোনে ভাইব্রেশন অথবা সাউন্ড হবে না বা কোনও কিছু দেখাবে না। মনে রাখবেন, ফোনের অ্যাক্টিভিটি এবং স্ট্যাটাস সংক্রান্ত জরুরি বিজ্ঞপ্তি দেখানো হবে।\n\nআপনি ফোনে \"বিরক্ত করবে না মোড\" বন্ধ করে রাখলে, স্ক্রিনের উপর থেকে নিচে সোয়াইপ করে মিস হওয়া বিজ্ঞপ্তিগুলি দেখুন।"</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"কাস্টম"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"কাস্টম সেটিং চালু করুন"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"কাস্টম সেটিং সরান"</string>
@@ -3225,11 +3225,11 @@
     <string name="zen_mode_enable_dialog_turn_on" msgid="6396050543542026184">"চালু করুন"</string>
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"এখনই চালু করুন"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"এখনই বন্ধ করুন"</string>
-    <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"\'বিরক্ত করবেন না\' মোডটি <xliff:g id="FORMATTED_TIME">%s</xliff:g> পর্যন্ত চালু থাকবে"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"\'বিরক্ত করবেন না\' মোডটি বন্ধ না করা পর্যন্ত সেটি চালু থাকবে"</string>
-    <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"(<xliff:g id="RULE_NAME">%s</xliff:g>) শিডিউলের জন্য বিরক্ত করবেন না মোডটি নিজে থেকেই চালু হয়ে গেছে"</string>
-    <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"<xliff:g id="APP_NAME">%s</xliff:g> অ্যাপটি নিজে থেকেই \'বিরক্ত করবেন না\' মোড চালু করে দিয়েছে"</string>
-    <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"কাস্টম সেটিংস সহ <xliff:g id="RULE_NAMES">%s</xliff:g>-এর জন্য \'বিরক্ত করবেন না\' মোডটি চালু আছে।"</string>
+    <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"\'বিরক্ত করবে না\' মোডটি <xliff:g id="FORMATTED_TIME">%s</xliff:g> পর্যন্ত চালু থাকবে"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"\'বিরক্ত করবে না\' মোডটি বন্ধ না করা পর্যন্ত সেটি চালু থাকবে"</string>
+    <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"(<xliff:g id="RULE_NAME">%s</xliff:g>) শিডিউলের জন্য বিরক্ত করবে না মোডটি নিজে থেকেই চালু হয়ে গেছে"</string>
+    <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"<xliff:g id="APP_NAME">%s</xliff:g> অ্যাপটি নিজে থেকেই \'বিরক্ত করবে না\' মোড চালু করে দিয়েছে"</string>
+    <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"কাস্টম সেটিংস সহ <xliff:g id="RULE_NAMES">%s</xliff:g>-এর জন্য \'বিরক্ত করবে না\' মোডটি চালু আছে।"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" কাস্টম সেটিংস দেখুন"</annotation></string>
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"শুধুমাত্র অগ্রাধিকার"</string>
     <string name="zen_mode_and_condition" msgid="4123722186007123567">"<xliff:g id="ZEN_MODE">%1$s</xliff:g>. <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
@@ -3252,7 +3252,7 @@
     <string name="zen_category_exceptions" msgid="2139670640033601899">"ব্যতিক্রম"</string>
     <string name="zen_category_schedule" msgid="989629666210114164">"সময় ঠিক করুন"</string>
     <string name="zen_sound_title" msgid="3429086967245473870">"সবগুলি দেখুন"</string>
-    <string name="zen_sound_footer" msgid="1778673975517424878">"\'বিরক্ত করবেন না\' মোড চালু থাকলে আপনি উপরে যে আইটেমগুলি ব্যতিক্রম হিসেবে চিহ্নিত করবেন সেগুলি ছাড়া বাকি সবকিছুর ক্ষেত্রে সাউন্ড এবং ভাইব্রেশন মিউট করা হবে।"</string>
+    <string name="zen_sound_footer" msgid="1778673975517424878">"\'বিরক্ত করবে না\' মোড চালু থাকলে আপনি উপরে যে আইটেমগুলি ব্যতিক্রম হিসেবে চিহ্নিত করবেন সেগুলি ছাড়া বাকি সবকিছুর ক্ষেত্রে সাউন্ড এবং ভাইব্রেশন মিউট করা হবে।"</string>
     <string name="zen_sound_category_title" msgid="2109447208414722786">"এগুলি ছাড়া সবকিছু মিউট করুন"</string>
     <string name="zen_sound_all_muted" msgid="4844094866910870591">"মিউট করা আছে"</string>
     <string name="zen_sound_none_muted" msgid="4869385974769188085">"মিউট করা নেই"</string>
@@ -3265,14 +3265,14 @@
     <string name="zen_custom_settings_notifications_header" msgid="7469592764589354302">"বিজ্ঞপ্তি"</string>
     <string name="zen_custom_settings_duration_header" msgid="1806465684026300942">"সময়কাল"</string>
     <string name="zen_msg_event_reminder_title" msgid="8685224436389816905">"মেসেজ, ইভেন্ট ও রিমাইন্ডার"</string>
-    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"\'বিরক্ত করবেন না\' মোড চালু থাকলে আপনি উপরে যে আইটেমগুলি ব্যতিক্রম হিসেবে চিহ্নিত করবেন সেগুলি ছাড়া বাকি সমস্ত মেসেজ, রিমাইন্ডার এবং ইভেন্ট মিউট করা হবে। আপনার বন্ধুবান্ধব, পরিবারের সদস্য অথবা অন্য পরিচিতিরা যাতে আপনার সাথে যোগাযোগ করতে পারেন তার জন্য আপনি মেসেজের সেটিংস অ্যাডজাস্ট করে নিতে পারেন।"</string>
+    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"\'বিরক্ত করবে না\' মোড চালু থাকলে আপনি উপরে যে আইটেমগুলি ব্যতিক্রম হিসেবে চিহ্নিত করবেন সেগুলি ছাড়া বাকি সমস্ত মেসেজ, রিমাইন্ডার এবং ইভেন্ট মিউট করা হবে। আপনার বন্ধুবান্ধব, পরিবারের সদস্য অথবা অন্য পরিচিতিরা যাতে আপনার সাথে যোগাযোগ করতে পারেন তার জন্য আপনি মেসেজের সেটিংস অ্যাডজাস্ট করে নিতে পারেন।"</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"হয়ে গেছে"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"সেটিংস"</string>
     <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"বিজ্ঞপ্তি থেকে কোনও কিছু দেখা বা শোনা যাবে না"</string>
     <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"বিজ্ঞপ্তি থেকে কোনও সাউন্ড হবে না"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"আপনি কোনও বিজ্ঞপ্তি দেখতে বা শুনতে পাবেন না। যারা তারা চিহ্নিত পরিচিতি এবং আগে যারা ফোন করেছেন তারা আবার ফোন করতে পারবেন।"</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(বর্তমান সেটিং)"</string>
-    <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"\"বিরক্ত করবেন না\" মোডের বিজ্ঞপ্তির সেটিংস পরিবর্তন করবেন?"</string>
+    <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"\"বিরক্ত করবে না\" মোডের বিজ্ঞপ্তির সেটিংস পরিবর্তন করবেন?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"কর্মস্থলের প্রোফাইলের ধ্বনিগুলি"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"ব্যক্তিগত প্রোফাইলের ধ্বনিগুলি ব্যবহার করুন"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"কাজ এবং ব্যক্তিগত প্রোফাইলের জন্য একই শব্দ"</string>
@@ -3364,10 +3364,10 @@
     <string name="no_notification_assistant" msgid="9140123568386413264">"অ্যাসিস্ট্যান্টের পরিষেবা পাওয়া যাবে না"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"ইনস্টল করা কোনো অ্যাপের অনুরোধকৃত বিজ্ঞপ্তির অ্যাক্সেস নেই৷"</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g>-কে বিজ্ঞপ্তিতে অ্যাক্সেস দিতে চান?"</string>
-    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> পরিচিতির নাম এবং আপনি পেয়েছেন এমন টেক্সট মেসেজ সহ ব্যক্তিগত তথ্যের সব বিজ্ঞপ্তি পড়তে পারবে। এর মধ্যে থাকা বিজ্ঞপ্তি পরিবর্তন করতে বা অ্যাকশন বোতাম ট্রিগার করতে বা খারিজ করতে পারবে। \n\nএই অ্যাপ \'বিরক্ত করবেন না\' বিকল্পটিকে চালু বা বন্ধ করার এবং সম্পর্কিত সেটিংস পরিবর্তন করতে পারবে।"</string>
+    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> পরিচিতির নাম এবং আপনি পেয়েছেন এমন টেক্সট মেসেজ সহ ব্যক্তিগত তথ্যের সব বিজ্ঞপ্তি পড়তে পারবে। এর মধ্যে থাকা বিজ্ঞপ্তি পরিবর্তন করতে বা অ্যাকশন বোতাম ট্রিগার করতে বা খারিজ করতে পারবে। \n\nএই অ্যাপ \'বিরক্ত করবে না\' বিকল্পটিকে চালু বা বন্ধ করার এবং সম্পর্কিত সেটিংস পরিবর্তন করতে পারবে।"</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> এর জন্য বিজ্ঞপ্তির অ্যাক্সেসে অনুমতি দেবেন?"</string>
-    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, পরিচিতির নাম ও আপনার গৃহীত পাঠ্য বার্তাগুলির মত ব্যক্তিগত তথ্য সহ সমস্ত বিজ্ঞপ্তি পড়তে সক্ষম হবে৷ এটি আবার এর মধ্যে থাকা বিজ্ঞপ্তিগুলি বা নির্দিষ্ট কাজের বোতামগুলি খারিজ করতে পারবে। \n\nএছাড়াও এটি এই অ্যাপ্লিকেশানকে, \'বিরক্ত করবেন না\' বিকল্পটিকে চালু বা বন্ধ করার এবং সংশ্লিষ্ট সেটিংস পরিবর্তন করার ক্ষমতা প্রদান করবে৷"</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"যদি আপনি <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> এর জন্য বিজ্ঞপ্তির অ্যাক্সেস বন্ধ করেন, তাহলে \'বিরক্ত করবেন না\' এর অ্যাক্সেসও বন্ধ হয়ে যেতে পারে৷"</string>
+    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, পরিচিতির নাম ও আপনার গৃহীত পাঠ্য বার্তাগুলির মত ব্যক্তিগত তথ্য সহ সমস্ত বিজ্ঞপ্তি পড়তে সক্ষম হবে৷ এটি আবার এর মধ্যে থাকা বিজ্ঞপ্তিগুলি বা নির্দিষ্ট কাজের বোতামগুলি খারিজ করতে পারবে। \n\nএছাড়াও এটি এই অ্যাপ্লিকেশানকে, \'বিরক্ত করবে না\' বিকল্পটিকে চালু বা বন্ধ করার এবং সংশ্লিষ্ট সেটিংস পরিবর্তন করার ক্ষমতা প্রদান করবে৷"</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"যদি আপনি <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> এর জন্য বিজ্ঞপ্তির অ্যাক্সেস বন্ধ করেন, তাহলে \'বিরক্ত করবে না\' এর অ্যাক্সেসও বন্ধ হয়ে যেতে পারে৷"</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"বন্ধ করুন"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"বাতিল করুন"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"(ভিআর)VR সহায়তাকারী পরিষেবাগুলি"</string>
@@ -3383,9 +3383,9 @@
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"ছবির-মধ্যে-ছবি"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"ছবির-মধ্যে-ছবি তৈরির অনুমতি দিন"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"অ্যাপটি খোলা থাকার সময় অথবা আপনি এটি ছেড়ে বেরিয়ে গেলে (যেমন, কোনও ভিডিও দেখার জন্য) এটিকে একটি ছবির-মধ্যে-ছবি সমেত উইন্ডো তৈরি করার অনুমতি দিন। চালু থাকা অন্যান্য অ্যাপের উপরে এই উইন্ডোটি দেখা যাবে।"</string>
-    <string name="manage_zen_access_title" msgid="3058206309728524196">"বিরক্ত করবেন না মোডের ক্ষেত্রে অ্যাক্সেস"</string>
-    <string name="zen_access_detail_switch" msgid="8706332327904974500">"\'বিরক্ত করবেন না\' মোডের জন্য অনুমতি দিন"</string>
-    <string name="zen_access_empty_text" msgid="7667538993781607731">"ইনস্টল করা নেই এমন অ্যাপগুলি বিরক্ত করবেন না অ্যাক্সেস করুন এর অনুরোধ জানিয়েছে"</string>
+    <string name="manage_zen_access_title" msgid="3058206309728524196">"বিরক্ত করবে না মোডের ক্ষেত্রে অ্যাক্সেস"</string>
+    <string name="zen_access_detail_switch" msgid="8706332327904974500">"\'বিরক্ত করবে না\' মোডের জন্য অনুমতি দিন"</string>
+    <string name="zen_access_empty_text" msgid="7667538993781607731">"ইনস্টল করা নেই এমন অ্যাপগুলি বিরক্ত করবে না অ্যাক্সেস করুন এর অনুরোধ জানিয়েছে"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"অ্যাপ্লিকেশানগুলি লোড করা হচ্ছে..."</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"আপনার অনুরোধ অনুযায়ী Android এই অ্যাপের বিজ্ঞপ্তি এই ডিভাইসে দেখাচ্ছে না"</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"আপনার অনুরোধ অনুযায়ী Android এই বিভাগের বিজ্ঞপ্তিগুলি এই ডিভাইসে দেখাচ্ছে না"</string>
@@ -3415,8 +3415,8 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"ছায়া বা পেরিফেরাল ডিভাইসে কখনও বিজ্ঞপ্তিগুলি দেখায় না"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"বিজ্ঞপ্তির ডট দেখানোর অনুমতি দিন"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"বিজ্ঞপ্তির ডট দেখান"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\'বিরক্ত করবেন না\' ওভাররাইড করুন"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"\'বিরক্ত করবেন না\' মোড চালু থাকলেও এই বিজ্ঞপ্তিগুলির জন্য আওয়াজ হতে দিন"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\'বিরক্ত করবে না\' ওভাররাইড করুন"</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"\'বিরক্ত করবে না\' মোড চালু থাকলেও এই বিজ্ঞপ্তিগুলির জন্য আওয়াজ হতে দিন"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"লক স্ক্রিনে"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"অবরুদ্ধ"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"অগ্রাধিকার"</string>
@@ -3439,13 +3439,13 @@
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"\"<xliff:g id="RULE">%1$s</xliff:g>\" নিয়ম মুছে ফেলবেন?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"মুছুন"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"অজানা"</string>
-    <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"এই সেটিংগুলি এখনই পরিবর্তন করা যাবে না। অ্যাপটি (<xliff:g id="APP_NAME">%1$s</xliff:g>) কাস্টম আচরণের সাথে \'বিরক্ত করবেন না\'\' মোডটি নিজে থেকেই চালু করে দিয়েছে।"</string>
-    <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"এই সেটিংগুলি এখনই পরিবর্তন করা যাবে না। অ্যাপটি কাস্টম আচরণের সাথে \'বিরক্ত করবেন না\'\' মোডটি নিজে থেকেই চালু করে দিয়েছে।"</string>
-    <string name="zen_mode_qs_set_behavior" msgid="788646569296973998">"এই সেটিংগুলি এখনই পরিবর্তন করা যাবে না। কাস্টম আচরণের সাথে ম্যানুয়ালী \'\'বিরক্ত করবেন না\'\' মোডটি চালু করা ছিল।"</string>
+    <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"এই সেটিংগুলি এখনই পরিবর্তন করা যাবে না। অ্যাপটি (<xliff:g id="APP_NAME">%1$s</xliff:g>) কাস্টম আচরণের সাথে \'বিরক্ত করবে না\'\' মোডটি নিজে থেকেই চালু করে দিয়েছে।"</string>
+    <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"এই সেটিংগুলি এখনই পরিবর্তন করা যাবে না। অ্যাপটি কাস্টম আচরণের সাথে \'বিরক্ত করবে না\'\' মোডটি নিজে থেকেই চালু করে দিয়েছে।"</string>
+    <string name="zen_mode_qs_set_behavior" msgid="788646569296973998">"এই সেটিংগুলি এখনই পরিবর্তন করা যাবে না। কাস্টম আচরণের সাথে ম্যানুয়ালী \'\'বিরক্ত করবে না\'\' মোডটি চালু করা ছিল।"</string>
     <string name="zen_schedule_rule_type_name" msgid="4516851728113801329">"সময়"</string>
-    <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"বিরক্ত করবেন না চালু করার জন্য, নির্দিষ্ট সময়ের জন্য স্বয়ংক্রিয়ভাবে নিয়ম সেট করা"</string>
+    <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"বিরক্ত করবে না চালু করার জন্য, নির্দিষ্ট সময়ের জন্য স্বয়ংক্রিয়ভাবে নিয়ম সেট করা"</string>
     <string name="zen_event_rule_type_name" msgid="7467729997336583342">"ইভেন্ট"</string>
-    <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"বিরক্ত করবেন না চালু করার জন্য, নির্দিষ্ট সময়ের জন্য স্বয়ংক্রিয়ভাবে নিয়ম সেট করা"</string>
+    <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"বিরক্ত করবে না চালু করার জন্য, নির্দিষ্ট সময়ের জন্য স্বয়ংক্রিয়ভাবে নিয়ম সেট করা"</string>
     <string name="zen_mode_event_rule_calendar" msgid="6088077103908487442">"এর জন্য ইভেন্টগুলি চলাকালীন"</string>
     <string name="zen_mode_event_rule_summary_calendar_template" msgid="4027207992040792657">"<xliff:g id="CALENDAR">%1$s</xliff:g> এর জন্য ইভেন্টগুলি চলাকালীন"</string>
     <string name="zen_mode_event_rule_summary_any_calendar" msgid="7590085295784895885">"যেকোনো ক্যালেন্ডার"</string>
@@ -3463,7 +3463,7 @@
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"প্রতিদিন"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"অ্যালার্ম সমাপ্তি সময়কে ওভাররাইড করতে পারে"</string>
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"কোনও অ্যালার্ম বাজলে সময়সূচী বন্ধ হয়ে যায়"</string>
-    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\'বিরক্ত করবেন না\' মোড"</string>
+    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\'বিরক্ত করবে না\' মোড"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"ডিফল্ট সেটিংস ব্যবহার করুন"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"এই সময়ের জন্য কাস্টম সেটিংস তৈরি করুন"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"\'<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\'-এর জন্য"</string>
@@ -3504,8 +3504,8 @@
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"অ্যাপ ওভাররাইডের অনুমতি দিন"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"অ্যাপ এক্সেপশন"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
-      <item quantity="one">যদি <xliff:g id="NUMBER">%1$d</xliff:g>টি অ্যাপকে বিজ্ঞপ্তি দেওয়ার অনুমতি দেওয়া হয়, তাহলে বিরক্ত করবেন না মোড ওভাররাইড হতে পারে।</item>
-      <item quantity="other">যদি <xliff:g id="NUMBER">%1$d</xliff:g>টি অ্যাপকে বিজ্ঞপ্তি দেওয়ার অনুমতি দেওয়া হয়, তাহলে বিরক্ত করবেন না মোড ওভাররাইড হতে পারে।</item>
+      <item quantity="one">যদি <xliff:g id="NUMBER">%1$d</xliff:g>টি অ্যাপকে বিজ্ঞপ্তি দেওয়ার অনুমতি দেওয়া হয়, তাহলে বিরক্ত করবে না মোড ওভাররাইড হতে পারে।</item>
+      <item quantity="other">যদি <xliff:g id="NUMBER">%1$d</xliff:g>টি অ্যাপকে বিজ্ঞপ্তি দেওয়ার অনুমতি দেওয়া হয়, তাহলে বিরক্ত করবে না মোড ওভাররাইড হতে পারে।</item>
     </plurals>
     <string name="zen_mode_events_list" msgid="8578102701815684873">"ইভেন্ট"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"যেকেউ"</string>
@@ -3537,10 +3537,10 @@
     <string name="zen_mode_summary_alarms_only_by_time" msgid="2462898862757904560">"শুধুমাত্র <xliff:g id="FORMATTEDTIME">%1$s</xliff:g> পর্যন্ত অ্যালার্মগুলি পরিবর্তন করুন"</string>
     <string name="zen_mode_summary_always" msgid="2703276042913200837">"সর্বদা বাধা দেওয়াতে পরিবর্তন করুন"</string>
     <string name="zen_mode_screen_on" msgid="7098470659072167219">"যখন স্ক্রিন চালু থাকে"</string>
-    <string name="zen_mode_screen_on_summary" msgid="8275416649295357524">"\'বিরক্ত করবেন না\' দ্বারা মিউট করা বিজ্ঞপ্তিগুলিকে স্ক্রিনে প্রদর্শিত হতে এবং একটি স্ট্যাটাস বার আইকন দেখাতে দিন"</string>
+    <string name="zen_mode_screen_on_summary" msgid="8275416649295357524">"\'বিরক্ত করবে না\' দ্বারা মিউট করা বিজ্ঞপ্তিগুলিকে স্ক্রিনে প্রদর্শিত হতে এবং একটি স্ট্যাটাস বার আইকন দেখাতে দিন"</string>
     <string name="zen_mode_screen_off" msgid="84211490206459038">"যখন স্ক্রিন বন্ধ থাকে"</string>
-    <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"\'বিরক্ত করবেন না\' দ্বারা নীরব করা বিজ্ঞপ্তিগুলিকে স্ক্রিন চালু করতে এবং লাইটটি জ্বলাতে ও নেভাতে দিন"</string>
-    <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"\'বিরক্ত করবেন না\' দ্বারা নীরব করা বিজ্ঞপ্তিগুলিকে স্ক্রিন চালু করতে দিন"</string>
+    <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"\'বিরক্ত করবে না\' দ্বারা নীরব করা বিজ্ঞপ্তিগুলিকে স্ক্রিন চালু করতে এবং লাইটটি জ্বলাতে ও নেভাতে দিন"</string>
+    <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"\'বিরক্ত করবে না\' দ্বারা নীরব করা বিজ্ঞপ্তিগুলিকে স্ক্রিন চালু করতে দিন"</string>
     <string name="notification_app_settings_button" msgid="3651180424198580907">"বিজ্ঞপ্তির সেটিংস"</string>
     <string name="suggestion_button_text" msgid="5783566542423813847">"ঠিক আছে"</string>
     <string name="device_feedback" msgid="4042352891448769818">"এই ডিভাইসের সম্পর্কে মতামত পাঠান"</string>
@@ -3602,7 +3602,7 @@
     <string name="notifications_silenced" msgid="538923056987616372">"মিউট করা হয়েছে"</string>
     <string name="notifications_redacted" msgid="308836040236690014">"সংবেদনশীল সামগ্রীকে লক স্ক্রীনে দেখানো হবে না"</string>
     <string name="notifications_hidden" msgid="3665505522897010205">"লক স্ক্রীনে দেখানো হবে না"</string>
-    <string name="notifications_priority" msgid="8849045645983017929">"\'বিরক্ত করবেন না\' ওভাররাইড করা হয়েছে"</string>
+    <string name="notifications_priority" msgid="8849045645983017929">"\'বিরক্ত করবে না\' ওভাররাইড করা হয়েছে"</string>
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"লেভেল %d"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
@@ -3634,7 +3634,7 @@
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"বিভাগগুলি: জরুরী গুরুত্বের"</string>
     <string name="filter_notif_low_channels" msgid="6859599463135775287">"বিভাগগুলি: কম গুরুত্বের"</string>
     <string name="filter_notif_blocked_channels" msgid="6110799550327612670">"বিভাগগুলি: বন্ধ আছে"</string>
-    <string name="filter_notif_dnd_channels" msgid="3251570137256371092">"বিভাগগুলি: বিরক্ত করবেন না কে ওভাররাইড করে"</string>
+    <string name="filter_notif_dnd_channels" msgid="3251570137256371092">"বিভাগগুলি: বিরক্ত করবে না কে ওভাররাইড করে"</string>
     <string name="advanced_apps" msgid="6643869089344883537">"উন্নত"</string>
     <string name="configure_apps" msgid="4066683118857400943">"অ্যাপ্লিকেশান কনফিগার করুন"</string>
     <string name="unknown_app" msgid="2312052973570376877">"অজানা অ্যাপ্লিকেশান"</string>
@@ -3779,11 +3779,11 @@
     <string name="running_frequency" msgid="7545170806968474449">"পুনরাবৃত্তির হার"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"সর্বাধিক ব্যবহার"</string>
     <string name="no_data_usage" msgid="903383745620135746">"কোনো ডেটা ব্যবহৃত হয়নি"</string>
-    <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"<xliff:g id="APP">%1$s</xliff:g> ব্যবহারের জন্য \'বিরক্ত করবেন না\' -তে অ্যাক্সেসের অনুমতি দেবেন?"</string>
-    <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"অ্যাপটি \'বিরক্ত করবেন না\' চালু/বন্ধ করতে সক্ষম হবে এবং এই সংক্রান্ত সেটিংসে পরিবর্তনগুলি করবে।"</string>
+    <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"<xliff:g id="APP">%1$s</xliff:g> ব্যবহারের জন্য \'বিরক্ত করবে না\' -তে অ্যাক্সেসের অনুমতি দেবেন?"</string>
+    <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"অ্যাপটি \'বিরক্ত করবে না\' চালু/বন্ধ করতে সক্ষম হবে এবং এই সংক্রান্ত সেটিংসে পরিবর্তনগুলি করবে।"</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"বিজ্ঞপ্তির অ্যাক্সেস চালু থাকার কারণে এটিকে অবশ্যই চালু থাকতে হবে"</string>
-    <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"<xliff:g id="APP">%1$s</xliff:g> এর জন্য \'বিরক্ত করবেন না\' তে অ্যাক্সেস প্রত্যাহার করবেন?"</string>
-    <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"এই অ্যাপ্লিকেশানের দ্বারা তৈরি হওয়া সমস্ত \'বিরক্ত করবেন না\' নিয়মগুলিকে সরানো হবে৷"</string>
+    <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"<xliff:g id="APP">%1$s</xliff:g> এর জন্য \'বিরক্ত করবে না\' তে অ্যাক্সেস প্রত্যাহার করবেন?"</string>
+    <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"এই অ্যাপ্লিকেশানের দ্বারা তৈরি হওয়া সমস্ত \'বিরক্ত করবে না\' নিয়মগুলিকে সরানো হবে৷"</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"অপ্টিমাইজ করবেন না"</string>
     <string name="ignore_optimizations_off" msgid="4372289432580282870">"অপ্টিমাইজ করুন"</string>
     <string name="ignore_optimizations_on_desc" msgid="2904484569799521559">"এতে চার্জ আরও দ্রুত শেষ হয়ে যেতে পারে। ব্যাকগ্রাউন্ডে ব্যাটারি ব্যবহার করা থেকে অ্যাপটিকে আর সীমাবদ্ধ করা হবে না।"</string>
@@ -3883,7 +3883,7 @@
     <string name="condition_hotspot_title" msgid="4143299802283098506">"হটস্পট চালু আছে"</string>
     <string name="condition_airplane_title" msgid="8484582712516148433">"বিমান মোড চালু করা আছে"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"নেটওয়ার্ক উপলভ্য নেই"</string>
-    <string name="condition_zen_title" msgid="2128184708916052585">"\'বিরক্ত করবেন না\' মোড চালু আছে"</string>
+    <string name="condition_zen_title" msgid="2128184708916052585">"\'বিরক্ত করবে না\' মোড চালু আছে"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"ফোন মিউট করা আছে"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"ব্যতিক্রম সহ"</string>
     <string name="condition_battery_title" msgid="6704870010912986274">"ব্যাটারি সেভার চালু আছে"</string>
@@ -4124,7 +4124,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"সময়, বিজ্ঞপ্তি এবং অন্যান্য তথ্য দেখতে আপনার ফোনটি তুলে ধরুন।"</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"সময়, বিজ্ঞপ্তি এবং অন্যান্য তথ্য দেখতে আপনার ট্যাবলেটটি তুলে ধরুন।"</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"সময়, বিজ্ঞপ্তি এবং অন্যান্য তথ্য দেখতে আপনার ডিভাইসটি তুলে ধরুন।"</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"ফোন যাচাই করতে ট্যাপ করুন"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"ফোন চেক করতে ট্যাপ করুন"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"ট্যাবলেট যাচাই করতে ট্যাপ করুন"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"ডিভাইস যাচাই করতে ট্যাপ করুন"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"সময়, বিজ্ঞপ্তি এবং অন্যান্য তথ্য দেখতে আপনার স্ক্রিনে ট্যাপ করুন।"</string>
@@ -4265,7 +4265,7 @@
     <string name="storage_movies_tv" msgid="7282484273991655296">"সিনেমা ও টিভি অ্যাপ"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"পরিষেবা প্রদানকারীর ব্যবস্থামূলক তথ্য"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"ট্রিগার পরিষেবা প্রদানকারীর ব্যবস্থা"</string>
-    <string name="zen_suggestion_title" msgid="2134699720214231950">"\'বিরক্ত করবেন না\' মোডটি আপডেট করুন"</string>
+    <string name="zen_suggestion_title" msgid="2134699720214231950">"\'বিরক্ত করবে না\' মোডটি আপডেট করুন"</string>
     <string name="zen_suggestion_summary" msgid="4041062903237952737">"যাতে বিরক্ত হতে না হয় তার জন্য বিজ্ঞপ্তি পজ করুন"</string>
     <string name="disabled_low_ram_device" msgid="4958060232123741721">"এই বৈশিষ্ট্যটি এই ডিভাইসে উপলব্ধ নেই"</string>
     <string name="disabled_feature" msgid="3747549387387702365">"এই ফিচারটি উপলভ্য নেই"</string>

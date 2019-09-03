@@ -390,7 +390,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"私隱權"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"已由管理員停用"</string>
     <string name="security_status_title" msgid="1261960357751754428">"安全性狀態"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"螢幕鎖定, 臉容解鎖"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"螢幕鎖定, 臉孔解鎖"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"螢幕鎖定、指紋"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"螢幕鎖定"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"已加入臉孔"</string>
@@ -427,7 +427,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"移除臉容資料"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"您的臉容可以用來解鎖裝置和存取應用程式。"<annotation id="url">"瞭解詳情"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"是否刪除臉容資料？"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"臉容解鎖功能記錄的資料將以安全方式永久刪除。移除後，您將需使用 PIN、圖案或密碼解鎖手機、登入應用程式及確認付款。"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"臉孔解鎖功能記錄的資料將以安全方式永久刪除。移除後，您將需使用 PIN、圖案或密碼解鎖手機、登入應用程式及確認付款。"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"指紋"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"管理指紋"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"使用指紋"</string>
@@ -845,7 +845,7 @@
     <string name="wifi_error" msgid="5605801874484465557">"錯誤"</string>
     <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"此國家/地區無法使用 5 GHz 頻譜"</string>
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"處於飛行模式"</string>
-    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"開啟網絡通知"</string>
+    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"開放網絡通知"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"有高品質的公共網絡時通知我"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"自動開啟 Wi‑Fi"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"附近有已儲存的高品質網絡 (例如家用網絡) 時會開啟 Wi-Fi"</string>

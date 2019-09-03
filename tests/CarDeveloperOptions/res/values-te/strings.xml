@@ -1303,7 +1303,7 @@
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"సిస్టమ్ అప్‌డేట్‌లు"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
     <string name="firmware_version" msgid="547095584029938749">"Android వెర్షన్"</string>
-    <string name="security_patch" msgid="483709031051932208">"Android భద్రతా అతికింపు స్థాయి"</string>
+    <string name="security_patch" msgid="483709031051932208">"Android భద్రతా ప్యాచ్ స్థాయి"</string>
     <string name="model_info" msgid="1729765474260797594">"మోడల్"</string>
     <string name="model_summary" msgid="8781425868254352168">"మోడల్: %1$s"</string>
     <string name="hardware_info" msgid="174270144950621815">"మోడల్ &amp; హార్డ్‌వేర్"</string>
@@ -2459,7 +2459,7 @@
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"ఎప్పటికీ వద్దు"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g> బ్యాటరీ ఉన్నప్పుడు"</string>
     <string name="battery_percentage" msgid="7782252476471033843">"బ్యాటరీ పవర్ శాతం"</string>
-    <string name="battery_percentage_description" msgid="9219875229166700610">"స్థితి బార్‌లో బ్యాటరీ పవర్ శాతాన్ని చూపు"</string>
+    <string name="battery_percentage_description" msgid="9219875229166700610">"స్టేటస్ బార్‌లో బ్యాటరీ పవర్ శాతాన్ని చూపుతుంది"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"ప్రాసెస్ గణాంకాలు"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"అమలవుతున్న ప్రాసెస్‌ల గురించి అసాధారణమైన గణాంకాలు"</string>
     <string name="app_memory_use" msgid="5126237308545653706">"మెమరీ వినియోగం"</string>
@@ -2519,13 +2519,13 @@
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"నిల్వ నుండి ఇన్‌స్టాల్ చేయండి"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"SD కార్డు నుండి ఇన్‌స్టాల్ చేయండి"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"నిల్వ నుండి స‌ర్టిఫికెట్‌ల‌ను ఇన్‌స్టాల్ చేయండి"</string>
-    <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"SD కార్డు నుండి ప్రమాణపత్రాలను ఇన్‌స్టాల్ చేయండి"</string>
+    <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"SD కార్డు నుండి సర్టిఫికెట్‌లను ఇన్‌స్టాల్ చేయండి"</string>
     <string name="credentials_reset" msgid="355080737664731678">"ఆధారాలను క్లియర్ చేయండి"</string>
     <string name="credentials_reset_summary" msgid="7622528359699428555">"అన్ని స‌ర్టిఫికెట్‌ల‌ను తీసివేయండి"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"విశ్వసనీయ ఆధారాలు"</string>
-    <string name="trusted_credentials_summary" msgid="7411781319056251582">"విశ్వసనీయ CA స‌ర్టిఫికెట్‌ల‌ను ప్రదర్శించు"</string>
+    <string name="trusted_credentials_summary" msgid="7411781319056251582">"విశ్వసనీయ CA స‌ర్టిఫికెట్‌ల‌ను ప్రదర్శిస్తుంది"</string>
     <string name="user_credentials" msgid="8365731467650306757">"వినియోగదారు ఆధారాలు"</string>
-    <string name="user_credentials_summary" msgid="7350223899317423252">"నిల్వ చేసిన ఆధారాలను వీక్షించండి మరియు సవరించండి"</string>
+    <string name="user_credentials_summary" msgid="7350223899317423252">"నిల్వ ఉన్న ఆధారాలను చూడండి, వాటిని సవరించండి"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"అధునాతనం"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"నిల్వ రకం"</string>
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"హార్డ్‌వేర్ మద్దతు"</string>
@@ -3397,7 +3397,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> వర్గం</item>
     </plurals>
     <string name="no_channels" msgid="8884254729302501652">"ఈ యాప్ ఏ నోటిఫికేషన్‌లను పోస్ట్ చేయలేదు"</string>
-    <string name="app_settings_link" msgid="8465287765715790984">"యాప్‌లో అదనపు సెట్టింగ్‌లు"</string>
+    <string name="app_settings_link" msgid="8465287765715790984">"యాప్‌లోని అదనపు సెట్టింగ్‌లు"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"అన్ని యాప్‌లలో ఆన్ చేయబడ్డాయి"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> యాప్‌లలో ఆఫ్ చేయబడింది</item>
@@ -3443,9 +3443,9 @@
     <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"ఈ సెట్టింగ్‌లు ప్రస్తుతం మార్చబడవు. ఒక యాప్ అనుకూల ప్రవర్తనతో స్వయంచాలకంగా అంతరాయం కలిగించవద్దుని ఆన్ చేసింది."</string>
     <string name="zen_mode_qs_set_behavior" msgid="788646569296973998">"ఈ సెట్టింగ్‌లు ప్రస్తుతం మార్చబడవు. అనుకూల ప్రవర్తనతో అంతరాయం కలిగించవద్దు మాన్యువల్‌గా ఆన్ చేయబడింది."</string>
     <string name="zen_schedule_rule_type_name" msgid="4516851728113801329">"సమయం"</string>
-    <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"పేర్కొన్న సమయాల్లో అంతరాయం కలిగించవద్దు ఆన్ అయ్యేలా స్వయంచాలక నిబంధన సెట్ చేయబడింది"</string>
+    <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"నిర్దేశిత‌ సమయాల్లో \'అంతరాయం కలిగించవద్దు\' ఆన్ అయ్యేలా ఆటోమేటిక్ నిబంధన సెట్ చేయబడింది"</string>
     <string name="zen_event_rule_type_name" msgid="7467729997336583342">"ఈవెంట్"</string>
-    <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"పేర్కొన్న సందర్భాల్లో అంతరాయం కలిగించవద్దు ఆన్ అయ్యేలా స్వయంచాలక నిబంధన సెట్ చేయబడింది"</string>
+    <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"నిర్దిష్ట‌ సందర్భాల్లో \'అంతరాయం కలిగించవద్దు\' ఆన్ అయ్యేలా ఆటోమేటిక్ నిబంధన సెట్ చేయబడింది"</string>
     <string name="zen_mode_event_rule_calendar" msgid="6088077103908487442">"వీటి సంబంధిత ఈవెంట్‌ల సమయంలో"</string>
     <string name="zen_mode_event_rule_summary_calendar_template" msgid="4027207992040792657">"<xliff:g id="CALENDAR">%1$s</xliff:g> సంబంధిత ఈవెంట్‌ల సమయంలో"</string>
     <string name="zen_mode_event_rule_summary_any_calendar" msgid="7590085295784895885">"ఏదైనా క్యాలెండర్"</string>
@@ -3701,10 +3701,10 @@
       <item quantity="other">యాప్‌ల కారణంగా బ్యాటరీ ఖాళీ అవుతోంది</item>
       <item quantity="one"><xliff:g id="APP">%1$s</xliff:g> కారణంగా బ్యాటరీ ఖాళీ అవుతోంది</item>
     </plurals>
-    <string name="high_power_filter_on" msgid="5294209328473386403">"అనుకూలీకరించనివి"</string>
+    <string name="high_power_filter_on" msgid="5294209328473386403">"ఆప్టిమైజ్ చేయనివి"</string>
     <string name="high_power_on" msgid="3573501822510580334">"అనుకూలీకరించబడలేదు"</string>
     <string name="high_power_off" msgid="5906679734326490426">"బ్యాటరీ వినియోగాన్ని ఆప్టిమైజ్ చేస్తోంది"</string>
-    <string name="high_power_system" msgid="739584574711292753">"బ్యాటరీ అనుకూలీకరణ అందుబాటులో లేదు"</string>
+    <string name="high_power_system" msgid="739584574711292753">"బ్యాటరీ ఆప్టిమైజేషన్ అందుబాటులో లేదు"</string>
     <string name="high_power_desc" msgid="333756885680362741">"బ్యాటరీ అనుకూలీకరణను వర్తింపజేయదు. మీ బ్యాటరీ మరింత శీఘ్రంగా వినియోగించబడవచ్చు."</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"ఎల్లప్పుడూ నేపథ్యంలో అమలు కావడానికి అనువర్తనాన్ని అనుమతించాలా?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"ఎల్లప్పుడూ నేపథ్యంలో అమలు కావడానికి <xliff:g id="APP_NAME">%1$s</xliff:g>ని అనుమతిస్తే బ్యాటరీ జీవితకాలం తగ్గిపోవచ్చు. \n\nమీరు తర్వాత సెట్టింగ్‌లు &gt; యాప్‌లు &amp; నోటిఫికేషన్‌లలోకి వెళ్లి దీనిని మార్చవచ్చు."</string>
@@ -3864,7 +3864,7 @@
     <string name="users_summary" msgid="6693338169439092387">"<xliff:g id="USER_NAME">%1$s</xliff:g>గా సైన్ ఇన్ చేసారు"</string>
     <string name="payment_summary" msgid="1381646849276543242">"<xliff:g id="APP_NAME">%1$s</xliff:g> డిఫాల్ట్‌గా ఉంది"</string>
     <string name="backup_disabled" msgid="6941165814784765643">"బ్యాకప్ నిలిపివేయబడింది"</string>
-    <string name="android_version_summary" msgid="2192751442789395445">"Android <xliff:g id="VERSION">%1$s</xliff:g>కి అప్‌డేట్ చేయబడింది"</string>
+    <string name="android_version_summary" msgid="2192751442789395445">"Android <xliff:g id="VERSION">%1$s</xliff:g>కు అప్‌డేట్ చేయబడింది"</string>
     <string name="android_version_pending_update_summary" msgid="3554543810520655076">"అప్‌డేట్ అందుబాటులో ఉంది"</string>
     <string name="disabled_by_policy_title" msgid="1238318274952958846">"చర్య అనుమతించబడదు"</string>
     <string name="disabled_by_policy_title_adjust_volume" msgid="7094547090629203316">"వాల్యూమ్‌ని మార్చలేరు"</string>

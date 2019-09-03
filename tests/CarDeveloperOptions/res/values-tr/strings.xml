@@ -4124,7 +4124,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Saati, bildirimleri ve diğer bilgileri kontrol etmek için telefonunuzu elinize alın."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Saati, bildirimleri ve diğer bilgileri kontrol etmek için tabletinizi elinize alın."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Saati, bildirimleri ve diğer bilgileri kontrol etmek için cihazınızı elinize alın."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Telefonu kontrol etmek için dokunun"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Telefonu kontrol etmek için dokun"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Tableti kontrol etmek için dokunun"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Cihazı kontrol etmek için dokunun"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Saati, bildirimleri ve diğer bilgileri kontrol etmek için ekranınıza dokunun."</string>

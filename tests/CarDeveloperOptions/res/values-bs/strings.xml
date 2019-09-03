@@ -2180,7 +2180,7 @@
     <string name="captioning_foreground_opacity" msgid="7635639017810117478">"Prozirnost teksta"</string>
     <string name="captioning_edge_color" msgid="4330622137047993780">"Boja rubova"</string>
     <string name="captioning_edge_type" msgid="4414946407430588162">"Vrsta rubova"</string>
-    <string name="captioning_typeface" msgid="7893208796949341767">"Skup fontova"</string>
+    <string name="captioning_typeface" msgid="7893208796949341767">"Porodica fontova"</string>
     <string name="captioning_preview_text" msgid="4877753964772618049">"Stilovi će izgledati ovako"</string>
     <string name="captioning_preview_characters" msgid="6469599599352973561">"Aa"</string>
     <string name="locale_default" msgid="910074908458214054">"Zadano"</string>

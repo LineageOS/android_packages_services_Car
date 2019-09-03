@@ -4239,9 +4239,9 @@
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Instrukcja"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Zwolnij miejsce teraz"</string>
     <string name="gesture_preference_title" msgid="583646591518373785">"Gesty"</string>
-    <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Sterowanie telefonem za pomocą krótkich gestów"</string>
-    <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Sterowanie tabletem za pomocą krótkich gestów"</string>
-    <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Sterowanie urządzeniem za pomocą krótkich gestów"</string>
+    <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Sterowanie telefonem za pomocą gestów"</string>
+    <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Sterowanie tabletem za pomocą gestów"</string>
+    <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Sterowanie urządzeniem za pomocą gestów"</string>
     <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Uruchamianie aparatu"</string>
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Aby szybko uruchomić aparat, naciśnij dwukrotnie przycisk zasilania. Możesz to zrobić na dowolnym ekranie."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Szybkie uruchamianie aparatu"</string>

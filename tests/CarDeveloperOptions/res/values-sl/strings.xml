@@ -1853,7 +1853,7 @@
     <string name="data_size_label" msgid="7790201846922671662">"Uporabniški podatki"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"Podatki na pogonu USB"</string>
     <string name="external_data_size_label" product="default" msgid="1097584278225902734">"Kartica SD"</string>
-    <string name="uninstall_text" msgid="4859715815689705801">"Odstrani"</string>
+    <string name="uninstall_text" msgid="4859715815689705801">"Odmesti"</string>
     <string name="uninstall_all_users_text" msgid="2620518509352561416">"Odstrani za vse uporabnike"</string>
     <string name="install_text" msgid="2798092278891807849">"Namesti"</string>
     <string name="disable_text" msgid="5065834603951474397">"Onemogoči"</string>

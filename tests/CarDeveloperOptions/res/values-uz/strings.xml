@@ -355,7 +355,7 @@
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Qulflangan ekran ustidagi matn"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Vidjetlarni yoqish"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Administrator tomonidan o‘chirilgan"</string>
-    <string name="lockdown_settings_title" msgid="4534779922580115990">"Qulflash funksiyasini ko‘rsatish"</string>
+    <string name="lockdown_settings_title" msgid="4534779922580115990">"Qulflash tugmasini chiqarish"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"Smart Lock, barmoq izi bilan qulfni ochish va ekran qulfidagi bildirishnomalarni faolsizlantiradigan quvvat tugmasi funksiyasini ko‘rsatish."</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Ishonch agentlari qulf ochishni sura oladi"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Bu parametr yoqilsa, ishonch agentlari uzoq vaqt qulfsiz saqlaydi, lekin qulflangan qurilmani qulfdan chiqara olmaydi."</string>
