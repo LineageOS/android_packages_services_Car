@@ -15,6 +15,8 @@
  */
 package com.android.car.cluster;
 
+import static android.car.settings.CarSettings.Global.DISABLE_INSTRUMENTATION_SERVICE;
+
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.CarAppFocusManager;
@@ -31,6 +33,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -211,6 +214,13 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     }
 
     private boolean bindInstrumentClusterRendererService() {
+        boolean explicitlyDisabled = "true".equals(Settings.Global
+                .getString(mContext.getContentResolver(), DISABLE_INSTRUMENTATION_SERVICE));
+        if (explicitlyDisabled) {
+            Log.i(TAG, "Instrument cluster renderer explicitly disabled by settings");
+            return false;
+        }
+
         String rendererService = mContext.getString(R.string.instrumentClusterRendererService);
         if (TextUtils.isEmpty(rendererService)) {
             Log.i(TAG, "Instrument cluster renderer was not configured");
