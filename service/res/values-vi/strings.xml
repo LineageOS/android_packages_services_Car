@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"Thông tin về ô tô"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"Truy cập vào thông tin về ô tô."</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"Buồng lái ô tô"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Truy cập vào thông tin về phụ kiện của ô tô, bao gồm cửa, gương, ghế ngồi và cửa sổ."</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"Camera trên ô tô"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"Truy cập vào (các) camera trên ô tô."</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"Mức năng lượng của ô tô"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Truy cập vào thông tin về mức năng lượng trên ô tô."</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Hvac của ô tô"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Truy cập vào hvac của ô tô."</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"Số dặm ô tô đã đi"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Truy cập vào thông tin về số dặm ô tô đã đi."</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"Tốc độ của ô tô"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Truy cập vào thông tin về tốc độ của ô tô."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Trạng thái động của phương tiện"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"Truy cập vào trạng thái động của ô tô"</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Kênh của nhà cung cấp ô tô"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Truy cập vào kênh của nhà cung cấp ô tô để trao đổi thông tin cụ thể về ô tô."</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"Đài trên ô tô"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"Truy cập vào đài trên ô tô."</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"Chiếu trên ô tô"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Âm lượng âm thanh trên ô tô"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Tùy chọn cài đặt âm thanh trên ô tô"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"Chiếu giao diện điện thoại lên màn hình trên ô tô."</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"Mô phỏng HAL của phương tiện"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Mô phỏng HAL phương tiện của ô tô cho mục đích kiểm tra nội bộ."</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Kiểm soát âm lượng âm thanh trên ô tô."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Kiểm soát tùy chọn cài đặt âm thanh trên ô tô."</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Chặn ứng dụng"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Kiểm soát tính năng chặn ứng dụng trong khi lái xe."</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Trình quản lý điều hướng"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Báo cáo dữ liệu điều hướng cho nhóm dụng cụ"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Hiển thị trực tiếp với nhóm dụng cụ"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Cho phép ứng dụng khai báo các hoạt động sẽ hiển thị trong nhóm dụng cụ"</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Kiểm soát nhóm dụng cụ"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Khởi chạy ứng dụng trong nhóm dụng cụ"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Hiển thị nhóm dụng cụ"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Nhận dữ liệu nhóm dụng cụ"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Cấu hình hạn chế trải nghiệm người dùng"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Định cấu hình các hạn chế trải nghiệm người dùng"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Dịch vụ nhập dành cho ô tô"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Xử lý sự kiện nhập"</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"Đường dẫn chính CAN không hoạt động"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Đường dẫn chính CAN không phản hồi. Rút rồi cắm lại hộp bộ đầu và khởi động lại ô tô"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"Vì lý do an toàn, bạn không sử dụng được hoạt động này trong khi lái xe.\nHãy đợi cho tới khi bạn đỗ xe để tiếp tục."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"Để bắt đầu lại với các tính năng an toàn của ứng dụng, hãy chọn <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
+    <string name="exit_button" msgid="5829638404777671253">"Quay lại"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"Thông tin gỡ lỗi"</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Dữ liệu chẩn đoán"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Đọc dữ liệu chẩn đoán từ ô tô"</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Dữ liệu chẩn đoán"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"Xóa dữ liệu chẩn đoán khỏi ô tô"</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"Nhà xuất bản VMS"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"Xuất bản tin nhắn vms"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"Người đăng ký nhận dữ liệu VMS"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"Đăng ký nhận tin nhắn vms"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Giám sát bộ nhớ flash"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Giám sát mức sử dụng bộ nhớ flash"</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Trạng thái lái xe"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Nghe những nội dung thay đổi về trạng thái lái xe"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Thông tin chi tiết về động cơ"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"Truy cập vào thông tin động cơ chi tiết của ô tô"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Cổng năng lượng"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Truy cập vào thông tin về cổng năng lượng"</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Thông tin nhận dạng ô tô"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"Truy cập vào thông tin nhận dạng ô tô"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Cửa trên ô tô"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"Kiểm soát cửa trên ô tô"</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Cửa sổ trên ô tô"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"Kiểm soát cửa sổ trên ô tô"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"Gương trên ô tô"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"Kiểm soát gương trên ô tô"</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Ghế ngồi trên ô tô"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Kiểm soát ghế ngồi trên ô tô"</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"Thông tin cơ bản về ô tô"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Truy cập vào thông tin cơ bản về ô tô"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Đèn bên ngoài ô tô"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"Truy cập vào trạng thái đèn bên ngoài ô tô"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"Đèn bên ngoài ô tô"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"Kiểm soát đèn bên ngoài ô tô"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"Nhiệt độ bên ngoài ô tô"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"Truy cập vào thông tin về nhiệt độ bên ngoài ô tô"</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"Lốp ô tô"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"Truy cập vào thông tin về lốp xe ô tô"</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"Hệ thống truyền động của ô tô"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"Truy cập vào thông tin về hệ thống truyền động của ô tô"</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"Nguồn điện của ô tô"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"Truy cập vào thông tin về trạng thái nguồn điện của ô tô"</string>
+</resources>

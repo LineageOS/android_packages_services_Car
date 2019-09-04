@@ -165,7 +165,8 @@ bool RenderTopView::activate() {
 void RenderTopView::deactivate() {
     // Release our video textures
     // We can't hold onto it because some other Render object might need the same camera
-    // TODO:  If start/stop costs become a problem, we could share video textures
+    // TODO(b/131492626):  investigate whether sharing video textures can save
+    // the time.
     for (auto&& cam: mActiveCameras) {
         cam.tex = nullptr;
     }

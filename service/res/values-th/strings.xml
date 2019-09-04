@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"ข้อมูลรถยนต์"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"เข้าถึงข้อมูลรถของคุณ"</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"ห้องโดยสารรถยนต์"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"เข้าถึงอุปกรณ์ในรถ ซึ่งรวมถึงประตู กระจก ที่นั่ง และหน้าต่าง"</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"กล้องของรถ"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"เข้าถึงกล้องของรถ"</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"พลังงานของรถ"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"เข้าถึงข้อมูลพลังงานของรถ"</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Hvac ของรถ"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"เข้าถึง HVAC ของรถ"</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"ระยะไมล์ของรถ"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"เข้าถึงข้อมูลระยะไมล์ของรถ"</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"ความเร็วรถ"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"เข้าถึงความเร็วของรถ"</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"สภาวะไดนามิกของยานพาหนะ"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"เข้าถึงสภาวะไดนามิกของรถ"</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"ช่องทางของผู้ขายรถ"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"เข้าถึงช่องทางของผู้ขายรถเพื่อแลกเปลี่ยนข้อมูลเฉพาะของรถยนต์"</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"วิทยุในรถ"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"เข้าถึงวิทยุในรถ"</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"การแสดงอินเทอร์เฟซโทรศัพท์ในจอแสดงผลของรถ"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"ระดับเสียงของระบบเสียงรถ"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"การตั้งค่าระบบเสียงของรถ"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"แสดงอินเทอร์เฟซโทรศัพท์ในจอแสดงผลของรถ"</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"เลียนแบบ HAL ยานพาหนะ"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"เลียนแบบ HAL ยานพาหนะของรถคุณเพื่อจุดประสงค์ด้านการทดสอบภายใน"</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"ควบคุมระดับเสียงของระบบเสียงรถ"</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"ควบคุมการตั้งค่าระบบเสียงของรถ"</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"การบล็อกแอปพลิเคชัน"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"ควบคุมการบล็อกแอปพลิเคชันขณะขับรถ"</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"ตัวจัดการการนำทาง"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"รายงานข้อมูลการนำทางไปยังแผงหน้าปัด"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"การแสดงผลไปยังแผงหน้าปัดโดยตรง"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"อนุญาตให้แอปพลิเคชันประกาศกิจกรรมที่จะแสดงในแผงหน้าปัด"</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"การควบคุมแผงหน้าปัด"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"เปิดแอปต่างๆ ในแผงหน้าปัด"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"การแสดงผลแผงหน้าปัด"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"รับข้อมูลจากแผงหน้าปัด"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"การกำหนดค่าข้อจำกัด UX"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"กำหนดค่าข้อจำกัด UX"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"บริการป้อนข้อมูลของรถ"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"จัดการเหตุการณ์การป้อนข้อมูล"</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN Bus ล้มเหลว"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN Bus ไม่ตอบสนอง ถอดปลั๊กกล่องเครื่องเล่นวิทยุ (Headunit) แล้วเสียบกลับเข้าไป สตาร์ทรถอีกครั้ง"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"เพื่อความปลอดภัย กิจกรรมนี้จะไม่เปิดให้ใช้งานขณะขับรถ\nคุณต้องจอดรถให้เรียบร้อยก่อน จึงจะดำเนินการต่อได้"</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"เลือก <xliff:g id="EXIT_BUTTON">%s</xliff:g> เพื่อเริ่มต้นใหม่โดยใช้ฟีเจอร์แอปที่ปลอดภัย"</string>
+    <string name="exit_button" msgid="5829638404777671253">"กลับ"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"ข้อมูลการวินิจฉัย"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"อ่านข้อมูลการวินิจฉัยจากรถ"</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"ข้อมูลการวินิจฉัย"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"ล้างข้อมูลการวินิจฉัยจากรถ"</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"ผู้เผยแพร่ข้อมูล VMS"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"เผยแพร่ข้อความ VMS"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"ผู้สมัครรับข้อมูล VMS"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"สมัครรับข้อมูล VMS"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"การตรวจสอบพื้นที่เก็บข้อมูลแฟลช"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ตรวจสอบการใช้งานพื้นที่เก็บข้อมูลแฟลช"</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"สถานะการขับรถ"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"ฟังการเปลี่ยนแปลงสถานะการขับรถ"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"รายละเอียดเครื่องยนต์"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"เข้าถึงข้อมูลเครื่องยนต์ของรถโดยละเอียด"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"ฝาถังน้ำมันหรือพอร์ตชาร์จไฟ"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"เข้าถึงฝาถังน้ำมันหรือพอร์ตชาร์จไฟ"</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"การระบุตัวรถ"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"เข้าถึงการระบุตัวรถ"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"ประตูรถ"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"ควบคุมประตูรถ"</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"หน้าต่างรถ"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"ควบคุมหน้าต่างรถ"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"กระจกรถ"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"ควบคุมกระจกรถ"</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"ที่นั่งในรถ"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"ควบคุมที่นั่งในรถ"</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"ข้อมูลเบื้องต้นของรถ"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"เข้าถึงข้อมูลเบื้องต้นของรถ"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"ไฟภายนอกรถ"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"เข้าถึงสถานะไฟภายนอกรถ"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"ไฟภายนอกรถ"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"ควบคุมแสงภายนอกรถ"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"อุณหภูมิภายนอกรถ"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"เข้าถึงข้อมูลอุณหภูมิภายนอกรถ"</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"ยางรถ"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"เข้าถึงข้อมูลยางรถ"</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"ระบบส่งกำลังของรถ"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"เข้าถึงข้อมูลระบบส่งกำลังของรถ"</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"พลังงานของรถ"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"เข้าถึงสถานะพลังงานของรถ"</string>
+</resources>

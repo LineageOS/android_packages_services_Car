@@ -15,21 +15,47 @@
  */
 package android.car;
 
+import android.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Used by INFO_FUEL_DOOR_LOCATION/INFO_CHARGE_PORT_LOCATION to enumerate fuel door or
  * ev port location.
  * Use getProperty and setProperty in {@link android.car.hardware.property.CarPropertyManager} to
  * set and get this VHAL property.
- * @hide
  */
 public final class PortLocationType {
+    /**
+     * List of port location types
+     */
     public static final int UNKNOWN = 0;
+    /** Port is on front left side of vehicle. */
     public static final int FRONT_LEFT = 1;
+    /** Port is on front right side of vehicle. */
     public static final int FRONT_RIGHT = 2;
+    /** Port is on rear right side of vehicle. */
     public static final int REAR_RIGHT = 3;
+    /** Port is on rear left side of vehicle. */
     public static final int REAR_LEFT = 4;
+    /** Port is on front of vehicle. */
     public static final int FRONT = 5;
+    /** Port is on rear of vehicle. */
     public static final int REAR = 6;
 
+    /** @hide */
+    @IntDef({
+        UNKNOWN,
+        FRONT_LEFT,
+        FRONT_RIGHT,
+        REAR_LEFT,
+        REAR_RIGHT,
+        FRONT,
+        REAR
+    })
+    @Retention(RetentionPolicy.SOURCE)
+
+    public @interface Enum {}
     private PortLocationType() {}
 }

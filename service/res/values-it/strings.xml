@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"Informazioni sull\'auto"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"Consente di accedere alle informazioni dell\'automobile."</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"Abitacolo"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Consente di accedere agli accessori dell\'automobile, inclusi specchietti, portiere, sedili e finestrini."</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"Videocamera dell\'automobile"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"Consente di accedere alle videocamere dell\'automobile."</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"Livello di batteria dell\'auto"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Consente di accedere alle informazioni sulla carica dell\'automobile."</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Sistema HVAC dell\'automobile"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Consente di accedere al sistema HVAC dell\'automobile."</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"Consumo di carburante dell\'automobile"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Consente di accedere alle informazioni sul consumo di carburante dell\'automobile."</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"Velocità dell\'auto"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Consente di accedere alle informazioni sulla velocità dell\'automobile."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Stato dei componenti dinamici del veicolo"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"Consente di accedere allo stato dei componenti dinamici dell\'automobile."</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Canale del produttore dell\'automobile"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Consente di accedere al canale del produttore per uno scambio di informazioni specifiche sull\'automobile."</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"Autoradio"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"Consente di accedere alla radio dell\'automobile."</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"Proiezione nell\'automobile"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Volume dell\'audio dell\'automobile"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Impostazioni audio dell\'automobile"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"Consente di proiettare l\'interfaccia del telefono sul display dell\'automobile."</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"Emulazione vehicle HAL"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Consente di emulare la vehicle HAL dell\'automobile per test interni."</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Consente di regolare il volume dell\'audio dell\'automobile."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Consente di controllare le impostazioni audio dell\'automobile."</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Blocco di app"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Consente di controllare il blocco delle app durante la guida."</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Gestione della navigazione"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Consente di segnalare dati di navigazione al quadro strumenti."</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Visualizzazione diretta sul quadro strumenti"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Consente a un\'app di comunicare la visualizzazione delle attività sul quadro strumenti."</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Controllo del quadro strumenti"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Consente di avviare app nel quadro strumenti."</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Visualizzazione sul quadro strumenti"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Consente di ricevere dati del quadro strumenti."</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Configurazione delle limitazioni dell\'esperienza utente"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Consente di configurare le limitazioni dell\'esperienza utente."</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Servizio di input dell\'auto"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Consente di gestire gli eventi di input."</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"Comunicazione tramite bus CAN non riuscita"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Il bus CAN non risponde. Scollega e ricollega l\'unità principale e riaccendi il motore."</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"Per motivi di sicurezza, questa attività non è disponibile durante la guida.\nPotrai continuare quando avrai parcheggiato."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"Seleziona <xliff:g id="EXIT_BUTTON">%s</xliff:g> per ricominciare con le funzionalità sicure dell\'app."</string>
+    <string name="exit_button" msgid="5829638404777671253">"Indietro"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"Info debug"</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Dati diagnostici"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Consente di leggere i dati diagnostici dell\'automobile."</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Dati diagnostici"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"Consente di cancellare i dati diagnostici dell\'automobile."</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"Publisher VMS"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"Consente di pubblicare messaggi VMS."</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"Abbonamento ai dati VMS"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"Consente di abbonarsi ai messaggi VMS."</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Monitoraggio della memoria flash"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Consente di monitorare l\'uso della memoria flash."</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Stato Alla guida"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Ascolto delle modifiche dello stato Alla guida."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Informazioni dettagliate sul motore"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"Consente di accedere a informazioni dettagliate sul motore dell\'automobile."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Porte di alimentazione"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Consente di accedere alle porte di alimentazione."</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Identificazione dell\'auto"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"Consente di accedere all\'identificazione dell\'automobile."</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Portiere dell\'automobile"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"Consente di controllare le portiere dell\'automobile."</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Finestrini dell\'automobile"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"Consente di controllare i finestrini dell\'automobile."</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"Specchietti dell\'automobile"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"Consente di regolare gli specchietti dell\'automobile."</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Sedili"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Consente di regolare i sedili dell\'automobile."</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"Informazioni di base sull\'automobile"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Consente di accedere alle informazioni di base dell\'automobile."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Luci esterne dell\'automobile"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"Consente di accedere allo stato delle luci esterne dell\'automobile."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"Luci esterne dell\'automobile"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"Consente di controllare le luci esterne dell\'automobile."</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"Temperatura esterna indicata dall\'automobile"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"Consente di accedere alla temperatura esterna indicata dall\'automobile."</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"Pneumatici"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"Consente di accedere alle informazioni sui pneumatici dell\'automobile."</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"Gruppo motopropulsore dell\'automobile"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"Consente di accedere alle informazioni sul gruppo motopropulsore dell\'automobile."</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"Alimentazione"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"Consente di accedere allo stato di alimentazione dell\'automobile."</string>
+</resources>

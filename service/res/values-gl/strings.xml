@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"Información do coche"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"Acceder a información do coche."</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"Cabina do coche"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Acceder aos accesorios do coche, como as portas, os espellos, os asentos e as ventás."</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"Cámara do coche"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"Acceder ás cámaras do coche."</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"Enerxía do coche"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Acceder a información de enerxía do coche."</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Sistema de HVAC"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Acceder ao sistema de HVAC coche."</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"Quilometraxe do coche"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Acceder a información da quilometraxe do coche."</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"Velocidade do coche"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Acceder á velocidade do coche."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Estado da dinámica do vehículo"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"Acceder ao estado da dinámica do coche"</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Canle do vendedor do coche"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Acceder á canle do vendedor do coche para intercambiar información específica do coche."</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"Radio do coche"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"Acceder á radio do coche."</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"Proxección do coche"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Volume do audio do coche"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Configuración do audio do coche"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"Proxectar a interface do teléfono na pantalla do coche."</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"Emular a API vehicle HAL"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Emular a API vehicle HAL do coche para realizar probas internas."</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Controlar o volume de audio do coche."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Controlar a configuración do audio do coche."</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Bloqueo de aplicacións"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Controlar o bloqueo das aplicacións mentres conduces."</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Xestor de navegación"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Notificar os datos de navegación ao panel de instrumentos"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Representación directa dos datos no panel de instrumentos"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Permitir que unha aplicación determine as actividades que se poden mostrar no panel de instrumentos"</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Control do panel de instrumentos"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Iniciar aplicacións do panel de instrumentos"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Representación do panel de instrumentos"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Recibir datos do panel de instrumentos"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Configuración de restricións da experiencia de usuario"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Configurar restricións da experiencia de usuario"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Servizo de entrada do coche"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Controlar os eventos de entrada"</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"Produciuse un erro no bus CAN"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"O bus CAN non responde. Desconecta a caixa da unidade principal, conéctaa de novo e reinicia o coche"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"Pola túa seguranza, esta actividade non está dispoñible mentres conduces.\nPodes continuar cando aparques."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"Para comezar de novo coas funcións de aplicacións seguras, selecciona o botón <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
+    <string name="exit_button" msgid="5829638404777671253">"Atrás"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"Info. dep."</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Datos de diagnóstico"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Ler datos de diagnóstico do coche"</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Datos de diagnóstico"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"Borrar datos de diagnóstico do coche"</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"Editor de VMS"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"Publicar mensaxes VMS"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"Subscritor de VMS"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"Subscribirse ás mensaxes VMS"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Supervisión de almacenamento da unidade flash"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Controlar o uso de almacenamento da unidade flash"</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Estado de condución"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Escoitar cambios no estado de condución"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Motor detallado"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"Acceder a información detallada sobre o motor do coche"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Portos de enerxía"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Acceder aos portos de enerxía"</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Identificación do coche"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"Acceder á identificación do coche"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Portas do coche"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"Controlar as portas do coche"</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Ventás do coche"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"Controlar as ventás do coche"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"Espellos do coche"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"Controlar espellos do coche"</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Asentos do coche"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Controlar os asentos do coche"</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"Información básica do coche"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Acceder a información básica do coche"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Luces exteriores do coche"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"Acceder ao estado das luces exteriores do coche"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"Luces exteriores do coche"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"Controlar as luces exteriores do coche"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"Temperatura exterior do coche"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"Acceder á temperatura exterior do coche"</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"Neumáticos do coche"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"Acceder a información de neumáticos do coche"</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"Potencia do coche"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"Acceder a información sobre o a potencia do coche"</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"Potencia do coche"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"Acceder ao estado da potencia do coche"</string>
+</resources>

@@ -16,335 +16,92 @@
 
 package com.android.car.garagemode;
 
-import static android.car.settings.GarageModeSettingsObserver.GARAGE_MODE_ENABLED_URI;
-import static android.car.settings.GarageModeSettingsObserver.GARAGE_MODE_MAINTENANCE_WINDOW_URI;
-import static android.car.settings.GarageModeSettingsObserver.GARAGE_MODE_WAKE_UP_TIME_URI;
-
-import android.car.settings.CarSettings;
-import android.car.settings.GarageModeSettingsObserver;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.Handler;
-import android.os.IDeviceIdleController;
-import android.os.IMaintenanceActivityListener;
 import android.os.Looper;
-import android.os.Message;
-import android.os.RemoteException;
-import android.os.ServiceManager;
-import android.preference.PreferenceManager;
-import android.provider.Settings;
-import android.util.Log;
 
-import com.android.car.CarPowerManagementService;
 import com.android.car.CarServiceBase;
-import com.android.car.DeviceIdleControllerWrapper;
-import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 /**
- * Controls car garage mode.
- *
- * Car garage mode is a time window for the car to do maintenance work when the car is not in use.
- * The {@link com.android.car.garagemode.GarageModeService} interacts with
- * {@link com.android.car.CarPowerManagementService} to start and end garage mode.
- * A {@link com.android.car.garagemode.GarageModePolicy} defines when the garage mode should
- * start and how long it should last.
+ * Main service container for car Garage Mode.
+ * Garage Mode enables idle time in cars.
  */
-public class GarageModeService implements CarServiceBase,
-        CarPowerManagementService.PowerEventProcessingHandler,
-        CarPowerManagementService.PowerServiceEventListener,
-        DeviceIdleControllerWrapper.DeviceMaintenanceActivityListener {
-    private static final String TAG = "GarageModeService";
+public class GarageModeService implements CarServiceBase {
+    private static final Logger LOG = new Logger("Service");
 
-    private static final int MSG_EXIT_GARAGE_MODE_EARLY = 0;
-    private static final int MSG_WRITE_TO_PREF = 1;
+    private final Context mContext;
+    private final Controller mController;
 
-    private static final String KEY_GARAGE_MODE_INDEX = "garage_mode_index";
-
-    // wait for 10 seconds to allow maintenance activities to start (e.g., connecting to wifi).
-    protected static final int MAINTENANCE_ACTIVITY_START_GRACE_PERIOD = 10 * 1000;
-
-    private final CarPowerManagementService mPowerManagementService;
-    protected final Context mContext;
-
-    @VisibleForTesting
-    @GuardedBy("this")
-    protected boolean mInGarageMode;
-    @VisibleForTesting
-    @GuardedBy("this")
-    protected boolean mMaintenanceActive;
-    @VisibleForTesting
-    @GuardedBy("this")
-    protected int mGarageModeIndex;
-
-    @GuardedBy("this")
-    @VisibleForTesting
-    protected int mMaintenanceWindow;
-    @GuardedBy("this")
-    private GarageModePolicy mPolicy;
-    @GuardedBy("this")
-    private boolean mGarageModeEnabled;
-
-
-    private SharedPreferences mSharedPreferences;
-    private final GarageModeSettingsObserver mContentObserver;
-
-    private DeviceIdleControllerWrapper mDeviceIdleController;
-    private final GarageModeHandler mHandler;
-
-    private class GarageModeHandler extends Handler {
-        GarageModeHandler(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_EXIT_GARAGE_MODE_EARLY:
-                    mPowerManagementService.notifyPowerEventProcessingCompletion(
-                            GarageModeService.this);
-                    break;
-                case MSG_WRITE_TO_PREF:
-                    writeToPref(msg.arg1);
-                    break;
-            }
-        }
-    }
-
-    public GarageModeService(Context context, CarPowerManagementService powerManagementService) {
-        this(context, powerManagementService, null, Looper.myLooper());
+    public GarageModeService(Context context) {
+        this(context, null);
     }
 
     @VisibleForTesting
-    protected GarageModeService(Context context, CarPowerManagementService powerManagementService,
-            DeviceIdleControllerWrapper deviceIdleController, Looper looper) {
+    protected GarageModeService(Context context, Controller controller) {
         mContext = context;
-        mPowerManagementService = powerManagementService;
-        mHandler = new GarageModeHandler(looper);
-        if (deviceIdleController == null) {
-            mDeviceIdleController = new DefaultDeviceIdleController();
-        } else {
-            mDeviceIdleController = deviceIdleController;
-        }
-        mContentObserver = new GarageModeSettingsObserver(mContext, mHandler) {
-            @Override
-            public void onChange(boolean selfChange, Uri uri) {
-                onSettingsChangedInternal(uri);
-            }
-        };
+        mController = (controller != null ? controller
+                : new Controller(context, Looper.myLooper()));
     }
 
+    /**
+     * Initializes GarageMode
+     */
     @Override
     public void init() {
-        init(
-                GarageModePolicy.initFromResources(mContext),
-                PreferenceManager.getDefaultSharedPreferences(
-                        mContext.createDeviceProtectedStorageContext()));
+        mController.init();
     }
 
-    @VisibleForTesting
-    void init(GarageModePolicy policy, SharedPreferences prefs) {
-        Log.d(TAG, "initializing GarageMode");
-        mSharedPreferences = prefs;
-        mPolicy = policy;
-        final int index = mSharedPreferences.getInt(KEY_GARAGE_MODE_INDEX, 0);
-        synchronized (this) {
-            mMaintenanceActive = mDeviceIdleController.startTracking(this);
-            mGarageModeIndex = index;
-            readFromSettingsLocked(
-                    CarSettings.Global.KEY_GARAGE_MODE_MAINTENANCE_WINDOW,
-                    CarSettings.Global.KEY_GARAGE_MODE_ENABLED,
-                    CarSettings.Global.KEY_GARAGE_MODE_WAKE_UP_TIME);
-        }
-        mContentObserver.register();
-        mPowerManagementService.registerPowerEventProcessingHandler(this);
-    }
-
-    public boolean isInGarageMode() {
-        return mInGarageMode;
-    }
-
+    /**
+     * Cleans up GarageMode processes
+     */
     @Override
     public void release() {
-        Log.d(TAG, "releasing GarageModeService");
-        mDeviceIdleController.stopTracking();
-        mContentObserver.unregister();
+        mController.release();
     }
 
+    /**
+     * Dumps useful information about GarageMode
+     * @param writer Where to dump the information
+     */
     @Override
     public void dump(PrintWriter writer) {
-        writer.println("mGarageModeIndex: " + mGarageModeIndex);
-        writer.println("inGarageMode? " + mInGarageMode);
-        writer.println("GarageModeEnabled " + mGarageModeEnabled);
-        writer.println("GarageModeTimeWindow " + mMaintenanceWindow + " ms");
-    }
-
-    @Override
-    public long onPrepareShutdown(boolean shuttingDown) {
-        // this is the beginning of each garage mode.
-        synchronized (this) {
-            Log.d(TAG, "onPrepareShutdown is triggered. System is shutting down=" + shuttingDown);
-            mInGarageMode = true;
-            mGarageModeIndex++;
-            mHandler.removeMessages(MSG_EXIT_GARAGE_MODE_EARLY);
-            if (!mMaintenanceActive) {
-                mHandler.sendMessageDelayed(
-                        mHandler.obtainMessage(MSG_EXIT_GARAGE_MODE_EARLY),
-                        MAINTENANCE_ACTIVITY_START_GRACE_PERIOD);
-            }
-            // We always reserve the maintenance window first. If later, we found no
-            // maintenance work active, we will exit garage mode early after
-            // MAINTENANCE_ACTIVITY_START_GRACE_PERIOD
-            return mMaintenanceWindow;
+        boolean isActive = mController.isGarageModeActive();
+        writer.println("GarageModeInProgress " + isActive);
+        List<String> jobs = mController.pendingGarageModeJobs();
+        if (isActive) {
+            writer.println("GarageMode is currently waiting for " + jobs.size() + " jobs:");
+        } else {
+            writer.println("GarageMode was last waiting for " + jobs.size() + " jobs:");
+        }
+        // Dump the names of the jobs that GM is/was waiting for
+        int jobNumber = 1;
+        for (String job : jobs) {
+            writer.println("   " + jobNumber + ": " + job);
+            jobNumber++;
         }
     }
 
-    @Override
-    public void onPowerOn(boolean displayOn) {
-        synchronized (this) {
-            Log.d(TAG, "onPowerOn: " + displayOn);
-            if (displayOn) {
-                // the car is use now. reset the garage mode counter.
-                mGarageModeIndex = 0;
-            }
-        }
+    /**
+     * @return whether GarageMode is in progress. Used by {@link com.android.car.ICarImpl}.
+     */
+    public boolean isGarageModeActive() {
+        return mController.isGarageModeActive();
     }
 
-    @Override
-    public int getWakeupTime() {
-        synchronized (this) {
-            if (!mGarageModeEnabled) {
-                return 0;
-            }
-            return mPolicy.getNextWakeUpInterval(mGarageModeIndex);
-        }
+    /**
+     * Forces GarageMode to start. Used by {@link com.android.car.ICarImpl}.
+     */
+    public void forceStartGarageMode() {
+        mController.initiateGarageMode(null);
     }
 
-    @Override
-    public void onSleepExit() {
-        // ignored
-    }
-
-    @Override
-    public void onSleepEntry() {
-        synchronized (this) {
-            mInGarageMode = false;
-        }
-    }
-
-    @Override
-    public void onShutdown() {
-        synchronized (this) {
-            mHandler.sendMessage(
-                    mHandler.obtainMessage(MSG_WRITE_TO_PREF, mGarageModeIndex, 0));
-        }
-    }
-
-    private void writeToPref(int index) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putInt(KEY_GARAGE_MODE_INDEX, index);
-        editor.commit();
-    }
-
-    @Override
-    public void onMaintenanceActivityChanged(boolean active) {
-        boolean shouldReportCompletion = false;
-        synchronized (this) {
-            Log.d(TAG, "onMaintenanceActivityChanged: " + active);
-            mMaintenanceActive = active;
-            if (!mInGarageMode) {
-                return;
-            }
-
-            if (!active) {
-                shouldReportCompletion = true;
-                mInGarageMode = false;
-            } else {
-                // we are in garage mode, and maintenance work has just begun.
-                mHandler.removeMessages(MSG_EXIT_GARAGE_MODE_EARLY);
-            }
-        }
-        if (shouldReportCompletion) {
-            // we are in garage mode, and maintenance work has finished.
-            mPowerManagementService.notifyPowerEventProcessingCompletion(this);
-        }
-    }
-
-
-    private static class DefaultDeviceIdleController extends DeviceIdleControllerWrapper {
-        private IDeviceIdleController mDeviceIdleController;
-        private MaintenanceActivityListener mMaintenanceActivityListener =
-                new MaintenanceActivityListener();
-
-        @Override
-        public boolean startLocked() {
-            mDeviceIdleController = IDeviceIdleController.Stub.asInterface(
-                    ServiceManager.getService(Context.DEVICE_IDLE_CONTROLLER));
-            boolean active = false;
-            try {
-                active = mDeviceIdleController
-                        .registerMaintenanceActivityListener(mMaintenanceActivityListener);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Unable to register listener with DeviceIdleController", e);
-            }
-            return active;
-        }
-
-        @Override
-        public void stopTracking() {
-            try {
-                if (mDeviceIdleController != null) {
-                    mDeviceIdleController.unregisterMaintenanceActivityListener(
-                            mMaintenanceActivityListener);
-                }
-            } catch (RemoteException e) {
-                Log.e(TAG, "Fail to unregister listener.", e);
-            }
-        }
-
-        private final class MaintenanceActivityListener extends IMaintenanceActivityListener.Stub {
-            @Override
-            public void onMaintenanceActivityChanged(final boolean active) {
-                DefaultDeviceIdleController.this.setMaintenanceActivity(active);
-            }
-        }
-    }
-
-    @GuardedBy("this")
-    private void readFromSettingsLocked(String... keys) {
-        for (String key : keys) {
-            switch (key) {
-                case CarSettings.Global.KEY_GARAGE_MODE_ENABLED:
-                    mGarageModeEnabled =
-                            Settings.Global.getInt(mContext.getContentResolver(), key, 1) == 1;
-                    break;
-                case CarSettings.Global.KEY_GARAGE_MODE_MAINTENANCE_WINDOW:
-                    mMaintenanceWindow = Settings.Global.getInt(
-                            mContext.getContentResolver(), key,
-                            CarSettings.DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW);
-                    break;
-                default:
-                    Log.e(TAG, "Unknown setting key " + key);
-            }
-        }
-    }
-
-    private void onSettingsChangedInternal(Uri uri) {
-        synchronized (this) {
-            Log.d(TAG, "Content Observer onChange: " + uri);
-            if (uri.equals(GARAGE_MODE_ENABLED_URI)) {
-                readFromSettingsLocked(CarSettings.Global.KEY_GARAGE_MODE_ENABLED);
-            } else if (uri.equals(GARAGE_MODE_WAKE_UP_TIME_URI)) {
-                readFromSettingsLocked(CarSettings.Global.KEY_GARAGE_MODE_WAKE_UP_TIME);
-            } else if (uri.equals(GARAGE_MODE_MAINTENANCE_WINDOW_URI)) {
-                readFromSettingsLocked(CarSettings.Global.KEY_GARAGE_MODE_MAINTENANCE_WINDOW);
-            }
-            Log.d(TAG, String.format(
-                    "onSettingsChanged %s. enabled: %s, windowSize: %d",
-                    uri, mGarageModeEnabled, mMaintenanceWindow));
-        }
+    /**
+     * Stops and resets the GarageMode. Used by {@link com.android.car.ICarImpl}.
+     */
+    public void stopAndResetGarageMode() {
+        mController.resetGarageMode();
     }
 }

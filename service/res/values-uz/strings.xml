@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"Avtomobil haqida axborot"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"Avtomobil maʼlumotlariga kirish."</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"Avtomobil saloni"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Avtomobilning qoʻshimcha jihozlari, shuningdek, eshik, koʻzgu, oʻrindiq va oynalaridan foydalanish."</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"Avtomobil kamerasi"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"Avtomobil kamerasidan foydalanish"</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"Energiya resurslari"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Avtomobilning energiya axborotlariga kirish"</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Avtomobildagi HVAC tizimi"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Avtomobilning HVAC tizimiga kirish."</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"Avtomobil bosib oʻtgan masofa"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Avtomobil yonilgʻisi qancha masofaga yetishi haqidagi axborotga kirish."</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"Avtomobil tezligi"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Avtomobil tezligi haqidagi axborotga kirish."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Avtomobil dinamikasi holati"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"Avtomobil dinamikasi haqidagi axborotdan foydalanish"</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Avtomobil ishlab chiqaruvchisining kanali"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Avtomobillarga oid maʼlumotlarni almashish uchun avtomobil ishlab chiqaruvchisining kanaliga kirish."</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"Avtomobil radiosi"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"Avtomobil radiosidan foydalanish."</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"Avtomobil ekraniga translyatsiya"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Audio tizim tovushi balandligi"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Avtomobil audio tizimi sozlamalari"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"Telefon interfeysini avtomobil ekraniga chiqarish"</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"HAL interfeysini emulyatsiya qilish"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Ichki sinov uchun HAL interfeysini emulyatsiya qilish."</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Audio tizim tovushi balandligini boshqarish"</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Avtomobil audio tizimi sozlamalarini boshqarish."</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Ilovalarni bloklash"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Haydash vaqtida ilovani bloklashni boshqarish"</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Navigator"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Asboblar panelida navigatsiya axborotini chiqarish"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Axborotlarni asboblar paneliga chiqarish"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Amalga oshirilgan faoliyatlarni asboblar paneliga chiqarish uchun ilovaga ruxsat berish"</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Asboblar panelini boshqarish"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Asboblar panelida ilovalarni ishga tushirish"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Axborotlarni asboblar paneliga chiqarish"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Asboblar panelidan axborotlarni olish"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Funksiyadan foydalanish cheklovini oʻrnatish"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Funksiyalardan foydalanishni cheklash"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Avtomobilda matn kiritish xizmati"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Matn kiritish hodisalari bilan ishlash imkoniyati"</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN shinalarida xatolik yuz berdi"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN javob bermayapti. Konnektorni chiqaring va qayta ulang, keyin avtomobilni oʻt oldiring"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"Avtomobil haydayotganingizda bu harakatni amalga oshira olmaysiz.\nUni bajarish uchun avtomobilni toʻxtating."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"Ilovani xavfsiz rejimda ishga tushirish uchun <xliff:g id="EXIT_BUTTON">%s</xliff:g> tugmasini bosing."</string>
+    <string name="exit_button" msgid="5829638404777671253">"Orqaga"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Diagnostika axboroti"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Avtomobildan diagnostika axborotini olish"</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Diagnostika axboroti"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"Avtomobilning diagnostika axborotini tozalash"</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"VMS xabarlarni chiqarish"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"VMS xabarlarni ekranga chiqarish"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"VMS xabarlarga obuna"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"VMS xabarlarga obuna"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Flesh xotirani nazorat qilish"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Flesh xotiradan foydalanishni nazorat qilish"</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Avtomobilda rejimi"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Avtomobilda rejimining oʻzgarishini kuzatish"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Dvigatel"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"Avtomobil dvigateli haqidagi batafsil axborotga kirish"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Energiya portlari"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Energiya portlaridan foydalanish"</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Avtomobilning identifikatsiya raqami"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"Avtomobilning identifikatsiya axborotiga kirish"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Avtomobil eshiklari"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"Avtomobil eshiklarini boshqarish"</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Avtomobil oynalari"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"Avtomobilning oynalarini boshqarish"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"Avtomobil koʻzgulari"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"Avtomobil oynalarini boshqarish imkoniyati"</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Avtomobil oʻrindiqlari"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Avtomobil oʻrindiqlarni boshqarish"</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"Avtomobil haqida umumiy axborot"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Avtomobil haqidagi umumiy axborotga kirish"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Avtomobilning tashqi chiroqlari"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"Avtomobilning tashqi chiroqlaridan foydalanish"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"Avtomobilning tashqi chiroqlari"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"Avtomobilning tashqi chiroqlarini boshqarish"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"Avtomobil tashqarisidagi harorat"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"Tashqaridagi harorat haqidagi axborotni olish"</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"Avtomobil shinalari"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"Avtomobil shinalari haqidagi axborotni olish"</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"Avtomobil quvvat uzatmasi"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"Quvvat uzatmasi (tranmissiya) haqidagi axborotga kirish"</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"Avtomobil quvvati"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"Avtomobilning quvvati haqidagi axborotga kirish"</string>
+</resources>

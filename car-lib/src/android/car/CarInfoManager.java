@@ -16,10 +16,11 @@
 
 package android.car;
 
-import android.annotation.Nullable;
+import android.annotation.NonNull;
 import android.car.annotation.ValueTypeDef;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.ICarProperty;
 import android.os.Bundle;
 import android.os.IBinder;
 
@@ -30,8 +31,6 @@ import android.os.IBinder;
  */
 public final class CarInfoManager implements CarManagerBase{
 
-    private static final boolean DBG = false;
-    private static final String TAG = "CarInfoManager";
     private final CarPropertyManager mCarPropertyMgr;
     /**
      * Key for manufacturer of the car. Passed in basic info Bundle.
@@ -48,7 +47,7 @@ public final class CarInfoManager implements CarManagerBase{
     @ValueTypeDef(type = Integer.class)
     public static final int BASIC_INFO_KEY_MODEL = 0x11100102;
     /**
-     * Key for model year of the car in AC. Passed in basic info Bundle.
+     * Key for model year of the car in AD. Passed in basic info Bundle.
      * @hide
      */
     @ValueTypeDef(type = Integer.class)
@@ -60,7 +59,6 @@ public final class CarInfoManager implements CarManagerBase{
      */
     @ValueTypeDef(type = String.class)
     public static final String BASIC_INFO_KEY_VEHICLE_ID = "android.car.vehicle-id";
-
     /**
      * Key for product configuration info.
      * @FutureFeature Cannot drop due to usage in non-flag protected place.
@@ -68,23 +66,24 @@ public final class CarInfoManager implements CarManagerBase{
      */
     @ValueTypeDef(type = String.class)
     public static final String INFO_KEY_PRODUCT_CONFIGURATION = "android.car.product-config";
-
-    /* TODO bug: 32059999
-    //@ValueTypeDef(type = Integer.class)
-    //public static final String KEY_DRIVER_POSITION = "driver-position";
-
-    //@ValueTypeDef(type = int[].class)
-    //public static final String KEY_SEAT_CONFIGURATION = "seat-configuration";
-
-    //@ValueTypeDef(type = Integer.class)
-    //public static final String KEY_WINDOW_CONFIGURATION = "window-configuration";
-
-    //MT, AT, CVT, ...
-    //@ValueTypeDef(type = Integer.class)
-    //public static final String KEY_TRANSMISSION_TYPE = "transmission-type";
-
-    // add: transmission gear available selection, gear available steps
-    //          drive wheel: FWD, RWD, AWD, 4WD */
+    /**
+     * Key for driver seat of the car.
+     * @hide
+     */
+    @ValueTypeDef(type = Integer.class)
+    public static final int BASIC_INFO_DRIVER_SEAT = 0x1540010a;
+    /**
+     * Key for EV port location of vehicle.
+     * @hide
+     */
+    @ValueTypeDef(type = Integer.class)
+    public static final int BASIC_INFO_EV_PORT_LOCATION = 0x11400109;
+    /**
+     * Key for fuel door location of vehicle.
+     * @hide
+     */
+    @ValueTypeDef(type = Integer.class)
+    public static final int BASIC_INFO_FUEL_DOOR_LOCATION = 0x11400108;
     /**
      * Key for Fuel Capacity in milliliters.  Passed in basic info Bundle.
      * @hide
@@ -113,44 +112,51 @@ public final class CarInfoManager implements CarManagerBase{
     public static final int BASIC_INFO_EV_CONNECTOR_TYPES = 0x11410107;
 
     /**
-     * @return Manufacturer of the car.  Null if not available.
+     * @return Manufacturer of the car.  Empty if not available.
      */
-    @Nullable
-    public String getManufacturer() throws CarNotConnectedException {
+    @NonNull
+    public String getManufacturer() {
         CarPropertyValue<String> carProp = mCarPropertyMgr.getProperty(String.class,
                 BASIC_INFO_KEY_MANUFACTURER, 0);
-        return carProp != null ? carProp.getValue() : null;
+        return carProp != null ? carProp.getValue() : "";
     }
 
     /**
-     * @return Model name of the car, null if not available.  This information
+     * @return Model name of the car, empty if not available.  This information
      * may not necessarily allow distinguishing different car models as the same
      * name may be used for different cars depending on manufacturers.
      */
-    @Nullable
-    public String getModel() throws CarNotConnectedException {
+    @NonNull
+    public String getModel() {
         CarPropertyValue<String> carProp = mCarPropertyMgr.getProperty(
                 String.class, BASIC_INFO_KEY_MODEL, 0);
-        return carProp != null ? carProp.getValue() : null;
+        return carProp != null ? carProp.getValue() : "";
     }
 
     /**
-     * @return Model year of the car in AC.  Null if not available.
+     * @return Model year of the car in AD.  Empty if not available.
+     * @deprecated Use {@link #getModelYearInInteger()} instead.
      */
-    @Nullable
-    public String getModelYear() throws CarNotConnectedException {
-        CarPropertyValue<String> carProp = mCarPropertyMgr.getProperty(String.class,
-                BASIC_INFO_KEY_MODEL_YEAR, 0);
-        return carProp != null ? carProp.getValue() : null;
+    @Deprecated
+    @NonNull
+    public String getModelYear() {
+        int year =  mCarPropertyMgr.getIntProperty(BASIC_INFO_KEY_MODEL_YEAR, 0);
+        return year == 0 ? "" : Integer.toString(year);
     }
 
     /**
-     * @return Unique identifier for the car. This is not VIN, and vehicle id is
-     * persistent until user resets it. This ID is guaranteed to be always
-     * available.
+     * @return Model year of the car in AD.  0 if not available.
      */
-    // TODO: BASIC_INFO_KEY_VEHICLE_ID property?
-    public String getVehicleId() throws CarNotConnectedException {
+    public int getModelYearInInteger() {
+        return mCarPropertyMgr.getIntProperty(BASIC_INFO_KEY_MODEL_YEAR, 0);
+    }
+
+    /**
+     * @return always return empty string.
+     * @deprecated no support for car's identifier
+     */
+    @Deprecated
+    public String getVehicleId() {
         return "";
     }
 
@@ -158,25 +164,23 @@ public final class CarInfoManager implements CarManagerBase{
      * @return Fuel capacity of the car in milliliters.  0 if car doesn't run on
      *         fuel.
      */
-    public float getFuelCapacity() throws CarNotConnectedException {
-        CarPropertyValue<Float> carProp = mCarPropertyMgr.getProperty(Float.class,
-                BASIC_INFO_FUEL_CAPACITY, 0);
-        return carProp != null ? carProp.getValue() : 0f;
+    public float getFuelCapacity() {
+        return mCarPropertyMgr.getFloatProperty(BASIC_INFO_FUEL_CAPACITY, 0);
     }
 
     /**
      * @return Array of FUEL_TYPEs available in the car.  Empty array if no fuel
-     *         types available.
+     * types available.
      */
-    public @FuelType.Enum int[] getFuelTypes() throws CarNotConnectedException {
+    public @FuelType.Enum int[] getFuelTypes() {
         return mCarPropertyMgr.getIntArrayProperty(BASIC_INFO_FUEL_TYPES, 0);
     }
 
     /**
-     * @return Battery capacity of the car in WH.  0 if car doesn't run on
-     *         battery.
+     *
+     * @return Battery capacity of the car in Watt-Hour(Wh). Return 0 if car doesn't run on battery.
      */
-    public float getEvBatteryCapacity() throws CarNotConnectedException {
+    public float getEvBatteryCapacity() {
         CarPropertyValue<Float> carProp = mCarPropertyMgr.getProperty(Float.class,
                 BASIC_INFO_EV_BATTERY_CAPACITY, 0);
         return carProp != null ? carProp.getValue() : 0f;
@@ -186,18 +190,86 @@ public final class CarInfoManager implements CarManagerBase{
      * @return Array of EV_CONNECTOR_TYPEs available in the car.  Empty array if
      *         no connector types available.
      */
-    public @EvConnectorType.Enum int[] getEvConnectorTypes() throws CarNotConnectedException {
-        return mCarPropertyMgr.getIntArrayProperty(BASIC_INFO_EV_CONNECTOR_TYPES, 0);
+    public @EvConnectorType.Enum int[] getEvConnectorTypes() {
+        int[] valueInHal =
+                mCarPropertyMgr.getIntArrayProperty(BASIC_INFO_EV_CONNECTOR_TYPES, 0);
+        int[] connectorTypes = new int[valueInHal.length];
+        for (int i = 0; i < valueInHal.length; i++) {
+            switch (valueInHal[i]) {
+                case 1: // IEC_TYPE_1_AC
+                    connectorTypes[i] = EvConnectorType.J1772;
+                    break;
+                case 2: // IEC_TYPE_2_AC
+                    connectorTypes[i] = EvConnectorType.MENNEKES;
+                    break;
+                case 3: // IEC_TYPE_3_AC
+                    connectorTypes[i] = 11;
+                    break;
+                case 4: // IEC_TYPE_4_DC
+                    connectorTypes[i] = EvConnectorType.CHADEMO;
+                    break;
+                case 5: // IEC_TYPE_1_CCS_DC
+                    connectorTypes[i] = EvConnectorType.COMBO_1;
+                    break;
+                case 6: // IEC_TYPE_2_CCS_DC
+                    connectorTypes[i] = EvConnectorType.COMBO_2;
+                    break;
+                case 7: // TESLA_ROADSTER
+                    connectorTypes[i] = EvConnectorType.TESLA_ROADSTER;
+                    break;
+                case 8: // TESLA_HPWC
+                    connectorTypes[i] = EvConnectorType.TESLA_HPWC;
+                    break;
+                case 9: // TESLA_SUPERCHARGER
+                    connectorTypes[i] = EvConnectorType.TESLA_SUPERCHARGER;
+                    break;
+                case 10: // GBT_AC
+                    connectorTypes[i] = EvConnectorType.GBT;
+                    break;
+                case 11: // GBT_DC
+                    connectorTypes[i] = 10;
+                    break;
+                case 101: // OTHER
+                    connectorTypes[i] = EvConnectorType.OTHER;
+                    break;
+                default:
+                    connectorTypes[i] = EvConnectorType.UNKNOWN;
+            }
+        }
+        return connectorTypes;
+    }
+
+    /**
+     * @return Driver seat's location.
+     */
+    public @VehicleAreaSeat.Enum int getDriverSeat() {
+        return mCarPropertyMgr.getIntProperty(BASIC_INFO_DRIVER_SEAT, 0);
+    }
+
+    /**
+     * @return EV port location of the car.
+     */
+    public @PortLocationType.Enum int getEvPortLocation() {
+        return mCarPropertyMgr.getIntProperty(BASIC_INFO_EV_PORT_LOCATION, 0);
+    }
+
+    /**
+     * @return Fuel door location of the car.
+     */
+    public @PortLocationType.Enum int getFuelDoorLocation() {
+        return mCarPropertyMgr.getIntProperty(BASIC_INFO_FUEL_DOOR_LOCATION, 0);
     }
 
     /** @hide */
     CarInfoManager(IBinder service) {
-        mCarPropertyMgr = new CarPropertyManager(service, null, DBG, TAG);
+        ICarProperty mCarPropertyService = ICarProperty.Stub.asInterface(service);
+        mCarPropertyMgr = new CarPropertyManager(mCarPropertyService, null);
     }
 
     /** @hide */
     public void onCarDisconnected() {
         mCarPropertyMgr.onCarDisconnected();
     }
+
 
 }

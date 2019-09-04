@@ -29,7 +29,10 @@ import android.os.Parcelable;
  * returned. This parameter should be used to avoid unnecessary object churn whenever possible.
  * Additionally, calling a conversion method on a CarSensorEvent object with an inappropriate type
  * will result in an {@code UnsupportedOperationException} being thrown.
+ *
+ * @deprecated consider using {@link android.car.hardware.property.CarPropertyEvent} instead.
  */
+@Deprecated
 public class CarSensorEvent implements Parcelable {
 
     /**

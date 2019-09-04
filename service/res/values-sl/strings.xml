@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"Podatki o avtomobilu"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"Dostop do podatkov o avtomobilu."</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"Kabina avtomobila"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Dostop do dodatkov avtomobila, vključno z vrati, ogledali, sedeži in okni."</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"Kamera avtomobila"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"Dostop do kamer avtomobila."</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"Energija avtomobila"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Dostop do podatkov o energiji avtomobila."</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Sistem za ogrevanje, hlajenje in prezračevanje avtomobila"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Dostop do sistema za ogrevanje, hlajenje in prezračevanje avtomobila."</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"Prevoženi kilometri avtomobila"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Dostop do podatkov o prevoženih kilometrih avtomobila."</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"Hitrost avtomobila"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Dostop do hitrosti avtomobila."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Stanje dinamike vozila"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"Dostop do stanja dinamike avtomobila"</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Kanal prodajalca v avtomobilu"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Dostop do kanala prodajalca v avtomobilu za izmenjavo podatkov o avtomobilu."</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"Radio avtomobila"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"Dostop do radia avtomobila."</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"Projiciranje v avtomobilu"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Glasnost zvoka v avtomobilu"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Nastavitve zvoka v avtomobilu"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"Projiciranje vmesnika telefona na zaslon avtomobila."</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"Posnemanje HAL-a vozila"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Posnemanje HAL-a vozila za avtomobil zaradi internega preizkušanja."</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Nadziranje glasnosti zvoka v avtomobilu."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Nadziranje nastavitev zvoka v avtomobilu."</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Blokiranje aplikacij"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Nadziranje blokiranja aplikacij med vožnjo."</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Upravitelj navigacije"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Sporočanje podatkov za navigacijo instrumentni plošči"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Usmeritev upodabljanja na instrumentno ploščo"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Omogočanje aplikaciji, da najavi dejavnosti za prikaz na instrumentni plošči"</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Nadziranje instrumentne plošče"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Zagon aplikacij iz instrumentne plošče"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Upodobitev instrumentne plošče"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Prejemanje podatkov instrumentne plošče"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Konfiguracija omejitev uporabniške izkušnje"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Konfiguriranje omejitev uporabniške izkušnje"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Storitev za vhode avtomobila"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Obravnava dogodkov vnosa"</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"Napaka vodila CAN"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Vodilo CAN se ne odziva. Odklopite in znova priklopite ohišje avtomobilskega vmesnika ter znova zaženite avtomobil"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"Zaradi varnosti ta dejavnost med vožnjo ni na voljo.\nČe želite nadaljevati, počakajte, da bo vozilo parkirano."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"Če želite začeti znova z varnimi funkcijami aplikacij, izberite <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
+    <string name="exit_button" msgid="5829638404777671253">"Nazaj"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"Odpr. nap."</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Diagnostični podatki"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Branje diagnostičnih podatkov avtomobila"</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Diagnostični podatki"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"Brisanje diagnostičnih podatkov iz avtomobila"</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"Izdajatelj za VMS"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"Objavljanje sporočil vms"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"Naročnik na VMS"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"Naročanje na sporočila vms"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Nadziranje bliskovne shrambe"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Nadziranje uporabe bliskovne shrambe"</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Vozno stanje"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Poslušanje sprememb voznih stanj"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Podrobno o motorju"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"Dostop do podrobnih podatkov o motorju avtomobila"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Vrata za energijo"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Dostop do vrat za energijo"</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Identifikacijski podatki avtomobila"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"Dostop do identifikacijskih podatkov avtomobila"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Vrata avtomobila"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"Nadziranje vrat avtomobila"</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Okna avtomobila"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"Nadziranje oken avtomobila"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"Ogledala avtomobila"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"Nadziranje ogledal avtomobila"</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Sedeži avtomobila"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Nadziranje sedežev avtomobila"</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"Osnovni podatki o avtomobilu"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Dostop do osnovnih podatkov o avtomobilu"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Zunanje luči avtomobila"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"Dostop do stanja zunanjih luči avtomobila"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"Zunanje luči avtomobila"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"Nadziranje zunanjih luči avtomobila"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"Temperatura zunaj avtomobila"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"Dostop do temperature zunaj avtomobila"</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"Pnevmatike avtomobila"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"Dostop do podatkov o pnevmatikah avtomobila"</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"Pogonski sistem avtomobila"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"Dostop do podatkov o pogonskem sistemu avtomobila"</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"Napajanje avtomobila"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"Dostop do stanja napajanja avtomobila"</string>
+</resources>

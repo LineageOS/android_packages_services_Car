@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"معلومات السيارة"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"الحصول على معلومات عن السيارة"</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"مقصورة القيادة"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"الحصول على معلومات ملحقات السيارة، بما في ذلك الأبواب والمرايا والمقاعد والنوافذ"</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"كاميرا السيارة"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"الوصول إلى الكاميرات في السيارة"</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"طاقة السيارة"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"الحصول على معلومات الطاقة في السيارة"</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"التدفئة والتهوية وتكييف الهواء في السيارة"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"الحصول على معلومات التدفئة والتهوية وتكييف الهواء في السيارة"</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"المسافة التي تقطعها السيارة بالأميال"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"الحصول على معلومات المسافة المقطوعة بالأميال في سيارتك"</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"سرعة السيارة"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"الحصول على معلومات عن سرعة السيارة"</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"الحالة الديناميكية للسيارة"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"الحصول على معلومات عن الحالة الديناميكية للسيارة"</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"قناة مورِّد السيارة"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"الحصول على معلومات قناة المورِّد في السيارة لتبادل معلومات خاصة بالسيارة."</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"راديو السيارة"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"الوصول إلى راديو السيارة"</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"العرض متعدّد الأبعاد للسيارة"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"مستوى الصوت في السيارة"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"إعدادات الصوت في السيارة"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"عرض واجهة الهاتف على شاشة السيارة"</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"محاكاة HAL في السيارة"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"محاكاة HAL في السيارة لغرض الاختبار الداخلي"</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"التحكم في مستوى الصوت داخل السيارة"</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"التحكم في إعدادات الصوت في السيارة"</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"حظر التطبيقات"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"التحكم في حظر التطبيقات أثناء القيادة"</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"مدير التنقّل"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"إبلاغ مجموعة الأدوات ببيانات التنقل"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"العرض المباشر في مجموعة العدادات"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"يمكنك السماح لتطبيق بإعلان الأنشطة المطلوب عرضها في مجموعة العدادات."</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"التحكم في مجموعة العدادات"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"تشغيل التطبيقات في مجموعة العدادات"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"جارٍ عرض مجموعة العدادات"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"تلقّي بيانات مجموعة الأدوات"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"ضبط قيود تجربة المستخدم"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"ضبط قيود تجربة المُستخدِم"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"خدمة إدخال السيارة"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"التعامل مع أحداث الإدخال"</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"حدث خطأ في موصّل CAN"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"لا استجابة من موصّل CAN. يمكنك فصل صندوق وحدة الرأس وإعادة تشغيل السيارة."</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"حرصًا على سلامتك، لا يتوفّر هذا النشاط أثناء القيادة.\nللمتابعة، يمكنك الانتظار حتى تتوقّف السيارة."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"للبدء من جديد باستخدام ميزات تطبيق آمنة، اختَر <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
+    <string name="exit_button" msgid="5829638404777671253">"رجوع"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"التصحيح"</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"البيانات التشخيصية"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"قراءة البيانات التشخيصية من السيارة"</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"البيانات التشخيصية"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"محو البيانات التشخيصية من السيارة"</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"ناشر الأجهزة الافتراضية"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"نشر رسائل الأجهزة الافتراضية"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"المشترك في الجهاز الافتراضي"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"الاشتراك في رسائل الأجهزة الافتراضية"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"مراقبة سعة تخزين الفلاش"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"مراقبة استخدام سعة تخزين الفلاش"</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"وضع القيادة"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"الاستماع إلى التغييرات في حالة \"القيادة\""</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"تفاصيل المحرّك"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"الحصول على معلومات مفصّلة عن محرّك السيارة"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"منافذ الطاقة"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"الحصول على معلومات منافذ الطاقة"</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"تحديد هوية السيارة"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"الحصول على معلومات عن تحديد هوية السيارة"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"أبواب السيارة"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"التحكم في أبواب السيارة"</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"نوافذ السيارة"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"التحكم في نوافذ السيارة"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"مرايا السيارة"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"التحكم في مرايا السيارة"</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"مقاعد السيارة"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"التحكم في مقاعد السيارة"</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"المعلومات الأساسية عن السيارة"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"الحصول على معلومات أساسية عن السيارة"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"الإضاءة الخارجية للسيارة"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"الحصول على معلومات عن حالة الإضاءة الخارجية في السيارة"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"الإضاءة الخارجية للسيارة"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"التحكّم في الإضاءة الخارجية للسيارة"</string>
+    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
+    <skip />
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"درجة الحرارة الخارجية للسيارة"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"الحصول على معلومات درجة الحرارة الخارجية في السيارة"</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"إطارات السيارة"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"الحصول على معلومات عن إطارات السيارة"</string>
+    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
+    <skip />
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"مجموعة قدرة السيارة"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"الحصول على معلومات مجموعة القدرة"</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"قدرة السيارة"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"الحصول على معلومات عن حالة قدرة السيارة"</string>
+</resources>

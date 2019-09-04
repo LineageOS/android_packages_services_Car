@@ -57,6 +57,15 @@ cc_library {
 }
 
 java_library {
+    name: "android.car.cluster.navigation",
+    proto: {
+        type: "lite",
+    },
+    static_libs: ["libprotobuf-java-lite"],
+    srcs: ["src/android/car/navigation/navigation_state.proto"]
+}
+
+java_library {
     name: "android.car",
     srcs: [
         "src/**/*.java",
@@ -124,7 +133,7 @@ droidstubs {
     api_tag_name: "ANDROID_CAR",
     api_filename: "api.txt",
     removed_api_filename: "removed.txt",
-    args: "--hide DeprecationMismatch --hide UnavailableSymbol --hide UnhiddenSystemApi --hide HiddenTypedefConstant --hide ReferencesHidden --no-docs --stub-packages android.car* ",
+    args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* ",
     installable: false,
     check_api: {
         last_released: {
@@ -150,7 +159,7 @@ droidstubs {
     api_tag_name: "ANDROID_CAR_SYSTEM",
     api_filename: "api.txt",
     removed_api_filename: "removed.txt",
-    args: "--hide DeprecationMismatch --hide UnavailableSymbol --hide UnhiddenSystemApi --hide HiddenTypedefConstant --hide ReferencesHidden --no-docs --stub-packages android.car* " +
+    args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* " +
         "--show-annotation android.annotation.SystemApi ",
     installable: false,
     check_api: {
@@ -172,6 +181,26 @@ droidstubs {
 }
 
 droidstubs {
+    name: "android.car-test-stubs-docs",
+    defaults: ["android.car-docs-default"],
+    api_tag_name: "ANDROID_CAR_SYSTEM",
+    api_filename: "api.txt",
+    removed_api_filename: "removed.txt",
+    args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* " +
+        "--show-annotation android.annotation.TestApi ",
+    installable: false,
+    check_api: {
+        current: {
+            api_file: "api/test-current.txt",
+            removed_api_file: "api/test-removed.txt",
+            args: " -error 2 -error 3 -error 4 -error 5 -error 6 -error 7 -error 8 -error 9 -error 10 -error 11 " +
+                  " -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 " +
+                  " -error 21 -error 23 -error 24 -error 25 -hide 113 ",
+        },
+    },
+}
+
+droidstubs {
     name: "android.car-stub-docs",
     srcs: [
         "src/**/*.java",
@@ -181,7 +210,7 @@ droidstubs {
     ],
     api_tag_name: "ANDROID_CAR_STUB",
     api_filename: "api.txt",
-    args: "--hide DeprecationMismatch --hide UnavailableSymbol --hide UnhiddenSystemApi --hide HiddenTypedefConstant --hide ReferencesHidden --no-docs --stub-packages android.car* ",
+    args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* ",
     installable: false,
     product_variables: {
         pdk: {
@@ -204,12 +233,34 @@ java_library_static {
         },
     },
     compile_dex: true,
+    dist: {
+        targets: ["dist_files"],
+    }
 }
 
 java_library_static {
     name: "android.car-system-stubs",
     srcs: [
         ":android.car-system-stubs-docs",
+    ],
+    libs: [
+        "android.car",
+    ],
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+    compile_dex: true,
+    dist: {
+        targets: ["dist_files"],
+    }
+}
+
+java_library_static {
+    name: "android.car-test-stubs",
+    srcs: [
+        ":android.car-test-stubs-docs",
     ],
     libs: [
         "android.car",
