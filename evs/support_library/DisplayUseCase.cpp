@@ -95,7 +95,7 @@ bool DisplayUseCase::initialize() {
     return false;
 }
 
-bool DisplayUseCase::startVideoStreaming() {
+bool DisplayUseCase::startVideoStream() {
     // Initialize the use case.
     if (!mIsInitialized && !initialize()) {
         ALOGE("There is an error while initializing the use case. Exiting");
@@ -142,7 +142,7 @@ bool DisplayUseCase::startVideoStreaming() {
     return true;
 }
 
-void DisplayUseCase::stopVideoStreaming() {
+void DisplayUseCase::stopVideoStream() {
     ALOGD("Stop video streaming in worker thread.");
     mIsReadyToRun = false;
     return;
