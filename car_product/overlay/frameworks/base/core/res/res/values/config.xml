@@ -91,4 +91,6 @@
     <bool name="config_supportsSystemDecorsOnSecondaryDisplays">false</bool>
 
     <string name="config_dataUsageSummaryComponent">com.android.car.settings/com.android.car.settings.datausage.DataWarningAndLimitActivity</string>
+
+    <bool name="config_automotiveHideNavBarForKeyboard">true</bool>
 </resources>
