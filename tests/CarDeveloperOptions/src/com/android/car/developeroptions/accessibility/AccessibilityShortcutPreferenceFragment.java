@@ -32,10 +32,10 @@ import android.widget.Switch;
 import androidx.preference.Preference;
 import androidx.preference.SwitchPreference;
 
-import com.android.internal.accessibility.AccessibilityShortcutController;
 import com.android.car.developeroptions.R;
 import com.android.car.developeroptions.search.BaseSearchIndexProvider;
 import com.android.car.developeroptions.search.Indexable;
+import com.android.internal.accessibility.AccessibilityShortcutController;
 import com.android.settingslib.accessibility.AccessibilityUtils;
 import com.android.settingslib.search.SearchIndexable;
 
@@ -80,8 +80,6 @@ public class AccessibilityShortcutPreferenceFragment extends ToggleFeaturePrefer
                     ((Boolean) o) ? 1 : 0);
             return true;
         });
-        mFooterPreferenceMixin.createFooterPreference()
-                .setTitle(R.string.accessibility_shortcut_description);
     }
 
     @Override

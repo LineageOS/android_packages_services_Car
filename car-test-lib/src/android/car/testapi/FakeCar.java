@@ -20,7 +20,6 @@ import android.car.Car;
 import android.car.ICar;
 import android.car.ICarBluetooth;
 import android.car.cluster.IInstrumentClusterManagerService;
-import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.content.pm.ICarPackageManager;
 import android.car.diagnostic.ICarDiagnostic;
 import android.car.drivingstate.ICarDrivingState;
@@ -113,12 +112,19 @@ public class FakeCar {
         return mService.mAppFocus;
     }
 
+    /**
+     * Returns the test controller to change the behavior of as well as query the underlying {@link
+     * android.car.navigation.CarNavigationStatusManager}.
+     */
+    public CarNavigationStatusController getCarNavigationStatusController() {
+        return mService.mInstrumentClusterNavigation;
+    }
+
     private static class FakeCarService extends ICar.Stub {
         @Mock ICarAudio.Stub mCarAudio;
         @Mock ICarPackageManager.Stub mCarPackageManager;
         @Mock ICarDiagnostic.Stub mCarDiagnostic;
         @Mock ICarPower.Stub mCarPower;
-        @Mock IInstrumentClusterNavigation.Stub mClusterNavigation;
         @Mock IInstrumentClusterManagerService.Stub mClusterService;
         @Mock IVmsSubscriberService.Stub mVmsSubscriberService;
         @Mock ICarBluetooth.Stub mCarBluetooth;
@@ -130,12 +136,14 @@ public class FakeCar {
         private final FakeAppFocusService mAppFocus;
         private final FakeCarPropertyService mCarProperty;
         private final FakeCarProjectionService mCarProjection;
+        private final FakeInstrumentClusterNavigation mInstrumentClusterNavigation;
 
         FakeCarService(Context context) {
             MockitoAnnotations.initMocks(this);
             mAppFocus = new FakeAppFocusService(context);
             mCarProperty = new FakeCarPropertyService();
             mCarProjection = new FakeCarProjectionService(context);
+            mInstrumentClusterNavigation = new FakeInstrumentClusterNavigation();
         }
 
         @Override
@@ -174,7 +182,7 @@ public class FakeCar {
                 case Car.VENDOR_EXTENSION_SERVICE:
                     return mCarProperty;
                 case Car.CAR_NAVIGATION_SERVICE:
-                    return mClusterNavigation;
+                    return mInstrumentClusterNavigation;
                 case Car.CAR_INSTRUMENT_CLUSTER_SERVICE:
                     return mClusterService;
                 case Car.PROJECTION_SERVICE:
