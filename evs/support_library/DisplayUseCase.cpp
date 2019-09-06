@@ -32,8 +32,8 @@ using android::hardware::joinRpcThreadpool;
 // TODO(b/130246434): since we don't support multi-display use case, there
 // should only be one DisplayUseCase. Add the logic to prevent more than
 // one DisplayUseCases running at the same time.
-DisplayUseCase::DisplayUseCase(string cameraId, BaseRenderCallback* callback) {
-    mCameraId = cameraId;
+DisplayUseCase::DisplayUseCase(string cameraId, BaseRenderCallback* callback)
+              : BaseUseCase(vector<string>(1, cameraId)) {
     mRenderCallback = callback;
 }
 
@@ -82,7 +82,9 @@ bool DisplayUseCase::initialize() {
 
     ALOGD("Requesting camera list");
     for (auto&& info : config.getCameras()) {
-        if (mCameraId == info.cameraId) {
+        // This use case is currently a single camera use case.
+        // Only one element is available in the camera id list.
+        if (mCameraIds[0] == info.cameraId) {
             mCamera = info;
             mIsInitialized = true;
             return true;
