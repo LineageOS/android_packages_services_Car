@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <utils/SystemClock.h>
 #include <string>
+#include <log/log.h>
 
 #include <DisplayUseCase.h>
 #include <Utils.h>
