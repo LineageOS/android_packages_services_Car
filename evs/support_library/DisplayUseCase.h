@@ -43,8 +43,8 @@ using ::std::string;
 class DisplayUseCase : public BaseUseCase {
   public:
     ~DisplayUseCase();
-    bool startVideoStreaming() override;
-    void stopVideoStreaming() override;
+    bool startVideoStream() override;
+    void stopVideoStream() override;
 
     // TODO(b/130246434): Add configuration class to create more use case.
     static DisplayUseCase createDefaultUseCase(string cameraId,
