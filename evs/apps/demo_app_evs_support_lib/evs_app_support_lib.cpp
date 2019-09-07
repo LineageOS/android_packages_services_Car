@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <utils/SystemClock.h>
 #include <string>
+#include <log/log.h>
 
 #include <DisplayUseCase.h>
 #include <Utils.h>
@@ -69,9 +70,9 @@ int main() {
         DisplayUseCase::createDefaultUseCase(cameraId, new SimpleRenderCallback());
 
     // Stream the video for 5 seconds.
-    if (useCase.startVideoStreaming()) {
+    if (useCase.startVideoStream()) {
         std::this_thread::sleep_for(std::chrono::seconds(5));
-        useCase.stopVideoStreaming();
+        useCase.stopVideoStream();
     }
 
     return 0;

@@ -21,13 +21,41 @@ namespace automotive {
 namespace evs {
 namespace support {
 
+/**
+ * Base class for all the use cases in the EVS support library.
+ */
 class BaseUseCase {
-  public:
-    virtual bool startVideoStreaming() = 0;
-    virtual void stopVideoStreaming() = 0;
-    virtual bool streamFrame() = 0;
-    virtual ~BaseUseCase() {
-    }
+public:
+    /**
+     * Requests delivery of camera frames from the desired EVS camera(s). The
+     * use case begins receiving periodic calls from EVS camera with new image
+     * frames until stopVideoStream is called.
+     *
+     * If the same EVS camera has already been started by other use cases,
+     * the frame delivery to this use case starts without affecting the status
+     * of the EVS camera.
+     *
+     * @return Returns true if the video stream is started successfully.
+     * Otherwise returns false.
+     *
+     * @see stopVideoStream()
+     */
+    virtual bool startVideoStream() = 0;
+
+    /**
+     * Stops the delivery of EVS camera frames, and tries to close the EVS
+     * camera. Because delivery is asynchronous, frames may continue to
+     * arrive for some time after this call returns.
+     *
+     * If other use cases are using the camera at the same time, the EVS
+     * camera will not be closed, until all the other use cases using the
+     * camera are stopped.
+     *
+     * @see startVideoStream()
+     */
+    virtual void stopVideoStream() = 0;
+
+    virtual ~BaseUseCase() {}
 };
 
 }  // namespace support
