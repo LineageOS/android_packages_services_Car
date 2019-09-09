@@ -53,6 +53,7 @@ import android.util.Log;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.car.CarLog;
+import com.android.car.vms.VmsClientManager;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -62,7 +63,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -83,13 +83,10 @@ public class VmsHalService extends HalServiceBase {
     private final MessageQueue mMessageQueue;
     private volatile boolean mIsSupported = false;
 
+    private VmsClientManager mClientManager;
     private IVmsPublisherService mPublisherService;
-    private Consumer<IBinder> mPublisherOnHalConnected;
-    private Runnable mPublisherOnHalDisconnected;
     private IBinder mPublisherToken;
-
     private IVmsSubscriberService mSubscriberService;
-    private Consumer<IVmsSubscriberClient> mSuscriberOnHalDisconnected;
 
     private int mSubscriptionStateSequence = -1;
     private int mAvailableLayersSequence = -1;
@@ -215,21 +212,17 @@ public class VmsHalService extends HalServiceBase {
     }
 
     /**
-     * Gets the {@link IVmsPublisherClient} implementation for the HAL's publisher callback.
+     * Sets a reference to the {@link VmsClientManager} implementation for use by the HAL.
      */
-    public void setPublisherConnectionCallbacks(Consumer<IBinder> onHalConnected,
-            Runnable onHalDisconnected) {
-        mPublisherOnHalConnected = onHalConnected;
-        mPublisherOnHalDisconnected = onHalDisconnected;
+    public void setClientManager(VmsClientManager clientManager) {
+        mClientManager = clientManager;
     }
 
     /**
      * Sets a reference to the {@link IVmsSubscriberService} implementation for use by the HAL.
      */
-    public void setVmsSubscriberService(IVmsSubscriberService service,
-            Consumer<IVmsSubscriberClient> onHalDisconnected) {
+    public void setVmsSubscriberService(IVmsSubscriberService service) {
         mSubscriberService = service;
-        mSuscriberOnHalDisconnected = onHalDisconnected;
     }
 
     @Override
@@ -370,15 +363,10 @@ public class VmsHalService extends HalServiceBase {
         }
 
         if (coreId != mCoreId) {
-            if (mPublisherOnHalDisconnected != null) {
-                mPublisherOnHalDisconnected.run();
+            if (mClientManager != null) {
+                mClientManager.onHalDisconnected();
             } else {
-                Log.w(TAG, "Publisher disconnect callback not registered");
-            }
-            if (mSuscriberOnHalDisconnected != null) {
-                mSuscriberOnHalDisconnected.accept(mSubscriberClient);
-            } else {
-                Log.w(TAG, "Subscriber disconnect callback not registered");
+                Log.w(TAG, "Client manager not registered");
             }
 
             // Drop all queued messages and client state
@@ -392,20 +380,13 @@ public class VmsHalService extends HalServiceBase {
         }
 
         // Notify client manager of connection
-        if (mPublisherOnHalConnected != null) {
-            mPublisherOnHalConnected.accept(mPublisherClient);
+        if (mClientManager != null) {
+            mClientManager.onHalConnected(mPublisherClient, mSubscriberClient);
         } else {
-            Log.w(TAG, "Publisher connect callback not registered");
+            Log.w(TAG, "Client manager not registered");
         }
 
-        // Notify subscriber service of connection
         if (mSubscriberService != null) {
-            try {
-                mSubscriberService.addVmsSubscriberToNotifications(mSubscriberClient);
-            } catch (RemoteException e) {
-                Log.e(TAG, "While adding subscriber callback", e);
-            }
-
             // Publish layer availability to HAL clients (this triggers HAL client initialization)
             try {
                 mSubscriberClient.onLayersAvailabilityChanged(

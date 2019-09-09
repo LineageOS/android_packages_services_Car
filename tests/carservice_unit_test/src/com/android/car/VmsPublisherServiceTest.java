@@ -108,7 +108,7 @@ public class VmsPublisherServiceTest {
     @Before
     public void setUp() {
         mPublisherService = new VmsPublisherService(mContext, mBrokerService, mClientManager);
-        verify(mClientManager).registerConnectionListener(mPublisherService);
+        verify(mClientManager).setPublisherService(mPublisherService);
 
         mPublisherClient = new MockPublisherClient();
         mPublisherClient2 = new MockPublisherClient();
@@ -124,8 +124,8 @@ public class VmsPublisherServiceTest {
 
     @Test
     public void testOnClientConnected() {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
-        mPublisherService.onClientConnected("SomeOtherClient", mPublisherClient2.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
+        mPublisherService.onClientConnected("SomeOtherClient", mPublisherClient2);
         verify(mBrokerService, times(2)).addPublisherListener(mProxyCaptor.capture());
 
         assertNotNull(mPublisherClient.mPublisherService);
@@ -138,8 +138,8 @@ public class VmsPublisherServiceTest {
 
     @Test
     public void testOnClientDisconnected() {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
-        mPublisherService.onClientConnected("SomeOtherClient", mPublisherClient2.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
+        mPublisherService.onClientConnected("SomeOtherClient", mPublisherClient2);
         verify(mBrokerService, times(2)).addPublisherListener(mProxyCaptor.capture());
 
         reset(mClientManager, mBrokerService);
@@ -152,7 +152,7 @@ public class VmsPublisherServiceTest {
 
     @Test
     public void testSetLayersOffering() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
 
         mPublisherClient.mPublisherService.setLayersOffering(mPublisherClient.mToken, OFFERING);
         verify(mBrokerService).setPublisherLayersOffering(mPublisherClient.mToken, OFFERING);
@@ -160,14 +160,14 @@ public class VmsPublisherServiceTest {
 
     @Test(expected = SecurityException.class)
     public void testSetLayersOffering_InvalidToken() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
 
         mPublisherClient.mPublisherService.setLayersOffering(new Binder(), OFFERING);
     }
 
     @Test(expected = SecurityException.class)
     public void testSetLayersOffering_Disconnected() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         mPublisherService.onClientDisconnected("SomeClient");
 
         mPublisherClient.mPublisherService.setLayersOffering(mPublisherClient.mToken, OFFERING);
@@ -175,7 +175,7 @@ public class VmsPublisherServiceTest {
 
     @Test(expected = SecurityException.class)
     public void testSetLayersOffering_PermissionDenied() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_VMS_PUBLISHER)).thenReturn(
                 PackageManager.PERMISSION_DENIED);
 
@@ -184,7 +184,7 @@ public class VmsPublisherServiceTest {
 
     @Test
     public void testPublish() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
 
         mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
                 PAYLOAD);
@@ -194,7 +194,7 @@ public class VmsPublisherServiceTest {
 
     @Test
     public void testPublishNullLayerAndNullPayload() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
 
         // We just want to ensure that no exceptions are thrown here.
         mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, null, PUBLISHER_ID,
@@ -203,7 +203,7 @@ public class VmsPublisherServiceTest {
 
     @Test
     public void testPublish_ClientError() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         doThrow(new RemoteException()).when(mSubscriberClient).onVmsMessageReceived(LAYER, PAYLOAD);
 
         mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
@@ -214,14 +214,14 @@ public class VmsPublisherServiceTest {
 
     @Test(expected = SecurityException.class)
     public void testPublish_InvalidToken() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
 
         mPublisherClient.mPublisherService.publish(new Binder(), LAYER, PUBLISHER_ID, PAYLOAD);
     }
 
     @Test(expected = SecurityException.class)
     public void testPublish_Disconnected() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         mPublisherService.onClientDisconnected("SomeClient");
 
         mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
@@ -230,7 +230,7 @@ public class VmsPublisherServiceTest {
 
     @Test(expected = SecurityException.class)
     public void testPublish_PermissionDenied() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_VMS_PUBLISHER)).thenReturn(
                 PackageManager.PERMISSION_DENIED);
 
@@ -240,7 +240,7 @@ public class VmsPublisherServiceTest {
 
     @Test
     public void testGetSubscriptions() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         when(mBrokerService.getSubscriptionState()).thenReturn(SUBSCRIPTION_STATE);
 
         assertEquals(SUBSCRIPTION_STATE, mPublisherClient.mPublisherService.getSubscriptions());
@@ -248,7 +248,7 @@ public class VmsPublisherServiceTest {
 
     @Test(expected = SecurityException.class)
     public void testGetSubscriptions_Disconnected() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         mPublisherService.onClientDisconnected("SomeClient");
 
         mPublisherClient.mPublisherService.getSubscriptions();
@@ -256,7 +256,7 @@ public class VmsPublisherServiceTest {
 
     @Test(expected = SecurityException.class)
     public void testGetSubscriptions_PermissionDenied() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_VMS_PUBLISHER)).thenReturn(
                 PackageManager.PERMISSION_DENIED);
 
@@ -265,7 +265,7 @@ public class VmsPublisherServiceTest {
 
     @Test
     public void testGetPublisherId() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         when(mBrokerService.getPublisherId(PAYLOAD)).thenReturn(PUBLISHER_ID);
 
         assertEquals(PUBLISHER_ID, mPublisherClient.mPublisherService.getPublisherId(PAYLOAD));
@@ -273,7 +273,7 @@ public class VmsPublisherServiceTest {
 
     @Test(expected = SecurityException.class)
     public void testGetPublisherId_Disconnected() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         mPublisherService.onClientDisconnected("SomeClient");
 
         mPublisherClient.mPublisherService.getPublisherId(PAYLOAD);
@@ -281,7 +281,7 @@ public class VmsPublisherServiceTest {
 
     @Test(expected = SecurityException.class)
     public void testGetPublisherId_PermissionDenied() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_VMS_PUBLISHER)).thenReturn(
                 PackageManager.PERMISSION_DENIED);
 
@@ -290,8 +290,8 @@ public class VmsPublisherServiceTest {
 
     @Test
     public void testOnSubscriptionChange() {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
-        mPublisherService.onClientConnected("SomeOtherClient", mPublisherClient2.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
+        mPublisherService.onClientConnected("SomeOtherClient", mPublisherClient2);
         verify(mBrokerService, times(2)).addPublisherListener(mProxyCaptor.capture());
 
         mProxyCaptor.getAllValues().get(0).onSubscriptionChange(SUBSCRIPTION_STATE);
@@ -302,7 +302,7 @@ public class VmsPublisherServiceTest {
 
     @Test
     public void testDump_getPacketCount() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintWriter printWriter = new PrintWriter(outputStream);
 
@@ -322,7 +322,7 @@ public class VmsPublisherServiceTest {
 
     @Test
     public void testDump_getPacketCounts() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintWriter printWriter = new PrintWriter(outputStream);
 
@@ -379,7 +379,7 @@ public class VmsPublisherServiceTest {
 
     @Test
     public void testDumpNoListeners_getPacketFailureCount() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintWriter printWriter = new PrintWriter(outputStream);
 
@@ -410,8 +410,8 @@ public class VmsPublisherServiceTest {
         when(mBrokerService.getSubscribersForLayerFromPublisher(LAYER3, PUBLISHER_ID))
                 .thenReturn(new HashSet<>());
 
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
-        mPublisherService.onClientConnected("SomeClient2", mPublisherClient2.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
+        mPublisherService.onClientConnected("SomeClient2", mPublisherClient2);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintWriter printWriter = new PrintWriter(outputStream);
@@ -453,9 +453,9 @@ public class VmsPublisherServiceTest {
                 LAYER3, PAYLOAD);
         when(mBrokerService.getSubscribersForLayerFromPublisher(LAYER3, PUBLISHER_ID))
                 .thenReturn(new HashSet<>(Arrays.asList(mThrowingSubscriberClient)));
-        when(mBrokerService.getPackageName(mThrowingSubscriberClient)).thenReturn("Thrower");
+        when(mClientManager.getPackageName(mThrowingSubscriberClient)).thenReturn("Thrower");
 
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintWriter printWriter = new PrintWriter(outputStream);
@@ -499,11 +499,11 @@ public class VmsPublisherServiceTest {
                 .thenReturn(new HashSet<>(
                         Arrays.asList(mThrowingSubscriberClient, mThrowingSubscriberClient2)));
 
-        when(mBrokerService.getPackageName(mThrowingSubscriberClient)).thenReturn("Thrower");
-        when(mBrokerService.getPackageName(mThrowingSubscriberClient2)).thenReturn("Thrower2");
+        when(mClientManager.getPackageName(mThrowingSubscriberClient)).thenReturn("Thrower");
+        when(mClientManager.getPackageName(mThrowingSubscriberClient2)).thenReturn("Thrower2");
 
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
-        mPublisherService.onClientConnected("SomeClient2", mPublisherClient2.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
+        mPublisherService.onClientConnected("SomeClient2", mPublisherClient2);
 
         // Layer 2 has no listeners and should therefore result in a packet failure to be recorded.
         mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER3, PUBLISHER_ID,
@@ -590,9 +590,9 @@ public class VmsPublisherServiceTest {
                 .thenReturn(new HashSet<>(
                         Arrays.asList(mThrowingSubscriberClient)));
 
-        when(mBrokerService.getPackageName(mThrowingSubscriberClient)).thenReturn("Thrower");
+        when(mClientManager.getPackageName(mThrowingSubscriberClient)).thenReturn("Thrower");
 
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient.asBinder());
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
                 PAYLOAD);
         mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
