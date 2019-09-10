@@ -22,24 +22,19 @@ import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsOperationRecorder;
 import android.car.vms.VmsSubscriptionState;
-import android.content.pm.PackageManager;
-import android.os.Binder;
 import android.os.IBinder;
-import android.os.Process;
 import android.util.Log;
 
 import com.android.car.VmsLayersAvailability;
 import com.android.car.VmsPublishersInfo;
 import com.android.car.VmsRouting;
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.IntSupplier;
 
 /**
  * Broker service facilitating subscription handling and message passing between
@@ -49,25 +44,14 @@ public class VmsBrokerService {
     private static final boolean DBG = true;
     private static final String TAG = "VmsBrokerService";
 
-    @VisibleForTesting
-    static final String HAL_CLIENT = "HalClient";
-
-    @VisibleForTesting
-    static final String UNKNOWN_PACKAGE = "UnknownPackage";
-
     private CopyOnWriteArrayList<PublisherListener> mPublisherListeners =
             new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<SubscriberListener> mSubscriberListeners =
             new CopyOnWriteArrayList<>();
-    private PackageManager mPackageManager;
-    private IntSupplier mGetCallingPid;
-    private IntSupplier mGetCallingUid;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final VmsRouting mRouting = new VmsRouting();
-    @GuardedBy("mLock")
-    private final Map<IBinder, String> mBinderPackage = new HashMap<>();
     @GuardedBy("mLock")
     private final Map<IBinder, Map<Integer, VmsLayersOffering>> mOfferings = new HashMap<>();
     @GuardedBy("mLock")
@@ -92,36 +76,11 @@ public class VmsBrokerService {
      */
     public interface SubscriberListener {
         /**
-         * Callback triggered when data is published for a given layer.
-         *
-         * @param layer       Layer data is being published for
-         * @param publisherId Publisher of data
-         * @param payload     Layer data
-         */
-        void onMessageReceived(VmsLayer layer, int publisherId, byte[] payload);
-
-        /**
          * Callback triggered when the layers available for subscription changes.
          *
          * @param availableLayers Current layer availability
          */
         void onLayersAvailabilityChange(VmsAvailableLayers availableLayers);
-    }
-
-    /**
-     * Constructs new broker service.
-     */
-    public VmsBrokerService(PackageManager packageManager) {
-        this(packageManager, Binder::getCallingPid, Binder::getCallingUid);
-    }
-
-    @VisibleForTesting
-    VmsBrokerService(PackageManager packageManager, IntSupplier getCallingPid,
-            IntSupplier getCallingUid) {
-        if (DBG) Log.d(TAG, "Started VmsBrokerService!");
-        mPackageManager = packageManager;
-        mGetCallingPid = getCallingPid;
-        mGetCallingUid = getCallingUid;
     }
 
     /**
@@ -168,8 +127,6 @@ public class VmsBrokerService {
     public void addSubscription(IVmsSubscriberClient subscriber) {
         synchronized (mLock) {
             mRouting.addSubscription(subscriber);
-            // Add mapping from binder to package name of subscriber.
-            mBinderPackage.computeIfAbsent(subscriber.asBinder(), k -> getCallingPackage());
         }
     }
 
@@ -199,9 +156,6 @@ public class VmsBrokerService {
 
             // Add the listeners subscription to the layer
             mRouting.addSubscription(subscriber, layer);
-
-            // Add mapping from binder to package name of subscriber.
-            mBinderPackage.computeIfAbsent(subscriber.asBinder(), k -> getCallingPackage());
         }
         if (firstSubscriptionForLayer) {
             notifyOfSubscriptionChange();
@@ -249,9 +203,6 @@ public class VmsBrokerService {
 
             // Add the listeners subscription to the layer
             mRouting.addSubscription(subscriber, layer, publisherId);
-
-            // Add mapping from binder to package name of subscriber.
-            mBinderPackage.computeIfAbsent(subscriber.asBinder(), k -> getCallingPackage());
         }
         if (firstSubscriptionForLayer) {
             notifyOfSubscriptionChange();
@@ -296,9 +247,6 @@ public class VmsBrokerService {
         boolean subscriptionStateChanged;
         synchronized (mLock) {
             subscriptionStateChanged = mRouting.removeDeadSubscriber(subscriber);
-
-            // Remove mapping from binder to package name of subscriber.
-            mBinderPackage.remove(subscriber.asBinder());
         }
         if (subscriptionStateChanged) {
             notifyOfSubscriptionChange();
@@ -394,15 +342,6 @@ public class VmsBrokerService {
         }
     }
 
-    /**
-     * Gets the package name for a given IVmsSubscriberClient
-     */
-    public String getPackageName(IVmsSubscriberClient subscriber) {
-        synchronized (mLock) {
-            return mBinderPackage.get(subscriber.asBinder());
-        }
-    }
-
     private void updateLayerAvailability() {
         Set<VmsLayersOffering> allPublisherOfferings = new HashSet<>();
         synchronized (mLock) {
@@ -431,23 +370,6 @@ public class VmsBrokerService {
         // Notify the App subscribers
         for (SubscriberListener listener : mSubscriberListeners) {
             listener.onLayersAvailabilityChange(availableLayers);
-        }
-    }
-
-    // If we're in a binder call, returns back the package name of the caller of the binder call.
-    private String getCallingPackage() {
-        int callingPid = mGetCallingPid.getAsInt();
-        // Since the HAL lives in the same process, if the callingPid is equal to this process's
-        // PID, we know it's the HAL client.
-        if (callingPid == Process.myPid()) {
-            return HAL_CLIENT;
-        }
-        int callingUid = mGetCallingUid.getAsInt();
-        String packageName = mPackageManager.getNameForUid(callingUid);
-        if (packageName == null) {
-            return UNKNOWN_PACKAGE;
-        } else {
-            return packageName;
         }
     }
 }
