@@ -2106,7 +2106,7 @@
     <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"Fra"</string>
     <string name="accessibility_summary_state_stopped" msgid="3170264683616172746">"Kører ikke. Tryk for at få flere oplysninger."</string>
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Denne tjeneste fungerer ikke korrekt."</string>
-    <string name="enable_quick_setting" msgid="1580451877998661255">"Vis i Hurtige indstillinger"</string>
+    <string name="enable_quick_setting" msgid="1580451877998661255">"Vis i Kvikmenu"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"Korrektionstilstand"</string>
     <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
       <item quantity="one">Ekstremt lille forsinkelse (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
@@ -4071,7 +4071,7 @@
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Vælg tema"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"Denne indstilling gælder også for apps"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"Understøttede apps skifter også til mørkt tema"</string>
-    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Felter for udviklere til Hurtige indstillinger"</string>
+    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Felter for udviklere til Kvikmenu"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Sporing af Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Sensorer er slået fra"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Indstillinger for arbejdsprofil"</string>
