@@ -246,7 +246,11 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         mPowerStateHandler.sendPowerState(
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP);
-        assertResponse(VehicleApPowerStateReport.SHUTDOWN_PREPARE, 0, true);
+        // The state machine should go to SHUTDOWN_PREPARE, but may
+        // quickly transition to SHUTDOWN_POSTPONE. Report success
+        // if we got to SHUTDOWN_PREPARE, even if we're not there now.
+        assertResponseTransient(VehicleApPowerStateReport.SHUTDOWN_PREPARE, 0, true);
+
         mMockDisplayInterface.waitForDisplayState(false);
         assertResponse(VehicleApPowerStateReport.DEEP_SLEEP_ENTRY, 0, false);
         mMockDisplayInterface.waitForDisplayState(false);
@@ -255,6 +259,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         mMockDisplayInterface.waitForDisplayState(false);
     }
 
+    // Check that 'expectedState' was reached and is the current state.
     private void assertResponse(int expectedState, int expectedParam, boolean checkParam)
             throws Exception {
         LinkedList<int[]> setEvents = mPowerStateHandler.waitForStateSetAndGetAll(
@@ -264,6 +269,21 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         if (checkParam) {
             assertEquals(expectedParam, last[1]);
         }
+    }
+
+    // Check that 'expectedState' was reached. (But it's OK if it is not still current.)
+    private void assertResponseTransient(int expectedState, int expectedParam, boolean checkParam)
+            throws Exception {
+        LinkedList<int[]> setEvents = mPowerStateHandler.waitForStateSetAndGetAll(
+                DEFAULT_WAIT_TIMEOUT_MS, expectedState);
+        for (int[] aState : setEvents) {
+            if (expectedState != aState[0]) continue;
+            if (checkParam) {
+                assertEquals(expectedParam, aState[1]);
+            }
+            return; // Success
+        }
+        fail("Did not find expected state: " + expectedState);
     }
 
     private void assertWaitForVhal() throws Exception {
@@ -373,6 +393,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                     for (int[] state : mSetStates) {
                         if (state[0] == expectedSet) {
                             found = true;
+                            break;
                         }
                     }
                     if (found) {
