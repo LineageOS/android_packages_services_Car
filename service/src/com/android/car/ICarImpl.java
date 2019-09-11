@@ -150,11 +150,12 @@ public class ICarImpl extends ICar.Stub {
                 mAppFocusService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(
                 serviceContext, mCarAudioService, this);
-        mVmsBrokerService = new VmsBrokerService(mContext.getPackageManager());
+        mVmsBrokerService = new VmsBrokerService();
         mVmsClientManager = new VmsClientManager(
-                serviceContext, mCarUserService, mUserManagerHelper, mHal.getVmsHal());
+                serviceContext, mVmsBrokerService, mCarUserService, mUserManagerHelper,
+                mHal.getVmsHal());
         mVmsSubscriberService = new VmsSubscriberService(
-                serviceContext, mVmsBrokerService, mHal.getVmsHal());
+                serviceContext, mVmsBrokerService, mVmsClientManager, mHal.getVmsHal());
         mVmsPublisherService = new VmsPublisherService(
                 serviceContext, mVmsBrokerService, mVmsClientManager);
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
