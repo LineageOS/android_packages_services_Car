@@ -1672,7 +1672,7 @@
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"Nicio aplicație nu a accesat recent locația"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"Utilizare intensă a bateriei"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Utilizare redusă a bateriei"</string>
-    <string name="location_scanning_screen_title" msgid="7663329319689413454">"Scanare prin Wi‑Fi și Bluetooth"</string>
+    <string name="location_scanning_screen_title" msgid="7663329319689413454">"Căutare Wi‑Fi și Bluetooth"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Căutare de rețele Wi-Fi"</string>
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Permiteți aplicațiilor și serviciilor să caute permanent rețele Wi-Fi, chiar și atunci când setarea Wi-Fi este dezactivată. Această permisiune poate fi folosită, de exemplu, pentru a îmbunătăți funcțiile și serviciile bazate pe locație."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Căutare Bluetooth"</string>
