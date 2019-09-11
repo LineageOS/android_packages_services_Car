@@ -1,1 +1,3 @@
+android.car.number_guest_user_templates          u:object_r:car_bootuser_prop:s0
+android.car.number_user_templates                u:object_r:car_bootuser_prop:s0
 android.car.systemuser.bootuseroverrideid        u:object_r:car_bootuser_prop:s0
