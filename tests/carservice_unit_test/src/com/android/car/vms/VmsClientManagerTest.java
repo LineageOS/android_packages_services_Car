@@ -17,13 +17,19 @@
 package com.android.car.vms;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,6 +39,12 @@ import static org.mockito.Mockito.when;
 
 import android.car.Car;
 import android.car.userlib.CarUserManagerHelper;
+import android.car.vms.IVmsPublisherClient;
+import android.car.vms.IVmsPublisherService;
+import android.car.vms.IVmsSubscriberClient;
+import android.car.vms.VmsAvailableLayers;
+import android.car.vms.VmsLayer;
+import android.car.vms.VmsSubscriptionState;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -49,6 +61,7 @@ import android.os.UserManager;
 
 import androidx.test.filters.SmallTest;
 
+import com.android.car.VmsPublisherService;
 import com.android.car.hal.VmsHalService;
 import com.android.car.user.CarUserService;
 
@@ -59,15 +72,11 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import java.util.function.Consumer;
-
 @SmallTest
 public class VmsClientManagerTest {
-    private static final String HAL_CLIENT_NAME = "VmsHalClient";
     private static final String SYSTEM_CLIENT = "com.google.android.apps.vms.test/.VmsSystemClient";
     private static final ComponentName SYSTEM_CLIENT_COMPONENT =
             ComponentName.unflattenFromString(SYSTEM_CLIENT);
@@ -83,6 +92,11 @@ public class VmsClientManagerTest {
     private static final int USER_ID_U11 = 11;
     private static final String USER_CLIENT_NAME_U11 =
             "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsUserClient U=11";
+
+    private static final String TEST_PACKAGE = "test.package1";
+    private static final String HAL_CLIENT_NAME = "HalClient";
+    private static final String UNKNOWN_PACKAGE = "UnknownPackage";
+
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock
@@ -98,19 +112,36 @@ public class VmsClientManagerTest {
     private CarUserService mUserService;
     @Mock
     private CarUserManagerHelper mUserManagerHelper;
-    private int mForegroundUserId;
+
+    @Mock
+    private VmsBrokerService mBrokerService;
 
     @Mock
     private VmsHalService mHal;
-    private Consumer<IBinder> mHalClientConnected;
-    private Runnable mHalClientDisconnected;
 
     @Mock
-    private VmsClientManager.ConnectionListener mConnectionListener;
-    private VmsClientManager mClientManager;
+    private VmsPublisherService mPublisherService;
+
+    @Mock
+    private IVmsSubscriberClient mSubscriberClient1;
+    @Mock
+    private Binder mSubscriberBinder1;
+
+    @Captor
+    private ArgumentCaptor<IBinder.DeathRecipient> mDeathRecipient;
+
+    @Mock
+    private IVmsSubscriberClient mSubscriberClient2;
+    @Mock
+    private Binder mSubscriberBinder2;
 
     @Captor
     private ArgumentCaptor<ServiceConnection> mConnectionCaptor;
+
+    private VmsClientManager mClientManager;
+
+    private int mForegroundUserId;
+    private int mCallingAppUid;
 
     @Before
     public void setUp() throws Exception {
@@ -130,19 +161,21 @@ public class VmsClientManagerTest {
                 new String[]{ USER_CLIENT });
 
         when(mContext.getSystemService(eq(Context.USER_SERVICE))).thenReturn(mUserManager);
+        when(mUserManagerHelper.getCurrentForegroundUserId())
+                .thenAnswer(invocation -> mForegroundUserId);
 
-        mClientManager = new VmsClientManager(mContext, mUserService, mUserManagerHelper, mHal);
-        mClientManager.registerConnectionListener(mConnectionListener);
+        mForegroundUserId = USER_ID;
+        mCallingAppUid = UserHandle.getUid(USER_ID, 0);
 
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<Consumer<IBinder>> onClientConnectedCaptor =
-                ArgumentCaptor.forClass(Consumer.class);
-        ArgumentCaptor<Runnable> onClientDisconnectedCaptor =
-                ArgumentCaptor.forClass(Runnable.class);
-        verify(mHal).setPublisherConnectionCallbacks(
-                onClientConnectedCaptor.capture(), onClientDisconnectedCaptor.capture());
-        mHalClientConnected = onClientConnectedCaptor.getValue();
-        mHalClientDisconnected = onClientDisconnectedCaptor.getValue();
+        mClientManager = new VmsClientManager(mContext, mBrokerService, mUserService,
+                mUserManagerHelper, mHal, () -> mCallingAppUid);
+        verify(mHal).setClientManager(mClientManager);
+        mClientManager.setPublisherService(mPublisherService);
+
+        when(mSubscriberClient1.asBinder()).thenReturn(mSubscriberBinder1);
+        when(mSubscriberClient2.asBinder()).thenReturn(mSubscriberBinder2);
+
+        when(mPackageManager.getNameForUid(mCallingAppUid)).thenReturn(TEST_PACKAGE);
     }
 
     @After
@@ -151,8 +184,7 @@ public class VmsClientManagerTest {
         verify(mContext, atLeast(0)).getSystemService(eq(Context.USER_SERVICE));
         verify(mContext, atLeast(0)).getResources();
         verify(mContext, atLeast(0)).getPackageManager();
-        verifyNoMoreInteractions(mContext);
-        verifyNoMoreInteractions(mHal);
+        verifyNoMoreInteractions(mContext, mBrokerService, mHal, mPublisherService);
     }
 
     @Test
@@ -178,37 +210,6 @@ public class VmsClientManagerTest {
 
         // Verify user switch receiver is unregistered
         verify(mContext).unregisterReceiver(mClientManager.mUserSwitchReceiver);
-    }
-
-    @Test
-    public void testRegisterConnectionListener() {
-        VmsClientManager.ConnectionListener listener =
-                Mockito.mock(VmsClientManager.ConnectionListener.class);
-        mClientManager.registerConnectionListener(listener);
-    }
-
-    @Test
-    public void testRegisterConnectionListener_AfterHalClientConnected() {
-        IBinder halClient = bindHalClient();
-
-        VmsClientManager.ConnectionListener listener =
-                Mockito.mock(VmsClientManager.ConnectionListener.class);
-        mClientManager.registerConnectionListener(listener);
-        verify(listener).onClientConnected(HAL_CLIENT_NAME, halClient);
-    }
-
-    @Test
-    public void testRegisterConnectionListener_AfterClientsConnected() {
-        IBinder halClient = bindHalClient();
-        IBinder systemBinder = bindSystemClient();
-        IBinder userBinder = bindUserClient();
-
-        VmsClientManager.ConnectionListener listener =
-                Mockito.mock(VmsClientManager.ConnectionListener.class);
-        mClientManager.registerConnectionListener(listener);
-        verify(listener).onClientConnected(HAL_CLIENT_NAME, halClient);
-        verify(listener).onClientConnected(eq(SYSTEM_CLIENT_NAME), eq(systemBinder));
-        verify(listener).onClientConnected(eq(USER_CLIENT_NAME), eq(userBinder));
     }
 
     @Test
@@ -420,32 +421,9 @@ public class VmsClientManagerTest {
     }
 
     @Test
-    public void testUnregisterConnectionListener() {
-        mClientManager.unregisterConnectionListener(mConnectionListener);
-        notifySystemUserUnlocked();
-        verifySystemBind(1);
-
-        ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
-        verifyZeroInteractions(mConnectionListener);
-    }
-
-    @Test
-    public void testHalClientConnected() {
-        IBinder binder = bindHalClient();
-        verify(mConnectionListener).onClientConnected(eq(HAL_CLIENT_NAME), eq(binder));
-    }
-
-    private IBinder bindHalClient() {
-        IBinder binder = new Binder();
-        mHalClientConnected.accept(binder);
-        return binder;
-    }
-
-    @Test
     public void testOnSystemServiceConnected() {
         IBinder binder = bindSystemClient();
-        verify(mConnectionListener).onClientConnected(eq(SYSTEM_CLIENT_NAME), eq(binder));
+        verifyOnClientConnected(SYSTEM_CLIENT_NAME, binder);
     }
 
     private IBinder bindSystemClient() {
@@ -453,7 +431,7 @@ public class VmsClientManagerTest {
         verifySystemBind(1);
         resetContext();
 
-        IBinder binder = new Binder();
+        IBinder binder = createPublisherBinder();
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceConnected(null, binder);
         return binder;
@@ -462,7 +440,7 @@ public class VmsClientManagerTest {
     @Test
     public void testOnUserServiceConnected() {
         IBinder binder = bindUserClient();
-        verify(mConnectionListener).onClientConnected(eq(USER_CLIENT_NAME), eq(binder));
+        verifyOnClientConnected(USER_CLIENT_NAME, binder);
     }
 
     private IBinder bindUserClient() {
@@ -470,18 +448,10 @@ public class VmsClientManagerTest {
         verifyUserBind(1);
         resetContext();
 
-        IBinder binder = new Binder();
+        IBinder binder = createPublisherBinder();
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onServiceConnected(null, binder);
         return binder;
-    }
-
-    @Test
-    public void testOnHalClientDisconnected() throws Exception {
-        bindHalClient();
-        mHalClientDisconnected.run();
-
-        verify(mConnectionListener).onClientDisconnected(eq(HAL_CLIENT_NAME));
     }
 
     @Test
@@ -491,10 +461,11 @@ public class VmsClientManagerTest {
         resetContext();
 
         ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
-        connection.onServiceDisconnected(null);
+        connection.onServiceConnected(null, createPublisherBinder());
+        reset(mPublisherService);
 
-        verify(mConnectionListener).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
+        connection.onServiceDisconnected(null);
+        verify(mPublisherService).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
 
         Thread.sleep(10);
         verify(mContext).unbindService(connection);
@@ -508,14 +479,17 @@ public class VmsClientManagerTest {
         resetContext();
 
         ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
-        connection.onServiceDisconnected(null);
-
-        verify(mConnectionListener).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
-
-        IBinder binder = new Binder();
+        IBinder binder = createPublisherBinder();
         connection.onServiceConnected(null, binder);
-        verify(mConnectionListener).onClientConnected(eq(SYSTEM_CLIENT_NAME), eq(binder));
+        verifyOnClientConnected(SYSTEM_CLIENT_NAME, binder);
+        reset(mPublisherService);
+
+        connection.onServiceDisconnected(null);
+        verify(mPublisherService).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
+
+        binder = createPublisherBinder();
+        connection.onServiceConnected(null, binder);
+        verifyOnClientConnected(SYSTEM_CLIENT_NAME, binder);
         // No more interactions (verified by tearDown)
     }
 
@@ -527,11 +501,11 @@ public class VmsClientManagerTest {
         resetContext();
 
         ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
-        connection.onServiceDisconnected(null);
-        connection.onBindingDied(null);
+        connection.onServiceConnected(null, createPublisherBinder());
+        reset(mPublisherService);
 
-        verify(mConnectionListener).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
+        connection.onBindingDied(null);
+        verify(mPublisherService).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
 
         Thread.sleep(10);
         verify(mContext).unbindService(connection);
@@ -547,7 +521,7 @@ public class VmsClientManagerTest {
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onBindingDied(null);
 
-        verifyZeroInteractions(mConnectionListener);
+        verifyZeroInteractions(mPublisherService);
 
         Thread.sleep(10);
         verify(mContext).unbindService(connection);
@@ -561,10 +535,11 @@ public class VmsClientManagerTest {
         resetContext();
 
         ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
-        connection.onServiceDisconnected(null);
+        connection.onServiceConnected(null, createPublisherBinder());
+        reset(mPublisherService);
 
-        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
+        connection.onServiceDisconnected(null);
+        verify(mPublisherService).onClientDisconnected(eq(USER_CLIENT_NAME));
 
         Thread.sleep(10);
         verify(mContext).unbindService(connection);
@@ -578,14 +553,17 @@ public class VmsClientManagerTest {
         resetContext();
 
         ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
-        connection.onServiceDisconnected(null);
-
-        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
-
-        IBinder binder = new Binder();
+        IBinder binder = createPublisherBinder();
         connection.onServiceConnected(null, binder);
-        verify(mConnectionListener).onClientConnected(eq(USER_CLIENT_NAME), eq(binder));
+        verifyOnClientConnected(USER_CLIENT_NAME, binder);
+        reset(mPublisherService);
+
+        connection.onServiceDisconnected(null);
+        verify(mPublisherService).onClientDisconnected(eq(USER_CLIENT_NAME));
+
+        binder = createPublisherBinder();
+        connection.onServiceConnected(null, binder);
+        verifyOnClientConnected(USER_CLIENT_NAME, binder);
         // No more interactions (verified by tearDown)
     }
 
@@ -596,11 +574,11 @@ public class VmsClientManagerTest {
         resetContext();
 
         ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
-        connection.onServiceDisconnected(null);
-        connection.onBindingDied(null);
+        connection.onServiceConnected(null, createPublisherBinder());
+        reset(mPublisherService);
 
-        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
+        connection.onBindingDied(null);
+        verify(mPublisherService).onClientDisconnected(eq(USER_CLIENT_NAME));
 
         Thread.sleep(10);
         verify(mContext).unbindService(connection);
@@ -616,7 +594,7 @@ public class VmsClientManagerTest {
         ServiceConnection connection = mConnectionCaptor.getValue();
         connection.onBindingDied(null);
 
-        verifyZeroInteractions(mConnectionListener);
+        verifyZeroInteractions(mPublisherService);
 
         Thread.sleep(10);
         verify(mContext).unbindService(connection);
@@ -628,14 +606,14 @@ public class VmsClientManagerTest {
         notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
+        connection.onServiceConnected(null, createPublisherBinder());
         resetContext();
-        reset(mConnectionListener);
+        reset(mPublisherService);
 
         notifyUserSwitched(USER_ID_U11, true);
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
+        verify(mPublisherService).onClientDisconnected(eq(USER_CLIENT_NAME));
         verifyUserBind(1);
     }
 
@@ -644,14 +622,14 @@ public class VmsClientManagerTest {
         notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
+        connection.onServiceConnected(null, createPublisherBinder());
         resetContext();
-        reset(mConnectionListener);
+        reset(mPublisherService);
 
         notifyUserSwitched(USER_ID_U11, false);
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
+        verify(mPublisherService).onClientDisconnected(eq(USER_CLIENT_NAME));
         verifyUserBind(0);
     }
 
@@ -660,14 +638,14 @@ public class VmsClientManagerTest {
         notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
+        connection.onServiceConnected(null, createPublisherBinder());
         resetContext();
-        reset(mConnectionListener);
+        reset(mPublisherService);
 
         notifyUserSwitched(UserHandle.USER_SYSTEM, true);
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
+        verify(mPublisherService).onClientDisconnected(eq(USER_CLIENT_NAME));
         verifyUserBind(0);
     }
 
@@ -702,14 +680,14 @@ public class VmsClientManagerTest {
         notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
+        connection.onServiceConnected(null, createPublisherBinder());
         resetContext();
-        reset(mConnectionListener);
+        reset(mPublisherService);
 
         notifyUserUnlocked(USER_ID_U11, true);
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
+        verify(mPublisherService).onClientDisconnected(eq(USER_CLIENT_NAME));
         verifyUserBind(1);
     }
 
@@ -720,14 +698,14 @@ public class VmsClientManagerTest {
         notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);
         ServiceConnection connection = mConnectionCaptor.getValue();
-        connection.onServiceConnected(null, new Binder());
+        connection.onServiceConnected(null, createPublisherBinder());
         resetContext();
-        reset(mConnectionListener);
+        reset(mPublisherService);
 
         notifyUserUnlocked(UserHandle.USER_SYSTEM, true);
 
         verify(mContext).unbindService(connection);
-        verify(mConnectionListener).onClientDisconnected(eq(USER_CLIENT_NAME));
+        verify(mPublisherService).onClientDisconnected(eq(USER_CLIENT_NAME));
         // User processes will not be bound for system user
         verifyUserBind(0);
     }
@@ -743,6 +721,210 @@ public class VmsClientManagerTest {
 
         verify(mContext).unbindService(connection);
         verifyUserBind(1);
+    }
+
+    @Test
+    public void testAddSubscriber() {
+        mClientManager.addSubscriber(mSubscriberClient1);
+        assertEquals(TEST_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
+        assertEquals(UNKNOWN_PACKAGE, mClientManager.getPackageName(mSubscriberClient2));
+    }
+
+    @Test
+    public void testAddSubscriber_SystemUser() {
+        mCallingAppUid = UserHandle.getUid(UserHandle.USER_SYSTEM, 0);
+        when(mPackageManager.getNameForUid(mCallingAppUid)).thenReturn(TEST_PACKAGE);
+
+        mClientManager.addSubscriber(mSubscriberClient1);
+        assertEquals(TEST_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
+        assertEquals(UNKNOWN_PACKAGE, mClientManager.getPackageName(mSubscriberClient2));
+    }
+
+    @Test
+    public void testAddSubscriber_NotForegroundUser() {
+        mCallingAppUid = UserHandle.getUid(USER_ID_U11, 0);
+
+        try {
+            mClientManager.addSubscriber(mSubscriberClient1);
+            fail("Expected client to be rejected");
+        } catch (SecurityException expected) {
+            // expected
+        }
+        assertEquals(UNKNOWN_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
+    }
+
+    @Test
+    public void testAddSubscriber_MultipleCalls() {
+        mClientManager.addSubscriber(mSubscriberClient1);
+        mClientManager.addSubscriber(mSubscriberClient1);
+        verify(mPackageManager, atMost(1)).getNameForUid(anyInt());
+        assertEquals(TEST_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
+        assertEquals(UNKNOWN_PACKAGE, mClientManager.getPackageName(mSubscriberClient2));
+    }
+
+    @Test
+    public void testAddSubscriber_MultipleClients_SamePackage() {
+        mClientManager.addSubscriber(mSubscriberClient1);
+        mClientManager.addSubscriber(mSubscriberClient2);
+        verify(mPackageManager, atMost(2)).getNameForUid(anyInt());
+        assertEquals(TEST_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
+        assertEquals(TEST_PACKAGE, mClientManager.getPackageName(mSubscriberClient2));
+    }
+
+    @Test
+    public void testAddSubscriber_MultipleClients_ForegroundAndSystemUsers_SamePackage() {
+        mClientManager.addSubscriber(mSubscriberClient1);
+
+        mCallingAppUid = UserHandle.getUid(UserHandle.USER_SYSTEM, 0);
+        when(mPackageManager.getNameForUid(mCallingAppUid)).thenReturn(TEST_PACKAGE);
+        mClientManager.addSubscriber(mSubscriberClient2);
+
+        verify(mPackageManager, atMost(2)).getNameForUid(anyInt());
+        assertEquals(TEST_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
+        assertEquals(TEST_PACKAGE, mClientManager.getPackageName(mSubscriberClient2));
+    }
+
+
+    @Test
+    public void testAddSubscriber_MultipleClients_MultiplePackages() {
+        mClientManager.addSubscriber(mSubscriberClient1);
+
+        mCallingAppUid = UserHandle.getUid(mForegroundUserId, 1);
+        when(mPackageManager.getNameForUid(mCallingAppUid)).thenReturn("test.package2");
+        mClientManager.addSubscriber(mSubscriberClient2);
+
+        verify(mPackageManager, times(2)).getNameForUid(anyInt());
+        assertEquals(TEST_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
+        assertEquals("test.package2", mClientManager.getPackageName(mSubscriberClient2));
+    }
+
+    @Test
+    public void testRemoveSubscriber() {
+        mClientManager.addSubscriber(mSubscriberClient1);
+        mClientManager.removeSubscriber(mSubscriberClient1);
+        verify(mBrokerService).removeDeadSubscriber(mSubscriberClient1);
+        assertEquals(UNKNOWN_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
+    }
+
+    @Test
+    public void testRemoveSubscriber_NotRegistered() {
+        mClientManager.removeSubscriber(mSubscriberClient1);
+        assertEquals(UNKNOWN_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
+    }
+
+    @Test
+    public void testRemoveSubscriber_OnDeath() {
+        mClientManager.addSubscriber(mSubscriberClient1);
+
+        verify(mSubscriberBinder1).linkToDeath(mDeathRecipient.capture(), eq(0));
+        mDeathRecipient.getValue().binderDied();
+
+        verify(mBrokerService).removeDeadSubscriber(mSubscriberClient1);
+        assertEquals(UNKNOWN_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
+    }
+
+    @Test
+    public void testOnUserSwitch_RemoveSubscriber() {
+        mClientManager.addSubscriber(mSubscriberClient1);
+
+        mForegroundUserId = USER_ID_U11;
+        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent());
+
+        verify(mBrokerService).removeDeadSubscriber(mSubscriberClient1);
+        assertEquals(UNKNOWN_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
+        assertTrue(mClientManager.getAllSubscribers().isEmpty());
+    }
+
+    @Test
+    public void testOnUserSwitch_RemoveSubscriber_AddNewSubscriber() {
+        mClientManager.addSubscriber(mSubscriberClient1);
+
+        mForegroundUserId = USER_ID_U11;
+        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent());
+        verify(mBrokerService).removeDeadSubscriber(mSubscriberClient1);
+
+        mCallingAppUid = UserHandle.getUid(USER_ID_U11, 0);
+        when(mPackageManager.getNameForUid(mCallingAppUid)).thenReturn(TEST_PACKAGE);
+        mClientManager.addSubscriber(mSubscriberClient2);
+
+        assertEquals(TEST_PACKAGE, mClientManager.getPackageName(mSubscriberClient2));
+        assertFalse(mClientManager.getAllSubscribers().contains(mSubscriberClient1));
+        assertTrue(mClientManager.getAllSubscribers().contains(mSubscriberClient2));
+    }
+
+    @Test
+    public void testOnUserSwitch_RemoveSubscriber_RetainSystemClient() {
+        mClientManager.addSubscriber(mSubscriberClient1);
+
+        mCallingAppUid = UserHandle.getUid(UserHandle.USER_SYSTEM, 0);
+        when(mPackageManager.getNameForUid(mCallingAppUid)).thenReturn(TEST_PACKAGE);
+
+        mClientManager.addSubscriber(mSubscriberClient2);
+
+        mForegroundUserId = USER_ID_U11;
+        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent());
+
+        verify(mBrokerService).removeDeadSubscriber(mSubscriberClient1);
+        verify(mBrokerService, never()).removeDeadSubscriber(mSubscriberClient2);
+        assertEquals(UNKNOWN_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
+        assertEquals(TEST_PACKAGE, mClientManager.getPackageName(mSubscriberClient2));
+    }
+
+    @Test
+    public void testOnUserSwitch_RemoveSubscriber_RetainHalClient() {
+        IVmsPublisherClient publisherClient = createPublisherClient();
+        IVmsSubscriberClient subscriberClient = createSubscriberClient();
+        mClientManager.onHalConnected(publisherClient, subscriberClient);
+        reset(mPublisherService);
+
+        mForegroundUserId = USER_ID_U11;
+        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent());
+
+        verify(mBrokerService, never()).removeDeadSubscriber(subscriberClient);
+        assertEquals(HAL_CLIENT_NAME, mClientManager.getPackageName(subscriberClient));
+    }
+
+    @Test
+    public void testHalClientConnected() {
+        IVmsPublisherClient publisherClient = createPublisherClient();
+        IVmsSubscriberClient subscriberClient = createSubscriberClient();
+        mClientManager.onHalConnected(publisherClient, subscriberClient);
+        verify(mPublisherService).onClientConnected(eq(HAL_CLIENT_NAME), same(publisherClient));
+        assertTrue(mClientManager.getAllSubscribers().contains(subscriberClient));
+        assertEquals(HAL_CLIENT_NAME, mClientManager.getPackageName(subscriberClient));
+    }
+
+    @Test
+    public void testHalClientConnected_AfterAddSubscriber() {
+        IVmsPublisherClient publisherClient = createPublisherClient();
+        IVmsSubscriberClient subscriberClient = createSubscriberClient();
+        mClientManager.addSubscriber(subscriberClient);
+
+        mClientManager.onHalConnected(publisherClient, subscriberClient);
+        verify(mPublisherService).onClientConnected(eq(HAL_CLIENT_NAME), same(publisherClient));
+        assertTrue(mClientManager.getAllSubscribers().contains(subscriberClient));
+        assertEquals(HAL_CLIENT_NAME, mClientManager.getPackageName(subscriberClient));
+    }
+
+    @Test
+    public void testOnHalClientDisconnected() {
+        IVmsPublisherClient publisherClient = createPublisherClient();
+        IVmsSubscriberClient subscriberClient = createSubscriberClient();
+        mClientManager.onHalConnected(publisherClient, subscriberClient);
+        reset(mPublisherService);
+
+        mClientManager.onHalDisconnected();
+        verify(mPublisherService).onClientDisconnected(eq(HAL_CLIENT_NAME));
+        verify(mBrokerService).removeDeadSubscriber(eq(subscriberClient));
+        assertFalse(mClientManager.getAllSubscribers().contains(subscriberClient));
+        assertEquals(UNKNOWN_PACKAGE, mClientManager.getPackageName(subscriberClient));
+    }
+
+    @Test
+    public void testOnHalClientDisconnected_NotConnected() {
+        mClientManager.onHalDisconnected();
+        verify(mPublisherService, never()).onClientDisconnected(eq(HAL_CLIENT_NAME));
+        assertTrue(mClientManager.getAllSubscribers().isEmpty());
     }
 
     private void resetContext() {
@@ -791,5 +973,44 @@ public class VmsClientManagerTest {
                 argThat((service) -> service.filterEquals(expectedService)),
                 mConnectionCaptor.capture(),
                 eq(Context.BIND_AUTO_CREATE), any(Handler.class), eq(user));
+    }
+
+    private void verifyOnClientConnected(String publisherName, IBinder binder) {
+        ArgumentCaptor<IVmsPublisherClient> clientCaptor =
+                ArgumentCaptor.forClass(IVmsPublisherClient.class);
+        verify(mPublisherService).onClientConnected(eq(publisherName), clientCaptor.capture());
+        assertSame(binder, clientCaptor.getValue().asBinder());
+    }
+
+    private IBinder createPublisherBinder() {
+        return createPublisherClient().asBinder();
+    }
+
+    private IVmsPublisherClient createPublisherClient() {
+        return new IVmsPublisherClient.Stub() {
+            @Override
+            public void setVmsPublisherService(IBinder token, IVmsPublisherService service) {
+                throw new RuntimeException("Unexpected call");
+            }
+
+            @Override
+            public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState) {
+                throw new RuntimeException("Unexpected call");
+            }
+        };
+    }
+
+    private IVmsSubscriberClient createSubscriberClient() {
+        return new IVmsSubscriberClient.Stub() {
+            @Override
+            public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
+                throw new RuntimeException("Unexpected call");
+            }
+
+            @Override
+            public void onLayersAvailabilityChanged(VmsAvailableLayers availableLayers) {
+                throw new RuntimeException("Unexpected call");
+            }
+        };
     }
 }
