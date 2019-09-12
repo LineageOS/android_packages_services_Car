@@ -118,7 +118,7 @@ public class ICarImpl extends ICar.Stub {
             CanBusErrorNotifier errorNotifier, String vehicleInterfaceName) {
         mContext = serviceContext;
         mSystemInterface = systemInterface;
-        mHal = new VehicleHal(vehicle);
+        mHal = new VehicleHal(serviceContext, vehicle);
         mVehicleInterfaceName = vehicleInterfaceName;
         mUserManagerHelper = new CarUserManagerHelper(serviceContext);
         final Resources res = mContext.getResources();
@@ -473,6 +473,8 @@ public class ICarImpl extends ICar.Stub {
         } else if ("--metrics".equals(args[0])) {
             writer.println("*Dump car service metrics*");
             dumpAllServices(writer, true);
+        } else if ("--vms-hal".equals(args[0])) {
+            mHal.getVmsHal().dumpMetrics(fd);
         } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
             execShellCmd(args, writer);
         } else {
