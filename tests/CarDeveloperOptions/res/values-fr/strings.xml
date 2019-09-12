@@ -3105,7 +3105,7 @@
     <string name="keywords_face_settings" msgid="4117345666006836599">"visage"</string>
     <string name="keywords_fingerprint_settings" msgid="902902368701134163">"empreinte digitale, ajouter une empreinte digitale"</string>
     <string name="keywords_display_auto_brightness" msgid="1810596220466483996">"réduire la luminosité de l\'écran, écran tactile, batterie, réglage intelligent de la luminosité, luminosité dynamique"</string>
-    <string name="keywords_display_adaptive_sleep" msgid="1695357782432822811">"assombrir l\'écran, veille, batterie, délai d\'inactivité, attention, affichage, écran, inactivité"</string>
+    <string name="keywords_display_adaptive_sleep" msgid="1695357782432822811">"assombrir l\'écran, veille, batterie, délai d\'inactivité, regard, affichage, écran, inactivité"</string>
     <string name="keywords_auto_rotate" msgid="4320791369951647513">"faire pivoter, inverser, rotation, portrait, paysage, orientation, vertical, horizontal"</string>
     <string name="keywords_system_update_settings" msgid="4419971277998986067">"mettre à jour, android"</string>
     <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"ne pas déranger, calendrier, notifications, bloquer, silence, vibreur, veille, travail, sélectionner, son, couper le son, jour, jour de semaine, week-end, soir de semaine, événement"</string>

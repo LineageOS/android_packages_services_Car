@@ -208,6 +208,7 @@ public class AudioPlayer {
             for (AudioDeviceInfo deviceInfo : devices) {
                 if (deviceInfo.getAddress().equals(deviceAddress)) {
                     mPlayer.setPreferredDevice(deviceInfo);
+                    Log.d(TAG, "doStart preferred device: " + deviceInfo.getAddress());
                     break;
                 }
             }
