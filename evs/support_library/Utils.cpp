@@ -27,28 +27,36 @@ namespace support {
 
 using namespace ::android::hardware::automotive::evs::V1_0;
 using ::android::hardware::hidl_vec;
-using ::std::string;
 
-string Utils::getRearCameraId() {
+vector<string> Utils::sCameraIds;
+
+vector<string> Utils::getRearViewCameraIds() {
+    // If we already get the camera list, re-use it.
+    if (!sCameraIds.empty()) {
+        return sCameraIds;
+    }
+
     const char* evsServiceName = "EvsEnumeratorV1_0";
 
     // Load our configuration information
     ConfigManager config;
     if (!config.initialize("/system/etc/automotive/evs_support_lib/camera_config.json")) {
         ALOGE("Missing or improper configuration for the EVS application.  Exiting.");
-        return string();
+        return vector<string>();
     }
 
     ALOGI("Acquiring EVS Enumerator");
     sp<IEvsEnumerator> evs = IEvsEnumerator::getService(evsServiceName);
     if (evs.get() == nullptr) {
         ALOGE("getService(%s) returned NULL.  Exiting.", evsServiceName);
-        return string();
+        return vector<string>();
     }
 
+    // static variable cannot be passed into capture, so we create a local
+    // variable instead.
+    vector<string> cameraIds;
     ALOGD("Requesting camera list");
-    string cameraId;
-    evs->getCameraList([&config, &cameraId](hidl_vec<CameraDesc> cameraList) {
+    evs->getCameraList([&config, &cameraIds](hidl_vec<CameraDesc> cameraList) {
         ALOGI("Camera list callback received %zu cameras", cameraList.size());
         for (auto&& cam : cameraList) {
             ALOGD("Found camera %s", cam.cameraId.c_str());
@@ -61,14 +69,23 @@ string Utils::getRearCameraId() {
                     if (info.function.find("reverse") != std::string::npos) {
                         ALOGD("Camera %s is matched with reverse state",
                               cam.cameraId.c_str());
-                        cameraId = (string)cam.cameraId;
-                        return;
+                        cameraIds.emplace_back(cam.cameraId);
                     }
                 }
             }
         }
     });
-    return cameraId;
+    sCameraIds = cameraIds;
+    return sCameraIds;
+}
+
+string Utils::getDefaultRearViewCameraId() {
+    auto list = getRearViewCameraIds();
+    if (!list.empty()) {
+        return list[0];
+    } else {
+        return string();
+    }
 }
 
 }  // namespace support

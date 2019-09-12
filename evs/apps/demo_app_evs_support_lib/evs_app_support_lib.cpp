@@ -26,6 +26,7 @@ using ::android::automotive::evs::support::BaseRenderCallback;
 using ::android::automotive::evs::support::DisplayUseCase;
 using ::android::automotive::evs::support::Frame;
 using ::android::automotive::evs::support::Utils;
+using ::std::string;
 
 class SimpleRenderCallback : public BaseRenderCallback {
     void render(const Frame& inputFrame, const Frame& outputFrame) {
@@ -60,10 +61,11 @@ class SimpleRenderCallback : public BaseRenderCallback {
 int main() {
     ALOGI("EVS app starting\n");
 
-    std::string cameraId = Utils::getRearCameraId();
+    // Get the default rear view camera from evs support lib
+    string cameraId = Utils::getDefaultRearViewCameraId();
     if (cameraId.empty()) {
         ALOGE("Cannot find a valid camera");
-        return -1;
+        return EXIT_FAILURE;
     }
 
     DisplayUseCase useCase =
