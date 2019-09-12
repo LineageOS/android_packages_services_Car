@@ -19,6 +19,7 @@
 
 #include "DisplayUseCase.h"
 #include "RenderDirectView.h"
+#include "Utils.h"
 
 namespace android {
 namespace automotive {
@@ -49,9 +50,6 @@ DisplayUseCase::~DisplayUseCase() {
 }
 
 bool DisplayUseCase::initialize() {
-    // TODO(b/130246434): Use evs manager 1.1 instead.
-    const char* evsServiceName = "EvsEnumeratorV1_0";
-
     // Load our configuration information
     ConfigManager config;
     if (!config.initialize("/system/etc/automotive/evs_support_lib/camera_config.json")) {
@@ -67,9 +65,9 @@ bool DisplayUseCase::initialize() {
 
     // Get the EVS manager service
     ALOGI("Acquiring EVS Enumerator");
-    mEvs = IEvsEnumerator::getService(evsServiceName);
+    mEvs = getEvsEnumerator();
     if (mEvs.get() == nullptr) {
-        ALOGE("getService(%s) returned NULL.  Exiting.", evsServiceName);
+        ALOGE("Cannot find the desired EVS service.  Exiting.");
         return false;
     }
 
