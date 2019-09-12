@@ -108,6 +108,8 @@
                  android:exported="false" android:directBootAware="true">
         </service>
 
+        <service android:name=".UserNoiticeDemoUiService" android:directBootAware="true" />
+
         <!-- Content provider for images -->
         <provider android:name=".cluster.ClusterContentProvider"
                   android:authorities="com.google.android.car.kitchensink.cluster.clustercontentprovider"
