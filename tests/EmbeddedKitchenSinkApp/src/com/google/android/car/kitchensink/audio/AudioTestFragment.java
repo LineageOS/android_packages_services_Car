@@ -32,11 +32,13 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.HwAudioSource;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.DisplayAddress;
 import android.view.LayoutInflater;
@@ -64,6 +66,13 @@ import java.util.List;
 public class AudioTestFragment extends Fragment {
     private static final String TAG = "CAR.AUDIO.KS";
     private static final boolean DBG = true;
+
+    // Key for communicating to hall which audio zone has been selected to play
+    private static final String AAE_PARAMETER_KEY_FOR_SELECTED_ZONE =
+            "com.android.car.emulator.selected_zone";
+    // For demoing get zone display API. Maps the display port id to audio device.
+    // This is for emulating purposes only.
+    private SparseArray<String> mDisplayToAudioDeviceMap;
 
     private AudioManager mAudioManager;
     private FocusHandler mAudioFocusHandler;
@@ -219,6 +228,11 @@ public class AudioTestFragment extends Fragment {
         Log.i(TAG, "onCreateView");
         connectCar();
         initializePlayers();
+
+        mDisplayToAudioDeviceMap =
+                DisplayToAudioDeviceParser.parseDisplayToDeviceMapping(mContext.getResources()
+                                .getStringArray(R.array.config_displayToAudioDeviceConfig));
+
         View view = inflater.inflate(R.layout.audio, container, false);
         mAudioManager = (AudioManager) mContext.getSystemService(
                 Context.AUDIO_SERVICE);
@@ -387,11 +401,15 @@ public class AudioTestFragment extends Fragment {
             if (mCarAudioManager.setZoneIdForUid(zone, uid)) {
                 Log.d(TAG, "Changed uid " + uid + " sound to zone " + zone);
                 mOldZonePosition = position;
+
+                // For non primary zone set the correct speaker to route
+                if (Build.IS_EMULATOR && zone != CarAudioManager.PRIMARY_AUDIO_ZONE) {
+                    setZoneToPlayOnSpeaker(zone);
+                }
             } else {
                 Log.d(TAG, "Filed to changed uid " + uid + " sound to zone " + zone);
                 mZoneSpinner.setSelection(mOldZonePosition);
             }
-
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "handleZoneSelection Failed to find name: " , e);
         }
@@ -560,23 +578,19 @@ public class AudioTestFragment extends Fragment {
     }
 
     private void startDisplayAudio() {
-        byte selectedDisplayPortId = mDisplayAdapter.getItem(
-                mDisplaySpinner.getSelectedItemPosition()).byteValue();
-        int zoneIdForDisplayId = mCarAudioManager.getZoneIdForDisplayPortId(selectedDisplayPortId);
+        Integer selectedDisplayPortId = mDisplayAdapter.getItem(
+                mDisplaySpinner.getSelectedItemPosition());
+        int zoneIdForDisplayId = mCarAudioManager.getZoneIdForDisplayPortId(
+                selectedDisplayPortId.byteValue());
         Log.d(TAG, "Starting display audio in zone " + zoneIdForDisplayId);
         // Direct audio to the correct source
         // TODO: Figure out a way to facilitate this for the user
         // Currently there is no way of distinguishing apps from the same package to different zones
         // One suggested way would be to create a unique id for each focus requester that is also
         // share with the audio router
-        if (zoneIdForDisplayId == CarAudioManager.PRIMARY_AUDIO_ZONE) {
-            mMusicPlayerForSelectedDisplay.start(true, false,
-                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
-        } else {
-            // Route everything else to rear seat
-            mMusicPlayerForSelectedDisplay.start(true, false,
-                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, "bus100_rear_seat");
-        }
+        String audioDeviceName = mDisplayToAudioDeviceMap.get(selectedDisplayPortId);
+        mMusicPlayerForSelectedDisplay.start(true, false,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, audioDeviceName);
     }
 
     public void handleDisplaySelection() {
@@ -584,6 +598,19 @@ public class AudioTestFragment extends Fragment {
             mMusicPlayerForSelectedDisplay.stop();
         }
         createDisplayAudioPlayer();
+    }
+
+    /**
+     * Sets the left speaker to output sound from zoneId
+     * @param zoneId zone id to set left speakers output
+     * @Note this should only be used with emulator where the zones are separated into right
+     * and left speaker, other platforms would have real devices where audio is routed.
+     */
+    private void setZoneToPlayOnSpeaker(int zoneId) {
+        String selectedZoneKeyValueString = AAE_PARAMETER_KEY_FOR_SELECTED_ZONE + "=" + zoneId;
+        // send key value  parameter list to audio HAL
+        mAudioManager.setParameters(selectedZoneKeyValueString);
+        Log.d(TAG, "setZoneToPlayOnSpeaker : " + zoneId);
     }
 
 
