@@ -435,8 +435,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             mUxRestrictionsListeners.put(displayId, listener);
             mCarUxRestrictionsService.registerUxRestrictionsChangeListener(listener, displayId);
         }
-        mSystemActivityMonitoringService.registerActivityLaunchListener(
-                mActivityLaunchListener);
         mVendorServiceController.init();
     }
 
@@ -446,6 +444,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         synchronized (this) {
             mHasParsedPackages = true;
         }
+        // Once the activity launch listener is registered we attempt to block any non-whitelisted
+        // activities that are launched. For this reason, we need to wait until after the whitelist
+        // has been created.
+        mSystemActivityMonitoringService.registerActivityLaunchListener(mActivityLaunchListener);
         blockTopActivitiesIfNecessary();
     }
 
@@ -1032,6 +1034,15 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if (topTask.topActivity == null) {
             return;
         }
+
+        // We are not handling the UI blocking until we know what is allowed and what is not.
+        if (!mHasParsedPackages) {
+            if (Log.isLoggable(CarLog.TAG_PACKAGE, Log.INFO)) {
+                Log.i(CarLog.TAG_PACKAGE, "Packages not parsed, so ignoring block for " + topTask);
+            }
+            return;
+        }
+
         boolean allowed = isActivityDistractionOptimized(
                 topTask.topActivity.getPackageName(),
                 topTask.topActivity.getClassName());
