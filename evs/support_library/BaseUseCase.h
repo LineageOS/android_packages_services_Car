@@ -18,6 +18,10 @@
 
 #include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
 #include <string>
+#include <vector>
+
+using ::std::string;
+using ::std::vector;
 
 namespace android {
 namespace automotive {
@@ -62,14 +66,23 @@ public:
      */
     virtual void stopVideoStream() = 0;
 
+    /**
+     * Default constructor for BaseUseCase.
+     *
+     * @param The ids for the desired EVS cameras.
+     */
+    BaseUseCase(vector<string> cameraIds) : mCameraIds(cameraIds) {};
+
     virtual ~BaseUseCase() {}
 
 protected:
     static sp<IEvsEnumerator> getEvsEnumerator(string serviceName = kDefaultServiceName);
+    vector<string> mCameraIds;
 
 private:
     static const string kDefaultServiceName;
     static sp<IEvsEnumerator> sEvs;
+
 };
 
 }  // namespace support
