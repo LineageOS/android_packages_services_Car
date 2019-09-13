@@ -1,0 +1,436 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package android.automotive.computepipe.runner@1.0;
+
+/**
+ * State of the remote graph
+ */
+enum PipeState : uint32_t {
+    /**
+     * Reset
+     */
+    RESET = 0,
+    /**
+     * Configuration completed
+     */
+    CONFIG_DONE,
+    /**
+     * Running
+     */
+    RUNNING,
+    /**
+     * Finished
+     */
+    DONE,
+    /**
+     * In halt due to error
+     */
+    ERR_HALT,
+};
+
+/**
+ * Transaction data types
+ *
+ *
+ * Input config descriptor
+ *
+ * Structure that describes the input sources
+ *
+ * This is provided by the HIDL implementation to the client
+ */
+struct PipeInputConfig {
+    /**
+     * Types of input streams supported by runner
+     */
+    enum InputType : uint32_t {
+        /**
+         * Driver focused Camera stream
+         */
+        DRIVER_VIEW_CAMERA = 0,
+        /**
+         * Camera with wider field of view that can capture
+         * occupants in the car.
+         */
+        OCCUPANT_VIEW_CAMERA,
+        /**
+         * External Camera
+         */
+        EXTERNAL_CAMERA,
+        /**
+         * Surround view
+         */
+        SURROUND_VIEW_CAMERA,
+        /**
+         * Video file
+         */
+        VIDEO_FILE,
+    };
+
+    enum FormatType : uint32_t {
+        /**
+         * RGB input
+         */
+        RGB,
+        /**
+         * NIR input
+         */
+        NIR,
+        /**
+         * NIR + Depth Frame
+         */
+        NIR_DEPTH,
+    };
+
+    /**
+     * Options for the client to choose from
+     */
+    struct InputOptions {
+        /**
+         * input stream type
+         */
+        InputType type;
+
+        /**
+         * format of the input stream
+         */
+        FormatType format;
+
+        /**
+         * width resolution of the input stream
+         */
+        uint32_t width;
+
+        /**
+         * height resolution of the input stream
+         */
+        uint32_t height;
+
+        /**
+         * stride for the frame
+         */
+        uint32_t stride;
+
+        /**
+         * camera identifier to disambiguate multiple instances
+         * of InputType. If only one of a certain type is present
+         * this should be 0. For VIDEO_FILE this should be 0.
+         */
+        uint32_t camId;
+    };
+
+    /**
+     * list of input options
+     */
+    vec<InputOptions> options;
+
+    /**
+     * option ids, 1:1 correspondence with the options list above
+     */
+    vec<uint32_t> configIds;
+};
+
+/**
+ * Offload configs
+ *
+ * Structure that describes the offload options that a graph can use.
+ * This is determined at graph creation time by the developer.
+ * A graph can advertise different combinations of offload options that it
+ * can use. A client can choose amongst the combinations of offload options, for
+ * any given iteration of the graph execution.
+ *
+ * This is provided by the HIDL implementation to the client
+ */
+struct PipeOffloadConfig {
+    /**
+     * Types of offload options for graph computations available to the runner
+     * All of the offload options maybe virtualized for different execution
+     * environments.
+     */
+    enum OffloadType : uint32_t {
+        /**
+         * Default cpu only execution
+         */
+        CPU = 0,
+        /**
+         * GPU, Open GLES based acceleration
+         */
+        GPU,
+        /**
+         * Dedicated neural engine provided by SOC vendor
+         */
+        NEURAL_ENGINE,
+        /**
+         * Computer Vision engine provided by SOC vendor
+         */
+        CV_ENGINE,
+    };
+
+    /**
+     * structure that describes the combination of offload options.
+     * This is a per graph specific combination.
+     */
+    struct OffloadOptions {
+        /**
+         * combination of different offload engines
+         */
+        vec<OffloadType> type;
+
+        /**
+         * 1:1 correspondence for each type above.
+         * Every offload engine has a flag describing if its virtual device
+         */
+        vec<bool> isVirtual;
+    };
+
+    /**
+     * list of offload options that the graph can support
+     */
+    vec<OffloadOptions> options;
+
+    /**
+     * identifier for each of the supported options
+     */
+    vec<string> configIds;
+};
+
+/**
+ * Termination configs
+ *
+ * Structure that describes the termination options a graph can advertise
+ *
+ * Provided by HIDL implementation to the client as part of GraphDescriptor
+ *
+ * The client has the option of choosing one of the provided options supported
+ * by the graph or calling calling stopPipe() explicitly.
+ */
+struct PipeTerminationConfig {
+    /**
+     * Types of termination options
+     */
+    enum TerminationType : uint32_t {
+        /**
+         * run indefinetely until client stop.
+         */
+        CLIENT_STOP = 0,
+        /**
+         * run for minimum number of valid output packets
+         */
+        MIN_PACKET_COUNT,
+        /**
+         * run for fixed maximum duration, graph may still produce some packets
+         * post run time, because of delayed signal.
+         */
+        MAX_RUN_TIME,
+        /**
+         * run until specified event.
+         */
+        EVENT,
+    };
+
+    /**
+     * structure that describes the different termination options supported
+     * by the graph
+     */
+    struct TerminationOptions {
+        /**
+         * type of termination criteria
+         */
+        TerminationType type;
+
+        /**
+         * type based qualifier, could be run time, packet count, or usecase
+         * specific event identifier.
+         */
+        uint32_t qualifier;
+    };
+
+    /**
+     * list of termination options supported by graph
+     */
+    vec<TerminationOptions> options;
+
+    /**
+     * identifiers for options for each of the above the list entries
+     */
+    vec<uint32_t> configIds;
+};
+
+/**
+ * Output configs
+ *
+ * Structure that describes the output stream packets of a graph
+ *
+ * Provided by HIDL implementation to the client as part of GraphDescriptor
+ */
+struct PipeOutputConfig {
+    /**
+     * Packet type
+     */
+    enum PacketType : uint32_t {
+        /**
+         * semantic data that can be copied, with mediapipe time stamps
+         */
+        SEMANTIC_DATA = 0,
+        /**
+         * pixel data with copy semantics, retains mediapipe time stamps
+         */
+        PIXEL_DATA,
+        /**
+         * pixel data with zero copy requirement, no time stamps output as
+         * gralloc buffers
+         */
+        PIXEL_ZERO_COPY_DATA,
+    };
+
+    /**
+     * Output descriptor
+     */
+    struct OutputDesc {
+        /**
+         * name of the output stream
+         */
+        string name;
+
+        /**
+         * type of packets produced
+         */
+        PacketType type;
+    };
+
+    /**
+     * list of output streams
+     */
+    vec<OutputDesc> outputs;
+
+    /**
+     * ids for each entry above
+     */
+    vec<uint32_t> outputIds;
+};
+
+/**
+ * Pipe Descriptor
+ *
+ * This is the descriptor for use case that describes all the supported
+ * a) input options
+ * b) termination options
+ * c) offload options
+ * d) output streams
+ *
+ * This is returned by the HIDL implementation to the client to describe a given graph.
+ * The client selects the config for a given graph run from the available
+ * choices advertised. Note the output stream that a client wants to subscribes
+ * to, require the client to subscribe to each stream individually.
+ *
+ * This descriptor is returned by the HAL to the client.
+ */
+struct PipeDescriptor {
+    /**
+     * input configurations supported by the graph
+     */
+    PipeInputConfig inputConfig;
+
+    /**
+     * Offload options supported by the graph
+     */
+    PipeOffloadConfig offloadConfig;
+
+    /**
+     * Termination options supported by the graph
+     */
+    PipeTerminationConfig terminationConfig;
+
+    /**
+     * Output streams supported by the
+     */
+    PipeOutputConfig outputConfig;
+};
+
+/**
+ * Structure that describes the output packet for a specific outputstream
+ * that gets returned to the client.
+ */
+struct PacketDescriptor {
+    /**
+     * types of packet
+     */
+    enum PacketType : uint32_t {
+        /**
+         * General semantic data derived from input stream
+         */
+        SEMANTIC_DATA = 0,
+        /**
+         * Pixel data generated, for eg annotated frames
+         */
+        PIXEL_DATA,
+        /**
+         * Pixel data with zero copy semantics
+         */
+        PIXEL_ZERO_COPY_DATA,
+    };
+
+    /**
+     * packet id
+     */
+    uint32_t bufId;
+
+    /**
+     * type of the buffer
+     */
+    PacketType type;
+
+    /**
+     * size of the memory region
+     */
+    uint32_t size;
+
+    /**
+     * handle to memory region containing zero copy or semantic data
+     */
+    handle memHandle;
+};
+
+/**
+ * Profiling types
+ */
+enum PipeProfilingType : uint32_t {
+    /**
+     * Latency profiling
+     */
+    LATENCY = 0,
+    /**
+     * Trace events
+     */
+    TRACE_EVENTS = 1,
+};
+
+/**
+ * Structure that describes the profiling information output from
+ * an executing pipe.
+ */
+struct ProfilingData {
+    /**
+     * Type of profiling information
+     */
+    PipeProfilingType type;
+
+    /**
+     * handle to memory region containing the profiling information
+     * as described in https://mediapipe.readthedocs.io/en/latest/measure_performance.html
+     */
+    handle memHandle;
+};
