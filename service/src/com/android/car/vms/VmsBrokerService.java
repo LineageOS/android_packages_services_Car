@@ -41,7 +41,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * VmsPublisherService, VmsSubscriberService, and VmsHalService.
  */
 public class VmsBrokerService {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "VmsBrokerService";
 
     private CopyOnWriteArrayList<PublisherListener> mPublisherListeners =
@@ -221,8 +221,10 @@ public class VmsBrokerService {
         boolean layerHasSubscribers;
         synchronized (mLock) {
             if (!mRouting.hasLayerFromPublisherSubscriptions(layer, publisherId)) {
-                Log.i(TAG, "Trying to remove a layer with no subscription: "
+                if (DBG) {
+                    Log.d(TAG, "Trying to remove a layer with no subscription: "
                         + layer + ", publisher ID:" + publisherId);
+                }
                 return;
             }
 
@@ -354,9 +356,8 @@ public class VmsBrokerService {
     }
 
     private void notifyOfSubscriptionChange() {
-        if (DBG) Log.d(TAG, "Notifying publishers on subscriptions");
-
         VmsSubscriptionState subscriptionState = getSubscriptionState();
+        Log.i(TAG, "Notifying publishers of subscriptions: " + subscriptionState);
         // Notify the App publishers
         for (PublisherListener listener : mPublisherListeners) {
             listener.onSubscriptionChange(subscriptionState);
@@ -364,9 +365,8 @@ public class VmsBrokerService {
     }
 
     private void notifyOfAvailabilityChange() {
-        if (DBG) Log.d(TAG, "Notifying subscribers on layers availability");
-
         VmsAvailableLayers availableLayers = getAvailableLayers();
+        Log.i(TAG, "Notifying subscribers of layers availability: " + availableLayers);
         // Notify the App subscribers
         for (SubscriberListener listener : mSubscriberListeners) {
             listener.onLayersAvailabilityChange(availableLayers);
