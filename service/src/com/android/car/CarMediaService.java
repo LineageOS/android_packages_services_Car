@@ -529,9 +529,18 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 if (!matchPrimaryMediaSource(newPackageName, newClassName)) {
                     ComponentName mediaSource = getMediaSource(newPackageName, newClassName);
                     if (Log.isLoggable(CarLog.TAG_MEDIA, Log.INFO)) {
-                        Log.i(CarLog.TAG_MEDIA,
-                                "Changing media source due to playback state change: "
-                                + mediaSource.flattenToString());
+                        if (mediaSource != null) {
+                            Log.i(CarLog.TAG_MEDIA,
+                                    "MediaController changed, updating media source to: "
+                                            + mediaSource.flattenToString());
+                        } else {
+                            // Some apps, like Chrome, have a MediaSession but no
+                            // MediaBrowseService. Media Center doesn't consider such apps as
+                            // valid media sources.
+                            Log.i(CarLog.TAG_MEDIA,
+                                    "MediaController changed, but no media browse service found "
+                                            + "in package: " + newPackageName);
+                        }
                     }
                     setPrimaryMediaSource(mediaSource);
                 }
