@@ -28,6 +28,7 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
+import android.hardware.input.InputManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
@@ -41,6 +42,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.DisplayAddress;
 import android.view.IWindowManager;
+import android.view.InputDevice;
 
 import com.android.car.CarLog;
 import com.android.car.CarPowerManagementService;
@@ -76,6 +78,7 @@ public interface DisplayInterface {
         private final ContentResolver mContentResolver;
         private final Context mContext;
         private final DisplayManager mDisplayManager;
+        private final InputManager mInputManager;
         private final int mMaximumBacklight;
         private final int mMinimumBacklight;
         private final PowerManager mPowerManager;
@@ -117,6 +120,7 @@ public interface DisplayInterface {
             mContext = context;
             mContentResolver = mContext.getContentResolver();
             mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+            mInputManager = (InputManager) mContext.getSystemService(Context.INPUT_SERVICE);
             mPowerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             mMaximumBacklight = mPowerManager.getMaximumScreenBrightnessSetting();
             mMinimumBacklight = mPowerManager.getMinimumScreenBrightnessSetting();
@@ -208,6 +212,19 @@ public interface DisplayInterface {
                 mWakeLockInterface.switchToPartialWakeLock();
                 Log.i(CarLog.TAG_POWER, "off display");
                 mPowerManager.goToSleep(SystemClock.uptimeMillis());
+            }
+            // Turn touchscreen input devices on or off, the same as the display
+            for (int deviceId : mInputManager.getInputDeviceIds()) {
+                InputDevice inputDevice = mInputManager.getInputDevice(deviceId);
+                if (inputDevice != null
+                        && (inputDevice.getSources() & InputDevice.SOURCE_TOUCHSCREEN)
+                        == InputDevice.SOURCE_TOUCHSCREEN) {
+                    if (on) {
+                        mInputManager.enableInputDevice(deviceId);
+                    } else {
+                        mInputManager.disableInputDevice(deviceId);
+                    }
+                }
             }
         }
 
