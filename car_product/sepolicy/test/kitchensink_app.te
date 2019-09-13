@@ -14,6 +14,7 @@ allow kitchensink_app {
     audioserver_service
     autofill_service
     bluetooth_manager_service
+    carservice_service
     connectivity_service
     content_service
     deviceidle_service

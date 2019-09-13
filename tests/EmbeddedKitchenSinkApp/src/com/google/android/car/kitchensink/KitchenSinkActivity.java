@@ -23,15 +23,12 @@ import android.car.hardware.CarSensorManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.property.CarPropertyManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -167,6 +164,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("audio", AudioTestFragment.class),
             new FragmentMenuEntry("BT headset", BluetoothHeadsetFragment.class),
             new FragmentMenuEntry("BT messaging", MapMceTestFragment.class),
+            new FragmentMenuEntry("carapi", CarApiTestFragment.class),
             new FragmentMenuEntry("carboard", KeyboardTestFragment.class),
             new FragmentMenuEntry("connectivity", ConnectivityFragment.class),
             new FragmentMenuEntry("cubes test", CubesTestFragment.class),
@@ -285,8 +283,12 @@ public class KitchenSinkActivity extends FragmentActivity {
             mCarApi.disconnect();
             mCarApi = null;
         }
-        mCarApi = Car.createCar(this, mServiceConnection);
-        mCarApi.connect();
+        mCarApi = Car.createCar(this, null, Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
+                (Car car, boolean ready) -> {
+                    if (ready) {
+                        initManagers(car);
+                    }
+                });
     }
 
     @Override
@@ -340,32 +342,23 @@ public class KitchenSinkActivity extends FragmentActivity {
                 .commit();
     }
 
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d(TAG, "Connected to Car Service");
-            synchronized (mPropertyManagerReady) {
-                mHvacManager = (CarHvacManager) mCarApi.getCarManager(
-                        android.car.Car.HVAC_SERVICE);
-                mPowerManager = (CarPowerManager) mCarApi.getCarManager(
-                        android.car.Car.POWER_SERVICE);
-                mPropertyManager = (CarPropertyManager) mCarApi.getCarManager(
-                        android.car.Car.PROPERTY_SERVICE);
-                mSensorManager = (CarSensorManager) mCarApi.getCarManager(
-                        android.car.Car.SENSOR_SERVICE);
-                mCarAppFocusManager =
-                        (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
-                mCarProjectionManager =
-                        (CarProjectionManager) mCarApi.getCarManager(Car.PROJECTION_SERVICE);
-                mPropertyManagerReady.notifyAll();
-            }
+    private void initManagers(Car car) {
+        synchronized (mPropertyManagerReady) {
+            mHvacManager = (CarHvacManager) car.getCarManager(
+                    android.car.Car.HVAC_SERVICE);
+            mPowerManager = (CarPowerManager) car.getCarManager(
+                    android.car.Car.POWER_SERVICE);
+            mPropertyManager = (CarPropertyManager) car.getCarManager(
+                    android.car.Car.PROPERTY_SERVICE);
+            mSensorManager = (CarSensorManager) car.getCarManager(
+                    android.car.Car.SENSOR_SERVICE);
+            mCarAppFocusManager =
+                    (CarAppFocusManager) car.getCarManager(Car.APP_FOCUS_SERVICE);
+            mCarProjectionManager =
+                    (CarProjectionManager) car.getCarManager(Car.PROJECTION_SERVICE);
+            mPropertyManagerReady.notifyAll();
         }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG, "Disconnect from Car Service");
-        }
-    };
+    }
 
     public Car getCar() {
         return mCarApi;
