@@ -384,6 +384,10 @@ public class BugReportActivity extends Activity {
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        mRecorder.setOnInfoListener((MediaRecorder recorder, int what, int extra) ->
+                Log.i(TAG, "OnMediaRecorderInfo: what=" + what + ", extra=" + extra));
+        mRecorder.setOnErrorListener((MediaRecorder recorder, int what, int extra) ->
+                Log.i(TAG, "OnMediaRecorderError: what=" + what + ", extra=" + extra));
         mRecorder.setOutputFile(recordingFile);
 
         try {
@@ -407,7 +411,13 @@ public class BugReportActivity extends Activity {
     private void stopAudioRecording() {
         if (mRecorder != null) {
             Log.i(TAG, "Recording ended, stopping the MediaRecorder.");
-            mRecorder.stop();
+            try {
+                mRecorder.stop();
+            } catch (IllegalStateException e) {
+                // Sometimes MediaRecorder doesn't start and stopping it throws an error.
+                // We just log these cases, no need to crash the app.
+                Log.w(TAG, "Couldn't stop media recorder", e);
+            }
             mRecorder.release();
             mRecorder = null;
         }
