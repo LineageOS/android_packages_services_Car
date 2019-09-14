@@ -3297,7 +3297,7 @@
     <string name="asst_capabilities_actions_replies_title" msgid="3929395108744251338">"智慧操作和回覆"</string>
     <string name="asst_capabilities_actions_replies_summary" msgid="5647029698181357902">"自動將內容通知操作和快速回覆新增至通知"</string>
     <string name="hide_silent_icons_title" msgid="1070905516921542662">"隱藏無聲通知狀態圖示"</string>
-    <string name="hide_silent_icons_summary" msgid="2624346914488256888">"在狀態列隱藏無聲通知圖示"</string>
+    <string name="hide_silent_icons_summary" msgid="2624346914488256888">"在狀態列隱藏靜音通知圖示"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"允許使用通知圓點"</string>
     <string name="notification_bubbles_title" msgid="9196562435741861317">"泡泡"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"使用浮動快速鍵，隨時隨地快速存取應用程式內容"</string>

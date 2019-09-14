@@ -555,7 +555,7 @@
     <string name="setup_lock_settings_picker_message" product="device" msgid="2098404520816295371">"Cegah orang lain menggunakan perangkat ini tanpa izin Anda dengan mengaktifkan fitur perlindungan perangkat. Pilih kunci layar yang ingin Anda gunakan."</string>
     <string name="setup_lock_settings_picker_message" product="default" msgid="2003984443953672040">"Cegah orang lain menggunakan ponsel ini tanpa izin Anda dengan mengaktifkan fitur perlindungan perangkat. Pilih kunci layar yang ingin Anda gunakan."</string>
     <string name="lock_settings_picker_fingerprint_message" msgid="1344567476145156885">"Pilih metode kunci layar cadangan"</string>
-    <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"Pilih metode kunci layar backup"</string>
+    <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"Pilih metode kunci layar cadangan"</string>
     <string name="setup_lock_settings_options_button_label" msgid="4197315143877977385">"Opsi kunci layar"</string>
     <string name="setup_lock_settings_options_dialog_title" msgid="5241946349173768827">"Opsi kunci layar"</string>
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"Kunci layar"</string>
@@ -586,7 +586,7 @@
     <string name="face_unlock_set_unlock_pin" msgid="3320824093518497476">"Autentikasi wajah + PIN"</string>
     <string name="face_unlock_set_unlock_password" msgid="8962344604388383659">"Autentikasi wajah + Sandi"</string>
     <string name="face_unlock_skip_face" msgid="7173197040501143880">"Lanjutkan tanpa autentikasi wajah"</string>
-    <string name="face_unlock_title" msgid="1298031162909236127">"Anda dapat membuka kunci ponsel menggunakan wajah. Demi keamanan, opsi ini memerlukan kunci layar backup."</string>
+    <string name="face_unlock_title" msgid="1298031162909236127">"Anda dapat membuka kunci ponsel menggunakan wajah. Demi keamanan, opsi ini memerlukan kunci layar cadangan."</string>
     <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"Dinonaktifkan oleh admin, kebijakan enkripsi, atau penyimpanan kredensial"</string>
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"Tidak ada"</string>
     <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"Geser"</string>
@@ -1497,7 +1497,7 @@
     <string name="storage_wizard_init_v2_external_action" msgid="4649591913020218098">"Penyimpanan portabel"</string>
     <string name="storage_wizard_init_v2_later" msgid="2605006907172213466">"Siapkan nanti"</string>
     <string name="storage_wizard_format_confirm_v2_title" msgid="1884699177320256159">"Format <xliff:g id="NAME">^1</xliff:g> ini?"</string>
-    <string name="storage_wizard_format_confirm_v2_body" msgid="977657376082074305">"<xliff:g id="NAME_0">^1</xliff:g> perlu diformat untuk menyimpan aplikasi, file, dan media. \n\nMemformat akan menghapus konten yang ada di <xliff:g id="NAME_1">^2</xliff:g>. Agar konten tidak hilang, backup ke <xliff:g id="NAME_2">^3</xliff:g> atau perangkat lain."</string>
+    <string name="storage_wizard_format_confirm_v2_body" msgid="977657376082074305">"<xliff:g id="NAME_0">^1</xliff:g> perlu diformat untuk menyimpan aplikasi, file, dan media. \n\nMemformat akan menghapus konten yang ada di <xliff:g id="NAME_1">^2</xliff:g>. Agar konten tidak hilang, cadangkan ke <xliff:g id="NAME_2">^3</xliff:g> atau perangkat lain."</string>
     <string name="storage_wizard_format_confirm_v2_action" msgid="5576917958786300415">"Format <xliff:g id="NAME">^1</xliff:g>"</string>
     <string name="storage_wizard_migrate_v2_title" msgid="6728034411587320249">"Pindahkan konten ke <xliff:g id="NAME">^1</xliff:g>?"</string>
     <string name="storage_wizard_migrate_v2_body" product="tablet" msgid="6943007011251294950">"Anda dapat memindahkan file, media, dan aplikasi tertentu ke <xliff:g id="NAME">^1</xliff:g> ini. \n\nPemindahan ini akan mengosongkan <xliff:g id="SIZE">^2</xliff:g> dari penyimpanan tablet dan memerlukan waktu sekitar <xliff:g id="DURATION">^3</xliff:g>."</string>
@@ -2539,19 +2539,19 @@
     <string name="usage_access_title" msgid="7981321142726540574">"Apl dengan akses penggunaan"</string>
     <string name="emergency_tone_title" msgid="130211364025984428">"Sinyal panggilan darurat"</string>
     <string name="emergency_tone_summary" msgid="8035940153401622240">"Setel perilaku ketika panggilan darurat dilakukan"</string>
-    <string name="privacy_settings_title" msgid="3573891462732375772">"Backup"</string>
+    <string name="privacy_settings_title" msgid="3573891462732375772">"Pencadangan"</string>
     <string name="backup_summary_state_on" msgid="1725597360282574647">"Aktif"</string>
     <string name="backup_summary_state_off" msgid="7138020503288730492">"Nonaktif"</string>
     <string name="backup_section_title" msgid="8177209731777904656">"Pencadangan &amp; pemulihan"</string>
     <string name="personal_data_section_title" msgid="9161854418510071558">"Data pribadi"</string>
     <string name="backup_data_title" msgid="4461508563849583624">"Cadangkan data saya"</string>
     <string name="backup_data_summary" msgid="555459891017933746">"Mencadangkan data aplikasi, sandi Wi-Fi, dan setelan lainnya ke server Google"</string>
-    <string name="backup_configure_account_title" msgid="1534734650559070294">"Akun backup"</string>
-    <string name="backup_data_management_title" msgid="6299288795610243508">"Kelola akun backup"</string>
+    <string name="backup_configure_account_title" msgid="1534734650559070294">"Akun cadangan"</string>
+    <string name="backup_data_management_title" msgid="6299288795610243508">"Kelola akun cadangan"</string>
     <string name="include_app_data_title" msgid="6117211611131913293">"Sertakan data aplikasi"</string>
     <string name="auto_restore_title" msgid="8367486774010915221">"Pemulihan otomatis"</string>
-    <string name="auto_restore_summary" msgid="1941047568966428377">"Pulihkan backup setelan dan data saat menginstal ulang aplikasi"</string>
-    <string name="backup_inactive_title" msgid="5513496915638307750">"Layanan backup tidak aktif"</string>
+    <string name="auto_restore_summary" msgid="1941047568966428377">"Pulihkan cadangan setelan dan data saat menginstal ulang aplikasi"</string>
+    <string name="backup_inactive_title" msgid="5513496915638307750">"Layanan pencadangan tidak aktif"</string>
     <string name="backup_configure_account_default_summary" msgid="5718298066335006412">"Saat ini, tidak ada akun yang menyimpan data cadangan"</string>
     <string name="backup_erase_dialog_title" msgid="8178424339104463014"></string>
     <string name="backup_erase_dialog_message" msgid="8767843355330070902">"Berhenti mencadangkan sandi Wi-Fi, bookmark, setelan lainnya, dan data aplikasi, serta menghapus semua salinan di server Google?"</string>
@@ -3039,7 +3039,7 @@
     <string name="account_dashboard_title" msgid="4734300939532555885">"Akun"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"Tidak ada akun yang ditambahkan"</string>
     <string name="app_default_dashboard_title" msgid="6575301028225232193">"Aplikasi default"</string>
-    <string name="system_dashboard_summary" msgid="6582464466735779394">"Bahasa, gestur, waktu, backup"</string>
+    <string name="system_dashboard_summary" msgid="6582464466735779394">"Bahasa, gestur, waktu, pencadangan"</string>
     <string name="search_results_title" msgid="4160717656435503940">"Setelan"</string>
     <string name="keywords_wifi" msgid="8477688080895466846">"wifi, wi-fi, sambungan jaringan, internet, nirkabel, data, wi fi"</string>
     <string name="keywords_wifi_notify_open_networks" msgid="1031260564121854773">"Notifikasi Wi‑Fi, notifikasi wi‑fi"</string>
@@ -3861,7 +3861,7 @@
     <string name="memory_summary" msgid="9121871336058042600">"Rata-rata <xliff:g id="USED_MEMORY">%1$s</xliff:g> dari <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g> memori digunakan"</string>
     <string name="users_summary" msgid="6693338169439092387">"Login sebagai <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
     <string name="payment_summary" msgid="1381646849276543242">"<xliff:g id="APP_NAME">%1$s</xliff:g> default"</string>
-    <string name="backup_disabled" msgid="6941165814784765643">"Backup dinonaktifkan"</string>
+    <string name="backup_disabled" msgid="6941165814784765643">"Pencadangan dinonaktifkan"</string>
     <string name="android_version_summary" msgid="2192751442789395445">"Diupdate ke Android <xliff:g id="VERSION">%1$s</xliff:g>"</string>
     <string name="android_version_pending_update_summary" msgid="3554543810520655076">"Ada update"</string>
     <string name="disabled_by_policy_title" msgid="1238318274952958846">"Tindakan tidak diizinkan"</string>
