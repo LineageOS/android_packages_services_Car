@@ -24,6 +24,7 @@
 
 #include "VideoTex.h"
 #include "glError.h"
+#include "StreamHandlerManager.h"
 
 #include <ui/GraphicBuffer.h>
 #include <ui/GraphicBufferAllocator.h>
@@ -229,7 +230,8 @@ VideoTex* createVideoTexture(sp<IEvsEnumerator> pEnum,
     }
 
     // Initialize the stream that will help us update this texture's contents
-    sp<StreamHandler> pStreamHandler = new StreamHandler(pCamera);
+    sp<StreamHandler> pStreamHandler =
+        StreamHandlerManager::getInstance()->getStreamHandler(pCamera);
     if (pStreamHandler.get() == nullptr) {
         ALOGE("failed to allocate FrameHandler");
         return nullptr;

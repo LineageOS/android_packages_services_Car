@@ -19,6 +19,7 @@ cc_library_shared {
     name: "libevssupport",
 
     srcs: [
+        "BaseUseCase.cpp",
         "RenderBase.cpp",
         "RenderDirectView.cpp",
         "ConfigManager.cpp",
@@ -27,6 +28,7 @@ cc_library_shared {
         "TexWrapper.cpp",
         "VideoTex.cpp",
         "StreamHandler.cpp",
+        "StreamHandlerManager.cpp",
         "FormatConvert.cpp",
         "DisplayUseCase.cpp",
         "Utils.cpp",

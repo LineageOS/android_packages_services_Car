@@ -19,6 +19,7 @@
 
 #include "DisplayUseCase.h"
 #include "RenderDirectView.h"
+#include "Utils.h"
 
 namespace android {
 namespace automotive {
@@ -31,8 +32,8 @@ using android::hardware::joinRpcThreadpool;
 // TODO(b/130246434): since we don't support multi-display use case, there
 // should only be one DisplayUseCase. Add the logic to prevent more than
 // one DisplayUseCases running at the same time.
-DisplayUseCase::DisplayUseCase(string cameraId, BaseRenderCallback* callback) {
-    mCameraId = cameraId;
+DisplayUseCase::DisplayUseCase(string cameraId, BaseRenderCallback* callback)
+              : BaseUseCase(vector<string>(1, cameraId)) {
     mRenderCallback = callback;
 }
 
@@ -49,9 +50,6 @@ DisplayUseCase::~DisplayUseCase() {
 }
 
 bool DisplayUseCase::initialize() {
-    // TODO(b/130246434): Use evs manager 1.1 instead.
-    const char* evsServiceName = "EvsEnumeratorV1_0";
-
     // Load our configuration information
     ConfigManager config;
     if (!config.initialize("/system/etc/automotive/evs_support_lib/camera_config.json")) {
@@ -67,9 +65,9 @@ bool DisplayUseCase::initialize() {
 
     // Get the EVS manager service
     ALOGI("Acquiring EVS Enumerator");
-    mEvs = IEvsEnumerator::getService(evsServiceName);
+    mEvs = getEvsEnumerator();
     if (mEvs.get() == nullptr) {
-        ALOGE("getService(%s) returned NULL.  Exiting.", evsServiceName);
+        ALOGE("Cannot find the desired EVS service.  Exiting.");
         return false;
     }
 
@@ -84,7 +82,9 @@ bool DisplayUseCase::initialize() {
 
     ALOGD("Requesting camera list");
     for (auto&& info : config.getCameras()) {
-        if (mCameraId == info.cameraId) {
+        // This use case is currently a single camera use case.
+        // Only one element is available in the camera id list.
+        if (mCameraIds[0] == info.cameraId) {
             mCamera = info;
             mIsInitialized = true;
             return true;
