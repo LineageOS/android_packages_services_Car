@@ -17,7 +17,7 @@
 package android.automotive.computepipe.runner@1.0;
 
 import android.automotive.computepipe@1.0::PipeStatus;
-import IPipeStateHandler;
+import IPipeStateCallback;
 import IPipeStream;
 import IPipeDebugger;
 
@@ -73,7 +73,7 @@ interface IPipeRunner {
      * state
      * @return OK PipeStatus if setting state handler was successful
      */
-    setPipeStateNotifier(IPipeStateHandler stateHandler) generates (PipeStatus status);
+    setPipeStateCallback(IPipeStateCallback stateCb) generates (PipeStatus status);
 
     /**
      * Enable a output stream and install call back for packets from that
@@ -90,6 +90,19 @@ interface IPipeRunner {
      */
     setPipeOutputConfig(uint32_t configId, uint32_t maxInFlightCount, IPipeStream handler)
         generates (PipeStatus status);
+
+    /**
+     * Apply all configs.
+     * The client has finsihed specifying all the config options.
+     * Now the configs should be applied. Once the configs are applied the
+     * client will get a notification saying PipeState::CONFIG_DONE.
+     * This also allows the client to modify a subset of the config options
+     * using a subset of the setPipe* methods and request the modified config
+     * option to be applied, prior to restarting the pipe.
+     *
+     * @return PipeStatus::OK if the runner was notified to apply config.
+     */
+    applyPipeConfigs() generates (PipeStatus status);
 
     /**
      * Start Mediapipe execution on the runner. Prior to this step

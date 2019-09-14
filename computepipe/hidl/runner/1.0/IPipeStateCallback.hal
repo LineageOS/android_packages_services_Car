@@ -16,7 +16,7 @@
 
 package android.automotive.computepipe.runner@1.0;
 
-interface IPipeStateHandler {
+interface IPipeStateCallback {
     /**
      * Callback that notifies a client about the state of a pipe
      *
