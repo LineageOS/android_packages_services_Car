@@ -762,7 +762,7 @@
     <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Desparekatu"</string>
     <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"Deskonektatu eta desparekatu"</string>
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"Aukerak…"</string>
-    <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Ezarpen aurreratuak"</string>
+    <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Aurreratuak"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Bluetooth ezarpen aurreratuak"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Bluetooth aktibatuta badago, inguruko Bluetooth gailuekin komunika daiteke gailua."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Bluetooth konexioa aktibatuta dagoenean, inguruko Bluetooth gailuekin komunika daiteke gailua.\n\nGailuaren erabilera hobetzeko, aplikazioek eta zerbitzuek wifi-sareak bilatzen jarraituko dute, baita wifi-konexioa desaktibatuta dagoenean ere. Besteak beste, kokapenean oinarritutako eginbideak eta zerbitzuak hobetzeko erabil daiteke. Aukera hori aldatzeko, joan "<annotation id="link">"gailuak bilatzeko ezarpenetara"</annotation>"."</string>
@@ -881,7 +881,7 @@
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"Aukera gehiago"</string>
     <string name="wifi_menu_p2p" msgid="4945665601551289791">"Wi-Fi Direct"</string>
     <string name="wifi_menu_scan" msgid="9082691677803181629">"Bilatu"</string>
-    <string name="wifi_menu_advanced" msgid="5984484498045511072">"Ezarpen aurreratuak"</string>
+    <string name="wifi_menu_advanced" msgid="5984484498045511072">"Aurreratuak"</string>
     <string name="wifi_menu_configure" msgid="52192491120701266">"Konfiguratu"</string>
     <string name="wifi_menu_connect" msgid="3984327567173931219">"Konektatu sarera"</string>
     <string name="wifi_menu_remember" msgid="717257200269700641">"Gogoratu sarea"</string>
@@ -2526,7 +2526,7 @@
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"Bistaratu CA fidagarrien ziurtagiriak"</string>
     <string name="user_credentials" msgid="8365731467650306757">"Erabiltzaile-kredentzialak"</string>
     <string name="user_credentials_summary" msgid="7350223899317423252">"Ikusi eta aldatu gordetako kredentzialak"</string>
-    <string name="advanced_security_title" msgid="286883005673855845">"Ezarpen aurreratuak"</string>
+    <string name="advanced_security_title" msgid="286883005673855845">"Aurreratuak"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"Biltegiratze mota"</string>
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"Hardwarean gordetakoa"</string>
     <string name="credential_storage_type_software" msgid="1335905150062717150">"Softwarean soilik"</string>
@@ -3290,7 +3290,7 @@
     <string name="configure_notification_settings" msgid="291914315140851270">"Jakinarazpenak"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"Bidalitako azkenak"</string>
     <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Ikusi azken zazpi egunetako guztia"</string>
-    <string name="advanced_section_header" msgid="984680389373090015">"Ezarpen aurreratuak"</string>
+    <string name="advanced_section_header" msgid="984680389373090015">"Aurreratuak"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"Laneko jakinarazpenak"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"Jakinarazpen automatikoen hobespenen ezartzailea"</string>
     <string name="asst_capability_prioritizer_summary" msgid="3525640645743790796">"Isilarazi eta jaitsi mailaz garrantzi gutxiagoko jakinarazpenak"</string>
@@ -3635,7 +3635,7 @@
     <string name="filter_notif_low_channels" msgid="6859599463135775287">"Kategoriak: garrantzi txikikoak"</string>
     <string name="filter_notif_blocked_channels" msgid="6110799550327612670">"Kategoriak: desaktibatutakoak"</string>
     <string name="filter_notif_dnd_channels" msgid="3251570137256371092">"Kategoriak: \"Ez molestatu\" salbuespenak"</string>
-    <string name="advanced_apps" msgid="6643869089344883537">"Ezarpen aurreratuak"</string>
+    <string name="advanced_apps" msgid="6643869089344883537">"Aurreratuak"</string>
     <string name="configure_apps" msgid="4066683118857400943">"Konfiguratu aplikazioak"</string>
     <string name="unknown_app" msgid="2312052973570376877">"Aplikazio ezezaguna"</string>
     <string name="app_permissions" msgid="3215958256821756086">"Baimenen kudeatzailea"</string>
