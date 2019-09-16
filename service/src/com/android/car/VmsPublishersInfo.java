@@ -17,7 +17,6 @@
 package com.android.car;
 
 import android.util.ArrayMap;
-import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -25,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class VmsPublishersInfo {
-    private static final String TAG = "VmsPublishersInfo";
-    private static final boolean DBG = true;
     private static final byte[] EMPTY_RESPONSE = new byte[0];
 
     private final Object mLock = new Object();
@@ -80,9 +77,6 @@ public class VmsPublishersInfo {
                 publisherId = mPublishersInfo.size();
                 mPublishersIds.put(wrappedPublisherInfo, publisherId);
             }
-        }
-        if (DBG) {
-            Log.i(TAG, "Publisher ID is: " + publisherId);
         }
         return publisherId;
     }

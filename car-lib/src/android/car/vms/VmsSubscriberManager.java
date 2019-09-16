@@ -40,7 +40,6 @@ import java.util.concurrent.Executor;
  */
 @SystemApi
 public final class VmsSubscriberManager implements CarManagerBase {
-    private static final boolean DBG = true;
     private static final String TAG = "VmsSubscriberManager";
 
     private final IVmsSubscriberService mVmsSubscriberService;
@@ -86,9 +85,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
                     executor = mExecutor;
                 }
                 if (executor == null) {
-                    if (DBG) {
-                        Log.d(TAG, "Executor is null in onVmsMessageReceived");
-                    }
+                    Log.w(TAG, "Executor is unset in onVmsMessageReceived");
                     return;
                 }
                 Binder.clearCallingIdentity();
@@ -104,9 +101,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
                     executor = mExecutor;
                 }
                 if (executor == null) {
-                    if (DBG) {
-                        Log.d(TAG, "Executor is null in onLayersAvailabilityChanged");
-                    }
+                    Log.w(TAG, "Executor is unset in onLayersAvailabilityChanged");
                     return;
                 }
                 Binder.clearCallingIdentity();

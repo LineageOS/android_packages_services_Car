@@ -35,7 +35,6 @@ import java.io.PrintWriter;
  */
 public class VmsSubscriberService extends IVmsSubscriberService.Stub implements CarServiceBase,
         VmsBrokerService.SubscriberListener {
-    private static final boolean DBG = true;
     private static final String TAG = "VmsSubscriberService";
 
     private final Context mContext;
@@ -138,7 +137,6 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub implements 
 
     @Override
     public void onLayersAvailabilityChange(VmsAvailableLayers availableLayers) {
-        if (DBG) Log.d(TAG, "Publishing layers availability change: " + availableLayers);
         for (IVmsSubscriberClient subscriber : mClientManager.getAllSubscribers()) {
             try {
                 subscriber.onLayersAvailabilityChanged(availableLayers);
