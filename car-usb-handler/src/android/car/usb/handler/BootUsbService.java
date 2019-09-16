@@ -107,7 +107,7 @@ public class BootUsbService extends Service {
         Intent manageDevice = new Intent(context, UsbHostManagementActivity.class);
         manageDevice.setAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         manageDevice.putExtra(UsbManager.EXTRA_DEVICE, device);
-        manageDevice.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        manageDevice.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivityAsUser(manageDevice, UserHandle.CURRENT);
     }
 }
