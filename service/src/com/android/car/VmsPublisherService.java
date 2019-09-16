@@ -47,7 +47,7 @@ import java.util.Set;
  * Notifies publishers of subscription changes.
  */
 public class VmsPublisherService implements CarServiceBase {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "VmsPublisherService";
 
     @VisibleForTesting
