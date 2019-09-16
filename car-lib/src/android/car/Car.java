@@ -108,6 +108,14 @@ public final class Car {
     public static final String CAR_OCCUPANT_ZONE_SERVICE = "car_occupant_zone_service";
 
     /**
+     * Service name for {@link CarUserManager}
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String CAR_USER_SERVICE = "car_user_service";
+
+    /**
      * Service name for {@link CarInstrumentClusterManager}
      *
      * @deprecated CarInstrumentClusterManager is being deprecated
@@ -1259,6 +1267,8 @@ public final class Car {
             case CAR_BUGREPORT_SERVICE:
                 manager = new CarBugreportManager(binder, mContext);
                 break;
+            case CAR_USER_SERVICE:
+                manager = new CarUserManager(binder);
             default:
                 break;
         }

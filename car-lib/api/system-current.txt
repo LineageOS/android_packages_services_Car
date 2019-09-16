@@ -16,6 +16,7 @@ package android.car {
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_TRUST_AGENT_ENROLLMENT_SERVICE = "trust_enroll";
+    field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
     field @Deprecated public static final String HVAC_SERVICE = "hvac";
     field public static final String PERMISSION_ADJUST_RANGE_REMAINING = "android.car.permission.ADJUST_RANGE_REMAINING";
@@ -104,6 +105,16 @@ package android.car {
 
   public static interface CarProjectionManager.ProjectionStatusListener {
     method public void onProjectionStatusChanged(int, @Nullable String, @NonNull java.util.List<android.car.projection.ProjectionStatus>);
+  }
+
+  public final class CarUserManager {
+    method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public android.content.pm.UserInfo createDriver(@NonNull String, boolean);
+    method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public android.content.pm.UserInfo createPassenger(@NonNull String, int);
+    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public java.util.List<android.content.pm.UserInfo> getAllDrivers();
+    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public java.util.List<android.content.pm.UserInfo> getPassengers(int);
+    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean startPassenger(int, int);
+    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean stopPassenger(int);
+    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean switchDriver(int);
   }
 
   public final class VehicleAreaDoor {
