@@ -51,7 +51,7 @@ import java.util.UUID;
  *
  * TODO(b/123248433) This could move to a separate comms library.
  */
-class BlePeripheralManager {
+public class BlePeripheralManager {
     private static final String TAG = BlePeripheralManager.class.getSimpleName();
 
     private static final int BLE_RETRY_LIMIT = 5;
