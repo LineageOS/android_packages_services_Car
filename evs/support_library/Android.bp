@@ -30,6 +30,7 @@ cc_library_shared {
         "ResourceManager.cpp",
         "FormatConvert.cpp",
         "DisplayUseCase.cpp",
+        "AnalyzeUseCase.cpp",
         "Utils.cpp",
     ],
 

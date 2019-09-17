@@ -26,11 +26,15 @@
 #include <ui/GraphicBufferMapper.h>
 
 #include "Frame.h"
+#include "ResourceManager.h"
 
 namespace android {
 namespace automotive {
 namespace evs {
 namespace support {
+
+using ::std::lock_guard;
+using ::std::unique_lock;
 
 StreamHandler::StreamHandler(android::sp <IEvsCamera> pCamera) :
     mCamera(pCamera)
@@ -44,8 +48,15 @@ StreamHandler::StreamHandler(android::sp <IEvsCamera> pCamera) :
 // up properly in the shutdown logic.
 void StreamHandler::shutdown()
 {
-    // Make sure we're not still streaming
-    blockingStopStream();
+    // Tell the camera to stop streaming.
+    // This will result in a null frame being delivered when the stream actually stops.
+    mCamera->stopVideoStream();
+
+    // Wait until the stream has actually stopped
+    unique_lock<mutex> lock(mLock);
+    if (mRunning) {
+        mSignal.wait(lock, [this]() { return !mRunning; });
+    }
 
     // At this point, the receiver thread is no longer running, so we can safely drop
     // our remote object references so they can be freed
@@ -54,7 +65,7 @@ void StreamHandler::shutdown()
 
 
 bool StreamHandler::startStream() {
-    std::unique_lock<std::mutex> lock(mLock);
+    lock_guard<mutex> lock(mLock);
 
     if (!mRunning) {
         // Tell the camera to start streaming
@@ -71,39 +82,14 @@ bool StreamHandler::startStream() {
 }
 
 
-void StreamHandler::asyncStopStream() {
-    // Tell the camera to stop streaming.
-    // This will result in a null frame being delivered when the stream actually stops.
-    mCamera->stopVideoStream();
-}
-
-
-void StreamHandler::blockingStopStream() {
-    // Tell the stream to stop
-    asyncStopStream();
-
-    // Wait until the stream has actually stopped
-    std::unique_lock<std::mutex> lock(mLock);
-    if (mRunning) {
-        mSignal.wait(lock, [this]() { return !mRunning; });
-    }
-}
-
-
-bool StreamHandler::isRunning() {
-    std::unique_lock<std::mutex> lock(mLock);
-    return mRunning;
-}
-
-
 bool StreamHandler::newDisplayFrameAvailable() {
-    std::unique_lock<std::mutex> lock(mLock);
+    lock_guard<mutex> lock(mLock);
     return (mReadyBuffer >= 0);
 }
 
 
 const BufferDesc& StreamHandler::getNewDisplayFrame() {
-    std::unique_lock<std::mutex> lock(mLock);
+    lock_guard<mutex> lock(mLock);
 
     if (mHeldBuffer >= 0) {
         ALOGE("Ignored call for new frame while still holding the old one.");
@@ -128,7 +114,7 @@ const BufferDesc& StreamHandler::getNewDisplayFrame() {
 
 
 void StreamHandler::doneWithFrame(const BufferDesc& buffer) {
-    std::unique_lock<std::mutex> lock(mLock);
+    lock_guard<mutex> lock(mLock);
 
     // We better be getting back the buffer we original delivered!
     if ((mHeldBuffer < 0)
@@ -153,7 +139,7 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
 
     // Take the lock to protect our frame slots and running state variable
     {
-        std::unique_lock <std::mutex> lock(mLock);
+        lock_guard <mutex> lock(mLock);
 
         if (buffer.memHandle.getNativeHandle() == nullptr) {
             // Signal that the last frame has been received and the stream is stopped
@@ -176,10 +162,20 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
             // Save this frame until our client is interested in it
             mOriginalBuffers[mReadyBuffer] = buffer;
 
+            // If render callback is not null, process the frame with render
+            // callback.
             if (mRenderCallback != nullptr) {
-                processFrame(mOriginalBuffers[mReadyBuffer], mProcessedBuffers[mReadyBuffer]);
+                processFrame(mOriginalBuffers[mReadyBuffer],
+                             mProcessedBuffers[mReadyBuffer]);
             } else {
                 ALOGI("Render callback is null in deliverFrame.");
+            }
+
+            // If analyze callback is not null and the analyze thread is
+            // available, copy the frame and run the analyze callback in
+            // analyze thread.
+            if (mAnalyzeCallback != nullptr && !mAnalyzerRunning) {
+                copyAndAnalyzeFrame(mOriginalBuffers[mReadyBuffer]);
             }
         }
     }
@@ -192,6 +188,9 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
 
 void StreamHandler::attachRenderCallback(BaseRenderCallback* callback) {
     ALOGD("StreamHandler::attachRenderCallback");
+
+    lock_guard<mutex> lock(mLock);
+
     if (mRenderCallback != nullptr) {
         ALOGW("Ignored! There should only be one render callback");
         return;
@@ -201,11 +200,29 @@ void StreamHandler::attachRenderCallback(BaseRenderCallback* callback) {
 
 void StreamHandler::detachRenderCallback() {
     ALOGD("StreamHandler::detachRenderCallback");
-    if (mRenderCallback == nullptr) {
-        ALOGW("Ignored! There is no display use case attached");
+
+    lock_guard<mutex> lock(mLock);
+
+    mRenderCallback = nullptr;
+}
+
+void StreamHandler::attachAnalyzeCallback(BaseAnalyzeCallback* callback) {
+    ALOGD("StreamHandler::attachAnalyzeCallback");
+
+    lock_guard<mutex> lock(mLock);
+
+    if (mAnalyzeCallback != nullptr) {
+        ALOGW("Ignored! There should only be one analyze callcack");
         return;
     }
-    mRenderCallback = nullptr;
+    mAnalyzeCallback = callback;
+}
+
+void StreamHandler::detachAnalyzeCallback() {
+    ALOGD("StreamHandler::detachAnalyzeCallback");
+    lock_guard<mutex> lock(mLock);
+
+    mAnalyzeCallback = nullptr;
 }
 
 bool isSameFormat(const BufferDesc& input, const BufferDesc& output) {
@@ -350,6 +367,102 @@ bool StreamHandler::processFrame(const BufferDesc& input,
 
     return true;
 }
+
+bool StreamHandler::copyAndAnalyzeFrame(const BufferDesc& input) {
+    ALOGD("StreamHandler::copyAndAnalyzeFrame");
+
+    // TODO(b/130246434): make the following into a method. Some lines are
+    // duplicated with processFrame, move them into new methods as well.
+    if (!isSameFormat(input, mAnalyzeBuffer)
+        || mAnalyzeBuffer.memHandle.getNativeHandle() == nullptr) {
+        mAnalyzeBuffer.width = input.width;
+        mAnalyzeBuffer.height = input.height;
+        mAnalyzeBuffer.format = input.format;
+        mAnalyzeBuffer.usage = input.usage;
+        mAnalyzeBuffer.stride = input.stride;
+        mAnalyzeBuffer.pixelSize = input.pixelSize;
+        mAnalyzeBuffer.bufferId = input.bufferId;
+
+        // free the allocated output frame handle if it is not null
+        if (mAnalyzeBuffer.memHandle.getNativeHandle() != nullptr) {
+            GraphicBufferAllocator::get().free(mAnalyzeBuffer.memHandle);
+        }
+
+        if (!allocate(mAnalyzeBuffer)) {
+            ALOGE("Error allocating buffer");
+            return false;
+        }
+    }
+
+    // create a GraphicBuffer from the existing handle
+    sp<GraphicBuffer> inputBuffer = new GraphicBuffer(
+        input.memHandle, GraphicBuffer::CLONE_HANDLE, input.width,
+        input.height, input.format, 1,  // layer count
+        GRALLOC_USAGE_HW_TEXTURE, input.stride);
+
+    if (inputBuffer.get() == nullptr) {
+        ALOGE("Failed to allocate GraphicBuffer to wrap image handle");
+        // Returning "true" in this error condition because we already released the
+        // previous image (if any) and so the texture may change in unpredictable
+        // ways now!
+        return false;
+    }
+
+    // Lock the input GraphicBuffer and map it to a pointer.  If we failed to
+    // lock, return false.
+    void* inputDataPtr;
+    inputBuffer->lock(
+        GRALLOC_USAGE_SW_READ_OFTEN | GRALLOC_USAGE_SW_WRITE_NEVER,
+        &inputDataPtr);
+    if (!inputDataPtr) {
+        ALOGE("Failed to gain read access to imageGraphicBuffer");
+        inputBuffer->unlock();
+        return false;
+    }
+
+    // Lock the allocated buffer in output BufferDesc and map it to a pointer
+    void* analyzeDataPtr = nullptr;
+    android::GraphicBufferMapper::get().lock(
+        mAnalyzeBuffer.memHandle,
+        GRALLOC_USAGE_SW_WRITE_OFTEN | GRALLOC_USAGE_SW_READ_NEVER,
+        android::Rect(mAnalyzeBuffer.width, mAnalyzeBuffer.height),
+        (void**)&analyzeDataPtr);
+
+    // If we failed to lock the pixel buffer, return false, and unlock both
+    // input and output buffers.
+    if (!analyzeDataPtr) {
+        ALOGE("Camera failed to gain access to image buffer for analyzing");
+        return false;
+    }
+
+    // Wrap the raw data and copied data, and pass them to the callback.
+    Frame analyzeFrame = {
+        .width = mAnalyzeBuffer.width,
+        .height = mAnalyzeBuffer.height,
+        .stride = mAnalyzeBuffer.stride,
+        .data = (uint8_t*)analyzeDataPtr,
+    };
+
+    memcpy(analyzeDataPtr, inputDataPtr, mAnalyzeBuffer.stride * mAnalyzeBuffer.height * 4);
+
+    // Unlock the buffers after all changes to the buffer are completed.
+    inputBuffer->unlock();
+
+    mAnalyzerRunning = true;
+
+    mAnalyzeThread = std::thread([this, analyzeFrame]() {
+        ALOGD("StreamHandler: Analyze Thread starts");
+
+        this->mAnalyzeCallback->analyze(analyzeFrame);
+        android::GraphicBufferMapper::get().unlock(this->mAnalyzeBuffer.memHandle);
+        this->mAnalyzerRunning = false;
+        ALOGD("StreamHandler: Analyze Thread ends");
+    });
+    mAnalyzeThread.detach();
+
+    return true;
+}
+
 }  // namespace support
 }  // namespace evs
 }  // namespace automotive

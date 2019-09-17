@@ -18,14 +18,14 @@
 #define EVS_VTS_STREAMHANDLER_H
 
 #include <queue>
-
-#include "ui/GraphicBuffer.h"
-
+#include <thread>
+#include <ui/GraphicBuffer.h>
 #include <android/hardware/automotive/evs/1.0/IEvsCameraStream.h>
 #include <android/hardware/automotive/evs/1.0/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
 
 #include "BaseRenderCallback.h"
+#include "BaseAnalyzeCallback.h"
 
 namespace android {
 namespace automotive {
@@ -62,10 +62,6 @@ public:
     void shutdown();
 
     bool startStream();
-    void asyncStopStream();
-    void blockingStopStream();
-
-    bool isRunning();
 
     bool newDisplayFrameAvailable();
     const BufferDesc& getNewDisplayFrame();
@@ -97,13 +93,44 @@ public:
      */
     void detachRenderCallback();
 
+    /*
+     * Attaches an analyze callback to the StreamHandler.
+     *
+     * When there is a valid analyze callback attached, a thread dedicated for
+     * the analyze callback will be allocated. When the thread is not busy, the
+     * next available evs frame will be copied (now happens in binder thread).
+     * And the copy will be passed into the analyze thread, and be processed by
+     * the analyze callback.
+     *
+     * Since there is only one AnalyzeUseCase allowed at the same time, at most
+     * only one analyze callback can be attached. The current analyze callback
+     * needs to be detached first (by method detachAnalyzeCallback()), before a
+     * new callback can be attached. In other words, the call will be ignored
+     * if the current analyze callback is not null.
+     *
+     * @see detachAnalyzeCallback()
+     */
+    // TODO(b/130246434): now only one analyze use case is supported, so one
+    // analyze thread id good enough. But we should be able to support several
+    // analyze use cases running at the same time, so we should probably use a
+    // thread pool to handle the cases.
+    void attachAnalyzeCallback(BaseAnalyzeCallback*);
+
+    /*
+     * Detaches the current analyze callback.
+     *
+     * If no analyze callback is attached, this call will be ignored.
+     *
+     * @see attachAnalyzeCallback(BaseAnalyzeCallback*)
+     */
+    void detachAnalyzeCallback();
+
 private:
     // Implementation for ::android::hardware::automotive::evs::V1_0::ICarCameraStream
     Return<void> deliverFrame(const BufferDesc& buffer)  override;
 
-    // Calls the attached render callback to generate the processed BufferDesc
-    // for display.
     bool processFrame(const BufferDesc&, BufferDesc&);
+    bool copyAndAnalyzeFrame(const BufferDesc&);
 
     // Values initialized as startup
     android::sp <IEvsCamera>    mCamera;
@@ -117,11 +144,17 @@ private:
     bool                        mRunning = false;
 
     BufferDesc                  mOriginalBuffers[2];
-    BufferDesc                  mProcessedBuffers[2];
     int                         mHeldBuffer = -1;   // Index of the one currently held by the client
     int                         mReadyBuffer = -1;  // Index of the newest available buffer
 
+    BufferDesc                  mProcessedBuffers[2];
+    BufferDesc                  mAnalyzeBuffer;
+
     BaseRenderCallback*         mRenderCallback = nullptr;
+
+    BaseAnalyzeCallback*        mAnalyzeCallback = nullptr;
+    bool                        mAnalyzerRunning = false;
+    std::thread                 mAnalyzeThread;
 };
 
 }  // namespace support
@@ -130,3 +163,4 @@ private:
 }  // namespace android
 
 #endif //EVS_VTS_STREAMHANDLER_H
+
