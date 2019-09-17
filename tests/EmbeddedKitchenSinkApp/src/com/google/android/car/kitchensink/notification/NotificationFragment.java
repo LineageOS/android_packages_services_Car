@@ -359,7 +359,7 @@ public class NotificationFragment extends Fragment {
             PendingIntent replyIntent = createServiceIntent(id, "reply");
             PendingIntent markAsReadIntent = createServiceIntent(id, "read");
 
-            Person person = new Person.Builder().setName("John Doe").build();
+            Person person = new Person.Builder().setName("John Doe " + id).build();
             MessagingStyle messagingStyle =
                     new MessagingStyle(person).setConversationTitle("Hello!");
             NotificationCompat.Builder builder = new NotificationCompat

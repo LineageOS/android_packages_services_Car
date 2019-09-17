@@ -72,7 +72,7 @@ import java.util.function.Supplier;
  * @see android.hardware.automotive.vehicle.V2_0
  */
 public class VmsHalService extends HalServiceBase {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "VmsHalService";
     private static final int HAL_PROPERTY_ID = VehicleProperty.VEHICLE_MAP_SERVICE;
     private static final int NUM_INTEGERS_IN_VMS_LAYER = 3;
@@ -240,10 +240,10 @@ public class VmsHalService extends HalServiceBase {
     @Override
     public void init() {
         if (mIsSupported) {
-            if (DBG) Log.d(TAG, "Initializing VmsHalService VHAL property");
+            Log.i(TAG, "Initializing VmsHalService VHAL property");
             mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID);
         } else {
-            if (DBG) Log.d(TAG, "VmsHalService VHAL property not supported");
+            Log.i(TAG, "VmsHalService VHAL property not supported");
             return; // Do not continue initialization
         }
 
@@ -356,11 +356,7 @@ public class VmsHalService extends HalServiceBase {
     private void handleStartSessionEvent(List<Integer> message) {
         int coreId = message.get(VmsStartSessionMessageIntegerValuesIndex.SERVICE_ID);
         int clientId = message.get(VmsStartSessionMessageIntegerValuesIndex.CLIENT_ID);
-        if (DBG) {
-            Log.d(TAG,
-                    "Handling a session start event with coreId: " + coreId + " client: "
-                            + clientId);
-        }
+        Log.i(TAG, "Starting new session with coreId: " + coreId + " client: " + clientId);
 
         if (coreId != mCoreId) {
             if (mClientManager != null) {
