@@ -15,10 +15,13 @@
  */
 package com.android.car.hal;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import android.car.vms.IVmsPublisherClient;
@@ -31,15 +34,20 @@ import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsSubscriptionState;
+import android.content.Context;
+import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.os.Binder;
 import android.os.IBinder;
 
 import androidx.test.filters.RequiresDevice;
 
+import com.android.car.R;
+import com.android.car.test.utils.TemporaryFile;
 import com.android.car.vms.VmsClientManager;
 
 import org.junit.Before;
@@ -52,6 +60,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -73,6 +84,10 @@ public class VmsHalServiceTest {
     @Rule
     public MockitoRule mockito = MockitoJUnit.rule();
     @Mock
+    private Context mContext;
+    @Mock
+    private Resources mResources;
+    @Mock
     private VehicleHal mVehicleHal;
     @Mock
     private VmsClientManager mClientManager;
@@ -88,7 +103,8 @@ public class VmsHalServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        mHalService = new VmsHalService(mVehicleHal, () -> (long) CORE_ID);
+        when(mContext.getResources()).thenReturn(mResources);
+        mHalService = new VmsHalService(mContext, mVehicleHal, () -> (long) CORE_ID);
         mHalService.setClientManager(mClientManager);
         mHalService.setVmsSubscriberService(mSubscriberService);
 
@@ -148,7 +164,8 @@ public class VmsHalServiceTest {
 
     @Test
     public void testCoreId_IntegerOverflow() throws Exception {
-        mHalService = new VmsHalService(mVehicleHal, () -> (long) Integer.MAX_VALUE + CORE_ID);
+        mHalService = new VmsHalService(mContext, mVehicleHal,
+                () -> (long) Integer.MAX_VALUE + CORE_ID);
 
         VehiclePropConfig propConfig = new VehiclePropConfig();
         propConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
@@ -942,6 +959,80 @@ public class VmsHalServiceTest {
 
         waitForHandlerCompletion();
         verify(mVehicleHal).set(response);
+    }
+
+    @Test
+    public void testDumpMetrics_DefaultConfig() {
+        mHalService.dumpMetrics(new FileDescriptor());
+        verifyZeroInteractions(mVehicleHal);
+    }
+
+    @Test
+    public void testDumpMetrics_NonVendorProperty() throws Exception {
+        VehiclePropValue vehicleProp = new VehiclePropValue();
+        vehicleProp.value.bytes.addAll(PAYLOAD_AS_LIST);
+        when(mVehicleHal.get(anyInt())).thenReturn(vehicleProp);
+
+        when(mResources.getInteger(
+                R.integer.vmsHalClientMetricsProperty)).thenReturn(
+                VehicleProperty.VEHICLE_MAP_SERVICE);
+        setUp();
+
+        mHalService.dumpMetrics(new FileDescriptor());
+        verifyZeroInteractions(mVehicleHal);
+    }
+
+    @Test
+    public void testDumpMetrics_VendorProperty() throws Exception {
+        int metricsPropertyId = VehiclePropertyGroup.VENDOR | 1;
+        when(mResources.getInteger(
+                R.integer.vmsHalClientMetricsProperty)).thenReturn(
+                metricsPropertyId);
+        setUp();
+
+        VehiclePropValue metricsProperty = new VehiclePropValue();
+        metricsProperty.value.bytes.addAll(PAYLOAD_AS_LIST);
+        when(mVehicleHal.get(metricsPropertyId)).thenReturn(metricsProperty);
+
+        try (TemporaryFile dumpsysFile = new TemporaryFile("VmsHalServiceTest")) {
+            FileOutputStream outputStream = new FileOutputStream(dumpsysFile.getFile());
+            mHalService.dumpMetrics(outputStream.getFD());
+
+            verify(mVehicleHal).get(metricsPropertyId);
+            FileInputStream inputStream = new FileInputStream(dumpsysFile.getFile());
+            byte[] dumpsysOutput = new byte[PAYLOAD.length];
+            assertEquals(PAYLOAD.length, inputStream.read(dumpsysOutput));
+            assertArrayEquals(PAYLOAD, dumpsysOutput);
+        }
+    }
+
+    @Test
+    public void testDumpMetrics_VendorProperty_Timeout() throws Exception {
+        int metricsPropertyId = VehiclePropertyGroup.VENDOR | 1;
+        when(mResources.getInteger(
+                R.integer.vmsHalClientMetricsProperty)).thenReturn(
+                metricsPropertyId);
+        setUp();
+
+        when(mVehicleHal.get(metricsPropertyId))
+                .thenThrow(new PropertyTimeoutException(metricsPropertyId));
+
+        mHalService.dumpMetrics(new FileDescriptor());
+        verify(mVehicleHal).get(metricsPropertyId);
+    }
+
+    @Test
+    public void testDumpMetrics_VendorProperty_Unavailable() throws Exception {
+        int metricsPropertyId = VehiclePropertyGroup.VENDOR | 1;
+        when(mResources.getInteger(
+                R.integer.vmsHalClientMetricsProperty)).thenReturn(
+                metricsPropertyId);
+        setUp();
+
+        when(mVehicleHal.get(metricsPropertyId)).thenReturn(null);
+
+        mHalService.dumpMetrics(new FileDescriptor());
+        verify(mVehicleHal).get(metricsPropertyId);
     }
 
     private static VehiclePropValue createHalMessage(Integer... message) {

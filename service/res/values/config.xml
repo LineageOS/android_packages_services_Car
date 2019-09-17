@@ -78,6 +78,8 @@
     </string-array>
     <!-- Default home activity -->
     <string name="defaultHomeActivity" translatable="false"><!--com.your.package/com.your.package.Activity--></string>
+    <!-- The vendor-defined HAL property used to collect VMS client metrics. Disabled by default.-->
+    <integer name="vmsHalClientMetricsProperty">0</integer>
     <!--  The com.android.car.vms.VmsClientManager will bind to this list of clients running as system user -->
     <string-array translatable="false" name="vmsPublisherSystemClients">
     </string-array>
