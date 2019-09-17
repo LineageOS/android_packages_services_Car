@@ -17,8 +17,8 @@
 package com.android.car;
 
 import android.app.ActivityManager;
-import android.car.ICarUserService;
 import android.car.ILocationManagerProxy;
+import android.car.IPerUserCarService;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.power.CarPowerManager;
@@ -92,17 +92,17 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     private final PerUserCarServiceHelper.ServiceCallback mUserServiceCallback =
             new PerUserCarServiceHelper.ServiceCallback() {
                 @Override
-                public void onServiceConnected(ICarUserService carUserService) {
+                public void onServiceConnected(IPerUserCarService perUserCarService) {
                     logd("Connected to PerUserCarService");
-                    if (carUserService == null) {
-                        logd("ICarUserService is null. Cannot get location manager proxy");
+                    if (perUserCarService == null) {
+                        logd("IPerUserCarService is null. Cannot get location manager proxy");
                         return;
                     }
                     synchronized (mLocationManagerProxyLock) {
                         try {
-                            mILocationManagerProxy = carUserService.getLocationManagerProxy();
+                            mILocationManagerProxy = perUserCarService.getLocationManagerProxy();
                         } catch (RemoteException e) {
-                            Log.e(TAG, "RemoteException from ICarUserService", e);
+                            Log.e(TAG, "RemoteException from IPerUserCarService", e);
                             return;
                         }
                     }

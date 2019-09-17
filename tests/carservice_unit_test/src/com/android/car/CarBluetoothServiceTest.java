@@ -18,7 +18,7 @@ package com.android.car;
 
 import static org.mockito.Mockito.*;
 
-import android.car.ICarUserService;
+import android.car.IPerUserCarService;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -64,7 +64,7 @@ public class CarBluetoothServiceTest {
     @Mock private PackageManager mMockPackageManager;
 
     @Mock private PerUserCarServiceHelper mMockUserSwitchService;
-    @Mock private ICarUserService mMockCarUserService;
+    @Mock private IPerUserCarService mMockPerUserCarService;
     @Mock private CarBluetoothUserService mMockBluetoothUserService;
     private PerUserCarServiceHelper.ServiceCallback mUserSwitchCallback;
 
@@ -105,7 +105,7 @@ public class CarBluetoothServiceTest {
                 PerUserCarServiceHelper.ServiceCallback.class));
 
         try {
-            when(mMockCarUserService.getBluetoothUserService()).thenReturn(
+            when(mMockPerUserCarService.getBluetoothUserService()).thenReturn(
                     mMockBluetoothUserService);
         } catch (RemoteException e) {
             Assert.fail();
@@ -140,7 +140,7 @@ public class CarBluetoothServiceTest {
                 R.bool.useDefaultBluetoothConnectionPolicy)).thenReturn(true);
         mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
         mCarBluetoothService.init();
-        mUserSwitchCallback.onServiceConnected(mMockCarUserService);
+        mUserSwitchCallback.onServiceConnected(mMockPerUserCarService);
         Assert.assertTrue(mCarBluetoothService.isUsingDefaultConnectionPolicy());
     }
 
@@ -160,7 +160,7 @@ public class CarBluetoothServiceTest {
                 R.bool.useDefaultBluetoothConnectionPolicy)).thenReturn(false);
         mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
         mCarBluetoothService.init();
-        mUserSwitchCallback.onServiceConnected(mMockCarUserService);
+        mUserSwitchCallback.onServiceConnected(mMockPerUserCarService);
         Assert.assertFalse(mCarBluetoothService.isUsingDefaultConnectionPolicy());
     }
 }
