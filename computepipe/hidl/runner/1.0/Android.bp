@@ -7,7 +7,7 @@ hidl_interface {
         "types.hal",
         "IPipeDebugger.hal",
         "IPipeRunner.hal",
-        "IPipeStateHandler.hal",
+        "IPipeStateCallback.hal",
         "IPipeStream.hal",
     ],
     interfaces: [
