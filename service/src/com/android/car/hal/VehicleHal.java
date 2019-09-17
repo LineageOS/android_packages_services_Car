@@ -23,6 +23,7 @@ import static com.android.car.CarServiceUtils.toIntArray;
 import static java.lang.Integer.toHexString;
 
 import android.annotation.CheckResult;
+import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
 import android.hardware.automotive.vehicle.V2_0.SubscribeFlags;
@@ -89,14 +90,14 @@ public class VehicleHal extends IVehicleCallback.Stub {
     // Used by injectVHALEvent for testing purposes.  Delimiter for an array of data
     private static final String DATA_DELIMITER = ",";
 
-    public VehicleHal(IVehicle vehicle) {
+    public VehicleHal(Context context, IVehicle vehicle) {
         mHandlerThread = new HandlerThread("VEHICLE-HAL");
         mHandlerThread.start();
         // passing this should be safe as long as it is just kept and not used in constructor
         mPowerHal = new PowerHalService(this);
         mPropertyHal = new PropertyHalService(this);
         mInputHal = new InputHalService(this);
-        mVmsHal = new VmsHalService(this);
+        mVmsHal = new VmsHalService(context, this);
         mDiagnosticHal = new DiagnosticHalService(this);
         mAllServices.addAll(Arrays.asList(mPowerHal,
                 mInputHal,
