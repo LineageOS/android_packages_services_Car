@@ -31,7 +31,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.ICarUserService;
+import android.car.IPerUserCarService;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
@@ -78,8 +78,8 @@ import java.util.stream.Collectors;
  * 2. {@link CarUserManagerHelper} tells whether or not the system user is headless.
  * 3. {@link SystemInterface} tells where to store system files.
  * 4. {@link CarDrivingStateService} tells about driving state changes.
- * 5. {@link PerUserCarServiceHelper} provides a mocked {@link ICarUserService}.
- * 6. {@link ICarUserService} provides a mocked {@link LocationManagerProxy}.
+ * 5. {@link PerUserCarServiceHelper} provides a mocked {@link IPerUserCarService}.
+ * 6. {@link IPerUserCarService} provides a mocked {@link LocationManagerProxy}.
  * 7. {@link LocationManagerProxy} provides dummy {@link Location}s.
  */
 @RunWith(AndroidJUnit4.class)
@@ -104,7 +104,7 @@ public class CarLocationServiceTest {
     @Mock
     private PerUserCarServiceHelper mMockPerUserCarServiceHelper;
     @Mock
-    private ICarUserService mMockICarUserService;
+    private IPerUserCarService mMockIPerUserCarService;
 
     /**
      * Initialize all of the objects with the @Mock annotation.
@@ -131,7 +131,8 @@ public class CarLocationServiceTest {
         CarLocalServices.removeServiceForTest(PerUserCarServiceHelper.class);
         CarLocalServices.addService(PerUserCarServiceHelper.class, mMockPerUserCarServiceHelper);
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempDirectory);
-        when(mMockICarUserService.getLocationManagerProxy()).thenReturn(mMockLocationManagerProxy);
+        when(mMockIPerUserCarService.getLocationManagerProxy())
+                .thenReturn(mMockLocationManagerProxy);
 
         // We only support and test the headless system user case.
         when(mMockCarUserManagerHelper.isHeadlessSystemUser()).thenReturn(true);
@@ -217,7 +218,7 @@ public class CarLocationServiceTest {
         ArgumentCaptor<Location> argument = ArgumentCaptor.forClass(Location.class);
         when(mMockLocationManagerProxy.injectLocation(argument.capture())).thenReturn(true);
 
-        mUserServiceCallback.onServiceConnected(mMockICarUserService);
+        mUserServiceCallback.onServiceConnected(mMockIPerUserCarService);
         mLatch.await();
 
         Location location = argument.getValue();
@@ -239,7 +240,7 @@ public class CarLocationServiceTest {
         assertThat(mUserServiceCallback).isNotNull();
         assertThat(getLocationCacheFile().exists()).isFalse();
 
-        mUserServiceCallback.onServiceConnected(mMockICarUserService);
+        mUserServiceCallback.onServiceConnected(mMockIPerUserCarService);
         mLatch.await();
 
         verify(mMockLocationManagerProxy, never()).injectLocation(any());
@@ -254,7 +255,7 @@ public class CarLocationServiceTest {
         assertThat(mUserServiceCallback).isNotNull();
         writeCacheFile("{\"provider\": \"gps\", \"latitude\": 16.7666, \"longitude\": 3.0026,");
 
-        mUserServiceCallback.onServiceConnected(mMockICarUserService);
+        mUserServiceCallback.onServiceConnected(mMockIPerUserCarService);
         mLatch.await();
 
         verify(mMockLocationManagerProxy, never()).injectLocation(any());
@@ -269,7 +270,7 @@ public class CarLocationServiceTest {
         assertThat(mUserServiceCallback).isNotNull();
         writeCacheFile("{\"provider\":\"latitude\":16.7666,\"longitude\": \"accuracy\":1.0}");
 
-        mUserServiceCallback.onServiceConnected(mMockICarUserService);
+        mUserServiceCallback.onServiceConnected(mMockIPerUserCarService);
         mLatch.await();
 
         verify(mMockLocationManagerProxy, never()).injectLocation(any());
@@ -285,7 +286,7 @@ public class CarLocationServiceTest {
         assertThat(mUserServiceCallback).isNotNull();
         writeCacheFile("{\"provider\": \"gps\", \"latitude\": 16.7666, \"longitude\": 3.0026}");
 
-        mUserServiceCallback.onServiceConnected(mMockICarUserService);
+        mUserServiceCallback.onServiceConnected(mMockIPerUserCarService);
         mLatch.await();
 
         verify(mMockLocationManagerProxy, never()).injectLocation(any());
@@ -304,7 +305,7 @@ public class CarLocationServiceTest {
         writeCacheFile("{\"provider\": \"gps\", \"latitude\": 16.7666, \"longitude\": 3.0026,"
                 + "\"accuracy\":12.3, \"captureTime\": " + oldTime + "}");
 
-        mUserServiceCallback.onServiceConnected(mMockICarUserService);
+        mUserServiceCallback.onServiceConnected(mMockIPerUserCarService);
         mLatch.await();
 
         verify(mMockLocationManagerProxy, never()).injectLocation(any());
@@ -319,7 +320,7 @@ public class CarLocationServiceTest {
         // We must have a LocationManagerProxy for the current user in order to get a location
         // during shutdown-prepare.
         mCarLocationService.init();
-        mUserServiceCallback.onServiceConnected(mMockICarUserService);
+        mUserServiceCallback.onServiceConnected(mMockIPerUserCarService);
         mLatch.await();
         mLatch = new CountDownLatch(1);
 
@@ -373,7 +374,7 @@ public class CarLocationServiceTest {
         // We must have a LocationManagerProxy for the current user in order to get a location
         // during shutdown-prepare.
         mCarLocationService.init();
-        mUserServiceCallback.onServiceConnected(mMockICarUserService);
+        mUserServiceCallback.onServiceConnected(mMockIPerUserCarService);
         mLatch.await();
         mLatch = new CountDownLatch(1);
 
@@ -398,7 +399,7 @@ public class CarLocationServiceTest {
         // We must have a LocationManagerProxy for the current user in order to check whether or
         // not location is enabled.
         mCarLocationService.init();
-        mUserServiceCallback.onServiceConnected(mMockICarUserService);
+        mUserServiceCallback.onServiceConnected(mMockIPerUserCarService);
         mLatch.await();
         mLatch = new CountDownLatch(1);
 

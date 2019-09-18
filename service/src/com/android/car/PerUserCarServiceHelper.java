@@ -16,7 +16,7 @@
 
 package com.android.car;
 
-import android.car.ICarUserService;
+import android.car.IPerUserCarService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,8 +30,8 @@ import android.util.Log;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A Helper class that helps with the following:
@@ -43,7 +43,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
     private static final String TAG = "PerUserCarSvcHelper";
     private static boolean DBG = false;
     private Context mContext;
-    private ICarUserService mCarUserService;
+    private IPerUserCarService mPerUserCarService;
     // listener to call on a ServiceConnection to PerUserCarService
     private List<ServiceCallback> mServiceCallbacks;
     private UserSwitchBroadcastReceiver mReceiver;
@@ -129,15 +129,15 @@ public class PerUserCarServiceHelper implements CarServiceBase {
             if (DBG) {
                 Log.d(TAG, "Connected to User Service");
             }
-            mCarUserService = ICarUserService.Stub.asInterface(service);
-            if (mCarUserService != null) {
+            mPerUserCarService = IPerUserCarService.Stub.asInterface(service);
+            if (mPerUserCarService != null) {
                 synchronized (this) {
                     // copy the callbacks
                     callbacks = new ArrayList<>(mServiceCallbacks);
                 }
                 // call them
                 for (ServiceCallback callback : callbacks) {
-                    callback.onServiceConnected(mCarUserService);
+                    callback.onServiceConnected(mPerUserCarService);
                 }
             }
         }
@@ -160,9 +160,8 @@ public class PerUserCarServiceHelper implements CarServiceBase {
     };
 
     /**
-     * Bind to the CarUserService {@link PerUserCarService} which is created to run as the Current
-     * User.
-     *
+     * Bind to the PerUserCarService {@link PerUserCarService} which is created to run as the
+     * Current User.
      */
     private void bindToPerUserCarService() {
         if (DBG) {
@@ -232,11 +231,21 @@ public class PerUserCarServiceHelper implements CarServiceBase {
      * Listener to the PerUserCarService connection status that clients need to implement.
      */
     public interface ServiceCallback {
-        // When Service Connects
-        void onServiceConnected(ICarUserService carUserService);
-        // Before an unbind call is going to be made.
+        /**
+         * Invoked when a service connects.
+         *
+         * @param perUserCarService the instance of IPerUserCarService.
+         */
+        void onServiceConnected(IPerUserCarService perUserCarService);
+
+        /**
+         * Invoked before an unbind call is going to be made.
+         */
         void onPreUnbind();
-        // When Service crashed or disconnected
+
+        /**
+         * Invoked when a service is crashed or disconnected.
+         */
         void onServiceDisconnected();
     }
 
@@ -244,7 +253,4 @@ public class PerUserCarServiceHelper implements CarServiceBase {
     public synchronized void dump(PrintWriter writer) {
 
     }
-
-
 }
-

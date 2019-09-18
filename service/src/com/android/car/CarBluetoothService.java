@@ -20,7 +20,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetooth;
 import android.car.ICarBluetoothUserService;
-import android.car.ICarUserService;
+import android.car.IPerUserCarService;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
@@ -76,16 +76,16 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
 
     // Listen for user switch events from the PerUserCarService
     private int mUserId;
-    private ICarUserService mCarUserService;
+    private IPerUserCarService mPerUserCarService;
     private ICarBluetoothUserService mCarBluetoothUserService;
     private final PerUserCarServiceHelper mUserServiceHelper;
     private final PerUserCarServiceHelper.ServiceCallback mUserServiceCallback =
             new PerUserCarServiceHelper.ServiceCallback() {
         @Override
-        public void onServiceConnected(ICarUserService carUserService) {
+        public void onServiceConnected(IPerUserCarService perUserCarService) {
             logd("Connected to PerUserCarService");
             synchronized (this) {
-                mCarUserService = carUserService;
+                mPerUserCarService = perUserCarService;
                 initializeUser();
             }
         }
@@ -100,7 +100,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
         public void onServiceDisconnected() {
             logd("Disconnected from PerUserCarService");
             synchronized (this) {
-                mCarUserService = null;
+                mPerUserCarService = null;
             }
         }
     };
@@ -141,7 +141,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
         logd("release()");
         mUserServiceHelper.unregisterServiceCallback(mUserServiceCallback);
         destroyUser();
-        mCarUserService = null;
+        mPerUserCarService = null;
     }
 
     /**
@@ -193,9 +193,9 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      * Profile Services.
      */
     private synchronized void createBluetoothUserService() {
-        if (mCarUserService != null) {
+        if (mPerUserCarService != null) {
             try {
-                mCarBluetoothUserService = mCarUserService.getBluetoothUserService();
+                mCarBluetoothUserService = mPerUserCarService.getBluetoothUserService();
                 mCarBluetoothUserService.setupBluetoothConnectionProxies();
             } catch (RemoteException e) {
                 Log.e(TAG, "Remote Service Exception on ServiceConnection Callback: "

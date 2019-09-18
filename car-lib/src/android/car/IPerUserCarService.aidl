@@ -15,11 +15,12 @@
  */
 
 package android.car;
+
 import android.car.ICarBluetoothUserService;
 import android.car.ILocationManagerProxy;
 
 /** @hide */
-interface ICarUserService {
+interface IPerUserCarService {
     ICarBluetoothUserService getBluetoothUserService();
     ILocationManagerProxy getLocationManagerProxy();
 }
