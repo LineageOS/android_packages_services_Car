@@ -20,6 +20,7 @@
 #include "DisplayUseCase.h"
 #include "RenderDirectView.h"
 #include "Utils.h"
+#include "StreamHandlerManager.h"
 
 namespace android {
 namespace automotive {
@@ -84,8 +85,23 @@ bool DisplayUseCase::initialize() {
     for (auto&& info : config.getCameras()) {
         // This use case is currently a single camera use case.
         // Only one element is available in the camera id list.
-        if (mCameraIds[0] == info.cameraId) {
-            mCamera = info;
+        string cameraId = mCameraIds[0];
+        if (cameraId == info.cameraId) {
+            mCamera = mEvs->openCamera(cameraId);
+            if (mCamera.get() == nullptr) {
+                ALOGE("Failed to allocate new EVS Camera interface for %s",
+                      cameraId.c_str());
+                return false;
+            }
+
+            mStreamHandler =
+                StreamHandlerManager::getInstance()->getStreamHandler(mCamera);
+            if (mStreamHandler.get() == nullptr) {
+                ALOGE("Failed to get a valid StreamHandler for %s",
+                      cameraId.c_str());
+                return false;
+            }
+
             mIsInitialized = true;
             return true;
         }
@@ -102,8 +118,12 @@ bool DisplayUseCase::startVideoStream() {
         return false;
     }
 
-    ALOGD("Start video streaming using worker thread");
+    ALOGD("Attach use case to StreamHandler");
+    if (mRenderCallback != nullptr) {
+        mStreamHandler->attachRenderCallback(mRenderCallback);
+    }
 
+    ALOGD("Start video streaming using worker thread");
     mIsReadyToRun = true;
     mWorkerThread = std::thread([this]() {
         // We have a camera assigned to this state for direct view
@@ -113,8 +133,6 @@ bool DisplayUseCase::startVideoStream() {
             mIsReadyToRun = false;
             return;
         }
-
-        mCurrentRenderer->mRenderCallback = mRenderCallback;
 
         // Now set the display state based on whether we have a video feed to show
         // Start the camera stream
@@ -145,6 +163,7 @@ bool DisplayUseCase::startVideoStream() {
 void DisplayUseCase::stopVideoStream() {
     ALOGD("Stop video streaming in worker thread.");
     mIsReadyToRun = false;
+    mStreamHandler->detachRenderCallback();
     return;
 }
 
