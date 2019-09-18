@@ -28,14 +28,11 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.os.ParcelUuid
 import android.util.Log
-
 import com.android.car.Utils
 import com.android.car.guard
 import com.android.internal.annotations.GuardedBy
-
 import java.math.BigInteger
 import java.util.UUID
-
 import kotlin.concurrent.thread
 
 private const val TAG = "CarBleManager"
@@ -236,7 +233,7 @@ internal class CarBleCentralManager(
         }
 
         // Connect to any device that is advertising our service UUID.
-        if (result.scanRecord.serviceUuids?.contains(ParcelUuid(serviceUuid)) == true ||
+        if (result.scanRecord?.serviceUuids?.contains(ParcelUuid(serviceUuid)) == true ||
             result.containsUuidsInOverflow(parsedBgServiceBitMask)) {
             return true
         }
@@ -247,7 +244,7 @@ internal class CarBleCentralManager(
         }
 
         // Can safely ignore devices advertising unrecognized service uuids.
-        if (result.scanRecord.serviceUuids?.isNotEmpty() == true) {
+        if (result.scanRecord?.serviceUuids?.isNotEmpty() == true) {
             return false
         }
 
