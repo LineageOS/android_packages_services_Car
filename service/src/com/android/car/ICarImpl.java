@@ -45,6 +45,7 @@ import com.android.car.internal.FeatureConfiguration;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.trust.CarTrustedDeviceService;
+import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
@@ -92,6 +93,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarMediaService mCarMediaService;
     private final CarUserManagerHelper mUserManagerHelper;
     private final CarUserService mCarUserService;
+    private final CarUserNoticeService mCarUserNoticeService;
     private final VmsClientManager mVmsClientManager;
     private final VmsBrokerService mVmsBrokerService;
     private final VmsSubscriberService mVmsSubscriberService;
@@ -129,6 +131,7 @@ public class ICarImpl extends ICar.Stub {
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
                 systemInterface, mUserManagerHelper);
+        mCarUserNoticeService = new CarUserNoticeService(serviceContext);
         mCarPropertyService = new CarPropertyService(serviceContext, mHal.getPropertyHal());
         mCarDrivingStateService = new CarDrivingStateService(serviceContext, mCarPropertyService);
         mCarUXRestrictionsService = new CarUxRestrictionsManagerService(serviceContext,
@@ -186,6 +189,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarPackageManagerService);
         allServices.add(mCarInputService);
         allServices.add(mGarageModeService);
+        allServices.add(mCarUserNoticeService);
         allServices.add(mAppFocusService);
         allServices.add(mCarAudioService);
         allServices.add(mCarNightService);

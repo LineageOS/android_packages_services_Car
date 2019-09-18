@@ -229,4 +229,11 @@
          There is no default bugreporting app.-->
     <string name="config_car_bugreport_application" translatable="false"></string>
 
+    <!-- Specifies notice UI that will be launched when user starts a car or do user
+         switching. It is recommended to use dialog with at least TYPE_APPLICATION_OVERLAY window
+         type to show the UI regardless of activity launches. Target package will be auto-granted
+         necessary permission for TYPE_APPLICATION_OVERLAY window type. The UI package should
+         resolve permission by itself to use any higher priority window type.
+         Setting this string to empty will disable the feature. -->
+    <string name="config_userNoticeUiService" translatable="false">com.google.android.car.kitchensink/.UserNoiticeDemoUiService</string>
 </resources>
