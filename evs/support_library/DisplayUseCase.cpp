@@ -111,6 +111,10 @@ bool DisplayUseCase::initialize() {
     return false;
 }
 
+// TODO(b/130246434): if user accidentally call this function twice, there is
+// no logic to handle that and it will causes issues. For example, the
+// mWorkerThread will be assigned twice and cause unexpected behavior.
+// We need to fix this issue.
 bool DisplayUseCase::startVideoStream() {
     // Initialize the use case.
     if (!mIsInitialized && !initialize()) {
@@ -127,7 +131,7 @@ bool DisplayUseCase::startVideoStream() {
     mIsReadyToRun = true;
     mWorkerThread = std::thread([this]() {
         // We have a camera assigned to this state for direct view
-        mCurrentRenderer = std::make_unique<RenderDirectView>(mEvs, mCamera);
+        mCurrentRenderer = std::make_unique<RenderDirectView>();
         if (!mCurrentRenderer) {
             ALOGE("Failed to construct direct renderer. Exiting.");
             mIsReadyToRun = false;
@@ -152,6 +156,12 @@ bool DisplayUseCase::startVideoStream() {
             return;
         }
 
+        if (!mStreamHandler->startStream()) {
+            ALOGE("failed to start stream handler");
+            mIsReadyToRun = false;
+            return;
+        }
+
         while (mIsReadyToRun && streamFrame());
 
         ALOGD("Worker thread stops.");
@@ -164,6 +174,13 @@ void DisplayUseCase::stopVideoStream() {
     ALOGD("Stop video streaming in worker thread.");
     mIsReadyToRun = false;
     mStreamHandler->detachRenderCallback();
+
+    // TODO(b/130246434): Now only the display use case is available, so we can
+    // assume that when display use case is stopped, the camera should be
+    // released. But the following logic should be de-coupled from the use case
+    // since more than one use cases (e.g. analyze use case) will be supported.
+    mStreamHandler->shutdown();
+    mEvs->closeCamera(mCamera);
     return;
 }
 
@@ -172,18 +189,48 @@ bool DisplayUseCase::streamFrame() {
     BufferDesc tgtBuffer = {};
     mDisplay->getTargetBuffer([&tgtBuffer](const BufferDesc& buff) { tgtBuffer = buff; });
 
+    // TODO(b/130246434): if there is no new display frame available, shall we
+    // still get display buffer? Shall we just skip and keep the display
+    // un-refreshed?
+    // We should explore this option.
+
+    // If there is no display buffer available, skip it.
     if (tgtBuffer.memHandle == nullptr) {
-        ALOGE("Didn't get requested output buffer -- skipping this frame.");
+        ALOGW("Didn't get requested output buffer -- skipping this frame.");
+
+        // Return true since it won't affect next call.
+        return true;
     } else {
-        // Generate our output image
-        if (!mCurrentRenderer->drawFrame(tgtBuffer)) {
-            return false;
+        // If there is no new display frame available, re-use the old (held)
+        // frame for display.
+        // Otherwise, return the old (held) frame, fetch the newly available
+        // frame from stream handler, and use the new frame for display
+        // purposes.
+        if (!mStreamHandler->newDisplayFrameAvailable()) {
+            ALOGD("No new display frame is available. Re-use the old frame.");
+        } else {
+            ALOGD("Get new display frame, refreshing");
+
+            // If we already hold a camera image for display purposes, it's
+            // time to return it to evs camera driver.
+            if (mImageBuffer.memHandle.getNativeHandle() != nullptr) {
+                mStreamHandler->doneWithFrame(mImageBuffer);
+            }
+
+            // Get the new image we want to use as our display content
+            mImageBuffer = mStreamHandler->getNewDisplayFrame();
         }
 
-        // Send the finished image back for display
+        // Render the image buffer to the display buffer
+        bool result = mCurrentRenderer->drawFrame(tgtBuffer, mImageBuffer);
+
+        // Send the finished display buffer back to display driver
+        // Even if the rendering fails, we still want to return the display
+        // buffer.
         mDisplay->returnTargetBufferForDisplay(tgtBuffer);
+
+        return result;
     }
-    return true;
 }
 
 DisplayUseCase DisplayUseCase::createDefaultUseCase(string cameraId, BaseRenderCallback* callback) {

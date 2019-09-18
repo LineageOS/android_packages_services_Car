@@ -38,37 +38,18 @@ using namespace ::android::hardware::automotive::evs::V1_0;
 
 
 class VideoTex: public TexWrapper {
-    friend VideoTex* createVideoTexture(sp<IEvsEnumerator> pEnum,
-                                        sp<IEvsCamera> pCamera,
-                                        EGLDisplay glDisplay);
-
 public:
     VideoTex() = delete;
+    VideoTex(EGLDisplay glDisplay);
     virtual ~VideoTex();
 
     // returns true if the texture contents were updated
-    bool refresh();
+    bool refresh(const BufferDesc& imageBuffer);
 
 private:
-    VideoTex(sp<IEvsEnumerator> pEnum,
-             sp<IEvsCamera> pCamera,
-             sp<StreamHandler> pStreamHandler,
-             EGLDisplay glDisplay);
-
-    sp<IEvsEnumerator>  mEnumerator;
-    sp<IEvsCamera>      mCamera;
-    sp<StreamHandler>   mStreamHandler;
-    BufferDesc          mImageBuffer;
-
     EGLDisplay          mDisplay;
     EGLImageKHR mKHRimage = EGL_NO_IMAGE_KHR;
 };
-
-
-VideoTex* createVideoTexture(sp<IEvsEnumerator> pEnum,
-                             sp<IEvsCamera> pCamera,
-                             EGLDisplay glDisplay);
-
 }  // namespace support
 }  // namespace evs
 }  // namespace automotive
