@@ -133,6 +133,8 @@ void StreamHandler::doneWithFrame(const BufferDesc& buffer) {
     if ((mHeldBuffer < 0)
         || (buffer.bufferId != mOriginalBuffers[mHeldBuffer].bufferId)) {
         ALOGE("StreamHandler::doneWithFrame got an unexpected buffer!");
+        ALOGD("Held buffer id: %d, input buffer id: %d",
+              mOriginalBuffers[mHeldBuffer].bufferId, buffer.bufferId);
         return;
     }
 
@@ -145,7 +147,8 @@ void StreamHandler::doneWithFrame(const BufferDesc& buffer) {
 
 
 Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
-    ALOGD("Received a frame from the camera (%p)", buffer.memHandle.getNativeHandle());
+    ALOGD("Received a frame from the camera. NativeHandle:%p, buffer id:%d",
+          buffer.memHandle.getNativeHandle(), buffer.bufferId);
 
     // Take the lock to protect our frame slots and running state variable
     {
