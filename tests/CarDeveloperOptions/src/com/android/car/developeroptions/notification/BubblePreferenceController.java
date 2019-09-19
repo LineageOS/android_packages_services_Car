@@ -16,7 +16,7 @@
 
 package com.android.car.developeroptions.notification;
 
-import static android.provider.Settings.Secure.NOTIFICATION_BUBBLES;
+import static android.provider.Settings.Global.NOTIFICATION_BUBBLES;
 
 import android.content.Context;
 import android.provider.Settings;
@@ -62,7 +62,7 @@ public class BubblePreferenceController extends NotificationPreferenceController
             return false;
         }
         if (mChannel != null) {
-            if (Settings.Secure.getInt(mContext.getContentResolver(),
+            if (Settings.Global.getInt(mContext.getContentResolver(),
                     NOTIFICATION_BUBBLES, SYSTEM_WIDE_ON) == SYSTEM_WIDE_OFF) {
                 return false;
             }
@@ -84,7 +84,7 @@ public class BubblePreferenceController extends NotificationPreferenceController
                 pref.setEnabled(isChannelConfigurable() && !pref.isDisabledByAdmin());
             } else {
                 pref.setChecked(mAppRow.allowBubbles
-                        && Settings.Secure.getInt(mContext.getContentResolver(),
+                        && Settings.Global.getInt(mContext.getContentResolver(),
                         NOTIFICATION_BUBBLES, SYSTEM_WIDE_ON) == SYSTEM_WIDE_ON);
                 pref.setSummary(mContext.getString(
                         R.string.bubbles_app_toggle_summary, mAppRow.label));
@@ -103,7 +103,7 @@ public class BubblePreferenceController extends NotificationPreferenceController
             RestrictedSwitchPreference pref = (RestrictedSwitchPreference) preference;
             // if the global setting is off, toggling app level permission requires extra
             // confirmation
-            if (Settings.Secure.getInt(mContext.getContentResolver(),
+            if (Settings.Global.getInt(mContext.getContentResolver(),
                     NOTIFICATION_BUBBLES, SYSTEM_WIDE_ON) == SYSTEM_WIDE_OFF
                     && !pref.isChecked()) {
                 new BubbleWarningDialogFragment()
@@ -125,7 +125,7 @@ public class BubblePreferenceController extends NotificationPreferenceController
         backend.setAllowBubbles(pkg, uid, false);
         // changing the global settings will cause the observer on the host page to reload
         // correct preference state
-        Settings.Secure.putInt(mContext.getContentResolver(),
+        Settings.Global.putInt(mContext.getContentResolver(),
                 NOTIFICATION_BUBBLES, SYSTEM_WIDE_OFF);
     }
 
@@ -135,7 +135,7 @@ public class BubblePreferenceController extends NotificationPreferenceController
         backend.setAllowBubbles(pkg, uid, true);
         // changing the global settings will cause the observer on the host page to reload
         // correct preference state
-        Settings.Secure.putInt(mContext.getContentResolver(),
+        Settings.Global.putInt(mContext.getContentResolver(),
                 NOTIFICATION_BUBBLES, SYSTEM_WIDE_ON);
     }
 }
