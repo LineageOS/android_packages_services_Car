@@ -25,6 +25,8 @@
 #include <android/hardware/automotive/evs/1.0/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
 
+#include "BaseRenderCallback.h"
+
 namespace android {
 namespace automotive {
 namespace evs {
@@ -58,13 +60,43 @@ public:
 
     bool isRunning();
 
-    bool newFrameAvailable();
-    const BufferDesc& getNewFrame();
+    bool newDisplayFrameAvailable();
+    const BufferDesc& getNewDisplayFrame();
     void doneWithFrame(const BufferDesc& buffer);
+
+    /*
+     * Attaches a render callback to the StreamHandler.
+     *
+     * Every frame will be processed by the attached render callback before it
+     * is delivered to the client by method getNewDisplayFrame().
+     *
+     * Since there is only one DisplayUseCase allowed at the same time, at most
+     * only one render callback can be attached. The current render callback
+     * needs to be detached first (by method detachRenderCallback()), before a
+     * new callback can be attached. In other words, the call will be ignored
+     * if the current render callback is not null.
+     *
+     * @see detachRenderCallback()
+     * @see getNewDisplayFrame()
+     */
+    void attachRenderCallback(BaseRenderCallback*);
+
+    /*
+     * Detaches the current render callback.
+     *
+     * If no render callback is attached, this call will be ignored.
+     *
+     * @see attachRenderCallback(BaseRenderCallback*)
+     */
+    void detachRenderCallback();
 
 private:
     // Implementation for ::android::hardware::automotive::evs::V1_0::ICarCameraStream
     Return<void> deliverFrame(const BufferDesc& buffer)  override;
+
+    // Calls the attached render callback to generate the processed BufferDesc
+    // for display.
+    bool processFrame(const BufferDesc&, BufferDesc&);
 
     // Values initialized as startup
     android::sp <IEvsCamera>    mCamera;
@@ -77,9 +109,12 @@ private:
 
     bool                        mRunning = false;
 
-    BufferDesc                  mBuffers[2];
+    BufferDesc                  mOriginalBuffers[2];
+    BufferDesc                  mProcessedBuffers[2];
     int                         mHeldBuffer = -1;   // Index of the one currently held by the client
     int                         mReadyBuffer = -1;  // Index of the newest available buffer
+
+    BaseRenderCallback*         mRenderCallback = nullptr;
 };
 
 }  // namespace support

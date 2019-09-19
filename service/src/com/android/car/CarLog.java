@@ -26,9 +26,9 @@ public class CarLog {
     public static final String TAG_CAMERA = "CAR.CAMERA";
     public static final String TAG_CAN_BUS = "CAR.CAN_BUS";
     public static final String TAG_CLUSTER = "CAR.CLUSTER";
+    public static final String TAG_DIAGNOSTIC = "CAR.DIAGNOSTIC";
     public static final String TAG_HAL = "CAR.HAL";
     public static final String TAG_HVAC = "CAR.HVAC";
-    public static final String TAG_VENDOR_EXT = "CAR.VENDOR_EXT";
     public static final String TAG_INFO = "CAR.INFO";
     public static final String TAG_INPUT = "CAR.INPUT";
     public static final String TAG_MEDIA = "CAR.MEDIA";
@@ -41,10 +41,11 @@ public class CarLog {
     public static final String TAG_PROPERTY = "CAR.PROPERTY";
     public static final String TAG_SENSOR = "CAR.SENSOR";
     public static final String TAG_SERVICE = "CAR.SERVICE";
+    public static final String TAG_STORAGE = "CAR.STORAGE";
     public static final String TAG_SYS = "CAR.SYS";
     public static final String TAG_TEST = "CAR.TEST";
-    public static final String TAG_DIAGNOSTIC = "CAR.DIAGNOSTIC";
-    public static final String TAG_STORAGE = "CAR.STORAGE";
+    public static final String TAG_USER = "CAR.USER";
+    public static final String TAG_VENDOR_EXT = "CAR.VENDOR_EXT";
 
     public static String concatTag(String tagPrefix, Class clazz) {
         String tag = tagPrefix + "." + clazz.getSimpleName();

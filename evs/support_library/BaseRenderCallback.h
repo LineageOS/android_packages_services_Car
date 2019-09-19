@@ -25,6 +25,11 @@ namespace support {
 
 class BaseRenderCallback {
   public:
+    // TODO(b/130246434): Rename the callback to a more accurate name since
+    // the callback itself is about image inline processing. Also avoid
+    // passing in two frames, since the two frames are almost identical except
+    // for the data pointer. Instead, pass in one input frame and one output
+    // data pointer.
     virtual void render(const Frame& in, const Frame& out) = 0;
     virtual ~BaseRenderCallback() {
     }

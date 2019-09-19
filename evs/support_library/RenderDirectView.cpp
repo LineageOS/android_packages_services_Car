@@ -29,9 +29,9 @@ namespace evs {
 namespace support {
 
 RenderDirectView::RenderDirectView(sp<IEvsEnumerator> enumerator,
-                                   const ConfigManager::CameraInfo& cam) {
+                                   sp<IEvsCamera> cam) {
     mEnumerator = enumerator;
-    mCameraInfo = cam;
+    mCamera = cam;
 }
 
 
@@ -54,10 +54,9 @@ bool RenderDirectView::activate() {
     }
 
     // Construct our video texture
-    mTexture.reset(createVideoTexture(mEnumerator, mCameraInfo.cameraId.c_str(), sDisplay));
+    mTexture.reset(createVideoTexture(mEnumerator, mCamera, sDisplay));
     if (!mTexture) {
-        ALOGE("Failed to set up video texture for %s (%s)",
-              mCameraInfo.cameraId.c_str(), mCameraInfo.function.c_str());
+        ALOGE("Failed to set up video texture");
 // TODO:  For production use, we may actually want to fail in this case, but not yet...
 //       return false;
     }
@@ -96,7 +95,7 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
 
 
     // Bind the texture and assign it to the shader's sampler
-    mTexture->refresh(mRenderCallback);
+    mTexture->refresh();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mTexture->glId());
 

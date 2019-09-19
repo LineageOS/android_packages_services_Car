@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package android.car;
-import android.car.ICarBluetoothUserService;
-import android.car.ILocationManagerProxy;
+package android.car.user;
 
-/** @hide */
-interface ICarUserService {
-    ICarBluetoothUserService getBluetoothUserService();
-    ILocationManagerProxy getLocationManagerProxy();
+/**
+ * Binder for UserNotice UI to notify status change to CarUserNoticeService/CarService.
+ * This binder is implemented inside CarService.
+ * @hide
+*/
+interface IUserNotice {
+    /**
+     * Notify CarUserNoticeService/CarSercice that UI dialog is dismissed.
+     * CarUserNoticeService will unbind the UI servie to finish it.
+     */
+    void onDialogDismissed();
 }

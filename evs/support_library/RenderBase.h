@@ -50,8 +50,6 @@ public:
 
     virtual bool drawFrame(const BufferDesc& tgtBuffer) = 0;
 
-    BaseRenderCallback* mRenderCallback = nullptr;
-
 protected:
     static bool prepareGL();
 
