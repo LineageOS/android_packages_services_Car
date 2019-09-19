@@ -24,7 +24,6 @@
 
 #include "VideoTex.h"
 #include "glError.h"
-#include "StreamHandlerManager.h"
 
 #include <ui/GraphicBuffer.h>
 #include <ui/GraphicBufferAllocator.h>

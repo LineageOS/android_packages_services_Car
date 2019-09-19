@@ -49,7 +49,14 @@ using ::android::sp;
  */
 class StreamHandler : public IEvsCameraStream {
 public:
-    virtual ~StreamHandler() { shutdown(); };
+    virtual ~StreamHandler() {
+        // The shutdown logic is supposed to be handled by ResourceManager
+        // class. But if something goes wrong, we want to make sure that the
+        // related resources are still released properly.
+        if (mCamera != nullptr) {
+            shutdown();
+        }
+    };
 
     StreamHandler(android::sp <IEvsCamera> pCamera);
     void shutdown();

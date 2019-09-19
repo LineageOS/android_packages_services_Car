@@ -16,21 +16,17 @@
 #ifndef EVS_SUPPORT_LIBRARY_BASEUSECASE_H_
 #define EVS_SUPPORT_LIBRARY_BASEUSECASE_H_
 
-#include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
 #include <string>
 #include <vector>
-
-using ::std::string;
-using ::std::vector;
 
 namespace android {
 namespace automotive {
 namespace evs {
 namespace support {
 
-using namespace ::android::hardware::automotive::evs::V1_0;
-using ::android::sp;
 using ::std::string;
+using ::std::vector;
+using ::android::sp;
 
 /**
  * Base class for all the use cases in the EVS support library.
@@ -76,13 +72,7 @@ public:
     virtual ~BaseUseCase() {}
 
 protected:
-    static sp<IEvsEnumerator> getEvsEnumerator(string serviceName = kDefaultServiceName);
     vector<string> mCameraIds;
-
-private:
-    static const string kDefaultServiceName;
-    static sp<IEvsEnumerator> sEvs;
-
 };
 
 }  // namespace support
