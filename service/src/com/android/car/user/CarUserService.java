@@ -569,7 +569,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return false;
         }
         try {
-            int r = mAm.stopUser(userId, true, null);
+            int r = mAm.stopUserWithDelayedLocking(userId, true, null);
             if (r == ActivityManager.USER_OP_SUCCESS) {
                 synchronized (mLockUser) {
                     Integer user = userId;
