@@ -1168,7 +1168,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Naturais"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Realçadas"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Saturadas"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Adaptativo"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Adaptável"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Usar apenas cores precisas"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"Ajuste entre cores vívidas e precisas"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"Alternar orientação automaticamente ao girar o tablet"</string>
@@ -1202,7 +1202,7 @@
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Ativado / A tela não será desativada se você estiver olhando para ela"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Desativada"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Evita que a tela seja desativada se você estiver olhando para ela."</string>
-    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Usando a câmera frontal, o \"Reconhecimento de tela em uso\" detecta se alguém está olhando para tela. Ele funciona no dispositivo, e as imagens nunca são armazenada nem enviadas ao Google."</string>
+    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Usando a câmera frontal, o \"Reconhecimento de tela em uso\" detecta se alguém está olhando para a tela. Ele funciona no dispositivo, e as imagens nunca são armazenadas nem enviadas ao Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Modo noturno"</string>
     <string name="night_display_text" msgid="5330502493684652527">"O Modo noturno deixa sua tela na cor âmbar. Isso facilita olhar para a tela ou ler com pouca luz, ajudando você a adormecer com mais facilidade."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Programar"</string>
@@ -2260,7 +2260,7 @@
     <string name="details_subtitle" msgid="7279638828004951382">"Detalhes de uso"</string>
     <string name="controls_subtitle" msgid="6920199888882834620">"Ajustar uso de energia"</string>
     <string name="packages_subtitle" msgid="6506269487892204413">"Pacotes incluídos"</string>
-    <string name="battery_tip_summary_title" msgid="2750922152518825526">"Os apps estão sendo executados normalmente"</string>
+    <string name="battery_tip_summary_title" msgid="2750922152518825526">"Os apps estão funcionando normalmente"</string>
     <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"O consumo de bateria em segundo plano do smartphone está normal."</string>
     <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"O tablet tem um consumo normal de bateria em segundo plano"</string>
     <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"O dispositivo tem um consumo normal de bateria em segundo plano"</string>
@@ -3757,7 +3757,7 @@
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Permitir que o app assistivo acesse uma imagem da tela"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Piscar tela"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"Piscar as bordas da tela quando o app assistivo acessar textos da tela ou fizer uma captura de tela"</string>
-    <string name="assist_footer" msgid="7030121180457472165">"Apps assistivos podem ajudar com base nas informações da tela que você vê no momento. Alguns apps são compatíveis com a tela de início e com serviços de entrada de texto por voz para fornecer assistência integrada."</string>
+    <string name="assist_footer" msgid="7030121180457472165">"Apps assistivos podem ajudar com base nas informações que você vê na tela. Alguns apps oferecem tecnologia assistiva integrada, porque são compatíveis com a tela de início e com serviços de entrada de texto por voz."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"Uso médio de memória"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"Uso máximo de memória"</string>
     <string name="memory_usage" msgid="7963253555330830906">"Uso de memória"</string>

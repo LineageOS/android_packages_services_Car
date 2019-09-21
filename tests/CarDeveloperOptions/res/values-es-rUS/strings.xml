@@ -717,7 +717,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> app activa</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"Agentes de confianza"</string>
-    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Para usarlo, debes establecer un bloqueo de pantalla."</string>
+    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Para usarlo, debes establecer un bloqueo de pantalla"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"Ninguno"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> agentes de confianza activos</item>

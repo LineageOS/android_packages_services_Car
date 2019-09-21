@@ -353,7 +353,7 @@
     <string name="time_picker_title" msgid="1596400307061268660">"Время"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Автоблокировка"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> после перехода в спящий режим"</string>
-    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Сразу после перехода в спящий режим, если экран не поддерживается в разблокированном состоянии службой <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
+    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Сразу после перехода в спящий режим, если экран не поддерживается в разблокированном состоянии функцией <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> после перехода в спящий режим, если экран не поддерживается в разблокированном состоянии службой <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g>"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"Показывать данные о владельце на экране блокировки"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Текст на экране"</string>
@@ -1799,7 +1799,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Показывать графический ключ"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Виброотклик"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Блокир. кнопкой питания"</string>
-    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Если экран не поддерживается в разблокированном состоянии службой <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
+    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Если экран не поддерживается в разблокированном состоянии функцией <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Установить ключ"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Изменить ключ"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Как начертить графический ключ разблокировки"</string>

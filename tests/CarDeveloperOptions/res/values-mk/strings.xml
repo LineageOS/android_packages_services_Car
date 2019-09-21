@@ -128,7 +128,7 @@
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"Барање за спарување"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"Допрете за да се спари со <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"Примени датотеки"</string>
-    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"Датотеки преку Bluetooth"</string>
+    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"Датотеки примени преку Bluetooth"</string>
     <string name="device_picker" msgid="8345264486071697705">"Изберете уред со Bluetooth"</string>
     <string name="bluetooth_ask_enablement" msgid="8716802066127746062">"<xliff:g id="APP_NAME">%1$s</xliff:g> сака да се вклучи Bluetooth"</string>
     <string name="bluetooth_ask_disablement" msgid="7125319551097350783">"<xliff:g id="APP_NAME">%1$s</xliff:g> сака да се исклучи Bluetooth"</string>
@@ -349,8 +349,8 @@
     <string name="time_picker_title" msgid="1596400307061268660">"Време"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Автоматско заклучување"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> по режим на штедење"</string>
-    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Веднаш по спиење, освен кога <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> го чувал отклучен"</string>
-    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> по мирување, освен кога е активен поради <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g>"</string>
+    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Веднаш по мирувањето, освен кога <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> го држи отклучен"</string>
+    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> по мирувањето, освен кога <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g> го држи отклучен"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"Прикажи инфо. за сопственик на екран за заклучув."</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Порака на закл.екран"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Овозможи виџети"</string>
@@ -1261,7 +1261,7 @@
     <string name="title_font_size" msgid="5021464556860010851">"Големина на фонт"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"Намалете го или зголемете го текстот"</string>
     <string name="sim_lock_settings" msgid="1986924650622642189">"Поставки на заклучување на SIM картичка"</string>
-    <string name="sim_lock_settings_category" msgid="1126759898277681516">"Заклучување SIM-картичката"</string>
+    <string name="sim_lock_settings_category" msgid="1126759898277681516">"Заклучување SIM-картичка"</string>
     <string name="sim_lock_settings_summary_off" msgid="348656447968142307">"Исклученo"</string>
     <string name="sim_lock_settings_summary_on" msgid="3440707542514810045">"Заклучено"</string>
     <string name="sim_lock_settings_title" msgid="877336472752342977">"Заклучување на SIM картичката"</string>
@@ -1761,7 +1761,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Направете ја шемата на профилот видлива"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Вибрации на допир"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Заклучи со копче за вклуч."</string>
-    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Освен кога е активен поради <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
+    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Освен кога <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> го држи отклучен"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Постави шема на отклучување"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Промени шема на отклучување"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Како се употребува шемата на отклучување"</string>
@@ -2079,7 +2079,7 @@
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Изберете колку долго да се прикажуваат пораките што треба да ги прочитате, но се видливи само привремено.\n\nНе сите апликации ја поддржуваат оваа поставка."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Изберете колку долго да се прикажуваат пораките што бараат да преземете дејство, но се видливи само привремено.\n\nНе сите апликации ја поддржуваат оваа поставка."</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Должина на допир и задржување"</string>
-    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Инверзија на боја"</string>
+    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Инверзија на бои"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Може да влијае на изведбата"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Тајминг за неактивност"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Ако користите глувче, може да го поставите курсорот да дејствува автоматски кога ќе престане да се движи одредено време."</string>
@@ -2089,8 +2089,8 @@
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Вибрации при ѕвонење"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Вибрации при допир"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Користи ја услугата"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Користи корекција на боите"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Користи титли"</string>
+    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Користи корекција на бои"</string>
+    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Користи титлoви"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Продолжи"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Слушни помагала"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Нема поврзани слушни помагала"</string>
@@ -2459,7 +2459,7 @@
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Никогаш"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"при <xliff:g id="PERCENT">%1$s</xliff:g> батерија"</string>
     <string name="battery_percentage" msgid="7782252476471033843">"Процент на батеријата"</string>
-    <string name="battery_percentage_description" msgid="9219875229166700610">"Прикажи го процентот на батеријата во статусната лента"</string>
+    <string name="battery_percentage_description" msgid="9219875229166700610">"Прикажувај процент на батеријата во статусната лента"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"Статистика на процес"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"Паметна статистика за процеси кои се извршуваат"</string>
     <string name="app_memory_use" msgid="5126237308545653706">"Употреба на меморија"</string>
@@ -3138,7 +3138,7 @@
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Звук што го дава апликацијата"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Стандарден звук за известување"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"Стандарден звук за аларм"</string>
-    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"Вибрации за повици"</string>
+    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"Вибрирај за повици"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"Други звуци"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Тонови на тастатура за бирање"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Звуци на заклучување екран"</string>

@@ -2420,7 +2420,7 @@
     <string name="battery_used_by" msgid="840331542883421888">"<xliff:g id="APP">%2$s</xliff:g> <xliff:g id="PERCENT">%1$s</xliff:g> ఉపయోగించింది"</string>
     <string name="battery_overall_usage" msgid="5874301442415987516">"మొత్తం బ్యాటరీలో <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_detail_since_full_charge" msgid="3814176986148084378">"చివరిసారి పూర్తిగా ఛార్జ్ చేసినప్పటి నుండి వినియోగ వివరాలు"</string>
-    <string name="battery_last_full_charge" msgid="5624033030647170717">"చివర‌గా పూర్తి ఛార్జ్ చేసింది"</string>
+    <string name="battery_last_full_charge" msgid="5624033030647170717">"చివరిసారి పూర్తిగా ఛార్జ్ చేసింది"</string>
     <string name="battery_full_charge_last" msgid="4614554109170251301">"పూర్తి ఛార్జ్ మిగిలి ఉండే సమయం"</string>
     <string name="battery_footer_summary" msgid="4828444679643906943">"బ్యాటరీ వినియోగ డేటా క‌చ్చితం కాదు. వాడ‌కాన్ని బ‌ట్టి మారుతూ ఉంటుంది"</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"ఫోన్ బాగా వాడుతున్న‌ప్పుడు"</string>

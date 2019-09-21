@@ -2875,7 +2875,7 @@
     <string name="user_cannot_add_accounts_message" msgid="5993561303748749097">"Os perfis restritos não podem adicionar contas"</string>
     <string name="user_remove_user_menu" msgid="3505139157217459864">"Eliminar <xliff:g id="USER_NAME">%1$s</xliff:g> deste dispositivo"</string>
     <string name="user_lockscreen_settings" msgid="3820813814848394568">"Definições do ecrã de bloqueio"</string>
-    <string name="user_add_on_lockscreen_menu" msgid="5211604808199585774">"Adicionar utilizadores do ecrã de bloqueio"</string>
+    <string name="user_add_on_lockscreen_menu" msgid="5211604808199585774">"Adicionar utilizadores a partir do ecrã de bloqueio"</string>
     <string name="user_new_user_name" msgid="3880395219777884838">"Novo utilizador"</string>
     <string name="user_new_profile_name" msgid="3074939718101489937">"Novo perfil"</string>
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Eliminar-se a si próprio?"</string>
@@ -3033,7 +3033,7 @@
     <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"Bluetooth, modo de condução"</string>
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"Bluetooth, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"Bluetooth"</string>
-    <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"Apps e notificações"</string>
+    <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"Aplicações e notificações"</string>
     <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistente, aplicações recentes, aplicações predefinidas"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"O acesso às notificações não está disponível para aplicações no perfil de trabalho."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"Contas"</string>
@@ -4045,7 +4045,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"ecrã com recorte, entalhe"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"Predefinição do dispositivo"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Falha ao aplicar a sobreposição."</string>
-    <string name="special_access" msgid="1453926335914696206">"Acesso especial a app"</string>
+    <string name="special_access" msgid="1453926335914696206">"Acesso especial a aplicações"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> aplicações podem utilizar dados sem restrições</item>
       <item quantity="one">1 aplicação pode utilizar dados sem restrições</item>

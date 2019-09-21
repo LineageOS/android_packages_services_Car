@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_require_confirmation_details" msgid="8740564864091803429">"Аппад нотолгоожуулах үед үргэлж баталгаажуулалт шаардах"</string>
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Царайны өгөгдлийг хасах"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Та царайгаа төхөөрөмжийн түгжээ тайлах болон аппад нэвтрэхэд ашиглах боломжтой. "<annotation id="url">"Нэмэлт мэдээлэл авах"</annotation></string>
-    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Царайн өгөгдлийг устгах уу?"</string>
+    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Царайны өгөгдлийг устгах уу?"</string>
     <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Царайгаар тайлах онцлогоор бичсэн өгөгдлийг бүрмөсөн, аюулгүйгээр устгана. Та үүнийг устгасны дараа утасныхаа түгжээг тайлах, аппуудад нэвтрэх болон төлбөрийг баталгаажуулахын тулд ПИН, хээ эсвэл нууц үгээ оруулах шаардлагатай болно."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Хурууны хээ"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Хурууны хээ удирдах"</string>
@@ -2078,7 +2078,7 @@
     <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"Үйлдэл хийх хугацаа"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Та унших шаардлагатай хэдий ч зөвхөн түр хугацаанд харагддаг мессежийг хэр удаан харуулахыг сонгоно уу.\n\nЗарим апп энэ тохиргоог дэмждэггүй."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Танаас үйлдэл хийхийг шаарддаг хэдий ч зөвхөн түр хугацаанд харагддаг зурвасыг хэр удаан хугацаагаар харуулахыг сонгоно уу.\n\nЗарим апп энэ тохиргоог дэмждэггүй."</string>
-    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Хүрэх &amp; барих хүлээлт"</string>
+    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Хүрээд &amp; барьж хүлээх"</string>
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Өнгө урвуулалт"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Үзүүлбэрт нөлөөлж болзошгүй"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Тодорхой хугацаа"</string>

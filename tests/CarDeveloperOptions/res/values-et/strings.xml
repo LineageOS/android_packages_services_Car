@@ -301,7 +301,7 @@
     <string name="settings_label" msgid="7263237773415875813">"Seaded"</string>
     <string name="settings_label_launcher" msgid="500627679902923496">"Seaded"</string>
     <string name="settings_shortcut" msgid="4503714880251502167">"Seadete otsetee"</string>
-    <string name="airplane_mode" msgid="4508870277398231073">"Lennurežiim"</string>
+    <string name="airplane_mode" msgid="4508870277398231073">"Lennukirežiim"</string>
     <string name="wireless_networks_settings_title" msgid="4298430520189173949">"Traadita ühendus ja võrgud"</string>
     <string name="radio_controls_summary" msgid="4596981962167684814">"WiFi, Bluetoothi, lennurežiimi ja mobiilsidevõrkude ning VPN-ide haldamine"</string>
     <string name="cellular_data_title" msgid="7909624119432695022">"Mobiilne andmeside"</string>
@@ -2090,7 +2090,7 @@
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Puudutusel vibreerimine"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Kasuta teenust"</string>
     <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Kasuta värvikorrigeerimist"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Kasuta tiitreid"</string>
+    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Kasuta subtiitreid"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Jätka"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Kuuldeaparaadid"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Ühtegi kuuldeaparaati pole ühendatud"</string>
@@ -3659,7 +3659,7 @@
     <string name="assist_and_voice_input_title" msgid="324148194703846130">"Abirakendus ja häälsisend"</string>
     <string name="default_assist_title" msgid="2060846994203235317">"Abirakendus"</string>
     <string name="assistant_security_warning_title" msgid="8014460924169723059">"Kas soovite rakenduse <xliff:g id="ASSISTANT_APP_NAME">%s</xliff:g> muuta abirakenduseks?"</string>
-    <string name="assistant_security_warning" msgid="1304057692847069938">"Abimees saab teie süsteemis kasutatavate rakenduste kohta teavet vaadata (sh teie ekraanil kuvatud või rakendustes juurdepääsetav teave)."</string>
+    <string name="assistant_security_warning" msgid="1304057692847069938">"Assistent saab teie süsteemis kasutatavate rakenduste kohta teavet vaadata (sh teie ekraanil kuvatud või rakendustes juurdepääsetav teave)."</string>
     <string name="assistant_security_warning_agree" msgid="5105692801460137289">"Nõustu"</string>
     <string name="assistant_security_warning_disagree" msgid="4217490999193100459">"Ei nõustu"</string>
     <string name="choose_voice_input_title" msgid="5369311838580756359">"Häälsisendi valimine"</string>
@@ -3881,7 +3881,7 @@
     <string name="condition_expand_show" msgid="4118818022763913777">"Kuva"</string>
     <string name="condition_expand_hide" msgid="1112721783024332643">"Peida"</string>
     <string name="condition_hotspot_title" msgid="4143299802283098506">"Kuumkoht on aktiivne"</string>
-    <string name="condition_airplane_title" msgid="8484582712516148433">"Lennurežiim on sees"</string>
+    <string name="condition_airplane_title" msgid="8484582712516148433">"Lennukirežiim on sees"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"Võrgud pole saadaval"</string>
     <string name="condition_zen_title" msgid="2128184708916052585">"Režiim Mitte segada on sees"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Telefon on vaigistatud"</string>

@@ -1199,9 +1199,9 @@
     <string name="auto_brightness_description" msgid="8209140379089535411">"Skærmens lysstyrke tilpasses automatisk på baggrund af dine omgivelser og dine aktiviteter. Du kan flytte skyderen manuelt for at hjælpe Automatisk lysstyrke med at lære dine præferencer."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"Skærmens hvidbalance"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Opmærksom skærm"</string>
-    <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Aktiveret/Skærmen slukker ikke, når du kigger på den"</string>
+    <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Aktiveret. Skærmen slukker ikke, når du kigger på den"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Fra"</string>
-    <string name="adaptive_sleep_description" msgid="812673735459170009">"Forhindrer at din skærm slukker, når du kigger på den."</string>
+    <string name="adaptive_sleep_description" msgid="812673735459170009">"Holder din skærm tændt, så længe du kigger på den."</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Den opmærksomme skærm bruger frontkameraet til at tjekke, om der er nogen, der kigger på skærmen. Funktionen fungerer kun lokalt på enheden, og den gemmer ikke billeder eller sender billeder til Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Nattelys"</string>
     <string name="night_display_text" msgid="5330502493684652527">"Nattelys gør farverne på din skærm mere gullige. Det gør din skærm mere behagelig at se på i svag belysning og kan gøre det nemmere at falde i søvn."</string>
@@ -2090,7 +2090,7 @@
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Vibration ved berøring"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Brug tjenesten"</string>
     <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Brug farvekorrigering"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Brug tekster"</string>
+    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Brug undertekster"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Fortsæt"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Høreapparater"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Der er ikke tilknyttet nogen høreapparater"</string>
@@ -4117,7 +4117,7 @@
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Tryk to gange for at tjekke din tablet"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Tryk to gange for at tjekke enheden"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Tryk to gange på skærmen for at se klokkeslæt, notifikationer og andre oplysninger."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Løft for at tjekke telefon"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Løft for at tjekke telefonen"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Løft for at tjekke din tablet"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Løft for at tjekke enheden"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Aktivering af skærm"</string>
@@ -4436,7 +4436,7 @@
     <string name="mobile_network_mode_error" msgid="6818434186286086554">"Ugyldig netværkstilstand <xliff:g id="NETWORKMODEID">%1$d</xliff:g>. Ignorer."</string>
     <string name="mobile_network_apn_title" msgid="5628635067747404382">"Adgangspunkter"</string>
     <string name="manual_mode_disallowed_summary" msgid="799800630000340665">"Utilgængelig ved forbindelse til <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
-    <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"Helbredoplysninger, kontakter til nødsituationer"</string>
+    <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"Helbredoplysninger, kontaktpersoner ved nødsituationer"</string>
     <string name="see_more" msgid="7463940160389802632">"Se mere"</string>
     <string name="see_less" msgid="3718892257002813387">"Se mindre"</string>
     <string name="network_connection_request_dialog_title" msgid="3150489262902506588">"Enhed, der skal bruges sammen med <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
