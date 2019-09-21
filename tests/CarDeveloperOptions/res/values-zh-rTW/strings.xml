@@ -349,7 +349,7 @@
     <string name="time_picker_title" msgid="1596400307061268660">"時間"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"自動鎖定"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"休眠 <xliff:g id="TIMEOUT_STRING">%1$s</xliff:g>後"</string>
-    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"休眠後立即鎖定 (<xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> 讓螢幕保持解鎖狀態時除外)"</string>
+    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"休眠後立即鎖定 (由「<xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>」維持解鎖狀態時除外)"</string>
     <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"休眠 <xliff:g id="TIMEOUT_STRING">%1$s</xliff:g>後 (由「<xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g>」維持解鎖狀態時除外)"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"在鎖定畫面上顯示擁有者資訊"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"鎖定螢幕訊息"</string>

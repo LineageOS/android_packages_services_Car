@@ -3960,7 +3960,7 @@
       <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> sovellusta saa käyttää rajattomasti dataa, kun Data Saver on käytössä.</item>
       <item quantity="one">1 sovellus saa käyttää rajattomasti dataa, kun Data Saver on käytössä.</item>
     </plurals>
-    <string name="data_usage_title" msgid="7874606430902201083">"Ensisijainen Data"</string>
+    <string name="data_usage_title" msgid="7874606430902201083">"Ensisijainen data"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Wi‑Fi-data"</string>
     <string name="data_used" msgid="1063553292806661784">"<xliff:g id="ID_1">^1</xliff:g> käytetty"</string>
     <string name="data_used_formatted" msgid="9150356955895106822">"<xliff:g id="ID_1">^1</xliff:g> <xliff:g id="ID_2">^2</xliff:g> käytetty"</string>

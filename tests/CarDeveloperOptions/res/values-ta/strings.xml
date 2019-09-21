@@ -1338,7 +1338,7 @@
     <string name="scanning_status_text_wifi_on_ble_on" msgid="6370507836346838473">"வைஃபைக்கும் புளூடூத்துக்குமான ஸ்கேனிங் ஆன் செய்யப்பட்டுள்ளது"</string>
     <string name="scanning_status_text_wifi_on_ble_off" msgid="8205014713732412608">"வைஃபை ஸ்கேனிங் ஆன் செய்யப்பட்டுள்ளது, புளூடூத் ஸ்கேனிங் ஆஃப் செய்யப்பட்டுள்ளது"</string>
     <string name="scanning_status_text_wifi_off_ble_on" msgid="7400522456303307057">"புளூடூத் ஸ்கேனிங் ஆன் செய்யப்பட்டுள்ளது, வைஃபை ஸ்கேனிங் ஆஃப் செய்யப்பட்டுள்ளது"</string>
-    <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"வைஃபைக்கும் புளூடூத்துக்கமான ஸ்கேனிங் ஆஃப் செய்யப்பட்டுள்ளது"</string>
+    <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"வைஃபைக்கும் புளூடூத்துக்குமான ஸ்கேனிங் ஆஃப் செய்யப்பட்டுள்ளது"</string>
     <string name="status_meid_number" msgid="8756271256760479835">"MEID"</string>
     <string name="status_icc_id" msgid="9191847562997702709">"ICCID"</string>
     <string name="status_data_network_type" msgid="2344720457353394909">"மொபைல் டேட்டா நெட்வொர்க்கின் வகை"</string>

@@ -3950,7 +3950,7 @@
     <string name="condition_battery_summary" msgid="1236078243905690620">"Značajke su ograničene"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Mobilni su podaci isključeni"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Internet je dostupan samo putem Wi‑Fija"</string>
-    <string name="condition_bg_data_title" msgid="184684435298857712">"Ušteda podataka"</string>
+    <string name="condition_bg_data_title" msgid="184684435298857712">"Štednja podat. prometa"</string>
     <string name="condition_bg_data_summary" msgid="5194942860807136682">"Značajke su ograničene"</string>
     <string name="condition_work_title" msgid="9046811302347490371">"Radni je profil isključen"</string>
     <string name="condition_work_summary" msgid="5586134491975748565">"Za aplikacije i obavijesti"</string>

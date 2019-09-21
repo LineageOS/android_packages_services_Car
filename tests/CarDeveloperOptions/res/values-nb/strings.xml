@@ -1335,10 +1335,10 @@
     <string name="status_msid_number" msgid="7808175928664357661">"MSID"</string>
     <string name="status_prl_version" msgid="5634561205739199042">"PRL-versjon"</string>
     <string name="meid_multi_sim" msgid="7449892644113569529">"MEID (SIM-kortspor %1$d)"</string>
-    <string name="scanning_status_text_wifi_on_ble_on" msgid="6370507836346838473">"Både Wi‑Fi- og Bluetooth-skanning er på"</string>
+    <string name="scanning_status_text_wifi_on_ble_on" msgid="6370507836346838473">"Både Wi‑Fi- og Bluetooth-søking er på"</string>
     <string name="scanning_status_text_wifi_on_ble_off" msgid="8205014713732412608">"Wi‑Fi-søking er på, Bluetooth-søking er av"</string>
     <string name="scanning_status_text_wifi_off_ble_on" msgid="7400522456303307057">"Bluetooth-søking er på, Wi-Fi-søking er av"</string>
-    <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"Både Wi‑Fi- og Bluetooth-skanning er av"</string>
+    <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"Både Wi‑Fi- og Bluetooth-søking er av"</string>
     <string name="status_meid_number" msgid="8756271256760479835">"MEID"</string>
     <string name="status_icc_id" msgid="9191847562997702709">"ICCID"</string>
     <string name="status_data_network_type" msgid="2344720457353394909">"Nettverkstype for mobildata"</string>
@@ -1653,7 +1653,7 @@
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"Ingen apper har nylig brukt posisjon"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"Høy batteribruk"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Lav batteribruk"</string>
-    <string name="location_scanning_screen_title" msgid="7663329319689413454">"Søking med Wi‑Fi og Bluetooth"</string>
+    <string name="location_scanning_screen_title" msgid="7663329319689413454">"Søking etter Wi‑Fi og Bluetooth"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Wi‑Fi-søking"</string>
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"La apper og tjenester søke etter Wi-Fi-nettverk når som helst, selv når Wi-Fi er slått av. Dette kan for eksempel brukes til å forbedre posisjonsbaserte funksjoner og tjenester."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth-søking"</string>

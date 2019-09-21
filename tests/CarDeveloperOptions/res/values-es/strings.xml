@@ -1338,7 +1338,7 @@
     <string name="scanning_status_text_wifi_on_ble_on" msgid="6370507836346838473">"Las redes Wi‑Fi y las conexiones Bluetooth tienen la búsqueda activada"</string>
     <string name="scanning_status_text_wifi_on_ble_off" msgid="8205014713732412608">"La búsqueda de redes Wi‑Fi está activa y la de conexiones Bluetooth, desactivada"</string>
     <string name="scanning_status_text_wifi_off_ble_on" msgid="7400522456303307057">"La búsqueda de conexiones Bluetooth está activada y la de redes Wi‑Fi, desactivada"</string>
-    <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"Las redes Wi‑Fi y las conexiones Bluetooth tienen la búsqueda desactivada"</string>
+    <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"Está desactivada la búsqueda de redes Wi‑Fi y conexiones Bluetooth"</string>
     <string name="status_meid_number" msgid="8756271256760479835">"MEID"</string>
     <string name="status_icc_id" msgid="9191847562997702709">"ICCID"</string>
     <string name="status_data_network_type" msgid="2344720457353394909">"Tipo de red de datos móviles"</string>

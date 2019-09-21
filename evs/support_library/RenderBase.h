@@ -48,7 +48,7 @@ public:
     virtual bool activate() = 0;
     virtual void deactivate() = 0;
 
-    virtual bool drawFrame(const BufferDesc& tgtBuffer) = 0;
+    virtual bool drawFrame(const BufferDesc& tgtBuffer, const BufferDesc& imageBuffer) = 0;
 
 protected:
     static bool prepareGL();

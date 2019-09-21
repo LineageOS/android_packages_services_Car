@@ -28,13 +28,6 @@ namespace automotive {
 namespace evs {
 namespace support {
 
-RenderDirectView::RenderDirectView(sp<IEvsEnumerator> enumerator,
-                                   sp<IEvsCamera> cam) {
-    mEnumerator = enumerator;
-    mCamera = cam;
-}
-
-
 bool RenderDirectView::activate() {
     // Ensure GL is ready to go...
     if (!prepareGL()) {
@@ -54,7 +47,7 @@ bool RenderDirectView::activate() {
     }
 
     // Construct our video texture
-    mTexture.reset(createVideoTexture(mEnumerator, mCamera, sDisplay));
+    mTexture.reset(new VideoTex(sDisplay));
     if (!mTexture) {
         ALOGE("Failed to set up video texture");
 // TODO:  For production use, we may actually want to fail in this case, but not yet...
@@ -73,7 +66,8 @@ void RenderDirectView::deactivate() {
 }
 
 
-bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
+bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer,
+                                 const BufferDesc& imageBuffer) {
     // Tell GL to render to the given buffer
     if (!attachRenderTarget(tgtBuffer)) {
         ALOGE("Failed to attached render target");
@@ -95,7 +89,7 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
 
 
     // Bind the texture and assign it to the shader's sampler
-    mTexture->refresh();
+    mTexture->refresh(imageBuffer);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mTexture->glId());
 

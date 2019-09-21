@@ -732,7 +732,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> aktivnih aplikacija</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"Pouzdani agenti"</string>
-    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Da biste koristili, prvo postavite zaključavanje ekrana"</string>
+    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Da ovo koristite, prvo postavite zaključavanje ekrana"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"Nema"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> aktivni pouzdani agent</item>
@@ -2057,7 +2057,7 @@
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Zvuk i tekst na ekranu"</string>
     <string name="display_category_title" msgid="545168481672250195">"Prikaz"</string>
     <string name="interaction_control_category_title" msgid="8775039211811947683">"Kontrole za interakciju"</string>
-    <string name="user_installed_services_category_title" msgid="4288689493753221319">"Preuzeti servisi"</string>
+    <string name="user_installed_services_category_title" msgid="4288689493753221319">"Preuzete usluge"</string>
     <string name="experimental_category_title" msgid="3797000069740110717">"Eksperimentalno"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"Oznake funkcija"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>

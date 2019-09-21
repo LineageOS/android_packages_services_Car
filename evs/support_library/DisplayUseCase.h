@@ -69,6 +69,7 @@ class DisplayUseCase : public BaseUseCase {
     bool mIsReadyToRun;
     std::thread mWorkerThread;
     sp<StreamHandler> mStreamHandler;
+    BufferDesc mImageBuffer;
 };
 
 }  // namespace support

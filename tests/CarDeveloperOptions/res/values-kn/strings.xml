@@ -2272,7 +2272,7 @@
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"ಬ್ಯಾಟರಿ ನಿರ್ವಾಹಕರನ್ನು ಆನ್‌ ಮಾಡಿ"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"ಬ್ಯಾಟರಿ ಸೇವರ್‌ ಆನ್‌ ಮಾಡಿ"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"ಬ್ಯಾಟರಿ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಮೊದಲೇ ರನ್ ಆಗಬಹುದು"</string>
-    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"ಬ್ಯಾಟರಿ ರಕ್ಷಕ ಆನ್ ಆಗಿದೆ"</string>
+    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"ಬ್ಯಾಟರಿ ಸೇವರ್ ಆನ್ ಆಗಿದೆ"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"ಕೆಲವು ವೈಶಿಷ್ಟ್ಯಗಳು ಸೀಮಿತವಾಗಿರಬಹುದು"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"ಫೋನ್ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚಿನದನ್ನು ಬಳಸಿದೆ"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"ಟ್ಯಾಬ್ಲೆಟ್ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚಿನದನ್ನು ಬಳಸಿದೆ"</string>
@@ -3657,7 +3657,7 @@
     <string name="default_apps_title" msgid="3848048391400989931">"ಡಿಫಾಲ್ಟ್"</string>
     <string name="default_for_work" msgid="7290411716804495366">"ಕೆಲಸದ ಡಿಫಾಲ್ಟ್"</string>
     <string name="assist_and_voice_input_title" msgid="324148194703846130">"ಸಹಾಯ &amp; ಧ್ವನಿ ಇನ್‌ಪುಟ್"</string>
-    <string name="default_assist_title" msgid="2060846994203235317">"ಅಪ್ಲಿಕೇಶನ್ ಸಹಾಯ"</string>
+    <string name="default_assist_title" msgid="2060846994203235317">"ಸಹಾಯಕ ಆ್ಯಪ್"</string>
     <string name="assistant_security_warning_title" msgid="8014460924169723059">"<xliff:g id="ASSISTANT_APP_NAME">%s</xliff:g> ಅನ್ನು ನಿಮ್ಮ ಸಹಾಯಕವನ್ನಾಗಿ ಮಾಡುವುದೇ?"</string>
     <string name="assistant_security_warning" msgid="1304057692847069938">"ನಿಮ್ಮ ಪರದೆಯಲ್ಲಿ ಗೋಚರಿಸುವ ಅಥವಾ ಅಪ್ಲಿಕೇಶನ್‌ಗಳಲ್ಲಿಯೇ ಪ್ರವೇಶಿಸಬಹುದಾದಂತಹ ಮಾಹಿತಿ ಸೇರಿದಂತೆ ನಿಮ್ಮ ಸಿಸ್ಟಂನಲ್ಲಿ ಬಳಕೆಯಲ್ಲಿರುವ ಅಪ್ಲಿಕೇಶನ್‌ಗಳ ಕುರಿತು ಮಾಹಿತಿಯನ್ನು ಓದಲು ಸಹಾಯಕಕ್ಕೆ ಸಾಧ್ಯವಾಗಬಹುದು."</string>
     <string name="assistant_security_warning_agree" msgid="5105692801460137289">"ಅನುಮೋದಿಸು"</string>
@@ -3886,7 +3886,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"ಅಡಚಣೆ ಮಾಡಬೇಡಿ ಆನ್ ಆಗಿದೆ"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"ಫೋನ್ ಅನ್ನು ಮ್ಯೂಟ್ ಮಾಡಲಾಗಿದೆ"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"ವಿನಾಯಿತಿಗಳು ಸೇರಿವೆ"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"ಬ್ಯಾಟರಿ ರಕ್ಷಕ ಆನ್ ಆಗಿದೆ"</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"ಬ್ಯಾಟರಿ ಸೇವರ್ ಆನ್ ಆಗಿದೆ"</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"ವೈಶಿಷ್ಟ್ಯಗಳನ್ನು ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"ಮೊಬೈಲ್ ಡೇಟಾ ಆಫ್ ಆಗಿದೆ"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"ಇಂಟರ್ನೆಟ್, ಕೇವಲ ವೈ-ಫೈ ಮೂಲಕ ಲಭ್ಯವಿದೆ"</string>

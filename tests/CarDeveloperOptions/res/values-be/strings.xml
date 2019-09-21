@@ -1237,7 +1237,7 @@
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Укл. / Калі глядзець на экран, ён не будзе выключацца"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Выключана"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Не дазваляе экрану выключацца, калі на яго глядзяць"</string>
-    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Адаптыўны рэжым з дапамогай пярэдняй камеры вызначае, калі хто-небудзь глядзіць на экран. Калі ён уключаны, відарысы не захоўваюцца і не адпраўляюцца ў Google."</string>
+    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Адаптыўны рэжым з дапамогай пярэдняй камеры вызначае, калі хто-небудзь глядзіць на экран. Функцыя працуе толькі на прыладзе: відарысы не захоўваюцца і не адпраўляюцца ў Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Начны рэжым"</string>
     <string name="night_display_text" msgid="5330502493684652527">"У начным рэжыме экран будзе мець бурштынавае адценне. Так вам будзе зручней глядзець на экран пры цьмяным асвятленні, а таксама лягчэй заснуць."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Расклад"</string>
@@ -3023,7 +3023,7 @@
     <string name="call_manager_title" msgid="1118074011469650421">"Call Manager (Менеджар выклікаў)"</string>
     <!-- no translation found for call_manager_summary (1232655174841493040) -->
     <skip />
-    <string name="cell_broadcast_settings" msgid="5750066270993255966">"Надзвычайныя абвесткі"</string>
+    <string name="cell_broadcast_settings" msgid="5750066270993255966">"Абвесткі аб надзвычайных сітуацыях"</string>
     <string name="network_operators_settings" msgid="7822337582828465633">"Сеткавыя аператары"</string>
     <string name="access_point_names" msgid="7992382237358800596">"Назвы пунктаў доступу"</string>
     <string name="enhanced_4g_lte_mode_title" msgid="1624079276378568594">"VoLTE"</string>
@@ -3871,7 +3871,7 @@
     <string name="background_check_title" msgid="4136736684290307970">"Поўны доступ у фоне"</string>
     <string name="assist_access_context_title" msgid="2274614501747710439">"Выкарыстоўваць тэкст з экрана"</string>
     <string name="assist_access_context_summary" msgid="5867997494395842785">"Дазволіць праграме-памочніку доступ да змесціва на экране ў выглядзе тэксту"</string>
-    <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Выкарыстоўваць скрыншот"</string>
+    <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Выкарыстоўваць здымак экрана"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Дазволіць праграме-памочніку доступ да відарыса на экране"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Падсвечванне экрана"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"Падсвечваць краі экрана, калі праграма-памочнік атрымлівае доступ да тэксту на экране або на здымке экрана"</string>

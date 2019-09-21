@@ -1233,7 +1233,7 @@
     <string name="auto_brightness_description" msgid="8209140379089535411">"Jas obrazovky sa automaticky prispôsobí prostrediu a aktivitám. Ručným posúvaním posúvača učíte adaptáciu jasu svoje preferované nastavenia."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"Zobrazenie vyváženia bielej"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Screen aware"</string>
-    <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Zapnuté – Obrazovka sa nevypne, ak sa na ňu budete pozerať"</string>
+    <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Zapnuté, obrazovka sa nevypne, keď sa na ňu budete pozerať"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Vypnuté"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Zabráni vypnutiu obrazovky, keď sa na ňu budete pozerať."</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Screen aware pomocou predného fotoaparátu zisťuje, či sa používateľ pozerá na obrazovku. Pracuje v zariadení a snímky sa nikdy neodosielajú do Googlu."</string>
@@ -3375,7 +3375,7 @@
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"Ďalšie zvuky a vibrácie"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"Upozornenia"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"Nedávno odoslané"</string>
-    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Zobraziť všetky aplikácie za posledných 7 dní"</string>
+    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Zobraziť všetko za posledných 7 dní"</string>
     <string name="advanced_section_header" msgid="984680389373090015">"Rozšírené"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"Pracovné upozornenia"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"Automatické priority upozornení"</string>
