@@ -7,15 +7,13 @@ priyanksingh@google.com
 stenning@google.com
 
 # People who can originally approve code for Settings.
-asapperstein@google.com
-asargent@google.com
-dehboxturtle@google.com
-dhnishi@google.com
-dling@google.com
-jackqdyulei@google.com
-mfritze@google.com
+edgarwang@google.com
+emilychuang@google.com
+rafftsai@google.com
+tmfang@google.com
+
+# Emergency approvers in case the above are not available
 zhfan@google.com
-miket@google.com
 
 # Exempt resource files (because they are in a flat directory and too hard to manage via OWNERS)
 per-file *.xml=*
