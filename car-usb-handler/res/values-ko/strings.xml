@@ -24,6 +24,7 @@
     <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"취소"</string>
     <string name="usb_resolving_handlers" msgid="1943100136172948686">"지원되는 핸들러 다운로드 중"</string>
     <string name="usb_unknown_device" msgid="4211439272338937095">"알 수 없는 USB 기기"</string>
+    <string name="usb_boot_service_notification" msgid="8519949189071048797">"USB 기기 분석"</string>
   <string-array name="config_AoapIncompatibleDeviceIds">
     <item msgid="4267974637522344258">"18d1:9302"</item>
   </string-array>
