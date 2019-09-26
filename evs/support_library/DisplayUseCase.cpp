@@ -20,7 +20,6 @@
 #include "DisplayUseCase.h"
 #include "RenderDirectView.h"
 #include "Utils.h"
-#include "StreamHandlerManager.h"
 
 namespace android {
 namespace automotive {
@@ -64,18 +63,16 @@ bool DisplayUseCase::initialize() {
     // runs the application logic that reacts to the async events.
     configureRpcThreadpool(1, false /* callerWillJoin */);
 
-    // Get the EVS manager service
-    ALOGI("Acquiring EVS Enumerator");
-    mEvs = getEvsEnumerator();
-    if (mEvs.get() == nullptr) {
-        ALOGE("Cannot find the desired EVS service.  Exiting.");
+    mResourceManager = ResourceManager::getInstance();
+    if (mResourceManager == nullptr) {
+        ALOGE("Failed to get resource manager instance. Initialization failed.");
         return false;
     }
 
     // Request exclusive access to the EVS display
     ALOGI("Acquiring EVS Display");
 
-    mDisplay = mEvs->openDisplay();
+    mDisplay = mResourceManager->openDisplay();
     if (mDisplay.get() == nullptr) {
         ALOGE("EVS Display unavailable.  Exiting.");
         return false;
@@ -87,15 +84,7 @@ bool DisplayUseCase::initialize() {
         // Only one element is available in the camera id list.
         string cameraId = mCameraIds[0];
         if (cameraId == info.cameraId) {
-            mCamera = mEvs->openCamera(cameraId);
-            if (mCamera.get() == nullptr) {
-                ALOGE("Failed to allocate new EVS Camera interface for %s",
-                      cameraId.c_str());
-                return false;
-            }
-
-            mStreamHandler =
-                StreamHandlerManager::getInstance()->getStreamHandler(mCamera);
+            mStreamHandler = mResourceManager->obtainStreamHandler(cameraId);
             if (mStreamHandler.get() == nullptr) {
                 ALOGE("Failed to get a valid StreamHandler for %s",
                       cameraId.c_str());
@@ -173,14 +162,36 @@ bool DisplayUseCase::startVideoStream() {
 void DisplayUseCase::stopVideoStream() {
     ALOGD("Stop video streaming in worker thread.");
     mIsReadyToRun = false;
-    mStreamHandler->detachRenderCallback();
 
-    // TODO(b/130246434): Now only the display use case is available, so we can
-    // assume that when display use case is stopped, the camera should be
-    // released. But the following logic should be de-coupled from the use case
-    // since more than one use cases (e.g. analyze use case) will be supported.
-    mStreamHandler->shutdown();
-    mEvs->closeCamera(mCamera);
+    if (mStreamHandler == nullptr) {
+        ALOGE("Failed to detach render callback since stream handler is null");
+
+        // Something may go wrong. Instead of to return this method right away,
+        // we want to finish the remaining logic of this method to try to
+        // release other resources.
+    } else {
+        mStreamHandler->detachRenderCallback();
+    }
+
+    if (mResourceManager == nullptr) {
+        ALOGE("Failed to release resources since resource manager is null");
+    } else {
+        mResourceManager->releaseStreamHandler(mCameraIds[0]);
+        mStreamHandler = nullptr;
+
+        mResourceManager->closeDisplay(mDisplay);
+        mDisplay = nullptr;
+
+        // TODO(b/130246434): with the current logic, the initialize method will
+        // be triggered every time when a pair of
+        // stopVideoStream/startVideoStream is called. We might want to move
+        // some heavy work away from initialize method so increase the
+        // performance.
+
+        // Sets mIsInitialzed to false so the initialize method will be
+        // triggered when startVideoStream is called again.
+        mIsInitialized = false;
+    }
     return;
 }
 

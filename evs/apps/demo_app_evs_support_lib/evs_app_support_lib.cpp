@@ -71,9 +71,9 @@ int main() {
     DisplayUseCase useCase =
         DisplayUseCase::createDefaultUseCase(cameraId, new SimpleRenderCallback());
 
-    // Stream the video for 5 seconds.
+    // Stream the video for 20 seconds.
     if (useCase.startVideoStream()) {
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        std::this_thread::sleep_for(std::chrono::seconds(20));
         useCase.stopVideoStream();
     }
 

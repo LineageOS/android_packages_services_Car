@@ -40,7 +40,8 @@ StreamHandler::StreamHandler(android::sp <IEvsCamera> pCamera) :
     pCamera->setMaxFramesInFlight(2);
 }
 
-
+// TODO(b/130246343): investigate further to make sure the resources are cleaned
+// up properly in the shutdown logic.
 void StreamHandler::shutdown()
 {
     // Make sure we're not still streaming

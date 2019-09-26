@@ -25,17 +25,17 @@ import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.car.encryptionrunner.Key
 import android.content.Context
 import android.os.ParcelUuid
 import android.util.Log
 import com.android.car.Utils
 import com.android.car.guard
-import com.android.internal.annotations.GuardedBy
 import java.math.BigInteger
 import java.util.UUID
-import kotlin.concurrent.thread
+import java.util.concurrent.CopyOnWriteArraySet
 
-private const val TAG = "CarBleManager"
+private const val TAG = "CarBleCentralManager"
 
 // system/bt/internal_include/bt_target.h#GATT_MAX_PHY_CHANNEL
 private const val MAX_CONNECTIONS = 7
@@ -43,31 +43,28 @@ private const val MAX_CONNECTIONS = 7
 private val CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
 /**
- * Communication manager for a car that maintains continuous connections with all phones in the car
+ * Communication manager for a car that maintains continuous connections with all devices in the car
  * for the duration of a drive.
  *
  * @param context Application's [Context].
+ * @param bleCentralManager [BleCentralManager] for establishing connections.
+ * @param carCompanionDeviceStorage Shared [CarCompanionDeviceStorage] for companion features.
  * @param serviceUuid [UUID] of peripheral's service.
  * @param bgServiceMask iOS overflow bit mask for service UUID.
- * @param writeCharacteristicUuid [UUID] of characteristic the central will write to.
- * @param readCharacteristicUuid [UUID] of characteristic the peripheral will write to.
+ * @param writeCharacteristicUuid [UUID] of characteristic the car will write to.
+ * @param readCharacteristicUuid [UUID] of characteristic the device will write to.
  */
 internal class CarBleCentralManager(
     private val context: Context,
     private val bleCentralManager: BleCentralManager,
+    carCompanionDeviceStorage: CarCompanionDeviceStorage,
     private val serviceUuid: UUID,
-    private val bgServiceMask: String,
-    private val writeCharacteristicUuid: UUID,
-    private val readCharacteristicUuid: UUID
-) {
-    @GuardedBy("connectedDevices")
-    private val connectedDevices = mutableSetOf<BleDevice>()
+    bgServiceMask: String,
+    writeCharacteristicUuid: UUID,
+    readCharacteristicUuid: UUID
+) : CarBleManager(carCompanionDeviceStorage) {
 
-    @GuardedBy("ignoredDevices")
-    private val ignoredDevices = mutableSetOf<BleDevice>()
-
-    @GuardedBy("callbacks")
-    private val callbacks = mutableListOf<Callback>()
+    private val ignoredDevices = CopyOnWriteArraySet<BleDevice>()
 
     private val parsedBgServiceBitMask by lazy {
         BigInteger(bgServiceMask, 16)
@@ -79,119 +76,6 @@ internal class CarBleCentralManager(
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
             .build()
-    }
-
-    /**
-     * Start process of finding and connecting to devices.
-     */
-    fun start() {
-        startScanning()
-    }
-
-    private fun startScanning() {
-        bleCentralManager.startScanning(null, scanSettings, scanCallback)
-    }
-
-    /**
-     * Stop process and disconnect from any connected devices.
-     */
-    fun stop() {
-        bleCentralManager.stopScanning()
-        synchronized(connectedDevices) {
-            connectedDevices.forEach { it.gatt.close() }
-            connectedDevices.clear()
-        }
-        synchronized(callbacks) {
-            callbacks.clear()
-        }
-    }
-
-    /**
-     * Send a message to a connected device.
-     *
-     * @param deviceId Id of connected device.
-     * @param message [ByteArray] Message to send.
-     * @param isEncrypted Whether data should be encrypted prior to sending.
-     */
-    fun sendMessage(deviceId: String, message: ByteArray, isEncrypted: Boolean) {
-        getConnectedDevice(deviceId)?.also {
-            sendMessage(it, message, isEncrypted)
-        } ?: Log.w(TAG, "Attempted to send messsage to unknown device $deviceId. Ignored")
-    }
-
-    private fun sendMessage(bleDevice: BleDevice, message: ByteArray, isEncrypted: Boolean) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Writing ${message.size} bytes to " +
-                "${bleDevice.deviceId ?: "Unidentified device"}.")
-        }
-
-        if (isEncrypted) {
-            sendEncryptedMessage(bleDevice, message)
-        } else {
-            sendUnencryptedMessage(bleDevice, message)
-        }
-    }
-
-    private fun sendUnencryptedMessage(bleDevice: BleDevice, message: ByteArray) {
-        // TODO (b/139066995) Replace with unsecure channel implementation
-        bleDevice.writeCharacteristic?.also {
-            it.value = message
-            if (!bleDevice.gatt.writeCharacteristic(it)) {
-                Log.e(TAG, "Write to ${it.uuid} failed.")
-            }
-        }
-    }
-
-    private fun sendEncryptedMessage(bleDevice: BleDevice, message: ByteArray) {
-        // TODO (b/139066995) Implement secure ble channel
-    }
-
-    private fun getConnectedDevice(gatt: BluetoothGatt): BleDevice? {
-        synchronized(connectedDevices) {
-            return connectedDevices.firstOrNull { it.gatt == gatt }
-        }
-    }
-
-    private fun getConnectedDevice(device: BluetoothDevice): BleDevice? {
-        synchronized(connectedDevices) {
-            return connectedDevices.firstOrNull { it.device == device }
-        }
-    }
-
-    private fun getConnectedDevice(deviceId: String): BleDevice? {
-        synchronized(connectedDevices) {
-            return connectedDevices.firstOrNull { it.deviceId == deviceId }
-        }
-    }
-
-    private fun addConnectedDevice(bleDevice: BleDevice) {
-        synchronized(connectedDevices) {
-            connectedDevices.add(bleDevice)
-        }
-    }
-
-    private fun countConnectedDevices(): Int {
-        synchronized(connectedDevices) {
-            return connectedDevices.count()
-        }
-    }
-
-    private fun removeConnectedDevice(bleDevice: BleDevice) {
-        synchronized(connectedDevices) {
-            connectedDevices.remove(bleDevice)
-        }
-    }
-
-    private fun ignoreDevice(deviceToIgnore: BleDevice) {
-        synchronized(ignoredDevices) {
-            ignoredDevices.add(deviceToIgnore)
-        }
-    }
-
-    private fun isDeviceIgnored(device: BluetoothDevice): Boolean {
-        synchronized(ignoredDevices) {
-            return ignoredDevices.any { it.device == device }
-        }
     }
 
     private val scanCallback by lazy {
@@ -213,6 +97,34 @@ internal class CarBleCentralManager(
         }
     }
 
+    /**
+     * Start process of finding and connecting to devices.
+     */
+    override fun start() {
+        super.start()
+        startScanning()
+    }
+
+    private fun startScanning() {
+        bleCentralManager.startScanning(null, scanSettings, scanCallback)
+    }
+
+    /**
+     * Stop process and disconnect from any connected devices.
+     */
+    override fun stop() {
+        super.stop()
+        bleCentralManager.stopScanning()
+    }
+
+    private fun ignoreDevice(deviceToIgnore: BleDevice) {
+        ignoredDevices.add(deviceToIgnore)
+    }
+
+    private fun isDeviceIgnored(device: BluetoothDevice): Boolean {
+        return ignoredDevices.any { it.device == device }
+    }
+
     private fun shouldAttemptConnection(result: ScanResult): Boolean {
         // Ignore any results that are not connectable.
         if (!result.isConnectable) {
@@ -221,7 +133,7 @@ internal class CarBleCentralManager(
 
         // Do not attempt to connect if we have already hit our max. This should rarely happen
         // and is protecting against a race condition of scanning stopped and new results coming in.
-        if (countConnectedDevices() >= MAX_CONNECTIONS) {
+        if (connectedDevicesCount() >= MAX_CONNECTIONS) {
             return false
         }
 
@@ -292,15 +204,12 @@ internal class CarBleCentralManager(
                 }
                 connectedDevice.state = BleDeviceState.CONNECTED
                 val readCharacteristic = service.getCharacteristic(readCharacteristicUuid)
-                val writeCharacteristic = service.getCharacteristic(
-                    writeCharacteristicUuid)
+                val writeCharacteristic = service.getCharacteristic(writeCharacteristicUuid)
                 if (readCharacteristic == null || writeCharacteristic == null) {
                     Log.w(TAG, "Unable to find expected characteristics on peripheral")
                     gatt.disconnect()
                     return
                 }
-                connectedDevice.readCharacteristic = readCharacteristic
-                connectedDevice.writeCharacteristic = writeCharacteristic
 
                 // Turn on notifications for read characteristic
                 val descriptor = readCharacteristic.getDescriptor(CHARACTERISTIC_CONFIG).apply {
@@ -321,6 +230,32 @@ internal class CarBleCentralManager(
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Service and characteristics successfully discovered")
                 }
+
+                val secureChannelCallback = object : SecureBleChannel.Callback {
+                    override fun onSecureChannelEstablished(encryptionKey: Key) {
+                        connectedDevice.deviceId?.guard {
+                            deviceId -> notifyCallbacks { it.onSecureChannelEstablished(deviceId) }
+                        }
+                    }
+
+                    override fun onMessageReceived(message: ByteArray) {
+                        connectedDevice.deviceId?.guard {
+                            deviceId -> notifyCallbacks { it.onMessageReceived(deviceId, message) }
+                        }
+                    }
+
+                    override fun onMessageReceivedError(exception: java.lang.Exception) {
+                    }
+
+                    override fun onEstablishSecureChannelFailure() {
+                    }
+
+                    override fun onDeviceIdReceived(deviceId: String) {
+                        connectedDevice.deviceId = deviceId
+                        notifyCallbacks { it.onDeviceConnected(deviceId) }
+                    }
+                }
+                // TODO(b/141312136) create SecureBleChannel and assign to connectedDevice.
             }
 
             override fun onDescriptorWrite(
@@ -384,7 +319,7 @@ internal class CarBleCentralManager(
         addConnectedDevice(BleDevice(device, gatt).apply { this.state = BleDeviceState.CONNECTING })
 
         // Stop scanning if we have reached the maximum connections
-        if (countConnectedDevices() >= MAX_CONNECTIONS) {
+        if (connectedDevicesCount() >= MAX_CONNECTIONS) {
             bleCentralManager.stopScanning()
         }
     }
@@ -392,24 +327,24 @@ internal class CarBleCentralManager(
     private fun deviceConnected(device: BleDevice) {
         device.state = BleDeviceState.PENDING_VERIFICATION
 
-        device.gatt.discoverServices()
+        device.gatt?.discoverServices()
 
-        val connectedCount = countConnectedDevices()
+        val connectedCount = connectedDevicesCount()
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "New device connected: ${device.gatt.device?.address}. " +
+            Log.d(TAG, "New device connected: ${device.gatt?.device?.address}. " +
                 "Active connections: $connectedCount")
         }
     }
 
     private fun deviceDisconnected(device: BleDevice, status: Int) {
         removeConnectedDevice(device)
-        device.gatt.close()
+        device.gatt?.close()
         device.deviceId?.guard { deviceId ->
             notifyCallbacks { it.onDeviceDisconnected(deviceId) }
         }
-        val connectedCount = countConnectedDevices()
+        val connectedCount = connectedDevicesCount()
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Device disconnected: ${device.gatt.device?.address} with " +
+            Log.d(TAG, "Device disconnected: ${device.gatt?.device?.address} with " +
                 "state $status. Active connections: $connectedCount")
         }
 
@@ -417,92 +352,5 @@ internal class CarBleCentralManager(
         if (!bleCentralManager.isScanning() && connectedCount < MAX_CONNECTIONS) {
             startScanning()
         }
-    }
-
-    /**
-     * Register a callback
-     *
-     * @param callback The [Callback] to register.
-     */
-    fun registerCallback(callback: Callback) {
-        synchronized(callbacks) {
-            callbacks.add(callback)
-        }
-    }
-
-    /**
-     * Unregister a callback
-     *
-     * @param callback The [Callback] to unregister.
-     */
-    fun unregisterCallback(callback: Callback) {
-        synchronized(callbacks) {
-            callbacks.remove(callback)
-        }
-    }
-
-    /**
-     * Trigger notification on registered callbacks.
-     *
-     * @param notification [Callback] notification function.
-     */
-    private fun notifyCallbacks(notification: (Callback) -> Unit) {
-        val callbacksCopy = synchronized(callbacks) { callbacks.toList() }
-        callbacksCopy.forEach {
-            thread(isDaemon = true) { notification(it) }
-        }
-    }
-
-    /**
-     * Callback for triggered events from [CarBleManager]
-     */
-    interface Callback {
-
-        /**
-         * Triggered when device is connected and device id retrieved. Device is now ready to
-         * receive messages.
-         *
-         * @param deviceId Id of device that has connected.
-         */
-        fun onDeviceConnected(deviceId: String)
-
-        /**
-         * Triggered when device is disconnected.
-         *
-         * @param deviceId Id of device that has disconnected.
-         */
-        fun onDeviceDisconnected(deviceId: String)
-
-        /**
-         * Triggered when device has established encryption for secure communication.
-         *
-         * @param deviceId Id of device that has established encryption.
-         */
-        fun onSecureChannelEstablished(deviceId: String)
-
-        /**
-         * Triggered when a new message is detected.
-         *
-         * @param deviceId Id of the device that sent the message.
-         * @param message [ByteArray] Data from message.
-         */
-        fun onMessageReceived(deviceId: String, message: ByteArray)
-    }
-
-    private data class BleDevice(
-        val device: BluetoothDevice,
-        val gatt: BluetoothGatt
-    ) {
-        var state: BleDeviceState = BleDeviceState.UNKNOWN
-        var deviceId: String? = null
-        var writeCharacteristic: BluetoothGattCharacteristic? = null
-        var readCharacteristic: BluetoothGattCharacteristic? = null
-    }
-
-    private enum class BleDeviceState {
-        CONNECTING,
-        PENDING_VERIFICATION,
-        CONNECTED,
-        UNKNOWN
     }
 }

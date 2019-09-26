@@ -38,7 +38,7 @@ private const val TAG = "SecureBleChannel"
  * It only applies to the client that has been associated with the IHU before.
  */
 internal class SecureBleChannel(
-    private val stream: BleMessageStream,
+    internal val stream: BleMessageStream,
     private val storage: CarCompanionDeviceStorage,
     private val callback: Callback,
     private var encryptionKey: Key? = null
