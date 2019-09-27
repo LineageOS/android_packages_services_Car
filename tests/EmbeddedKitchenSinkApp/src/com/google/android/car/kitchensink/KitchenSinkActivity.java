@@ -54,7 +54,6 @@ import com.google.android.car.kitchensink.cube.CubesTestFragment;
 import com.google.android.car.kitchensink.diagnostic.DiagnosticTestFragment;
 import com.google.android.car.kitchensink.displayinfo.DisplayInfoFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
-import com.google.android.car.kitchensink.input.InputTestFragment;
 import com.google.android.car.kitchensink.notification.NotificationFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
@@ -173,7 +172,8 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("display info", DisplayInfoFragment.class),
             new FragmentMenuEntry("hvac", HvacTestFragment.class),
             new FragmentMenuEntry("inst cluster", InstrumentClusterFragment.class),
-            new FragmentMenuEntry("input test", InputTestFragment.class),
+            // TODO (b/141774865) Enable after b/141635607 is fixed
+            // new FragmentMenuEntry("input test", InputTestFragment.class),
             new FragmentMenuEntry("notification", NotificationFragment.class),
             new FragmentMenuEntry("orientation test", OrientationTestFragment.class),
             new FragmentMenuEntry("power test", PowerTestFragment.class),

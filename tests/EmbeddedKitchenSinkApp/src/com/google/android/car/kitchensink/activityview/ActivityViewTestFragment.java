@@ -62,7 +62,7 @@ public class ActivityViewTestFragment extends Fragment {
 
     private void onLaunchActivityClicked(View v) {
         Intent intent = new Intent();
-        intent.setComponent(ComponentName.createRelative("com.android.settings", ".Settings"));
+        intent.setComponent(ComponentName.createRelative("com.android.car.settings", ".Settings"));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mActivityView.startActivity(intent);
     }

@@ -675,8 +675,12 @@ public class AudioTestFragment extends Fragment {
             if (DBG) {
                 Log.i(TAG, "abandonAudioFocus");
             }
-            mAudioManager.abandonAudioFocusRequest(mFocusRequest);
-            mFocusRequest = null;
+            if (mFocusRequest != null) {
+                mAudioManager.abandonAudioFocusRequest(mFocusRequest);
+                mFocusRequest = null;
+            } else {
+                Log.i(TAG, "mFocusRequest is already null");
+            }
             setFocusText(AUDIO_FOCUS_STATE_RELEASED_UNKNOWN);
         }
 
