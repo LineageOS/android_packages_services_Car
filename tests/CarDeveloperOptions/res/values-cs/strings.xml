@@ -356,7 +356,7 @@
     <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Okamžitě po režimu spánku, pokud odemknutí není udržováno pomocí agenta <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> po přechodu do spánku, pokud odemknutí není udržováno funkcí <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g>"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"Zobrazovat vlastníka na zamčené obrazovce"</string>
-    <string name="owner_info_settings_title" msgid="2537966178998339896">"Zpráva na zamčené obrazovce"</string>
+    <string name="owner_info_settings_title" msgid="2537966178998339896">"Zpráva na obr.uzamčení"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Aktivovat widgety"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Zakázáno administrátorem"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"Zobrazit možnost uzamčení"</string>
@@ -389,7 +389,7 @@
     <string name="decryption_settings_summary" product="default" msgid="7401802133199522441">"Telefon není šifrován"</string>
     <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"Zařízení je zašifrováno"</string>
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"Zařízení není šifrováno"</string>
-    <string name="lockscreen_settings_title" msgid="1221505938891948413">"Displej zámku obrazovky"</string>
+    <string name="lockscreen_settings_title" msgid="1221505938891948413">"Vzhled obrazovky uzamčení"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"Co zobrazit"</string>
     <string name="security_settings_summary" msgid="5210109100643223686">"Moje poloha, odemknutí obrazovky, zámek SIM, zámek úložiště pověření"</string>
     <string name="cdma_security_settings_summary" msgid="1783066617800041869">"Nastavení funkce Moje poloha, odemknutí obrazovky a zamknutí úložiště pověření"</string>
@@ -2317,9 +2317,9 @@
     <string name="controls_subtitle" msgid="6920199888882834620">"Upravit spotřebu energie"</string>
     <string name="packages_subtitle" msgid="6506269487892204413">"Zahrnuté balíčky"</string>
     <string name="battery_tip_summary_title" msgid="2750922152518825526">"Aplikace běží normálně"</string>
-    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"V telefonu dochází k běžnému využití baterie na pozadí"</string>
-    <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"V tabletu dochází k běžnému využití baterie na pozadí"</string>
-    <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"V zařízení dochází k běžnému využití baterie na pozadí"</string>
+    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"V telefonu dochází k běžnému využívání baterie na pozadí"</string>
+    <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"V tabletu dochází k běžnému využívání baterie na pozadí"</string>
+    <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"V zařízení dochází k běžnému využívání baterie na pozadí"</string>
     <string name="battery_tip_low_battery_title" msgid="6784043681672161175">"Nízká kapacita baterie"</string>
     <string name="battery_tip_low_battery_summary" msgid="9151355911381188604">"Baterie není schopna zajistit dobrou výdrž"</string>
     <string name="battery_tip_smart_battery_title" product="default" msgid="5517122075918038665">"Zvyšte životnost baterie telefonu"</string>
@@ -3180,7 +3180,7 @@
     <string name="keywords_financial_apps_sms_access" msgid="3236014691838121857">"finanční aplikace, sms, oprávnění"</string>
     <string name="keywords_systemui_theme" msgid="9150908170417305866">"tmavý motiv"</string>
     <string name="keywords_device_feedback" msgid="6948977907405738490">"chyba"</string>
-    <string name="keywords_ambient_display_screen" msgid="5873935693887583428">"Ambientní displej, displej zámku obrazovky"</string>
+    <string name="keywords_ambient_display_screen" msgid="5873935693887583428">"Ambientní displej, vzhled obrazovky uzamčení"</string>
     <string name="keywords_lock_screen_notif" msgid="4914337222856805463">"oznámení na obrazovce uzamčení, oznámení"</string>
     <string name="keywords_face_settings" msgid="4117345666006836599">"obličej"</string>
     <string name="keywords_fingerprint_settings" msgid="902902368701134163">"otisk prstu, přidat otisk prstu"</string>
@@ -3872,7 +3872,7 @@
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Použití snímku obrazovky"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Asistenční aplikace bude mít přístup k obrazu na obrazovce"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Zablikání obrazovky"</string>
-    <string name="assist_flash_summary" msgid="6697095786317559129">"Když asistenční aplikace na obrazovce nebo snímku obrazovky narazí na text, okraje obrazovky zablikají"</string>
+    <string name="assist_flash_summary" msgid="6697095786317559129">"Když asistenční aplikace z obrazovky nebo snímku obrazovky získá text, okraje obrazovky zablikají"</string>
     <string name="assist_footer" msgid="7030121180457472165">"Asistenční aplikace vám může pomoci na základě informací na zobrazené obrazovce. Některé aplikace podporují Launcher i hlasový vstup a nabízejí integrovanou asistenci."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"Průměrné využití paměti"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"Maximální využití paměti"</string>

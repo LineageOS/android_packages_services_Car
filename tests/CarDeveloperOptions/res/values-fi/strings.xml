@@ -3960,7 +3960,7 @@
       <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> sovellusta saa käyttää rajattomasti dataa, kun Data Saver on käytössä.</item>
       <item quantity="one">1 sovellus saa käyttää rajattomasti dataa, kun Data Saver on käytössä.</item>
     </plurals>
-    <string name="data_usage_title" msgid="7874606430902201083">"Ensisijainen Data"</string>
+    <string name="data_usage_title" msgid="7874606430902201083">"Ensisijainen data"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Wi‑Fi-data"</string>
     <string name="data_used" msgid="1063553292806661784">"<xliff:g id="ID_1">^1</xliff:g> käytetty"</string>
     <string name="data_used_formatted" msgid="9150356955895106822">"<xliff:g id="ID_1">^1</xliff:g> <xliff:g id="ID_2">^2</xliff:g> käytetty"</string>
@@ -4442,7 +4442,7 @@
     <string name="network_connection_request_dialog_title" msgid="3150489262902506588">"Käytettävä laite: <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
     <string name="network_connection_timeout_dialog_message" msgid="7036704569274087733">"Laitteita ei löytynyt. Varmista, että laitteet ovat päällä ja voivat muodostaa yhteyden."</string>
     <string name="network_connection_timeout_dialog_ok" msgid="5156496438627748361">"Yritä uudelleen"</string>
-    <string name="network_connection_errorstate_dialog_message" msgid="1599445930536043943">"Jokin meni vikaan. Sovellus peruutti laitteenvalintapyynnön."</string>
+    <string name="network_connection_errorstate_dialog_message" msgid="1599445930536043943">"Jotain meni pieleen.. Sovellus peruutti laitteenvalintapyynnön."</string>
     <string name="network_connection_connect_successful" msgid="888912275986965748">"Yhteyden muodostus onnistui"</string>
     <string name="network_connection_request_dialog_showall" msgid="396928496030183071">"Näytä kaikki"</string>
     <plurals name="show_bluetooth_devices" formatted="false" msgid="7451733907387872891">

@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_require_confirmation_details" msgid="8740564864091803429">"Chiedi sempre conferma per l\'autenticazione nelle app"</string>
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Rimuovi dati viso"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Il tuo viso può essere utilizzato per sbloccare il tuo dispositivo e accedere alle app. "<annotation id="url">"Ulteriori informazioni"</annotation></string>
-    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Rimuovere i dati viso?"</string>
+    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Rimuovere i dati del viso?"</string>
     <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"I dati registrati da Sblocco col sorriso verranno eliminati in modo definitivo e sicuro. Dopo la rimozione, ti serviranno il tuo PIN, la tua sequenza o la tua password per sbloccare il telefono, accedere alle app e confermare i pagamenti."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Impronta digitale"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Gestisci impronte digitali"</string>

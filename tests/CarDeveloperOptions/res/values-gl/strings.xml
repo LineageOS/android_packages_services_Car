@@ -2499,7 +2499,7 @@
     <string name="voice_input_settings" msgid="4983011614890521505">"Configuración da entrada de voz"</string>
     <string name="voice_input_settings_title" msgid="6865032806501269306">"Entrada de voz"</string>
     <string name="voice_service_preference_section_title" msgid="2984112696100778038">"Servizos de entrada de voz"</string>
-    <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Interacción e palabra activa completa"</string>
+    <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Interacción e palabra de activación completa"</string>
     <string name="voice_recognizer_preference_summary" msgid="3681161319745912594">"Síntese de voz simple"</string>
     <string name="voice_interaction_security_warning" msgid="4986261746316889768">"Este servizo de entrada de voz poderá supervisar que a voz sempre estea activada e controlar as aplicacións compatibles coa voz no teu nome. Procede da aplicación <xliff:g id="VOICE_INPUT_SERVICE_APP_NAME">%s</xliff:g>. Queres activar o uso deste servizo?"</string>
     <string name="tts_engine_preference_title" msgid="1183116842356275061">"Motor preferido"</string>

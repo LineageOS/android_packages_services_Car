@@ -383,7 +383,7 @@
     <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"Түзмөк шифрленген"</string>
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"Түзмөк шифрленген эмес"</string>
     <string name="lockscreen_settings_title" msgid="1221505938891948413">"Кулпуланган экран"</string>
-    <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"Эмнелер көрсөтүлөт"</string>
+    <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"Эмнелер көрүнөт"</string>
     <string name="security_settings_summary" msgid="5210109100643223686">"Жайгашкан жеримди, экрандын кулпусун ачуу ыкмасын, SIM карта кулпусун, аныктоо эстутумунун кулпусун коюу"</string>
     <string name="cdma_security_settings_summary" msgid="1783066617800041869">"Жайгашкан жеримди, экран кулпусун ачууну, аныктоо эстутумунун кулпусун коюу"</string>
     <string name="security_passwords_title" msgid="6853942836045862315">"Купуялык"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Жүздү өчүрүү"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Түзмөгүңүздүн кулпусун жүзүңүздү көрсөтүп ачып, колдонмолорго киресиз. "<annotation id="url">"Кеңири маалымат"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Жүзүңүздү таануу дайындарын өчүрөсүзбү?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Жүзүнөн таануу функциясы аркылуу жаздырылган дайындар биротоло жана коопсуз өчүрүлөт. Өчүрүлгөндөн кийин, телефонуңуздун кулпусун ачып, колдонмолорго кирип жана төлөмдөрдү ырастоо үчүн, PIN кодуңуз, графикалык ачкычыңыз же сырсөзүңүз керек болот."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Жүзүнөн таануу функциясын колдонууда топтолгон дайын-даректер биротоло өчүрүлөт. Өчүрүлгөндөн кийин, телефонуңуздун кулпусун ачып, колдонмолорго кирип жана төлөмдөрдү ырастоо үчүн, PIN кодуңуз, графикалык ачкычыңыз же сырсөзүңүз суралат."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Манжа изи"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Манжа издерин башкаруу"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Манжа издерин колдонуу"</string>
@@ -1200,7 +1200,7 @@
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Screen aware"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Күйүк / Экранды карап турганда, ал өчүп калбайт"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Өчүк"</string>
-    <string name="adaptive_sleep_description" msgid="812673735459170009">"Экранды карап турганыңызда, анын өчүп калуусунун алдын алат."</string>
+    <string name="adaptive_sleep_description" msgid="812673735459170009">"Экранды карап турганда, ал өчүп калбайт."</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Screen aware экранды кимдир-бирөө карап жатканын текшерүү үчүн маңдайкы камераны колдонот. Ал түзмөктө иштеп, сүрөттөрдү эч качан сактап калбайт жана Google\'га жөнөтпөйт."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Түнкү режим"</string>
     <string name="night_display_text" msgid="5330502493684652527">"Түнкү режимде экран сары түскө боёлот. Ушуну менен күңүрт жерде көзүңүзгө күч келбей, тезирээк уктап каласыз."</string>
@@ -2260,7 +2260,7 @@
     <string name="controls_subtitle" msgid="6920199888882834620">"Кубат сарпталышын тууралоо"</string>
     <string name="packages_subtitle" msgid="6506269487892204413">"Камтылган топтомдор"</string>
     <string name="battery_tip_summary_title" msgid="2750922152518825526">"Колдонмолор туура иштеп жатат"</string>
-    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"Телефон фондо батареяны адаттагыдай колдонууда"</string>
+    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"Телефон батареяны адаттагыдай керектөөдө"</string>
     <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"Планшет фондо батареяны адаттагыдай колдонууда"</string>
     <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"Түзмөк фондо батареяны адаттагыдай колдонууда"</string>
     <string name="battery_tip_low_battery_title" msgid="6784043681672161175">"Батарея азыр отуруп калат"</string>
@@ -2272,7 +2272,7 @@
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Батареяны үнөмдөгүч режимин күйгүзүү"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Батарея адаттагыдан эртерээк отуруп калышы мүмкүн"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Батареяны үнөмдөгүч режими күйүк"</string>
-    <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Айрым функциялар чектелген болушу мүмкүн"</string>
+    <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Айрым кызматтардын функциялары чектелиши мүмкүн"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Телефон адаттагыдан көбүрөөк колдонулду"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Планшет адаттагыдан көбүрөөк колдонулду"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Түзмөк адаттагыдан көбүрөөк колдонулду"</string>

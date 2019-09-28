@@ -1335,10 +1335,10 @@
     <string name="status_msid_number" msgid="7808175928664357661">"MSID"</string>
     <string name="status_prl_version" msgid="5634561205739199042">"PRL-versjon"</string>
     <string name="meid_multi_sim" msgid="7449892644113569529">"MEID (SIM-kortspor %1$d)"</string>
-    <string name="scanning_status_text_wifi_on_ble_on" msgid="6370507836346838473">"Både Wi‑Fi- og Bluetooth-skanning er på"</string>
+    <string name="scanning_status_text_wifi_on_ble_on" msgid="6370507836346838473">"Både Wi‑Fi- og Bluetooth-søking er på"</string>
     <string name="scanning_status_text_wifi_on_ble_off" msgid="8205014713732412608">"Wi‑Fi-søking er på, Bluetooth-søking er av"</string>
     <string name="scanning_status_text_wifi_off_ble_on" msgid="7400522456303307057">"Bluetooth-søking er på, Wi-Fi-søking er av"</string>
-    <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"Både Wi‑Fi- og Bluetooth-skanning er av"</string>
+    <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"Både Wi‑Fi- og Bluetooth-søking er av"</string>
     <string name="status_meid_number" msgid="8756271256760479835">"MEID"</string>
     <string name="status_icc_id" msgid="9191847562997702709">"ICCID"</string>
     <string name="status_data_network_type" msgid="2344720457353394909">"Nettverkstype for mobildata"</string>
@@ -1653,7 +1653,7 @@
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"Ingen apper har nylig brukt posisjon"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"Høy batteribruk"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Lav batteribruk"</string>
-    <string name="location_scanning_screen_title" msgid="7663329319689413454">"Søking med Wi‑Fi og Bluetooth"</string>
+    <string name="location_scanning_screen_title" msgid="7663329319689413454">"Søking etter Wi‑Fi og Bluetooth"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Wi‑Fi-søking"</string>
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"La apper og tjenester søke etter Wi-Fi-nettverk når som helst, selv når Wi-Fi er slått av. Dette kan for eksempel brukes til å forbedre posisjonsbaserte funksjoner og tjenester."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth-søking"</string>
@@ -2902,7 +2902,7 @@
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"Anropsloggen deles med denne brukeren."</string>
     <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"Vil du slå på telefonsamtaler og SMS?"</string>
     <string name="user_enable_calling_and_sms_confirm_message" msgid="3278802798876095734">"Anrops- og tekstmeldingsloggen deles med denne brukeren."</string>
-    <string name="emergency_info_title" msgid="1522609271881425375">"Informasjon for nødstilfeller"</string>
+    <string name="emergency_info_title" msgid="1522609271881425375">"Nødinformasjon"</string>
     <string name="emergency_info_summary" msgid="7280464759837387342">"Informasjon og kontakter for <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
     <string name="application_restrictions" msgid="6871981013736536763">"Tillat apper og innhold"</string>
     <string name="apps_with_restrictions_header" msgid="8656739605673756176">"Apper med begrensninger"</string>
@@ -3731,7 +3731,7 @@
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"Bruk denne enheten som MIDI"</string>
     <string name="usb_use" msgid="8940500223316278632">"Bruk USB for"</string>
     <string name="usb_default_label" msgid="7471316635263936101">"Standard USB-konfigurasjon"</string>
-    <string name="usb_default_info" msgid="953775292571786528">"Disse innstillingene gjelder når en annen enhet er koblet til og telefonen din er låst opp. Du bør bare koble til pålitelige enheter."</string>
+    <string name="usb_default_info" msgid="953775292571786528">"Disse innstillingene gjelder når en annen enhet er koblet til og telefonen din er låst opp. Du bør bare koble til godkjente enheter."</string>
     <string name="usb_pref" msgid="6194821550693495068">"USB"</string>
     <string name="usb_preference" msgid="7092987095048592826">"USB-innstillinger"</string>
     <string name="usb_control_title" msgid="2379698856760894768">"USB kontrolleres av"</string>

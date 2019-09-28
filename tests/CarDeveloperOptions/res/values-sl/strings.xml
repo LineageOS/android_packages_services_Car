@@ -2130,7 +2130,7 @@
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Vibriranje ob dotiku"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Uporaba storitve"</string>
     <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Uporaba popravljanja barv"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Uporaba napisov"</string>
+    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Uporaba podnapisov"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Naprej"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Slušni pripomočki"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Noben slušni pripomoček ni povezan"</string>
@@ -2196,7 +2196,7 @@
     <string name="captioning_standard_options_title" msgid="4124898413348084226">"Standardne možnosti"</string>
     <string name="captioning_locale" msgid="4734464353806207943">"Jezik"</string>
     <string name="captioning_text_size" msgid="1707122517246408084">"Velikost besedila"</string>
-    <string name="captioning_preset" msgid="7429888317480872337">"Slog napisov"</string>
+    <string name="captioning_preset" msgid="7429888317480872337">"Slog podnapisov"</string>
     <string name="captioning_custom_options_title" msgid="4530479671071326732">"Možnosti po meri"</string>
     <string name="captioning_background_color" msgid="2434458880326292180">"Barva ozadja"</string>
     <string name="captioning_background_opacity" msgid="8178926599201811936">"Neprosojnost ozadja"</string>
@@ -3873,7 +3873,7 @@
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Aplikaciji za pomoč dovoli dostop do posnetka zaslona"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Utripanje zaslona"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"Utripanje robov zaslona, ko aplikacija za pomoč dostopa do besedila z zaslona ali posnetka zaslona"</string>
-    <string name="assist_footer" msgid="7030121180457472165">"Aplikacije za pomoč vam pomagajo na podlagi podatkov na zaslonu, ki si ga ogledujete. Nekatere aplikacije podpirajo storitve zaganjalnika in glasovnega vnosa pri zagotavljanju integrirane pomoči."</string>
+    <string name="assist_footer" msgid="7030121180457472165">"Aplikacije za pomoč vam lahko pomagajo na podlagi podatkov na zaslonu, ki si ga ogledujete. Nekatere aplikacije podpirajo storitve zaganjalnika in glasovnega vnosa in vam tako zagotavljajo celovito pomoč."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"Povprečna uporaba pomnilnika"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"Največja uporaba pomnilnika"</string>
     <string name="memory_usage" msgid="7963253555330830906">"Uporaba pomnilnika"</string>

@@ -821,7 +821,7 @@
     <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"Izinkan ART memverifikasi bytecode untuk aplikasi yang dapat di-debug"</string>
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"NFC"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"Memungkinkan pertukaran data saat tablet bersentuhan dengan perangkat lain"</string>
-    <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"Memungkinkan pertukaran data saat ponsel bersentuhan dengan perangkat lain"</string>
+    <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"Mungkinkan pertukaran data saat ponsel bersentuhan dengan perangkat lain"</string>
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"Aktifkan NFC"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"NFC mempertukarkan data antara perangkat ini dan perangkat atau target lain di sekitar, seperti terminal pembayaran, pembaca akses, dan iklan atau tag interaktif."</string>
     <string name="nfc_secure_settings_title" msgid="5153751163174916581">"Amankan NFC"</string>
@@ -1199,7 +1199,7 @@
     <string name="auto_brightness_description" msgid="8209140379089535411">"Kecerahan layar akan disesuaikan otomatis dengan lingkungan dan aktivitas Anda. Anda dapat memindahkan penggeser secara manual untuk membantu kecerahan adaptif belajar dari preferensi Anda."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"White balance layar"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Screen aware"</string>
-    <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Aktif/Layar tidak akan mati jika Anda sedang melihatnya"</string>
+    <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Aktif / Layar tidak akan mati jika Anda sedang melihatnya"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Nonaktif"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Mencegah layar mati jika Anda sedang melihatnya."</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Screen aware menggunakan kamera depan untuk mengetahui apakah seseorang sedang melihat layar. Fitur ini berjalan di perangkat, dan gambar tidak pernah disimpan atau dikirimkan ke Google."</string>
@@ -2061,7 +2061,7 @@
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"Teks kontras tinggi"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Perbarui otomatis pembesaran layar"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"Perbarui pembesaran layar di transisi aplikasi"</string>
-    <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Tombol daya - tutup telepon"</string>
+    <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Tombol daya untuk tutup telepon"</string>
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Penunjuk mouse besar"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Hapus animasi"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Audio mono"</string>
@@ -2081,7 +2081,7 @@
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Jeda sentuh lama"</string>
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Inversi warna"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Mungkin memengaruhi performa"</string>
-    <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Lama singgah"</string>
+    <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Klik otomatis setelah diam"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Jika menggunakan mouse, Anda dapat menyetel kursor untuk mengambil tindakan secara otomatis saat kursor berhenti bergerak selama waktu tertentu."</string>
     <string name="accessibility_autoclick_delay_preference_title" msgid="8303022510942147049">"Keterlambatan sebelum klik"</string>
     <string name="accessibility_vibration_settings_title" msgid="1902649657883159406">"Getaran"</string>
@@ -2328,7 +2328,7 @@
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"Aplikasi ini telah menggunakan daya baterai di background. Aplikasi yang dibatasi mungkin tidak berfungsi dengan baik dan notifikasi dapat tertunda."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Gunakan Pengelola Baterai"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Mendeteksi jika aplikasi menghabiskan baterai"</string>
-    <string name="battery_manager_on" msgid="5626982529932239656">"Aktif/Mendeteksi jika aplikasi menghabiskan baterai"</string>
+    <string name="battery_manager_on" msgid="5626982529932239656">"Aktif / Mendeteksi jika aplikasi menghabiskan baterai"</string>
     <string name="battery_manager_off" msgid="9114027524232450371">"Nonaktif"</string>
     <plurals name="battery_manager_app_restricted" formatted="false" msgid="6721813588142691216">
       <item quantity="other">%1$d aplikasi dibatasi</item>
@@ -3233,8 +3233,8 @@
     <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" Lihat setelan kustom"</annotation></string>
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"Hanya untuk prioritas"</string>
     <string name="zen_mode_and_condition" msgid="4123722186007123567">"<xliff:g id="ZEN_MODE">%1$s</xliff:g>. <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_on_with_info" msgid="2539952366467518398">"Aktif/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Nonaktif/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="zen_mode_sound_summary_on_with_info" msgid="2539952366467518398">"Aktif / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Nonaktif / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"Nonaktif"</string>
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Aktif"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Selalu tanya (kecuali diaktifkan otomatis)"</string>

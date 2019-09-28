@@ -1168,7 +1168,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Բնական"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Պայծառ"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Հագեցած"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Հարմարողական"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Հարմարվող"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Օգտագործեք միայն ճշգրիտ վերարտադրվող գույներ"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"Կարգավորեք գույների պայծառությունն ու ճշգրտությունը"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"Ավտոմատ փոխել դիրքավորումը պլանշետը պտտելիս"</string>
@@ -1178,7 +1178,7 @@
     <string name="brightness" msgid="7309120144111305275">"Պայծառության մակարդակ"</string>
     <string name="brightness_title" msgid="5660190946911149690">"Պայծառություն"</string>
     <string name="brightness_summary" msgid="8687101964451818730">"Կարգաբերել էկրանի պայծառությունը"</string>
-    <string name="auto_brightness_title" msgid="908511534369820426">"Հարմարողական պայծառություն"</string>
+    <string name="auto_brightness_title" msgid="908511534369820426">"Հարմարվող պայծառություն"</string>
     <string name="auto_brightness_summary_on" msgid="121488862610275737">"Միացված է"</string>
     <string name="auto_brightness_summary_off" msgid="8569141123211510256">"Անջատված է"</string>
     <string name="auto_brightness_summary_very_low" msgid="7625647285740629347">"Նախընտրելի է շատ ցածր պայծառությունը"</string>
@@ -1196,12 +1196,12 @@
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"Չկարգավորել առկա լույսի համար"</string>
     <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"Մարտկոցի ավելի երկար օգտագործում"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"Լույսի պայծառության մակարդակի օպտիմալացում: Նույնիսկ երբ այս գործառույթը միացված է, դուք կարող եք ժամանակավորապես կարգավորել պայծառությունը:"</string>
-    <string name="auto_brightness_description" msgid="8209140379089535411">"Էկրանի պայծառությունն ավտոմատ կկարգավորվի՝ կախված միջավայրի պայմաններից և ձեր գործողություններից։ Դուք կարող եք տեղաշարժել սահիչը՝ թույլ տալով հարմարողական պայծառությանը հիշել ձեր կարգավորումները։"</string>
+    <string name="auto_brightness_description" msgid="8209140379089535411">"Էկրանի պայծառությունն ավտոմատ կկարգավորվի՝ կախված միջավայրի պայմաններից և ձեր գործողություններից։ Դուք կարող եք տեղաշարժել սահիչը՝ թույլ տալով հարմարվող պայծառությանը հիշել ձեր կարգավորումները։"</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"Էկրանի սպիտակի բալանս"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Ադապտիվ քնած ռեժիմ"</string>
-    <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Միացված է – Երբ դուք նայում եք էկրանին, այն չի անջատվի։"</string>
+    <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Միացված է – Եթե նայում եք էկրանին, այն չի անջատվի։"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Անջատված է"</string>
-    <string name="adaptive_sleep_description" msgid="812673735459170009">"Երբ դուք նայում եք էկրանին, այն չի անջատվի։"</string>
+    <string name="adaptive_sleep_description" msgid="812673735459170009">"Եթե նայում եք էկրանին, այն չի անջատվի։"</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Ադապտիվ քնած ռեժիմում սարքն օգտագործում է առջևի տեսախցիկը, որպեսզի հետևի՝ արդյոք ինչ-որ մեկը նայում է էկրանին։ Այս գործառույթն աշխատում է միայն ձեր սարքում, իսկ պատկերները չեն պահվում և չեն ուղարկվում Google-ին։"</string>
     <string name="night_display_title" msgid="1305002424893349814">"Գիշերային ռեժիմ"</string>
     <string name="night_display_text" msgid="5330502493684652527">"Գիշերային ռեժիմը դեղնավուն երանգ է հաղորդում էկրանին: Դա թույլ է տալիս հանել աչքերի լարվածությունը և օգնում է ավելի արագ քնել։"</string>
@@ -1558,7 +1558,7 @@
     <string name="error_mcc_not3" msgid="1333037488064427164">"MCC դաշտը պետք է 3 նիշ ունենա:"</string>
     <string name="error_mnc_not23" msgid="6738398924368729180">"MNC դաշտը պետք է լինի առնվազն 2 կամ 3 թվանշան:"</string>
     <string name="error_adding_apn_type" msgid="671634520340569678">"Օպերատորը չի թույլատրում ավելացնել %s տեսակի APN-ներ:"</string>
-    <string name="restore_default_apn" msgid="7195266404077471007">"Լռելյայն APN կարգավորումների վերականգնում:"</string>
+    <string name="restore_default_apn" msgid="7195266404077471007">"Կանխադրված APN կարգավորումների վերականգնում:"</string>
     <string name="menu_restore" msgid="3799288817317293115">"Վերականգնել կանխադրվածները"</string>
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Սկզբնական APN կարգավորումների վերակարգավորումն ավարտված է:"</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Զրոյացման ընտրանքներ"</string>
@@ -1976,7 +1976,7 @@
     <string name="keyboard_layout_dialog_title" msgid="4762706917037085797">"Ընտրել ստեղնաշարի դասավորությունը"</string>
     <string name="keyboard_layout_dialog_setup_button" msgid="771293535107618283">"Կարգավորել ստեղնաշարի դասավորությունը"</string>
     <string name="keyboard_layout_dialog_switch_hint" msgid="138516114253502182">"Փոխարկելու համար սեղմեք Control-Բացակ"</string>
-    <string name="keyboard_layout_default_label" msgid="8368579311667189793">"Լռելյայն"</string>
+    <string name="keyboard_layout_default_label" msgid="8368579311667189793">"Կանխադրված"</string>
     <string name="keyboard_layout_picker_title" msgid="6958831599253031987">"Ստեղնաշարի դասավորություն"</string>
     <string name="user_dict_settings_title" msgid="1415462066249818756">"Անձնական բառարան"</string>
     <string name="user_dict_settings_for_work_title" msgid="3995828731001225748">"Անձնական բառարան աշխատանքի համար"</string>
@@ -2157,7 +2157,7 @@
     <string name="captioning_typeface" msgid="7893208796949341767">"Տառատեսակի ընտանիքը"</string>
     <string name="captioning_preview_text" msgid="4877753964772618049">"Ենթագրերն այսպիսին կլինեն"</string>
     <string name="captioning_preview_characters" msgid="6469599599352973561">"Aa"</string>
-    <string name="locale_default" msgid="910074908458214054">"Լռելյայն"</string>
+    <string name="locale_default" msgid="910074908458214054">"Կանխադրված"</string>
     <string name="color_title" msgid="132875486061816584">"Գույն"</string>
     <string name="color_unspecified" msgid="2081242275041140693">"Կանխադրված"</string>
     <string name="color_none" msgid="6073562573637028315">"Ոչինչ"</string>
@@ -2459,7 +2459,7 @@
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Երբեք"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"մատկոցի <xliff:g id="PERCENT">%1$s</xliff:g> լիցքի դեպքում"</string>
     <string name="battery_percentage" msgid="7782252476471033843">"Մարտկոցի լիցքը"</string>
-    <string name="battery_percentage_description" msgid="9219875229166700610">"Ցուցադրել մարտկոցի լիցքի տոկոսը կարգավիճակի գոտում"</string>
+    <string name="battery_percentage_description" msgid="9219875229166700610">"Մարտկոցի տոկոսը ցուցադրել կարգավիճակի գոտում"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"Գործընթացի վիճակագրություն"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"Ընթացիկ գործընթացների տեխնիկական վիճակագրություն"</string>
     <string name="app_memory_use" msgid="5126237308545653706">"Օգտագործվող հիշողություն"</string>

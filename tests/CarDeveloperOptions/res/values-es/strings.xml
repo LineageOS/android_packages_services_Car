@@ -1338,7 +1338,7 @@
     <string name="scanning_status_text_wifi_on_ble_on" msgid="6370507836346838473">"Las redes Wi‑Fi y las conexiones Bluetooth tienen la búsqueda activada"</string>
     <string name="scanning_status_text_wifi_on_ble_off" msgid="8205014713732412608">"La búsqueda de redes Wi‑Fi está activa y la de conexiones Bluetooth, desactivada"</string>
     <string name="scanning_status_text_wifi_off_ble_on" msgid="7400522456303307057">"La búsqueda de conexiones Bluetooth está activada y la de redes Wi‑Fi, desactivada"</string>
-    <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"Las redes Wi‑Fi y las conexiones Bluetooth tienen la búsqueda desactivada"</string>
+    <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"Está desactivada la búsqueda de redes Wi‑Fi y conexiones Bluetooth"</string>
     <string name="status_meid_number" msgid="8756271256760479835">"MEID"</string>
     <string name="status_icc_id" msgid="9191847562997702709">"ICCID"</string>
     <string name="status_data_network_type" msgid="2344720457353394909">"Tipo de red de datos móviles"</string>
@@ -3413,8 +3413,8 @@
     <string name="app_notification_block_summary" msgid="4502146897785692336">"No mostrar nunca estas notificaciones"</string>
     <string name="notification_content_block_title" msgid="2805138591864484587">"Mostrar notificaciones"</string>
     <string name="notification_content_block_summary" msgid="2743896875255591743">"No mostrar nunca notificaciones en el panel de notificaciones ni en dispositivos periféricos"</string>
-    <string name="notification_badge_title" msgid="8989086619255666442">"Permitir punto de notificación"</string>
-    <string name="notification_channel_badge_title" msgid="8228215248332054612">"Mostrar punto de notificación"</string>
+    <string name="notification_badge_title" msgid="8989086619255666442">"Permitir burbuja de notificación"</string>
+    <string name="notification_channel_badge_title" msgid="8228215248332054612">"Mostrar burbuja de notificación"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Omitir No molestar"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Permitir notificaciones cuando el modo No molestar esté activado"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"En la pantalla de bloqueo"</string>

@@ -360,7 +360,7 @@
     <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"بعد السكون مباشرة، باستثناء عندما ميزة <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> تبقي الجهاز مفتوحًا"</string>
     <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> بعد السكون، باستثناء عندما ميزة <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g> تبقي الجهاز مفتوحًا"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"إظهار معلومات المالك في شاشة التأمين"</string>
-    <string name="owner_info_settings_title" msgid="2537966178998339896">"رسالة شاشة التأمين"</string>
+    <string name="owner_info_settings_title" msgid="2537966178998339896">"رسالة شاشة القفل"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"تفعيل الأدوات"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"تم إيقاف الإعداد بواسطة المشرف"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"عرض خيار التأمين"</string>
@@ -395,7 +395,7 @@
     <string name="decryption_settings_summary" product="default" msgid="7401802133199522441">"الهاتف ليس مشفّرًا."</string>
     <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"تم تشفير الجهاز"</string>
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"الجهاز ليس مشفرًا."</string>
-    <string name="lockscreen_settings_title" msgid="1221505938891948413">"عرض شاشة التأمين"</string>
+    <string name="lockscreen_settings_title" msgid="1221505938891948413">"عرض شاشة القفل"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"ما يتم عرضه"</string>
     <string name="security_settings_summary" msgid="5210109100643223686">"تعيين موقعي، إلغاء تأمين الشاشة، تأمين شريحة SIM، تأمين تخزين الاعتماد"</string>
     <string name="cdma_security_settings_summary" msgid="1783066617800041869">"تعيين موقعي، إلغاء تأمين الشاشة، تأمين تخزين الاعتماد"</string>
@@ -1268,8 +1268,8 @@
     <string name="display_white_balance_title" msgid="5747260735311935143">"موازنة اللون الأبيض للشاشة"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Screen aware"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"تفعيل / لن يتم إيقاف الشاشة إذا كنت تنظر إليها."</string>
-    <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"موقوف"</string>
-    <string name="adaptive_sleep_description" msgid="812673735459170009">"لمنع إيقاف الشاشة إذا كنت تنظر إليها."</string>
+    <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"غير مفعّل"</string>
+    <string name="adaptive_sleep_description" msgid="812673735459170009">"منع إطفاء الشاشة إذا كنت تنظر إليها"</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"يستخدم إعداد Screen aware الكاميرا الأمامية لمعرفة ما إذا كان أحد ينظر إلى الشاشة. يعمل هذا الإعداد على الجهاز، لكن لن يتم تخزين أي صور أو إرسالها إلى Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"الإضاءة الليلية"</string>
     <string name="night_display_text" msgid="5330502493684652527">"تؤدي الإضاءة الليلية إلى تلوين الشاشة باللون الكهرماني الخفيف، ما يسهّل النظر إلى الشاشة في الإضاءة الخافتة ويمكن أن يساعدك على الشعور بالنعاس أيضًا."</string>
@@ -1329,10 +1329,10 @@
     <string name="title_font_size" msgid="5021464556860010851">"حجم الخط"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"يمكنك تكبير النص أو تصغيره."</string>
     <string name="sim_lock_settings" msgid="1986924650622642189">"إعدادات قفل شريحة SIM"</string>
-    <string name="sim_lock_settings_category" msgid="1126759898277681516">"تأمين شريحة SIM"</string>
+    <string name="sim_lock_settings_category" msgid="1126759898277681516">"قفل شريحة SIM"</string>
     <string name="sim_lock_settings_summary_off" msgid="348656447968142307">"تم الإيقاف"</string>
     <string name="sim_lock_settings_summary_on" msgid="3440707542514810045">"تم القفل"</string>
-    <string name="sim_lock_settings_title" msgid="877336472752342977">"تأمين شريحة SIM"</string>
+    <string name="sim_lock_settings_title" msgid="877336472752342977">"قفل شريحة SIM"</string>
     <string name="sim_pin_toggle" msgid="2026507420678167488">"قفل شريحة SIM"</string>
     <string name="sim_lock_on" product="tablet" msgid="3917977767884071323">"يلزم إدخال رمز PIN لاستخدام الجهاز اللوحي"</string>
     <string name="sim_lock_on" product="default" msgid="1363159192182487883">"يتطلّب إدخال رقم التعريف الشخصي لاستخدام الهاتف"</string>
@@ -3031,7 +3031,7 @@
     <string name="user_cannot_add_accounts_message" msgid="5993561303748749097">"لا يمكن للملفات الشخصية إضافة حسابات"</string>
     <string name="user_remove_user_menu" msgid="3505139157217459864">"حذف <xliff:g id="USER_NAME">%1$s</xliff:g> من هذا الجهاز"</string>
     <string name="user_lockscreen_settings" msgid="3820813814848394568">"إعدادات شاشة التأمين"</string>
-    <string name="user_add_on_lockscreen_menu" msgid="5211604808199585774">"إضافة المستخدمين من شاشة التأمين"</string>
+    <string name="user_add_on_lockscreen_menu" msgid="5211604808199585774">"إضافة المستخدمين من شاشة القفل"</string>
     <string name="user_new_user_name" msgid="3880395219777884838">"مستخدم جديد"</string>
     <string name="user_new_profile_name" msgid="3074939718101489937">"ملف شخصي جديد"</string>
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"هل تريد حذف نفسك؟"</string>
@@ -3984,7 +3984,7 @@
     <string name="background_check_pref" msgid="664081406854758392">"فحص الخلفية"</string>
     <string name="background_check_title" msgid="4136736684290307970">"الوصول الكامل إلى الخلفية"</string>
     <string name="assist_access_context_title" msgid="2274614501747710439">"استخدام النص من الشاشة"</string>
-    <string name="assist_access_context_summary" msgid="5867997494395842785">"السماح للتطبيق المساعد بالوصول إلى محتوى الشاشة كالنص"</string>
+    <string name="assist_access_context_summary" msgid="5867997494395842785">"السماح للتطبيق المساعد بالوصول إلى محتوى الشاشة كنص"</string>
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"استخدام لقطة الشاشة"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"السماح للتطبيق المساعد بالوصول إلى صورة للشاشة"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"إظهار وميض على الشاشة"</string>
@@ -4711,7 +4711,7 @@
     <string name="mobile_network_sim_name" msgid="8228870017368926761">"اسم شريحة SIM"</string>
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"إعادة تسمية"</string>
     <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"استخدام شريحة SIM"</string>
-    <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"موقوف"</string>
+    <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"غير مفعّل"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"هل تريد التبديل إلى <xliff:g id="CARRIER">%1$s</xliff:g>؟"</string>
     <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"لا يمكن تفعيل أكثر من شريحة SIM واحدة تم تنزيلها في آن واحد.\n\nلن يؤدي اختيار <xliff:g id="CARRIER1">%1$s</xliff:g> كبديل إلى إلغاء خدمة <xliff:g id="CARRIER2">%2$s</xliff:g>."</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"التبديل إلى <xliff:g id="CARRIER">%1$s</xliff:g>"</string>

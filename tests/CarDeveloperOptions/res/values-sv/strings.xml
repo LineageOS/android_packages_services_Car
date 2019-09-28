@@ -2902,7 +2902,7 @@
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"Samtalshistoriken delas med den här användaren."</string>
     <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"Vill du aktivera telefonsamtal och sms?"</string>
     <string name="user_enable_calling_and_sms_confirm_message" msgid="3278802798876095734">"Samtals- och sms-historiken delas med den här användaren."</string>
-    <string name="emergency_info_title" msgid="1522609271881425375">"Krisinformation"</string>
+    <string name="emergency_info_title" msgid="1522609271881425375">"Nödinformation"</string>
     <string name="emergency_info_summary" msgid="7280464759837387342">"Information och kontakter för <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
     <string name="application_restrictions" msgid="6871981013736536763">"Tillåt appar och innehåll"</string>
     <string name="apps_with_restrictions_header" msgid="8656739605673756176">"Appar med begränsningar"</string>
@@ -3754,7 +3754,7 @@
     <string name="assist_access_context_title" msgid="2274614501747710439">"Använda text från skärmen"</string>
     <string name="assist_access_context_summary" msgid="5867997494395842785">"Tillåt att assistentappen får åtkomst till innehåll på skärmen, till exempel text"</string>
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Använda skärmdump"</string>
-    <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Tillåt att assistenappen får åtkomst till en bild på skärmen"</string>
+    <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Tillåt att assistentappen får åtkomst till en bild på skärmen"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Lys upp skärmen"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"Lys upp skärmens kanter när assistentappen har tillgång till text på skärmen eller på en skärmdump"</string>
     <string name="assist_footer" msgid="7030121180457472165">"Med assistentappar kan du få hjälp som baseras på den information som visas på den aktuella skärmen. Vissa appar har stöd för både översikts- och röstinmatningstjänster som hjälper dig."</string>

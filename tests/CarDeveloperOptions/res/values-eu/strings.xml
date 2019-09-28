@@ -1168,7 +1168,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Naturalak"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Nabarmenduak"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Saturatuak"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Doigarria"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Doigarriak"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Erabili kolore errealistak soilik"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"Doitu kolore bizi eta errealisten artean"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"Aldatu orientazioa automatikoki tableta biratzean"</string>
@@ -1202,7 +1202,7 @@
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Aktibatuta / Pantaila ez da itzaliko hari begira zauden bitartean"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Desaktibatuta"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Pantaila itzaltzea eragozten du hari begira zauden bitartean."</string>
-    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Pantaila kontzienteak aurreko kamera erabiltzen du inor pantailari begira dagoen jakiteko. Gailuko eginbidea da, eta irudiak ez dira inoiz gordetzen, ez eta Google-ra bidaltzen ere."</string>
+    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Pantaila kontzientea eginbideak aurreko kamera erabiltzen du inor pantailari begira dagoen jakiteko. Gailuko eginbidea da, eta irudiak ez dira inoiz gordetzen, ez eta Google-ra bidaltzen ere."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Gaueko argia"</string>
     <string name="night_display_text" msgid="5330502493684652527">"Gaueko argiak tindu horikaraz janzten du pantaila. Horrela, ez zaizu horren nekagarria egingo argi gutxirekin pantailari begira egotea eta errazago hartuko duzu lo, gainera."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Ordutegia"</string>

@@ -1163,7 +1163,7 @@
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"개인 계정 - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="search_settings" msgid="5809250790214921377">"검색"</string>
     <string name="display_settings" msgid="1045535829232307190">"디스플레이"</string>
-    <string name="accelerometer_title" msgid="2427487734964971453">"자동 화면 회전"</string>
+    <string name="accelerometer_title" msgid="2427487734964971453">"화면 자동 회전"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"색상"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"자연스럽게"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"생생하게"</string>
@@ -2233,7 +2233,7 @@
     <string name="background_activity_warning_dialog_title" msgid="2170790412855899678">"백그라운드 활동을 제한하시겠습니까?"</string>
     <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"앱의 백그라운드 활동을 제한하면 앱이 정상적으로 작동하지 않을 수도 있습니다."</string>
     <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"배터리 최적화를 설정하지 않아 이 앱을 제한할 수 없습니다.\n\n앱을 제한하려면 먼저 배터리 최적화를 사용 설정하세요."</string>
-    <string name="device_screen_usage" msgid="4470485475363132750">"충전 완료 후 화면 사용"</string>
+    <string name="device_screen_usage" msgid="4470485475363132750">"충전 완료 후 화면 사용 시간"</string>
     <string name="power_usage_list_summary" msgid="4314438658308211057">"충전 완료 후 배터리 사용"</string>
     <string name="screen_usage_summary" msgid="263396144684078341">"충전 완료 후 화면이 켜진 시간"</string>
     <string name="device_usage_list_summary" msgid="8299017481332816368">"충전 완료 후 기기 사용"</string>
@@ -2420,7 +2420,7 @@
     <string name="battery_used_by" msgid="840331542883421888">"<xliff:g id="APP">%2$s</xliff:g>에서 <xliff:g id="PERCENT">%1$s</xliff:g> 사용"</string>
     <string name="battery_overall_usage" msgid="5874301442415987516">"전체 배터리 사용량의 <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_detail_since_full_charge" msgid="3814176986148084378">"마지막 충전 완료 후 사용 내역 분석"</string>
-    <string name="battery_last_full_charge" msgid="5624033030647170717">"마지막 충전 완료"</string>
+    <string name="battery_last_full_charge" msgid="5624033030647170717">"충전 완료 시간"</string>
     <string name="battery_full_charge_last" msgid="4614554109170251301">"충전 완료 후 사용 가능 시간"</string>
     <string name="battery_footer_summary" msgid="4828444679643906943">"배터리 사용 데이터는 대략적인 수치이며, 사용량에 따라 변경될 수 있습니다."</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"연속사용 중일 때"</string>

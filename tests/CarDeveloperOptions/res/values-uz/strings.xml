@@ -62,7 +62,7 @@
     <string name="radioInfo_roaming_not" msgid="7733269160603599835">"Rouming o‘chirilgan"</string>
     <string name="radioInfo_phone_idle" msgid="1893851191227617344">"Faol emas"</string>
     <string name="radioInfo_phone_ringing" msgid="5587975376222853265">"Jiringlamoqda"</string>
-    <string name="radioInfo_phone_offhook" msgid="3186071430568806208">"Qo‘ng‘iroq"</string>
+    <string name="radioInfo_phone_offhook" msgid="3186071430568806208">"Chaqiruv"</string>
     <string name="radioInfo_data_disconnected" msgid="5311119240521915279">"Uzildi"</string>
     <string name="radioInfo_data_connecting" msgid="47095003276717745">"Ulanilmoqda"</string>
     <string name="radioInfo_data_connected" msgid="3755289851642913750">"Ulandi"</string>
@@ -1116,7 +1116,7 @@
     <string name="sound_settings" msgid="3306063041029638807">"Tovush"</string>
     <string name="all_volume_title" msgid="1750261506951315423">"Ovoz balandligi"</string>
     <string name="musicfx_title" msgid="6456079041566773649">"Musiqa effektlari"</string>
-    <string name="ring_volume_title" msgid="5874791723449821646">"Qo‘ng‘iroq ovozi"</string>
+    <string name="ring_volume_title" msgid="5874791723449821646">"Jiringlash tovushi"</string>
     <string name="vibrate_in_silent_title" msgid="2314667015729841220">"Ovozsizligida tebranish"</string>
     <string name="notification_sound_title" msgid="6812164482799723931">"Standart bildirishnoma tovushi"</string>
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"Rington"</string>
@@ -2061,7 +2061,7 @@
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"Yuqori kontrastli matn"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Ekranda kattalashtirish xususiyatini avtomatik ravishda yangilash"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"Bir ilovadan ikkinchisiga o‘tishda ekranda kattalashtirish xususiyatini yangilash"</string>
-    <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Quvvat tugmasi qo‘n-ni tugatadi"</string>
+    <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Quvvat tugmasi chaqiruvni tugatadi"</string>
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Yirik sichqoncha kursori"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Animatsiyalarni olib tashlash"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Mono audio"</string>
@@ -2201,7 +2201,7 @@
     <string name="print_menu_item_settings" msgid="2654804159012579508">"Sozlamalar"</string>
     <string name="print_menu_item_add_printers" msgid="8198201275621756510">"Printerlar qo‘shish"</string>
     <string name="print_feature_state_on" msgid="1838010230650403367">"YONIQ"</string>
-    <string name="print_feature_state_off" msgid="208580346723223688">"YOQILMAGAN"</string>
+    <string name="print_feature_state_off" msgid="208580346723223688">"Yoqilmagan"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"Xizmat qo‘shish"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"Printer qo‘shish"</string>
     <string name="print_menu_item_search" msgid="1165316329772287360">"Qidiruv"</string>
@@ -3145,9 +3145,9 @@
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"Jiringlaganda: 80%"</string>
     <string name="media_volume_option_title" msgid="3553411883305505682">"Multimedia tovushi"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Translatsiya tovushi balandligi"</string>
-    <string name="call_volume_option_title" msgid="5028003296631037334">"Chaqiruv tovushi"</string>
-    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Signal tovushi balandligi"</string>
-    <string name="ring_volume_option_title" msgid="2038924918468372264">"Rington"</string>
+    <string name="call_volume_option_title" msgid="5028003296631037334">"Suhbat tovushi"</string>
+    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Signal tovushi"</string>
+    <string name="ring_volume_option_title" msgid="2038924918468372264">"Jiringlash tovushi"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Bildirishnomalar ovozi"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Telefon ringtoni"</string>
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Standart bildirishnoma tovushi"</string>
@@ -3562,7 +3562,7 @@
     <string name="device_feedback" msgid="4042352891448769818">"Qurilma haqida fikr-mulohaza"</string>
     <string name="restr_pin_enter_admin_pin" msgid="8577847751493521230">"Administrator PIN kodini kiriting"</string>
     <string name="switch_on_text" msgid="7100491749799298324">"YONIQ"</string>
-    <string name="switch_off_text" msgid="3539551289454353555">"YOQILMAGAN"</string>
+    <string name="switch_off_text" msgid="3539551289454353555">"Yoqilmagan"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"Ekranni mahkamlash"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"Agar bu xususiyat yoqilsa, ekran faqat bitta ilovaga mahkamlanadi.\n\nEkranni mahkamlash uchun:\n\n1. Ekranni mahkamlash xususiyatini yoqing\n\n2. Umumiy ma’lumot tugmasini bosing\n\n3. Ekranning yuqorisidagi ilova ikonkasini bosib, keyin Makhamlash tugmasini bosing"</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Yechishdan oldin grafik kalit so‘ralsin"</string>

@@ -427,7 +427,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"अनुहारसम्बन्धी डेटा हटाउनुहोस्"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"तपाईंको यन्त्र अनलक गर्न र अनुप्रयोगहरूमाथि पहुँच राख्न तपाईंको अनुहार प्रयोग गर्न सकिन्छ। "<annotation id="url">"थप जान्नुहोस्"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"अनुहारसम्बन्धी डेटा मेट्ने हो?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"फेस अनलक गर्ने सुविधामार्फत रेकर्ड गरिएको डेटा स्थायी रूपमा र सुरक्षित रूपमा मेटिने छ। हटाइसकेपछि, तपाईंलाई आफ्नो फोन अनलक गर्न, अनुप्रयोगहरूमा साइन इन गर्न र भुक्तानी पुष्टि गर्न आफ्नो PIN, ढाँचा वा पासवर्ड आवश्यक हुने छ।"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"फेस अनलक गर्ने सुविधामार्फत रेकर्ड गरिएको डेटा स्थायी रूपमा र सुरक्षित रूपमा मेटिने छ। हटाइसकेपछि, आफ्नो फोन अनलक गर्न, अनुप्रयोगहरूमा साइन इन गर्न र भुक्तानी पुष्टि गर्न तपाईंसँग आफ्नो PIN, ढाँचा वा पासवर्ड हुनु पर्ने छ।"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"औंठाछाप"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"औंठाछापहरू व्यवस्थापन गर्नुहोस्"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"निम्नको लागि औठाछाप प्रयोग गर्नुहोस्"</string>
@@ -3059,7 +3059,7 @@
     <string name="keywords_display_brightness_level" msgid="7649410848561920512">"मधुरो स्क्रिन, टचस्क्रिन, ब्याट्री, चहकिलो"</string>
     <string name="keywords_display_night_display" msgid="3647370193110044967">"मधुरो स्क्रिन, रात, टिन्ट, रात्रि ड्युटी, उज्यालोपन, स्क्रिनको रङ, रङ"</string>
     <string name="keywords_display_wallpaper" msgid="1202089324795933197">"पृष्ठभूमि, निजीकृत गर्नुहोस्, प्रदर्शन आफू अनुकूल गर्नुहोस्"</string>
-    <string name="keywords_display_font_size" msgid="1496431330244040196">"पाठ आकार"</string>
+    <string name="keywords_display_font_size" msgid="1496431330244040196">"पाठको आकार"</string>
     <string name="keywords_display_cast_screen" msgid="5744566533025100355">"परियोजना, कास्ट, स्क्रिनको प्रतिविम्ब बनाउने, स्क्रिन आदान प्रदान गर्ने, प्रतिविम्ब बनाउने, स्क्रिन आदान प्रदान, स्क्रिन कास्टिङ"</string>
     <string name="keywords_storage" msgid="7704519289838065803">"ठाउँ, डिस्क, हार्ड ड्राइभ, यन्त्र उपयोग"</string>
     <string name="keywords_battery" msgid="3860198379310375112">"शक्ति उपयोग, चार्ज"</string>
@@ -3757,7 +3757,7 @@
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"स्क्रिनको एउटा छवि पहुँच गर्न सहायक अनुप्रयोगलाई अनुमति दिनुहोस्"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"स्क्रिन झिमझिम पार्नुहोस्"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"सहायक अनुप्रयोगले स्क्रिन वा स्क्रिनसटबाट पाठमाथि पहुँच राख्दा स्क्रिनका किनाराहरू झिमझिम पार्नुहोस्"</string>
-    <string name="assist_footer" msgid="7030121180457472165">"तपाईँले हेर्दै गर्नुभएको स्क्रिन जानकारीमा आधारित भएर सहायक अनुप्रयोगहरूले तपाईँलाई मद्दत गर्न सक्छन्।  केही अनुप्रयोगहरूले तपाईँलाई एकीकृत सहायता दिन दुवै लन्चर र आवाज इनपुट सेवाहरूलाई समर्थन गर्दछन्।"</string>
+    <string name="assist_footer" msgid="7030121180457472165">"सहायक अनुप्रयोगहरूले तपाईंले हेर्दै गर्नुभएको स्क्रिनबाट प्राप्त जानकारीमा आधारित भई तपाईंलाई मद्दत गर्न सक्छन्।केही अनुप्रयोगहरूले तपाईंलाई एकीकृत सहायता दिन दुवै लन्चर र आवाज संलग्न इनपुट सेवाहरूलाई समर्थन गर्दछन्।"</string>
     <string name="average_memory_use" msgid="5333366040118953945">"औसत मेमोरी प्रयोग"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"अधिकतम मेमोरी प्रयोग"</string>
     <string name="memory_usage" msgid="7963253555330830906">"मेमोरी प्रयोग"</string>

@@ -427,7 +427,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Suppr. données visage"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Votre visage peut être utilisé pour déverrouiller votre appareil et accéder aux applications. "<annotation id="url">"En savoir plus"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Supprimer les données des visages?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Les données enregistrées par Face Unlock seront supprimées de manière permanente et sécuritaire. Après la suppression, vous aurez besoin de notre NIP, de votre schéma ou de votre mot de passe pour déverrouiller votre téléphone, vous connecter à des applications et confirmer les paiements."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Les données enregistrées par Face Unlock seront supprimées de manière permanente et sécuritaire. Après la suppression, vous aurez besoin de votre NIP, de votre schéma ou de votre mot de passe pour déverrouiller votre téléphone, vous connecter à des applications et confirmer les paiements."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Lecteur d\'empreintes digitales"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Gérer les empreintes digitales"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Util. empr. dig. pour"</string>
@@ -3656,7 +3656,7 @@
     <string name="app_link_open_never" msgid="5774359835242754350">"Ne pas ouvrir dans cette application"</string>
     <string name="default_apps_title" msgid="3848048391400989931">"Par défaut"</string>
     <string name="default_for_work" msgid="7290411716804495366">"Par déf. pour util. professionn."</string>
-    <string name="assist_and_voice_input_title" msgid="324148194703846130">"Assist. et entrée vocale"</string>
+    <string name="assist_and_voice_input_title" msgid="324148194703846130">"Assist./entrée vocale"</string>
     <string name="default_assist_title" msgid="2060846994203235317">"Application d\'assistance"</string>
     <string name="assistant_security_warning_title" msgid="8014460924169723059">"Définir <xliff:g id="ASSISTANT_APP_NAME">%s</xliff:g> comme assistant?"</string>
     <string name="assistant_security_warning" msgid="1304057692847069938">"L\'assistant pourra accéder aux données des applications en cours d\'utilisation sur votre système, y compris les données visibles à l\'écran ou accessibles au sein des applications."</string>

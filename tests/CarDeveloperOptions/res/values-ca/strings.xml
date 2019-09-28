@@ -349,8 +349,8 @@
     <string name="time_picker_title" msgid="1596400307061268660">"Hora"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Bloqueja automàticament"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> després d\'entrar en repòs"</string>
-    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Immediatament després del repòs, menys quan <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> manté la pantalla desbloquejada"</string>
-    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> després d\'activar el repòs, excepte si <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g> manté el dispositiu desbloquejat"</string>
+    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Immediatament després del repòs, excepte si està desbloquejat per <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
+    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> després d\'activar el repòs, excepte si està desbloquejat per <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g>"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"Mostra informació del propietari a la pantalla de bloqueig"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Missatge a la pantalla de bloqueig"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Activa els widgets"</string>
@@ -829,7 +829,7 @@
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Preparat per compartir contingut d\'aplicacions per NFC"</string>
     <string name="android_beam_off_summary" msgid="7365818039159364600">"Desactivat"</string>
-    <string name="nfc_disabled_summary" msgid="2181777971122724361">"No està disponible perquè la funció NFC està desactivada"</string>
+    <string name="nfc_disabled_summary" msgid="2181777971122724361">"No disponible perquè la funció NFC està desactivada"</string>
     <string name="android_beam_label" msgid="5340299879556025708">"Android Beam"</string>
     <string name="android_beam_explained" msgid="4501176353247859329">"Si aquesta funció està activada, pots col·locar el dispositiu a prop d\'un altre que també sigui compatible amb la tecnologia NFC per compartir contingut d\'aplicacions entre tots dos. Per exemple, pots compartir-hi pàgines web, vídeos de YouTube, contactes i moltes coses més.\n\nCol·loca els dispositius a prop (normalment encarant-los per la part posterior) i, a continuació, toca la pantalla del teu dispositiu. L\'aplicació determina el contingut que es pot compartir."</string>
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
@@ -849,8 +849,8 @@
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Notifica\'m quan hi hagi una xarxa pública d\'alta qualitat"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Activa la Wi‑Fi automàticament"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"La Wi-Fi es tornarà a activar automàticament prop de xarxes d\'alta qualitat desades, com la de casa teva"</string>
-    <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"No està disponible perquè la ubicació està desactivada. Activa la "<annotation id="link">"ubicació"</annotation>"."</string>
-    <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"No està disponible perquè la cerca de xarxes Wi-Fi està desactivada"</string>
+    <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"No disponible perquè la ubicació està desactivada. Activa la "<annotation id="link">"ubicació"</annotation>"."</string>
+    <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"No disponible perquè la cerca de xarxes Wi-Fi està desactivada"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Per utilitzar aquesta funció, selecciona un proveïdor de valoració de xarxes"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"Només connexions estables"</string>
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"No utilitzis una xarxa Wi-Fi tret que tingui una bona connexió a Internet"</string>
@@ -1761,7 +1761,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Mostra el patró del perfil"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Vibra en tocar"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"El botó d\'engegada bloqueja"</string>
-    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Excepte si <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> manté el dispositiu desbloquejat"</string>
+    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Excepte si està desbloquejat per <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Defineix el patró de desbloqueig"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Canvia el patró de desbloqueig"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Com crear un patró de desbloqueig"</string>
@@ -3245,8 +3245,8 @@
     </plurals>
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> minuts (tret que s\'activi automàticament)"</string>
     <plurals name="zen_mode_sound_summary_summary_off_info" formatted="false" msgid="8527428833487709278">
-      <item quantity="other">Es poden activar automàticament <xliff:g id="ON_COUNT">%d</xliff:g> programacions</item>
-      <item quantity="one">Es pot activar automàticament 1 programació</item>
+      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> programacions es poden activar automàticament</item>
+      <item quantity="one">1 programació es pot activar automàticament</item>
     </plurals>
     <string name="zen_category_behavior" msgid="7695750848671443532">"Silencia el dispositiu, però permet excepcions"</string>
     <string name="zen_category_exceptions" msgid="2139670640033601899">"Excepcions"</string>
@@ -3757,7 +3757,7 @@
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Permet que l\'aplicació d\'assistència accedeixi a una imatge de la pantalla"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Fes centellejar la pantalla"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"Fa centellejar les vores de la pantalla quan l\'aplicació d\'assistència accedeix al text d\'una pantalla o d\'una captura de pantalla"</string>
-    <string name="assist_footer" msgid="7030121180457472165">"Les aplicacions d\'assistència et poden ajudar en funció de la informació que es mostri a la pantalla. Algunes aplicacions admeten tant els serveis de menú d\'aplicacions com els d\'entrada de veu per oferir-te una assistència integrada."</string>
+    <string name="assist_footer" msgid="7030121180457472165">"Les aplicacions d\'assistència et poden ajudar en funció de la informació que es mostri a la pantalla. Algunes aplicacions admeten tant el menú d\'aplicacions com els serveis d\'entrada de veu per oferir-te una assistència integrada."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"Ús mitjà de la memòria"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"Ús màxim de la memòria"</string>
     <string name="memory_usage" msgid="7963253555330830906">"Ús de la memòria"</string>
@@ -4113,11 +4113,11 @@
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Per canviar d\'aplicació, llisca cap amunt al botó d\'inici. Torna a lliscar cap amunt per veure totes les aplicacions. Funciona des de qualsevol pantalla. El botó Aplicacions recents ja no es mostrarà a la part inferior dreta de la pantalla."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"Prova el botó d\'inici nou"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Activa el gest nou per canviar d\'aplicació"</string>
-    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Doble toc per consultar-lo"</string>
+    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Doble toc per consultar el telèfon"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Per consultar la tauleta, fes-hi doble toc"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Per consultar el dispositiu, fes-hi doble toc"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Per veure l\'hora, les notificacions i altres dades, fes doble toc a la pantalla."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Aixeca per consultar el telèfon"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Aixeca per consultar-lo"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Per consultar la tauleta, aixeca-la"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Aixeca el dispositiu per consultar-lo"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Activa la pantalla"</string>
