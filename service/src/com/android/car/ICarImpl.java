@@ -131,7 +131,7 @@ public class ICarImpl extends ICar.Stub {
         final Resources res = mContext.getResources();
         final int maxRunningUsers = res.getInteger(
                 com.android.internal.R.integer.config_multiuserMaxRunningUsers);
-        mCarUserService = new CarUserService(serviceContext, mUserManagerHelper, userManager,
+        mCarUserService = new CarUserService(serviceContext, userManager,
                 ActivityManager.getService(), maxRunningUsers);
         mCarOccupantZoneService = new CarOccupantZoneService(serviceContext);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
@@ -258,18 +258,18 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Override
-    public void setUserLockStatus(int userHandle, int unlocked) {
+    public void setUserLockStatus(int userId, int unlocked) {
         assertCallingFromSystemProcess();
-        mCarUserService.setUserLockStatus(userHandle, unlocked == 1);
-        mCarMediaService.setUserLockStatus(userHandle, unlocked == 1);
+        mCarUserService.setUserLockStatus(userId, unlocked == 1);
+        mCarMediaService.setUserLockStatus(userId, unlocked == 1);
     }
 
     @Override
-    public void onSwitchUser(int userHandle) {
+    public void onSwitchUser(int userId) {
         assertCallingFromSystemProcess();
 
-        Log.i(TAG, "Foreground user switched to " + userHandle);
-        mCarUserService.onSwitchUser(userHandle);
+        Log.i(TAG, "Foreground user switched to " + userId);
+        mCarUserService.onSwitchUser(userId);
     }
 
     static void assertCallingFromSystemProcess() {
@@ -357,6 +357,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarOccupantZoneService;
             case Car.CAR_BUGREPORT_SERVICE:
                 return mCarBugreportManagerService;
+            case Car.CAR_USER_SERVICE:
+                return mCarUserService;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:" + serviceName);
                 return null;

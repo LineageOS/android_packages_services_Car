@@ -34,17 +34,17 @@ interface ICar {
      *
      * This should be the 2nd method. Do not change the order.
      */
-    oneway void setUserLockStatus(in int userHandle, in int unlocked) = 1;
+    oneway void setUserLockStatus(in int userId, in int unlocked) = 1;
 
     /**
      * Notify of user switching.  This is called only for foreground users when the user is starting
      * to boot.
      *
-     * @param userHandle -  user handle of new user.
+     * @param userId - user id of new user.
      *
      * This should be the 3rd method. Do not change the order.
      */
-    oneway void onSwitchUser(in int userHandle) = 2;
+    oneway void onSwitchUser(in int userId) = 2;
 
     IBinder getCarService(in String serviceName) = 3;
     int getCarConnectionType() = 4;
