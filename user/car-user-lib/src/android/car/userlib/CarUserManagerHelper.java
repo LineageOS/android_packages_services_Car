@@ -579,7 +579,7 @@ public final class CarUserManagerHelper {
      * @param userInfo User to set restrictions on.
      * @param enable If true, restriction is ON, If false, restriction is OFF.
      */
-    private void setDefaultNonAdminRestrictions(UserInfo userInfo, boolean enable) {
+    public void setDefaultNonAdminRestrictions(UserInfo userInfo, boolean enable) {
         for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
             mUserManager.setUserRestriction(restriction, enable, userInfo.getUserHandle());
         }
@@ -774,8 +774,13 @@ public final class CarUserManagerHelper {
         return picture;
     }
 
-    // Assigns a default icon to a user according to the user's id.
-    private Bitmap assignDefaultIcon(UserInfo userInfo) {
+    /**
+     * Assigns a default icon to a user according to the user's id.
+     *
+     * @param userInfo User whose avatar is set to default icon.
+     * @return Bitmap of the user icon.
+     */
+    public Bitmap assignDefaultIcon(UserInfo userInfo) {
         Bitmap bitmap = userInfo.isGuest()
                 ? getGuestDefaultIcon() : getUserDefaultIcon(userInfo);
         mUserManager.setUserIcon(userInfo.id, bitmap);
