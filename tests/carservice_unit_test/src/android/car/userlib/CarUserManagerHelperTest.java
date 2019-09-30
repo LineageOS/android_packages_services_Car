@@ -189,34 +189,6 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testCurrentGuestProcessCannotModifyAccounts() {
-        assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isTrue();
-
-        doReturn(true).when(mUserManager).isGuestUser();
-
-        assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isFalse();
-    }
-
-    @Test
-    public void testCurrentDemoProcessCannotModifyAccounts() {
-        assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isTrue();
-
-        doReturn(true).when(mUserManager).isDemoUser();
-
-        assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isFalse();
-    }
-
-    @Test
-    public void testCurrentDisallowModifyAccountsProcessIsEnforced() {
-        assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isTrue();
-
-        doReturn(true).when(mUserManager)
-                .hasUserRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS);
-
-        assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isFalse();
-    }
-
-    @Test
     public void testGetMaxSupportedRealUsers() {
         setMaxSupportedUsers(7);
 
