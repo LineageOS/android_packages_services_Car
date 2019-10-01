@@ -554,16 +554,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Checks if the current process user can modify accounts. Demo and Guest users cannot modify
-     * accounts even if the DISALLOW_MODIFY_ACCOUNTS restriction is not applied.
-     */
-    public boolean canCurrentProcessModifyAccounts() {
-        return !isCurrentProcessUserHasRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS)
-            && !mUserManager.isDemoUser()
-            && !mUserManager.isGuestUser();
-    }
-
-    /**
      * Returns whether the current process user can switch to other users.
      *
      * <p>For instance switching users is not allowed if the user is in a phone call,
