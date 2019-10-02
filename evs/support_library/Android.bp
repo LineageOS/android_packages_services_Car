@@ -40,7 +40,6 @@ cc_library_shared {
         "libutils",
         "libui",
         "libhidlbase",
-        "libhidltransport",
         "libEGL",
         "libGLESv2",
         "libhardware",

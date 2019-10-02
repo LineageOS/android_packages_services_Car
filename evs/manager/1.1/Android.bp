@@ -33,11 +33,9 @@ cc_binary {
         "libutils",
         "libui",
         "libhidlbase",
-        "libhidltransport",
         "libhardware",
         "android.hardware.automotive.evs@1.0",
         "android.hardware.automotive.evs@1.1",
-        "libhwbinder",
     ],
 
     init_rc: ["android.automotive.evs.manager@1.1.rc"],

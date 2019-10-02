@@ -41,7 +41,6 @@ cc_binary {
         "libutils",
         "libui",
         "libhidlbase",
-        "libhidltransport",
         "libEGL",
         "libGLESv2",
         "libhardware",
