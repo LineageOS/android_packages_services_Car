@@ -544,16 +544,6 @@ public final class CarUserManagerHelper {
     // Current process user restriction accessors
 
     /**
-     * Return whether the user running the current process has a restriction.
-     *
-     * @param restriction Restriction to check. Should be a UserManager.* restriction.
-     * @return Whether that restriction exists for the user running the process.
-     */
-    public boolean isCurrentProcessUserHasRestriction(String restriction) {
-        return mUserManager.hasUserRestriction(restriction);
-    }
-
-    /**
      * Returns whether the current process user can switch to other users.
      *
      * <p>For instance switching users is not allowed if the user is in a phone call,
@@ -563,7 +553,7 @@ public final class CarUserManagerHelper {
         boolean inIdleCallState = TelephonyManager.getDefault().getCallState()
                 == TelephonyManager.CALL_STATE_IDLE;
         boolean disallowUserSwitching =
-                isCurrentProcessUserHasRestriction(UserManager.DISALLOW_USER_SWITCH);
+                mUserManager.hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
         return (inIdleCallState && !disallowUserSwitching);
     }
 

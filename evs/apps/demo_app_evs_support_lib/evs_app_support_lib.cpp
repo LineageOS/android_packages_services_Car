@@ -20,13 +20,10 @@
 #include <log/log.h>
 
 #include <DisplayUseCase.h>
+#include <AnalyzeUseCase.h>
 #include <Utils.h>
 
-using ::android::automotive::evs::support::BaseRenderCallback;
-using ::android::automotive::evs::support::DisplayUseCase;
-using ::android::automotive::evs::support::Frame;
-using ::android::automotive::evs::support::Utils;
-using ::std::string;
+using namespace ::android::automotive::evs::support;
 
 class SimpleRenderCallback : public BaseRenderCallback {
     void render(const Frame& inputFrame, const Frame& outputFrame) {
@@ -57,24 +54,55 @@ class SimpleRenderCallback : public BaseRenderCallback {
     }
 };
 
+class SimpleAnalyzeCallback : public BaseAnalyzeCallback {
+    void analyze(const Frame &frame) {
+        ALOGD("SimpleAnalyzeCallback::analyze");
+        if (frame.data == nullptr) {
+            ALOGE("Invalid frame data was passed to analyze callback");
+            return;
+        }
+
+        // TODO(b/130246434): Now we just put a one second delay as a place
+        // holder. Replace it with an actual complicated enough algorithm.
+
+        ALOGD("SimpleAnalyzerCallback: sleep for one second");
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    };
+};
+
 // Main entry point
 int main() {
     ALOGI("EVS app starting\n");
 
     // Get the default rear view camera from evs support lib
-    string cameraId = Utils::getDefaultRearViewCameraId();
+    std::string cameraId = Utils::getDefaultRearViewCameraId();
     if (cameraId.empty()) {
         ALOGE("Cannot find a valid camera");
         return EXIT_FAILURE;
     }
 
-    DisplayUseCase useCase =
+    DisplayUseCase displayUseCase =
         DisplayUseCase::createDefaultUseCase(cameraId, new SimpleRenderCallback());
 
-    // Stream the video for 20 seconds.
-    if (useCase.startVideoStream()) {
-        std::this_thread::sleep_for(std::chrono::seconds(20));
-        useCase.stopVideoStream();
+    AnalyzeUseCase analyzeUseCase =
+        AnalyzeUseCase::createDefaultUseCase(cameraId, new SimpleAnalyzeCallback());
+
+    // Run both DisplayUseCase and AnalyzeUseCase together for 10 seconds.
+    if (displayUseCase.startVideoStream()
+        && analyzeUseCase.startVideoStream()) {
+
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+
+        displayUseCase.stopVideoStream();
+        analyzeUseCase.stopVideoStream();
+    }
+
+    // Run only AnalyzeUseCase for 10 seconds. The display control is back to
+    // Android framework but the camera is still occupied by AnalyzeUseCase in
+    // the background.
+    if (analyzeUseCase.startVideoStream()) {
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        analyzeUseCase.stopVideoStream();
     }
 
     return 0;

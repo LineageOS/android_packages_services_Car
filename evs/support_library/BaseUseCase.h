@@ -26,7 +26,6 @@ namespace support {
 
 using ::std::string;
 using ::std::vector;
-using ::android::sp;
 
 /**
  * Base class for all the use cases in the EVS support library.
