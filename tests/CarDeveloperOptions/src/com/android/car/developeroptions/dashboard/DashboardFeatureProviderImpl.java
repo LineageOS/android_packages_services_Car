@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -180,7 +181,7 @@ public class DashboardFeatureProviderImpl implements DashboardFeatureProvider {
 
             ThreadUtils.postOnBackgroundThread(() -> {
                 final Map<String, IContentProvider> providerMap = new ArrayMap<>();
-                final String uri = tile.getMetaData().getString(META_DATA_PREFERENCE_SUMMARY_URI);
+                final Uri uri = TileUtils.getCompleteUri(tile, META_DATA_PREFERENCE_SUMMARY_URI);
                 final String summaryFromUri = TileUtils.getTextFromUri(
                         mContext, uri, providerMap, META_DATA_PREFERENCE_SUMMARY);
                 ThreadUtils.postOnMainThread(() -> preference.setSummary(summaryFromUri));
@@ -214,7 +215,7 @@ public class DashboardFeatureProviderImpl implements DashboardFeatureProvider {
                     packageName = intent.getComponent().getPackageName();
                 }
                 final Map<String, IContentProvider> providerMap = new ArrayMap<>();
-                final String uri = tile.getMetaData().getString(META_DATA_PREFERENCE_ICON_URI);
+                final Uri uri = TileUtils.getCompleteUri(tile, META_DATA_PREFERENCE_ICON_URI);
                 final Pair<String, Integer> iconInfo = TileUtils.getIconFromUri(
                         mContext, packageName, uri, providerMap);
                 if (iconInfo == null) {
