@@ -383,7 +383,7 @@ public class PowerHalService extends HalServiceBase {
         for (VehiclePropValue v : values) {
             switch (v.prop) {
                 case AP_POWER_STATE_REPORT:
-                    // Should never see this; write-only property
+                    // Ignore this property. It made inside of CarService.
                     break;
                 case AP_POWER_STATE_REQ:
                     int state = v.value.int32Values.get(VehicleApPowerStateReqIndex.STATE);
