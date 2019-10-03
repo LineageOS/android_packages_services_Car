@@ -44,7 +44,7 @@ LOCAL_STATIC_ANDROID_LIBRARIES += \
     car-service-lib-for-test \
     com.google.android.material_material \
     androidx.appcompat_appcompat \
-    androidx.car_car-cluster
+    androidx.car_car
 
 LOCAL_STATIC_JAVA_LIBRARIES += \
     android.hidl.base-V1.0-java \
@@ -52,7 +52,6 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     vehicle-hal-support-lib \
     com.android.car.keventreader-client \
     guava \
-    kitchensink-gson \
     android.car.cluster.navigation
 
 LOCAL_JAVA_LIBRARIES += android.car
@@ -62,9 +61,6 @@ LOCAL_REQUIRED_MODULES := privapp_whitelist_com.google.android.car.kitchensink
 include $(BUILD_PACKAGE)
 
 include $(CLEAR_VARS)
-
-LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
-    kitchensink-gson:libs/gson-2.1.jar
 
 include $(BUILD_MULTI_PREBUILT)
 
