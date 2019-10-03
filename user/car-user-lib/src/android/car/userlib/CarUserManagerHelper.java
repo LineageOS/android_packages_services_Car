@@ -21,10 +21,7 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.app.ActivityManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -100,20 +97,6 @@ public final class CarUserManagerHelper {
     private final TestableFrameworkWrapper mTestableFrameworkWrapper;
     private String mDefaultAdminName;
     private Bitmap mDefaultGuestUserIcon;
-    private ArrayList<OnUsersUpdateListener> mUpdateListeners;
-    private final BroadcastReceiver mUserChangeReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            ArrayList<OnUsersUpdateListener> copyOfUpdateListeners;
-            synchronized (mUpdateListeners) {
-                copyOfUpdateListeners = new ArrayList(mUpdateListeners);
-            }
-
-            for (OnUsersUpdateListener listener : copyOfUpdateListeners) {
-                listener.onUsersUpdate();
-            }
-        }
-    };
 
     /**
      * Initializes with a default name for admin users.
@@ -126,52 +109,10 @@ public final class CarUserManagerHelper {
 
     @VisibleForTesting
     CarUserManagerHelper(Context context, TestableFrameworkWrapper testableFrameworkWrapper) {
-        mUpdateListeners = new ArrayList<>();
         mContext = context.getApplicationContext();
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mActivityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
         mTestableFrameworkWrapper = testableFrameworkWrapper;
-    }
-
-    /**
-     * Registers a listener for updates to all users - removing, adding users or changing user info.
-     *
-     * @param listener Instance of {@link OnUsersUpdateListener}.
-     */
-    public void registerOnUsersUpdateListener(OnUsersUpdateListener listener) {
-        if (listener == null) {
-            return;
-        }
-
-        synchronized (mUpdateListeners) {
-            if (mUpdateListeners.isEmpty()) {
-                // First listener being added, register receiver.
-                registerReceiver();
-            }
-
-            if (!mUpdateListeners.contains(listener)) {
-                mUpdateListeners.add(listener);
-            }
-        }
-    }
-
-    /**
-     * Unregisters on user update listener.
-     * Unregisters {@code BroadcastReceiver} if no listeners remain.
-     *
-     * @param listener Instance of {@link OnUsersUpdateListener} to unregister.
-     */
-    public void unregisterOnUsersUpdateListener(OnUsersUpdateListener listener) {
-        synchronized (mUpdateListeners) {
-            if (mUpdateListeners.contains(listener)) {
-                mUpdateListeners.remove(listener);
-
-                if (mUpdateListeners.isEmpty()) {
-                    // No more listeners, unregister broadcast receiver.
-                    unregisterReceiver();
-                }
-            }
-        }
     }
 
     /**
@@ -833,27 +774,12 @@ public final class CarUserManagerHelper {
         return picture;
     }
 
-    private void registerReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_USER_REMOVED);
-        filter.addAction(Intent.ACTION_USER_ADDED);
-        filter.addAction(Intent.ACTION_USER_INFO_CHANGED);
-        filter.addAction(Intent.ACTION_USER_SWITCHED);
-        filter.addAction(Intent.ACTION_USER_STOPPED);
-        filter.addAction(Intent.ACTION_USER_UNLOCKED);
-        mContext.registerReceiverAsUser(mUserChangeReceiver, UserHandle.ALL, filter, null, null);
-    }
-
     // Assigns a default icon to a user according to the user's id.
     private Bitmap assignDefaultIcon(UserInfo userInfo) {
         Bitmap bitmap = userInfo.isGuest()
                 ? getGuestDefaultIcon() : getUserDefaultIcon(userInfo);
         mUserManager.setUserIcon(userInfo.id, bitmap);
         return bitmap;
-    }
-
-    private void unregisterReceiver() {
-        mContext.unregisterReceiver(mUserChangeReceiver);
     }
 
     private String getDefaultAdminName() {
@@ -866,16 +792,5 @@ public final class CarUserManagerHelper {
     @VisibleForTesting
     void setDefaultAdminName(String defaultAdminName) {
         mDefaultAdminName = defaultAdminName;
-    }
-
-    /**
-     * Interface for listeners that want to register for receiving updates to changes to the users
-     * on the system including removing and adding users, and changing user info.
-     */
-    public interface OnUsersUpdateListener {
-        /**
-         * Method that will get called when users list has been changed.
-         */
-        void onUsersUpdate();
     }
 }
