@@ -97,6 +97,8 @@ public class VmsClientManagerTest {
     private static final String HAL_CLIENT_NAME = "HalClient";
     private static final String UNKNOWN_PACKAGE = "UnknownPackage";
 
+    private static final long MILLIS_BEFORE_REBIND = 100;
+
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock
@@ -118,6 +120,12 @@ public class VmsClientManagerTest {
 
     @Mock
     private VmsHalService mHal;
+
+    @Mock
+    private Handler mHandler;
+
+    @Captor
+    private ArgumentCaptor<Runnable> mRebindCaptor;
 
     @Mock
     private VmsPublisherService mPublisherService;
@@ -152,7 +160,7 @@ public class VmsClientManagerTest {
 
         when(mResources.getInteger(
                 com.android.car.R.integer.millisecondsBeforeRebindToVmsPublisher)).thenReturn(
-                5);
+                (int) MILLIS_BEFORE_REBIND);
         when(mResources.getStringArray(
                 com.android.car.R.array.vmsPublisherSystemClients)).thenReturn(
                 new String[]{ SYSTEM_CLIENT });
@@ -168,7 +176,7 @@ public class VmsClientManagerTest {
         mCallingAppUid = UserHandle.getUid(USER_ID, 0);
 
         mClientManager = new VmsClientManager(mContext, mBrokerService, mUserService,
-                mUserManagerHelper, mHal, () -> mCallingAppUid);
+                mUserManagerHelper, mHal, mHandler, () -> mCallingAppUid);
         verify(mHal).setClientManager(mClientManager);
         mClientManager.setPublisherService(mPublisherService);
 
@@ -180,11 +188,10 @@ public class VmsClientManagerTest {
 
     @After
     public void tearDown() throws Exception {
-        Thread.sleep(10); // Time to allow for delayed rebinds to settle
         verify(mContext, atLeast(0)).getSystemService(eq(Context.USER_SERVICE));
         verify(mContext, atLeast(0)).getResources();
         verify(mContext, atLeast(0)).getPackageManager();
-        verifyNoMoreInteractions(mContext, mBrokerService, mHal, mPublisherService);
+        verifyNoMoreInteractions(mContext, mBrokerService, mHal, mPublisherService, mHandler);
     }
 
     @Test
@@ -467,7 +474,7 @@ public class VmsClientManagerTest {
         connection.onServiceDisconnected(null);
         verify(mPublisherService).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
 
-        Thread.sleep(10);
+        verifyAndRunRebindTask();
         verify(mContext).unbindService(connection);
         verifySystemBind(1);
     }
@@ -490,6 +497,8 @@ public class VmsClientManagerTest {
         binder = createPublisherBinder();
         connection.onServiceConnected(null, binder);
         verifyOnClientConnected(SYSTEM_CLIENT_NAME, binder);
+
+        verifyAndRunRebindTask();
         // No more interactions (verified by tearDown)
     }
 
@@ -507,7 +516,7 @@ public class VmsClientManagerTest {
         connection.onBindingDied(null);
         verify(mPublisherService).onClientDisconnected(eq(SYSTEM_CLIENT_NAME));
 
-        Thread.sleep(10);
+        verifyAndRunRebindTask();
         verify(mContext).unbindService(connection);
         verifySystemBind(1);
     }
@@ -523,7 +532,7 @@ public class VmsClientManagerTest {
 
         verifyZeroInteractions(mPublisherService);
 
-        Thread.sleep(10);
+        verifyAndRunRebindTask();
         verify(mContext).unbindService(connection);
         verifySystemBind(1);
     }
@@ -541,7 +550,7 @@ public class VmsClientManagerTest {
         connection.onServiceDisconnected(null);
         verify(mPublisherService).onClientDisconnected(eq(USER_CLIENT_NAME));
 
-        Thread.sleep(10);
+        verifyAndRunRebindTask();
         verify(mContext).unbindService(connection);
         verifyUserBind(1);
     }
@@ -564,6 +573,8 @@ public class VmsClientManagerTest {
         binder = createPublisherBinder();
         connection.onServiceConnected(null, binder);
         verifyOnClientConnected(USER_CLIENT_NAME, binder);
+
+        verifyAndRunRebindTask();
         // No more interactions (verified by tearDown)
     }
 
@@ -580,7 +591,7 @@ public class VmsClientManagerTest {
         connection.onBindingDied(null);
         verify(mPublisherService).onClientDisconnected(eq(USER_CLIENT_NAME));
 
-        Thread.sleep(10);
+        verifyAndRunRebindTask();
         verify(mContext).unbindService(connection);
         verifyUserBind(1);
     }
@@ -596,7 +607,7 @@ public class VmsClientManagerTest {
 
         verifyZeroInteractions(mPublisherService);
 
-        Thread.sleep(10);
+        verifyAndRunRebindTask();
         verify(mContext).unbindService(connection);
         verifyUserBind(1);
     }
@@ -973,6 +984,11 @@ public class VmsClientManagerTest {
                 argThat((service) -> service.filterEquals(expectedService)),
                 mConnectionCaptor.capture(),
                 eq(Context.BIND_AUTO_CREATE), any(Handler.class), eq(user));
+    }
+
+    private void verifyAndRunRebindTask() {
+        verify(mHandler).postDelayed(mRebindCaptor.capture(), eq(MILLIS_BEFORE_REBIND));
+        mRebindCaptor.getValue().run();
     }
 
     private void verifyOnClientConnected(String publisherName, IBinder binder) {
