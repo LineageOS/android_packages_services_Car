@@ -33,7 +33,7 @@ LOCAL_PRIVATE_PLATFORM_APIS := true
 LOCAL_STATIC_ANDROID_LIBRARIES += \
     androidx.lifecycle_lifecycle-livedata \
     androidx.lifecycle_lifecycle-viewmodel \
-    androidx.car_car-cluster
+    androidx.car_car
 
 include $(BUILD_PACKAGE)
 
