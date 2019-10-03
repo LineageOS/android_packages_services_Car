@@ -14,31 +14,35 @@
  * limitations under the License.
  */
 
-package com.android.car.trust
+package com.android.car.trust;
 
-import java.util.UUID
+import android.annotation.NonNull;
+
+import java.util.UUID;
 
 /**
- * The callback that will be notified of various actions that occur in a [BleMessageStream].
+ * The callback that will be notified of various actions that occur in a {@link BleMessageStream}.
  */
-internal interface BleMessageStreamCallback {
+interface BleMessageStreamCallback {
     /**
      * Called if an error was encountered during a processing of a client message.
      *
-     * @param uuid The UUID of the characteristic that the client message was retrieved from.
+     * @param uuid The {@link UUID} of the characteristic that the client message was retrieved
+     *             from.
      */
-    fun onMessageReceivedError(uuid: UUID)
+    void onMessageReceivedError(@NonNull UUID uuid);
 
     /**
      * Called when a complete message is received from the client.
      *
      * @param message The complete message.
-     * @param uuid The UUID of the characteristic that the client message was retrieved from.
+     * @param uuid The {@link UUID} of the characteristic that the client message was retrieved
+     *             from.
      */
-    fun onMessageReceived(message: ByteArray, uuid: UUID)
+    void onMessageReceived(@NonNull byte[] message, UUID uuid);
 
     /**
      * Called if there was an error during a write of a message to the stream.
      */
-    fun onWriteMessageError()
+    void onWriteMessageError();
 }

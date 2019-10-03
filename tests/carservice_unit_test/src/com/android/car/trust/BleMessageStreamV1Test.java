@@ -90,7 +90,7 @@ public class BleMessageStreamV1Test {
         mBleMessageStream = new BleMessageStreamV1(
                 mHandlerMock, mBlePeripheralManager, mBluetoothDevice, mWriteCharacteristicMock,
                 mReadCharacteristicMock);
-        mBleMessageStream.setCallback(mCallbackMock);
+        mBleMessageStream.registerCallback(mCallbackMock);
     }
 
     @Test
@@ -192,9 +192,9 @@ public class BleMessageStreamV1Test {
         ArgumentCaptor<byte[]> messageCaptor = ArgumentCaptor.forClass(byte[].class);
 
         // Because there is no ACK, the write should be retried up to the limit.
-        verify(mWriteCharacteristicMock, times(BleMessageStreamV1Kt.BLE_MESSAGE_RETRY_LIMIT))
+        verify(mWriteCharacteristicMock, times(BleMessageStreamV1.BLE_MESSAGE_RETRY_LIMIT))
                 .setValue(messageCaptor.capture());
-        verify(mBlePeripheralManager, times(BleMessageStreamV1Kt.BLE_MESSAGE_RETRY_LIMIT))
+        verify(mBlePeripheralManager, times(BleMessageStreamV1.BLE_MESSAGE_RETRY_LIMIT))
                 .notifyCharacteristicChanged(mBluetoothDevice, mWriteCharacteristicMock, false);
 
         List<byte[]> writtenBytes = messageCaptor.getAllValues();
@@ -237,9 +237,9 @@ public class BleMessageStreamV1Test {
         mBleMessageStream.writeMessage(message, operationType, isPayloadEncrypted);
 
         // Because there is no ACK, the write should be retried up to the limit.
-        verify(mWriteCharacteristicMock, times(BleMessageStreamV1Kt.BLE_MESSAGE_RETRY_LIMIT))
+        verify(mWriteCharacteristicMock, times(BleMessageStreamV1.BLE_MESSAGE_RETRY_LIMIT))
                 .setValue(any(byte[].class));
-        verify(mBlePeripheralManager, times(BleMessageStreamV1Kt.BLE_MESSAGE_RETRY_LIMIT))
+        verify(mBlePeripheralManager, times(BleMessageStreamV1.BLE_MESSAGE_RETRY_LIMIT))
                 .notifyCharacteristicChanged(mBluetoothDevice, mWriteCharacteristicMock, false);
 
         // But the callback should only be notified once.
