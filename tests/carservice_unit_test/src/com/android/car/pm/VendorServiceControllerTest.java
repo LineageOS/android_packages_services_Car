@@ -90,7 +90,7 @@ public class VendorServiceControllerTest {
     public void setUp() {
         mContext = new ServiceLauncherContext(ApplicationProvider.getApplicationContext());
         mUserManagerHelper = Mockito.spy(new CarUserManagerHelper(mContext));
-        mCarUserService = new CarUserService(mContext, mUserManager,
+        mCarUserService = new CarUserService(mContext, mUserManagerHelper, mUserManager,
                 ActivityManager.getService(), 2 /* max running users */);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
 
