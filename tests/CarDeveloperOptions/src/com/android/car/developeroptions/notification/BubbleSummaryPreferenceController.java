@@ -16,7 +16,7 @@
 
 package com.android.car.developeroptions.notification;
 
-import static android.provider.Settings.Secure.NOTIFICATION_BUBBLES;
+import static android.provider.Settings.Global.NOTIFICATION_BUBBLES;
 
 import android.app.settings.SettingsEnums;
 import android.content.Context;
@@ -53,7 +53,7 @@ public class BubbleSummaryPreferenceController extends NotificationPreferenceCon
             return false;
         }
         if (mChannel != null) {
-            if (Settings.Secure.getInt(mContext.getContentResolver(),
+            if (Settings.Global.getInt(mContext.getContentResolver(),
                     NOTIFICATION_BUBBLES, SYSTEM_WIDE_ON) == SYSTEM_WIDE_OFF) {
                 return false;
             }
@@ -92,7 +92,7 @@ public class BubbleSummaryPreferenceController extends NotificationPreferenceCon
                 canBubble |= mChannel.canBubble();
             } else {
                canBubble |= mAppRow.allowBubbles
-                       && (Settings.Secure.getInt(mContext.getContentResolver(),
+                       && (Settings.Global.getInt(mContext.getContentResolver(),
                        NOTIFICATION_BUBBLES, SYSTEM_WIDE_ON) == SYSTEM_WIDE_ON);
             }
         }

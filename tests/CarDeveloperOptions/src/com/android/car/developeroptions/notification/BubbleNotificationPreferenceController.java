@@ -16,8 +16,7 @@
 
 package com.android.car.developeroptions.notification;
 
-import static android.provider.Settings.Secure.NOTIFICATION_BUBBLES;
-import static android.provider.Settings.Secure.NOTIFICATION_BUBBLES;
+import static android.provider.Settings.Global.NOTIFICATION_BUBBLES;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -83,20 +82,20 @@ public class BubbleNotificationPreferenceController extends TogglePreferenceCont
 
     @Override
     public boolean isChecked() {
-        return Settings.Secure.getInt(mContext.getContentResolver(),
+        return Settings.Global.getInt(mContext.getContentResolver(),
                 NOTIFICATION_BUBBLES, ON) == ON;
     }
 
     @Override
     public boolean setChecked(boolean isChecked) {
-        return Settings.Secure.putInt(mContext.getContentResolver(),
+        return Settings.Global.putInt(mContext.getContentResolver(),
                 NOTIFICATION_BUBBLES, isChecked ? ON : OFF);
     }
 
     class SettingObserver extends ContentObserver {
 
         private final Uri NOTIFICATION_BUBBLES_URI =
-                Settings.Secure.getUriFor(NOTIFICATION_BUBBLES);
+                Settings.Global.getUriFor(NOTIFICATION_BUBBLES);
 
         private final Preference mPreference;
 
