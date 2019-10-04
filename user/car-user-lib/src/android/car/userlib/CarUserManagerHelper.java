@@ -262,21 +262,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Gets all the existing users on the system that are not currently running as
-     * the foreground user.
-     * These are all the users that can be switched to from the foreground user.
-     *
-     * @return List of {@code UserInfo} for each user that is not the foreground user.
-     */
-    public List<UserInfo> getAllSwitchableUsers() {
-        if (isHeadlessSystemUser()) {
-            return getAllUsersExceptSystemUserAndSpecifiedUser(getCurrentForegroundUserId());
-        } else {
-            return getAllUsersExceptSpecifiedUser(getCurrentForegroundUserId());
-        }
-    }
-
-    /**
      * Gets all the users that can be brought to the foreground on the system.
      *
      * @return List of {@code UserInfo} for users that associated with a real person.
@@ -294,7 +279,7 @@ public final class CarUserManagerHelper {
      *
      * @return List of {@code UserInfo} for non-ephemeral users that associated with a real person.
      */
-    public List<UserInfo> getAllPersistentUsers() {
+    private List<UserInfo> getAllPersistentUsers() {
         List<UserInfo> users = getAllUsers();
         for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
             UserInfo userInfo = iterator.next();

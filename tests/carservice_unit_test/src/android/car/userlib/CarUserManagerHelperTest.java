@@ -124,35 +124,6 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testGetAllSwitchableUsers() {
-        // Create two non-foreground users.
-        UserInfo user1 = createUserInfoForId(mForegroundUserId + 1);
-        UserInfo user2 = createUserInfoForId(mForegroundUserId + 2);
-
-        mockGetUsers(mForegroundUser, user1, user2);
-
-        // Should return all non-foreground users.
-        assertThat(mCarUserManagerHelper.getAllSwitchableUsers()).containsExactly(user1, user2);
-    }
-
-    @Test
-    public void testGetAllPersistentUsers() {
-        // Create two non-ephemeral users.
-        UserInfo user1 = createUserInfoForId(mForegroundUserId);
-        UserInfo user2 = createUserInfoForId(mForegroundUserId + 1);
-        // Create two ephemeral users.
-        UserInfo user3 = new UserInfo(
-                /* id= */mForegroundUserId + 2, /* name = */ "user3", UserInfo.FLAG_EPHEMERAL);
-        UserInfo user4 = new UserInfo(
-                /* id= */mForegroundUserId + 3, /* name = */ "user4", UserInfo.FLAG_EPHEMERAL);
-
-        mockGetUsers(user1, user2, user3, user4);
-
-        // Should return all non-ephemeral users.
-        assertThat(mCarUserManagerHelper.getAllPersistentUsers()).containsExactly(user1, user2);
-    }
-
-    @Test
     public void testGetAllAdminUsers() {
         // Create two admin, and two non-admin users.
         UserInfo user1 = new UserInfo(/* id= */ 10, /* name = */ "user10", UserInfo.FLAG_ADMIN);
