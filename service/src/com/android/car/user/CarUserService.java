@@ -25,12 +25,11 @@ import android.app.ActivityManager;
 import android.app.IActivityManager;
 import android.car.ICarUserService;
 import android.car.settings.CarSettings;
+import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
-import android.graphics.Bitmap;
 import android.location.LocationManager;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -41,7 +40,6 @@ import com.android.car.CarServiceBase;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
-import com.android.internal.util.UserIcons;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -61,39 +59,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public final class CarUserService extends ICarUserService.Stub implements CarServiceBase {
     private final Context mContext;
+    private final CarUserManagerHelper mCarUserManagerHelper;
     private final IActivityManager mAm;
     private final UserManager mUserManager;
     private final int mMaxRunningUsers;
-
-    /**
-     * Default restrictions for Non-Admin users.
-     */
-    private static final String[] DEFAULT_NON_ADMIN_RESTRICTIONS = new String[] {
-            UserManager.DISALLOW_FACTORY_RESET
-    };
-
-    /**
-     * Default restrictions for Guest users.
-     */
-    private static final String[] DEFAULT_GUEST_RESTRICTIONS = new String[] {
-            UserManager.DISALLOW_FACTORY_RESET,
-            UserManager.DISALLOW_REMOVE_USER,
-            UserManager.DISALLOW_MODIFY_ACCOUNTS,
-            UserManager.DISALLOW_INSTALL_APPS,
-            UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES,
-            UserManager.DISALLOW_UNINSTALL_APPS
-    };
-
-    /**
-     * List of restrictions relaxed for Non-Admin users.
-     *
-     * <p>Each non-admin has sms and outgoing call restrictions applied by the UserManager on
-     * creation. We want to enable these permissions by default in the car.
-     */
-    private static final String[] RELAXED_RESTRICTIONS_FOR_NON_ADMIN = new String[] {
-            UserManager.DISALLOW_SMS,
-            UserManager.DISALLOW_OUTGOING_CALLS
-    };
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -122,12 +91,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         void onSwitchUser(@UserIdInt int userId);
     }
 
-    public CarUserService(@NonNull Context context, @NonNull UserManager userManager,
-            @NonNull IActivityManager am, int maxRunningUsers) {
+    public CarUserService(
+            @NonNull Context context, @NonNull CarUserManagerHelper carUserManagerHelper,
+            @NonNull UserManager userManager, @NonNull IActivityManager am, int maxRunningUsers) {
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
             Log.d(TAG_USER, "constructed");
         }
         mContext = context;
+        mCarUserManagerHelper = carUserManagerHelper;
         mAm = am;
         mMaxRunningUsers = maxRunningUsers;
         mUserManager = userManager;
@@ -170,7 +141,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (admin) {
             return createNewAdminUser(name);
         }
-        return createNewNonAdminUser(name);
+        return mCarUserManagerHelper.createNewNonAdminUser(name);
     }
 
     /**
@@ -198,8 +169,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return null;
         }
         // Passenger user should be a non-admin user.
-        setDefaultNonAdminRestrictions(user, /* enable= */ true);
-        assignDefaultIcon(user);
+        mCarUserManagerHelper.setDefaultNonAdminRestrictions(user, /* enable= */ true);
+        mCarUserManagerHelper.assignDefaultIcon(user);
         return user;
     }
 
@@ -219,7 +190,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Log.w(TAG_USER, "current process is not allowed to switch user");
             return false;
         }
-        if (driverId == getCurrentUserId()) {
+        if (driverId == mCarUserManagerHelper.getCurrentForegroundUserId()) {
             // The current user is already the given user.
             return true;
         }
@@ -247,7 +218,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     /**
      * @see CarUserManager.getPassengers
-     * @return
      */
     @Override
     @NonNull
@@ -284,11 +254,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return userId == UserHandle.USER_SYSTEM;
     }
 
-    /** Returns whether the user running the current process has a restriction. */
-    private boolean isCurrentProcessUserHasRestriction(String restriction) {
-        return mUserManager.hasUserRestriction(restriction);
-    }
-
     private void updateDefaultUserRestriction() {
         // We want to set restrictions on system and guest users only once. These are persisted
         // onto disk, so it's sufficient to do it once + we minimize the number of disk writes.
@@ -300,22 +265,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (UserManager.isHeadlessSystemUserMode()) {
             setSystemUserRestrictions();
         }
-        initDefaultGuestRestrictions();
+        mCarUserManagerHelper.initDefaultGuestRestrictions();
         Settings.Global.putInt(mContext.getContentResolver(),
                 CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
-    }
-
-    /**
-     * Sets default guest restrictions that will be applied every time a Guest user is created.
-     *
-     * <p> Restrictions are written to disk and persistent across boots.
-     */
-    private void initDefaultGuestRestrictions() {
-        Bundle defaultGuestRestrictions = new Bundle();
-        for (String restriction : DEFAULT_GUEST_RESTRICTIONS) {
-            defaultGuestRestrictions.putBoolean(restriction, true);
-        }
-        mUserManager.setDefaultGuestRestrictions(defaultGuestRestrictions);
     }
 
     private boolean isPersistentUser(@UserIdInt int userId) {
@@ -360,7 +312,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 Integer user = userId;
                 if (isPersistentUser(userId)) {
                     // current foreground user should stay in top priority.
-                    if (userId == getCurrentUserId()) {
+                    if (userId == mCarUserManagerHelper.getCurrentForegroundUserId()) {
                         mBackgroundUsersToRestart.remove(user);
                         mBackgroundUsersToRestart.add(0, user);
                     }
@@ -399,7 +351,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         ArrayList<Integer> startedUsers = new ArrayList<>();
         for (Integer user : users) {
-            if (user == getCurrentUserId()) {
+            if (user == mCarUserManagerHelper.getCurrentForegroundUserId()) {
                 continue;
             }
             try {
@@ -444,7 +396,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (userId == UserHandle.USER_SYSTEM) {
             return false;
         }
-        if (userId == getCurrentUserId()) {
+        if (userId == mCarUserManagerHelper.getCurrentForegroundUserId()) {
             Log.i(TAG_USER, "stopBackgroundUser, already a FG user:" + userId);
             return false;
         }
@@ -475,7 +427,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     public void onSwitchUser(@UserIdInt int userId) {
         if (!isSystemUser(userId) && isPersistentUser(userId)) {
-            setLastActiveUser(userId);
+            mCarUserManagerHelper.setLastActiveUser(userId);
         }
         for (UserCallback callback : mUserCallbacks) {
             callback.onSwitchUser(userId);
@@ -529,7 +481,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Creates a new user on the system, the created user would be granted admin role.
      *
      * @param name Name to be given to the newly created user.
-     * @return Newly created admin user, {@code null} if it fails to create a user.
+     * @return newly created admin user, {@code null} if it fails to create a user.
      */
     @Nullable
     private UserInfo createNewAdminUser(String name) {
@@ -545,76 +497,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Log.w(TAG_USER, "can't create admin user.");
             return null;
         }
-        assignDefaultIcon(user);
+        mCarUserManagerHelper.assignDefaultIcon(user);
 
-        return user;
-    }
-
-    /**
-     * Creates a new non-admin user on the system.
-     *
-     * @param name Name to be given to the newly created user.
-     * @return Newly created non-admin user, {@code null} if failed to create a user.
-     */
-    @Nullable
-    private UserInfo createNewNonAdminUser(String name) {
-        UserInfo user = mUserManager.createUser(name, /* flags= */ 0);
-        if (user == null) {
-            // Couldn't create user, most likely because there are too many.
-            Log.w(TAG_USER, "can't create non-admin user.");
-            return null;
-        }
-        setDefaultNonAdminRestrictions(user, /* enable= */ true);
-
-        // Remove restrictions which are allowed for non-admin car users.
-        for (String restriction : RELAXED_RESTRICTIONS_FOR_NON_ADMIN) {
-            mUserManager.setUserRestriction(restriction, /* enable= */ false, user.getUserHandle());
-        }
-
-        assignDefaultIcon(user);
-        return user;
-    }
-
-    private Bitmap getUserDefaultIcon(UserInfo userInfo) {
-        return UserIcons.convertToBitmap(
-                UserIcons.getDefaultUserIcon(mContext.getResources(), userInfo.id, false));
-    }
-
-    private Bitmap getGuestDefaultIcon() {
-        return UserIcons.convertToBitmap(UserIcons.getDefaultUserIcon(mContext.getResources(),
-                UserHandle.USER_NULL, false));
-    }
-
-    /** Assigns a default icon to a user according to the user's id. */
-    private void assignDefaultIcon(UserInfo userInfo) {
-        Bitmap bitmap = userInfo.isGuest()
-                ? getGuestDefaultIcon() : getUserDefaultIcon(userInfo);
-        mUserManager.setUserIcon(userInfo.id, bitmap);
-    }
-
-    private void setDefaultNonAdminRestrictions(UserInfo userInfo, boolean enable) {
-        for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
-            mUserManager.setUserRestriction(restriction, enable, userInfo.getUserHandle());
-        }
-    }
-
-    /** Gets the current user on the device. */
-    @VisibleForTesting
-    @UserIdInt
-    int getCurrentUserId() {
-        UserInfo user = getCurrentUser();
-        return user != null ? user.id : UserHandle.USER_NULL;
-    }
-
-    @Nullable
-    private UserInfo getCurrentUser() {
-        UserInfo user = null;
-        try {
-            user = mAm.getCurrentUser();
-        } catch (RemoteException e) {
-            // ignore
-            Log.w(TAG_USER, "error while getting current user", e);
-        }
         return user;
     }
 
@@ -633,17 +517,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
         }
         return users;
-    }
-
-    /**
-     * Sets last active user.
-     *
-     * @param userId Last active user id.
-     */
-    @VisibleForTesting
-    void setLastActiveUser(@UserIdInt int userId) {
-        Settings.Global.putInt(
-                mContext.getContentResolver(), Settings.Global.LAST_ACTIVE_USER_ID, userId);
     }
 
     /**

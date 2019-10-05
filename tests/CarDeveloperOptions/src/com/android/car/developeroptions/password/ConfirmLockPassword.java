@@ -42,11 +42,11 @@ import android.widget.TextView.OnEditorActionListener;
 
 import androidx.fragment.app.Fragment;
 
+import com.android.car.developeroptions.R;
+import com.android.car.developeroptions.widget.ImeAwareEditText;
 import com.android.internal.widget.LockPatternChecker;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.TextViewInputDisabler;
-import com.android.car.developeroptions.R;
-import com.android.car.developeroptions.widget.ImeAwareEditText;
 import com.android.settingslib.animation.AppearAnimationUtils;
 import com.android.settingslib.animation.DisappearAnimationUtils;
 
@@ -438,7 +438,6 @@ public class ConfirmLockPassword extends ConfirmDeviceCredentialBaseActivity {
                     ConfirmDeviceCredentialUtils.reportSuccessfulAttempt(mLockPatternUtils,
                             mUserManager, mEffectiveUserId);
                 }
-                mBiometricManager.onConfirmDeviceCredentialSuccess();
                 startDisappearAnimation(intent);
                 ConfirmDeviceCredentialUtils.checkForPendingIntent(getActivity());
             } else {

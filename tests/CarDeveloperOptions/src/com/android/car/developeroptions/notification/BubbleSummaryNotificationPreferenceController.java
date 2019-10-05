@@ -16,7 +16,7 @@
 
 package com.android.car.developeroptions.notification;
 
-import static android.provider.Settings.Secure.NOTIFICATION_BUBBLES;
+import static android.provider.Settings.Global.NOTIFICATION_BUBBLES;
 
 import android.content.Context;
 import android.provider.Settings;
@@ -47,7 +47,7 @@ public class BubbleSummaryNotificationPreferenceController extends BasePreferenc
     }
 
     private boolean areBubblesEnabled() {
-        return Settings.Secure.getInt(mContext.getContentResolver(),
+        return Settings.Global.getInt(mContext.getContentResolver(),
                 NOTIFICATION_BUBBLES, ON) == ON;
     }
 }
