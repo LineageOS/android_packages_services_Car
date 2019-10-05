@@ -1,7 +1,10 @@
 package com.android.car.developeroptions.wifi.tether;
 
+import android.net.wifi.WifiClient;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
+
+import java.util.List;
 
 /**
  * Wrapper for {@link android.net.wifi.WifiManager.SoftApCallback} to pass the robo test
@@ -18,8 +21,8 @@ public class WifiTetherSoftApManager {
         }
 
         @Override
-        public void onNumClientsChanged(int numClients) {
-            mWifiTetherSoftApCallback.onNumClientsChanged(numClients);
+        public void onConnectedClientsChanged(List<WifiClient> clients) {
+            mWifiTetherSoftApCallback.onConnectedClientsChanged(clients);
         }
     };
     private Handler mHandler;
@@ -42,6 +45,6 @@ public class WifiTetherSoftApManager {
     public interface WifiTetherSoftApCallback {
         void onStateChanged(int state, int failureReason);
 
-        void onNumClientsChanged(int numClients);
+        void onConnectedClientsChanged(List<WifiClient> clients);
     }
 }
