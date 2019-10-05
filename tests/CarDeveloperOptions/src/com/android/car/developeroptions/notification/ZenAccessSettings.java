@@ -37,8 +37,8 @@ import com.android.car.developeroptions.applications.specialaccess.zenaccess.Zen
 import com.android.car.developeroptions.applications.specialaccess.zenaccess.ZenAccessDetails;
 import com.android.car.developeroptions.applications.specialaccess.zenaccess.ZenAccessSettingObserverMixin;
 import com.android.car.developeroptions.search.BaseSearchIndexProvider;
-import com.android.car.developeroptions.search.Indexable;
 import com.android.car.developeroptions.widget.EmptyTextSettings;
+import com.android.settingslib.search.Indexable;
 import com.android.settingslib.search.SearchIndexable;
 import com.android.settingslib.widget.apppreference.AppPreference;
 

@@ -43,9 +43,9 @@ import androidx.preference.SwitchPreference;
 
 import com.android.car.developeroptions.datausage.DataSaverBackend;
 import com.android.car.developeroptions.search.BaseSearchIndexProvider;
-import com.android.car.developeroptions.search.Indexable;
 import com.android.car.developeroptions.wifi.tether.WifiTetherPreferenceController;
 import com.android.settingslib.TetherUtil;
+import com.android.settingslib.search.Indexable;
 import com.android.settingslib.search.SearchIndexable;
 
 import java.lang.ref.WeakReference;
