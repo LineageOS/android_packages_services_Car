@@ -1706,7 +1706,7 @@
     <string name="lockpassword_choose_your_pin_message" msgid="8942598950627277885">"Määritä PIN-koodi tietoturvan parantamiseksi."</string>
     <string name="lockpassword_choose_your_pin_header_for_fingerprint" msgid="1102927520952116303">"Sormenjälki: aseta PIN-koodi"</string>
     <string name="lockpassword_choose_your_pattern_message" msgid="1503075455752279687">"Aseta kuvio tietoturvan parantamiseksi."</string>
-    <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"Anna salasana uudelleen"</string>
+    <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"Lisää salasana uudelleen"</string>
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"Vahvista kuvio"</string>
     <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"Anna PIN-koodi uudelleen"</string>
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"Salasanat eivät täsmää"</string>
@@ -4442,7 +4442,7 @@
     <string name="network_connection_request_dialog_title" msgid="3150489262902506588">"Käytettävä laite: <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
     <string name="network_connection_timeout_dialog_message" msgid="7036704569274087733">"Laitteita ei löytynyt. Varmista, että laitteet ovat päällä ja voivat muodostaa yhteyden."</string>
     <string name="network_connection_timeout_dialog_ok" msgid="5156496438627748361">"Yritä uudelleen"</string>
-    <string name="network_connection_errorstate_dialog_message" msgid="1599445930536043943">"Jokin meni vikaan. Sovellus peruutti laitteenvalintapyynnön."</string>
+    <string name="network_connection_errorstate_dialog_message" msgid="1599445930536043943">"Jotain meni pieleen.. Sovellus peruutti laitteenvalintapyynnön."</string>
     <string name="network_connection_connect_successful" msgid="888912275986965748">"Yhteyden muodostus onnistui"</string>
     <string name="network_connection_request_dialog_showall" msgid="396928496030183071">"Näytä kaikki"</string>
     <plurals name="show_bluetooth_devices" formatted="false" msgid="7451733907387872891">

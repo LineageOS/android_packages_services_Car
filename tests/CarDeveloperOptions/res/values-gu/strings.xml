@@ -1321,7 +1321,7 @@
     <string name="storage_settings" msgid="7009733301485139652">"સ્ટોરેજ"</string>
     <string name="storage_settings_for_app" msgid="3028887232073069965">"સ્ટોરેજ અને કૅશ મેમરી"</string>
     <string name="storage_usb_settings" msgid="4470138799276333403">"સ્ટોરેજ"</string>
-    <string name="storage_settings_title" msgid="7348362600789024415">"સ્ટોરેજ સેટિંગ્સ"</string>
+    <string name="storage_settings_title" msgid="7348362600789024415">"સ્ટોરેજ સેટિંગ"</string>
     <string name="storage_settings_summary" product="nosdcard" msgid="600267641559698394">"USB સંગ્રહને અનમાઉન્ટ કરો, ઉપલબ્ધ સંગ્રહ જુઓ"</string>
     <string name="storage_settings_summary" product="default" msgid="6233147555590816245">"SD કાર્ડ અનમાઉન્ટ કરો, ઉપલબ્ધ સંગ્રહ જુઓ"</string>
     <string name="imei_multi_sim" msgid="6462221220123699987">"IMEI (સિમ સ્લૉટ %1$d)"</string>
@@ -2902,7 +2902,7 @@
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"કૉલ ઇતિહાસ આ વપરાશકર્તા સાથે શેર કરવામાં આવશે."</string>
     <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"ફોન કૉલ્સ અને SMS ચાલુ કરીએ?"</string>
     <string name="user_enable_calling_and_sms_confirm_message" msgid="3278802798876095734">"કૉલ અને SMS ઇતિહાસ આ વપરાશકર્તા સાથે શેર કરવામાં આવશે."</string>
-    <string name="emergency_info_title" msgid="1522609271881425375">"કટોકટી માહિતી"</string>
+    <string name="emergency_info_title" msgid="1522609271881425375">"ઇમર્જન્સીની માહિતી"</string>
     <string name="emergency_info_summary" msgid="7280464759837387342">"<xliff:g id="USER_NAME">%1$s</xliff:g> માટે માહિતી અને સંપર્કો"</string>
     <string name="application_restrictions" msgid="6871981013736536763">"ઍપ્લિકેશનો અને સામગ્રીને મંજૂરી આપો"</string>
     <string name="apps_with_restrictions_header" msgid="8656739605673756176">"પ્રતિબંધો ધરાવતી ઍપ્લિકેશનો"</string>
