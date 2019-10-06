@@ -4068,7 +4068,7 @@
     <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"Կապակցված է բազմակի շարժական սարքերի"</string>
     <string name="demo_mode" msgid="3831081808592541104">"Համակարգի միջերեսի ցուցադրական ռեժիմ"</string>
     <string name="dark_ui_mode" msgid="703844190192599217">"Թեմա"</string>
-    <string name="dark_ui_mode_title" msgid="8774932716427742413">"Ընտրել թեման"</string>
+    <string name="dark_ui_mode_title" msgid="8774932716427742413">"Ընտրել թեմա"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"Այս կարգավորումը կիրառվում է նաև հավելվածների համար"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"Աջակցվող հավելվածները ևս կանցնեն մուգ թեմային"</string>
     <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Մշակողի արագ կարգավորման սալիկներ"</string>

@@ -208,7 +208,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"நீங்கள் போர்ட் புலத்தை நிரப்ப வேண்டும்."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"ஹோஸ்ட் புலம் வெறுமையாக இருந்தால் போர்ட்டின் புலம் வெறுமையாக இருக்க வேண்டும்."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"நீங்கள் உள்ளிட்ட போர்ட் தவறானது."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"HTTP ப்ராக்ஸியை உலாவி பயன்படுத்தும் ஆனால் பிற பயன்பாடுகள் பயன்படுத்தாமல் போகலாம்."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"HTTP ப்ராக்ஸியை உலாவி பயன்படுத்தும் ஆனால் பிற ஆப்ஸ் பயன்படுத்தாமல் போகலாம்."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"PAC URL: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"DL இணைய வேகம் (kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"UL இணைய வேகம் (kbps):"</string>
@@ -510,8 +510,8 @@
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"டேப்லெட்டை என்க்ரிப்ட் செய்"</string>
     <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"மொபைலை என்க்ரிப்ட் செய்"</string>
     <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"என்க்ரிப்ட் செய்யப்பட்டது"</string>
-    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"உங்கள் கணக்குகள், அமைப்புகள், பதிவிறக்கிய பயன்பாடுகள் மற்றும் அவற்றின் தரவு, மீடியா மற்றும் பிற கோப்புகள் என அனைத்தையும் என்க்ரிப்ட் செய்யலாம். உங்கள் டேப்லெட்டை என்க்ரிப்ட் செய்த பிறகு, திரைப்பூட்டை (அதாவது வடிவம் அல்லது பின் அல்லது கடவுச்சொல்) அமைத்திருந்தால், ஒவ்வொரு முறையும் டேப்லெட்டை இயக்கும்போது குறிநீக்குவதற்கு திரையைத் திறக்க வேண்டும். உங்களின் எல்லா தரவையும் அழித்து, ஆரம்ப நிலைக்கு மீட்டமைப்பதே குறிநீக்குவதற்கான மற்றொரு வழியாகும்.\n\nஎன்க்ரிப்ட் செய்வதற்கு ஒரு மணிநேரம் அல்லது அதற்கு மேல் ஆகலாம். சார்ஜ் செய்த பேட்டரியுடன் தொடங்கி, செயல் முடியும் வரை சார்ஜ் ஆகும் நிலையிலேயே வைக்கவும். செயலில் குறுக்கிட்டால், உங்கள் தரவில் சிலவற்றை அல்லது மொத்தத்தையும் இழப்பீர்கள்."</string>
-    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"உங்கள் கணக்குகள், அமைப்புகள், பதிவிறக்கிய பயன்பாடுகள் மற்றும் அவற்றின் தரவு, மீடியா மற்றும் பிற கோப்புகள் என அனைத்தையும் என்க்ரிப்ட் செய்யலாம். உங்கள் மொபைலை என்க்ரிப்ட் செய்த பிறகு, திரைப்பூட்டை (அதாவது வடிவம் அல்லது பின் அல்லது கடவுச்சொல்) அமைத்திருந்தால், ஒவ்வொரு முறையும் மொபைலை இயக்கும்போது குறிநீக்குவதற்கு திரையைத் திறக்க வேண்டும். உங்களின் எல்லா தரவையும் அழித்து, ஆரம்ப நிலைக்கு மீட்டமைப்பதே குறிநீக்குவதற்கான மற்றொரு வழியாகும்.\n\nஎன்க்ரிப்ட் செய்வதற்கு ஒரு மணிநேரம் அல்லது அதற்கு மேல் ஆகலாம். சார்ஜ் செய்த பேட்டரியுடன் தொடங்கி, செயல் முடியும் வரை சார்ஜ் ஆகும் நிலையிலேயே வைக்கவும். செயலில் குறுக்கிட்டால், உங்கள் தரவில் சிலவற்றை அல்லது மொத்தத்தையும் இழப்பீர்கள்."</string>
+    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"உங்கள் கணக்குகள், அமைப்புகள், பதிவிறக்கிய ஆப்ஸ் மற்றும் அவற்றின் தரவு, மீடியா மற்றும் பிற கோப்புகள் என அனைத்தையும் என்க்ரிப்ட் செய்யலாம். உங்கள் டேப்லெட்டை என்க்ரிப்ட் செய்த பிறகு, திரைப்பூட்டை (அதாவது வடிவம் அல்லது பின் அல்லது கடவுச்சொல்) அமைத்திருந்தால், ஒவ்வொரு முறையும் டேப்லெட்டை இயக்கும்போது குறிநீக்குவதற்கு திரையைத் திறக்க வேண்டும். உங்களின் எல்லா தரவையும் அழித்து, ஆரம்ப நிலைக்கு மீட்டமைப்பதே குறிநீக்குவதற்கான மற்றொரு வழியாகும்.\n\nஎன்க்ரிப்ட் செய்வதற்கு ஒரு மணிநேரம் அல்லது அதற்கு மேல் ஆகலாம். சார்ஜ் செய்த பேட்டரியுடன் தொடங்கி, செயல் முடியும் வரை சார்ஜ் ஆகும் நிலையிலேயே வைக்கவும். செயலில் குறுக்கிட்டால், உங்கள் தரவில் சிலவற்றை அல்லது மொத்தத்தையும் இழப்பீர்கள்."</string>
+    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"உங்கள் கணக்குகள், அமைப்புகள், பதிவிறக்கிய ஆப்ஸ் மற்றும் அவற்றின் தரவு, மீடியா மற்றும் பிற கோப்புகள் என அனைத்தையும் என்க்ரிப்ட் செய்யலாம். உங்கள் மொபைலை என்க்ரிப்ட் செய்த பிறகு, திரைப்பூட்டை (அதாவது வடிவம் அல்லது பின் அல்லது கடவுச்சொல்) அமைத்திருந்தால், ஒவ்வொரு முறையும் மொபைலை இயக்கும்போது குறிநீக்குவதற்கு திரையைத் திறக்க வேண்டும். உங்களின் எல்லா தரவையும் அழித்து, ஆரம்ப நிலைக்கு மீட்டமைப்பதே குறிநீக்குவதற்கான மற்றொரு வழியாகும்.\n\nஎன்க்ரிப்ட் செய்வதற்கு ஒரு மணிநேரம் அல்லது அதற்கு மேல் ஆகலாம். சார்ஜ் செய்த பேட்டரியுடன் தொடங்கி, செயல் முடியும் வரை சார்ஜ் ஆகும் நிலையிலேயே வைக்கவும். செயலில் குறுக்கிட்டால், உங்கள் தரவில் சிலவற்றை அல்லது மொத்தத்தையும் இழப்பீர்கள்."</string>
     <string name="crypt_keeper_button_text" product="tablet" msgid="7918671468758813824">"டேப்லெட்டை என்க்ரிப்ட் செய்"</string>
     <string name="crypt_keeper_button_text" product="default" msgid="8737394386627318489">"மொபைலை என்க்ரிப்ட் செய்"</string>
     <string name="crypt_keeper_low_charge_text" msgid="1422879728632636311">"உங்கள் பேட்டரியை சார்ஜ் செய்து மீண்டும் முயற்சிக்கவும்."</string>
@@ -1067,7 +1067,7 @@
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"ஹாட்ஸ்பாட் கடவுச்சொல்"</string>
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"AP அலைவரிசை"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"மற்ற சாதனங்களுக்கு வைஃபை நெட்வொர்க்கை உருவாக்க, ஹாட்ஸ்பாட்டைப் பயன்படுத்தவும். ஹாட்ஸ்பாட்டானது, மொபைல் டேட்டா இணைப்பைப் பயன்படுத்தி இண்டர்நெட்டை வழங்குகிறது. கூடுதல் மொபைல் டேட்டா பேமெண்ட்கள் விதிக்கப்படலாம்."</string>
-    <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"அருகிலுள்ள சாதனங்களுடன் உள்ளடக்கத்தைப் பகிர, பயன்பாடுகள் ஹாட்ஸ்பாட்டையும் உருவாக்கலாம்."</string>
+    <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"அருகிலுள்ள சாதனங்களுடன் உள்ளடக்கத்தைப் பகிர, ஆப்ஸ் ஹாட்ஸ்பாட்டையும் உருவாக்கலாம்."</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"ஹாட்ஸ்பாட்டைத் தானாக ஆஃப் செய்"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"சாதனங்கள் எதுவும் இணைக்கப்படவில்லை எனில், வைஃபை ஹாட்ஸ்பாட் ஆஃப் செய்யப்படும்"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"ஹாட்ஸ்பாட்டை இயக்குகிறது…"</string>
@@ -1388,8 +1388,8 @@
     <string name="mtp_ptp_mode_summary" msgid="6074099855478444183">"MTP அல்லது PTP செயல்பாடு இயக்கத்தில் உள்ளது"</string>
     <string name="dlg_confirm_unmount_title" product="nosdcard" msgid="3843209947310774105">"USB சேமிப்பிடத்தை அகற்றவா?"</string>
     <string name="dlg_confirm_unmount_title" product="default" msgid="4400426555375434431">"SD கார்டை அகற்றவா?"</string>
-    <string name="dlg_confirm_unmount_text" product="nosdcard" msgid="1423648405874813948">"USB சேமிப்பிடத்தை அகற்றிவிட்டால், நீங்கள் பயன்படுத்துகின்ற சில பயன்பாடுகள் நின்றுவிடும், மேலும் நீங்கள் USB சேமிப்பிடத்தை மீண்டும் செருகும்வரை அவை கிடைக்காமல் இருக்கலாம்."</string>
-    <string name="dlg_confirm_unmount_text" product="default" msgid="4099391737780732622">"SD கார்டை அகற்றினால், நீங்கள் பயன்படுத்தும் சில பயன்பாடுகள் நின்றுவிடும், மேலும் SD கார்டை மீண்டும் செருகும் வரை அவை பயன்படுத்த கிடைக்காமல் இருக்கலாம்."</string>
+    <string name="dlg_confirm_unmount_text" product="nosdcard" msgid="1423648405874813948">"USB சேமிப்பிடத்தை அகற்றிவிட்டால், நீங்கள் பயன்படுத்துகின்ற சில ஆப்ஸ் நின்றுவிடும், மேலும் நீங்கள் USB சேமிப்பிடத்தை மீண்டும் செருகும்வரை அவை கிடைக்காமல் இருக்கலாம்."</string>
+    <string name="dlg_confirm_unmount_text" product="default" msgid="4099391737780732622">"SD கார்டை அகற்றினால், நீங்கள் பயன்படுத்தும் சில ஆப்ஸ் நின்றுவிடும், மேலும் SD கார்டை மீண்டும் செருகும் வரை அவை பயன்படுத்த கிடைக்காமல் இருக்கலாம்."</string>
     <string name="dlg_error_unmount_title" product="nosdcard" msgid="3132640848329117857"></string>
     <string name="dlg_error_unmount_title" product="default" msgid="3132640848329117857"></string>
     <string name="dlg_error_unmount_text" product="nosdcard" msgid="4710773826053117136">"USB கார்டை அகற்ற முடியவில்லை. பிறகு முயற்சிக்கவும்."</string>
@@ -1399,7 +1399,7 @@
     <string name="sd_ejecting_title" msgid="595074246815112145">"அகற்றுகிறது"</string>
     <string name="sd_ejecting_summary" msgid="5708943172014003213">"அகற்றுதல் செயலில் உள்ளது"</string>
     <string name="storage_low_title" msgid="6957178208426099592">"சேமிப்பிடம் குறைகிறது"</string>
-    <string name="storage_low_summary" msgid="4475275204869514141">"ஒத்திசைத்தல் போன்ற அமைப்பின் சில செயல்பாடுகள் வேலைசெய்யாமல் போகலாம். பயன்பாடுகள் அல்லது மீடியா உள்ளடக்கம் போன்ற உருப்படிகளை நீக்குதல் அல்லது அகற்றுவதன் மூலம் சேமிப்பிடத்தை காலியாக்க முயற்சிக்கவும்."</string>
+    <string name="storage_low_summary" msgid="4475275204869514141">"ஒத்திசைத்தல் போன்ற அமைப்பின் சில செயல்பாடுகள் வேலைசெய்யாமல் போகலாம். ஆப்ஸ் அல்லது மீடியா உள்ளடக்கம் போன்ற உருப்படிகளை நீக்குதல் அல்லது அகற்றுவதன் மூலம் சேமிப்பிடத்தை காலியாக்க முயற்சிக்கவும்."</string>
     <string name="storage_menu_rename" msgid="3731682449294417745">"மறுபெயரிடு"</string>
     <string name="storage_menu_mount" msgid="6395893560780365473">"பொருத்து"</string>
     <string name="storage_menu_unmount" msgid="5041360076873514189">"வெளியேற்று"</string>
@@ -1419,7 +1419,7 @@
     <string name="usb_ptp_title" msgid="6629335976394685361">"கேமரா (PTP)"</string>
     <string name="usb_ptp_summary" msgid="460425275251168189">"கேமரா மென்பொருளைப் பயன்படுத்தி நீங்கள் படங்களை அனுப்பவும், மேலும் MTP ஆதரிக்காத கணினிகளில் எந்தக் கோப்புகளையும் பரிமாற்றவும் உதவுகிறது."</string>
     <string name="usb_midi_title" msgid="8626512517313340943">"MIDI"</string>
-    <string name="usb_midi_summary" msgid="3607444815743771712">"MIDI இயக்கப்பட்ட பயன்பாடுகள், USB மூலம் MIDI மென்பொருளைப் பயன்படுத்தி கணினியில் செயல்பட அனுமதிக்கும்."</string>
+    <string name="usb_midi_summary" msgid="3607444815743771712">"MIDI இயக்கப்பட்ட ஆப்ஸ், USB மூலம் MIDI மென்பொருளைப் பயன்படுத்தி கணினியில் செயல்பட அனுமதிக்கும்."</string>
     <string name="storage_other_users" msgid="1055693465220962928">"பிற பயனர்கள்"</string>
     <string name="storage_internal_title" msgid="7969898703086593200">"சாதனச் சேமிப்பகம்"</string>
     <string name="storage_external_title" msgid="3308178326521953306">"கையடக்கச் சேமிப்பகம்"</string>
@@ -1438,10 +1438,10 @@
     <string name="storage_dialog_unmountable" msgid="7082856306456936054">"<xliff:g id="NAME_0">^1</xliff:g> சிதைந்துள்ளது. \n\n<xliff:g id="NAME_1">^1</xliff:g>ஐப் பயன்படுத்த, முதலில் அதை அமைக்க வேண்டும்."</string>
     <string name="storage_dialog_unsupported" msgid="8274023677580782553">"சாதனம் <xliff:g id="NAME_0">^1</xliff:g>ஐ ஆதரிக்காது. \n\nசாதனத்தில் <xliff:g id="NAME_1">^1</xliff:g>ஐப் பயன்படுத்த, முதலில் அதை அமைக்க வேண்டும்."</string>
     <string name="storage_internal_format_details" msgid="2780806013122012384">"மீட்டமைவுக்குப் பிறகு, <xliff:g id="NAME_0">^1</xliff:g>ஐ மற்ற சாதனங்களில் பயன்படுத்தலாம். \n\n<xliff:g id="NAME_1">^1</xliff:g> இல் உள்ள எல்லா தரவும் அழிக்கப்படும். அதனால் முதலில் காப்புப் பிரதி எடுத்துக்கொள்ளவும். \n\n"<b>"படங்கள் &amp; மற்ற மீடியாவைக் காப்புப் பிரதி எடுத்தல்"</b>" \nமீடியா கோப்புகளை சாதனத்தின் மாற்று சேமிப்பகத்திற்கு நகர்த்தவும் அல்லது USB கேபிளைப் பயன்படுத்தி கணினிக்கு மாற்றவும். \n\n"<b>"ஆப்ஸின் காப்புப் பிரதி"</b>" \n<xliff:g id="NAME_6">^1</xliff:g> இல் சேமிக்கப்பட்ட எல்லா பயன்பாடுகளும் நிறுவல்நீக்கப்பட்டு அவற்றின் தரவு அழிக்கப்படும். இந்த ஆப்ஸை வைத்திருக்க, சாதனத்தின் மாற்று சேமிப்பகத்திற்கு அவற்றை நகர்த்தவும்."</string>
-    <string name="storage_internal_unmount_details" msgid="4667435317528624039"><b>"<xliff:g id="NAME_0">^1</xliff:g>ஐ வெளியேற்றும்போது, அதில் சேமித்த பயன்பாடுகள் வேலை செய்யாததுடன், அதில் சேமித்திருந்த மீடியா கோப்புகள் மீண்டும் அதைச் செருகும் வரை கிடைக்காது."</b>" \n\nஇந்தச் சாதனத்தில் மட்டும் வேலை செய்யுமாறு <xliff:g id="NAME_1">^1</xliff:g> மீட்டமைக்கப்பட்டதால் பிற சாதனங்களில் அது வேலை செய்யாது."</string>
-    <string name="storage_internal_forget_details" msgid="5655856574682184453">"<xliff:g id="NAME">^1</xliff:g> இல் உள்ள பயன்பாடுகள், படங்கள் அல்லது தரவைப் பயன்படுத்த, அதை மீண்டும் செருகவும். \n\nசாதனம் இல்லையெனில், இந்தச் சேமிப்பகத்தை அகற்றிவிடவும். \n\nஅவ்வாறு அகற்றினால், அதிலுள்ள தரவு இனி கிடைக்காது. \n\nஆப்ஸை மீண்டும் நிறுவிக்கொள்ளலாம், எனினும் அவற்றின் தரவு மீண்டும் கிடைக்காது."</string>
+    <string name="storage_internal_unmount_details" msgid="4667435317528624039"><b>"<xliff:g id="NAME_0">^1</xliff:g>ஐ வெளியேற்றும்போது, அதில் சேமித்த ஆப்ஸ் வேலை செய்யாததுடன், அதில் சேமித்திருந்த மீடியா கோப்புகள் மீண்டும் அதைச் செருகும் வரை கிடைக்காது."</b>" \n\nஇந்தச் சாதனத்தில் மட்டும் வேலை செய்யுமாறு <xliff:g id="NAME_1">^1</xliff:g> மீட்டமைக்கப்பட்டதால் பிற சாதனங்களில் அது வேலை செய்யாது."</string>
+    <string name="storage_internal_forget_details" msgid="5655856574682184453">"<xliff:g id="NAME">^1</xliff:g> இல் உள்ள ஆப்ஸ், படங்கள் அல்லது தரவைப் பயன்படுத்த, அதை மீண்டும் செருகவும். \n\nசாதனம் இல்லையெனில், இந்தச் சேமிப்பகத்தை அகற்றிவிடவும். \n\nஅவ்வாறு அகற்றினால், அதிலுள்ள தரவு இனி கிடைக்காது. \n\nஆப்ஸை மீண்டும் நிறுவிக்கொள்ளலாம், எனினும் அவற்றின் தரவு மீண்டும் கிடைக்காது."</string>
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g>ஐ அகற்றவா?"</string>
-    <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"<xliff:g id="NAME">^1</xliff:g> இல் சேமிக்கப்பட்ட அனைத்து பயன்பாடுகள், படங்கள் மற்றும் தரவு ஆகியவற்றை நிரந்தரமாக இழப்பீர்கள்."</string>
+    <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"<xliff:g id="NAME">^1</xliff:g> இல் சேமிக்கப்பட்ட அனைத்து ஆப்ஸ், படங்கள் மற்றும் தரவு ஆகியவற்றை நிரந்தரமாக இழப்பீர்கள்."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ஆப்ஸ்"</string>
     <string name="storage_detail_images" msgid="6996202225684468964">"படங்கள்"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"வீடியோக்கள்"</string>
@@ -1452,7 +1452,7 @@
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> இல் உலாவு"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"ஆப்ஸ் சேமித்துள்ள பகிர்ந்த ஃபைல்கள், இண்டர்நெட் அல்லது புளூடூத் மூலம் பதிவிறக்கிய ஃபைல்கள், Android ஃபைல்கள் போன்றவை மற்ற ஃபைல்களில் அடங்கும். \n\n<xliff:g id="NAME">^1</xliff:g> இல் தெரியக்கூடிய உள்ளடக்கத்தைப் பார்க்க, ’உலாவு’ என்பதைத் தட்டவும்."</string>
     <string name="storage_detail_dialog_system" msgid="1472572861360014226">"Android <xliff:g id="VERSION">%s</xliff:g> பதிப்பை இயக்குவதற்குப் பயன்படுத்தப்படும் ஃபைல்களும் இயங்குதளத்தில் அடங்கும்"</string>
-    <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> சேமிப்பகத்தின் <xliff:g id="SIZE">^2</xliff:g> அளவைப் பயன்படுத்தி, படங்கள், இசை, பயன்பாடுகள் அல்லது பிற தரவைச் சேமித்திருக்கலாம். \n\nவிவரங்களைப் பார்க்க, <xliff:g id="USER_1">^1</xliff:g>க்கு மாறவும்."</string>
+    <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> சேமிப்பகத்தின் <xliff:g id="SIZE">^2</xliff:g> அளவைப் பயன்படுத்தி, படங்கள், இசை, ஆப்ஸ் அல்லது பிற தரவைச் சேமித்திருக்கலாம். \n\nவிவரங்களைப் பார்க்க, <xliff:g id="USER_1">^1</xliff:g>க்கு மாறவும்."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"<xliff:g id="NAME">^1</xliff:g>ஐ அமைக்கவும்"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"கையடக்க சேமிப்பகமாகப் பயன்படுத்தவும்"</string>
     <string name="storage_wizard_init_external_summary" msgid="6993815290050489327">"சாதனங்களுக்கிடையே படங்களையும் பிற மீடியாவையும் நகர்த்தலாம்."</string>
@@ -1466,14 +1466,14 @@
     <string name="storage_wizard_format_progress_title" msgid="6905902731208646436">"<xliff:g id="NAME">^1</xliff:g> வடிவமைக்கப்படுகிறது"</string>
     <string name="storage_wizard_format_progress_body" msgid="5346709539457190419">"<xliff:g id="NAME">^1</xliff:g> ஃபார்மேட் செய்யப்படும்போது அகற்ற வேண்டாம்."</string>
     <string name="storage_wizard_migrate_title" msgid="7440473364104826496">"புதிய சேமிப்பகத்திற்கு நகர்த்துக"</string>
-    <string name="storage_wizard_migrate_body" msgid="4959356431201831339">"படங்கள், கோப்புகள் மற்றும் சில ஆப்ஸை புதிய <xliff:g id="NAME">^1</xliff:g>க்கு நகர்த்தலாம். \n\nநகர்த்துவதற்கு <xliff:g id="TIME">^2</xliff:g> ஆகும், மேலும் அகச் சேமிப்பகத்தில் <xliff:g id="SIZE">^3</xliff:g> இடத்தைக் காலிசெய்யும். இந்தச் செயல்பாட்டின் போது, சில பயன்பாடுகள் இயங்காது."</string>
+    <string name="storage_wizard_migrate_body" msgid="4959356431201831339">"படங்கள், கோப்புகள் மற்றும் சில ஆப்ஸை புதிய <xliff:g id="NAME">^1</xliff:g>க்கு நகர்த்தலாம். \n\nநகர்த்துவதற்கு <xliff:g id="TIME">^2</xliff:g> ஆகும், மேலும் அகச் சேமிப்பகத்தில் <xliff:g id="SIZE">^3</xliff:g> இடத்தைக் காலிசெய்யும். இந்தச் செயல்பாட்டின் போது, சில ஆப்ஸ் இயங்காது."</string>
     <string name="storage_wizard_migrate_now" msgid="9004605853000689024">"இப்போதே நகர்த்தவும்"</string>
     <string name="storage_wizard_migrate_later" msgid="5303070653970922924">"பிறகு நகர்த்தவும்"</string>
     <string name="storage_wizard_migrate_confirm_title" msgid="5768497751644935313">"தரவை நகர்த்தவும்"</string>
     <string name="storage_wizard_migrate_confirm_body" msgid="7297723787416643076"><b>"நகர்த்துவதற்கு <xliff:g id="TIME">^1</xliff:g> ஆகலாம். இதனால் <xliff:g id="NAME">^3</xliff:g> இல் <xliff:g id="SIZE">^2</xliff:g> அளவு சேமிப்பகம் கிடைக்கும்."</b></string>
     <string name="storage_wizard_migrate_confirm_next" msgid="6539804689462991087">"நகர்த்து"</string>
     <string name="storage_wizard_migrate_progress_title" msgid="7542196688665109833">"தரவு நகர்த்தப்படுகிறது…"</string>
-    <string name="storage_wizard_migrate_details" msgid="4269509141637554985">"நகர்த்தும்போது: \n• <xliff:g id="NAME">^1</xliff:g>ஐ அகற்ற வேண்டாம். \n• சில பயன்பாடுகள் சரியாக வேலை செய்யாது. \n• சாதனம் சார்ஜ் செய்யப்பட்டிருக்க வேண்டும்."</string>
+    <string name="storage_wizard_migrate_details" msgid="4269509141637554985">"நகர்த்தும்போது: \n• <xliff:g id="NAME">^1</xliff:g>ஐ அகற்ற வேண்டாம். \n• சில ஆப்ஸ் சரியாக வேலை செய்யாது. \n• சாதனம் சார்ஜ் செய்யப்பட்டிருக்க வேண்டும்."</string>
     <string name="storage_wizard_ready_title" msgid="4905921139763520341">"<xliff:g id="NAME">^1</xliff:g> பயன்படுத்துவதற்குத் தயார்"</string>
     <string name="storage_wizard_ready_external_body" msgid="8785407468656286236">"<xliff:g id="NAME">^1</xliff:g> படங்களையும் பிற மீடியாவையும் பயன்படுத்த, தயாராக உள்ளது."</string>
     <string name="storage_wizard_ready_internal_body" msgid="2258287496678469217">"புதிய <xliff:g id="NAME">^1</xliff:g> வேலை செய்கிறது. \n\nசாதனத்திற்கு படங்கள், கோப்புகள், ஆப்ஸ் டேட்டாவை நகர்த்த, அமைப்புகள் &gt; சேமிப்பகம் என்பதற்குச் செல்லவும்."</string>
@@ -1483,7 +1483,7 @@
     <string name="storage_wizard_move_progress_title" msgid="5250929161803336592">"<xliff:g id="APP">^1</xliff:g> நகர்த்தப்படுகிறது…"</string>
     <string name="storage_wizard_move_progress_body" msgid="1713792142250410169">"நகர்த்தும்போது <xliff:g id="NAME">^1</xliff:g>ஐ அகற்ற வேண்டாம். \n\nநகர்த்தி முடிக்கும்வரை, சாதனத்தில் <xliff:g id="APP">^2</xliff:g> ஆப்ஸ் கிடைக்காது."</string>
     <string name="storage_wizard_move_progress_cancel" msgid="9047521329704060401">"நகர்த்துவதை ரத்துசெய்"</string>
-    <string name="storage_wizard_slow_body" msgid="2307974936036261069">"இந்த <xliff:g id="NAME_0">^1</xliff:g> வேகம் குறைவானது போல் தெரிகிறது. \n\nநீங்கள் தொடரலாம், இந்த இடத்திற்கு நகர்த்தப்பட்ட பயன்பாடுகள் தடங்கல்களுடன் இயங்கலாம் மற்றும் தரவைப் பரிமாற்றுவதற்கு அதிக நேரம் எடுக்கலாம். \n\nசிறந்த செயல்திறனுக்கு, வேகமான <xliff:g id="NAME_1">^1</xliff:g>ஐப் பயன்படுத்தவும்."</string>
+    <string name="storage_wizard_slow_body" msgid="2307974936036261069">"இந்த <xliff:g id="NAME_0">^1</xliff:g> வேகம் குறைவானது போல் தெரிகிறது. \n\nநீங்கள் தொடரலாம், இந்த இடத்திற்கு நகர்த்தப்பட்ட ஆப்ஸ் தடங்கல்களுடன் இயங்கலாம் மற்றும் தரவைப் பரிமாற்றுவதற்கு அதிக நேரம் எடுக்கலாம். \n\nசிறந்த செயல்திறனுக்கு, வேகமான <xliff:g id="NAME_1">^1</xliff:g>ஐப் பயன்படுத்தவும்."</string>
     <string name="storage_wizard_init_v2_title" msgid="7408910177547901960">"<xliff:g id="NAME">^1</xliff:g>ஐ எப்படிப் பயன்படுத்துவீர்கள்?"</string>
     <string name="storage_wizard_init_v2_internal_title" product="tablet" msgid="7948795312504302810">"கூடுதல் டேப்லெட் சேமிப்பகம் உபயோகி"</string>
     <string name="storage_wizard_init_v2_internal_summary" product="tablet" msgid="6237770506398410172">"இந்த டேப்லெட்டில் உள்ள ஆப்ஸ், ஃபைல்கள் &amp; மீடியாவிற்கு மட்டும்"</string>
@@ -1660,18 +1660,18 @@
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"புளூடூத் ஆஃப் செய்யப்பட்டிருந்தாலும்கூட, எந்தநேரத்திலும் அருகிலுள்ள சாதனங்களைத் தேட, ஆப்ஸையும் சேவைகளையும் அனுமதிக்கும். உதாரணத்திற்கு, இருப்பிடம் சார்ந்த அம்சங்கள் மற்றும் சேவைகளை மேம்படுத்துவதற்கும் இதைப் பயன்படுத்தலாம்."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"பணிக் கணக்கிற்கான இருப்பிடச் சேவைகள்"</string>
     <string name="location_network_based" msgid="1535812159327454835">"வைஃபை &amp; மொபைல் நெட்வொர்க்கின் இருப்பிடம்"</string>
-    <string name="location_neighborhood_level" msgid="8459352741296587916">"உங்கள் இருப்பிடத்தை விரைவாகக் கணிக்கும் வகையில் பயன்பாடுகள், Google இன் இருப்பிடச் சேவையைப் பயன்படுத்தலாம். அநாமதேய இருப்பிடத் தரவு சேகரிக்கப்பட்டு Google க்கு அனுப்பப்படும்."</string>
+    <string name="location_neighborhood_level" msgid="8459352741296587916">"உங்கள் இருப்பிடத்தை விரைவாகக் கணிக்கும் வகையில் ஆப்ஸ், Google இன் இருப்பிடச் சேவையைப் பயன்படுத்தலாம். அநாமதேய இருப்பிடத் தரவு சேகரிக்கப்பட்டு Google க்கு அனுப்பப்படும்."</string>
     <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"வைஃபை மூலம் இருப்பிடம் கண்டறியப்பட்டது"</string>
     <string name="location_gps" msgid="688049341158297763">"GPS சாட்டிலைட்டுகள்"</string>
-    <string name="location_street_level" product="tablet" msgid="4459804798444296650">"உங்கள் இருப்பிடத்தைக் குறிப்பதற்காக, பயன்பாடுகள் உங்கள் டேப்லெட்டில் GPS ஐப் பயன்படுத்தும்"</string>
-    <string name="location_street_level" product="default" msgid="7407688345675450051">"உங்கள் இருப்பிடத்தைக் குறிப்பதற்காக, பயன்பாடுகள் உங்கள் தொலைபேசியில் GPS ஐப் பயன்படுத்தும்"</string>
+    <string name="location_street_level" product="tablet" msgid="4459804798444296650">"உங்கள் இருப்பிடத்தைக் குறிப்பதற்காக, ஆப்ஸ் உங்கள் டேப்லெட்டில் GPS ஐப் பயன்படுத்தும்"</string>
+    <string name="location_street_level" product="default" msgid="7407688345675450051">"உங்கள் இருப்பிடத்தைக் குறிப்பதற்காக, ஆப்ஸ் உங்கள் தொலைபேசியில் GPS ஐப் பயன்படுத்தும்"</string>
     <string name="assisted_gps" msgid="5411780261117055175">"துணை GPS ஐப் பயன்படுத்து"</string>
     <string name="assisted_gps_enabled" msgid="2561022181775725369">"GPS க்கு உதவ, சேவையகத்தைப் பயன்படுத்து (நெட்வொர்க் பயன்பாட்டைக் குறைக்க, தேர்வுநீக்கு)"</string>
     <string name="assisted_gps_disabled" msgid="6448758788217415937">"GPS க்கு உதவ, சேவையகத்தைப் பயன்படுத்து (GPS செயல்திறனை மேம்படுத்த தேர்வுநீக்கு)"</string>
     <string name="use_location_title" msgid="7724788634359496634">"இருப்பிடம் &amp; Google தேடல்"</string>
     <string name="use_location_summary" msgid="7396716606067400283">"தேடல் முடிவுகள் மற்றும் பிற சேவைகளை மேம்படுத்துவதற்காக Google உங்கள் இருப்பிடத்தைப் பயன்படுத்தும்"</string>
     <string name="location_access_title" msgid="8587974819606800029">"எனது இருப்பிடத்திற்கான அணுகல்"</string>
-    <string name="location_access_summary" msgid="6919495149026354355">"உங்கள் அனுமதியைக் கேட்ட பயன்பாடுகள் உங்களின் இருப்பிடத் தகவலைப் பயன்படுத்தும்"</string>
+    <string name="location_access_summary" msgid="6919495149026354355">"உங்கள் அனுமதியைக் கேட்ட ஆப்ஸ் உங்களின் இருப்பிடத் தகவலைப் பயன்படுத்தும்"</string>
     <string name="location_sources_heading" msgid="8526658357120282741">"இருப்பிட ஆதாரங்கள்"</string>
     <string name="about_settings" product="tablet" msgid="4869626690708456341">"டேப்லெட் அறிமுகம்"</string>
     <string name="about_settings" product="default" msgid="6019547763377294261">"மொபைல் விவரம்"</string>
@@ -1843,7 +1843,7 @@
     <string name="filter" msgid="2426943916212457962">"வடிகட்டு"</string>
     <string name="filter_dlg_title" msgid="115313222190512670">"வடிப்பான் விருப்பங்களைத் தேர்வுசெய்யவும்"</string>
     <string name="filter_apps_all" msgid="3938077534861382701">"எல்லாப் பயன்பாடுகளும்"</string>
-    <string name="filter_apps_disabled" msgid="5394488790555678117">"முடக்கிய பயன்பாடுகள்"</string>
+    <string name="filter_apps_disabled" msgid="5394488790555678117">"முடக்கிய ஆப்ஸ்"</string>
     <string name="filter_apps_third_party" msgid="3985794876813232322">"பதிவிறக்கப்பட்டது"</string>
     <string name="filter_apps_running" msgid="6852975378502426359">"இயங்குகிறது"</string>
     <string name="filter_apps_onsdcard" product="nosdcard" msgid="3501701148760911442">"USB சேமிப்பகம்"</string>
@@ -1889,13 +1889,13 @@
     <string name="instant_app_details_summary" msgid="6384264315914966114">"<xliff:g id="APP_STORE">%1$s</xliff:g> பற்றிய கூடுதல் தகவல்"</string>
     <string name="app_ops_running" msgid="6378418969742957805">"இயங்குகிறது"</string>
     <string name="app_ops_never_used" msgid="8305262378162525813">"(ஒருபோதும் பயன்படுத்தவில்லை)"</string>
-    <string name="no_default_apps" msgid="4519038578011412532">"இயல்பு பயன்பாடுகள் இல்லை."</string>
+    <string name="no_default_apps" msgid="4519038578011412532">"இயல்பு ஆப்ஸ் இல்லை."</string>
     <string name="storageuse_settings_title" msgid="3390798597982116048">"சேமிப்பிடத்தின் பயன்பாடு"</string>
-    <string name="storageuse_settings_summary" msgid="3013328092465903687">"பயன்பாடுகள் பயன்படுத்திய சேமிப்பிடத்தைக் காட்டு"</string>
+    <string name="storageuse_settings_summary" msgid="3013328092465903687">"ஆப்ஸ் பயன்படுத்திய சேமிப்பிடத்தைக் காட்டு"</string>
     <string name="service_restarting" msgid="1190995225643385568">"மீண்டும் தொடங்குகிறது"</string>
     <string name="cached" msgid="4019482949725020855">"தற்காலிகச் சேமிப்பின் பின்புலச் செயல்முறை"</string>
     <string name="no_running_services" msgid="618823924559385173">"எதுவும் இயக்கத்தில் இல்லை."</string>
-    <string name="service_started_by_app" msgid="6906027340122215035">"பயன்பாட்டால் தொடங்கப்பட்டது."</string>
+    <string name="service_started_by_app" msgid="6906027340122215035">"ஆப்ஸால் தொடங்கப்பட்டது."</string>
     <!-- no translation found for service_client_name (7083258170099389413) -->
     <skip />
     <string name="service_background_processes" msgid="2678557055039755445">"<xliff:g id="MEMORY">%1$s</xliff:g> மீதமுள்ளது"</string>
@@ -1923,7 +1923,7 @@
     <string name="runningservicedetails_processes_title" msgid="5496507383850423763">"செயல்கள்"</string>
     <string name="service_stop" msgid="8812777462903125191">"நிறுத்து"</string>
     <string name="service_manage" msgid="7045214643721276662">"அமைப்பு"</string>
-    <string name="service_stop_description" msgid="4184180745938573707">"இந்த ஆப்ஸ் ஏற்கனவே இதன் பயன்பாட்டால் தொடங்கப்பட்டது. இதை நிறுத்துவதால் ஆப்ஸ் தோல்வியடையலாம்."</string>
+    <string name="service_stop_description" msgid="4184180745938573707">"இந்த ஆப்ஸ் ஏற்கனவே இதன் ஆப்ஸால் தொடங்கப்பட்டது. இதை நிறுத்துவதால் ஆப்ஸ் தோல்வியடையலாம்."</string>
     <string name="heavy_weight_stop_description" msgid="7444148811046611463">"பயன்பாட்டைப் பாதுகாப்பாக நிறுத்த முடியாது. இதை நிறுத்தினால், நீங்கள் நடப்பு செயல்கள் சிலவற்றை இழக்க நேரிடலாம்."</string>
     <string name="background_process_stop_description" msgid="8971810208873038109">"இது பழைய ஆப்ஸ் செயல்முறையாகும், மீண்டும் தேவைப்பட்டால் வழங்குவதற்காக இன்னமும் தொடர்ந்து செயல்படுத்தப்படுகிறது. பொதுவாக அதை நிறுத்துவதற்கு எந்தக் காரணமும் இல்லை."</string>
     <string name="service_manage_description" msgid="8058123524402833082">"<xliff:g id="CLIENT_NAME">%1$s</xliff:g>: தற்போது பயன்பாட்டில் உள்ளது. அதைக் கட்டுப்படுத்த, அமைப்புகளைத் தட்டவும்."</string>
@@ -2405,7 +2405,7 @@
     <string name="battery_desc_bluetooth" msgid="3468061900485447679">"புளூடூத்தால் பயன்படுத்தப்பட்ட பேட்டரி அளவு"</string>
     <string name="battery_sugg_bluetooth_basic" msgid="6353294067057749310">"புளூடூத் ஐப் பயன்படுத்தாதபோது அதை முடக்கவும்"</string>
     <string name="battery_sugg_bluetooth_headset" msgid="2421931037149315202">"வேறு புளூடூத் சாதனத்துடன் இணைக்க முயற்சிக்கவும்"</string>
-    <string name="battery_desc_apps" msgid="6826726880149226823">"பயன்பாட்டால் பயன்படுத்தப்பட்ட பேட்டரியின் அளவு"</string>
+    <string name="battery_desc_apps" msgid="6826726880149226823">"ஆப்ஸால் பயன்படுத்தப்பட்ட பேட்டரியின் அளவு"</string>
     <string name="battery_sugg_apps_info" msgid="9175761965559743977">"ஆப்ஸை நிறுத்தவும் அல்லது நிறுவல் நீக்கவும்"</string>
     <string name="battery_sugg_apps_gps" msgid="489694612870772770">"பேட்டரி சேமிப்பு முறையைத் தேர்ந்தெடுக்கவும்"</string>
     <string name="battery_sugg_apps_settings" msgid="20465932930350295">"பேட்டரி அளவின் பயன்பாட்டைக் குறைப்பதற்கான அமைப்புகளை ஆப்ஸ் வழங்கலாம்"</string>
@@ -2563,7 +2563,7 @@
     <string name="uninstall_device_admin" msgid="9017499299961719830">"ஆப்ஸை நிறுவல் நீக்கு"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"செயலற்றதாக்கி, நிறுவல் நீக்கு"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"சாதனநிர்வாகி ஆப்ஸ்"</string>
-    <string name="no_device_admins" msgid="4129231900385977460">"சாதன நிர்வாகிப் பயன்பாடுகள் எதுவுமில்லை"</string>
+    <string name="no_device_admins" msgid="4129231900385977460">"சாதன நிர்வாகிப் ஆப்ஸ் எதுவுமில்லை"</string>
     <string name="personal_device_admin_title" msgid="759440849188565661">"தனிப்பட்டவை"</string>
     <string name="managed_device_admin_title" msgid="8021522755492551726">"பணியிடம்"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"மெசேஜ், அழைப்புப் பதிவு அணுகலைக் கட்டுப்படுத்துதல்"</string>
@@ -2575,7 +2575,7 @@
     <string name="device_admin_warning" msgid="4421817419326480449">"இந்த நிர்வாகி ஆப்ஸைச் செயல்படுத்தினால், பின்வரும் செயல்பாடுகளைச் செய்ய <xliff:g id="APP_NAME">%1$s</xliff:g> ஆப்ஸ் அனுமதிக்கப்படும்:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"இந்த நிர்வாகி ஆப்ஸ் செயலில் உள்ளது, அத்துடன் பின்வரும் செயல்பாடுகளைச் செய்ய <xliff:g id="APP_NAME">%1$s</xliff:g> ஆப்ஸ் அனுமதிக்கும்:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"சுயவிவர நிர்வாகியை இயக்கவா?"</string>
-    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"தொடர்வதன் மூலம், நிர்வாகி (உங்கள் தனிப்பட்ட தரவுடன் சேர்த்து, தொடர்புடைய தரவையும் சேமிக்கக்கூடும்) உங்கள் பயனரை நிர்வகிக்கும்.\n\nஉங்கள் நிர்வாகியால் அமைப்புகள், அணுகல், பயன்பாடுகள் மற்றும் நெட்வொர்க் செயல்பாடு, உங்கள் சாதனத்தின் இருப்பிடத் தகவல் உட்பட இந்தப் பயனருடன் தொடர்புடைய தரவு ஆகியவற்றை நிர்வகிக்க முடியும்."</string>
+    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"தொடர்வதன் மூலம், நிர்வாகி (உங்கள் தனிப்பட்ட தரவுடன் சேர்த்து, தொடர்புடைய தரவையும் சேமிக்கக்கூடும்) உங்கள் பயனரை நிர்வகிக்கும்.\n\nஉங்கள் நிர்வாகியால் அமைப்புகள், அணுகல், ஆப்ஸ் மற்றும் நெட்வொர்க் செயல்பாடு, உங்கள் சாதனத்தின் இருப்பிடத் தகவல் உட்பட இந்தப் பயனருடன் தொடர்புடைய தரவு ஆகியவற்றை நிர்வகிக்க முடியும்."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"உங்கள் நிர்வாகி பிற விருப்பங்களை முடக்கியுள்ளார்"</string>
     <string name="admin_more_details" msgid="1719819589822345585">"மேலும் விவரங்கள்"</string>
     <string name="notification_log_title" msgid="4200467765474474753">"அறிவிப்பு பதிவு"</string>
@@ -2598,7 +2598,7 @@
     <string name="background_data" msgid="8275750862371471171">"பின்புல டேட்டா உபயோகம்"</string>
     <string name="background_data_summary" msgid="799640633948841990">"பயன்பாடுகளால் எந்நேரத்திலும் தரவை ஒத்திசைக்கவும், அனுப்பவும் பெறவும் முடியும்"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"பின்புல டேட்டா உபயோகத்தை முடக்கவா?"</string>
-    <string name="background_data_dialog_message" msgid="8126774244911656527">"பின்புல டேட்டா உபயோகத்தை முடக்குவது பேட்டரியின் ஆயுளை நீட்டிக்கிறது மற்றும் தரவு பயன்பாட்டைக் குறைக்கிறது. சில பயன்பாடுகள் தொடர்ந்து பின்புல டேட்டா உபயோகம் இணைப்பைப் பயன்படுத்தலாம்."</string>
+    <string name="background_data_dialog_message" msgid="8126774244911656527">"பின்புல டேட்டா உபயோகத்தை முடக்குவது பேட்டரியின் ஆயுளை நீட்டிக்கிறது மற்றும் தரவு பயன்பாட்டைக் குறைக்கிறது. சில ஆப்ஸ் தொடர்ந்து பின்புல டேட்டா உபயோகம் இணைப்பைப் பயன்படுத்தலாம்."</string>
     <string name="sync_automatically" msgid="5746117156896468099">"ஆப்ஸின் டேட்டாவைத் தானாக ஒத்திசை"</string>
     <string name="sync_enabled" msgid="535172627223336983">"ஒத்திசைவு முடக்கத்தில்"</string>
     <string name="sync_disabled" msgid="713721807204805062">"ஒத்திசைவு முடக்கத்தில்"</string>
@@ -2715,8 +2715,8 @@
     <string name="data_usage_restrict_background_multiuser" product="default" msgid="6846901756455789858">"பின்னணி மொபைல் டேட்டாவைக் கட்டுப்படுத்தினால், வைஃபையுடன் இணைக்கும் வரை சில பயன்பாடுகளும் சேவைகளும் வேலை செய்யாது.\n\nஇதனால் இந்த மொபைலைப் பயன்படுத்தும் எல்லாப் பயனர்களும் பாதிக்கப்படுவார்கள்."</string>
     <string name="data_usage_sweep_warning" msgid="4646401408698778092"><font size="18">"<xliff:g id="NUMBER">^1</xliff:g>"</font>" "<font size="9">"<xliff:g id="UNIT">^2</xliff:g>"</font>\n<font size="12">"எச்சரிக்கை"</font></string>
     <string name="data_usage_sweep_limit" msgid="6101105504557548269"><font size="18">"<xliff:g id="NUMBER">^1</xliff:g>"</font>" "<font size="9">"<xliff:g id="UNIT">^2</xliff:g>"</font>\n<font size="12">"வரம்பு"</font></string>
-    <string name="data_usage_uninstalled_apps" msgid="4152786786140875769">"அகற்றப்பட்ட பயன்பாடுகள்"</string>
-    <string name="data_usage_uninstalled_apps_users" msgid="61092462416505112">"அகற்றப்பட்ட பயன்பாடுகள் மற்றும் பயனர்கள்"</string>
+    <string name="data_usage_uninstalled_apps" msgid="4152786786140875769">"அகற்றப்பட்ட ஆப்ஸ்"</string>
+    <string name="data_usage_uninstalled_apps_users" msgid="61092462416505112">"அகற்றப்பட்ட ஆப்ஸ் மற்றும் பயனர்கள்"</string>
     <string name="data_usage_received_sent" msgid="5532467049487334656">"<xliff:g id="RECEIVED">%1$s</xliff:g> பெறப்பட்டது, <xliff:g id="SENT">%2$s</xliff:g> அனுப்பப்பட்டது"</string>
     <string name="data_usage_total_during_range" msgid="7307562900020512747">"<xliff:g id="RANGE">%2$s</xliff:g>: <xliff:g id="TOTAL">%1$s</xliff:g> பயன்படுத்தப்பட்டது."</string>
     <string name="data_usage_total_during_range_mobile" product="tablet" msgid="366118962920532455">"<xliff:g id="RANGE">%2$s</xliff:g>: உங்கள் டேப்லெட் அளவீட்டின் படி <xliff:g id="TOTAL">%1$s</xliff:g> பயன்படுத்தப்பட்டுள்ளது. உங்கள் மொபைல் நிறுவனத்தின் டேட்டா உபயோகத்தின் கணக்கு மாறுபடலாம்."</string>
@@ -2828,14 +2828,14 @@
       <item quantity="one">சான்றிதழை நம்பு அல்லது அகற்று</item>
     </plurals>
     <plurals name="ssl_ca_cert_info_message_device_owner" formatted="false" msgid="9046046586061880100">
-      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> உங்கள் சாதனத்தில் சான்றிதழ் அங்கீகாரங்களை நிறுவியுள்ளது. இது மின்னஞ்சல்கள், பயன்பாடுகள், பாதுகாப்பான இணையதளங்கள் உட்பட சாதன நெட்வொர்க் செயல்பாட்டைக் கண்காணிப்பதற்கு அவற்றை அனுமதிக்கக்கூடும்.\n\nசான்றிதழ்களைப் பற்றிய கூடுதல் தகவலுக்கு, உங்கள் நிர்வாகியைத் தொடர்புகொள்ளவும்.</item>
-      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> உங்கள் சாதனத்தில் சான்றிதழ் அங்கீகாரத்தை நிறுவியுள்ளது. இது மின்னஞ்சல்கள், பயன்பாடுகள், பாதுகாப்பான இணையதளங்கள் உட்பட சாதன நெட்வொர்க் செயல்பாட்டைக் கண்காணிப்பதற்கு அதை அனுமதிக்கக்கூடும்.\n\nசான்றிதழைப் பற்றிய கூடுதல் தகவலுக்கு, உங்கள் நிர்வாகியைத் தொடர்புகொள்ளவும்.</item>
+      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> உங்கள் சாதனத்தில் சான்றிதழ் அங்கீகாரங்களை நிறுவியுள்ளது. இது மின்னஞ்சல்கள், ஆப்ஸ், பாதுகாப்பான இணையதளங்கள் உட்பட சாதன நெட்வொர்க் செயல்பாட்டைக் கண்காணிப்பதற்கு அவற்றை அனுமதிக்கக்கூடும்.\n\nசான்றிதழ்களைப் பற்றிய கூடுதல் தகவலுக்கு, உங்கள் நிர்வாகியைத் தொடர்புகொள்ளவும்.</item>
+      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> உங்கள் சாதனத்தில் சான்றிதழ் அங்கீகாரத்தை நிறுவியுள்ளது. இது மின்னஞ்சல்கள், ஆப்ஸ், பாதுகாப்பான இணையதளங்கள் உட்பட சாதன நெட்வொர்க் செயல்பாட்டைக் கண்காணிப்பதற்கு அதை அனுமதிக்கக்கூடும்.\n\nசான்றிதழைப் பற்றிய கூடுதல் தகவலுக்கு, உங்கள் நிர்வாகியைத் தொடர்புகொள்ளவும்.</item>
     </plurals>
     <plurals name="ssl_ca_cert_info_message" formatted="false" msgid="8271858091418779584">
-      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> உங்கள் பணிச் சுயவிவரத்திற்குச் சான்றிதழ் அங்கீகாரங்களை நிறுவியுள்ளது. இது மின்னஞ்சல்கள், பயன்பாடுகள், பாதுகாப்பான இணையதளங்கள் உட்பட பணி நெட்வொர்க் செயல்பாட்டைக் கண்காணிப்பதற்கு அவற்றை அனுமதிக்கக்கூடும்.\n\nசான்றிதழ்களைப் பற்றிய கூடுதல் தகவலுக்கு, உங்கள் நிர்வாகியைத் தொடர்புகொள்ளவும்.</item>
-      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> உங்கள் பணிச் சுயவிவரத்திற்குச் சான்றிதழ் அங்கீகாரத்தை நிறுவியுள்ளது. இது மின்னஞ்சல்கள், பயன்பாடுகள், பாதுகாப்பான இணையதளங்கள் உட்பட பணி நெட்வொர்க் செயல்பாட்டைக் கண்காணிப்பதற்கு அதை அனுமதிக்கக்கூடும்.\n\nசான்றிதழைப் பற்றிய கூடுதல் தகவலுக்கு, உங்கள் நிர்வாகியைத் தொடர்புகொள்ளவும்.</item>
+      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> உங்கள் பணிச் சுயவிவரத்திற்குச் சான்றிதழ் அங்கீகாரங்களை நிறுவியுள்ளது. இது மின்னஞ்சல்கள், ஆப்ஸ், பாதுகாப்பான இணையதளங்கள் உட்பட பணி நெட்வொர்க் செயல்பாட்டைக் கண்காணிப்பதற்கு அவற்றை அனுமதிக்கக்கூடும்.\n\nசான்றிதழ்களைப் பற்றிய கூடுதல் தகவலுக்கு, உங்கள் நிர்வாகியைத் தொடர்புகொள்ளவும்.</item>
+      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> உங்கள் பணிச் சுயவிவரத்திற்குச் சான்றிதழ் அங்கீகாரத்தை நிறுவியுள்ளது. இது மின்னஞ்சல்கள், ஆப்ஸ், பாதுகாப்பான இணையதளங்கள் உட்பட பணி நெட்வொர்க் செயல்பாட்டைக் கண்காணிப்பதற்கு அதை அனுமதிக்கக்கூடும்.\n\nசான்றிதழைப் பற்றிய கூடுதல் தகவலுக்கு, உங்கள் நிர்வாகியைத் தொடர்புகொள்ளவும்.</item>
     </plurals>
-    <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"மின்னஞ்சல்கள், பயன்பாடுகள் மற்றும் பாதுகாப்பான இணையதளங்கள் உள்ளிட்ட உங்களின் நெட்வொர்க் செயல்பாட்டை மூன்றாம் தரப்பினர் கண்காணிக்க முடியும்.\n\nஉங்கள் சாதனத்தில் நிறுவப்பட்ட நம்பிக்கையான சான்று இதைச் சாத்தியமாக்கும்."</string>
+    <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"மின்னஞ்சல்கள், ஆப்ஸ் மற்றும் பாதுகாப்பான இணையதளங்கள் உள்ளிட்ட உங்களின் நெட்வொர்க் செயல்பாட்டை மூன்றாம் தரப்பினர் கண்காணிக்க முடியும்.\n\nஉங்கள் சாதனத்தில் நிறுவப்பட்ட நம்பிக்கையான சான்று இதைச் சாத்தியமாக்கும்."</string>
     <plurals name="ssl_ca_cert_settings_button" formatted="false" msgid="3227175122066058245">
       <item quantity="other">சான்றிதழ்களைச் சரிபார்</item>
       <item quantity="one">சான்றிதழைச் சரிபார்</item>
@@ -2848,7 +2848,7 @@
     <string name="user_add_user_or_profile_menu" msgid="4220679989900149336">"பயனர் அல்லது சுயவிவரத்தைச் சேர்"</string>
     <string name="user_add_user_menu" msgid="9006572936456324794">"பயனரைச் சேர்"</string>
     <string name="user_summary_restricted_profile" msgid="5214838615043574917">"கட்டுப்படுத்தப்பட்ட சுயவிவரம்"</string>
-    <string name="user_need_lock_message" msgid="3421243467724322311">"நீங்கள் வரையறுக்கப்பட்டச் சுயவிவரத்தை உருவாக்குவதற்கு முன்பு, உங்கள் பயன்பாடுகள் மற்றும் தனிப்பட்ட தரவைப் பாதுகாக்கும் வகையில் நீங்கள் திரைப் பூட்டை அமைக்க வேண்டும்."</string>
+    <string name="user_need_lock_message" msgid="3421243467724322311">"நீங்கள் வரையறுக்கப்பட்டச் சுயவிவரத்தை உருவாக்குவதற்கு முன்பு, உங்கள் ஆப்ஸ் மற்றும் தனிப்பட்ட தரவைப் பாதுகாக்கும் வகையில் நீங்கள் திரைப் பூட்டை அமைக்க வேண்டும்."</string>
     <string name="user_set_lock_button" msgid="4660971133148866612">"பூட்டை அமை"</string>
     <string name="user_summary_not_set_up" msgid="6436691939044332679">"அமைக்கவில்லை"</string>
     <string name="user_summary_restricted_not_set_up" msgid="896552290436689508">"அமைக்கவில்லை - கட்டுப்படுத்தப்பட்ட சுயவிவரம்"</string>
@@ -2858,8 +2858,8 @@
     <string name="user_nickname" msgid="1088216221559125529">"செல்லப்பெயர்"</string>
     <string name="user_add_user_type_title" msgid="8672326434351387845">"சேர்"</string>
     <string name="user_add_max_count" msgid="4524573950126500416">"<xliff:g id="USER_COUNT">%1$d</xliff:g> பயனர்கள் வரை சேர்க்கலாம்"</string>
-    <string name="user_add_user_item_summary" msgid="6114355152711455716">"பயனர்கள் தங்களுக்குச் சொந்தமான பயன்பாடுகள் மற்றும் உள்ளடக்கத்தை வைத்திருக்க வேண்டும்"</string>
-    <string name="user_add_profile_item_summary" msgid="6386283837789573755">"உங்கள் கணக்கிலிருந்து பயன்பாடுகள் மற்றும் உள்ளடக்கத்திற்கான அணுகலை நீங்கள் வரையறுக்கலாம்"</string>
+    <string name="user_add_user_item_summary" msgid="6114355152711455716">"பயனர்கள் தங்களுக்குச் சொந்தமான ஆப்ஸ் மற்றும் உள்ளடக்கத்தை வைத்திருக்க வேண்டும்"</string>
+    <string name="user_add_profile_item_summary" msgid="6386283837789573755">"உங்கள் கணக்கிலிருந்து ஆப்ஸ் மற்றும் உள்ளடக்கத்திற்கான அணுகலை நீங்கள் வரையறுக்கலாம்"</string>
     <string name="user_add_user_item_title" msgid="6835385073795492410">"பயனர்"</string>
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"கட்டுப்படுத்தப்பட்ட சுயவிவரம்"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"புதியவரைச் சேர்க்கவா?"</string>
@@ -2905,7 +2905,7 @@
     <string name="emergency_info_title" msgid="1522609271881425375">"அவசரத் தகவல்"</string>
     <string name="emergency_info_summary" msgid="7280464759837387342">"<xliff:g id="USER_NAME">%1$s</xliff:g> தகவலும் தொடர்புகளும்"</string>
     <string name="application_restrictions" msgid="6871981013736536763">"பயன்பாடுகளையும் உள்ளடக்கத்தையும் அனுமதி"</string>
-    <string name="apps_with_restrictions_header" msgid="8656739605673756176">"வரையறைகளுடனான பயன்பாடுகள்"</string>
+    <string name="apps_with_restrictions_header" msgid="8656739605673756176">"வரையறைகளுடனான ஆப்ஸ்"</string>
     <string name="apps_with_restrictions_settings_button" msgid="5065896213467171744">"பயன்பாட்டிற்கான அமைப்புகளை விரிவுபடுத்து"</string>
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"தட்டி, கட்டணம் செலுத்துதல்"</string>
     <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"இது எவ்வாறு இயங்குகிறது"</string>
@@ -2960,7 +2960,7 @@
     <string name="app_restrictions_custom_label" msgid="8791627858467265176">"ஆப்ஸின் வரையறைகளை அமை"</string>
     <string name="user_restrictions_controlled_by" msgid="3442508299902131033">"<xliff:g id="APP">%1$s</xliff:g> ஆல் கட்டுப்படுத்தப்படுகிறது"</string>
     <string name="app_sees_restricted_accounts" msgid="2210750497683265281">"இந்த ஆப்ஸ் உங்கள் கணக்குகளை அணுகலாம்"</string>
-    <string name="app_sees_restricted_accounts_and_controlled_by" msgid="5028333644657350816">"இந்தப் பயன்பாட்டால் உங்கள் கணக்குகளை அணுக முடியும். கட்டுப்படுத்தும் ஆப்ஸ்: <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="app_sees_restricted_accounts_and_controlled_by" msgid="5028333644657350816">"இந்த ஆப்ஸால் உங்கள் கணக்குகளை அணுக முடியும். கட்டுப்படுத்தும் ஆப்ஸ்: <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="restriction_wifi_config_title" msgid="1689176998451296068">"வைஃபை மற்றும் மொபைல்"</string>
     <string name="restriction_wifi_config_summary" msgid="2450206736438594690">"வைஃபை மற்றும் மொபைல் அமைப்புகளின் மாற்றத்தை அனுமதிக்கவும்"</string>
     <string name="restriction_bluetooth_config_title" msgid="34551118506640221">"புளூடூத்"</string>
@@ -2970,7 +2970,7 @@
     <string name="restriction_nfc_enable_summary" product="tablet" msgid="3292205836938064931">"டேப்லெட்டானது வேறொரு சாதனத்தைத் தொடும்போது தரவுப் பரிமாற்றத்தை அனுமதி"</string>
     <string name="restriction_nfc_enable_summary" product="default" msgid="226439584043333608">"வேறொரு சாதனத்தைத் தொடும்போது டேட்டா பரிமாற்றத்தை அனுமதி"</string>
     <string name="restriction_location_enable_title" msgid="358506740636434856">"இருப்பிடம்"</string>
-    <string name="restriction_location_enable_summary" msgid="4159500201124004463">"பயன்பாடுகள் உங்கள் இருப்பிடத் தகவலைப் பயன்படுத்தலாம்"</string>
+    <string name="restriction_location_enable_summary" msgid="4159500201124004463">"ஆப்ஸ் உங்கள் இருப்பிடத் தகவலைப் பயன்படுத்தலாம்"</string>
     <string name="wizard_back" msgid="223654213898117594">"பின் செல்"</string>
     <string name="wizard_next" msgid="5239664512608113542">"அடுத்து"</string>
     <string name="wizard_finish" msgid="3742102879981212094">"முடி"</string>
@@ -3078,9 +3078,9 @@
     <string name="keywords_users" msgid="5880705776023155640">"வரம்பிடல், வரம்பு, வரம்பிட்டது"</string>
     <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"உரை திருத்தம், சரிசெய், ஒலி, அதிர்வு, தானியங்கு, மொழி, சைகை, பரிந்துரை, பரிந்துரைப்பு, தீம், வன்மொழி, சொல், வகை, ஈமோஜி, சர்வதேசம்"</string>
     <string name="keywords_reset_apps" msgid="2645701455052020435">"மீட்டமை, விருப்பத்தேர்வுகள், இயல்பு"</string>
-    <string name="keywords_all_apps" msgid="846444448435698930">"ஆப்ஸ், பதிவிறக்கு, பயன்பாடுகள், முறைமை"</string>
-    <string name="keywords_app_permissions" msgid="8539841019997048500">"பயன்பாடுகள், அனுமதிகள், பாதுகாப்பு"</string>
-    <string name="keywords_default_apps" msgid="7435952699323965532">"பயன்பாடுகள், இயல்பு"</string>
+    <string name="keywords_all_apps" msgid="846444448435698930">"ஆப்ஸ், பதிவிறக்கு, ஆப்ஸ், முறைமை"</string>
+    <string name="keywords_app_permissions" msgid="8539841019997048500">"ஆப்ஸ், அனுமதிகள், பாதுகாப்பு"</string>
+    <string name="keywords_default_apps" msgid="7435952699323965532">"ஆப்ஸ், இயல்பு"</string>
     <string name="keywords_ignore_optimizations" msgid="9127632532176249438">"மேம்படுத்தல்களைத் தவிர்த்தல், பேட்டரியைக் குறைவாகப் பயன்படுத்துதல், ஆப்ஸ் காத்திருப்பு நிலை"</string>
     <string name="keywords_color_mode" msgid="8893345199519181751">"அதிர்வு, RGB, sRGB, வண்ணம், இயற்கை, நிலையானது"</string>
     <string name="keywords_color_temperature" msgid="2255253972992035046">"வண்ணம், வண்ண வெப்பநிலை, D65, D73, வெள்ளை, மஞ்சள், நீலம், அடர், வெளிர்"</string>
@@ -3362,7 +3362,7 @@
     </plurals>
     <string name="notification_assistant_title" msgid="8216604031352764011">"அறிவிப்பு அஸிஸ்டண்ட்"</string>
     <string name="no_notification_assistant" msgid="9140123568386413264">"அறிவிப்பு அசிஸ்டண்ட் இல்லை"</string>
-    <string name="no_notification_listeners" msgid="1366386609506834717">"அறிவிப்பு அணுகலைக் கோரும் பயன்பாடுகள் எதுவும் நிறுவப்படவில்லை."</string>
+    <string name="no_notification_listeners" msgid="1366386609506834717">"அறிவிப்பு அணுகலைக் கோரும் ஆப்ஸ் எதுவும் நிறுவப்படவில்லை."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g> சேவைக்கான அறிவிப்பு அணுகலை அனுமதிக்கவா?"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"தொடர்புகளின் பெயர்கள் மற்றும் உங்களுக்கான மெசேஜ்களில் இருக்கும் உரைகள் போன்ற தனிப்பட்ட தகவல்கள் அடங்கிய அனைத்து அறிவிப்புகளையும் <xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> சேவையால் படிக்க இயலும். அறிவிப்புகளை மாற்றியமைக்கவோ நிராகரிக்கவோ அவற்றிலுள்ள செயல் பட்டன்களைத் தூண்டவோ இதனால் இயலும். \n\n’தொந்தரவு செய்ய வேண்டாம்’ அம்சத்தை ஆன் அல்லது ஆஃப் செய்வதற்கு ஆப்ஸை அனுமதிப்பதோடு அது தொடர்பான அமைப்புகளை மாற்றவும் இதனால் இயலும்."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g>க்கான அறிவிப்பு அணுகலை அனுமதிக்கவா?"</string>
@@ -3371,7 +3371,7 @@
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"முடக்கு"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"ரத்துசெய்"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"VR உதவிச் சேவைகள்"</string>
-    <string name="no_vr_listeners" msgid="7675484190394450979">"VR உதவிச் சேவைகளாக இயங்குவதற்காகக் கோரிய பயன்பாடுகள் எதுவும் நிறுவப்படவில்லை."</string>
+    <string name="no_vr_listeners" msgid="7675484190394450979">"VR உதவிச் சேவைகளாக இயங்குவதற்காகக் கோரிய ஆப்ஸ் எதுவும் நிறுவப்படவில்லை."</string>
     <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"<xliff:g id="SERVICE">%1$s</xliff:g>ஐ அணுக VR சேவையை அனுமதிக்கவா?"</string>
     <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"விர்ச்சுவல் ரியாலிட்டி பயன்முறையில் பயன்பாடுகளைப் பயன்படுத்தும்போது, <xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g> இயங்க முடியும்."</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"VRரில் இருக்கும் போது"</string>
@@ -3385,7 +3385,7 @@
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"ஆப்ஸ் திறந்திருக்கும் போது அல்லது அதிலிருந்து நீங்கள் வெளியேறும் போது (எடுத்துக்காட்டாக, வீடியோவைத் தொடர்ந்து பார்க்க), பிக்ச்சர்-இன்-பிக்ச்சர் சாளரத்தை உருவாக்க, இந்த ஆப்ஸை அனுமதிக்கும். இந்தச் சாளரம் நீங்கள் பயன்படுத்தும் பிற ஆப்ஸ்களின் மேல் காட்டப்படும்."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"\'தொந்தரவு செய்யாதே\' அணுகல்"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"’தொந்தரவு செய்ய வேண்டாம்’ அம்சத்தை அனுமதி"</string>
-    <string name="zen_access_empty_text" msgid="7667538993781607731">"\'தொந்தரவு செய்யாதே\' அணுகலை நிறுவப்பட்ட பயன்பாடுகள் எதுவும் கோரவில்லை"</string>
+    <string name="zen_access_empty_text" msgid="7667538993781607731">"\'தொந்தரவு செய்யாதே\' அணுகலை நிறுவப்பட்ட ஆப்ஸ் எதுவும் கோரவில்லை"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"ஆப்ஸை ஏற்றுகிறது..."</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"உங்கள் கோரிக்கையின் படி, சாதனத்தில் இந்த ஆப்ஸின் அறிவிப்புகள் தோன்றுவதை Android தடுக்கிறது"</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"உங்கள் கோரிக்கையின் படி, இந்தச் சாதனத்தில், இந்த வகை அறிவிப்புகள் தோன்றுவதை Android தடுக்கிறது"</string>
@@ -3629,7 +3629,7 @@
     <string name="filter_instant_apps" msgid="8087483282854072366">"இன்ஸ்டண்ட் ஆப்ஸ்"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"தனிப்பட்டவை"</string>
     <string name="filter_work_apps" msgid="4202483998339465542">"பணியிடம்"</string>
-    <string name="filter_notif_all_apps" msgid="1862666327228804896">"பயன்பாடுகள்: எல்லாம்"</string>
+    <string name="filter_notif_all_apps" msgid="1862666327228804896">"ஆப்ஸ்: எல்லாம்"</string>
     <string name="filter_notif_blocked_apps" msgid="5694956954776028202">"ஆஃப் செய்யப்பட்டவை"</string>
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"வகைகள்: அதிக முக்கியத்துவம்"</string>
     <string name="filter_notif_low_channels" msgid="6859599463135775287">"வகைகள்: குறைந்த முக்கியத்துவம்"</string>
@@ -3659,7 +3659,7 @@
     <string name="assist_and_voice_input_title" msgid="324148194703846130">"அசிஸ்ட் &amp; குரல் உள்ளீடு"</string>
     <string name="default_assist_title" msgid="2060846994203235317">"அசிஸ்ட் ஆப்ஸ்"</string>
     <string name="assistant_security_warning_title" msgid="8014460924169723059">"<xliff:g id="ASSISTANT_APP_NAME">%s</xliff:g>ஐ அசிஸ்டண்ட் பயன்பாடாக அமைக்கவா?"</string>
-    <string name="assistant_security_warning" msgid="1304057692847069938">"உங்கள் திரையில் தெரியும் தகவல் அல்லது பயன்பாடுகளுக்குள் அணுகத்தக்க தகவல் உள்பட உங்கள் சாதனத்தில் உபயோகத்தில் இருக்கும் பயன்பாடுகள் பற்றிய தகவலை அசிஸ்டண்ட் படிக்க முடியும்."</string>
+    <string name="assistant_security_warning" msgid="1304057692847069938">"உங்கள் திரையில் தெரியும் தகவல் அல்லது பயன்பாடுகளுக்குள் அணுகத்தக்க தகவல் உள்பட உங்கள் சாதனத்தில் உபயோகத்தில் இருக்கும் ஆப்ஸ் பற்றிய தகவலை அசிஸ்டண்ட் படிக்க முடியும்."</string>
     <string name="assistant_security_warning_agree" msgid="5105692801460137289">"ஏற்கிறேன்"</string>
     <string name="assistant_security_warning_disagree" msgid="4217490999193100459">"ஏற்கவில்லை"</string>
     <string name="choose_voice_input_title" msgid="5369311838580756359">"குரல் உள்ளீட்டைத் தேர்வுசெய்க"</string>
@@ -3692,11 +3692,11 @@
     <string name="show_all_apps" msgid="5442552004569634846">"முழு பயன்பாட்டைக் காட்டு"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"ஆப்ஸின் உபயோகத்தை காட்டு"</string>
     <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
-      <item quantity="other">வழக்கத்திற்கு மாறாக <xliff:g id="NUMBER">%2$d</xliff:g> பயன்பாடுகள் செயல்படுகின்றன</item>
+      <item quantity="other">வழக்கத்திற்கு மாறாக <xliff:g id="NUMBER">%2$d</xliff:g> ஆப்ஸ் செயல்படுகின்றன</item>
       <item quantity="one">வழக்கத்திற்கு மாறாக <xliff:g id="APP">%1$s</xliff:g> செயல்படுகிறது</item>
     </plurals>
     <plurals name="power_high_usage_title" formatted="false" msgid="63134064262760835">
-      <item quantity="other">பேட்டரியை அதிகமாகப் பயன்படுத்தும் பயன்பாடுகள்</item>
+      <item quantity="other">பேட்டரியை அதிகமாகப் பயன்படுத்தும் ஆப்ஸ்</item>
       <item quantity="one">பேட்டரியை அதிகமாகப் பயன்படுத்தும் <xliff:g id="APP">%1$s</xliff:g> பயன்பாடு</item>
     </plurals>
     <string name="high_power_filter_on" msgid="5294209328473386403">"பவர் சேமிக்காதவை"</string>
@@ -3705,7 +3705,7 @@
     <string name="high_power_system" msgid="739584574711292753">"பேட்டரியைச் சேமிக்காது"</string>
     <string name="high_power_desc" msgid="333756885680362741">"பேட்டரி மேம்படுத்தலைப் பயன்படுத்தவில்லை எனில், உங்கள் பேட்டரி மிக விரைவில் தீர்ந்துவிடக்கூடும்."</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"எப்போதும் பின்னணியில் இயங்க, ஆப்ஸை அனுமதிக்கவா?"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"எப்போதும் பின்னணியில் இயங்க <xliff:g id="APP_NAME">%1$s</xliff:g> ஆப்ஸை அனுமதிப்பதால், பேட்டரியின் ஆயுள் குறையக்கூடும். \n\nஇதை அமைப்புகள் &gt; பயன்பாடுகள் &amp; அறிவிப்புகள் என்பதற்குச் சென்று, மாற்றலாம்."</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"எப்போதும் பின்னணியில் இயங்க <xliff:g id="APP_NAME">%1$s</xliff:g> ஆப்ஸை அனுமதிப்பதால், பேட்டரியின் ஆயுள் குறையக்கூடும். \n\nஇதை அமைப்புகள் &gt; ஆப்ஸ் &amp; அறிவிப்புகள் என்பதற்குச் சென்று, மாற்றலாம்."</string>
     <string name="battery_summary" msgid="4345690800899981339">"முழு சார்ஜ் ஆனதிலிருந்து <xliff:g id="PERCENTAGE">%1$s</xliff:g> பயன்படுத்தப்பட்டுள்ளது"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"பேட்டரி திறன் மேலாண்மை"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"கடைசியாக முழு சார்ஜ் செய்த நேரத்திலிருந்து, பேட்டரி பயன்படுத்தப்படவில்லை"</string>
@@ -3771,7 +3771,7 @@
     <string name="total_memory" msgid="7352192982476976453">"மொத்த நினைவகம்"</string>
     <string name="average_used" msgid="3022736210190754669">"பயன்படுத்தியது (%)"</string>
     <string name="free_memory" msgid="4758919141048544927">"இருப்பது"</string>
-    <string name="memory_usage_apps" msgid="2839241373381152354">"பயன்பாடுகள் உபயோகிக்கும் நினைவகம்"</string>
+    <string name="memory_usage_apps" msgid="2839241373381152354">"ஆப்ஸ் உபயோகிக்கும் நினைவகம்"</string>
     <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
       <item quantity="other">கடந்த <xliff:g id="DURATION_1">%2$s</xliff:g> இல் <xliff:g id="COUNT">%1$d</xliff:g> ஆப்ஸ்கள் நினைவகத்தைப் பயன்படுத்தியுள்ளன</item>
       <item quantity="one">கடந்த <xliff:g id="DURATION_0">%2$s</xliff:g> இல் 1 ஆப்ஸ் நினைவகத்தைப் பயன்படுத்தியுள்ளது</item>
@@ -3801,14 +3801,14 @@
     <string name="keywords_vr_listener" msgid="5312633527788917750">"vr விர்ச்சுவல் ரியாலிட்டி லிஷனர் ஸ்டீரியோ உதவிச் சேவை"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"சாதனம் விழிப்பூட்டல் சாளரம் உரையாடல் காட்டு பிற ஆப்ஸின் மேல்"</string>
     <string name="overlay_settings" msgid="3325154759946433666">"பிற ஆப்ஸின் மேலே காட்டு"</string>
-    <string name="system_alert_window_summary" msgid="7703582115861844158">"பிற ஆப்ஸின் மேலே காட்டுவதற்கு <xliff:g id="COUNT_1">%2$d</xliff:g> இல் <xliff:g id="COUNT_0">%1$d</xliff:g> பயன்பாடுகள் அனுமதிக்கப்பட்டுள்ளன"</string>
-    <string name="filter_overlay_apps" msgid="6336897660213304743">"அனுமதி பெற்ற பயன்பாடுகள்"</string>
+    <string name="system_alert_window_summary" msgid="7703582115861844158">"பிற ஆப்ஸின் மேலே காட்டுவதற்கு <xliff:g id="COUNT_1">%2$d</xliff:g> இல் <xliff:g id="COUNT_0">%1$d</xliff:g> ஆப்ஸ் அனுமதிக்கப்பட்டுள்ளன"</string>
+    <string name="filter_overlay_apps" msgid="6336897660213304743">"அனுமதி பெற்ற ஆப்ஸ்"</string>
     <string name="app_permission_summary_allowed" msgid="6458476982015518778">"அனுமதிக்கப்பட்டது"</string>
     <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"அனுமதிக்கப்படவில்லை"</string>
-    <string name="keywords_install_other_apps" msgid="5383559540695847668">"நிறுவு பயன்பாடுகள் அறியப்படாத மூலங்கள்"</string>
+    <string name="keywords_install_other_apps" msgid="5383559540695847668">"நிறுவு ஆப்ஸ் அறியப்படாத மூலங்கள்"</string>
     <string name="write_settings" msgid="9009040811145552108">"சாதன அமைப்புகளை மாற்று"</string>
     <string name="keywords_write_settings" msgid="3450405263390246293">"முறைமை அமைப்புகளை எழுது மாற்று"</string>
-    <string name="write_settings_summary" msgid="4650251358459404247">"<xliff:g id="COUNT_1">%2$d</xliff:g> இல் <xliff:g id="COUNT_0">%1$d</xliff:g> பயன்பாடுகள் முறைமை அமைப்புகளை மாற்ற அனுமதிக்கப்பட்டுள்ளன"</string>
+    <string name="write_settings_summary" msgid="4650251358459404247">"<xliff:g id="COUNT_1">%2$d</xliff:g> இல் <xliff:g id="COUNT_0">%1$d</xliff:g> ஆப்ஸ் முறைமை அமைப்புகளை மாற்ற அனுமதிக்கப்பட்டுள்ளன"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"நிதி ஆப்ஸிற்கான மெசேஜ் அணுகல்"</string>
     <string name="filter_install_sources_apps" msgid="4519839764020866701">"பிற ஆப்ஸை நிறுவலாம்"</string>
     <string name="filter_write_settings_apps" msgid="6864144615530081121">"முறைமை அமைப்புகளை மாற்றலாம்"</string>
@@ -3849,7 +3849,7 @@
       <item quantity="one">1 பயன்பாட்டிற்கு முடக்கப்பட்டுள்ளது</item>
     </plurals>
     <string name="notification_summary_none" msgid="5003043219430054784">"அனைத்திற்கும் இயக்கப்பட்டுள்ளது"</string>
-    <string name="apps_summary" msgid="8355759446490212195">"<xliff:g id="COUNT">%1$d</xliff:g> பயன்பாடுகள் நிறுவப்பட்டுள்ளன"</string>
+    <string name="apps_summary" msgid="8355759446490212195">"<xliff:g id="COUNT">%1$d</xliff:g> ஆப்ஸ் நிறுவப்பட்டுள்ளன"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"24 ஆப்ஸ் நிறுவப்பட்டன"</string>
     <string name="storage_summary" msgid="4835916510511133784">"பயன்படுத்தியது: <xliff:g id="PERCENTAGE">%1$s</xliff:g>, காலியிடம்: <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
     <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"சாதனச் சேமிப்பகம்: <xliff:g id="PERCENTAGE">%1$s</xliff:g> பயன்படுத்தப்பட்டது - <xliff:g id="FREE_SPACE">%2$s</xliff:g> பயன்படுத்துவதற்கு உள்ளது"</string>
@@ -3955,7 +3955,7 @@
     <string name="data_limit" msgid="5793521160051596228">"டேட்டா வரம்பு"</string>
     <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> பயன்படுத்தியது: <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="configure" msgid="8232696842838580549">"உள்ளமை"</string>
-    <string name="data_usage_other_apps" msgid="7002491980141402084">"தரவு உபயோகத்தில் உள்ளடங்கும் பிற பயன்பாடுகள்"</string>
+    <string name="data_usage_other_apps" msgid="7002491980141402084">"தரவு உபயோகத்தில் உள்ளடங்கும் பிற ஆப்ஸ்"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
       <item quantity="other">டேட்டா சேமிப்பான் இயக்கப்பட்டிருக்கும் போது, பயனரின் எல்லா தகவலையும் பயன்படுத்த <xliff:g id="COUNT">%1$d</xliff:g> ஆப்ஸ் அனுமதிக்கப்பட்டுள்ளன</item>
       <item quantity="one">டேட்டா சேமிப்பான் இயக்கப்பட்டிருக்கும் போது, பயனரின் எல்லா தகவலையும் பயன்படுத்த 1 ஆப்ஸ் அனுமதிக்கப்பட்டுள்ளது</item>
@@ -4060,7 +4060,7 @@
     <string name="page_tab_title_summary" msgid="4824744863994538006">"எல்லாம்"</string>
     <string name="page_tab_title_support" msgid="5569262185010367870">"உதவிக்குறிப்பு &amp; உதவி"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"மிகக் குறைந்த அகலம்"</string>
-    <string name="premium_sms_none" msgid="940723020871007898">"பிரீமிய SMS அணுகலைக் கோரும் பயன்பாடுகள் எதுவும் நிறுவப்படவில்லை"</string>
+    <string name="premium_sms_none" msgid="940723020871007898">"பிரீமிய SMS அணுகலைக் கோரும் ஆப்ஸ் எதுவும் நிறுவப்படவில்லை"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"பிரீமிய SMSக்குக் கட்டணம் விதிக்கப்படலாம், அது மொபைல் நிறுவன பில்களில் சேர்க்கப்படும். பயன்பாட்டிற்கான அனுமதியை இயக்கினால், அந்தப் பயன்பாட்டைப் பயன்படுத்தி பிரீமிய SMSஐ அனுப்ப முடியும்."</string>
     <string name="premium_sms_access" msgid="4550027460595822851">"பிரீமிய SMS அணுகல்"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"ஆஃப்"</string>
@@ -4173,9 +4173,9 @@
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"மிகச் சமீபத்திய பாதுகாப்புப் பதிவு"</string>
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"ஏதுமில்லை"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"நிறுவிய ஆப்ஸ்"</string>
-    <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"ஆப்ஸின் எண்ணிக்கை கணிப்பின் அடிப்படையிலானது. இதில் Play ஸ்டோரிலிருந்து நிறுவப்படாத பயன்பாடுகள் சேர்க்கப்படாமல் இருக்கலாம்."</string>
+    <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"ஆப்ஸின் எண்ணிக்கை கணிப்பின் அடிப்படையிலானது. இதில் Play ஸ்டோரிலிருந்து நிறுவப்படாத ஆப்ஸ் சேர்க்கப்படாமல் இருக்கலாம்."</string>
     <plurals name="enterprise_privacy_number_packages_lower_bound" formatted="false" msgid="5161417161943060602">
-      <item quantity="other">குறைந்தபட்சம் <xliff:g id="COUNT_1">%d</xliff:g> பயன்பாடுகள்</item>
+      <item quantity="other">குறைந்தபட்சம் <xliff:g id="COUNT_1">%d</xliff:g> ஆப்ஸ்</item>
       <item quantity="one">குறைந்தபட்சம் <xliff:g id="COUNT_0">%d</xliff:g> பயன்பாடு</item>
     </plurals>
     <string name="enterprise_privacy_location_access" msgid="110406267468274216">"இருப்பிடத்திற்கான அனுமதிகள்"</string>
@@ -4212,7 +4212,7 @@
     <string name="do_disclosure_learn_more_separator" msgid="702345537118848010">" "</string>
     <string name="learn_more" msgid="6844160787130206258">"மேலும் அறிக"</string>
     <plurals name="default_camera_app_title" formatted="false" msgid="8762954032197483848">
-      <item quantity="other">கேமரா பயன்பாடுகள்</item>
+      <item quantity="other">கேமரா ஆப்ஸ்</item>
       <item quantity="one">கேமரா பயன்பாடு</item>
     </plurals>
     <string name="default_calendar_app_title" msgid="6484001237347739255">"கேலெண்டர் ஆப்ஸ்"</string>
@@ -4223,7 +4223,7 @@
     </plurals>
     <string name="default_map_app_title" msgid="6919751358166607185">"வரைபட ஆப்ஸ்"</string>
     <plurals name="default_phone_app_title" formatted="false" msgid="7593838689002912108">
-      <item quantity="other">ஃபோன் பயன்பாடுகள்</item>
+      <item quantity="other">ஃபோன் ஆப்ஸ்</item>
       <item quantity="one">ஃபோன் பயன்பாடு</item>
     </plurals>
     <string name="app_names_concatenation_template_2" msgid="8267577900046506189">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>"</string>

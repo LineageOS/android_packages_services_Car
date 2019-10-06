@@ -363,7 +363,7 @@
     <string name="trust_lost_locks_screen_summary" msgid="2058567484625606803">"Gaitzen bada, gailua blokeatu egingo da azken fidagarritasun-agenteak fidagarritasuna galtzen duenean"</string>
     <string name="owner_info_settings_summary" msgid="4208702251226725583">"Bat ere ez"</string>
     <string name="owner_info_settings_status" msgid="8049975536717685126">"<xliff:g id="COUNT_0">%1$d</xliff:g>/<xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
-    <string name="owner_info_settings_edit_text_hint" msgid="2250029417257939706">"Adibidez, Jonen Android gailua."</string>
+    <string name="owner_info_settings_edit_text_hint" msgid="2250029417257939706">"Adibidez, Jonen Android-eko gailua."</string>
     <string name="user_info_settings_title" msgid="1125111518759995748">"Erabiltzaile-info."</string>
     <string name="show_profile_info_on_lockscreen_label" msgid="5204282771893683026">"Erakutsi profileko informazioa pantaila blokeatuan."</string>
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Profileko informazioa"</string>
@@ -1168,7 +1168,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Naturalak"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Nabarmenduak"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Saturatuak"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Doigarria"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Doigarriak"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Erabili kolore errealistak soilik"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"Doitu kolore bizi eta errealisten artean"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"Aldatu orientazioa automatikoki tableta biratzean"</string>
@@ -1202,7 +1202,7 @@
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Aktibatuta / Pantaila ez da itzaliko hari begira zauden bitartean"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Desaktibatuta"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Pantaila itzaltzea eragozten du hari begira zauden bitartean."</string>
-    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Pantaila kontzienteak aurreko kamera erabiltzen du inor pantailari begira dagoen jakiteko. Gailuko eginbidea da, eta irudiak ez dira inoiz gordetzen, ez eta Google-ra bidaltzen ere."</string>
+    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Pantaila kontzientea eginbideak aurreko kamera erabiltzen du inor pantailari begira dagoen jakiteko. Gailuko eginbidea da, eta irudiak ez dira inoiz gordetzen, ez eta Google-ra bidaltzen ere."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Gaueko argia"</string>
     <string name="night_display_text" msgid="5330502493684652527">"Gaueko argiak tindu horikaraz janzten du pantaila. Horrela, ez zaizu horren nekagarria egingo argi gutxirekin pantailari begira egotea eta errazago hartuko duzu lo, gainera."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Ordutegia"</string>
@@ -2628,9 +2628,9 @@
     <string name="remove_account_failed" msgid="491458185327106966">"Administratzaileak ez du eman aldaketa egiteko baimena"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Ezin da eskuz sinkronizatu"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"Elementua ezin da unean desgaitu. Ezarpena aldatzeko, aktibatu atzeko planoko datuak eta sinkronizazio automatikoa aldi baterako."</string>
-    <string name="enter_password" msgid="2963496904625715235">"Android gailua abiarazteko, idatzi pasahitza"</string>
-    <string name="enter_pin" msgid="7140938268709546890">"Android gailua abiarazteko, idatzi PIN kodea"</string>
-    <string name="enter_pattern" msgid="1653841963422825336">"Android gailua abiarazteko, marraztu eredua"</string>
+    <string name="enter_password" msgid="2963496904625715235">"Android-eko gailua abiarazteko, idatzi pasahitza"</string>
+    <string name="enter_pin" msgid="7140938268709546890">"Android-eko gailua abiarazteko, idatzi PIN kodea"</string>
+    <string name="enter_pattern" msgid="1653841963422825336">"Android-eko gailua abiarazteko, marraztu eredua"</string>
     <string name="cryptkeeper_wrong_pattern" msgid="4580105105385125467">"Eredu okerra"</string>
     <string name="cryptkeeper_wrong_password" msgid="1709534330303983166">"Pasahitz okerra"</string>
     <string name="cryptkeeper_wrong_pin" msgid="857757190077859245">"PIN okerra"</string>
@@ -3365,14 +3365,14 @@
     <string name="no_notification_listeners" msgid="1366386609506834717">"Ez dago jakinarazpenetarako sarbidea eskatu duen aplikaziorik."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari jakinarazpenetarako sarbidea eman nahi diozu?"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> aplikazioak jakinarazpen guztiak irakurri ahalko ditu eta, haien barnean, informazio pertsonala egon daiteke (adibidez, kontaktuen izenak eta jasotzen dituzun testu-mezuak). Gainera, jakinarazpen horiek aldatu edo baztertu egin ahal izango ditu, baita haietako ekintza-botoiak sakatu ere. \n\nHorrez gain, Ez molestatu modua aktibatzeko eta desaktibatzeko aukera izango du aplikazioak, baita harekin erlazionatutako ezarpenak aldatzekoa ere."</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari jakinarazpenak atzitzeko baimena eman nahi diozu?"</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Jakinarazpenak atzitzeko baimena eman nahi diozu <xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> aplikazioak jakinarazpen guztiak irakurri ahal izango ditu, informazio pertsonala (adibidez, kontaktuen izenak eta jasotako testu-mezuak) dutenak barne. Horrez gain, jakinarazpenak baztertu eta haietako ekintza-botoiak abiarazi ahal izango ditu. \n\nGainera, Ez molestatu modua aktibatzeko eta desaktibatzeko aukera izango du aplikazioak, baita horrekin erlazionatutako ezarpenak aldatzekoa ere."</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> aplikazioari jakinarazpenak atzitzeko aukera desaktibatzen badiozu, baliteke Ez molestatu modurako sarbidea era desaktibatzea."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Desaktibatu"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Utzi"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Errealitate birtualeko laguntza-zerbitzuak"</string>
     <string name="no_vr_listeners" msgid="7675484190394450979">"Ez dago errealitate birtualeko laguntza-zerbitzu gisa abiaraztea eskatu duen aplikaziorik instalatuta."</string>
-    <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"<xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari errealitate birtualeko zerbitzuak atzitzeko baimena eman nahi diozu?"</string>
+    <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"Errealitate birtualeko zerbitzuak atzitzeko baimena eman nahi diozu <xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari?"</string>
     <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"Aplikazioak errealitate birtualean erabiltzen dituzunean abiarazi ahal izango da  <xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g>."</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"Errealitate birtualeko moduan"</string>
     <string name="display_vr_pref_low_persistence" msgid="3132583929174794245">"Murriztu lausotzea (gomendatua)"</string>

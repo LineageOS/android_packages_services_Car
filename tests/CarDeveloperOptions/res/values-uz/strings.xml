@@ -62,7 +62,7 @@
     <string name="radioInfo_roaming_not" msgid="7733269160603599835">"Rouming o‘chirilgan"</string>
     <string name="radioInfo_phone_idle" msgid="1893851191227617344">"Faol emas"</string>
     <string name="radioInfo_phone_ringing" msgid="5587975376222853265">"Jiringlamoqda"</string>
-    <string name="radioInfo_phone_offhook" msgid="3186071430568806208">"Qo‘ng‘iroq"</string>
+    <string name="radioInfo_phone_offhook" msgid="3186071430568806208">"Chaqiruv"</string>
     <string name="radioInfo_data_disconnected" msgid="5311119240521915279">"Uzildi"</string>
     <string name="radioInfo_data_connecting" msgid="47095003276717745">"Ulanilmoqda"</string>
     <string name="radioInfo_data_connected" msgid="3755289851642913750">"Ulandi"</string>

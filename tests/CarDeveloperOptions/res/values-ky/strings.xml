@@ -2639,7 +2639,7 @@
     <string name="misc_files" msgid="1012397035001764693">"Башка файлдар"</string>
     <string name="misc_files_selected_count" msgid="1434146080729502726">"<xliff:g id="TOTAL">%2$d</xliff:g> ичинен <xliff:g id="NUMBER">%1$d</xliff:g> тандалды"</string>
     <string name="misc_files_selected_count_bytes" msgid="3752262902203465861">"<xliff:g id="TOTAL">%2$s</xliff:g> ичинен <xliff:g id="NUMBER">%1$s</xliff:g>"</string>
-    <string name="select_all" msgid="452240217913675728">"Бардыгын тандоо"</string>
+    <string name="select_all" msgid="452240217913675728">"Баарын тандоо"</string>
     <string name="data_usage_summary_title" msgid="7288431048564861043">"Дайындардын өткөрүлүшү"</string>
     <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Мобилдик Интернет жана Wi‑Fi"</string>
     <string name="data_usage_accounting" msgid="4681642832010140640">"Оператор эсептеген дайындар түзмөгүңүздө эсептелген дайындардан айырмаланышы мүмкүн."</string>
