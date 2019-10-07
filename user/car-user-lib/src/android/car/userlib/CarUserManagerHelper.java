@@ -250,7 +250,7 @@ public final class CarUserManagerHelper {
      *
      * @return List of {@code UserInfo} for users that associated with a real person.
      */
-    public List<UserInfo> getAllUsers() {
+    private List<UserInfo> getAllUsers() {
         if (UserManager.isHeadlessSystemUserMode()) {
             return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
         } else {
@@ -280,7 +280,7 @@ public final class CarUserManagerHelper {
      *
      * @return List of {@code UserInfo} for admin users that associated with a real person.
      */
-    public List<UserInfo> getAllAdminUsers() {
+    private List<UserInfo> getAllAdminUsers() {
         List<UserInfo> users = getAllUsers();
 
         for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
@@ -298,32 +298,13 @@ public final class CarUserManagerHelper {
      *
      * @return List of {@code UserInfo} for all users who are not guest users.
      */
-    public List<UserInfo> getAllUsersExceptGuests() {
+    private List<UserInfo> getAllUsersExceptGuests() {
         List<UserInfo> users = getAllUsers();
 
         for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
             UserInfo userInfo = iterator.next();
             if (userInfo.isGuest()) {
                 // Remove guests.
-                iterator.remove();
-            }
-        }
-        return users;
-    }
-
-    /**
-     * Get all the users except the one with userId passed in.
-     *
-     * @param userId of the user not to be returned.
-     * @return All users other than user with userId.
-     */
-    private List<UserInfo> getAllUsersExceptSpecifiedUser(int userId) {
-        List<UserInfo> users = mUserManager.getUsers(/* excludeDying= */true);
-
-        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
-            UserInfo userInfo = iterator.next();
-            if (userInfo.id == userId) {
-                // Remove user with userId from the list.
                 iterator.remove();
             }
         }
