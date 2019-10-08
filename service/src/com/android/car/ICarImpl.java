@@ -175,7 +175,7 @@ public class ICarImpl extends ICar.Stub {
                 systemInterface);
         mCarConfigurationService =
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
-        mCarLocationService = new CarLocationService(mContext, mUserManagerHelper);
+        mCarLocationService = new CarLocationService(serviceContext);
         mCarTrustedDeviceService = new CarTrustedDeviceService(serviceContext);
         mCarMediaService = new CarMediaService(serviceContext);
         mCarBugreportManagerService = new CarBugreportManagerService(serviceContext);

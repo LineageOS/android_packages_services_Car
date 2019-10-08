@@ -104,12 +104,6 @@ public class CarUserManagerHelperTest {
                 .thenAnswer(stub -> stub.getArguments()[0]);
     }
 
-    @Test
-    public void checkHeadlessSystemUserFlag() {
-        // Make sure the headless system user flag is on.
-        assertThat(mCarUserManagerHelper.isHeadlessSystemUser()).isTrue();
-    }
-
     // System user will not be returned when calling get all users.
     @Test
     public void testHeadlessUser0GetAllUsers_NotReturnSystemUser() {
