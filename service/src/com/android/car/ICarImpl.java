@@ -38,6 +38,7 @@ import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
 
+import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.garagemode.GarageModeService;
@@ -82,6 +83,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarPropertyService mCarPropertyService;
     private final CarNightService mCarNightService;
     private final AppFocusService mAppFocusService;
+    private final FixedActivityService mFixedActivityService;
     private final GarageModeService mGarageModeService;
     private final InstrumentClusterService mInstrumentClusterService;
     private final CarLocationService mCarLocationService;
@@ -155,6 +157,7 @@ public class ICarImpl extends ICar.Stub {
         mAppFocusService = new AppFocusService(serviceContext, mSystemActivityMonitoringService);
         mCarAudioService = new CarAudioService(serviceContext);
         mCarNightService = new CarNightService(serviceContext, mCarPropertyService);
+        mFixedActivityService = new FixedActivityService(serviceContext);
         mInstrumentClusterService = new InstrumentClusterService(serviceContext,
                 mAppFocusService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(
@@ -184,6 +187,7 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
         CarLocalServices.addService(CarDrivingStateService.class, mCarDrivingStateService);
         CarLocalServices.addService(PerUserCarServiceHelper.class, mPerUserCarServiceHelper);
+        CarLocalServices.addService(FixedActivityService.class, mFixedActivityService);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
@@ -201,6 +205,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mAppFocusService);
         allServices.add(mCarAudioService);
         allServices.add(mCarNightService);
+        allServices.add(mFixedActivityService);
         allServices.add(mInstrumentClusterService);
         allServices.add(mSystemStateControllerService);
         allServices.add(mPerUserCarServiceHelper);
