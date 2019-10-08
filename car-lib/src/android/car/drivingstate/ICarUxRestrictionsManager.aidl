@@ -19,6 +19,7 @@ package android.car.drivingstate;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
+import android.os.IRemoteCallback;
 
 /**
  * Binder interface for {@link android.car.drivingstate.CarUxRestrictionsManager}.
@@ -36,4 +37,6 @@ interface ICarUxRestrictionsManager {
     List<CarUxRestrictionsConfiguration> getConfigs() = 5;
     boolean setRestrictionMode(int mode) = 6;
     int getRestrictionMode() = 7;
+    void reportVirtualDisplayToPhysicalDisplay(in IRemoteCallback binder, int virtualDisplayId, int physicalDisplayId) = 8;
+    int getMappedPhysicalDisplayOfVirtualDisplay(int displayId) = 9;
 }

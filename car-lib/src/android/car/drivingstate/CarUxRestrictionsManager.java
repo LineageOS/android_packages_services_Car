@@ -22,8 +22,10 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.IRemoteCallback;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
@@ -407,5 +409,45 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
         }
 
         return mDisplayId;
+    }
+
+    // Dummy Callback to identify the requester of reportVirtualDisplayToPhysicalDisplay() and
+    // to clean up the internal data when the requester is crashed.
+    private final IRemoteCallback mRequester = new IRemoteCallback.Stub() {
+        @Override public void sendResult(Bundle data) {}  // Unused
+    };
+
+    /**
+     * Reports the mapping the virtual display to the physical display.
+     *
+     * @param virtualDisplayId the display id of the embedded virtual display.
+     * @parom physicalDisplayId the display id where the ActivityView is placed in.
+     * @hide
+     */
+    public void reportVirtualDisplayToPhysicalDisplay(int virtualDisplayId, int physicalDisplayId) {
+        try {
+            mUxRService.reportVirtualDisplayToPhysicalDisplay(mRequester,
+                    virtualDisplayId, physicalDisplayId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Finds out the physical display id where ActivityView is actually located in.
+     * If the given ActivityView is placed inside of another ActivityView, then it will return
+     * the display id where the parent ActivityView is located in.
+     *
+     * @param displayId the display id of the embedded virtual display of ActivityView.
+     * @return the physical display id where ActivityView is actually located in.
+     * @hide
+     */
+    public int getMappedPhysicalDisplayOfVirtualDisplay(int displayId) {
+        try {
+            return mUxRService.getMappedPhysicalDisplayOfVirtualDisplay(displayId);
+        } catch (RemoteException e) {
+            // When CarService isn't ready, we'll return DEFAULT_DISPLAY defensively.
+            return handleRemoteExceptionFromCarService(e, Display.DEFAULT_DISPLAY);
+        }
     }
 }
