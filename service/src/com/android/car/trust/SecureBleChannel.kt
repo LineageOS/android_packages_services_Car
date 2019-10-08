@@ -91,7 +91,7 @@ internal class SecureBleChannel(
         // associated before. The first connect happens in association. So it is always a reconnect
         // in this channel.
         runner.setIsReconnect(true)
-        stream.callback = streamCallback
+        stream.registerCallback(streamCallback)
     }
 
     @Throws(HandshakeException::class)

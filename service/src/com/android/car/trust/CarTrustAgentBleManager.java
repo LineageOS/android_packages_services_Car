@@ -174,7 +174,7 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BlePeripheral
         }
 
         if (mMessageStream != null) {
-            mMessageStream.setCallback(null);
+            mMessageStream.unregisterCallback(this);
             mMessageStream = null;
         }
 
@@ -192,7 +192,7 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BlePeripheral
                 bleEventCallback.onRemoteDeviceDisconnected(device));
 
         if (mMessageStream != null) {
-            mMessageStream.setCallback(null);
+            mMessageStream.unregisterCallback(this);
             mMessageStream = null;
         }
 
@@ -279,7 +279,7 @@ class CarTrustAgentBleManager implements BleMessageStreamCallback, BlePeripheral
                 deviceVersion, device, mBlePeripheralManager, writeCharacteristic,
                 readCharacteristic);
         mMessageStream.setMaxWriteSize(mMaxWriteSize);
-        mMessageStream.setCallback(this);
+        mMessageStream.registerCallback(this);
 
         if (mMessageStream == null) {
             Log.e(TAG, "No supported version found during version exchange. "
