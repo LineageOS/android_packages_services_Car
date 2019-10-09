@@ -7,19 +7,16 @@ option java_outer_classname = "BlePacketProto";
 
 // A packet across a BLE channel.
 message BlePacket {
-  // The current version of the protocol.
-  int32 version = 1;
-
   // A 1-based packet number. The first message will have a value of "1" rather
   // than "0".
-  fixed32 packet_number = 2;
+  fixed32 packet_number = 1;
 
   // The total number of packets in the message stream.
-  int32 total_packets = 3;
+  int32 total_packets = 2;
 
   // Id of message for reassembly on other side
-  int32 message_id = 4;
+  int32 message_id = 3;
 
   // The bytes that represent the message content for this packet.
-  bytes payload = 5;
+  bytes payload = 4;
 }
