@@ -31,10 +31,10 @@ import android.car.encryptionrunner.DummyEncryptionRunner;
 import android.car.encryptionrunner.EncryptionRunnerFactory;
 import android.car.encryptionrunner.HandshakeMessage;
 import android.car.trust.TrustedDeviceInfo;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.RemoteException;
+import android.os.UserHandle;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
@@ -63,7 +63,6 @@ public class CarTrustAgentEnrollmentServiceTest {
     private static final String KEY = "key";
     // Random uuid for test
     private static final UUID TEST_ID1 = UUID.fromString("9a138a69-7c29-400f-9e71-fc29516f9f8b");
-    private static final UUID TEST_ID2 = UUID.fromString("3e344860-e688-4cce-8411-16161b61ad57");
     private static final String TEST_TOKEN = "test_escrow_token";
     private static final String ADDRESS = "00:11:22:33:AA:BB";
     private static final String DEFAULT_NAME = "My Device";
@@ -110,7 +109,7 @@ public class CarTrustAgentEnrollmentServiceTest {
         mCarTrustedDeviceService.init();
         mCarTrustAgentEnrollmentService.init();
         mCarTrustAgentEnrollmentService.setEnrollmentRequestDelegate(mEnrollDelegate);
-        mUserId = new CarUserManagerHelper(mContext).getCurrentProcessUserId();
+        mUserId = UserHandle.myUserId();
         mCarTrustAgentEnrollmentService.onRemoteDeviceConnected(mBluetoothDevice);
     }
 
