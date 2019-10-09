@@ -261,6 +261,22 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         mMockDisplayInterface.waitForDisplayState(false);
     }
 
+    @Test
+    @UiThreadTest
+    public void testSleepImmediateEntry() throws Exception {
+        assertWaitForVhal();
+        mMockDisplayInterface.waitForDisplayState(false);
+        mPowerStateHandler.sendStateAndCheckResponse(
+                VehicleApPowerStateReq.ON,
+                0,
+                VehicleApPowerStateReport.ON);
+        mMockDisplayInterface.waitForDisplayState(true);
+        mPowerStateHandler.sendPowerState(
+                VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY);
+        assertResponse(VehicleApPowerStateReport.SHUTDOWN_START, 0, true);
+    }
+
     // Check that 'expectedState' was reached and is the current state.
     private void assertResponse(int expectedState, int expectedParam, boolean checkParam)
             throws Exception {
@@ -411,8 +427,8 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         }
 
         /**
-         * Checks that a power state transition does NOT occur.  If any state does occur during
-         * the timeout period, then the test fails.
+         * Checks that a power state transition does NOT occur. If any state does occur during
+         * the timeout period (other than a POSTPONE), then the test fails.
          */
         private void sendStateAndExpectNoResponse(int state, int param) throws Exception {
             sendPowerState(state, param);
@@ -420,15 +436,14 @@ public class CarPowerManagementTest extends MockedCarTestBase {
             if (!mSetWaitSemaphore.tryAcquire(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
                 // No state transition, this is a success!
                 return;
-            } else {
-                synchronized (this) {
-                    int[] newState = mSetStates.pop();
-                    if (newState[0] != VehicleApPowerStateReport.SHUTDOWN_POSTPONE) {
-                        fail("Unexpected state change occured, state=" + newState[0]);
-                    }
-                    // Reset the collected states
-                    mSetStates = new LinkedList<>();
+            }
+            synchronized (this) {
+                int[] newState = mSetStates.pop();
+                if (newState[0] != VehicleApPowerStateReport.SHUTDOWN_POSTPONE) {
+                    fail("Unexpected state change occurred, state=" + newState[0]);
                 }
+                // Reset the collected states
+                mSetStates = new LinkedList<>();
             }
         }
 
