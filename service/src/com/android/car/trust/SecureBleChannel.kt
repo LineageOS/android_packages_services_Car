@@ -23,10 +23,9 @@ import android.car.encryptionrunner.HandshakeMessage
 import android.car.encryptionrunner.Key
 import android.util.Log
 import com.android.car.BLEStreamProtos.BLEOperationProto.OperationType
-import com.android.car.Utils
 import com.android.car.guard
+import com.android.car.Utils
 import java.security.SignatureException
-import java.util.UUID
 import kotlin.concurrent.thread
 
 private const val TAG = "SecureBleChannel"
@@ -38,7 +37,7 @@ private const val TAG = "SecureBleChannel"
  * It only applies to the client that has been associated with the IHU before.
  */
 internal class SecureBleChannel(
-    internal val stream: BleMessageStream,
+    internal val stream: BleDeviceMessageStream,
     private val storage: CarCompanionDeviceStorage,
     private val callback: Callback,
     private var encryptionKey: Key? = null
@@ -47,13 +46,19 @@ internal class SecureBleChannel(
     private var deviceId: String? = null
     private var state = HandshakeMessage.HandshakeState.UNKNOWN
     private val isSecureChannelEstablished get() = encryptionKey != null
-    private val streamCallback = object : BleMessageStreamCallback {
-        override fun onMessageReceived(message: ByteArray, uuid: UUID) {
+    private val streamListener = object : BleDeviceMessageStream.MessageReceivedListener {
+        override fun onMessageReceived(deviceMessage: DeviceMessage) {
+            val payload = deviceMessage.message
             if (isSecureChannelEstablished) {
+                if (!deviceMessage.isMessageEncrypted) {
+                    Log.w(TAG, "Received unencrypted message.")
+                    return
+                }
                 encryptionKey?.guard {
                     try {
-                        val decryptedMessage = it.decryptData(message)
-                        notifyCallback { it.onMessageReceived(decryptedMessage) }
+                        val decryptedPayload = it.decryptData(payload)
+                        deviceMessage.message = decryptedPayload
+                        notifyCallback { it.onMessageReceived(deviceMessage) }
                     } catch (e: SignatureException) {
                         Log.e(TAG, "Could not decrypt client credentials.", e)
                         notifyCallback { it.onMessageReceivedError(e) }
@@ -61,27 +66,11 @@ internal class SecureBleChannel(
                 }
             } else {
                 try {
-                    processHandshake(message)
+                    processHandshake(payload)
                 } catch (e: HandshakeException) {
                     Log.e(TAG, "Handshake failed.", e)
                     notifyCallback { it.onEstablishSecureChannelFailure() }
                 }
-            }
-        }
-
-        override fun onMessageReceivedError(uuid: UUID) {
-            if (isSecureChannelEstablished) {
-                Log.e(TAG, "Error parsing the message from the client for handshake.")
-            } else {
-                Log.e(TAG, "Error parsing the encrypted message from the client.")
-            }
-        }
-
-        override fun onWriteMessageError() {
-            if (isSecureChannelEstablished) {
-                Log.e(TAG, "Error writing encrypted message to the stream.")
-            } else {
-                Log.e(TAG, "Error writing handshake message to the stream.")
             }
         }
     }
@@ -91,7 +80,7 @@ internal class SecureBleChannel(
         // associated before. The first connect happens in association. So it is always a reconnect
         // in this channel.
         runner.setIsReconnect(true)
-        stream.registerCallback(streamCallback)
+        stream.registerMessageReceivedListener(streamListener)
     }
 
     @Throws(HandshakeException::class)
@@ -171,8 +160,14 @@ internal class SecureBleChannel(
         val uniqueId = storage.uniqueId
         if (uniqueId != null) {
             logd("Send car id: $uniqueId")
-            stream.writeMessage(Utils.uuidToBytes(uniqueId), OperationType.CLIENT_MESSAGE,
-                /* isPayloadEncrypted= */ false)
+            val deviceMessage = DeviceMessage(
+                recipient = null,
+                isMessageEncrypted = false,
+                message = Utils.uuidToBytes(uniqueId)
+            )
+            stream.writeMessage(
+                deviceMessage,
+                operationType = OperationType.CLIENT_MESSAGE)
         } else {
             Log.e(TAG, "Unable to send car id, car id is null.")
             notifyCallback { it.onEstablishSecureChannelFailure() }
@@ -184,8 +179,14 @@ internal class SecureBleChannel(
     private fun sendHandshakeMessage(message: ByteArray?) {
         if (message != null) {
             logd("Send handshake message: $message.")
-            stream.writeMessage(message, OperationType.ENCRYPTION_HANDSHAKE,
-                /* isPayloadEncrypted= */ false)
+            val deviceMessage = DeviceMessage(
+                recipient = null,
+                isMessageEncrypted = false,
+                message = message
+            )
+            stream.writeMessage(
+                deviceMessage,
+                operationType = OperationType.ENCRYPTION_HANDSHAKE)
         } else {
             Log.e(TAG, "Unable to send next handshake message, message is null.")
             notifyCallback { it.onEstablishSecureChannelFailure() }
@@ -194,8 +195,9 @@ internal class SecureBleChannel(
 
     private fun sendServerAuthToClient(message: ByteArray?) {
         if (message != null) {
-            stream.writeMessage(message, OperationType.CLIENT_MESSAGE,
-                /* isPayloadEncrypted= */ false)
+            stream.writeMessage(
+                DeviceMessage(recipient = null, isMessageEncrypted = false, message = message),
+                operationType = OperationType.CLIENT_MESSAGE)
         } else {
             Log.e(TAG, "Unable to send server authentication message to client, message is null.")
             notifyCallback { it.onEstablishSecureChannelFailure() }
@@ -203,11 +205,17 @@ internal class SecureBleChannel(
     }
 
     // This should be called only after the secure channel has been established.
-    fun sendEncryptedMessage(message: ByteArray) {
-        encryptionKey?.also {
-            val encryptedMessage = it.encryptData(message)
-            stream.writeMessage(encryptedMessage, OperationType.CLIENT_MESSAGE,
-                /* isPayloadEncrypted= */ true)
+    fun sendEncryptedMessage(deviceMessage: DeviceMessage) {
+        if (!deviceMessage.isMessageEncrypted) {
+            Log.e(TAG, "Encryption not required for this message $deviceMessage.")
+            return
+        }
+        encryptionKey?.guard {
+            val encryptedMessage = it.encryptData(deviceMessage.message)
+            deviceMessage.message = encryptedMessage
+            stream.writeMessage(
+                deviceMessage,
+                OperationType.CLIENT_MESSAGE)
         } ?: throw IllegalStateException("Secure channel has not been established.")
     }
 
@@ -231,7 +239,7 @@ internal class SecureBleChannel(
         /**
          * Invoked when secure channel has been established successfully.
          *
-         * @param[encryptionKey] The new key generated in handshake.
+         * @param encryptionKey The new key generated in handshake.
          */
         fun onSecureChannelEstablished(encryptionKey: Key)
 
@@ -243,9 +251,9 @@ internal class SecureBleChannel(
         /**
          * Invoked when a complete message is received securely from the client and decrypted.
          *
-         * @param[message] The decrypted message.
+         * @param deviceMessage The [DeviceMessage] with decrypted message.
          */
-        fun onMessageReceived(message: ByteArray)
+        fun onMessageReceived(deviceMessage: DeviceMessage)
 
         /**
          * Invoked when there was an error during a processing or decrypting of a client message.

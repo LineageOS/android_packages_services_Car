@@ -365,11 +365,18 @@ public class BlePeripheralManager {
                         Log.d(TAG, "Read request for characteristic: " + characteristic.getUuid());
                     }
 
-                    mGattServer.sendResponse(device, requestId,
+                    boolean isSuccessful = mGattServer.sendResponse(device, requestId,
                             BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
 
-                    for (OnCharacteristicReadListener listener : mReadListeners) {
-                        listener.onCharacteristicRead(device, characteristic);
+                    if (isSuccessful) {
+                        for (OnCharacteristicReadListener listener : mReadListeners) {
+                            listener.onCharacteristicRead(device, characteristic);
+                        }
+                    } else {
+                        stopGattServer();
+                        for (Callback callback : mCallbacks) {
+                            callback.onRemoteDeviceDisconnected(device);
+                        }
                     }
                 }
 
