@@ -24,6 +24,9 @@
 #include <log/log.h>
 #include <math/mat4.h>
 #include <math/vec3.h>
+#include <android/hardware/camera/device/3.2/ICameraDevice.h>
+
+using ::android::hardware::camera::device::V3_2::Stream;
 
 
 // Simple aliases to make geometric math using vectors more readable
@@ -149,7 +152,10 @@ bool RenderTopView::activate() {
 
     // Set up streaming video textures for our associated cameras
     for (auto&& cam: mActiveCameras) {
-        cam.tex.reset(createVideoTexture(mEnumerator, cam.info.cameraId.c_str(), sDisplay));
+        cam.tex.reset(createVideoTexture(mEnumerator,
+                                         cam.info.cameraId.c_str(),
+                                         nullptr,
+                                         sDisplay));
         if (!cam.tex) {
             ALOGE("Failed to set up video texture for %s (%s)",
                   cam.info.cameraId.c_str(), cam.info.function.c_str());
