@@ -22,7 +22,6 @@ import android.car.CarManagerBase;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
 import android.car.hardware.property.ICarProperty;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.ArraySet;
 
@@ -44,7 +43,7 @@ import java.util.List;
  */
 @Deprecated
 @SystemApi
-public final class CarVendorExtensionManager implements CarManagerBase {
+public final class CarVendorExtensionManager extends CarManagerBase {
 
     private final static boolean DBG = false;
     private final static String TAG = CarVendorExtensionManager.class.getSimpleName();
@@ -84,9 +83,10 @@ public final class CarVendorExtensionManager implements CarManagerBase {
      * <p>Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
      * @hide
      */
-    public CarVendorExtensionManager(IBinder service, Handler handler) {
+    public CarVendorExtensionManager(Car car, IBinder service) {
+        super(car);
         ICarProperty mCarPropertyService = ICarProperty.Stub.asInterface(service);
-        mPropertyManager = new CarPropertyManager(mCarPropertyService, handler);
+        mPropertyManager = new CarPropertyManager(car, mCarPropertyService);
     }
 
     /**
@@ -206,6 +206,9 @@ public final class CarVendorExtensionManager implements CarManagerBase {
     /** @hide */
     @Override
     public void onCarDisconnected() {
+        synchronized (mLock) {
+            mCallbacks.clear();
+        }
         mPropertyManager.onCarDisconnected();
     }
     private static class CarPropertyEventListenerToBase implements CarPropertyEventCallback {

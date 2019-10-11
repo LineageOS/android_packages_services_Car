@@ -19,6 +19,7 @@ package android.car.vms;
 import android.annotation.CallbackExecutor;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
+import android.car.Car;
 import android.car.CarManagerBase;
 import android.os.Binder;
 import android.os.IBinder;
@@ -39,7 +40,7 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @SystemApi
-public final class VmsSubscriberManager implements CarManagerBase {
+public final class VmsSubscriberManager extends CarManagerBase {
     private static final String TAG = "VmsSubscriberManager";
 
     private final IVmsSubscriberService mVmsSubscriberService;
@@ -75,7 +76,8 @@ public final class VmsSubscriberManager implements CarManagerBase {
      *
      * @hide
      */
-    public VmsSubscriberManager(IBinder service) {
+    public VmsSubscriberManager(Car car, IBinder service) {
+        super(car);
         mVmsSubscriberService = IVmsSubscriberService.Stub.asInterface(service);
         mSubscriberManagerClient = new IVmsSubscriberClient.Stub() {
             @Override
@@ -133,7 +135,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         try {
             mVmsSubscriberService.addVmsSubscriberToNotifications(mSubscriberManagerClient);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -148,7 +150,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         try {
             mVmsSubscriberService.removeVmsSubscriberToNotifications(mSubscriberManagerClient);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         } finally {
             synchronized (mClientCallbackLock) {
                 mClientCallback = null;
@@ -168,7 +170,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         try {
             return mVmsSubscriberService.getPublisherInfo(publisherId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -182,7 +184,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         try {
             return mVmsSubscriberService.getAvailableLayers();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -199,7 +201,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             mVmsSubscriberService.addVmsSubscriber(mSubscriberManagerClient, layer);
             VmsOperationRecorder.get().subscribe(layer);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -218,7 +220,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
                     mSubscriberManagerClient, layer, publisherId);
             VmsOperationRecorder.get().subscribe(layer, publisherId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -231,7 +233,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             mVmsSubscriberService.addVmsSubscriberPassive(mSubscriberManagerClient);
             VmsOperationRecorder.get().startMonitoring();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -248,7 +250,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             mVmsSubscriberService.removeVmsSubscriber(mSubscriberManagerClient, layer);
             VmsOperationRecorder.get().unsubscribe(layer);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -266,7 +268,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
                     mSubscriberManagerClient, layer, publisherId);
             VmsOperationRecorder.get().unsubscribe(layer, publisherId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -278,7 +280,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             mVmsSubscriberService.removeVmsSubscriberPassive(mSubscriberManagerClient);
             VmsOperationRecorder.get().stopMonitoring();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -326,5 +328,9 @@ public final class VmsSubscriberManager implements CarManagerBase {
      */
     @Override
     public void onCarDisconnected() {
+        synchronized (mClientCallbackLock) {
+            mClientCallback = null;
+            mExecutor = null;
+        }
     }
 }
