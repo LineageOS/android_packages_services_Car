@@ -32,10 +32,9 @@ using ::android::hardware::hidl_vec;
 using ::android::hardware::hidl_handle;
 using ::android::sp;
 using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
-using BufferDesc_1_0       = ::android::hardware::automotive::evs::V1_0::BufferDesc;
-using BufferDesc_1_1       = ::android::hardware::automotive::evs::V1_1::BufferDesc;
-using EvsDisplayState      = ::android::hardware::automotive::evs::V1_0::DisplayState;
-using IEvsCameraStream_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsCameraStream;
+using EvsDisplayState = ::android::hardware::automotive::evs::V1_0::DisplayState;
+using BufferDesc_1_0  = ::android::hardware::automotive::evs::V1_0::BufferDesc;
+using BufferDesc_1_1  = ::android::hardware::automotive::evs::V1_1::BufferDesc;
 
 
 /*
@@ -63,9 +62,12 @@ public:
     void doneWithFrame(const BufferDesc_1_1& buffer);
 
 private:
-    // Implementation for ::android::hardware::automotive::evs::V1_1::IEvsCameraStream
+    // Implementation for ::android::hardware::automotive::evs::V1_0::IEvsCameraStream
     Return<void> deliverFrame(const BufferDesc_1_0& buffer)  override;
-    Return<void> notifyEvent(const EvsEvent& event) override;
+
+    // Implementation for ::android::hardware::automotive::evs::V1_1::IEvsCameraStream
+    Return<void> deliverFrame_1_1(const BufferDesc_1_1& buffer)  override;
+    Return<void> notify(const EvsEvent& event) override;
 
     // Values initialized as startup
     android::sp <IEvsCamera>    mCamera;

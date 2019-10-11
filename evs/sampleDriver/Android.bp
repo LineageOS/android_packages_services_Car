@@ -27,11 +27,14 @@ cc_binary {
         "GlWrapper.cpp",
         "VideoCapture.cpp",
         "bufferCopy.cpp",
+        "ConfigManager.cpp",
+        "ConfigManagerUtil.cpp",
     ],
 
     shared_libs: [
         "android.hardware.automotive.evs@1.0",
         "android.hardware.automotive.evs@1.1",
+        "android.hardware.camera.device@3.2",
         "libui",
         "libgui",
         "libEGL",
@@ -44,6 +47,9 @@ cc_binary {
         "liblog",
         "libutils",
         "libhardware_legacy",
+        "libhwbinder",
+        "libcamera_metadata",
+        "libtinyxml2",
     ],
 
     init_rc: ["android.hardware.automotive.evs@1.1-sample.rc"],
@@ -62,7 +68,22 @@ cc_binary {
         "-Wunreachable-code",
     ],
 
-    // NOTE:  It can be helpful, while debugging, to disable optimizations
-    //LOCAL_CFLAGS += -O0 -g
+    required: [
+        "evs_configuration.dtd",
+        "evs_sample_configuration.xml",
+    ],
+}
 
+prebuilt_etc {
+    name: "evs_configuration.dtd",
+
+    src: "resources/evs_configuration.dtd",
+    sub_dir: "automotive/evs",
+}
+
+prebuilt_etc {
+    name: "evs_sample_configuration.xml",
+
+    src: "resources/evs_sample_configuration.xml",
+    sub_dir: "automotive/evs",
 }

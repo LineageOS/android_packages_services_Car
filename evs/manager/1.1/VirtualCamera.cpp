@@ -22,6 +22,7 @@
 #include <ui/GraphicBufferMapper.h>
 
 using ::android::hardware::automotive::evs::V1_0::DisplayState;
+using ::android::hardware::automotive::evs::V1_1::CameraDesc;
 
 
 namespace android {
@@ -74,96 +75,97 @@ void VirtualCamera::shutdown() {
 }
 
 
-bool VirtualCamera::notifyEvent(const EvsEvent& event) {
-    auto type = event.getDiscriminator();
-    if (type == EvsEvent::hidl_discriminator::info) {
-        InfoEventDesc desc = event.info();
-        switch(desc.aType) {
-            case InfoEventType::STREAM_STOPPED:
-                // Warn if we got an unexpected stream termination
-                if (mStreamState != STOPPING) {
-                    ALOGW("Stream unexpectedly stopped");
-                }
-
-                // Mark the stream as stopped.
-                mStreamState = STOPPED;
-
-                if (mStream_1_1 == nullptr) {
-                    // Send a null frame for v1.0 client
-                    BufferDesc_1_0 nullBuff = {};
-                    auto result = mStream->deliverFrame(nullBuff);
-                    if (!result.isOk()) {
-                        ALOGE("Error delivering end of stream marker");
-                    }
-                }
-                break;
-
-            case InfoEventType::PARAMETER_CHANGED:
-                ALOGD("A camera parameter 0x%X is set to 0x%X", desc.payload[0], desc.payload[1]);
-                break;
-
-            case InfoEventType::MASTER_RELEASED:
-                ALOGD("The master client has been released");
-                break;
-
-            default:
-                ALOGE("Unknown event id 0x%X", desc.aType);
-                break;
-        }
+bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
+    if (mStreamState == STOPPED) {
+        // A stopped stream gets no frames
+        ALOGE("A stopped stream should not get any frames");
+        return false;
+    } else if (mFramesHeld.size() >= mFramesAllowed) {
+        // Indicate that we declined to send the frame to the client because they're at quota
+        ALOGI("Skipping new frame as we hold %zu of %u allowed.",
+              mFramesHeld.size(), mFramesAllowed);
 
         if (mStream_1_1 != nullptr) {
-            // Forward a received event to the client
-            auto result = mStream_1_1->notifyEvent(event);
+            // Report a frame drop to v1.1 client.
+            EvsEvent event;
+            event.aType = EvsEventType::FRAME_DROPPED;
+            auto result = mStream_1_1->notify(event);
             if (!result.isOk()) {
-                ALOGE("Failed to forward an event");
-                return false;
+                ALOGE("Error delivering end of stream event");
             }
         }
-    } else {
-        if (mStreamState == STOPPED) {
-            // A stopped stream gets no frames
-            ALOGE("A stopped stream should not get any frames");
-        } else if (mFramesHeld.size() >= mFramesAllowed) {
-            // Indicate that we declined to send the frame to the client because they're at quota
-            ALOGI("Skipping new frame as we hold %zu of %u allowed.",
-                  mFramesHeld.size(), mFramesAllowed);
 
-            if (mStream_1_1 != nullptr) {
-                EvsEvent event;
-                InfoEventDesc desc = {};
-                desc.aType = InfoEventType::FRAME_DROPPED;
-                event.info(desc);
-                auto result = mStream_1_1->notifyEvent(event);
+        return false;
+    } else {
+        // Keep a record of this frame so we can clean up if we have to in case of client death
+        mFramesHeld.emplace_back(bufDesc);
+
+        if (mStream_1_1 != nullptr) {
+            // Pass this buffer through to our client
+            mStream_1_1->deliverFrame_1_1(bufDesc);
+        } else {
+            // Forward a frame to v1.0 client
+            BufferDesc_1_0 frame_1_0 = {};
+            const AHardwareBuffer_Desc* pDesc =
+                reinterpret_cast<const AHardwareBuffer_Desc *>(&bufDesc.buffer.description);
+            frame_1_0.width     = pDesc->width;
+            frame_1_0.height    = pDesc->height;
+            frame_1_0.format    = pDesc->format;
+            frame_1_0.usage     = pDesc->usage;
+            frame_1_0.stride    = pDesc->stride;
+            frame_1_0.memHandle = bufDesc.buffer.nativeHandle;
+            frame_1_0.pixelSize = bufDesc.pixelSize;
+            frame_1_0.bufferId  = bufDesc.bufferId;
+
+            mStream->deliverFrame(frame_1_0);
+        }
+
+        return true;
+    }
+}
+
+
+bool VirtualCamera::notify(const EvsEvent& event) {
+    switch(event.aType) {
+        case EvsEventType::STREAM_STOPPED:
+            // Warn if we got an unexpected stream termination
+            if (mStreamState != STOPPING) {
+                ALOGW("Stream unexpectedly stopped");
+            }
+
+            // Mark the stream as stopped.
+            mStreamState = STOPPED;
+
+            if (mStream_1_1 == nullptr) {
+                // Send a null frame instead, for v1.0 client
+                BufferDesc_1_0 nullBuff = {};
+                auto result = mStream->deliverFrame(nullBuff);
                 if (!result.isOk()) {
-                    ALOGE("Error delivering end of stream event");
+                    ALOGE("Error delivering end of stream marker");
                 }
             }
+            break;
 
+        // v1.0 client will ignore all other events.
+        case EvsEventType::PARAMETER_CHANGED:
+            ALOGD("A camera parameter 0x%X is set to 0x%X", event.payload[0], event.payload[1]);
+            break;
+
+        case EvsEventType::MASTER_RELEASED:
+            ALOGD("The master client has been released");
+            break;
+
+        default:
+            ALOGE("Unknown event id 0x%X", event.aType);
+            break;
+    }
+
+    if (mStream_1_1 != nullptr) {
+        // Forward a received event to the v1.1 client
+        auto result = mStream_1_1->notify(event);
+        if (!result.isOk()) {
+            ALOGE("Failed to forward an event");
             return false;
-        } else {
-            // Keep a record of this frame so we can clean up if we have to in case of client death
-            BufferDesc_1_1 frame = event.buffer();
-            mFramesHeld.push_back(frame);
-
-            if (mStream_1_1 != nullptr) {
-                // Pass this buffer through to our client
-                mStream_1_1->notifyEvent(event);
-            } else {
-                // Forward a frame to v1.0 client
-                BufferDesc_1_0 frame_1_0 = {};
-                AHardwareBuffer_Desc* pDesc =
-                    reinterpret_cast<AHardwareBuffer_Desc *>(&frame.buffer.description);
-                frame_1_0.width     = pDesc->width;
-                frame_1_0.height    = pDesc->height;
-                frame_1_0.format    = pDesc->format;
-                frame_1_0.usage     = pDesc->usage;
-                frame_1_0.stride    = pDesc->stride;
-                frame_1_0.memHandle = frame.buffer.nativeHandle;
-                frame_1_0.pixelSize = frame.pixelSize;
-                frame_1_0.bufferId  = frame.bufferId;
-
-                mStream->deliverFrame(frame_1_0);
-            }
         }
     }
 
@@ -271,10 +273,8 @@ Return<void> VirtualCamera::stopVideoStream()  {
         if (mStream_1_1 != nullptr) {
             // v1.1 client waits for a stream stopped event
             EvsEvent event;
-            InfoEventDesc desc = {};
-            desc.aType = InfoEventType::STREAM_STOPPED;
-            event.info(desc);
-            auto result = mStream_1_1->notifyEvent(event);
+            event.aType = EvsEventType::STREAM_STOPPED;
+            auto result = mStream_1_1->notify(event);
             if (!result.isOk()) {
                 ALOGE("Error delivering end of stream event");
             }
@@ -314,6 +314,21 @@ Return<EvsResult> VirtualCamera::setExtendedInfo(uint32_t opaqueIdentifier, int3
 
 
 // Methods from ::android::hardware::automotive::evs::V1_1::IEvsCamera follow.
+Return<void> VirtualCamera::getCameraInfo_1_1(getCameraInfo_1_1_cb info_cb) {
+    // Straight pass through to hardware layer
+    auto hwCamera_1_1 =
+        IEvsCamera_1_1::castFrom(mHalCamera->getHwCamera()).withDefault(nullptr);
+    if (hwCamera_1_1 != nullptr) {
+        return hwCamera_1_1->getCameraInfo_1_1(info_cb);
+    } else {
+        // Return an empty list
+        CameraDesc nullCamera = {};
+        info_cb(nullCamera);
+        return Void();
+    }
+}
+
+
 Return<EvsResult> VirtualCamera::doneWithFrame_1_1(const BufferDesc_1_1& bufDesc_1_1) {
     if (bufDesc_1_1.buffer.nativeHandle == nullptr) {
         ALOGE("ignoring doneWithFrame called with invalid handle");
@@ -371,7 +386,40 @@ Return<EvsResult> VirtualCamera::unsetMaster() {
 }
 
 
-Return<void> VirtualCamera::setParameter(CameraParam id, int32_t value, setParameter_cb _hidl_cb) {
+Return<void> VirtualCamera::getParameterList(getParameterList_cb _hidl_cb) {
+    // Straight pass through to hardware layer
+    auto hwCamera_1_1 =
+        IEvsCamera_1_1::castFrom(mHalCamera->getHwCamera()).withDefault(nullptr);
+    if (hwCamera_1_1 != nullptr) {
+        return hwCamera_1_1->getParameterList(_hidl_cb);
+    } else {
+        // Return an empty list
+        hardware::hidl_vec<CameraParam> emptyList;
+        _hidl_cb(emptyList);
+        return Void();
+    }
+}
+
+
+Return<void> VirtualCamera::getIntParameterRange(CameraParam id,
+                                                 getIntParameterRange_cb _hidl_cb) {
+    // Straight pass through to hardware layer
+    auto hwCamera_1_1 =
+        IEvsCamera_1_1::castFrom(mHalCamera->getHwCamera()).withDefault(nullptr);
+    if (hwCamera_1_1 != nullptr) {
+        return hwCamera_1_1->getIntParameterRange(id, _hidl_cb);
+    } else {
+        // Return [0, 0, 0]
+        _hidl_cb(0, 0, 0);
+        return Void();
+    }
+    return Void();
+}
+
+
+Return<void> VirtualCamera::setIntParameter(CameraParam id,
+                                            int32_t value,
+                                            setIntParameter_cb _hidl_cb) {
     EvsResult status = mHalCamera->setParameter(this, id, value);
     _hidl_cb(status, value);
 
@@ -379,7 +427,8 @@ Return<void> VirtualCamera::setParameter(CameraParam id, int32_t value, setParam
 }
 
 
-Return<void> VirtualCamera::getParameter(CameraParam id, getParameter_cb _hidl_cb) {
+Return<void> VirtualCamera::getIntParameter(CameraParam id,
+                                            getIntParameter_cb _hidl_cb) {
     int32_t value;
     EvsResult status = mHalCamera->getParameter(id, value);
     _hidl_cb(status, value);
