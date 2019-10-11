@@ -19,7 +19,6 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -37,7 +36,7 @@ import java.util.Set;
  * @hide
  */
 @SystemApi
-public final class CarStorageMonitoringManager implements CarManagerBase {
+public final class CarStorageMonitoringManager extends CarManagerBase {
     private static final String TAG = CarStorageMonitoringManager.class.getSimpleName();
     private static final int MSG_IO_STATS_EVENT = 0;
 
@@ -77,9 +76,10 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
     /**
      * @hide
      */
-    public CarStorageMonitoringManager(IBinder service, Handler handler) {
+    public CarStorageMonitoringManager(Car car, IBinder service) {
+        super(car);
         mService = ICarStorageMonitoring.Stub.asInterface(service);
-        mMessageHandler = new SingleMessageHandler<IoStats>(handler, MSG_IO_STATS_EVENT) {
+        mMessageHandler = new SingleMessageHandler<IoStats>(getEventHandler(), MSG_IO_STATS_EVENT) {
             @Override
             protected void handleEvent(IoStats event) {
                 for (IoStatsListener listener : mListeners) {
@@ -112,7 +112,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
         try {
             return mService.getPreEolIndicatorStatus();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, PRE_EOL_INFO_UNKNOWN);
         }
     }
 
@@ -130,7 +130,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
         try {
             return mService.getWearEstimate();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -150,7 +150,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
         try {
             return mService.getWearEstimateHistory();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
     }
 
@@ -169,7 +169,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
         try {
             return mService.getBootIoStats();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
     }
 
@@ -199,7 +199,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
         try {
             return mService.getShutdownDiskWriteAmount();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, 0);
         }
     }
 
@@ -216,7 +216,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
         try {
             return mService.getAggregateIoStats();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
     }
 
@@ -236,7 +236,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
         try {
             return mService.getIoStatsDeltas();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
     }
 
@@ -259,7 +259,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
             }
             mListeners.add(listener);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -277,7 +277,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
                 mListenerToService = null;
             }
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 }

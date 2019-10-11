@@ -19,7 +19,6 @@ package android.car;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.os.IBinder;
@@ -28,6 +27,7 @@ import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.util.Log;
 import android.view.Display;
 
@@ -40,13 +40,14 @@ import java.lang.annotation.Target;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * API to get information on displays and users in the car.
  */
-public class CarOccupantZoneManager implements CarManagerBase {
+public class CarOccupantZoneManager extends CarManagerBase {
 
     private static final String TAG = CarOccupantZoneManager.class.getSimpleName();
 
@@ -261,11 +262,12 @@ public class CarOccupantZoneManager implements CarManagerBase {
 
     /** @hide */
     @VisibleForTesting
-    public CarOccupantZoneManager(IBinder service, Context context, Handler handler) {
+    public CarOccupantZoneManager(Car car, IBinder service) {
+        super(car);
         mService = ICarOccupantZone.Stub.asInterface(service);
         mBinderCallback = new ICarOccupantZoneCallbackImpl(this);
-        mDisplayManager = context.getSystemService(DisplayManager.class);
-        mEventHandler = new EventHandler(handler.getLooper());
+        mDisplayManager = getContext().getSystemService(DisplayManager.class);
+        mEventHandler = new EventHandler(getEventHandler().getLooper());
     }
 
     /**
@@ -277,7 +279,7 @@ public class CarOccupantZoneManager implements CarManagerBase {
         try {
             return Arrays.asList(mService.getAllOccupantZones());
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
     }
 
@@ -303,7 +305,7 @@ public class CarOccupantZoneManager implements CarManagerBase {
             }
             return displays;
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
     }
 
@@ -326,7 +328,7 @@ public class CarOccupantZoneManager implements CarManagerBase {
             }
             return mDisplayManager.getDisplay(displayId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -340,7 +342,7 @@ public class CarOccupantZoneManager implements CarManagerBase {
         try {
             return mService.getDisplayType(display.getDisplayId());
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, DISPLAY_TYPE_UNKNOWN);
         }
     }
 
@@ -353,7 +355,7 @@ public class CarOccupantZoneManager implements CarManagerBase {
         try {
             return mService.getUserForOccupant(occupantZone.zoneId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, UserHandle.USER_NULL);
         }
     }
 
@@ -380,7 +382,7 @@ public class CarOccupantZoneManager implements CarManagerBase {
                 try {
                     mService.registerCallback(mBinderCallback);
                 } catch (RemoteException e) {
-                    throw e.rethrowFromSystemServer();
+                    handleRemoteExceptionFromCarService(e);
                 }
             }
         }
