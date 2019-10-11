@@ -138,71 +138,70 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc_1_0& bufDesc_1_0) {
 }
 
 
-Return<void> StreamHandler::deliverFrame_1_1(const BufferDesc_1_1& bufDesc) {
-    ALOGD("Received a frame event from the camera (%p)",
-          bufDesc.buffer.nativeHandle.getNativeHandle());
-
-    // Take the lock to protect our frame slots and running state variable
-    std::unique_lock <std::mutex> lock(mLock);
-    if (bufDesc.buffer.nativeHandle.getNativeHandle() == nullptr) {
-        // Signal that the last frame has been received and the stream is stopped
-        ALOGW("Invalid null frame (id: 0x%X) is ignored", bufDesc.bufferId);
-    } else {
-        // Do we already have a "ready" frame?
-        if (mReadyBuffer >= 0) {
-            // Send the previously saved buffer back to the camera unused
-            mCamera->doneWithFrame_1_1(mBuffers[mReadyBuffer]);
-
-            // We'll reuse the same ready buffer index
-        } else if (mHeldBuffer >= 0) {
-            // The client is holding a buffer, so use the other slot for "on deck"
-            mReadyBuffer = 1 - mHeldBuffer;
-        } else {
-            // This is our first buffer, so just pick a slot
-            mReadyBuffer = 0;
-        }
-
-        // Save this frame until our client is interested in it
-        mBuffers[mReadyBuffer] = bufDesc;
-    }
-
-    // Notify anybody who cares that things have changed
-    lock.unlock();
-    mSignal.notify_all();
-
-    return Void();
-}
-
-
-Return<void> StreamHandler::notify(const EvsEvent& event) {
-    switch(event.aType) {
-        case EvsEventType::STREAM_STOPPED:
-        {
+Return<void> StreamHandler::notifyEvent(const EvsEvent& event) {
+    auto type = event.getDiscriminator();
+    if (type == EvsEvent::hidl_discriminator::info) {
+        InfoEventDesc desc = event.info();
+        switch(desc.aType) {
+            case InfoEventType::STREAM_STOPPED:
             {
-                std::lock_guard<std::mutex> lock(mLock);
+                {
+                    std::lock_guard<std::mutex> lock(mLock);
 
-                // Signal that the last frame has been received and the stream is stopped
-                mRunning = false;
+                    // Signal that the last frame has been received and the stream is stopped
+                    mRunning = false;
+                }
+                ALOGI("Received a STREAM_STOPPED event");
+                break;
             }
-            ALOGI("Received a STREAM_STOPPED event");
-            break;
+            case InfoEventType::PARAMETER_CHANGED:
+                ALOGI("Camera parameter 0x%X is set to 0x%X", desc.payload[0], desc.payload[1]);
+                break;
+
+            // Below events are ignored
+            case InfoEventType::STREAM_STARTED:
+            [[fallthrough]];
+            case InfoEventType::FRAME_DROPPED:
+            [[fallthrough]];
+            case InfoEventType::TIMEOUT:
+                ALOGI("Event 0x%X is received but ignored", desc.aType);
+                break;
+            default:
+                ALOGE("Unknown event id 0x%X", desc.aType);
+                break;
+        }
+    } else {
+        const BufferDesc_1_1& bufDesc_1_1 = event.buffer();
+        ALOGD("Received a frame event from the camera (%p)",
+              bufDesc_1_1.buffer.nativeHandle.getNativeHandle());
+
+        // Take the lock to protect our frame slots and running state variable
+        std::unique_lock <std::mutex> lock(mLock);
+        if (bufDesc_1_1.buffer.nativeHandle.getNativeHandle() == nullptr) {
+            // Signal that the last frame has been received and the stream is stopped
+            ALOGW("Invalid null frame (id: 0x%X) is ignored", bufDesc_1_1.bufferId);
+        } else {
+            // Do we already have a "ready" frame?
+            if (mReadyBuffer >= 0) {
+                // Send the previously saved buffer back to the camera unused
+                mCamera->doneWithFrame_1_1(mBuffers[mReadyBuffer]);
+
+                // We'll reuse the same ready buffer index
+            } else if (mHeldBuffer >= 0) {
+                // The client is holding a buffer, so use the other slot for "on deck"
+                mReadyBuffer = 1 - mHeldBuffer;
+            } else {
+                // This is our first buffer, so just pick a slot
+                mReadyBuffer = 0;
+            }
+
+            // Save this frame until our client is interested in it
+            mBuffers[mReadyBuffer] = bufDesc_1_1;
         }
 
-        case EvsEventType::PARAMETER_CHANGED:
-            ALOGI("Camera parameter 0x%X is set to 0x%X", event.payload[0], event.payload[1]);
-            break;
-
-        // Below events are ignored in reference implementation.
-        case EvsEventType::STREAM_STARTED:
-        [[fallthrough]];
-        case EvsEventType::FRAME_DROPPED:
-        [[fallthrough]];
-        case EvsEventType::TIMEOUT:
-            ALOGI("Event 0x%X is received but ignored", event.aType);
-            break;
-        default:
-            ALOGE("Unknown event id 0x%X", event.aType);
-            break;
+        // Notify anybody who cares that things have changed
+        lock.unlock();
+        mSignal.notify_all();
     }
 
     return Void();

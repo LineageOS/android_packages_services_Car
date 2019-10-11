@@ -22,7 +22,7 @@
 #include "RenderBase.h"
 
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
-#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
+#include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
 #include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 
@@ -37,7 +37,7 @@ using ::android::hardware::hidl_vec;
 using ::android::hardware::hidl_handle;
 using ::android::sp;
 using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
-using ::android::hardware::camera::device::V3_2::Stream;
+using ::android::hardware::automotive::evs::V1_0::IEvsEnumerator;
 
 
 /*
@@ -95,13 +95,9 @@ private:
 
     State                       mCurrentState = OFF;
 
-    // mCameraList is a redundant storage for camera device info, which is also
-    // stored in mCameraDescList and, however, not removed for backward
-    // compatibility.
     std::vector<ConfigManager::CameraInfo>  mCameraList[NUM_STATES];
     std::unique_ptr<RenderBase> mCurrentRenderer;
     std::unique_ptr<RenderBase> mDesiredRenderer;
-    std::vector<CameraDesc>     mCameraDescList[NUM_STATES];
 
     std::thread                 mRenderThread;  // The thread that runs the main rendering loop
 

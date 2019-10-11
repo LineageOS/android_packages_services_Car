@@ -20,13 +20,13 @@
 
 #include "RenderBase.h"
 
-#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
+#include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
 #include "ConfigManager.h"
 #include "VideoTex.h"
 
 
 using namespace ::android::hardware::automotive::evs::V1_1;
-using ::android::hardware::camera::device::V3_2::Stream;
+using ::android::hardware::automotive::evs::V1_0::IEvsEnumerator;
 
 
 /*
@@ -34,8 +34,7 @@ using ::android::hardware::camera::device::V3_2::Stream;
  */
 class RenderDirectView: public RenderBase {
 public:
-    RenderDirectView(sp<IEvsEnumerator> enumerator,
-                     const CameraDesc& camDesc);
+    RenderDirectView(sp<IEvsEnumerator> enumerator, const ConfigManager::CameraInfo& cam);
 
     virtual bool activate() override;
     virtual void deactivate() override;
@@ -45,7 +44,6 @@ public:
 protected:
     sp<IEvsEnumerator>              mEnumerator;
     ConfigManager::CameraInfo       mCameraInfo;
-    CameraDesc                      mCameraDesc;
 
     std::unique_ptr<VideoTex>       mTexture;
 

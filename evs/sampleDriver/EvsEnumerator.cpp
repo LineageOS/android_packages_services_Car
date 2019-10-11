@@ -17,7 +17,6 @@
 #include "EvsEnumerator.h"
 #include "EvsV4lCamera.h"
 #include "EvsGlDisplay.h"
-#include "ConfigManager.h"
 
 #include <dirent.h>
 #include <hardware_legacy/uevent.h>
@@ -27,7 +26,6 @@
 
 using namespace std::chrono_literals;
 using CameraDesc_1_0 = ::android::hardware::automotive::evs::V1_0::CameraDesc;
-using CameraDesc_1_1 = ::android::hardware::automotive::evs::V1_1::CameraDesc;
 
 namespace android {
 namespace hardware {
@@ -44,7 +42,6 @@ std::unordered_map<std::string, EvsEnumerator::CameraRecord> EvsEnumerator::sCam
 wp<EvsGlDisplay>                                             EvsEnumerator::sActiveDisplay;
 std::mutex                                                   EvsEnumerator::sLock;
 std::condition_variable                                      EvsEnumerator::sCameraSignal;
-std::unique_ptr<ConfigManager>                               EvsEnumerator::sConfigManager;
 
 // Constants
 const auto kEnumerationTimeout = 10s;
@@ -131,19 +128,7 @@ void EvsEnumerator::EvsUeventThread(std::atomic<bool>& running) {
 EvsEnumerator::EvsEnumerator() {
     ALOGD("EvsEnumerator created");
 
-    std::thread initCfgMgr;
-    if (sConfigManager == nullptr) {
-        /* loads and initializes ConfigManager in a separate thread */
-        initCfgMgr = std::thread([](){
-            sConfigManager =
-                ConfigManager::Create("/etc/automotive/evs/evs_sample_configuration.xml");
-        });
-    }
-
     enumerateDevices();
-    if (initCfgMgr.joinable()) {
-        initCfgMgr.join();
-    }
 }
 
 void EvsEnumerator::enumerateDevices() {
@@ -213,7 +198,7 @@ Return<void> EvsEnumerator::getCameraList(getCameraList_cb _hidl_cb)  {
     hidlCameras.resize(numCameras);
     unsigned i = 0;
     for (const auto& [key, cam] : sCameraList) {
-        hidlCameras[i++] = cam.desc.v1;
+        hidlCameras[i++] = cam.desc;
     }
 
     // Send back the results
@@ -242,16 +227,10 @@ Return<sp<IEvsCamera_1_0>> EvsEnumerator::openCamera(const hidl_string& cameraId
     }
 
     // Construct a camera instance for the caller
-    if (sConfigManager == nullptr) {
-        pActiveCamera = EvsV4lCamera::Create(cameraId.c_str());
-    } else {
-        pActiveCamera = EvsV4lCamera::Create(cameraId.c_str(),
-                                             sConfigManager->getCameraInfo(cameraId));
-    }
-
+    pActiveCamera = new EvsV4lCamera(cameraId.c_str());
     pRecord->activeInstance = pActiveCamera;
     if (pActiveCamera == nullptr) {
-        ALOGE("Failed to create new EvsV4lCamera object for %s\n", cameraId.c_str());
+        ALOGE("Failed to allocate new EvsV4lCamera object for %s\n", cameraId.c_str());
     }
 
     return pActiveCamera;
@@ -334,94 +313,6 @@ Return<EvsDisplayState> EvsEnumerator::getDisplayState()  {
     } else {
         return EvsDisplayState::NOT_OPEN;
     }
-}
-
-
-// Methods from ::android::hardware::automotive::evs::V1_1::IEvsEnumerator follow.
-Return<void> EvsEnumerator::getCameraList_1_1(getCameraList_1_1_cb _hidl_cb)  {
-    ALOGD("getCameraList_1_1");
-    if (!checkPermission()) {
-        return Void();
-    }
-
-    {
-        std::unique_lock<std::mutex> lock(sLock);
-        if (sCameraList.size() < 1) {
-            // No qualified device has been found.  Wait until new device is ready,
-            // for 10 seconds.
-            if (!sCameraSignal.wait_for(lock,
-                                        kEnumerationTimeout,
-                                        []{ return sCameraList.size() > 0; })) {
-                ALOGD("Timer expired.  No new device has been added.");
-            }
-        }
-    }
-
-    const unsigned numCameras = sCameraList.size();
-
-    // Build up a packed array of CameraDesc for return
-    hidl_vec<CameraDesc_1_1> hidlCameras;
-    hidlCameras.resize(numCameras);
-    unsigned i = 0;
-    for (auto& [key, cam] : sCameraList) {
-        if (sConfigManager != nullptr) {
-            unique_ptr<ConfigManager::CameraInfo> &tempInfo = sConfigManager->getCameraInfo(key);
-            if (tempInfo != nullptr) {
-                //TODO(b/140668179): There are multiple places where camera metadata
-                //                   is being updated and, as it may raise a
-                //                   performance concern, redundant tries need to be
-                //                   removed.
-                cam.desc.metadata.setToExternal(
-                    (uint8_t *)tempInfo->characteristics,
-                     get_camera_metadata_size(tempInfo->characteristics)
-                );
-            }
-        }
-
-        hidlCameras[i++] = cam.desc;
-    }
-
-    // Send back the results
-    ALOGD("reporting %zu cameras available", hidlCameras.size());
-    _hidl_cb(hidlCameras);
-
-    // HIDL convention says we return Void if we sent our result back via callback
-    return Void();
-}
-
-
-Return<sp<IEvsCamera_1_1>> EvsEnumerator::openCamera_1_1(const hidl_string& cameraId,
-                                                         const Stream& streamCfg) {
-    ALOGD("openCamera_1_1");
-    if (!checkPermission()) {
-        return nullptr;
-    }
-
-    // Is this a recognized camera id?
-    CameraRecord *pRecord = findCameraById(cameraId);
-
-    // Has this camera already been instantiated by another caller?
-    sp<EvsV4lCamera> pActiveCamera = pRecord->activeInstance.promote();
-    if (pActiveCamera != nullptr) {
-        ALOGW("Killing previous camera because of new caller");
-        closeCamera(pActiveCamera);
-    }
-
-    // Construct a camera instance for the caller
-    if (sConfigManager == nullptr) {
-        ALOGW("ConfigManager is not available.  Given stream configuration is ignored.");
-        pActiveCamera = EvsV4lCamera::Create(cameraId.c_str());
-    } else {
-        pActiveCamera = EvsV4lCamera::Create(cameraId.c_str(),
-                                             sConfigManager->getCameraInfo(cameraId),
-                                             &streamCfg);
-    }
-    pRecord->activeInstance = pActiveCamera;
-    if (pActiveCamera == nullptr) {
-        ALOGE("Failed to create new EvsV4lCamera object for %s\n", cameraId.c_str());
-    }
-
-    return pActiveCamera;
 }
 
 

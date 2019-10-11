@@ -17,6 +17,7 @@
 #ifndef ANDROID_AUTOMOTIVE_EVS_V1_1_CAMERAPROXY_H
 #define ANDROID_AUTOMOTIVE_EVS_V1_1_CAMERAPROXY_H
 
+#include <android/hardware/automotive/evs/1.0/types.h>
 #include <android/hardware/automotive/evs/1.1/types.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
@@ -32,6 +33,7 @@ using ::android::hardware::Return;
 using ::android::hardware::Void;
 using ::android::hardware::hidl_handle;
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
+using ::android::hardware::automotive::evs::V1_0::CameraDesc;
 using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
 using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 using BufferDesc_1_1 = ::android::hardware::automotive::evs::V1_1::BufferDesc;
@@ -64,8 +66,7 @@ public:
     bool              isStreaming()       { return mStreamState == RUNNING; }
 
     // Proxy to receive frames and forward them to the client's stream
-    bool              notify(const EvsEvent& event);
-    bool              deliverFrame(const BufferDesc& bufDesc);
+    bool              notifyEvent(const EvsEvent& event);
 
     // Methods from ::android::hardware::automotive::evs::V1_0::IEvsCamera follow.
     Return<void>      getCameraInfo(getCameraInfo_cb _hidl_cb)  override;
@@ -77,20 +78,16 @@ public:
     Return<EvsResult> setExtendedInfo(uint32_t opaqueIdentifier, int32_t opaqueValue) override;
 
     // Methods from ::android::hardware::automotive::evs::V1_1::IEvsCamera follow.
-    Return<void>      getCameraInfo_1_1(getCameraInfo_1_1_cb _hidl_cb)  override;
     Return<EvsResult> doneWithFrame_1_1(const BufferDesc_1_1& buffer) override;
     Return<EvsResult> pauseVideoStream() override { return EvsResult::UNDERLYING_SERVICE_ERROR; }
     Return<EvsResult> resumeVideoStream() override { return EvsResult::UNDERLYING_SERVICE_ERROR; }
     Return<EvsResult> setMaster() override;
     Return<EvsResult> forceMaster(const sp<IEvsDisplay>& display) override;
     Return<EvsResult> unsetMaster() override;
-    Return<void>      getParameterList(getParameterList_cb _hidl_cb) override;
-    Return<void>      getIntParameterRange(CameraParam id,
-                                           getIntParameterRange_cb _hidl_cb) override;
-    Return<void>      setIntParameter(CameraParam id, int32_t value,
-                                      setIntParameter_cb _hidl_cb) override;
-    Return<void>      getIntParameter(CameraParam id,
-                                      getIntParameter_cb _hidl_cb) override;
+    Return<void>      setParameter(CameraParam id, int32_t value,
+                                   setParameter_cb _hidl_cb) override;
+    Return<void>      getParameter(CameraParam id,
+                                   getParameter_cb _hidl_cb) override;
 
 
 
