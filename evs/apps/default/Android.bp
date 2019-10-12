@@ -45,8 +45,6 @@ cc_binary {
         "libGLESv2",
         "libhardware",
         "libpng",
-        "libcamera_metadata",
-        "android.hardware.camera.device@3.2",
         "android.hardware.automotive.evs@1.0",
         "android.hardware.automotive.evs@1.1",
         "android.hardware.automotive.vehicle@2.0",

@@ -75,12 +75,9 @@ public:
                                      CameraParam id, int32_t& value);
     Return<EvsResult>   getParameter(CameraParam id, int32_t& value);
 
-    // Methods from ::android::hardware::automotive::evs::V1_0::IEvsCameraStream follow.
-    Return<void> deliverFrame(const BufferDesc_1_0& buffer) override;
-
     // Methods from ::android::hardware::automotive::evs::V1_1::IEvsCameraStream follow.
-    Return<void> deliverFrame_1_1(const BufferDesc_1_1& buffer) override;
-    Return<void> notify(const EvsEvent& event) override;
+    Return<void> deliverFrame(const BufferDesc_1_0& buffer) override;
+    Return<void> notifyEvent(const EvsEvent& event) override;
 
 private:
     sp<IEvsCamera_1_1>              mHwCamera;
