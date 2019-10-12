@@ -51,7 +51,7 @@ sp<VirtualCamera> HalCamera::makeVirtualCamera() {
     }
 
     // Add this client to our ownership list via weak pointer
-    mClients.push_back(client);
+    mClients.emplace_back(client);
 
     // Return the strong pointer to the client
     return client;
@@ -203,9 +203,9 @@ Return<void> HalCamera::doneWithFrame(const BufferDesc_1_1& buffer) {
 }
 
 
-// Methods from ::android::hardware::automotive::evs::V1_1::IEvsCameraStream follow.
+// Methods from ::android::hardware::automotive::evs::V1_0::IEvsCameraStream follow.
 Return<void> HalCamera::deliverFrame(const BufferDesc_1_0& buffer) {
-    /* Frames are delivered via notifyEvent callback for clients that implement
+    /* Frames are delivered via deliverFrame_1_1 callback for clients that implement
      * IEvsCameraStream v1.1 interfaces and therefore this method must not be
      * used.
      */
@@ -216,61 +216,63 @@ Return<void> HalCamera::deliverFrame(const BufferDesc_1_0& buffer) {
 }
 
 
-Return<void> HalCamera::notifyEvent(const EvsEvent& event) {
-    auto type = event.getDiscriminator();
-    if (type == EvsEvent::hidl_discriminator::info) {
-        InfoEventDesc desc = event.info();
-        ALOGD("Received an event id: %u", desc.aType);
-        if(desc.aType == InfoEventType::STREAM_STOPPED) {
-            // This event happens only when there is no more active client.
-            if (mStreamState != STOPPING) {
-                ALOGW("Stream stopped unexpectedly");
-            }
-
-            mStreamState = STOPPED;
-        }
-
-        // Forward all other events to the clients
-        for (auto&& client : mClients) {
-            sp<VirtualCamera> vCam = client.promote();
-            if (vCam != nullptr) {
-                if (!vCam->notifyEvent(event)) {
-                    ALOGI("Failed to forward an event");
-                }
+// Methods from ::android::hardware::automotive::evs::V1_1::IEvsCameraStream follow.
+Return<void> HalCamera::deliverFrame_1_1(const BufferDesc_1_1& buffer) {
+    ALOGV("Received a frame");
+    unsigned frameDeliveries = 0;
+    for (auto&& client : mClients) {
+        sp<VirtualCamera> vCam = client.promote();
+        if (vCam != nullptr) {
+            if (vCam->deliverFrame(buffer)) {
+                ++frameDeliveries;
             }
         }
+    }
+
+    if (frameDeliveries < 1) {
+        // If none of our clients could accept the frame, then return it
+        // right away.
+        ALOGI("Trivially rejecting frame with no acceptance");
+        mHwCamera->doneWithFrame_1_1(buffer);
     } else {
-        ALOGD("Received a frame");
-        unsigned frameDeliveries = 0;
-        for (auto&& client : mClients) {
-            sp<VirtualCamera> vCam = client.promote();
-            if (vCam != nullptr) {
-                if (vCam->notifyEvent(event)) {
-                    ++frameDeliveries;
-                }
+        // Add an entry for this frame in our tracking list.
+        unsigned i;
+        for (i = 0; i < mFrames.size(); ++i) {
+            if (mFrames[i].refCount == 0) {
+                break;
             }
         }
 
-        if (frameDeliveries < 1) {
-            // If none of our clients could accept the frame, then return it
-            // right away.
-            ALOGI("Trivially rejecting frame with no acceptance");
-            mHwCamera->doneWithFrame_1_1(event.buffer());
+        if (i == mFrames.size()) {
+            mFrames.emplace_back(buffer.bufferId);
         } else {
-            // Add an entry for this frame in our tracking list.
-            unsigned i;
-            for (i = 0; i < mFrames.size(); ++i) {
-                if (mFrames[i].refCount == 0) {
-                    break;
-                }
-            }
+            mFrames[i].frameId = buffer.bufferId;
+        }
+        mFrames[i].refCount = frameDeliveries;
+    }
 
-            if (i == mFrames.size()) {
-                mFrames.emplace_back(event.buffer().bufferId);
-            } else {
-                mFrames[i].frameId = event.buffer().bufferId;
+    return Void();
+}
+
+
+Return<void> HalCamera::notify(const EvsEvent& event) {
+    ALOGD("Received an event id: %u", event.aType);
+    if(event.aType == EvsEventType::STREAM_STOPPED) {
+        // This event happens only when there is no more active client.
+        if (mStreamState != STOPPING) {
+            ALOGW("Stream stopped unexpectedly");
+        }
+
+        mStreamState = STOPPED;
+    }
+
+    // Forward all other events to the clients
+    for (auto&& client : mClients) {
+        sp<VirtualCamera> vCam = client.promote();
+        if (vCam != nullptr) {
+            if (!vCam->notify(event)) {
+                ALOGI("Failed to forward an event");
             }
-            mFrames[i].refCount = frameDeliveries;
         }
     }
 
@@ -304,10 +306,8 @@ Return<EvsResult> HalCamera::forceMaster(sp<VirtualCamera> virtualCamera) {
 
             /* Notify a previous master client the loss of a master role */
             EvsEvent event;
-            InfoEventDesc desc = {};
-            desc.aType = InfoEventType::MASTER_RELEASED;
-            event.info(desc);
-            if (!prevMaster->notifyEvent(event)) {
+            event.aType = EvsEventType::MASTER_RELEASED;
+            if (!prevMaster->notify(event)) {
                 ALOGE("Fail to deliver a master role lost notification");
             }
         }
@@ -327,10 +327,8 @@ Return<EvsResult> HalCamera::unsetMaster(sp<VirtualCamera> virtualCamera) {
 
         /* Notify other clients that a master role becomes available. */
         EvsEvent event;
-        InfoEventDesc desc = {};
-        desc.aType = InfoEventType::MASTER_RELEASED;
-        event.info(desc);
-        auto cbResult = this->notifyEvent(event);
+        event.aType = EvsEventType::MASTER_RELEASED;
+        auto cbResult = this->notify(event);
         if (!cbResult.isOk()) {
             ALOGE("Fail to deliver a parameter change notification");
         }
@@ -344,21 +342,19 @@ Return<EvsResult> HalCamera::setParameter(sp<VirtualCamera> virtualCamera,
                                           CameraParam id, int32_t& value) {
     EvsResult result = EvsResult::INVALID_ARG;
     if (virtualCamera == mMaster.promote()) {
-        mHwCamera->setParameter(id, value,
-                                [&result, &value](auto status, auto readValue) {
-                                    result = status;
-                                    value = readValue;
-                                });
+        mHwCamera->setIntParameter(id, value,
+                                   [&result, &value](auto status, auto readValue) {
+                                       result = status;
+                                       value = readValue;
+                                   });
 
         if (result == EvsResult::OK) {
             /* Notify a parameter change */
             EvsEvent event;
-            InfoEventDesc desc = {};
-            desc.aType = InfoEventType::PARAMETER_CHANGED;
-            desc.payload[0] = static_cast<uint32_t>(id);
-            desc.payload[1] = static_cast<uint32_t>(value);
-            event.info(desc);
-            auto cbResult = this->notifyEvent(event);
+            event.aType = EvsEventType::PARAMETER_CHANGED;
+            event.payload[0] = static_cast<uint32_t>(id);
+            event.payload[1] = static_cast<uint32_t>(value);
+            auto cbResult = this->notify(event);
             if (!cbResult.isOk()) {
                 ALOGE("Fail to deliver a parameter change notification");
             }
@@ -376,11 +372,11 @@ Return<EvsResult> HalCamera::setParameter(sp<VirtualCamera> virtualCamera,
 
 Return<EvsResult> HalCamera::getParameter(CameraParam id, int32_t& value) {
     EvsResult result = EvsResult::OK;
-    mHwCamera->getParameter(id, [&result, &value](auto status, auto readValue) {
-                                    result = status;
-                                    if (result == EvsResult::OK) {
-                                        value = readValue;
-                                    }
+    mHwCamera->getIntParameter(id, [&result, &value](auto status, auto readValue) {
+                                       result = status;
+                                       if (result == EvsResult::OK) {
+                                           value = readValue;
+                                       }
     });
 
     return result;

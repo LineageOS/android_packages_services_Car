@@ -28,7 +28,6 @@
 #include <binder/IServiceManager.h>
 
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
-using ::android::hardware::automotive::evs::V1_0::CameraDesc;
 using EvsDisplayState = ::android::hardware::automotive::evs::V1_0::DisplayState;
 using BufferDesc_1_0  = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 using BufferDesc_1_1  = ::android::hardware::automotive::evs::V1_1::BufferDesc;
@@ -68,12 +67,12 @@ EvsStateControl::EvsStateControl(android::sp <IVehicle>       pVnet,
     // This way we only ever deal with cameras which exist in the system
     // Build our set of cameras for the states we support
     ALOGD("Requesting camera list");
-    mEvs->getCameraList(
+    mEvs->getCameraList_1_1(
         [this, &config](hidl_vec<CameraDesc> cameraList) {
             ALOGI("Camera list callback received %zu cameras",
                   cameraList.size());
             for (auto&& cam: cameraList) {
-                ALOGD("Found camera %s", cam.cameraId.c_str());
+                ALOGD("Found camera %s", cam.v1.cameraId.c_str());
                 bool cameraConfigFound = false;
 
                 // Check our configuration for information about this camera
@@ -83,19 +82,23 @@ EvsStateControl::EvsStateControl(android::sp <IVehicle>       pVnet,
                 // list all of them and let the UX/rendering logic use one, some
                 // or all of them as appropriate.
                 for (auto&& info: config.getCameras()) {
-                    if (cam.cameraId == info.cameraId) {
+                    if (cam.v1.cameraId == info.cameraId) {
                         // We found a match!
                         if (info.function.find("reverse") != std::string::npos) {
-                            mCameraList[State::REVERSE].push_back(info);
+                            mCameraList[State::REVERSE].emplace_back(info);
+                            mCameraDescList[State::REVERSE].emplace_back(cam);
                         }
                         if (info.function.find("right") != std::string::npos) {
-                            mCameraList[State::RIGHT].push_back(info);
+                            mCameraList[State::RIGHT].emplace_back(info);
+                            mCameraDescList[State::RIGHT].emplace_back(cam);
                         }
                         if (info.function.find("left") != std::string::npos) {
-                            mCameraList[State::LEFT].push_back(info);
+                            mCameraList[State::LEFT].emplace_back(info);
+                            mCameraDescList[State::LEFT].emplace_back(cam);
                         }
                         if (info.function.find("park") != std::string::npos) {
-                            mCameraList[State::PARKING].push_back(info);
+                            mCameraList[State::PARKING].emplace_back(info);
+                            mCameraDescList[State::PARKING].emplace_back(cam);
                         }
                         cameraConfigFound = true;
                         break;
@@ -103,7 +106,7 @@ EvsStateControl::EvsStateControl(android::sp <IVehicle>       pVnet,
                 }
                 if (!cameraConfigFound) {
                     ALOGW("No config information for hardware camera %s",
-                          cam.cameraId.c_str());
+                          cam.v1.cameraId.c_str());
                 }
             }
         }
@@ -301,12 +304,14 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
         if (mCameraList[desiredState].size() == 1) {
             // We have a camera assigned to this state for direct view.
             mDesiredRenderer = std::make_unique<RenderDirectView>(mEvs,
-                                                                  mCameraList[desiredState][0]);
+                                                                  mCameraDescList[desiredState][0]);
             if (!mDesiredRenderer) {
                 ALOGE("Failed to construct direct renderer.  Skipping state change.");
                 return false;
             }
         } else if (mCameraList[desiredState].size() > 1 || desiredState == PARKING) {
+            //TODO(b/140668179): RenderTopView needs to be updated to use new
+            //                   ConfigManager.
             mDesiredRenderer = std::make_unique<RenderTopView>(mEvs,
                                                                mCameraList[desiredState],
                                                                mConfig);

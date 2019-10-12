@@ -179,7 +179,7 @@ bool ConfigManager::initialize(const char* configFileName)
             info.cameraId    = cameraId;
             info.function    = function;
 
-            mCameras.push_back(info);
+            mCameras.emplace_back(info);
         }
     }
 
