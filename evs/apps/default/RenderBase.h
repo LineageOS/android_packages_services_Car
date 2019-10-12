@@ -24,10 +24,12 @@
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
 
-#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
+#include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
+#include <android/hardware/automotive/evs/1.1/types.h>
 
 using namespace ::android::hardware::automotive::evs::V1_1;
 using ::android::sp;
+using ::android::hardware::automotive::evs::V1_0::IEvsEnumerator;
 
 
 /*

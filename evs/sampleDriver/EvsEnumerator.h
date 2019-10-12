@@ -17,18 +17,16 @@
 #ifndef ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_EVSCAMERAENUMERATOR_H
 #define ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_EVSCAMERAENUMERATOR_H
 
-#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
+#include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
-#include <android/hardware/camera/device/3.2/ICameraDevice.h>
 
 #include <unordered_map>
 #include <thread>
 #include <atomic>
 
-#include "ConfigManager.h"
-
+using ::android::hardware::automotive::evs::V1_0::CameraDesc;
 using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
-using ::android::hardware::camera::device::V3_2::Stream;
+using ::android::hardware::automotive::evs::V1_0::IEvsEnumerator;
 using EvsDisplayState = ::android::hardware::automotive::evs::V1_0::DisplayState;
 using IEvsCamera_1_0  = ::android::hardware::automotive::evs::V1_0::IEvsCamera;
 using IEvsCamera_1_1  = ::android::hardware::automotive::evs::V1_1::IEvsCamera;
@@ -54,11 +52,6 @@ public:
     Return<void>                closeDisplay(const ::android::sp<IEvsDisplay>& display)  override;
     Return<EvsDisplayState>     getDisplayState()  override;
 
-    // Methods from ::android::hardware::automotive::evs::V1_1::IEvsEnumerator follow.
-    Return<void>                getCameraList_1_1(getCameraList_1_1_cb _hidl_cb) override;
-    Return<sp<IEvsCamera_1_1>>  openCamera_1_1(const hidl_string& cameraId,
-                                               const Stream& streamCfg) override;
-
     // Implementation details
     EvsEnumerator();
 
@@ -70,7 +63,7 @@ private:
         CameraDesc          desc;
         wp<EvsV4lCamera>    activeInstance;
 
-        CameraRecord(const char *cameraId) : desc() { desc.v1.cameraId = cameraId; }
+        CameraRecord(const char *cameraId) : desc() { desc.cameraId = cameraId; }
     };
 
     bool checkPermission();
@@ -95,8 +88,6 @@ private:
 
     static std::mutex                       sLock;          // Mutex on shared camera device list.
     static std::condition_variable          sCameraSignal;  // Signal on camera device addition.
-
-    static std::unique_ptr<ConfigManager>   sConfigManager; // ConfigManager
 };
 
 } // namespace implementation

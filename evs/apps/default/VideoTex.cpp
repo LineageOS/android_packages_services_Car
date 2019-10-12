@@ -26,7 +26,6 @@
 #include "glError.h"
 
 #include <ui/GraphicBuffer.h>
-#include <android/hardware/camera/device/3.2/ICameraDevice.h>
 
 // Eventually we shouldn't need this dependency, but for now the
 // graphics allocator interface isn't fully supported on all platforms
@@ -134,17 +133,10 @@ bool VideoTex::refresh() {
 
 VideoTex* createVideoTexture(sp<IEvsEnumerator> pEnum,
                              const char* evsCameraId,
-                             std::unique_ptr<Stream> streamCfg,
                              EGLDisplay glDisplay) {
     // Set up the camera to feed this texture
-    sp<IEvsCamera> pCamera = nullptr;
-    if (streamCfg != nullptr) {
-        pCamera = pEnum->openCamera_1_1(evsCameraId, *streamCfg);
-    } else {
-        pCamera =
-            IEvsCamera::castFrom(pEnum->openCamera(evsCameraId))
-            .withDefault(nullptr);
-    }
+    sp<IEvsCamera> pCamera =
+        IEvsCamera::castFrom(pEnum->openCamera(evsCameraId)).withDefault(nullptr);
 
     if (pCamera.get() == nullptr) {
         ALOGE("Failed to allocate new EVS Camera interface for %s", evsCameraId);

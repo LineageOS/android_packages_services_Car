@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#include <log/log.h>
+#include <cutils/log.h>
 
 #include "assert.h"
 
@@ -33,7 +33,7 @@
 //        during the resource setup phase.  Of particular note is the potential to leak
 //        the file descriptor.  This must be fixed before using this code for anything but
 //        experimentation.
-bool VideoCapture::open(const char* deviceName, const int32_t width, const int32_t height) {
+bool VideoCapture::open(const char* deviceName) {
     // If we want a polling interface for getting frames, we would use O_NONBLOCK
 //    int mDeviceFd = open(deviceName, O_RDWR | O_NONBLOCK, 0);
     mDeviceFd = ::open(deviceName, O_RDWR, 0);
@@ -93,8 +93,8 @@ bool VideoCapture::open(const char* deviceName, const int32_t width, const int32
     v4l2_format format;
     format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     format.fmt.pix.pixelformat = V4L2_PIX_FMT_UYVY;
-    format.fmt.pix.width = width;
-    format.fmt.pix.height = height;
+    format.fmt.pix.width = 720;
+    format.fmt.pix.height = 240;
     ALOGI("Requesting format %c%c%c%c (0x%08X)",
           ((char*)&format.fmt.pix.pixelformat)[0],
           ((char*)&format.fmt.pix.pixelformat)[1],
