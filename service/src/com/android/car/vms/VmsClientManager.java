@@ -146,16 +146,16 @@ public class VmsClientManager implements CarServiceBase {
             CarUserService userService, CarUserManagerHelper userManagerHelper,
             VmsHalService halService) {
         this(context, brokerService, userService, userManagerHelper, halService,
-                Binder::getCallingUid);
+                new Handler(Looper.getMainLooper()), Binder::getCallingUid);
     }
 
     @VisibleForTesting
     VmsClientManager(Context context, VmsBrokerService brokerService,
             CarUserService userService, CarUserManagerHelper userManagerHelper,
-            VmsHalService halService, IntSupplier getCallingUid) {
+            VmsHalService halService, Handler handler, IntSupplier getCallingUid) {
         mContext = context;
         mPackageManager = context.getPackageManager();
-        mHandler = new Handler(Looper.getMainLooper());
+        mHandler = handler;
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mUserService = userService;
         mUserManagerHelper = userManagerHelper;
