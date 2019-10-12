@@ -162,10 +162,8 @@ public final class CarUserManagerHelper {
         // If an override user is present and a real user, return it
         if (bootUserOverride != BOOT_USER_NOT_FOUND
                 && allUsers.contains(bootUserOverride)) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Boot user id override found for initial user, user id: "
-                        + bootUserOverride);
-            }
+            Log.i(TAG, "Boot user id override found for initial user, user id: "
+                    + bootUserOverride);
             return bootUserOverride;
         }
 
@@ -173,19 +171,15 @@ public final class CarUserManagerHelper {
         int lastActiveUser = getLastActiveUser();
         if (lastActiveUser != UserHandle.USER_SYSTEM
                 && allUsers.contains(lastActiveUser)) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Last active user loaded for initial user, user id: "
-                        + lastActiveUser);
-            }
+            Log.i(TAG, "Last active user loaded for initial user, user id: "
+                    + lastActiveUser);
             return lastActiveUser;
         }
 
         // If all else fails, return the smallest user id
         int returnId = Collections.min(allUsers);
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Saved ids were invalid. Returning smallest user id, user id: "
-                    + returnId);
-        }
+        Log.i(TAG, "Saved ids were invalid. Returning smallest user id, user id: "
+                + returnId);
         return returnId;
     }
 
