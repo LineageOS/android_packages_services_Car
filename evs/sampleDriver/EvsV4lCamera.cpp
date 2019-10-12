@@ -21,6 +21,7 @@
 #include <ui/GraphicBufferAllocator.h>
 #include <ui/GraphicBufferMapper.h>
 #include <android/hardware_buffer.h>
+#include <utils/SystemClock.h>
 
 
 namespace android {
@@ -30,26 +31,27 @@ namespace evs {
 namespace V1_1 {
 namespace implementation {
 
+// Default camera output image resolution
+const std::array<int32_t, 2> kDefaultResolution = {640, 480};
 
 // Arbitrary limit on number of graphics buffers allowed to be allocated
 // Safeguards against unreasonable resource consumption and provides a testable limit
 static const unsigned MAX_BUFFERS_IN_FLIGHT = 100;
 
-
-EvsV4lCamera::EvsV4lCamera(const char *deviceName) :
+EvsV4lCamera::EvsV4lCamera(const char *deviceName,
+                           unique_ptr<ConfigManager::CameraInfo> &camInfo) :
         mFramesAllowed(0),
-        mFramesInUse(0) {
+        mFramesInUse(0),
+        mCameraInfo(camInfo) {
     ALOGD("EvsV4lCamera instantiated");
 
-    mDescription.cameraId = deviceName;
-
-    // Initialize the video device
-    if (!mVideo.open(deviceName)) {
-        ALOGE("Failed to open v4l device %s\n", deviceName);
+    mDescription.v1.cameraId = deviceName;
+    if (camInfo != nullptr) {
+        mDescription.metadata.setToExternal((uint8_t *)camInfo->characteristics,
+                                            get_camera_metadata_size(camInfo->characteristics));
     }
 
-    // Output buffer format.
-    // TODO: Does this need to be configurable?
+    // Default output buffer format.
     mFormat = HAL_PIXEL_FORMAT_RGBA_8888;
 
     // How we expect to use the gralloc buffers we'll exchange with our client
@@ -101,7 +103,7 @@ Return<void> EvsV4lCamera::getCameraInfo(getCameraInfo_cb _hidl_cb) {
     ALOGD("getCameraInfo");
 
     // Send back our self description
-    _hidl_cb(mDescription);
+    _hidl_cb(mDescription.v1);
     return Void();
 }
 
@@ -131,7 +133,7 @@ Return<EvsResult> EvsV4lCamera::setMaxFramesInFlight(uint32_t bufferCount) {
 }
 
 
-Return<EvsResult> EvsV4lCamera::startVideoStream(const ::android::sp<IEvsCameraStream_1_0>& stream)  {
+Return<EvsResult> EvsV4lCamera::startVideoStream(const sp<IEvsCameraStream_1_0>& stream)  {
     ALOGD("startVideoStream");
     std::lock_guard<std::mutex> lock(mAccessLock);
 
@@ -232,10 +234,8 @@ Return<void> EvsV4lCamera::stopVideoStream()  {
         std::unique_lock <std::mutex> lock(mAccessLock);
 
         EvsEvent event;
-        InfoEventDesc desc = {};
-        desc.aType = InfoEventType::STREAM_STOPPED;
-        event.info(desc);
-        auto result = mStream_1_1->notifyEvent(event);
+        event.aType = EvsEventType::STREAM_STOPPED;
+        auto result = mStream_1_1->notify(event);
         if (!result.isOk()) {
             ALOGE("Error delivering end of stream event");
         }
@@ -285,10 +285,19 @@ Return<EvsResult> EvsV4lCamera::setExtendedInfo(uint32_t /*opaqueIdentifier*/,
 
 
 // Methods from ::android::hardware::automotive::evs::V1_1::IEvsCamera follow.
-Return<EvsResult> EvsV4lCamera::doneWithFrame_1_1(const BufferDesc_1_1& desc)  {
+Return<void> EvsV4lCamera::getCameraInfo_1_1(getCameraInfo_1_1_cb _hidl_cb) {
+    ALOGD("getCameraInfo_1_1");
+
+    // Send back our self description
+    _hidl_cb(mDescription);
+    return Void();
+}
+
+
+Return<EvsResult> EvsV4lCamera::doneWithFrame_1_1(const BufferDesc_1_1& buffer)  {
     ALOGD("doneWithFrame");
 
-    return doneWithFrame_impl(desc.bufferId, desc.buffer.nativeHandle);
+    return doneWithFrame_impl(buffer.bufferId, buffer.buffer.nativeHandle);
 }
 
 
@@ -327,8 +336,36 @@ Return<EvsResult> EvsV4lCamera::unsetMaster() {
 }
 
 
-Return<void> EvsV4lCamera::setParameter(CameraParam id, int32_t value,
-                                        setParameter_cb _hidl_cb) {
+Return<void> EvsV4lCamera::getParameterList(getParameterList_cb _hidl_cb) {
+    hidl_vec<CameraParam> hidlCtrls;
+    if (mCameraInfo != nullptr) {
+        hidlCtrls.resize(mCameraInfo->controls.size());
+        unsigned idx = 0;
+        for (auto& [cid, range]: mCameraInfo->controls) {
+            hidlCtrls[idx++] = cid;
+        }
+    }
+
+    _hidl_cb(hidlCtrls);
+    return Void();
+}
+
+
+Return<void> EvsV4lCamera::getIntParameterRange(CameraParam id,
+                                                getIntParameterRange_cb _hidl_cb) {
+    if (mCameraInfo != nullptr) {
+        auto range = mCameraInfo->controls[id];
+        _hidl_cb(get<0>(range), get<1>(range), get<2>(range));
+    } else {
+        _hidl_cb(0, 0, 0);
+    }
+
+    return Void();
+}
+
+
+Return<void> EvsV4lCamera::setIntParameter(CameraParam id, int32_t value,
+                                           setIntParameter_cb _hidl_cb) {
     uint32_t v4l2cid = V4L2_CID_BASE;
     if (!convertToV4l2CID(id, v4l2cid)) {
         _hidl_cb(EvsResult::INVALID_ARG, 0);
@@ -347,8 +384,8 @@ Return<void> EvsV4lCamera::setParameter(CameraParam id, int32_t value,
 }
 
 
-Return<void> EvsV4lCamera::getParameter(CameraParam id,
-                                        getParameter_cb _hidl_cb) {
+Return<void> EvsV4lCamera::getIntParameter(CameraParam id,
+                                           getIntParameter_cb _hidl_cb) {
     uint32_t v4l2cid = V4L2_CID_BASE;
     if (!convertToV4l2CID(id, v4l2cid)) {
         _hidl_cb(EvsResult::INVALID_ARG, 0);
@@ -613,9 +650,7 @@ void EvsV4lCamera::forwardFrame(imageBuffer* /*pV4lBuff*/, void* pData) {
         // the lock
         bool flag = false;
         if (mStream_1_1 != nullptr) {
-            EvsEvent event;
-            event.buffer(bufDesc_1_1);
-            auto result = mStream_1_1->notifyEvent(event);
+            auto result = mStream_1_1->deliverFrame_1_1(bufDesc_1_1);
             flag = result.isOk();
         } else {
             BufferDesc_1_0 bufDesc_1_0 = {
@@ -674,15 +709,102 @@ bool EvsV4lCamera::convertToV4l2CID(CameraParam id, uint32_t& v4l2cid) {
         case CameraParam::ABSOLUTE_EXPOSURE:
             v4l2cid = V4L2_CID_EXPOSURE_ABSOLUTE;
             break;
+        case CameraParam::AUTO_FOCUS:
+            v4l2cid = V4L2_CID_FOCUS_AUTO;
+            break;
+        case CameraParam::ABSOLUTE_FOCUS:
+            v4l2cid = V4L2_CID_FOCUS_ABSOLUTE;
+            break;
         case CameraParam::ABSOLUTE_ZOOM:
             v4l2cid = V4L2_CID_ZOOM_ABSOLUTE;
             break;
         default:
-            ALOGE("Camera parameter %u is not supported.", id);
+            ALOGE("Camera parameter %u is unknown.", id);
             return false;
     }
 
-    return true;
+    if (mCameraInfo != nullptr) {
+        return mCameraInfo->controls.find(id) != mCameraInfo->controls.end();
+    } else {
+        return false;
+    }
+}
+
+
+sp<EvsV4lCamera> EvsV4lCamera::Create(const char *deviceName) {
+    unique_ptr<ConfigManager::CameraInfo> nullCamInfo = nullptr;
+
+    return Create(deviceName, nullCamInfo);
+}
+
+
+sp<EvsV4lCamera> EvsV4lCamera::Create(const char *deviceName,
+                                      unique_ptr<ConfigManager::CameraInfo> &camInfo,
+                                      const Stream *requestedStreamCfg) {
+    sp<EvsV4lCamera> evsCamera = new EvsV4lCamera(deviceName, camInfo);
+    if (evsCamera == nullptr) {
+        return nullptr;
+    }
+
+    // Initialize the video device
+    bool success = false;
+    if (requestedStreamCfg != nullptr) {
+        // Validate a given stream configuration.  If there is no exact match,
+        // this will try to find the best match based on:
+        // 1) same output format
+        // 2) the largest resolution that is smaller that a given configuration.
+        int32_t streamId = -1, area = INT_MIN;
+        for (auto& [id, cfg] : camInfo->streamConfigurations) {
+            // RawConfiguration has id, width, height, format, direction, and
+            // fps.
+            if (cfg[3] == static_cast<uint32_t>(requestedStreamCfg->format)) {
+                if (cfg[1] == requestedStreamCfg->width &&
+                    cfg[2] == requestedStreamCfg->height) {
+                    // Find exact match.
+                    streamId = id;
+                    break;
+                } else if (requestedStreamCfg->width  > cfg[1] &&
+                           requestedStreamCfg->height > cfg[2] &&
+                           cfg[1] * cfg[2] > area) {
+                    streamId = id;
+                    area = cfg[1] * cfg[2];
+                }
+            }
+
+        }
+
+        if (streamId >= 0) {
+            ALOGI("Try to open a video with width: %d, height: %d, format: %d",
+                   camInfo->streamConfigurations[streamId][1],
+                   camInfo->streamConfigurations[streamId][2],
+                   camInfo->streamConfigurations[streamId][3]);
+            success =
+                evsCamera->mVideo.open(deviceName,
+                                       camInfo->streamConfigurations[streamId][1],
+                                       camInfo->streamConfigurations[streamId][2]);
+            evsCamera->mFormat = static_cast<uint32_t>(camInfo->streamConfigurations[streamId][3]);
+        }
+    }
+
+    if (!success) {
+        // Create a camera object with the default resolution and format
+        // , HAL_PIXEL_FORMAT_RGBA_8888.
+        ALOGI("Open a video with default parameters");
+        success =
+            evsCamera->mVideo.open(deviceName, kDefaultResolution[0], kDefaultResolution[1]);
+        if (!success) {
+            ALOGE("Failed to open a video stream");
+            return nullptr;
+        }
+    }
+
+    // Please note that the buffer usage flag does not come from a given stream
+    // configuration.
+    evsCamera->mUsage  = GRALLOC_USAGE_HW_TEXTURE     |
+                         GRALLOC_USAGE_SW_READ_RARELY |
+                         GRALLOC_USAGE_SW_WRITE_OFTEN;
+
+    return evsCamera;
 }
 
 

@@ -23,19 +23,20 @@
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
 
-#include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
+#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
+#include <android/hardware/camera/device/3.2/ICameraDevice.h>
 
 #include "TexWrapper.h"
 #include "StreamHandler.h"
 
-
+using ::android::hardware::camera::device::V3_2::Stream;
 using namespace ::android::hardware::automotive::evs::V1_1;
-using ::android::hardware::automotive::evs::V1_0::IEvsEnumerator;
 
 
 class VideoTex: public TexWrapper {
     friend VideoTex* createVideoTexture(sp<IEvsEnumerator> pEnum,
-                                        const char * evsCameraId,
+                                        const char *evsCameraId,
+                                        std::unique_ptr<Stream> streamCfg,
                                         EGLDisplay glDisplay);
 
 public:
@@ -62,6 +63,7 @@ private:
 
 VideoTex* createVideoTexture(sp<IEvsEnumerator> pEnum,
                              const char * deviceName,
+                             std::unique_ptr<Stream> streamCfg,
                              EGLDisplay glDisplay);
 
 #endif // VIDEOTEX_H
