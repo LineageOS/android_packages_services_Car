@@ -118,7 +118,13 @@ internal abstract class CarBleManager(
     }
 
     private fun sendEncryptedMessage(bleDevice: BleDevice, message: ByteArray) {
-        bleDevice.secureChannel?.sendEncryptedMessage(message)
+        // TODO(b/140629818): Pass in a recipient
+        val deviceMessage = DeviceMessage(
+            recipient = null,
+            isMessageEncrypted = true,
+            message = message
+        )
+        bleDevice.secureChannel?.sendEncryptedMessage(deviceMessage)
     }
 
     /**
@@ -215,8 +221,8 @@ internal abstract class CarBleManager(
          * Triggered when a new message is detected.
          *
          * @param deviceId Id of the device that sent the message.
-         * @param message [ByteArray] Data from message.
+         * @param deviceMessage [DeviceMessage] Data object from message.
          */
-        fun onMessageReceived(deviceId: String, message: ByteArray)
+        fun onMessageReceived(deviceId: String, deviceMessage: DeviceMessage)
     }
 }
