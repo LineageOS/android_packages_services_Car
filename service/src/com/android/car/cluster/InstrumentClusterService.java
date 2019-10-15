@@ -31,6 +31,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -135,6 +136,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
                 @Override
                 public boolean startFixedActivityModeForDisplayAndUser(Intent intent,
                         Bundle activityOptionsBundle, int userId) {
+                    Binder.clearCallingIdentity();
                     ActivityOptions options = new ActivityOptions(activityOptionsBundle);
                     FixedActivityService service = CarLocalServices.getService(
                             FixedActivityService.class);
@@ -144,6 +146,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
 
                 @Override
                 public void stopFixedActivityMode(int displayId) {
+                    Binder.clearCallingIdentity();
                     FixedActivityService service = CarLocalServices.getService(
                             FixedActivityService.class);
                     service.stopFixedActivityMode(displayId);
