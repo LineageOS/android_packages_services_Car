@@ -22,6 +22,7 @@ import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.annotation.UserIdInt;
 import android.app.ActivityOptions;
 import android.app.Service;
 import android.car.Car;
@@ -82,6 +83,15 @@ import java.util.stream.Collectors;
  */
 @SystemApi
 public abstract class InstrumentClusterRenderingService extends Service {
+    /**
+     * Key to pass IInstrumentClusterHelper binder in onBind call {@link Intent} through extra
+     * {@link Bundle). Both extra bundle and binder itself use this key.
+     *
+     * @hide
+     */
+    public static final String EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER =
+            "android.car.cluster.renderer.IInstrumentClusterHelper";
+
     private static final String TAG = CarLibLog.TAG_CLUSTER;
 
     /**
@@ -94,14 +104,19 @@ public abstract class InstrumentClusterRenderingService extends Service {
     private static final String BITMAP_QUERY_WIDTH = "w";
     private static final String BITMAP_QUERY_HEIGHT = "h";
 
+    private final Handler mUiHandler = new Handler(Looper.getMainLooper());
+
     private final Object mLock = new Object();
+    // Main thread only
     private RendererBinder mRendererBinder;
-    private Handler mUiHandler = new Handler(Looper.getMainLooper());
     private ActivityOptions mActivityOptions;
     private ClusterActivityState mActivityState;
     private ComponentName mNavigationComponent;
     @GuardedBy("mLock")
     private ContextOwner mNavContextOwner;
+
+    @GuardedBy("mLock")
+    private IInstrumentClusterHelper mInstrumentClusterHelper;
 
     private static final int IMAGE_CACHE_SIZE_BYTES = 4 * 1024 * 1024; /* 4 mb */
     private final LruCache<String, Bitmap> mCache = new LruCache<String, Bitmap>(
@@ -164,6 +179,18 @@ public abstract class InstrumentClusterRenderingService extends Service {
             Log.d(TAG, "onBind, intent: " + intent);
         }
 
+        Bundle bundle = intent.getBundleExtra(EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER);
+        IBinder binder = null;
+        if (bundle != null) {
+            binder = bundle.getBinder(EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER);
+        }
+        if (binder == null) {
+            Log.wtf(TAG, "IInstrumentClusterHelper not passed through binder");
+        } else {
+            synchronized (mLock) {
+                mInstrumentClusterHelper = IInstrumentClusterHelper.Stub.asInterface(binder);
+            }
+        }
         if (mRendererBinder == null) {
             mRendererBinder = new RendererBinder(getNavigationRenderer());
         }
@@ -201,6 +228,76 @@ public abstract class InstrumentClusterRenderingService extends Service {
      */
     @MainThread
     public void onNavigationComponentReleased() {
+    }
+
+    @Nullable
+    private IInstrumentClusterHelper getClusterHelper() {
+        synchronized (mLock) {
+            if (mInstrumentClusterHelper == null) {
+                Log.w("mInstrumentClusterHelper still null, should wait until onBind",
+                        new RuntimeException());
+            }
+            return mInstrumentClusterHelper;
+        }
+    }
+
+    /**
+     * Start Activity in fixed mode.
+     *
+     * <p>Activity launched in this way will stay visible across crash, package updatge
+     * or other Activity launch. So this should be carefully used for case like apps running
+     * in instrument cluster.</p>
+     *
+     * <p> Only one Activity can stay in this mode for a display and launching other Activity
+     * with this call means old one get out of the mode. Alternatively
+     * {@link #stopFixedActivityMode(int)} can be called to get the top activitgy out of this
+     * mode.</p>
+     *
+     * @param intent Should include specific {@code ComponentName}.
+     * @param options Should include target display.
+     * @param userId Target user id
+     * @return {@code true} if succeeded. {@code false} may mean the target component is not ready
+     *         or available. Note that failure can happen during early boot-up stage even if the
+     *         target Activity is in normal state and client should retry when it fails. Once it is
+     *         successfully launched, car service will guarantee that it is running across crash or
+     *         other events.
+     *
+     * @hide
+     */
+    protected boolean startFixedActivityModeFoDisplayAndUser(@NonNull Intent intent,
+            @NonNull ActivityOptions options, @UserIdInt int userId) {
+        IInstrumentClusterHelper helper = getClusterHelper();
+        if (helper == null) {
+            return false;
+        }
+        try {
+            return helper.startFixedActivityModeForDisplayAndUser(intent, options.toBundle(),
+                    userId);
+        } catch (RemoteException e) {
+            Log.w("Remote exception from car service", e);
+            // Probably car service will restart and rebind. So do nothing.
+        }
+        return false;
+    }
+
+
+    /**
+     * Stop fixed mode for top Activity in the display. Crashing or launching other Activity
+     * will not re-launch the top Activity any more.
+     *
+     * @hide
+     */
+    protected void stopFixedActivityMode(int displayId) {
+        IInstrumentClusterHelper helper = getClusterHelper();
+        if (helper == null) {
+            return;
+        }
+        try {
+            helper.stopFixedActivityMode(displayId);
+        } catch (RemoteException e) {
+            Log.w("Remote exception from car service, displayId:" + displayId, e);
+            // Probably car service will restart and rebind. So do nothing.
+        }
     }
 
     /**
@@ -379,16 +476,19 @@ public abstract class InstrumentClusterRenderingService extends Service {
     @CallSuper
     @Override
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
-        writer.println("**" + getClass().getSimpleName() + "**");
-        writer.println("renderer binder: " + mRendererBinder);
-        if (mRendererBinder != null) {
-            writer.println("navigation renderer: " + mRendererBinder.mNavigationRenderer);
+        synchronized (mLock) {
+            writer.println("**" + getClass().getSimpleName() + "**");
+            writer.println("renderer binder: " + mRendererBinder);
+            if (mRendererBinder != null) {
+                writer.println("navigation renderer: " + mRendererBinder.mNavigationRenderer);
+            }
+            writer.println("navigation focus owner: " + getNavigationContextOwner());
+            writer.println("activity options: " + mActivityOptions);
+            writer.println("activity state: " + mActivityState);
+            writer.println("current nav component: " + mNavigationComponent);
+            writer.println("current nav packages: " + getNavigationContextOwner().mPackageNames);
+            writer.println("mInstrumentClusterHelper" + mInstrumentClusterHelper);
         }
-        writer.println("navigation focus owner: " + getNavigationContextOwner());
-        writer.println("activity options: " + mActivityOptions);
-        writer.println("activity state: " + mActivityState);
-        writer.println("current nav component: " + mNavigationComponent);
-        writer.println("current nav packages: " + getNavigationContextOwner().mPackageNames);
     }
 
     private class RendererBinder extends IInstrumentCluster.Stub {
