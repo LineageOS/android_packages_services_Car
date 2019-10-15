@@ -212,14 +212,7 @@ public final class CarUserManagerHelper {
      * @return {@link UserInfo} for the foreground user.
      */
     public UserInfo getCurrentForegroundUserInfo() {
-        return mUserManager.getUserInfo(getCurrentForegroundUserId());
-    }
-
-    /**
-     * @return Id of the current foreground user.
-     */
-    public int getCurrentForegroundUserId() {
-        return mActivityManager.getCurrentUser();
+        return mUserManager.getUserInfo(ActivityManager.getCurrentUser());
     }
 
     /**
@@ -385,7 +378,7 @@ public final class CarUserManagerHelper {
      */
     private boolean foregroundUserHasUserRestriction(String restriction) {
         return mUserManager.hasUserRestriction(
-                restriction, UserHandle.of(getCurrentForegroundUserId()));
+                restriction, UserHandle.of(ActivityManager.getCurrentUser()));
     }
 
     /**
@@ -551,7 +544,7 @@ public final class CarUserManagerHelper {
             return false;
         }
 
-        if (userInfo.id == getCurrentForegroundUserId()) {
+        if (userInfo.id == ActivityManager.getCurrentUser()) {
             if (!canCurrentProcessSwitchUsers()) {
                 // If we can't switch to a different user, we can't exit this one and therefore
                 // can't delete it.
@@ -594,7 +587,7 @@ public final class CarUserManagerHelper {
         if (!canCurrentProcessSwitchUsers()) {
             return false;
         }
-        if (id == getCurrentForegroundUserId()) {
+        if (id == ActivityManager.getCurrentUser()) {
             return false;
         }
         return mActivityManager.switchUser(id);

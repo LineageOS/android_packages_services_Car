@@ -19,6 +19,8 @@ package com.android.car.user;
 import static android.content.pm.UserInfo.FLAG_EPHEMERAL;
 import static android.content.pm.UserInfo.FLAG_GUEST;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
@@ -30,6 +32,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
 import android.app.IActivityManager;
@@ -52,13 +55,13 @@ import androidx.test.runner.AndroidJUnit4;
 
 import com.android.internal.R;
 
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.MockitoSession;
+import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,7 +85,6 @@ import java.util.Set;
 public class CarUserServiceTest {
     private static final int NO_USER_INFO_FLAGS = 0;
 
-    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
     @Mock private Context mMockContext;
     @Mock private Context mApplicationContext;
     @Mock private LocationManager mLocationManager;
@@ -92,6 +94,7 @@ public class CarUserServiceTest {
     @Mock private Resources mMockedResources;
     @Mock private Drawable mMockedDrawable;
 
+    private MockitoSession mSession;
     private CarUserService mCarUserService;
     private boolean mUser0TaskExecuted;
 
@@ -100,6 +103,12 @@ public class CarUserServiceTest {
      */
     @Before
     public void setUpMocks() {
+        mSession = mockitoSession()
+                .initMocks(this)
+                .strictness(Strictness.LENIENT)
+                .spyStatic(ActivityManager.class)
+                .startMocking();
+
         doReturn(mApplicationContext).when(mMockContext).getApplicationContext();
         doReturn(mLocationManager).when(mMockContext).getSystemService(Context.LOCATION_SERVICE);
         doReturn(InstrumentationRegistry.getTargetContext().getContentResolver())
@@ -121,6 +130,14 @@ public class CarUserServiceTest {
 
         // Restore default value at the beginning of each test.
         putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 0);
+    }
+
+    /**
+     *  Clean up before running the next test
+     */
+    @After
+    public void tearDown() {
+        mSession.finishMocking();
     }
 
     /**
@@ -242,7 +259,7 @@ public class CarUserServiceTest {
         doReturn(user4GuestInfo).when(mMockedUserManager).getUserInfo(user4Guest);
         doReturn(user5Info).when(mMockedUserManager).getUserInfo(user5);
 
-        doReturn(user1).when(mMockedCarUserManagerHelper).getCurrentForegroundUserId();
+        when(ActivityManager.getCurrentUser()).thenReturn(user1);
         mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
         // user 0 should never go to that list.
         assertTrue(mCarUserService.getBackgroundUsersToRestart().isEmpty());
@@ -257,19 +274,19 @@ public class CarUserServiceTest {
         assertEquals(new Integer[]{user1},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
-        doReturn(user3).when(mMockedCarUserManagerHelper).getCurrentForegroundUserId();
+        when(ActivityManager.getCurrentUser()).thenReturn(user3);
         mCarUserService.setUserLockStatus(user3, true);
         mCarUserService.setUserLockStatus(user2, false);
         assertEquals(new Integer[]{user3, user1},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
-        doReturn(user4Guest).when(mMockedCarUserManagerHelper).getCurrentForegroundUserId();
+        when(ActivityManager.getCurrentUser()).thenReturn(user4Guest);
         mCarUserService.setUserLockStatus(user4Guest, true);
         mCarUserService.setUserLockStatus(user3, false);
         assertEquals(new Integer[]{user3, user1},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
-        doReturn(user5).when(mMockedCarUserManagerHelper).getCurrentForegroundUserId();
+        when(ActivityManager.getCurrentUser()).thenReturn(user5);
         mCarUserService.setUserLockStatus(user5, true);
         mCarUserService.setUserLockStatus(user4Guest, false);
         assertEquals(new Integer[]{user5, user3},
@@ -293,13 +310,13 @@ public class CarUserServiceTest {
         doReturn(user2Info).when(mMockedUserManager).getUserInfo(user2);
         doReturn(user3Info).when(mMockedUserManager).getUserInfo(user3);
 
-        doReturn(user1).when(mMockedCarUserManagerHelper).getCurrentForegroundUserId();
+        when(ActivityManager.getCurrentUser()).thenReturn(user1);
         mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
         mCarUserService.setUserLockStatus(user1, true);
-        doReturn(user2).when(mMockedCarUserManagerHelper).getCurrentForegroundUserId();
+        when(ActivityManager.getCurrentUser()).thenReturn(user2);
         mCarUserService.setUserLockStatus(user2, true);
         mCarUserService.setUserLockStatus(user1, false);
-        doReturn(user3).when(mMockedCarUserManagerHelper).getCurrentForegroundUserId();
+        when(ActivityManager.getCurrentUser()).thenReturn(user3);
         mCarUserService.setUserLockStatus(user3, true);
         mCarUserService.setUserLockStatus(user2, false);
 
@@ -335,8 +352,7 @@ public class CarUserServiceTest {
     @Test
     public void testStopBackgroundUserForFgUser() throws RemoteException {
         int user1 = 101;
-        UserInfo user1Info = new UserInfo(user1, "user1", NO_USER_INFO_FLAGS);
-        doReturn(user1).when(mMockedCarUserManagerHelper).getCurrentForegroundUserId();
+        when(ActivityManager.getCurrentUser()).thenReturn(user1);
         assertFalse(mCarUserService.stopBackgroundUser(UserHandle.USER_SYSTEM));
     }
 
@@ -407,8 +423,7 @@ public class CarUserServiceTest {
     public void testSwitchDriver() throws RemoteException {
         int currentId = 11;
         int targetId = 12;
-        UserInfo userInfo = new UserInfo(currentId, "test11", NO_USER_INFO_FLAGS);
-        doReturn(currentId).when(mMockedCarUserManagerHelper).getCurrentForegroundUserId();
+        when(ActivityManager.getCurrentUser()).thenReturn(currentId);
         doReturn(true).when(mMockedIActivityManager).switchUser(targetId);
         doReturn(false).when(mMockedUserManager)
                 .hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
@@ -419,8 +434,7 @@ public class CarUserServiceTest {
     public void testSwitchDriver_IfUserSwitchIsNotAllowed() throws RemoteException {
         int currentId = 11;
         int targetId = 12;
-        UserInfo userInfo = new UserInfo(currentId, "test11", NO_USER_INFO_FLAGS);
-        doReturn(currentId).when(mMockedCarUserManagerHelper).getCurrentForegroundUserId();
+        when(ActivityManager.getCurrentUser()).thenReturn(currentId);
         doReturn(true).when(mMockedIActivityManager).switchUser(targetId);
         doReturn(UserManager.SWITCHABILITY_STATUS_USER_SWITCH_DISALLOWED).when(mMockedUserManager)
                 .getUserSwitchability();
@@ -429,8 +443,8 @@ public class CarUserServiceTest {
 
     @Test
     public void testSwitchDriver_IfSwitchedToCurrentUser() throws RemoteException {
-        UserInfo userInfo = new UserInfo(11, "test11", NO_USER_INFO_FLAGS);
-        doReturn(userInfo.id).when(mMockedCarUserManagerHelper).getCurrentForegroundUserId();
+        int currentId = 11;
+        when(ActivityManager.getCurrentUser()).thenReturn(currentId);
         doReturn(false).when(mMockedUserManager)
                 .hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
         assertTrue(mCarUserService.switchDriver(11));

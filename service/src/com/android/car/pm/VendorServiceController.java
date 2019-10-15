@@ -18,7 +18,7 @@ package com.android.car.pm;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
-import android.car.userlib.CarUserManagerHelper;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -64,15 +64,12 @@ class VendorServiceController implements CarUserService.UserCallback {
     private final Context mContext;
     private final UserManager mUserManager;
     private final Handler mHandler;
-    private final CarUserManagerHelper mUserManagerHelper;
     private CarUserService mCarUserService;
 
 
-    VendorServiceController(Context context, Looper looper,
-            CarUserManagerHelper userManagerHelper) {
+    VendorServiceController(Context context, Looper looper) {
         mContext = context;
         mUserManager = context.getSystemService(UserManager.class);
-        mUserManagerHelper = userManagerHelper;
         mHandler = new Handler(looper) {
             @Override
             public void handleMessage(Message msg) {
@@ -124,7 +121,7 @@ class VendorServiceController implements CarUserService.UserCallback {
 
     private void doSwitchUser(int userId) {
         // Stop all services which which do not run under foreground or system user.
-        final int fgUser = mUserManagerHelper.getCurrentForegroundUserId();
+        final int fgUser = ActivityManager.getCurrentUser();
         if (fgUser != userId) {
             Log.w(CarLog.TAG_PACKAGE, "Received userSwitch event for user " + userId
                     + " while current foreground user is " + fgUser + "."
@@ -147,7 +144,7 @@ class VendorServiceController implements CarUserService.UserCallback {
     }
 
     private void doUserLockChanged(int userId, boolean unlocked) {
-        final int currentUserId = mUserManagerHelper.getCurrentForegroundUserId();
+        final int currentUserId = ActivityManager.getCurrentUser();
 
         if (DBG) {
             Log.i(CarLog.TAG_PACKAGE, "onUserLockedChanged, user: " + userId
@@ -180,7 +177,7 @@ class VendorServiceController implements CarUserService.UserCallback {
     }
 
     private void startOrBindServicesIfNeeded() {
-        int userId = mUserManagerHelper.getCurrentForegroundUserId();
+        int userId = ActivityManager.getCurrentUser();
         startOrBindServicesForUser(UserHandle.SYSTEM);
         if (userId > 0) {
             startOrBindServicesForUser(UserHandle.of(userId));
@@ -220,8 +217,8 @@ class VendorServiceController implements CarUserService.UserCallback {
     private VendorServiceConnection getOrCreateConnection(ConnectionKey key) {
         VendorServiceConnection connection = mConnections.get(key);
         if (connection == null) {
-            connection = new VendorServiceConnection(mContext, mHandler, mUserManagerHelper,
-                    key.mVendorServiceInfo, key.mUserHandle);
+            connection = new VendorServiceConnection(mContext, mHandler, key.mVendorServiceInfo,
+                    key.mUserHandle);
             mConnections.put(key, connection);
         }
 
@@ -266,14 +263,11 @@ class VendorServiceController implements CarUserService.UserCallback {
         private final UserHandle mUser;
         private final Handler mHandler;
         private final Handler mFailureHandler;
-        private final CarUserManagerHelper mUserManagerHelper;
 
         VendorServiceConnection(Context context, Handler handler,
-                CarUserManagerHelper userManagerHelper, VendorServiceInfo vendorServiceInfo,
-                UserHandle user) {
+                VendorServiceInfo vendorServiceInfo, UserHandle user) {
             mContext = context;
             mHandler = handler;
-            mUserManagerHelper = userManagerHelper;
             mVendorServiceInfo = vendorServiceInfo;
             mUser = user;
 
@@ -351,7 +345,7 @@ class VendorServiceController implements CarUserService.UserCallback {
                 return;
             }
 
-            if (UserHandle.of(mUserManagerHelper.getCurrentForegroundUserId()).equals(mUser)
+            if (UserHandle.of(ActivityManager.getCurrentUser()).equals(mUser)
                     || UserHandle.SYSTEM.equals(mUser)) {
                 mFailureHandler.sendMessageDelayed(
                         mFailureHandler.obtainMessage(MSG_REBIND), REBIND_DELAY_MS);

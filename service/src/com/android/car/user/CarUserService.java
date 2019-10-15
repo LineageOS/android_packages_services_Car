@@ -190,7 +190,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Log.w(TAG_USER, "current process is not allowed to switch user");
             return false;
         }
-        if (driverId == mCarUserManagerHelper.getCurrentForegroundUserId()) {
+        if (driverId == ActivityManager.getCurrentUser()) {
             // The current user is already the given user.
             return true;
         }
@@ -312,7 +312,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 Integer user = userId;
                 if (isPersistentUser(userId)) {
                     // current foreground user should stay in top priority.
-                    if (userId == mCarUserManagerHelper.getCurrentForegroundUserId()) {
+                    if (userId == ActivityManager.getCurrentUser()) {
                         mBackgroundUsersToRestart.remove(user);
                         mBackgroundUsersToRestart.add(0, user);
                     }
@@ -351,7 +351,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         ArrayList<Integer> startedUsers = new ArrayList<>();
         for (Integer user : users) {
-            if (user == mCarUserManagerHelper.getCurrentForegroundUserId()) {
+            if (user == ActivityManager.getCurrentUser()) {
                 continue;
             }
             try {
@@ -396,7 +396,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (userId == UserHandle.USER_SYSTEM) {
             return false;
         }
-        if (userId == mCarUserManagerHelper.getCurrentForegroundUserId()) {
+        if (userId == ActivityManager.getCurrentUser()) {
             Log.i(TAG_USER, "stopBackgroundUser, already a FG user:" + userId);
             return false;
         }

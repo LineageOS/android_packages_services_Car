@@ -15,6 +15,7 @@
  */
 package com.android.car;
 
+import android.app.ActivityManager;
 import android.car.Car;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPower;
@@ -310,7 +311,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         } else {
             int targetUserId = mCarUserManagerHelper.getInitialUser();
             if (targetUserId != UserHandle.USER_SYSTEM
-                    && targetUserId != mCarUserManagerHelper.getCurrentForegroundUserId()) {
+                    && targetUserId != ActivityManager.getCurrentUser()) {
                 Log.i(CarLog.TAG_POWER, "Desired user changed, switching to user:" + targetUserId);
                 mCarUserManagerHelper.switchToUserId(targetUserId);
             }
