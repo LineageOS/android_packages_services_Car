@@ -60,12 +60,12 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.android.car.developeroptions.widget.ImeAwareEditText;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.LockPatternView;
 import com.android.internal.widget.LockPatternView.Cell;
 import com.android.internal.widget.LockPatternView.DisplayMode;
-import com.android.car.developeroptions.widget.ImeAwareEditText;
 
 import java.util.List;
 
@@ -727,7 +727,7 @@ public class CryptKeeper extends Activity implements TextView.OnEditorActionList
         public void onPatternDetected(List<LockPatternView.Cell> pattern) {
             mLockPatternView.setEnabled(false);
             if (pattern.size() >= MIN_LENGTH_BEFORE_REPORT) {
-                new DecryptTask().execute(LockPatternUtils.patternToString(pattern));
+                new DecryptTask().execute(new String(LockPatternUtils.patternToByteArray(pattern)));
             } else {
                 // Allow user to make as many of these as they want.
                 fakeUnlockAttempt(mLockPatternView);

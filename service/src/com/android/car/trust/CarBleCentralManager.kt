@@ -160,7 +160,7 @@ internal class CarBleCentralManager(
             return false
         }
 
-        // TODO (b/139066293) Current implementation quickly exhausts connections resulting in
+        // TODO(b/139066293): Current implementation quickly exhausts connections resulting in
         // greatly reduced performance for connecting to devices we know we want to connect to.
         // Return true once fixed.
         return false
@@ -238,9 +238,11 @@ internal class CarBleCentralManager(
                         }
                     }
 
-                    override fun onMessageReceived(message: ByteArray) {
+                    override fun onMessageReceived(deviceMessage: DeviceMessage) {
                         connectedDevice.deviceId?.guard {
-                            deviceId -> notifyCallbacks { it.onMessageReceived(deviceId, message) }
+                            deviceId -> notifyCallbacks {
+                                it.onMessageReceived(deviceId, deviceMessage)
+                            }
                         }
                     }
 
@@ -255,7 +257,7 @@ internal class CarBleCentralManager(
                         notifyCallbacks { it.onDeviceConnected(deviceId) }
                     }
                 }
-                // TODO(b/141312136) create SecureBleChannel and assign to connectedDevice.
+                // TODO(b/141312136): Create SecureBleChannel and assign to connectedDevice.
             }
 
             override fun onDescriptorWrite(
@@ -268,7 +270,7 @@ internal class CarBleCentralManager(
                     return
                 }
 
-                // TODO (b/139067881) Replace with sending unique device id
+                // TODO(b/139067881): Replace with sending unique device id
                 getConnectedDevice(gatt)?.guard {
                     sendMessage(it, Utils.uuidToBytes(UUID.randomUUID()), false)
                 } ?: Log.w(TAG, "Descriptor callback called for disconnected device")
@@ -295,7 +297,16 @@ internal class CarBleCentralManager(
                 val message = characteristic.value
 
                 connectedDevice.deviceId?.also { deviceId ->
-                    notifyCallbacks { it.onMessageReceived(deviceId, message) }
+                    // TODO(b/140629818): Pass the DeviceMessage received from SecureBleChannel
+                    // to the callback
+                    val deviceMessage = DeviceMessage(
+                        recipient = null,
+                        isMessageEncrypted = true,
+                        message = message
+                    )
+                    notifyCallbacks {
+                        it.onMessageReceived(deviceId, deviceMessage)
+                    }
                 } ?: run {
                     // Device id is the first message expected back from peripheral
                     val deviceId = String(message)

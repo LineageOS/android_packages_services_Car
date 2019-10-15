@@ -23,7 +23,6 @@ import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.car.encryptionrunner.Key
-import android.os.Handler
 import android.os.ParcelUuid
 import android.util.Log
 import com.android.car.guard
@@ -72,9 +71,11 @@ internal class CarBlePeripheralManager(
                 } ?: disconnectWithError("Null device id found when secure channel established.")
             }
 
-            override fun onMessageReceived(message: ByteArray) {
+            override fun onMessageReceived(deviceMessage: DeviceMessage) {
                 connectedDevice?.deviceId?.guard {
-                    deviceId -> notifyCallbacks { it.onMessageReceived(deviceId, message) }
+                    deviceId -> notifyCallbacks {
+                        it.onMessageReceived(deviceId, deviceMessage)
+                    }
                 } ?: disconnectWithError("Null device id found when message received.")
             }
 
@@ -133,7 +134,7 @@ internal class CarBlePeripheralManager(
     }
 
     override fun onRemoteDeviceConnected(device: BluetoothDevice) {
-        val bleMessageStream = BleMessageStreamV1(Handler(), blePeripheralManager, device,
+        val bleMessageStream = BleDeviceMessageStream(blePeripheralManager, device,
             writeCharacteristic, readCharacteristic).apply {
             maxWriteSize = writeSize
         }

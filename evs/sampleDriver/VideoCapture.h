@@ -27,7 +27,7 @@ typedef v4l2_buffer imageBuffer;
 
 class VideoCapture {
 public:
-    bool open(const char* deviceName);
+    bool open(const char* deviceName, const int32_t width = 0, const int32_t height = 0);
     void close();
 
     bool startStream(std::function<void(VideoCapture*, imageBuffer*, void*)> callback = nullptr);
