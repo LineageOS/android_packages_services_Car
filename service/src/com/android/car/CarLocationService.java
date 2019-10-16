@@ -24,7 +24,6 @@ import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +35,7 @@ import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.AtomicFile;
 import android.util.JsonReader;
 import android.util.JsonWriter;
@@ -77,7 +77,6 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     private final Object mLocationManagerProxyLock = new Object();
 
     private final Context mContext;
-    private final CarUserManagerHelper mCarUserManagerHelper;
     private int mTaskCount = 0;
     private HandlerThread mHandlerThread;
     private Handler mHandler;
@@ -108,7 +107,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                     }
                     int currentUser = ActivityManager.getCurrentUser();
                     logd("Current user: " + currentUser);
-                    if (mCarUserManagerHelper.isHeadlessSystemUser()
+                    if (UserManager.isHeadlessSystemUserMode()
                             && currentUser > UserHandle.USER_SYSTEM) {
                         asyncOperation(() -> loadLocation());
                     }
@@ -147,10 +146,9 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                 }
             };
 
-    public CarLocationService(Context context, CarUserManagerHelper carUserManagerHelper) {
+    public CarLocationService(Context context) {
         logd("constructed");
         mContext = context;
-        mCarUserManagerHelper = carUserManagerHelper;
     }
 
     @Override
@@ -274,7 +272,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     /** Tells whether the current foreground user is the headless system user. */
     private boolean isCurrentUserHeadlessSystemUser() {
         int currentUserId = ActivityManager.getCurrentUser();
-        return mCarUserManagerHelper.isHeadlessSystemUser()
+        return UserManager.isHeadlessSystemUserMode()
                 && currentUserId == UserHandle.USER_SYSTEM;
     }
 
