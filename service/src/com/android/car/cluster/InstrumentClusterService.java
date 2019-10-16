@@ -15,17 +15,22 @@
  */
 package com.android.car.cluster;
 
+import static android.car.cluster.renderer.InstrumentClusterRenderingService.EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER;
+
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.app.ActivityOptions;
 import android.car.CarAppFocusManager;
 import android.car.cluster.IInstrumentClusterManagerCallback;
 import android.car.cluster.IInstrumentClusterManagerService;
 import android.car.cluster.renderer.IInstrumentCluster;
+import android.car.cluster.renderer.IInstrumentClusterHelper;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -43,6 +48,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.R;
+import com.android.car.am.FixedActivityService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 
@@ -69,16 +75,18 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
      */
     @Deprecated
     private final ClusterManagerService mClusterManagerService = new ClusterManagerService();
-    private final Object mSync = new Object();
-    @GuardedBy("mSync")
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
     private ContextOwner mNavContextOwner = NO_OWNER;
-    @GuardedBy("mSync")
+    @GuardedBy("mLock")
     private IInstrumentCluster mRendererService;
     // If renderer service crashed / stopped and this class fails to rebind with it immediately,
     // we should wait some time before next attempt. This may happen during APK update for example.
+    @GuardedBy("mLock")
     private DeferredRebinder mDeferredRebinder;
     // Whether {@link android.car.cluster.renderer.InstrumentClusterRendererService} is bound
     // (although not necessarily connected)
+    @GuardedBy("mLock")
     private boolean mRendererBound = false;
 
     /**
@@ -92,7 +100,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
             }
             IInstrumentCluster service = IInstrumentCluster.Stub.asInterface(binder);
             ContextOwner navContextOwner;
-            synchronized (mSync) {
+            synchronized (mLock) {
                 mRendererService = service;
                 navContextOwner = mNavContextOwner;
             }
@@ -107,18 +115,38 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
                 Log.d(TAG, "onServiceDisconnected, name: " + name);
             }
             mContext.unbindService(this);
-            mRendererBound = false;
-
-            synchronized (mSync) {
+            DeferredRebinder rebinder;
+            synchronized (mLock) {
+                mRendererBound = false;
                 mRendererService = null;
+                if (mDeferredRebinder == null) {
+                    mDeferredRebinder = new DeferredRebinder();
+                }
+                rebinder = mDeferredRebinder;
             }
-
-            if (mDeferredRebinder == null) {
-                mDeferredRebinder = new DeferredRebinder();
-            }
-            mDeferredRebinder.rebind();
+            rebinder.rebind();
         }
     };
+
+    private final IInstrumentClusterHelper mInstrumentClusterHelper =
+            new IInstrumentClusterHelper.Stub() {
+                @Override
+                public boolean startFixedActivityModeForDisplayAndUser(Intent intent,
+                        Bundle activityOptionsBundle, int userId) {
+                    ActivityOptions options = new ActivityOptions(activityOptionsBundle);
+                    FixedActivityService service = CarLocalServices.getService(
+                            FixedActivityService.class);
+                    return service.startFixedActivityModeForDisplayAndUser(intent, options,
+                            options.getLaunchDisplayId(), userId);
+                }
+
+                @Override
+                public void stopFixedActivityMode(int displayId) {
+                    FixedActivityService service = CarLocalServices.getService(
+                            FixedActivityService.class);
+                    service.stopFixedActivityMode(displayId);
+                }
+            };
 
     public InstrumentClusterService(Context context, AppFocusService appFocusService,
             CarInputService carInputService) {
@@ -181,7 +209,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
         IInstrumentCluster service;
         ContextOwner requester = new ContextOwner(uid, pid);
         ContextOwner newOwner = acquire ? requester : NO_OWNER;
-        synchronized (mSync) {
+        synchronized (mLock) {
             if ((acquire && Objects.equals(mNavContextOwner, requester))
                     || (!acquire && !Objects.equals(mNavContextOwner, requester))) {
                 // Nothing to do here. Either the same owner is acquiring twice, or someone is
@@ -221,6 +249,11 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
 
         Intent intent = new Intent();
         intent.setComponent(ComponentName.unflattenFromString(rendererService));
+        // Litle bit inefficiency here as Intent.getIBinderExtra() is a hidden API.
+        Bundle bundle = new Bundle();
+        bundle.putBinder(EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER,
+                mInstrumentClusterHelper.asBinder());
+        intent.putExtra(EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER, bundle);
         return mContext.bindServiceAsUser(intent, mRendererServiceConnection,
                 Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT, UserHandle.SYSTEM);
     }
@@ -262,7 +295,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
 
     private IInstrumentCluster getInstrumentClusterRendererService() {
         IInstrumentCluster service;
-        synchronized (mSync) {
+        synchronized (mLock) {
             service = mRendererService;
         }
         return service;
