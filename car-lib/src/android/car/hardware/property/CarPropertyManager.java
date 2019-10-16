@@ -22,6 +22,7 @@ import android.annotation.FloatRange;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.CarManagerBase;
+import android.car.VehicleAreaType;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.os.Handler;
@@ -310,6 +311,47 @@ public class CarPropertyManager implements CarManagerBase {
             }
         }
         return configs;
+    }
+
+    /**
+     * Get CarPropertyConfig by property Id.
+     *
+     * @param propId Property ID
+     * @return {@link CarPropertyConfig} for the selected property.
+     * Null if the property is not available.
+     */
+    @Nullable
+    public CarPropertyConfig<?> getCarPropertyConfig(int propId) {
+        return  mConfigMap.get(propId);
+    }
+
+    /**
+     * Returns areaId contains the seletcted area for the property.
+     *
+     * @param propId Property ID
+     * @param area Area enum such as Enums in {@link android.car.VehicleAreaSeat}.
+     * @throws IllegalArgumentException if the property is not available in the vehicle for
+     * the selected area.
+     * @return AreaId contains the selected area for the property.
+     */
+    public int getAreaId(int propId, int area) {
+        CarPropertyConfig<?> propConfig = getCarPropertyConfig(propId);
+        if (propConfig == null) {
+            throw new IllegalArgumentException("The property propId: 0x" + toHexString(propId)
+                    + " is not available");
+        }
+        // For the global property, areaId is 0
+        if (propConfig.isGlobalProperty()) {
+            return VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
+        }
+        for (int areaId : propConfig.getAreaIds()) {
+            if ((area & areaId) == area) {
+                return areaId;
+            }
+        }
+
+        throw new IllegalArgumentException("The property propId: 0x" + toHexString(propId)
+                + " is not available at the area: 0x" + toHexString(area));
     }
 
     /**

@@ -524,7 +524,9 @@ package android.car.hardware {
 package android.car.hardware.property {
 
   public class CarPropertyManager {
+    method public int getAreaId(int, int);
     method public boolean getBooleanProperty(int, int);
+    method @Nullable public android.car.hardware.CarPropertyConfig<?> getCarPropertyConfig(int);
     method public float getFloatProperty(int, int);
     method @NonNull public int[] getIntArrayProperty(int, int);
     method public int getIntProperty(int, int);
