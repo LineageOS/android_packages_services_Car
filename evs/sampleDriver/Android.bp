@@ -47,7 +47,6 @@ cc_binary {
         "liblog",
         "libutils",
         "libhardware_legacy",
-        "libhwbinder",
         "libcamera_metadata",
         "libtinyxml2",
     ],
