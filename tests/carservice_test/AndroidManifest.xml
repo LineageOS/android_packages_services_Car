@@ -16,7 +16,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         package="com.android.car.test"
-        android:sharedUserId="com.google.android.car.uid.kitchensink">
+        android:sharedUserId="android.uid.system">
 
     <uses-permission android:name="android.Manifest.permission.MODIFY_AUDIO_ROUTING" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_CLIMATE" />
