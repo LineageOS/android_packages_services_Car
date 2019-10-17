@@ -330,8 +330,9 @@ public class ConfirmLockPassword extends ConfirmDeviceCredentialBaseActivity {
             if (TextUtils.isEmpty(passwordText)) {
                 return;
             }
-            final LockscreenCredential credential =
-                    LockscreenCredential.createPassword(passwordText);
+            final LockscreenCredential credential = mIsAlpha
+                    ? LockscreenCredential.createPassword(passwordText)
+                    : LockscreenCredential.createPin(passwordText);
 
             mPasswordEntryInputDisabler.setInputEnabled(false);
             final boolean verifyChallenge = getActivity().getIntent().getBooleanExtra(
