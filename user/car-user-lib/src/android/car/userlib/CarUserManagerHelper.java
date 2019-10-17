@@ -235,14 +235,7 @@ public final class CarUserManagerHelper {
      * @return {@link UserInfo} for the user running the current process.
      */
     public UserInfo getCurrentProcessUserInfo() {
-        return mUserManager.getUserInfo(getCurrentProcessUserId());
-    }
-
-    /**
-     * @return Id for the user running the current process.
-     */
-    public int getCurrentProcessUserId() {
-        return UserHandle.myUserId();
+        return mUserManager.getUserInfo(UserHandle.myUserId());
     }
 
     /**
@@ -394,8 +387,8 @@ public final class CarUserManagerHelper {
      * @param userInfo User to check.
      * @return {@code true} if user running the process, {@code false} otherwise.
      */
-    public boolean isCurrentProcessUser(UserInfo userInfo) {
-        return getCurrentProcessUserId() == userInfo.id;
+    private boolean isCurrentProcessUser(UserInfo userInfo) {
+        return UserHandle.myUserId() == userInfo.id;
     }
 
     // Foreground user information accessors.
