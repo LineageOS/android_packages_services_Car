@@ -53,6 +53,7 @@ import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.car.pm.CarPackageManagerService;
+import com.android.car.stats.CarStatsService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.trust.CarTrustedDeviceService;
 import com.android.car.user.CarUserNoticeService;
@@ -113,6 +114,7 @@ public class ICarImpl extends ICar.Stub {
     private final VmsSubscriberService mVmsSubscriberService;
     private final VmsPublisherService mVmsPublisherService;
     private final CarBugreportManagerService mCarBugreportManagerService;
+    private final CarStatsService mCarStatsService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -170,13 +172,16 @@ public class ICarImpl extends ICar.Stub {
                 mAppFocusService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(
                 serviceContext, mCarAudioService, this);
+        mCarStatsService = new CarStatsService(serviceContext);
         mVmsBrokerService = new VmsBrokerService();
         mVmsClientManager = new VmsClientManager(
-                serviceContext, mVmsBrokerService, mCarUserService, mHal.getVmsHal());
+                // CarStatsService needs to be passed to the constructor due to HAL init order
+                serviceContext, mCarStatsService, mCarUserService, mVmsBrokerService,
+                mHal.getVmsHal());
         mVmsSubscriberService = new VmsSubscriberService(
                 serviceContext, mVmsBrokerService, mVmsClientManager, mHal.getVmsHal());
         mVmsPublisherService = new VmsPublisherService(
-                serviceContext, mVmsBrokerService, mVmsClientManager);
+                serviceContext, mCarStatsService, mVmsBrokerService, mVmsClientManager);
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
         mCarStorageMonitoringService = new CarStorageMonitoringService(serviceContext,
                 systemInterface);
@@ -489,7 +494,7 @@ public class ICarImpl extends ICar.Stub {
             writer.println("*FutureConfig, DEFAULT:" + FeatureConfiguration.DEFAULT);
             writer.println("*Dump all services*");
 
-            dumpAllServices(writer, false);
+            dumpAllServices(writer);
 
             writer.println("*Dump Vehicle HAL*");
             writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
@@ -514,8 +519,8 @@ public class ICarImpl extends ICar.Stub {
             dumpIndividualServices(writer, services);
             return;
         } else if ("--metrics".equals(args[0])) {
-            writer.println("*Dump car service metrics*");
-            dumpAllServices(writer, true);
+            // Strip the --metrics flag when passing dumpsys arguments to CarStatsService
+            mCarStatsService.dump(fd, writer, Arrays.copyOfRange(args, 1, args.length));
         } else if ("--vms-hal".equals(args[0])) {
             mHal.getVmsHal().dumpMetrics(fd);
         } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
@@ -538,12 +543,12 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
-    private void dumpAllServices(PrintWriter writer, boolean dumpMetricsOnly) {
+    private void dumpAllServices(PrintWriter writer) {
         for (CarServiceBase service : mAllServices) {
-            dumpService(service, writer, dumpMetricsOnly);
+            dumpService(service, writer);
         }
         if (mCarTestService != null) {
-            dumpService(mCarTestService, writer, dumpMetricsOnly);
+            dumpService(mCarTestService, writer);
         }
     }
 
@@ -554,7 +559,7 @@ public class ICarImpl extends ICar.Stub {
             if (service == null) {
                 writer.println("No such service!");
             } else {
-                dumpService(service, writer, /* dumpMetricsOnly= */ false);
+                dumpService(service, writer);
             }
             writer.println();
         }
@@ -567,13 +572,9 @@ public class ICarImpl extends ICar.Stub {
                 .findFirst().orElse(null);
     }
 
-    private void dumpService(CarServiceBase service, PrintWriter writer, boolean dumpMetricsOnly) {
+    private void dumpService(CarServiceBase service, PrintWriter writer) {
         try {
-            if (dumpMetricsOnly) {
-                service.dumpMetrics(writer);
-            } else {
-                service.dump(writer);
-            }
+            service.dump(writer);
         } catch (Exception e) {
             writer.println("Failed dumping: " + service.getClass().getName());
             e.printStackTrace(writer);

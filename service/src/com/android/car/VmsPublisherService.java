@@ -29,16 +29,16 @@ import android.os.RemoteException;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import com.android.car.stats.CarStatsService;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
-import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.function.IntSupplier;
 
 
 /**
@@ -50,75 +50,35 @@ public class VmsPublisherService implements CarServiceBase {
     private static final boolean DBG = false;
     private static final String TAG = "VmsPublisherService";
 
-    @VisibleForTesting
-    static final String PACKET_COUNT_FORMAT = "Packet count for layer %s: %d\n";
-
-    @VisibleForTesting
-    static final String PACKET_SIZE_FORMAT = "Total packet size for layer %s: %d (bytes)\n";
-
-    @VisibleForTesting
-    static final String PACKET_FAILURE_COUNT_FORMAT =
-            "Total packet failure count for layer %s from %s to %s: %d\n";
-
-    @VisibleForTesting
-    static final String PACKET_FAILURE_SIZE_FORMAT =
-            "Total packet failure size for layer %s from %s to %s: %d (bytes)\n";
-
     private final Context mContext;
+    private final CarStatsService mStatsService;
     private final VmsBrokerService mBrokerService;
     private final VmsClientManager mClientManager;
+    private final IntSupplier mGetCallingUid;
     private final Map<String, PublisherProxy> mPublisherProxies = Collections.synchronizedMap(
             new ArrayMap<>());
 
-    @GuardedBy("mPacketCounts")
-    private final Map<VmsLayer, PacketCountAndSize> mPacketCounts = new ArrayMap<>();
-    @GuardedBy("mPacketFailureCounts")
-    private final Map<PacketFailureKey, PacketCountAndSize> mPacketFailureCounts = new ArrayMap<>();
-
-    // PacketCountAndSize keeps track of the cumulative size and number of packets of a specific
-    // VmsLayer that we have seen.
-    private class PacketCountAndSize {
-        long mCount;
-        long mSize;
-    }
-
-    // PacketFailureKey is a triple of the VmsLayer, the publisher and subscriber for which a packet
-    // failed to be sent.
-    private class PacketFailureKey {
-        VmsLayer mVmsLayer;
-        String mPublisher;
-        String mSubscriber;
-
-        PacketFailureKey(VmsLayer vmsLayer, String publisher, String subscriber) {
-            mVmsLayer = vmsLayer;
-            mPublisher = publisher;
-            mSubscriber = subscriber;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof PacketFailureKey)) {
-                return false;
-            }
-
-            PacketFailureKey otherKey = (PacketFailureKey) o;
-            return Objects.equals(mVmsLayer, otherKey.mVmsLayer) && Objects.equals(mPublisher,
-                    otherKey.mPublisher) && Objects.equals(mSubscriber, otherKey.mSubscriber);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(mVmsLayer, mPublisher, mSubscriber);
-        }
-    }
-
-    public VmsPublisherService(
+    VmsPublisherService(
             Context context,
+            CarStatsService statsService,
             VmsBrokerService brokerService,
             VmsClientManager clientManager) {
+        this(context, statsService, brokerService, clientManager, Binder::getCallingUid);
+    }
+
+    @VisibleForTesting
+    VmsPublisherService(
+            Context context,
+            CarStatsService statsService,
+            VmsBrokerService brokerService,
+            VmsClientManager clientManager,
+            IntSupplier getCallingUid) {
         mContext = context;
+        mStatsService = statsService;
         mBrokerService = brokerService;
         mClientManager = clientManager;
+        mGetCallingUid = getCallingUid;
+
         mClientManager.setPublisherService(this);
     }
 
@@ -133,35 +93,8 @@ public class VmsPublisherService implements CarServiceBase {
 
     @Override
     public void dump(PrintWriter writer) {
-        dumpMetrics(writer);
-    }
-
-    @Override
-    public void dumpMetrics(PrintWriter writer) {
         writer.println("*" + getClass().getSimpleName() + "*");
         writer.println("mPublisherProxies: " + mPublisherProxies.size());
-        synchronized (mPacketCounts) {
-            for (Map.Entry<VmsLayer, PacketCountAndSize> entry : mPacketCounts.entrySet()) {
-                VmsLayer layer = entry.getKey();
-                PacketCountAndSize countAndSize = entry.getValue();
-                writer.format(PACKET_COUNT_FORMAT, layer, countAndSize.mCount);
-                writer.format(PACKET_SIZE_FORMAT, layer, countAndSize.mSize);
-            }
-        }
-        synchronized (mPacketFailureCounts) {
-            for (Map.Entry<PacketFailureKey, PacketCountAndSize> entry :
-                    mPacketFailureCounts.entrySet()) {
-                PacketFailureKey key = entry.getKey();
-                PacketCountAndSize countAndSize = entry.getValue();
-                VmsLayer layer = key.mVmsLayer;
-                String publisher = key.mPublisher;
-                String subscriber = key.mSubscriber;
-                writer.format(PACKET_FAILURE_COUNT_FORMAT, layer, publisher, subscriber,
-                        countAndSize.mCount);
-                writer.format(PACKET_FAILURE_SIZE_FORMAT, layer, publisher, subscriber,
-                        countAndSize.mSize);
-            }
-        }
     }
 
     /**
@@ -236,26 +169,6 @@ public class VmsPublisherService implements CarServiceBase {
             mBrokerService.setPublisherLayersOffering(token, offering);
         }
 
-        private void incrementPacketCount(VmsLayer layer, long size) {
-            synchronized (mPacketCounts) {
-                PacketCountAndSize countAndSize = mPacketCounts.computeIfAbsent(layer,
-                        i -> new PacketCountAndSize());
-                countAndSize.mCount++;
-                countAndSize.mSize += size;
-            }
-        }
-
-        private void incrementPacketFailure(VmsLayer layer, String publisher, String subscriber,
-                long size) {
-            synchronized (mPacketFailureCounts) {
-                PacketFailureKey key = new PacketFailureKey(layer, publisher, subscriber);
-                PacketCountAndSize countAndSize = mPacketFailureCounts.computeIfAbsent(key,
-                        i -> new PacketCountAndSize());
-                countAndSize.mCount++;
-                countAndSize.mSize += size;
-            }
-        }
-
         @Override
         public void publish(IBinder token, VmsLayer layer, int publisherId, byte[] payload) {
             assertPermission(token);
@@ -268,7 +181,8 @@ public class VmsPublisherService implements CarServiceBase {
             }
 
             int payloadLength = payload != null ? payload.length : 0;
-            incrementPacketCount(layer, payloadLength);
+            mStatsService.getVmsClientLog(mGetCallingUid.getAsInt())
+                    .logPacketSent(layer, payloadLength);
 
             // Send the message to subscribers
             Set<IVmsSubscriberClient> listeners =
@@ -277,17 +191,21 @@ public class VmsPublisherService implements CarServiceBase {
             if (DBG) Log.d(TAG, String.format("Number of subscribers: %d", listeners.size()));
 
             if (listeners.size() == 0) {
-                // An empty string for the last argument is a special value signalizing zero
-                // subscribers for the VMS_PACKET_FAILURE_REPORTED atom.
-                incrementPacketFailure(layer, mName, "", payloadLength);
+                // A negative UID signals that the packet had zero subscribers
+                mStatsService.getVmsClientLog(-1)
+                        .logPacketDropped(layer, payloadLength);
             }
 
             for (IVmsSubscriberClient listener : listeners) {
+                int subscriberUid = mClientManager.getSubscriberUid(listener);
                 try {
                     listener.onVmsMessageReceived(layer, payload);
+                    mStatsService.getVmsClientLog(subscriberUid)
+                            .logPacketReceived(layer, payloadLength);
                 } catch (RemoteException ex) {
+                    mStatsService.getVmsClientLog(subscriberUid)
+                            .logPacketDropped(layer, payloadLength);
                     String subscriberName = mClientManager.getPackageName(listener);
-                    incrementPacketFailure(layer, mName, subscriberName, payloadLength);
                     Log.e(TAG, String.format("Unable to publish to listener: %s", subscriberName));
                 }
             }
