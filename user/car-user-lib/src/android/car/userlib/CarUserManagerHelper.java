@@ -34,7 +34,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.os.RoSystemProperties;
 import com.android.internal.util.UserIcons;
 
 import com.google.android.collect.Sets;
@@ -205,15 +204,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Returns {@code true} if the system is in the headless user 0 model.
-     *
-     * @return {@boolean true} if headless system user.
-     */
-    public boolean isHeadlessSystemUser() {
-        return RoSystemProperties.MULTIUSER_HEADLESS_SYSTEM_USER;
-    }
-
-    /**
      * Gets UserInfo for the current foreground user.
      *
      * Concept of foreground user is relevant for the multi-user deployment. Foreground user
@@ -261,7 +251,7 @@ public final class CarUserManagerHelper {
      * @return List of {@code UserInfo} for users that associated with a real person.
      */
     public List<UserInfo> getAllUsers() {
-        if (isHeadlessSystemUser()) {
+        if (UserManager.isHeadlessSystemUserMode()) {
             return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
         } else {
             return mUserManager.getUsers(/* excludeDying= */ true);
@@ -368,7 +358,7 @@ public final class CarUserManagerHelper {
      * @return Maximum number of users that can be present on the device.
      */
     private int getMaxSupportedUsers() {
-        if (isHeadlessSystemUser()) {
+        if (UserManager.isHeadlessSystemUserMode()) {
             return mTestableFrameworkWrapper.userManagerGetMaxSupportedUsers() - 1;
         }
         return mTestableFrameworkWrapper.userManagerGetMaxSupportedUsers();
@@ -639,7 +629,7 @@ public final class CarUserManagerHelper {
      * @return {@code true} if user switching succeed.
      */
     public boolean switchToUserId(int id) {
-        if (id == UserHandle.USER_SYSTEM && isHeadlessSystemUser()) {
+        if (id == UserHandle.USER_SYSTEM && UserManager.isHeadlessSystemUserMode()) {
             // System User doesn't associate with real person, can not be switched to.
             return false;
         }

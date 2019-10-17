@@ -35,7 +35,6 @@ import android.car.IPerUserCarService;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -43,6 +42,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.SystemClock;
+import android.os.UserManager;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
@@ -75,12 +75,11 @@ import java.util.stream.Collectors;
  *
  * The following mocks are used:
  * 1. {@link Context} registers intent receivers.
- * 2. {@link CarUserManagerHelper} tells whether or not the system user is headless.
- * 3. {@link SystemInterface} tells where to store system files.
- * 4. {@link CarDrivingStateService} tells about driving state changes.
- * 5. {@link PerUserCarServiceHelper} provides a mocked {@link IPerUserCarService}.
- * 6. {@link IPerUserCarService} provides a mocked {@link LocationManagerProxy}.
- * 7. {@link LocationManagerProxy} provides dummy {@link Location}s.
+ * 2. {@link SystemInterface} tells where to store system files.
+ * 3. {@link CarDrivingStateService} tells about driving state changes.
+ * 4. {@link PerUserCarServiceHelper} provides a mocked {@link IPerUserCarService}.
+ * 5. {@link IPerUserCarService} provides a mocked {@link LocationManagerProxy}.
+ * 6. {@link LocationManagerProxy} provides dummy {@link Location}s.
  */
 @RunWith(AndroidJUnit4.class)
 public class CarLocationServiceTest {
@@ -95,8 +94,6 @@ public class CarLocationServiceTest {
     private Context mMockContext;
     @Mock
     private LocationManagerProxy mMockLocationManagerProxy;
-    @Mock
-    private CarUserManagerHelper mMockCarUserManagerHelper;
     @Mock
     private SystemInterface mMockSystemInterface;
     @Mock
@@ -115,7 +112,7 @@ public class CarLocationServiceTest {
         mContext = InstrumentationRegistry.getTargetContext();
         mTempDirectory = new TemporaryDirectory(TAG).getDirectory();
         mLatch = new CountDownLatch(1);
-        mCarLocationService = new CarLocationService(mMockContext, mMockCarUserManagerHelper) {
+        mCarLocationService = new CarLocationService(mMockContext) {
             @Override
             void asyncOperation(Runnable operation) {
                 super.asyncOperation(() -> {
@@ -134,8 +131,10 @@ public class CarLocationServiceTest {
         when(mMockIPerUserCarService.getLocationManagerProxy())
                 .thenReturn(mMockLocationManagerProxy);
 
-        // We only support and test the headless system user case.
-        when(mMockCarUserManagerHelper.isHeadlessSystemUser()).thenReturn(true);
+        if (!UserManager.isHeadlessSystemUserMode()) {
+            fail("We only support and test the headless system user case. Ensure the system has "
+                    + "the system property 'ro.fw.mu.headless_system_user' set to true.");
+        }
 
         // Store CarLocationService's user switch callback so we can invoke it in the tests.
         doAnswer((invocation) -> {
