@@ -256,6 +256,11 @@
     <string name="car_permission_label_enroll_trust">Enroll Trusted Device</string>
     <string name="car_permission_desc_enroll_trust">Allow Trusted Device Enrollment</string>
 
+    <!-- Permission text: Control car service's test mode [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_car_test_service">Control car service\u2019s test mode</string>
+    <!-- Permission text: Control car service's test mode [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_car_test_service">Control car service\u2019s test mode</string>
+
     <!-- The default name of device enrolled as trust device [CHAR LIMIT=NONE] -->
     <string name="trust_device_default_name">My Device</string>
 
