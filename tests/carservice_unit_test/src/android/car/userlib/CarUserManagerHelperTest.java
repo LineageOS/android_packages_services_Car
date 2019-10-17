@@ -75,7 +75,6 @@ public class CarUserManagerHelperTest {
     private UserInfo mCurrentProcessUser;
     private UserInfo mSystemUser;
     private int mForegroundUserId;
-    private UserInfo mForegroundUser;
 
     @Before
     public void setUpMocksAndVariables() {
@@ -97,52 +96,10 @@ public class CarUserManagerHelperTest {
         // We cannot mock the foreground user since getCurrentUser is static.
         // We cannot rely on foreground_id != system_id, they could be the same user.
         mForegroundUserId = ActivityManager.getCurrentUser();
-        mForegroundUser = createUserInfoForId(mForegroundUserId);
 
         // Clear boot override for every test by returning the default value passed to the method
         when(mTestableFrameworkWrapper.getBootUserOverrideId(anyInt()))
                 .thenAnswer(stub -> stub.getArguments()[0]);
-    }
-
-    // System user will not be returned when calling get all users.
-    @Test
-    public void testHeadlessUser0GetAllUsers_NotReturnSystemUser() {
-        UserInfo otherUser1 = createUserInfoForId(10);
-        UserInfo otherUser2 = createUserInfoForId(11);
-        UserInfo otherUser3 = createUserInfoForId(12);
-
-        mockGetUsers(mSystemUser, otherUser1, otherUser2, otherUser3);
-
-        assertThat(mCarUserManagerHelper.getAllUsers())
-                .containsExactly(otherUser1, otherUser2, otherUser3);
-    }
-
-    @Test
-    public void testGetAllAdminUsers() {
-        // Create two admin, and two non-admin users.
-        UserInfo user1 = new UserInfo(/* id= */ 10, /* name = */ "user10", UserInfo.FLAG_ADMIN);
-        UserInfo user2 = createUserInfoForId(11);
-        UserInfo user3 = createUserInfoForId(12);
-        UserInfo user4 = new UserInfo(/* id= */ 13, /* name = */ "user13", UserInfo.FLAG_ADMIN);
-
-        mockGetUsers(user1, user2, user3, user4);
-
-        // Should return only admin users.
-        assertThat(mCarUserManagerHelper.getAllAdminUsers()).containsExactly(user1, user4);
-    }
-
-    @Test
-    public void testGetAllUsersExceptGuests() {
-        // Create two users and a guest user.
-        UserInfo user1 = createUserInfoForId(10);
-        UserInfo user2 = createUserInfoForId(12);
-        UserInfo user3 = new UserInfo(/* id= */ 13, /* name = */ "user13", UserInfo.FLAG_GUEST);
-
-        mockGetUsers(user1, user2, user3);
-
-        // Should not return guests.
-        assertThat(mCarUserManagerHelper.getAllUsersExceptGuests())
-                .containsExactly(user1, user2);
     }
 
     @Test
