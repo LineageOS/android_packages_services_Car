@@ -123,49 +123,6 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testHeadlessSystemUser_IsUserLimitReached() {
-        UserInfo user1 = createUserInfoForId(10);
-        UserInfo user2 =
-                new UserInfo(/* id= */ 11, /* name = */ "user11", UserInfo.FLAG_MANAGED_PROFILE);
-        UserInfo user3 =
-                new UserInfo(/* id= */ 12, /* name = */ "user12", UserInfo.FLAG_MANAGED_PROFILE);
-        UserInfo user4 = createUserInfoForId(13);
-
-        mockGetUsers(mSystemUser, user1, user2, user3, user4);
-
-        setMaxSupportedUsers(6);
-        assertThat(mCarUserManagerHelper.isUserLimitReached()).isFalse();
-
-        setMaxSupportedUsers(5);
-        assertThat(mCarUserManagerHelper.isUserLimitReached()).isTrue();
-    }
-
-    @Test
-    public void testIsUserLimitReachedIgnoresGuests() {
-        setMaxSupportedUsers(6);
-
-        UserInfo user1 = createUserInfoForId(10);
-        UserInfo user2 =
-                new UserInfo(/* id= */ 11, /* name = */ "user11", UserInfo.FLAG_MANAGED_PROFILE);
-        UserInfo user3 =
-                new UserInfo(/* id= */ 12, /* name = */ "user12", UserInfo.FLAG_MANAGED_PROFILE);
-        UserInfo user4 = createUserInfoForId(13);
-        UserInfo user5 = new UserInfo(/* id= */ 14, /* name = */ "user14", UserInfo.FLAG_GUEST);
-        UserInfo user6 = createUserInfoForId(15);
-
-        mockGetUsers(user1, user2, user3, user4);
-        assertThat(mCarUserManagerHelper.isUserLimitReached()).isFalse();
-
-        // Add guest user. Verify it doesn't affect the limit.
-        mockGetUsers(user1, user2, user3, user4, user5);
-        assertThat(mCarUserManagerHelper.isUserLimitReached()).isFalse();
-
-        // Add normal user. Limit is reached
-        mockGetUsers(user1, user2, user3, user4, user5, user6);
-        assertThat(mCarUserManagerHelper.isUserLimitReached()).isTrue();
-    }
-
-    @Test
     public void testCreateNewNonAdminUser() {
         // Verify createUser on UserManager gets called.
         mCarUserManagerHelper.createNewNonAdminUser(TEST_USER_NAME);
