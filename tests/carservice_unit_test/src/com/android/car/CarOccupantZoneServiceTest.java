@@ -26,13 +26,13 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
 import android.app.ActivityManager;
+import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.VehicleAreaSeat;
 import android.content.Context;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.view.Display;
@@ -207,8 +207,8 @@ public class CarOccupantZoneServiceTest {
         doReturn(VehicleAreaSeat.SEAT_ROW_1_LEFT).when(mService).getDriverSeat();
         doReturn(ActivityManager.getCurrentUser()).when(mService).getCurrentUser();
 
-        mManager = new CarOccupantZoneManager(mService, mContext, new Handler(
-                Looper.getMainLooper()));
+        Car car = new Car(mContext, /* service= */null, /* handler= */ null);
+        mManager = new CarOccupantZoneManager(car, mService);
     }
 
     @After

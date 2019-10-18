@@ -23,8 +23,6 @@ import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.diagnostic.ICarDiagnosticEventListener.Stub;
-import android.content.Context;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -47,7 +45,7 @@ import java.util.function.Consumer;
  * @hide
  */
 @SystemApi
-public final class CarDiagnosticManager implements CarManagerBase {
+public final class CarDiagnosticManager extends CarManagerBase {
     public static final int FRAME_TYPE_LIVE = 0;
     public static final int FRAME_TYPE_FREEZE = 1;
 
@@ -70,15 +68,16 @@ public final class CarDiagnosticManager implements CarManagerBase {
     /** Handles call back into clients. */
     private final SingleMessageHandler<CarDiagnosticEvent> mHandlerCallback;
 
-    private CarDiagnosticEventListenerToService mListenerToService;
+    private final CarDiagnosticEventListenerToService mListenerToService;
 
     private final CarPermission mVendorExtensionPermission;
 
     /** @hide */
-    public CarDiagnosticManager(IBinder service, Context context, Handler handler) {
+    public CarDiagnosticManager(Car car, IBinder service) {
+        super(car);
         mService = ICarDiagnostic.Stub.asInterface(service);
-        mHandlerCallback = new SingleMessageHandler<CarDiagnosticEvent>(handler.getLooper(),
-            MSG_DIAGNOSTIC_EVENTS) {
+        mHandlerCallback = new SingleMessageHandler<CarDiagnosticEvent>(
+                getEventHandler().getLooper(), MSG_DIAGNOSTIC_EVENTS) {
             @Override
             protected void handleEvent(CarDiagnosticEvent event) {
                 CarDiagnosticListeners listeners;
@@ -90,7 +89,9 @@ public final class CarDiagnosticManager implements CarManagerBase {
                 }
             }
         };
-        mVendorExtensionPermission = new CarPermission(context, Car.PERMISSION_VENDOR_EXTENSION);
+        mVendorExtensionPermission = new CarPermission(getContext(),
+                Car.PERMISSION_VENDOR_EXTENSION);
+        mListenerToService = new CarDiagnosticEventListenerToService(this);
     }
 
     @Override
@@ -98,7 +99,6 @@ public final class CarDiagnosticManager implements CarManagerBase {
     public void onCarDisconnected() {
         synchronized(mActiveListeners) {
             mActiveListeners.clear();
-            mListenerToService = null;
         }
     }
 
@@ -137,9 +137,6 @@ public final class CarDiagnosticManager implements CarManagerBase {
             OnDiagnosticEventListener listener, @FrameType int frameType, int rate) {
         assertFrameType(frameType);
         synchronized(mActiveListeners) {
-            if (null == mListenerToService) {
-                mListenerToService = new CarDiagnosticEventListenerToService(this);
-            }
             boolean needsServerUpdate = false;
             CarDiagnosticListeners listeners = mActiveListeners.get(frameType);
             if (listeners == null) {
@@ -184,7 +181,8 @@ public final class CarDiagnosticManager implements CarManagerBase {
                     mService.unregisterDiagnosticListener(frameType,
                         mListenerToService);
                 } catch (RemoteException e) {
-                    throw e.rethrowFromSystemServer();
+                    handleRemoteExceptionFromCarService(e);
+                    // continue for local clean-up
                 }
                 mActiveListeners.remove(frameType);
             } else if (needsServerUpdate) {
@@ -197,7 +195,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
         try {
             return mService.registerOrUpdateDiagnosticListener(frameType, rate, mListenerToService);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -212,7 +210,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
         try {
             return mService.getLatestLiveFrame();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -229,7 +227,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
         try {
             return mService.getFreezeFrameTimestamps();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, new long[0]);
         }
     }
 
@@ -246,7 +244,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
         try {
             return mService.getFreezeFrame(timestamp);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -264,7 +262,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
         try {
             return mService.clearFreezeFrames(timestamps);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -276,7 +274,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
         try {
             return mService.isLiveFrameSupported();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -288,7 +286,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
         try {
             return mService.isFreezeFrameNotificationSupported();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -300,7 +298,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
         try {
             return mService.isGetFreezeFrameSupported();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -318,7 +316,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
         try {
             return mService.isClearFreezeFramesSupported();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -336,7 +334,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
         try {
             return mService.isSelectiveClearFreezeFramesSupported();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 

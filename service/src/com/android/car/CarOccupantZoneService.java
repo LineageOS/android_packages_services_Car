@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.car.Car;
 import android.car.CarInfoManager;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
@@ -168,6 +169,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     private final RemoteCallbackList<ICarOccupantZoneCallback> mClientCallbacks =
             new RemoteCallbackList<>();
 
+    @GuardedBy("mLock")
+    private int mDriverSeat = VehicleAreaSeat.SEAT_UNKNOWN;
+
     public CarOccupantZoneService(Context context) {
         mContext = context;
         mDisplayManager = context.getSystemService(DisplayManager.class);
@@ -181,7 +185,13 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     @Override
     public void init() {
+        // This does not require connection as binder will be passed directly.
+        Car car = new Car(mContext, /* service= */null, /* handler= */ null);
+        CarInfoManager infoManager = new CarInfoManager(car, CarLocalServices.getService(
+                CarPropertyService.class));
+        int driverSeat = infoManager.getDriverSeat();
         synchronized (mLock) {
+            mDriverSeat = driverSeat;
             parseOccupantZoneConfigsLocked();
             parseDisplayConfigsLocked();
             handleActiveDisplaysLocked();
@@ -351,11 +361,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         throw new RuntimeException("Format error in config_occupant_zones resource:" + msg);
     }
 
+    // For overriding in test
     @VisibleForTesting
     int getDriverSeat() {
-        CarInfoManager infoManager = new CarInfoManager(CarLocalServices.getService(
-                CarPropertyService.class));
-        return infoManager.getDriverSeat();
+        synchronized (mLock) {
+            return mDriverSeat;
+        }
     }
 
     private void parseOccupantZoneConfigsLocked() {

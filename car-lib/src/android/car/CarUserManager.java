@@ -27,6 +27,7 @@ import android.os.RemoteException;
 
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,14 +36,15 @@ import java.util.List;
  * @hide
  */
 @SystemApi
-public final class CarUserManager implements CarManagerBase {
+public final class CarUserManager extends CarManagerBase {
 
     private static final String TAG = CarUserManager.class.getSimpleName();
     private final ICarUserService mService;
 
     /** @hide */
     @VisibleForTesting
-    public CarUserManager(@NonNull IBinder service) {
+    public CarUserManager(Car car, @NonNull IBinder service) {
+        super(car);
         mService = ICarUserService.Stub.asInterface(service);
     }
 
@@ -63,7 +65,7 @@ public final class CarUserManager implements CarManagerBase {
         try {
             return mService.createDriver(name, admin);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -84,7 +86,7 @@ public final class CarUserManager implements CarManagerBase {
         try {
             return mService.createPassenger(name, driverId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -102,7 +104,7 @@ public final class CarUserManager implements CarManagerBase {
         try {
             return mService.switchDriver(driverId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -120,7 +122,7 @@ public final class CarUserManager implements CarManagerBase {
         try {
             return mService.getAllDrivers();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
     }
 
@@ -139,7 +141,7 @@ public final class CarUserManager implements CarManagerBase {
         try {
             return mService.getPassengers(driverId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
     }
 
@@ -159,7 +161,7 @@ public final class CarUserManager implements CarManagerBase {
         try {
             return mService.startPassenger(passengerId, zoneId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -177,7 +179,7 @@ public final class CarUserManager implements CarManagerBase {
         try {
             return mService.stopPassenger(passengerId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
