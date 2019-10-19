@@ -489,8 +489,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"כדאי להגן על הטאבלט באמצעות אפשרות של נעילת מסך כדי שאף אחד לא יוכל להשתמש בו אם הוא יאבד או ייגנב. האפשרות של נעילת המסך נדרשת גם כדי להגדיר אימות פנים. יש להקיש על ביטול, ואז להגדיר קוד אימות או לבחור באפשרות אחרת של נעילת מסך."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"כדאי להגן על המכשיר באמצעות אפשרות של נעילת מסך כדי שאף אחד לא יוכל להשתמש בו אם הוא יאבד או ייגנב. האפשרות של נעילת המסך נדרשת גם כדי להגדיר אימות פנים. יש להקיש על ביטול, ואז להגדיר קוד אימות או לבחור באפשרות אחרת של נעילת מסך."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"כדאי להגן על הטלפון באמצעות אפשרות של נעילת מסך כדי שאף אחד לא יוכל להשתמש בו אם הוא יאבד או ייגנב. האפשרות של נעילת המסך נדרשת גם כדי להגדיר אימות פנים. יש להקיש על ביטול, ואז להגדיר קוד אימות או לבחור באפשרות אחרת של נעילת מסך."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"לדלג על הגדרת קוד האימות?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"לדלג על הגדרת הסיסמה?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"לדלג על הגדרת קו ביטול הנעילה?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"הגדר נעילת מסך"</string>
@@ -685,7 +684,6 @@
       <item quantity="other">צריכה להכיל פחות מ-<xliff:g id="NUMBER_1">%d</xliff:g> ספרות</item>
       <item quantity="one">צריכה להכיל פחות מספרה אחת (<xliff:g id="NUMBER_0">%d</xliff:g>)</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"צריך להכיל רק את הספרות 0-9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"מנהל המכשיר לא מאפשר להשתמש בקוד גישה שנעשה בו שימוש לאחרונה"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"קודי גישה נפוצים חסומים בידי מנהל ה-IT. יש לנסות קוד גישה אחר."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"לא ניתן לכלול תו לא חוקי"</string>
@@ -728,6 +726,7 @@
       <item quantity="other">צריכה להכיל לפחות <xliff:g id="COUNT">%d</xliff:g> תווים שאינם אותיות</item>
       <item quantity="one">צריכה להכיל לפחות תו אחד שאינו אות</item>
     </plurals>
+    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"מנהל המכשיר לא מאפשר להשתמש בסיסמה שנעשה בה שימוש לאחרונה"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"סיסמאות נפוצות חסומות בידי מנהל ה-IT. יש לנסות סיסמה אחרת."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"אין להגדיר רצף ספרות עולה, יורד או חוזר"</string>
@@ -1126,8 +1125,11 @@
     <item msgid="2552412793005571845">"‎@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"‎@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"סלולרי"</item>
+    <item msgid="6007360612667098926">"Wi-Fi בלבד"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"‎@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"‎@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -3471,7 +3473,7 @@
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"אין אפליקציות מותקנות שתומכות ב\'תמונה בתוך תמונה\'"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"תמונה בתוך תמונה"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"תמונה בתוך תמונה"</string>
-    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"אפשר תמונה בתוך תמונה"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"עם תמונה בתוך תמונה"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"אפליקציה זו תוכל ליצור חלון מסוג תמונה-בתוך-תמונה בזמן שהיא תהיה פתוחה או לאחר היציאה ממנה (למשל, כדי להמשיך לצפות בסרטון). חלון זה מוצג מעל אפליקציות אחרות שנמצאות בשימוש."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"גישה אל \'נא לא להפריע\'"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"הפעלת ההרשאה \'נא לא להפריע\'"</string>
@@ -3931,8 +3933,8 @@
     <string name="write_settings_summary" msgid="4650251358459404247">"<xliff:g id="COUNT_0">%1$d</xliff:g> מתוך <xliff:g id="COUNT_1">%2$d</xliff:g> אפליקציות מורשות לשנות את הגדרות המערכת"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"גישת SMS לאפליקציות פיננסיות"</string>
     <string name="filter_install_sources_apps" msgid="4519839764020866701">"יכולה להתקין אפליקציות אחרות"</string>
-    <string name="filter_write_settings_apps" msgid="6864144615530081121">"יכולות לשנות את הגדרות המערכת"</string>
-    <string name="write_settings_title" msgid="5852614614193830632">"יכולות לשנות את הגדרות המערכת"</string>
+    <string name="filter_write_settings_apps" msgid="6864144615530081121">"שינוי הגדרות המערכת"</string>
+    <string name="write_settings_title" msgid="5852614614193830632">"שינוי הגדרות המערכת"</string>
     <string name="write_system_settings" msgid="20450765210832463">"שינוי הגדרות המערכת"</string>
     <string name="permit_write_settings" msgid="4198491281216818756">"הרשאה לשנות את הגדרות המערכת"</string>
     <string name="write_settings_description" msgid="2536706293042882500">"ההרשאה הזו מתירה לאפליקציה לשנות את הגדרות המערכת."</string>

@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Protege tu tablet con una opción de bloqueo de pantalla para que nadie pueda usarlo si lo pierdes o te lo roban. También necesitas tener una opción de bloqueo de pantalla para configurar la autenticación facial. Toca Cancelar y establece un PIN, o elige otra opción de bloqueo de pantalla."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Protege tu dispositivo con una opción de bloqueo de pantalla para que nadie pueda usarlo si lo pierdes o te lo roban. También necesitas tener una opción de bloqueo de pantalla para configurar la autenticación facial. Toca Cancelar y establece un PIN, o elige otra opción de bloqueo de pantalla."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Protege tu teléfono con una opción de bloqueo de pantalla para que nadie pueda usarlo si lo pierdes o te lo roban. También necesitas tener una opción de bloqueo de pantalla para configurar la autenticación facial. Toca Cancelar y establece un PIN, o elige otra opción de bloqueo de pantalla."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"¿No configurar PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"¿No configurar contraseña?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"¿No configurar patrón?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Configurar bloqueo de pantalla"</string>
@@ -669,7 +668,6 @@
       <item quantity="other">Debe tener menos de <xliff:g id="NUMBER_1">%d</xliff:g> dígitos</item>
       <item quantity="one">Debe tener menos de <xliff:g id="NUMBER_0">%d</xliff:g> dígito</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Solo debe tener dígitos comprendidos entre el 0 y el 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"El administrador de dispositivos no permite utilizar un PIN reciente"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"El administrador de TI bloquea los PIN comunes. Prueba a utilizar otro PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"No puede incluir un carácter que no sea válido"</string>
@@ -700,6 +698,7 @@
       <item quantity="other">Debe tener al menos <xliff:g id="COUNT">%d</xliff:g> caracteres que no sean una letra</item>
       <item quantity="one">Debe tener al menos 1 carácter que no sea una letra</item>
     </plurals>
+    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"El administrador de dispositivos no permite utilizar una contraseña reciente"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"El administrador de TI bloquea las contraseñas comunes. Prueba a utilizar otra contraseña."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"No se permite utilizar una secuencia ascendente, descendente ni repetida de dígitos"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Móvil"</item>
+    <item msgid="6007360612667098926">"Solo Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

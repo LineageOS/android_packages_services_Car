@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Защитете таблета си с опция за заключване на екрана, така че никой друг да не може да го използва, ако бъде изгубен или откраднат. Такава опция е нужна и за настройване на удостоверяването с лице. Докоснете „Отказ“, след което задайте ПИН код или изберете друга опция за заключване на екрана."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Защитете устройството си с опция за заключване на екрана, така че никой друг да не може да го използва, ако бъде изгубено или откраднато. Такава опция е нужна и за настройване на удостоверяването с лице. Докоснете „Отказ“, след което задайте ПИН код или изберете друга опция за заключване на екрана."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Защитете телефона си с опция за заключване на екрана, така че никой друг да не може да го използва, ако бъде изгубен или откраднат. Такава опция е нужна и за настройване на удостоверяването с лице. Докоснете „Отказ“, след което задайте ПИН код или изберете друга опция за заключване на екрана."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Пропускане на настр. на ПИН?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Пропуск. на настр. на парола?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Пропуск. на настр. на фигура?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Заключване на екрана: Настройване"</string>
@@ -669,7 +668,6 @@
       <item quantity="other">Трябва да съдържа по-малко от <xliff:g id="NUMBER_1">%d</xliff:g> цифри</item>
       <item quantity="one">Трябва да съдържа по-малко от <xliff:g id="NUMBER_0">%d</xliff:g> цифра</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Трябва да съдържа само цифри (от 0 до 9)"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Администраторът на у-вото не разрешава ползването на скорошен ПИН"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Често срещаните ПИН кодове се блокират от системния ви администратор. Опитайте с друг ПИН код."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Не може да включва невалиден знак"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Трябва да съдържа поне <xliff:g id="COUNT">%d</xliff:g> небуквени знака</item>
       <item quantity="one">Трябва да съдържа поне 1 небуквен знак</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Трябва да съдържа поне <xliff:g id="COUNT">%d</xliff:g> нецифрени знака</item>
+      <item quantity="one">Трябва да съдържа поне 1 нецифрен знак</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Администраторът на у-вото не разрешава ползването на скорошна парола"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Често срещаните пароли се блокират от системния ви администратор. Опитайте с друга парола."</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Мобилни данни"</item>
+    <item msgid="6007360612667098926">"Само Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

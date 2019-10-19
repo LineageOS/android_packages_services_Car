@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"اپنے ٹیبلیٹ کو اسکرین لاک کے اختیار کے ساتھ محفوظ رکھیں تاکہ گم یا چوری ہونے پر بھی کوئی اس کا استعمال نہ کر سکے۔ چہرے سے تصدیق کو سیٹ اپ کرنے کے لیے آپ کے لیے اسکرین لاک کا اختیار بھی ضروری ہے۔ \'منسوخ کريں\' پر تھپتھپائیں، پھر PIN سیٹ کریں یا اسکرین لاک کا کوئی دوسرا اختیار منتخب کریں۔"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"اپنے آلہ کو اسکرین لاک کے اختیار کے ذریعے محفوظ رکھیں تاکہ گم یا چوری ہونے پر بھی کوئی اس کا استعمال نہ کر سکے۔ چہرے سے تصدیق کو سیٹ اپ کرنے کے لیے آپ کے لیے اسکرین لاک کا اختیار بھی ضروری ہے۔ \'منسوخ کريں\' پر تھپتھپائیں، پھر PIN سیٹ کریں یا اسکرین لاک کا کوئی دوسرا اختیار منتخب کریں۔"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"اپنے فون کو اسکرین لاک کے اختیار سے محفوظ رکھیں تاکہ گمشدہ یا چوری ہونے پر بھی کوئی اس کا استعمال نہ کر پائے۔ چہرے سے تصدیق کو سیٹ اپ کرنے کے لیے آپ کے لیے اسکرین لاک کا اختیار بھی ضروری ہے۔ \'منسوخ کريں\' پر تھپتھپائیں، پھر PIN سیٹ کریں یا اسکرین لاک کا کوئی دوسرا اختیار منتخب کریں۔"</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PIN سیٹ اپ کو نظر انداز کریں؟"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"پاس ورڈ سیٹ اپ نظر انداز کریں؟"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"پیٹرن سیٹ اپ نظر انداز کریں؟"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"اسکرین لاک کو ترتیب دیں"</string>
@@ -669,7 +668,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g>ہندسوں سے کم ہونے چاہئیں</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> ہندسے سے کم ہونا چاہیے</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"صرف ‎0-9 ہندسے شامل ہونے چاہئیں"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"آلہ کا منتظم ایک حالیہ PIN استعمال کرنے کی اجازت نہیں دیتا ہے"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"آپ کے IT منتظم نے عمومی PINs کو مسدود کر دیا ہے۔ کوئی دوسرا PIN آزمائیں۔"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"اس میں غلط کریکٹر شامل نہیں ہو سکتا"</string>
@@ -700,6 +698,7 @@
       <item quantity="other">کم از کم <xliff:g id="COUNT">%d</xliff:g> غیر حرفی علامتوں پر مشتمل ہونا چاہیے</item>
       <item quantity="one">کم از کم ایک ایسے کریکٹر پر مشتمل ہونا چاہیئے جو حرف نہ ہو</item>
     </plurals>
+    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"آلے کا منتظم ایک حالیہ پاس ورڈ کا استعمال کرنے کی اجازت نہیں دیتا ہے"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"آپ کے IT منتظم نے عمومی پاس ورڈز کو مسدود کر دیا ہے۔ کوئی دوسرا پاس ورڈ آزمائیں۔"</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"ہندسوں کی صعودی، نزولی یا مکرر ترتیب کی اجازت نہیں ہے"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"‎@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"‎@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"موبائل"</item>
+    <item msgid="6007360612667098926">"صرف Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"‎@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"‎@*android:string/wfc_mode_cellular_preferred_summary"</item>

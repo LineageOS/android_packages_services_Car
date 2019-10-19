@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Protegeix la tauleta amb una de les opcions de bloqueig de pantalla perquè ningú no pugui utilitzar-la si la perds o te la roben. També necessites una d\'aquestes opcions per configurar l\'autenticació facial. Toca Cancel·la i, a continuació, defineix un PIN o tria una altra opció de bloqueig de pantalla."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Protegeix el dispositiu amb una de les opcions de bloqueig de pantalla perquè ningú no pugui utilitzar-lo si el perds o te\'l roben. També necessites una d\'aquestes opcions per configurar l\'autenticació facial. Toca Cancel·la i, a continuació, defineix un PIN o tria una altra opció de bloqueig de pantalla."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Protegeix el telèfon amb una de les opcions de bloqueig de pantalla perquè ningú no pugui utilitzar-lo si el perds o te\'l roben. També necessites una d\'aquestes opcions per configurar l\'autenticació facial. Toca Cancel·la i, a continuació, defineix un PIN o tria una altra opció de bloqueig de pantalla."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"No vols configurar el PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"No configurar la contrasenya?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"No vols configurar el patró?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Configura el bloqueig de pantalla"</string>
@@ -669,7 +668,6 @@
       <item quantity="other">Ha de tenir <xliff:g id="NUMBER_1">%d</xliff:g> dígits o menys</item>
       <item quantity="one">Ha de tenir <xliff:g id="NUMBER_0">%d</xliff:g> dígit o menys</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Només pot contenir dígits del 0 al 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"L\'administrador del dispositiu no permet que s\'utilitzi un PIN recent"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"L\'administrador de TI ha bloquejat els PIN més comuns. Prova un altre PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"No pot incloure un caràcter no vàlid"</string>
@@ -700,6 +698,7 @@
       <item quantity="other">Ha de contenir com a mínim <xliff:g id="COUNT">%d</xliff:g> caràcters que no siguin lletres</item>
       <item quantity="one">Ha de contenir com a mínim 1 caràcter que no sigui una lletra</item>
     </plurals>
+    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"L\'administrador del dispositiu no permet que s\'utilitzi una contrasenya recent"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"L\'administrador de TI ha bloquejat les contrasenyes més comunes. Prova una altra contrasenya."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"No es permet cap seqüència de dígits ascendents, descendents ni repetits"</string>
@@ -829,7 +828,7 @@
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Preparat per compartir contingut d\'aplicacions per NFC"</string>
     <string name="android_beam_off_summary" msgid="7365818039159364600">"Desactivat"</string>
-    <string name="nfc_disabled_summary" msgid="2181777971122724361">"No està disponible perquè la funció NFC està desactivada"</string>
+    <string name="nfc_disabled_summary" msgid="2181777971122724361">"No disponible perquè la funció NFC està desactivada"</string>
     <string name="android_beam_label" msgid="5340299879556025708">"Android Beam"</string>
     <string name="android_beam_explained" msgid="4501176353247859329">"Si aquesta funció està activada, pots col·locar el dispositiu a prop d\'un altre que també sigui compatible amb la tecnologia NFC per compartir contingut d\'aplicacions entre tots dos. Per exemple, pots compartir-hi pàgines web, vídeos de YouTube, contactes i moltes coses més.\n\nCol·loca els dispositius a prop (normalment encarant-los per la part posterior) i, a continuació, toca la pantalla del teu dispositiu. L\'aplicació determina el contingut que es pot compartir."</string>
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
@@ -849,8 +848,8 @@
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Notifica\'m quan hi hagi una xarxa pública d\'alta qualitat"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Activa la Wi‑Fi automàticament"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"La Wi-Fi es tornarà a activar automàticament prop de xarxes d\'alta qualitat desades, com la de casa teva"</string>
-    <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"No està disponible perquè la ubicació està desactivada. Activa la "<annotation id="link">"ubicació"</annotation>"."</string>
-    <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"No està disponible perquè la cerca de xarxes Wi-Fi està desactivada"</string>
+    <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"No disponible perquè la ubicació està desactivada. Activa la "<annotation id="link">"ubicació"</annotation>"."</string>
+    <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"No disponible perquè la cerca de xarxes Wi-Fi està desactivada"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Per utilitzar aquesta funció, selecciona un proveïdor de valoració de xarxes"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"Només connexions estables"</string>
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"No utilitzis una xarxa Wi-Fi tret que tingui una bona connexió a Internet"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Dades mòbils"</item>
+    <item msgid="6007360612667098926">"Només Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

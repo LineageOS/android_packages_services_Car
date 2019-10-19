@@ -208,7 +208,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"Порт аймағын аяқтауыңыз қажет."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"Егер хост жақтауы бос болса, порт жақтауы да бос болуы тиіс."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"Сіз терген порт жарамсыз."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"HTTP прокси браузер арқылы қолданылады, бірақ басқа қолданбалар оны пайдаланбауы мүмкін."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"HTTP прокси-серверін браузер пайдаланады, бірақ басқа қолданбалар пайдалана алмайды."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"PAC URL мекенжайы: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"DL өткізу мүмкіндігі (кбит/сек):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"UL өткізу мүмкіндігі (кбит/сек):"</string>
@@ -326,7 +326,7 @@
     <string name="date_time_auto" msgid="2679132152303750218">"Желі уақытын пайдалану"</string>
     <string name="zone_auto_title" msgid="5500880975376882488">"Желінің уақыт белдеуін пайдалану"</string>
     <string name="date_time_24hour_auto" msgid="7499659679134962547">"Жергілікті әдепкі параметрді пайдалану"</string>
-    <string name="date_time_24hour_title" msgid="6209923858891621283">"24 сағаттық пішім"</string>
+    <string name="date_time_24hour_title" msgid="6209923858891621283">"24 сағаттық формат"</string>
     <string name="date_time_24hour" msgid="1265706705061608742">"24 сағаттық форматты қолдану"</string>
     <string name="date_time_set_time_title" msgid="7116850506333406367">"Уақыт"</string>
     <string name="time_format_category_title" msgid="518820270017543364">"Уақыт форматы"</string>
@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Планшетіңіз жоғалғанда не ұрланғанда, оны ешкім пайдалана алмайтын етіп экранын құлыптау арқылы қорғаңыз. Бетті тану функциясын реттеу үшін экран құлпы қажет. \"Бас тарту\" түймесін түртіп, PIN кодын орнатыңыз немесе экран құлыптау опциясын таңдаңыз."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Құрылғыңыз жоғалғанда не ұрланғанда, оны ешкім пайдалана алмайтын етіп экранын құлыптау арқылы қорғаңыз. Бетті тану функциясын реттеу үшін экран құлпы қажет. \"Бас тарту\" түймесін түртіп, PIN кодын орнатыңыз немесе экран құлыптау опциясын таңдаңыз."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Телефоныңыз жоғалғанда не ұрланғанда, оны ешкім пайдалана алмайтын етіп экранын құлыптау арқылы қорғаңыз. Бетті тану функциясын реттеу үшін экран құлпы қажет. \"Бас тарту\" түймесін түртіп, PIN кодын орнатыңыз немесе экран құлыптау опциясын таңдаңыз."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PIN коды реттелмесін бе?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Құпия сөз реттелмесін бе?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Өрнек реттелмесін бе?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Экран құлпын орнату"</string>
@@ -669,7 +668,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> таңбадан аз болуы керек</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> таңбадан аз болуы керек</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Тек 0-9 арасындағы сандар болуы керек"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Құрылғы әкімшісі жақында пайдаланылған PIN кодын қолдануға рұқсат бермейді"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"АТ әкімшісі оңай PIN кодтарына тыйым салды. Басқа PIN кодын енгізіп көріңіз."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Жарамсыз таңба болмауы керек"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Кемінде <xliff:g id="COUNT">%d</xliff:g> әріптік емес таңба болуы керек</item>
       <item quantity="one">Кемінде 1 әріптік емес таңба болуы керек</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Кемінде <xliff:g id="COUNT">%d</xliff:g> сандық емес таңба болуы керек.</item>
+      <item quantity="one">Кемінде 1 сандық емес таңба болуы керек.</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Құрылғы әкімшісі жуықтағы құпиясөзді қолдануға рұқсат бермейді"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Оңай құпия сөздерге АТ әкімшісі тыйым салды. Басқа құпия сөз енгізіп көріңіз."</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Мобильдік"</item>
+    <item msgid="6007360612667098926">"Тек Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -1364,7 +1369,7 @@
     <string name="memory_calculating_size" msgid="8407591625479256510">"Есептеуде…"</string>
     <string name="memory_apps_usage" msgid="1886814780760368266">"Қолданбалар мен қолданба деректері"</string>
     <string name="memory_media_usage" msgid="2744652206722240527">"Meдиа"</string>
-    <string name="memory_downloads_usage" msgid="7039979723012065168">"Жүктеулер"</string>
+    <string name="memory_downloads_usage" msgid="7039979723012065168">"Жүктеп алынғандар"</string>
     <string name="memory_dcim_usage" msgid="599009211606524732">"Фотосуреттер, видеолар"</string>
     <string name="memory_music_usage" msgid="809605300042546279">"Aудио (музыка, әуендер, подкастар, т.б.)"</string>
     <string name="memory_media_misc_usage" msgid="6258827529046910705">"Басқа файлдар"</string>
@@ -3379,9 +3384,9 @@
     <string name="display_vr_pref_off" msgid="4681320968818852691">"Жыпылықтауды азайту"</string>
     <string name="picture_in_picture_title" msgid="4960733106166035448">"Суреттегі сурет"</string>
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"Орнатылған қолданбалардың ешқайсысы \"сурет ішіндегі сурет\" режимін қолдамайды"</string>
-    <string name="picture_in_picture_keywords" msgid="7326958702002259262">"сурет ішіндегі сурет"</string>
+    <string name="picture_in_picture_keywords" msgid="7326958702002259262">"суреттегі сурет"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Суреттегі сурет"</string>
-    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"\"Сурет ішіндегі сурет\" режиміне рұқсат беру"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"\"Суреттегі сурет\" режиміне рұқсат беру"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Қолданба ашық болғанда не одан шыққанда (мысалы, бейнені көре беру үшін), бұл қолданбаға суреттегі сурет терезесін ашуға мүмкіндік береді. Бұл терезе пайдаланылып жатқан басқа қолданбалардың үстінен шығады."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"\"Мазаламау\" режимін пайдалану"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"\"Мазаламау\" режимін пайдалануға рұқсат ету"</string>
@@ -3675,7 +3680,7 @@
     <string name="permit_usage_access" msgid="3321727608629752758">"Пайдалануға рұқсат беру"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Қолданба пайдалану параметрлері"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"Пайдалану уақыты"</string>
-    <string name="usage_access_description" msgid="2178083292760305207">"Пайдалану мүмкіндігі қолданбаға сіз пайдаланатын басқа қолданбаларды және қаншалықты жиі пайдаланатыңыз туралы ақпаратты, сондай-ақ операторды, тіл параметрлерін және басқа мәліметтерді бақылауға мүмкіндік береді."</string>
+    <string name="usage_access_description" msgid="2178083292760305207">"Пайдалану тарихын көру мүмкіндігі қолданбаға сіз пайдаланатын басқа қолданбаларды және қаншалықты жиі пайдаланатыңыз туралы ақпаратты, сондай-ақ операторды, тіл параметрлерін және басқа мәліметтерді бақылауға мүмкіндік береді."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"Жад"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"Жад туралы мәліметтер"</string>
     <string name="always_running" msgid="5320183445080208766">"Әрдайым қосулы (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
@@ -3796,8 +3801,8 @@
     <string name="system_alert_window_settings" msgid="3024330223417646567">"Басқа қолданбалардың үстінен көрсету"</string>
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"Қолданбалар"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"Басқа қолданбалардың үстінен көрсету"</string>
-    <string name="permit_draw_overlay" msgid="9039092257052422344">"Басқа қолданбалардың үстінен көрсетуге рұқсат беру"</string>
-    <string name="allow_overlay_description" msgid="6669524816705082807">"Қолданбаның пайдаланылып жатқан басқа қолданбалардың үстінен көрсетілуіне рұқсат беріңіз. Ол аталған қолданбаларды пайдалануыңызға кедергі келтіріп, олардың көрсетілуін не жұмыс әдісін өзгертуі ықтимал."</string>
+    <string name="permit_draw_overlay" msgid="9039092257052422344">"Басқа қолданба үстінен көрсетуге рұқсат беру"</string>
+    <string name="allow_overlay_description" msgid="6669524816705082807">"Қолданбаның пайдаланылып жатқан басқа қолданбалардың үстінен көрсетілуіне рұқсат беріледі. Ол қолданбаларды пайдалануыңызға кедергі келтіріп, олардың көрсетілуін не жұмысын өзгертуі мүмкін."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"виртуалды шындық тыңдаушысының стерео көмекші қызметі"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"жүйе ескертуі терезесі дилогтық терезені басқа қолданбалардың үстінен көрсету"</string>
     <string name="overlay_settings" msgid="3325154759946433666">"Басқа қолданбалардың үстінен көрсету"</string>
@@ -3811,8 +3816,8 @@
     <string name="write_settings_summary" msgid="4650251358459404247">"<xliff:g id="COUNT_1">%2$d</xliff:g> ішінен <xliff:g id="COUNT_0">%1$d</xliff:g> қолданбаға жүйелік параметрлерді өзгертуге рұқсат етілген"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"Қаржылық қолданбаларға қатысты SMS хабарларын көру"</string>
     <string name="filter_install_sources_apps" msgid="4519839764020866701">"Басқа қолданбаларды орната алады"</string>
-    <string name="filter_write_settings_apps" msgid="6864144615530081121">"Жүйелік параметрлерді өзгертуге болады"</string>
-    <string name="write_settings_title" msgid="5852614614193830632">"Жүйелік параметрлерді өзгертуге болады"</string>
+    <string name="filter_write_settings_apps" msgid="6864144615530081121">"Жүйе параметрлерін өзгерте алады"</string>
+    <string name="write_settings_title" msgid="5852614614193830632">"Жүйе параметрлерін өзгерте алады"</string>
     <string name="write_system_settings" msgid="20450765210832463">"Жүйелік параметрлерді өзгерту"</string>
     <string name="permit_write_settings" msgid="4198491281216818756">"Жүйелік параметрлерді өзгертуге рұқсат ету"</string>
     <string name="write_settings_description" msgid="2536706293042882500">"Бұл рұқсат қолданбаға жүйелік параметрлерді өзгертуге рұқсат етеді."</string>

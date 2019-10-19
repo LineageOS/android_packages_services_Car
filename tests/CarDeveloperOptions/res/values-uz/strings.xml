@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Planshet ekran qulfi parametrlari bilan himoyalansa, bu uning yoʻqolishi yoki birov tomonidan ishlatilishi oldini oladi. Ekran qulfi yuzni tanitish parametri bilan sozlanishi kerak. Bekor qilish ustiga bosib, PIN kod kiriting yoki boshqa ekran qulfi parametrini tanlang."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Qurilma ekran qulfi parametrlari bilan himoyalansa, bu uning yoʻqolishi yoki birov tomonidan ishlatilishi oldini oladi. Ekran qulfi yuzni tanitish parametri bilan sozlanishi kerak. Bekor qilish ustiga bosib, PIN kod kiriting yoki boshqa ekran qulfi parametrini tanlang."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Telefon ekran qulfi parametrlari bilan himoyalansa, bu uning yoʻqolishi yoki birov tomonidan ishlatilishi oldini oladi. Ekran qulfi yuzni tanitish parametri bilan sozlanishi kerak. Bekor qilish ustiga bosib, PIN kod kiriting yoki boshqa ekran qulfi parametrini tanlang."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PIN kod kerak emasmi?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Parol kerak emasmi?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Grafik kalit kerak emasmi?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Ekranni qulfini sozlash"</string>
@@ -669,7 +668,6 @@
       <item quantity="other">Maksimum <xliff:g id="NUMBER_1">%d</xliff:g> ta raqam</item>
       <item quantity="one">Maksimum <xliff:g id="NUMBER_0">%d</xliff:g> ta raqam</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"PIN kod faqat 0-9 raqamlaridan iborat bo‘lishi lozim"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Qurilma administratori oxirgi PIN koddan yana foydalanishga ruxsat bermaydi"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Oddiy PIN kodlar AT admini tomonidan bloklangan. Murakkabroq PIN kod tanlang."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Parol yaroqsiz belgidan iborat bo‘lmasligi lozim"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Parol tarkibida kamida <xliff:g id="COUNT">%d</xliff:g> ta harf bo‘lmagan belgi bo‘lishi lozim</item>
       <item quantity="one">Parol tarkibida kamida 1 ta harf bo‘lmagan belgi bo‘lishi lozim</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Kamida <xliff:g id="COUNT">%d</xliff:g> ta raqam boʻlmagan belgi boʻlishi lozim</item>
+      <item quantity="one">Kamida 1 ta raqam boʻlmagan belgi boʻlishi lozim</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Qurilma administratori yaqinda foydalanilgan paroldan yana foydalanishga ruxsat bermaydi"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Oddiy parollar AT admini tomonidan bloklangan. Murakkabroq parol tanlang."</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Mobil"</item>
+    <item msgid="6007360612667098926">"Faqat Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -3816,7 +3821,7 @@
     <string name="system_alert_window_settings" msgid="3024330223417646567">"Boshqa ilovalar ustidan ochilish"</string>
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"Ilovalar"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"Boshqa ilovalar ustidan ochilish"</string>
-    <string name="permit_draw_overlay" msgid="9039092257052422344">"Boshqa ilovalar ustidan ochilishiga ruxsat"</string>
+    <string name="permit_draw_overlay" msgid="9039092257052422344">"Boshqa ilovalar ustidan ochilish"</string>
     <string name="allow_overlay_description" msgid="6669524816705082807">"Interfeys elementlarini boshqa oynalar ustidan ochishga ruxsat beradi. Bu funksiya ilovalar bilan ishlashingizga xalaqit qilishi yoki ularning interfeysini buzib tashlashi mumkin."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"vr virtual borliq tinglovchi stereo yordamchi xizmat"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"tizim signal muloqot oynasi boshqa ilovalar ustidan ochilish"</string>

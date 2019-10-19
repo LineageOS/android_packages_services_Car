@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"ປົກປ້ອງແທັບເລັດຂອງທ່ານດ້ວຍຕົວເລືອກການລັອກໜ້າຈໍເພື່ອບໍ່ໃຫ້ມີໃຜສາມາດໃຊ້ມັນໄດ້ຫາກມັນເສຍ ຫຼື ຖືກລັອກ. ທ່ານອາດຕ້ອງໃຊ້ຕົວເລືອກການລັອກໜ້າຈໍເພື່ອຕັ້ງຄ່າການພິສູດຢືນຢັນໃບໜ້ານຳ. ແຕະໃສ່ຍົກເລີກ, ຈາກນັ້ນຕັ້ງລະຫັດ PIN ຫຼື ເລືອກຕົວເລືອກການລັອກໜ້າຈໍແບບອື່ນ."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"ປົກປ້ອງອຸປະກອນຂອງທ່ານດ້ວຍຕົວເລືອກການລັອກໜ້າຈໍເພື່ອບໍ່ໃຫ້ມີໃຜສາມາດໃຊ້ມັນໄດ້ຫາກມັນເສຍ ຫຼື ຖືກລັອກ. ທ່ານອາດຕ້ອງໃຊ້ຕົວເລືອກການລັອກໜ້າຈໍເພື່ອຕັ້ງຄ່າການພິສູດຢືນຢັນໃບໜ້ານຳ. ແຕະໃສ່ຍົກເລີກ, ຈາກນັ້ນຕັ້ງລະຫັດ PIN ຫຼື ເລືອກຕົວເລືອກການລັອກໜ້າຈໍແບບອື່ນ."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"ປົກປ້ອງໂທລະສັບຂອງທ່ານດ້ວຍຕົວເລືອກການລັອກໜ້າຈໍເພື່ອບໍ່ໃຫ້ມີໃຜສາມາດໃຊ້ມັນໄດ້ຫາກມັນເສຍ ຫຼື ຖືກລັອກ. ທ່ານອາດຕ້ອງໃຊ້ຕົວເລືອກການລັອກໜ້າຈໍເພື່ອຕັ້ງຄ່າການພິສູດຢືນຢັນໃບໜ້ານຳ. ແຕະໃສ່ຍົກເລີກ, ຈາກນັ້ນຕັ້ງລະຫັດ PIN ຫຼື ເລືອກຕົວເລືອກການລັອກໜ້າຈໍແບບອື່ນ."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"ຂ້າມການຕັ້ງລະຫັດ PIN ບໍ?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"ຂ້າມການຕັ້ງລະຫັດບໍ?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"ຂ້າມການຕັ້ງຮູບແບບປົດລັອກບໍ?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"ຕັ້ງຄ່າການລັອກໜ້າຈໍ"</string>
@@ -669,7 +668,6 @@
       <item quantity="other">ຕ້ອງມີໜ້ອຍກວ່າ <xliff:g id="NUMBER_1">%d</xliff:g> ຕົວເລກ</item>
       <item quantity="one">ຕ້ອງມີໜ້ອຍກວ່າ <xliff:g id="NUMBER_0">%d</xliff:g> ຕົວເລກ</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"ຕ້ອງມີຕົວເລກ 0 ຫາ 9 ເທົ່ານັ້ນ"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"ຜູ້ເບິ່ງແຍງລະບົບອຸປະກອນບໍ່ອະນຸຍາດໃຫ້ໃຊ້ລະຫັດ PIN ເມື່ອບໍ່ດົນມານີ້"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"ລະຫັດ PIN ທົ່ວໄປແມ່ນຖືກບລັອກໂດຍຜູ້ເບິ່ງແຍງລະບົບໄອທີຂອງທ່ານ. ໃຫ້ລອງໃຊ້ລະຫັດ PIN ອື່ນແທນ."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"ນີ້ບໍ່ສາມາດຮວມມີຕົວອັກສອນທີ່ບໍ່ຖືກຕ້ອງນຳໄດ້"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">ຕ້ອງມີຕົວອັກຂະລະທີ່ບໍ່ແມ່ນຕົວອັກສອນຢ່າງໜ້ອຍ <xliff:g id="COUNT">%d</xliff:g> ຕົວ</item>
       <item quantity="one">ຕ້ອງມີຕົວອັກຂະລະທີ່ບໍ່ແມ່ນຕົວອັກສອນຢ່າງໜ້ອຍ 1 ຕົວ</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">ຕ້ອງມີຕົວອັກສອນທີ່ບໍ່ແມ່ນຕົວເລກຢ່າງໜ້ອຍ <xliff:g id="COUNT">%d</xliff:g> ຕົວ</item>
+      <item quantity="one">ຕ້ອງມີຕົວອັກສອນທີ່ບໍ່ແມ່ນຕົວເລກຢ່າງໜ້ອຍ 1 ຕົວ</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ຜູ້ເບິ່ງແຍງລະບົບບໍ່ອະນຸຍາດໃຫ້ໃຊ້ລະຫັດຜ່ານເມື່ອບໍ່ດົນມານີ້ໄດ້"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ລະຫັດຜ່ານທົ່ວໄປແມ່ນຖືກບລັອກໂດຍຜູ້ເບິ່ງແຍງລະບົບໄອທີຂອງທ່ານ. ໃຫ້ລອງໃຊ້ລະຫັດອື່ນແທນ."</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"ມືຖື"</item>
+    <item msgid="6007360612667098926">"Wi-Fi ເທົ່ານັ້ນ"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

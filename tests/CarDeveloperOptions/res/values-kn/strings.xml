@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"ನಿಮ್ಮ ಟ್ಯಾಬ್ಲೆಟ್ ಅನ್ನು ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಆಯ್ಕೆಯ ಜೊತೆಗೆ ಸುರಕ್ಷಿತಗೊಳಿಸಿ, ಆದ್ದರಿಂದ ಅದು ಕಳೆದುಹೋದಾಗ ಅಥವಾ ಅಪಹರಣವಾದಾಗ ಅದನ್ನು ಯಾರಾದರೂ ಬಳಸಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ. ಮುಖ ಗುರುತಿಸುವಿಕೆಯನ್ನು ಸೆಟಪ್ ಮಾಡಲು ನಿಮಗೆ ಸ್ಕ್ರೀನ್ ಲಾಕ್‌ ಆಯ್ಕೆಯೂ ಸಹ ಅಗತ್ಯವಿದೆ. ರದ್ದುಗೊಳಿಸಿ ಟ್ಯಾಪ್ ಮಾಡಿ, ನಂತರ ಪಿನ್ ಅನ್ನು ಹೊಂದಿಸಿ ಅಥವಾ ಮತ್ತೊಂದು ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"ನಿಮ್ಮ ಸಾಧನವನ್ನು ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಆಯ್ಕೆಯ ಜೊತೆಗೆ ಸುರಕ್ಷಿತಗೊಳಿಸಿ, ಆದ್ದರಿಂದ ಅದು ಕಳೆದುಹೋದಾಗ ಅಥವಾ ಅಪಹರಣವಾದಾಗ ಅದನ್ನು ಯಾರಾದರೂ ಬಳಸಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ. ಮುಖ ಗುರುತಿಸುವಿಕೆಯನ್ನು ಸೆಟಪ್ ಮಾಡಲು ನಿಮಗೆ ಸ್ಕ್ರೀನ್ ಲಾಕ್‌ ಆಯ್ಕೆಯೂ ಸಹ ಅಗತ್ಯವಿದೆ. ರದ್ದುಗೊಳಿಸಿ ಟ್ಯಾಪ್ ಮಾಡಿ, ನಂತರ ಪಿನ್ ಅನ್ನು ಹೊಂದಿಸಿ ಅಥವಾ ಮತ್ತೊಂದು ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"ನಿಮ್ಮ ಫೋನ್ ಅನ್ನು ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಆಯ್ಕೆಯ ಜೊತೆಗೆ ಸುರಕ್ಷಿತಗೊಳಿಸಿ, ಆದ್ದರಿಂದ ಅದು ಕಳೆದುಹೋದಾಗ ಅಥವಾ ಅಪಹರಣವಾದಾಗ ಅದನ್ನು ಯಾರಾದರೂ ಬಳಸಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ. ಮುಖ ಗುರುತಿಸುವಿಕೆಯನ್ನು ಸೆಟಪ್ ಮಾಡಲು ನಿಮಗೆ ಸ್ಕ್ರೀನ್ ಲಾಕ್‌ ಆಯ್ಕೆಯೂ ಸಹ ಅಗತ್ಯವಿದೆ. ರದ್ದುಗೊಳಿಸಿ ಟ್ಯಾಪ್ ಮಾಡಿ, ನಂತರ ಪಿನ್ ಅನ್ನು ಹೊಂದಿಸಿ ಅಥವಾ ಮತ್ತೊಂದು ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"ಪಿನ್ ಸೆಟಪ್ ಸ್ಕಿಪ್ ಮಾಡುವುದೇ?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"ಪಾಸ್‌ವರ್ಡ್ ಸೆಟಪ್ ಸ್ಕಿಪ್ ಮಾಡುವುದೇ?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"ಪ್ಯಾಟರ್ನ್ ಸೆಟಪ್ ಸ್ಕಿಪ್ ಮಾಡುವುದೇ?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಹೊಂದಿಸಿ"</string>
@@ -669,7 +668,6 @@
       <item quantity="one"> <xliff:g id="NUMBER_1">%d</xliff:g> ಗಿಂತ ಕಡಿಮೆ ಅಂಕಿಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
       <item quantity="other"> <xliff:g id="NUMBER_1">%d</xliff:g> ಗಿಂತ ಕಡಿಮೆ ಅಂಕಿಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"ಕೇವಲ 0-9 ಅಂಕಿಗಳನ್ನು ಮಾತ್ರ ಹೊಂದಿರಬೇಕು"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"ಇತ್ತೀಚಿನ ಪಿನ್ ಬಳಸಲು ಸಾಧನದ ನಿರ್ವಾಹಕರು ಅನುಮತಿಸುವುದಿಲ್ಲ"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"ಸರಳವಾದ ಪಿನ್‌ಗಳನ್ನು ನಿಮ್ಮ IT ನಿರ್ವಾಹಕರಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ. ಬೇರೆಯ ಪಿನ್ ಪ್ರಯತ್ನಿಸಿ."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"ಇದು ಅಮಾನ್ಯ ಅಕ್ಷರವನ್ನು ಒಳಗೊಂಡಿರಬಾರದು"</string>
@@ -700,6 +698,7 @@
       <item quantity="one">ಕನಿಷ್ಠ <xliff:g id="COUNT">%d</xliff:g> ಅಕ್ಷರೇತರ ಕ್ಯಾರೆಕ್ಟರ್‌ಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
       <item quantity="other">ಕನಿಷ್ಠ <xliff:g id="COUNT">%d</xliff:g> ಅಕ್ಷರೇತರ ಕ್ಯಾರೆಕ್ಟರ್‌ಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
     </plurals>
+    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ಇತ್ತೀಚಿನ ಪಾಸ್‌ವರ್ಡ್ ಬಳಸಲು ಸಾಧನದ ನಿರ್ವಾಹಕರು ಅನುಮತಿಸುವುದಿಲ್ಲ"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ಸರಳವಾದ ಪಾಸ್‌ವರ್ಡ್‌ಗಳನ್ನು ನಿಮ್ಮ IT ನಿರ್ವಾಹಕರಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ. ಬೇರೆಯ ಪಾಸ್‌ವರ್ಡ್‌ ಪ್ರಯತ್ನಿಸಿ."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"ಅಂಕಿಗಳ ಆರೋಹಣ, ಅವರೋಹಣ ಅಥವಾ ಪುನರಾವರ್ತಿತ ಅನುಕ್ರಮವನ್ನು ನಿಷೇಧಿಸಲಾಗಿದೆ"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"ವೈ-ಫೈ"</item>
+    <item msgid="4421333712484542489">"ಮೊಬೈಲ್"</item>
+    <item msgid="6007360612667098926">"ವೈ-ಫೈ ಮಾತ್ರ"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -2603,7 +2605,7 @@
     <string name="sync_enabled" msgid="535172627223336983">"ಸಿಂಕ್ ಆನ್ ಆಗಿದೆ"</string>
     <string name="sync_disabled" msgid="713721807204805062">"ಸಿಂಕ್‌ ಆಫ್ ಆಗಿದೆ"</string>
     <string name="sync_error" msgid="988155155932442765">"ಸಿಂಕ್ ದೋಷ"</string>
-    <string name="last_synced" msgid="4511434057768999129">"ಕೊನೆಯದಾಗಿ ಸಿಂಕ್ ಮಾಡಿರುವುದು <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
+    <string name="last_synced" msgid="4511434057768999129">"ಕೊನೆಯದಾಗಿ ಸಿಂಕ್ ಮಾಡಿರುವುದು: <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
     <string name="sync_in_progress" msgid="1311828882739675714">"ಇದೀಗ ಸಿಂಕ್‌ ಮಾಡಲಾಗುತ್ತಿದೆ…"</string>
     <string name="settings_backup" msgid="3261579634252074247">"ಬ್ಯಾಕಪ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
     <string name="settings_backup_summary" msgid="2563360505501354777">"ನನ್ನ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಬ್ಯಾಕ್‌ ಅಪ್ ಮಾಡು"</string>
