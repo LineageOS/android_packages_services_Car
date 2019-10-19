@@ -698,7 +698,10 @@
       <item quantity="one">ಕನಿಷ್ಠ <xliff:g id="COUNT">%d</xliff:g> ಅಕ್ಷರೇತರ ಕ್ಯಾರೆಕ್ಟರ್‌ಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
       <item quantity="other">ಕನಿಷ್ಠ <xliff:g id="COUNT">%d</xliff:g> ಅಕ್ಷರೇತರ ಕ್ಯಾರೆಕ್ಟರ್‌ಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
     </plurals>
-    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">ಕನಿಷ್ಠ <xliff:g id="COUNT">%d</xliff:g> ಸಂಖ್ಯೆಯಲ್ಲದ ಅಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
+      <item quantity="other">ಕನಿಷ್ಠ <xliff:g id="COUNT">%d</xliff:g> ಸಂಖ್ಯೆಯಲ್ಲದ ಅಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
+    </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ಇತ್ತೀಚಿನ ಪಾಸ್‌ವರ್ಡ್ ಬಳಸಲು ಸಾಧನದ ನಿರ್ವಾಹಕರು ಅನುಮತಿಸುವುದಿಲ್ಲ"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ಸರಳವಾದ ಪಾಸ್‌ವರ್ಡ್‌ಗಳನ್ನು ನಿಮ್ಮ IT ನಿರ್ವಾಹಕರಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ. ಬೇರೆಯ ಪಾಸ್‌ವರ್ಡ್‌ ಪ್ರಯತ್ನಿಸಿ."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"ಅಂಕಿಗಳ ಆರೋಹಣ, ಅವರೋಹಣ ಅಥವಾ ಪುನರಾವರ್ತಿತ ಅನುಕ್ರಮವನ್ನು ನಿಷೇಧಿಸಲಾಗಿದೆ"</string>

@@ -698,7 +698,10 @@
       <item quantity="other">Hizkiak ez diren <xliff:g id="COUNT">%d</xliff:g> karaktere bat izan behar du gutxienez</item>
       <item quantity="one">Hizkia ez den karaktere bat izan behar du gutxienez</item>
     </plurals>
-    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Gutxienez, zenbakizkoak ez diren <xliff:g id="COUNT">%d</xliff:g> karaktere izan behar ditu</item>
+      <item quantity="one">Gutxienez, zenbakizkoa ez den 1 karaktere izan behar du</item>
+    </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Gailuaren administratzaileak ez du eman beste pasahitz bat erabiltzeko baimenik"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IKT administratzaileak blokeatu egiten ditu asmatzen errazak diren pasahitzak. Erabili beste pasahitz bat."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"Ezin da erabili goranzko, beheranzko edo errepikatutako digitu-sekuentziarik"</string>

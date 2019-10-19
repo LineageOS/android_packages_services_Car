@@ -2593,7 +2593,7 @@
     <string name="sync_failed" msgid="3142663443336915051">"Synkroniseringen mislykkedes"</string>
     <string name="sync_active" msgid="1112604707180806364">"Synkronisering er aktiveret"</string>
     <string name="account_sync_settings_title" msgid="3344538161552327748">"Synkronisering"</string>
-    <string name="sync_is_failing" msgid="8284618104132302644">"Der er i øjeblikket problemer med synkroniseringen. Den etableres igen om lidt."</string>
+    <string name="sync_is_failing" msgid="8284618104132302644">"Der er i øjeblikket problemer med synkroniseringen. Den fortsætter om et øjeblik."</string>
     <string name="add_account_label" msgid="4461298847239641874">"Tilføj konto"</string>
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"Arbejdsprofilen er endnu ikke tilgængelig"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"Arbejdsprofil"</string>

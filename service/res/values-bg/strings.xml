@@ -125,5 +125,9 @@
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Достъп до състоянието на захранването на автомобила."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Регистриране на надеждно устройство"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Разрешаване на регистрирането на надеждно устройство"</string>
+    <!-- no translation found for car_permission_label_car_test_service (7561621437339123856) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_test_service (5829137040891060991) -->
+    <skip />
     <string name="trust_device_default_name" msgid="4213625926070261253">"Моето устройство"</string>
 </resources>

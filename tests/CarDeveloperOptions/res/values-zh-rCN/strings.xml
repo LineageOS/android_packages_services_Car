@@ -3098,7 +3098,7 @@
     <string name="keywords_sim_status" msgid="3852088576719874387">"网络, 移动网络状态, 服务状态, 信号强度, 移动网络类型, 漫游, ICCID"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"序列号, 硬件版本"</string>
     <string name="keywords_android_version" msgid="4842749998088987740">"Android 安全补丁程序级别, 基带版本, 内核版本"</string>
-    <string name="keywords_dark_ui_mode" msgid="1027966176887770318">"主题背景, 光亮, 暗黑, 模式"</string>
+    <string name="keywords_dark_ui_mode" msgid="1027966176887770318">"主题背景, 光亮, 深色, 模式"</string>
     <string name="keywords_financial_apps_sms_access" msgid="3236014691838121857">"财经应用，短信，权限"</string>
     <string name="keywords_systemui_theme" msgid="9150908170417305866">"深色主题"</string>
     <string name="keywords_device_feedback" msgid="6948977907405738490">"错误"</string>
