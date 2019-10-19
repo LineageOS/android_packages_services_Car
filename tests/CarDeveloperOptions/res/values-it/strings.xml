@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_require_confirmation_details" msgid="8740564864091803429">"Chiedi sempre conferma per l\'autenticazione nelle app"</string>
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Rimuovi dati viso"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Il tuo viso può essere utilizzato per sbloccare il tuo dispositivo e accedere alle app. "<annotation id="url">"Ulteriori informazioni"</annotation></string>
-    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Rimuovere i dati viso?"</string>
+    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Rimuovere i dati del viso?"</string>
     <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"I dati registrati da Sblocco col sorriso verranno eliminati in modo definitivo e sicuro. Dopo la rimozione, ti serviranno il tuo PIN, la tua sequenza o la tua password per sbloccare il telefono, accedere alle app e confermare i pagamenti."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Impronta digitale"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Gestisci impronte digitali"</string>
@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Proteggi il tuo tablet con un\'opzione di blocco schermo, così nessuno potrà utilizzarlo in caso di smarrimento o furto. Occorre un\'opzione di blocco schermo anche per impostare l\'autenticazione volti. Tocca Annulla, quindi imposta un PIN o scegli un\'altra opzione di blocco schermo."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Proteggi il tuo dispositivo con un\'opzione di blocco schermo, così nessuno potrà utilizzarlo in caso di smarrimento o furto. Occorre un\'opzione di blocco schermo anche per impostare l\'autenticazione volti. Tocca Annulla, quindi imposta un PIN o scegli un\'altra opzione di blocco schermo."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Proteggi il tuo telefono con un\'opzione di blocco schermo, così nessuno potrà utilizzarlo in caso di smarrimento o furto. Occorre un\'opzione di blocco schermo anche per impostare l\'autenticazione volti. Tocca Annulla, quindi imposta un PIN o scegli un\'altra opzione di blocco schermo."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Saltare impostazione del PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Saltare impostazione password?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Saltare impostazione sequenza?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Imposta blocco schermo"</string>
@@ -669,7 +668,6 @@
       <item quantity="other">Deve contenere meno di <xliff:g id="NUMBER_1">%d</xliff:g> cifre</item>
       <item quantity="one">Deve contenere meno di <xliff:g id="NUMBER_0">%d</xliff:g> cifra</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Deve contenere solo cifre da 0 a 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"L\'amministratore del dispositivo non consente l\'utilizzo di un PIN recente"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"I PIN comuni sono stati bloccati dall\'amministratore IT. Prova a usare un altro PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Non può contenere un carattere non valido"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Deve contenere almeno <xliff:g id="COUNT">%d</xliff:g> caratteri non costituiti da una lettera</item>
       <item quantity="one">Deve contenere almeno 1 carattere non costituito da una lettera</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Deve contenere almeno <xliff:g id="COUNT">%d</xliff:g> caratteri non numerici</item>
+      <item quantity="one">Deve contenere almeno 1 carattere non numerico</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"L\'amministratore del dispositivo non consente l\'utilizzo di una password recente."</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Le password comuni sono state bloccate dall\'amministratore IT. Prova a usare un\'altra password."</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Rete mobile"</item>
+    <item msgid="6007360612667098926">"Solo Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Linda kompyuta yako kibao kwa kutumia chaguo la kufunga skrini ili mtu yeyote asiweze kuitumia ikiwa itapotea au kuibiwa. Unahitaji pia chaguo la kufunga skrini ili kuweka mipangilio ya utambuzi wa uso. Gusa Ghairi, kisha weka PIN au uchague mbinu nyingine ya kufunga skrini."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Linda kifaa chako kwa kutumia chaguo la kufunga skrini ili mtu yeyote asiweze kuitumia ikiwa itapotea au kuibiwa. Unahitaji pia chaguo la kufunga skrini ili kuweka mipangilio ya utambuzi wa uso. Gusa Ghairi, kisha weka PIN au uchague mbinu nyingine ya kufunga skrini."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Linda simu yako kwa kutumia chaguo la kufunga skrini ili mtu yeyote asiweze kuitumia ikiwa itapotea au kuibiwa. Unahitaji pia chaguo la kufunga skrini ili kuweka mipangilio ya utambuzi wa uso. Gusa Ghairi, kisha weka PIN au uchague mbinu nyingine ya kufunga skrini."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Ungependa kuruka Kuweka PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Ungependa kuruka Kuweka Nenosiri?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Ungependa kuruka Kuweka Mchoro?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Weka mbinu ya kufunga skrini"</string>
@@ -669,7 +668,6 @@
       <item quantity="other">Lazima iwe na chini ya tarakimu <xliff:g id="NUMBER_1">%d</xliff:g></item>
       <item quantity="one">Lazima iwe na chini ya tarakimu <xliff:g id="NUMBER_0">%d</xliff:g></item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Ni lazima iwe na tarakimu 0-9 pekee"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Msimamizi wa kifaa haruhusu utumie PIN uliyotumia hivi majuzi"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"PIN zinazotumika zaidi zimezuiwa na msimamizi wako wa Tehama. Jaribu PIN tofauti."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Hali hii haiwezi kujumuisha kibambo kisichoruhusiwa"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Ni lazima liwe na angalau vibambo <xliff:g id="COUNT">%d</xliff:g> ambavyo si herufi</item>
       <item quantity="one">Ni lazima liwe na angalau kibambo 1 ambacho si herufi</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Ni lazima liwe na angalau herufi <xliff:g id="COUNT">%d</xliff:g> ambazo si tarakimu</item>
+      <item quantity="one">Ni lazima liwe na angalau herufi moja ambayo si tarakimu</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Msimamizi wa kifaa haruhusu kutumia nenosiri ulilotumia hivi majuzi"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Manenosiri yanayotumika sana yamezuiwa na msimamizi wako wa Tehama. Jaribu nenosiri tofauti."</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Mtandao wa simu"</item>
+    <item msgid="6007360612667098926">"Wi-Fi pekee"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -3095,7 +3100,7 @@
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, toleo la prl, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"mtandao, hali ya mtandao wa simu, hali ya huduma, uthabiti wa mtandao, aina ya mtandao wa simu, matumizi ya mitandao mingine, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"nambari ya ufuatiliaji, toleo la maunzi"</string>
-    <string name="keywords_android_version" msgid="4842749998088987740">"kiwango cha rekebisho la usalama wa android, toleo la mitambo ya redio, toleo la kiini"</string>
+    <string name="keywords_android_version" msgid="4842749998088987740">"Usasishaji wa rekebisho la usalama la android, toleo la mitambo ya redio, toleo la kiini"</string>
     <string name="keywords_dark_ui_mode" msgid="1027966176887770318">"mandhari, muepe, meusi, hali"</string>
     <string name="keywords_financial_apps_sms_access" msgid="3236014691838121857">"programu ya fedha, sms, ruhusa"</string>
     <string name="keywords_systemui_theme" msgid="9150908170417305866">"mandhari meusi"</string>
@@ -3796,7 +3801,7 @@
     <string name="system_alert_window_settings" msgid="3024330223417646567">"Kuonyeshwa juu ya programu zingine"</string>
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"Programu"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"Onyesha juu ya programu zingine"</string>
-    <string name="permit_draw_overlay" msgid="9039092257052422344">"Ruhusu programu ionekane juu ya zingine"</string>
+    <string name="permit_draw_overlay" msgid="9039092257052422344">"Programu ionekane juu ya zingine"</string>
     <string name="allow_overlay_description" msgid="6669524816705082807">"Ruhusu programu hii ionekane juu ya programu zingine unazotumia. Huenda hali hii ikaathiri jinsi unavyotumia programu hizo au kubadilisha jinsi zinavyoonekana au kufanya kazi."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"vr uhalisia pepe kisikilizaji stereo kisaidizi huduma"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"kidirisha cha arifa ya mfumo huonekana kwenye programu zingine"</string>

@@ -489,8 +489,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Zabezpiecz tablet blokadą ekranu, aby nikt nie mógł go używać w przypadku jego zgubienia lub kradzieży. Musisz również ustawić blokadę ekranu, by skonfigurować uwierzytelnianie twarzą. Kliknij Anuluj, a następnie ustaw kod PIN lub inny rodzaj blokady ekranu."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Zabezpiecz urządzenie blokadą ekranu, aby nikt nie mógł go używać w przypadku jego zgubienia lub kradzieży. Musisz również ustawić blokadę ekranu, by skonfigurować uwierzytelnianie twarzą. Kliknij Anuluj, a następnie ustaw kod PIN lub inny rodzaj blokady ekranu."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Zabezpiecz telefon blokadą ekranu, aby nikt nie mógł go używać w przypadku jego zgubienia lub kradzieży. Musisz również ustawić blokadę ekranu, by skonfigurować uwierzytelnianie twarzą. Kliknij Anuluj, a następnie ustaw kod PIN lub inny rodzaj blokady ekranu."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Pominąć konfigurację kodu PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Pominąć konfigurację hasła?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Pominąć konfigurację wzoru?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Skonfiguruj blokadę ekranu"</string>
@@ -685,7 +684,6 @@
       <item quantity="other">Musi mieć mniej niż <xliff:g id="NUMBER_1">%d</xliff:g> cyfry</item>
       <item quantity="one">Musi mieć mniej niż <xliff:g id="NUMBER_0">%d</xliff:g> cyfrę</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Musi zawierać tylko cyfry 0-9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Administrator urządzenia nie zezwala na ustawianie niedawno używanego kodu PIN"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Popularne kody PIN zostały zablokowane przez administratora. Spróbuj użyć innego kodu PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Nie może zawierać nieprawidłowego znaku"</string>
@@ -727,6 +725,12 @@
       <item quantity="many">Musi zawierać co najmniej <xliff:g id="COUNT">%d</xliff:g> znaków niebędących literami</item>
       <item quantity="other">Musi zawierać co najmniej <xliff:g id="COUNT">%d</xliff:g> znaku niebędącego literą</item>
       <item quantity="one">Musi zawierać co najmniej 1 znak niebędący literą</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="few">Musi zawierać co najmniej <xliff:g id="COUNT">%d</xliff:g> znaki niebędące cyframi</item>
+      <item quantity="many">Musi zawierać co najmniej <xliff:g id="COUNT">%d</xliff:g> znaków niebędących cyframi</item>
+      <item quantity="other">Musi zawierać co najmniej <xliff:g id="COUNT">%d</xliff:g> znaku niebędącego cyfrą</item>
+      <item quantity="one">Musi zawierać co najmniej 1 znak niebędący cyfrą</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Administrator urządzenia nie zezwala na ustawianie niedawno używanego hasła"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Popularne hasła zostały zablokowane przez administratora. Spróbuj użyć innego hasła."</string>
@@ -1126,8 +1130,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Komórkowe"</item>
+    <item msgid="6007360612667098926">"Tylko Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

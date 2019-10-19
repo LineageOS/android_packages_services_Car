@@ -33,10 +33,10 @@
     <string name="header_category_system" msgid="4045988717359334410">"System"</string>
     <string name="radio_info_data_connection_enable" msgid="2554249462719717119">"Aktivér dataforbindelse"</string>
     <string name="radio_info_data_connection_disable" msgid="2430609627397999371">"Deaktiver dataforbindelse"</string>
-    <string name="volte_provisioned_switch_string" msgid="6326756678226686704">"VoLTE er aktiveret"</string>
-    <string name="vt_provisioned_switch_string" msgid="7458479879009293613">"Videoopkald aktiveret"</string>
-    <string name="wfc_provisioned_switch_string" msgid="5446697646596639516">"Wi-Fi-opkald aktiveret"</string>
-    <string name="eab_provisioned_switch_string" msgid="3921103790584572430">"EAB/tilstedeværelse aktiveret"</string>
+    <string name="volte_provisioned_switch_string" msgid="6326756678226686704">"VoLTE er provisioneret"</string>
+    <string name="vt_provisioned_switch_string" msgid="7458479879009293613">"Videoopkald er provisioneret"</string>
+    <string name="wfc_provisioned_switch_string" msgid="5446697646596639516">"Wi-Fi-opkald er provisioneret"</string>
+    <string name="eab_provisioned_switch_string" msgid="3921103790584572430">"EAB/tilstedeværelse er provisioneret"</string>
     <string name="cbrs_data_switch_string" msgid="9120919504831536183">"CBRS-data"</string>
     <string name="dsds_switch_string" msgid="2606482598327613264">"Aktivér DSDS"</string>
     <string name="dsds_dialog_title" msgid="3279829304547130217">"Vil du genstarte enheden?"</string>
@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Beskyt din tablet med en skærmlås, så ingen kan bruge den, hvis du mister den, eller den bliver stjålet. Du skal også bruge en skærmlås for at konfigurere ansigtsgodkendelse. Tryk på Annuller, og angiv derefter en PIN-kode, eller vælg en anden type skærmlås."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Beskyt din enhed med en skærmlås, så ingen kan bruge den, hvis du mister den, eller den bliver stjålet. Du skal også bruge en skærmlås for at konfigurere ansigtsgodkendelse. Tryk på Annuller, og angiv derefter en PIN-kode, eller vælg en anden type skærmlås."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Beskyt din telefon med en skærmlås, så ingen kan bruge den, hvis du mister den, eller den bliver stjålet. Du skal også bruge en skærmlås for at konfigurere ansigtsgodkendelse. Tryk på Annuller, og angiv derefter en PIN-kode, eller vælg en anden type skærmlås."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Spring SIM-konfiguration over?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Spring adgangskodekonf. over?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Spring mønsterkonf. over?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Konfigurer skærmlås"</string>
@@ -669,7 +668,6 @@
       <item quantity="one">Skal indeholde færre end <xliff:g id="NUMBER_1">%d</xliff:g> ciffer</item>
       <item quantity="other">Skal indeholde færre end <xliff:g id="NUMBER_1">%d</xliff:g> cifre</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Må kun indeholde tallene 0-9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Enhedens administrator tillader ikke brug af en nylig brugt pinkode"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Brug af almindelige pinkoder er blokeret af din it-administrator. Prøv en anden pinkode."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Der kan ikke bruges et ugyldigt tegn"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">Skal indeholde mindst <xliff:g id="COUNT">%d</xliff:g> tegn, der ikke er et bogstav</item>
       <item quantity="other">Skal indeholde mindst <xliff:g id="COUNT">%d</xliff:g> tegn, der ikke er bogstaver</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Skal indeholde mindst <xliff:g id="COUNT">%d</xliff:g> tegn, som ikke er et tal</item>
+      <item quantity="other">Skal indeholde mindst <xliff:g id="COUNT">%d</xliff:g> tegn, som ikke er et tal</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Enhedens administrator tillader ikke brug af en nylig brugt adgangskode"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Brug af almindelige adgangskoder er blokeret af din it-administrator. Prøv en anden adgangskode."</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Mobil"</item>
+    <item msgid="6007360612667098926">"Kun Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -3883,7 +3888,7 @@
     <string name="condition_hotspot_title" msgid="4143299802283098506">"Hotspot er aktiveret"</string>
     <string name="condition_airplane_title" msgid="8484582712516148433">"Flytilstand er slået til"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"Ingen tilgængelige netværk"</string>
-    <string name="condition_zen_title" msgid="2128184708916052585">"Forstyr ikke er aktiveret."</string>
+    <string name="condition_zen_title" msgid="2128184708916052585">"Forstyr ikke er aktiveret"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Telefonen er på lydløs"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"Med undtagelser"</string>
     <string name="condition_battery_title" msgid="6704870010912986274">"Batterisparefunktion er slået til"</string>

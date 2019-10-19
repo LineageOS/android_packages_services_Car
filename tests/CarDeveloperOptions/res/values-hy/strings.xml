@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Պաշտպանեք ձեր պլանշետը էկրանի կողպման միջոցով, որպեսզի ձեր տվյալները հասանելի չդառնան կողմնակի անձանց, եթե կորցնեք պլանշետը կամ այն գողանան: Էկրանի կողպումն անհրաժեշտ է նաև դեմքի ճանաչումը կարգավորելու համար։ Հպեք «Չեղարկել» կոճակին, ապա ավելացրեք PIN կոդ կամ ընտրեք էկրանի կողպման այլ տարբերակ։"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Պաշտպանեք ձեր սարքը էկրանի կողպման միջոցով, որպեսզի ձեր տվյալները հասանելի չդառնան կողմնակի անձանց, եթե կորցնեք սարքը կամ այն գողանան: Էկրանի կողպումն անհրաժեշտ է նաև դեմքի ճանաչումը կարգավորելու համար։ Հպեք «Չեղարկել» կոճակին, ապա ավելացրեք PIN կոդ կամ ընտրեք էկրանի կողպման այլ տարբերակ։"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Պաշտպանեք ձեր հեռախոսը էկրանի կողպման միջոցով, որպեսզի ձեր տվյալները հասանելի չդառնան կողմնակի անձանց, եթե կորցնեք հեռախոսը կամ այն գողանան: Էկրանի կողպումն անհրաժեշտ է նաև դեմքի ճանաչումը կարգավորելու համար։ Հպեք «Չեղարկել» կոճակին, ապա ավելացրեք PIN կոդ կամ ընտրեք էկրանի կողպման այլ տարբերակ։"</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Բաց թողնե՞լ PIN-ի կարգավորումը"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Չավելացնե՞լ գաղտնաբառ"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Բաց թողնե՞լ նախշի կարգավորումը"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Էկրանի կողպում"</string>
@@ -669,7 +668,6 @@
       <item quantity="one">Պետք է <xliff:g id="NUMBER_1">%d</xliff:g>-ից քիչ թվանշան պարունակի</item>
       <item quantity="other">Պետք է <xliff:g id="NUMBER_1">%d</xliff:g>-ից քիչ թվանշան պարունակի</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Պետք է պարունակի միայն 0-9 թվանշաններ"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Սարքի ադմինիստրատորը չի թույլատրում օգտագործել վերջին PIN կոդերը"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"ՏՏ ադմինիստրատորն արգելափակել է պարզ PIN կոդերը: Փորձեք մեկ այլ PIN:"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Այն չի կարող պարունակել անվավեր գրանշան"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">Must contain at least <xliff:g id="COUNT">%d</xliff:g> non-letter characters</item>
       <item quantity="other">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> ոչ-տառային գրանշան</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> ոչ թվային նիշ</item>
+      <item quantity="other">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> ոչ թվային նիշ</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Սարքի ադմինիստրատորը թույլ չի տալիս օգտագործել վերջին գաղտնաբառը"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ՏՏ ադմինիստրատորն արգելափակել է պարզ գաղտնաբառերը: Փորձեք մեկ այլ գաղտնաբառ:"</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Բջջային"</item>
+    <item msgid="6007360612667098926">"Միայն Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -1303,7 +1308,7 @@
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Համակարգի թարմացումներ"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
     <string name="firmware_version" msgid="547095584029938749">"Android-ի տարբերակը"</string>
-    <string name="security_patch" msgid="483709031051932208">"Android-ի խոցելիության շտկման մակարդակը"</string>
+    <string name="security_patch" msgid="483709031051932208">"Անվտանգության համակարգի վերջին թարմացումը"</string>
     <string name="model_info" msgid="1729765474260797594">"Մոդելը"</string>
     <string name="model_summary" msgid="8781425868254352168">"Մոդել՝ %1$s"</string>
     <string name="hardware_info" msgid="174270144950621815">"Մոդելը և սարքակազմը"</string>
@@ -3382,7 +3387,7 @@
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"նկարը նկարի մեջ, նկար, ննմ"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Նկար նկարի մեջ"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Թույլատրել «Նկար նկարի մեջ» ռեժիմը"</string>
-    <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Թույլատրել հավելվածին ստեղծել նկար նկարի մեջ պատուհան, երբ հավելվածը բաց է կամ այն օգտագործելուց հետո (օրինակ՝ տեսանյութի դիտումը շարունակելու համար): Այս պատուհանը ցուցադրվում է ձեր կողմից օգտագործվող այլ հավելվածների վերևում:"</string>
+    <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Թույլատրել հավելվածին ստեղծել նկար նկարի մեջ պատուհան, երբ հավելվածը բաց է կամ այն օգտագործելուց հետո (օրինակ՝ տեսանյութի դիտումը շարունակելու համար): Այս պատուհանը ցուցադրվում է ձեր կողմից օգտագործվող այլ հավելվածների վրայից:"</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"«Չանհանգստացնել» գործառույթի հասանելիությունը"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Թույլատրել «Չանհանգստացնել» ռեժիմը"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"Տեղադրված հավելվածներից ոչ մեկը Չանհանգստացնել հարցում չի ուղարկել"</string>
@@ -3799,7 +3804,7 @@
     <string name="permit_draw_overlay" msgid="9039092257052422344">"Ցուցադրել մյուս հավելվածների վրայից"</string>
     <string name="allow_overlay_description" msgid="6669524816705082807">"Թույլ տալ այս հավելվածի ցուցադրումը ձեր օգտագործած այլ հավելվածների վրայից: Դա կարող է խանգարել այդ հավելվածների ձեր կողմից օգտագործմանը կամ փոխել դրանք ցուցադրման կամ աշխատանքի եղանակը:"</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"vr վիրտուալ իրականություն ունկնդրիչ ստերեո օգնության ծառայություն"</string>
-    <string name="keywords_system_alert_window" msgid="3936658600272194599">"համակարգի զգուշացում պատուհան երկխոսություն ցուցադրել այլ հավելվածների վերևում"</string>
+    <string name="keywords_system_alert_window" msgid="3936658600272194599">"համակարգի զգուշացում պատուհան երկխոսություն ցուցադրել այլ հավելվածների վրայից"</string>
     <string name="overlay_settings" msgid="3325154759946433666">"Ցուցադրում այլ հավելվածների վրայից"</string>
     <string name="system_alert_window_summary" msgid="7703582115861844158">"<xliff:g id="COUNT_1">%2$d</xliff:g>-ից <xliff:g id="COUNT_0">%1$d</xliff:g> հավելվածներ կարող են ցուցադրվել այլ հավելվածների վրա"</string>
     <string name="filter_overlay_apps" msgid="6336897660213304743">"Թույլտվություն ունեցող հավելվածներ"</string>

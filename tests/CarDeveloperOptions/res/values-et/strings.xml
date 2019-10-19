@@ -208,7 +208,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"Peate täitma pordi välja."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"Pordi väli peab olema tühi, kui hosti väli on tühi."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"Sisestatud port on kehtetu."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Brauser kasutab HTTP-puhverserverit, kuid muud rakendused ei tohi seda kasutada."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Brauser kasutab HTTP-puhverserverit, kuid muud rakendused ei pruugi seda kasutada."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"PAC URL: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"DL ribalaius (kbit/s):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"UL ribalaius (kbit/s):"</string>
@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Kaitske oma tahvelarvutit ekraanilukuga, et keegi ei saaks seda kasutada, kui see kaotsi läheb või varastatakse. Ekraaniluku valikut on vaja ka näo autentimise seadistamiseks. Puudutage käsku Tühista, seejärel määrake PIN-kood või tehke mõni muu ekraaniluku valik."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Kaitske oma seadet ekraanilukuga, et keegi ei saaks seda kasutada, kui see kaotsi läheb või varastatakse. Ekraaniluku valikut on vaja ka näo autentimise seadistamiseks. Puudutage käsku Tühista, seejärel määrake PIN-kood või tehke mõni muu ekraaniluku valik."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Kaitske oma telefoni ekraanilukuga, et keegi ei saaks seda kasutada, kui see kaotsi läheb või varastatakse. Ekraaniluku valikut on vaja ka näo autentimise seadistamiseks. Puudutage käsku Tühista, seejärel määrake PIN-kood või tehke mõni muu ekraaniluku valik."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Kas jätta PIN-i määr. vahele?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Kas jätta parooli määr. vah.?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Kas jätta mustri määr. vahele?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Seadista ekraanilukk"</string>
@@ -669,7 +668,6 @@
       <item quantity="other">Peab olema alla <xliff:g id="NUMBER_1">%d</xliff:g> numbri</item>
       <item quantity="one">Peab olema alla <xliff:g id="NUMBER_0">%d</xliff:g> numbri</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Tohib sisaldada ainult numbreid 0–9."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Seadme administraator ei luba kasutada viimast PIN-koodi"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IT-administraator on levinud PIN-koodid blokeerinud. Proovige muud PIN-koodi."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"See ei tohi sisaldada sobimatut tähemärki"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Peab sisaldama vähemalt <xliff:g id="COUNT">%d</xliff:g> tähemärki, mis ei ole täht</item>
       <item quantity="one">Peab sisaldama vähemalt 1 tähemärki, mis ei ole täht</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Peab sisaldama vähemalt <xliff:g id="COUNT">%d</xliff:g> tähemärki, mis ei ole number</item>
+      <item quantity="one">Peab sisaldama vähemalt 1 tähemärki, mis ei ole number</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Seadme administraator ei luba kasutada hiljutist parooli"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IT-administraator on levinud paroolid blokeerinud. Proovige muud parooli."</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"WiFi"</item>
+    <item msgid="4421333712484542489">"Mobiilne andmeside"</item>
+    <item msgid="6007360612667098926">"Ainult WiFi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -2603,7 +2608,7 @@
     <string name="sync_enabled" msgid="535172627223336983">"Sünkroonim. on SEES"</string>
     <string name="sync_disabled" msgid="713721807204805062">"Sünkroonimine VÄLJAS"</string>
     <string name="sync_error" msgid="988155155932442765">"Sünkroonimise viga"</string>
-    <string name="last_synced" msgid="4511434057768999129">"Viimati sünkroonitud <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
+    <string name="last_synced" msgid="4511434057768999129">"Viimati sünkroonitud: <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
     <string name="sync_in_progress" msgid="1311828882739675714">"Sünkroonimine ..."</string>
     <string name="settings_backup" msgid="3261579634252074247">"Varunda seaded"</string>
     <string name="settings_backup_summary" msgid="2563360505501354777">"Minu seadete varundamine"</string>
@@ -3622,7 +3627,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> täiendavat luba</item>
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> täiendav luba</item>
     </plurals>
-    <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"Lube ei antud"</string>
+    <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"Lube pole antud"</string>
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Lube ei taotletud"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"Kõik rakendused"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Installitud rakendused"</string>

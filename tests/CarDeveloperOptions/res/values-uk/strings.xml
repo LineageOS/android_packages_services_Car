@@ -489,8 +489,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Блокування екрана захистить ваш планшет, якщо його буде загублено або викрадено. Ця функція також потрібна, щоб налаштувати автентифікацію за обличчям. Натисніть \"Скасувати\" й налаштуйте PIN-код або інший варіант блокування екрана."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Блокування екрана захистить ваш пристрій, якщо його буде загублено або викрадено. Ця функція також потрібна, щоб налаштувати автентифікацію за обличчям. Натисніть \"Скасувати\" й налаштуйте PIN-код або інший варіант блокування екрана."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Блокування екрана захистить ваш телефон, якщо його буде загублено або викрадено. Ця функція також потрібна, щоб налаштувати автентифікацію за обличчям. Натисніть \"Скасувати\" й налаштуйте PIN-код або інший варіант блокування екрана."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Не налаштовувати PIN-код?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Не налаштовувати пароль?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Не налаштовувати ключ?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Налаштувати блокування екрана"</string>
@@ -685,7 +684,6 @@
       <item quantity="many">Може містити до <xliff:g id="NUMBER_1">%d</xliff:g> цифр</item>
       <item quantity="other">Може містити до <xliff:g id="NUMBER_1">%d</xliff:g> цифри</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Має містити лише цифри від 0 до 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Адміністратор пристрою не дозволяє використовувати останній PIN-код"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IT-адміністратор заблокував загальні PIN-коди. Введіть інший PIN-код."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Не може містити недійсних символів"</string>
@@ -727,6 +725,12 @@
       <item quantity="few">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символи, які не є літерами</item>
       <item quantity="many">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символів, які не є літерами</item>
       <item quantity="other">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символу, які не є літерами</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символ, який не є цифрою</item>
+      <item quantity="few">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символи, які не є цифрами</item>
+      <item quantity="many">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символів, які не є цифрами</item>
+      <item quantity="other">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символу, які не є цифрами</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Адміністратор пристрою не дозволяє використовувати останній пароль"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IT-адміністратор заблокував загальні паролі. Введіть інший пароль."</string>
@@ -1126,8 +1130,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Мобільні"</item>
+    <item msgid="6007360612667098926">"Лише Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -4468,7 +4475,7 @@
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Не дзвонити"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Разом кнопка живлення та збільшення гучності вмикають"</string>
-    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Комбінація клавіш, щоб вимкнути звук дзвінка"</string>
+    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Швидке вимкнення звуку дзвінка"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Віброрежим"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Беззвучний режим"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"Нічого не робити"</string>

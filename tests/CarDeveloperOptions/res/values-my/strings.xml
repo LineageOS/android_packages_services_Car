@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"သင့်တက်ဘလက်ကို မျက်နှာပြင်လော့ခ်ချစနစ်နှင့် ကာကွယ်ထားခြင်းဖြင့် ၎င်းပျောက်သွားလျှင် သို့မဟုတ် ခိုးယူခံရလျှင် မည်သူမျှ အသုံးပြုနိုင်မည်မဟုတ်ပါ။ မျက်နှာ အထောက်အထားစိစစ်ခြင်း ထည့်သွင်းရန် မျက်နှာပြင်လော့ခ်ချစနစ်တစ်ခုလည်း လိုအပ်သည်။ \'မလုပ်တော့\' ကိုတို့ပါ၊ ထို့နောက် ပင်နံပါတ် သတ်မှတ်ပါ သို့မဟုတ် အခြား မျက်နှာပြင်လော့ခ်ချစနစ်တစ်ခု ရွေးချယ်ပါ။"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"သင့်စက်ပစ္စည်းကို မျက်နှာပြင်လော့ခ်ချစနစ်နှင့် ကာကွယ်ထားခြင်းဖြင့် ၎င်းပျောက်သွားလျှင် သို့မဟုတ် ခိုးယူခံရလျှင် မည်သူမျှ အသုံးပြုနိုင်မည်မဟုတ်ပါ။ မျက်နှာ အထောက်အထားစိစစ်ခြင်း ထည့်သွင်းရန် မျက်နှာပြင်လော့ခ်ချစနစ်တစ်ခုလည်း လိုအပ်သည်။ \'မလုပ်တော့\' ကိုတို့ပါ၊ ထို့နောက် ပင်နံပါတ် သတ်မှတ်ပါ သို့မဟုတ် အခြား မျက်နှာပြင်လော့ခ်ချစနစ်တစ်ခု ရွေးချယ်ပါ။"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"သင့်ဖုန်းကို မျက်နှာပြင်လော့ခ်ချစနစ်နှင့် ကာကွယ်ထားခြင်းဖြင့် ၎င်းပျောက်သွားလျှင် သို့မဟုတ် ခိုးယူခံရလျှင် မည်သူမျှ အသုံးပြုနိုင်မည်မဟုတ်ပါ။ မျက်နှာ အထောက်အထားစိစစ်ခြင်း ထည့်သွင်းရန် မျက်နှာပြင်လော့ခ်ချစနစ်တစ်ခုလည်း လိုအပ်သည်။ \'မလုပ်တော့\' ကိုတို့ပါ၊ ထို့နောက် ပင်နံပါတ် သတ်မှတ်ပါ သို့မဟုတ် အခြား မျက်နှာပြင်လော့ခ်ချစနစ်တစ်ခု ရွေးချယ်ပါ။"</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"ပင်နံပါတ်သတ်မှတ်မှု ကျော်မလား။"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"စကားဝှက် ထည့်ခြင်း ကျော်မလား။"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"ပုံစံ ထည့်သွင်းမှု ကျော်မလား။"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"ဖုန်းဖန်သားပြင် သော့စနစ် သတ်မှတ်ပါ"</string>
@@ -669,7 +668,6 @@
       <item quantity="other">ဂဏန်း <xliff:g id="NUMBER_1">%d</xliff:g> လုံးထက် နည်းရမည်</item>
       <item quantity="one">ဂဏန်း <xliff:g id="NUMBER_0">%d</xliff:g> လုံးထက် နည်းရမည်</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"ဂဏန်း ၀−၉ အထိသာ ပါဝင်ရပါမည်"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"စက်ပစ္စည်း၏ စီမံခန့်ခွဲသူသည် မကြာသေးမီက အသုံးပြုခဲ့သည့် ပင်နံပါတ်ကို သုံးခွင့်မပြုပါ"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"အသုံးပြုလေ့ရှိသော PIN များကို သင်၏ IT စီမံခန့်ခွဲသူက ပိတ်ထားသည်။ အခြား PIN တစ်ခုဖြင့် စမ်းကြည့်ပါ။"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"၎င်းတွင် မမှန်ကန်သည့်စကားလုံးများ ပါဝင်၍မရပါ"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">အနည်းဆုံး စာလုံးငယ် <xliff:g id="COUNT">%d</xliff:g> လုံးပါဝင်ရမည်</item>
       <item quantity="one">အနည်းဆုံး စာလုံးငယ် ၁ လုံးပါဝင်ရမည်</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">ဂဏန်းမဟုတ်သော အက္ခရာ အနည်းဆုံး <xliff:g id="COUNT">%d</xliff:g> လုံးပါရမည်</item>
+      <item quantity="one">ဂဏန်းမဟုတ်သော အက္ခရာ အနည်းဆုံး ၁ လုံးပါရမည်</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"စက်ပစ္စည်းစီမံခန့်ခွဲသူသည် မကြာသေးမီက အသုံးပြုခဲ့သည့် စကားဝှက်ကို သုံးခွင့်မပြုပါ"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"အသုံးပြုလေ့ရှိသော စကားဝှက်များကို သင်၏ IT စီမံခန့်ခွဲသူက ပိတ်ထားသည်။ အခြား စကားဝှက်တစ်ခုဖြင့် စမ်းကြည့်ပါ။"</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"မိုဘိုင်း"</item>
+    <item msgid="6007360612667098926">"Wi-Fi သာလျှင်"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

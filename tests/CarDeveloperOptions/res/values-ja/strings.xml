@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"画面ロックによって、紛失や盗難があった場合に誰も使用できないようタブレットを保護できます。また、顔認証の設定にも画面ロックが必要になります。[キャンセル] をタップした後、PIN を設定するか、別の画面ロック方法を選択してください。"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"画面ロックによって、紛失や盗難があった場合に誰も使用できないようデバイスを保護できます。また、顔認証の設定にも画面ロックが必要になります。[キャンセル] をタップした後、PIN を設定するか、別の画面ロック方法を選択してください。"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"画面ロックによって、紛失や盗難があった場合に誰も使用できないようスマートフォンを保護できます。また、顔認証の設定にも画面ロックが必要になります。[キャンセル] をタップした後、PIN を設定するか、別の画面ロック方法を選択してください。"</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"ピンの設定をスキップしますか？"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"パスワードの設定をスキップしますか？"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"パターンの設定をスキップしますか？"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"画面ロックを設定"</string>
@@ -669,7 +668,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> 桁未満にしてください</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> 桁未満にしてください</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"使用できるのは 0～9 の数字のみです"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"デバイス管理により、最近使用した PIN は使用できません"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"一般的な PIN は IT 管理者によってブロックされています。別の PIN をお試しください。"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"無効な文字があります"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">記号または数字が <xliff:g id="COUNT">%d</xliff:g> つ以上必要です</item>
       <item quantity="one">記号または数字が 1 つ以上必要です</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">数字以外の文字を <xliff:g id="COUNT">%d</xliff:g> 個以上使用してください</item>
+      <item quantity="one">数字以外の文字を 1 個以上使用してください</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"デバイス管理により、最近使用したパスワードは使用できません"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"一般的なパスワードは IT 管理者によってブロックされています。別のパスワードをお試しください。"</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"モバイル"</item>
+    <item msgid="6007360612667098926">"Wi-Fi のみ"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

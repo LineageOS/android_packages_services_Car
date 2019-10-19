@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Таблетаа дэлгэцийн түгжээний сонголтоор хамгаалснаар үүнийг алга болгосон эсвэл хулгайд алдсан тохиолдолд хэн нэгэн ашиглах боломжгүй болно. Мөн та царайн нотолгоог тохируулахын тулд дэлгэцийн түгжээг сонгох шаардлагатай. Цуцлах гэснийг товшоод ПИН-г тохируулах эсвэл дэлгэцийн өөр түгжээ сонгоно уу."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Төхөөрөмжөө дэлгэцийн түгжээний сонголтоор хамгаалснаар үүнийг алга болгосон эсвэл хулгайд алдсан тохиолдолд хэн нэгэн ашиглах боломжгүй болно. Мөн та царайн нотолгоог тохируулахын тулд дэлгэцийн түгжээг сонгох шаардлагатай. Цуцлах гэснийг товшоод ПИН-г тохируулах эсвэл дэлгэцийн өөр түгжээ сонгоно уу."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Утсаа дэлгэцийн түгжээний сонголтоор хамгаалснаар үүнийг алга болгосон эсвэл хулгайд алдсан тохиолдолд хэн нэгэн ашиглах боломжгүй болно. Мөн та царайн нотолгоог тохируулахын тулд дэлгэцийн түгжээг сонгох шаардлагатай. Цуцлах гэснийг товшоод ПИН-г тохируулах эсвэл дэлгэцийн өөр түгжээ сонгоно уу."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"ПИН-н тохируулгыг алгасах уу?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Нууц үгийн тохируулгыг алгасах уу?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Хээний тохируулгыг алгасах уу?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Дэлгэцийн түгжээ тохируулах"</string>
@@ -669,7 +668,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g>-с цөөн цифртэй байх ёстой</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g>-с цөөн цифртэй байх ёстой</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Зөвхөн 0-9 хүртэлх цифр агуулах шаардлагатай"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Төхөөрөмжийн админ саяхны ПИН-г ашиглахыг зөвшөөрдөггүй"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Таны IT админ түгээмэл ПИН-г блоклосон байна. Өөр ПИН оруулна уу."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Үүнд хүчингүй тэмдэгт агуулах боломжгүй"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Хамгийн багадаа <xliff:g id="COUNT">%d</xliff:g> тэмдэгт агуулах шаардлагатай</item>
       <item quantity="one">Хамгийн багадаа 1 тэмдэгт агуулах шаардлагатай</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Хамгийн багадаа тоон бус <xliff:g id="COUNT">%d</xliff:g> тэмдэгт агуулах ёстой</item>
+      <item quantity="one">Хамгийн багадаа тоон бус 1 тэмдэгт агуулах ёстой</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Төхөөрөмжийн админ саяхны нууц үгийг ашиглахыг зөвшөөрдөггүй"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Таны IT админ түгээмэл нууц үгийг блоклосон байна. Өөр нууц үг оруулна уу."</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Мобайл"</item>
+    <item msgid="6007360612667098926">"Зөвхөн Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -1421,7 +1426,7 @@
     <string name="usb_midi_title" msgid="8626512517313340943">"MIDI"</string>
     <string name="usb_midi_summary" msgid="3607444815743771712">"MIDI-г идэвхжүүлсэн програмуудыг өөрийн компьютер дээрх MIDI програм хангамжийг USB дээр ажиллуулах."</string>
     <string name="storage_other_users" msgid="1055693465220962928">"Бусад хэрэглэгчид"</string>
-    <string name="storage_internal_title" msgid="7969898703086593200">"Төхөөрөмжийн санах ой"</string>
+    <string name="storage_internal_title" msgid="7969898703086593200">"Төхөөрөмжийн хадгалах сан"</string>
     <string name="storage_external_title" msgid="3308178326521953306">"Зөөврийн санах ой"</string>
     <string name="storage_volume_summary" msgid="3938298080954984809">"<xliff:g id="TOTAL">%2$s</xliff:g>-ын <xliff:g id="USED">%1$s</xliff:g>-г ашигласан"</string>
     <string name="storage_size_large" msgid="2252229139037320440">"<xliff:g id="NUMBER">^1</xliff:g>"<small><small>" <xliff:g id="UNIT">^2</xliff:g>"</small></small>""</string>

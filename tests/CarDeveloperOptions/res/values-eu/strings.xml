@@ -325,7 +325,7 @@
     <string name="date_and_time_settings_summary" msgid="4617979434474713417">"Ezarri data, ordua, ordu-zona eta formatuak"</string>
     <string name="date_time_auto" msgid="2679132152303750218">"Erabili sareak emandako ordua"</string>
     <string name="zone_auto_title" msgid="5500880975376882488">"Erabili sareak emandako ordu-zona"</string>
-    <string name="date_time_24hour_auto" msgid="7499659679134962547">"Erabili eskualdeko ezarpen lehenetsiak"</string>
+    <string name="date_time_24hour_auto" msgid="7499659679134962547">"Erabili lurraldeko ezarpen lehenetsiak"</string>
     <string name="date_time_24hour_title" msgid="6209923858891621283">"24 orduko formatua"</string>
     <string name="date_time_24hour" msgid="1265706705061608742">"Erabili 24 orduko formatua"</string>
     <string name="date_time_set_time_title" msgid="7116850506333406367">"Ordua"</string>
@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Babestu tableta pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da aurpegi bidezko autentifikazioa konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN kode bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Babestu gailua pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da aurpegi bidezko autentifikazioa konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN kode bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Babestu telefonoa pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da aurpegi bidezko autentifikazioa konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN kode bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PINaren konfigurazioa saltatu nahi duzu?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Pasahitzaren konfigurazioa saltatu nahi duzu?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Ereduaren konfigurazioa saltatu nahi duzu?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Konfiguratu pantailaren blokeoa"</string>
@@ -669,7 +668,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> digitu baino gutxiago izan behar ditu</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> digitu baino gutxiago izan behar du</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"0 eta 9 arteko digituak soilik izan ditzake"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Gailuaren administratzaileak ez du eman beste PIN kode bat erabiltzeko baimenik"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IKT administratzaileak blokeatu egiten ditu asmatzen errazak diren PIN kodeak. Erabili beste PIN bat."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Ezin da erabili onartzen ez den karaktererik"</string>
@@ -700,6 +698,7 @@
       <item quantity="other">Hizkiak ez diren <xliff:g id="COUNT">%d</xliff:g> karaktere bat izan behar du gutxienez</item>
       <item quantity="one">Hizkia ez den karaktere bat izan behar du gutxienez</item>
     </plurals>
+    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Gailuaren administratzaileak ez du eman beste pasahitz bat erabiltzeko baimenik"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IKT administratzaileak blokeatu egiten ditu asmatzen errazak diren pasahitzak. Erabili beste pasahitz bat."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"Ezin da erabili goranzko, beheranzko edo errepikatutako digitu-sekuentziarik"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wifia"</item>
+    <item msgid="4421333712484542489">"Datu-konexioa"</item>
+    <item msgid="6007360612667098926">"Wi-Fi sarea soilik"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -1303,7 +1305,7 @@
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Sistemaren eguneratzeak"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
     <string name="firmware_version" msgid="547095584029938749">"Android bertsioa"</string>
-    <string name="security_patch" msgid="483709031051932208">"Android segurtasunaren adabaki-maila"</string>
+    <string name="security_patch" msgid="483709031051932208">"Android-en segurtasunaren adabaki-maila"</string>
     <string name="model_info" msgid="1729765474260797594">"Modeloa"</string>
     <string name="model_summary" msgid="8781425868254352168">"Modeloa: %1$s"</string>
     <string name="hardware_info" msgid="174270144950621815">"Modeloa eta hardwarea"</string>
@@ -1788,7 +1790,7 @@
     <string name="see_all_apps_title" msgid="6435061912110347474">"Ikusi <xliff:g id="COUNT">%1$d</xliff:g> aplikazioak"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Tabletak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartzen duzu haiek erabiltzeagatik tabletari gerta dakizkiokeen kalteen edo datu-galeren erantzulea zu zarela."</string>
     <string name="install_all_warning" product="default" msgid="7445839116997296358">"Telefonoak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartzen duzu haiek erabiltzeagatik telefonoari gerta dakizkiokeen kalteen edo datu-galeren erantzulea zu zarela."</string>
-    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Gailuak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartu egingo duzu haiek erabiltzeagatik gailuari gerta dakizkiokeen kalteen edo datu-galeren erantzulea zeu izango zarela."</string>
+    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Gailuak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartu egingo duzu haiek erabiltzeagatik gailuari agian gertatuko zaizkion kalteen edo datu-galeren erantzulea zeu izango zarela."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Ezarpen aurreratuak"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Gaitu ezarpenen aukera gehiago"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Aplikazioen informazioa"</string>
@@ -3095,7 +3097,7 @@
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl bertsioa, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"sarea, sare mugikorraren egoera, zerbitzuaren egoera, seinalearen indarra, sare mugikor mota, ibiltaritza, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"serie-zenbakia, hardwarearen bertsioa"</string>
-    <string name="keywords_android_version" msgid="4842749998088987740">"android segurtasunaren adabaki-maila, oinarri-bandaren bertsioa, kernelaren bertsioa"</string>
+    <string name="keywords_android_version" msgid="4842749998088987740">"android-en segurtasunaren adabaki-maila, oinarri-bandaren bertsioa, kernelaren bertsioa"</string>
     <string name="keywords_dark_ui_mode" msgid="1027966176887770318">"gai, argi, modu, ilun"</string>
     <string name="keywords_financial_apps_sms_access" msgid="3236014691838121857">"finantza-aplikazioa, SMSa, baimena"</string>
     <string name="keywords_systemui_theme" msgid="9150908170417305866">"gai iluna"</string>
@@ -3501,7 +3503,7 @@
     <string name="zen_mode_reminders" msgid="7560664194610054038">"Baimendu abisuak"</string>
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"abisuak"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"Baimendu gertaerak"</string>
-    <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Baimendu aplikazioek \"Ez molestatu\" ez aplikatzea"</string>
+    <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Eman \"Ez molestatu\" ez aplikatzeko baimena aplikazioei"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Gehitu salbuespenak"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
       <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> aplikazioren jakinarazpenek dute “Ez molestatu” moduari ez ikusi egiteko aukera</item>
@@ -4101,9 +4103,9 @@
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Eskuzko ezarpenak"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Egin tokia"</string>
     <string name="gesture_preference_title" msgid="583646591518373785">"Keinuak"</string>
-    <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Telefonoa kontrolatzeko keinu azkarrak"</string>
-    <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Tableta kontrolatzeko keinu azkarrak"</string>
-    <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Gailua kontrolatzeko keinu azkarrak"</string>
+    <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Telefonoa kontrolatzeko keinu bizkorrak"</string>
+    <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Tableta kontrolatzeko keinu bizkorrak"</string>
+    <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Gailua kontrolatzeko keinu bizkorrak"</string>
     <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Ireki kamera"</string>
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Kamera bizkor irekitzeko, sakatu birritan etengailua. Edozein pantailatan zaudela egin dezakezu hori."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Ireki kamera bizkor"</string>

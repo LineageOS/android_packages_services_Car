@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"திரைப் பூட்டை அமைப்பதன் மூலம் உங்கள் டேப்லெட் தொலைந்து போனாலோ திருடு போனாலோ வேறுயாரும் பயன்படுத்தாமல் பாதுகாக்கலாம். முக அங்கீகாரத்தை அமைப்பதற்கும் இது தேவைப்படும். வேண்டாம் என்பதைத் தட்டிய பிறகு பின்னை அமைக்கவும் அல்லது வேறொரு திரைப் பூட்டு விருப்பத்தைத் தேர்வுசெய்யவும்."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"திரைப் பூட்டை அமைப்பதன் மூலம் உங்கள் சாதனம் தொலைந்து போனாலோ திருடு போனாலோ வேறுயாரும் பயன்படுத்தாமல் பாதுகாக்கலாம். முக அங்கீகாரத்தை அமைப்பதற்கும் இது தேவைப்படும். வேண்டாம் என்பதைத் தட்டிய பிறகு பின்னை அமைக்கவும் அல்லது வேறொரு திரைப் பூட்டு விருப்பத்தைத் தேர்வுசெய்யவும்."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"திரைப் பூட்டை அமைப்பதன் மூலம் உங்கள் மொபைல் தொலைந்து போனாலோ திருடு போனாலோ வேறுயாரும் பயன்படுத்தாமல் பாதுகாக்கலாம். முக அங்கீகாரத்தை அமைப்பதற்கும் இது தேவைப்படும். வேண்டாம் என்பதைத் தட்டிய பிறகு பின்னை அமைக்கவும் அல்லது வேறொரு திரைப் பூட்டு விருப்பத்தைத் தேர்வுசெய்யவும்."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"பின் அமைவைத் தவிர்க்கவா?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"கடவுச்சொல் அமைவைத் தவிர்க்கவா?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"பேட்டர்ன் அமைவைத் தவிர்க்கவா?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"திரைப் பூட்டை அமை"</string>
@@ -669,7 +668,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> இலக்கங்களை விடக் குறைவாக இருக்க வேண்டும்</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> இலக்கத்தை விடக் குறைவாக இருக்க வேண்டும்</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"0-9 இலக்கங்கள் மட்டுமே இருக்க வேண்டும்"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"சாதன நிர்வாகி சமீபத்திய பின்னை பயன்படுத்துவதை அனுமதிக்கவில்லை"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IT நிர்வாகியால், பொதுவான பின்கள் தடை செய்யப்பட்டுள்ளன. வேறொரு பின்னை முயலவும்."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"இதில் தவறான எழுத்துக்குறி இருக்கக்கூடாது"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">குறைந்தது எழுத்து அல்லாத <xliff:g id="COUNT">%d</xliff:g> குறிகள் இருக்க வேண்டும்</item>
       <item quantity="one">குறைந்தது எழுத்து அல்லாத 1 குறி இருக்க வேண்டும்</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">குறைந்தது எண் அல்லாத <xliff:g id="COUNT">%d</xliff:g> எழுத்துகளாவது இருக்க வேண்டும்</item>
+      <item quantity="one">குறைந்தது எண் அல்லாத 1 எழுத்தாவது இருக்க வேண்டும்</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"சாதன நிர்வாகி சமீபத்திய கடவுச்சொல்லைப் பயன்படுத்துவதை அனுமதிக்கவில்லை"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IT நிர்வாகியால், பொதுவான கடவுச்சொற்கள் தடை செய்யப்பட்டுள்ளன. வேறொரு கடவுச்சொல்லை முயலவும்."</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"வைஃபை"</item>
+    <item msgid="4421333712484542489">"மொபைல்"</item>
+    <item msgid="6007360612667098926">"வைஃபை மட்டும்"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
