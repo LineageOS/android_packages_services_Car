@@ -21,9 +21,7 @@ import android.car.CarAppFocusManager;
 import android.car.CarAppFocusManager.OnAppFocusChangedListener;
 import android.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
 import android.car.media.CarAudioManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
@@ -34,7 +32,6 @@ import android.media.AudioManager;
 import android.media.HwAudioSource;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import android.view.Display;
@@ -124,41 +121,39 @@ public class AudioTestFragment extends Fragment {
     private void connectCar() {
         mContext = getContext();
         mHandler = new Handler(Looper.getMainLooper());
-        mCar = Car.createCar(mContext, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                mAppFocusManager =
-                        (CarAppFocusManager) mCar.getCarManager(Car.APP_FOCUS_SERVICE);
-                OnAppFocusChangedListener listener = new OnAppFocusChangedListener() {
-                    @Override
-                    public void onAppFocusChanged(int appType, boolean active) {
+        mCar = Car.createCar(mContext, /* handler= */ null,
+                Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, (car, ready) -> {
+                    if (!ready) {
+                        return;
                     }
-                };
-                mAppFocusManager.addFocusListener(listener,
-                        CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-                mAppFocusManager.addFocusListener(listener,
-                        CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
+                    mAppFocusManager =
+                            (CarAppFocusManager) mCar.getCarManager(Car.APP_FOCUS_SERVICE);
+                    OnAppFocusChangedListener listener = new OnAppFocusChangedListener() {
+                        @Override
+                        public void onAppFocusChanged(int appType, boolean active) {
+                        }
+                    };
+                    mAppFocusManager.addFocusListener(listener,
+                            CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+                    mAppFocusManager.addFocusListener(listener,
+                            CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
 
-                mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
+                    mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
 
-                //take care of zone selection
-                int[] zoneList = mCarAudioManager.getAudioZoneIds();
-                Integer[] zoneArray = Arrays.stream(zoneList).boxed().toArray(Integer[]::new);
-                mZoneAdapter = new ArrayAdapter<>(mContext,
-                        android.R.layout.simple_spinner_item, zoneArray);
-                mZoneAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                mZoneSpinner.setAdapter(mZoneAdapter);
-                mZoneSpinner.setEnabled(true);
+                    //take care of zone selection
+                    int[] zoneList = mCarAudioManager.getAudioZoneIds();
+                    Integer[] zoneArray = Arrays.stream(zoneList).boxed().toArray(Integer[]::new);
+                    mZoneAdapter = new ArrayAdapter<>(mContext,
+                            android.R.layout.simple_spinner_item, zoneArray);
+                    mZoneAdapter.setDropDownViewResource(
+                            android.R.layout.simple_spinner_dropdown_item);
+                    mZoneSpinner.setAdapter(mZoneAdapter);
+                    mZoneSpinner.setEnabled(true);
 
-                if (mCarAudioManager.isDynamicRoutingEnabled()) {
-                    setUpDisplayPlayer();
-                }
-            }
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-            });
-        mCar.connect();
+                    if (mCarAudioManager.isDynamicRoutingEnabled()) {
+                        setUpDisplayPlayer();
+                    }
+                });
     }
 
     private void initializePlayers() {
