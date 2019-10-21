@@ -480,8 +480,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"ଏକ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ସାହାଯ୍ୟରେ ଆପଣଙ୍କର ଟାବ୍‌ଲେଟ୍‌କୁ ସୁରକ୍ଷିତ ରଖନ୍ତୁ, ଯାହା ଫଳରେ ଏହା ହଜିଗଲେ କିମ୍ବା ଚୋରି ହୋଇଗଲେ, କେହି ଏହାକୁ ବ୍ୟବହାର କରିପାରିବେ ନାହିଁ। ଆପଣ ମଧ୍ୟ୍ୟ ମୁହଁ ପ୍ରମାଣିକିକରଣ ସେଟ୍ ଅପ୍ କରିବାକୁ ଏକ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ଆବଶ୍ୟକ କରନ୍ତି। ବାତିଲ୍ କରନ୍ତୁରେ ଟାପ୍ କରନ୍ତୁ, ତାପରେ ଏକ PIN ସେଟ୍ କରନ୍ତୁ କିମ୍ବା ଅନ୍ୟ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ବାଛନ୍ତୁ।"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"ଏକ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ସାହାଯ୍ୟରେ ଆପଣଙ୍କର ଡିଭାଇସ୍‌କୁ ସୁରକ୍ଷିତ ରଖନ୍ତୁ, ଯାହା ଫଳରେ ଏହା ହଜିଗଲେ କିମ୍ବା ଚୋରି ହୋଇଗଲେ, କେହି ଏହାକୁ ବ୍ୟବହାର କରିପାରିବେ ନାହିଁ। ଆପଣ ମଧ୍ୟ୍ୟ ମୁହଁ ପ୍ରମାଣିକିକରଣ ସେଟ୍ ଅପ୍ କରିବାକୁ ଏକ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ଆବଶ୍ୟକ କରନ୍ତି। ବାତିଲ୍ କରନ୍ତୁରେ ଟାପ୍ କରନ୍ତୁ, ତାପରେ ଏକ PIN ସେଟ୍ କରନ୍ତୁ କିମ୍ବା ଅନ୍ୟ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ବାଛନ୍ତୁ।"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"ଏକ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ସାହାଯ୍ୟରେ ଆପଣଙ୍କର ଫୋନ୍‌କୁ ସୁରକ୍ଷିତ ରଖନ୍ତୁ, ଯାହା ଫଳରେ ଏହା ହଜିଗଲେ କିମ୍ବା ଚୋରି ହୋଇଗଲେ, କେହି ଏହାକୁ ବ୍ୟବହାର କରିପାରିବେ ନାହିଁ। ଆପଣ ମଧ୍ୟ୍ୟ ମୁହଁ ପ୍ରମାଣିକିକରଣ ସେଟ୍ ଅପ୍ କରିବାକୁ ଏକ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ଆବଶ୍ୟକ କରନ୍ତି। ବାତିଲ୍ କରନ୍ତୁରେ ଟାପ୍ କରନ୍ତୁ, ତାପରେ ଏକ PIN ସେଟ୍ କରନ୍ତୁ କିମ୍ବା ଅନ୍ୟ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ବିକଳ୍ପ ବାଛନ୍ତୁ।"</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PIN ସେଟ୍ ଅପ୍ ବାଦ୍ ଦେବେ କି?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"ପାସ୍‌ୱାର୍ଡ ସେଟ୍ ଅପ୍ ବାଦ୍ ଦେବେ?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"ପାଟର୍ନ ସେଟ୍ ଅପ୍‌କୁ ବାଦ୍ ଦେବେ?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ସେଟ୍‌ କରନ୍ତୁ"</string>
@@ -668,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> ଅଙ୍କରୁ କମ୍‌ ହେବା ଦରକାର</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> ଅଙ୍କରୁ କମ୍‌ ହେବା ଦରକାର</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"କେବଳ 0-9 ସଂଖ୍ୟା ହିଁ ରହିବା ଦରକାର"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"ଏକ ସାମ୍ପ୍ରତିକ ପିନ୍‌ର ବ୍ୟବହାରକୁ ଡିଭାଇସ୍‌ ଆଡ୍‌ମିନ୍‌ ଅନୁମତି ଦେବନାହିଁ"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"ସାଧାରଣ PINଗୁଡିକ ଆପଣଙ୍କ IT ଆଡମିନ୍‌ଙ୍କ ଦ୍ୱାରା ଅବରୋଧ କରିଦିଆଯାଇଛି। ଭିନ୍ନ PIN ଚେଷ୍ଟା କରନ୍ତୁ।"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"ଏକ ଭୁଲ ଅକ୍ଷରକୁ ଏହା ମିଶାଇ ପାରିବନାହିଁ"</string>
@@ -699,6 +697,7 @@
       <item quantity="other">ଅତିକମ୍‌ରେ <xliff:g id="COUNT">%d</xliff:g>ଟି ବିଶେଷ ଅକ୍ଷର କିମ୍ୱା ସଂଖ୍ୟା ଆବଶ୍ୟକ</item>
       <item quantity="one">ଅତିକମ୍‌ରେ 1ଟି ବିଶେଷ ଅକ୍ଷର କିମ୍ୱା ସଂଖ୍ୟା ଆବଶ୍ୟକ</item>
     </plurals>
+    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ଏକ ସମ୍ପ୍ରତି ପାସ୍‌ୱର୍ଡ ବ୍ୟବହାର କରିବାକୁ ଡିଭାଇସ୍‌ ଆଡମିନ୍‌ ଅନୁମତି ଦିଅନ୍ତି ନାହିଁ"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ଆପଣଙ୍କର ଆଇଟି ଆଡ୍‌ମିନ୍‌ ଦ୍ୱାରା ସାଧାରଣ ପାସ୍‌ୱର୍ଡଗୁଡ଼ିକୁ ରୋକିଦିଆଯାଇଛି। ଏକ ଭିନ୍ନ ପାସ୍‌ୱର୍ଡ ଦିଅନ୍ତୁ।"</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"ସଂଖ୍ୟାର କ୍ରମବୃଦ୍ଧି, କ୍ରମହ୍ରାସ, କିମ୍ବା ପୁନରାବୃତ୍ତ କ୍ରମ ଅନୁମୋଦିତ ନୁହେଁ"</string>
@@ -1091,8 +1090,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"ମୋବାଇଲ୍‌"</item>
+    <item msgid="6007360612667098926">"କେବଳ ୱାଇ-ଫାଇ"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -2602,7 +2604,7 @@
     <string name="sync_enabled" msgid="535172627223336983">"ସିଙ୍କ ଅନ୍‌ ଅଛି"</string>
     <string name="sync_disabled" msgid="713721807204805062">"ସିଙ୍କ ଅଫ୍‌ ଅଛି"</string>
     <string name="sync_error" msgid="988155155932442765">"ସିଙ୍କ୍‌ରେ ତ୍ରୁଟି"</string>
-    <string name="last_synced" msgid="4511434057768999129">"<xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g> ରେ ଶେଷଥର ସିଙ୍କ ହୋଇଥିଲା"</string>
+    <string name="last_synced" msgid="4511434057768999129">"<xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g> ରେ ଗତଥର ସିଙ୍କ ହୋଇଥିଲା"</string>
     <string name="sync_in_progress" msgid="1311828882739675714">"ଏବେ ସିଙ୍କ କରୁଛି…"</string>
     <string name="settings_backup" msgid="3261579634252074247">"ବ୍ୟାକ୍‌ଅପ୍‌ ସେଟିଙ୍ଗ୍‌"</string>
     <string name="settings_backup_summary" msgid="2563360505501354777">"ମୋ ସେଟିଙ୍ଗଗୁଡ଼ିକର ବ୍ୟାକ୍‌ଅପ୍‌ ନିଅ"</string>
@@ -3380,7 +3382,7 @@
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"ଛବି-ଭିତରେ-ଛବିକୁ ଇନ୍‌ଷ୍ଟଲ୍‌ ହୋଇଥିବା କୌଣସି ଆପ୍‌ ସପୋର୍ଟ କରୁନାହିଁ"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"ପିପ୍‌ ପିକଚର୍‌ ଇନ୍‌"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"ଛବି-ରେ-ଛବି"</string>
-    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"ଛବି-ଭିତରେ-ଛବିର ଅନୁମତି ଦିଅନ୍ତୁ"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"ପିକଚର୍-ଇନ୍-ପିକଚରର ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"ଏପ ଖୋଲା ଥିବାବେଳେ କିମ୍ୱା ଏହାକୁ ଆପଣ ଛାଡ଼ିବା ପରେ (ଉଦାହରଣସ୍ୱରୂପ, ଏକ ଭିଡିଓ ଦେଖିବା ଜାରି ରଖିବାକୁ) ଏକ ଛବି-ଭିତରେ-ଛବି ୱିଣ୍ଡୋ ତିଆରି କରିବା ପାଇଁ ଏହି ଏପକୁ ଅନୁମତି ଦିଅନ୍ତୁ। ଏହି ୱିଣ୍ଡୋ, ଆପଣ ବ୍ୟବହାର କରୁଥିବା ଅନ୍ୟ ଏପଗୁଡ଼ିକ ଉପରେ ଦେଖାଦେବ।"</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"\"ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\" ଆକ୍ସେସ୍"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"\"ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\"କୁ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
@@ -3810,8 +3812,8 @@
     <string name="write_settings_summary" msgid="4650251358459404247">"<xliff:g id="COUNT_1">%2$d</xliff:g> ର <xliff:g id="COUNT_0">%1$d</xliff:g> ଆପ୍‌, ସିଷ୍ଟମ୍‌ ସେଟିଙ୍ଗ ବଦଳାଇପାରିବେ"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"ଆର୍ଥିକ ଆପ୍ସ Smsର ଆକ୍ସେସ୍"</string>
     <string name="filter_install_sources_apps" msgid="4519839764020866701">"ଅନ୍ୟ ଏପଗୁଡ଼ିକୁ ଇନଷ୍ଟଲ କରିପାରେ"</string>
-    <string name="filter_write_settings_apps" msgid="6864144615530081121">"ସିଷ୍ଟମ୍‌ ସେଟିଙ୍ଗ ରୂପାନ୍ତର କରିପାରିବ"</string>
-    <string name="write_settings_title" msgid="5852614614193830632">"ସିଷ୍ଟମ୍‌ ସେଟିଙ୍ଗ ରୂପାନ୍ତର କରିପାରିବ"</string>
+    <string name="filter_write_settings_apps" msgid="6864144615530081121">"ସିଷ୍ଟମ୍‌ ସେଟିଂସ୍ ପରିବର୍ତ୍ତନ କରିପାରିବ"</string>
+    <string name="write_settings_title" msgid="5852614614193830632">"ସିଷ୍ଟମ୍‌ ସେଟିଂସ୍ ପରିବର୍ତ୍ତନ କରିପାରିବ"</string>
     <string name="write_system_settings" msgid="20450765210832463">"ସିଷ୍ଟମ୍‌ ସେଟିଙ୍ଗ ବଦଳାନ୍ତୁ"</string>
     <string name="permit_write_settings" msgid="4198491281216818756">"ସିଷ୍ଟମ୍‌ ସେଟିଙ୍ଗ ବଦଳାଇବାକୁ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="write_settings_description" msgid="2536706293042882500">"ଏହି ଅନୁମତି ଦ୍ୱାରା ଗୋଟିଏ ଏପ, ସିଷ୍ଟମ ସେଟିଙ୍ଗରେ ସଂଶୋଧନ କରିଥାଏ।"</string>

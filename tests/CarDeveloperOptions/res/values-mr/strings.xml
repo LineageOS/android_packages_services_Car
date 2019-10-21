@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"तुमचा टॅबलेट स्क्रीन लॉक पर्यायाने संरक्षित करा जेणेकरून तो हरवल्यास किंवा चोरी झाल्यास त्याचा वापर कोणीही करू शकणार नाही. तुम्हाला फेस ऑथेंटिकेशन सेट करण्यासाठी स्क्रीन लॉक पर्याय देखील आवश्यक आहे. रद्द करा वर टॅप करा, त्यानंतर एक पिन सेट करा किंवा दुसरा स्क्रीन लॉक पर्याय निवडा."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"तुमचे डिव्हाइस स्क्रीन लॉक पर्यायाने संरक्षित करा जेणेकरून ते हरवल्यास किंवा चोरी झाल्यास त्याचा वापर कोणीही करू शकणार नाही. तुम्हाला फेस ऑथेंटिकेशन सेट करण्यासाठी स्क्रीन लॉक पर्याय देखील आवश्यक आहे. रद्द करा वर टॅप करा, त्यानंतर एक पिन सेट करा किंवा दुसरा स्क्रीन लॉक पर्याय निवडा."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"तुमचा फोन स्क्रीन लॉक पर्यायाने संरक्षित करा जेणेकरून तो हरवल्यास किंवा चोरी झाल्यास त्याचा वापर कोणीही करू शकणार नाही. तुम्हाला फेस ऑथेंटिकेशन सेट करण्यासाठी स्क्रीन लॉक पर्याय देखील आवश्यक आहे. रद्द करा वर टॅप करा, त्यानंतर एक पिन सेट करा किंवा दुसरा स्क्रीन लॉक पर्याय निवडा."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"पिन सेट करणे वगळायचे का?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"पासवर्ड सेट करणे वगळायचे का?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"पॅटर्न सेट करणे वगळायचे का?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"स्क्रीन लॉक सेट करा"</string>
@@ -669,7 +668,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> अंकांपेक्षा कमी असणे आवश्यक आहे</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> अंकापेक्षा कमी असणे आवश्यक आहे</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"केवळ 0-9 अंक असणे आवश्यक आहे"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"डिव्हाइस प्रशासक अलीकडील पिन वापरण्याची अनुमती देत नाही"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"सामान्यत: वापरले जाणारे पिन तुमच्या IT प्रशासनाने ब्लॉक केलेले आहेत. दुसरा एखादा पिन वापरून पाहा."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"यामध्ये अवैध वर्ण समाविष्ट असू शकत नाही"</string>
@@ -700,6 +698,7 @@
       <item quantity="other">किमान <xliff:g id="COUNT">%d</xliff:g> अक्षर नसलेले वर्ण असणे आवश्यक आहे</item>
       <item quantity="one">किमान 1 अक्षर नसलेला वर्ण असणे आवश्यक आहे</item>
     </plurals>
+    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"डिव्हाइस प्रशासक अलीकडील पासवर्ड वापरण्याची अनुमती देत नाही"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"सामान्यत: वापरले जाणारे पासवर्ड तुमच्या IT प्रशासनाने ब्लॉक केलेले आहेत. दुसरा एखादा पासवर्ड वापरून पाहा."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"अंकांच्या चढत्या, उतरत्या किंवा पुनरावृत्त क्रमाला अनुमती नाही"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"वाय-फाय"</item>
+    <item msgid="4421333712484542489">"मोबाइल"</item>
+    <item msgid="6007360612667098926">"केवळ वाय-फाय"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

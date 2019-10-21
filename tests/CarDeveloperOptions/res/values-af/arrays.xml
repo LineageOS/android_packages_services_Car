@@ -38,19 +38,47 @@
     <item msgid="5827960506924849753">"10 minute"</item>
     <item msgid="6677424950124253938">"30 minute"</item>
   </string-array>
-    <!-- no translation found for dream_timeout_entries:1 (2517785806387977252) -->
-    <!-- no translation found for dream_timeout_entries:5 (2788593551142462622) -->
-    <!-- no translation found for dream_timeout_entries:6 (8012672183888404961) -->
-    <!-- no translation found for lock_after_timeout_entries:2 (5558060663472279597) -->
-    <!-- no translation found for lock_after_timeout_entries:6 (4376575879222393045) -->
-    <!-- no translation found for lock_after_timeout_entries:7 (811192536981678974) -->
+  <string-array name="dream_timeout_entries">
+    <item msgid="6487043225269853023">"Nooit"</item>
+    <item msgid="2517785806387977252">"15 sekondes"</item>
+    <item msgid="6347954399441173672">"30 sekondes"</item>
+    <item msgid="4858305253279921789">"1 minuut"</item>
+    <item msgid="8109273437140044073">"2 minute"</item>
+    <item msgid="2788593551142462622">"5 minute"</item>
+    <item msgid="8012672183888404961">"10 minute"</item>
+    <item msgid="8271452751594598661">"30 minute"</item>
+  </string-array>
+  <string-array name="lock_after_timeout_entries">
+    <item msgid="2232921187970351881">"Dadelik"</item>
+    <item msgid="2038544972632026612">"5 sekondes"</item>
+    <item msgid="5558060663472279597">"15 sekondes"</item>
+    <item msgid="45341168505452037">"30 sekondes"</item>
+    <item msgid="227647485917789272">"1 minuut"</item>
+    <item msgid="3367011891231217504">"2 minute"</item>
+    <item msgid="4376575879222393045">"5 minute"</item>
+    <item msgid="811192536981678974">"10 minute"</item>
+    <item msgid="7258394417241706272">"30 minute"</item>
+  </string-array>
   <string-array name="entries_font_size">
     <item msgid="2340391964816059553">"Klein"</item>
     <item msgid="591935967183159581">"Verstek"</item>
     <item msgid="1714184661981538355">"Groot"</item>
     <item msgid="6195563047686707484">"Grootste"</item>
   </string-array>
-    <!-- no translation found for wifi_status:1 (4157625910392775808) -->
+  <string-array name="wifi_status">
+    <item msgid="1304883790721412351"></item>
+    <item msgid="4157625910392775808">"Skandeer tans…"</item>
+    <item msgid="5597394826455877834">"Verbind tans…"</item>
+    <item msgid="5848277343965362748">"Besig met geldigheidsvasstelling…"</item>
+    <item msgid="3391238031431440676">"Bekom tans IP-adres…"</item>
+    <item msgid="5257597310494000224">"Gekoppel"</item>
+    <item msgid="8472497592913050396">"Afgelas"</item>
+    <item msgid="1228072488815999109">"Ontkoppel tans…"</item>
+    <item msgid="7253087004422991731">"Ontkoppel"</item>
+    <item msgid="4169850917304751227">"Onsuksesvol"</item>
+    <item msgid="6266658166690831131">"Geblokkeer"</item>
+    <item msgid="4517230805854909775">"Vermy tydelik swak verbinding"</item>
+  </string-array>
   <string-array name="wifi_status_with_ssid">
     <item msgid="4853670665485437464"></item>
     <item msgid="6816207058895999545">"Skandeer tans …"</item>
@@ -85,10 +113,21 @@
     <item msgid="167772676068860015">"1 uur"</item>
     <item msgid="5985477119043628504">"Moenie uittel nie"</item>
   </string-array>
-    <!-- no translation found for bluetooth_max_connected_audio_devices:2 (5318020123964299318) -->
-    <!-- no translation found for bluetooth_max_connected_audio_devices:3 (6429260054182662738) -->
-    <!-- no translation found for bluetooth_max_connected_audio_devices:4 (1644506614010085798) -->
-    <!-- no translation found for wifi_signal:0 (1709949377823900951) -->
+  <string-array name="bluetooth_max_connected_audio_devices">
+    <item msgid="3800257971619063588">"Gebruik stelselverstek: <xliff:g id="DEFAULT_BLUETOOTH_MAX_CONNECTED_AUDIO_DEVICES">%1$d</xliff:g>"</item>
+    <item msgid="8572230405241423895">"1"</item>
+    <item msgid="5318020123964299318">"2"</item>
+    <item msgid="6429260054182662738">"3"</item>
+    <item msgid="1644506614010085798">"4"</item>
+    <item msgid="3132506679404897150">"5"</item>
+  </string-array>
+  <string-array name="wifi_signal">
+    <item msgid="1709949377823900951">"Swak"</item>
+    <item msgid="7882129634982603782">"Swak"</item>
+    <item msgid="6457357501905996224">"Redelik"</item>
+    <item msgid="405271628162918841">"Goed"</item>
+    <item msgid="999948812884919584">"Uitstekend"</item>
+  </string-array>
   <string-array name="data_usage_data_range">
     <item msgid="8986775481492954015">"Afgelope 30 dae"</item>
     <item msgid="3211287705232736964">"Stel gebruiksiklus …"</item>
@@ -109,8 +148,14 @@
     <item msgid="8655686691660180616">"MSCHAPV2"</item>
     <item msgid="1354245862267605928">"GTC"</item>
   </string-array>
-    <!-- no translation found for wifi_peap_phase2_entries_with_sim_auth:0 (7122038588318037831) -->
-    <!-- no translation found for wifi_peap_phase2_entries_with_sim_auth:2 (6333849991499980140) -->
+  <string-array name="wifi_peap_phase2_entries_with_sim_auth">
+    <item msgid="7122038588318037831">"Geen"</item>
+    <item msgid="212906109313512425">"MSCHAPV2"</item>
+    <item msgid="6333849991499980140">"GTC"</item>
+    <item msgid="6226796534844879034">"SIM"</item>
+    <item msgid="4600011056049114926">"AKA"</item>
+    <item msgid="5244120184217604552">"AKA\'"</item>
+  </string-array>
   <string-array name="wifi_phase2_entries">
     <item msgid="5865367433072785952">"Geen"</item>
     <item msgid="7901133332272818442">"PAP"</item>
@@ -138,9 +183,30 @@
     <item msgid="9148582221081416020">"IPv6"</item>
     <item msgid="4094895508821270572">"IPv4/IPv6"</item>
   </string-array>
-    <!-- no translation found for bearer_entries:1 (2740477081395679090) -->
-    <!-- no translation found for mvno_type_entries:0 (6984770764726663331) -->
-    <!-- no translation found for mvno_type_entries:2 (7556656048009090524) -->
+  <string-array name="bearer_entries">
+    <item msgid="5231094118929435723">"Ongespesifiseer"</item>
+    <item msgid="2740477081395679090">"LTE"</item>
+    <item msgid="1807866878276630064">"HSPAP"</item>
+    <item msgid="7945352669463358624">"HSPA"</item>
+    <item msgid="4152166097223929133">"HSUPA"</item>
+    <item msgid="5134662517319988296">"HSDPA"</item>
+    <item msgid="4997539146036732961">"UMTS"</item>
+    <item msgid="4910169712073083585">"EDGE"</item>
+    <item msgid="3505904588897578792">"GPRS"</item>
+    <item msgid="7246853278334311652">"eHRPD"</item>
+    <item msgid="7037248100126710307">"EVDO_B"</item>
+    <item msgid="3440758673769932256">"EVDO_A"</item>
+    <item msgid="1782525731958596741">"EVDO_0"</item>
+    <item msgid="1819765960790884441">"1xRTT"</item>
+    <item msgid="3148192102183107944">"IS95B"</item>
+    <item msgid="3778273775365258534">"IS95A"</item>
+  </string-array>
+  <string-array name="mvno_type_entries">
+    <item msgid="6984770764726663331">"Geen"</item>
+    <item msgid="1469208769491004112">"SPN"</item>
+    <item msgid="7556656048009090524">"IMSI"</item>
+    <item msgid="8636516530542473799">"GID"</item>
+  </string-array>
   <string-array name="app_install_location_entries">
     <item msgid="6621866711026016227">"Interne toestelberging"</item>
     <item msgid="3186681694079967527">"Verwyderbare SD-kaart"</item>
@@ -303,8 +369,13 @@
     <item msgid="4627069151979553527">"Kursief"</item>
     <item msgid="6896773537705206194">"Klein hoofletters"</item>
   </string-array>
-    <!-- no translation found for captioning_font_size_selector_titles:1 (5091603983404027034) -->
-    <!-- no translation found for captioning_font_size_selector_titles:2 (176844712416932112) -->
+  <string-array name="captioning_font_size_selector_titles">
+    <item msgid="1680223634161592855">"Baie klein"</item>
+    <item msgid="5091603983404027034">"Klein"</item>
+    <item msgid="176844712416932112">"Normaal"</item>
+    <item msgid="2784236342175159295">"Groot"</item>
+    <item msgid="218913203203160606">"Baie groot"</item>
+  </string-array>
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"Verstek"</item>
     <item msgid="6488643537808152001">"Geen"</item>

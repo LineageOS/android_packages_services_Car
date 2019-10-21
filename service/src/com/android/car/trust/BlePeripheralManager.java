@@ -41,9 +41,8 @@ import android.util.Log;
 
 import com.android.car.Utils;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A generic class that manages BLE peripheral operations like start/stop advertising, notifying
@@ -72,9 +71,11 @@ public class BlePeripheralManager {
     private final Handler mHandler = new Handler();
 
     private final Context mContext;
-    private final Set<Callback> mCallbacks = new HashSet<>();
-    private final Set<OnCharacteristicWriteListener> mWriteListeners = new HashSet<>();
-    private final Set<OnCharacteristicReadListener> mReadListeners = new HashSet<>();
+    private final CopyOnWriteArrayList<Callback> mCallbacks = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<OnCharacteristicWriteListener> mWriteListeners =
+            new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<OnCharacteristicReadListener> mReadListeners =
+            new CopyOnWriteArrayList<>();
 
     private int mMtuSize = 20;
 

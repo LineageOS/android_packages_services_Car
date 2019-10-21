@@ -25,8 +25,6 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
 import android.car.hardware.property.ICarProperty;
-import android.content.Context;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.ArraySet;
 import android.util.Log;
@@ -46,7 +44,7 @@ import java.util.List;
  */
 @Deprecated
 @SystemApi
-public final class CarHvacManager implements CarManagerBase {
+public final class CarHvacManager extends CarManagerBase {
     private final static boolean DBG = false;
     private final static String TAG = "CarHvacManager";
     private final CarPropertyManager mCarPropertyMgr;
@@ -304,14 +302,15 @@ public final class CarHvacManager implements CarManagerBase {
      *
      * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
      * @param service
-     * @param context
-     * @param handler
+     *
      * @hide
      */
-    public CarHvacManager(IBinder service, Context context, Handler handler) {
+    public CarHvacManager(Car car, IBinder service) {
+        super(car);
         ICarProperty mCarPropertyService = ICarProperty.Stub.asInterface(service);
-        mCarPropertyMgr = new CarPropertyManager(mCarPropertyService, handler);
+        mCarPropertyMgr = new CarPropertyManager(car, mCarPropertyService);
     }
+
     /**
      * Implement wrappers for contained CarPropertyManager object
      * @param callback
@@ -435,6 +434,10 @@ public final class CarHvacManager implements CarManagerBase {
 
     /** @hide */
     public void onCarDisconnected() {
+        // TODO(b/142730482) Fix synchronization to use separate mLock
+        synchronized (this) {
+            mCallbacks.clear();
+        }
         mCarPropertyMgr.onCarDisconnected();
     }
 }

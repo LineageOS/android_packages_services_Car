@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Заштитете го таблетот со опција за заклучување екран за да не може никој да го користи ако го загубите или ви го украдат. Исто така, опцијата за заклучување екран ви е потребна за да поставите проверка на лик. Допрете „Откажи“, а потоа поставете PIN или изберете друга опција за заклучување екран."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Заштитете го уредот со опција за заклучување екран за да не може никој да го користи ако го загубите или ви го украдат. Исто така, опцијата за заклучување екран ви е потребна за да поставите проверка на лик. Допрете „Откажи“, а потоа поставете PIN или изберете друга опција за заклучување екран."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Заштитете го телефонот со опција за заклучување екран за да не може никој да го користи ако го загубите или ви го украдат. Исто така, опцијата за заклучување екран ви е потребна за да поставите проверка на лик. Допрете „Откажи“, а потоа поставете PIN или изберете друга опција за заклучување екран."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Да не се поставува PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Да не се поставува лозинка?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Да не се поставува шема?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Поставете заклучување на екранот"</string>
@@ -669,7 +668,6 @@
       <item quantity="one">Мора да има помалку од <xliff:g id="NUMBER_1">%d</xliff:g> цифра</item>
       <item quantity="other">Мора да има помалку од <xliff:g id="NUMBER_1">%d</xliff:g> цифри</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Мора да содржи само цифри од 0 до 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Администраторот на уредот не дозволува користење на неодамнешен PIN"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Обичните PIN-кодови се блокирани од вашиот IT-администратор. Обидете се со друг PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Ова не може да вклучува неважечки знак"</string>
@@ -697,6 +695,10 @@
       <item quantity="other">Мора да содржи најмалку <xliff:g id="COUNT">%d</xliff:g> специјални симболи</item>
     </plurals>
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
+      <item quantity="one">Мора да содржи најмалку <xliff:g id="COUNT">%d</xliff:g> знак што не е буква</item>
+      <item quantity="other">Мора да содржи најмалку <xliff:g id="COUNT">%d</xliff:g> знаци што не се букви</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
       <item quantity="one">Мора да содржи најмалку <xliff:g id="COUNT">%d</xliff:g> знак што не е буква</item>
       <item quantity="other">Мора да содржи најмалку <xliff:g id="COUNT">%d</xliff:g> знаци што не се букви</item>
     </plurals>
@@ -747,7 +749,7 @@
     <string name="bluetooth_searching_for_devices" msgid="7820814625522702494">"Пребарување..."</string>
     <string name="bluetooth_preference_device_settings" msgid="4247085616427015908">"Поставки на уред"</string>
     <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"Спарен уред"</string>
-    <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"Поврзување на интернет"</string>
+    <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"Интернет врска"</string>
     <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"Тастатура"</string>
     <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"Контакти и историја на повици"</string>
     <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"Да се спари со уредов?"</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Мобилен интернет"</item>
+    <item msgid="6007360612667098926">"Само Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -3675,7 +3680,7 @@
     <string name="permit_usage_access" msgid="3321727608629752758">"Дозволи пристап за користење"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Претпочитани поставки за користење на аплик."</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"Време поминато на уредот"</string>
-    <string name="usage_access_description" msgid="2178083292760305207">"Пристапот за користење овозможува апликацијата да следи кои други апликации ги користите и колку често, како и давателот на услуга, поставките за јазик и други детали."</string>
+    <string name="usage_access_description" msgid="2178083292760305207">"Пристапот за користење овозможува апликацијата да следи кои други апликации ги користите и колку често, како и операторот, поставките за јазик и други детали."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"Меморија"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"Детали за меморија"</string>
     <string name="always_running" msgid="5320183445080208766">"Секогаш е активна (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>

@@ -209,7 +209,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"Morate popuniti adresno polje"</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"Adresno polje mora biti prazno ako je server polje prazno."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"Uneseni port nije važeći."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Preglednik koristi HTTP proksi, ali je moguće da ga ne koriste druge aplikacije."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Preglednik koristi HTTP proksi, ali ga druge aplikacije ne mogu koristiti."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"URL za PAC: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"DL propusnost (kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"UL propusnost (kbps):"</string>
@@ -485,8 +485,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Zaštitite tablet zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili vam ga ukradu. Zaključavanje ekrana vam je potrebno i za postavljanje autentifikacije licem. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Zaštitite uređaj zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili vam ga ukradu. Zaključavanje ekrana vam je potrebno i za postavljanje autentifikacije licem. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Zaštitite telefon zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili vam ga ukradu. Zaključavanje ekrana vam je potrebno i za postavljanje autentifikacije licem. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Preskočiti postavljanje PIN-a?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Preskočiti postavljanje lozinke?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Preskočiti postavljanje uzorka?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Postavi zaključavanje ekrana"</string>
@@ -677,7 +676,6 @@
       <item quantity="few">Ukupan broj cifara mora biti manji od <xliff:g id="NUMBER_1">%d</xliff:g></item>
       <item quantity="other">Ukupan broj cifara mora biti manji od <xliff:g id="NUMBER_1">%d</xliff:g></item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Mora sadržavati isključivo cifre 0-9."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Administrator uređaja ne dozvoljava korištenje nedavnog PIN-a"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Vaš IT administrator je blokirao česte PIN kôdove. Probajte drugi PIN kôd."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Ne može sadržavati nevažeći znak"</string>
@@ -713,6 +711,11 @@
       <item quantity="one">Mora sadržavati najmanje <xliff:g id="COUNT">%d</xliff:g> znak koji nije slovo</item>
       <item quantity="few">Mora sadržavati najmanje <xliff:g id="COUNT">%d</xliff:g> znaka koja nisu slova</item>
       <item quantity="other">Mora sadržavati najmanje <xliff:g id="COUNT">%d</xliff:g> znakova koji nisu slova</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Mora sadržavati najmanje <xliff:g id="COUNT">%d</xliff:g> znak koji nije broj</item>
+      <item quantity="few">Mora sadržavati najmanje <xliff:g id="COUNT">%d</xliff:g> znaka koja nisu brojevi</item>
+      <item quantity="other">Mora sadržavati najmanje <xliff:g id="COUNT">%d</xliff:g> znakova koji nisu brojevi</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Administrator uređaja ne dozvoljava korištenje nedavne lozinke"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Vaš IT administrator je blokirao česte lozinke. Probajte drugu lozinku."</string>
@@ -1109,8 +1112,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"WiFi"</item>
+    <item msgid="4421333712484542489">"Mobilna mreža"</item>
+    <item msgid="6007360612667098926">"Samo WiFi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -2613,7 +2619,7 @@
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Ako nastavite, vašim korisnikom će upravljati vaš administrator koji će, osim vaših ličnih podataka, moći pohranjivati i povezane podatke.\n\nVaš administrator može pratiti i upravljati postavkama, pristupom, aplikacijama i podacima koji su povezani s ovim korisnikom, uključujući aktivnost na mreži i informacije o lokaciji vašeg uređaja."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"Administrator je onemogućio ostale opcije"</string>
     <string name="admin_more_details" msgid="1719819589822345585">"Više detalja"</string>
-    <string name="notification_log_title" msgid="4200467765474474753">"Dnevnik obavještenja"</string>
+    <string name="notification_log_title" msgid="4200467765474474753">"Zapisnik obavještenja"</string>
     <string name="sound_category_call_ringtone_vibrate_title" msgid="4678065664534722153">"Melodija zvona telefona i vibracija"</string>
     <string name="wifi_setup_detail" msgid="3551227109377008779">"Detalji o mreži"</string>
     <string name="accessibility_sync_enabled" msgid="4620153705473448002">"Sinhronizacija omogućena"</string>
@@ -3426,7 +3432,7 @@
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"sus slika u"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Slika u slici"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Dozvoli način rada Slika u slici"</string>
-    <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Dozvoli ovoj aplikaciji kreiranje prozora u načinu rada slika u slici dok je aplikacija otvorena ili nakon što je napustite (naprimjer, da nastavite gledati videozapis). Ovaj prozor se prikazuje preko drugih aplikacija koje koristite."</string>
+    <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Dozvolite aplikaciji da kreira prozor u načinu rada slika u slici dok je aplikacija otvorena ili nakon što je napustite (naprimjer, da nastavite gledati videozapis). Ovaj prozor se prikazuje preko drugih aplikacija koje koristite."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"Pristup načinu rada Ne ometaj"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Dozvoli način rada Ne ometaj"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"Nijedna instalirana aplikacija nije zatražila pristup za Ne ometaj"</string>
@@ -3731,7 +3737,7 @@
     <string name="permit_usage_access" msgid="3321727608629752758">"Dopusti pristup korištenju"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Postavke upotrebe aplikacija"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"Vrijeme upotrebe"</string>
-    <string name="usage_access_description" msgid="2178083292760305207">"Pristup korištenju omogućava praćenje drugih aplikacija koje koristite i učestalosti korištenja, kao i praćenje vašeg operatera, postavke jezika i drugo."</string>
+    <string name="usage_access_description" msgid="2178083292760305207">"Pristup korištenju omogućava aplikaciji da prati koje druge aplikacije koristite i koliko često, kao i da vidi vašeg mobilnog operatera, postavke jezika i druge detalje."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"Memorija"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"Detalji o memoriji"</string>
     <string name="always_running" msgid="5320183445080208766">"Uvijek je pokrenuta (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>

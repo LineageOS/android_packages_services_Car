@@ -79,14 +79,19 @@ public class ActivityBlockingActivity extends Activity {
         // restrictions are lifted.
         // This Activity should be launched only after car service is initialized. Currently this
         // Activity is only launched from CPMS. So this is safe to do.
-        mCar = Car.createCar(this);
-        mUxRManager = (CarUxRestrictionsManager) mCar.getCarManager(
-                Car.CAR_UX_RESTRICTION_SERVICE);
-        // This activity would have been launched only in a restricted state.
-        // But ensuring when the service connection is established, that we are still
-        // in a restricted state.
-        handleUxRChange(mUxRManager.getCurrentCarUxRestrictions());
-        mUxRManager.registerListener(ActivityBlockingActivity.this::handleUxRChange);
+        mCar = Car.createCar(this, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
+                (car, ready) -> {
+                    if (!ready) {
+                        return;
+                    }
+                    mUxRManager = (CarUxRestrictionsManager) car.getCarManager(
+                            Car.CAR_UX_RESTRICTION_SERVICE);
+                    // This activity would have been launched only in a restricted state.
+                    // But ensuring when the service connection is established, that we are still
+                    // in a restricted state.
+                    handleUxRChange(mUxRManager.getCurrentCarUxRestrictions());
+                    mUxRManager.registerListener(ActivityBlockingActivity.this::handleUxRChange);
+                });
     }
 
     @Override

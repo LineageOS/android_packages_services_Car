@@ -489,8 +489,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Ochráňte svoj tablet pomocou možnosti zámky obrazovky, aby ho v prípade krádeže alebo straty nemohol nikto použiť. Možnosť zámky obrazovky potrebujete aj na nastavenie overenia tváre. Klepnite na Zrušiť, potom nastavte PIN alebo vyberte inú možnosť zámky obrazovky."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Ochráňte svoje zariadenie pomocou možnosti zámky obrazovky, aby ho v prípade krádeže alebo straty nemohol nikto použiť. Možnosť zámky obrazovky potrebujete aj na nastavenie overenia tváre. Klepnite na Zrušiť, potom nastavte PIN alebo vyberte inú možnosť zámky obrazovky."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Ochráňte svoj telefón pomocou možnosti zámky obrazovky, aby ho v prípade krádeže alebo straty nemohol nikto použiť. Možnosť zámky obrazovky potrebujete aj na nastavenie overenia tváre. Klepnite na Zrušiť, potom nastavte PIN alebo vyberte inú možnosť zámky obrazovky."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Preskočiť nastavenie kódu PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Preskočiť nastavenie hesla?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Preskočiť nastavenie vzoru?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Nastaviť zámku obrazovky"</string>
@@ -685,7 +684,6 @@
       <item quantity="other">Musí mať menej ako <xliff:g id="NUMBER_1">%d</xliff:g> číslic</item>
       <item quantity="one">Musí mať menej ako <xliff:g id="NUMBER_0">%d</xliff:g> číslicu</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Musí obsahovať len číslice 0 až 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Správca zariadenia neumožňuje používať nedávny kód PIN"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Bežné kódy PIN zablokoval váš správca IT. Skúste iný PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Musí obsahovať iba platné znaky"</string>
@@ -727,6 +725,12 @@
       <item quantity="many">Musí obsahovať aspoň <xliff:g id="COUNT">%d</xliff:g> znaku, ktorý nie je písmeno</item>
       <item quantity="other">Musí obsahovať aspoň <xliff:g id="COUNT">%d</xliff:g> znakov, ktoré nie sú písmená</item>
       <item quantity="one">Musí obsahovať aspoň 1 znak, ktorý nie je písmeno</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="few">Musí obsahovať aspoň <xliff:g id="COUNT">%d</xliff:g> znaky, ktoré nie sú písmená</item>
+      <item quantity="many">Must contain at least <xliff:g id="COUNT">%d</xliff:g> non-numerical characters</item>
+      <item quantity="other">Musí obsahovať aspoň <xliff:g id="COUNT">%d</xliff:g> znakov, ktoré nie sú písmená</item>
+      <item quantity="one">Musí obsahovať aspoň jeden znak, ktorý nie je písmeno</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Správca zariadenia neumožňuje používať nedávne heslo"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Bežné heslá zablokoval váš správca IT. Skúste iné heslo."</string>
@@ -1126,8 +1130,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi‑Fi"</item>
+    <item msgid="4421333712484542489">"Mobilné dáta"</item>
+    <item msgid="6007360612667098926">"Len Wi‑Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -3914,7 +3921,7 @@
     <string name="system_alert_window_settings" msgid="3024330223417646567">"Zobrazenie cez iné aplikácie"</string>
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"Aplikácie"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"Zobrazenie cez iné aplikácie"</string>
-    <string name="permit_draw_overlay" msgid="9039092257052422344">"Povoliť zobrazenie cez iné aplikácie"</string>
+    <string name="permit_draw_overlay" msgid="9039092257052422344">"Povoliť zobrazenie nad ostatnými aplikáciami"</string>
     <string name="allow_overlay_description" msgid="6669524816705082807">"Umožní tejto aplikácií zobrazovať sa nad inými aplikáciami, ktoré používate. Môže tak narušiť používanie týchto aplikácií alebo zmeniť ich vzhľad či správanie."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"vr virtuálna realita prijímač stereo pomocné zariadenie"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"zobrazenie dialógového okna s upozornením systému nad inými aplikáciami"</string>
@@ -3929,8 +3936,8 @@
     <string name="write_settings_summary" msgid="4650251358459404247">"Úprava nastavení systému je povolená pre <xliff:g id="COUNT_0">%1$d</xliff:g> z <xliff:g id="COUNT_1">%2$d</xliff:g> aplikácií"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"Prístup k správam SMS finančných aplikácií"</string>
     <string name="filter_install_sources_apps" msgid="4519839764020866701">"Môže inštalovať ďalšie aplikácie"</string>
-    <string name="filter_write_settings_apps" msgid="6864144615530081121">"Môže upravovať nastavenia systému"</string>
-    <string name="write_settings_title" msgid="5852614614193830632">"Môže upravovať nastavenia systému"</string>
+    <string name="filter_write_settings_apps" msgid="6864144615530081121">"Môže meniť nastavenia systému"</string>
+    <string name="write_settings_title" msgid="5852614614193830632">"Môže meniť nastavenia systému"</string>
     <string name="write_system_settings" msgid="20450765210832463">"Úprava nastavení systému"</string>
     <string name="permit_write_settings" msgid="4198491281216818756">"Povoliť úpravy nastavení systému"</string>
     <string name="write_settings_description" msgid="2536706293042882500">"Toto povolenie umožňuje aplikácii upravovať nastavenia systému."</string>

@@ -22,10 +22,8 @@ import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
-import android.content.Context;
 import android.media.AudioAttributes;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -52,7 +50,7 @@ import java.util.List;
  * - There is exactly one audio zone, which is the primary zone
  * - Each volume group represents a controllable STREAM_TYPE, same as AudioManager
  */
-public final class CarAudioManager implements CarManagerBase {
+public final class CarAudioManager extends CarManagerBase {
 
     /**
      * Zone id of the primary audio zone.
@@ -114,7 +112,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.isDynamicRoutingEnabled();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -147,7 +145,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             mService.setGroupVolume(zoneId, groupId, index, flags);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -177,7 +175,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getGroupMaxVolume(zoneId, groupId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, 0);
         }
     }
 
@@ -207,7 +205,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getGroupMinVolume(zoneId, groupId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, 0);
         }
     }
 
@@ -240,7 +238,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getGroupVolume(zoneId, groupId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, 0);
         }
     }
 
@@ -259,7 +257,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             mService.setFadeTowardFront(value);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -278,7 +276,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             mService.setBalanceTowardRight(value);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -300,7 +298,8 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getExternalSources();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
+            return new String[0];
         }
     }
 
@@ -330,7 +329,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.createAudioPatch(sourceAddress, usage, gainInMillibels);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -350,7 +349,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             mService.releaseAudioPatch(patch);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -379,7 +378,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getVolumeGroupCount(zoneId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, 0);
         }
     }
 
@@ -409,7 +408,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getVolumeGroupIdForUsage(zoneId, usage);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, 0);
         }
     }
 
@@ -436,7 +435,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getAudioZoneIds();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, new int[0]);
         }
     }
 
@@ -453,7 +452,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getZoneIdForUid(uid);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, 0);
         }
     }
 
@@ -470,7 +469,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.setZoneIdForUid(zoneId, uid);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -486,7 +485,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.clearZoneIdForUid(uid);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -523,7 +522,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getZoneIdForDisplayPortId(displayPortId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, 0);
         }
     }
 
@@ -541,7 +540,7 @@ public final class CarAudioManager implements CarManagerBase {
         try {
             return mService.getUsagesForVolumeGroupId(zoneId, groupId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, new int[0]);
         }
     }
 
@@ -552,16 +551,16 @@ public final class CarAudioManager implements CarManagerBase {
             try {
                 mService.unregisterVolumeCallback(mCarVolumeCallbackImpl.asBinder());
             } catch (RemoteException e) {
-                throw e.rethrowFromSystemServer();
+                handleRemoteExceptionFromCarService(e);
             }
         }
     }
 
     /** @hide */
-    public CarAudioManager(IBinder service, Context context, Handler handler) {
+    public CarAudioManager(Car car, IBinder service) {
+        super(car);
         mService = ICarAudio.Stub.asInterface(service);
         mCarVolumeCallbacks = new ArrayList<>();
-
         try {
             mService.registerVolumeCallback(mCarVolumeCallbackImpl.asBinder());
         } catch (RemoteException e) {

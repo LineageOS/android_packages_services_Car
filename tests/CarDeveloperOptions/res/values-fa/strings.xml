@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"از رایانه لوحی‌تان با گزینه قفل صفحه محافظت کنید تا درصورت گم شدن یا به سرقت رفتن هیچ فردی نتواند از آن استفاده کند. همچنین به گزینه قفل صفحه نیاز دارید تا احراز هویت ازطرق چهره را راه‌اندازی کنید. روی «لغو» ضربه بزنید و سپس پین تنظیم کنید یا گزینه قفل صفحه دیگری را انتخاب کنید."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"از دستگاهتان با گزینه قفل صفحه محافظت کنید تا درصورت گم شدن یا به سرقت رفتن هیچ فردی نتواند از آن استفاده کند. همچنین به گزینه قفل صفحه نیاز دارید تا احراز هویت ازطرق چهره را راه‌اندازی کنید. روی «لغو» ضربه بزنید و سپس پین تنظیم کنید یا گزینه قفل صفحه دیگری را انتخاب کنید."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"از تلفنتان با گزینه قفل صفحه محافظت کنید تا درصورت گم شدن یا به سرقت رفتن هیچ فردی نتواند از آن استفاده کند. همچنین به گزینه قفل صفحه نیاز دارید تا احراز هویت ازطرق چهره را راه‌اندازی کنید. روی «لغو» ضربه بزنید و سپس پین تنظیم کنید یا گزینه قفل صفحه دیگری را انتخاب کنید."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"راه‌اندازی پین رد شود؟"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"راه‌اندازی گذرواژه رد شود؟"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"راه‌اندازی الگو رد شود؟"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"تنظیم قفل صفحه"</string>
@@ -669,7 +668,6 @@
       <item quantity="one">باید کمتر از <xliff:g id="NUMBER_1">%d</xliff:g> رقم باشد</item>
       <item quantity="other">باید کمتر از <xliff:g id="NUMBER_1">%d</xliff:g> رقم باشد</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"فقط می‌تواند شامل اعداد ۰ تا ۹ باشد"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"سرپرست دستگاه اجازه استفاده از پین اخیر را نمی‌دهد"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"پین‌های رایج توسط سرپرست فناوری اطلاعات شما مسدود شده‌اند. پین متفاوتی را امتحان کنید."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"نمی‌تواند نویسه نامعتبر داشته باشد"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">باید حداقل <xliff:g id="COUNT">%d</xliff:g> نویسه غیرحرف داشته باشد</item>
       <item quantity="other">باید حداقل <xliff:g id="COUNT">%d</xliff:g> نویسه غیرحرف داشته باشد</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">باید حداقل <xliff:g id="COUNT">%d</xliff:g> نویسه غیرعددی داشته باشد</item>
+      <item quantity="other">باید حداقل <xliff:g id="COUNT">%d</xliff:g> نویسه غیرعددی داشته باشد</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"سرپرست دستگاه اجازه استفاده از گذرواژه اخیر را نمی‌دهد"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"گذرواژه‌های رایج توسط سرپرست فناوری اطلاعات شما مسدود شده‌اند. گذرواژه متفاوتی را امتحان کنید."</string>
@@ -1017,7 +1019,7 @@
     </plurals>
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"Wi-Fi پیشرفته"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
-    <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"آدرس MAC"</string>
+    <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"نشانی MAC"</string>
     <string name="wifi_advanced_ip_address_title" msgid="2708185994512829071">"نشانی IP"</string>
     <string name="wifi_details_title" msgid="2164042631550920157">"جزئیات شبکه"</string>
     <string name="wifi_details_subnet_mask" msgid="53396707004763012">"پوشش زیرشبکه"</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"داده شبکه تلفن همراه"</item>
+    <item msgid="6007360612667098926">"فقط Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -2169,7 +2174,7 @@
     <string name="color_blue" msgid="4055855996393833996">"آبی"</string>
     <string name="color_cyan" msgid="7669317410901991453">"سبز آبی"</string>
     <string name="color_yellow" msgid="8847327436896180799">"زرد"</string>
-    <string name="color_magenta" msgid="721976999611563071">"زرشکی"</string>
+    <string name="color_magenta" msgid="721976999611563071">"سرخابی"</string>
     <string name="enable_service_title" msgid="2746143093464928251">"استفاده از <xliff:g id="SERVICE">%1$s</xliff:g>؟"</string>
     <string name="capabilities_list_title" msgid="8177719542886123788">"<xliff:g id="SERVICE">%1$s</xliff:g> باید:"</string>
     <string name="touch_filtered_warning" msgid="3072665526993043879">"چون برنامه‌ای در حال ایجاد تداخل در درخواست مجوز است، «تنظیمات» نمی‌تواند پاسخ شما را تأیید کند."</string>
@@ -2270,9 +2275,9 @@
     <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"عمر باتری رایانه لوحی‌تان را بهبود ببخشید"</string>
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"عمر باتری دستگاهتان را بهبود ببخشید"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"مدیر باتری را روشن کنید"</string>
-    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"بهینه‌سازی باتری را روشن کنید"</string>
+    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"«بهینه‌سازی باتری» را روشن کنید"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"ممکن است شارژ باتری زودتر از معمول تمام شود"</string>
-    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"بهینه‌سازی باتری روشن است"</string>
+    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"«بهینه‌سازی باتری» روشن است"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"ممکن است بعضی از ویژگی‌ها محدود شود"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"تلفن بیشتر از حد معمول استفاده شده است"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"رایانه لوحی بیشتر از حد معمول استفاده شده است"</string>
@@ -2310,9 +2315,9 @@
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"این برنامه می‌تواند در پس‌زمینه از باتری استفاده کند. ممکن است شارژ باتری زودتر از حد انتظار تمام شود."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"برداشتن"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"لغو"</string>
-    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"میزان باتری مصرفی توسط برنامه‌هایتان معمولی است. اگر برنامه‌ها بیش‌ازحد باتری مصرف کنند، تلفنتان کنش‌هایی پیشنهاد می‌کند که می‌توانید انجام دهید.\n\nاگر باتری رو به اتمام باشد، همیشه می‌توانید بهینه‌سازی باتری را روشن کنید."</string>
-    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"میزان باتری مصرفی توسط برنامه‌هایتان معمولی است. اگر برنامه‌ها بیش‌ازحد باتری مصرف کنند، رایانه لوحی‌تان کنش‌هایی پیشنهاد می‌کند که می‌توانید انجام دهید.\n\nاگر باتری رو به اتمام باشد، همیشه می‌توانید بهینه‌سازی باتری را روشن کنید."</string>
-    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"میزان باتری مصرفی برنامه‌هایتان معمولی است. اگر برنامه‌ها بیش‌ازحد باتری مصرف کنند، دستگاهتان کنش‌هایی پیشنهاد می‌کند که می‌توانید انجام دهید.\n\nاگر باتری رو به اتمام باشد، همیشه می‌توانید بهینه‌سازی باتری را روشن کنید."</string>
+    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"میزان باتری مصرفی توسط برنامه‌هایتان معمولی است. اگر برنامه‌ها بیش‌ازحد باتری مصرف کنند، تلفنتان کنش‌هایی پیشنهاد می‌کند که می‌توانید انجام دهید.\n\nاگر باتری رو به اتمام باشد، همیشه می‌توانید «بهینه‌سازی باتری» را روشن کنید."</string>
+    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"میزان باتری مصرفی توسط برنامه‌هایتان معمولی است. اگر برنامه‌ها بیش‌ازحد باتری مصرف کنند، رایانه لوحی‌تان کنش‌هایی پیشنهاد می‌کند که می‌توانید انجام دهید.\n\nاگر باتری رو به اتمام باشد، همیشه می‌توانید «بهینه‌سازی باتری» را روشن کنید."</string>
+    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"میزان باتری مصرفی برنامه‌هایتان معمولی است. اگر برنامه‌ها بیش‌ازحد باتری مصرف کنند، دستگاهتان کنش‌هایی پیشنهاد می‌کند که می‌توانید انجام دهید.\n\nاگر باتری رو به اتمام باشد، همیشه می‌توانید «بهینه‌سازی باتری» را روشن کنید."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"مدیر باتری"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"مدیریت خودکار برنامه‌ها"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"محدود کردن باتری برای برنامه‌هایی که زیاد استفاده نمی‌کنید"</string>
@@ -2448,13 +2453,13 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"در <xliff:g id="PERCENT">%1$s</xliff:g> روشن خواهد شد"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"تنظیم زمان‌بندی"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"وقتی شارژ کامل شد، خاموش شود"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"وقتی شارژ تلفن <xliff:g id="PERCENT">%1$s</xliff:g> باشد، بهینه‌سازی باتری خاموش می‌شود"</string>
-    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"وقتی شارژ رایانه لوحی <xliff:g id="PERCENT">%1$s</xliff:g> باشد، بهینه‌سازی باتری خاموش می‌شود"</string>
-    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"وقتی شارژ دستگاه <xliff:g id="PERCENT">%1$s</xliff:g> باشد، بهینه‌سازی باتری خاموش می‌شود"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"وقتی شارژ تلفن <xliff:g id="PERCENT">%1$s</xliff:g> باشد، «بهینه‌سازی باتری» خاموش می‌شود"</string>
+    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"وقتی شارژ رایانه لوحی <xliff:g id="PERCENT">%1$s</xliff:g> باشد، «بهینه‌سازی باتری» خاموش می‌شود"</string>
+    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"وقتی شارژ دستگاه <xliff:g id="PERCENT">%1$s</xliff:g> باشد، «بهینه‌سازی باتری» خاموش می‌شود"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"روشن کردن"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"استفاده از بهینه‌سازی باتری"</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"استفاده از «بهینه‌سازی باتری»"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"روشن شدن خودکار"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"هیچ‌وقت"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"در <xliff:g id="PERCENT">%1$s</xliff:g> باتری"</string>
@@ -3886,7 +3891,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"«مزاحم نشوید» روشن است"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"تلفن بی‌صدا است"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"بدون استثنا"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"بهینه‌سازی باتری روشن است"</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"«بهینه‌سازی باتری» روشن است"</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"ویژگی‌ها محدود شده‌اند"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"داده شبکه تلفن همراه خاموش است"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"اینترنت فقط ازطریق Wi‑Fi دردسترس است"</string>

@@ -489,8 +489,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Ochraňte svůj tablet pomocí zámku obrazovky, aby ho v případě ztráty či odcizení nemohl použít nikdo cizí. Zámek obrazovky budete také potřebovat, pokud si budete chtít nastavit ověření obličejem. Klepněte na Zrušit a poté si nastavte PIN nebo zvolte jiný typ zámku obrazovky."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Ochraňte své zařízení pomocí zámku obrazovky, aby ho v případě ztráty či odcizení nemohl použít nikdo cizí. Zámek obrazovky budete také potřebovat, pokud si budete chtít nastavit ověření obličejem. Klepněte na Zrušit a poté si nastavte PIN nebo zvolte jiný typ zámku obrazovky."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Ochraňte svůj telefon pomocí zámku obrazovky, aby ho v případě ztráty či odcizení nemohl použít nikdo cizí. Zámek obrazovky budete také potřebovat, pokud si budete chtít nastavit ověření obličejem. Klepněte na Zrušit a poté si nastavte PIN nebo zvolte jiný typ zámku obrazovky."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Přeskočit nastavení PINu?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Přeskočit nastavení hesla?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Přeskočit nastavení gesta?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Nastavit zámek obrazovky"</string>
@@ -685,7 +684,6 @@
       <item quantity="other">Musí obsahovat méně než <xliff:g id="NUMBER_1">%d</xliff:g> číslic</item>
       <item quantity="one">Musí obsahovat méně než <xliff:g id="NUMBER_0">%d</xliff:g> číslici</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"PIN smí obsahovat pouze číslice 0 až 9."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Administrátor zařízení nedovoluje použití nedávno použitého kódu PIN"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Obvyklé kódy PIN jsou blokovány administrátorem IT. Použijte jiný PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Heslo nesmí obsahovat neplatné znaky."</string>
@@ -727,6 +725,12 @@
       <item quantity="many">Heslo musí obsahovat alespoň <xliff:g id="COUNT">%d</xliff:g> znaku jiného než písmeno</item>
       <item quantity="other">Heslo musí obsahovat alespoň <xliff:g id="COUNT">%d</xliff:g> znaků jiných než písmeno</item>
       <item quantity="one">Heslo musí obsahovat alespoň 1 znak jiný než písmeno</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="few">Musí obsahovat alespoň <xliff:g id="COUNT">%d</xliff:g> znaky jiné než číslice</item>
+      <item quantity="many">Musí obsahovat alespoň <xliff:g id="COUNT">%d</xliff:g> znaku jiného než číslici</item>
+      <item quantity="other">Musí obsahovat alespoň <xliff:g id="COUNT">%d</xliff:g> znaků jiných než číslici</item>
+      <item quantity="one">Musí obsahovat alespoň 1 znak jiný než číslici</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Administrátor zařízení neumožňuje použít heslo, které jste použili nedávno"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Obvyklá hesla jsou blokována administrátorem IT. Použijte jiné heslo."</string>
@@ -1126,8 +1130,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Mobilní"</item>
+    <item msgid="6007360612667098926">"Pouze Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

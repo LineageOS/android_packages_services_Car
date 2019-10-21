@@ -17,7 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
         package="android.car.apitest"
-        android:sharedUserId="com.google.android.car.uid.kitchensink"
+        android:sharedUserId="android.uid.system"
         android:debuggable="true" >
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"

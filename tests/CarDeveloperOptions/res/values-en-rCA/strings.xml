@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Protect your tablet with a screen lock option so that no one will be able to use it if it is lost or stolen. You also need a screen lock option to set up face authentication. Tap Cancel, then set a PIN or choose another screen lock option."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Protect your device with a screen lock option so that no one will be able to use it if it is lost or stolen. You also need a screen lock option to set up face authentication. Tap Cancel, then set a PIN or choose another screen lock option."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Protect your phone with a screen lock option so that no one will be able to use it if it is lost or stolen. You also need a screen lock option to set up face authentication. Tap Cancel, then set a PIN or choose another screen lock option."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Skip PIN Setup?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Skip Password Setup?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Skip Pattern Setup?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Set up screen lock"</string>
@@ -669,7 +668,6 @@
       <item quantity="other">Must be fewer than <xliff:g id="NUMBER_1">%d</xliff:g> digits</item>
       <item quantity="one">Must be fewer than <xliff:g id="NUMBER_0">%d</xliff:g> digit</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Must only contain digits 0-9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Device admin doesn\'t allow using a recent PIN"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Common PINs are blocked by your IT admin. Try a different PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"This can\'t include an invalid character"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Must contain at least <xliff:g id="COUNT">%d</xliff:g> non-letter characters</item>
       <item quantity="one">Must contain at least 1 non-letter character</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Must contain at least <xliff:g id="COUNT">%d</xliff:g> non-numeric characters</item>
+      <item quantity="one">Must contain at least 1 non-numeric character</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Device admin doesn\'t allow using a recent password"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Common passwords are blocked by your IT admin. Try a different password."</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Mobile"</item>
+    <item msgid="6007360612667098926">"Wi-Fi only"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -2052,7 +2057,7 @@
     <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"Tap 3 times to zoom"</string>
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"Tap a button to zoom"</string>
     <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"To zoom"</b>", quickly tap the screen 3 times.\n"<ul><li>"Drag 2 or more fingers to scroll"</li>\n<li>"Pinch 2 or more fingers to adjust zoom"</li></ul>\n\n<b>"To zoom temporarily"</b>", quickly tap the screen 3 times and hold down your finger on the third tap.\n"<ul><li>"Drag to move around the screen"</li>\n<li>"Lift finger to zoom out"</li></ul>\n\n"You can\'t zoom in on the keyboard and navigation bar."</string>
-    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"When magnification is turned on, use the Accessibility button at the bottom of the screen to quickly magnify.\n\n"<b>"To zoom"</b>", tap the Accessibility button, then tap anywhere on the screen.\n"<ul><li>"Drag 2 or more fingers to scroll"</li>\n<li>"Pinch 2 or more fingers to adjust zoom"</li></ul>\n\n<b>"To zoom temporarily"</b>", tap the Accessibility button, then touch &amp; hold anywhere on the screen.\n"<ul><li>"Drag to move around the screen"</li>\n<li>"Lift finger to zoom out"</li></ul>\n\n"You can’t zoom in on the keyboard or navigation bar."</string>
+    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"When magnification is turned on, use the Accessibility button at the bottom of the screen to quickly magnify.\n\n"<b>"To zoom"</b>", tap the Accessibility button, then tap anywhere on the screen.\n"<ul><li>"Drag 2 or more fingers to scroll"</li>\n<li>"Pinch 2 or more fingers to adjust zoom"</li></ul>\n\n<b>"To zoom temporarily"</b>", tap the Accessibility button, then touch and hold anywhere on the screen.\n"<ul><li>"Drag to move around the screen"</li>\n<li>"Lift finger to zoom out"</li></ul>\n\n"You can’t zoom in on the keyboard or navigation bar."</string>
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"The accessibility button is set to <xliff:g id="SERVICE">%1$s</xliff:g>. To use magnification, touch &amp; hold the accessibility button, then select magnification."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Volume key shortcut"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Shortcut service"</string>
@@ -4101,9 +4106,9 @@
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Manual"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Free up space now"</string>
     <string name="gesture_preference_title" msgid="583646591518373785">"Gestures"</string>
-    <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Quick gestures to control your phone"</string>
-    <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Quick gestures to control your tablet"</string>
-    <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Quick gestures to control your device"</string>
+    <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Quick Gestures to control your phone"</string>
+    <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Quick Gestures to control your tablet"</string>
+    <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Quick Gestures to control your device"</string>
     <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Jump to camera"</string>
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"To quickly open camera, press the power button twice. Works from any screen."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Open camera quickly"</string>

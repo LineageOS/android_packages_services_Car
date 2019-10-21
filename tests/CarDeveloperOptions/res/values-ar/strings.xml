@@ -497,8 +497,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"يمكنك حماية جهازك اللوحي بتفعيل خيار قفل الشاشة حتى لا يتمكَّن أي شخص من استخدامه في حال فقدانه أو سرقته. وتحتاج أيضًا إلى خيار قفل الشاشة لإعداد مصادقة الوجه. انقر على \"إلغاء\" ثُم حدِّد رقم تعريف شخصيًا أو اختَر خيارًا آخر لقفل الشاشة."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"يمكنك حماية جهازك بتفعيل خيار قفل الشاشة حتى لا يتمكَّن أي شخص من استخدامه في حال فقدانه أو سرقته. وتحتاج أيضًا إلى خيار قفل الشاشة لإعداد مصادقة الوجه. انقر على \"إلغاء\" ثُم حدِّد رقم تعريف شخصيًا أو اختَر خيارًا آخر لقفل الشاشة."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"يمكنك حماية هاتفك بتفعيل خيار قفل الشاشة حتى لا يتمكَّن أي شخص من استخدامه في حال فقدانه أو سرقته. وتحتاج أيضًا إلى خيار قفل الشاشة لإعداد مصادقة الوجه. انقر على \"إلغاء\" ثُم حدِّد رقم تعريف شخصيًا أو اختَر خيارًا آخر لقفل الشاشة."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"أتريد تخطي إعداد رقم التعريف الشخصي؟"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"أتريد تخطّي إعداد كلمة المرور؟"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"هل تريد تخطّي إعداد النقش؟"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"إعداد تأمين الشاشة"</string>
@@ -701,7 +700,6 @@
       <item quantity="other">يجب ألا يزيد رقم التعريف الشخصي عن <xliff:g id="NUMBER_1">%d</xliff:g> رقم.</item>
       <item quantity="one">يجب ألا يزيد رقم التعريف الشخصي عن رقم واحد (<xliff:g id="NUMBER_0">%d</xliff:g>).</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"يجب أن يحتوي رقم التعريف الشخصي على أرقام من ۰–٩ فقط."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"لا يسمح مشرف الجهاز باستخدام رقم تعريف شخصي تم استخدامه مؤخرًا"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"حظرَ مشرف تكنولوجيا المعلومات استخدام أرقام التعريف الشخصية الشائعة. جرِّب استخدام رقم تعريف شخصي مختلف."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"لا يجب أن تتضمن كلمة المرور حرفًا غير صالح."</string>
@@ -755,6 +753,14 @@
       <item quantity="many">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT">%d</xliff:g> حرفًا ليس من الأحرف الأبجدية على الأقل</item>
       <item quantity="other">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT">%d</xliff:g> حرف ليس من الأحرف الأبجدية على الأقل</item>
       <item quantity="one">يجب أن تحتوي كلمة المرور على حرف واحد ليس من الأحرف الأبجدية على الأقل</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="zero">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT">%d</xliff:g> حرف أبجدي على الأقل.</item>
+      <item quantity="two">يجب أن تحتوي كلمة المرور على حرفين (<xliff:g id="COUNT">%d</xliff:g>) أبجديين على الأقل.</item>
+      <item quantity="few">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT">%d</xliff:g> أحرف أبجدية على الأقل.</item>
+      <item quantity="many">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT">%d</xliff:g> حرفًا أبجديًا على الأقل.</item>
+      <item quantity="other">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT">%d</xliff:g> حرف أبجدي على الأقل.</item>
+      <item quantity="one">يجب أن تحتوي كلمة المرور على حرف أبجدي واحد على الأقل.</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"لا يسمح مشرف الجهاز باستخدام كلمة مرور تم استخدامها مؤخرًا"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"حظرَ مشرف تكنولوجيا المعلومات استخدام كلمات المرور الشائعة. جرِّب استخدام كلمة مرور مختلفة."</string>
@@ -1160,8 +1166,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"الجوّال"</item>
+    <item msgid="6007360612667098926">"Wi-Fi فقط"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -3899,7 +3908,7 @@
     <string name="permit_usage_access" msgid="3321727608629752758">"السماح بالدخول إلى الاستخدام"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"تفضيلات استخدام التطبيقات"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"وقت الشاشة"</string>
-    <string name="usage_access_description" msgid="2178083292760305207">"يتيح الدخول إلى الاستخدام للتطبيق تتبع التطبيقات الأخرى التي تستخدمها ومدى تكرار استخدامها ومشغل شبكة الجوال وإعدادات اللغة بالإضافة إلى تفاصيل أخرى."</string>
+    <string name="usage_access_description" msgid="2178083292760305207">"عند السماح بالوصول إلى بيانات الاستخدام، سيتمكّن التطبيق من تتبع التطبيقات الأخرى التي تستخدمها ومدى تكرار استخدامها وكذلم تتبّع مشغّل شبكة الجوال وإعدادات اللغة بالإضافة إلى تفاصيل أخرى."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"الذاكرة"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"تفاصيل الذاكرة"</string>
     <string name="always_running" msgid="5320183445080208766">"يعمل دائمًا (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>

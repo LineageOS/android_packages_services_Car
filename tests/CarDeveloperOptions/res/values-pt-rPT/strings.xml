@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Proteja o seu tablet com uma opção de bloqueio de ecrã para que ninguém o consiga utilizar se for roubado ou se o perder. Também precisa de uma opção de bloqueio de ecrã para configurar a autenticação facial. Toque em Cancelar e defina um PIN ou escolha outra opção de bloqueio de ecrã."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Proteja o seu dispositivo com uma opção de bloqueio de ecrã para que ninguém o consiga utilizar se for roubado ou se o perder. Também precisa de uma opção de bloqueio de ecrã para configurar a autenticação facial. Toque em Cancelar e defina um PIN ou escolha outra opção de bloqueio de ecrã."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Proteja o seu telemóvel com uma opção de bloqueio de ecrã para que ninguém o consiga utilizar se for roubado ou se o perder. Também precisa de uma opção de bloqueio de ecrã para configurar a autenticação facial. Toque em Cancelar e defina um PIN ou escolha outra opção de bloqueio de ecrã."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Ignorar a configuração do PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Ignorar conf. palavra-passe?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Ignorar configur. do padrão?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Configurar o bloqueio de ecrã"</string>
@@ -669,7 +668,6 @@
       <item quantity="other">Tem de ter menos de <xliff:g id="NUMBER_1">%d</xliff:g> dígitos.</item>
       <item quantity="one">Tem de ter menos de <xliff:g id="NUMBER_0">%d</xliff:g> dígito.</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Tem de incluir apenas dígitos de 0 a 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"O gestor do dispositivo não permite utilizar um PIN recente"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Os PINs comuns estão bloqueados pelo seu gestor de TI. Experimente outro PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Não pode incluir um caráter inválido"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Tem de incluir, pelo menos, <xliff:g id="COUNT">%d</xliff:g> carateres que não sejam letras</item>
       <item quantity="one">Tem de incluir, pelo menos, 1 caráter que não seja uma letra</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Tem de incluir, pelo menos, <xliff:g id="COUNT">%d</xliff:g> carateres que não sejam números.</item>
+      <item quantity="one">Tem de incluir, pelo menos, 1 caráter que não seja um número.</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"O admin. do disp. não permite a utilização de uma palavra-passe recente"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"As palavras-passe comuns estão bloqueadas pelo seu gestor de TI. Experimente outra palavra-passe."</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Rede móvel"</item>
+    <item msgid="6007360612667098926">"Apenas Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -1760,7 +1765,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Ver padrão de desbloqueio"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Tornar o padrão do perfil visível"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Vibrar ao tocar"</string>
-    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Bloquear com botão lig./desl."</string>
+    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Bloquear com botão ligar/desligar"</string>
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Exceto quando mantido bloqueado por <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Definir padrão de desbloqueio"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Mudar padrão de desbloqueio"</string>

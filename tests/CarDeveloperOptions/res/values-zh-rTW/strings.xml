@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"建議你設定螢幕鎖定選項保護你的平板電腦。這樣一來，即使平板電腦遺失或遭竊，其他人也無法使用。此外，你也必須設定螢幕鎖定選項，才能設定臉孔驗證。請輕觸 [取消]，然後設定 PIN 碼或選擇其他螢幕鎖定選項。"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"建議你設定螢幕鎖定選項保護你的裝置。這樣一來，即使裝置遺失或遭竊，其他人也無法使用。此外，你也必須設定螢幕鎖定選項，才能設定臉孔驗證。請輕觸 [取消]，然後設定 PIN 碼或選擇其他螢幕鎖定選項。"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"建議你設定螢幕鎖定選項保護你的手機。這樣一來，即使手機遺失或遭竊，其他人也無法使用。此外，你也必須設定螢幕鎖定選項，才能設定臉孔驗證。請輕觸 [取消]，然後設定 PIN 碼或選擇其他螢幕鎖定選項。"</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"要略過 PIN 碼設定程序嗎？"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"要略過密碼設定程序嗎？"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"要略過解鎖圖案設定程序嗎？"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"設定螢幕鎖定"</string>
@@ -669,7 +668,6 @@
       <item quantity="other">長度必須少於 <xliff:g id="NUMBER_1">%d</xliff:g> 個數字</item>
       <item quantity="one">長度必須少於 <xliff:g id="NUMBER_0">%d</xliff:g> 個數字</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"只能包含數字 0 到 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"裝置管理員不允許使用最近用過的 PIN"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"你的 IT 管理員已封鎖常見 PIN 碼，請改用其他 PIN 碼。"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"密碼不得包含無效字元"</string>
@@ -699,6 +697,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">必須包含至少 <xliff:g id="COUNT">%d</xliff:g> 個非字母的字元</item>
       <item quantity="one">必須包含至少 1 個非字母的字元</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">至少必須包含 <xliff:g id="COUNT">%d</xliff:g> 個非數值字元</item>
+      <item quantity="one">至少必須包含 1 個非數值字元</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"裝置管理員不允許使用最近用過的密碼"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"你的 IT 管理員已封鎖常見密碼，請改用其他密碼。"</string>
@@ -1092,8 +1094,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"行動網路"</item>
+    <item msgid="6007360612667098926">"僅限 Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

@@ -223,34 +223,11 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Gets UserInfo for the user running the caller process.
-     *
-     * <p>Differentiation between foreground user and current process user is relevant for
-     * multi-user deployments.
-     *
-     * <p>Some multi-user aware components (like SystemUI) needs to run a singleton component
-     * in system user. Current process user is always the same for that component, even when
-     * the foreground user changes.
-     *
-     * @return {@link UserInfo} for the user running the current process.
-     */
-    public UserInfo getCurrentProcessUserInfo() {
-        return mUserManager.getUserInfo(getCurrentProcessUserId());
-    }
-
-    /**
-     * @return Id for the user running the current process.
-     */
-    public int getCurrentProcessUserId() {
-        return UserHandle.myUserId();
-    }
-
-    /**
      * Gets all the users that can be brought to the foreground on the system.
      *
      * @return List of {@code UserInfo} for users that associated with a real person.
      */
-    public List<UserInfo> getAllUsers() {
+    private List<UserInfo> getAllUsers() {
         if (UserManager.isHeadlessSystemUserMode()) {
             return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
         } else {
@@ -280,7 +257,7 @@ public final class CarUserManagerHelper {
      *
      * @return List of {@code UserInfo} for admin users that associated with a real person.
      */
-    public List<UserInfo> getAllAdminUsers() {
+    private List<UserInfo> getAllAdminUsers() {
         List<UserInfo> users = getAllUsers();
 
         for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
@@ -298,32 +275,13 @@ public final class CarUserManagerHelper {
      *
      * @return List of {@code UserInfo} for all users who are not guest users.
      */
-    public List<UserInfo> getAllUsersExceptGuests() {
+    private List<UserInfo> getAllUsersExceptGuests() {
         List<UserInfo> users = getAllUsers();
 
         for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
             UserInfo userInfo = iterator.next();
             if (userInfo.isGuest()) {
                 // Remove guests.
-                iterator.remove();
-            }
-        }
-        return users;
-    }
-
-    /**
-     * Get all the users except the one with userId passed in.
-     *
-     * @param userId of the user not to be returned.
-     * @return All users other than user with userId.
-     */
-    private List<UserInfo> getAllUsersExceptSpecifiedUser(int userId) {
-        List<UserInfo> users = mUserManager.getUsers(/* excludeDying= */true);
-
-        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
-            UserInfo userInfo = iterator.next();
-            if (userInfo.id == userId) {
-                // Remove user with userId from the list.
                 iterator.remove();
             }
         }
@@ -413,8 +371,8 @@ public final class CarUserManagerHelper {
      * @param userInfo User to check.
      * @return {@code true} if user running the process, {@code false} otherwise.
      */
-    public boolean isCurrentProcessUser(UserInfo userInfo) {
-        return getCurrentProcessUserId() == userInfo.id;
+    private boolean isCurrentProcessUser(UserInfo userInfo) {
+        return UserHandle.myUserId() == userInfo.id;
     }
 
     // Foreground user information accessors.

@@ -69,7 +69,7 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @SystemApi
-public final class CarProjectionManager implements CarManagerBase {
+public final class CarProjectionManager extends CarManagerBase {
     private static final String TAG = CarProjectionManager.class.getSimpleName();
 
     private final Binder mToken = new Binder();
@@ -194,7 +194,6 @@ public final class CarProjectionManager implements CarManagerBase {
     public static final int PROJECTION_AP_FAILED = 2;
 
     private final ICarProjection mService;
-    private final Handler mHandler;
     private final Executor mHandlerExecutor;
 
     @GuardedBy("mLock")
@@ -241,9 +240,10 @@ public final class CarProjectionManager implements CarManagerBase {
     /**
      * @hide
      */
-    public CarProjectionManager(IBinder service, Handler handler) {
+    public CarProjectionManager(Car car, IBinder service) {
+        super(car);
         mService = ICarProjection.Stub.asInterface(service);
-        mHandler = handler;
+        Handler handler = getEventHandler();
         mHandlerExecutor = handler::post;
     }
 
@@ -448,7 +448,8 @@ public final class CarProjectionManager implements CarManagerBase {
                 mService.unregisterKeyEventHandler(mBinderHandler);
             }
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
+            return;
         }
 
         mHandledEvents = events;
@@ -466,7 +467,7 @@ public final class CarProjectionManager implements CarManagerBase {
             try {
                 mService.registerProjectionRunner(serviceIntent);
             } catch (RemoteException e) {
-                throw e.rethrowFromSystemServer();
+                handleRemoteExceptionFromCarService(e);
             }
         }
     }
@@ -483,7 +484,7 @@ public final class CarProjectionManager implements CarManagerBase {
             try {
                 mService.unregisterProjectionRunner(serviceIntent);
             } catch (RemoteException e) {
-                throw e.rethrowFromSystemServer();
+                handleRemoteExceptionFromCarService(e);
             }
         }
     }
@@ -507,14 +508,14 @@ public final class CarProjectionManager implements CarManagerBase {
     public void startProjectionAccessPoint(@NonNull ProjectionAccessPointCallback callback) {
         Preconditions.checkNotNull(callback, "callback cannot be null");
         synchronized (mLock) {
-            Looper looper = mHandler.getLooper();
+            Looper looper = getEventHandler().getLooper();
             ProjectionAccessPointCallbackProxy proxy =
                     new ProjectionAccessPointCallbackProxy(this, looper, callback);
             try {
                 mService.startProjectionAccessPoint(proxy.getMessenger(), mAccessPointProxyToken);
                 mProjectionAccessPointCallbackProxy = proxy;
             } catch (RemoteException e) {
-                throw e.rethrowFromSystemServer();
+                handleRemoteExceptionFromCarService(e);
             }
         }
     }
@@ -535,7 +536,7 @@ public final class CarProjectionManager implements CarManagerBase {
             }
             return channelList;
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
     }
 
@@ -556,7 +557,7 @@ public final class CarProjectionManager implements CarManagerBase {
         try {
             mService.stopProjectionAccessPoint(mAccessPointProxyToken);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -575,7 +576,7 @@ public final class CarProjectionManager implements CarManagerBase {
         try {
             return mService.requestBluetoothProfileInhibit(device, profile, mToken);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -593,7 +594,7 @@ public final class CarProjectionManager implements CarManagerBase {
         try {
             return mService.releaseBluetoothProfileInhibit(device, profile, mToken);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -611,7 +612,7 @@ public final class CarProjectionManager implements CarManagerBase {
         try {
             mService.updateProjectionStatus(status, mToken);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -634,12 +635,12 @@ public final class CarProjectionManager implements CarManagerBase {
                 try {
                     mService.registerProjectionStatusListener(mCarProjectionStatusListener);
                 } catch (RemoteException e) {
-                    throw e.rethrowFromSystemServer();
+                    handleRemoteExceptionFromCarService(e);
                 }
             } else {
                 // Already subscribed to Car Service, immediately notify listener with the current
                 // projection status in the event handler thread.
-                mHandler.post(() ->
+                getEventHandler().post(() ->
                         listener.onProjectionStatusChanged(
                                 mCarProjectionStatusListener.mCurrentState,
                                 mCarProjectionStatusListener.mCurrentPackageName,
@@ -671,7 +672,7 @@ public final class CarProjectionManager implements CarManagerBase {
             mService.unregisterProjectionStatusListener(mCarProjectionStatusListener);
             mCarProjectionStatusListener = null;
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -695,7 +696,7 @@ public final class CarProjectionManager implements CarManagerBase {
         try {
             return mService.getProjectionOptions();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, Bundle.EMPTY);
         }
     }
 
@@ -838,7 +839,7 @@ public final class CarProjectionManager implements CarManagerBase {
                 List<ProjectionStatus> details) {
             CarProjectionManager mgr = mManagerRef.get();
             if (mgr != null) {
-                mgr.mHandler.post(() -> {
+                mgr.getEventHandler().post(() -> {
                     mCurrentState = projectionState;
                     mCurrentPackageName = packageName;
                     mDetails = Collections.unmodifiableList(details);
