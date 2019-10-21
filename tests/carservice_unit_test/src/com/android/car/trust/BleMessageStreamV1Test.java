@@ -29,8 +29,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Handler;
 
-import androidx.test.runner.AndroidJUnit4;
-
 import com.android.car.BLEStreamProtos.BLEMessageProto.BLEMessage;
 import com.android.car.BLEStreamProtos.BLEOperationProto.OperationType;
 import com.android.car.protobuf.InvalidProtocolBufferException;
@@ -40,7 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,7 +53,7 @@ import java.util.UUID;
  * <p>Run:
  * {@code atest CarServiceUnitTest:BleMessageStreamV1Test}
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class BleMessageStreamV1Test {
     private static final String ADDRESS_MOCK = "00:11:22:33:AA:BB";
 
@@ -74,8 +72,6 @@ public class BleMessageStreamV1Test {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-
         // Mock so that handler will run anything that is posted to it.
         when(mHandlerMock.post(any(Runnable.class))).thenAnswer(invocation -> {
             invocation.<Runnable>getArgument(0).run();

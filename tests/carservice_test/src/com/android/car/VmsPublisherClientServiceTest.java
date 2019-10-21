@@ -26,11 +26,14 @@ import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.RequiresDevice;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class VmsPublisherClientServiceTest extends MockedVmsTestBase {
     private static final int MOCK_PUBLISHER_LAYER_ID = 12;

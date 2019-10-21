@@ -16,7 +16,9 @@
 
 package com.android.car;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 
 import android.car.IPerUserCarService;
 import android.content.Context;
@@ -28,16 +30,14 @@ import android.provider.Settings;
 import android.test.mock.MockContentProvider;
 import android.test.mock.MockContentResolver;
 
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 /**
@@ -52,9 +52,8 @@ import org.mockito.stubbing.Answer;
  * 2) Verify that, when the useDefaultConnectionPolicy resource overlay flag is false, we do not
  *    create and use the default connection policy.
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CarBluetoothServiceTest {
-
     private CarBluetoothService mCarBluetoothService;
 
     @Mock private Context mMockContext;
@@ -74,7 +73,7 @@ public class CarBluetoothServiceTest {
 
     @Before
     public void setUp() {
-        mMockContentResolver = new MockContentResolver(mMockContext);
+        mMockContentResolver = new MockContentResolver(null);
         mMockContentProvider = new MockContentProvider() {
             @Override
             public Bundle call(String method, String request, Bundle args) {
@@ -83,7 +82,6 @@ public class CarBluetoothServiceTest {
         };
         mMockContentResolver.addProvider(Settings.AUTHORITY, mMockContentProvider);
 
-        MockitoAnnotations.initMocks(this);
         when(mMockContext.getResources()).thenReturn(mMockResources);
         when(mMockContext.getContentResolver()).thenReturn(mMockContentResolver);
         when(mMockContext.getApplicationContext()).thenReturn(mMockContext);

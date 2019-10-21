@@ -34,7 +34,6 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.view.KeyEvent;
 
 import androidx.test.filters.RequiresDevice;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 
@@ -43,13 +42,11 @@ import com.google.common.collect.ImmutableSet;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,10 +54,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.LongSupplier;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class InputHalServiceTest {
-    @Rule public MockitoRule mMockitoRule = MockitoJUnit.rule();
-
     @Mock VehicleHal mVehicleHal;
     @Mock InputHalService.InputListener mInputListener;
     @Mock LongSupplier mUptimeSupplier;

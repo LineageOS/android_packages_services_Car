@@ -38,8 +38,8 @@ import android.os.Looper;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.DisplayInterface;
@@ -127,11 +127,11 @@ public class MockedCarTestBase {
     }
 
     protected Context getContext() {
-        return InstrumentationRegistry.getTargetContext();
+        return InstrumentationRegistry.getInstrumentation().getTargetContext();
     }
 
     protected Context getTestContext() {
-        return InstrumentationRegistry.getContext();
+        return InstrumentationRegistry.getInstrumentation().getContext();
     }
 
     protected String getFlattenComponent(Class cls) {

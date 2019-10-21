@@ -53,7 +53,6 @@ import android.telecom.TelecomManager;
 import android.view.KeyEvent;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.hal.InputHalService;
 import com.android.internal.app.AssistUtils;
@@ -61,22 +60,19 @@ import com.android.internal.app.AssistUtils;
 import com.google.common.collect.Range;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.BitSet;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CarInputServiceTest {
-    @Rule public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock InputHalService mInputHalService;
     @Mock TelecomManager mTelecomManager;

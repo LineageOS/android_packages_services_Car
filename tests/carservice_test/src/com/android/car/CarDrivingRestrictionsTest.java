@@ -32,8 +32,8 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
 import android.util.Log;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.internal.annotations.GuardedBy;

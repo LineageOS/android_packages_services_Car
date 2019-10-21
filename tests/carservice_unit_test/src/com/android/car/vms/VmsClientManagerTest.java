@@ -70,12 +70,15 @@ import com.android.car.user.CarUserService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoSession;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.quality.Strictness;
 
+@RunWith(MockitoJUnitRunner.class)
 @SmallTest
 public class VmsClientManagerTest {
     private static final String SYSTEM_CLIENT = "com.google.android.apps.vms.test/.VmsSystemClient";

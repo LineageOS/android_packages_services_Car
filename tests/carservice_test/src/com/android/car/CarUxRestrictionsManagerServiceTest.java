@@ -39,18 +39,20 @@ import android.os.SystemClock;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.systeminterface.SystemInterface;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
@@ -68,6 +70,9 @@ import java.util.List;
 public class CarUxRestrictionsManagerServiceTest {
     private CarUxRestrictionsManagerService mService;
 
+    @Rule
+    public final MockitoRule rule = MockitoJUnit.rule();
+
     @Mock
     private CarDrivingStateService mMockDrivingStateService;
     @Mock
@@ -81,10 +86,8 @@ public class CarUxRestrictionsManagerServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
         // Spy context because service needs to access xml resource during init.
-        mSpyContext = spy(InstrumentationRegistry.getTargetContext());
-
+        mSpyContext = spy(InstrumentationRegistry.getInstrumentation().getTargetContext());
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.addService(SystemInterface.class, mMockSystemInterface);
 

@@ -16,7 +16,12 @@
 
 package com.android.car;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.bluetooth.BluetoothAdapter;
 import android.car.hardware.power.CarPowerManager;
@@ -32,7 +37,6 @@ import android.test.mock.MockContentProvider;
 import android.test.mock.MockContentResolver;
 
 import androidx.test.filters.RequiresDevice;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -40,8 +44,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 /**
@@ -51,7 +55,7 @@ import org.mockito.stubbing.Answer;
  * atest BluetoothDeviceConnectionPolicyTest
  */
 @RequiresDevice
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class BluetoothDeviceConnectionPolicyTest {
     private BluetoothDeviceConnectionPolicy mPolicy;
 
@@ -73,7 +77,7 @@ public class BluetoothDeviceConnectionPolicyTest {
 
     @Before
     public void setUp() {
-        mMockContentResolver = new MockContentResolver(mMockContext);
+        mMockContentResolver = new MockContentResolver(null);
         mMockContentProvider = new MockContentProvider() {
             @Override
             public Bundle call(String method, String request, Bundle args) {
@@ -82,7 +86,6 @@ public class BluetoothDeviceConnectionPolicyTest {
         };
         mMockContentResolver.addProvider(Settings.AUTHORITY, mMockContentProvider);
 
-        MockitoAnnotations.initMocks(this);
         when(mMockContext.getResources()).thenReturn(mMockResources);
         when(mMockContext.getContentResolver()).thenReturn(mMockContentResolver);
         when(mMockContext.getApplicationContext()).thenReturn(mMockContext);
@@ -111,17 +114,8 @@ public class BluetoothDeviceConnectionPolicyTest {
 
     @After
     public void tearDown() {
-        mPowerStateListener = null;
         mPolicy.release();
-        mPolicy = null;
         mBluetoothAdapterHelper.release();
-        mBluetoothAdapterHelper = null;
-        mReceiver = null;
-        mMockBluetoothService = null;
-        mMockResources = null;
-        mMockContext = null;
-        mMockContentProvider = null;
-        mMockContentResolver = null;
     }
 
     //--------------------------------------------------------------------------------------------//
