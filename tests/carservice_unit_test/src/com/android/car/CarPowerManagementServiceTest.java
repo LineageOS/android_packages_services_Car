@@ -142,6 +142,25 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
     }
 
+    public void testSleepImmediately() throws Exception {
+        initTest(0);
+
+        // Transition to ON state
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY));
+        // Since modules have to manually schedule next wakeup, we should not schedule next wakeup
+        // To test module behavior, we need to actually implement mock listener module.
+        assertStateReceived(PowerHalService.SET_SHUTDOWN_START, 0);
+        assertFalse(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
+        mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
+    }
+
     public void testShutdownWithProcessing() throws Exception {
         final int wakeupTime = 100;
         initTest(wakeupTime);
