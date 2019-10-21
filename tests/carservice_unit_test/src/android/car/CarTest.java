@@ -22,6 +22,8 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSess
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static junit.framework.Assert.fail;
+
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.times;
@@ -177,7 +179,13 @@ public class CarTest {
         runOnMainSyncSafe(() -> {
             car.getServiceConnectionListener().onServiceConnected(new ComponentName("", ""),
                     mService);
-            car.getServiceConnectionListener().onServiceDisconnected(new ComponentName("", ""));
+            try {
+                car.getServiceConnectionListener().onServiceDisconnected(new ComponentName("", ""));
+            } catch (IllegalStateException e) {
+                // expected
+                return;
+            }
+            fail("onServiceDisconnected should have triggered exception");
         });
     }
 
