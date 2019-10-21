@@ -24,6 +24,8 @@ import android.annotation.Nullable;
 import android.annotation.SdkConstant;
 import android.annotation.SdkConstant.SdkConstantType;
 import android.annotation.SystemApi;
+import android.app.Activity;
+import android.app.Service;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
 import android.car.content.pm.CarPackageManager;
@@ -725,11 +727,10 @@ public final class Car {
                 mConnectionState = STATE_CONNECTED;
                 mService = newService;
             }
-            if (mServiceConnectionListenerClient != null) {
-                mServiceConnectionListenerClient.onServiceConnected(name, service);
-            }
             if (mStatusChangeCallback != null) {
                 mStatusChangeCallback.onLifecycleChanged(Car.this, true);
+            } else if (mServiceConnectionListenerClient != null) {
+                mServiceConnectionListenerClient.onServiceConnected(name, service);
             }
         }
 
@@ -742,11 +743,13 @@ public final class Car {
                 }
                 handleCarDisconnectLocked();
             }
-            if (mServiceConnectionListenerClient != null) {
-                mServiceConnectionListenerClient.onServiceDisconnected(name);
-            }
             if (mStatusChangeCallback != null) {
                 mStatusChangeCallback.onLifecycleChanged(Car.this, false);
+            } else if (mServiceConnectionListenerClient != null) {
+                mServiceConnectionListenerClient.onServiceDisconnected(name);
+            } else {
+                // This client does not handle car service restart, so should be terminated.
+                finishClient();
             }
         }
     };
@@ -1136,12 +1139,15 @@ public final class Car {
     @Nullable
     public Object getCarManager(String serviceName) {
         CarManagerBase manager;
-        ICar service = getICarOrThrow();
         synchronized (mLock) {
+            if (mService == null) {
+                Log.w(TAG_CAR, "getCarManager not working while car service not ready");
+                return null;
+            }
             manager = mServiceMap.get(serviceName);
             if (manager == null) {
                 try {
-                    IBinder binder = service.getCarService(serviceName);
+                    IBinder binder = mService.getCarService(serviceName);
                     if (binder == null) {
                         Log.w(TAG_CAR, "getCarManager could not get binder for service:"
                                 + serviceName);
@@ -1155,7 +1161,7 @@ public final class Car {
                     }
                     mServiceMap.put(serviceName, manager);
                 } catch (RemoteException e) {
-                    throw e.rethrowFromSystemServer();
+                    handleRemoteExceptionFromCarService(e);
                 }
             }
         }
@@ -1171,84 +1177,139 @@ public final class Car {
         return CONNECTION_TYPE_EMBEDDED;
     }
 
+    /** @hide */
+    Context getContext() {
+        return mContext;
+    }
+
+    /** @hide */
+    Handler getEventHandler() {
+        return mEventHandler;
+    }
+
+    /** @hide */
+    <T> T handleRemoteExceptionFromCarService(RemoteException e, T returnValue) {
+        handleRemoteExceptionFromCarService(e);
+        return returnValue;
+    }
+
+    /** @hide */
+    void handleRemoteExceptionFromCarService(RemoteException e) {
+        Log.w(TAG_CAR, "Car service has crashed", e);
+    }
+
+
+    private void finishClient() {
+        if (mContext == null) {
+            throw new IllegalStateException("Car service has crashed, null Context");
+        }
+        if (mContext instanceof Activity) {
+            Activity activity = (Activity) mContext;
+            if (!activity.isFinishing()) {
+                Log.w(TAG_CAR, "Car service crashed, client not handling it, finish Activity");
+                activity.finish();
+            }
+            return;
+        } else if (mContext instanceof Service) {
+            Service service = (Service) mContext;
+            throw new RuntimeException("Car service has crashed, client not handle it:"
+                    + service.getPackageName() + "," + service.getClass().getSimpleName());
+        }
+        throw new IllegalStateException("Car service crashed, client not handling it.");
+    }
+
+    /** @hide */
+    public static <T> T handleRemoteExceptionFromCarService(Service service, RemoteException e,
+            T returnValue) {
+        handleRemoteExceptionFromCarService(service, e);
+        return returnValue;
+    }
+
+    /** @hide */
+    public static  void handleRemoteExceptionFromCarService(Service service, RemoteException e) {
+        Log.w(TAG_CAR,
+                "Car service has crashed, client:" + service.getPackageName() + ","
+                        + service.getClass().getSimpleName(), e);
+        service.stopSelf();
+    }
+
     @Nullable
     private CarManagerBase createCarManager(String serviceName, IBinder binder) {
         CarManagerBase manager = null;
         switch (serviceName) {
             case AUDIO_SERVICE:
-                manager = new CarAudioManager(binder, mContext, mEventHandler);
+                manager = new CarAudioManager(this, binder);
                 break;
             case SENSOR_SERVICE:
-                manager = new CarSensorManager(binder, mContext, mEventHandler);
+                manager = new CarSensorManager(this, binder);
                 break;
             case INFO_SERVICE:
-                manager = new CarInfoManager(binder);
+                manager = new CarInfoManager(this, binder);
                 break;
             case APP_FOCUS_SERVICE:
-                manager = new CarAppFocusManager(binder, mEventHandler);
+                manager = new CarAppFocusManager(this, binder);
                 break;
             case PACKAGE_SERVICE:
-                manager = new CarPackageManager(binder, mContext);
+                manager = new CarPackageManager(this, binder);
                 break;
             case CAR_NAVIGATION_SERVICE:
-                manager = new CarNavigationStatusManager(binder);
+                manager = new CarNavigationStatusManager(this, binder);
                 break;
             case CABIN_SERVICE:
-                manager = new CarCabinManager(binder, mContext, mEventHandler);
+                manager = new CarCabinManager(this, binder);
                 break;
             case DIAGNOSTIC_SERVICE:
-                manager = new CarDiagnosticManager(binder, mContext, mEventHandler);
+                manager = new CarDiagnosticManager(this, binder);
                 break;
             case HVAC_SERVICE:
-                manager = new CarHvacManager(binder, mContext, mEventHandler);
+                manager = new CarHvacManager(this, binder);
                 break;
             case POWER_SERVICE:
-                manager = new CarPowerManager(binder, mContext, mEventHandler);
+                manager = new CarPowerManager(this, binder);
                 break;
             case PROJECTION_SERVICE:
-                manager = new CarProjectionManager(binder, mEventHandler);
+                manager = new CarProjectionManager(this, binder);
                 break;
             case PROPERTY_SERVICE:
-                manager = new CarPropertyManager(ICarProperty.Stub.asInterface(binder),
-                    mEventHandler);
+                manager = new CarPropertyManager(this, ICarProperty.Stub.asInterface(binder));
                 break;
             case VENDOR_EXTENSION_SERVICE:
-                manager = new CarVendorExtensionManager(binder, mEventHandler);
+                manager = new CarVendorExtensionManager(this, binder);
                 break;
             case CAR_INSTRUMENT_CLUSTER_SERVICE:
-                manager = new CarInstrumentClusterManager(binder, mEventHandler);
+                manager = new CarInstrumentClusterManager(this, binder);
                 break;
             case TEST_SERVICE:
                 /* CarTestManager exist in static library. So instead of constructing it here,
                  * only pass binder wrapper so that CarTestManager can be constructed outside. */
-                manager = new CarTestManagerBinderWrapper(binder);
+                manager = new CarTestManagerBinderWrapper(this, binder);
                 break;
             case VMS_SUBSCRIBER_SERVICE:
-                manager = new VmsSubscriberManager(binder);
+                manager = new VmsSubscriberManager(this, binder);
                 break;
             case BLUETOOTH_SERVICE:
-                manager = new CarBluetoothManager(binder, mContext);
+                manager = new CarBluetoothManager(this, binder);
                 break;
             case STORAGE_MONITORING_SERVICE:
-                manager = new CarStorageMonitoringManager(binder, mEventHandler);
+                manager = new CarStorageMonitoringManager(this, binder);
                 break;
             case CAR_DRIVING_STATE_SERVICE:
-                manager = new CarDrivingStateManager(binder, mContext, mEventHandler);
+                manager = new CarDrivingStateManager(this, binder);
                 break;
             case CAR_UX_RESTRICTION_SERVICE:
-                manager = new CarUxRestrictionsManager(binder, mContext, mEventHandler);
+                manager = new CarUxRestrictionsManager(this, binder);
                 break;
             case CAR_CONFIGURATION_SERVICE:
-                manager = new CarConfigurationManager(binder);
+                manager = new CarConfigurationManager(this, binder);
                 break;
             case CAR_TRUST_AGENT_ENROLLMENT_SERVICE:
-                manager = new CarTrustAgentEnrollmentManager(binder, mContext, mEventHandler);
+                manager = new CarTrustAgentEnrollmentManager(this, binder);
                 break;
             case CAR_MEDIA_SERVICE:
-                manager = new CarMediaManager(binder);
+                manager = new CarMediaManager(this, binder);
                 break;
             case CAR_BUGREPORT_SERVICE:
-                manager = new CarBugreportManager(binder, mContext);
+                manager = new CarBugreportManager(this, binder);
                 break;
             default:
                 break;
@@ -1278,15 +1339,6 @@ public final class Car {
                 mConnectionRetryCount = 0;
                 mServiceBound = true;
             }
-        }
-    }
-
-    private ICar getICarOrThrow() throws IllegalStateException {
-        synchronized (mLock) {
-            if (mService == null) {
-                throw new IllegalStateException("not connected");
-            }
-            return mService;
         }
     }
 

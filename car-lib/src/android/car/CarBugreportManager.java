@@ -20,7 +20,6 @@ import android.annotation.FloatRange;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
-import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
@@ -39,10 +38,9 @@ import java.lang.ref.WeakReference;
  *
  * @hide
  */
-public final class CarBugreportManager implements CarManagerBase {
+public final class CarBugreportManager extends CarManagerBase {
 
     private final ICarBugreportService mService;
-    private Handler mHandler;
 
     /**
      * Callback from carbugreport manager. Callback methods are always called on the main thread.
@@ -153,9 +151,9 @@ public final class CarBugreportManager implements CarManagerBase {
      *
      * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
      */
-    public CarBugreportManager(IBinder service, Context context) {
+    public CarBugreportManager(Car car, IBinder service) {
+        super(car);
         mService = ICarBugreportService.Stub.asInterface(service);
-        mHandler = new Handler(context.getMainLooper());
     }
 
     /**
@@ -185,10 +183,10 @@ public final class CarBugreportManager implements CarManagerBase {
         Preconditions.checkNotNull(callback);
         try {
             CarBugreportManagerCallbackWrapper wrapper =
-                    new CarBugreportManagerCallbackWrapper(callback, mHandler);
+                    new CarBugreportManagerCallbackWrapper(callback, getEventHandler());
             mService.requestBugreport(output, extraOutput, wrapper);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         } finally {
             IoUtils.closeQuietly(output);
             IoUtils.closeQuietly(extraOutput);

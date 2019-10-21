@@ -25,6 +25,7 @@ import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.IHwBinder.DeathRecipient;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
@@ -40,6 +41,8 @@ import java.io.PrintWriter;
 import java.util.NoSuchElementException;
 
 public class CarService extends Service {
+
+    private static final boolean RESTART_CAR_SERVICE_WHEN_VHAL_CRASH = true;
 
     private static final long WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS = 10_000;
 
@@ -178,7 +181,13 @@ public class CarService extends Service {
 
         @Override
         public void serviceDied(long cookie) {
-            Log.w(CarLog.TAG_SERVICE, "Vehicle HAL died.");
+            if (RESTART_CAR_SERVICE_WHEN_VHAL_CRASH) {
+                Log.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died. Car service will restart***");
+                Process.killProcess(Process.myPid());
+                return;
+            }
+
+            Log.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died.***");
 
             try {
                 mVehicle.unlinkToDeath(this);

@@ -103,6 +103,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
     private static final int NAVIGATION_STATE_EVENT_ID = 1;
     private static final String BITMAP_QUERY_WIDTH = "w";
     private static final String BITMAP_QUERY_HEIGHT = "h";
+    private static final String BITMAP_QUERY_OFFLANESALPHA = "offLanesAlpha";
 
     private final Handler mUiHandler = new Handler(Looper.getMainLooper());
 
@@ -647,8 +648,18 @@ public abstract class InstrumentClusterRenderingService extends Service {
     }
 
     /**
+     * See {@link #getBitmap(Uri, int, int, float)}
+     *
+     * @hide
+     */
+    @Nullable
+    public Bitmap getBitmap(Uri uri, int width, int height) {
+        return getBitmap(uri, width, height, 1f);
+    }
+
+    /**
      * Fetches a bitmap from the navigation context owner (application holding navigation focus)
-     * of the given width and height. The fetched bitmaps are cached.
+     * of the given width and height and off lane opacity. The fetched bitmaps are cached.
      * It returns null if:
      * <ul>
      * <li>there is no navigation context owner
@@ -657,12 +668,16 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * </ul>
      * This is a costly operation. Returned bitmaps should be fetched on a secondary thread.
      *
+     * @throws IllegalArgumentException if width, height <= 0, or 0 > offLanesAlpha > 1
      * @hide
      */
     @Nullable
-    public Bitmap getBitmap(Uri uri, int width, int height) throws InvalidSizeException {
+    public Bitmap getBitmap(Uri uri, int width, int height, float offLanesAlpha) {
         if (width <= 0 || height <= 0) {
-            throw new InvalidSizeException("Width and height must be > 0");
+            throw new IllegalArgumentException("Width and height must be > 0");
+        }
+        if (offLanesAlpha < 0 || offLanesAlpha > 1) {
+            throw new IllegalArgumentException("offLanesAlpha must be between [0, 1]");
         }
 
         try {
@@ -675,6 +690,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
             uri = uri.buildUpon()
                     .appendQueryParameter(BITMAP_QUERY_WIDTH, String.valueOf(width))
                     .appendQueryParameter(BITMAP_QUERY_HEIGHT, String.valueOf(height))
+                    .appendQueryParameter(BITMAP_QUERY_OFFLANESALPHA, String.valueOf(offLanesAlpha))
                     .build();
 
             String host = uri.getHost();
