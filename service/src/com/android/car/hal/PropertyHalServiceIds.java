@@ -26,6 +26,8 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import java.util.HashSet;
+
 /**
  * Helper class to define which property IDs are used by PropertyHalService.  This class binds the
  * read and write permissions to the property ID.
@@ -39,11 +41,12 @@ public class PropertyHalServiceIds {
      * properties.
      */
     private final SparseArray<Pair<String, String>> mProps;
+    private final HashSet<Integer> mPropForUnits;
     private static final String TAG = "PropertyHalServiceIds";
 
     public PropertyHalServiceIds() {
         mProps = new SparseArray<>();
-
+        mPropForUnits = new HashSet<>();
         // Add propertyId and read/write permissions
         // Cabin Properties
         mProps.put(VehicleProperty.DOOR_POS, new Pair<>(
@@ -388,24 +391,31 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.CABIN_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS));
+        // Display_Units
         mProps.put(VehicleProperty.DISTANCE_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
+        mPropForUnits.add(VehicleProperty.DISTANCE_DISPLAY_UNITS);
         mProps.put(VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
+        mPropForUnits.add(VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS);
         mProps.put(VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
+        mPropForUnits.add(VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS);
         mProps.put(VehicleProperty.EV_BATTERY_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
+        mPropForUnits.add(VehicleProperty.EV_BATTERY_DISPLAY_UNITS);
         mProps.put(VehicleProperty.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
+        mPropForUnits.add(VehicleProperty.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME);
         mProps.put(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
+        mPropForUnits.add(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
     }
 
     /**
@@ -471,5 +481,12 @@ public class PropertyHalServiceIds {
             // If it's a vendor property, insert it into the propId list and handle it
             return insertVendorProperty(propId);
         }
+    }
+
+    /**
+     * Check if the property is one of display units properties.
+     */
+    public boolean isPropertyToChangeUnits(int propertyId) {
+        return mPropForUnits.contains(propertyId);
     }
 }

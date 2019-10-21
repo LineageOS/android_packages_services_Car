@@ -411,7 +411,8 @@ public final class VehiclePropertyIds {
     /**
      * Distance units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
-     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
+     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and
+     * {@link Car#PERMISSION_VENDOR_EXTENSION}to write the property.
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
@@ -419,7 +420,8 @@ public final class VehiclePropertyIds {
     /**
      * Fuel volume units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
-     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
+     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS}
+     * and {@link Car#PERMISSION_VENDOR_EXTENSION}to write the property.
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
@@ -427,7 +429,8 @@ public final class VehiclePropertyIds {
     /**
      * Tire pressure units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
-     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
+     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and
+     * {@link Car#PERMISSION_VENDOR_EXTENSION}to write the property.
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
@@ -435,7 +438,8 @@ public final class VehiclePropertyIds {
     /**
      * EV battery units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
-     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
+     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and
+     * {@link Car#PERMISSION_VENDOR_EXTENSION}to write the property.
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
@@ -443,7 +447,8 @@ public final class VehiclePropertyIds {
     /**
      * Speed Units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
-     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
+     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and
+     * {@link Car#PERMISSION_VENDOR_EXTENSION}to write the property.
      * @hide
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
@@ -452,7 +457,8 @@ public final class VehiclePropertyIds {
     /**
      * Fuel consumption units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
-     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
+     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and
+     * {@link Car#PERMISSION_VENDOR_EXTENSION}to write the property.
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
