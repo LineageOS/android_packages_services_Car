@@ -145,7 +145,8 @@ public class PowerHalService extends HalServiceBase {
             if (mState != VehicleApPowerStateReq.SHUTDOWN_PREPARE) {
                 throw new IllegalStateException("wrong state");
             }
-            return (mParam != VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY);
+            return (mParam != VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY
+                    && mParam != VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY);
         }
 
         @Override
