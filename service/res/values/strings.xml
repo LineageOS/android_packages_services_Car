@@ -178,6 +178,11 @@
     <!-- Permission text: apps can access car's fuel door and ev charge port [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_energy_ports">Access car\u2019s fuel door and charge port.</string>
 
+    <!-- Permission text: apps can control car's fuel door and ev charge port [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_car_energy_ports">control car\u2019s fuel door and charge port</string>
+    <!-- Permission text: apps can control car's fuel door and ev charge port [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_car_energy_ports">Control car\u2019s fuel door and charge port.</string>
+
     <!-- Permission text: apps can access car's VIN information [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_identification">read car\u2019s identification</string>
     <!-- Permission text: apps can access car's VIN information [CHAR LIMIT=NONE] -->

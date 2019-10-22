@@ -176,9 +176,11 @@ public final class VehiclePropertyIds {
     public static final int FUEL_LEVEL = 291504903;
     /**
      * Fuel door open
-     * Requires permission: {@link Car#PERMISSION_ENERGY_PORTS}.
+     * Requires permission: {@link Car#PERMISSION_ENERGY_PORTS} to read the property.
+     * Requires permission: {@link Car#PERMISSION_CONTROL_ENERGY_PORTS} to control the property.
      */
-    @RequiresPermission(Car.PERMISSION_ENERGY_PORTS)
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY_PORTS))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ENERGY_PORTS))
     public static final int FUEL_DOOR_OPEN = 287310600;
     /**
      * EV battery level in WH, if EV or hybrid
@@ -188,9 +190,11 @@ public final class VehiclePropertyIds {
     public static final int EV_BATTERY_LEVEL = 291504905;
     /**
      * EV charge port open
-     * Requires permission: {@link Car#PERMISSION_ENERGY_PORTS}.
+     * Requires permission: {@link Car#PERMISSION_ENERGY_PORTS} to read the property.
+     * Requires permission: {@link Car#PERMISSION_CONTROL_ENERGY_PORTS} to control the property.
      */
-    @RequiresPermission(Car.PERMISSION_ENERGY_PORTS)
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY_PORTS))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ENERGY_PORTS))
     public static final int EV_CHARGE_PORT_OPEN = 287310602;
     /**
      * EV charge port connected
