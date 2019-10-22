@@ -411,51 +411,63 @@ public final class VehiclePropertyIds {
     /**
      * Distance units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
-     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
+     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and
+     * {@link Car#PERMISSION_VENDOR_EXTENSION}to write the property.
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
-    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
+    @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
+            Car.PERMISSION_VENDOR_EXTENSION}))
     public static final int DISTANCE_DISPLAY_UNITS = 289408512;
     /**
      * Fuel volume units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
-     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
+     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS}
+     * and {@link Car#PERMISSION_VENDOR_EXTENSION}to write the property.
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
-    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
+    @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
+            Car.PERMISSION_VENDOR_EXTENSION}))
     public static final int FUEL_VOLUME_DISPLAY_UNITS = 289408513;
     /**
      * Tire pressure units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
-     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
+     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and
+     * {@link Car#PERMISSION_VENDOR_EXTENSION}to write the property.
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
-    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
+    @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
+            Car.PERMISSION_VENDOR_EXTENSION}))
     public static final int TIRE_PRESSURE_DISPLAY_UNITS = 289408514;
     /**
      * EV battery units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
-     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
+     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and
+     * {@link Car#PERMISSION_VENDOR_EXTENSION}to write the property.
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
-    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
+    @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
+            Car.PERMISSION_VENDOR_EXTENSION}))
     public static final int EV_BATTERY_DISPLAY_UNITS = 289408515;
     /**
      * Speed Units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
-     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
+     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and
+     * {@link Car#PERMISSION_VENDOR_EXTENSION}to write the property.
      * @hide
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
-    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
+    @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
+            Car.PERMISSION_VENDOR_EXTENSION}))
     public static final int VEHICLE_SPEED_DISPLAY_UNITS = 289408516;
     /**
      * Fuel consumption units for display
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
-     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} to write the property.
+     * Requires permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and
+     * {@link Car#PERMISSION_VENDOR_EXTENSION}to write the property.
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
-    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
+    @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
+            Car.PERMISSION_VENDOR_EXTENSION}))
     public static final int FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME = 287311364;
     /**
      * Outside temperature
