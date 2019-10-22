@@ -95,7 +95,6 @@ public final class CarUserManagerHelper {
     private final ActivityManager mActivityManager;
     private final TestableFrameworkWrapper mTestableFrameworkWrapper;
     private String mDefaultAdminName;
-    private Bitmap mDefaultGuestUserIcon;
 
     /**
      * Initializes with a default name for admin users.
@@ -640,54 +639,15 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Gets a bitmap representing the user's default avatar.
-     *
-     * @param userInfo User whose avatar should be returned.
-     * @return Default user icon
-     */
-    private Bitmap getUserDefaultIcon(UserInfo userInfo) {
-        return UserIcons.convertToBitmap(
-            UserIcons.getDefaultUserIcon(mContext.getResources(), userInfo.id, false));
-    }
-
-    /**
-     * Gets a bitmap representing the default icon for a Guest user.
-     *
-     * @return Default guest user icon
-     */
-    public Bitmap getGuestDefaultIcon() {
-        if (mDefaultGuestUserIcon == null) {
-            mDefaultGuestUserIcon = UserIcons.convertToBitmap(UserIcons.getDefaultUserIcon(
-                mContext.getResources(), UserHandle.USER_NULL, false));
-        }
-        return mDefaultGuestUserIcon;
-    }
-
-    /**
-     * Gets an icon for the user.
-     *
-     * @param userInfo User for which we want to get the icon.
-     * @return a Bitmap for the icon
-     */
-    public Bitmap getUserIcon(UserInfo userInfo) {
-        Bitmap picture = mUserManager.getUserIcon(userInfo.id);
-
-        if (picture == null) {
-            return assignDefaultIcon(userInfo);
-        }
-
-        return picture;
-    }
-
-    /**
      * Assigns a default icon to a user according to the user's id.
      *
      * @param userInfo User whose avatar is set to default icon.
      * @return Bitmap of the user icon.
      */
-    public Bitmap assignDefaultIcon(UserInfo userInfo) {
-        Bitmap bitmap = userInfo.isGuest()
-                ? getGuestDefaultIcon() : getUserDefaultIcon(userInfo);
+    private Bitmap assignDefaultIcon(UserInfo userInfo) {
+        int idForIcon = userInfo.isGuest() ? UserHandle.USER_NULL : userInfo.id;
+        Bitmap bitmap = UserIcons.convertToBitmap(
+                UserIcons.getDefaultUserIcon(mContext.getResources(), idForIcon, false));
         mUserManager.setUserIcon(userInfo.id, bitmap);
         return bitmap;
     }
