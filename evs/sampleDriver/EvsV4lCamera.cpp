@@ -233,7 +233,7 @@ Return<void> EvsV4lCamera::stopVideoStream()  {
         // V1.1 client is waiting on STREAM_STOPPED event.
         std::unique_lock <std::mutex> lock(mAccessLock);
 
-        EvsEvent event;
+        EvsEventDesc event;
         event.aType = EvsEventType::STREAM_STOPPED;
         auto result = mStream_1_1->notify(event);
         if (!result.isOk()) {
@@ -294,10 +294,14 @@ Return<void> EvsV4lCamera::getCameraInfo_1_1(getCameraInfo_1_1_cb _hidl_cb) {
 }
 
 
-Return<EvsResult> EvsV4lCamera::doneWithFrame_1_1(const BufferDesc_1_1& buffer)  {
-    ALOGD("doneWithFrame");
+Return<EvsResult> EvsV4lCamera::doneWithFrame_1_1(const hidl_vec<BufferDesc_1_1>& buffers)  {
+    ALOGD(__FUNCTION__);
 
-    return doneWithFrame_impl(buffer.bufferId, buffer.buffer.nativeHandle);
+    for (auto&& buffer : buffers) {
+        doneWithFrame_impl(buffer.bufferId, buffer.buffer.nativeHandle);
+    }
+
+    return EvsResult::OK;
 }
 
 
@@ -367,8 +371,10 @@ Return<void> EvsV4lCamera::getIntParameterRange(CameraParam id,
 Return<void> EvsV4lCamera::setIntParameter(CameraParam id, int32_t value,
                                            setIntParameter_cb _hidl_cb) {
     uint32_t v4l2cid = V4L2_CID_BASE;
+    hidl_vec<int32_t> values;
+    values.resize(1);
     if (!convertToV4l2CID(id, v4l2cid)) {
-        _hidl_cb(EvsResult::INVALID_ARG, 0);
+        _hidl_cb(EvsResult::INVALID_ARG, values);
     } else {
         EvsResult result = EvsResult::OK;
         v4l2_control control = {v4l2cid, value};
@@ -377,7 +383,8 @@ Return<void> EvsV4lCamera::setIntParameter(CameraParam id, int32_t value,
             result = EvsResult::UNDERLYING_SERVICE_ERROR;
         }
 
-        _hidl_cb(result, control.value);
+        values[0] = control.value;
+        _hidl_cb(result, values);
     }
 
     return Void();
@@ -387,8 +394,10 @@ Return<void> EvsV4lCamera::setIntParameter(CameraParam id, int32_t value,
 Return<void> EvsV4lCamera::getIntParameter(CameraParam id,
                                            getIntParameter_cb _hidl_cb) {
     uint32_t v4l2cid = V4L2_CID_BASE;
+    hidl_vec<int32_t> values;
+    values.resize(1);
     if (!convertToV4l2CID(id, v4l2cid)) {
-        _hidl_cb(EvsResult::INVALID_ARG, 0);
+        _hidl_cb(EvsResult::INVALID_ARG, values);
     } else {
         EvsResult result = EvsResult::OK;
         v4l2_control control = {v4l2cid, 0};
@@ -397,7 +406,8 @@ Return<void> EvsV4lCamera::getIntParameter(CameraParam id,
         }
 
         // Report a result
-        _hidl_cb(result, control.value);
+        values[0] = control.value;
+        _hidl_cb(result, values);
     }
 
     return Void();
@@ -570,7 +580,7 @@ unsigned EvsV4lCamera::decreaseAvailableFrames_Locked(unsigned numToRemove) {
 
 
 // This is the async callback from the video camera that tells us a frame is ready
-void EvsV4lCamera::forwardFrame(imageBuffer* /*pV4lBuff*/, void* pData) {
+void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
     bool readyForFrame = false;
     size_t idx = 0;
 
@@ -620,6 +630,10 @@ void EvsV4lCamera::forwardFrame(imageBuffer* /*pV4lBuff*/, void* pData) {
         pDesc->stride = mStride;
         bufDesc_1_1.buffer.nativeHandle = mBuffers[idx].handle;
         bufDesc_1_1.bufferId = idx;
+        bufDesc_1_1.deviceId = mDescription.v1.cameraId;
+        // timestamp in microseconds.
+        bufDesc_1_1.timestamp =
+            pV4lBuff->timestamp.tv_sec * 1e+6 + pV4lBuff->timestamp.tv_usec;
 
         // Lock our output buffer for writing
         void *targetPixels = nullptr;
@@ -650,7 +664,10 @@ void EvsV4lCamera::forwardFrame(imageBuffer* /*pV4lBuff*/, void* pData) {
         // the lock
         bool flag = false;
         if (mStream_1_1 != nullptr) {
-            auto result = mStream_1_1->deliverFrame_1_1(bufDesc_1_1);
+            hidl_vec<BufferDesc_1_1> frames;
+            frames.resize(1);
+            frames[0] = bufDesc_1_1;
+            auto result = mStream_1_1->deliverFrame_1_1(frames);
             flag = result.isOk();
         } else {
             BufferDesc_1_0 bufDesc_1_0 = {

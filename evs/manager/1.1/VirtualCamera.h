@@ -64,7 +64,7 @@ public:
     bool              isStreaming()       { return mStreamState == RUNNING; }
 
     // Proxy to receive frames and forward them to the client's stream
-    bool              notify(const EvsEvent& event);
+    bool              notify(const EvsEventDesc& event);
     bool              deliverFrame(const BufferDesc& bufDesc);
 
     // Methods from ::android::hardware::automotive::evs::V1_0::IEvsCamera follow.
@@ -78,7 +78,7 @@ public:
 
     // Methods from ::android::hardware::automotive::evs::V1_1::IEvsCamera follow.
     Return<void>      getCameraInfo_1_1(getCameraInfo_1_1_cb _hidl_cb)  override;
-    Return<EvsResult> doneWithFrame_1_1(const BufferDesc_1_1& buffer) override;
+    Return<EvsResult> doneWithFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1>& buffer) override;
     Return<EvsResult> pauseVideoStream() override { return EvsResult::UNDERLYING_SERVICE_ERROR; }
     Return<EvsResult> resumeVideoStream() override { return EvsResult::UNDERLYING_SERVICE_ERROR; }
     Return<EvsResult> setMaster() override;

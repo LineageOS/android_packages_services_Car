@@ -31,13 +31,33 @@
     <!-- camera device information -->
     <camera>
         <!-- camera group 0 -->
-        <group group_id='group1'
-               device_id='/dev/video1,/dev/video2'
-               synchronized='false'
-        >
+        <group id='group0' synchronized='CALIBRATED'>
             <caps>
+                <!-- list of supported controls supported by all physical devices -->
+                <supported_controls>
+                    <control name='BRIGHTNESS' min='0' max='255'/>
+                    <control name='CONTRAST' min='0' max='255'/>
+                </supported_controls>
+
+                <!-- list of stream configuration supported by all physical devices -->
                 <stream id='0' width='960' height='540' format='RGBA_8888' framerate='30'/>
             </caps>
+
+            <!-- list of parameters -->
+            <characteristics>
+                <parameter
+                    name='REQUEST_AVAILABLE_CAPABILITIES'
+                    type='enum'
+                    size='1'
+                    value='LOGICAL_MULTI_CAMERA'
+                />
+                <parameter
+                    name='LOGICAL_MULTI_CAMERA_PHYSICAL_IDS'
+                    type='byte[]'
+                    size='2'
+                    value='/dev/video1,/dev/video2'
+                />
+            </characteristics>
         </group>
 
         <!-- camera device starts -->

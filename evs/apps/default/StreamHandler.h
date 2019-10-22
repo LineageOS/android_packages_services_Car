@@ -66,8 +66,8 @@ private:
     Return<void> deliverFrame(const BufferDesc_1_0& buffer)  override;
 
     // Implementation for ::android::hardware::automotive::evs::V1_1::IEvsCameraStream
-    Return<void> deliverFrame_1_1(const BufferDesc_1_1& buffer)  override;
-    Return<void> notify(const EvsEvent& event) override;
+    Return<void> deliverFrame_1_1(const hidl_vec<BufferDesc_1_1>& buffer)  override;
+    Return<void> notify(const EvsEventDesc& event) override;
 
     // Values initialized as startup
     android::sp <IEvsCamera>    mCamera;

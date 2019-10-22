@@ -114,7 +114,18 @@ void EvsEnumerator::EvsUeventThread(std::atomic<bool>& running) {
             } else if (cmd_addition) {
                 // NOTE: we are here adding new device without a validation
                 // because it always fails to open, b/132164956.
-                sCameraList.emplace(devpath, devpath.c_str());
+                CameraRecord cam(devpath.c_str());
+                if (sConfigManager != nullptr) {
+                    unique_ptr<ConfigManager::CameraInfo> &camInfo =
+                        sConfigManager->getCameraInfo(devpath);
+                    if (camInfo != nullptr) {
+                        cam.desc.metadata.setToExternal(
+                            (uint8_t *)camInfo->characteristics,
+                             get_camera_metadata_size(camInfo->characteristics)
+                        );
+                    }
+                }
+                sCameraList.emplace(devpath, cam);
                 ALOGI("%s is added", devpath.c_str());
             } else {
                 // Ignore all other actions including "change".
@@ -131,19 +142,13 @@ void EvsEnumerator::EvsUeventThread(std::atomic<bool>& running) {
 EvsEnumerator::EvsEnumerator() {
     ALOGD("EvsEnumerator created");
 
-    std::thread initCfgMgr;
     if (sConfigManager == nullptr) {
         /* loads and initializes ConfigManager in a separate thread */
-        initCfgMgr = std::thread([](){
-            sConfigManager =
-                ConfigManager::Create("/etc/automotive/evs/evs_sample_configuration.xml");
-        });
+        sConfigManager =
+            ConfigManager::Create("/etc/automotive/evs/evs_sample_configuration.xml");
     }
 
     enumerateDevices();
-    if (initCfgMgr.joinable()) {
-        initCfgMgr.join();
-    }
 }
 
 void EvsEnumerator::enumerateDevices() {

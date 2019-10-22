@@ -87,7 +87,8 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
 
         if (mStream_1_1 != nullptr) {
             // Report a frame drop to v1.1 client.
-            EvsEvent event;
+            EvsEventDesc event;
+            event.deviceId = bufDesc.deviceId;
             event.aType = EvsEventType::FRAME_DROPPED;
             auto result = mStream_1_1->notify(event);
             if (!result.isOk()) {
@@ -100,24 +101,31 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
         // Keep a record of this frame so we can clean up if we have to in case of client death
         mFramesHeld.emplace_back(bufDesc);
 
-        if (mStream_1_1 != nullptr) {
-            // Pass this buffer through to our client
-            mStream_1_1->deliverFrame_1_1(bufDesc);
-        } else {
-            // Forward a frame to v1.0 client
-            BufferDesc_1_0 frame_1_0 = {};
-            const AHardwareBuffer_Desc* pDesc =
-                reinterpret_cast<const AHardwareBuffer_Desc *>(&bufDesc.buffer.description);
-            frame_1_0.width     = pDesc->width;
-            frame_1_0.height    = pDesc->height;
-            frame_1_0.format    = pDesc->format;
-            frame_1_0.usage     = pDesc->usage;
-            frame_1_0.stride    = pDesc->stride;
-            frame_1_0.memHandle = bufDesc.buffer.nativeHandle;
-            frame_1_0.pixelSize = bufDesc.pixelSize;
-            frame_1_0.bufferId  = bufDesc.bufferId;
+        // Forward frames if new frames from all physical devices have arrived.
+        {
+            // TODO: this is only for a test - for now, forwarding only a single frame.
+            if (mStream_1_1 != nullptr) {
+                // Pass this buffer through to our client
+                hardware::hidl_vec<BufferDesc_1_1> frames;
+                frames.resize(1);
+                frames[0] = bufDesc;
+                mStream_1_1->deliverFrame_1_1(frames);
+            } else {
+                // Forward a frame to v1.0 client
+                BufferDesc_1_0 frame_1_0 = {};
+                const AHardwareBuffer_Desc* pDesc =
+                    reinterpret_cast<const AHardwareBuffer_Desc *>(&bufDesc.buffer.description);
+                frame_1_0.width     = pDesc->width;
+                frame_1_0.height    = pDesc->height;
+                frame_1_0.format    = pDesc->format;
+                frame_1_0.usage     = pDesc->usage;
+                frame_1_0.stride    = pDesc->stride;
+                frame_1_0.memHandle = bufDesc.buffer.nativeHandle;
+                frame_1_0.pixelSize = bufDesc.pixelSize;
+                frame_1_0.bufferId  = bufDesc.bufferId;
 
-            mStream->deliverFrame(frame_1_0);
+                mStream->deliverFrame(frame_1_0);
+            }
         }
 
         return true;
@@ -125,7 +133,7 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
 }
 
 
-bool VirtualCamera::notify(const EvsEvent& event) {
+bool VirtualCamera::notify(const EvsEventDesc& event) {
     switch(event.aType) {
         case EvsEventType::STREAM_STOPPED:
             // Warn if we got an unexpected stream termination
@@ -272,7 +280,7 @@ Return<void> VirtualCamera::stopVideoStream()  {
         // Deliver an empty frame to close out the frame stream
         if (mStream_1_1 != nullptr) {
             // v1.1 client waits for a stream stopped event
-            EvsEvent event;
+            EvsEventDesc event;
             event.aType = EvsEventType::STREAM_STOPPED;
             auto result = mStream_1_1->notify(event);
             if (!result.isOk()) {
@@ -329,28 +337,33 @@ Return<void> VirtualCamera::getCameraInfo_1_1(getCameraInfo_1_1_cb info_cb) {
 }
 
 
-Return<EvsResult> VirtualCamera::doneWithFrame_1_1(const BufferDesc_1_1& bufDesc_1_1) {
-    if (bufDesc_1_1.buffer.nativeHandle == nullptr) {
-        ALOGE("ignoring doneWithFrame called with invalid handle");
-    } else {
-        // Find this buffer in our "held" list
-        auto it = mFramesHeld.begin();
-        while (it != mFramesHeld.end()) {
-            if (it->bufferId == bufDesc_1_1.bufferId) {
-                // found it!
-                break;
-            }
-            ++it;
-        }
-        if (it == mFramesHeld.end()) {
-            // We should always find the frame in our "held" list
-            ALOGE("Ignoring doneWithFrame called with unrecognized frameID %d", bufDesc_1_1.bufferId);
-        } else {
-            // Take this frame out of our "held" list
-            mFramesHeld.erase(it);
+Return<EvsResult> VirtualCamera::doneWithFrame_1_1(
+    const hardware::hidl_vec<BufferDesc_1_1>& buffers) {
 
-            // Tell our parent that we're done with this buffer
-            mHalCamera->doneWithFrame(bufDesc_1_1);
+    for (auto&& buffer : buffers) {
+        if (buffer.buffer.nativeHandle == nullptr) {
+            ALOGW("ignoring doneWithFrame called with invalid handle");
+        } else {
+            // Find this buffer in our "held" list
+            auto it = mFramesHeld.begin();
+            while (it != mFramesHeld.end()) {
+                if (it->bufferId == buffer.bufferId) {
+                    // found it!
+                    break;
+                }
+                ++it;
+            }
+            if (it == mFramesHeld.end()) {
+                // We should always find the frame in our "held" list
+                ALOGE("Ignoring doneWithFrame called with unrecognized frameID %d",
+                      buffer.bufferId);
+            } else {
+                // Take this frame out of our "held" list
+                mFramesHeld.erase(it);
+
+                // Tell our parent that we're done with this buffer
+                mHalCamera->doneWithFrame(buffer);
+            }
         }
     }
 
@@ -421,7 +434,11 @@ Return<void> VirtualCamera::setIntParameter(CameraParam id,
                                             int32_t value,
                                             setIntParameter_cb _hidl_cb) {
     EvsResult status = mHalCamera->setParameter(this, id, value);
-    _hidl_cb(status, value);
+
+    hardware::hidl_vec<int32_t> values;
+    values.resize(1);
+    values[0] = value;
+    _hidl_cb(status, values);
 
     return Void();
 }
@@ -431,7 +448,11 @@ Return<void> VirtualCamera::getIntParameter(CameraParam id,
                                             getIntParameter_cb _hidl_cb) {
     int32_t value;
     EvsResult status = mHalCamera->getParameter(id, value);
-    _hidl_cb(status, value);
+
+    hardware::hidl_vec<int32_t> values;
+    values.resize(1);
+    values[0] = value;
+    _hidl_cb(status, values);
 
     return Void();
 }

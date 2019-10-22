@@ -195,7 +195,10 @@ Return<void> HalCamera::doneWithFrame(const BufferDesc_1_1& buffer) {
         mFrames[i].refCount--;
         if (mFrames[i].refCount <= 0) {
             // Since all our clients are done with this buffer, return it to the device layer
-            mHwCamera->doneWithFrame_1_1(buffer);
+            hardware::hidl_vec<BufferDesc_1_1> returnedBuffers;
+            returnedBuffers.resize(1);
+            returnedBuffers[0] = buffer;
+            mHwCamera->doneWithFrame_1_1(returnedBuffers);
         }
     }
 
@@ -217,13 +220,13 @@ Return<void> HalCamera::deliverFrame(const BufferDesc_1_0& buffer) {
 
 
 // Methods from ::android::hardware::automotive::evs::V1_1::IEvsCameraStream follow.
-Return<void> HalCamera::deliverFrame_1_1(const BufferDesc_1_1& buffer) {
+Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1>& buffer) {
     ALOGV("Received a frame");
     unsigned frameDeliveries = 0;
     for (auto&& client : mClients) {
         sp<VirtualCamera> vCam = client.promote();
         if (vCam != nullptr) {
-            if (vCam->deliverFrame(buffer)) {
+            if (vCam->deliverFrame(buffer[0])) {
                 ++frameDeliveries;
             }
         }
@@ -244,9 +247,9 @@ Return<void> HalCamera::deliverFrame_1_1(const BufferDesc_1_1& buffer) {
         }
 
         if (i == mFrames.size()) {
-            mFrames.emplace_back(buffer.bufferId);
+            mFrames.emplace_back(buffer[0].bufferId);
         } else {
-            mFrames[i].frameId = buffer.bufferId;
+            mFrames[i].frameId = buffer[0].bufferId;
         }
         mFrames[i].refCount = frameDeliveries;
     }
@@ -255,7 +258,7 @@ Return<void> HalCamera::deliverFrame_1_1(const BufferDesc_1_1& buffer) {
 }
 
 
-Return<void> HalCamera::notify(const EvsEvent& event) {
+Return<void> HalCamera::notify(const EvsEventDesc& event) {
     ALOGD("Received an event id: %u", event.aType);
     if(event.aType == EvsEventType::STREAM_STOPPED) {
         // This event happens only when there is no more active client.
@@ -305,7 +308,7 @@ Return<EvsResult> HalCamera::forceMaster(sp<VirtualCamera> virtualCamera) {
                 virtualCamera.get(), prevMaster.get());
 
             /* Notify a previous master client the loss of a master role */
-            EvsEvent event;
+            EvsEventDesc event;
             event.aType = EvsEventType::MASTER_RELEASED;
             if (!prevMaster->notify(event)) {
                 ALOGE("Fail to deliver a master role lost notification");
@@ -326,7 +329,7 @@ Return<EvsResult> HalCamera::unsetMaster(sp<VirtualCamera> virtualCamera) {
         mMaster = nullptr;
 
         /* Notify other clients that a master role becomes available. */
-        EvsEvent event;
+        EvsEventDesc event;
         event.aType = EvsEventType::MASTER_RELEASED;
         auto cbResult = this->notify(event);
         if (!cbResult.isOk()) {
@@ -345,12 +348,12 @@ Return<EvsResult> HalCamera::setParameter(sp<VirtualCamera> virtualCamera,
         mHwCamera->setIntParameter(id, value,
                                    [&result, &value](auto status, auto readValue) {
                                        result = status;
-                                       value = readValue;
+                                       value = readValue[0];
                                    });
 
         if (result == EvsResult::OK) {
             /* Notify a parameter change */
-            EvsEvent event;
+            EvsEventDesc event;
             event.aType = EvsEventType::PARAMETER_CHANGED;
             event.payload[0] = static_cast<uint32_t>(id);
             event.payload[1] = static_cast<uint32_t>(value);
@@ -375,7 +378,7 @@ Return<EvsResult> HalCamera::getParameter(CameraParam id, int32_t& value) {
     mHwCamera->getIntParameter(id, [&result, &value](auto status, auto readValue) {
                                        result = status;
                                        if (result == EvsResult::OK) {
-                                           value = readValue;
+                                           value = readValue[0];
                                        }
     });
 

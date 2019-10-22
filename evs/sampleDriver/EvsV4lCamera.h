@@ -66,7 +66,7 @@ public:
     Return<void>      getCameraInfo_1_1(getCameraInfo_1_1_cb _hidl_cb)  override;
     Return<EvsResult> pauseVideoStream() override;
     Return<EvsResult> resumeVideoStream() override;
-    Return<EvsResult> doneWithFrame_1_1(const BufferDesc_1_1& buffer) override;
+    Return<EvsResult> doneWithFrame_1_1(const hidl_vec<BufferDesc_1_1>& buffer) override;
     Return<EvsResult> setMaster() override;
     Return<EvsResult> forceMaster(const sp<IEvsDisplay>&) override;
     Return<EvsResult> unsetMaster() override;
