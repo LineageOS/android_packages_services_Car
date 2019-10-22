@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -47,28 +48,138 @@ import java.util.List;
 public class BugReportInfoActivity extends Activity {
     public static final String TAG = BugReportInfoActivity.class.getSimpleName();
 
+    /** Used for moving bug reports to a new location (e.g. USB drive). */
     private static final int SELECT_DIRECTORY_REQUEST_CODE = 1;
 
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private BugInfoAdapter mBugInfoAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private NotificationManager mNotificationManager;
     private MetaBugReport mLastSelectedBugReport;
+    private BugInfoAdapter.BugInfoViewHolder mLastSelectedBugInfoViewHolder;
 
-    private static final class AsyncMoveFilesTask extends AsyncTask<Void, Void, Boolean> {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.bug_report_info_activity);
+
+        mNotificationManager = getSystemService(NotificationManager.class);
+
+        mRecyclerView = findViewById(R.id.rv_bug_report_info);
+        mRecyclerView.setHasFixedSize(true);
+        // use a linear layout manager
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
+                DividerItemDecoration.VERTICAL));
+
+        mBugInfoAdapter = new BugInfoAdapter(this::onBugReportItemClicked);
+        mRecyclerView.setAdapter(mBugInfoAdapter);
+
+        findViewById(R.id.quit_button).setOnClickListener(this::onQuitButtonClick);
+        findViewById(R.id.start_bug_report_button).setOnClickListener(
+                this::onStartBugReportButtonClick);
+        ((TextView) findViewById(R.id.version_text_view)).setText(
+                String.format("v%s", getPackageVersion(this)));
+
+        cancelBugReportFinishedNotification();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        new BugReportsLoaderAsyncTask(this).execute();
+    }
+
+    /**
+     * Dismisses {@link BugReportService#BUGREPORT_FINISHED_NOTIF_ID}, otherwise the notification
+     * will stay there forever if this activity opened through the App Launcher.
+     */
+    private void cancelBugReportFinishedNotification() {
+        mNotificationManager.cancel(BugReportService.BUGREPORT_FINISHED_NOTIF_ID);
+    }
+
+    private void onBugReportItemClicked(
+            int buttonType, MetaBugReport bugReport, BugInfoAdapter.BugInfoViewHolder holder) {
+        if (buttonType == BugInfoAdapter.BUTTON_TYPE_UPLOAD) {
+            Log.i(TAG, "Uploading " + bugReport.getFilePath());
+            BugStorageUtils.setBugReportStatus(this, bugReport, Status.STATUS_UPLOAD_PENDING, "");
+            // Refresh the UI to reflect the new status.
+            new BugReportsLoaderAsyncTask(this).execute();
+        } else if (buttonType == BugInfoAdapter.BUTTON_TYPE_MOVE) {
+            Log.i(TAG, "Moving " + bugReport.getFilePath());
+            mLastSelectedBugReport = bugReport;
+            mLastSelectedBugInfoViewHolder = holder;
+            startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE),
+                    SELECT_DIRECTORY_REQUEST_CODE);
+        } else {
+            throw new IllegalStateException("unreachable");
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SELECT_DIRECTORY_REQUEST_CODE && resultCode == RESULT_OK) {
+            int takeFlags =
+                    data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            Uri destDirUri = data.getData();
+            getContentResolver().takePersistableUriPermission(destDirUri, takeFlags);
+            if (mLastSelectedBugReport == null || mLastSelectedBugInfoViewHolder == null) {
+                Log.w(TAG, "No bug report is selected.");
+                return;
+            }
+            MetaBugReport updatedBugReport = BugStorageUtils.setBugReportStatus(this,
+                    mLastSelectedBugReport, Status.STATUS_MOVE_IN_PROGRESS, "");
+            mBugInfoAdapter.updateBugReportInDataSet(
+                    updatedBugReport, mLastSelectedBugInfoViewHolder.getAdapterPosition());
+            new AsyncMoveFilesTask(
+                this,
+                    mBugInfoAdapter,
+                    updatedBugReport,
+                    mLastSelectedBugInfoViewHolder,
+                    destDirUri).execute();
+        }
+    }
+
+    private void onQuitButtonClick(View view) {
+        finish();
+    }
+
+    private void onStartBugReportButtonClick(View view) {
+        Intent intent = new Intent(this, BugReportActivity.class);
+        // Clear top is needed, otherwise multiple BugReportActivity-ies get opened and
+        // MediaRecorder crashes.
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+    /** Moves bugreport zip to a new location and updates RecyclerView. */
+    private static final class AsyncMoveFilesTask extends AsyncTask<Void, Void, MetaBugReport> {
+        private static final int COPY_BUFFER_SIZE = 4096; // bytes
+
         private final BugReportInfoActivity mActivity;
         private final MetaBugReport mBugReport;
         private final Uri mDestinationDirUri;
+        /** RecyclerView.Adapter that contains all the bug reports. */
+        private final BugInfoAdapter mBugInfoAdapter;
+        /** ViewHolder for {@link #mBugReport}. */
+        private final BugInfoAdapter.BugInfoViewHolder mBugViewHolder;
 
-        AsyncMoveFilesTask(BugReportInfoActivity activity, MetaBugReport bugReport,
+        AsyncMoveFilesTask(BugReportInfoActivity activity, BugInfoAdapter bugInfoAdapter,
+                MetaBugReport bugReport, BugInfoAdapter.BugInfoViewHolder holder,
                 Uri destinationDir) {
             mActivity = activity;
+            mBugInfoAdapter = bugInfoAdapter;
             mBugReport = bugReport;
+            mBugViewHolder = holder;
             mDestinationDirUri = destinationDir;
         }
 
+        /** Moves the bugreport to the USB drive and returns the updated {@link MetaBugReport}. */
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected MetaBugReport doInBackground(Void... params) {
             Uri sourceUri = BugStorageProvider.buildUriWithBugId(mBugReport.getId());
             ContentResolver resolver = mActivity.getContentResolver();
             String documentId = DocumentsContract.getTreeDocumentId(mDestinationDirUri);
@@ -81,43 +192,57 @@ public class BugReportInfoActivity extends Activity {
                         new File(mBugReport.getFilePath()).toPath().getFileName().toString());
                 if (newFileUri == null) {
                     Log.e(TAG, "Unable to create a new file.");
-                    return false;
+                    return BugStorageUtils.setBugReportStatus(
+                            mActivity,
+                            mBugReport,
+                            com.google.android.car.bugreport.Status.STATUS_MOVE_FAILED,
+                            "Unable to create a new file.");
                 }
                 try (InputStream input = resolver.openInputStream(sourceUri);
-                     OutputStream output = resolver.openOutputStream(newFileUri)) {
-                    byte[] buffer = new byte[4096];
+                     AssetFileDescriptor fd = resolver.openAssetFileDescriptor(newFileUri, "w")) {
+                    OutputStream output = fd.createOutputStream();
+                    byte[] buffer = new byte[COPY_BUFFER_SIZE];
                     int len;
                     while ((len = input.read(buffer)) > 0) {
                         output.write(buffer, 0, len);
                     }
+                    // Force sync the written data from memory to the disk.
+                    fd.getFileDescriptor().sync();
+                }
+                Log.d(TAG, "Finished writing to " + newFileUri.getPath());
+                if (BugStorageUtils.deleteBugReportZipfile(mActivity, mBugReport.getId())) {
+                    Log.i(TAG, "Local bugreport zip is deleted.");
+                } else {
+                    Log.w(TAG, "Failed to delete the local bugreport " + mBugReport.getFilePath());
                 }
                 BugStorageUtils.setBugReportStatus(
                         mActivity, mBugReport,
                         com.google.android.car.bugreport.Status.STATUS_MOVE_SUCCESSFUL, "");
             } catch (IOException e) {
                 Log.e(TAG, "Failed to create the bug report in the location.", e);
-                return false;
+                return BugStorageUtils.setBugReportStatus(
+                        mActivity, mBugReport,
+                        com.google.android.car.bugreport.Status.STATUS_MOVE_FAILED, e);
             }
-            return true;
+            return BugStorageUtils.setBugReportStatus(mActivity, mBugReport,
+                        com.google.android.car.bugreport.Status.STATUS_MOVE_SUCCESSFUL,
+                        "Moved to: " + mDestinationDirUri.getPath());
         }
 
         @Override
-        protected void onPostExecute(Boolean moveSuccessful) {
-            if (!moveSuccessful) {
-                BugStorageUtils.setBugReportStatus(
-                        mActivity, mBugReport,
-                        com.google.android.car.bugreport.Status.STATUS_MOVE_FAILED, "");
-            }
+        protected void onPostExecute(MetaBugReport updatedBugReport) {
             // Refresh the UI to reflect the new status.
-            new BugReportInfoTask(mActivity).execute();
+            mBugInfoAdapter.updateBugReportInDataSet(
+                    updatedBugReport, mBugViewHolder.getAdapterPosition());
         }
     }
 
-    private static final class BugReportInfoTask extends
+    /** Asynchronously loads bugreports from {@link BugStorageProvider}. */
+    private static final class BugReportsLoaderAsyncTask extends
             AsyncTask<Void, Void, List<MetaBugReport>> {
         private final WeakReference<BugReportInfoActivity> mBugReportInfoActivityWeakReference;
 
-        BugReportInfoTask(BugReportInfoActivity activity) {
+        BugReportsLoaderAsyncTask(BugReportInfoActivity activity) {
             mBugReportInfoActivityWeakReference = new WeakReference<>(activity);
         }
 
@@ -138,96 +263,7 @@ public class BugReportInfoActivity extends Activity {
                 Log.w(TAG, "Activity is gone, cancelling onPostExecute.");
                 return;
             }
-            activity.mAdapter = new BugInfoAdapter(result, activity::onBugReportItemClicked);
-            activity.mRecyclerView.setAdapter(activity.mAdapter);
-            activity.mRecyclerView.getAdapter().notifyDataSetChanged();
+            activity.mBugInfoAdapter.setDataset(result);
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.bug_report_info_activity);
-
-        mNotificationManager = getSystemService(NotificationManager.class);
-
-        mRecyclerView = findViewById(R.id.rv_bug_report_info);
-        mRecyclerView.setHasFixedSize(true);
-        // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
-                DividerItemDecoration.VERTICAL));
-
-        // specify an adapter (see also next example)
-        mAdapter = new BugInfoAdapter(new ArrayList<>(), this::onBugReportItemClicked);
-        mRecyclerView.setAdapter(mAdapter);
-
-        findViewById(R.id.quit_button).setOnClickListener(this::onQuitButtonClick);
-        findViewById(R.id.start_bug_report_button).setOnClickListener(
-                this::onStartBugReportButtonClick);
-        ((TextView) findViewById(R.id.version_text_view)).setText(
-                String.format("v%s", getPackageVersion(this)));
-
-        cancelBugReportFinishedNotification();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        new BugReportInfoTask(this).execute();
-    }
-
-    /**
-     * Dismisses {@link BugReportService#BUGREPORT_FINISHED_NOTIF_ID}, otherwise the notification
-     * will stay there forever if this activity opened through the App Launcher.
-     */
-    private void cancelBugReportFinishedNotification() {
-        mNotificationManager.cancel(BugReportService.BUGREPORT_FINISHED_NOTIF_ID);
-    }
-
-    private void onBugReportItemClicked(int buttonType, MetaBugReport bugReport) {
-        if (buttonType == BugInfoAdapter.BUTTON_TYPE_UPLOAD) {
-            Log.i(TAG, "Uploading " + bugReport.getFilePath());
-            BugStorageUtils.setBugReportStatus(this, bugReport, Status.STATUS_UPLOAD_PENDING, "");
-            // Refresh the UI to reflect the new status.
-            new BugReportInfoTask(this).execute();
-        } else if (buttonType == BugInfoAdapter.BUTTON_TYPE_MOVE) {
-            Log.i(TAG, "Moving " + bugReport.getFilePath());
-            mLastSelectedBugReport = bugReport;
-            startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE),
-                    SELECT_DIRECTORY_REQUEST_CODE);
-        } else {
-            throw new IllegalStateException("unreachable");
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SELECT_DIRECTORY_REQUEST_CODE && resultCode == RESULT_OK) {
-            int takeFlags =
-                    data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            Uri destDirUri = data.getData();
-            getContentResolver().takePersistableUriPermission(destDirUri, takeFlags);
-            if (mLastSelectedBugReport == null) {
-                Log.w(TAG, "No bug report is selected.");
-                return;
-            }
-            new AsyncMoveFilesTask(this, mLastSelectedBugReport, destDirUri).execute();
-        }
-    }
-
-    private void onQuitButtonClick(View view) {
-        finish();
-    }
-
-    private void onStartBugReportButtonClick(View view) {
-        Intent intent = new Intent(this, BugReportActivity.class);
-        // Clear top is needed, otherwise multiple BugReportActivity-ies get opened and
-        // MediaRecorder crashes.
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
     }
 }

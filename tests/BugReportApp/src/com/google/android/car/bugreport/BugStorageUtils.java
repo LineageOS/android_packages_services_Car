@@ -30,7 +30,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.api.client.auth.oauth2.TokenResponseException;
@@ -132,6 +131,12 @@ final class BugStorageUtils {
         return r.delete(BugStorageProvider.buildUriWithBugId(bugReportId), null, null) == 1;
     }
 
+    /** Deletes zip file for given bugreport id; doesn't delete sqlite3 record. */
+    static boolean deleteBugReportZipfile(@NonNull Context context, int bugReportId) {
+        ContentResolver r = context.getContentResolver();
+        return r.delete(BugStorageProvider.buildUriDeleteZipFile(bugReportId), null, null) == 1;
+    }
+
     /**
      * Returns bugreports that are waiting to be uploaded.
      */
@@ -152,8 +157,8 @@ final class BugStorageUtils {
         return getBugreports(context, null, null, COLUMN_ID + " DESC");
     }
 
-    private static List<MetaBugReport> getBugreports(Context context, String selection,
-            String[] selectionArgs, String order) {
+    static List<MetaBugReport> getBugreports(
+            Context context, String selection, String[] selectionArgs, String order) {
         ArrayList<MetaBugReport> bugReports = new ArrayList<>();
         String[] projection = {
                 COLUMN_ID,
@@ -219,13 +224,6 @@ final class BugStorageUtils {
     }
 
     /**
-     * Sets bugreport status to upload failed.
-     */
-    public static void setUploadFailed(Context context, MetaBugReport bugReport, Exception e) {
-        setBugReportStatus(context, bugReport, Status.STATUS_UPLOAD_FAILED, getRootCauseMessage(e));
-    }
-
-    /**
      * Sets bugreport status pending, and update the message to last exception message.
      *
      * <p>Used when a transient error has occurred.
@@ -260,18 +258,37 @@ final class BugStorageUtils {
         return t.getMessage();
     }
 
-    /** Updates bug report record status. */
-    static void setBugReportStatus(
+    /**
+     * Updates bug report record status.
+     *
+     * @return Updated {@link MetaBugReport}.
+     */
+    static MetaBugReport setBugReportStatus(
             Context context, MetaBugReport bugReport, Status status, String message) {
         // update status
         ContentValues values = new ContentValues();
         values.put(COLUMN_STATUS, status.getValue());
-        if (!TextUtils.isEmpty(message)) {
-            values.put(COLUMN_STATUS_MESSAGE, message);
-        }
+        values.put(COLUMN_STATUS_MESSAGE, message);
         String where = COLUMN_ID + "=" + bugReport.getId();
-        context.getContentResolver().update(BugStorageProvider.BUGREPORT_CONTENT_URI, values,
-                where, null);
+        int updatedRows = context.getContentResolver().update(
+                BugStorageProvider.BUGREPORT_CONTENT_URI, values, where, null);
+        if (updatedRows == 1) {
+            return bugReport.toBuilder()
+                    .setStatus(status.getValue())
+                    .setStatusMessage(message)
+                    .build();
+        }
+        return bugReport;
+    }
+
+    /**
+     * Updates bug report record status.
+     *
+     * @return Updated {@link MetaBugReport}.
+     */
+    static MetaBugReport setBugReportStatus(
+            Context context, MetaBugReport bugReport, Status status, Exception e) {
+        return setBugReportStatus(context, bugReport, status, getRootCauseMessage(e));
     }
 
     private static String currentTimestamp() {
