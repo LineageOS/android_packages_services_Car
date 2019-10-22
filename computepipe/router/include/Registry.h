@@ -63,21 +63,8 @@ class PipeRegistry {
      * If a runner dies, the discovery is made lazily at the point of
      * attempted retrieval by a client, and the correct result is returned.
      */
-    std::unique_ptr<PipeHandle<T>> getPipeHandle(const std::string& name) {
-        std::lock_guard<std::mutex> lock(mPipeDbLock);
-        if (mPipeRunnerDb.find(name) == mPipeRunnerDb.end()) {
-            return nullptr;
-        }
-        if (mPipeRunnerDb[name]->isAvailable()) {
-            if (mPipeRunnerDb[name]->isAlive()) {
-                mPipeRunnerDb[name]->setAvailability(false);
-                return mPipeRunnerDb[name]->dupPipeHandle();
-            } else {
-                mPipeRunnerDb.erase(name);
-                return nullptr;
-            }
-        }
-        return nullptr;
+    std::unique_ptr<PipeHandle<T>> getClientPipeHandle(const std::string& name) {
+        return getPipeHandle(name, false);
     }
     /**
      * Returns list of registered graphs.
@@ -108,11 +95,54 @@ class PipeRegistry {
 
     PipeRegistry() = default;
 
+    ~PipeRegistry() {
+        mPipeRunnerDb.clear();
+    }
+
+  protected:
+    /**
+     * The retrieval of the pipe handle for debug purposes is controlled by the
+     * instantiator of the pipe registry. This is not exposed to the users of
+     * the pipe registry.
+     */
+    std::unique_ptr<PipeHandle<T>> getPipeHandle(const std::string& name, bool forDebugger) {
+        std::lock_guard<std::mutex> lock(mPipeDbLock);
+        if (mPipeRunnerDb.find(name) == mPipeRunnerDb.end()) {
+            return nullptr;
+        }
+
+        if (forDebugger) {
+            return mPipeRunnerDb[name]->isAlive() ? mPipeRunnerDb[name]->dupPipeHandle() : nullptr;
+        }
+
+        if (mPipeRunnerDb[name]->isAvailable()) {
+            if (mPipeRunnerDb[name]->isAlive()) {
+                mPipeRunnerDb[name]->setAvailability(false);
+                return mPipeRunnerDb[name]->dupPipeHandle();
+            } else {
+                mPipeRunnerDb.erase(name);
+                return nullptr;
+            }
+        }
+        return nullptr;
+    }
+    /**
+     * The deletion of specific entries is protected and can be performed by
+     * only the instantiator
+     */
+    Error DeletePipeHandle(const std::string& name) {
+        std::lock_guard<std::mutex> lock(mPipeDbLock);
+        if (mPipeRunnerDb.find(name) == mPipeRunnerDb.end()) {
+            return PIPE_NOT_FOUND;
+        }
+        mPipeRunnerDb.erase(name);
+        return OK;
+    }
+
   private:
-    // TODO: Add locks
     std::mutex mPipeDbLock;
     std::unordered_map<std::string, std::unique_ptr<PipeContext<T>>> mPipeRunnerDb;
-};
+};  // namespace router
 
 template <typename T>
 std::list<std::string> PipeRegistry<T>::getPipeList() {

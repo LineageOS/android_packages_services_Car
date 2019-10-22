@@ -38,18 +38,18 @@ using namespace ::testing;
 TEST(RegistryTest, GetRunnerTest) {
     PipeRegistry<FakeRunner> registry;
     sp<FakeRunner> dummy;
-    ASSERT_THAT(registry.getPipeHandle("random"), IsNull());
+    ASSERT_THAT(registry.getClientPipeHandle("random"), IsNull());
     sp<FakeRunner> runner = new FakeRunner();
     std::unique_ptr<PipeHandle<FakeRunner>> handle(new PipeHandle<FakeRunner>(runner));
     // Verify refcount
     registry.RegisterPipe(std::move(handle), "random");
     ASSERT_THAT(runner->getStrongCount(), Eq(1));
     // Verify multi client behavior
-    ASSERT_THAT(registry.getPipeHandle("random"), NotNull());
-    ASSERT_THAT(registry.getPipeHandle("random"), IsNull());
+    ASSERT_THAT(registry.getClientPipeHandle("random"), NotNull());
+    ASSERT_THAT(registry.getClientPipeHandle("random"), IsNull());
     // Verify deleted runner
     runner.clear();
-    ASSERT_THAT(registry.getPipeHandle("random"), IsNull());
+    ASSERT_THAT(registry.getClientPipeHandle("random"), IsNull());
 }
 
 /**
