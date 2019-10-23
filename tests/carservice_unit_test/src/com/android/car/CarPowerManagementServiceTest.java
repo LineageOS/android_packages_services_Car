@@ -16,12 +16,14 @@
 
 package com.android.car;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import android.app.ActivityManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.userlib.CarUserManagerHelper;
@@ -41,6 +43,9 @@ import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
 
+import org.mockito.MockitoSession;
+import org.mockito.quality.Strictness;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -59,8 +64,9 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     private final MockWakeLockInterface mWakeLockInterface = new MockWakeLockInterface();
     private final MockIOInterface mIOInterface = new MockIOInterface();
     private final PowerSignalListener mPowerSignalListener = new PowerSignalListener();
-    private CarUserManagerHelper mCarUserManagerHelper;
 
+    private MockitoSession mSession;
+    private CarUserManagerHelper mCarUserManagerHelper;
     private MockedPowerHalService mPowerHal;
     private SystemInterface mSystemInterface;
     private CarPowerManagementService mService;
@@ -69,6 +75,10 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        mSession = mockitoSession()
+                .strictness(Strictness.LENIENT)
+                .spyStatic(ActivityManager.class)
+                .startMocking();
         mPowerHal = new MockedPowerHalService(true /*isPowerStateSupported*/,
                 true /*isDeepSleepAllowed*/, true /*isTimedWakeupAllowed*/);
         mSystemInterface = SystemInterface.Builder.defaultSystemInterface(getContext())
@@ -77,9 +87,6 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
             .withWakeLockInterface(mWakeLockInterface)
             .withIOInterface(mIOInterface).build();
         mCarUserManagerHelper = mock(CarUserManagerHelper.class);
-        doReturn(true).when(mCarUserManagerHelper).switchToUserId(anyInt());
-        doReturn(10).when(mCarUserManagerHelper).getInitialUser();
-        doReturn(10).when(mCarUserManagerHelper).getCurrentForegroundUserId();
     }
 
     @Override
@@ -89,6 +96,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
             mService.release();
         }
         mIOInterface.tearDown();
+        mSession.finishMocking();
     }
 
     /**
@@ -195,8 +203,8 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         // set up for user switching after display on
         final int currentUserId = 10;
         final int newUserId = 11;
-        doReturn(newUserId).when(mCarUserManagerHelper).getInitialUser();
-        doReturn(currentUserId).when(mCarUserManagerHelper).getCurrentForegroundUserId();
+        when(mCarUserManagerHelper.getInitialUser()).thenReturn(newUserId);
+        when(ActivityManager.getCurrentUser()).thenReturn(currentUserId);
 
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
