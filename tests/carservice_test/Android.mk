@@ -49,7 +49,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     com.android.car.test.utils \
     mockito-target-extended \
     truth-prebuilt \
-    vehicle-hal-support-lib
+    vehicle-hal-support-lib-for-test
 
 
 LOCAL_JAVA_LIBRARIES := \
