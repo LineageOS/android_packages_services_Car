@@ -209,7 +209,9 @@ class GarageMode {
     void cancel() {
         broadcastSignalToJobScheduler(false);
         synchronized (mLock) {
-            if (mFuture != null && !mFuture.isDone()) {
+            if (mFuture == null) {
+                cleanupGarageMode();
+            } else if (!mFuture.isDone()) {
                 mFuture.cancel(true);
             }
             mFuture = null;
@@ -222,7 +224,9 @@ class GarageMode {
         CarStatsLogHelper.logGarageModeStop();
         mController.scheduleNextWakeup();
         synchronized (mLock) {
-            if (mFuture != null && !mFuture.isDone()) {
+            if (mFuture == null) {
+                cleanupGarageMode();
+            } else if (!mFuture.isDone()) {
                 mFuture.complete(null);
             }
             mFuture = null;
