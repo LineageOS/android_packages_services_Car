@@ -40,7 +40,7 @@ public class AudioFocusTest {
     // ContextNumber.INVALID
     private static final AudioAttributes ATTR_VIRTUAL_SOURCE = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_VIRTUAL_SOURCE)
-            .setContentType(AudioAttributes.USAGE_VIRTUAL_SOURCE)
+            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build();
     // ContextNumber.MUSIC
     private static final AudioAttributes ATTR_MEDIA = new AudioAttributes.Builder()
