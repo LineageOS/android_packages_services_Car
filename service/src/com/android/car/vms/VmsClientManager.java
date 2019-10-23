@@ -286,9 +286,11 @@ public class VmsClientManager implements CarServiceBase {
      * Returns all active subscriber clients.
      */
     public Collection<IVmsSubscriberClient> getAllSubscribers() {
-        return mSubscribers.values().stream()
-                .map(subscriber -> subscriber.mClient)
-                .collect(Collectors.toList());
+        synchronized (mLock) {
+            return mSubscribers.values().stream()
+                    .map(subscriber -> subscriber.mClient)
+                    .collect(Collectors.toList());
+        }
     }
 
     /**
