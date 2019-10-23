@@ -328,21 +328,6 @@ public final class CarUserManagerHelper {
         return getMaxSupportedUsers() - getManagedProfilesCount();
     }
 
-    /**
-     * Returns true if the maximum number of users on the device has been reached, false otherwise.
-     */
-    public boolean isUserLimitReached() {
-        int countNonGuestUsers = getAllUsersExceptGuests().size();
-        int maxSupportedUsers = getMaxSupportedUsers();
-
-        if (countNonGuestUsers > maxSupportedUsers) {
-            Log.e(TAG, "There are more users on the device than allowed.");
-            return true;
-        }
-
-        return getAllUsersExceptGuests().size() == maxSupportedUsers;
-    }
-
     private int getManagedProfilesCount() {
         List<UserInfo> users = getAllUsers();
 
@@ -379,13 +364,6 @@ public final class CarUserManagerHelper {
     private boolean foregroundUserHasUserRestriction(String restriction) {
         return mUserManager.hasUserRestriction(
                 restriction, UserHandle.of(ActivityManager.getCurrentUser()));
-    }
-
-    /**
-     * Checks if the foreground user can add new users.
-     */
-    public boolean canForegroundUserAddUsers() {
-        return !foregroundUserHasUserRestriction(UserManager.DISALLOW_ADD_USER);
     }
 
     /**
