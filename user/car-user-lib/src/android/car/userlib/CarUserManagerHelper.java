@@ -212,14 +212,7 @@ public final class CarUserManagerHelper {
      * @return {@link UserInfo} for the foreground user.
      */
     public UserInfo getCurrentForegroundUserInfo() {
-        return mUserManager.getUserInfo(getCurrentForegroundUserId());
-    }
-
-    /**
-     * @return Id of the current foreground user.
-     */
-    public int getCurrentForegroundUserId() {
-        return mActivityManager.getCurrentUser();
+        return mUserManager.getUserInfo(ActivityManager.getCurrentUser());
     }
 
     /**
@@ -335,21 +328,6 @@ public final class CarUserManagerHelper {
         return getMaxSupportedUsers() - getManagedProfilesCount();
     }
 
-    /**
-     * Returns true if the maximum number of users on the device has been reached, false otherwise.
-     */
-    public boolean isUserLimitReached() {
-        int countNonGuestUsers = getAllUsersExceptGuests().size();
-        int maxSupportedUsers = getMaxSupportedUsers();
-
-        if (countNonGuestUsers > maxSupportedUsers) {
-            Log.e(TAG, "There are more users on the device than allowed.");
-            return true;
-        }
-
-        return getAllUsersExceptGuests().size() == maxSupportedUsers;
-    }
-
     private int getManagedProfilesCount() {
         List<UserInfo> users = getAllUsers();
 
@@ -385,14 +363,7 @@ public final class CarUserManagerHelper {
      */
     private boolean foregroundUserHasUserRestriction(String restriction) {
         return mUserManager.hasUserRestriction(
-                restriction, UserHandle.of(getCurrentForegroundUserId()));
-    }
-
-    /**
-     * Checks if the foreground user can add new users.
-     */
-    public boolean canForegroundUserAddUsers() {
-        return !foregroundUserHasUserRestriction(UserManager.DISALLOW_ADD_USER);
+                restriction, UserHandle.of(ActivityManager.getCurrentUser()));
     }
 
     /**
@@ -551,7 +522,7 @@ public final class CarUserManagerHelper {
             return false;
         }
 
-        if (userInfo.id == getCurrentForegroundUserId()) {
+        if (userInfo.id == ActivityManager.getCurrentUser()) {
             if (!canCurrentProcessSwitchUsers()) {
                 // If we can't switch to a different user, we can't exit this one and therefore
                 // can't delete it.
@@ -594,7 +565,7 @@ public final class CarUserManagerHelper {
         if (!canCurrentProcessSwitchUsers()) {
             return false;
         }
-        if (id == getCurrentForegroundUserId()) {
+        if (id == ActivityManager.getCurrentUser()) {
             return false;
         }
         return mActivityManager.switchUser(id);

@@ -19,7 +19,6 @@ package com.android.car.pm;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
-import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 
 import androidx.test.InstrumentationRegistry;
@@ -56,8 +55,7 @@ public class CarPackageManagerServiceTest {
         MockitoAnnotations.initMocks(this);
         mContext = InstrumentationRegistry.getTargetContext();
 
-        mService = new CarPackageManagerService(mContext, mMockUxrService, mMockSamService,
-                new CarUserManagerHelper(mContext));
+        mService = new CarPackageManagerService(mContext, mMockUxrService, mMockSamService);
     }
 
     @Test

@@ -146,8 +146,7 @@ public class ICarImpl extends ICar.Stub {
                 mCarDrivingStateService, mCarPropertyService);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext,
                 mCarUXRestrictionsService,
-                mSystemActivityMonitoringService,
-                mUserManagerHelper);
+                mSystemActivityMonitoringService);
         mPerUserCarServiceHelper = new PerUserCarServiceHelper(serviceContext);
         mCarBluetoothService = new CarBluetoothService(serviceContext, mPerUserCarServiceHelper);
         mCarInputService = new CarInputService(serviceContext, mHal.getInputHal());
@@ -164,8 +163,7 @@ public class ICarImpl extends ICar.Stub {
                 serviceContext, mCarAudioService, this);
         mVmsBrokerService = new VmsBrokerService();
         mVmsClientManager = new VmsClientManager(
-                serviceContext, mVmsBrokerService, mCarUserService, mUserManagerHelper,
-                mHal.getVmsHal());
+                serviceContext, mVmsBrokerService, mCarUserService, mHal.getVmsHal());
         mVmsSubscriberService = new VmsSubscriberService(
                 serviceContext, mVmsBrokerService, mVmsClientManager, mHal.getVmsHal());
         mVmsPublisherService = new VmsPublisherService(
@@ -736,8 +734,7 @@ public class ICarImpl extends ICar.Stub {
                     break;
                 case COMMAND_REMOVE_TRUSTED_DEVICES:
                     mCarTrustedDeviceService.getCarTrustAgentEnrollmentService()
-                            .removeAllTrustedDevices(
-                                    mUserManagerHelper.getCurrentForegroundUserId());
+                            .removeAllTrustedDevices(ActivityManager.getCurrentUser());
                     break;
                 case COMMAND_SET_UID_TO_ZONE:
                     if (args.length != 3) {

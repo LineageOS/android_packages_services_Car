@@ -16,6 +16,8 @@
 
 package com.android.car.vms;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
@@ -37,8 +39,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import android.app.ActivityManager;
 import android.car.Car;
-import android.car.userlib.CarUserManagerHelper;
 import android.car.vms.IVmsPublisherClient;
 import android.car.vms.IVmsPublisherService;
 import android.car.vms.IVmsSubscriberClient;
@@ -67,13 +69,12 @@ import com.android.car.user.CarUserService;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.MockitoSession;
+import org.mockito.quality.Strictness;
 
 @SmallTest
 public class VmsClientManagerTest {
@@ -90,8 +91,6 @@ public class VmsClientManagerTest {
     private static final String USER_CLIENT_NAME =
             "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsUserClient U=10";
     private static final int USER_ID_U11 = 11;
-    private static final String USER_CLIENT_NAME_U11 =
-            "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsUserClient U=11";
 
     private static final String TEST_PACKAGE = "test.package1";
     private static final String HAL_CLIENT_NAME = "HalClient";
@@ -99,8 +98,6 @@ public class VmsClientManagerTest {
 
     private static final long MILLIS_BEFORE_REBIND = 100;
 
-    @Rule
-    public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock
     private Context mContext;
     @Mock
@@ -112,8 +109,6 @@ public class VmsClientManagerTest {
     private UserManager mUserManager;
     @Mock
     private CarUserService mUserService;
-    @Mock
-    private CarUserManagerHelper mUserManagerHelper;
 
     @Mock
     private VmsBrokerService mBrokerService;
@@ -146,6 +141,7 @@ public class VmsClientManagerTest {
     @Captor
     private ArgumentCaptor<ServiceConnection> mConnectionCaptor;
 
+    private MockitoSession mSession;
     private VmsClientManager mClientManager;
 
     private int mForegroundUserId;
@@ -153,6 +149,12 @@ public class VmsClientManagerTest {
 
     @Before
     public void setUp() throws Exception {
+        mSession = mockitoSession()
+                .initMocks(this)
+                .strictness(Strictness.LENIENT)
+                .spyStatic(ActivityManager.class)
+                .startMocking();
+
         resetContext();
         ServiceInfo serviceInfo = new ServiceInfo();
         serviceInfo.permission = Car.PERMISSION_BIND_VMS_CLIENT;
@@ -169,14 +171,13 @@ public class VmsClientManagerTest {
                 new String[]{ USER_CLIENT });
 
         when(mContext.getSystemService(eq(Context.USER_SERVICE))).thenReturn(mUserManager);
-        when(mUserManagerHelper.getCurrentForegroundUserId())
-                .thenAnswer(invocation -> mForegroundUserId);
+        when(ActivityManager.getCurrentUser()).thenAnswer(invocation -> mForegroundUserId);
 
         mForegroundUserId = USER_ID;
         mCallingAppUid = UserHandle.getUid(USER_ID, 0);
 
-        mClientManager = new VmsClientManager(mContext, mBrokerService, mUserService,
-                mUserManagerHelper, mHal, mHandler, () -> mCallingAppUid);
+        mClientManager = new VmsClientManager(mContext, mBrokerService, mUserService, mHal,
+                mHandler, () -> mCallingAppUid);
         verify(mHal).setClientManager(mClientManager);
         mClientManager.setPublisherService(mPublisherService);
 
@@ -192,6 +193,7 @@ public class VmsClientManagerTest {
         verify(mContext, atLeast(0)).getResources();
         verify(mContext, atLeast(0)).getPackageManager();
         verifyNoMoreInteractions(mContext, mBrokerService, mHal, mPublisherService, mHandler);
+        mSession.finishMocking();
     }
 
     @Test
@@ -961,7 +963,7 @@ public class VmsClientManagerTest {
     private void notifyUserAction(int foregroundUserId, boolean isForegroundUserUnlocked,
             String action) {
         mForegroundUserId = foregroundUserId; // Member variable used by verifyUserBind()
-        when(mUserManagerHelper.getCurrentForegroundUserId()).thenReturn(foregroundUserId);
+        when(ActivityManager.getCurrentUser()).thenReturn(foregroundUserId);
 
         reset(mUserManager);
         when(mUserManager.isUserUnlocked(foregroundUserId)).thenReturn(isForegroundUserUnlocked);

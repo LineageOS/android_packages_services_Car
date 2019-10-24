@@ -28,7 +28,6 @@ import android.car.content.pm.CarPackageManager;
 import android.car.content.pm.ICarPackageManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -186,8 +185,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     public CarPackageManagerService(Context context,
             CarUxRestrictionsManagerService uxRestrictionsService,
-            SystemActivityMonitoringService systemActivityMonitoringService,
-            CarUserManagerHelper carUserManagerHelper) {
+            SystemActivityMonitoringService systemActivityMonitoringService) {
         mContext = context;
         mCarUxRestrictionsService = uxRestrictionsService;
         mSystemActivityMonitoringService = systemActivityMonitoringService;
@@ -204,7 +202,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mAllowedAppInstallSources = Arrays.asList(
                 res.getStringArray(R.array.allowedAppInstallSources));
         mVendorServiceController = new VendorServiceController(
-                mContext, mHandler.getLooper(), carUserManagerHelper);
+                mContext, mHandler.getLooper());
     }
 
 

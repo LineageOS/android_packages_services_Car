@@ -16,6 +16,8 @@
 
 package com.android.car.pm;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -44,13 +46,12 @@ import com.android.car.user.CarUserService;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.MockitoSession;
+import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,36 +73,37 @@ public class VendorServiceControllerTest {
             SERVICE_START_SYSTEM_UNLOCKED + "#bind=start,user=system,trigger=userUnlocked"
     };
 
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule();
-
     @Mock
     private Resources mResources;
 
     @Mock
     private UserManager mUserManager;
 
+    private MockitoSession mSession;
     private ServiceLauncherContext mContext;
-
     private CarUserManagerHelper mUserManagerHelper;
     private CarUserService mCarUserService;
 
     @Before
     public void setUp() {
+        mSession = mockitoSession()
+                .initMocks(this)
+                .strictness(Strictness.LENIENT)
+                .spyStatic(ActivityManager.class)
+                .startMocking();
         mContext = new ServiceLauncherContext(ApplicationProvider.getApplicationContext());
         mUserManagerHelper = Mockito.spy(new CarUserManagerHelper(mContext));
         mCarUserService = new CarUserService(mContext, mUserManagerHelper, mUserManager,
                 ActivityManager.getService(), 2 /* max running users */);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
 
-        mController = new VendorServiceController(mContext,
-                Looper.getMainLooper(), mUserManagerHelper);
+        mController = new VendorServiceController(mContext, Looper.getMainLooper());
 
         UserInfo persistentFgUser = new UserInfo(FG_USER_ID, "persistent user", 0);
         when(mUserManager.getUserInfo(FG_USER_ID)).thenReturn(persistentFgUser);
 
         // Let's pretend system is not fully loaded, current user is system.
-        when(mUserManagerHelper.getCurrentForegroundUserId()).thenReturn(UserHandle.USER_SYSTEM);
+        when(ActivityManager.getCurrentUser()).thenReturn(UserHandle.USER_SYSTEM);
         // ..and by default all users are locked
         mockUserUnlock(UserHandle.USER_ALL, false /* unlock */);
         when(mResources.getStringArray(com.android.car.R.array.config_earlyStartupServices))
@@ -111,6 +113,7 @@ public class VendorServiceControllerTest {
     @After
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarUserService.class);
+        mSession.finishMocking();
     }
 
     @Test
@@ -152,7 +155,7 @@ public class VendorServiceControllerTest {
         mContext.reset();
 
         // Switch user to foreground
-        when(mUserManagerHelper.getCurrentForegroundUserId()).thenReturn(FG_USER_ID);
+        when(ActivityManager.getCurrentUser()).thenReturn(FG_USER_ID);
         runOnMainThread(() -> mCarUserService.onSwitchUser(FG_USER_ID));
 
         // Expect only services with ASAP trigger to be started
