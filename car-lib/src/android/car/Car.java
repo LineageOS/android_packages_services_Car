@@ -353,6 +353,14 @@ public final class Car {
     /** Permission necessary to use {@link CarInfoManager}. */
     public static final String PERMISSION_CAR_INFO = "android.car.permission.CAR_INFO";
 
+    /**
+     * Permission necessary to read information of vendor properties' permissions.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO =
+            "android.car.permission.READ_CAR_VENDOR_PERMISSION_INFO";
+
     /** Permission necessary to read temperature of car's exterior environment. */
     public static final String PERMISSION_EXTERIOR_ENVIRONMENT =
             "android.car.permission.CAR_EXTERIOR_ENVIRONMENT";

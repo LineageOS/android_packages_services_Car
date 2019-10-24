@@ -78,7 +78,11 @@
     <uses-permission android:name="android.permission.SET_ACTIVITY_WATCHER"/>
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
-
+    <!-- use for vendor properties -->
+    <uses-permission android:name="android.car.permission.CAR_VENDOR_EXTENSION" />
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_SEAT" />
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_INFO" />
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_INFO" />
     <application android:label="@string/app_title"
         android:icon="@drawable/ic_launcher">
         <uses-library android:name="android.test.runner"/>
