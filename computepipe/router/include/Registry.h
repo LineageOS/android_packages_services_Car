@@ -63,8 +63,12 @@ class PipeRegistry {
      * If a runner dies, the discovery is made lazily at the point of
      * attempted retrieval by a client, and the correct result is returned.
      */
-    std::unique_ptr<PipeHandle<T>> getClientPipeHandle(const std::string& name) {
-        return getPipeHandle(name, false);
+    std::unique_ptr<PipeHandle<T>> getClientPipeHandle(const std::string& name,
+                                                       std::unique_ptr<ClientHandle> clientHandle) {
+        if (!clientHandle) {
+            return nullptr;
+        }
+        return getPipeHandle(name, std::move(clientHandle));
     }
     /**
      * Returns list of registered graphs.
@@ -80,14 +84,12 @@ class PipeRegistry {
         if (mPipeRunnerDb.find(name) == mPipeRunnerDb.end()) {
             mPipeRunnerDb.emplace(
                 name, std::unique_ptr<PipeContext<T>>(new PipeContext<T>(std::move(h), name)));
-            mPipeRunnerDb[name]->setAvailability(true);
             return OK;
         }
         if (!mPipeRunnerDb[name]->isAlive()) {
             mPipeRunnerDb.erase(name);
             mPipeRunnerDb.emplace(
                 name, std::unique_ptr<PipeContext<T>>(new PipeContext<T>(std::move(h), name)));
-            mPipeRunnerDb[name]->setAvailability(true);
             return OK;
         }
         return DUPLICATE_PIPE;
@@ -105,19 +107,20 @@ class PipeRegistry {
      * instantiator of the pipe registry. This is not exposed to the users of
      * the pipe registry.
      */
-    std::unique_ptr<PipeHandle<T>> getPipeHandle(const std::string& name, bool forDebugger) {
+    std::unique_ptr<PipeHandle<T>> getPipeHandle(const std::string& name,
+                                                 std::unique_ptr<ClientHandle> clientHandle) {
         std::lock_guard<std::mutex> lock(mPipeDbLock);
         if (mPipeRunnerDb.find(name) == mPipeRunnerDb.end()) {
             return nullptr;
         }
 
-        if (forDebugger) {
+        if (!clientHandle) {
             return mPipeRunnerDb[name]->isAlive() ? mPipeRunnerDb[name]->dupPipeHandle() : nullptr;
         }
 
         if (mPipeRunnerDb[name]->isAvailable()) {
             if (mPipeRunnerDb[name]->isAlive()) {
-                mPipeRunnerDb[name]->setAvailability(false);
+                mPipeRunnerDb[name]->setClient(std::move(clientHandle));
                 return mPipeRunnerDb[name]->dupPipeHandle();
             } else {
                 mPipeRunnerDb.erase(name);
