@@ -43,10 +43,9 @@ import android.os.SystemClock;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.Suppress;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.systeminterface.SystemInterface;
 
@@ -230,8 +229,6 @@ public class CarUxRestrictionsManagerServiceTest {
         assertTrue(restrictions.toString(), expected.isSameRestrictions(restrictions));
     }
 
-    // TODO(b/142804287): Suppress this test until bug is fixed.
-    @Suppress
     // This test only involves calling a few methods and should finish very quickly. If it doesn't
     // finish in 20s, we probably encountered a deadlock.
     @Test(timeout = 20000)
@@ -334,8 +331,6 @@ public class CarUxRestrictionsManagerServiceTest {
         }
     }
 
-    // TODO(b/142804287): Suppress this test until bug is fixed.
-    @Suppress
     // This test only involves calling a few methods and should finish very quickly. If it doesn't
     // finish in 20s, we probably encountered a deadlock.
     @Test(timeout = 20000)
