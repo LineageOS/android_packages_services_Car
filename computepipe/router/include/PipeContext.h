@@ -20,6 +20,7 @@
 #include <string>
 #include <utility>
 
+#include "ClientHandle.h"
 #include "PipeHandle.h"
 
 namespace android {
@@ -44,13 +45,26 @@ class PipeContext {
     std::string getGraphName() const {
         return mGraphName;
     }
-    // Check if its available for clients
-    bool isAvailable() const {
-        return !hasClient;
+    /**
+     * Check if its available for clients
+     *
+     * If no client is assigned mClientHandle is null.
+     * If a client is assigned use it to determine if its still alive,
+     * If its not then the runner is available
+     */
+    bool isAvailable() {
+        if (!mClientHandle) {
+            return true;
+        }
+        if (!mClientHandle->isAlive()) {
+            mClientHandle = nullptr;
+            return true;
+        }
+        return false;
     }
     // Mark availability. True if available
-    void setAvailability(bool val) {
-        hasClient = !val;
+    void setClient(std::unique_ptr<ClientHandle> clientHandle) {
+        mClientHandle.reset(clientHandle.release());
     }
     // Set the name of the graph
     void setGraphName(std::string name) {
@@ -68,11 +82,15 @@ class PipeContext {
         if (mPipeHandle) {
             mPipeHandle = nullptr;
         }
+        if (mClientHandle) {
+            mClientHandle = nullptr;
+        }
     }
 
   private:
     std::string mGraphName;
     std::unique_ptr<PipeHandle<T>> mPipeHandle;
+    std::unique_ptr<ClientHandle> mClientHandle;
     bool hasClient;
 };
 

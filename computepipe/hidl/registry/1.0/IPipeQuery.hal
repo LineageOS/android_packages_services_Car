@@ -16,6 +16,7 @@
 
 package android.automotive.computepipe.registry@1.0;
 
+import IClientInfo;
 import android.automotive.computepipe.runner@1.0::IPipeRunner;
 
 /**
@@ -41,7 +42,8 @@ interface IPipeQuery {
      * status will be used to report such an event.
      *
      * @param: graphId graph name for which corresponding runner is sought.
-     * @return PipeRunner handle to interact with specific graph
+     * @param: info retrieve client information for match purposes when needed
+     * @return graphRunner handle to interact with specific graph
      */
-    getPipeRunner(string graphName) generates (IPipeRunner graphRunner);
+    getPipeRunner(string graphName, IClientInfo info) generates (IPipeRunner graphRunner);
 };

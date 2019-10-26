@@ -3,8 +3,8 @@
 hidl_interface {
     name: "android.automotive.computepipe.registry@1.0",
     root: "android.automotive.computepipe",
-    product_specific: true,
     srcs: [
+        "IClientInfo.hal",
         "IPipeQuery.hal",
         "IPipeRegistration.hal",
     ],
