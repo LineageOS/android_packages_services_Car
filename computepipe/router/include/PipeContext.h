@@ -45,13 +45,22 @@ class PipeContext {
     std::string getGraphName() const {
         return mGraphName;
     }
-    // Check if its available for clients
+    /**
+     * Check if its available for clients
+     *
+     * If no client is assigned mClientHandle is null.
+     * If a client is assigned use it to determine if its still alive,
+     * If its not then the runner is available
+     */
     bool isAvailable() {
+        if (!mClientHandle) {
+            return true;
+        }
         if (!mClientHandle->isAlive()) {
             mClientHandle = nullptr;
             return true;
-        } else
-            return false;
+        }
+        return false;
     }
     // Mark availability. True if available
     void setClient(std::unique_ptr<ClientHandle> clientHandle) {

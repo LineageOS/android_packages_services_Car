@@ -42,32 +42,36 @@ class FakeClient : public ClientHandle {
  * Test for PipeRegistry::getRunner()
  * Check if the api does not mistakenly increment the refcount
  * Check if the api correctly handles bad client
- * Check if the api correctly excludes more than one client
+ * Check if the api correctly handles multiclient error
  * Check if the api correctly handles a deleted runner retrieval
  * Check if registry implementation correctly deletes entry for
  * dead runner
  */
 TEST(RegistryTest, GetRunnerTest) {
     PipeRegistry<FakeRunner> registry;
-    sp<FakeRunner> dummy;
-    std::unique_ptr<ClientHandle> client(new FakeClient());
-    ASSERT_THAT(registry.getClientPipeHandle("random", std::move(client)), IsNull());
     sp<FakeRunner> runner = new FakeRunner();
     std::unique_ptr<PipeHandle<FakeRunner>> handle(new PipeHandle<FakeRunner>(runner));
+    ASSERT_THAT(runner, testing::NotNull());
     // Verify refcount
     registry.RegisterPipe(std::move(handle), "random");
-    ASSERT_THAT(runner->getStrongCount(), Eq(1));
+    EXPECT_THAT(runner->getStrongCount(), Eq(1));
     // Verify bad client
-    ASSERT_THAT(registry.getClientPipeHandle("random", nullptr), IsNull());
-    // Verify multi client behavior
+    EXPECT_THAT(registry.getClientPipeHandle("random", nullptr), IsNull());
+    // Verify correct retrieval
+    std::unique_ptr<ClientHandle> client(new FakeClient());
+    ASSERT_THAT(client, NotNull());
+    EXPECT_THAT(registry.getClientPipeHandle("random", std::move(client)), NotNull());
+    // verify multiclient failure
     client.reset(new FakeClient());
-    ASSERT_THAT(registry.getClientPipeHandle("random", std::move(client)), NotNull());
-    std::unique_ptr<ClientHandle> client2(new FakeClient());
-    ASSERT_THAT(registry.getClientPipeHandle("random", std::move(client2)), IsNull());
+    EXPECT_THAT(registry.getClientPipeHandle("random", std::move(client)), IsNull());
     // Verify deleted runner
-    runner.clear();
+    sp<FakeRunner> dummy;
+    dummy = new FakeRunner();
+    std::unique_ptr<PipeHandle<FakeRunner>> dummyHandle(new PipeHandle<FakeRunner>(dummy));
+    registry.RegisterPipe(std::move(dummyHandle), "dummy");
+    dummy.clear();
     client.reset(new FakeClient());
-    ASSERT_THAT(registry.getClientPipeHandle("random", std::move(client)), IsNull());
+    EXPECT_THAT(registry.getClientPipeHandle("dummy", std::move(client)), IsNull());
 }
 
 /**
