@@ -24,9 +24,18 @@ namespace automotive {
 namespace computepipe {
 namespace router {
 
+/**
+ * ClientHandle: Represents client state.
+ *
+ * Allows for querrying client state to determine assignment
+ * of pipe handles. This should be instantiated with the client IPC
+ * capabilities to query clients.
+ */
 class ClientHandle {
   public:
+    /* Get client identifier as defined by the graph */
     virtual uint32_t getClientId() = 0;
+    /* Is client alive */
     virtual bool isAlive() = 0;
     virtual ~ClientHandle() {
     }
