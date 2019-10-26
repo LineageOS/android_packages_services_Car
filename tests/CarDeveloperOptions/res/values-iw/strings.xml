@@ -726,7 +726,12 @@
       <item quantity="other">צריכה להכיל לפחות <xliff:g id="COUNT">%d</xliff:g> תווים שאינם אותיות</item>
       <item quantity="one">צריכה להכיל לפחות תו אחד שאינו אות</item>
     </plurals>
-    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="two">חייבת להכיל לפחות <xliff:g id="COUNT">%d</xliff:g> תווים שאינם מספרים</item>
+      <item quantity="many">חייבת להכיל לפחות <xliff:g id="COUNT">%d</xliff:g> תווים שאינם מספרים</item>
+      <item quantity="other">חייבת להכיל לפחות <xliff:g id="COUNT">%d</xliff:g> תווים שאינם מספרים</item>
+      <item quantity="one">חייבת להכיל לפחות תו אחד שאינו מספר</item>
+    </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"מנהל המכשיר לא מאפשר להשתמש בסיסמה שנעשה בה שימוש לאחרונה"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"סיסמאות נפוצות חסומות בידי מנהל ה-IT. יש לנסות סיסמה אחרת."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"אין להגדיר רצף ספרות עולה, יורד או חוזר"</string>

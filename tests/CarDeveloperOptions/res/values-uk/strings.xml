@@ -727,10 +727,10 @@
       <item quantity="other">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символу, які не є літерами</item>
     </plurals>
     <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
-      <item quantity="one">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символ, який не є цифрою</item>
-      <item quantity="few">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символи, які не є цифрами</item>
-      <item quantity="many">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символів, які не є цифрами</item>
-      <item quantity="other">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символу, які не є цифрами</item>
+      <item quantity="one">Має містити, окрім цифр, принаймні <xliff:g id="COUNT">%d</xliff:g> інший символ</item>
+      <item quantity="few">Має містити, окрім цифр, принаймні <xliff:g id="COUNT">%d</xliff:g> інші символи</item>
+      <item quantity="many">Має містити, окрім цифр, принаймні <xliff:g id="COUNT">%d</xliff:g> інших символів</item>
+      <item quantity="other">Має містити, окрім цифр, принаймні <xliff:g id="COUNT">%d</xliff:g> іншого символу</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Адміністратор пристрою не дозволяє використовувати останній пароль"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IT-адміністратор заблокував загальні паролі. Введіть інший пароль."</string>
@@ -2102,7 +2102,7 @@
     <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Коли ввімкнено збільшення, використовуйте кнопку спеціальних можливостей унизу екрана, щоб швидко збільшувати його вміст.\n\n"<b>"Щоб збільшити вміст"</b>", торкніться кнопки спеціальних можливостей, а потім будь-де на екрані.\n"<ul><li>"Щоб прокрутити вміст, проведіть по екрану принаймні двома пальцями."</li>\n<li>"Щоб змінити масштаб, стисніть або розведіть принаймні два пальці."</li></ul>\n\n<b>"Щоб тимчасово збільшити вміст"</b>", торкніться кнопки спеціальних можливостей, а потім натисніть і втримуйте будь-яке місце на екрані.\n"<ul><li>"Пересувайте палець, щоб переміщатись екраном.у"</li>\n<li>"Підніміть палець, щоб знову зменшити елемент."</li></ul>\n\n"Масштабування не підтримується на клавіатурі та панелі навігації."</string>
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Для кнопки спеціальних можливостей вибрано службу \"<xliff:g id="SERVICE">%1$s</xliff:g>\". Щоб змінити на збільшення, натисніть і втримуйте кнопку спеціальних можливостей, а потім виберіть \"Збільшення\"."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Комбінація клавіш гучності"</string>
-    <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Служба, пов’язана з ярликом"</string>
+    <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Швидке ввімкнення сервісу"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Дозволити на заблокованому екрані"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"Якщо цю комбінацію клавіш увімкнено, ви можете активувати спеціальні можливості, утримуючи обидві клавіші гучності протягом 3 секунд."</string>
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"Висококонтрастний текст"</string>

@@ -1237,7 +1237,7 @@
     <string name="screen_timeout_title" msgid="150117777762864112">"Skærmen slukker"</string>
     <string name="screen_timeout_summary" msgid="8644192861778491060">"Efter <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> med inaktivitet"</string>
     <string name="wallpaper_settings_title" msgid="347390905813529607">"Baggrund"</string>
-    <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"Stilarter og baggrunde"</string>
+    <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"Stil og baggrunde"</string>
     <string name="wallpaper_settings_summary_default" msgid="2626880032742784599">"Standard"</string>
     <string name="wallpaper_settings_summary_custom" msgid="8950504698015331202">"Tilpasset"</string>
     <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"Skift baggrund"</string>

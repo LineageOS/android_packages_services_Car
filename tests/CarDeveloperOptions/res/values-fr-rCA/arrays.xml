@@ -312,11 +312,11 @@
   </string-array>
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"Par défaut"</item>
-    <item msgid="6488643537808152001">"Aucun"</item>
+    <item msgid="6488643537808152001">"Aucune"</item>
     <item msgid="552332815156010137">"Plan"</item>
     <item msgid="7187891159463789272">"Ombre projetée"</item>
-    <item msgid="8019330250538856521">"Surélevé"</item>
-    <item msgid="8987385315647049787">"Surbaissé"</item>
+    <item msgid="8019330250538856521">"Surélevée"</item>
+    <item msgid="8987385315647049787">"Surbaissée"</item>
   </string-array>
   <string-array name="captioning_opacity_selector_titles">
     <item msgid="313003243371588365">"25 %"</item>

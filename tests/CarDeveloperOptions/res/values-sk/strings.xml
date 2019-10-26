@@ -2102,7 +2102,7 @@
     <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Keď je funkcia priblíženia zapnutá, môžete pomocou tlačidla dostupnosti v dolnej časti obrazovky zobrazenie rýchlo priblížiť.\n\n"<b>"Zobrazenie priblížite"</b>" klepnutím na tlačidlo dostupnosti a následne na ľubovoľné miesto na obrazovke.\n"<ul><li>"Zobrazenie posuniete presúvaním dvoch alebo viacerých prstov."</li>\n<li>"Priblíženie upravíte priblížením dvoch alebo viacerých prstov."</li></ul>\n\n<b>"Ak chcete zobrazenie priblížiť iba dočasne"</b>", klepnite na tlačidlo dostupnosti a následne sa dotknite ľubovoľného miesta na obrazovke a podržte ho.\n"<ul><li>"Obrazovku môžete posúvať presúvaním prsta."</li>\n<li>"Zdvihnutím prsta zobrazenie oddialite."</li></ul>\n\n"Klávesnica ani navigačný panel sa nedajú priblížiť."</string>
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Tlačidlo dostupnosti je nastavené na službu <xliff:g id="SERVICE">%1$s</xliff:g>. Ak chcete použiť priblíženie, klepnite na tlačidlo dostupnosti, podržte ho a potom vyberte priblíženie."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Skratka klávesa hlasitosti"</string>
-    <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Pripojená služba"</string>
+    <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Služba ovládaná skratkou"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Povoliť z uzamknutej obrazovky"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"Keď je klávesová skratka zapnutá, stlačením obidvoch klávesov hlasitosti na tri sekundy spustíte funkciu dostupnosti."</string>
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"Text s vysokým kontrastom"</string>
@@ -2212,7 +2212,7 @@
     <string name="captioning_foreground_color" msgid="7412509133818882005">"Farba textu"</string>
     <string name="captioning_foreground_opacity" msgid="7635639017810117478">"Nepriehľadnosť textu"</string>
     <string name="captioning_edge_color" msgid="4330622137047993780">"Farba okraja"</string>
-    <string name="captioning_edge_type" msgid="4414946407430588162">"Typ okraja"</string>
+    <string name="captioning_edge_type" msgid="4414946407430588162">"Druh okraja"</string>
     <string name="captioning_typeface" msgid="7893208796949341767">"Skupina písiem"</string>
     <string name="captioning_preview_text" msgid="4877753964772618049">"Titulky budú vyzerať takto."</string>
     <string name="captioning_preview_characters" msgid="6469599599352973561">"Aa"</string>

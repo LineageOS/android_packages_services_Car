@@ -425,7 +425,7 @@
     <string name="security_settings_face_settings_require_confirmation" msgid="7312024271060416438">"नेहमी खात्री करणे आवश्यक आहे"</string>
     <string name="security_settings_face_settings_require_confirmation_details" msgid="8740564864091803429">"अॅपमध्ये ऑथेंटिकेशन करताना नेहमी खात्री करणे आवश्यक आहे"</string>
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"फेस डेटा काढून टाका"</string>
-    <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"डिव्हाइस अनलॉक करण्यासाठी आणि अॅप्स करण्यासाठी तुम्ही तुमचा चेहेरा वापरू शकता. "<annotation id="url">"अधिक जाणून घ्या"</annotation></string>
+    <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"डिव्हाइस अनलॉक करण्यासाठी आणि अ‍ॅप्स करण्यासाठी तुम्ही तुमचा चेहेरा वापरू शकता. "<annotation id="url">"अधिक जाणून घ्या"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"फेस डेटा हटवायचा?"</string>
     <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"फेस अनलॉकने रेकॉर्ड केलेला डेटा कायमचा आणि सुरक्षितपणे हटवला जाईल. काढल्यानंतर, तुमचा फोन अनलॉक करण्यासाठी, अ‍ॅप्समध्ये साइन इन करण्यासाठी आणि पेमेंट निश्चित करण्यासाठी तुम्हाला तुमचा पिन, पॅटर्न किंवा पासवर्ड लागेल."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"फिंगरप्रिंट"</string>
@@ -698,7 +698,10 @@
       <item quantity="other">किमान <xliff:g id="COUNT">%d</xliff:g> अक्षर नसलेले वर्ण असणे आवश्यक आहे</item>
       <item quantity="one">किमान 1 अक्षर नसलेला वर्ण असणे आवश्यक आहे</item>
     </plurals>
-    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">किमान <xliff:g id="COUNT">%d</xliff:g> अंक नसलेले वर्ण असणे आवश्यक आहे</item>
+      <item quantity="one">किमान एक अंक नसलेला वर्ण असणे आवश्यक आहे</item>
+    </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"डिव्हाइस प्रशासक अलीकडील पासवर्ड वापरण्याची अनुमती देत नाही"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"सामान्यत: वापरले जाणारे पासवर्ड तुमच्या IT प्रशासनाने ब्लॉक केलेले आहेत. दुसरा एखादा पासवर्ड वापरून पाहा."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"अंकांच्या चढत्या, उतरत्या किंवा पुनरावृत्त क्रमाला अनुमती नाही"</string>
@@ -859,7 +862,7 @@
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"वापरण्‍यासाठी, नेटवर्क रेटिंग पुरवठादार निवडा"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"वापरण्‍यासाठी, सुसंगत नेटवर्क रेटिंग पुरवठादार निवडा"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"प्रमाणपत्रे इंस्टॉल करा"</string>
-    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"स्थान अचूकता सुधारण्यासाठी अॅप्स आणि सेवा वाय-फाय बंद असतानाही कधीही वाय-फाय नेटवर्क शोधण्यासाठी स्कॅन करू शकतात. स्थानाधारित वैशिष्ट्ये आणि सेवांमध्ये सुधारणा करण्यासाठी हे वापरले जाऊ शकते. तुम्ही हे <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>स्कॅनिंग सेटिंग्ज<xliff:g id="LINK_END_1">LINK_END</xliff:g> मध्ये बदलू शकता."</string>
+    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"स्थान अचूकता सुधारण्यासाठी अ‍ॅप्स आणि सेवा वाय-फाय बंद असतानाही कधीही वाय-फाय नेटवर्क शोधण्यासाठी स्कॅन करू शकतात. स्थानाधारित वैशिष्ट्ये आणि सेवांमध्ये सुधारणा करण्यासाठी हे वापरले जाऊ शकते. तुम्ही हे <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>स्कॅनिंग सेटिंग्ज<xliff:g id="LINK_END_1">LINK_END</xliff:g> मध्ये बदलू शकता."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"स्थान अचूकता वाढवण्यासाठी, <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>स्कॅनिंग सेटिंग्ज<xliff:g id="LINK_END_1">LINK_END</xliff:g> मध्ये वाय-फाय स्कॅनिंग चालू करा."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"पुन्हा दर्शवू नका"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"निष्क्रिय असताना वाय-फाय चालू ठेवा"</string>
@@ -1390,8 +1393,8 @@
     <string name="mtp_ptp_mode_summary" msgid="6074099855478444183">"MTP किंवा TP कार्य सक्रिय आहे"</string>
     <string name="dlg_confirm_unmount_title" product="nosdcard" msgid="3843209947310774105">"USB स्टोरेज अनमाउंट करायचे?"</string>
     <string name="dlg_confirm_unmount_title" product="default" msgid="4400426555375434431">"SD कार्ड अनमाउंट करायचे?"</string>
-    <string name="dlg_confirm_unmount_text" product="nosdcard" msgid="1423648405874813948">"USB स्टोरेज अनमाउंट केल्यास, तुम्ही वापरत असलेली काही अॅप्स थांबतील आणि तुम्ही USB स्टोरेज पुन्हा माउंट करेपर्यंत ती अनुपलब्ध असू शकतील."</string>
-    <string name="dlg_confirm_unmount_text" product="default" msgid="4099391737780732622">"तुम्ही SD कार्ड अनमाउंट केल्यास, तुम्ही वापरत असलेले काही अॅप्स थांबतील आणि तुम्ही SD कार्ड पुन्हा माउंट करेपर्यंत अनुपलब्ध राहू शकतात."</string>
+    <string name="dlg_confirm_unmount_text" product="nosdcard" msgid="1423648405874813948">"USB स्टोरेज अनमाउंट केल्यास, तुम्ही वापरत असलेली काही अ‍ॅप्स थांबतील आणि तुम्ही USB स्टोरेज पुन्हा माउंट करेपर्यंत ती अनुपलब्ध असू शकतील."</string>
+    <string name="dlg_confirm_unmount_text" product="default" msgid="4099391737780732622">"तुम्ही SD कार्ड अनमाउंट केल्यास, तुम्ही वापरत असलेले काही अ‍ॅप्स थांबतील आणि तुम्ही SD कार्ड पुन्हा माउंट करेपर्यंत अनुपलब्ध राहू शकतात."</string>
     <string name="dlg_error_unmount_title" product="nosdcard" msgid="3132640848329117857"></string>
     <string name="dlg_error_unmount_title" product="default" msgid="3132640848329117857"></string>
     <string name="dlg_error_unmount_text" product="nosdcard" msgid="4710773826053117136">"USB स्टोरेज अनमाउंट करता आले नाही. नंतर पुन्हा प्रयत्न करा."</string>
@@ -1401,7 +1404,7 @@
     <string name="sd_ejecting_title" msgid="595074246815112145">"अनमाउंट करत आहे"</string>
     <string name="sd_ejecting_summary" msgid="5708943172014003213">"अनमाउंट प्रगतीवर"</string>
     <string name="storage_low_title" msgid="6957178208426099592">"संचयन स्थान संपत आहे"</string>
-    <string name="storage_low_summary" msgid="4475275204869514141">"सिंक करणे यासारखी, काही सिस्टम कार्ये, योग्यरितीने कार्य करू शकत नाही. अॅप्स किंवा मीडिया सामग्री यासारखे, आयटम हटवून किंवा अनपिन करून स्थान मोकळे करण्याचा प्रयत्न करा."</string>
+    <string name="storage_low_summary" msgid="4475275204869514141">"सिंक करणे यासारखी, काही सिस्टम कार्ये, योग्यरितीने कार्य करू शकत नाही. अ‍ॅप्स किंवा मीडिया सामग्री यासारखे, आयटम हटवून किंवा अनपिन करून स्थान मोकळे करण्याचा प्रयत्न करा."</string>
     <string name="storage_menu_rename" msgid="3731682449294417745">"नाव बदला"</string>
     <string name="storage_menu_mount" msgid="6395893560780365473">"माउंट करा"</string>
     <string name="storage_menu_unmount" msgid="5041360076873514189">"बाहेर काढा"</string>
@@ -1441,10 +1444,10 @@
     <string name="storage_dialog_unsupported" msgid="8274023677580782553">"हे डिव्हाइस या <xliff:g id="NAME_0">^1</xliff:g> चे सपोर्ट करत नाही. \n\nया डिव्‍हाइससह हे <xliff:g id="NAME_1">^1</xliff:g> वापरण्‍यासाठी आपल्‍याला प्रथम ते सेट करणे आवश्‍यक आहे."</string>
     <string name="storage_internal_format_details" msgid="2780806013122012384">"फॉर्मेट झाल्यानंतर, तुम्ही हे <xliff:g id="NAME_0">^1</xliff:g> इतर डिव्हाइसमध्‍ये वापरू शकता. \n\nया <xliff:g id="NAME_1">^1</xliff:g> वरील सर्व डेटा मिटविला जाईल. बॅकअप घेण्‍याचा प्रथम विचार करा. \n\n"<b>"फोटो आणि इतर मीडियाचा बॅकअप घ्‍या"</b>\n"या डिव्हाइस वरील पर्यायी स्टोरेजवर तुमच्या मीडिया फायली हलवा किंवा USB केबल वापरून त्या कॉंप्युटरवर ट्रान्सफर करा. \n\n"<b>"अ‍ॅप्सचा बॅकअप घ्‍या"</b>\n" <xliff:g id="NAME_6">^1</xliff:g> वर स्टोअर केलेली सर्व अ‍ॅप्स अनइंस्टॉल केली जातील आणि त्यांचा डेटा मिटविला जाईल. हे अ‍ॅप्स ठेवण्‍यासाठी, ते या डिव्हाइस वरील पर्यायी स्टोरेजवर हलवा."</string>
     <string name="storage_internal_unmount_details" msgid="4667435317528624039"><b>"तुम्ही <xliff:g id="NAME_0">^1</xliff:g> हे बाहेर काढता तेव्‍हा, त्यावर स्टोअर केलेले अ‍ॅप्स कार्य करणे थांबवतील आणि ते पुन्हा घातले जाईपर्यंत त्यावर स्टोअर केलेल्‍या मीडिया फायली उपलब्ध असणार नाहीत."</b>" \n\nहे <xliff:g id="NAME_1">^1</xliff:g> केवळ या डिव्‍हाइसवर कार्य करण्‍यासाठी स्वरूपित केले आहे. ते इतर कशावरही कार्य करणार नाही."</string>
-    <string name="storage_internal_forget_details" msgid="5655856574682184453">"अॅप्स, फोटो किंवा या <xliff:g id="NAME">^1</xliff:g> मध्ये असलेला डेटा वापरण्यासाठी, तो पुन्हा घाला. \n\nपर्यायीपणे, डिव्हाइस उपलब्ध नसल्यास तुम्ही हे स्टोरेज विसरणे निवडू शकता. \n\nतुम्ही विसरणे निवडल्यास, डिव्हाइस मध्ये असलेला सर्व डेटा नेहमीसाठी गमावला जाईल. \n\nतुम्ही नंतर अॅप्स पुन्हा इंस्टॉल करू शकता, परंतु या डिव्हाइस वर स्टोअर केलेला त्यांचा डेटा गमावला जाईल."</string>
+    <string name="storage_internal_forget_details" msgid="5655856574682184453">"अ‍ॅप्स, फोटो किंवा या <xliff:g id="NAME">^1</xliff:g> मध्ये असलेला डेटा वापरण्यासाठी, तो पुन्हा घाला. \n\nपर्यायीपणे, डिव्हाइस उपलब्ध नसल्यास तुम्ही हे स्टोरेज विसरणे निवडू शकता. \n\nतुम्ही विसरणे निवडल्यास, डिव्हाइस मध्ये असलेला सर्व डेटा नेहमीसाठी गमावला जाईल. \n\nतुम्ही नंतर अ‍ॅप्स पुन्हा इंस्टॉल करू शकता, परंतु या डिव्हाइस वर स्टोअर केलेला त्यांचा डेटा गमावला जाईल."</string>
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> ला विसरला?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"या <xliff:g id="NAME">^1</xliff:g> वर स्टोअर केलेले सर्व अ‍ॅप्स, फोटो आणि डेटा कायमचा गमावला जाईल."</string>
-    <string name="storage_detail_apps" msgid="8154648512504196820">"अॅप्स"</string>
+    <string name="storage_detail_apps" msgid="8154648512504196820">"अ‍ॅप्स"</string>
     <string name="storage_detail_images" msgid="6996202225684468964">"इमेज"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"व्हिडिओ"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ऑडिओ"</string>
@@ -1454,7 +1457,7 @@
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> एक्सप्लोर करा"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"इतर गोष्टींमध्ये अ‍ॅप्सवरून सेव्ह करून शेअर केलेल्या फायली, इंटरनेट किंवा ब्लूटूथ वरून डाउनलोड केलेल्या फायली, Android फायली आणि इत्यादीचा समावेश असतो. \n\n<xliff:g id="NAME">^1</xliff:g> चा दिसणाराा अाशय पाहण्यासाठी, एक्सप्लोर करा वर टॅप करा."</string>
     <string name="storage_detail_dialog_system" msgid="1472572861360014226">"सिस्टममध्ये Android व्हर्जन <xliff:g id="VERSION">%s</xliff:g> रन करण्यासाठी वापरल्या जाणाऱ्या फायलींचा समावेश आहे"</string>
-    <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> कडे <xliff:g id="SIZE">^2</xliff:g> स्टोरेज वापरणारे, सेव्ह केलेले फोटो, संगीत, अॅप्स किंवा इतर डेटा असू शकतो. \n\nतपशील पाहण्यासाठी, <xliff:g id="USER_1">^1</xliff:g> वर स्विच करा."</string>
+    <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> कडे <xliff:g id="SIZE">^2</xliff:g> स्टोरेज वापरणारे, सेव्ह केलेले फोटो, संगीत, अ‍ॅप्स किंवा इतर डेटा असू शकतो. \n\nतपशील पाहण्यासाठी, <xliff:g id="USER_1">^1</xliff:g> वर स्विच करा."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"तुमचे <xliff:g id="NAME">^1</xliff:g> सेट करा"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"पोर्टेबल संचयन म्हणून वापरा"</string>
     <string name="storage_wizard_init_external_summary" msgid="6993815290050489327">"डिव्‍हाइसेस मध्‍ये फोटो आणि इतर मीडिया हलविण्‍यासाठी."</string>
@@ -1488,10 +1491,10 @@
     <string name="storage_wizard_slow_body" msgid="2307974936036261069">"हे <xliff:g id="NAME_0">^1</xliff:g> धीमे असल्याचे दिसते. \n\nतुम्ही सुरु ठेवू शकता परंतु या स्थानावर हलविलेल्या अ‍ॅप्समध्‍ये अडथळा येऊ शकतो आणि डेटा स्थानांतरणास बराच वेळ लागू शकतो. \n\nअधिक चांगल्या कार्यप्रदर्शनासाठी आणखी जलद <xliff:g id="NAME_1">^1</xliff:g> वापरण्‍याचा विचार करा."</string>
     <string name="storage_wizard_init_v2_title" msgid="7408910177547901960">"तुम्ही हे <xliff:g id="NAME">^1</xliff:g> कसे वापराल?"</string>
     <string name="storage_wizard_init_v2_internal_title" product="tablet" msgid="7948795312504302810">"अतिरिक्त टॅबलेट स्टोरेजसाठी वापरा"</string>
-    <string name="storage_wizard_init_v2_internal_summary" product="tablet" msgid="6237770506398410172">"फक्त या टॅबलेटवरील अॅप्स, फायली आणि मीडियासाठी"</string>
+    <string name="storage_wizard_init_v2_internal_summary" product="tablet" msgid="6237770506398410172">"फक्त या टॅबलेटवरील अ‍ॅप्स, फायली आणि मीडियासाठी"</string>
     <string name="storage_wizard_init_v2_internal_action" product="tablet" msgid="1016850267330050231">"टॅब्लेट स्टोरेज"</string>
     <string name="storage_wizard_init_v2_internal_title" product="default" msgid="2782907833711627804">"अतिरिक्त फोन स्टोरेजसाठी वापरा"</string>
-    <string name="storage_wizard_init_v2_internal_summary" product="default" msgid="6352521760027924000">"फक्त या फोनवरील अॅप्स, फायली आणि मीडियासाठी"</string>
+    <string name="storage_wizard_init_v2_internal_summary" product="default" msgid="6352521760027924000">"फक्त या फोनवरील अ‍ॅप्स, फायली आणि मीडियासाठी"</string>
     <string name="storage_wizard_init_v2_internal_action" product="default" msgid="3383888882755852046">"फोन स्टोरेज"</string>
     <string name="storage_wizard_init_v2_or" msgid="883906565226069620">"किंवा"</string>
     <string name="storage_wizard_init_v2_external_title" msgid="7009571510941803101">"पोर्टेबल स्टोरेजसाठी वापरा"</string>
@@ -1499,21 +1502,21 @@
     <string name="storage_wizard_init_v2_external_action" msgid="4649591913020218098">"पोर्टेबल स्टोरेज"</string>
     <string name="storage_wizard_init_v2_later" msgid="2605006907172213466">"नंतर सेट करा"</string>
     <string name="storage_wizard_format_confirm_v2_title" msgid="1884699177320256159">"<xliff:g id="NAME">^1</xliff:g> हे फॉरमॅट करायचे का?"</string>
-    <string name="storage_wizard_format_confirm_v2_body" msgid="977657376082074305">"अॅप्स, फाइल्स आणि मीडिया स्टोर करण्यासाठी <xliff:g id="NAME_0">^1</xliff:g> ला फॉरमॅट करणे आवश्यक आहे. \n\nफॉरमॅट केल्यामुळे <xliff:g id="NAME_1">^2</xliff:g> वरील विद्यमान डेटा मिटवला जाईल. आशय गमावणे टाळण्यासाठी, दुसऱ्या <xliff:g id="NAME_2">^3</xliff:g> वर किंवा डिव्हाइसवर त्याचा बॅकअप घ्या."</string>
+    <string name="storage_wizard_format_confirm_v2_body" msgid="977657376082074305">"अ‍ॅप्स, फाइल्स आणि मीडिया स्टोर करण्यासाठी <xliff:g id="NAME_0">^1</xliff:g> ला फॉरमॅट करणे आवश्यक आहे. \n\nफॉरमॅट केल्यामुळे <xliff:g id="NAME_1">^2</xliff:g> वरील विद्यमान डेटा मिटवला जाईल. आशय गमावणे टाळण्यासाठी, दुसऱ्या <xliff:g id="NAME_2">^3</xliff:g> वर किंवा डिव्हाइसवर त्याचा बॅकअप घ्या."</string>
     <string name="storage_wizard_format_confirm_v2_action" msgid="5576917958786300415">"<xliff:g id="NAME">^1</xliff:g> फॉरमॅट करा"</string>
     <string name="storage_wizard_migrate_v2_title" msgid="6728034411587320249">"<xliff:g id="NAME">^1</xliff:g> वर आशय हलवायचा का?"</string>
-    <string name="storage_wizard_migrate_v2_body" product="tablet" msgid="6943007011251294950">"तुम्ही या <xliff:g id="NAME">^1</xliff:g> मध्ये फायली, मिडिया आणि विशिष्ट अॅप्स हलवू शकता. \n\nहे तुमच्या टॅबलेटच्या स्टोरेजमधून <xliff:g id="SIZE">^2</xliff:g> जागा मोकळी करेल आणि त्यासाठी अंदाजे <xliff:g id="DURATION">^3</xliff:g> कालावधी लागेल."</string>
-    <string name="storage_wizard_migrate_v2_body" product="default" msgid="3211214309775524554">"तुम्ही या <xliff:g id="NAME">^1</xliff:g> मध्ये फायली, मिडिया आणि विशिष्ट अॅप्स हलवू शकता. \n\nहे तुमच्या फोनच्या स्टोरेजमधून <xliff:g id="SIZE">^2</xliff:g> जागा मोकळी करेल आणि त्यासाठी अंदाजे <xliff:g id="DURATION">^3</xliff:g> कालावधी लागेल."</string>
+    <string name="storage_wizard_migrate_v2_body" product="tablet" msgid="6943007011251294950">"तुम्ही या <xliff:g id="NAME">^1</xliff:g> मध्ये फायली, मिडिया आणि विशिष्ट अ‍ॅप्स हलवू शकता. \n\nहे तुमच्या टॅबलेटच्या स्टोरेजमधून <xliff:g id="SIZE">^2</xliff:g> जागा मोकळी करेल आणि त्यासाठी अंदाजे <xliff:g id="DURATION">^3</xliff:g> कालावधी लागेल."</string>
+    <string name="storage_wizard_migrate_v2_body" product="default" msgid="3211214309775524554">"तुम्ही या <xliff:g id="NAME">^1</xliff:g> मध्ये फायली, मिडिया आणि विशिष्ट अ‍ॅप्स हलवू शकता. \n\nहे तुमच्या फोनच्या स्टोरेजमधून <xliff:g id="SIZE">^2</xliff:g> जागा मोकळी करेल आणि त्यासाठी अंदाजे <xliff:g id="DURATION">^3</xliff:g> कालावधी लागेल."</string>
     <string name="storage_wizard_migrate_v2_checklist" msgid="6283777617014793600">"हलविण्याच्या दरम्यान:"</string>
     <string name="storage_wizard_migrate_v2_checklist_media" msgid="4626548613088549096">"<xliff:g id="NAME">^1</xliff:g> काढून टाकू नका"</string>
-    <string name="storage_wizard_migrate_v2_checklist_apps" msgid="6041914027863793837">"काही अॅप्स काम करू शकणार नाहीत"</string>
+    <string name="storage_wizard_migrate_v2_checklist_apps" msgid="6041914027863793837">"काही अ‍ॅप्स काम करू शकणार नाहीत"</string>
     <string name="storage_wizard_migrate_v2_checklist_battery" product="tablet" msgid="5086689918108465503">"हा टॅबलेट चार्ज करून ठेवा"</string>
     <string name="storage_wizard_migrate_v2_checklist_battery" product="default" msgid="7801835366851130972">"हा फोन चार्ज करून ठेवा"</string>
     <string name="storage_wizard_migrate_v2_now" msgid="6818811520564682413">"आशय हलवा"</string>
     <string name="storage_wizard_migrate_v2_later" msgid="4909412563144649085">"आशय नंतर हलवा"</string>
     <string name="storage_wizard_migrate_progress_v2_title" msgid="1796255772658203586">"आशय हलवत आहे…"</string>
     <string name="storage_wizard_slow_v2_title" msgid="4662009769135525740">"हळू <xliff:g id="NAME">^1</xliff:g>"</string>
-    <string name="storage_wizard_slow_v2_body" msgid="4443996335261861797">"तुम्ही तरीही <xliff:g id="NAME_0">^1</xliff:g> वापरू शकता, परंतु ते हळू असू शकते. \n\nया <xliff:g id="NAME_1">^2</xliff:g> वर स्टोअर केलेली अॅप्स योग्यरित्या काम करू शकणार नाहीत आणि आशय ट्रांसफरसाठी जास्त वेळ लागू शकतो. \n\n जलद <xliff:g id="NAME_2">^3</xliff:g> वापरण्याचा प्रयत्न करा, किंवा त्याऐवजी पोर्टेबल स्टोरेजसाठी <xliff:g id="NAME_3">^4</xliff:g> वापरा."</string>
+    <string name="storage_wizard_slow_v2_body" msgid="4443996335261861797">"तुम्ही तरीही <xliff:g id="NAME_0">^1</xliff:g> वापरू शकता, परंतु ते हळू असू शकते. \n\nया <xliff:g id="NAME_1">^2</xliff:g> वर स्टोअर केलेली अ‍ॅप्स योग्यरित्या काम करू शकणार नाहीत आणि आशय ट्रांसफरसाठी जास्त वेळ लागू शकतो. \n\n जलद <xliff:g id="NAME_2">^3</xliff:g> वापरण्याचा प्रयत्न करा, किंवा त्याऐवजी पोर्टेबल स्टोरेजसाठी <xliff:g id="NAME_3">^4</xliff:g> वापरा."</string>
     <string name="storage_wizard_slow_v2_start_over" msgid="1686964124972424100">"पुन्हा सुरू करा"</string>
     <string name="storage_wizard_slow_v2_continue" msgid="2320238517431613392">"सुरु ठेवा"</string>
     <string name="storage_wizard_ready_v2_external_body" msgid="5803422587027895664">"तुम्‍ही <xliff:g id="NAME">^1</xliff:g> मध्‍ये आशय हलवू शकता"</string>
@@ -1565,7 +1568,7 @@
     <string name="menu_restore" msgid="3799288817317293115">"डीफॉल्टवर रीसेट करा"</string>
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"डीफॉल्ट APN सेटिंग्ज रीसेट करणे पूर्ण झाले."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"रीसेट पर्याय"</string>
-    <string name="reset_dashboard_summary" msgid="8778383341461126642">"नेटवर्क, अॅप्स आणि डिव्हाइस रीसेट केले जाऊ शकतात"</string>
+    <string name="reset_dashboard_summary" msgid="8778383341461126642">"नेटवर्क, अ‍ॅप्स आणि डिव्हाइस रीसेट केले जाऊ शकतात"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"वायफाय मोबाइल आणि ब्लूटूथ रीसेट करा"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"हे यांसह सर्व नेटवर्क सेटिंग्‍ज रीसेट करेल:\n\n"<li>"वाय‑फाय"</li>\n<li>"मोबाइल डेटा"</li>\n<li>"ब्लूटुथ"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"डाउनलोड केलेली सिम मिटवा"</string>
@@ -1781,9 +1784,9 @@
     <string name="lock_settings_profile_unification_dialog_uncompliant_confirm" msgid="8046452284593057185">"एक लॉक वापरा"</string>
     <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"डिव्हाइस स्क्रीन लॉक सारखेच"</string>
     <string name="manageapplications_settings_title" msgid="6876782217962262376">"अ‍ॅप्स व्यवस्थापित करा"</string>
-    <string name="manageapplications_settings_summary" msgid="5092964799412478962">"इंस्टॉल अॅप्स व्यवस्थापित करा आणि काढा"</string>
+    <string name="manageapplications_settings_summary" msgid="5092964799412478962">"इंस्टॉल अ‍ॅप्स व्यवस्थापित करा आणि काढा"</string>
     <string name="applications_settings" msgid="368331725658793179">"अ‍ॅप माहिती"</string>
-    <string name="applications_settings_summary" msgid="8888258399577123906">"अॅप्स व्यवस्थापित करा, द्रुत लाँच शॉर्टकट सेट करा"</string>
+    <string name="applications_settings_summary" msgid="8888258399577123906">"अ‍ॅप्स व्यवस्थापित करा, द्रुत लाँच शॉर्टकट सेट करा"</string>
     <string name="applications_settings_header" msgid="3766501606045211098">"अ‍ॅप सेटिंग्ज"</string>
     <string name="install_applications" msgid="7745902974984889179">"अज्ञात स्रोत"</string>
     <string name="install_applications_title" msgid="8164828577588659496">"सर्व अ‍ॅप स्त्रोतांना अनुमती द्या"</string>
@@ -1882,7 +1885,7 @@
     <string name="force_stop_dlg_title" msgid="8822779487097246675">"सक्तीने थांबवायचे?"</string>
     <string name="force_stop_dlg_text" msgid="7435245769456493398">"तुम्ही अ‍ॅप थांबविण्याची सक्ती केल्यास, ते गैरवर्तन करू शकते."</string>
     <string name="app_install_location_title" msgid="5121617802063021720">"प्राधान्यकृत स्थापना स्थान"</string>
-    <string name="app_install_location_summary" msgid="109719780117187797">"नवीन अॅप्स साठी प्राधान्यीकृत स्थापना स्थान बदला"</string>
+    <string name="app_install_location_summary" msgid="109719780117187797">"नवीन अ‍ॅप्स साठी प्राधान्यीकृत स्थापना स्थान बदला"</string>
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"अ‍ॅप अक्षम करा"</string>
     <string name="app_disable_dlg_text" msgid="9221864774943530281">"तुम्ही हे अ‍ॅप बंद केल्यास, Android आणि इतर अ‍ॅप्स कदाचित अपेक्षेप्रमाणे काम करणार नाहीत. लक्षात ठेवा, हे अ‍ॅप तुमच्या डिव्हाइसवर आधीच इंस्टॉल करून आलेले असल्यामुळे तुम्ही ते हटवू शकत नाही. बंद करून, तुम्ही हे अ‍ॅप बंद करता आणि ते तुमच्या डिव्हाइसवर लपवता."</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"सूचना बंद करायच्या?"</string>
@@ -1915,7 +1918,7 @@
     <string name="running_processes_header_title" msgid="6505983796524910467">"डिव्हाइस मेमरी"</string>
     <string name="running_processes_header_footer" msgid="6365963816942632771">"अ‍ॅप RAM वापर"</string>
     <string name="running_processes_header_system_prefix" msgid="3812089317725567449">"सिस्टम"</string>
-    <string name="running_processes_header_apps_prefix" msgid="4024980745400903746">"अॅप्स"</string>
+    <string name="running_processes_header_apps_prefix" msgid="4024980745400903746">"अ‍ॅप्स"</string>
     <string name="running_processes_header_free_prefix" msgid="1092348393136753031">"मोकळी"</string>
     <string name="running_processes_header_used_prefix" msgid="2984090414986096084">"वापरलेली"</string>
     <string name="running_processes_header_cached_prefix" msgid="8398315634778729026">"कॅश   केलेले"</string>
@@ -2263,7 +2266,7 @@
     <string name="details_subtitle" msgid="7279638828004951382">"तपशील वापरा"</string>
     <string name="controls_subtitle" msgid="6920199888882834620">"पॉवर वापर समायोजित करा"</string>
     <string name="packages_subtitle" msgid="6506269487892204413">"समाविष्ट पॅकेज"</string>
-    <string name="battery_tip_summary_title" msgid="2750922152518825526">"अॅप्स नेहमीप्रमाणे चालत आहेत"</string>
+    <string name="battery_tip_summary_title" msgid="2750922152518825526">"अ‍ॅप्स नेहमीप्रमाणे चालत आहेत"</string>
     <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"फोनमध्ये विशिष्ट बॅकग्राउंड बॅटरी वापर आहे"</string>
     <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"टॅबलेटमध्ये विशिष्ट बॅकग्राउंड बॅटरी वापर आहे"</string>
     <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"डिव्हाइसमध्ये विशिष्ट बॅकग्राउंड बॅटरी वापर आहे"</string>
@@ -2306,29 +2309,29 @@
       <item quantity="one">अ‍ॅप प्रतिबंधित करायचे?</item>
     </plurals>
     <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"बॅटरीची बचत करण्यासाठी, <xliff:g id="APP">%1$s</xliff:g> ला बॅकग्राउंडवर बॅटरीचा वापर करण्यापासून थांबवा. हे अ‍ॅप योग्यरीत्या काम करणार नाही आणि सूचना येण्यास उशीर होऊ शकतो."</string>
-    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"बॅटरीची बचत करण्यासाठी, या अॅप्सना बॅकग्राउंडवर बॅटरीचा वापर करण्यापासून थांबवा. प्रतिबंधित अॅप्स योग्यरीत्या काम करणार नाहीत आणि सूचना येण्यास उशीर होऊ शकतो.\n\nअॅप्स:"</string>
-    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"बॅटरीची बचत करण्यासाठी, या अॅप्सना बॅकग्राउंडवर बॅटरीचा वापर करण्यापासून थांबवा. प्रतिबंधित अॅप्स योग्यरीत्या काम करणार नाहीत आणि सूचना येण्यास उशीर होऊ शकतो.\n\nअॅप्स:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
+    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"बॅटरीची बचत करण्यासाठी, या अ‍ॅप्सना बॅकग्राउंडवर बॅटरीचा वापर करण्यापासून थांबवा. प्रतिबंधित अ‍ॅप्स योग्यरीत्या काम करणार नाहीत आणि सूचना येण्यास उशीर होऊ शकतो.\n\nअ‍ॅप्स:"</string>
+    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"बॅटरीची बचत करण्यासाठी, या अ‍ॅप्सना बॅकग्राउंडवर बॅटरीचा वापर करण्यापासून थांबवा. प्रतिबंधित अ‍ॅप्स योग्यरीत्या काम करणार नाहीत आणि सूचना येण्यास उशीर होऊ शकतो.\n\nअ‍ॅप्स:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"प्रतिबंधित करा"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"निर्बंध काढायचा?"</string>
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"या अॅपला बॅकग्राउंडमध्ये बॅटरी वापरता येईल. तुमची बॅटरी अपेक्षेपेक्षा लवकर संपू शकते."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"काढा"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"रद्द करा"</string>
-    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"तुमची अॅप्स योग्य प्रमाणात बॅटरी वापरत आहेत. तुमची अॅप्स जास्त बॅटरी वापरत असल्यास तुमचा फोन तुम्ही करू शकता अशा कृत्या सुचवेल.\n\nबॅटरी संपत आली असल्यास तुम्ही कायम बॅटरी सेव्हर सुरू करू शकता."</string>
-    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"तुमची अॅप्स योग्य प्रमाणात बॅटरी वापरत आहेत. तुमची अॅप्स जास्त बॅटरी वापरत असल्यास तुमचा टॅब्लेट तुम्ही करू शकता अशा कृत्या सुचवेल.\n\nबॅटरी संपत आली असल्यास तुम्ही कायम बॅटरी सेव्हर सुरू करू शकता."</string>
-    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"तुमची अॅप्स योग्य प्रमाणात बॅटरी वापरत आहेत. तुमची अॅप्स जास्त बॅटरी वापरत असल्यास तुमचे डिव्हाइस तुम्ही करू शकता अशा क्रिया सुचवेल. \n\nबॅटरी संपत आली असल्यास तुम्ही कायम बॅटरी सेव्हर सुरू करू शकता."</string>
+    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"तुमची अ‍ॅप्स योग्य प्रमाणात बॅटरी वापरत आहेत. तुमची अ‍ॅप्स जास्त बॅटरी वापरत असल्यास तुमचा फोन तुम्ही करू शकता अशा कृत्या सुचवेल.\n\nबॅटरी संपत आली असल्यास तुम्ही कायम बॅटरी सेव्हर सुरू करू शकता."</string>
+    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"तुमची अ‍ॅप्स योग्य प्रमाणात बॅटरी वापरत आहेत. तुमची अ‍ॅप्स जास्त बॅटरी वापरत असल्यास तुमचा टॅब्लेट तुम्ही करू शकता अशा कृत्या सुचवेल.\n\nबॅटरी संपत आली असल्यास तुम्ही कायम बॅटरी सेव्हर सुरू करू शकता."</string>
+    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"तुमची अ‍ॅप्स योग्य प्रमाणात बॅटरी वापरत आहेत. तुमची अ‍ॅप्स जास्त बॅटरी वापरत असल्यास तुमचे डिव्हाइस तुम्ही करू शकता अशा क्रिया सुचवेल. \n\nबॅटरी संपत आली असल्यास तुम्ही कायम बॅटरी सेव्हर सुरू करू शकता."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"बॅटरी व्यवस्थापक"</string>
-    <string name="smart_battery_title" msgid="4919670408532804351">"अॅप्स आपोआप व्यवस्थापित करा"</string>
+    <string name="smart_battery_title" msgid="4919670408532804351">"अ‍ॅप्स आपोआप व्यवस्थापित करा"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"तुम्ही नेहमी वापरत नसलेल्या अॅप्सचा बॅटरी वापर मर्यादित करा"</string>
-    <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"जेव्हा बॅटरी व्यवस्थापकाला अॅप्सद्वारे बॅटरी जास्त वापरली जात आहे असे लक्षात येईल, तेव्हा तुमच्याकडे या अॅप्सचा वापर मर्यादित राखण्याचा पर्याय असेल. प्रतिबंधित अॅप्स योग्यरीत्या कार्य करणार नाहीत आणि सूचना येण्यास उशीर होऊ शकतो."</string>
-    <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"जेव्हा बॅटरी व्यवस्थापकाला अॅप्सद्वारे बॅटरी जास्त वापरली जात आहे असे लक्षात येईल, तेव्हा तुमच्याकडे या अॅप्सचा वापर मर्यादित राखण्याचा पर्याय असेल. प्रतिबंधित अॅप्स योग्यरीत्या कार्य करणार नाहीत आणि सूचना येण्यास उशीर होऊ शकतो."</string>
-    <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"जेव्हा बॅटरी व्यवस्थापकाला अॅप्सद्वारे बॅटरी जास्त वापरली जात आहे असे लक्षात येईल, तेव्हा तुमच्याकडे या अॅप्सचा वापर मर्यादित राखण्याचा पर्याय असेल. प्रतिबंधित अॅप्स योग्यरीत्या कार्य करणार नाहीत आणि सूचना येण्यास उशीर होऊ शकतो."</string>
+    <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"जेव्हा बॅटरी व्यवस्थापकाला अ‍ॅप्सद्वारे बॅटरी जास्त वापरली जात आहे असे लक्षात येईल, तेव्हा तुमच्याकडे या अ‍ॅप्सचा वापर मर्यादित राखण्याचा पर्याय असेल. प्रतिबंधित अ‍ॅप्स योग्यरीत्या कार्य करणार नाहीत आणि सूचना येण्यास उशीर होऊ शकतो."</string>
+    <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"जेव्हा बॅटरी व्यवस्थापकाला अ‍ॅप्सद्वारे बॅटरी जास्त वापरली जात आहे असे लक्षात येईल, तेव्हा तुमच्याकडे या अ‍ॅप्सचा वापर मर्यादित राखण्याचा पर्याय असेल. प्रतिबंधित अ‍ॅप्स योग्यरीत्या कार्य करणार नाहीत आणि सूचना येण्यास उशीर होऊ शकतो."</string>
+    <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"जेव्हा बॅटरी व्यवस्थापकाला अ‍ॅप्सद्वारे बॅटरी जास्त वापरली जात आहे असे लक्षात येईल, तेव्हा तुमच्याकडे या अ‍ॅप्सचा वापर मर्यादित राखण्याचा पर्याय असेल. प्रतिबंधित अ‍ॅप्स योग्यरीत्या कार्य करणार नाहीत आणि सूचना येण्यास उशीर होऊ शकतो."</string>
     <string name="restricted_app_title" msgid="4957644700640127606">"प्रतिबंधित अ‍ॅप्स"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
       <item quantity="other">%1$d अॅप्ससाठी बॅटरीचा वापर मर्यादित करत आहे</item>
       <item quantity="one">%1$d अॅपसाठी बॅटरीचा वापर मर्यादित करत आहे</item>
     </plurals>
     <string name="restricted_app_time_summary" msgid="5205881852523135226">"<xliff:g id="TIME">%1$s</xliff:g> दिवसांपूर्वी प्रतिबंधित केलेले"</string>
-    <string name="restricted_app_detail_footer" msgid="482460517275754465">"ही अॅप्स बॅकग्राउंडवर बॅटरी वापरत आहेत. प्रतिबंधित अॅप्स व्यवस्थित काम करू शकणार नाहीत आणि सूचना येण्यास उशीर होऊ शकतो."</string>
+    <string name="restricted_app_detail_footer" msgid="482460517275754465">"ही अ‍ॅप्स बॅकग्राउंडवर बॅटरी वापरत आहेत. प्रतिबंधित अ‍ॅप्स व्यवस्थित काम करू शकणार नाहीत आणि सूचना येण्यास उशीर होऊ शकतो."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"बॅटरी व्यवस्थापक वापरा"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"अ‍ॅप्सची बॅटरी केव्हा संंपते ते ओळखा"</string>
     <string name="battery_manager_on" msgid="5626982529932239656">"अॅप्सची बॅटरी केव्हा संपते ते ओळखत आहे / सुरू आहे"</string>
@@ -2566,7 +2569,7 @@
     <string name="uninstall_device_admin" msgid="9017499299961719830">"अ‍ॅप अनइंस्टॉल करा"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"निष्क्रिय करा आणि अनइंस्टॉल करा"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"डिव्हाइस प्रशासक अ‍ॅप्स"</string>
-    <string name="no_device_admins" msgid="4129231900385977460">"कोणतेही डिव्हाइस प्रशासक अॅप्स उपलब्ध नाहीत"</string>
+    <string name="no_device_admins" msgid="4129231900385977460">"कोणतेही डिव्हाइस प्रशासक अ‍ॅप्स उपलब्ध नाहीत"</string>
     <string name="personal_device_admin_title" msgid="759440849188565661">"वैयक्तिक"</string>
     <string name="managed_device_admin_title" msgid="8021522755492551726">"कार्य"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"एसएमएस आणि कॉल लॉग अॅक्सेस प्रतिबंधित करा"</string>
@@ -2578,7 +2581,7 @@
     <string name="device_admin_warning" msgid="4421817419326480449">"हे प्रशासक अ‍ॅप सक्रिय केल्याने ते <xliff:g id="APP_NAME">%1$s</xliff:g> अ‍ॅपला पुढील ऑपरेशन करण्याची अनुमती देईल:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"हे अ‍ॅडमिन अ‍ॅप सक्रिय आहे आणि ते <xliff:g id="APP_NAME">%1$s</xliff:g> अ‍ॅपला पुढील ऑपरेशन करण्याची अनुमती देते:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"प्रोफाईल व्‍यवस्‍थापक सक्रिय करायचे?"</string>
-    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"पुढे सुरू ठेवून, तुमच्या वापरकर्त्याचे व्यवस्थापन तुमच्या प्रशासकाद्वारे केले जाईल. हा प्रशासक तुमच्या वैयक्तिक डेटाव्यतिरिक्त संबंधित डेटा स्टोअर करण्यासही सक्षम असेल.\n\nतुमच्या प्रशासकाकडे तुमच्या नेटवर्क अॅक्टिव्हिटी तसेच वापरकर्त्याशी संबधित सेटिंग्ज, अॅक्सेस, अॅप्स आणि डेटा यांचे परीक्षण आणि व्यवस्थापन करण्याची क्षमता आहे."</string>
+    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"पुढे सुरू ठेवून, तुमच्या वापरकर्त्याचे व्यवस्थापन तुमच्या प्रशासकाद्वारे केले जाईल. हा प्रशासक तुमच्या वैयक्तिक डेटाव्यतिरिक्त संबंधित डेटा स्टोअर करण्यासही सक्षम असेल.\n\nतुमच्या प्रशासकाकडे तुमच्या नेटवर्क अॅक्टिव्हिटी तसेच वापरकर्त्याशी संबधित सेटिंग्ज, अॅक्सेस, अ‍ॅप्स आणि डेटा यांचे परीक्षण आणि व्यवस्थापन करण्याची क्षमता आहे."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"आपल्या प्रशासकाने इतर पर्याय अक्षम केले आहेत"</string>
     <string name="admin_more_details" msgid="1719819589822345585">"अधिक तपशील"</string>
     <string name="notification_log_title" msgid="4200467765474474753">"सूचना लॉग"</string>
@@ -2596,12 +2599,12 @@
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"कार्य प्रोफाईल अद्याप उपलब्ध नाही"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"कार्य प्रोफाइल"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"तुमच्या संस्थेकडून व्यवस्थापित"</string>
-    <string name="work_mode_off_summary" msgid="1688885392211178315">"अॅप्स आणि सूचना बंद आहेत"</string>
+    <string name="work_mode_off_summary" msgid="1688885392211178315">"अ‍ॅप्स आणि सूचना बंद आहेत"</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"कार्य प्रोफाईल काढा"</string>
     <string name="background_data" msgid="8275750862371471171">"पार्श्वभूमीवरील डेटा"</string>
-    <string name="background_data_summary" msgid="799640633948841990">"अॅप्स कोणत्याही वेळी डेटा संकालित करू, पाठवू आणि प्राप्त करू शकतात."</string>
+    <string name="background_data_summary" msgid="799640633948841990">"अ‍ॅप्स कोणत्याही वेळी डेटा संकालित करू, पाठवू आणि प्राप्त करू शकतात."</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"पार्श्वभूमीवरील डेटा अक्षम करायचा?"</string>
-    <string name="background_data_dialog_message" msgid="8126774244911656527">"पार्श्वभूमीवरील डेटा बंद केल्याने बॅटरी लाइफ वाढते आणि डेटा वापर कमी होतो. तरीही, काही अॅप्स पार्श्वभूमीवर डेटा कनेक्शन वापरतात."</string>
+    <string name="background_data_dialog_message" msgid="8126774244911656527">"पार्श्वभूमीवरील डेटा बंद केल्याने बॅटरी लाइफ वाढते आणि डेटा वापर कमी होतो. तरीही, काही अ‍ॅप्स पार्श्वभूमीवर डेटा कनेक्शन वापरतात."</string>
     <string name="sync_automatically" msgid="5746117156896468099">"अ‍ॅप डेटा स्वयं-संकालित करा"</string>
     <string name="sync_enabled" msgid="535172627223336983">"सिंक चालू आहे"</string>
     <string name="sync_disabled" msgid="713721807204805062">"सिंक बंद आहे"</string>
@@ -2670,7 +2673,7 @@
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"कार्य डेटा स्‍वयं-संकालित करा"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"आवर्तन बदला…"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"डेटा वापर चक्र रीसेट करण्यासाठी महिन्याचा दिवस:"</string>
-    <string name="data_usage_empty" msgid="7981405723435034032">"या कालावधी दरम्यान कोणत्याही अॅप्स नी डेटा वापरला नाही."</string>
+    <string name="data_usage_empty" msgid="7981405723435034032">"या कालावधी दरम्यान कोणत्याही अ‍ॅप्स नी डेटा वापरला नाही."</string>
     <string name="data_usage_label_foreground" msgid="2471091128648754601">"अग्रभाग"</string>
     <string name="data_usage_label_background" msgid="1618794447370396845">"पार्श्वभूमी"</string>
     <string name="data_usage_app_restricted" msgid="7569077654579299326">"प्रतिबंधित"</string>
@@ -2713,13 +2716,13 @@
     <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"आपल्या टॅबलेटने तुम्ही सेट केलेली मर्यादा गाठताच तो मोबाइल डेटा बंद करेल.\n\nआपल्या टॅबलेटद्वारे डेटा वापर मोजला जात असल्याने आणि तुमचा वाहक वापराची गणना वेगळ्या प्रकारे करू शकत असल्याने, कमी मर्यादा सेट करणे विचारात घ्या."</string>
     <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"मोबाइल डेटावर घातलेली मर्यादा गाठल्यावर तुमचा फोन मोबाइल डेटा बंद करेल.\n\nतुमचा डेटा वापर तुमच्या फोनद्वारे मोजला जात असल्याने आणि वाहक वापराची गणना वेगळ्या प्रकारे होत असल्याने, कमी मर्यादा सेट करण्याची शिफारस केली जाते."</string>
     <string name="data_usage_restrict_background_title" msgid="3568746530413220844">"पार्श्वभूमीवरील डेटा प्रतिबंधित करायचा?"</string>
-    <string name="data_usage_restrict_background" msgid="995811034744808575">"तुम्ही पार्श्वभूमी मोबाइल डेटा प्रतिबंधित केल्यास, तुम्ही वाय-फाय शी कनेक्ट असल्याशिवाय काही अॅप्स आणि सेवा काम करणार नाहीत."</string>
-    <string name="data_usage_restrict_background_multiuser" product="tablet" msgid="6032810839234864814">"तुम्ही पार्श्वभूमी मोबाइल डेटा प्रतिबंधित केल्यास, तुम्ही वाय-फाय शी कनेक्ट असल्याशिवाय काही अॅप्स आणि सेवा काम करणार नाहीत.\n\nहे सेटिंग या टॅबलेटवरील सर्व वापरकर्त्यांवर परिणाम करते."</string>
-    <string name="data_usage_restrict_background_multiuser" product="default" msgid="6846901756455789858">"तुम्ही पार्श्वभूमी मोबाइल डेटा प्रतिबंधित केल्यास, तुम्ही वाय-फाय शी कनेक्ट असल्याशिवाय काही अॅप्स आणि सेवा काम करणार नाहीत.\n\nहे सेटिंग या फोनवरील सर्व वापरकर्त्यांवर परिणाम करते."</string>
+    <string name="data_usage_restrict_background" msgid="995811034744808575">"तुम्ही पार्श्वभूमी मोबाइल डेटा प्रतिबंधित केल्यास, तुम्ही वाय-फाय शी कनेक्ट असल्याशिवाय काही अ‍ॅप्स आणि सेवा काम करणार नाहीत."</string>
+    <string name="data_usage_restrict_background_multiuser" product="tablet" msgid="6032810839234864814">"तुम्ही पार्श्वभूमी मोबाइल डेटा प्रतिबंधित केल्यास, तुम्ही वाय-फाय शी कनेक्ट असल्याशिवाय काही अ‍ॅप्स आणि सेवा काम करणार नाहीत.\n\nहे सेटिंग या टॅबलेटवरील सर्व वापरकर्त्यांवर परिणाम करते."</string>
+    <string name="data_usage_restrict_background_multiuser" product="default" msgid="6846901756455789858">"तुम्ही पार्श्वभूमी मोबाइल डेटा प्रतिबंधित केल्यास, तुम्ही वाय-फाय शी कनेक्ट असल्याशिवाय काही अ‍ॅप्स आणि सेवा काम करणार नाहीत.\n\nहे सेटिंग या फोनवरील सर्व वापरकर्त्यांवर परिणाम करते."</string>
     <string name="data_usage_sweep_warning" msgid="4646401408698778092"><font size="18">"<xliff:g id="NUMBER">^1</xliff:g>"</font>" "<font size="9">"<xliff:g id="UNIT">^2</xliff:g>"</font>\n<font size="12">"चेतावणी"</font></string>
     <string name="data_usage_sweep_limit" msgid="6101105504557548269"><font size="18">"<xliff:g id="NUMBER">^1</xliff:g>"</font>" "<font size="9">"<xliff:g id="UNIT">^2</xliff:g>"</font>\n<font size="12">"मर्यादा"</font></string>
-    <string name="data_usage_uninstalled_apps" msgid="4152786786140875769">"काढलेले अॅप्स"</string>
-    <string name="data_usage_uninstalled_apps_users" msgid="61092462416505112">"काढलेले अॅप्स आणि वापरकर्ते"</string>
+    <string name="data_usage_uninstalled_apps" msgid="4152786786140875769">"काढलेले अ‍ॅप्स"</string>
+    <string name="data_usage_uninstalled_apps_users" msgid="61092462416505112">"काढलेले अ‍ॅप्स आणि वापरकर्ते"</string>
     <string name="data_usage_received_sent" msgid="5532467049487334656">"<xliff:g id="RECEIVED">%1$s</xliff:g> प्राप्त झाले, <xliff:g id="SENT">%2$s</xliff:g> पाठविले"</string>
     <string name="data_usage_total_during_range" msgid="7307562900020512747">"<xliff:g id="RANGE">%2$s</xliff:g>: सुमारे <xliff:g id="TOTAL">%1$s</xliff:g> वापरले."</string>
     <string name="data_usage_total_during_range_mobile" product="tablet" msgid="366118962920532455">"<xliff:g id="RANGE">%2$s</xliff:g>: आपल्या टॅब्लेटच्या मापनाप्रमाणे सुमारे <xliff:g id="TOTAL">%1$s</xliff:g> वापरले. आपल्या वाहकाच्या डेटा वापराची गणना भिन्न असू शकते."</string>
@@ -2838,7 +2841,7 @@
       <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> नी आपल्या कार्य प्रोफाइलसाठी प्रमाणप‍त्र अधिकार इंस्टॉल केले आहेत, जे त्यांना ईमेल, अ‍ॅप्स आणि सुरक्षित वेबसाइटसह कार्य नेटवर्क क्रियाकलापाचे परीक्षण करण्याची अनुमती देऊ शकतात.\n\nया प्रमाणपत्रांंविषयी अधिक माहितीसाठी, तुमच्या प्रशासकाशी संपर्क साधा.</item>
       <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> नी आपल्या कार्य प्रोफाइलसाठी एक प्रमाणप‍त्र अधिकार इंस्टॉल केला आहे, जो त्यांना ईमेल, अ‍ॅप्स आणि सुरक्षित वेबसाइटसह कार्य नेटवर्क क्रियाकलापाचे परीक्षण करण्याची अनुमती देतो.\n\nया प्रमाणपत्राविषयी अधिक माहितीसाठी, तुमच्या प्रशासकाशी संपर्क साधा.</item>
     </plurals>
-    <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"एक तृतीय पक्ष ईमेल, अॅप्स आणि सुरक्षित वेबसाइट यासह, आपल्या नेटवर्क अॅक्टिव्हिटीचे परीक्षण करण्यास सक्षम आहे.\n\nआपल्या डीव्हाइसवर इंस्टॉल केलेले विश्वसनीय क्रेडेंशियल हे शक्य करते."</string>
+    <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"एक तृतीय पक्ष ईमेल, अ‍ॅप्स आणि सुरक्षित वेबसाइट यासह, आपल्या नेटवर्क अॅक्टिव्हिटीचे परीक्षण करण्यास सक्षम आहे.\n\nआपल्या डीव्हाइसवर इंस्टॉल केलेले विश्वसनीय क्रेडेंशियल हे शक्य करते."</string>
     <plurals name="ssl_ca_cert_settings_button" formatted="false" msgid="3227175122066058245">
       <item quantity="other">प्रमाणपत्रे तपासा</item>
       <item quantity="one">प्रमाणपत्र तपासा</item>
@@ -2851,7 +2854,7 @@
     <string name="user_add_user_or_profile_menu" msgid="4220679989900149336">"वापरकर्ता किंवा प्रोफाइल जोडा"</string>
     <string name="user_add_user_menu" msgid="9006572936456324794">"वापरकर्ता जोडा"</string>
     <string name="user_summary_restricted_profile" msgid="5214838615043574917">"प्रतिबंधित प्रोफाईल"</string>
-    <string name="user_need_lock_message" msgid="3421243467724322311">"तुम्ही एक प्रतिबंधित प्रोफाईल तयार करु शकण्यापूर्वी तुम्हाला तुमचे अॅप्स आणि वैयक्तिक डेटा संरक्षित करण्यासाठी एक स्क्रीन लॉक सेट करण्याची आवश्यकता राहील."</string>
+    <string name="user_need_lock_message" msgid="3421243467724322311">"तुम्ही एक प्रतिबंधित प्रोफाईल तयार करु शकण्यापूर्वी तुम्हाला तुमचे अ‍ॅप्स आणि वैयक्तिक डेटा संरक्षित करण्यासाठी एक स्क्रीन लॉक सेट करण्याची आवश्यकता राहील."</string>
     <string name="user_set_lock_button" msgid="4660971133148866612">"लॉक सेट करा"</string>
     <string name="user_summary_not_set_up" msgid="6436691939044332679">"सेट केलेले नाही"</string>
     <string name="user_summary_restricted_not_set_up" msgid="896552290436689508">"सेट केलेले नाही - प्रति‍बंधित प्रोफाईल"</string>
@@ -2861,13 +2864,13 @@
     <string name="user_nickname" msgid="1088216221559125529">"टोपणनाव"</string>
     <string name="user_add_user_type_title" msgid="8672326434351387845">"जोडा"</string>
     <string name="user_add_max_count" msgid="4524573950126500416">"तुम्ही सुमारे <xliff:g id="USER_COUNT">%1$d</xliff:g> वापरकर्ते जोडू शकता"</string>
-    <string name="user_add_user_item_summary" msgid="6114355152711455716">"वापरकर्त्यांकडे त्यांचे स्वत:चे अॅप्स आणि सामग्री आहे"</string>
-    <string name="user_add_profile_item_summary" msgid="6386283837789573755">"तुम्ही आपल्या खात्यावरुन अॅप्स आणि सामग्रीमध्ये प्रवेश करण्यास प्रतिबंध करु शकता"</string>
+    <string name="user_add_user_item_summary" msgid="6114355152711455716">"वापरकर्त्यांकडे त्यांचे स्वत:चे अ‍ॅप्स आणि सामग्री आहे"</string>
+    <string name="user_add_profile_item_summary" msgid="6386283837789573755">"तुम्ही आपल्या खात्यावरुन अ‍ॅप्स आणि सामग्रीमध्ये प्रवेश करण्यास प्रतिबंध करु शकता"</string>
     <string name="user_add_user_item_title" msgid="6835385073795492410">"वापरकर्ता"</string>
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"प्रतिबंधित प्रोफाईल"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"नवीन वापरकर्ता जोडायचा?"</string>
     <string name="user_add_user_message_long" msgid="686637203224195465">"अतिरिक्त वापरकर्ते तयार करून तुम्ही इतर लोकांसोबत हे डिव्हाइस शेअर करू शकता. प्रत्येक वापरकर्त्यास त्यांची स्वतःची स्पेस असते, जी ते अ‍ॅप्स, वॉलपेपर आणि यासारख्या गोष्टींनी कस्टमाइझ करू शकतात. वापरकर्ते प्रत्येकाला प्रभावित करणाऱ्या वाय-फाय सारख्या डिव्हाइस सेटिंग्ज अ‍ॅडजस्ट देखील करू शकतात.\n\nतुम्ही एक नवीन वापरकर्ता जोडता, तेव्हा त्या व्यक्तीला त्याची स्पेस सेट अप करण्याची आवश्यकता असते.\n\nकोणताही वापरकर्ता इतर सर्व वापरकर्त्यांसाठी अ‍ॅप अपडेट करू शकतो. अॅक्सेसिबिलिटी सेटिंग्ज आणि सेवा नवीन वापरकर्त्याला कदाचित ट्रान्सफर होणार नाहीत."</string>
-    <string name="user_add_user_message_short" msgid="1802594476285458254">"तुम्ही एक नवीन वापरकर्ता जोडता तेव्हा, त्या व्यक्तीस त्यांचे स्थान सेट करण्याची आवश्यकता असते.\n\nकोणताही वापरकर्ता इतर सर्व वापरकर्त्यांसाठी अॅप्स अपडेट करू शकतो."</string>
+    <string name="user_add_user_message_short" msgid="1802594476285458254">"तुम्ही एक नवीन वापरकर्ता जोडता तेव्हा, त्या व्यक्तीस त्यांचे स्थान सेट करण्याची आवश्यकता असते.\n\nकोणताही वापरकर्ता इतर सर्व वापरकर्त्यांसाठी अ‍ॅप्स अपडेट करू शकतो."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"आता वापरकर्ता सेट करायचा?"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"डिव्हाइस घेण्यासाठी आणि त्यांचे स्थान सेट करण्यासाठी व्यक्ती उपलब्ध असल्याची खात्री करा"</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"आता प्रोफाईल सेट करायचा?"</string>
@@ -2887,8 +2890,8 @@
     <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"कार्य प्रोफाईल काढायचे?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"तुम्ही या टॅब्लेटवरील तुमचे स्थान आणि डेटा गमवाल. तुम्ही ही क्रिया पूर्ववत करु शकत नाही."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"तुम्ही या फोनवरील तुमचे स्थान आणि डेटा गमवाल. तुम्ही ही क्रिया पूर्ववत करु शकत नाही."</string>
-    <string name="user_confirm_remove_message" msgid="5202150470271756013">"सर्व अॅप्स आणि डेटा हटवला जाईल."</string>
-    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"तुम्ही सुरु ठेवल्यास या प्रोफाईलमधील सर्व अॅप्स आणि डेटा हटवला जाईल."</string>
+    <string name="user_confirm_remove_message" msgid="5202150470271756013">"सर्व अ‍ॅप्स आणि डेटा हटवला जाईल."</string>
+    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"तुम्ही सुरु ठेवल्यास या प्रोफाईलमधील सर्व अ‍ॅप्स आणि डेटा हटवला जाईल."</string>
     <string name="user_profile_confirm_remove_message" msgid="8376289888144561545">"सर्व अ‍ॅप्स आणि डेटा हटवला जाईल."</string>
     <string name="user_adding_new_user" msgid="381717945749193417">"नवीन वापरकर्त्यास जोडत आहे…"</string>
     <string name="user_delete_user_description" msgid="3627684990761268859">"वापरकर्ता हटवा"</string>
@@ -2907,7 +2910,7 @@
     <string name="user_enable_calling_and_sms_confirm_message" msgid="3278802798876095734">"या वापरकर्त्याशी कॉल आणि SMS इतिहास शेअर केला जाईल."</string>
     <string name="emergency_info_title" msgid="1522609271881425375">"आणीबाणी माहिती"</string>
     <string name="emergency_info_summary" msgid="7280464759837387342">"<xliff:g id="USER_NAME">%1$s</xliff:g> साठी माहिती आणि संपर्क"</string>
-    <string name="application_restrictions" msgid="6871981013736536763">"अॅप्स आणि सामग्रीला अनुमती द्या"</string>
+    <string name="application_restrictions" msgid="6871981013736536763">"अ‍ॅप्स आणि सामग्रीला अनुमती द्या"</string>
     <string name="apps_with_restrictions_header" msgid="8656739605673756176">"प्रतिबंध असलेले अॅप्लिकेशन"</string>
     <string name="apps_with_restrictions_settings_button" msgid="5065896213467171744">"अनुप्रयोगासाठी सेटिंग्ज विस्तृत करा"</string>
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"टॅप करा आणि पे करा"</string>
@@ -3036,7 +3039,7 @@
     <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"ब्लूटूथ, ड्रायव्हिंग मोड"</string>
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"ब्लूटूथ, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"ब्लूटूथ"</string>
-    <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"अॅप्स आणि सूचना"</string>
+    <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"अ‍ॅप्स आणि सूचना"</string>
     <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"असिस्टंट, अलीकडील अ‍ॅप्स, डीफॉल्ट अ‍ॅप्स"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"कार्य प्रोफाइलमधील अॅप्ससाठी सूचनेचा अॅक्सेस उपलब्ध नाही."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"खाती"</string>
@@ -3081,8 +3084,8 @@
     <string name="keywords_users" msgid="5880705776023155640">"प्रतिबंध, प्रतिबंधित करा, प्रतिबंधित"</string>
     <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"मजकूर सुधारणा, योग्य, ध्वनी, व्हायब्रेट, अॉटो, भाषा, जेश्चर, सुचवा, सूचना, थीम, आक्षेपार्ह, शब्द, प्रकार, ईमोजी, आंतरराष्ट्रीय"</string>
     <string name="keywords_reset_apps" msgid="2645701455052020435">"रीसेट करा, प्राधान्ये, डीफॉल्‍ट"</string>
-    <string name="keywords_all_apps" msgid="846444448435698930">"अॅप्स, डाउनलोड, अॅप्लिकेशन, सिस्टम"</string>
-    <string name="keywords_app_permissions" msgid="8539841019997048500">"अॅप्स, परवानग्या, सुरक्षितता"</string>
+    <string name="keywords_all_apps" msgid="846444448435698930">"अ‍ॅप्स, डाउनलोड, अॅप्लिकेशन, सिस्टम"</string>
+    <string name="keywords_app_permissions" msgid="8539841019997048500">"अ‍ॅप्स, परवानग्या, सुरक्षितता"</string>
     <string name="keywords_default_apps" msgid="7435952699323965532">"अ‍ॅप्‍स, डीफॉल्‍ट"</string>
     <string name="keywords_ignore_optimizations" msgid="9127632532176249438">"ऑप्टिमायझेशन, डोझ, अ‍ॅप स्टँडबायकडे दुर्लक्ष करा"</string>
     <string name="keywords_color_mode" msgid="8893345199519181751">"चैतन्यपूर्ण, rgb, srgb, रंग, नैसर्गिक, मानक"</string>
@@ -3358,7 +3361,7 @@
     <string name="notifications_sent_never" msgid="237997329598144638">"कधीही नाही"</string>
     <string name="manage_notification_access_title" msgid="5348743662189787547">"सूचना प्रवेश"</string>
     <string name="work_profile_notification_access_blocked_summary" msgid="8148871282484870576">"कार्य प्रोफाइल सूचनांचा अॅक्‍सेस ब्‍लॉक आहे"</string>
-    <string name="manage_notification_access_summary_zero" msgid="236809421271593016">"अॅप्स सूचनांचे वाचन करु शकत नाहीत"</string>
+    <string name="manage_notification_access_summary_zero" msgid="236809421271593016">"अ‍ॅप्स सूचनांचे वाचन करु शकत नाहीत"</string>
     <plurals name="manage_notification_access_summary_nonzero" formatted="false" msgid="8496218948429646792">
       <item quantity="other">%d अ‍ॅप्स सूचना वाचू शकतात</item>
       <item quantity="one">%d अ‍ॅप सूचना वाचू शकतो</item>
@@ -3381,7 +3384,7 @@
     <string name="display_vr_pref_low_persistence" msgid="3132583929174794245">"अस्पष्टता कमी करा (शिफारस केलेले)"</string>
     <string name="display_vr_pref_off" msgid="4681320968818852691">"फ्लिकर कमी करा"</string>
     <string name="picture_in_picture_title" msgid="4960733106166035448">"चित्रा-मध्ये-चित्र"</string>
-    <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"कोणतेही इंस्टॉल केलेली अॅप्स चित्रा मध्‍ये चित्रचे समर्थन करत नाहीत"</string>
+    <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"कोणतेही इंस्टॉल केलेली अ‍ॅप्स चित्रा मध्‍ये चित्रचे समर्थन करत नाहीत"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"चि. म. चि. चित्रामध्ये"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"चित्रा मध्‍ये चित्र"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"चित्रामध्‍ये चित्राची अनुमती द्या"</string>
@@ -3389,7 +3392,7 @@
     <string name="manage_zen_access_title" msgid="3058206309728524196">"व्यत्यय आणू नका प्रवेश"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"व्यत्यय आणू नका ची अनुमती द्या"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"कोणत्याही इंस्टॉल केलेल्या अॅप्सने व्यत्यय आणू नका प्रवेशाची विनंती केली नाही"</string>
-    <string name="loading_notification_apps" msgid="1978345231934072091">"अॅप्स लोड करत आहे..."</string>
+    <string name="loading_notification_apps" msgid="1978345231934072091">"अ‍ॅप्स लोड करत आहे..."</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"तुमच्या विनंतीनुसार Android या अ‍ॅपच्या सूचना, या डिव्हाइसवर दिसणे ब्लॉक करत आहे"</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"तुमच्या विनंतीनुसार Android, सूचनांच्या या वर्गवारीचे या डिव्हाइसवर दिसणे ब्लॉक करत आहे"</string>
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"तुमच्या विनंतीनुसार Android, सूचनांच्या या समूहाचे या डिव्हाइसवर दिसणे ब्लॉक करत आहे"</string>
@@ -3628,7 +3631,7 @@
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"कोणत्याही परवानग्यांना मंजूरी दिली नाही"</string>
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"कोणत्याही परवानग्यांची विनंती केली नाही"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"सर्व अ‍ॅप्स"</string>
-    <string name="filter_enabled_apps" msgid="5888459261768538489">"इंस्टॉल केलेली अॅप्स"</string>
+    <string name="filter_enabled_apps" msgid="5888459261768538489">"इंस्टॉल केलेली अ‍ॅप्स"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"इन्स्टंट अ‍ॅप्स"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"वैयक्तिक"</string>
     <string name="filter_work_apps" msgid="4202483998339465542">"कार्य"</string>
@@ -3642,7 +3645,7 @@
     <string name="configure_apps" msgid="4066683118857400943">"अ‍ॅप्स कॉन्‍फिगर करा"</string>
     <string name="unknown_app" msgid="2312052973570376877">"अज्ञात अ‍ॅप"</string>
     <string name="app_permissions" msgid="3215958256821756086">"परवानगी व्यवस्थापक"</string>
-    <string name="app_permissions_summary" msgid="8785798165776061594">"<xliff:g id="APPS">%1$s</xliff:g> वापरणारी अॅप्स"</string>
+    <string name="app_permissions_summary" msgid="8785798165776061594">"<xliff:g id="APPS">%1$s</xliff:g> वापरणारी अ‍ॅप्स"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"सक्रिय करण्यासाठी टॅप करा"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"डिव्हाइस अॅक्टिव्हेट करण्यासाठी स्क्रीनवर कुठेही दोनदा टॅप करा"</string>
     <string name="domain_urls_title" msgid="7939209950373945367">"उघडणाऱ्या लिंक"</string>
@@ -3717,8 +3720,8 @@
     <string name="additional_permissions" msgid="3142290772324571654">"अतिरिक्त परवानग्या"</string>
     <string name="additional_permissions_more" msgid="714264060348056246">"<xliff:g id="COUNT">%1$d</xliff:g> अधिक"</string>
     <string name="share_remote_bugreport_dialog_title" msgid="1390719492733882678">"बग रीपोर्ट शेअर करायचा?"</string>
-    <string name="share_remote_bugreport_dialog_message_finished" msgid="5133489230646384192">"आपल्या IT प्रशासकाने या डिव्हाइसच्या समस्येचे निवारण करण्यात मदत करण्यासाठी दोष अहवालाची विनंती केली. अॅप्स आणि डेटा शेअर केले जाऊ शकतात."</string>
-    <string name="share_remote_bugreport_dialog_message" msgid="6680361103125933760">"तुमच्या IT प्रशासकाने या डिव्हाइस च्या समस्येचे निवारण करण्यात मदत करण्यासाठी एका दोष अहवालाची विनंती केली. अॅप्स आणि डेटा शेअर केले जाऊ शकतात आणि तुमचे डिव्हाइस तात्पुरते धीमे होऊ शकते."</string>
+    <string name="share_remote_bugreport_dialog_message_finished" msgid="5133489230646384192">"आपल्या IT प्रशासकाने या डिव्हाइसच्या समस्येचे निवारण करण्यात मदत करण्यासाठी दोष अहवालाची विनंती केली. अ‍ॅप्स आणि डेटा शेअर केले जाऊ शकतात."</string>
+    <string name="share_remote_bugreport_dialog_message" msgid="6680361103125933760">"तुमच्या IT प्रशासकाने या डिव्हाइस च्या समस्येचे निवारण करण्यात मदत करण्यासाठी एका दोष अहवालाची विनंती केली. अ‍ॅप्स आणि डेटा शेअर केले जाऊ शकतात आणि तुमचे डिव्हाइस तात्पुरते धीमे होऊ शकते."</string>
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"हा बग रीपोर्ट आपल्या IT प्रशासकासह शेअर केला जात आहे. अधिक तपशीलांसाठी त्यांच्याशी संपर्क साधा."</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"शेअर करा"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"नकार द्या"</string>
@@ -3760,7 +3763,7 @@
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"स्क्रीनच्या प्रतिमेमध्ये प्रवेश करण्यासाठी साहाय्यक अॅपला अनुमती द्या"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"स्क्रीन फ्लॅश करा"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"साहाय्य अ‍ॅप स्क्रीन किंवा स्क्रीनशॉट मधून मजकूर अॅक्सेस करते तेव्हा स्क्रीनच्या किनारी फ्लॅश करा"</string>
-    <string name="assist_footer" msgid="7030121180457472165">"साहाय्यक अॅप्स तुम्ही पाहत असलेल्या स्क्रीनवरील माहितीच्या आधारावर तुम्हाला मदत करू शकतात. काही अॅप्स तुम्हाला एकत्रित सहाय्य देण्यासाठी लॉन्चर आणि व्हॉइस इनपुट सेवा दोघांना सपोर्ट करतात."</string>
+    <string name="assist_footer" msgid="7030121180457472165">"साहाय्यक अ‍ॅप्स तुम्ही पाहत असलेल्या स्क्रीनवरील माहितीच्या आधारावर तुम्हाला मदत करू शकतात. काही अ‍ॅप्स तुम्हाला एकत्रित सहाय्य देण्यासाठी लॉन्चर आणि व्हॉइस इनपुट सेवा दोघांना सपोर्ट करतात."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"सरासरी मेमरी वापर"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"कमाल मेमरी वापर"</string>
     <string name="memory_usage" msgid="7963253555330830906">"मेमरी वापर"</string>
@@ -3797,7 +3800,7 @@
     <string name="accessibility_lock_screen_progress" msgid="8242917828598820049">"<xliff:g id="COUNT_0">%1$d</xliff:g> पैकी <xliff:g id="COUNT_1">%2$d</xliff:g> वर्ण वापरले"</string>
     <string name="draw_overlay" msgid="2878665072530660668">"इतर अ‍ॅप्सवर डिस्प्ले करा"</string>
     <string name="system_alert_window_settings" msgid="3024330223417646567">"इतर अ‍ॅप्सच्या वर प्रदर्शित करा"</string>
-    <string name="system_alert_window_apps_title" msgid="9188448296493699566">"अॅप्स"</string>
+    <string name="system_alert_window_apps_title" msgid="9188448296493699566">"अ‍ॅप्स"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"इतर अ‍ॅप्सच्या वर प्रदर्शित करा"</string>
     <string name="permit_draw_overlay" msgid="9039092257052422344">"इतर अ‍ॅप्सच्या वर प्रदर्शित करू द्या"</string>
     <string name="allow_overlay_description" msgid="6669524816705082807">"या अ‍ॅपला तुम्ही वापरत असलेल्या इतर अ‍ॅप्सच्या शीर्षस्थानी प्रदर्शित होण्याची अनुमती द्या. ते आपल्या त्या अ‍ॅप्सच्या वापरात हस्तक्षेप करू शकते किंवा त्यांच्या दिसण्यात किंवा वर्तणुकीत बदल करू शकते."</string>
@@ -3813,7 +3816,7 @@
     <string name="keywords_write_settings" msgid="3450405263390246293">"सिस्टम सेटिंग्ज सुधारित करा लिहा"</string>
     <string name="write_settings_summary" msgid="4650251358459404247">"सिस्‍टीम सेटिंग्ज सुधारित करण्‍यासाठी <xliff:g id="COUNT_1">%2$d</xliff:g> पैकी <xliff:g id="COUNT_0">%1$d</xliff:g> अॅप्सनी अनुमती दिली"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"वित्तीय अ‍ॅप्स एसएमएस अ‍ॅक्सेस"</string>
-    <string name="filter_install_sources_apps" msgid="4519839764020866701">"इतर अॅप्स इंस्टॉल करू शकतात"</string>
+    <string name="filter_install_sources_apps" msgid="4519839764020866701">"इतर अ‍ॅप्स इंस्टॉल करू शकतात"</string>
     <string name="filter_write_settings_apps" msgid="6864144615530081121">"सिस्‍टीम सेटिंग्ज सुधारित करू शकतात"</string>
     <string name="write_settings_title" msgid="5852614614193830632">"सिस्‍टीम सेटिंग्ज सुधारित करू शकतात"</string>
     <string name="write_system_settings" msgid="20450765210832463">"सिस्टम सेटिंग्ज सुधारित करा"</string>
@@ -3852,8 +3855,8 @@
       <item quantity="one">1 अ‍ॅपसाठी बंद</item>
     </plurals>
     <string name="notification_summary_none" msgid="5003043219430054784">"सर्व अॅप्ससाठी चालू"</string>
-    <string name="apps_summary" msgid="8355759446490212195">"<xliff:g id="COUNT">%1$d</xliff:g> अॅप्स इंस्टॉल केले"</string>
-    <string name="apps_summary_example" msgid="3011143598675185269">"24 अॅप्स इंस्टॉल केली"</string>
+    <string name="apps_summary" msgid="8355759446490212195">"<xliff:g id="COUNT">%1$d</xliff:g> अ‍ॅप्स इंस्टॉल केले"</string>
+    <string name="apps_summary_example" msgid="3011143598675185269">"24 अ‍ॅप्स इंस्टॉल केली"</string>
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> वापरले - <xliff:g id="FREE_SPACE">%2$s</xliff:g> मोकळे"</string>
     <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"अंतर्गत स्टोरेज: <xliff:g id="PERCENTAGE">%1$s</xliff:g> वापरले - <xliff:g id="FREE_SPACE">%2$s</xliff:g> मोकळे"</string>
     <string name="display_summary" msgid="5725269449657325797">"<xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> च्या निष्क्रियतेनंतर निष्क्रिय करा"</string>
@@ -3878,7 +3881,7 @@
     <string name="admin_support_more_info" msgid="8737842638087863477">"अधिक तपशील"</string>
     <string name="admin_profile_owner_message" msgid="3199544166281052845">"तुमचा प्रशासक सेटिंग्ज, परवानग्या, कॉर्पोरेट अॅक्सेस, नेटवर्क अॅक्टिव्हिटी आणि डीव्हाइसची स्थान माहिती यांसह तुमच्या कार्य प्रोफाइलशी संबधित अॅप्सचे आणि डेटाचे परीक्षण व व्यवस्थापन करू शकतो."</string>
     <string name="admin_profile_owner_user_message" msgid="2991249382056855531">"तुमचा प्रशासक सेटिंग्ज, परवानग्या, कॉर्पोरेट अॅक्सेस, नेटवर्क अॅक्टिव्हिटी आणि डीव्हाइसची स्थान माहिती यांसह तुमच्या कार्य प्रोफाइलशी संबधित अॅप्सचे आणि डेटाचे परीक्षण व व्यवस्थापन करू शकतो."</string>
-    <string name="admin_device_owner_message" msgid="1823477572459610869">"तुमच्या प्रशासकाकडे तुमच्या नेटवर्क अॅक्टिव्हिटी तसेच या डीव्हाइसशी संबधित सेटिंग्ज, कॉर्पोरेट अॅक्सेस, परवानग्या यांसह अॅप्स आणि डेटा यांचे परीक्षण आणि व्यवस्थापन करण्याची क्षमता आहे."</string>
+    <string name="admin_device_owner_message" msgid="1823477572459610869">"तुमच्या प्रशासकाकडे तुमच्या नेटवर्क अॅक्टिव्हिटी तसेच या डीव्हाइसशी संबधित सेटिंग्ज, कॉर्पोरेट अॅक्सेस, परवानग्या यांसह अ‍ॅप्स आणि डेटा यांचे परीक्षण आणि व्यवस्थापन करण्याची क्षमता आहे."</string>
     <string name="condition_turn_off" msgid="4395150881365143558">"बंद करा"</string>
     <string name="condition_turn_on" msgid="1699088245481841159">"चालू करा"</string>
     <string name="condition_expand_show" msgid="4118818022763913777">"दर्शवा"</string>
@@ -3896,7 +3899,7 @@
     <string name="condition_bg_data_title" msgid="184684435298857712">"डेटा सेव्‍हर"</string>
     <string name="condition_bg_data_summary" msgid="5194942860807136682">"वैशिष्ट्ये प्रतिबंधित केलेली आहेत"</string>
     <string name="condition_work_title" msgid="9046811302347490371">"कार्य प्रोफाइल बंद आहे"</string>
-    <string name="condition_work_summary" msgid="5586134491975748565">"अॅप्स आणि सूचनांसाठी"</string>
+    <string name="condition_work_summary" msgid="5586134491975748565">"अ‍ॅप्स आणि सूचनांसाठी"</string>
     <string name="condition_device_muted_action_turn_on_sound" msgid="5849285946804815263">"ध्वनी सुरू करा"</string>
     <string name="condition_device_muted_title" msgid="3930542786434609976">"रिंगर म्यूट केला आहे"</string>
     <string name="condition_device_muted_summary" msgid="3101055117680109021">"कॉल आणि सूचनांसाठी"</string>
@@ -3958,7 +3961,7 @@
     <string name="data_limit" msgid="5793521160051596228">"डेटा मर्यादा"</string>
     <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> दरम्यान <xliff:g id="ID_2">%2$s</xliff:g> वापरले"</string>
     <string name="configure" msgid="8232696842838580549">"कॉन्फिगर करा"</string>
-    <string name="data_usage_other_apps" msgid="7002491980141402084">"वापरामध्ये समाविष्‍ट केलेली इतर अॅप्स"</string>
+    <string name="data_usage_other_apps" msgid="7002491980141402084">"वापरामध्ये समाविष्‍ट केलेली इतर अ‍ॅप्स"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
       <item quantity="other">डेटा सेव्हर चालू असताना <xliff:g id="COUNT">%1$d</xliff:g> अनुप्रयोगांना अनिर्बंध डेटा वापरण्याची अनुमती दिली</item>
       <item quantity="one"> डेटा सेव्हर चालू असताना 1 अनुप्रयोगास अनिर्बंध डेटा वापरण्याची अनुमती दिली</item>
@@ -4115,7 +4118,7 @@
     <string name="double_twist_for_camera_suggestion_title" msgid="5932411386316771246">"अधिक जलद सेल्फी घ्या"</string>
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"अ‍ॅप्स स्विच करण्यासाठी, होम बटणास वरील बाजूस स्वाइप करा. सर्व अ‍ॅप्स पाहण्यासाठी पुन्हा वर स्वाइप करा. हे कोणत्याही स्क्रीनवरून काम करते. तुमच्या स्क्रीनच्या तळाशी उजवीकडे यापुढे ओव्हरव्ह्यू बटण असणार नाही."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"नवीन होम बटण वापरून पाहा"</string>
-    <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"अॅप्स स्विच करण्यासाठी नवीन जेश्चर सुरू करा"</string>
+    <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"अ‍ॅप्स स्विच करण्यासाठी नवीन जेश्चर सुरू करा"</string>
     <string name="ambient_display_title" product="default" msgid="6785677099744344088">"फोन तपासण्‍यासाठी दोनदा टॅप करा"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"टॅब्लेट तपासण्‍यासाठी दोनदा-टॅप करा"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"डिव्हाइस तपासण्‍यासाठी दोनदा टॅप करा"</string>
@@ -4149,7 +4152,7 @@
     <string name="web_action_enable_summary" msgid="1729016644691793085">"अ‍ॅप्समध्ये लिंक उघडा, ते इंस्टॉल केलेले नसले तरीही"</string>
     <string name="web_action_section_title" msgid="5563229447734734662">"इन्स्टंट अ‍ॅप्स"</string>
     <string name="instant_apps_settings" msgid="879003203555847537">"इंस्टंट अ‍ॅप्स प्राधान्ये"</string>
-    <string name="domain_url_section_title" msgid="206403507921518321">"इंस्टॉल केलेली अॅप्स"</string>
+    <string name="domain_url_section_title" msgid="206403507921518321">"इंस्टॉल केलेली अ‍ॅप्स"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"तुमचा स्टोरेज आता स्टोरेज व्यवस्थापक व्यवस्थापित करत आहे"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g> साठी खाती"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"कॉन्फिगर करा"</string>
@@ -4175,7 +4178,7 @@
     <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"सर्वात अलीकडील बग रीपोर्ट"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"सर्वात अलीकडील सुरक्षा लॉग"</string>
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"काहीही नाही"</string>
-    <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"इंस्टॉल केलेली अॅप्स"</string>
+    <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"इंस्टॉल केलेली अ‍ॅप्स"</string>
     <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"अ‍ॅपची संख्या अंदाजित आहे. त्यामध्ये कदाचित Play स्टोअर च्या बाहेर इंस्टॉल केलेली अ‍ॅप्स समाविष्ट नसतील."</string>
     <plurals name="enterprise_privacy_number_packages_lower_bound" formatted="false" msgid="5161417161943060602">
       <item quantity="other">किमान <xliff:g id="COUNT_1">%d</xliff:g> अ‍ॅप्स</item>
@@ -4234,7 +4237,7 @@
     <string name="storage_photos_videos" msgid="1890829312367477559">"फोटो आणि व्हिडिओ"</string>
     <string name="storage_music_audio" msgid="3661289086715297149">"संगीत आणि ऑडिओ"</string>
     <string name="storage_games" msgid="7740038143749092373">"गेम"</string>
-    <string name="storage_other_apps" msgid="3202407095387420842">"अन्य अॅप्स"</string>
+    <string name="storage_other_apps" msgid="3202407095387420842">"अन्य अ‍ॅप्स"</string>
     <string name="storage_files" msgid="2087824267937487880">"फायली"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g> पैकी वापरले"</string>
@@ -4265,7 +4268,7 @@
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"चालू"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"इन्सटंट अ‍ॅप"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"स्टोरेज व्यवस्थापक बंद करायचा?"</string>
-    <string name="storage_movies_tv" msgid="7282484273991655296">"चित्रपट आणि टीव्ही अॅप्स"</string>
+    <string name="storage_movies_tv" msgid="7282484273991655296">"चित्रपट आणि टीव्ही अ‍ॅप्स"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"वाहक तरतूद माहिती"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"वाहक तरतूद ट्रिगर करा"</string>
     <string name="zen_suggestion_title" msgid="2134699720214231950">"व्यत्यय आणू नका अपडेट करा"</string>
