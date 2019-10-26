@@ -183,6 +183,14 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     /**
+     * Return true if property is a display_units property
+     * @param propId
+     */
+    public boolean isDisplayUnitsProperty(int propId) {
+        return mPropIds.isPropertyToChangeUnits(propId);
+    }
+
+    /**
      * Set the property value.
      * @param prop
      */
