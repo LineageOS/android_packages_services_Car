@@ -253,8 +253,8 @@
     <item msgid="6488643537808152001">"Ниедна"</item>
     <item msgid="552332815156010137">"Со контури"</item>
     <item msgid="7187891159463789272">"Со сенка"</item>
-    <item msgid="8019330250538856521">"Поткренати"</item>
-    <item msgid="8987385315647049787">"Вдлабнати"</item>
+    <item msgid="8019330250538856521">"Поткренат"</item>
+    <item msgid="8987385315647049787">"Вдлабнат"</item>
   </string-array>
   <string-array name="captioning_opacity_selector_titles">
     <item msgid="313003243371588365">"25%"</item>

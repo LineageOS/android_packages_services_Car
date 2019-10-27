@@ -294,11 +294,11 @@
   </string-array>
   <string-array name="captioning_typeface_selector_titles">
     <item msgid="6928465258504250174">"Vaikeseade"</item>
-    <item msgid="4147246073737933622">"Sans-serif"</item>
-    <item msgid="3117680749167407907">"Sans-serif, tihendatud"</item>
-    <item msgid="6529379119163117545">"Seriifideta püsisammkiri"</item>
+    <item msgid="4147246073737933622">"Sans Serif"</item>
+    <item msgid="3117680749167407907">"Sans Serif, tihendatud"</item>
+    <item msgid="6529379119163117545">"Sans Serif, püsisammkiri"</item>
     <item msgid="1487203730637617924">"Serif"</item>
-    <item msgid="4937790671987480464">"Seriifidega püsisammkiri"</item>
+    <item msgid="4937790671987480464">"Serifi püsisammkiri"</item>
     <item msgid="4448481989108928248">"Lihtne"</item>
     <item msgid="4627069151979553527">"Kursiiv"</item>
     <item msgid="6896773537705206194">"Kapiteelkiri"</item>

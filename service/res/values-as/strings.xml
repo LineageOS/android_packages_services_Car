@@ -125,9 +125,7 @@
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"গাড়ীৰ শক্তিৰ স্থিতি এক্সেছ কৰিব।"</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"বিশ্বাসী ডিভাইচ পঞ্জীয়ন কৰক"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"বিশ্বাসী ডিভাইচ পঞ্জীয়নৰ অনুমতি দিয়ক"</string>
-    <!-- no translation found for car_permission_label_car_test_service (7561621437339123856) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_test_service (5829137040891060991) -->
-    <skip />
+    <string name="car_permission_label_car_test_service" msgid="7561621437339123856">"বাহনৰ সেৱাৰ পৰীক্ষণ ম’ড নিয়ন্ত্ৰণ কৰক"</string>
+    <string name="car_permission_desc_car_test_service" msgid="5829137040891060991">"বাহনৰ সেৱাৰ পৰীক্ষণ ম’ড নিয়ন্ত্ৰণ কৰক"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"মোৰ ডিভাইচ"</string>
 </resources>

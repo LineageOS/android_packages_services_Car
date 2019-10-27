@@ -1818,7 +1818,7 @@
     <string name="data_size_label" msgid="7790201846922671662">"उपयोगकर्ता डेटा"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB मेमोरी डेटा"</string>
     <string name="external_data_size_label" product="default" msgid="1097584278225902734">"SD कार्ड"</string>
-    <string name="uninstall_text" msgid="4859715815689705801">"इंस्टॉल किये हुए को हटायें"</string>
+    <string name="uninstall_text" msgid="4859715815689705801">"अनइंस्टॉल करें"</string>
     <string name="uninstall_all_users_text" msgid="2620518509352561416">"सभी उपयोगकर्ताओं के लिए अनइंस्टॉल करें"</string>
     <string name="install_text" msgid="2798092278891807849">"इंस्टॉल करें"</string>
     <string name="disable_text" msgid="5065834603951474397">"बंद करें"</string>
@@ -3783,7 +3783,7 @@
     </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"फ़्रीक्वेंसी"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"अधिकतम उपयोग"</string>
-    <string name="no_data_usage" msgid="903383745620135746">"किसी डेटा का उपयोग नहीं किया गया"</string>
+    <string name="no_data_usage" msgid="903383745620135746">"किसी भी तरह के डेटा का इस्तेमाल नहीं किया गया"</string>
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"<xliff:g id="APP">%1$s</xliff:g> के लिए परेशान न करें की ऐक्सेस की अनुमति दें?"</string>
     <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"यह ऐप, परेशान न करें को चालू/बंद कर सकेगा और संबंधित सेटिंग में बदलाव कर सकेगा."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"इसे चालू रखें क्योंकि सूचना का ऐक्सेस चालू है"</string>

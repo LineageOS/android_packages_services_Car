@@ -697,7 +697,10 @@
       <item quantity="other">ଅତିକମ୍‌ରେ <xliff:g id="COUNT">%d</xliff:g>ଟି ବିଶେଷ ଅକ୍ଷର କିମ୍ୱା ସଂଖ୍ୟା ଆବଶ୍ୟକ</item>
       <item quantity="one">ଅତିକମ୍‌ରେ 1ଟି ବିଶେଷ ଅକ୍ଷର କିମ୍ୱା ସଂଖ୍ୟା ଆବଶ୍ୟକ</item>
     </plurals>
-    <!-- no translation found for lockpassword_password_requires_nonnumerical (6943707011152180150) -->
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">ଅତିକମ୍‌ରେ <xliff:g id="COUNT">%d</xliff:g>ଟି ଅକ୍ଷର ହେବା ନିହାତି ଆବଶ୍ୟକ ଯାହା ସଂଖ୍ୟା ହୋଇନଥିବା</item>
+      <item quantity="one">ଅତିକମ୍‌ରେ 1ଟି ଅକ୍ଷର ହେବା ନିହାତି ଆବଶ୍ୟକ ଯାହା ସଂଖ୍ୟା ହୋଇନଥିବା</item>
+    </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ଏକ ସମ୍ପ୍ରତି ପାସ୍‌ୱର୍ଡ ବ୍ୟବହାର କରିବାକୁ ଡିଭାଇସ୍‌ ଆଡମିନ୍‌ ଅନୁମତି ଦିଅନ୍ତି ନାହିଁ"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ଆପଣଙ୍କର ଆଇଟି ଆଡ୍‌ମିନ୍‌ ଦ୍ୱାରା ସାଧାରଣ ପାସ୍‌ୱର୍ଡଗୁଡ଼ିକୁ ରୋକିଦିଆଯାଇଛି। ଏକ ଭିନ୍ନ ପାସ୍‌ୱର୍ଡ ଦିଅନ୍ତୁ।"</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"ସଂଖ୍ୟାର କ୍ରମବୃଦ୍ଧି, କ୍ରମହ୍ରାସ, କିମ୍ବା ପୁନରାବୃତ୍ତ କ୍ରମ ଅନୁମୋଦିତ ନୁହେଁ"</string>
