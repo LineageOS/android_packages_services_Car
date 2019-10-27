@@ -805,7 +805,7 @@
     <string name="wifi_display_status_connected" msgid="85692409327461403">"Туташкан"</string>
     <string name="wifi_display_status_in_use" msgid="7646114501132773174">"Колдонулууда"</string>
     <string name="wifi_display_status_not_available" msgid="5600448733204688205">"Жеткиликсиз"</string>
-    <string name="wifi_display_details" msgid="6379855523460749126">"Экран жөндөөлөрү"</string>
+    <string name="wifi_display_details" msgid="6379855523460749126">"Көрүнүш жөндөөлөрү"</string>
     <string name="wifi_display_options_title" msgid="4587264519668872213">"Зымсыз дисплейдин мүмкүнчүлүктөрү"</string>
     <string name="wifi_display_options_forget" msgid="7882982544626742073">"Унутуу"</string>
     <string name="wifi_display_options_done" msgid="5922060890309265817">"Даяр"</string>
@@ -1116,7 +1116,7 @@
     <string name="wifi_calling_turn_on" msgid="1212277809455062043">"Wi-Fi аркылуу чалууну күйгүзүү"</string>
     <string name="wifi_calling_not_supported" msgid="216781767605669775">"%1$s байланыш операторунда Wi-Fi аркылуу чалууга болбойт"</string>
     <string name="carrier" msgid="3413463182542176886">"Байланыш оператору"</string>
-    <string name="display_settings_title" msgid="1243571562133261601">"Экран"</string>
+    <string name="display_settings_title" msgid="1243571562133261601">"Көрүнүш"</string>
     <string name="sound_settings" msgid="3306063041029638807">"Үн"</string>
     <string name="all_volume_title" msgid="1750261506951315423">"Үн бийиктиги"</string>
     <string name="musicfx_title" msgid="6456079041566773649">"Музыка эффектилери"</string>
@@ -2156,8 +2156,8 @@
     <string name="captioning_window_opacity" msgid="4315586548781763353">"Субтитр терезесинин тунук эместиги"</string>
     <string name="captioning_foreground_color" msgid="7412509133818882005">"Тексттин түсү"</string>
     <string name="captioning_foreground_opacity" msgid="7635639017810117478">"Тексттин тунук эместиги"</string>
-    <string name="captioning_edge_color" msgid="4330622137047993780">"Кырдын түсү"</string>
-    <string name="captioning_edge_type" msgid="4414946407430588162">"Кырдын түрү"</string>
+    <string name="captioning_edge_color" msgid="4330622137047993780">"Контурдун түсү"</string>
+    <string name="captioning_edge_type" msgid="4414946407430588162">"Контур түрү"</string>
     <string name="captioning_typeface" msgid="7893208796949341767">"Тамга түрү"</string>
     <string name="captioning_preview_text" msgid="4877753964772618049">"Коштомо жазуулар ушундай көрүнөт"</string>
     <string name="captioning_preview_characters" msgid="6469599599352973561">"Өө"</string>
@@ -3844,7 +3844,7 @@
     <string name="screen_zoom_conversation_timestamp_2" msgid="816265985618121370">"Шй. 18:01"</string>
     <string name="screen_zoom_conversation_timestamp_3" msgid="7346540212221792932">"Шй. 18:02"</string>
     <string name="screen_zoom_conversation_timestamp_4" msgid="1452374487089625022">"Шй. 18:03"</string>
-    <string name="disconnected" msgid="4088439352761747084">"Туташкан жок"</string>
+    <string name="disconnected" msgid="4088439352761747084">"Интернет жок"</string>
     <string name="keyboard_disconnected" msgid="3068615097201531871">"Туташкан жок"</string>
     <string name="data_usage_summary_format" msgid="7788095271598602797">"Дайындардын <xliff:g id="AMOUNT">%1$s</xliff:g> колдонулду"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"Wi‑Fi\'да <xliff:g id="AMOUNT">^1</xliff:g> колдонулду"</string>

@@ -2647,7 +2647,7 @@
     <string name="misc_files_selected_count_bytes" msgid="3752262902203465861">"<xliff:g id="NUMBER">%1$s</xliff:g> dari <xliff:g id="TOTAL">%2$s</xliff:g>"</string>
     <string name="select_all" msgid="452240217913675728">"Pilih semua"</string>
     <string name="data_usage_summary_title" msgid="7288431048564861043">"Penggunaan kuota"</string>
-    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Kuota &amp; Wi‑Fi"</string>
+    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Data seluler &amp; Wi‑Fi"</string>
     <string name="data_usage_accounting" msgid="4681642832010140640">"Penghitungan data operator mungkin berbeda dengan perangkat Anda."</string>
     <string name="data_usage_app" msgid="4995297799363021198">"Penggunaan aplikasi"</string>
     <string name="data_usage_app_info_label" msgid="5358288895158910477">"INFO APLIKASI"</string>

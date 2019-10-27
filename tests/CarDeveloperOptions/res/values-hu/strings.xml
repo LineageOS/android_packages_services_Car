@@ -2048,7 +2048,7 @@
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"Elsődlegesen vakok és gyengénlátók számára készült képernyőolvasó"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"Koppintson a képernyőn látható elemekre, ha szeretné őket felolvasva hallani"</string>
-    <string name="accessibility_captioning_title" msgid="5878371993023439642">"Képaláírások"</string>
+    <string name="accessibility_captioning_title" msgid="5878371993023439642">"Feliratok"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Nagyítás"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Nagyítás három koppintással"</string>
     <string name="accessibility_screen_magnification_navbar_title" msgid="400655612610761242">"Nagyítás gombbal"</string>

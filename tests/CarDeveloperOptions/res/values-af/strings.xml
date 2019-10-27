@@ -2156,7 +2156,7 @@
     <string name="captioning_window_color" msgid="8696903405657599896">"Onderskrifvenster se kleur"</string>
     <string name="captioning_window_opacity" msgid="4315586548781763353">"Onderskrifvenster se ondeursigtigheid"</string>
     <string name="captioning_foreground_color" msgid="7412509133818882005">"Tekskleur"</string>
-    <string name="captioning_foreground_opacity" msgid="7635639017810117478">"Teks-ondeursigtigheid"</string>
+    <string name="captioning_foreground_opacity" msgid="7635639017810117478">"Teksondeursigtigheid"</string>
     <string name="captioning_edge_color" msgid="4330622137047993780">"Randkleur"</string>
     <string name="captioning_edge_type" msgid="4414946407430588162">"Randtipe"</string>
     <string name="captioning_typeface" msgid="7893208796949341767">"Letterfamilie"</string>

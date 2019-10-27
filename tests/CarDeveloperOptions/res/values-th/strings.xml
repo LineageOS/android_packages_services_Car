@@ -2152,11 +2152,11 @@
     <string name="captioning_preset" msgid="7429888317480872337">"รูปแบบคำบรรยายภาพ"</string>
     <string name="captioning_custom_options_title" msgid="4530479671071326732">"ตัวเลือกที่กำหนดเอง"</string>
     <string name="captioning_background_color" msgid="2434458880326292180">"สีพื้นหลัง"</string>
-    <string name="captioning_background_opacity" msgid="8178926599201811936">"ความโปร่งแสงของพื้นหลัง"</string>
+    <string name="captioning_background_opacity" msgid="8178926599201811936">"ความทึบแสงของพื้นหลัง"</string>
     <string name="captioning_window_color" msgid="8696903405657599896">"สีของหน้าต่างคำอธิบายภาพ"</string>
-    <string name="captioning_window_opacity" msgid="4315586548781763353">"ความโปร่งแสงของหน้าต่างคำอธิบายภาพ"</string>
+    <string name="captioning_window_opacity" msgid="4315586548781763353">"ความทึบแสงของหน้าต่างคำอธิบายภาพ"</string>
     <string name="captioning_foreground_color" msgid="7412509133818882005">"สีข้อความ"</string>
-    <string name="captioning_foreground_opacity" msgid="7635639017810117478">"ความโปร่งแสงของข้อความ"</string>
+    <string name="captioning_foreground_opacity" msgid="7635639017810117478">"ความทึบแสงของข้อความ"</string>
     <string name="captioning_edge_color" msgid="4330622137047993780">"สีขอบ"</string>
     <string name="captioning_edge_type" msgid="4414946407430588162">"ชนิดขอบ"</string>
     <string name="captioning_typeface" msgid="7893208796949341767">"ชุดแบบอักษร"</string>

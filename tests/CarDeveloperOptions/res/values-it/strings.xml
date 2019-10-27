@@ -4384,7 +4384,7 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Accedi ai dati tramite la rete mobile"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Il telefono passerà automaticamente a questo operatore quando si trova in portata"</string>
     <string name="calls_preference" msgid="2076353032705811243">"Preferenza per le chiamate"</string>
-    <string name="sms_preference" msgid="8449270011976880">"Preferenza per SMS"</string>
+    <string name="sms_preference" msgid="8449270011976880">"Preferenza per gli SMS"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Chiedi ogni volta"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Aggiungi una rete"</string>
     <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">
