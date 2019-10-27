@@ -18,12 +18,13 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="6963366455471441257">"Controlador de USB"</string>
     <string name="usb_saved_devices" msgid="2829442070749964872">"Dispositivos gardados"</string>
-    <string name="usb_pref_delete_title" msgid="3885061814853467483">"Quitar a aplicación de xestión do dispositivo USB"</string>
+    <string name="usb_pref_delete_title" msgid="3885061814853467483">"Quitar a aplicación de administración de dispositivos USB"</string>
     <string name="usb_pref_delete_message" msgid="5849493572520646218">"Seguro que queres eliminar a aplicación de control predeterminada para %1$s?"</string>
     <string name="usb_pref_delete_yes" msgid="7803356145103146036">"Si"</string>
     <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"Cancelar"</string>
     <string name="usb_resolving_handlers" msgid="1943100136172948686">"Obter controladores compatibles"</string>
     <string name="usb_unknown_device" msgid="4211439272338937095">"Dispositivo USB descoñecido"</string>
+    <string name="usb_boot_service_notification" msgid="8519949189071048797">"Analizando dispositivos USB"</string>
   <string-array name="config_AoapIncompatibleDeviceIds">
     <item msgid="4267974637522344258">"18d1:9302"</item>
   </string-array>
