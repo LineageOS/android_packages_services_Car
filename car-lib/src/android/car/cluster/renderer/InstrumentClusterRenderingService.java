@@ -265,7 +265,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *
      * @hide
      */
-    protected boolean startFixedActivityModeFoDisplayAndUser(@NonNull Intent intent,
+    protected boolean startFixedActivityModeForDisplayAndUser(@NonNull Intent intent,
             @NonNull ActivityOptions options, @UserIdInt int userId) {
         IInstrumentClusterHelper helper = getClusterHelper();
         if (helper == null) {
