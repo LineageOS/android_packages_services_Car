@@ -25,7 +25,6 @@ import android.car.vms.VmsLayer;
 import android.car.vms.VmsPublisherClientService;
 import android.car.vms.VmsSubscriberManager;
 import android.car.vms.VmsSubscriptionState;
-import android.content.Intent;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
@@ -34,7 +33,6 @@ import android.hardware.automotive.vehicle.V2_0.VmsAvailabilityStateIntegerValue
 import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsStartSessionMessageIntegerValuesIndex;
-import android.os.UserHandle;
 import android.util.Log;
 import android.util.Pair;
 
@@ -83,8 +81,9 @@ public class MockedVmsTestBase extends MockedCarTestBase {
     @Before
     public void setUpVms() throws Exception {
         // Trigger VmsClientManager to bind to the MockPublisherClient
-        getContext().sendBroadcastAsUser(new Intent(Intent.ACTION_USER_UNLOCKED), UserHandle.ALL);
-
+        // TODO(b/144027497): refactor the test to call onSwitchUser(userId)
+        // in VmsClientManager's mUseCallback
+        getVmsClientManager().switchUser();
         mVmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         mSubscriberClient = new MockSubscriberClient();

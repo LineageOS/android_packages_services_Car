@@ -59,6 +59,7 @@ import com.android.car.vehiclehal.test.MockedVehicleHal.DefaultPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.StaticPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
+import com.android.car.vms.VmsClientManager;
 
 import org.junit.After;
 import org.junit.Before;
@@ -84,6 +85,7 @@ public class MockedCarTestBase {
     private MockedVehicleHal mMockedVehicleHal;
     private SystemInterface mFakeSystemInterface;
     private MockResources mResources;
+
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
 
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
@@ -170,7 +172,6 @@ public class MockedCarTestBase {
 
         initMockedHal(carImpl, false /* no need to release */);
         mCarImpl = carImpl;
-
         mCar = new Car(context, mCarImpl, null /* handler */);
     }
 
@@ -189,6 +190,10 @@ public class MockedCarTestBase {
 
     public CarPackageManagerService getPackageManagerService() {
         return (CarPackageManagerService) mCarImpl.getCarService(Car.PACKAGE_SERVICE);
+    }
+
+    public VmsClientManager getVmsClientManager() {
+        return (VmsClientManager) mCarImpl.getCarInternalService("vms_manager");
     }
 
     protected Context getCarServiceContext() {

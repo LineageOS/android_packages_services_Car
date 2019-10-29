@@ -23,8 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.car.vms.VmsPublisherClientService;
 import android.car.vms.VmsSubscriptionState;
-import android.content.Intent;
-import android.os.UserHandle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -54,7 +52,6 @@ public class VmsPublisherClientPermissionTest extends MockedCarTestBase {
         @Override
         public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState) {}
     }
-
 
     // AndroidManifest.xml:
     // <service android:name="com.android.car.VmsPublisherClientPermissionTest$PublisherClientExpectedPermission"
@@ -102,7 +99,9 @@ public class VmsPublisherClientPermissionTest extends MockedCarTestBase {
 
     @Before
     public void triggerClientBinding() {
-        getContext().sendBroadcastAsUser(new Intent(Intent.ACTION_USER_UNLOCKED), UserHandle.ALL);
+        // TODO(b/144027497): refactor the test to call onSwitchUser(userId)
+        // in VmsClientManager's mUseCallback
+        getVmsClientManager().switchUser();
     }
 
     @Test
