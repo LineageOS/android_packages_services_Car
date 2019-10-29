@@ -360,7 +360,7 @@ public final class FixedActivityService implements CarServiceBase {
     }
 
     /**
-     * Checks {@link InstrumentClusterRenderingService#startFixedActivityModeFoDisplayAndUser(
+     * Checks {@link InstrumentClusterRenderingService#startFixedActivityModeForDisplayAndUser(
      * Intent, ActivityOptions, int)}
      */
     public boolean startFixedActivityModeForDisplayAndUser(@NonNull Intent intent,
