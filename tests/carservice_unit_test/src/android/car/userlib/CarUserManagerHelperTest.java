@@ -262,12 +262,6 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testGetUserIcon() {
-        mCarUserManagerHelper.getUserIcon(mCurrentProcessUser);
-        verify(mUserManager).getUserIcon(mCurrentProcessUser.id);
-    }
-
-    @Test
     public void testGrantAdminPermissions() {
         int userId = 30;
         UserInfo testInfo = createUserInfoForId(userId);

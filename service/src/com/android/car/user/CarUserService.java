@@ -28,6 +28,7 @@ import android.car.settings.CarSettings;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
+import android.graphics.Bitmap;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.RemoteException;
@@ -40,6 +41,7 @@ import com.android.car.CarServiceBase;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
+import com.android.internal.util.UserIcons;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -170,7 +172,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         // Passenger user should be a non-admin user.
         mCarUserManagerHelper.setDefaultNonAdminRestrictions(user, /* enable= */ true);
-        mCarUserManagerHelper.assignDefaultIcon(user);
+        assignDefaultIcon(user);
         return user;
     }
 
@@ -497,9 +499,23 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Log.w(TAG_USER, "can't create admin user.");
             return null;
         }
-        mCarUserManagerHelper.assignDefaultIcon(user);
+        assignDefaultIcon(user);
 
         return user;
+    }
+
+    /**
+     * Assigns a default icon to a user according to the user's id.
+     *
+     * @param userInfo User whose avatar is set to default icon.
+     * @return Bitmap of the user icon.
+     */
+    private Bitmap assignDefaultIcon(UserInfo userInfo) {
+        int idForIcon = userInfo.isGuest() ? UserHandle.USER_NULL : userInfo.id;
+        Bitmap bitmap = UserIcons.convertToBitmap(
+                UserIcons.getDefaultUserIcon(mContext.getResources(), idForIcon, false));
+        mUserManager.setUserIcon(userInfo.id, bitmap);
+        return bitmap;
     }
 
     private interface UserFilter {
