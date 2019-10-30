@@ -38,8 +38,6 @@ import android.os.UserHandle;
 import android.view.Display;
 import android.view.DisplayAddress;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
 import com.android.car.CarOccupantZoneService.DisplayConfig;
 import com.android.car.CarOccupantZoneService.DisplayInfo;
 import com.android.car.CarOccupantZoneService.OccupantConfig;
@@ -47,12 +45,10 @@ import com.android.car.user.CarUserService;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -60,16 +56,13 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CarOccupantZoneServiceTest {
 
     private static final String TAG = CarOccupantZoneServiceTest.class.getSimpleName();
 
     private CarOccupantZoneService mService;
     private CarOccupantZoneManager mManager;
-
-    @Rule
-    public MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock
     private CarPropertyService mCarPropertyService;
@@ -547,16 +540,16 @@ public class CarOccupantZoneServiceTest {
     public void testManagerGetDisplayType() {
         mService.init();
 
-        assertThat(CarOccupantZoneManager.DISPLAY_TYPE_MAIN).isEqualTo(
-                mManager.getDisplayType(mDisplay0));
-        assertThat(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER).isEqualTo(
-                mManager.getDisplayType(mDisplay1));
-        assertThat(CarOccupantZoneManager.DISPLAY_TYPE_MAIN).isEqualTo(
-                mManager.getDisplayType(mDisplay2));
-        assertThat(CarOccupantZoneManager.DISPLAY_TYPE_MAIN).isEqualTo(
-                mManager.getDisplayType(mDisplay4));
-        assertThat(CarOccupantZoneManager.DISPLAY_TYPE_UNKNOWN).isEqualTo(
-                mManager.getDisplayType(mDisplay5));
+        assertThat(mManager.getDisplayType(mDisplay0)).isEqualTo(
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+        assertThat(mManager.getDisplayType(mDisplay1)).isEqualTo(
+                CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER);
+        assertThat(mManager.getDisplayType(mDisplay2)).isEqualTo(
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+        assertThat(mManager.getDisplayType(mDisplay4)).isEqualTo(
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+        assertThat(mManager.getDisplayType(mDisplay5)).isEqualTo(
+                CarOccupantZoneManager.DISPLAY_TYPE_UNKNOWN);
     }
 
     @Test
@@ -568,10 +561,10 @@ public class CarOccupantZoneServiceTest {
         assertThat(currentUser).isEqualTo(driverUser);
 
         //TODO update this after secondary user handling
-        assertThat(UserHandle.USER_NULL).isEqualTo(
-                mManager.getUserForOccupant(mZoneFrontPassengerLHD));
-        assertThat(UserHandle.USER_NULL).isEqualTo(mManager.getUserForOccupant(mZoneRearLeft));
-        assertThat(UserHandle.USER_NULL).isEqualTo(mManager.getUserForOccupant(mZoneRearRight));
+        assertThat(mManager.getUserForOccupant(mZoneFrontPassengerLHD)).isEqualTo(
+                UserHandle.USER_NULL);
+        assertThat(mManager.getUserForOccupant(mZoneRearLeft)).isEqualTo(UserHandle.USER_NULL);
+        assertThat(mManager.getUserForOccupant(mZoneRearRight)).isEqualTo(UserHandle.USER_NULL);
     }
 
     @Test
@@ -584,10 +577,10 @@ public class CarOccupantZoneServiceTest {
 
         assertThat(newUserId).isEqualTo(mManager.getUserForOccupant(mZoneDriverLHD));
         //TODO update this after secondary user handling
-        assertThat(UserHandle.USER_NULL).isEqualTo(
-                mManager.getUserForOccupant(mZoneFrontPassengerLHD));
-        assertThat(UserHandle.USER_NULL).isEqualTo(mManager.getUserForOccupant(mZoneRearLeft));
-        assertThat(UserHandle.USER_NULL).isEqualTo(mManager.getUserForOccupant(mZoneRearRight));
+        assertThat(mManager.getUserForOccupant(mZoneFrontPassengerLHD)).isEqualTo(
+                UserHandle.USER_NULL);
+        assertThat(mManager.getUserForOccupant(mZoneRearLeft)).isEqualTo(UserHandle.USER_NULL);
+        assertThat(mManager.getUserForOccupant(mZoneRearRight)).isEqualTo(UserHandle.USER_NULL);
     }
 
     @Test

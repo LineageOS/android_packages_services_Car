@@ -26,12 +26,16 @@ import android.car.vms.VmsSubscriptionState;
 import android.content.Intent;
 import android.os.UserHandle;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 public class VmsPublisherClientPermissionTest extends MockedCarTestBase {
     private static CountDownLatch sPublisherExpectedPermission = new CountDownLatch(1);
     private static CountDownLatch sPublisherWrongPermission = new CountDownLatch(1);

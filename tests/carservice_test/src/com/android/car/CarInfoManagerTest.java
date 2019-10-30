@@ -22,8 +22,8 @@ import android.car.Car;
 import android.car.CarInfoManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 

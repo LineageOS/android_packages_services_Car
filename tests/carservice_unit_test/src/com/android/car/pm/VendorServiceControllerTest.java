@@ -39,7 +39,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.CarLocalServices;
 import com.android.car.user.CarUserService;
@@ -51,12 +50,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoSession;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class VendorServiceControllerTest {
     private VendorServiceController mController;
     private static final Long DEFAULT_TIMEOUT_MS = 1000L;

@@ -42,7 +42,6 @@ import android.text.TextUtils;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.RequiresDevice;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.internal.util.test.BroadcastInterceptingContext;
 import com.android.internal.util.test.FakeSettingsProvider;
@@ -54,8 +53,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
@@ -70,7 +69,7 @@ import java.util.List;
  * atest BluetoothProfileDeviceManagerTest
  */
 @RequiresDevice
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class BluetoothProfileDeviceManagerTest {
     private static final int CONNECT_LATENCY_MS = 100;
     private static final int CONNECT_TIMEOUT_MS = 8000;
@@ -160,9 +159,6 @@ public class BluetoothProfileDeviceManagerTest {
 
     @Before
     public void setUp() {
-
-        MockitoAnnotations.initMocks(this);
-
         mMockContext = new MockContext(InstrumentationRegistry.getTargetContext());
         setSettingsDeviceList("");
         assertSettingsContains("");

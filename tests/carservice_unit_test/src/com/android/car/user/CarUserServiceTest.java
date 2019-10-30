@@ -51,7 +51,6 @@ import android.provider.Settings;
 import android.util.SparseArray;
 
 import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.internal.R;
 
@@ -61,6 +60,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoSession;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
@@ -68,7 +68,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 /**
  * This class contains unit tests for the {@link CarUserService}.
  *
@@ -81,7 +80,7 @@ import java.util.Set;
  * <li> {@link Drawable} provides bitmap of user icon.
  * <ol/>
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CarUserServiceTest {
     private static final int NO_USER_INFO_FLAGS = 0;
 

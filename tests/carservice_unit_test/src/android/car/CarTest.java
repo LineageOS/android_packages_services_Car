@@ -38,14 +38,13 @@ import android.os.Looper;
 import android.os.ServiceManager;
 import android.util.Pair;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
 import com.android.car.CarServiceUtils;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoSession;
 import org.mockito.invocation.InvocationOnMock;
@@ -56,7 +55,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Unit test for Car API.
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(JUnit4.class)
 public class CarTest {
     private static final String TAG = CarTest.class.getSimpleName();
 

@@ -21,17 +21,19 @@ import static junit.framework.Assert.assertTrue;
 
 import android.content.Context;
 
-import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.SystemActivityMonitoringService;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +46,9 @@ import java.util.Set;
 public class CarPackageManagerServiceTest {
     CarPackageManagerService mService;
 
+    @Rule
+    public final MockitoRule rule = MockitoJUnit.rule();
+
     private Context mContext;
     @Mock
     private CarUxRestrictionsManagerService mMockUxrService;
@@ -52,8 +57,7 @@ public class CarPackageManagerServiceTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
         mService = new CarPackageManagerService(mContext, mMockUxrService, mMockSamService);
     }
