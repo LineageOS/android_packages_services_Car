@@ -11,6 +11,7 @@ allow kitchensink_app {
     activity_service
     activity_task_service
     autofill_service
+    carservice_service
     connectivity_service
     content_service
     deviceidle_service

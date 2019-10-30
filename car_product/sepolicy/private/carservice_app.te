@@ -19,6 +19,7 @@ allow carservice_app wifi_service:service_manager find;
 allow carservice_app {
     accessibility_service
     activity_service
+    activity_task_service
     audio_service
     audioserver_service
     autofill_service
@@ -48,6 +49,8 @@ allow carservice_app system_app_data_file:{ file lnk_file } create_file_perms;
 # R/W /data/system/car
 allow carservice_app system_car_data_file:dir create_dir_perms;
 allow carservice_app system_car_data_file:{ file lnk_file } create_file_perms;
+
+net_domain(carservice_app)
 
 allow carservice_app cgroup:file rw_file_perms;
 

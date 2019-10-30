@@ -53,7 +53,7 @@ import java.lang.ref.WeakReference;
  */
 @SystemApi
 public abstract class VmsPublisherClientService extends Service {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "VmsPublisherClientService";
 
     private final Object mLock = new Object();
@@ -66,17 +66,13 @@ public abstract class VmsPublisherClientService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        if (DBG) {
-            Log.d(TAG, "onBind, intent: " + intent);
-        }
+        if (DBG) Log.d(TAG, "onBind, intent: " + intent);
         return mVmsPublisherClient.asBinder();
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        if (DBG) {
-            Log.d(TAG, "onUnbind, intent: " + intent);
-        }
+        if (DBG) Log.d(TAG, "onUnbind, intent: " + intent);
         stopSelf();
         return super.onUnbind(intent);
     }
@@ -111,9 +107,7 @@ public abstract class VmsPublisherClientService extends Service {
      */
     public final void publish(@NonNull VmsLayer layer, int publisherId, byte[] payload) {
         Preconditions.checkNotNull(layer, "layer cannot be null");
-        if (DBG) {
-            Log.d(TAG, "Publishing for layer : " + layer);
-        }
+        if (DBG) Log.d(TAG, "Publishing for layer : " + layer);
 
         IBinder token = getTokenForPublisherServiceThreadSafe();
 
@@ -132,9 +126,7 @@ public abstract class VmsPublisherClientService extends Service {
      */
     public final void setLayersOffering(@NonNull VmsLayersOffering offering) {
         Preconditions.checkNotNull(offering, "offering cannot be null");
-        if (DBG) {
-            Log.d(TAG, "Setting layers offering : " + offering);
-        }
+        if (DBG) Log.d(TAG, "Setting layers offering : " + offering);
 
         IBinder token = getTokenForPublisherServiceThreadSafe();
 
@@ -177,8 +169,8 @@ public abstract class VmsPublisherClientService extends Service {
         }
         int publisherId;
         try {
-            Log.i(TAG, "Getting publisher static ID");
             publisherId = mVmsPublisherService.getPublisherId(publisherInfo);
+            Log.i(TAG, "Assigned publisher ID: " + publisherId);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -227,9 +219,7 @@ public abstract class VmsPublisherClientService extends Service {
 
             VmsPublisherClientService vmsPublisherClientService = mVmsPublisherClientService.get();
             if (vmsPublisherClientService == null) return;
-            if (DBG) {
-                Log.d(TAG, "setting VmsPublisherService.");
-            }
+            if (DBG) Log.d(TAG, "setting VmsPublisherService.");
             Handler handler = vmsPublisherClientService.mHandler;
             handler.sendMessage(
                     handler.obtainMessage(VmsEventHandler.SET_SERVICE_CALLBACK, service));
@@ -242,9 +232,7 @@ public abstract class VmsPublisherClientService extends Service {
 
             VmsPublisherClientService vmsPublisherClientService = mVmsPublisherClientService.get();
             if (vmsPublisherClientService == null) return;
-            if (DBG) {
-                Log.d(TAG, "subscription event: " + subscriptionState);
-            }
+            if (DBG) Log.d(TAG, "subscription event: " + subscriptionState);
             synchronized (mSequenceLock) {
                 if (subscriptionState.getSequenceNumber() <= mSequence) {
                     Log.w(TAG, "Sequence out of order. Current sequence = " + mSequence

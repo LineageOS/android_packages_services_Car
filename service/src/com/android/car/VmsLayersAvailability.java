@@ -22,14 +22,13 @@ import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
 import android.util.Log;
+
 import com.android.internal.annotations.GuardedBy;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,8 +44,7 @@ import java.util.stream.Collectors;
  */
 
 public class VmsLayersAvailability {
-
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "VmsLayersAvailability";
 
     private final Object mLock = new Object();
