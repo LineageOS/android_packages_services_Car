@@ -26,6 +26,7 @@ import android.car.test.CarTestManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -35,6 +36,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.UserHandle;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -42,6 +44,7 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
 
 import com.android.car.pm.CarPackageManagerService;
+import com.android.car.systeminterface.ActivityManagerInterface;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
 import com.android.car.systeminterface.StorageMonitoringInterface;
@@ -110,6 +113,7 @@ public class MockedCarTestBase {
     protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
         return Builder.newSystemInterface()
                 .withSystemStateInterface(new MockSystemStateInterface())
+                .withActivityManagerInterface(new MockActivityManagerInterface())
                 .withDisplayInterface(new MockDisplayInterface())
                 .withIOInterface(mMockIOInterface)
                 .withStorageMonitoringInterface(new MockStorageMonitoringInterface())
@@ -293,6 +297,13 @@ public class MockedCarTestBase {
 
             CarTestManager mgr = new CarTestManager(car, binderWrapper.binder);
             mgr.stopCarService(mCarServiceToken);
+        }
+    }
+
+    static final class MockActivityManagerInterface implements ActivityManagerInterface {
+        @Override
+        public void sendBroadcastAsUser(Intent intent, UserHandle user) {
+            Log.d(TAG, "Broadcast intent: " + intent.getAction() + " as user: " + user);
         }
     }
 

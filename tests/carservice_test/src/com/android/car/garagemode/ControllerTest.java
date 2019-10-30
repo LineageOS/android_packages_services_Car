@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,11 +36,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.UserHandle;
 
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.CarLocalServices;
+import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 
 import org.junit.After;
@@ -67,7 +70,9 @@ public class ControllerTest {
     @Mock private Car mCarMock;
     @Mock private CarPowerManager mCarPowerManagerMock;
     @Mock private CarUserService mCarUserServiceMock;
+    @Mock private SystemInterface mSystemInterfaceMock;
     private CarUserService mCarUserServiceOriginal;
+    private SystemInterface mSystemInterfaceOriginal;
     @Captor private ArgumentCaptor<Intent> mIntentCaptor;
     @Captor private ArgumentCaptor<Integer> mIntegerCaptor;
 
@@ -101,19 +106,26 @@ public class ControllerTest {
         mCarUserServiceOriginal = CarLocalServices.getService(CarUserService.class);
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.addService(CarUserService.class, mCarUserServiceMock);
+        CarLocalServices.removeServiceForTest(SystemInterface.class);
+        CarLocalServices.addService(SystemInterface.class, mSystemInterfaceMock);
         doReturn(new ArrayList<Integer>()).when(mCarUserServiceMock).startAllBackgroundUsers();
+        doNothing().when(mSystemInterfaceMock)
+                .sendBroadcastAsUser(any(Intent.class), any(UserHandle.class));
     }
 
     @After
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.addService(CarUserService.class, mCarUserServiceOriginal);
+        CarLocalServices.removeServiceForTest(SystemInterface.class);
+        CarLocalServices.addService(SystemInterface.class, mSystemInterfaceOriginal);
     }
 
     @Test
     public void testOnShutdownPrepare_shouldInitiateGarageMode() {
         startAndAssertGarageModeWithSignal(CarPowerStateListener.SHUTDOWN_PREPARE);
-        verify(mContextMock).sendBroadcast(mIntentCaptor.capture());
+        verify(mSystemInterfaceMock)
+                .sendBroadcastAsUser(mIntentCaptor.capture(), eq(UserHandle.ALL));
         verifyGarageModeBroadcast(mIntentCaptor.getAllValues(), 1, ACTION_GARAGE_MODE_ON);
     }
 
@@ -132,7 +144,8 @@ public class ControllerTest {
         verify(mHandlerMock, Mockito.atLeastOnce()).removeCallbacks(any(Runnable.class));
 
         // Verify that OFF signal broadcasted to JobScheduler
-        verify(mContextMock, times(2)).sendBroadcast(mIntentCaptor.capture());
+        verify(mSystemInterfaceMock, times(2))
+                .sendBroadcastAsUser(mIntentCaptor.capture(), eq(UserHandle.ALL));
         verifyGarageModeBroadcast(mIntentCaptor.getAllValues(), 1, ACTION_GARAGE_MODE_ON);
         verifyGarageModeBroadcast(mIntentCaptor.getAllValues(), 2, ACTION_GARAGE_MODE_OFF);
 
