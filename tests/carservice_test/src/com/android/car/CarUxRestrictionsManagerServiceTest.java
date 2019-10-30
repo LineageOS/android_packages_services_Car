@@ -27,25 +27,32 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import android.car.VehiclePropertyIds;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.CarUxRestrictionsConfiguration.Builder;
+import android.car.drivingstate.CarUxRestrictionsManager;
+import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
 import android.content.Context;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.Suppress;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.systeminterface.SystemInterface;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -219,6 +226,128 @@ public class CarUxRestrictionsManagerServiceTest {
                 SystemClock.elapsedRealtimeNanos()).build();
         assertTrue(restrictions.toString(), expected.isSameRestrictions(restrictions));
     }
+
+    // TODO(b/142804287): Suppress this test until bug is fixed.
+    @Suppress
+    @Test
+    public void testInitService_NoDeadlockWithCarDrivingStateService()
+            throws Exception {
+
+        CarDrivingStateService drivingStateService = new CarDrivingStateService(mSpyContext,
+                mMockCarPropertyService);
+        CarUxRestrictionsManagerService uxreService = new CarUxRestrictionsManagerService(
+                mSpyContext, drivingStateService, mMockCarPropertyService);
+
+        // A deadlock can exist when the dispatching of a listener is synchronized. For instance,
+        // the CarUxRestrictionsManagerService#init() method registers a callback like this one. The
+        // deadlock risk occurs if:
+        // 1. CarUxRestrictionsManagerService has registered a listener with CarDrivingStateService
+        // 2. A synchronized method of CarUxRestrictionsManagerService starts to run
+        // 3. While the method from (2) is running, a property event occurs on a different thread
+        //    that triggers a drive state event in CarDrivingStateService. If CarDrivingStateService
+        //    handles the property event in a synchronized method, then CarDrivingStateService is
+        //    locked. The listener from (1) will wait until the lock on
+        //    CarUxRestrictionsManagerService is released.
+        // 4. The synchronized method from (2) attempts to access CarDrivingStateService. For
+        //    example, the implementation below attempts to read the restriction mode.
+        //
+        // In the above steps, both CarUxRestrictionsManagerService and CarDrivingStateService are
+        // locked and waiting on each other, hence the deadlock.
+        drivingStateService.registerDrivingStateChangeListener(
+                new ICarDrivingStateChangeListener.Stub() {
+                    @Override
+                    public void onDrivingStateChanged(CarDrivingStateEvent event)
+                            throws RemoteException {
+                        // Sleep long until service.init() starts on another thread
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            Assert.fail("onDrivingStateChanged thread interrupted");
+                        }
+
+                        // Attempt to access CarUxRestrictionsManagerService. If
+                        // CarUxRestrictionsManagerService is locked because it is doing its own
+                        // work, then this will wait.
+                        uxreService.getRestrictionMode();
+                    }
+                });
+
+        // Ideally CarPropertyService would trigger the change event, but since that is mocked
+        // we manually trigger the event. This event is what eventually triggers the dispatch to
+        // ICarDrivingStateChangeListener that was defined above.
+        Runnable propertyChangeEventRunnable =
+                () -> drivingStateService.handlePropertyEvent(
+                        new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                                new CarPropertyValue<>(
+                                        VehiclePropertyIds.PERF_VEHICLE_SPEED, 0, 100f)));
+        Thread thread = new Thread(propertyChangeEventRunnable);
+        thread.start();
+
+        // Sleep to give the propertyChangeEventRunnable time to trigger and the
+        // ICarDrivingStateChangeListener callback declared above start to run.
+        Thread.sleep(500);
+
+        // If init() is synchronized, thereby locking CarUxRestrictionsManagerService, and it
+        // internally attempts to access CarDrivingStateService, and if CarDrivingStateService has
+        // been locked because of the above listener, then both classes are locked and waiting on
+        // each other, so we would encounter a deadlock.
+        uxreService.init();
+    }
+
+    // TODO(b/142804287): Suppress this test until bug is fixed.
+    @Suppress
+    @Test
+    public void testSetRestrictionMode_NoDeadlockWithCarDrivingStateService() throws Exception {
+
+        CarDrivingStateService drivingStateService = new CarDrivingStateService(mSpyContext,
+                mMockCarPropertyService);
+        CarUxRestrictionsManagerService uxreService = new CarUxRestrictionsManagerService(
+                mSpyContext, drivingStateService, mMockCarPropertyService);
+
+        // See testInitService_NoDeadlockWithCarDrivingStateService for details on why a deadlock
+        // may occur. This test could fail for the same reason, except the callback we register here
+        // is purely to introduce a delay, and the deadlock actually happens inside the callback
+        // that CarUxRestrictionsManagerService#init() registers internally.
+        drivingStateService.registerDrivingStateChangeListener(
+                new ICarDrivingStateChangeListener.Stub() {
+                    @Override
+                    public void onDrivingStateChanged(CarDrivingStateEvent event)
+                            throws RemoteException {
+                        // Assuming CarUxRestrictionsManagerService handles registrations as a list
+                        // this will execute before any other listeners are dispatched.
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            Assert.fail("onDrivingStateChanged thread interrupted");
+                        }
+                    }
+                });
+
+        // The init() method internally registers a callback to CarDrivingStateService
+        uxreService.init();
+
+        // Ideally CarPropertyService would trigger the change event, but since that is mocked
+        // we manually trigger the event. This event eventually triggers the dispatch to
+        // ICarDrivingStateChangeListener that was defined above and a dispatch to the registration
+        // that CarUxRestrictionsManagerService internally made to CarDrivingStateService in
+        // CarUxRestrictionsManagerService#init().
+        Runnable propertyChangeEventRunnable =
+                () -> drivingStateService.handlePropertyEvent(
+                        new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                                new CarPropertyValue<>(
+                                        VehiclePropertyIds.PERF_VEHICLE_SPEED, 0, 100f)));
+        Thread thread = new Thread(propertyChangeEventRunnable);
+        thread.start();
+
+        // Sleep to give the propertyChangeEventRunnable time to trigger and the
+        // ICarDrivingStateChangeListener callbacks.
+        Thread.sleep(500);
+
+        // Any synchronized method that internally accesses CarDrivingStateService could encounter a
+        // deadlock if the above setup locks CarDrivingStateService.
+        uxreService.setRestrictionMode(CarUxRestrictionsManager.UX_RESTRICTION_MODE_PASSENGER);
+    }
+
 
     private CarUxRestrictionsConfiguration createEmptyConfig() {
         return createEmptyConfig(null);
