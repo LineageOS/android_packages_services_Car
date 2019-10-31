@@ -37,6 +37,8 @@ class ClientHandle {
     virtual uint32_t getClientId() = 0;
     /* Is client alive */
     virtual bool isAlive() = 0;
+    /* start client monitor */
+    virtual bool startClientMonitor() = 0;
     virtual ~ClientHandle() {
     }
 };
