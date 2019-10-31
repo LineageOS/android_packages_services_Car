@@ -56,8 +56,8 @@ package android.car {
   public final class CarProjectionManager {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void addKeyEventHandler(@NonNull java.util.Set<java.lang.Integer>, @NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void addKeyEventHandler(@NonNull java.util.Set<java.lang.Integer>, @Nullable java.util.concurrent.Executor, @NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) @NonNull public java.util.List<java.lang.Integer> getAvailableWifiChannels(int);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) @NonNull public android.os.Bundle getProjectionOptions();
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public java.util.List<java.lang.Integer> getAvailableWifiChannels(int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public android.os.Bundle getProjectionOptions();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionListener(@NonNull android.car.CarProjectionManager.CarProjectionListener, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionRunner(@NonNull android.content.Intent);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION_STATUS) public void registerProjectionStatusListener(@NonNull android.car.CarProjectionManager.ProjectionStatusListener);
@@ -282,10 +282,10 @@ package android.car.diagnostic {
   public final class CarDiagnosticEvent implements android.os.Parcelable {
     ctor public CarDiagnosticEvent(android.os.Parcel);
     method public int describeContents();
-    method @Nullable @android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.Status public Integer getFuelSystemStatus();
-    method @Nullable @android.car.diagnostic.CarDiagnosticEvent.FuelType.Type public Integer getFuelType();
+    method @android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.Status @Nullable public Integer getFuelSystemStatus();
+    method @android.car.diagnostic.CarDiagnosticEvent.FuelType.Type @Nullable public Integer getFuelType();
     method @Nullable public android.car.diagnostic.CarDiagnosticEvent.CommonIgnitionMonitors getIgnitionMonitors();
-    method @Nullable @android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus.Status public Integer getSecondaryAirStatus();
+    method @android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus.Status @Nullable public Integer getSecondaryAirStatus();
     method public float getSystemFloatSensor(int, float);
     method @Nullable public Float getSystemFloatSensor(int);
     method public int getSystemIntegerSensor(int, int);
@@ -343,7 +343,7 @@ package android.car.diagnostic {
     field public static final int OPEN_SYSTEM_FAILURE = 8; // 0x8
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.OPEN_INSUFFICIENT_ENGINE_TEMPERATURE, android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.CLOSED_LOOP, android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.OPEN_ENGINE_LOAD_OR_DECELERATION, android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.OPEN_SYSTEM_FAILURE, android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.CLOSED_LOOP_BUT_FEEDBACK_FAULT}) public static @interface CarDiagnosticEvent.FuelSystemStatus.Status {
+  @IntDef({android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.OPEN_INSUFFICIENT_ENGINE_TEMPERATURE, android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.CLOSED_LOOP, android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.OPEN_ENGINE_LOAD_OR_DECELERATION, android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.OPEN_SYSTEM_FAILURE, android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.CLOSED_LOOP_BUT_FEEDBACK_FAULT}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CarDiagnosticEvent.FuelSystemStatus.Status {
   }
 
   public static final class CarDiagnosticEvent.FuelType {
@@ -373,7 +373,7 @@ package android.car.diagnostic {
     field public static final int PROPANE = 7; // 0x7
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({android.car.diagnostic.CarDiagnosticEvent.FuelType.NOT_AVAILABLE, android.car.diagnostic.CarDiagnosticEvent.FuelType.GASOLINE, android.car.diagnostic.CarDiagnosticEvent.FuelType.METHANOL, android.car.diagnostic.CarDiagnosticEvent.FuelType.ETHANOL, android.car.diagnostic.CarDiagnosticEvent.FuelType.DIESEL, android.car.diagnostic.CarDiagnosticEvent.FuelType.LPG, android.car.diagnostic.CarDiagnosticEvent.FuelType.CNG, android.car.diagnostic.CarDiagnosticEvent.FuelType.PROPANE, android.car.diagnostic.CarDiagnosticEvent.FuelType.ELECTRIC, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_GASOLINE, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_METHANOL, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_ETHANOL, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_LPG, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_CNG, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_PROPANE, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_ELECTRIC, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_ELECTRIC_AND_COMBUSTION, android.car.diagnostic.CarDiagnosticEvent.FuelType.HYBRID_GASOLINE, android.car.diagnostic.CarDiagnosticEvent.FuelType.HYBRID_ETHANOL, android.car.diagnostic.CarDiagnosticEvent.FuelType.HYBRID_DIESEL, android.car.diagnostic.CarDiagnosticEvent.FuelType.HYBRID_ELECTRIC, android.car.diagnostic.CarDiagnosticEvent.FuelType.HYBRID_RUNNING_ELECTRIC_AND_COMBUSTION, android.car.diagnostic.CarDiagnosticEvent.FuelType.HYBRID_REGENERATIVE, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_DIESEL}) public static @interface CarDiagnosticEvent.FuelType.Type {
+  @IntDef({android.car.diagnostic.CarDiagnosticEvent.FuelType.NOT_AVAILABLE, android.car.diagnostic.CarDiagnosticEvent.FuelType.GASOLINE, android.car.diagnostic.CarDiagnosticEvent.FuelType.METHANOL, android.car.diagnostic.CarDiagnosticEvent.FuelType.ETHANOL, android.car.diagnostic.CarDiagnosticEvent.FuelType.DIESEL, android.car.diagnostic.CarDiagnosticEvent.FuelType.LPG, android.car.diagnostic.CarDiagnosticEvent.FuelType.CNG, android.car.diagnostic.CarDiagnosticEvent.FuelType.PROPANE, android.car.diagnostic.CarDiagnosticEvent.FuelType.ELECTRIC, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_GASOLINE, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_METHANOL, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_ETHANOL, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_LPG, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_CNG, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_PROPANE, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_ELECTRIC, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_ELECTRIC_AND_COMBUSTION, android.car.diagnostic.CarDiagnosticEvent.FuelType.HYBRID_GASOLINE, android.car.diagnostic.CarDiagnosticEvent.FuelType.HYBRID_ETHANOL, android.car.diagnostic.CarDiagnosticEvent.FuelType.HYBRID_DIESEL, android.car.diagnostic.CarDiagnosticEvent.FuelType.HYBRID_ELECTRIC, android.car.diagnostic.CarDiagnosticEvent.FuelType.HYBRID_RUNNING_ELECTRIC_AND_COMBUSTION, android.car.diagnostic.CarDiagnosticEvent.FuelType.HYBRID_REGENERATIVE, android.car.diagnostic.CarDiagnosticEvent.FuelType.BIFUEL_RUNNING_DIESEL}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CarDiagnosticEvent.FuelType.Type {
   }
 
   public static final class CarDiagnosticEvent.IgnitionMonitor {
@@ -388,7 +388,7 @@ package android.car.diagnostic {
     field public static final int UPSTREAM = 1; // 0x1
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus.UPSTREAM, android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus.DOWNSTREAM_OF_CATALYCIC_CONVERTER, android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus.FROM_OUTSIDE_OR_OFF, android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus.PUMP_ON_FOR_DIAGNOSTICS}) public static @interface CarDiagnosticEvent.SecondaryAirStatus.Status {
+  @IntDef({android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus.UPSTREAM, android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus.DOWNSTREAM_OF_CATALYCIC_CONVERTER, android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus.FROM_OUTSIDE_OR_OFF, android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus.PUMP_ON_FOR_DIAGNOSTICS}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CarDiagnosticEvent.SecondaryAirStatus.Status {
   }
 
   public static final class CarDiagnosticEvent.SparkIgnitionMonitors extends android.car.diagnostic.CarDiagnosticEvent.CommonIgnitionMonitors {
@@ -419,7 +419,7 @@ package android.car.diagnostic {
     field public static final int FRAME_TYPE_LIVE = 0; // 0x0
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({android.car.diagnostic.CarDiagnosticManager.FRAME_TYPE_LIVE, android.car.diagnostic.CarDiagnosticManager.FRAME_TYPE_FREEZE}) public static @interface CarDiagnosticManager.FrameType {
+  @IntDef({android.car.diagnostic.CarDiagnosticManager.FRAME_TYPE_LIVE, android.car.diagnostic.CarDiagnosticManager.FRAME_TYPE_FREEZE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CarDiagnosticManager.FrameType {
   }
 
   public static interface CarDiagnosticManager.OnDiagnosticEventListener {
@@ -985,7 +985,7 @@ package android.car.trust {
 
   public final class CarTrustAgentEnrollmentManager {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void enrollmentHandshakeAccepted(android.bluetooth.BluetoothDevice);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) @NonNull public java.util.List<android.car.trust.TrustedDeviceInfo> getEnrolledDeviceInfoForUser(int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public java.util.List<android.car.trust.TrustedDeviceInfo> getEnrolledDeviceInfoForUser(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public boolean isEscrowTokenActive(long, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeAllTrustedDevices(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeEscrowToken(long, int);
