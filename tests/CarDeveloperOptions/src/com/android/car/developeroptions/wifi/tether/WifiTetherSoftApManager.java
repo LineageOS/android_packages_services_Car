@@ -3,6 +3,7 @@ package com.android.car.developeroptions.wifi.tether;
 import android.net.wifi.WifiClient;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
+import android.os.HandlerExecutor;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class WifiTetherSoftApManager {
     }
 
     public void registerSoftApCallback() {
-        mWifiManager.registerSoftApCallback(mSoftApCallback, mHandler);
+        mWifiManager.registerSoftApCallback(mSoftApCallback, new HandlerExecutor(mHandler));
     }
 
     public void unRegisterSoftApCallback() {
@@ -45,6 +46,11 @@ public class WifiTetherSoftApManager {
     public interface WifiTetherSoftApCallback {
         void onStateChanged(int state, int failureReason);
 
+        /**
+         * Called when the connected clients to soft AP changes.
+         *
+         * @param clients the currently connected clients
+         */
         void onConnectedClientsChanged(List<WifiClient> clients);
     }
 }
