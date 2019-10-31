@@ -29,7 +29,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.sysprop.CarProperties;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -203,18 +202,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Gets UserInfo for the current foreground user.
-     *
-     * Concept of foreground user is relevant for the multi-user deployment. Foreground user
-     * corresponds to the currently "logged in" user.
-     *
-     * @return {@link UserInfo} for the foreground user.
-     */
-    public UserInfo getCurrentForegroundUserInfo() {
-        return mUserManager.getUserInfo(ActivityManager.getCurrentUser());
-    }
-
-    /**
      * Gets all the users that can be brought to the foreground on the system.
      *
      * @return List of {@code UserInfo} for users that associated with a real person.
@@ -256,24 +243,6 @@ public final class CarUserManagerHelper {
             UserInfo userInfo = iterator.next();
             if (!userInfo.isAdmin()) {
                 // Remove user that is not admin.
-                iterator.remove();
-            }
-        }
-        return users;
-    }
-
-    /**
-     * Gets all users that are not guests.
-     *
-     * @return List of {@code UserInfo} for all users who are not guest users.
-     */
-    private List<UserInfo> getAllUsersExceptGuests() {
-        List<UserInfo> users = getAllUsers();
-
-        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
-            UserInfo userInfo = iterator.next();
-            if (userInfo.isGuest()) {
-                // Remove guests.
                 iterator.remove();
             }
         }
@@ -352,33 +321,6 @@ public final class CarUserManagerHelper {
         return UserHandle.myUserId() == userInfo.id;
     }
 
-    // Foreground user information accessors.
-
-    /**
-     * Return whether the foreground user has a restriction.
-     *
-     * @param restriction Restriction to check. Should be a UserManager.* restriction.
-     * @return Whether that restriction exists for the foreground user.
-     */
-    private boolean foregroundUserHasUserRestriction(String restriction) {
-        return mUserManager.hasUserRestriction(
-                restriction, UserHandle.of(ActivityManager.getCurrentUser()));
-    }
-
-    /**
-     * Returns whether the foreground user can switch to other users.
-     *
-     * <p>For instance switching users is not allowed if the current user is in a phone call,
-     * or {@link #{UserManager.DISALLOW_USER_SWITCH} is set.
-     */
-    public boolean canForegroundUserSwitchUsers() {
-        boolean inIdleCallState = TelephonyManager.getDefault().getCallState()
-                == TelephonyManager.CALL_STATE_IDLE;
-        boolean disallowUserSwitching =
-                foregroundUserHasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
-        return (inIdleCallState && !disallowUserSwitching);
-    }
-
     // Current process user restriction accessors
 
     /**
@@ -388,11 +330,7 @@ public final class CarUserManagerHelper {
      * or {@link #{UserManager.DISALLOW_USER_SWITCH} is set.
      */
     private boolean canCurrentProcessSwitchUsers() {
-        boolean inIdleCallState = TelephonyManager.getDefault().getCallState()
-                == TelephonyManager.CALL_STATE_IDLE;
-        boolean disallowUserSwitching =
-                mUserManager.hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
-        return (inIdleCallState && !disallowUserSwitching);
+        return mUserManager.getUserSwitchability() == UserManager.SWITCHABILITY_STATUS_OK;
     }
 
     /**
