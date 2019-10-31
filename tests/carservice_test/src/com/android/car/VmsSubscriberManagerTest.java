@@ -27,9 +27,11 @@ import android.hardware.automotive.vehicle.V2_0.VmsAvailabilityStateIntegerValue
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.util.Pair;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +39,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class VmsSubscriberManagerTest extends MockedVmsTestBase {
     private static final int PUBLISHER_ID = 17;

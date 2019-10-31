@@ -51,14 +51,13 @@ import com.android.car.test.utils.TemporaryFile;
 import com.android.car.vms.VmsClientManager;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -70,6 +69,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(MockitoJUnitRunner.class)
 public class VmsHalServiceTest {
     private static final int LAYER_TYPE = 1;
     private static final int LAYER_SUBTYPE = 2;
@@ -81,8 +81,6 @@ public class VmsHalServiceTest {
     private static final int CORE_ID = 54321;
     private static final int CLIENT_ID = 98765;
 
-    @Rule
-    public MockitoRule mockito = MockitoJUnit.rule();
     @Mock
     private Context mContext;
     @Mock

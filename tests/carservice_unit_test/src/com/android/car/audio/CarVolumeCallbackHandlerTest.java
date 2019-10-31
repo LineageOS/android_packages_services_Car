@@ -22,14 +22,13 @@ import static org.mockito.Mockito.verify;
 import android.car.media.ICarVolumeCallback;
 import android.os.RemoteException;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(JUnit4.class)
 public class CarVolumeCallbackHandlerTest {
     private static final int ZONE_ID = 2;
     private static final int GROUP_ID = 5;

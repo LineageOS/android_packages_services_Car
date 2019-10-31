@@ -24,14 +24,13 @@ import static org.mockito.Mockito.when;
 import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.math.BigInteger;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(JUnit4.class)
 public class ScanResultsTest {
 
     private static final BigInteger CORRECT_DATA =

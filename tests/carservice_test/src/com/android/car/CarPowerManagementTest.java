@@ -30,9 +30,9 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.os.SystemClock;
 
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.RequiresDevice;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;

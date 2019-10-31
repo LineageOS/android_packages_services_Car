@@ -45,7 +45,6 @@ import android.os.SystemClock;
 import android.os.UserManager;
 
 import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.test.utils.TemporaryDirectory;
@@ -56,7 +55,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -81,7 +80,7 @@ import java.util.stream.Collectors;
  * 5. {@link IPerUserCarService} provides a mocked {@link LocationManagerProxy}.
  * 6. {@link LocationManagerProxy} provides dummy {@link Location}s.
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CarLocationServiceTest {
     private static final String TAG = "CarLocationServiceTest";
     private static final String TEST_FILENAME = "location_cache.json";
@@ -108,7 +107,6 @@ public class CarLocationServiceTest {
      */
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
         mContext = InstrumentationRegistry.getTargetContext();
         mTempDirectory = new TemporaryDirectory(TAG).getDirectory();
         mLatch = new CountDownLatch(1);

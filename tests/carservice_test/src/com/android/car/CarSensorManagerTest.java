@@ -29,16 +29,20 @@ import android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Test the public entry points for the CarSensorManager
  */
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarSensorManagerTest extends MockedCarTestBase {
     private static final String TAG = CarSensorManagerTest.class.getSimpleName();

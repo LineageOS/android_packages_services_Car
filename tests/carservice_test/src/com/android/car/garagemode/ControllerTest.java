@@ -38,8 +38,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.CarLocalServices;
 import com.android.car.systeminterface.SystemInterface;
@@ -47,13 +47,15 @@ import com.android.car.user.CarUserService;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +65,8 @@ import java.util.concurrent.CompletableFuture;
 @SmallTest
 public class ControllerTest {
     private static final Logger LOG = new Logger("ControllerTest");
+
+    @Rule public final MockitoRule rule = MockitoJUnit.rule();
 
     @Mock private Context mContextMock;
     @Mock private Looper mLooperMock;
@@ -93,7 +97,6 @@ public class ControllerTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         mWakeupPolicy = new WakeupPolicy(sTemplateWakeupSchedule);
         mController = new Controller(
                 mContextMock,

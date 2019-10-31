@@ -29,10 +29,10 @@ import android.hardware.display.VirtualDisplay;
 import android.util.Log;
 import android.view.Display;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.RequiresDevice;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
 
@@ -183,11 +183,11 @@ public class SystemActivityMonitoringServiceTest {
     }
 
     private Context getContext() {
-        return InstrumentationRegistry.getTargetContext();
+        return InstrumentationRegistry.getInstrumentation().getTargetContext();
     }
 
     private Context getTestContext() {
-        return InstrumentationRegistry.getContext();
+        return InstrumentationRegistry.getInstrumentation().getContext();
     }
 
     private static ComponentName toComponentName(Context ctx, Class<?> cls) {

@@ -36,15 +36,15 @@ import com.android.car.vms.VmsClientManager;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 
+@RunWith(MockitoJUnitRunner.class)
 @SmallTest
 public class VmsSubscriberServiceTest {
     private static final VmsLayer LAYER = new VmsLayer(1, 2, 3);
@@ -53,8 +53,6 @@ public class VmsSubscriberServiceTest {
     private static final VmsAvailableLayers AVAILABLE_LAYERS =
             new VmsAvailableLayers(Collections.emptySet(), 0);
 
-    @Rule
-    public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock
     private Context mContext;
     @Mock

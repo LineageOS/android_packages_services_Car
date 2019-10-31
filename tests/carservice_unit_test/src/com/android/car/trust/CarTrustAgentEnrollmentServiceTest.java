@@ -37,7 +37,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 
 import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.Utils;
 import com.android.car.trust.CarTrustAgentBleManager.SendMessageCallback;
@@ -47,14 +46,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.UUID;
 
 /**
  * Unit test for {@link CarTrustAgentEnrollmentService} and {@link CarTrustedDeviceService}.
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CarTrustAgentEnrollmentServiceTest {
 
     private static final long TEST_HANDLE1 = 1L;
@@ -98,8 +97,6 @@ public class CarTrustAgentEnrollmentServiceTest {
 
     @Before
     public void setUp() throws RemoteException {
-        MockitoAnnotations.initMocks(this);
-
         mBluetoothDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(ADDRESS);
         mContext = InstrumentationRegistry.getTargetContext();
         mCarTrustedDeviceService = new CarTrustedDeviceService(mContext);

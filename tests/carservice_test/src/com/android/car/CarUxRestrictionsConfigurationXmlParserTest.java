@@ -30,9 +30,9 @@ import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.content.Context;
 import android.util.ArraySet;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +46,7 @@ import java.util.Set;
 @MediumTest
 public class CarUxRestrictionsConfigurationXmlParserTest {
     private Context getContext() {
-        return InstrumentationRegistry.getTargetContext();
+        return InstrumentationRegistry.getInstrumentation().getTargetContext();
     }
 
     @Test

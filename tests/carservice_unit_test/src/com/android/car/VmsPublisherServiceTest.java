@@ -49,14 +49,13 @@ import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -65,6 +64,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+@RunWith(MockitoJUnitRunner.class)
 @SmallTest
 public class VmsPublisherServiceTest {
     private static final VmsSubscriptionState SUBSCRIPTION_STATE = new VmsSubscriptionState(12345,
@@ -81,8 +81,6 @@ public class VmsPublisherServiceTest {
     private static final byte[] PAYLOAD2 = new byte[]{1, 2, 3, 4, 5, 6};
     private static final byte[] PAYLOAD3 = new byte[]{10, 12, 93, 4, 5, 6, 1, 1, 1};
 
-    @Rule
-    public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock
     private Context mContext;
     @Mock
