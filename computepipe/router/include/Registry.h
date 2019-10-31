@@ -65,7 +65,7 @@ class PipeRegistry {
      */
     std::unique_ptr<PipeHandle<T>> getClientPipeHandle(const std::string& name,
                                                        std::unique_ptr<ClientHandle> clientHandle) {
-        if (!clientHandle) {
+        if (!clientHandle || !clientHandle->startClientMonitor()) {
             return nullptr;
         }
         return getPipeHandle(name, std::move(clientHandle));
