@@ -77,6 +77,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private static final String SHARED_PREF = "com.android.car.media.car_media_service";
     private static final String COMPONENT_NAME_SEPARATOR = ",";
     private static final String MEDIA_CONNECTION_ACTION = "com.android.car.media.MEDIA_CONNECTION";
+    private static final String EXTRA_AUTOPLAY = "com.android.car.media.autoplay";
 
     private final Context mContext;
     private final UserManager mUserManager;
@@ -89,6 +90,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     // null if playback has not been started yet.
     private MediaController mActiveUserMediaController;
     private SessionChangedListener mSessionsListener;
+    // This field is used ONLY for starting playback on source switch, and is specified by an
+    // OEM-overridable resource flag.
     private boolean mStartPlayback;
     private boolean mPlayOnMediaSourceChanged;
 
@@ -203,16 +206,20 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mPrimaryMediaComponent = getLastMediaSource();
         mActiveUserMediaController = null;
         String key = PLAYBACK_STATE_KEY + mCurrentUser;
-        mStartPlayback =
+        boolean startPlayback =
                 mSharedPrefs.getInt(key, PlaybackState.STATE_NONE) == PlaybackState.STATE_PLAYING;
+
         updateMediaSessionCallbackForCurrentUser();
         notifyListeners();
 
         // Start a service on the current user that binds to the media browser of the current media
         // source. We start a new service because this one runs on user 0, and MediaBrowser doesn't
-        // provide an API to connect on a specific user.
+        // provide an API to connect on a specific user. Additionally, this service will attempt to
+        // resume playback using the MediaSession obtained via the media browser connection, which
+        // is more reliable than using active MediaSessions from MediaSessionManager.
         Intent serviceStart = new Intent(MEDIA_CONNECTION_ACTION);
         serviceStart.setPackage(mContext.getResources().getString(R.string.serviceMediaConnection));
+        serviceStart.putExtra(EXTRA_AUTOPLAY, startPlayback);
         mContext.startForegroundServiceAsUser(serviceStart, currentUser);
     }
 
@@ -668,6 +675,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
     }
 
+    // This call is used to automatically start playback for a new source.
+    // TODO(b/139497602): Remove this, use same logic for resource flag and boot autoplay.
     private void maybeRestartPlayback(PlaybackState state) {
         if (mStartPlayback && state != null
                 && (state.getActions() & PlaybackState.ACTION_PLAY) != 0) {
