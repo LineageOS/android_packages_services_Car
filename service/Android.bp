@@ -16,7 +16,7 @@
 
 // Build the Car service.
 
-car_service_sources = ["src/**/*.java", "src/**/*.kt"]
+car_service_sources = ["src/**/*.java"]
 
 android_app {
     name: "CarService",
