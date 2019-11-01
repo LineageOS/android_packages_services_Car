@@ -98,8 +98,8 @@ public class WifiInfoPreferenceController extends AbstractPreferenceController
     public void updateWifiInfo() {
         if (mWifiMacAddressPref != null) {
             final WifiInfo wifiInfo = mWifiManager.getConnectionInfo();
-            final boolean macRandomizationSupported = mContext.getResources().getBoolean(
-                com.android.internal.R.bool.config_wifi_connected_mac_randomization_supported);
+            final boolean macRandomizationSupported =
+                    mWifiManager.isConnectedMacRandomizationSupported();
             final String macAddress = wifiInfo == null ? null : wifiInfo.getMacAddress();
 
             if (macRandomizationSupported && WifiInfo.DEFAULT_MAC_ADDRESS.equals(macAddress)) {
