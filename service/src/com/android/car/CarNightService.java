@@ -45,6 +45,7 @@ public class CarNightService implements CarServiceBase {
 
     private int mNightSetting = UiModeManager.MODE_NIGHT_YES;
     private int mForcedMode = FORCED_SENSOR_MODE;
+    private long mLastSensorEventTime = -1;
     private final Context mContext;
     private final UiModeManager mUiModeManager;
     private CarPropertyService mCarPropertyService;
@@ -70,8 +71,12 @@ public class CarNightService implements CarServiceBase {
         if (event.getEventType() == CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE) {
             // Only handle onChange events
             CarPropertyValue value = event.getCarPropertyValue();
-            if (value.getPropertyId() == VehicleProperty.NIGHT_MODE) {
+            if (value.getPropertyId() == VehicleProperty.NIGHT_MODE
+                    && value.getTimestamp() > mLastSensorEventTime) {
+                mLastSensorEventTime = value.getTimestamp();
                 boolean nightMode = (Boolean) value.getValue();
+                Log.i(CarLog.TAG_SENSOR, "Set dayNight Mode as "
+                        + nightMode + " at timestamp: " + mLastSensorEventTime);
                 setNightMode(nightMode);
             }
         }
@@ -138,6 +143,7 @@ public class CarNightService implements CarServiceBase {
         CarPropertyValue propertyValue = mCarPropertyService.getProperty(
                 VehicleProperty.NIGHT_MODE, 0);
         if (propertyValue != null && propertyValue.getTimestamp() != 0) {
+            mLastSensorEventTime = propertyValue.getTimestamp();
             setNightMode((Boolean) propertyValue.getValue());
         } else {
             Log.w(CarLog.TAG_SENSOR, "Failed to get value of NIGHT_MODE");
@@ -155,7 +161,8 @@ public class CarNightService implements CarServiceBase {
         writer.println("*DAY NIGHT POLICY*");
         writer.println("Mode:" +
                 ((mNightSetting == UiModeManager.MODE_NIGHT_YES) ? "night" : "day"));
-        writer.println("Forced Mode? " + (mForcedMode == FORCED_SENSOR_MODE ? "false"
+        writer.println("Forced Mode? " + (mForcedMode == FORCED_SENSOR_MODE
+                ? "false, timestamp of dayNight sensor is: " + mLastSensorEventTime
                 : (mForcedMode == FORCED_DAY_MODE ? "day" : "night")));
     }
 }

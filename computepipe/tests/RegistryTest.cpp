@@ -28,10 +28,14 @@ using namespace ::android::automotive::computepipe::tests;
 using namespace ::testing;
 
 class FakeClient : public ClientHandle {
+  public:
     uint32_t getClientId() override {
         return 0;
     }
     bool isAlive() override {
+        return true;
+    }
+    bool startClientMonitor() override {
         return true;
     }
     ~FakeClient() {
@@ -58,7 +62,7 @@ TEST(RegistryTest, GetRunnerTest) {
     // Verify bad client
     EXPECT_THAT(registry.getClientPipeHandle("random", nullptr), IsNull());
     // Verify correct retrieval
-    std::unique_ptr<ClientHandle> client(new FakeClient());
+    std::unique_ptr<ClientHandle> client = std::make_unique<FakeClient>();
     ASSERT_THAT(client, NotNull());
     EXPECT_THAT(registry.getClientPipeHandle("random", std::move(client)), NotNull());
     // verify multiclient failure

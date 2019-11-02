@@ -252,7 +252,8 @@ public class CarUserManagerHelperTest {
     public void testCannotSwitchIfSwitchingNotAllowed() {
         int userIdToSwitchTo = mForegroundUserId + 2;
         doReturn(true).when(mActivityManager).switchUser(userIdToSwitchTo);
-        doReturn(true).when(mUserManager).hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
+        doReturn(UserManager.SWITCHABILITY_STATUS_USER_SWITCH_DISALLOWED)
+                .when(mUserManager).getUserSwitchability();
         assertThat(mCarUserManagerHelper.switchToUserId(userIdToSwitchTo)).isFalse();
         verify(mActivityManager, never()).switchUser(userIdToSwitchTo);
     }
