@@ -2873,7 +2873,7 @@
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Configurer l\'utilisateur?"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"Assurez-vous que la personne est disponible et qu\'elle peut utiliser l\'appareil pour configurer son espace."</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"Configurer le profil maintenant?"</string>
-    <string name="user_setup_button_setup_now" msgid="4941459406266856176">"Configurer maintenant"</string>
+    <string name="user_setup_button_setup_now" msgid="4941459406266856176">"Configurer"</string>
     <string name="user_setup_button_setup_later" msgid="6596031428556518752">"Pas maintenant"</string>
     <string name="user_cannot_manage_message" product="tablet" msgid="7108992906553210763">"Seul le propriétaire de la tablette peut gérer les utilisateurs."</string>
     <string name="user_cannot_manage_message" product="default" msgid="915260531390608092">"Seul le propriétaire de la tablette peut gérer les utilisateurs."</string>

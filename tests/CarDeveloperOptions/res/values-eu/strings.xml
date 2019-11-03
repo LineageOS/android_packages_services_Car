@@ -312,7 +312,7 @@
     <string name="roaming" msgid="8860308342135146004">"Ibiltaritza"</string>
     <string name="roaming_enable" msgid="2108142024297441116">"Konektatu datu-zerbitzuetara ibiltaritzan"</string>
     <string name="roaming_disable" msgid="1915440242079953809">"Konektatu datu-zerbitzuetara ibiltaritzan"</string>
-    <string name="roaming_reenable_message" msgid="8388505868655113258">"Datuen konexioa galdu duzu tokiko saretik irten zarelako ibiltaritza desaktibatuta duzula."</string>
+    <string name="roaming_reenable_message" msgid="8388505868655113258">"Datuen konexioa galdu duzu tokiko saretik irten zarelako ibiltaritza desaktibatuta daukazula."</string>
     <string name="roaming_turn_it_on_button" msgid="4370846458830537578">"Aktibatu"</string>
     <string name="roaming_warning" msgid="5488050911277592868">"Baliteke kostu handiak ordaindu behar izatea."</string>
     <string name="roaming_warning_multiuser" product="tablet" msgid="7090388691615686893">"Ibiltaritzako datuak baimentzen badituzu, baliteke ibiltaritza-kostu handiak ordaindu behar izatea!\n\nEzarpenak tableta honen erabiltzaile guztiei eragiten die."</string>

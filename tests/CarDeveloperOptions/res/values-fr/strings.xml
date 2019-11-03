@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_require_confirmation_details" msgid="8740564864091803429">"Toujours demander confirmation lors de l\'authentification dans applis"</string>
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Suppr. données visage"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Vous pouvez utiliser votre visage pour déverrouiller votre appareil et accéder à des applications. "<annotation id="url">"En savoir plus"</annotation></string>
-    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Supprimer les données du visage ?"</string>
+    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Supprimer les données de reconnaissance faciale ?"</string>
     <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Les données enregistrées par Face Unlock seront supprimées de manière sécurisée et définitive. Une fois l\'inscription retirée, vous devrez utiliser votre code, votre motif ou votre mot de passe pour déverrouiller votre téléphone, vous connecter aux applications et confirmer les paiements."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Empreinte digitale"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Gérer empreintes num."</string>
