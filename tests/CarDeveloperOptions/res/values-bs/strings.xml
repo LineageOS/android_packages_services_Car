@@ -34,7 +34,7 @@
     <string name="header_category_system" msgid="4045988717359334410">"Sistem"</string>
     <string name="radio_info_data_connection_enable" msgid="2554249462719717119">"Omogućite vezu za prijenos podataka"</string>
     <string name="radio_info_data_connection_disable" msgid="2430609627397999371">"Onemogućite podatkovnu mrežu"</string>
-    <string name="volte_provisioned_switch_string" msgid="6326756678226686704">"VoLTE"</string>
+    <string name="volte_provisioned_switch_string" msgid="6326756678226686704">"VoLTE omogućen"</string>
     <string name="vt_provisioned_switch_string" msgid="7458479879009293613">"Video poziv obezbijeđen"</string>
     <string name="wfc_provisioned_switch_string" msgid="5446697646596639516">"WiFi poziv obezbijeđen"</string>
     <string name="eab_provisioned_switch_string" msgid="3921103790584572430">"EAB/Omogućeno prisustvo"</string>

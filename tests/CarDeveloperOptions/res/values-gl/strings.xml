@@ -3527,7 +3527,7 @@
     <string name="zen_mode_when" msgid="7835420687948416255">"Activar automaticam."</string>
     <string name="zen_mode_when_never" msgid="4506296396609224524">"Nunca"</string>
     <string name="zen_mode_when_every_night" msgid="3942151668791426194">"Todas as noites"</string>
-    <string name="zen_mode_when_weeknights" msgid="2412709309122408474">"Noites pola semana"</string>
+    <string name="zen_mode_when_weeknights" msgid="2412709309122408474">"Noites entre semana"</string>
     <string name="zen_mode_start_time" msgid="5979122139937561731">"Hora de inicio"</string>
     <string name="zen_mode_end_time" msgid="3188578493250909972">"Hora de finalización"</string>
     <string name="zen_mode_end_time_next_day_summary_format" msgid="1598612215612648214">"<xliff:g id="FORMATTED_TIME">%s</xliff:g> do día seguinte"</string>
@@ -4137,7 +4137,7 @@
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Dedo no sensor para ver notificacións"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Pasar dedo polo sensor"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Para consultar as notificacións, pasa o dedo cara abaixo sobre o sensor de impresión dixital situado na parte traseira do teléfono."</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Para consultar as notificacións, pasa o dedo cara abaixo sobre o sensor de impresión dixital situado na parte traseira da tableta."</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Para consultar as notificacións, pasa o dedo cara abaixo sobre o sensor de impresión dixital, situado na parte traseira da tableta."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"Para consultar as notificacións, pasa o dedo cara abaixo sobre o sensor de impresión dixital situado na parte traseira do dispositivo."</string>
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"Consultar notificacións rapidamente"</string>
     <string name="gesture_setting_on" msgid="7573680730101327866">"Activado"</string>
