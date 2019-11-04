@@ -21,6 +21,7 @@ import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_STATUS;
 import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_STATUS_MESSAGE;
 import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_TIMESTAMP;
 import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_TITLE;
+import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_TYPE;
 import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_USERNAME;
 
 import android.annotation.NonNull;
@@ -41,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A class that hides details when communicating with the bug storage provider.
@@ -67,6 +69,7 @@ final class BugStorageUtils {
      * @param title     - title of the bug report.
      * @param timestamp - timestamp when the bug report was initiated.
      * @param username  - current user name. Note, it's a user name, not an account name.
+     * @param type      - bug report type, {@link MetaBugReport.BugReportType}.
      * @return an instance of {@link MetaBugReport} that was created in a database.
      */
     @NonNull
@@ -74,12 +77,14 @@ final class BugStorageUtils {
             @NonNull Context context,
             @NonNull String title,
             @NonNull String timestamp,
-            @NonNull String username) {
+            @NonNull String username,
+            @MetaBugReport.BugReportType int type) {
         // insert bug report username and title
         ContentValues values = new ContentValues();
         values.put(COLUMN_TITLE, title);
         values.put(COLUMN_TIMESTAMP, timestamp);
         values.put(COLUMN_USERNAME, username);
+        values.put(COLUMN_TYPE, type);
 
         ContentResolver r = context.getContentResolver();
         Uri uri = r.insert(BugStorageProvider.BUGREPORT_CONTENT_URI, values);
@@ -95,6 +100,7 @@ final class BugStorageUtils {
         return new MetaBugReport.Builder(id, timestamp)
                 .setTitle(title)
                 .setUserName(username)
+                .setType(type)
                 .build();
     }
 
@@ -157,7 +163,19 @@ final class BugStorageUtils {
         return getBugreports(context, null, null, COLUMN_ID + " DESC");
     }
 
-    static List<MetaBugReport> getBugreports(
+    /** Returns {@link MetaBugReport} for given bugreport id. */
+    static Optional<MetaBugReport> findBugReport(Context context, int bugreportId) {
+        String selection = COLUMN_ID + " = ?";
+        String[] selectionArgs = new String[]{Integer.toString(bugreportId)};
+        List<MetaBugReport> bugs = BugStorageUtils.getBugreports(
+                context, selection, selectionArgs, null);
+        if (bugs.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(bugs.get(0));
+    }
+
+    private static List<MetaBugReport> getBugreports(
             Context context, String selection, String[] selectionArgs, String order) {
         ArrayList<MetaBugReport> bugReports = new ArrayList<>();
         String[] projection = {
@@ -167,7 +185,8 @@ final class BugStorageUtils {
                 COLUMN_TIMESTAMP,
                 COLUMN_FILEPATH,
                 COLUMN_STATUS,
-                COLUMN_STATUS_MESSAGE};
+                COLUMN_STATUS_MESSAGE,
+                COLUMN_TYPE};
         ContentResolver r = context.getContentResolver();
         Cursor c = r.query(BugStorageProvider.BUGREPORT_CONTENT_URI, projection,
                 selection, selectionArgs, order);
@@ -183,6 +202,7 @@ final class BugStorageUtils {
                     .setFilepath(getString(c, COLUMN_FILEPATH))
                     .setStatus(getInt(c, COLUMN_STATUS))
                     .setStatusMessage(getString(c, COLUMN_STATUS_MESSAGE))
+                    .setType(getInt(c, COLUMN_TYPE))
                     .build();
             bugReports.add(meta);
             c.moveToNext();

@@ -26,6 +26,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Shows bugreport title, status, status message and user action buttons. "Upload to Google" button
+ * is enabled when the status is {@link Status#STATUS_PENDING_USER_ACTION}, "Move to USB" button is
+ * enabled only when status is  {@link Status#STATUS_PENDING_USER_ACTION} and USB device is plugged
+ * in.
+ */
 public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoViewHolder> {
     static final int BUTTON_TYPE_UPLOAD = 0;
     static final int BUTTON_TYPE_MOVE = 1;
@@ -96,17 +102,10 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
         holder.mTitleView.setText(bugreport.getTitle());
         holder.mStatusView.setText(Status.toString(bugreport.getStatus()));
         holder.mMessageView.setText(bugreport.getStatusMessage());
-        if (bugreport.getStatusMessage() == null || bugreport.getStatusMessage().isEmpty()) {
+        if (bugreport.getStatusMessage().isEmpty()) {
             holder.mMessageView.setVisibility(View.GONE);
         } else {
             holder.mMessageView.setVisibility(View.VISIBLE);
-        }
-        if (getUserActionButtonsVisible()) {
-            holder.mMoveButton.setVisibility(View.VISIBLE);
-            holder.mUploadButton.setVisibility(View.VISIBLE);
-        } else {
-            holder.mMoveButton.setVisibility(View.GONE);
-            holder.mUploadButton.setVisibility(View.GONE);
         }
         boolean enableUserActionButtons =
                 bugreport.getStatus() == Status.STATUS_PENDING_USER_ACTION.getValue()
@@ -114,15 +113,19 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
                         || bugreport.getStatus() == Status.STATUS_UPLOAD_FAILED.getValue();
         if (enableUserActionButtons) {
             holder.mMoveButton.setEnabled(true);
+            holder.mMoveButton.setVisibility(View.VISIBLE);
             holder.mMoveButton.setOnClickListener(
                     view -> mItemClickedListener.onItemClicked(BUTTON_TYPE_MOVE, bugreport,
                             holder));
             holder.mUploadButton.setEnabled(true);
+            holder.mUploadButton.setVisibility(View.VISIBLE);
             holder.mUploadButton.setOnClickListener(
                     view -> mItemClickedListener.onItemClicked(BUTTON_TYPE_UPLOAD, bugreport,
                             holder));
         } else {
+            holder.mMoveButton.setVisibility(View.GONE);
             holder.mMoveButton.setEnabled(false);
+            holder.mUploadButton.setVisibility(View.GONE);
             holder.mUploadButton.setEnabled(false);
         }
     }
@@ -139,12 +142,6 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
             mDataset.set(position, bugReport);
             notifyItemChanged(position);
         }
-    }
-
-    /** Returns true if the upload/move buttons should be visible. */
-    private boolean getUserActionButtonsVisible() {
-        // Do not show buttons if bugreports are uploaded by default.
-        return !JobSchedulingUtils.uploadByDefault();
     }
 
     @Override

@@ -48,6 +48,17 @@ for specific products.
 BugReport app uses `res/raw/gcs_credentials.json` for authentication and
 `res/values/configs.xml` for obtaining GCS bucket name.
 
+## Starting bugreporting
+
+The app supports following intents:
+
+1. `adb shell am start com.google.android.car.bugreport/com.google.android.car.bugreport.BugReportActivity`
+    - generates `MetaBugReport.Type.INTERACTIVE` bug report, with audio message, shows a
+    SUBMIT/CANCEL dialog.
+2. `adb shell am start -n com.google.android.car.bugreport/com.google.android.car.bugreport.BugReportActivity -a com.google.android.car.bugreport.action.START_SILENT`
+    - generates `MetaBugReport.Type.SILENT` bug report, without audio message. The app doesn't
+    auto-upload these bugreports.
+
 ## Testing
 
 ### Manually testing the app using the test script
