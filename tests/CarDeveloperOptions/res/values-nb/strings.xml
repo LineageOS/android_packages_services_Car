@@ -988,7 +988,7 @@
     <string name="wifi_hotspot_title" msgid="2631956539767069385">"Vil du logge på for å koble til?"</string>
     <string name="wifi_hotspot_message" msgid="6762452611090766607">"<xliff:g id="APP_NAME">%1$s</xliff:g> krever at du logger på nettet før du kobler til nettverket."</string>
     <string name="wifi_hotspot_connect" msgid="409079339360849653">"KOBLE TIL"</string>
-    <string name="no_internet_access_text" msgid="7093326244145734504">"Dette nettverket har ikke Internett-tilgang. Vil du fortsette å være koblet til nettverket?"</string>
+    <string name="no_internet_access_text" msgid="7093326244145734504">"Dette nettverket har ikke internettilgang. Vil du fortsette å være koblet til nettverket?"</string>
     <string name="partial_connectivity_text" msgid="2142157808079235684">"Noen apper og tjenester fungerer muligens ikke på grunn av begrenset tilkobling. Bruke likevel?"</string>
     <string name="no_internet_access_remember" msgid="1368137189939004202">"Ikke spør igjen for dette nettverket"</string>
     <string name="lost_internet_access_title" msgid="1061916948695946130">"Wi‑Fi er ikke koblet til Internett"</string>
