@@ -55,3 +55,51 @@ cc_test {
         "android.automotive.computepipe@1.0",
     ],
 }
+
+cc_test {
+    name: "piperegitration_test",
+    test_suites: ["device-tests"],
+    srcs: [
+        "PipeRegistrationTest.cpp",
+	"FakeRunner.cpp",
+    ],
+    static_libs: [
+        "libgtest",
+        "libgmock",
+    ],
+    header_libs: [
+      "computepipe_router_headers",
+    ],
+    shared_libs: [
+        "libhidlbase",
+        "libutils",
+        "android.automotive.computepipe.router@1.0-impl",
+        "android.automotive.computepipe.runner@1.0",
+        "android.automotive.computepipe.registry@1.0",
+        "android.automotive.computepipe@1.0",
+    ],
+}
+
+cc_test {
+    name: "pipequery_test",
+    test_suites: ["device-tests"],
+    srcs: [
+        "PipeQueryTest.cpp",
+	"FakeRunner.cpp",
+    ],
+    static_libs: [
+        "libgtest",
+        "libgmock",
+    ],
+    header_libs: [
+      "computepipe_router_headers",
+    ],
+    shared_libs: [
+        "libhidlbase",
+        "libutils",
+        "android.automotive.computepipe.router@1.0-impl",
+        "android.automotive.computepipe.runner@1.0",
+        "android.automotive.computepipe.registry@1.0",
+        "android.automotive.computepipe@1.0",
+    ],
+}
