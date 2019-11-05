@@ -23,6 +23,7 @@
 #include <memory>
 #include <utility>
 
+#include "PipeRunner.h"
 #include "Registry.h"
 
 namespace android {
@@ -39,16 +40,13 @@ class PipeRegistration : public android::automotive::computepipe::registry::V1_0
         const android::hardware::hidl_string& graphName,
         const sp<android::automotive::computepipe::runner::V1_0::IPipeRunner>& graphRunner) override;
 
-    explicit PipeRegistration(
-        std::shared_ptr<PipeRegistry<android::automotive::computepipe::runner::V1_0::IPipeRunner>> r)
-        : mRegistry(r) {
+    explicit PipeRegistration(std::shared_ptr<PipeRegistry<PipeRunner>> r) : mRegistry(r) {
     }
 
   private:
     // Convert internal registry error codes to PipeStatus
     android::automotive::computepipe::V1_0::PipeStatus convertToPipeStatus(Error err);
-    std::shared_ptr<PipeRegistry<android::automotive::computepipe::runner::V1_0::IPipeRunner>>
-        mRegistry;
+    std::shared_ptr<PipeRegistry<PipeRunner>> mRegistry;
 };
 
 }  // namespace implementation

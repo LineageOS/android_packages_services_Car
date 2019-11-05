@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-#include "PipeClient.h"
+#include "PipeRunner.h"
+
+#include <mutex>
+
+#include "hidl/HidlSupport.h"
 
 namespace android {
 namespace automotive {
@@ -23,47 +27,42 @@ namespace router {
 namespace V1_0 {
 namespace implementation {
 
-using namespace android::automotive::computepipe::registry::V1_0;
-using android::hardware::Return;
+using namespace android::automotive::computepipe::runner::V1_0;
 
-uint32_t PipeClient::getClientId() {
-    if (mClientInfo == nullptr) {
-        return 0;
-    }
-    Return<uint32_t> res = mClientInfo->getClientId();
-    return res.isOk() ? static_cast<uint32_t>(res) : 0;
+PipeRunner::PipeRunner(const sp<IPipeRunner>& graphRunner) : runner(graphRunner) {
 }
 
-bool PipeClient::startClientMonitor() {
-    mClientMonitor = new ClientMonitor();
-    if (!mClientMonitor) {
-        return false;
-    }
-    Return<bool> res = mClientInfo->linkToDeath(mClientMonitor, 0);
-    return res.isOk() ? static_cast<bool>(res) : false;
+void PipeMonitor::serviceDied(uint64_t /* cookie */,
+                              const wp<android::hidl::base::V1_0::IBase>& /* base */) {
+    mNotifier();
 }
 
-bool PipeClient::isAlive() {
-    return mClientMonitor->isAlive();
+RunnerHandle::RunnerHandle(const sp<IPipeRunner>& r) : PipeHandle(std::make_unique<PipeRunner>(r)) {
 }
 
-PipeClient::~PipeClient() {
-    (void)mClientInfo->unlinkToDeath(mClientMonitor);
+bool RunnerHandle::startPipeMonitor() {
+    sp<PipeMonitor> monitor = new PipeMonitor([this]() { this->markDead(); });
+    // We store a weak reference to be able to perform an unlink
+    mPipeMonitor = monitor;
+    return mInterface->runner->linkToDeath(monitor, 0);
 }
 
-void ClientMonitor::serviceDied(uint64_t /* cookie */,
-                                const wp<android::hidl::base::V1_0::IBase>& base) {
+void RunnerHandle::markDead() {
     std::lock_guard<std::mutex> lock(mStateLock);
     mAlive = false;
-    auto iface = base.promote();
-    if (iface != nullptr) {
-        (void)iface->unlinkToDeath(this);
-    }
 }
 
-bool ClientMonitor::isAlive() {
+bool RunnerHandle::isAlive() {
     std::lock_guard<std::mutex> lock(mStateLock);
     return mAlive;
+}
+
+PipeHandle<PipeRunner>* RunnerHandle::clone() const {
+    return new RunnerHandle(mInterface->runner);
+}
+
+RunnerHandle::~RunnerHandle() {
+    (void)mInterface->runner->unlinkToDeath(mPipeMonitor.promote());
 }
 
 }  // namespace implementation

@@ -43,6 +43,42 @@ class FakeClient : public ClientHandle {
 };
 
 /**
+ * Wraps a FakeRunner instance
+ */
+struct WrapRunner {
+    WrapRunner(const sp<FakeRunner>& r) : mRunner(r) {
+    }
+    android::wp<FakeRunner> mRunner;
+};
+
+/**
+ * Implements PipeHandle methods and manages the underlying IPC
+ * object
+ */
+class FakePipeHandle : public PipeHandle<WrapRunner> {
+  public:
+    explicit FakePipeHandle(const sp<FakeRunner>& r) : PipeHandle(std::make_unique<WrapRunner>(r)) {
+    }
+    bool isAlive() override {
+        auto pRunner = mInterface->mRunner.promote();
+        if (pRunner == nullptr) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    bool startPipeMonitor() override {
+        return true;
+    }
+    PipeHandle<WrapRunner>* clone() const override {
+        return new FakePipeHandle(mInterface->mRunner.promote());
+    }
+    ~FakePipeHandle() {
+        mInterface = nullptr;
+    }
+};
+
+/**
  * Test for PipeRegistry::getRunner()
  * Check if the api does not mistakenly increment the refcount
  * Check if the api correctly handles bad client
@@ -52,9 +88,9 @@ class FakeClient : public ClientHandle {
  * dead runner
  */
 TEST(RegistryTest, GetRunnerTest) {
-    PipeRegistry<FakeRunner> registry;
+    PipeRegistry<WrapRunner> registry;
     sp<FakeRunner> runner = new FakeRunner();
-    std::unique_ptr<PipeHandle<FakeRunner>> handle(new PipeHandle<FakeRunner>(runner));
+    std::unique_ptr<PipeHandle<WrapRunner>> handle = std::make_unique<FakePipeHandle>(runner);
     ASSERT_THAT(runner, testing::NotNull());
     // Verify refcount
     registry.RegisterPipe(std::move(handle), "random");
@@ -71,7 +107,7 @@ TEST(RegistryTest, GetRunnerTest) {
     // Verify deleted runner
     sp<FakeRunner> dummy;
     dummy = new FakeRunner();
-    std::unique_ptr<PipeHandle<FakeRunner>> dummyHandle(new PipeHandle<FakeRunner>(dummy));
+    std::unique_ptr<PipeHandle<WrapRunner>> dummyHandle = std::make_unique<FakePipeHandle>(dummy);
     registry.RegisterPipe(std::move(dummyHandle), "dummy");
     dummy.clear();
     client.reset(new FakeClient());
@@ -83,13 +119,13 @@ TEST(RegistryTest, GetRunnerTest) {
  * Check if the api correctly handles empty db
  */
 TEST(RegistryTest, GetPipeListTest) {
-    PipeRegistry<FakeRunner> registry;
+    PipeRegistry<WrapRunner> registry;
     // Confirm entry registry
     std::list<std::string> names = registry.getPipeList();
     ASSERT_THAT(names.size(), Eq(0));
     // Confirm 1 entry
     sp<FakeRunner> runner = new FakeRunner();
-    std::unique_ptr<PipeHandle<FakeRunner>> handle(new PipeHandle<FakeRunner>(runner));
+    std::unique_ptr<PipeHandle<WrapRunner>> handle = std::make_unique<FakePipeHandle>(runner);
     registry.RegisterPipe(std::move(handle), "random");
     names = registry.getPipeList();
     ASSERT_THAT(names.size(), Eq(1));
@@ -102,9 +138,9 @@ TEST(RegistryTest, GetPipeListTest) {
  * Check if the api correctly handles reregistration of a deleted runner
  */
 TEST(RegistryTest, RegisterPipeTest) {
-    PipeRegistry<FakeRunner> registry;
+    PipeRegistry<WrapRunner> registry;
     sp<FakeRunner> runner = new FakeRunner();
-    std::unique_ptr<PipeHandle<FakeRunner>> handle(new PipeHandle<FakeRunner>(runner));
+    std::unique_ptr<PipeHandle<WrapRunner>> handle = std::make_unique<FakePipeHandle>(runner);
     Error status = registry.RegisterPipe(std::move(handle), "random");
     ASSERT_THAT(status, Eq(OK));
     // Duplicate entry
@@ -113,7 +149,7 @@ TEST(RegistryTest, RegisterPipeTest) {
     // Deleted runner
     runner.clear();
     runner = new FakeRunner();
-    handle.reset(new PipeHandle<FakeRunner>(runner));
+    handle.reset(new FakePipeHandle(runner));
     status = registry.RegisterPipe(std::move(handle), "random");
     ASSERT_THAT(status, Eq(OK));
 }

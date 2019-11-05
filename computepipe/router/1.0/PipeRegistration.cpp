@@ -32,8 +32,7 @@ Return<PipeStatus> PipeRegistration::registerPipeRunner(const hidl_string& graph
     if (!mRegistry) {
         return PipeStatus::INTERNAL_ERR;
     }
-    std::unique_ptr<PipeHandle<IPipeRunner>> handle =
-        std::make_unique<PipeHandle<IPipeRunner>>(graphRunner);
+    std::unique_ptr<PipeHandle<PipeRunner>> handle = std::make_unique<RunnerHandle>(graphRunner);
     auto err = mRegistry->RegisterPipe(std::move(handle), graphName);
     return convertToPipeStatus(err);
 }
