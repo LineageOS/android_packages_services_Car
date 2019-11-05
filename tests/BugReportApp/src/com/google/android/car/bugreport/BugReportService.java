@@ -119,6 +119,7 @@ public class BugReportService extends Service {
     private Car mCar;
     private CarBugreportManager mBugreportManager;
     private CarBugreportManager.CarBugreportManagerCallback mCallback;
+    private Config mConfig;
 
     /** A handler on the main thread. */
     private Handler mHandler;
@@ -173,6 +174,8 @@ public class BugReportService extends Service {
         mSingleThreadExecutor = Executors.newSingleThreadScheduledExecutor();
         mHandler = new BugReportHandler();
         mCar = Car.createCar(this);
+        mConfig = new Config();
+        mConfig.start();
         try {
             mBugreportManager = (CarBugreportManager) mCar.getCarManager(Car.CAR_BUGREPORT_SERVICE);
         } catch (CarNotConnectedException | NoClassDefFoundError e) {
@@ -351,7 +354,7 @@ public class BugReportService extends Service {
         PendingIntent startBugReportInfoActivity =
                 PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
         CharSequence contentText;
-        if (JobSchedulingUtils.autoUploadBugReport(mMetaBugReport)) {
+        if (mConfig.autoUploadBugReport(mMetaBugReport)) {
             contentText = getText(R.string.notification_bugreport_auto_upload_finished_text);
         } else {
             contentText = getText(R.string.notification_bugreport_manual_upload_finished_text);
@@ -391,6 +394,7 @@ public class BugReportService extends Service {
         if (DEBUG) {
             Log.d(TAG, "Service destroyed");
         }
+        mCar.disconnect();
     }
 
     private static void copyBinaryStream(InputStream in, OutputStream out) throws IOException {

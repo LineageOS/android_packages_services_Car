@@ -30,14 +30,13 @@
     <string name="bugreport_dialog_in_progress_title">A bug report is already being collected</string>
     <string name="bugreport_dialog_in_progress_title_finished">A bug report has been collected</string>
     <string name="bugreport_move_button_text">Move to USB</string>
-    <string name="bugreport_upload_button_text">Upload to Google</string>
+    <string name="bugreport_upload_button_text">Upload</string>
+    <string name="bugreport_upload_gcs_button_text">Upload to GCS</string>
 
     <string name="toast_permissions_denied">Please grant permissions</string>
     <string name="toast_bug_report_in_progress">Bug report already being collected</string>
-    <string name="toast_timed_out">Timed out, cancelling</string>
     <string name="toast_status_failed">Bug report failed</string>
     <string name="toast_status_finished">Bug report finished</string>
-    <string name="toast_status_pending_upload">Bug report ready for upload</string>
     <string name="toast_status_screencap_failed">Screen capture failed</string>
     <string name="toast_status_dump_state_failed">Dump state failed</string>
 
