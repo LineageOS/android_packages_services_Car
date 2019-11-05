@@ -56,8 +56,8 @@ Return<sp<IPipeRunner>> PipeQuery::getPipeRunner(const hidl_string& graphName,
     if (!pipeHandle) {
         return nullptr;
     }
-    sp<IPipeRunner> runner = pipeHandle->getInterface().promote();
-    return runner;
+    auto pipeRunner = pipeHandle->getInterface();
+    return pipeRunner->runner;
 }
 
 }  // namespace implementation

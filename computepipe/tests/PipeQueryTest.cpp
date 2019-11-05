@@ -27,6 +27,7 @@
 #include "FakeRunner.h"
 #include "PipeClient.h"
 #include "PipeQuery.h"
+#include "PipeRunner.h"
 
 using namespace android::automotive::computepipe::router;
 using namespace android::automotive::computepipe::router::V1_0::implementation;
@@ -51,9 +52,9 @@ class FakeClientInfo : public IClientInfo {
  * a) Used to retrieve entries without client ref counts
  * b) Used to remove entries
  */
-class FakeRegistry : public PipeRegistry<IPipeRunner> {
+class FakeRegistry : public PipeRegistry<PipeRunner> {
   public:
-    std ::unique_ptr<PipeHandle<IPipeRunner>> getDebuggerPipeHandle(const std::string& name) {
+    std ::unique_ptr<PipeHandle<PipeRunner>> getDebuggerPipeHandle(const std::string& name) {
         return getPipeHandle(name, nullptr);
     }
     Error RemoveEntry(const std::string& name) {
@@ -77,16 +78,16 @@ class PipeQueryTest : public ::testing::Test {
     /**
      * Utility to generate fake runners
      */
-    void addFakeRunner(const std::string& name, const android::wp<IPipeRunner>& runnerIface) {
-        std::unique_ptr<PipeHandle<IPipeRunner>> handle(new PipeHandle<IPipeRunner>(runnerIface));
+    void addFakeRunner(const std::string& name, const android::sp<IPipeRunner>& runnerIface) {
+        std::unique_ptr<PipeHandle<PipeRunner>> handle = std::make_unique<RunnerHandle>(runnerIface);
         Error status = mRegistry->RegisterPipe(std::move(handle), name);
         ASSERT_THAT(status, testing::Eq(Error::OK));
     }
     /**
      * Utility to remove runners from the registry
      */
-    bool removeRunner(const std::string& name) {
-        return mRegistry->RemoveEntry(name) == Error::OK;
+    void removeRunner(const std::string& name) {
+        ASSERT_THAT(mRegistry->RemoveEntry(name), testing::Eq(Error::OK));
     }
     /**
      * Tear down to cleanup registry resources
@@ -130,6 +131,7 @@ TEST_F(PipeQueryTest, DeadRunnerTest) {
 
     std::unique_ptr<PipeQuery> qIface = std::make_unique<PipeQuery>(mRegistry);
     dummy1.clear();
+    removeRunner("dummy1");
     sp<IClientInfo> info = new FakeClientInfo();
     sp<IPipeRunner> runner = qIface->getPipeRunner("dummy1", info);
     EXPECT_THAT(runner, testing::IsNull());

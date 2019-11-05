@@ -25,6 +25,7 @@
 
 #include "FakeRunner.h"
 #include "PipeRegistration.h"
+#include "PipeRunner.h"
 
 using namespace android::automotive::computepipe::router;
 using namespace android::automotive::computepipe::router::V1_0::implementation;
@@ -39,14 +40,14 @@ using namespace android::automotive::computepipe::V1_0;
 class PipeRegistrationTest : public ::testing::Test {
   protected:
     void SetUp() override {
-        mRegistry = std::make_shared<PipeRegistry<IPipeRunner>>();
+        mRegistry = std::make_shared<PipeRegistry<PipeRunner>>();
         ASSERT_THAT(mRegistry, testing::NotNull());
     }
 
     void TearDown() override {
         mRegistry = nullptr;
     }
-    std::shared_ptr<PipeRegistry<IPipeRunner>> mRegistry;
+    std::shared_ptr<PipeRegistry<PipeRunner>> mRegistry;
 };
 
 // Valid registration succeeds
@@ -62,14 +63,4 @@ TEST_F(PipeRegistrationTest, RegisterDuplicateRunner) {
     std::unique_ptr<IPipeRegistration> rIface(new PipeRegistration(this->mRegistry));
     ASSERT_THAT(rIface->registerPipeRunner("dummy", dummy), testing::Eq(PipeStatus::OK));
     EXPECT_THAT(rIface->registerPipeRunner("dummy", dummy), testing::Eq(PipeStatus::INTERNAL_ERR));
-}
-
-// Reregistration of dead runner succeeds
-TEST_F(PipeRegistrationTest, RegisterDeadRunner) {
-    sp<IPipeRunner> dummy = new FakeRunner();
-    std::unique_ptr<IPipeRegistration> rIface(new PipeRegistration(this->mRegistry));
-    ASSERT_THAT(rIface->registerPipeRunner("dummy", dummy), testing::Eq(PipeStatus::OK));
-    dummy.clear();
-    dummy = new FakeRunner();
-    EXPECT_THAT(rIface->registerPipeRunner("dummy", dummy), testing::Eq(PipeStatus::OK));
 }

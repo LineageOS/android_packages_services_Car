@@ -32,31 +32,26 @@ namespace router {
 template <typename T>
 class PipeHandle {
   public:
-    PipeHandle(const wp<T>& intf) : mInterface(intf) {
+    explicit PipeHandle(std::unique_ptr<T> intf) : mInterface(std::move(intf)) {
     }
     // Check if runner process is still alive
-    bool isAlive() {
-        sp<T> pRunner = mInterface.promote();
-        if (pRunner == nullptr) {
-            return false;
-        } else {
-            return true;
-        }
-    }
+    virtual bool isAlive() = 0;
+    // Start the monitor for the pipe
+    virtual bool startPipeMonitor() = 0;
     // Any successful client lookup, clones this handle
-    // including the current refcount.
-    // The underlying interface refcount remains unchanged
-    PipeHandle<T>* clone() const {
-        return new PipeHandle(mInterface);
-    }
+    // The implementation must handle refcounting of remote objects
+    // accordingly.
+    virtual PipeHandle<T>* clone() const = 0;
     // Retrieve the underlying remote IPC object
-    wp<T> getInterface() {
+    std::shared_ptr<T> getInterface() {
         return mInterface;
     }
+    virtual ~PipeHandle() = default;
 
-  private:
+  protected:
+    explicit PipeHandle(std::shared_ptr<T> intf) : mInterface(intf){};
     // Interface object
-    wp<T> mInterface;
+    std::shared_ptr<T> mInterface;
 };
 
 }  // namespace router

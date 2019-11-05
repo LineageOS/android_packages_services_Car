@@ -29,24 +29,60 @@ using namespace ::android::automotive::computepipe::router;
 using namespace ::android::automotive::computepipe::tests;
 using namespace ::testing;
 
+/**
+ * Wraps a FakeRunner instance
+ */
+struct WrapRunner {
+    WrapRunner(const sp<FakeRunner>& r) : mRunner(r) {
+    }
+    android::wp<FakeRunner> mRunner;
+};
+
+/**
+ * Implements PipeHandle methods and manages the underlying IPC
+ * object
+ */
+class FakePipeHandle : public PipeHandle<WrapRunner> {
+  public:
+    explicit FakePipeHandle(const sp<FakeRunner>& r) : PipeHandle(std::make_unique<WrapRunner>(r)) {
+    }
+    bool isAlive() override {
+        auto pRunner = mInterface->mRunner.promote();
+        if (pRunner == nullptr) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    bool startPipeMonitor() override {
+        return true;
+    }
+    PipeHandle<WrapRunner>* clone() const override {
+        return new FakePipeHandle(mInterface->mRunner.promote());
+    }
+    ~FakePipeHandle() {
+        mInterface = nullptr;
+    }
+};
+
 TEST(PipeContextTest, IsAliveTest) {
-    sp<FakeRunner> dummy = new FakeRunner();
-    std::unique_ptr<PipeHandle<FakeRunner>> pHandle(new PipeHandle<FakeRunner>(dummy));
+    sp<FakeRunner> runner = new FakeRunner();
+    std::unique_ptr<PipeHandle<WrapRunner>> pHandle = std::make_unique<FakePipeHandle>(runner);
     ASSERT_TRUE(pHandle->isAlive());
 
     PipeContext pContext(std::move(pHandle), "random");
     ASSERT_TRUE(pContext.isAlive());
-    dummy.clear();
+    runner.clear();
     ASSERT_FALSE(pContext.isAlive());
 }
 
 TEST(PipeContextTest, GetHandleTest) {
     sp<FakeRunner> dummy = new FakeRunner();
-    std::unique_ptr<PipeHandle<FakeRunner>> pHandle(new PipeHandle<FakeRunner>(dummy));
+    std::unique_ptr<PipeHandle<WrapRunner>> pHandle = std::make_unique<FakePipeHandle>(dummy);
     PipeContext pContext(std::move(pHandle), "random");
 
-    std::unique_ptr<PipeHandle<FakeRunner>> dupHandle = pContext.dupPipeHandle();
-    sp<FakeRunner> dummy2 = dupHandle->getInterface().promote();
+    std::unique_ptr<PipeHandle<WrapRunner>> dupHandle = pContext.dupPipeHandle();
+    sp<FakeRunner> dummy2 = dupHandle->getInterface()->mRunner.promote();
     ASSERT_THAT(dummy2->getStrongCount(), Eq(2));
     dummy2.clear();
 
