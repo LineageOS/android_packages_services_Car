@@ -34,9 +34,9 @@ import androidx.preference.SwitchPreference;
 
 import com.android.car.developeroptions.R;
 import com.android.car.developeroptions.search.BaseSearchIndexProvider;
-import com.android.car.developeroptions.search.Indexable;
 import com.android.internal.accessibility.AccessibilityShortcutController;
 import com.android.settingslib.accessibility.AccessibilityUtils;
+import com.android.settingslib.search.Indexable;
 import com.android.settingslib.search.SearchIndexable;
 
 /**

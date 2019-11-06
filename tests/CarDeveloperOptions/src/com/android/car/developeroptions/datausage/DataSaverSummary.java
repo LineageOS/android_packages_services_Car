@@ -30,13 +30,13 @@ import com.android.car.developeroptions.SettingsPreferenceFragment;
 import com.android.car.developeroptions.applications.AppStateBaseBridge.Callback;
 import com.android.car.developeroptions.datausage.DataSaverBackend.Listener;
 import com.android.car.developeroptions.search.BaseSearchIndexProvider;
-import com.android.car.developeroptions.search.Indexable;
 import com.android.car.developeroptions.widget.SwitchBar;
 import com.android.car.developeroptions.widget.SwitchBar.OnSwitchChangeListener;
 import com.android.settingslib.applications.ApplicationsState;
 import com.android.settingslib.applications.ApplicationsState.AppEntry;
 import com.android.settingslib.applications.ApplicationsState.Callbacks;
 import com.android.settingslib.applications.ApplicationsState.Session;
+import com.android.settingslib.search.Indexable;
 import com.android.settingslib.search.SearchIndexable;
 
 import java.util.ArrayList;
