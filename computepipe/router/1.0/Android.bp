@@ -18,8 +18,9 @@ cc_library {
     vendor_available : true,
     srcs: [
         "PipeQuery.cpp",
-	"PipeRegistration.cpp",
-	"PipeClient.cpp",
+        "PipeRegistration.cpp",
+        "PipeClient.cpp",
+        "PipeRunner.cpp",
     ],
     cflags: ["-DLOG_TAG=\"ComputepipeRouterV1_0\""]
     + [

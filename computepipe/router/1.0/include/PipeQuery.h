@@ -21,6 +21,7 @@
 #include <hidl/MQDescriptor.h>
 #include <hidl/Status.h>
 
+#include "PipeRunner.h"
 #include "Registry.h"
 
 namespace android {
@@ -32,9 +33,7 @@ namespace implementation {
 
 class PipeQuery : public android::automotive::computepipe::registry::V1_0::IPipeQuery {
   public:
-    explicit PipeQuery(
-        std::shared_ptr<PipeRegistry<android::automotive::computepipe::runner::V1_0::IPipeRunner>> r)
-        : mRegistry(r) {
+    explicit PipeQuery(std::shared_ptr<PipeRegistry<PipeRunner>> r) : mRegistry(r) {
     }
     android::hardware::Return<void> getGraphList(getGraphList_cb _hidl_cb) override;
     android::hardware::Return<sp<android::automotive::computepipe::runner::V1_0::IPipeRunner>>
@@ -43,8 +42,7 @@ class PipeQuery : public android::automotive::computepipe::registry::V1_0::IPipe
         const sp<android::automotive::computepipe::registry::V1_0::IClientInfo>& info) override;
 
   private:
-    std::shared_ptr<PipeRegistry<android::automotive::computepipe::runner::V1_0::IPipeRunner>>
-        mRegistry;
+    std::shared_ptr<PipeRegistry<PipeRunner>> mRegistry;
 };
 
 }  // namespace implementation

@@ -65,7 +65,6 @@ import com.android.car.developeroptions.core.SubSettingLauncher;
 import com.android.car.developeroptions.dashboard.SummaryLoader;
 import com.android.car.developeroptions.password.ChooseLockGeneric;
 import com.android.car.developeroptions.search.BaseSearchIndexProvider;
-import com.android.car.developeroptions.search.Indexable;
 import com.android.car.developeroptions.widget.SwitchBar;
 import com.android.car.developeroptions.widget.SwitchBarController;
 import com.android.internal.util.UserIcons;
@@ -75,6 +74,7 @@ import com.android.settingslib.RestrictedLockUtils.EnforcedAdmin;
 import com.android.settingslib.RestrictedLockUtilsInternal;
 import com.android.settingslib.RestrictedPreference;
 import com.android.settingslib.drawable.CircleFramedDrawable;
+import com.android.settingslib.search.Indexable;
 import com.android.settingslib.search.SearchIndexable;
 
 import java.io.IOException;

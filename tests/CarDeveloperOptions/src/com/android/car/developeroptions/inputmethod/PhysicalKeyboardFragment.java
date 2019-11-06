@@ -40,12 +40,12 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 
-import com.android.internal.util.Preconditions;
 import com.android.car.developeroptions.R;
 import com.android.car.developeroptions.Settings;
 import com.android.car.developeroptions.SettingsPreferenceFragment;
 import com.android.car.developeroptions.search.BaseSearchIndexProvider;
-import com.android.car.developeroptions.search.Indexable;
+import com.android.internal.util.Preconditions;
+import com.android.settingslib.search.Indexable;
 import com.android.settingslib.search.SearchIndexable;
 import com.android.settingslib.utils.ThreadUtils;
 

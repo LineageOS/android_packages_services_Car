@@ -35,6 +35,8 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
@@ -316,7 +318,8 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
      * Handle events coming from {@link CarPropertyService}.  Compute the driving state, map it to
      * the corresponding UX Restrictions and dispatch the events to the registered clients.
      */
-    private synchronized void handlePropertyEvent(CarPropertyEvent event) {
+    @VisibleForTesting
+    synchronized void handlePropertyEvent(CarPropertyEvent event) {
         if (event.getEventType() != CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE) {
             return;
         }

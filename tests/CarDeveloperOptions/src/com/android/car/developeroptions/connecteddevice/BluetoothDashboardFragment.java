@@ -28,11 +28,11 @@ import com.android.car.developeroptions.bluetooth.BluetoothSwitchPreferenceContr
 import com.android.car.developeroptions.core.TogglePreferenceController;
 import com.android.car.developeroptions.dashboard.DashboardFragment;
 import com.android.car.developeroptions.search.BaseSearchIndexProvider;
-import com.android.car.developeroptions.search.SearchIndexableRaw;
 import com.android.car.developeroptions.widget.SwitchBar;
 import com.android.car.developeroptions.widget.SwitchBarController;
 import com.android.settingslib.core.lifecycle.Lifecycle;
 import com.android.settingslib.search.SearchIndexable;
+import com.android.settingslib.search.SearchIndexableRaw;
 import com.android.settingslib.widget.FooterPreference;
 
 import java.util.ArrayList;

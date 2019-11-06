@@ -82,12 +82,18 @@ class PipeRegistry {
     Error RegisterPipe(std::unique_ptr<PipeHandle<T>> h, const std::string& name) {
         std::lock_guard<std::mutex> lock(mPipeDbLock);
         if (mPipeRunnerDb.find(name) == mPipeRunnerDb.end()) {
+            if (!h->startPipeMonitor()) {
+                return RUNNER_DEAD;
+            }
             mPipeRunnerDb.emplace(
                 name, std::unique_ptr<PipeContext<T>>(new PipeContext<T>(std::move(h), name)));
             return OK;
         }
         if (!mPipeRunnerDb[name]->isAlive()) {
             mPipeRunnerDb.erase(name);
+            if (!h->startPipeMonitor()) {
+                return RUNNER_DEAD;
+            }
             mPipeRunnerDb.emplace(
                 name, std::unique_ptr<PipeContext<T>>(new PipeContext<T>(std::move(h), name)));
             return OK;

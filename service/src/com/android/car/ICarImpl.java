@@ -32,6 +32,10 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Process;
+import android.os.RemoteException;
+import android.os.ResultReceiver;
+import android.os.ShellCallback;
+import android.os.ShellCommand;
 import android.os.Trace;
 import android.os.UserManager;
 import android.util.Log;
@@ -500,6 +504,13 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
+    @Override
+    public void onShellCommand(FileDescriptor in, FileDescriptor out, FileDescriptor err,
+            String[] args, ShellCallback callback, ResultReceiver resultReceiver)
+                    throws RemoteException {
+        new CarShellCommand().exec(this, in, out, err, args, callback, resultReceiver);
+    }
+
     private void dumpAllServices(PrintWriter writer, boolean dumpMetricsOnly) {
         for (CarServiceBase service : mAllServices) {
             dumpService(service, writer, dumpMetricsOnly);
@@ -538,7 +549,7 @@ public class ICarImpl extends ICar.Stub {
         mBootTiming.traceEnd();
     }
 
-    private class CarShellCommand {
+    private final class CarShellCommand extends ShellCommand {
         private static final String COMMAND_HELP = "-h";
         private static final String COMMAND_DAY_NIGHT_MODE = "day-night-mode";
         private static final String COMMAND_INJECT_VHAL_EVENT = "inject-vhal-event";
@@ -564,6 +575,34 @@ public class ICarImpl extends ICar.Stub {
         private static final String PARAM_OFF_MODE = "off";
         private static final String PARAM_QUERY_MODE = "query";
 
+        private static final int RESULT_OK = 0;
+        private static final int RESULT_ERROR = -1; // Arbitrary value, any non-0 is fine
+
+
+        @Override
+        public int onCommand(String cmd) {
+            if (cmd == null) {
+                onHelp();
+                return RESULT_ERROR;
+            }
+            ArrayList<String> argsList = new ArrayList<>();
+            argsList.add(cmd);
+            String arg = null;
+            do {
+                arg = getNextArg();
+                if (arg != null) {
+                    argsList.add(arg);
+                }
+            } while (arg != null);
+            String[] args = new String[argsList.size()];
+            argsList.toArray(args);
+            return exec(args, getOutPrintWriter());
+        }
+
+        @Override
+        public void onHelp() {
+            dumpHelp(getOutPrintWriter());
+        }
 
         private void dumpHelp(PrintWriter pw) {
             pw.println("Car service commands:");
@@ -603,6 +642,12 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t Maps the audio zoneid to uid.");
         }
 
+        private int dumpInvalidArguments(PrintWriter pw) {
+            pw.println("Incorrect number of arguments.");
+            dumpHelp(pw);
+            return RESULT_ERROR;
+        }
+
         private String runSetZoneIdForUid(String zoneString, String uidString) {
             int uid = Integer.parseInt(uidString);
             int zoneId = Integer.parseInt(zoneString);
@@ -613,7 +658,7 @@ public class ICarImpl extends ICar.Stub {
             return null;
         }
 
-        public void exec(String[] args, PrintWriter writer) {
+        public int exec(String[] args, PrintWriter writer) {
             String arg = args[0];
             switch (arg) {
                 case COMMAND_HELP:
@@ -633,9 +678,7 @@ public class ICarImpl extends ICar.Stub {
                     String zone = PARAM_VEHICLE_PROPERTY_AREA_GLOBAL;
                     String data;
                     if (args.length != 3 && args.length != 4) {
-                        writer.println("Incorrect number of arguments.");
-                        dumpHelp(writer);
-                        break;
+                        return dumpInvalidArguments(writer);
                     } else if (args.length == 4) {
                         // Zoned
                         zone = args[2];
@@ -648,9 +691,7 @@ public class ICarImpl extends ICar.Stub {
                     break;
                 case COMMAND_INJECT_ERROR_EVENT:
                     if (args.length != 4) {
-                        writer.println("Incorrect number of arguments");
-                        dumpHelp(writer);
-                        break;
+                        return dumpInvalidArguments(writer);
                     }
                     String errorAreaId = args[2];
                     String errorCode = args[3];
@@ -658,9 +699,7 @@ public class ICarImpl extends ICar.Stub {
                     break;
                 case COMMAND_ENABLE_UXR:
                     if (args.length != 2) {
-                        writer.println("Incorrect number of arguments");
-                        dumpHelp(writer);
-                        break;
+                        return dumpInvalidArguments(writer);
                     }
                     boolean enableBlocking = Boolean.valueOf(args[1]);
                     if (mCarPackageManagerService != null) {
@@ -669,9 +708,7 @@ public class ICarImpl extends ICar.Stub {
                     break;
                 case COMMAND_GET_DO_ACTIVITIES:
                     if (args.length != 2) {
-                        writer.println("Incorrect number of arguments");
-                        dumpHelp(writer);
-                        break;
+                        return dumpInvalidArguments(writer);
                     }
                     String pkgName = args[1].toLowerCase();
                     if (mCarPackageManagerService != null) {
@@ -699,17 +736,13 @@ public class ICarImpl extends ICar.Stub {
                     break;
                 case COMMAND_PROJECTION_UI_MODE:
                     if (args.length != 2) {
-                        writer.println("Incorrect number of arguments");
-                        dumpHelp(writer);
-                        break;
+                        return dumpInvalidArguments(writer);
                     }
                     mCarProjectionService.setUiMode(Integer.valueOf(args[1]));
                     break;
                 case COMMAND_PROJECTION_AP_TETHERING:
                     if (args.length != 2) {
-                        writer.println("Incorrect number of arguments");
-                        dumpHelp(writer);
-                        break;
+                        return dumpInvalidArguments(writer);
                     }
                     mCarProjectionService.setAccessPointTethering(Boolean.valueOf(args[1]));
                     break;
@@ -723,9 +756,7 @@ public class ICarImpl extends ICar.Stub {
                     break;
                 case COMMAND_ENABLE_TRUSTED_DEVICE:
                     if (args.length != 2) {
-                        writer.println("Incorrect number of arguments");
-                        dumpHelp(writer);
-                        break;
+                        return dumpInvalidArguments(writer);
                     }
                     mCarTrustedDeviceService.getCarTrustAgentEnrollmentService()
                             .setTrustedDeviceEnrollmentEnabled(Boolean.valueOf(args[1]));
@@ -738,9 +769,7 @@ public class ICarImpl extends ICar.Stub {
                     break;
                 case COMMAND_SET_UID_TO_ZONE:
                     if (args.length != 3) {
-                        writer.println("Incorrect number of arguments");
-                        dumpHelp(writer);
-                        break;
+                        return dumpInvalidArguments(writer);
                     }
                     String results = runSetZoneIdForUid(args[1], args[2]);
                     if (results != null) {
@@ -751,7 +780,9 @@ public class ICarImpl extends ICar.Stub {
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
                     dumpHelp(writer);
+                    return RESULT_ERROR;
             }
+            return RESULT_OK;
         }
 
         private void forceDayNightMode(String arg, PrintWriter writer) {
