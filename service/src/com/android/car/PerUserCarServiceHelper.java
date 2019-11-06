@@ -61,13 +61,17 @@ public class PerUserCarServiceHelper implements CarServiceBase {
     }
 
     @Override
-    public synchronized void init() {
-        bindToPerUserCarService();
+    public void init() {
+        synchronized (mServiceBindLock) {
+            bindToPerUserCarService();
+        }
     }
 
     @Override
-    public synchronized void release() {
-        unbindFromPerUserCarService();
+    public void release() {
+        synchronized (mServiceBindLock) {
+            unbindFromPerUserCarService();
+        }
     }
 
     /**
@@ -103,7 +107,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
             // Before unbinding, notify the callbacks about unbinding from the service
             // so the callbacks can clean up their state through the binder before the service is
             // killed.
-            synchronized (this) {
+            synchronized (mServiceBindLock) {
                 // copy the callbacks
                 callbacks = new ArrayList<>(mServiceCallbacks);
             }
@@ -131,7 +135,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
             }
             mPerUserCarService = IPerUserCarService.Stub.asInterface(service);
             if (mPerUserCarService != null) {
-                synchronized (this) {
+                synchronized (mServiceBindLock) {
                     // copy the callbacks
                     callbacks = new ArrayList<>(mServiceCallbacks);
                 }
@@ -148,7 +152,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
             if (DBG) {
                 Log.d(TAG, "Disconnected from User Service");
             }
-            synchronized (this) {
+            synchronized (mServiceBindLock) {
                 // copy the callbacks
                 callbacks = new ArrayList<>(mServiceCallbacks);
             }
@@ -206,7 +210,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
             if (DBG) {
                 Log.d(TAG, "Registering PerUserCarService Listener");
             }
-            synchronized (this) {
+            synchronized (mServiceBindLock) {
                 mServiceCallbacks.add(listener);
             }
         }
@@ -221,7 +225,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
             Log.d(TAG, "Unregistering PerUserCarService Listener");
         }
         if (listener != null) {
-            synchronized (this) {
+            synchronized (mServiceBindLock) {
                 mServiceCallbacks.remove(listener);
             }
         }
