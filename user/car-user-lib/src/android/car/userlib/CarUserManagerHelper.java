@@ -29,7 +29,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.sysprop.CarProperties;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -52,7 +51,9 @@ import java.util.Set;
  * and switching users. Methods related to get users will exclude system user by default.
  *
  * @hide
+ * @deprecated In the process of being removed.  Use {@link UserManager} APIs directly instead.
  */
+@Deprecated
 public final class CarUserManagerHelper {
     private static final String TAG = "CarUserManagerHelper";
 
@@ -93,7 +94,6 @@ public final class CarUserManagerHelper {
     private final UserManager mUserManager;
     private final ActivityManager mActivityManager;
     private final TestableFrameworkWrapper mTestableFrameworkWrapper;
-    private String mDefaultAdminName;
 
     /**
      * Initializes with a default name for admin users.
@@ -232,24 +232,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Gets all the users that can be brought to the foreground on the system that have admin roles.
-     *
-     * @return List of {@code UserInfo} for admin users that associated with a real person.
-     */
-    private List<UserInfo> getAllAdminUsers() {
-        List<UserInfo> users = getAllUsers();
-
-        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
-            UserInfo userInfo = iterator.next();
-            if (!userInfo.isAdmin()) {
-                // Remove user that is not admin.
-                iterator.remove();
-            }
-        }
-        return users;
-    }
-
-    /**
      * Get all the users except system user and the one with userId passed in.
      *
      * @param userId of the user not to be returned.
@@ -309,29 +291,7 @@ public final class CarUserManagerHelper {
         return managedProfilesCount;
     }
 
-    // User information accessors
-
-    /**
-     * Checks whether passed in user is the user that's running the current process.
-     *
-     * @param userInfo User to check.
-     * @return {@code true} if user running the process, {@code false} otherwise.
-     */
-    private boolean isCurrentProcessUser(UserInfo userInfo) {
-        return UserHandle.myUserId() == userInfo.id;
-    }
-
     // Current process user restriction accessors
-
-    /**
-     * Returns whether the current process user can switch to other users.
-     *
-     * <p>For instance switching users is not allowed if the user is in a phone call,
-     * or {@link #{UserManager.DISALLOW_USER_SWITCH} is set.
-     */
-    private boolean canCurrentProcessSwitchUsers() {
-        return mUserManager.getUserSwitchability() == UserManager.SWITCHABILITY_STATUS_OK;
-    }
 
     /**
      * Grants admin permissions to the user.
@@ -353,32 +313,6 @@ public final class CarUserManagerHelper {
         // Remove restrictions imposed on non-admins.
         setDefaultNonAdminRestrictions(user, /* enable= */ false);
         setOptionalNonAdminRestrictions(user, /* enable= */ false);
-    }
-
-    /**
-     * Creates a new user on the system, the created user would be granted admin role.
-     * Only admins can create other admins.
-     *
-     * @param userName Name to give to the newly created user.
-     * @return Newly created admin user, null if failed to create a user.
-     */
-    @Nullable
-    private UserInfo createNewAdminUser(String userName) {
-        if (!(mUserManager.isAdminUser() || mUserManager.isSystemUser())) {
-            // Only Admins or System user can create other privileged users.
-            Log.e(TAG, "Only admin users and system user can create other admins.");
-            return null;
-        }
-
-        UserInfo user = mUserManager.createUser(userName, UserInfo.FLAG_ADMIN);
-        if (user == null) {
-            // Couldn't create user, most likely because there are too many.
-            Log.w(TAG, "can't create admin user.");
-            return null;
-        }
-        assignDefaultIcon(user);
-
-        return user;
     }
 
     /**
@@ -433,62 +367,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Tries to remove the user that's passed in. System user cannot be removed.
-     * If the user to be removed is user currently running the process,
-     * it switches to the guest user first, and then removes the user.
-     * If the user being removed is the last admin user, this will create a new admin user.
-     *
-     * @param userInfo User to be removed
-     * @param guestUserName User name to use for the guest user if we need to switch to it
-     * @return {@code true} if user is successfully removed, {@code false} otherwise.
-     */
-    public boolean removeUser(UserInfo userInfo, String guestUserName) {
-        if (userInfo.id == UserHandle.USER_SYSTEM) {
-            Log.w(TAG, "User " + userInfo.id + " is system user, could not be removed.");
-            return false;
-        }
-
-        // Try to create a new admin before deleting the current one.
-        if (userInfo.isAdmin() && getAllAdminUsers().size() <= 1) {
-            return removeLastAdmin(userInfo);
-        }
-
-        if (!mUserManager.isAdminUser() && !isCurrentProcessUser(userInfo)) {
-            // If the caller is non-admin, they can only delete themselves.
-            Log.e(TAG, "Non-admins cannot remove other users.");
-            return false;
-        }
-
-        if (userInfo.id == ActivityManager.getCurrentUser()) {
-            if (!canCurrentProcessSwitchUsers()) {
-                // If we can't switch to a different user, we can't exit this one and therefore
-                // can't delete it.
-                Log.w(TAG, "User switching is not allowed. Current user cannot be deleted");
-                return false;
-            }
-            startGuestSession(guestUserName);
-        }
-
-        return mUserManager.removeUser(userInfo.id);
-    }
-
-    private boolean removeLastAdmin(UserInfo userInfo) {
-        if (Log.isLoggable(TAG, Log.INFO)) {
-            Log.i(TAG, "User " + userInfo.id
-                    + " is the last admin user on device. Creating a new admin.");
-        }
-
-        UserInfo newAdmin = createNewAdminUser(getDefaultAdminName());
-        if (newAdmin == null) {
-            Log.w(TAG, "Couldn't create another admin, cannot delete current user.");
-            return false;
-        }
-
-        switchToUser(newAdmin);
-        return mUserManager.removeUser(userInfo.id);
-    }
-
-    /**
      * Switches (logs in) to another user given user id.
      *
      * @param id User id to switch to.
@@ -499,7 +377,7 @@ public final class CarUserManagerHelper {
             // System User doesn't associate with real person, can not be switched to.
             return false;
         }
-        if (!canCurrentProcessSwitchUsers()) {
+        if (mUserManager.getUserSwitchability() != UserManager.SWITCHABILITY_STATUS_OK) {
             return false;
         }
         if (id == ActivityManager.getCurrentUser()) {
@@ -581,17 +459,5 @@ public final class CarUserManagerHelper {
                 UserIcons.getDefaultUserIcon(mContext.getResources(), idForIcon, false));
         mUserManager.setUserIcon(userInfo.id, bitmap);
         return bitmap;
-    }
-
-    private String getDefaultAdminName() {
-        if (TextUtils.isEmpty(mDefaultAdminName)) {
-            mDefaultAdminName = mContext.getString(com.android.internal.R.string.owner_name);
-        }
-        return mDefaultAdminName;
-    }
-
-    @VisibleForTesting
-    void setDefaultAdminName(String defaultAdminName) {
-        mDefaultAdminName = defaultAdminName;
     }
 }
