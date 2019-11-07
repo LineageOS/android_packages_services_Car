@@ -99,7 +99,7 @@ void ConfigManager::readCameraInfo(const XMLElement * const aCameraElem) {
                         ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT,
                         framerate
                     };
-                    aCameraGroup->streamConfigurations[id] = cfg;
+                    aCameraGroup->streamConfigurations.insert_or_assign(id, cfg);
                 }
 
                 childElem = childElem->NextSiblingElement("stream");
@@ -111,7 +111,7 @@ void ConfigManager::readCameraInfo(const XMLElement * const aCameraElem) {
                 static_cast<bool>(strcmp(sync, "false"));
 
             /* add a group to hash map */
-            mCameraGroups[group_id] = std::move(aCameraGroup);
+            mCameraGroups.insert_or_assign(group_id, std::move(aCameraGroup));
         } else if (!strcmp(curElem->Name(), "device")) {
             /* camera unique identifier */
             const char *id = curElem->FindAttribute("id")->Value();
@@ -120,7 +120,7 @@ void ConfigManager::readCameraInfo(const XMLElement * const aCameraElem) {
             const char *pos = curElem->FindAttribute("position")->Value();
 
             /* store read camera module information */
-            mCameraInfo[id] = readCameraDeviceInfo(curElem);
+            mCameraInfo.insert_or_assign(id, readCameraDeviceInfo(curElem));
 
             /* assign a camera device to a position group */
             mCameraPosition[pos].emplace(id);
@@ -235,7 +235,7 @@ size_t ConfigManager::readCameraCapabilities(const XMLElement * const aCapElem,
                 ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT,
                 framerate
             };
-            aCamera->streamConfigurations[id] = cfg;
+            aCamera->streamConfigurations.insert_or_assign(id, cfg);
         }
 
         curElem = curElem->NextSiblingElement("stream");
@@ -279,8 +279,9 @@ size_t ConfigManager::readCameraMetadata(const XMLElement * const aParamElem,
                                         count
                                    );
 
-                    aCamera->cameraMetadata[tag] =
-                        make_pair(make_unique<void *>(data), count);
+                    aCamera->cameraMetadata.insert_or_assign(
+                        tag, make_pair(make_unique<void *>(data), count)
+                    );
 
                     ++numEntries;
                     dataSize += calculate_camera_metadata_entry_data_size(
@@ -424,14 +425,14 @@ void ConfigManager::readDisplayInfo(const XMLElement * const aDisplayElem) {
                         ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_INPUT,
                         0   // unused
                     };
-                    dpy->streamConfigurations[id] = cfg;
+                    dpy->streamConfigurations.insert_or_assign(id, cfg);
                 }
 
                 curStream = curStream->NextSiblingElement("stream");
             }
         }
 
-        mDisplayInfo[id] = std::move(dpy);
+        mDisplayInfo.insert_or_assign(id, std::move(dpy));
         curDev = curDev->NextSiblingElement("device");
     }
 
@@ -567,7 +568,7 @@ bool ConfigManager::readConfigDataFromBinary() {
             temp[3] = *i32_ptr++;
             temp[4] = *i32_ptr++;
             temp[5] = *i32_ptr++;
-            aCamera->streamConfigurations[id] = temp;
+            aCamera->streamConfigurations.insert_or_assign(id, temp);
         }
         p = reinterpret_cast<char *>(i32_ptr);
 
@@ -629,7 +630,7 @@ bool ConfigManager::readConfigDataFromBinary() {
             }
         }
 
-        mCameraInfo[cameraId] = std::move(aCamera);
+        mCameraInfo.insert_or_assign(cameraId, std::move(aCamera));
     }
 
     mIsReady = true;

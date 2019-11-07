@@ -230,7 +230,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
         mCameras.emplace_back(hwCamera);
 
         // Store active stream configuration
-        mStreamConfigs[cameraId] = streamCfg;
+        mStreamConfigs.insert_or_assign(cameraId, streamCfg);
     } else {
         ALOGE("Requested camera %s not found or not available", cameraId.c_str());
     }
