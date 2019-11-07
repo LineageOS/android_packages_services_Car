@@ -92,7 +92,9 @@
 <!--
         <item>com.android.systemui.recents.Recents</item>
 -->
+<!--
         <item>com.android.systemui.volume.VolumeUI</item>
+-->
         <item>com.android.systemui.stackdivider.Divider</item>
         <item>com.android.systemui.SystemBars</item>
         <item>com.android.systemui.usb.StorageNotification</item>
