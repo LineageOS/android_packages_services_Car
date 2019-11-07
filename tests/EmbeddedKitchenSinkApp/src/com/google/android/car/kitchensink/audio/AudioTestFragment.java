@@ -136,7 +136,7 @@ public class AudioTestFragment extends Fragment {
                         return;
                     }
                     mAppFocusManager =
-                            (CarAppFocusManager) mCar.getCarManager(Car.APP_FOCUS_SERVICE);
+                            (CarAppFocusManager) car.getCarManager(Car.APP_FOCUS_SERVICE);
                     OnAppFocusChangedListener listener = new OnAppFocusChangedListener() {
                         @Override
                         public void onAppFocusChanged(int appType, boolean active) {
@@ -147,7 +147,7 @@ public class AudioTestFragment extends Fragment {
                     mAppFocusManager.addFocusListener(listener,
                             CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
 
-                    mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
+                    mCarAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
 
                     //take care of zone selection
                     int[] zoneList = mCarAudioManager.getAudioZoneIds();
@@ -221,6 +221,13 @@ public class AudioTestFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
         Log.i(TAG, "onCreateView");
+        View view = inflater.inflate(R.layout.audio, container, false);
+        //Zone Spinner
+        setUpZoneSpinnerView(view);
+
+        //Display layout
+        setUpDisplayLayoutView(view);
+
         connectCar();
         initializePlayers();
 
@@ -228,7 +235,6 @@ public class AudioTestFragment extends Fragment {
                 DisplayToAudioDeviceParser.parseDisplayToDeviceMapping(mContext.getResources()
                                 .getStringArray(R.array.config_displayToAudioDeviceConfig));
 
-        View view = inflater.inflate(R.layout.audio, container, false);
         mAudioManager = (AudioManager) mContext.getSystemService(
                 Context.AUDIO_SERVICE);
         mAudioFocusHandler = new FocusHandler(
@@ -340,35 +346,6 @@ public class AudioTestFragment extends Fragment {
             }
         });
 
-        //Zone Spinner
-        mZoneSpinner = view.findViewById(R.id.zone_spinner);
-        mZoneSpinner.setEnabled(false);
-        mZoneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                handleZoneSelection();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
-
-        mDisplayLayout = view.findViewById(R.id.audio_display_layout);
-
-        mDisplaySpinner = view.findViewById(R.id.display_spinner);
-        mDisplaySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                handleDisplaySelection();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
         // Manage buttons for audio player for displays
         view.findViewById(R.id.button_display_media_play_start).setOnClickListener(v -> {
             startDisplayAudio();
@@ -382,6 +359,37 @@ public class AudioTestFragment extends Fragment {
                 .setOnClickListener(v -> mMusicPlayerForSelectedDisplay.stop());
 
         return view;
+    }
+
+    private void setUpDisplayLayoutView(View view) {
+        mDisplayLayout = view.findViewById(R.id.audio_display_layout);
+
+        mDisplaySpinner = view.findViewById(R.id.display_spinner);
+        mDisplaySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                handleDisplaySelection();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    private void setUpZoneSpinnerView(View view) {
+        mZoneSpinner = view.findViewById(R.id.zone_spinner);
+        mZoneSpinner.setEnabled(false);
+        mZoneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                handleZoneSelection();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
     }
 
     public void handleZoneSelection() {
