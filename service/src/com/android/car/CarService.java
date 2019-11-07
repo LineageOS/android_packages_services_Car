@@ -166,12 +166,14 @@ public class CarService extends Service {
 
     @Nullable
     private static IVehicle getVehicle() {
+        final String instanceName = SystemProperties.get("ro.vehicle.hal", "default");
+
         try {
-            return android.hardware.automotive.vehicle.V2_0.IVehicle.getService();
+            return android.hardware.automotive.vehicle.V2_0.IVehicle.getService(instanceName);
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_SERVICE, "Failed to get IVehicle service", e);
+            Log.e(CarLog.TAG_SERVICE, "Failed to get IVehicle/" + instanceName + " service", e);
         } catch (NoSuchElementException e) {
-            Log.e(CarLog.TAG_SERVICE, "IVehicle service not registered yet");
+            Log.e(CarLog.TAG_SERVICE, "IVehicle/" + instanceName + " service not registered yet");
         }
         return null;
     }
