@@ -45,6 +45,7 @@ import com.android.internal.util.UserIcons;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -122,13 +123,35 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     @Override
     public void dump(@NonNull PrintWriter writer) {
+        checkAtLeastOnePermission("dump()", android.Manifest.permission.DUMP);
         writer.println("*CarUserService*");
         synchronized (mLock) {
             writer.println("User0Unlocked: " + mUser0Unlocked);
             writer.println("MaxRunningUsers: " + mMaxRunningUsers);
             writer.println("BackgroundUsersToRestart: " + mBackgroundUsersToRestart);
             writer.println("BackgroundUsersRestarted: " + mBackgroundUsersRestartedHere);
-            writer.println("NumberOfDrivers: " + getAllDrivers().size());
+            List<UserInfo> allDrivers = getAllDrivers();
+            int driversSize = allDrivers.size();
+            writer.println("NumberOfDrivers: " + driversSize);
+            String prefix = "  ";
+            for (int i = 0; i < driversSize; i++) {
+                int driverId = allDrivers.get(i).id;
+                writer.print(prefix + "#" + i + ": id=" + driverId);
+                List<UserInfo> passengers = getPassengers(driverId);
+                int passengersSize = passengers.size();
+                writer.print(" NumberPassengers: " + passengersSize);
+                if (passengersSize > 0) {
+                    writer.print(" [");
+                    for (int j = 0; j < passengersSize; j++) {
+                        writer.print(passengers.get(j).id);
+                        if (j < passengersSize - 1) {
+                            writer.print(" ");
+                        }
+                    }
+                    writer.print("]");
+                }
+                writer.println();
+            }
         }
     }
 
@@ -211,7 +234,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     @NonNull
     public List<UserInfo> getAllDrivers() {
-        checkManageUsersPermission("getAllDrivers");
+        checkManageUsersOrDumpPermission("getAllDrivers");
         return getUsers((user) -> {
             return !isSystemUser(user.id) && user.isEnabled() && !user.isManagedProfile()
                     && !user.isEphemeral();
@@ -224,7 +247,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     @NonNull
     public List<UserInfo> getPassengers(@UserIdInt int driverId) {
-        checkManageUsersPermission("getPassengers");
+        checkManageUsersOrDumpPermission("getPassengers");
         return getUsers((user) -> {
             return !isSystemUser(user.id) && user.isEnabled() && user.isManagedProfile()
                     && user.profileGroupId == driverId;
@@ -544,16 +567,31 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * @throws SecurityException if the caller is not system or root.
      */
     private static void checkManageUsersPermission(String message) {
+        checkAtLeastOnePermission(message, android.Manifest.permission.MANAGE_USERS);
+    }
+
+    private static void checkManageUsersOrDumpPermission(String message) {
+        checkAtLeastOnePermission(message,
+                android.Manifest.permission.MANAGE_USERS,
+                android.Manifest.permission.DUMP);
+    }
+
+    private static void checkAtLeastOnePermission(String message, String...permissions) {
         int callingUid = Binder.getCallingUid();
-        if (!hasPermissionGranted(android.Manifest.permission.MANAGE_USERS, callingUid)) {
-            throw new SecurityException(
-                    "You need MANAGE_USERS permission to: " + message);
+        if (!hasAtLeastOnePermissionGranted(callingUid, permissions)) {
+            throw new SecurityException("You need one of " + Arrays.toString(permissions)
+            + " to: " + message);
         }
     }
 
-    private static boolean hasPermissionGranted(String permission, int uid) {
-        return ActivityManager.checkComponentPermission(
-                permission, uid, /* owningUid = */-1, /* exported = */ true)
-                == android.content.pm.PackageManager.PERMISSION_GRANTED;
+    private static boolean hasAtLeastOnePermissionGranted(int uid, String... permissions) {
+        for (String permission : permissions) {
+            if (ActivityManager.checkComponentPermission(permission, uid, /* owningUid = */-1,
+                    /* exported = */ true)
+                    == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                return true;
+            }
+        }
+        return false;
     }
 }
