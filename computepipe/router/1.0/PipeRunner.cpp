@@ -18,8 +18,6 @@
 
 #include <mutex>
 
-#include "hidl/HidlSupport.h"
-
 namespace android {
 namespace automotive {
 namespace computepipe {
@@ -27,13 +25,12 @@ namespace router {
 namespace V1_0 {
 namespace implementation {
 
-using namespace android::automotive::computepipe::runner::V1_0;
+using namespace android::automotive::computepipe::runner;
 
 PipeRunner::PipeRunner(const sp<IPipeRunner>& graphRunner) : runner(graphRunner) {
 }
 
-void PipeMonitor::serviceDied(uint64_t /* cookie */,
-                              const wp<android::hidl::base::V1_0::IBase>& /* base */) {
+void PipeMonitor::binderDied(const wp<android::IBinder>& /* base */) {
     mNotifier();
 }
 
@@ -44,7 +41,8 @@ bool RunnerHandle::startPipeMonitor() {
     sp<PipeMonitor> monitor = new PipeMonitor([this]() { this->markDead(); });
     // We store a weak reference to be able to perform an unlink
     mPipeMonitor = monitor;
-    return mInterface->runner->linkToDeath(monitor, 0);
+    sp<IBinder> iface = IInterface::asBinder(mInterface->runner);
+    return iface->linkToDeath(monitor) == OK;
 }
 
 void RunnerHandle::markDead() {
@@ -62,7 +60,8 @@ PipeHandle<PipeRunner>* RunnerHandle::clone() const {
 }
 
 RunnerHandle::~RunnerHandle() {
-    (void)mInterface->runner->unlinkToDeath(mPipeMonitor.promote());
+    sp<IBinder> iface = IInterface::asBinder(mInterface->runner);
+    iface->unlinkToDeath(mPipeMonitor.promote());
 }
 
 }  // namespace implementation

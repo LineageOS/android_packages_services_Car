@@ -22,27 +22,26 @@ namespace router {
 namespace V1_0 {
 namespace implementation {
 
-using namespace android::automotive::computepipe::V1_0;
-using namespace android::automotive::computepipe::runner::V1_0;
-using android::hardware::hidl_string;
-using android::hardware::Return;
+using namespace android::binder;
+using namespace android::automotive::computepipe;
+using namespace android::automotive::computepipe::runner;
 // Methods from ::android::automotive::computepipe::registry::V1_0::IPipeRegistration follow.
-Return<PipeStatus> PipeRegistration::registerPipeRunner(const hidl_string& graphName,
-                                                        const sp<IPipeRunner>& graphRunner) {
+Status PipeRegistration::registerPipeRunner(const std::string& graphName,
+                                            const sp<IPipeRunner>& graphRunner) {
     if (!mRegistry) {
-        return PipeStatus::INTERNAL_ERR;
+        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_STATE);
     }
     std::unique_ptr<PipeHandle<PipeRunner>> handle = std::make_unique<RunnerHandle>(graphRunner);
     auto err = mRegistry->RegisterPipe(std::move(handle), graphName);
-    return convertToPipeStatus(err);
+    return convertToBinderStatus(err);
 }
 
-PipeStatus PipeRegistration::convertToPipeStatus(Error err) {
+Status PipeRegistration::convertToBinderStatus(Error err) {
     switch (err) {
         case OK:
-            return PipeStatus::OK;
+            return Status::ok();
         default:
-            return PipeStatus::INTERNAL_ERR;
+            return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_STATE);
     }
 }
 }  // namespace implementation

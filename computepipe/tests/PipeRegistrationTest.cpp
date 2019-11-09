@@ -30,10 +30,10 @@
 using namespace android::automotive::computepipe::router;
 using namespace android::automotive::computepipe::router::V1_0::implementation;
 using namespace android::automotive::computepipe::tests;
-using namespace android::automotive::computepipe::runner::V1_0;
-using namespace android::automotive::computepipe::registry::V1_0;
-using namespace android::automotive::computepipe::V1_0;
-
+using namespace android::automotive::computepipe::runner;
+using namespace android::automotive::computepipe::registry;
+using namespace android::binder;
+using android::sp;
 /**
  * Test fixture that manages the underlying registry creation and tear down
  */
@@ -54,13 +54,13 @@ class PipeRegistrationTest : public ::testing::Test {
 TEST_F(PipeRegistrationTest, RegisterFakeRunner) {
     sp<IPipeRunner> dummy = new FakeRunner();
     std::unique_ptr<IPipeRegistration> rIface(new PipeRegistration(this->mRegistry));
-    EXPECT_THAT(rIface->registerPipeRunner("dummy", dummy), testing::Eq(PipeStatus::OK));
+    EXPECT_TRUE(rIface->registerPipeRunner("dummy", dummy).isOk());
 }
 
 // Duplicate registration fails
 TEST_F(PipeRegistrationTest, RegisterDuplicateRunner) {
     sp<IPipeRunner> dummy = new FakeRunner();
     std::unique_ptr<IPipeRegistration> rIface(new PipeRegistration(this->mRegistry));
-    ASSERT_THAT(rIface->registerPipeRunner("dummy", dummy), testing::Eq(PipeStatus::OK));
-    EXPECT_THAT(rIface->registerPipeRunner("dummy", dummy), testing::Eq(PipeStatus::INTERNAL_ERR));
+    ASSERT_TRUE(rIface->registerPipeRunner("dummy", dummy).isOk());
+    EXPECT_FALSE(rIface->registerPipeRunner("dummy", dummy).isOk());
 }

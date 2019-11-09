@@ -17,11 +17,12 @@
 #ifndef ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_PIPECLIENT
 #define ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_PIPECLIENT
 
-#include <android/automotive/computepipe/registry/1.0/IClientInfo.h>
-#include <hidl/Status.h>
+#include <android/automotive/computepipe/registry/IClientInfo.h>
+
+#include <functional>
+#include <mutex>
 
 #include "ClientHandle.h"
-#include "hidl/HidlSupport.h"
 
 namespace android {
 namespace automotive {
@@ -33,16 +34,15 @@ namespace implementation {
 /**
  * Tracks Client Death
  */
-struct ClientMonitor : public hardware::hidl_death_recipient {
+struct ClientMonitor : public IBinder::DeathRecipient {
   public:
     /* override method to track client death */
-    virtual void serviceDied(uint64_t cookie,
-                             const wp<android::hidl::base::V1_0::IBase>& base) override;
+    virtual void binderDied(const wp<android::IBinder>& base) override;
     /* query for client death */
     bool isAlive();
 
   private:
-    std::function<void(void)> mHandleCb;
+    std::function<void()> mHandleCb;
     bool mAlive = true;
     std::mutex mStateLock;
 };
@@ -54,7 +54,7 @@ struct ClientMonitor : public hardware::hidl_death_recipient {
  */
 class PipeClient : public ClientHandle {
   public:
-    explicit PipeClient(const sp<android::automotive::computepipe::registry::V1_0::IClientInfo>& info)
+    explicit PipeClient(const sp<android::automotive::computepipe::registry::IClientInfo>& info)
         : mClientInfo(info) {
     }
     bool startClientMonitor() override;
@@ -64,7 +64,7 @@ class PipeClient : public ClientHandle {
 
   private:
     sp<ClientMonitor> mClientMonitor;
-    sp<android::automotive::computepipe::registry::V1_0::IClientInfo> mClientInfo;
+    sp<android::automotive::computepipe::registry::IClientInfo> mClientInfo;
 };
 
 }  // namespace implementation
