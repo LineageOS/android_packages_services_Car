@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"तपाईंको ट्याब्लेट हराएका वा चोरी भएका खण्डमा कसैले पनि त्यसको प्रयोग गर्न नसकोस् भन्नाका खातिर स्क्रिन लक प्रयोग गरी त्यसलाई सुरक्षित राख्नुहोस्। अनुहार प्रमाणीकरण गर्ने सुविधा सेट अप गर्न तपाईंलाई स्क्रिन लक गर्ने विकल्प पनि चाहिन्छ। रद्द गर्नुहोस् नामक विकल्पमा ट्याप गर्नुहोस्, त्यसपछि एउटा PIN सेट गर्नुहोस् वा स्क्रिन लक गर्ने अर्को विकल्प छनौट गर्नुहोस्।"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"तपाईंको यन्त्र हराएका वा चोरी भएका खण्डमा कसैले पनि त्यसको प्रयोग गर्न नसकोस् भन्नाका खातिर स्क्रिन लक प्रयोग गरी त्यसलाई सुरक्षित राख्नुहोस्। अनुहार प्रमाणीकरण गर्ने सुविधा सेट अप गर्न तपाईंलाई स्क्रिन लक गर्ने विकल्प पनि चाहिन्छ। रद्द गर्नुहोस् नामक विकल्पमा ट्याप गर्नुहोस्, त्यसपछि एउटा PIN सेट गर्नुहोस् वा स्क्रिन लक गर्ने अर्को विकल्प छनौट गर्नुहोस्।"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"तपाईंको फोन हराएका वा चोरी भएका खण्डमा कसैले पनि त्यसको प्रयोग गर्न नसकोस् भन्नाका खातिर स्क्रिन लक प्रयोग गरी त्यसलाई सुरक्षित राख्नुहोस्। अनुहार प्रमाणीकरण गर्ने सुविधा सेट अप गर्न तपाईंलाई स्क्रिन लक गर्ने विकल्प पनि चाहिन्छ। रद्द गर्नुहोस् नामक विकल्पमा ट्याप गर्नुहोस्, त्यसपछि एउटा PIN सेट गर्नुहोस् वा स्क्रिन लक गर्ने अर्को विकल्प छनौट गर्नुहोस्।"</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PIN सेटअप गर्ने कार्य छाड्ने हो?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"पासवर्ड सेटअप गर्ने कार्य छाड्ने हो?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"ढाँच सेटअप गर्ने कार्य छाड्ने हो?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"स्क्रिन लक सेटअप गर्नुहोस्"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"मोबाइल"</item>
+    <item msgid="6007360612667098926">"Wi-Fi मात्र"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -1245,7 +1247,7 @@
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"डक भएको बेला"</string>
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"कहिल्यै पनि होइन"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"बन्द"</string>
-    <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"फोन डकमा र/वा शयन अवस्थामा हुँदा हुने कुरालाई नियन्त्रण गर्न स्क्रिन सेभरलार्इ सक्रिय गर्नुहोस्।"</string>
+    <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"फोन डकमा र/वा शयन अवस्थामा हुँदा हुने कुरालाई नियन्त्रण गर्न स्क्रिन सेभरलाई सक्रिय गर्नुहोस्।"</string>
     <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"सुरु हुने समय"</string>
     <string name="screensaver_settings_current" msgid="4017556173596361672">"हालको स्क्रिन सेभर"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"अब सुरु गर्नुहोस्"</string>
@@ -1294,10 +1296,10 @@
     <string name="sim_change_data_ok" msgid="7491552537317573235">"<xliff:g id="CARRIER">%1$s</xliff:g> प्रयोग गर्नुहोस्"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"प्रमुख SIM कार्ड अपडेट गर्ने?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"तपाईंको यन्त्रमा <xliff:g id="NEW_SIM">%1$s</xliff:g> SIM मात्र छ। तपाईं मोबाइल डेटा, कल र SMS सन्देशहरूका लागि यो SIM प्रयोग गर्न चाहनुहुन्छ?"</string>
-    <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"SIM PIN कोड गलत छ तपाईंले अाफ्नो उपकरण खोल्नलाई तपाईंको वाहकसँग सम्पर्क गर्नै पर्दर्छ।"</string>
+    <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"SIM PIN कोड गलत छ तपाईंले आफ्नो उपकरण खोल्नलाई तपाईंको वाहकसँग सम्पर्क गर्नै पर्दर्छ।"</string>
     <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
       <item quantity="other"> गलत SIM PIN कोड, तपाईं सँग <xliff:g id="NUMBER_1">%d</xliff:g> पटक प्रयास बाँकी छ।</item>
-      <item quantity="one">SIM PIN कोड गलत छ, तपाईंले अाफ्नो यन्त्र खोल्नलाई तपाईंको वाहकसँग सम्पर्क गर्नै पर्न अघि तपाईंसँग <xliff:g id="NUMBER_0">%d</xliff:g> पटक प्रयास बाँकी छ।</item>
+      <item quantity="one">SIM PIN कोड गलत छ, तपाईंले आफ्नो यन्त्र खोल्नलाई तपाईंको वाहकसँग सम्पर्क गर्नै पर्न अघि तपाईंसँग <xliff:g id="NUMBER_0">%d</xliff:g> पटक प्रयास बाँकी छ।</item>
     </plurals>
     <string name="pin_failed" msgid="4877356137480446727">"SIM PIN कार्य बिफल भयो!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"प्रणाली  अद्यावधिकहरू"</string>
@@ -3602,7 +3604,7 @@
     <string name="notifications_silenced" msgid="538923056987616372">"मौन पारिएको छ"</string>
     <string name="notifications_redacted" msgid="308836040236690014">"लक स्क्रिनमा संवेदनशील सामग्री देखाउने होइन"</string>
     <string name="notifications_hidden" msgid="3665505522897010205">"लक स्क्रिनमा होइन"</string>
-    <string name="notifications_priority" msgid="8849045645983017929">"बाधा नपुर्याउनुहोस् लाई अोभरराइड गरियो"</string>
+    <string name="notifications_priority" msgid="8849045645983017929">"बाधा नपुर्याउनुहोस् लाई ओभरराइड गरियो"</string>
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"स्तर %d"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>

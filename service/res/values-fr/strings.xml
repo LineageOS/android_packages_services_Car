@@ -123,9 +123,7 @@
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Accéder à l\'état de la puissance de la voiture."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Enregistrer l\'appareil vérifié"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Autoriser l\'enregistrement de l\'appareil vérifié"</string>
-    <!-- no translation found for car_permission_label_car_test_service (9159328930558208708) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_test_service (7426844534110145843) -->
-    <skip />
+    <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Contrôler le mode de test de la voiture"</string>
+    <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"Contrôler le mode de test de la voiture"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mon appareil"</string>
 </resources>

@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"திரைப் பூட்டை அமைப்பதன் மூலம் உங்கள் டேப்லெட் தொலைந்து போனாலோ திருடு போனாலோ வேறுயாரும் பயன்படுத்தாமல் பாதுகாக்கலாம். முக அங்கீகாரத்தை அமைப்பதற்கும் இது தேவைப்படும். வேண்டாம் என்பதைத் தட்டிய பிறகு பின்னை அமைக்கவும் அல்லது வேறொரு திரைப் பூட்டு விருப்பத்தைத் தேர்வுசெய்யவும்."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"திரைப் பூட்டை அமைப்பதன் மூலம் உங்கள் சாதனம் தொலைந்து போனாலோ திருடு போனாலோ வேறுயாரும் பயன்படுத்தாமல் பாதுகாக்கலாம். முக அங்கீகாரத்தை அமைப்பதற்கும் இது தேவைப்படும். வேண்டாம் என்பதைத் தட்டிய பிறகு பின்னை அமைக்கவும் அல்லது வேறொரு திரைப் பூட்டு விருப்பத்தைத் தேர்வுசெய்யவும்."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"திரைப் பூட்டை அமைப்பதன் மூலம் உங்கள் மொபைல் தொலைந்து போனாலோ திருடு போனாலோ வேறுயாரும் பயன்படுத்தாமல் பாதுகாக்கலாம். முக அங்கீகாரத்தை அமைப்பதற்கும் இது தேவைப்படும். வேண்டாம் என்பதைத் தட்டிய பிறகு பின்னை அமைக்கவும் அல்லது வேறொரு திரைப் பூட்டு விருப்பத்தைத் தேர்வுசெய்யவும்."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"பின் அமைவைத் தவிர்க்கவா?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"கடவுச்சொல் அமைவைத் தவிர்க்கவா?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"பேட்டர்ன் அமைவைத் தவிர்க்கவா?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"திரைப் பூட்டை அமை"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"வைஃபை"</item>
+    <item msgid="4421333712484542489">"மொபைல்"</item>
+    <item msgid="6007360612667098926">"வைஃபை மட்டும்"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -1786,7 +1788,7 @@
     <string name="install_applications_title" msgid="8164828577588659496">"எல்லா ஆப்ஸ் ஆதாரங்களையும் அனுமதி"</string>
     <string name="recent_app_category_title" msgid="7688788038277126727">"சமீபத்தில் திறந்தவை"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"<xliff:g id="COUNT">%1$d</xliff:g> பயன்பாடுகளையும் காட்டு"</string>
-    <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"அறியப்படாத பயன்பாடுகளால் உங்கள் டேப்லெட்டும் தனிப்பட்ட தரவும் அதிகம் பாதிப்பிற்கு உள்ளாகும். இந்த மூலத்திலிருந்து ஆப்ஸை நிறுவுவதால், அவற்றைப் பயன்படுத்தும் போது உங்கள் டேப்லெட்டுக்கு ஏதேனும் சேதம் ஏற்பட்டாலோ அல்லது தரவை இழந்தாலோ, அதற்கு நீங்கள்தான் பொறுப்பாவீர்கள் என்பதை ஏற்கிறீர்கள்."</string>
+    <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"அறியப்படாத ஆப்ஸால் உங்கள் டேப்லெட்டும் தனிப்பட்ட தரவும் அதிகம் பாதிப்பிற்கு உள்ளாகும். இந்த மூலத்திலிருந்து ஆப்ஸை நிறுவுவதால், அவற்றைப் பயன்படுத்தும் போது உங்கள் டேப்லெட்டுக்கு ஏதேனும் சேதம் ஏற்பட்டாலோ அல்லது தரவை இழந்தாலோ, அதற்கு நீங்கள்தான் பொறுப்பாவீர்கள் என்பதை ஏற்கிறீர்கள்."</string>
     <string name="install_all_warning" product="default" msgid="7445839116997296358">"அறியப்படாத பயன்பாடுககளால் உங்கள் மொபைலும் தனிப்பட்ட தரவும் அதிகம் பாதிப்பிற்கு உள்ளாகும். இந்த மூலத்திலிருந்து ஆப்ஸை நிறுவுவதால், அவற்றைப் பயன்படுத்தும் போது உங்கள் மொபைலுக்கு ஏதேனும் சேதம் ஏற்பட்டாலோ அல்லது தரவை இழந்தாலோ, அதற்கு நீங்கள்தான் பொறுப்பாவீர்கள் என்பதை ஏற்கிறீர்கள்."</string>
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"அறியப்படாத ஆப்ஸால் உங்கள் சாதனம் மற்றும் தனிப்பட்ட தரவு மிக எளிதாகப் பாதிப்புக்குள்ளாகும். இந்த மூலத்திலிருந்து ஆப்ஸை நிறுவி, பயன்படுத்தும்போது, உங்கள் சாதனத்திற்கு ஏதேனும் சேதம் ஏற்பட்டாலோ தரவை இழந்தாலோ, அதற்கு நீங்கள்தான் பொறுப்பாவீர்கள் என்பதை ஏற்கிறீர்கள்."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"மேம்பட்ட அமைப்பு"</string>
@@ -2596,7 +2598,7 @@
     <string name="work_mode_off_summary" msgid="1688885392211178315">"ஆப்ஸ் மற்றும் அறிவிப்புகள் ஆஃப் செய்யப்பட்டுள்ளன"</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"பணிக் கணக்கை அகற்று"</string>
     <string name="background_data" msgid="8275750862371471171">"பின்புல டேட்டா உபயோகம்"</string>
-    <string name="background_data_summary" msgid="799640633948841990">"பயன்பாடுகளால் எந்நேரத்திலும் தரவை ஒத்திசைக்கவும், அனுப்பவும் பெறவும் முடியும்"</string>
+    <string name="background_data_summary" msgid="799640633948841990">"ஆப்ஸால் எந்நேரத்திலும் தரவை ஒத்திசைக்கவும், அனுப்பவும் பெறவும் முடியும்"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"பின்புல டேட்டா உபயோகத்தை முடக்கவா?"</string>
     <string name="background_data_dialog_message" msgid="8126774244911656527">"பின்புல டேட்டா உபயோகத்தை முடக்குவது பேட்டரியின் ஆயுளை நீட்டிக்கிறது மற்றும் தரவு பயன்பாட்டைக் குறைக்கிறது. சில ஆப்ஸ் தொடர்ந்து பின்புல டேட்டா உபயோகம் இணைப்பைப் பயன்படுத்தலாம்."</string>
     <string name="sync_automatically" msgid="5746117156896468099">"ஆப்ஸின் டேட்டாவைத் தானாக ஒத்திசை"</string>
@@ -3355,7 +3357,7 @@
     <string name="notifications_sent_never" msgid="237997329598144638">"ஒருபோதும் அனுப்பியதில்லை"</string>
     <string name="manage_notification_access_title" msgid="5348743662189787547">"அறிவிப்பு அணுகல்"</string>
     <string name="work_profile_notification_access_blocked_summary" msgid="8148871282484870576">"பணிக் கணக்கு அறிவிப்புகளுக்கான அணுகல் தடுக்கப்பட்டுள்ளது"</string>
-    <string name="manage_notification_access_summary_zero" msgid="236809421271593016">"பயன்பாடுகளால் அறிவிப்புகளைப் படிக்க முடியாது"</string>
+    <string name="manage_notification_access_summary_zero" msgid="236809421271593016">"ஆப்ஸால் அறிவிப்புகளைப் படிக்க முடியாது"</string>
     <plurals name="manage_notification_access_summary_nonzero" formatted="false" msgid="8496218948429646792">
       <item quantity="other">%d ஆப்ஸ்கள் அறிவிப்புகளைப் படிக்கலாம்</item>
       <item quantity="one">%d ஆப்ஸ் அறிவிப்புகளைப் படிக்கலாம்</item>
@@ -3366,7 +3368,7 @@
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g> சேவைக்கான அறிவிப்பு அணுகலை அனுமதிக்கவா?"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"தொடர்புகளின் பெயர்கள் மற்றும் உங்களுக்கான மெசேஜ்களில் இருக்கும் உரைகள் போன்ற தனிப்பட்ட தகவல்கள் அடங்கிய அனைத்து அறிவிப்புகளையும் <xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> சேவையால் படிக்க இயலும். அறிவிப்புகளை மாற்றியமைக்கவோ நிராகரிக்கவோ அவற்றிலுள்ள செயல் பட்டன்களைத் தூண்டவோ இதனால் இயலும். \n\n’தொந்தரவு செய்ய வேண்டாம்’ அம்சத்தை ஆன் அல்லது ஆஃப் செய்வதற்கு ஆப்ஸை அனுமதிப்பதோடு அது தொடர்பான அமைப்புகளை மாற்றவும் இதனால் இயலும்."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g>க்கான அறிவிப்பு அணுகலை அனுமதிக்கவா?"</string>
-    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"தொடர்புப் பெயர்கள், நீங்கள் பெறும் செய்திகள் போன்ற தனிப்பட்ட தகவல் உட்பட எல்லா அறிவிப்புகளையும் <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> ஆல் படிக்க முடியும். இந்தப் பயன்பாட்டினால் அறிவிப்புகளை நிராகரிக்கவோ அல்லது அறிவிப்புகளில் உள்ள செயல் பொத்தான்களைத் தூண்டவோ முடியும். \n\nஇது தொந்தரவு செய்ய வேண்டாம் எனும் விருப்பத்தை இயக்க அல்லது முடக்குவதற்கான அனுமதியையும், தொடர்புடையை அமைப்புகளை மாற்றுவதற்கான அனுமதியையும் பயன்பாட்டிற்கு அளிக்கும்."</string>
+    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"தொடர்புப் பெயர்கள், நீங்கள் பெறும் செய்திகள் போன்ற தனிப்பட்ட தகவல் உட்பட எல்லா அறிவிப்புகளையும் <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> ஆல் படிக்க முடியும். இந்த ஆப்ஸால் அறிவிப்புகளை நிராகரிக்கவோ அல்லது அறிவிப்புகளில் உள்ள செயல் பொத்தான்களைத் தூண்டவோ முடியும். \n\nஇது தொந்தரவு செய்ய வேண்டாம் எனும் விருப்பத்தை இயக்க அல்லது முடக்குவதற்கான அனுமதியையும், தொடர்புடையை அமைப்புகளை மாற்றுவதற்கான அனுமதியையும் பயன்பாட்டிற்கு அளிக்கும்."</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>க்கு அறிவிப்பு அணுகலை முடக்கினால், \'தொந்தரவு செய்யாதே\' அணுகலும் முடக்கப்படலாம்."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"முடக்கு"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"ரத்துசெய்"</string>
@@ -3780,7 +3782,7 @@
     <string name="memory_maximum_usage" msgid="4734981118293469479">"அதிகபட்ச உபயோகம்"</string>
     <string name="no_data_usage" msgid="903383745620135746">"டேட்டா எதுவும் பயன்படுத்தப்படவில்லை"</string>
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"<xliff:g id="APP">%1$s</xliff:g>க்கான தொந்தரவு செய்ய வேண்டாம் அணுகலை அனுமதிக்கவா?"</string>
-    <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"பயன்பாட்டினால் தொந்தரவு செய்ய வேண்டாம் என்பதை இயக்க/முடக்க முடிவதுடன், தொடர்புடைய அமைப்புகளை மாற்றவும் முடியும்."</string>
+    <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"ஆப்ஸால் தொந்தரவு செய்ய வேண்டாம் என்பதை இயக்க/முடக்க முடிவதுடன், தொடர்புடைய அமைப்புகளை மாற்றவும் முடியும்."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"அறிவிப்பு அணுகல் இயக்கப்பட்டிருப்பதால், இயக்கத்தில் இருப்பது அவசியம்"</string>
     <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"<xliff:g id="APP">%1$s</xliff:g>க்கான தொந்தரவு செய்ய வேண்டாம் அணுகலை ரத்துசெய்யவா?"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"இந்த ஆப்ஸ் உருவாக்கிய தொந்தரவு செய்ய வேண்டாம் விதிகள் அனைத்தும் அகற்றப்படும்."</string>

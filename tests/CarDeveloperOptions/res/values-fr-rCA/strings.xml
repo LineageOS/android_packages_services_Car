@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Protégez votre tablette avec une option de verrouillage de l\'écran afin que personne ne puisse l\'utiliser en cas de perte ou de vol. L\'option de verrouillage de l\'écran est également nécessaire pour configurer l\'authentification du visage. Touchez Annuler, puis définissez un NIP ou sélectionnez une autre option de verrouillage de l\'écran."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Protégez votre appareil avec une option de verrouillage de l\'écran afin que personne ne puisse l\'utiliser en cas de perte ou de vol. L\'option de verrouillage de l\'écran est également nécessaire pour configurer l\'authentification du visage. Touchez Annuler, puis définissez un NIP ou sélectionnez une autre option de verrouillage de l\'écran."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Protégez votre téléphone avec une option de verrouillage de l\'écran afin que personne ne puisse l\'utiliser en cas de perte ou de vol. L\'option de verrouillage de l\'écran est également nécessaire pour configurer l\'authentification du visage. Touchez Annuler, puis définissez un NIP ou sélectionnez une autre option de verrouillage de l\'écran."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Ignorer la configuration du NIP?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Ignorer config. du m. de passe?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Ignorer la config. du schéma?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Configurer le verrouil. de l\'écran"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Cellulaire"</item>
+    <item msgid="6007360612667098926">"Wi-Fi seulement"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -2642,7 +2644,7 @@
     <string name="misc_files_selected_count_bytes" msgid="3752262902203465861">"<xliff:g id="NUMBER">%1$s</xliff:g> sur <xliff:g id="TOTAL">%2$s</xliff:g>"</string>
     <string name="select_all" msgid="452240217913675728">"Tout sélectionner"</string>
     <string name="data_usage_summary_title" msgid="7288431048564861043">"Utilisation des données"</string>
-    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Données cell. et Wi-Fi"</string>
+    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Données cellulaires et Wi-Fi"</string>
     <string name="data_usage_accounting" msgid="4681642832010140640">"La manière dont le fournisseur de services effectue les calcul des données peut être différente."</string>
     <string name="data_usage_app" msgid="4995297799363021198">"Utilisation de l\'appli"</string>
     <string name="data_usage_app_info_label" msgid="5358288895158910477">"DÉTAILS DE L\'APPLICATION"</string>
@@ -2868,7 +2870,7 @@
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Configurer l\'utilisateur?"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"Assurez-vous que la personne est disponible et qu\'elle peut utiliser l\'appareil pour configurer son espace."</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"Configurer le profil maintenant?"</string>
-    <string name="user_setup_button_setup_now" msgid="4941459406266856176">"Configurer maintenant"</string>
+    <string name="user_setup_button_setup_now" msgid="4941459406266856176">"Configurer"</string>
     <string name="user_setup_button_setup_later" msgid="6596031428556518752">"Pas maintenant"</string>
     <string name="user_cannot_manage_message" product="tablet" msgid="7108992906553210763">"Seul le propriétaire de la tablette peut gérer les utilisateurs."</string>
     <string name="user_cannot_manage_message" product="default" msgid="915260531390608092">"Seul le propriétaire de la tablette peut gérer les utilisateurs."</string>

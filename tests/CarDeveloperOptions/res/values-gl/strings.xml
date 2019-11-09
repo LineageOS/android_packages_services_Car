@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Protexe a túa tableta cunha opción de bloqueo de pantalla para que ninguén poida utilizala se a perdes ou cha rouban. Tamén é necesario para configurar a autenticación facial. Toca Cancelar e, despois, define un PIN ou escolle outra opción de bloqueo de pantalla."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Protexe o teu dispositivo cunha opción de bloqueo de pantalla para que ninguén poida utilizalo se o perdes ou cho rouban. Tamén é necesario para configurar a autenticación facial. Toca Cancelar e, despois, define un PIN ou escolle outra opción de bloqueo de pantalla."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Protexe o teu teléfono cunha opción de bloqueo de pantalla para que ninguén poida utilizalo se o perdes ou cho rouban. Tamén é necesario para configurar a autenticación facial. Toca Cancelar e, despois, define un PIN ou escolle outra opción de bloqueo de pantalla."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Omitir a configuración do PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Omitir a conf. do contrasinal?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Omitir a configur. do padrón?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Configurar bloqueo da pantalla"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wifi"</item>
+    <item msgid="4421333712484542489">"Datos móbiles"</item>
+    <item msgid="6007360612667098926">"Só por wifi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -3365,9 +3367,9 @@
     <string name="no_notification_assistant" msgid="9140123568386413264">"Ningún asistente"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Ningunha aplicación instalada solicitou o acceso ás notificacións."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"Queres permitir que <xliff:g id="SERVICE">%1$s</xliff:g> teña acceso ás notificacións?"</string>
-    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> poderá ler todas as notificacións, incluída a información persoal, como os nomes dos contactos e o texto das mensaxes que recibas. Tamén poderá modificar ou ignorar as notificacións e activar os botóns de acción que conteñan. \n\nAdemais, poderá activar ou desactivar o modo Non molestar e cambiar a configuración asociada."</string>
+    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> poderá ler todas as notificacións, incluída a información persoal, como os nomes dos contactos e o texto das mensaxes que recibas. Tamén poderá modificar ou ignorar as notificacións e activar os botóns de acción que estas conteñan. \n\nAdemais, poderá activar ou desactivar o modo Non molestar e cambiar a configuración asociada."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Queres permitir que <xliff:g id="SERVICE">%1$s</xliff:g> teña acceso ás notificacións?"</string>
-    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> poderá ler todas as notificacións, incluída a información persoal, coma os nomes dos contactos e o texto das mensaxes que recibas. Tamén poderá ignorar notificacións ou activar os botóns de acción que conteñan. \n\nAdemais, poderá activar ou desactivar o modo Non molestar e cambiar a configuración asociada."</string>
+    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> poderá ler todas as notificacións, incluída a información persoal, coma os nomes dos contactos e o texto das mensaxes que recibas. Tamén poderá ignorar notificacións ou activar os botóns de acción que estas conteñan. \n\nAdemais, poderá activar ou desactivar o modo Non molestar e cambiar a configuración asociada."</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Se desactivas o acceso de <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> ás notificacións, é posible que tamén se desactive o acceso en modo Non molestar."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Desactivar"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Cancelar"</string>
@@ -3522,7 +3524,7 @@
     <string name="zen_mode_when" msgid="7835420687948416255">"Activar automaticam."</string>
     <string name="zen_mode_when_never" msgid="4506296396609224524">"Nunca"</string>
     <string name="zen_mode_when_every_night" msgid="3942151668791426194">"Todas as noites"</string>
-    <string name="zen_mode_when_weeknights" msgid="2412709309122408474">"Noites pola semana"</string>
+    <string name="zen_mode_when_weeknights" msgid="2412709309122408474">"Noites entre semana"</string>
     <string name="zen_mode_start_time" msgid="5979122139937561731">"Hora de inicio"</string>
     <string name="zen_mode_end_time" msgid="3188578493250909972">"Hora de finalización"</string>
     <string name="zen_mode_end_time_next_day_summary_format" msgid="1598612215612648214">"<xliff:g id="FORMATTED_TIME">%s</xliff:g> do día seguinte"</string>
@@ -3804,8 +3806,8 @@
     <string name="overlay_settings" msgid="3325154759946433666">"Superpoñer sobre aplicacións"</string>
     <string name="system_alert_window_summary" msgid="7703582115861844158">"Aplicacións con permiso para superpoñerse a outras: <xliff:g id="COUNT_0">%1$d</xliff:g> de <xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
     <string name="filter_overlay_apps" msgid="6336897660213304743">"Aplicacións con permiso"</string>
-    <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Aplicación permitida"</string>
-    <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"Aplicación non permitida"</string>
+    <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Permitido"</string>
+    <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"Non permitido"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"instalar aplicacións fontes descoñecidas"</string>
     <string name="write_settings" msgid="9009040811145552108">"Modificar configuración"</string>
     <string name="keywords_write_settings" msgid="3450405263390246293">"editar ou modificar axustes do sistema"</string>
@@ -4132,7 +4134,7 @@
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Dedo no sensor para ver notificacións"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Pasar dedo polo sensor"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Para consultar as notificacións, pasa o dedo cara abaixo sobre o sensor de impresión dixital situado na parte traseira do teléfono."</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Para consultar as notificacións, pasa o dedo cara abaixo sobre o sensor de impresión dixital situado na parte traseira da tableta."</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Para consultar as notificacións, pasa o dedo cara abaixo sobre o sensor de impresión dixital, situado na parte traseira da tableta."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"Para consultar as notificacións, pasa o dedo cara abaixo sobre o sensor de impresión dixital situado na parte traseira do dispositivo."</string>
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"Consultar notificacións rapidamente"</string>
     <string name="gesture_setting_on" msgid="7573680730101327866">"Activado"</string>

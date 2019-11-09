@@ -123,9 +123,7 @@
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"ចូលប្រើស្ថានភាព​ថាមពល​របស់រថយន្ត។"</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"ចុះ​ឈ្មោះ​ឧបករណ៍​ដែល​ទុក​ចិត្ត"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"អនុញ្ញាតឱ្យចុះ​ឈ្មោះឧបករណ៍​ដែល​ទុក​ចិត្ត"</string>
-    <!-- no translation found for car_permission_label_car_test_service (9159328930558208708) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_test_service (7426844534110145843) -->
-    <skip />
+    <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"គ្រប់គ្រង​មុខងារ​ធ្វើតេស្តរបស់​រថយន្ត"</string>
+    <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"គ្រប់គ្រង​មុខងារ​ធ្វើតេស្តរបស់​រថយន្ត"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ឧបករណ៍របស់ខ្ញុំ"</string>
 </resources>
