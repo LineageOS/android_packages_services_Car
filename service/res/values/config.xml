@@ -20,10 +20,6 @@
 <!-- Resources to configure car service based on each OEM's preference. -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- Configuration to enable media center to autoplay when the media source is changed.
-         If this is set to true, media will play automatically when a media source is selected and
-         the selected media source supports media playback. -->
-    <bool name="autoPlayOnMediaSourceChanged">false</bool>
 
     <!--  Configuration to enable usage of dynamic audio routing. If this is set to false,
           dynamic audio routing is disabled and audio works in legacy mode. It may be useful
@@ -279,4 +275,13 @@
          resolve permission by itself to use any higher priority window type.
          Setting this string to empty will disable the feature. -->
     <string name="config_userNoticeUiService" translatable="false">com.google.android.car.kitchensink/.UserNoiticeDemoUiService</string>
+
+    <!-- Configuration to enable media center to autoplay when the media source is changed.
+         There are 3 supported configurations:
+         0 - never play on change
+         1 - always play
+         2 - adaptive, play based on last remembered playback state -->
+    <integer name="config_mediaSourceChangedAutoplay">2</integer>
+    <!-- Configuration to enable media center to autoplay on boot -->
+    <integer name="config_mediaBootAutoplay">2</integer>
 </resources>

@@ -23,6 +23,8 @@
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
     <uses-permission android:name="android.car.permission.CAR_DIAGNOSTICS"/>
     <uses-permission android:name="android.car.permission.CAR_DISPLAY_IN_CLUSTER"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE"/>
     <uses-permission android:name="android.car.permission.CAR_ENERGY"/>
     <!-- use for AndroidCarApiTest -->
     <uses-permission android:name="android.car.permission.CAR_INFO"/>
@@ -38,9 +40,19 @@
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.car.permission.CAR_POWERTRAIN"/>
     <uses-permission android:name="android.car.permission.CAR_SPEED"/>
+     <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.CAR_TEST_SERVICE"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.CAR_VENDOR_EXTENSION"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION"/>
     <uses-permission android:name="android.car.permission.CONTROL_CAR_CLIMATE"/>
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING"/>
     <uses-permission android:name="android.car.permission.VEHICLE_DYNAMICS_STATE"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.VMS_PUBLISHER"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.VMS_SUBSCRIBER"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -148,3 +160,4 @@
 
     </application>
 </manifest>
+

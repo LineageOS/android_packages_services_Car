@@ -30,6 +30,8 @@ import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -62,6 +64,8 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             VehicleProperty.PERF_VEHICLE_SPEED,
             VehicleProperty.GEAR_SELECTION,
             VehicleProperty.PARKING_BRAKE_ON};
+    private final HandlerThread mClientDispatchThread;
+    private final Handler mClientDispatchHandler;
     private CarDrivingStateEvent mCurrentDrivingState;
     // For dumpsys logging
     private final LinkedList<Utils.TransitionLog> mTransitionLogs = new LinkedList<>();
@@ -77,6 +81,9 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
         mContext = context;
         mPropertyService = propertyService;
         mCurrentDrivingState = createDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_UNKNOWN);
+        mClientDispatchThread = new HandlerThread("ClientDispatchThread");
+        mClientDispatchThread.start();
+        mClientDispatchHandler = new Handler(mClientDispatchThread.getLooper());
     }
 
     @Override
@@ -390,9 +397,13 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             if (DBG) {
                 Log.d(TAG, "dispatching to " + mDrivingStateClients.size() + " clients");
             }
-            for (DrivingStateClient client : mDrivingStateClients) {
-                client.dispatchEventToClients(mCurrentDrivingState);
-            }
+            // Dispatch to clients on a separate thread to prevent a deadlock
+            final CarDrivingStateEvent currentDrivingStateEvent = mCurrentDrivingState;
+            mClientDispatchHandler.post(() -> {
+                for (DrivingStateClient client : mDrivingStateClients) {
+                    client.dispatchEventToClients(currentDrivingStateEvent);
+                }
+            });
         }
     }
 

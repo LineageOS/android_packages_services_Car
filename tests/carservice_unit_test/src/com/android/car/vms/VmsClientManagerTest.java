@@ -27,7 +27,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atMost;
@@ -50,7 +49,6 @@ import android.car.vms.VmsSubscriptionState;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
@@ -66,6 +64,7 @@ import androidx.test.filters.SmallTest;
 import com.android.car.VmsPublisherService;
 import com.android.car.hal.VmsHalService;
 import com.android.car.user.CarUserService;
+import com.android.car.user.CarUserService.UserCallback;
 
 import org.junit.After;
 import org.junit.Before;
@@ -144,6 +143,7 @@ public class VmsClientManagerTest {
     @Captor
     private ArgumentCaptor<ServiceConnection> mConnectionCaptor;
 
+    private UserCallback mUserCallback;
     private MockitoSession mSession;
     private VmsClientManager mClientManager;
 
@@ -205,15 +205,8 @@ public class VmsClientManagerTest {
 
         // Verify registration of system user unlock listener
         verify(mUserService).runOnUser0Unlock(mClientManager.mSystemUserUnlockedListener);
-
-        // Verify registration of user switch receiver
-        ArgumentCaptor<IntentFilter> userFilterCaptor = ArgumentCaptor.forClass(IntentFilter.class);
-        verify(mContext).registerReceiverAsUser(eq(mClientManager.mUserSwitchReceiver),
-                eq(UserHandle.ALL), userFilterCaptor.capture(), isNull(), isNull());
-        IntentFilter userEventFilter = userFilterCaptor.getValue();
-        assertEquals(2, userEventFilter.countActions());
-        assertTrue(userEventFilter.hasAction(Intent.ACTION_USER_SWITCHED));
-        assertTrue(userEventFilter.hasAction(Intent.ACTION_USER_UNLOCKED));
+        // Verify user callback is added
+        verify(mUserService).addUserCallback(eq(mClientManager.mUserCallback));
     }
 
     @Test
@@ -221,7 +214,7 @@ public class VmsClientManagerTest {
         mClientManager.release();
 
         // Verify user switch receiver is unregistered
-        verify(mContext).unregisterReceiver(mClientManager.mUserSwitchReceiver);
+        verify(mUserService).removeUserCallback(mClientManager.mUserCallback);
     }
 
     @Test
@@ -844,8 +837,7 @@ public class VmsClientManagerTest {
         mClientManager.addSubscriber(mSubscriberClient1);
 
         mForegroundUserId = USER_ID_U11;
-        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent());
-
+        mClientManager.switchUser();
         verify(mBrokerService).removeDeadSubscriber(mSubscriberClient1);
         assertEquals(UNKNOWN_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
         assertTrue(mClientManager.getAllSubscribers().isEmpty());
@@ -856,7 +848,7 @@ public class VmsClientManagerTest {
         mClientManager.addSubscriber(mSubscriberClient1);
 
         mForegroundUserId = USER_ID_U11;
-        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent());
+        mClientManager.switchUser();
         verify(mBrokerService).removeDeadSubscriber(mSubscriberClient1);
 
         mCallingAppUid = UserHandle.getUid(USER_ID_U11, 0);
@@ -878,7 +870,7 @@ public class VmsClientManagerTest {
         mClientManager.addSubscriber(mSubscriberClient2);
 
         mForegroundUserId = USER_ID_U11;
-        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent());
+        mClientManager.switchUser();
 
         verify(mBrokerService).removeDeadSubscriber(mSubscriberClient1);
         verify(mBrokerService, never()).removeDeadSubscriber(mSubscriberClient2);
@@ -894,7 +886,7 @@ public class VmsClientManagerTest {
         reset(mPublisherService);
 
         mForegroundUserId = USER_ID_U11;
-        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent());
+        mClientManager.switchUser();
 
         verify(mBrokerService, never()).removeDeadSubscriber(subscriberClient);
         assertEquals(HAL_CLIENT_NAME, mClientManager.getPackageName(subscriberClient));
@@ -970,8 +962,7 @@ public class VmsClientManagerTest {
 
         reset(mUserManager);
         when(mUserManager.isUserUnlocked(foregroundUserId)).thenReturn(isForegroundUserUnlocked);
-
-        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent(action));
+        mClientManager.switchUser();
     }
 
     private void verifySystemBind(int times) {

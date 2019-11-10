@@ -20,11 +20,9 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.vms.IVmsPublisherClient;
 import android.car.vms.IVmsSubscriberClient;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
@@ -110,27 +108,39 @@ public class VmsClientManager implements CarServiceBase {
     };
 
     @VisibleForTesting
-    final BroadcastReceiver mUserSwitchReceiver = new BroadcastReceiver() {
+    final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            if (DBG) Log.d(TAG, "Received " + intent);
-            synchronized (mLock) {
-                int currentUserId = ActivityManager.getCurrentUser();
-                if (mCurrentUser != currentUserId) {
-                    terminate(mCurrentUserClients);
-                    terminate(mSubscribers.values().stream()
-                            .filter(subscriber -> subscriber.mUserId != currentUserId)
-                            .filter(subscriber -> subscriber.mUserId != UserHandle.USER_SYSTEM));
-                }
-                mCurrentUser = currentUserId;
+        public void onUserLockChanged(int userId, boolean unlocked) {
+            //Do nothing.
+        }
 
-                if (mUserManager.isUserUnlocked(mCurrentUser)) {
-                    bindToSystemClients();
-                    bindToUserClients();
-                }
-            }
+        @Override
+        public void onSwitchUser(int userId) {
+            if (DBG) Log.d(TAG, "onSwitchUser: " + userId);
+            switchUser();
         }
     };
+
+    // TODO(b/144027497): temporary until tests are refactored to not call this directly
+    /** @hide */
+    @VisibleForTesting
+    public void switchUser() {
+        synchronized (mLock) {
+            int currentUserId = ActivityManager.getCurrentUser();
+            if (mCurrentUser != currentUserId) {
+                terminate(mCurrentUserClients);
+                terminate(mSubscribers.values().stream()
+                        .filter(subscriber -> subscriber.mUserId != currentUserId)
+                        .filter(subscriber -> subscriber.mUserId != UserHandle.USER_SYSTEM));
+            }
+            mCurrentUser = currentUserId;
+
+            if (mUserManager.isUserUnlocked(mCurrentUser)) {
+                bindToSystemClients();
+                bindToUserClients();
+            }
+        }
+    }
 
     /**
      * Constructor for client manager.
@@ -176,18 +186,14 @@ public class VmsClientManager implements CarServiceBase {
 
     @Override
     public void init() {
+        new Exception("initiaVmsManager").printStackTrace();
         mUserService.runOnUser0Unlock(mSystemUserUnlockedListener);
-
-        IntentFilter userSwitchFilter = new IntentFilter();
-        userSwitchFilter.addAction(Intent.ACTION_USER_SWITCHED);
-        userSwitchFilter.addAction(Intent.ACTION_USER_UNLOCKED);
-        mContext.registerReceiverAsUser(mUserSwitchReceiver, UserHandle.ALL, userSwitchFilter, null,
-                null);
+        mUserService.addUserCallback(mUserCallback);
     }
 
     @Override
     public void release() {
-        mContext.unregisterReceiver(mUserSwitchReceiver);
+        mUserService.removeUserCallback(mUserCallback);
         synchronized (mLock) {
             if (mHalClient != null) {
                 mPublisherService.onClientDisconnected(HAL_CLIENT_NAME);

@@ -16,12 +16,14 @@
 
 package com.android.car.developeroptions.wifi.tether;
 
+import android.annotation.NonNull;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiClient;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.text.BidiFormatter;
+import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.preference.Preference;
@@ -41,6 +43,7 @@ import java.util.List;
 public class WifiTetherPreferenceController extends AbstractPreferenceController
         implements PreferenceControllerMixin, LifecycleObserver, OnStart, OnStop {
 
+    private static final String TAG = "WifiTetherPreferenceController";
     private static final String WIFI_TETHER_SETTINGS = "wifi_tether";
 
     private final ConnectivityManager mConnectivityManager;
@@ -165,12 +168,13 @@ public class WifiTetherPreferenceController extends AbstractPreferenceController
         }
     }
 
-    private void updateConfigSummary(WifiConfiguration wifiConfig) {
-        final String s = mContext.getString(
-                com.android.internal.R.string.wifi_tether_configure_ssid_default);
-
+    private void updateConfigSummary(@NonNull WifiConfiguration wifiConfig) {
+        if (wifiConfig == null) {
+            // should never happen.
+            Log.e(TAG, "Ap config null unexpectedly");
+            return;
+        }
         mPreference.setSummary(mContext.getString(R.string.wifi_tether_enabled_subtext,
-                BidiFormatter.getInstance().unicodeWrap(
-                        (wifiConfig == null) ? s : wifiConfig.SSID)));
+                BidiFormatter.getInstance().unicodeWrap(wifiConfig.SSID)));
     }
 }
