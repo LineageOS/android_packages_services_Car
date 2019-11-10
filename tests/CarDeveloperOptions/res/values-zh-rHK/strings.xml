@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"使用螢幕鎖定選項保護您的平板電腦，這樣即使平板電腦丟失或遭竊，其他人亦無法使用。您亦需要螢幕鎖定選項來設定臉孔驗證。輕按 [取消]，然後設定 PIN，或者選擇其他螢幕鎖定選項。"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"使用螢幕鎖定選項保護您的裝置，這樣即使裝置丟失或遭竊，其他人亦無法使用。您亦需要螢幕鎖定選項來設定臉孔驗證。輕按 [取消]，然後設定 PIN，或者選擇其他螢幕鎖定選項。"</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"使用螢幕鎖定選項保護您的手機，這樣即使手機丟失或遭竊，其他人亦無法使用。您亦需要螢幕鎖定選項來設定臉孔驗證。輕按 [取消]，然後設定 PIN，或者選擇其他螢幕鎖定選項。"</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"要略過 PIN 設定嗎？"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"要略過密碼設定嗎？"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"要略過圖案設定嗎？"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"設定螢幕鎖定"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"流動網絡"</item>
+    <item msgid="6007360612667098926">"只限 Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -3524,7 +3526,7 @@
     <string name="zen_mode_when_every_night" msgid="3942151668791426194">"每天晚上"</string>
     <string name="zen_mode_when_weeknights" msgid="2412709309122408474">"星期一至星期五晚"</string>
     <string name="zen_mode_start_time" msgid="5979122139937561731">"開始時間"</string>
-    <string name="zen_mode_end_time" msgid="3188578493250909972">"完結時間"</string>
+    <string name="zen_mode_end_time" msgid="3188578493250909972">"結束時間"</string>
     <string name="zen_mode_end_time_next_day_summary_format" msgid="1598612215612648214">"翌日<xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
     <string name="zen_mode_summary_alarms_only_indefinite" msgid="2470936648971337656">"變更為永遠只允許鬧鐘"</string>
     <plurals name="zen_mode_summary_alarms_only_by_minute" formatted="false" msgid="7192429395424304796">

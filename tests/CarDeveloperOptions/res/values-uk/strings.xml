@@ -489,8 +489,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Блокування екрана захистить ваш планшет, якщо його буде загублено або викрадено. Ця функція також потрібна, щоб налаштувати автентифікацію за обличчям. Натисніть \"Скасувати\" й налаштуйте PIN-код або інший варіант блокування екрана."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Блокування екрана захистить ваш пристрій, якщо його буде загублено або викрадено. Ця функція також потрібна, щоб налаштувати автентифікацію за обличчям. Натисніть \"Скасувати\" й налаштуйте PIN-код або інший варіант блокування екрана."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Блокування екрана захистить ваш телефон, якщо його буде загублено або викрадено. Ця функція також потрібна, щоб налаштувати автентифікацію за обличчям. Натисніть \"Скасувати\" й налаштуйте PIN-код або інший варіант блокування екрана."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Не налаштовувати PIN-код?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Не налаштовувати пароль?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Не налаштовувати ключ?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Налаштувати блокування екрана"</string>
@@ -1126,8 +1125,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Мобільні"</item>
+    <item msgid="6007360612667098926">"Лише Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -2095,7 +2097,7 @@
     <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Коли ввімкнено збільшення, використовуйте кнопку спеціальних можливостей унизу екрана, щоб швидко збільшувати його вміст.\n\n"<b>"Щоб збільшити вміст"</b>", торкніться кнопки спеціальних можливостей, а потім будь-де на екрані.\n"<ul><li>"Щоб прокрутити вміст, проведіть по екрану принаймні двома пальцями."</li>\n<li>"Щоб змінити масштаб, стисніть або розведіть принаймні два пальці."</li></ul>\n\n<b>"Щоб тимчасово збільшити вміст"</b>", торкніться кнопки спеціальних можливостей, а потім натисніть і втримуйте будь-яке місце на екрані.\n"<ul><li>"Пересувайте палець, щоб переміщатись екраном.у"</li>\n<li>"Підніміть палець, щоб знову зменшити елемент."</li></ul>\n\n"Масштабування не підтримується на клавіатурі та панелі навігації."</string>
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Для кнопки спеціальних можливостей вибрано службу \"<xliff:g id="SERVICE">%1$s</xliff:g>\". Щоб змінити на збільшення, натисніть і втримуйте кнопку спеціальних можливостей, а потім виберіть \"Збільшення\"."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Комбінація клавіш гучності"</string>
-    <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Служба, пов’язана з ярликом"</string>
+    <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Швидке ввімкнення сервісу"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Дозволити на заблокованому екрані"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"Якщо цю комбінацію клавіш увімкнено, ви можете активувати спеціальні можливості, утримуючи обидві клавіші гучності протягом 3 секунд."</string>
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"Висококонтрастний текст"</string>
@@ -4468,7 +4470,7 @@
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Не дзвонити"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Разом кнопка живлення та збільшення гучності вмикають"</string>
-    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Комбінація клавіш, щоб вимкнути звук дзвінка"</string>
+    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Швидке вимкнення звуку дзвінка"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Віброрежим"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Беззвучний режим"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"Нічого не робити"</string>

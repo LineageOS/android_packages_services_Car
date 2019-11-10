@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Protege la tablet con una opción de bloqueo de pantalla para que nadie pueda usarla si la pierdes o te la roban. Además, tienes que establecer una opción de bloqueo de pantalla para configurar la autenticación facial. Presiona Cancelar y, luego, establece un PIN o elige otra opción de bloqueo de pantalla."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Protege el dispositivo con una opción de bloqueo de pantalla para que nadie pueda usarlo si lo pierdes o te lo roban. Además, tienes que establecer una opción de bloqueo de pantalla para configurar la autenticación facial. Presiona Cancelar y, luego, establece un PIN o elige otra opción de bloqueo de pantalla."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Protege el teléfono con una opción de bloqueo de pantalla para que nadie pueda usarlo si lo pierdes o te lo roban. Además, tienes que establecer una opción de bloqueo de pantalla para configurar la autenticación facial. Presiona Cancelar y, luego, establece un PIN o elige otra opción de bloqueo de pantalla."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"¿Omitir configuración de PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"¿Omitir esta configuración?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"¿Omitir esta configuración?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Configurar bloqueo de pantalla"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Móvil"</item>
+    <item msgid="6007360612667098926">"Solo Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -2170,7 +2172,7 @@
     <string name="color_cyan" msgid="7669317410901991453">"Cian"</string>
     <string name="color_yellow" msgid="8847327436896180799">"Amarillo"</string>
     <string name="color_magenta" msgid="721976999611563071">"Magenta"</string>
-    <string name="enable_service_title" msgid="2746143093464928251">"¿Quieres usar <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
+    <string name="enable_service_title" msgid="2746143093464928251">"¿Usar <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
     <string name="capabilities_list_title" msgid="8177719542886123788">"<xliff:g id="SERVICE">%1$s</xliff:g> necesita:"</string>
     <string name="touch_filtered_warning" msgid="3072665526993043879">"Debido a que una aplicación está bloqueando una solicitud de permiso, la Configuración no puede verificar tu respuesta."</string>
     <string name="enable_service_encryption_warning" msgid="3580275420826492351">"Si activas <xliff:g id="SERVICE">%1$s</xliff:g>, el dispositivo no utilizará el bloqueo de pantalla para mejorar el cifrado de datos."</string>
@@ -4043,7 +4045,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"recorte de la pantalla, corte"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"Opción predeterminada del dispositivo"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Error al aplicar superposición"</string>
-    <string name="special_access" msgid="1453926335914696206">"Acceso especial a apps"</string>
+    <string name="special_access" msgid="1453926335914696206">"Acceso especial de apps"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> apps pueden usar datos sin restricción</item>
       <item quantity="one">1 app puede usar datos sin restricción</item>

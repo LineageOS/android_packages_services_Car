@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"നിങ്ങളുടെ ടാബ്‌ലെറ്റ് സ്‌ക്രീൻ ലോക്ക് ഓപ്‌ഷൻ ഉപയോഗിച്ച്  പരിരക്ഷിച്ചാൽ, അത് നഷ്‌ടപ്പെട്ടാലോ മോഷ്‌ടിക്കപ്പെട്ടാലോ മറ്റാർക്കും ഉപയോഗിക്കാനാവില്ല. മുഖം പരിശോധിച്ചുറപ്പിക്കൽ സജ്ജീകരിക്കാൻ നിങ്ങൾക്ക് സ്‌ക്രീൻ ലോക്ക് ഓപ്‌ഷനും ആവശ്യമാണ്. \'റദ്ദാക്കുക\' ടാപ്പ് ചെയ്‌ത ശേഷം പിൻ സജ്ജീകരിക്കുകയോ മറ്റൊരു സ്‌ക്രീൻ ലോക്ക് ഓപ്‌ഷൻ തിരഞ്ഞെടുക്കുകയോ ചെയ്യുക."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"നിങ്ങളുടെ ഉപകരണം സ്‌ക്രീൻ ലോക്ക് ഓപ്‌ഷൻ ഉപയോഗിച്ച് പരിരക്ഷിച്ചാൽ, അത് നഷ്‌ടപ്പെട്ടാലോ മോഷ്‌ടിക്കപ്പെട്ടാലോ മറ്റാർക്കും ഉപയോഗിക്കാനാവില്ല. മുഖം പരിശോധിച്ചുറപ്പിക്കൽ സജ്ജീകരിക്കാൻ നിങ്ങൾക്ക് സ്‌ക്രീൻ ലോക്ക് ഓപ്‌ഷനും ആവശ്യമാണ്. \'റദ്ദാക്കുക\' ടാപ്പ് ചെയ്‌ത ശേഷം പിൻ സജ്ജീകരിക്കുകയോ മറ്റൊരു സ്‌ക്രീൻ ലോക്ക് ഓപ്‌ഷൻ തിരഞ്ഞെടുക്കുകയോ ചെയ്യുക."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"നിങ്ങളുടെ ഫോൺ സ്‌ക്രീൻ ലോക്ക് ഓപ്‌ഷൻ ഉപയോഗിച്ച്  പരിരക്ഷിച്ചാൽ, അത് നഷ്‌ടപ്പെട്ടാലോ മോഷ്‌ടിക്കപ്പെട്ടാലോ മറ്റാർക്കും ഉപയോഗിക്കാനാവില്ല. മുഖം പരിശോധിച്ചുറപ്പിക്കൽ സജ്ജീകരിക്കാൻ നിങ്ങൾക്ക് സ്‌ക്രീൻ ലോക്ക് ഓപ്‌ഷനും ആവശ്യമാണ്. \'റദ്ദാക്കുക\' ടാപ്പ് ചെയ്‌ത ശേഷം പിൻ സജ്ജീകരിക്കുകയോ മറ്റൊരു സ്‌ക്രീൻ ലോക്ക് ഓപ്‌ഷൻ തിരഞ്ഞെടുക്കുകയോ ചെയ്യുക."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"പിൻ സജ്ജീകരണം ഒഴിവാക്കണോ?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"പാസ്‌വേഡ് സജ്ജീകരണം ഒഴിവാക്കണോ?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"പാറ്റേൺ സജ്ജീകരണം ഒഴിവാക്കണോ?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"സ്‌ക്രീൻ ലോക്ക് സജ്ജമാക്കുക"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"വൈ-ഫൈ"</item>
+    <item msgid="4421333712484542489">"മൊബൈൽ"</item>
+    <item msgid="6007360612667098926">"വൈ-ഫൈ മാത്രം"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

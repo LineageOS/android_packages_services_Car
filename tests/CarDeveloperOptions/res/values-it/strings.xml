@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Proteggi il tuo tablet con un\'opzione di blocco schermo, così nessuno potrà utilizzarlo in caso di smarrimento o furto. Occorre un\'opzione di blocco schermo anche per impostare l\'autenticazione volti. Tocca Annulla, quindi imposta un PIN o scegli un\'altra opzione di blocco schermo."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Proteggi il tuo dispositivo con un\'opzione di blocco schermo, così nessuno potrà utilizzarlo in caso di smarrimento o furto. Occorre un\'opzione di blocco schermo anche per impostare l\'autenticazione volti. Tocca Annulla, quindi imposta un PIN o scegli un\'altra opzione di blocco schermo."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Proteggi il tuo telefono con un\'opzione di blocco schermo, così nessuno potrà utilizzarlo in caso di smarrimento o furto. Occorre un\'opzione di blocco schermo anche per impostare l\'autenticazione volti. Tocca Annulla, quindi imposta un PIN o scegli un\'altra opzione di blocco schermo."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Saltare impostazione del PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Saltare impostazione password?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Saltare impostazione sequenza?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Imposta blocco schermo"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Rete mobile"</item>
+    <item msgid="6007360612667098926">"Solo Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -4379,7 +4381,7 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Accedi ai dati tramite la rete mobile"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Il telefono passerà automaticamente a questo operatore quando si trova in portata"</string>
     <string name="calls_preference" msgid="2076353032705811243">"Preferenza per le chiamate"</string>
-    <string name="sms_preference" msgid="8449270011976880">"Preferenza per SMS"</string>
+    <string name="sms_preference" msgid="8449270011976880">"Preferenza per gli SMS"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Chiedi ogni volta"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Aggiungi una rete"</string>
     <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">

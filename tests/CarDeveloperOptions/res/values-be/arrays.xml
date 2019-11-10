@@ -30,19 +30,47 @@
     <item msgid="7044520255415007865">"Усе"</item>
   </string-array>
     <!-- no translation found for screen_timeout_entries:0 (8596143519087753804) -->
-    <!-- no translation found for dream_timeout_entries:1 (2517785806387977252) -->
-    <!-- no translation found for dream_timeout_entries:5 (2788593551142462622) -->
-    <!-- no translation found for dream_timeout_entries:6 (8012672183888404961) -->
-    <!-- no translation found for lock_after_timeout_entries:2 (5558060663472279597) -->
-    <!-- no translation found for lock_after_timeout_entries:6 (4376575879222393045) -->
-    <!-- no translation found for lock_after_timeout_entries:7 (811192536981678974) -->
+  <string-array name="dream_timeout_entries">
+    <item msgid="6487043225269853023">"Ніколі"</item>
+    <item msgid="2517785806387977252">"15 секунд"</item>
+    <item msgid="6347954399441173672">"30 секунд"</item>
+    <item msgid="4858305253279921789">"1 хвіліна"</item>
+    <item msgid="8109273437140044073">"2 хвіліны"</item>
+    <item msgid="2788593551142462622">"5 хвілін"</item>
+    <item msgid="8012672183888404961">"10 хвілін"</item>
+    <item msgid="8271452751594598661">"30 хвілін"</item>
+  </string-array>
+  <string-array name="lock_after_timeout_entries">
+    <item msgid="2232921187970351881">"Неадкладна"</item>
+    <item msgid="2038544972632026612">"5 секунд"</item>
+    <item msgid="5558060663472279597">"15 секунд"</item>
+    <item msgid="45341168505452037">"30 секунд"</item>
+    <item msgid="227647485917789272">"1 хвіліна"</item>
+    <item msgid="3367011891231217504">"2 хвіліны"</item>
+    <item msgid="4376575879222393045">"5 хвілін"</item>
+    <item msgid="811192536981678974">"10 хвілін"</item>
+    <item msgid="7258394417241706272">"30 хвілін"</item>
+  </string-array>
   <string-array name="entries_font_size">
     <item msgid="2340391964816059553">"Малы"</item>
     <item msgid="591935967183159581">"Стандартны"</item>
     <item msgid="1714184661981538355">"Вялікі"</item>
     <item msgid="6195563047686707484">"Найвялікшы"</item>
   </string-array>
-    <!-- no translation found for wifi_status:1 (4157625910392775808) -->
+  <string-array name="wifi_status">
+    <item msgid="1304883790721412351"></item>
+    <item msgid="4157625910392775808">"Сканаванне..."</item>
+    <item msgid="5597394826455877834">"Падключэнне..."</item>
+    <item msgid="5848277343965362748">"Аўтэнтыфікацыя..."</item>
+    <item msgid="3391238031431440676">"Атрыманне IP-адраса..."</item>
+    <item msgid="5257597310494000224">"Падключана"</item>
+    <item msgid="8472497592913050396">"Прыпынена"</item>
+    <item msgid="1228072488815999109">"Адключэнне..."</item>
+    <item msgid="7253087004422991731">"Адключана"</item>
+    <item msgid="4169850917304751227">"Няўдала"</item>
+    <item msgid="6266658166690831131">"Заблакiравана"</item>
+    <item msgid="4517230805854909775">"Дрэнная сувязь часова пазбегнута"</item>
+  </string-array>
   <string-array name="wifi_status_with_ssid">
     <item msgid="4853670665485437464"></item>
     <item msgid="6816207058895999545">"Сканаванне..."</item>
@@ -72,10 +100,21 @@
     <item msgid="3230556734162006146">"Выхад за дазволеныя межы"</item>
   </string-array>
     <!-- no translation found for bluetooth_visibility_timeout_entries:1 (2759776603549270587) -->
-    <!-- no translation found for bluetooth_max_connected_audio_devices:2 (5318020123964299318) -->
-    <!-- no translation found for bluetooth_max_connected_audio_devices:3 (6429260054182662738) -->
-    <!-- no translation found for bluetooth_max_connected_audio_devices:4 (1644506614010085798) -->
-    <!-- no translation found for wifi_signal:0 (1709949377823900951) -->
+  <string-array name="bluetooth_max_connected_audio_devices">
+    <item msgid="3800257971619063588">"Выкарыстоўваць стандартныя налады сістэмы: <xliff:g id="DEFAULT_BLUETOOTH_MAX_CONNECTED_AUDIO_DEVICES">%1$d</xliff:g>"</item>
+    <item msgid="8572230405241423895">"1"</item>
+    <item msgid="5318020123964299318">"2"</item>
+    <item msgid="6429260054182662738">"3"</item>
+    <item msgid="1644506614010085798">"4"</item>
+    <item msgid="3132506679404897150">"5"</item>
+  </string-array>
+  <string-array name="wifi_signal">
+    <item msgid="1709949377823900951">"Дрэнны"</item>
+    <item msgid="7882129634982603782">"Дрэнны"</item>
+    <item msgid="6457357501905996224">"Слабая"</item>
+    <item msgid="405271628162918841">"Добры"</item>
+    <item msgid="999948812884919584">"Выдатны"</item>
+  </string-array>
   <string-array name="data_usage_data_range">
     <item msgid="8986775481492954015">"Апошнія 30 дзён"</item>
     <item msgid="3211287705232736964">"Заданне цыклу расходу..."</item>
@@ -96,8 +135,14 @@
     <item msgid="8655686691660180616">"MSCHAPV2"</item>
     <item msgid="1354245862267605928">"GTC"</item>
   </string-array>
-    <!-- no translation found for wifi_peap_phase2_entries_with_sim_auth:0 (7122038588318037831) -->
-    <!-- no translation found for wifi_peap_phase2_entries_with_sim_auth:2 (6333849991499980140) -->
+  <string-array name="wifi_peap_phase2_entries_with_sim_auth">
+    <item msgid="7122038588318037831">"Няма"</item>
+    <item msgid="212906109313512425">"MSCHAPV2"</item>
+    <item msgid="6333849991499980140">"GTC"</item>
+    <item msgid="6226796534844879034">"SIM"</item>
+    <item msgid="4600011056049114926">"AKA"</item>
+    <item msgid="5244120184217604552">"AKA\'"</item>
+  </string-array>
   <string-array name="wifi_phase2_entries">
     <item msgid="5865367433072785952">"Няма"</item>
     <item msgid="7901133332272818442">"PAP"</item>
@@ -125,9 +170,30 @@
     <item msgid="9148582221081416020">"IPv6"</item>
     <item msgid="4094895508821270572">"IPv4/IPv6"</item>
   </string-array>
-    <!-- no translation found for bearer_entries:1 (2740477081395679090) -->
-    <!-- no translation found for mvno_type_entries:0 (6984770764726663331) -->
-    <!-- no translation found for mvno_type_entries:2 (7556656048009090524) -->
+  <string-array name="bearer_entries">
+    <item msgid="5231094118929435723">"Не пазначана"</item>
+    <item msgid="2740477081395679090">"LTE"</item>
+    <item msgid="1807866878276630064">"HSPAP"</item>
+    <item msgid="7945352669463358624">"HSPA"</item>
+    <item msgid="4152166097223929133">"HSUPA"</item>
+    <item msgid="5134662517319988296">"HSDPA"</item>
+    <item msgid="4997539146036732961">"UMTS"</item>
+    <item msgid="4910169712073083585">"EDGE"</item>
+    <item msgid="3505904588897578792">"GPRS"</item>
+    <item msgid="7246853278334311652">"eHRPD"</item>
+    <item msgid="7037248100126710307">"EVDO_B"</item>
+    <item msgid="3440758673769932256">"EVDO_A"</item>
+    <item msgid="1782525731958596741">"EVDO_0"</item>
+    <item msgid="1819765960790884441">"1xRTT"</item>
+    <item msgid="3148192102183107944">"IS95B"</item>
+    <item msgid="3778273775365258534">"IS95A"</item>
+  </string-array>
+  <string-array name="mvno_type_entries">
+    <item msgid="6984770764726663331">"Няма"</item>
+    <item msgid="1469208769491004112">"SPN"</item>
+    <item msgid="7556656048009090524">"IMSI"</item>
+    <item msgid="8636516530542473799">"GID"</item>
+  </string-array>
   <string-array name="app_install_location_entries">
     <item msgid="6621866711026016227">"Унутраная памяць прылады"</item>
     <item msgid="3186681694079967527">"Зменная SD-карта"</item>
@@ -149,8 +215,13 @@
     <item msgid="8305084671259331134">"Доўгая"</item>
   </string-array>
     <!-- no translation found for captioning_typeface_selector_titles:4 (1487203730637617924) -->
-    <!-- no translation found for captioning_font_size_selector_titles:1 (5091603983404027034) -->
-    <!-- no translation found for captioning_font_size_selector_titles:2 (176844712416932112) -->
+  <string-array name="captioning_font_size_selector_titles">
+    <item msgid="1680223634161592855">"Вельмі дробны"</item>
+    <item msgid="5091603983404027034">"Дробны"</item>
+    <item msgid="176844712416932112">"Звычайны"</item>
+    <item msgid="2784236342175159295">"Вялікі"</item>
+    <item msgid="218913203203160606">"Вельмі вялікі"</item>
+  </string-array>
     <!-- no translation found for captioning_edge_type_selector_titles:4 (8019330250538856521) -->
   <string-array name="captioning_opacity_selector_titles">
     <item msgid="313003243371588365">"25%"</item>

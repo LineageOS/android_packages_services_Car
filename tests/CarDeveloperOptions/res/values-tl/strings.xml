@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Protektahan ang iyong tablet sa pamamagitan ng opsyon sa lock ng screen para walang makakagamit nito kapag nawala o ninakaw ito. Kailangan mo rin ng opsyon sa lock ng screen para i-set up ang pag-authenticate ng mukha. I-tap ang Kanselahin, pagkatapos ay magtakda ng PIN o pumili ng ibang opsyon sa lock ng screen."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Protektahan ang iyong device sa pamamagitan ng opsyon sa lock ng screen para walang makakagamit nito kapag nawala o ninakaw ito. Kailangan mo rin ng opsyon sa lock ng screen para i-set up ang pag-authenticate ng mukha. I-tap ang Kanselahin, pagkatapos ay magtakda ng PIN o pumili ng ibang opsyon sa lock ng screen."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Protektahan ang iyong telepono sa pamamagitan ng opsyon sa lock ng screen para walang makakagamit nito kapag nawala o ninakaw ito. Kailangan mo rin ng opsyon sa lock ng screen para i-set up ang pag-authenticate ng mukha. I-tap ang Kanselahin, pagkatapos ay magtakda ng PIN o pumili ng ibang opsyon sa lock ng screen."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Laktawan ang Pag-set Up ng PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Laktawan ang Pag-set Up ng Password?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Laktawan ang Pag-set Up ng Pattern?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"I-set up ang screen lock"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Mobile"</item>
+    <item msgid="6007360612667098926">"Wi-Fi lang"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -2052,8 +2054,8 @@
     <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"Mag-tap nang 3 beses upang mag-zoom"</string>
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"Mag-tap ng button upang mag-zoom"</string>
     <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"Upang mag-zoom"</b>", mabilisang i-tap ang screen nang 3 beses.\n"<ul><li>"I-drag ang 2 o higit pang daliri upang mag-scroll"</li>\n<li>"I-pinch ang 2 o higit pang daliri upang isaayos ang zoom"</li></ul>\n\n<b>"Upang mag-zoom pansamantala"</b>", mabilisang i-tap ang screen nang 3 beses at pumindot nang matagal sa pangatlong pag-tap.\n"<ul><li>"Mag-drag upang gumalaw-galaw sa screen"</li>\n<li>"Iangat ang iyong daliri upang mag-zoom out"</li></ul>\n\n"Hindi ka maaaring mag-zoom in sa keyboard at navigation bar."</string>
-    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Kapag naka-on ang pag-magnify, gamitin ang button na Pagiging Naa-access sa ibaba ng screen upang mabilisang mag-magnify.\n\n"<b>"Upang mag-zoom"</b>", i-tap ang button na Pagiging Naa-access, pagkatapos ay mag-tap saanman sa screen.\n"<ul><li>"I-drag ang 2 o higit pang daliri upang mag-scroll"</li>\n<li>"I-pinch ang 2 o higit pang daliri upang isaayos ang zoom"</li></ul>\n\n<b>"Upang mag-zoom pansamantala"</b>", i-tap ang button na Pagiging Naa-access, pagkatapos ay pumindot nang matagal saanman sa screen.\n"<ul><li>"Mag-drag upang gumalaw-galaw sa screen"</li>\n<li>"Iangat ang daliri upang mag-zoom out"</li></ul>\n\n"Hindi ka maaaring mag-zoom in sa keyboard o navigation bar."</string>
-    <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Nakatakda sa <xliff:g id="SERVICE">%1$s</xliff:g> ang button na Pagiging Naa-access. Upang gumamit ng pag-magnify, pindutin nang matagal ang button na Pagiging Naa-access, pagkatapos ay piliin ang pag-magnify."</string>
+    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Kapag naka-on ang pag-magnify, gamitin ang button na Pagiging Accessible sa ibaba ng screen upang mabilisang mag-magnify.\n\n"<b>"Upang mag-zoom"</b>", i-tap ang button na Pagiging Accessible, pagkatapos ay mag-tap saanman sa screen.\n"<ul><li>"I-drag ang 2 o higit pang daliri upang mag-scroll"</li>\n<li>"I-pinch ang 2 o higit pang daliri upang isaayos ang zoom"</li></ul>\n\n<b>"Upang mag-zoom pansamantala"</b>", i-tap ang button na Pagiging Accessible, pagkatapos ay pumindot nang matagal saanman sa screen.\n"<ul><li>"Mag-drag upang gumalaw-galaw sa screen"</li>\n<li>"Iangat ang daliri upang mag-zoom out"</li></ul>\n\n"Hindi ka maaaring mag-zoom in sa keyboard o navigation bar."</string>
+    <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Nakatakda sa <xliff:g id="SERVICE">%1$s</xliff:g> ang button na Pagiging Accessible. Upang gumamit ng pag-magnify, pindutin nang matagal ang button na Pagiging Accessible, pagkatapos ay piliin ang pag-magnify."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Shortcut gamit ang volume key"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Serbisyo ng shortcut"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Payagan mula sa lock screen"</string>

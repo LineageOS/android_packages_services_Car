@@ -340,7 +340,7 @@
     <string name="zone_info_exemplar_location_and_offset" msgid="7264956350119098020">"<xliff:g id="EXEMPLAR_LOCATION">%1$s</xliff:g> (<xliff:g id="OFFSET">%2$s</xliff:g>)"</string>
     <string name="zone_info_offset_and_name" msgid="6043432339008569441">"<xliff:g id="TIME_TYPE">%2$s</xliff:g> (<xliff:g id="OFFSET">%1$s</xliff:g>)"</string>
     <string name="zone_info_footer" msgid="1959594483423380962">"Menggunakan <xliff:g id="OFFSET_AND_NAME">%1$s</xliff:g>. <xliff:g id="DST_TIME_TYPE">%2$s</xliff:g> dimulai pada <xliff:g id="TRANSITION_DATE">%3$s</xliff:g>."</string>
-    <string name="zone_info_footer_no_dst" msgid="7853616006981555000">"Menggunakan <xliff:g id="OFFSET_AND_NAME">%1$s</xliff:g>. Tidak ada waktu musim panas."</string>
+    <string name="zone_info_footer_no_dst" msgid="7853616006981555000">"Menggunakan <xliff:g id="OFFSET_AND_NAME">%1$s</xliff:g>. Tidak ada waktu daylight saving."</string>
     <string name="zone_time_type_dst" msgid="7812605402646684853">"Waktu musim panas"</string>
     <string name="zone_time_type_standard" msgid="4093967611947328688">"Waktu standar"</string>
     <string name="zone_menu_by_region" msgid="8211384017117296924">"Pilih menurut wilayah"</string>
@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Lindungi tablet Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika tablet Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan autentikasi wajah. Ketuk Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Lindungi perangkat Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika perangkat Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan autentikasi wajah. Ketuk Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Lindungi ponsel Anda dengan opsi kunci layar agar tidak ada orang yang dapat menggunakannya jika ponsel Anda hilang atau dicuri. Anda juga memerlukan opsi kunci layar untuk menyiapkan autentikasi wajah. Ketuk Batal, lalu setel PIN atau pilih opsi kunci layar yang lain."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Lewati Penyiapan PIN?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Lewati Penyiapan Sandi?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Lewati Penyiapan Pola?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Siapkan kunci layar"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Ponsel"</item>
+    <item msgid="6007360612667098926">"Khusus Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -2642,7 +2644,7 @@
     <string name="misc_files_selected_count_bytes" msgid="3752262902203465861">"<xliff:g id="NUMBER">%1$s</xliff:g> dari <xliff:g id="TOTAL">%2$s</xliff:g>"</string>
     <string name="select_all" msgid="452240217913675728">"Pilih semua"</string>
     <string name="data_usage_summary_title" msgid="7288431048564861043">"Penggunaan kuota"</string>
-    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Kuota &amp; Wi‑Fi"</string>
+    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Data seluler &amp; Wi‑Fi"</string>
     <string name="data_usage_accounting" msgid="4681642832010140640">"Penghitungan data operator mungkin berbeda dengan perangkat Anda."</string>
     <string name="data_usage_app" msgid="4995297799363021198">"Penggunaan aplikasi"</string>
     <string name="data_usage_app_info_label" msgid="5358288895158910477">"INFO APLIKASI"</string>
@@ -3248,7 +3250,7 @@
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> jadwal dapat aktif otomatis</item>
       <item quantity="one">1 jadwal dapat aktif otomatis</item>
     </plurals>
-    <string name="zen_category_behavior" msgid="7695750848671443532">"Matikan suara perangkat, namun izinkan pengecualian"</string>
+    <string name="zen_category_behavior" msgid="7695750848671443532">"Nonaktifkan suara perangkat, namun izinkan pengecualian"</string>
     <string name="zen_category_exceptions" msgid="2139670640033601899">"Pengecualian"</string>
     <string name="zen_category_schedule" msgid="989629666210114164">"Jadwal"</string>
     <string name="zen_sound_title" msgid="3429086967245473870">"Lihat semua pengecualian"</string>

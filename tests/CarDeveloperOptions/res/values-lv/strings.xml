@@ -485,8 +485,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Aizsargājiet planšetdatoru, izmantojot ekrāna bloķēšanas iespēju, lai neviens nevarētu lietot planšetdatoru, ja tas tiks nozagts vai pazaudēts. Ekrāna bloķēšanas iespēja ir nepieciešama arī sejas autentifikācijas iestatīšanai. Pieskarieties vienumam Atcelt un pēc tam iestatiet PIN vai izvēlēties citu ekrāna bloķēšanas iespēju."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Aizsargājiet ierīci, izmantojot ekrāna bloķēšanas iespēju, lai neviens nevarētu lietot ierīci, ja tā tiks nozagta vai pazaudēta. Ekrāna bloķēšanas iespēja ir nepieciešama arī sejas autentifikācijas iestatīšanai. Pieskarieties vienumam Atcelt un pēc tam iestatiet PIN vai izvēlēties citu ekrāna bloķēšanas iespēju."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Aizsargājiet tālruni, izmantojot ekrāna bloķēšanas iespēju, lai neviens nevarētu lietot tālruni, ja tas tiks nozagts vai pazaudēts. Ekrāna bloķēšanas iespēja ir nepieciešama arī sejas autentifikācijas iestatīšanai. Pieskarieties vienumam Atcelt un pēc tam iestatiet PIN vai izvēlēties citu ekrāna bloķēšanas iespēju."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Vai izlaist PIN iestatīšanu?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Izlaist paroles iestatīšanu?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Vai neiestatīt kombināciju?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Iestatīt ekrāna bloķēšanu"</string>
@@ -1109,8 +1108,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="4421333712484542489">"Mobilie dati"</item>
+    <item msgid="6007360612667098926">"Tikai Wi-Fi"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>

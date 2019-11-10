@@ -312,7 +312,7 @@
     <string name="roaming" msgid="8860308342135146004">"Ibiltaritza"</string>
     <string name="roaming_enable" msgid="2108142024297441116">"Konektatu datu-zerbitzuetara ibiltaritzan"</string>
     <string name="roaming_disable" msgid="1915440242079953809">"Konektatu datu-zerbitzuetara ibiltaritzan"</string>
-    <string name="roaming_reenable_message" msgid="8388505868655113258">"Datuen konexioa galdu duzu tokiko saretik irten zarelako ibiltaritza desaktibatuta duzula."</string>
+    <string name="roaming_reenable_message" msgid="8388505868655113258">"Datuen konexioa galdu duzu tokiko saretik irten zarelako ibiltaritza desaktibatuta daukazula."</string>
     <string name="roaming_turn_it_on_button" msgid="4370846458830537578">"Aktibatu"</string>
     <string name="roaming_warning" msgid="5488050911277592868">"Baliteke kostu handiak ordaindu behar izatea."</string>
     <string name="roaming_warning_multiuser" product="tablet" msgid="7090388691615686893">"Ibiltaritzako datuak baimentzen badituzu, baliteke ibiltaritza-kostu handiak ordaindu behar izatea!\n\nEzarpenak tableta honen erabiltzaile guztiei eragiten die."</string>
@@ -325,7 +325,7 @@
     <string name="date_and_time_settings_summary" msgid="4617979434474713417">"Ezarri data, ordua, ordu-zona eta formatuak"</string>
     <string name="date_time_auto" msgid="2679132152303750218">"Erabili sareak emandako ordua"</string>
     <string name="zone_auto_title" msgid="5500880975376882488">"Erabili sareak emandako ordu-zona"</string>
-    <string name="date_time_24hour_auto" msgid="7499659679134962547">"Erabili eskualdeko ezarpen lehenetsiak"</string>
+    <string name="date_time_24hour_auto" msgid="7499659679134962547">"Erabili lurraldeko ezarpen lehenetsiak"</string>
     <string name="date_time_24hour_title" msgid="6209923858891621283">"24 orduko formatua"</string>
     <string name="date_time_24hour" msgid="1265706705061608742">"Erabili 24 orduko formatua"</string>
     <string name="date_time_set_time_title" msgid="7116850506333406367">"Ordua"</string>
@@ -363,7 +363,7 @@
     <string name="trust_lost_locks_screen_summary" msgid="2058567484625606803">"Gaitzen bada, gailua blokeatu egingo da azken fidagarritasun-agenteak fidagarritasuna galtzen duenean"</string>
     <string name="owner_info_settings_summary" msgid="4208702251226725583">"Bat ere ez"</string>
     <string name="owner_info_settings_status" msgid="8049975536717685126">"<xliff:g id="COUNT_0">%1$d</xliff:g>/<xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
-    <string name="owner_info_settings_edit_text_hint" msgid="2250029417257939706">"Adibidez, Jonen Android gailua."</string>
+    <string name="owner_info_settings_edit_text_hint" msgid="2250029417257939706">"Adibidez, Jonen Android-eko gailua."</string>
     <string name="user_info_settings_title" msgid="1125111518759995748">"Erabiltzaile-info."</string>
     <string name="show_profile_info_on_lockscreen_label" msgid="5204282771893683026">"Erakutsi profileko informazioa pantaila blokeatuan."</string>
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Profileko informazioa"</string>
@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Babestu tableta pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da aurpegi bidezko autentifikazioa konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN kode bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Babestu gailua pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da aurpegi bidezko autentifikazioa konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN kode bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Babestu telefonoa pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da aurpegi bidezko autentifikazioa konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN kode bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PINaren konfigurazioa saltatu nahi duzu?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Pasahitzaren konfigurazioa saltatu nahi duzu?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Ereduaren konfigurazioa saltatu nahi duzu?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Konfiguratu pantailaren blokeoa"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"Wifia"</item>
+    <item msgid="4421333712484542489">"Datu-konexioa"</item>
+    <item msgid="6007360612667098926">"Wi-Fi sarea soilik"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -1303,7 +1305,7 @@
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Sistemaren eguneratzeak"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
     <string name="firmware_version" msgid="547095584029938749">"Android bertsioa"</string>
-    <string name="security_patch" msgid="483709031051932208">"Android segurtasunaren adabaki-maila"</string>
+    <string name="security_patch" msgid="483709031051932208">"Android-en segurtasunaren adabaki-maila"</string>
     <string name="model_info" msgid="1729765474260797594">"Modeloa"</string>
     <string name="model_summary" msgid="8781425868254352168">"Modeloa: %1$s"</string>
     <string name="hardware_info" msgid="174270144950621815">"Modeloa eta hardwarea"</string>
@@ -1788,7 +1790,7 @@
     <string name="see_all_apps_title" msgid="6435061912110347474">"Ikusi <xliff:g id="COUNT">%1$d</xliff:g> aplikazioak"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Tabletak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartzen duzu haiek erabiltzeagatik tabletari gerta dakizkiokeen kalteen edo datu-galeren erantzulea zu zarela."</string>
     <string name="install_all_warning" product="default" msgid="7445839116997296358">"Telefonoak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartzen duzu haiek erabiltzeagatik telefonoari gerta dakizkiokeen kalteen edo datu-galeren erantzulea zu zarela."</string>
-    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Gailuak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartu egingo duzu haiek erabiltzeagatik gailuari gerta dakizkiokeen kalteen edo datu-galeren erantzulea zeu izango zarela."</string>
+    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Gailuak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartu egingo duzu haiek erabiltzeagatik gailuari agian gertatuko zaizkion kalteen edo datu-galeren erantzulea zeu izango zarela."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Ezarpen aurreratuak"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Gaitu ezarpenen aukera gehiago"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Aplikazioen informazioa"</string>
@@ -2628,9 +2630,9 @@
     <string name="remove_account_failed" msgid="491458185327106966">"Administratzaileak ez du eman aldaketa egiteko baimena"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Ezin da eskuz sinkronizatu"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"Elementua ezin da unean desgaitu. Ezarpena aldatzeko, aktibatu atzeko planoko datuak eta sinkronizazio automatikoa aldi baterako."</string>
-    <string name="enter_password" msgid="2963496904625715235">"Android gailua abiarazteko, idatzi pasahitza"</string>
-    <string name="enter_pin" msgid="7140938268709546890">"Android gailua abiarazteko, idatzi PIN kodea"</string>
-    <string name="enter_pattern" msgid="1653841963422825336">"Android gailua abiarazteko, marraztu eredua"</string>
+    <string name="enter_password" msgid="2963496904625715235">"Android-eko gailua abiarazteko, idatzi pasahitza"</string>
+    <string name="enter_pin" msgid="7140938268709546890">"Android-eko gailua abiarazteko, idatzi PIN kodea"</string>
+    <string name="enter_pattern" msgid="1653841963422825336">"Android-eko gailua abiarazteko, marraztu eredua"</string>
     <string name="cryptkeeper_wrong_pattern" msgid="4580105105385125467">"Eredu okerra"</string>
     <string name="cryptkeeper_wrong_password" msgid="1709534330303983166">"Pasahitz okerra"</string>
     <string name="cryptkeeper_wrong_pin" msgid="857757190077859245">"PIN okerra"</string>
@@ -3095,7 +3097,7 @@
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl bertsioa, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"sarea, sare mugikorraren egoera, zerbitzuaren egoera, seinalearen indarra, sare mugikor mota, ibiltaritza, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"serie-zenbakia, hardwarearen bertsioa"</string>
-    <string name="keywords_android_version" msgid="4842749998088987740">"android segurtasunaren adabaki-maila, oinarri-bandaren bertsioa, kernelaren bertsioa"</string>
+    <string name="keywords_android_version" msgid="4842749998088987740">"android-en segurtasunaren adabaki-maila, oinarri-bandaren bertsioa, kernelaren bertsioa"</string>
     <string name="keywords_dark_ui_mode" msgid="1027966176887770318">"gai, argi, modu, ilun"</string>
     <string name="keywords_financial_apps_sms_access" msgid="3236014691838121857">"finantza-aplikazioa, SMSa, baimena"</string>
     <string name="keywords_systemui_theme" msgid="9150908170417305866">"gai iluna"</string>
@@ -3365,14 +3367,14 @@
     <string name="no_notification_listeners" msgid="1366386609506834717">"Ez dago jakinarazpenetarako sarbidea eskatu duen aplikaziorik."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari jakinarazpenetarako sarbidea eman nahi diozu?"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> aplikazioak jakinarazpen guztiak irakurri ahalko ditu eta, haien barnean, informazio pertsonala egon daiteke (adibidez, kontaktuen izenak eta jasotzen dituzun testu-mezuak). Gainera, jakinarazpen horiek aldatu edo baztertu egin ahal izango ditu, baita haietako ekintza-botoiak sakatu ere. \n\nHorrez gain, Ez molestatu modua aktibatzeko eta desaktibatzeko aukera izango du aplikazioak, baita harekin erlazionatutako ezarpenak aldatzekoa ere."</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari jakinarazpenak atzitzeko baimena eman nahi diozu?"</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Jakinarazpenak atzitzeko baimena eman nahi diozu <xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> aplikazioak jakinarazpen guztiak irakurri ahal izango ditu, informazio pertsonala (adibidez, kontaktuen izenak eta jasotako testu-mezuak) dutenak barne. Horrez gain, jakinarazpenak baztertu eta haietako ekintza-botoiak abiarazi ahal izango ditu. \n\nGainera, Ez molestatu modua aktibatzeko eta desaktibatzeko aukera izango du aplikazioak, baita horrekin erlazionatutako ezarpenak aldatzekoa ere."</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> aplikazioari jakinarazpenak atzitzeko aukera desaktibatzen badiozu, baliteke Ez molestatu modurako sarbidea era desaktibatzea."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Desaktibatu"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Utzi"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Errealitate birtualeko laguntza-zerbitzuak"</string>
     <string name="no_vr_listeners" msgid="7675484190394450979">"Ez dago errealitate birtualeko laguntza-zerbitzu gisa abiaraztea eskatu duen aplikaziorik instalatuta."</string>
-    <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"<xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari errealitate birtualeko zerbitzuak atzitzeko baimena eman nahi diozu?"</string>
+    <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"Errealitate birtualeko zerbitzuak atzitzeko baimena eman nahi diozu <xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari?"</string>
     <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"Aplikazioak errealitate birtualean erabiltzen dituzunean abiarazi ahal izango da  <xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g>."</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"Errealitate birtualeko moduan"</string>
     <string name="display_vr_pref_low_persistence" msgid="3132583929174794245">"Murriztu lausotzea (gomendatua)"</string>
@@ -3501,7 +3503,7 @@
     <string name="zen_mode_reminders" msgid="7560664194610054038">"Baimendu abisuak"</string>
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"abisuak"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"Baimendu gertaerak"</string>
-    <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Baimendu aplikazioek \"Ez molestatu\" ez aplikatzea"</string>
+    <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Eman \"Ez molestatu\" ez aplikatzeko baimena aplikazioei"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Gehitu salbuespenak"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
       <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> aplikazioren jakinarazpenek dute “Ez molestatu” moduari ez ikusi egiteko aukera</item>
@@ -4101,9 +4103,9 @@
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Eskuzko ezarpenak"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Egin tokia"</string>
     <string name="gesture_preference_title" msgid="583646591518373785">"Keinuak"</string>
-    <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Telefonoa kontrolatzeko keinu azkarrak"</string>
-    <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Tableta kontrolatzeko keinu azkarrak"</string>
-    <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Gailua kontrolatzeko keinu azkarrak"</string>
+    <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Telefonoa kontrolatzeko keinu bizkorrak"</string>
+    <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Tableta kontrolatzeko keinu bizkorrak"</string>
+    <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Gailua kontrolatzeko keinu bizkorrak"</string>
     <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Ireki kamera"</string>
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Kamera bizkor irekitzeko, sakatu birritan etengailua. Edozein pantailatan zaudela egin dezakezu hori."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Ireki kamera bizkor"</string>

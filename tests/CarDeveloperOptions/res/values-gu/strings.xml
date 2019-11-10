@@ -481,8 +481,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"સ્ક્રીન લૉકના વિકલ્પથી તમારા ટૅબ્લેટનું રક્ષણ કરો કે જેથી તે ખોવાઈ અથવા ચોરાઈ જાય તો પણ કોઈ તેનો ઉપયોગ કરી શકે નહીં. ચહેરાના પ્રમાણીકરણનું સેટઅપ કરવા માટે સ્ક્રીન લૉકનો કોઈ અન્ય વિકલ્પ પણ તમે સેટ કરેલો હોવો જોઈએ. રદ કરોને ટૅપ કરો, પછી પિન સેટ કરો અથવા સ્ક્રીન લૉકનો કોઈ અન્ય વિકલ્પ પસંદ કરો."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"સ્ક્રીન લૉકના વિકલ્પથી તમારા ડિવાઇસનું રક્ષણ કરો કે જેથી તે ખોવાઈ અથવા ચોરાઈ જાય તો પણ કોઈ તેનો ઉપયોગ કરી શકે નહીં. ચહેરાના પ્રમાણીકરણનું સેટઅપ કરવા માટે સ્ક્રીન લૉકનો કોઈ અન્ય વિકલ્પ પણ તમે સેટ કરેલો હોવો જોઈએ. રદ કરોને ટૅપ કરો, પછી પિન સેટ કરો અથવા સ્ક્રીન લૉકનો કોઈ અન્ય વિકલ્પ પસંદ કરો."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"સ્ક્રીન લૉકના વિકલ્પથી તમારા ફોનનું રક્ષણ કરો કે જેથી તે ખોવાઈ અથવા ચોરાઈ જાય તો પણ કોઈ તેનો ઉપયોગ કરી શકે નહીં. ચહેરાના પ્રમાણીકરણનું સેટઅપ કરવા માટે સ્ક્રીન લૉકનો કોઈ અન્ય વિકલ્પ પણ તમે સેટ કરેલો હોવો જોઈએ. રદ કરોને ટૅપ કરો, પછી પિન સેટ કરો અથવા સ્ક્રીન લૉકનો કોઈ અન્ય વિકલ્પ પસંદ કરો."</string>
-    <!-- no translation found for lock_screen_pin_skip_title (8217519439213393785) -->
-    <skip />
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"પિન સેટઅપ કરવાનું છોડીએ?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"પાસવર્ડ સેટઅપ કરવાનું છોડીએ?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"પૅટર્ન સેટઅપ કરવાનું છોડીએ?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"સ્ક્રીન લૉક સેટ કરો"</string>
@@ -1092,8 +1091,11 @@
     <item msgid="2552412793005571845">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2:0 (9149346657812979257) -->
-    <!-- no translation found for wifi_calling_mode_choices_v2:2 (6007360612667098926) -->
+  <string-array name="wifi_calling_mode_choices_v2">
+    <item msgid="9149346657812979257">"વાઇ-ફાઇ"</item>
+    <item msgid="4421333712484542489">"મોબાઇલ"</item>
+    <item msgid="6007360612667098926">"ફક્ત વાઇ-ફાઇ"</item>
+  </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
@@ -1321,7 +1323,7 @@
     <string name="storage_settings" msgid="7009733301485139652">"સ્ટોરેજ"</string>
     <string name="storage_settings_for_app" msgid="3028887232073069965">"સ્ટોરેજ અને કૅશ મેમરી"</string>
     <string name="storage_usb_settings" msgid="4470138799276333403">"સ્ટોરેજ"</string>
-    <string name="storage_settings_title" msgid="7348362600789024415">"સ્ટોરેજ સેટિંગ્સ"</string>
+    <string name="storage_settings_title" msgid="7348362600789024415">"સ્ટોરેજ સેટિંગ"</string>
     <string name="storage_settings_summary" product="nosdcard" msgid="600267641559698394">"USB સંગ્રહને અનમાઉન્ટ કરો, ઉપલબ્ધ સંગ્રહ જુઓ"</string>
     <string name="storage_settings_summary" product="default" msgid="6233147555590816245">"SD કાર્ડ અનમાઉન્ટ કરો, ઉપલબ્ધ સંગ્રહ જુઓ"</string>
     <string name="imei_multi_sim" msgid="6462221220123699987">"IMEI (સિમ સ્લૉટ %1$d)"</string>
