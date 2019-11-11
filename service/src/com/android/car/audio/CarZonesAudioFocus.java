@@ -173,7 +173,7 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      * @param indent indent to append to each new line
      * @param writer stream to write current state
      */
-    synchronized void dump(String indent, PrintWriter writer) {
+    void dump(String indent, PrintWriter writer) {
         writer.printf("%s*CarZonesAudioFocus*\n", indent);
 
         writer.printf("%s\tCar Zones Audio Focus Listeners:\n", indent);

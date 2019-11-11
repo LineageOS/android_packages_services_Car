@@ -134,6 +134,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private final HashMap<String, FocusEntry> mFocusHolders = new HashMap<>();
     private final HashMap<String, FocusEntry> mFocusLosers = new HashMap<>();
 
+    private final Object mLock = new Object();
+
 
     CarAudioFocus(AudioManager audioManager, PackageManager packageManager) {
         mAudioManager = audioManager;
@@ -151,7 +153,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
 
     // This sends a focus loss message to the targeted requester.
-    private void sendFocusLoss(FocusEntry loser, int lossType) {
+    private void sendFocusLossLocked(FocusEntry loser, int lossType) {
         int result = mAudioManager.dispatchAudioFocusChange(loser.mAfi, lossType, mAudioPolicy);
         if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             // TODO:  Is this actually an error, or is it okay for an entry in the focus stack
@@ -177,7 +179,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     // If it is for the same USAGE, we replace the old request with the new one.
     // The default audio framework's behavior is to remove the previous entry in the stack (no-op
     // if the requester is already holding focus).
-    int evaluateFocusRequest(AudioFocusInfo afi) {
+    private int evaluateFocusRequestLocked(AudioFocusInfo afi) {
         Log.i(TAG, "Evaluating " + focusEventToString(afi.getGainRequest()) + " request for client "
                 + afi.getClientId());
 
@@ -357,7 +359,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
             if (permanent) {
                 // This entry has now lost focus forever
-                sendFocusLoss(entry, AudioManager.AUDIOFOCUS_LOSS);
+                sendFocusLossLocked(entry, AudioManager.AUDIOFOCUS_LOSS);
                 entry.mReceivedLossTransientCanDuck = false;
                 final FocusEntry deadEntry = mFocusLosers.remove(entry.mAfi.getClientId());
                 assert deadEntry != null;
@@ -367,7 +369,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                     // This entry was previously allowed to duck, but can no longer do so.
                     Log.i(TAG, "Converting duckable loss to non-duckable for "
                             + entry.getClientId());
-                    sendFocusLoss(entry, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
+                    sendFocusLossLocked(entry, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
                     entry.mReceivedLossTransientCanDuck = false;
                 }
                 // Note that this new request is yet one more reason we can't (yet) have focus
@@ -389,7 +391,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             } else {
                 lossType = AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
             }
-            sendFocusLoss(entry, lossType);
+            sendFocusLossLocked(entry, lossType);
 
             // The entry no longer holds focus, so take it out of the holders list
             mFocusHolders.remove(entry.mAfi.getClientId());
@@ -411,7 +413,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         // GAIN_TRANSIENT request from the same listener.)
         for (FocusEntry entry : permanentlyLost) {
             Log.d(TAG, "Cleaning up entry " + entry.getClientId());
-            removeFocusEntryAndRestoreUnblockedWaiters(entry);
+            removeBlockerAndRestoreUnblockedWaitersLocked(entry);
         }
 
         // Finally, add the request we're granting to the focus holders' list
@@ -423,15 +425,18 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
 
     @Override
-    public synchronized void onAudioFocusRequest(AudioFocusInfo afi, int requestResult) {
-        int response = evaluateFocusRequest(afi);
-
+    public void onAudioFocusRequest(AudioFocusInfo afi, int requestResult) {
+        int response;
+        AudioPolicy policy;
+        synchronized (mLock) {
+            policy = mAudioPolicy;
+            response = evaluateFocusRequestLocked(afi);
+        }
         // Post our reply for delivery to the original focus requester
-        mAudioManager.setFocusRequestResult(afi, response, mAudioPolicy);
-
+        mAudioManager.setFocusRequestResult(afi, response, policy);
         logFocusEvent("onAudioFocusRequest for client " + afi.getClientId()
-                        + " with gain type " + focusEventToString(afi.getGainRequest())
-                        + " resulted in " + focusRequestResponseToString(response));
+                + " with gain type " + focusEventToString(afi.getGainRequest())
+                + " resulted in " + focusRequestResponseToString(response));
     }
 
 
@@ -441,12 +446,14 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      * we don't need to watch for death notifications directly.
      * */
     @Override
-    public synchronized void onAudioFocusAbandon(AudioFocusInfo afi) {
+    public void onAudioFocusAbandon(AudioFocusInfo afi) {
         logFocusEvent("onAudioFocusAbandon for client " + afi.getClientId());
-        FocusEntry deadEntry = removeFocusEntry(afi);
+        synchronized (mLock) {
+            FocusEntry deadEntry = removeFocusEntryLocked(afi);
 
-        if (deadEntry != null) {
-            removeFocusEntryAndRestoreUnblockedWaiters(deadEntry);
+            if (deadEntry != null) {
+                removeBlockerAndRestoreUnblockedWaitersLocked(deadEntry);
+            }
         }
     }
 
@@ -455,7 +462,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      * @param afi Audio Focus Info to remove
      * @return Removed Focus Entry
      */
-    private FocusEntry removeFocusEntry(AudioFocusInfo afi) {
+    private FocusEntry removeFocusEntryLocked(AudioFocusInfo afi) {
         Log.i(TAG, "removeFocusEntry " + afi.getClientId());
 
         // Remove this entry from our active or pending list
@@ -479,7 +486,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         return deadEntry;
     }
 
-    private void removeFocusEntryAndRestoreUnblockedWaiters(FocusEntry deadEntry) {
+    private void removeBlockerAndRestoreUnblockedWaitersLocked(FocusEntry deadEntry) {
         // Remove this entry from the blocking list of any pending requests
         Iterator<FocusEntry> it = mFocusLosers.values().iterator();
         while (it.hasNext()) {
@@ -497,8 +504,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                 // Add it back into the focus holders list
                 mFocusHolders.put(entry.getClientId(), entry);
 
-                dispatchFocusGained(entry.mAfi);
-
+                dispatchFocusGainedLocked(entry.mAfi);
             }
         }
     }
@@ -508,7 +514,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      * @param afi Audio focus info
      * @return AudioManager.AUDIOFOCUS_REQUEST_GRANTED if focus is dispatched successfully
      */
-    private int dispatchFocusGained(AudioFocusInfo afi) {
+    private int dispatchFocusGainedLocked(AudioFocusInfo afi) {
         // Send the focus (re)gain notification
         int result = mAudioManager.dispatchAudioFocusChange(
                 afi,
@@ -521,7 +527,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             Log.e(TAG, "Failure to signal gain of audio focus with error: " + result);
         }
 
-        logFocusEvent("dispatchFocusGained for client " + afi.getClientId()
+        logFocusEvent("dispatchFocusGainedLocked for client " + afi.getClientId()
                         + " with gain type " + focusEventToString(afi.getGainRequest())
                         + " resulted in " + focusRequestResponseToString(result));
         return result;
@@ -555,10 +561,12 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private ArrayList<AudioFocusInfo> getAudioFocusListForUid(int uid,
             HashMap<String, FocusEntry> mapToQuery) {
         ArrayList<AudioFocusInfo> matchingInfoList = new ArrayList<>();
-        for (String clientId : mapToQuery.keySet()) {
-            AudioFocusInfo afi = mapToQuery.get(clientId).mAfi;
-            if (afi.getClientUid() == uid) {
-                matchingInfoList.add(afi);
+        synchronized (mLock) {
+            for (String clientId : mapToQuery.keySet()) {
+                AudioFocusInfo afi = mapToQuery.get(clientId).mAfi;
+                if (afi.getClientUid() == uid) {
+                    matchingInfoList.add(afi);
+                }
             }
         }
         return matchingInfoList;
@@ -570,11 +578,12 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      * @param afi Audio Focus info to remove
      */
     void removeAudioFocusInfoAndTransientlyLoseFocus(AudioFocusInfo afi) {
-        FocusEntry deadEntry = removeFocusEntry(afi);
-
-        if (deadEntry != null) {
-            sendFocusLoss(deadEntry, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
-            removeFocusEntryAndRestoreUnblockedWaiters(deadEntry);
+        synchronized (mLock) {
+            FocusEntry deadEntry = removeFocusEntryLocked(afi);
+            if (deadEntry != null) {
+                sendFocusLossLocked(deadEntry, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
+                removeBlockerAndRestoreUnblockedWaitersLocked(deadEntry);
+            }
         }
     }
 
@@ -584,11 +593,14 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      * @return AudioManager.AUDIOFOCUS_REQUEST_GRANTED if focus is granted
      */
     int reevaluateAndRegainAudioFocus(AudioFocusInfo afi) {
-        int results = evaluateFocusRequest(afi);
-
-        if (results == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            return dispatchFocusGained(afi);
+        int results;
+        synchronized (mLock) {
+            results = evaluateFocusRequestLocked(afi);
+            if (results == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                results = dispatchFocusGainedLocked(afi);
+            }
         }
+
         return results;
     }
 
@@ -597,22 +609,24 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      * @param indent indent to add to each line in the current stream
      * @param writer stream to write to
      */
-    public synchronized void dump(String indent, PrintWriter writer) {
-        writer.printf("%s*CarAudioFocus*\n", indent);
+    public void dump(String indent, PrintWriter writer) {
+        synchronized (mLock) {
+            writer.printf("%s*CarAudioFocus*\n", indent);
 
-        String innerIndent = indent + "\t";
-        writer.printf("%sCurrent Focus Holders:\n", innerIndent);
-        for (String clientId : mFocusHolders.keySet()) {
-            writer.printf("%s\t%s\n", innerIndent, clientId);
+            String innerIndent = indent + "\t";
+            writer.printf("%sCurrent Focus Holders:\n", innerIndent);
+            for (String clientId : mFocusHolders.keySet()) {
+                writer.printf("%s\t%s\n", innerIndent, clientId);
+            }
+
+            writer.printf("%sTransient Focus Losers:\n", innerIndent);
+            for (String clientId : mFocusLosers.keySet()) {
+                writer.printf("%s\t%s\n", innerIndent, clientId);
+            }
+
+            writer.printf("%sFocus Events:\n", innerIndent);
+            mFocusEventLogger.dump(innerIndent + "\t", writer);
         }
-
-        writer.printf("%sTransient Focus Losers:\n", innerIndent);
-        for (String clientId : mFocusLosers.keySet()) {
-            writer.printf("%s\t%s\n", innerIndent, clientId);
-        }
-
-        writer.printf("%sFocus Events:\n", innerIndent);
-        mFocusEventLogger.dump(innerIndent + "\t", writer);
     }
 
     private static String focusEventToString(int focusEvent) {
