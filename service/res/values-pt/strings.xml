@@ -24,8 +24,8 @@
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Acessar informações de abastecimento do carro."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"ajustar a autonomia restante do carro"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Ajustar o valor restante de autonomia do carro."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"acessar o HVAC (Aquecimento, ventilação e ar condicionado) do carro"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Acessar o HVAC (Aquecimento, ventilação e ar condicionado) do carro."</string>
+    <string name="car_permission_label_hvac" msgid="1499454192558727843">"acessar o HVAC (Aquecimento, ventilação e ar-condicionado) do carro"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Acessar o HVAC (Aquecimento, ventilação e ar-condicionado) do carro."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"acessar informações de quilometragem do carro"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Acessar informações sobre a quilometragem do carro."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"ler a velocidade do carro"</string>
@@ -125,9 +125,7 @@
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Acessar estado da potência do carro."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Inscrever dispositivo confiável"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Permitir inscrição de dispositivo confiável"</string>
-    <!-- no translation found for car_permission_label_car_test_service (9159328930558208708) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_test_service (7426844534110145843) -->
-    <skip />
+    <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Controlar modo de teste do carro"</string>
+    <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"Controlar modo de teste do carro"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Meu dispositivo"</string>
 </resources>

@@ -4279,8 +4279,8 @@
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Spor alle GNSS-konstellasjoner og -frekvenser uten syklus for oppgaver"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Tillat start av bakgrunnsaktivitet"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Tillater all start av bakgrunnsaktivitet"</string>
-    <string name="show_first_crash_dialog" msgid="3682063068903692710">"Vis alltid kræsjdialogboksen"</string>
-    <string name="show_first_crash_dialog_summary" msgid="8197987550025401754">"Vis dialogboksen hver gang en app kræsjer"</string>
+    <string name="show_first_crash_dialog" msgid="3682063068903692710">"Vis alltid krasjdialogboksen"</string>
+    <string name="show_first_crash_dialog_summary" msgid="8197987550025401754">"Vis dialogboksen hver gang en app krasjer"</string>
     <string name="angle_enabled_app" msgid="4359266182151708733">"Velg en ANGLE-aktivert app"</string>
     <string name="angle_enabled_app_not_set" msgid="7428910515748621910">"Du har ikke angitt noen ANGLE-aktivert app"</string>
     <string name="angle_enabled_app_set" msgid="7313088703610569320">"ANGLE-aktivert app: <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>

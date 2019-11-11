@@ -125,9 +125,7 @@
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"કારના પાવરની સ્થિતિને ઍક્સેસ કરો."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"વિશ્વસનીય ડિવાઇસની નોંધણી કરો"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"વિશ્વસનીય ડિવાઇસના નોંધણીની મંજૂરી આપો"</string>
-    <!-- no translation found for car_permission_label_car_test_service (9159328930558208708) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_test_service (7426844534110145843) -->
-    <skip />
+    <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"કારના પરીક્ષણ મોડને નિયંત્રિત કરો"</string>
+    <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"કારના પરીક્ષણ મોડને નિયંત્રિત કરો"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"મારું ડિવાઇસ"</string>
 </resources>
