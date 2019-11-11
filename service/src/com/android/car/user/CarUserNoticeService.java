@@ -163,6 +163,7 @@ public final class CarUserNoticeService implements CarServiceBase {
     };
 
     private final ServiceConnection mUiServiceConnection = new ServiceConnection() {
+        @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             synchronized (mLock) {
                 if (!mServiceBound) {
@@ -183,6 +184,7 @@ public final class CarUserNoticeService implements CarServiceBase {
             }
         }
 
+        @Override
         public void onServiceDisconnected(ComponentName name) {
             // UI crashed. Stop it so that it does not come again.
             stopUi(/* clearUiShown= */ true);
