@@ -645,6 +645,11 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             public void onStopped() {
                 Log.i(TAG, "Local-only hotspot stopped.");
                 synchronized (mLock) {
+                    if (mLocalOnlyHotspotReservation != null) {
+                        // We must explicitly released old reservation object, otherwise it may
+                        // unexpectedly stop LOHS later because it overrode finalize() method.
+                        mLocalOnlyHotspotReservation.close();
+                    }
                     mLocalOnlyHotspotReservation = null;
                 }
                 sendApStopped();
