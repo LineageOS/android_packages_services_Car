@@ -22,7 +22,7 @@ cc_library {
 	"PipeRegistration.cpp",
 	"PipeQuery.cpp",
     ],
-    cflags: ["-DLOG_TAG=\"ComputepipeRouterV1_0\""]
+    cflags: ["-DLOG_TAG=\"ComputepipeRouter\""]
     + [
     	"-Wall",
 	"-Werror",
@@ -40,4 +40,39 @@ cc_library {
         "android.automotive.computepipe.registry-cpp",
         "android.automotive.computepipe.runner-cpp",
     ],
+}
+
+cc_binary {
+    name: "android.automotive.computepipe.router@1.0",
+
+    srcs: [
+        "service.cpp",
+        "RouterSvc.cpp",
+    ],
+         
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libutils",
+        "libbinder",
+        "android.automotive.computepipe.router@1.0-impl",
+        "android.automotive.computepipe.registry-cpp",
+    ],
+
+    header_libs: [
+      "computepipe_router_headers",
+    ],
+
+    init_rc: ["android.automotive.computepipe.router@1.0.rc"],
+
+    cflags: ["-DLOG_TAG=\"ComputepipeRouter\""] + [
+        "-DGL_GLEXT_PROTOTYPES",
+        "-DEGL_EGLEXT_PROTOTYPES",
+    ] + [
+        "-Wall",
+        "-Werror",
+        "-Wunused",
+        "-Wunreachable-code",
+    ],
+
 }
