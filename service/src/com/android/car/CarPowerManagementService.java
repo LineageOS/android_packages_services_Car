@@ -88,6 +88,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private int mNextWakeupSec = 0;
     private boolean mShutdownOnFinish = false;
     private boolean mIsBooting = true;
+    private boolean mIsResuming;
 
     private final CarUserManagerHelper mCarUserManagerHelper;
 
@@ -220,8 +221,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @VisibleForTesting
-    protected void clearIsBooting() {
+    protected void clearIsBootingOrResuming() {
         mIsBooting = false;
+        mIsResuming = false;
     }
 
     /**
@@ -304,15 +306,33 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void handleOn() {
-        // Do not switch user if it is booting as there can be a race with CarServiceHelperService
+        // Some OEMs have their own user-switching logic, which may not be coordinated with this
+        // code. To avoid contention, we don't switch users when we coming alive. The OEM's code
+        // should do the switch.
+        boolean allowUserSwitch = true;
+        boolean weAreBooting = false;
         if (mIsBooting) {
+            // The system is booting, so don't switch users
+            allowUserSwitch = false;
             mIsBooting = false;
-        } else {
-            int targetUserId = mCarUserManagerHelper.getInitialUser();
-            if (targetUserId != UserHandle.USER_SYSTEM
-                    && targetUserId != mCarUserManagerHelper.getCurrentForegroundUserId()) {
+            mIsResuming = false;
+            weAreBooting = true;
+        } else if (mIsResuming) {
+            // The system is resuming after a suspension. Optionally disable user switching.
+            allowUserSwitch = !mContext.getResources()
+                    .getBoolean(R.bool.config_disableUserSwitchDuringResume);
+            mIsBooting = false;
+            mIsResuming = false;
+        }
+        int targetUserId = mCarUserManagerHelper.getInitialUser();
+        if (targetUserId != UserHandle.USER_SYSTEM
+                && targetUserId != mCarUserManagerHelper.getCurrentForegroundUserId()) {
+            if (allowUserSwitch) {
                 Log.i(CarLog.TAG_POWER, "Desired user changed, switching to user:" + targetUserId);
                 mCarUserManagerHelper.switchToUserId(targetUserId);
+            } else {
+                Log.i(CarLog.TAG_POWER, "User switch disallowed while "
+                        + (weAreBooting ? "booting" : "resuming"));
             }
         }
         mSystemInterface.setDisplayState(true);
@@ -492,11 +512,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 // VHAL should transition CPMS to shutdown.
                 Log.e(CarLog.TAG_POWER, "Sleep did not succeed. Now attempting to shut down.");
                 mSystemInterface.shutdown();
+                return;
             }
             nextListenerState = CarPowerStateListener.SUSPEND_EXIT;
         }
-        // On wake, reset nextWakeup time. If not set again, system will suspend/shutdown forever.
+        // On resume, reset nextWakeup time. If not set again, system will suspend/shutdown forever.
+        mIsResuming = true;
         mNextWakeupSec = 0;
+        Log.i(CarLog.TAG_POWER, "Resuming after suspending");
         mSystemInterface.refreshDisplayBrightness();
         onApPowerStateChange(CpmsState.WAIT_FOR_VHAL, nextListenerState);
     }
