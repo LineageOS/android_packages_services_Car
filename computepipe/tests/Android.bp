@@ -27,10 +27,10 @@ cc_test {
       "computepipe_router_headers",
     ],
     shared_libs: [
-        "libhidlbase",
+        "libbinder",
         "libutils",
-        "android.automotive.computepipe.runner@1.0",
-        "android.automotive.computepipe@1.0",
+        "android.automotive.computepipe.registry-cpp",
+        "android.automotive.computepipe.runner-cpp",
     ],
 }
 
@@ -49,15 +49,14 @@ cc_test {
       "computepipe_router_headers",
     ],
     shared_libs: [
-        "libhidlbase",
+        "libbinder",
         "libutils",
-        "android.automotive.computepipe.runner@1.0",
-        "android.automotive.computepipe@1.0",
+        "android.automotive.computepipe.runner-cpp",
     ],
 }
 
 cc_test {
-    name: "piperegitration_test",
+    name: "piperegistration_test",
     test_suites: ["device-tests"],
     srcs: [
         "PipeRegistrationTest.cpp",
@@ -71,12 +70,11 @@ cc_test {
       "computepipe_router_headers",
     ],
     shared_libs: [
-        "libhidlbase",
+        "libbinder",
         "libutils",
         "android.automotive.computepipe.router@1.0-impl",
-        "android.automotive.computepipe.runner@1.0",
-        "android.automotive.computepipe.registry@1.0",
-        "android.automotive.computepipe@1.0",
+        "android.automotive.computepipe.runner-cpp",
+        "android.automotive.computepipe.registry-cpp",
     ],
 }
 
@@ -95,11 +93,10 @@ cc_test {
       "computepipe_router_headers",
     ],
     shared_libs: [
-        "libhidlbase",
+        "libbinder",
         "libutils",
         "android.automotive.computepipe.router@1.0-impl",
-        "android.automotive.computepipe.runner@1.0",
-        "android.automotive.computepipe.registry@1.0",
-        "android.automotive.computepipe@1.0",
+        "android.automotive.computepipe.runner-cpp",
+        "android.automotive.computepipe.registry-cpp",
     ],
 }

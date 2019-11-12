@@ -33,7 +33,7 @@ using namespace ::testing;
  * Wraps a FakeRunner instance
  */
 struct WrapRunner {
-    WrapRunner(const sp<FakeRunner>& r) : mRunner(r) {
+    WrapRunner(const android::sp<FakeRunner>& r) : mRunner(r) {
     }
     android::wp<FakeRunner> mRunner;
 };
@@ -44,7 +44,8 @@ struct WrapRunner {
  */
 class FakePipeHandle : public PipeHandle<WrapRunner> {
   public:
-    explicit FakePipeHandle(const sp<FakeRunner>& r) : PipeHandle(std::make_unique<WrapRunner>(r)) {
+    explicit FakePipeHandle(const android::sp<FakeRunner>& r)
+        : PipeHandle(std::make_unique<WrapRunner>(r)) {
     }
     bool isAlive() override {
         auto pRunner = mInterface->mRunner.promote();
@@ -66,7 +67,7 @@ class FakePipeHandle : public PipeHandle<WrapRunner> {
 };
 
 TEST(PipeContextTest, IsAliveTest) {
-    sp<FakeRunner> runner = new FakeRunner();
+    android::sp<FakeRunner> runner = new FakeRunner();
     std::unique_ptr<PipeHandle<WrapRunner>> pHandle = std::make_unique<FakePipeHandle>(runner);
     ASSERT_TRUE(pHandle->isAlive());
 
@@ -77,12 +78,12 @@ TEST(PipeContextTest, IsAliveTest) {
 }
 
 TEST(PipeContextTest, GetHandleTest) {
-    sp<FakeRunner> dummy = new FakeRunner();
+    android::sp<FakeRunner> dummy = new FakeRunner();
     std::unique_ptr<PipeHandle<WrapRunner>> pHandle = std::make_unique<FakePipeHandle>(dummy);
     PipeContext pContext(std::move(pHandle), "random");
 
     std::unique_ptr<PipeHandle<WrapRunner>> dupHandle = pContext.dupPipeHandle();
-    sp<FakeRunner> dummy2 = dupHandle->getInterface()->mRunner.promote();
+    android::sp<FakeRunner> dummy2 = dupHandle->getInterface()->mRunner.promote();
     ASSERT_THAT(dummy2->getStrongCount(), Eq(2));
     dummy2.clear();
 

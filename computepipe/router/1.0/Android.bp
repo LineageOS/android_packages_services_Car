@@ -17,10 +17,10 @@ cc_library {
     name: "android.automotive.computepipe.router@1.0-impl",
     vendor_available : true,
     srcs: [
-        "PipeQuery.cpp",
-        "PipeRegistration.cpp",
         "PipeClient.cpp",
-        "PipeRunner.cpp",
+	"PipeRunner.cpp",
+	"PipeRegistration.cpp",
+	"PipeQuery.cpp",
     ],
     cflags: ["-DLOG_TAG=\"ComputepipeRouterV1_0\""]
     + [
@@ -34,9 +34,10 @@ cc_library {
     ],
     export_include_dirs: ["include"],
     shared_libs: [
-        "libhidlbase",
+	"liblog",
         "libutils",
-        "android.automotive.computepipe.registry@1.0",
-        "android.automotive.computepipe@1.0",
+	"libbinder",
+        "android.automotive.computepipe.registry-cpp",
+        "android.automotive.computepipe.runner-cpp",
     ],
 }

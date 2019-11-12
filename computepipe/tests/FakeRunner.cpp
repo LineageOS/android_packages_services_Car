@@ -21,70 +21,68 @@ namespace automotive {
 namespace computepipe {
 namespace tests {
 
+using namespace android::binder;
+using namespace android::automotive::computepipe::runner;
+
 // Methods from ::android::automotive::computepipe::runner::V1_0::IFakeRunnerV1_0 follow.
-Return<void> FakeRunnerV1_0::getPipeDescriptor(getPipeDescriptor_cb _hidl_cb) {
-    (void)_hidl_cb;
-    return Void();
+Status FakeRunner::getPipeDescriptor(
+    ::android::automotive::computepipe::runner::PipeDescriptor* _aidl_return) {
+    (void)_aidl_return;
+    return Status::ok();
 }
 
-Return<::android::automotive::computepipe::V1_0::PipeStatus> FakeRunnerV1_0::setPipeInputSource(
-    uint32_t configId) {
+Status FakeRunner::setPipeInputSource(int32_t configId) {
     (void)configId;
-    return ::android::automotive::computepipe::V1_0::PipeStatus::OK;
+    return Status::ok();
 }
 
-Return<::android::automotive::computepipe::V1_0::PipeStatus> FakeRunnerV1_0::setPipeOffloadOptions(
-    uint32_t configId) {
+Status FakeRunner::setPipeOffloadOptions(int32_t configId) {
     (void)configId;
-    return ::android::automotive::computepipe::V1_0::PipeStatus::OK;
+    return Status::ok();
 }
 
-Return<::android::automotive::computepipe::V1_0::PipeStatus> FakeRunnerV1_0::setPipeTermination(
-    uint32_t configId) {
+Status FakeRunner::setPipeTermination(int32_t configId) {
     (void)configId;
-    return ::android::automotive::computepipe::V1_0::PipeStatus::OK;
+    return Status::ok();
 }
 
-Return<::android::automotive::computepipe::V1_0::PipeStatus> FakeRunnerV1_0::setPipeStateCallback(
-    const sp<::android::automotive::computepipe::runner::V1_0::IPipeStateCallback>& stateCb) {
+Status FakeRunner::setPipeStateCallback(const sp<IPipeStateCallback>& stateCb) {
     mStateCallback = stateCb;
-    return ::android::automotive::computepipe::V1_0::PipeStatus::OK;
+    return Status::ok();
 }
 
-Return<::android::automotive::computepipe::V1_0::PipeStatus> FakeRunnerV1_0::setPipeOutputConfig(
-    uint32_t configId, uint32_t maxInFlightCount,
-    const sp<::android::automotive::computepipe::runner::V1_0::IPipeStream>& handler) {
+Status FakeRunner::setPipeOutputConfig(int32_t configId, int32_t maxInFlightCount,
+                                       const ::android::sp<IPipeStream>& handler) {
     (void)configId;
     (void)maxInFlightCount;
     mOutputCallbacks.push_back(handler);
-    return ::android::automotive::computepipe::V1_0::PipeStatus::OK;
+    return Status::ok();
 }
 
-Return<::android::automotive::computepipe::V1_0::PipeStatus> FakeRunnerV1_0::applyPipeConfigs() {
-    return ::android::automotive::computepipe::V1_0::PipeStatus::OK;
+Status FakeRunner::applyPipeConfigs() {
+    return Status::ok();
 }
 
-Return<::android::automotive::computepipe::V1_0::PipeStatus> FakeRunnerV1_0::startPipe() {
-    return ::android::automotive::computepipe::V1_0::PipeStatus::OK;
+Status FakeRunner::startPipe() {
+    return Status::ok();
 }
 
-Return<::android::automotive::computepipe::V1_0::PipeStatus> FakeRunnerV1_0::stopPipe() {
-    return ::android::automotive::computepipe::V1_0::PipeStatus::OK;
+Status FakeRunner::stopPipe() {
+    return Status::ok();
 }
 
-Return<::android::automotive::computepipe::V1_0::PipeStatus> FakeRunnerV1_0::doneWithPacket(
-    uint32_t id) {
+Status FakeRunner::doneWithPacket(int32_t id) {
     (void)id;
-    return ::android::automotive::computepipe::V1_0::PipeStatus::OK;
+    return Status::ok();
 }
 
-Return<sp<::android::automotive::computepipe::runner::V1_0::IPipeDebugger>>
-FakeRunnerV1_0::getPipeDebugger() {
-    return nullptr;
+Status FakeRunner::getPipeDebugger(sp<IPipeDebugger>* _aidl_return) {
+    (void)_aidl_return;
+    return Status::ok();
 }
 
-Return<::android::automotive::computepipe::V1_0::PipeStatus> FakeRunnerV1_0::releaseRunner() {
-    return ::android::automotive::computepipe::V1_0::PipeStatus::OK;
+Status FakeRunner::releaseRunner() {
+    return Status::ok();
 }
 
 }  // namespace tests
