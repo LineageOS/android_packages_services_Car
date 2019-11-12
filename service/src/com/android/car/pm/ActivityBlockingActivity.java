@@ -50,6 +50,7 @@ import com.android.car.R;
  */
 public class ActivityBlockingActivity extends Activity {
     private static final int INVALID_TASK_ID = -1;
+    private final Object mLock = new Object();
 
     private Car mCar;
     private CarUxRestrictionsManager mUxRManager;
@@ -253,12 +254,12 @@ public class ActivityBlockingActivity extends Activity {
     }
 
     private void handleRestartingTask() {
-        if (isFinishing()) {
-            return;
-        }
-
         // Lock on self to avoid restarting the same task twice.
-        synchronized (this) {
+        synchronized (mLock) {
+            if (isFinishing()) {
+                return;
+            }
+
             if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
                 Log.i(CarLog.TAG_AM, "Restarting task " + mBlockedTaskId);
             }
