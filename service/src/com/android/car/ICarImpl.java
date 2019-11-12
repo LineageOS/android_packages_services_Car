@@ -17,6 +17,7 @@
 package com.android.car;
 
 import android.annotation.MainThread;
+import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.UiModeManager;
 import android.car.Car;
@@ -496,6 +497,19 @@ public class ICarImpl extends ICar.Stub {
                 writer.println("Failed dumping: " + mHal.getClass().getName());
                 e.printStackTrace(writer);
             }
+        } else if ("--list".equals(args[0])) {
+            dumpListOfServices(writer);
+            return;
+        } else if ("--services".equals(args[0])) {
+            if (args.length < 2) {
+                writer.print("Must pass services to dump when using --services");
+                return;
+            }
+            int length = args.length - 1;
+            String[] services = new String[length];
+            System.arraycopy(args, 1, services, 0, length);
+            dumpIndividualServices(writer, services);
+            return;
         } else if ("--metrics".equals(args[0])) {
             writer.println("*Dump car service metrics*");
             dumpAllServices(writer, true);
@@ -515,6 +529,12 @@ public class ICarImpl extends ICar.Stub {
         new CarShellCommand().exec(this, in, out, err, args, callback, resultReceiver);
     }
 
+    private void dumpListOfServices(PrintWriter writer) {
+        for (CarServiceBase service : mAllServices) {
+            writer.println(service.getClass().getName());
+        }
+    }
+
     private void dumpAllServices(PrintWriter writer, boolean dumpMetricsOnly) {
         for (CarServiceBase service : mAllServices) {
             dumpService(service, writer, dumpMetricsOnly);
@@ -522,7 +542,26 @@ public class ICarImpl extends ICar.Stub {
         if (mCarTestService != null) {
             dumpService(mCarTestService, writer, dumpMetricsOnly);
         }
+    }
 
+    private void dumpIndividualServices(PrintWriter writer, String... serviceNames) {
+        for (String serviceName : serviceNames) {
+            writer.println("** Dumping " + serviceName + "\n");
+            CarServiceBase service = getCarServiceBySubstring(serviceName);
+            if (service == null) {
+                writer.println("No such service!");
+            } else {
+                dumpService(service, writer, /* dumpMetricsOnly= */ false);
+            }
+            writer.println();
+        }
+    }
+
+    @Nullable
+    private CarServiceBase getCarServiceBySubstring(String className) {
+        return Arrays.asList(mAllServices).stream()
+                .filter(s -> s.getClass().getSimpleName().equals(className))
+                .findFirst().orElse(null);
     }
 
     private void dumpService(CarServiceBase service, PrintWriter writer, boolean dumpMetricsOnly) {
