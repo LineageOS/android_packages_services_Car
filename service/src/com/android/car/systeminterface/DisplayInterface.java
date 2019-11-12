@@ -43,6 +43,7 @@ import android.view.InputDevice;
 
 import com.android.car.CarLog;
 import com.android.car.CarPowerManagementService;
+import com.android.internal.annotations.GuardedBy;
 
 /**
  * Interface that abstracts display operations
@@ -70,15 +71,19 @@ public interface DisplayInterface {
         private final Context mContext;
         private final DisplayManager mDisplayManager;
         private final InputManager mInputManager;
+        private final Object mLock = new Object();
         private final int mMaximumBacklight;
         private final int mMinimumBacklight;
         private final PowerManager mPowerManager;
         private final WakeLockInterface mWakeLockInterface;
+        @GuardedBy("mLock")
         private CarPowerManagementService mService;
+        @GuardedBy("mLock")
         private boolean mDisplayStateSet;
+        @GuardedBy("mLock")
         private int mLastBrightnessLevel = -1;
 
-        private ContentObserver mBrightnessObserver =
+        private final ContentObserver mBrightnessObserver =
                 new ContentObserver(new Handler(Looper.getMainLooper())) {
                     @Override
                     public void onChange(boolean selfChange) {
@@ -132,25 +137,32 @@ public interface DisplayInterface {
         }
 
         @Override
-        public synchronized void refreshDisplayBrightness() {
-            int gamma = GAMMA_SPACE_MAX;
-            try {
-                int linear = System.getIntForUser(
-                        mContentResolver,
-                        System.SCREEN_BRIGHTNESS,
-                        ActivityManager.getCurrentUser());
-                gamma = convertLinearToGamma(linear, mMinimumBacklight, mMaximumBacklight);
-            } catch (SettingNotFoundException e) {
-                Log.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS:  " + e);
+        public void refreshDisplayBrightness() {
+            synchronized (mLock) {
+                if (mService == null) {
+                    Log.e(CarLog.TAG_POWER,
+                            "Could not set brightness: no CarPowerManagementService");
+                    return;
+                }
+                int gamma = GAMMA_SPACE_MAX;
+                try {
+                    int linear = System.getIntForUser(
+                            mContentResolver,
+                            System.SCREEN_BRIGHTNESS,
+                            ActivityManager.getCurrentUser());
+                    gamma = convertLinearToGamma(linear, mMinimumBacklight, mMaximumBacklight);
+                } catch (SettingNotFoundException e) {
+                    Log.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS: " + e);
+                }
+                int percentBright = (gamma * 100 + ((GAMMA_SPACE_MAX + 1) / 2)) / GAMMA_SPACE_MAX;
+                mService.sendDisplayBrightness(percentBright);
             }
-            int percentBright = (gamma * 100 + ((GAMMA_SPACE_MAX + 1) / 2)) / GAMMA_SPACE_MAX;
-            mService.sendDisplayBrightness(percentBright);
         }
 
         private void handleMainDisplayChanged() {
             boolean isOn = isMainDisplayOn();
             CarPowerManagementService service;
-            synchronized (this) {
+            synchronized (mLock) {
                 if (mDisplayStateSet == isOn) { // same as what is set
                     return;
                 }
@@ -166,11 +178,13 @@ public interface DisplayInterface {
 
         @Override
         public void setDisplayBrightness(int percentBright) {
-            if (percentBright == mLastBrightnessLevel) {
-                // We have already set the value last time. Skipping
-                return;
+            synchronized (mLock) {
+                if (percentBright == mLastBrightnessLevel) {
+                    // We have already set the value last time. Skipping
+                    return;
+                }
+                mLastBrightnessLevel = percentBright;
             }
-            mLastBrightnessLevel = percentBright;
             int gamma = (percentBright * GAMMA_SPACE_MAX + 50) / 100;
             int linear = convertGammaToLinear(gamma, mMinimumBacklight, mMaximumBacklight);
             System.putIntForUser(
@@ -182,7 +196,7 @@ public interface DisplayInterface {
 
         @Override
         public void startDisplayStateMonitoring(CarPowerManagementService service) {
-            synchronized (this) {
+            synchronized (mLock) {
                 mService = service;
                 mDisplayStateSet = isMainDisplayOn();
             }
@@ -203,7 +217,7 @@ public interface DisplayInterface {
 
         @Override
         public void setDisplayState(boolean on) {
-            synchronized (this) {
+            synchronized (mLock) {
                 mDisplayStateSet = on;
             }
             if (on) {
@@ -231,12 +245,14 @@ public interface DisplayInterface {
         }
 
         private void onUsersUpdate() {
-            if (mService == null) {
-                // CarPowerManagementService is not connected yet
-                return;
+            synchronized (mLock) {
+                if (mService == null) {
+                    // CarPowerManagementService is not connected yet
+                    return;
+                }
+                // We need to reset last value
+                mLastBrightnessLevel = -1;
             }
-            // We need to reset last value
-            mLastBrightnessLevel = -1;
             refreshDisplayBrightness();
         }
     }
