@@ -45,6 +45,10 @@ enum Error {
     BAD_PERMISSION = -5,
     // Bad args
     BAD_ARGUMENTS = -6,
+    // no memory
+    NOMEM = -7,
+    // Internal error
+    INTERNAL_ERR = -8,
 };
 
 /**
