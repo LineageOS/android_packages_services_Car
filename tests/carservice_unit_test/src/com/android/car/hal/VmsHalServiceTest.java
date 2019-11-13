@@ -17,7 +17,9 @@ package com.android.car.hal;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -43,8 +45,6 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.os.Binder;
 import android.os.IBinder;
-
-import androidx.test.filters.RequiresDevice;
 
 import com.android.car.R;
 import com.android.car.test.utils.TemporaryFile;
@@ -101,8 +101,13 @@ public class VmsHalServiceTest {
 
     @Before
     public void setUp() throws Exception {
+        initHalService(true);
+    }
+
+    private void initHalService(boolean propagatePropertyException) throws Exception {
         when(mContext.getResources()).thenReturn(mResources);
-        mHalService = new VmsHalService(mContext, mVehicleHal, () -> (long) CORE_ID);
+        mHalService = new VmsHalService(mContext, mVehicleHal, () -> (long) CORE_ID,
+            propagatePropertyException);
         mHalService.setClientManager(mClientManager);
         mHalService.setVmsSubscriberService(mSubscriberService);
 
@@ -156,6 +161,8 @@ public class VmsHalServiceTest {
                 0,                                  // Sequence number
                 0));                                // # of associated layers
 
+
+        waitForHandlerCompletion();
         initOrder.verifyNoMoreInteractions();
         reset(mClientManager, mSubscriberService, mVehicleHal);
     }
@@ -163,7 +170,7 @@ public class VmsHalServiceTest {
     @Test
     public void testCoreId_IntegerOverflow() throws Exception {
         mHalService = new VmsHalService(mContext, mVehicleHal,
-                () -> (long) Integer.MAX_VALUE + CORE_ID);
+                () -> (long) Integer.MAX_VALUE + CORE_ID, true);
 
         VehiclePropConfig propConfig = new VehiclePropConfig();
         propConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
@@ -585,7 +592,6 @@ public class VmsHalServiceTest {
      * </ul>
      */
     @Test
-    @RequiresDevice
     public void testHandleStartSessionEvent() throws Exception {
         when(mSubscriberService.getAvailableLayers()).thenReturn(
                 new VmsAvailableLayers(Collections.emptySet(), 5));
@@ -603,13 +609,18 @@ public class VmsHalServiceTest {
         );
 
         sendHalMessage(request);
+
         InOrder inOrder = Mockito.inOrder(mClientManager, mVehicleHal);
         inOrder.verify(mClientManager).onHalDisconnected();
         inOrder.verify(mVehicleHal).set(response);
+        inOrder.verify(mClientManager).onHalConnected(mPublisherClient, mSubscriberClient);
+
+        waitForHandlerCompletion();
         inOrder.verify(mVehicleHal).set(createHalMessage(
                 VmsMessageType.AVAILABILITY_CHANGE, // Message type
                 5,                                  // Sequence number
                 0));                                // # of associated layers
+
     }
 
     /**
@@ -957,6 +968,33 @@ public class VmsHalServiceTest {
 
         waitForHandlerCompletion();
         verify(mVehicleHal).set(response);
+    }
+
+    @Test
+    public void testPropertySetExceptionNotPropagated_CoreStartSession() throws Exception {
+        doThrow(new RuntimeException()).when(mVehicleHal).set(any());
+        initHalService(false);
+
+        mHalService.init();
+        waitForHandlerCompletion();
+    }
+
+    @Test
+    public void testPropertySetExceptionNotPropagated_ClientStartSession() throws Exception {
+        initHalService(false);
+
+        when(mSubscriberService.getAvailableLayers()).thenReturn(
+                new VmsAvailableLayers(Collections.emptySet(), 0));
+        doThrow(new RuntimeException()).when(mVehicleHal).set(any());
+
+        VehiclePropValue request = createHalMessage(
+                VmsMessageType.START_SESSION,  // Message type
+                -1,                            // Core ID (unknown)
+                CLIENT_ID                      // Client ID
+        );
+
+        sendHalMessage(request);
+        waitForHandlerCompletion();
     }
 
     @Test
