@@ -208,7 +208,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 mPackageUpdateFilter, null, null);
         mIsPackageUpdateReceiverRegistered = true;
 
-        mPrimaryMediaComponent = getLastMediaSource();
+        mPrimaryMediaComponent =
+                isCurrentUserEphemeral() ? getDefaultMediaSource() : getLastMediaSource();
         mActiveUserMediaController = null;
 
         updateMediaSessionCallbackForCurrentUser();
@@ -229,6 +230,10 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         serviceStart.setPackage(mContext.getResources().getString(R.string.serviceMediaConnection));
         serviceStart.putExtra(EXTRA_AUTOPLAY, startPlayback);
         mContext.startForegroundServiceAsUser(serviceStart, currentUser);
+    }
+
+    private boolean isCurrentUserEphemeral() {
+        return mUserManager.getUserInfo(mCurrentUser).isEphemeral();
     }
 
     @Override
@@ -312,10 +317,9 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 if (!unlocked) {
                     return;
                 }
-                // No need to handle user0, non current foreground user, or ephemeral user.
+                // No need to handle user0, non current foreground user.
                 if (userHandle == UserHandle.USER_SYSTEM
-                        || userHandle != ActivityManager.getCurrentUser()
-                        || mUserManager.getUserInfo(userHandle).isEphemeral()) {
+                        || userHandle != ActivityManager.getCurrentUser()) {
                     return;
                 }
                 if (mPendingInit) {
@@ -497,7 +501,9 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         if (mSharedPrefs != null) {
             if (mPrimaryMediaComponent != null && !TextUtils.isEmpty(
                     mPrimaryMediaComponent.flattenToString())) {
-                saveLastMediaSource(mPrimaryMediaComponent);
+                if (!isCurrentUserEphemeral()) {
+                    saveLastMediaSource(mPrimaryMediaComponent);
+                }
                 mRemovedMediaSourcePackage = null;
             }
         } else {
@@ -526,7 +532,9 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private MediaController.Callback mMediaControllerCallback = new MediaController.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackState state) {
-            savePlaybackState(state);
+            if (!isCurrentUserEphemeral()) {
+                savePlaybackState(state);
+            }
         }
     };
 
@@ -652,7 +660,10 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 }
             }
         }
+        return getDefaultMediaSource();
+    }
 
+    private ComponentName getDefaultMediaSource() {
         String defaultMediaSource = mContext.getString(R.string.default_media_source);
         ComponentName defaultComponent = ComponentName.unflattenFromString(defaultMediaSource);
         if (isMediaService(defaultComponent)) {
@@ -700,12 +711,14 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         for (MediaController controller : mediaControllers) {
             if (matchPrimaryMediaSource(controller.getPackageName(), getClassName(controller))) {
                 mActiveUserMediaController = controller;
+                PlaybackState state = mActiveUserMediaController.getPlaybackState();
+                if (!isCurrentUserEphemeral()) {
+                    savePlaybackState(state);
+                }
                 // Specify Handler to receive callbacks on, to avoid defaulting to the calling
                 // thread; this method can be called from the MediaSessionManager callback.
                 // Using the version of this method without passing a handler causes a
                 // RuntimeException for failing to create a Handler.
-                PlaybackState state = mActiveUserMediaController.getPlaybackState();
-                savePlaybackState(state);
                 mActiveUserMediaController.registerCallback(mMediaControllerCallback, mHandler);
                 return;
             }
