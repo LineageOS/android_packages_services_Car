@@ -16,8 +16,6 @@
 #ifndef ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_REGISTRY
 #define ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_REGISTRY
 
-#include <hidl/Status.h>
-
 #include <list>
 #include <memory>
 #include <mutex>
@@ -47,6 +45,10 @@ enum Error {
     BAD_PERMISSION = -5,
     // Bad args
     BAD_ARGUMENTS = -6,
+    // no memory
+    NOMEM = -7,
+    // Internal error
+    INTERNAL_ERR = -8,
 };
 
 /**

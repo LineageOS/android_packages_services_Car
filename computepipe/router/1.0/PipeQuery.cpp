@@ -25,39 +25,33 @@ namespace V1_0 {
 namespace implementation {
 
 using namespace android::automotive::computepipe::router;
-using namespace android::automotive::computepipe::registry::V1_0;
-using namespace android::automotive::computepipe::runner::V1_0;
+using namespace android::automotive::computepipe::registry;
+using namespace android::automotive::computepipe::runner;
+using namespace android::binder;
 
-using ::android::hardware::hidl_string;
-using ::android::hardware::hidl_vec;
-using ::android::hardware::Return;
-
-Return<void> PipeQuery::getGraphList(getGraphList_cb _hidl_cb) {
-    hidl_vec<hidl_string> graphList;
-    if (!mRegistry) {
-        _hidl_cb(graphList);
-        return {};
+Status PipeQuery::getGraphList(std::vector<std::string>* outNames) {
+    if (!mRegistry || !outNames) {
+        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_STATE);
     }
     auto names = mRegistry->getPipeList();
-    graphList.resize(names.size());
-    std::transform(names.begin(), names.end(), graphList.begin(),
-                   [](const std::string& in) -> hidl_string { return hidl_string(in); });
-    _hidl_cb(graphList);
-    return {};
+    std::copy(names.begin(), names.end(), std::back_inserter(*outNames));
+    return Status::ok();
 }
 
-Return<sp<IPipeRunner>> PipeQuery::getPipeRunner(const hidl_string& graphName,
-                                                 const sp<IClientInfo>& info) {
+Status PipeQuery::getPipeRunner(const std::string& graphName, const sp<IClientInfo>& info,
+                                sp<IPipeRunner>* outRunner) {
+    *outRunner = nullptr;
     if (!mRegistry) {
-        return nullptr;
+        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_STATE);
     }
     std::unique_ptr<ClientHandle> clientHandle = std::make_unique<PipeClient>(info);
     auto pipeHandle = mRegistry->getClientPipeHandle(graphName, std::move(clientHandle));
     if (!pipeHandle) {
-        return nullptr;
+        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_STATE);
     }
     auto pipeRunner = pipeHandle->getInterface();
-    return pipeRunner->runner;
+    *outRunner = pipeRunner->runner;
+    return Status::ok();
 }
 
 }  // namespace implementation

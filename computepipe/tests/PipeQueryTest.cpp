@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+#include <android/automotive/computepipe/registry/BnClientInfo.h>
+#include <binder/IInterface.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <hidl/Status.h>
-#include <stdio.h>
 
 #include <list>
 #include <memory>
@@ -32,19 +32,27 @@
 using namespace android::automotive::computepipe::router;
 using namespace android::automotive::computepipe::router::V1_0::implementation;
 using namespace android::automotive::computepipe::tests;
-using namespace android::automotive::computepipe::runner::V1_0;
-using namespace android::automotive::computepipe::registry::V1_0;
-using namespace android::automotive::computepipe::V1_0;
+using namespace android::automotive::computepipe::runner;
+using namespace android::automotive::computepipe::registry;
+using namespace android::binder;
 using namespace ::testing;
 
 /**
  * Fakeclass to instantiate client info for query purposes
  */
-class FakeClientInfo : public IClientInfo {
+class FakeClientInfo : public BnClientInfo {
   public:
-    ::android::hardware::Return<uint32_t> getClientId() override {
-        return 1;
+    Status getClientId(int32_t* id) override {
+        *id = 1;
+        return Status::ok();
     }
+    android::status_t linkToDeath(const android::sp<DeathRecipient>& recipient,
+                                  void* cookie = nullptr, uint32_t flags = 0) override {
+        (void)recipient;
+        (void)cookie;
+        (void)flags;
+        return OK;
+    };
 };
 
 /**
@@ -100,39 +108,44 @@ class PipeQueryTest : public ::testing::Test {
 
 // Check retrieval of inserted entries
 TEST_F(PipeQueryTest, GetGraphListTest) {
-    sp<IPipeRunner> dummy1 = new FakeRunner();
+    android::sp<IPipeRunner> dummy1 = new FakeRunner();
     addFakeRunner("dummy1", dummy1);
-    sp<IPipeRunner> dummy2 = new FakeRunner();
+    android::sp<IPipeRunner> dummy2 = new FakeRunner();
     addFakeRunner("dummy2", dummy1);
 
-    hidl_vec<hidl_string> names;
-    auto hidl_cb = [&names](const hidl_vec<hidl_string>& pipeList) { names = pipeList; };
+    std::vector<std::string>* outNames = new std::vector<std::string>();
     std::unique_ptr<PipeQuery> qIface = std::make_unique<PipeQuery>(mRegistry);
-    qIface->getGraphList(hidl_cb);
-    EXPECT_THAT(names.find("dummy1"), testing::Ne(names.end()));
-    EXPECT_THAT(names.find("dummy2"), testing::Ne(names.end()));
+    ASSERT_TRUE(qIface->getGraphList(outNames).isOk());
+
+    ASSERT_NE(outNames->size(), 0);
+    EXPECT_THAT(std::find(outNames->begin(), outNames->end(), "dummy1"),
+                testing::Ne(outNames->end()));
+    EXPECT_THAT(std::find(outNames->begin(), outNames->end(), "dummy2"),
+                testing::Ne(outNames->end()));
 }
 
 // Check successful retrieval of runner
 TEST_F(PipeQueryTest, GetRunnerTest) {
-    sp<IPipeRunner> dummy1 = new FakeRunner();
+    android::sp<IPipeRunner> dummy1 = new FakeRunner();
     addFakeRunner("dummy1", dummy1);
 
     std::unique_ptr<PipeQuery> qIface = std::make_unique<PipeQuery>(mRegistry);
-    sp<IClientInfo> info = new FakeClientInfo();
-    sp<IPipeRunner> runner = qIface->getPipeRunner("dummy1", info);
+    android::sp<IClientInfo> info = new FakeClientInfo();
+    android::sp<IPipeRunner> runner;
+    ASSERT_TRUE(qIface->getPipeRunner("dummy1", info, &runner).isOk());
     EXPECT_THAT(runner, testing::NotNull());
 }
 
 // Check retrieval of dead runner
 TEST_F(PipeQueryTest, DeadRunnerTest) {
-    sp<IPipeRunner> dummy1 = new FakeRunner();
+    android::sp<IPipeRunner> dummy1 = new FakeRunner();
     addFakeRunner("dummy1", dummy1);
 
     std::unique_ptr<PipeQuery> qIface = std::make_unique<PipeQuery>(mRegistry);
     dummy1.clear();
     removeRunner("dummy1");
-    sp<IClientInfo> info = new FakeClientInfo();
-    sp<IPipeRunner> runner = qIface->getPipeRunner("dummy1", info);
+    android::sp<IClientInfo> info = new FakeClientInfo();
+    android::sp<IPipeRunner> runner;
+    qIface->getPipeRunner("dummy1", info, &runner);
     EXPECT_THAT(runner, testing::IsNull());
 }

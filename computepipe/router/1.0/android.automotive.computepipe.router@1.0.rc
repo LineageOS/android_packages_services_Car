@@ -1,0 +1,5 @@
+service computepipe_router_service /system/bin/android.automotive.computepipe.router@1.0
+    class core
+    priority -20
+    user automotive_computepipe
+    group automotive_computepipe

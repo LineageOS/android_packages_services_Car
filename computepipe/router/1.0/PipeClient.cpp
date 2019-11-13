@@ -16,6 +16,8 @@
 
 #include "PipeClient.h"
 
+#include <binder/ProcessState.h>
+
 namespace android {
 namespace automotive {
 namespace computepipe {
@@ -23,15 +25,16 @@ namespace router {
 namespace V1_0 {
 namespace implementation {
 
-using namespace android::automotive::computepipe::registry::V1_0;
-using android::hardware::Return;
+using namespace android::automotive::computepipe::registry;
 
 uint32_t PipeClient::getClientId() {
     if (mClientInfo == nullptr) {
         return 0;
     }
-    Return<uint32_t> res = mClientInfo->getClientId();
-    return res.isOk() ? static_cast<uint32_t>(res) : 0;
+    int id = 0;
+    auto status = mClientInfo->getClientId(&id);
+    uint32_t res = (status.isOk() && id > 0) ? id : 0;
+    return res;
 }
 
 bool PipeClient::startClientMonitor() {
@@ -39,8 +42,12 @@ bool PipeClient::startClientMonitor() {
     if (!mClientMonitor) {
         return false;
     }
-    Return<bool> res = mClientInfo->linkToDeath(mClientMonitor, 0);
-    return res.isOk() ? static_cast<bool>(res) : false;
+    const sp<IBinder> client = IInterface::asBinder(mClientInfo);
+    if (!client) {
+        return false;
+    }
+    auto res = client->linkToDeath(mClientMonitor);
+    return res == OK;
 }
 
 bool PipeClient::isAlive() {
@@ -48,17 +55,13 @@ bool PipeClient::isAlive() {
 }
 
 PipeClient::~PipeClient() {
-    (void)mClientInfo->unlinkToDeath(mClientMonitor);
+    const sp<IBinder> client = IInterface::asBinder(mClientInfo);
+    (void)client->unlinkToDeath(mClientMonitor);
 }
 
-void ClientMonitor::serviceDied(uint64_t /* cookie */,
-                                const wp<android::hidl::base::V1_0::IBase>& base) {
+void ClientMonitor::binderDied(const wp<android::IBinder>& /* base */) {
     std::lock_guard<std::mutex> lock(mStateLock);
     mAlive = false;
-    auto iface = base.promote();
-    if (iface != nullptr) {
-        (void)iface->unlinkToDeath(this);
-    }
 }
 
 bool ClientMonitor::isAlive() {

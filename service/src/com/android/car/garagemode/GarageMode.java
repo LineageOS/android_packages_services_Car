@@ -27,6 +27,7 @@ import android.util.ArraySet;
 import com.android.car.CarLocalServices;
 import com.android.car.CarStatsLog;
 import com.android.car.user.CarUserService;
+import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,12 +61,15 @@ class GarageMode {
     static final long USER_STOP_CHECK_INTERVAL = 10_000; // 10 secs
 
     private final Controller mController;
+    private final JobScheduler mJobScheduler;
+    private final Object mLock = new Object();
+    private final Handler mHandler;
 
+    @GuardedBy("mLock")
     private boolean mGarageModeActive;
-    private JobScheduler mJobScheduler;
+    @GuardedBy("mLock")
     private List<String> mPendingJobs = new ArrayList<>();
-    private Handler mHandler;
-    private Runnable mRunnable = new Runnable() {
+    private final Runnable mRunnable = new Runnable() {
         @Override
         public void run() {
             int numberRunning = numberOfJobsRunning();
@@ -84,13 +88,12 @@ class GarageMode {
         public void run() {
             int userToStop = UserHandle.USER_SYSTEM; // BG user never becomes system user.
             int remainingUsersToStop = 0;
-            synchronized (this) {
+            synchronized (mLock) {
                 remainingUsersToStop = mStartedBackgroundUsers.size();
-                if (remainingUsersToStop > 0) {
-                    userToStop = mStartedBackgroundUsers.valueAt(0);
-                } else {
+                if (remainingUsersToStop < 1) {
                     return;
                 }
+                userToStop = mStartedBackgroundUsers.valueAt(0);
             }
             if (numberOfJobsRunning() == 0) { // all jobs done or stopped.
                 // Keep user until job scheduling is stopped. Otherwise, it can crash jobs.
@@ -100,10 +103,10 @@ class GarageMode {
                     LOG.i("Stopping background user:" + userToStop + " remaining users:"
                             + (remainingUsersToStop - 1));
                 }
-                synchronized (this) {
+                synchronized (mLock) {
                     mStartedBackgroundUsers.remove(userToStop);
                     if (mStartedBackgroundUsers.size() == 0) {
-                        LOG.i("all background users stopped");
+                        LOG.i("All background users have stopped");
                         return;
                     }
                 }
@@ -115,8 +118,9 @@ class GarageMode {
         }
     };
 
-
+    @GuardedBy("mLock")
     private CompletableFuture<Void> mFuture;
+    @GuardedBy("mLock")
     private ArraySet<Integer> mStartedBackgroundUsers = new ArraySet<>();
 
     GarageMode(Controller controller) {
@@ -127,122 +131,125 @@ class GarageMode {
     }
 
     boolean isGarageModeActive() {
-        return mGarageModeActive;
+        synchronized (mLock) {
+            return mGarageModeActive;
+        }
     }
 
-    synchronized List<String> pendingJobs() {
-        return mPendingJobs;
+    List<String> pendingJobs() {
+        synchronized (mLock) {
+            return new ArrayList<>(mPendingJobs);
+        }
     }
 
     void enterGarageMode(CompletableFuture<Void> future) {
         LOG.d("Entering GarageMode");
-        synchronized (this) {
+        synchronized (mLock) {
             mGarageModeActive = true;
         }
         updateFuture(future);
-        broadcastSignalToJobSchedulerTo(true);
+        broadcastSignalToJobScheduler(true);
         CarStatsLog.logGarageModeStart();
         startMonitoringThread();
         ArrayList<Integer> startedUsers =
                 CarLocalServices.getService(CarUserService.class).startAllBackgroundUsers();
-        synchronized (this) {
+        synchronized (mLock) {
             mStartedBackgroundUsers.addAll(startedUsers);
         }
     }
 
-    synchronized void cancel() {
-        broadcastSignalToJobSchedulerTo(false);
-        if (mFuture != null && !mFuture.isDone()) {
-            mFuture.cancel(true);
+    void cancel() {
+        broadcastSignalToJobScheduler(false);
+        synchronized (mLock) {
+            if (mFuture != null && !mFuture.isDone()) {
+                mFuture.cancel(true);
+            }
+            mFuture = null;
+            startBackgroundUserStoppingLocked();
         }
-        mFuture = null;
-        startBackgroundUserStopping();
     }
 
-    synchronized void finish() {
-        broadcastSignalToJobSchedulerTo(false);
+    void finish() {
+        broadcastSignalToJobScheduler(false);
         CarStatsLog.logGarageModeStop();
         mController.scheduleNextWakeup();
-        synchronized (this) {
+        synchronized (mLock) {
             if (mFuture != null && !mFuture.isDone()) {
                 mFuture.complete(null);
             }
             mFuture = null;
+            startBackgroundUserStoppingLocked();
         }
-        startBackgroundUserStopping();
     }
 
     private void cleanupGarageMode() {
         LOG.d("Cleaning up GarageMode");
-        synchronized (this) {
+        synchronized (mLock) {
             mGarageModeActive = false;
+            stopMonitoringThread();
+            mHandler.removeCallbacks(mRunnable);
+            startBackgroundUserStoppingLocked();
         }
-        stopMonitoringThread();
-        mHandler.removeCallbacks(mRunnable);
-        startBackgroundUserStopping();
     }
 
-    private void startBackgroundUserStopping() {
-        synchronized (this) {
-            if (mStartedBackgroundUsers.size() > 0) {
-                mHandler.postDelayed(mStopUserCheckRunnable, USER_STOP_CHECK_INTERVAL);
-            }
+    private void startBackgroundUserStoppingLocked() {
+        if (mStartedBackgroundUsers.size() > 0) {
+            mHandler.postDelayed(mStopUserCheckRunnable, USER_STOP_CHECK_INTERVAL);
         }
     }
 
     private void updateFuture(CompletableFuture<Void> future) {
-        synchronized (this) {
+        synchronized (mLock) {
             mFuture = future;
-        }
-        if (mFuture != null) {
-            mFuture.whenComplete((result, exception) -> {
-                if (exception == null) {
-                    LOG.d("GarageMode completed normally");
-                } else if (exception instanceof CancellationException) {
-                    LOG.d("GarageMode was canceled");
-                } else {
-                    LOG.e("GarageMode ended due to exception: ", exception);
-                }
-                cleanupGarageMode();
-            });
+            if (mFuture != null) {
+                mFuture.whenComplete((result, exception) -> {
+                    if (exception == null) {
+                        LOG.d("GarageMode completed normally");
+                    } else if (exception instanceof CancellationException) {
+                        LOG.d("GarageMode was canceled");
+                    } else {
+                        LOG.e("GarageMode ended due to exception: ", exception);
+                    }
+                    cleanupGarageMode();
+                });
+            }
         }
     }
 
-    private void broadcastSignalToJobSchedulerTo(boolean enableGarageMode) {
+    private void broadcastSignalToJobScheduler(boolean enableGarageMode) {
         Intent i = new Intent();
-        if (enableGarageMode) {
-            i.setAction(ACTION_GARAGE_MODE_ON);
-        } else {
-            i.setAction(ACTION_GARAGE_MODE_OFF);
-        }
+        i.setAction(enableGarageMode ? ACTION_GARAGE_MODE_ON : ACTION_GARAGE_MODE_OFF);
         i.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY | Intent.FLAG_RECEIVER_NO_ABORT);
         mController.sendBroadcast(i);
     }
 
-    private synchronized void startMonitoringThread() {
+    private void startMonitoringThread() {
         mHandler.postDelayed(mRunnable, JOB_SNAPSHOT_INITIAL_UPDATE_MS);
     }
 
-    private synchronized void stopMonitoringThread() {
+    private void stopMonitoringThread() {
         mHandler.removeCallbacks(mRunnable);
     }
 
-    private synchronized int numberOfJobsRunning() {
+    private int numberOfJobsRunning() {
+        List<JobSnapshot> allJobs = mJobScheduler.getAllJobSnapshots();
         List<JobInfo> startedJobs = mJobScheduler.getStartedJobs();
-        int count = 0;
+        if (allJobs == null || startedJobs == null) {
+            return 0;
+        }
         List<String> currentPendingJobs = new ArrayList<>();
-        final List<JobSnapshot> allJobs = mJobScheduler.getAllJobSnapshots();
-        if (allJobs != null) {
-            for (JobSnapshot snap : allJobs) {
-                if (startedJobs.contains(snap.getJobInfo())
-                        && snap.getJobInfo().isRequireDeviceIdle()) {
-                    currentPendingJobs.add(snap.getJobInfo().toString());
-                    count++;
-                }
+        int count = 0;
+        for (JobSnapshot snap : allJobs) {
+            if (startedJobs.contains(snap.getJobInfo())
+                    && snap.getJobInfo().isRequireDeviceIdle()) {
+                currentPendingJobs.add(snap.getJobInfo().toString());
+                count++;
             }
-            if (count > 0) {
-                // We have something pending, so update the list.
-                // (Otherwise, keep the old list.)
+        }
+        if (count > 0) {
+            // We have something pending, so update the list.
+            // (Otherwise, keep the old list.)
+            synchronized (mLock) {
                 mPendingJobs = currentPendingJobs;
             }
         }

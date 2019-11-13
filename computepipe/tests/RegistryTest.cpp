@@ -25,6 +25,7 @@
 
 using namespace ::android::automotive::computepipe::router;
 using namespace ::android::automotive::computepipe::tests;
+using namespace ::android;
 using namespace ::testing;
 
 class FakeClient : public ClientHandle {
@@ -142,14 +143,14 @@ TEST(RegistryTest, RegisterPipeTest) {
     sp<FakeRunner> runner = new FakeRunner();
     std::unique_ptr<PipeHandle<WrapRunner>> handle = std::make_unique<FakePipeHandle>(runner);
     Error status = registry.RegisterPipe(std::move(handle), "random");
-    ASSERT_THAT(status, Eq(OK));
+    ASSERT_THAT(status, Eq(Error::OK));
     // Duplicate entry
     status = registry.RegisterPipe(nullptr, "random");
-    ASSERT_THAT(status, Eq(DUPLICATE_PIPE));
+    ASSERT_THAT(status, Eq(Error::DUPLICATE_PIPE));
     // Deleted runner
     runner.clear();
     runner = new FakeRunner();
     handle.reset(new FakePipeHandle(runner));
     status = registry.RegisterPipe(std::move(handle), "random");
-    ASSERT_THAT(status, Eq(OK));
+    ASSERT_THAT(status, Eq(Error::OK));
 }

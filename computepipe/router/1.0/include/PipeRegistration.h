@@ -16,9 +16,7 @@
 
 #ifndef ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_PIPEREGISTRATION
 #define ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_PIPEREGISTRATION
-#include <android/automotive/computepipe/registry/1.0/IPipeRegistration.h>
-#include <hidl/MQDescriptor.h>
-#include <hidl/Status.h>
+#include <android/automotive/computepipe/registry/BnPipeRegistration.h>
 
 #include <memory>
 #include <utility>
@@ -33,19 +31,20 @@ namespace router {
 namespace V1_0 {
 namespace implementation {
 
-class PipeRegistration : public android::automotive::computepipe::registry::V1_0::IPipeRegistration {
+class PipeRegistration : public android::automotive::computepipe::registry::BnPipeRegistration {
   public:
     // Method from ::android::automotive::computepipe::registry::V1_0::IPipeRegistration
-    android::hardware::Return<android::automotive::computepipe::V1_0::PipeStatus> registerPipeRunner(
-        const android::hardware::hidl_string& graphName,
-        const sp<android::automotive::computepipe::runner::V1_0::IPipeRunner>& graphRunner) override;
+    android::binder::Status registerPipeRunner(
+        const std::string& graphName,
+        const ::android::sp<::android::automotive::computepipe::runner::IPipeRunner>& graphRunner)
+        override;
 
     explicit PipeRegistration(std::shared_ptr<PipeRegistry<PipeRunner>> r) : mRegistry(r) {
     }
 
   private:
     // Convert internal registry error codes to PipeStatus
-    android::automotive::computepipe::V1_0::PipeStatus convertToPipeStatus(Error err);
+    android::binder::Status convertToBinderStatus(Error err);
     std::shared_ptr<PipeRegistry<PipeRunner>> mRegistry;
 };
 

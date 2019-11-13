@@ -16,9 +16,10 @@
 
 #ifndef ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_PIPERUNNER
 #define ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_PIPERUNNER
-#include <android/automotive/computepipe/runner/1.0/IPipeRunner.h>
-#include <hidl/MQDescriptor.h>
-#include <hidl/Status.h>
+#include <android/automotive/computepipe/runner/IPipeRunner.h>
+
+#include <functional>
+#include <mutex>
 
 #include "PipeHandle.h"
 
@@ -33,9 +34,8 @@ namespace implementation {
  * Wrapper for IPC handle
  */
 struct PipeRunner {
-    explicit PipeRunner(
-        const sp<android::automotive::computepipe::runner::V1_0::IPipeRunner>& graphRunner);
-    sp<android::automotive::computepipe::runner::V1_0::IPipeRunner> runner;
+    explicit PipeRunner(const sp<android::automotive::computepipe::runner::IPipeRunner>& graphRunner);
+    sp<android::automotive::computepipe::runner::IPipeRunner> runner;
 };
 
 class PipeMonitor;
@@ -48,7 +48,7 @@ class PipeMonitor;
  */
 class RunnerHandle : public android::automotive::computepipe::router::PipeHandle<PipeRunner> {
   public:
-    explicit RunnerHandle(const sp<android::automotive::computepipe::runner::V1_0::IPipeRunner>& r);
+    explicit RunnerHandle(const sp<android::automotive::computepipe::runner::IPipeRunner>& r);
     /**
      * override registry pipehandle methods
      */
@@ -72,11 +72,11 @@ class RunnerHandle : public android::automotive::computepipe::router::PipeHandle
  * Monitors binder death notifications to handle death of the graph runner
  * process
  */
-class PipeMonitor : public hardware::hidl_death_recipient {
+class PipeMonitor : public IBinder::DeathRecipient {
   public:
     PipeMonitor(std::function<void()> cb) : mNotifier(cb) {
     }
-    void serviceDied(uint64_t cookie, const wp<android::hidl::base::V1_0::IBase>& base) override;
+    void binderDied(const wp<android::IBinder>& base) override;
 
   private:
     std::function<void()> mNotifier;
