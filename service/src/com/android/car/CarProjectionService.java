@@ -49,6 +49,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.net.wifi.WifiClient;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.LocalOnlyHotspotCallback;
@@ -982,8 +983,11 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
 
         @Override
-        public void onNumClientsChanged(int numClients) {
-            Log.i(TAG, "ProjectionSoftApCallback, onNumClientsChanged: " + numClients);
+        public void onConnectedClientsChanged(List<WifiClient> clients) {
+            if (DBG) {
+                Log.d(TAG, "ProjectionSoftApCallback, onConnectedClientsChanged with "
+                        + clients.size() + " clients");
+            }
         }
     }
 
