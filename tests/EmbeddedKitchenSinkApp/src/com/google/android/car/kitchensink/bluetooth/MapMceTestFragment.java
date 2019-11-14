@@ -165,7 +165,11 @@ public class MapMceTestFragment extends Fragment {
     }
 
     void disconnectDevice(String device) {
-        mMapProfile.disconnect(mBluetoothAdapter.getRemoteDevice((device)));
+        try {
+            mMapProfile.disconnect(mBluetoothAdapter.getRemoteDevice(device));
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Failed to disconnect from " + device, e);
+        }
     }
 
     @Override
