@@ -332,4 +332,9 @@
     <string name="usernotice" translatable="false">This screen is for showing initial user notice and is not for product. Plz change config_userNoticeUiService in CarService before shipping.</string>
     <string name="dismiss_now" translatable="false">Dismiss for now</string>
     <string name="dismiss_forever" translatable="false">Do not show again</string>
+
+    <!-- [AlwaysCrashing|NoCrash|Empty]Activity -->
+    <string name="always_crashing_activity" translatable="false">Always Crash Activity</string>
+    <string name="no_crash_activity" translatable="false">No Crash Activity</string>
+    <string name="empty_activity" translatable="false">Empty Activity</string>
 </resources>
