@@ -19,12 +19,15 @@ package com.android.car;
 import android.annotation.MainThread;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.car.Car;
 import android.car.ICar;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.userlib.CarUserManagerHelper;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -609,6 +612,8 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_ENABLE_TRUSTED_DEVICE = "enable-trusted-device";
         private static final String COMMAND_REMOVE_TRUSTED_DEVICES = "remove-trusted-devices";
         private static final String COMMAND_SET_UID_TO_ZONE = "set-zoneid-for-uid";
+        private static final String COMMAND_START_FIXED_ACTIVITY_MODE = "start-fixed-activity-mode";
+        private static final String COMMAND_STOP_FIXED_ACTIVITY_MODE = "stop-fixed-activity-mode";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -683,6 +688,11 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  When used with dumpsys, only metrics will be in the dumpsys output.");
             pw.println("\tset-zoneid-for-uid [zoneid] [uid]");
             pw.println("\t Maps the audio zoneid to uid.");
+            pw.println("\tstart-fixed-activity displayId packageName activityName");
+            pw.println("\t  Start an Activity the specified display as fixed mode");
+            pw.println("\tstop-fixed-mode displayId");
+            pw.println("\t  Stop fixed Activity mode for the given display. "
+                    + "The Activity will not be restarted upon crash.");
         }
 
         private int dumpInvalidArguments(PrintWriter pw) {
@@ -820,12 +830,62 @@ public class ICarImpl extends ICar.Stub {
                         dumpHelp(writer);
                     }
                     break;
+                case COMMAND_START_FIXED_ACTIVITY_MODE:
+                    handleStartFixedActivity(args, writer);
+                    break;
+                case COMMAND_STOP_FIXED_ACTIVITY_MODE:
+                    handleStopFixedMode(args, writer);
+                    break;
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
                     dumpHelp(writer);
                     return RESULT_ERROR;
             }
             return RESULT_OK;
+        }
+
+        private void handleStartFixedActivity(String[] args, PrintWriter writer) {
+            if (args.length != 4) {
+                writer.println("Incorrect number of arguments");
+                dumpHelp(writer);
+                return;
+            }
+            int displayId;
+            try {
+                displayId = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                writer.println("Wrong display id:" + args[1]);
+                return;
+            }
+            String packageName = args[2];
+            String activityName = args[3];
+            Intent intent = new Intent();
+            intent.setComponent(new ComponentName(packageName, activityName));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            ActivityOptions options = ActivityOptions.makeBasic();
+            options.setLaunchDisplayId(displayId);
+            if (!mFixedActivityService.startFixedActivityModeForDisplayAndUser(intent, options,
+                    displayId, ActivityManager.getCurrentUser())) {
+                writer.println("Failed to start");
+                return;
+            }
+            writer.println("Succeeded");
+        }
+
+        private void handleStopFixedMode(String[] args, PrintWriter writer) {
+            if (args.length != 2) {
+                writer.println("Incorrect number of arguments");
+                dumpHelp(writer);
+                return;
+            }
+            int displayId;
+            try {
+                displayId = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                writer.println("Wrong display id:" + args[1]);
+                return;
+            }
+            mFixedActivityService.stopFixedActivityMode(displayId);
         }
 
         private void forceDayNightMode(String arg, PrintWriter writer) {
