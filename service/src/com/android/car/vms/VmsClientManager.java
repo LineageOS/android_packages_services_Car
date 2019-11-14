@@ -111,7 +111,10 @@ public class VmsClientManager implements CarServiceBase {
     final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
         @Override
         public void onUserLockChanged(int userId, boolean unlocked) {
-            //Do nothing.
+            if (unlocked) {
+                if (DBG) Log.d(TAG, "onUserLockChanged: " + userId);
+                switchUser();
+            }
         }
 
         @Override
@@ -186,7 +189,6 @@ public class VmsClientManager implements CarServiceBase {
 
     @Override
     public void init() {
-        new Exception("initiaVmsManager").printStackTrace();
         mUserService.runOnUser0Unlock(mSystemUserUnlockedListener);
         mUserService.addUserCallback(mUserCallback);
     }
