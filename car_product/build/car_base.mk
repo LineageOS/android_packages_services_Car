@@ -74,3 +74,6 @@ PRODUCT_COPY_FILES += \
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_minimal.mk)
 
+# Default dex optimization configurations
+PRODUCT_PROPERTY_OVERRIDES += \
+     pm.dexopt.disable_bg_dexopt=true
