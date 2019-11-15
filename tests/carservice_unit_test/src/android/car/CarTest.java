@@ -22,8 +22,6 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSess
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static junit.framework.Assert.fail;
-
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.times;
@@ -154,7 +152,9 @@ public class CarTest {
     @Test
     public void testCreateCarSuccessWithCarServiceRunning() {
         expectService(mService);
-        assertThat(Car.createCar(mContext)).isNotNull();
+        Car car = Car.createCar(mContext);
+        assertThat(car).isNotNull();
+        car.disconnect();
     }
 
     @Test
@@ -173,20 +173,7 @@ public class CarTest {
         Car car = Car.createCar(mContext);
         assertThat(car).isNotNull();
         assertServiceBoundOnce();
-
-        // Just call these to guarantee that nothing crashes when service is connected /
-        // disconnected.
-        runOnMainSyncSafe(() -> {
-            car.getServiceConnectionListener().onServiceConnected(new ComponentName("", ""),
-                    mService);
-            try {
-                car.getServiceConnectionListener().onServiceDisconnected(new ComponentName("", ""));
-            } catch (IllegalStateException e) {
-                // expected
-                return;
-            }
-            fail("onServiceDisconnected should have triggered exception");
-        });
+        car.disconnect();
     }
 
     @Test
