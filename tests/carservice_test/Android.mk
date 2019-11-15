@@ -44,7 +44,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     androidx.test.rules \
     android.hardware.automotive.vehicle-V2.0-java \
     car-frameworks-service \
-    car-service-lib-for-test \
+    car-service-test-static-lib \
     car-systemtest \
     com.android.car.test.utils \
     mockito-target-extended \

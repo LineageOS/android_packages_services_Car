@@ -24,7 +24,7 @@ java_library {
     },
     static_libs: [
         "android.car",
-        "car-service-lib-for-test",
+        "car-service-test-lib",
     ],
     libs: [
         "mockito",

@@ -18,6 +18,22 @@
 
 car_service_sources = ["src/**/*.java"]
 
+common_lib_deps = [
+    "android.car.userlib",
+    "android.hidl.base-V1.0-java",
+    "android.hardware.automotive.audiocontrol-V1.0-java",
+    "android.hardware.automotive.vehicle-V2.0-java",
+    "android.hardware.health-V1.0-java",
+    "android.hardware.health-V2.0-java",
+    "vehicle-hal-support-lib",
+    "car-systemtest",
+    "com.android.car.procfsinspector-client",
+    "blestream-protos",
+    "SettingsLib",
+    "androidx.preference_preference",
+    "EncryptionRunner",
+]
+
 android_app {
     name: "CarService",
 
@@ -38,21 +54,8 @@ android_app {
 
     libs: ["android.car"],
 
-    static_libs: [
-        "android.car.userlib",
-        "android.hidl.base-V1.0-java",
-        "android.hardware.automotive.audiocontrol-V1.0-java",
-        "android.hardware.automotive.vehicle-V2.0-java",
-        "android.hardware.health-V1.0-java",
-        "android.hardware.health-V2.0-java",
-        "vehicle-hal-support-lib",
+    static_libs: common_lib_deps + [
         "car-frameworks-service",
-        "car-systemtest",
-        "com.android.car.procfsinspector-client",
-        "blestream-protos",
-        "SettingsLib",
-        "androidx.preference_preference",
-        "EncryptionRunner",
     ],
 
     required: ["privapp_whitelist_com.android.car"],
@@ -66,10 +69,11 @@ android_app {
 }
 
 //####################################################################################
-// Build a static library to help mocking various car services in testing
+// Build a static library to help mocking various car services in testing. This is meant to be used
+// for internal unit tests around the car service.
 //####################################################################################
 android_library {
-    name: "car-service-lib-for-test",
+    name: "car-service-test-static-lib",
 
     srcs: car_service_sources,
 
@@ -80,20 +84,32 @@ android_library {
         "car-frameworks-service",
     ],
 
-    static_libs: [
-        "android.car.userlib",
-        "android.hidl.base-V1.0-java",
-        "android.hardware.automotive.audiocontrol-V1.0-java",
-        "android.hardware.automotive.vehicle-V2.0-java",
-        "android.hardware.health-V1.0-java",
-        "android.hardware.health-V2.0-java",
-        "vehicle-hal-support-lib",
-        "car-systemtest",
-        "com.android.car.procfsinspector-client",
-        "blestream-protos",
-        "SettingsLib",
-        "androidx.preference_preference",
-        "EncryptionRunner",
+    static_libs: common_lib_deps,
+
+    min_sdk_version: "25",
+
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+}
+
+//####################################################################################
+// Build a library to help generate a testing library for external apps.
+// We do not want to use statically linked libraries, as this will bloat the output jar with classes
+// that can conflict with the user's environment.
+//####################################################################################
+android_library {
+    name: "car-service-test-lib",
+
+    srcs: car_service_sources,
+
+    resource_dirs: ["res"],
+
+    libs: common_lib_deps + [
+        "android.car",
+        "car-frameworks-service",
     ],
 
     min_sdk_version: "25",
@@ -104,3 +120,4 @@ android_library {
         },
     },
 }
+
