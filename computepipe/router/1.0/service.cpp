@@ -30,6 +30,7 @@ int main(int argc, char** argv) {
         ALOGE("Bad Args");
         exit(2);
     }
+    android::ProcessState::initWithDriver("/dev/vndbinder");
     android::ProcessState::self()->startThreadPool();
     std::thread registrationThread(startService);
     android::IPCThreadState::self()->joinThreadPool();
