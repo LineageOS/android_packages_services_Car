@@ -16,12 +16,14 @@
 
 package android.car.apitest;
 
+import android.car.Car;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Looper;
-import android.car.Car;
 import android.test.AndroidTestCase;
+
+import androidx.test.InstrumentationRegistry;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +43,7 @@ public class CarApiTestBase extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        setContext(InstrumentationRegistry.getContext());
         mCar = Car.createCar(getContext(), mConnectionListener);
         mCar.connect();
         mConnectionListener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
