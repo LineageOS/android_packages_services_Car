@@ -54,11 +54,11 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.LocalOnlyHotspotCallback;
 import android.net.wifi.WifiManager.LocalOnlyHotspotReservation;
-import android.net.wifi.WifiManager.SoftApCallback;
 import android.net.wifi.WifiScanner;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerExecutor;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -596,7 +596,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
         if (mSoftApCallback == null) {
             mSoftApCallback = new ProjectionSoftApCallback();
-            mWifiManager.registerSoftApCallback(mSoftApCallback, mHandler);
+            mWifiManager.registerSoftApCallback(mSoftApCallback, new HandlerExecutor(mHandler));
             ensureApConfiguration();
         }
 
@@ -946,7 +946,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
     }
 
-    private class ProjectionSoftApCallback implements SoftApCallback {
+    private class ProjectionSoftApCallback implements WifiManager.SoftApCallback {
         private boolean mCurrentStateCall = true;
 
         @Override
