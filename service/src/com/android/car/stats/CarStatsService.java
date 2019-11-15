@@ -16,27 +16,36 @@
 
 package com.android.car.stats;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.StatsLogEventWrapper;
+import android.os.SystemClock;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.util.StatsLog;
 
 import com.android.car.stats.VmsClientLog.ConnectionState;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.car.ICarStatsService;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Implements collection and dumpsys reporting of statistics in CSV format.
+ * Implementation of {@link ICarStatsService}, for reporting pulled atoms via StatsCompanionService.
+ *
+ * Also implements collection and dumpsys reporting of atoms in CSV format.
  */
-public class CarStatsService {
+public class CarStatsService extends ICarStatsService.Stub {
     private static final boolean DEBUG = false;
     private static final String TAG = "CarStatsService";
     private static final String VMS_CONNECTION_STATS_DUMPSYS_HEADER =
@@ -71,12 +80,14 @@ public class CarStatsService {
                     .thenComparingInt(VmsClientStats::getLayerChannel)
                     .thenComparingInt(VmsClientStats::getLayerVersion);
 
+    private final Context mContext;
     private final PackageManager mPackageManager;
 
     @GuardedBy("mVmsClientStats")
     private final Map<Integer, VmsClientLog> mVmsClientStats = new ArrayMap<>();
 
     public CarStatsService(Context context) {
+        mContext = context;
         mPackageManager = context.getPackageManager();
     }
 
@@ -97,14 +108,27 @@ public class CarStatsService {
         }
     }
 
-    /**
-     * Dumps metrics in CSV format.
-     */
+    @Override
     public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         List<String> flags = Arrays.asList(args);
         if (args.length == 0 || flags.contains("--vms-client")) {
             dumpVmsStats(writer);
         }
+    }
+
+    @Override
+    public StatsLogEventWrapper[] pullData(int tagId) {
+        mContext.enforceCallingPermission(Manifest.permission.DUMP, null);
+        if (tagId != StatsLog.VMS_CLIENT_STATS) {
+            Log.w(TAG, "Unexpected tagId: " + tagId);
+            return null;
+        }
+
+        List<StatsLogEventWrapper> ret = new ArrayList<>();
+        long elapsedNanos = SystemClock.elapsedRealtimeNanos();
+        long wallClockNanos = SystemClock.currentTimeMicro() * 1000L;
+        pullVmsClientStats(tagId, elapsedNanos, wallClockNanos, ret);
+        return ret.toArray(new StatsLogEventWrapper[0]);
     }
 
     private void dumpVmsStats(PrintWriter writer) {
@@ -120,11 +144,38 @@ public class CarStatsService {
             writer.println();
 
             writer.println(VMS_CLIENT_STATS_DUMPSYS_HEADER);
+            dumpVmsClientStats(entry -> writer.println(
+                    VMS_CLIENT_STATS_DUMPSYS_FORMAT.apply(entry)));
+        }
+    }
+
+    private void pullVmsClientStats(int tagId, long elapsedNanos, long wallClockNanos,
+            List<StatsLogEventWrapper> pulledData) {
+        dumpVmsClientStats((entry) -> {
+            StatsLogEventWrapper e =
+                    new StatsLogEventWrapper(tagId, elapsedNanos, wallClockNanos);
+            e.writeInt(entry.getUid());
+
+            e.writeInt(entry.getLayerType());
+            e.writeInt(entry.getLayerChannel());
+            e.writeInt(entry.getLayerVersion());
+
+            e.writeLong(entry.getTxBytes());
+            e.writeLong(entry.getTxPackets());
+            e.writeLong(entry.getRxBytes());
+            e.writeLong(entry.getRxPackets());
+            e.writeLong(entry.getDroppedBytes());
+            e.writeLong(entry.getDroppedPackets());
+            pulledData.add(e);
+        });
+    }
+
+    private void dumpVmsClientStats(Consumer<VmsClientStats> dumpFn) {
+        synchronized (mVmsClientStats) {
             mVmsClientStats.values().stream()
                     .flatMap(log -> log.getLayerEntries().stream())
                     .sorted(VMS_CLIENT_STATS_ORDER)
-                    .forEachOrdered(entry -> writer.println(
-                            VMS_CLIENT_STATS_DUMPSYS_FORMAT.apply(entry)));
+                    .forEachOrdered(dumpFn);
         }
     }
 }

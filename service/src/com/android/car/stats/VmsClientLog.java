@@ -19,6 +19,7 @@ package com.android.car.stats;
 import android.annotation.Nullable;
 import android.car.vms.VmsLayer;
 import android.util.ArrayMap;
+import android.util.StatsLog;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -36,15 +37,20 @@ public class VmsClientLog {
      */
     public static class ConnectionState {
         // Attempting to connect to the client
-        public static final int CONNECTING = 0;
+        public static final int CONNECTING =
+                StatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__CONNECTING;
         // Client connection established
-        public static final int CONNECTED = 1;
+        public static final int CONNECTED =
+                StatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__CONNECTED;
         // Client connection closed unexpectedly
-        public static final int DISCONNECTED = 2;
+        public static final int DISCONNECTED =
+                StatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__DISCONNECTED;
         // Client connection closed by VMS
-        public static final int TERMINATED = 3;
+        public static final int TERMINATED =
+                StatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__TERMINATED;
         // Error establishing the client connection
-        public static final int CONNECTION_ERROR = 4;
+        public static final int CONNECTION_ERROR =
+                StatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__CONNECTION_ERROR;
     }
 
     private final Object mLock = new Object();
@@ -77,6 +83,9 @@ public class VmsClientLog {
      * @param connectionState New connection state
      */
     public void logConnectionState(int connectionState) {
+        StatsLog.write(StatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED,
+                mUid, mPackageName, connectionState);
+
         AtomicLong counter;
         synchronized (mLock) {
             counter = mConnectionStateCounters.computeIfAbsent(connectionState,
