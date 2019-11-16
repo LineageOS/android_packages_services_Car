@@ -338,6 +338,31 @@ public class CarVolumeGroupTest {
         assertEquals(2, carVolumeGroup.getCurrentGainIndex());
     }
 
+    @Test
+    public void getAddressForContext_returnsExpectedDeviceAddress() {
+        CarVolumeSettings settings =
+                generateCarVolumeGroupSettings(0 , 0, 2);
+        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+
+
+        carVolumeGroup.bind(ContextNumber.MUSIC, mMediaDevice);
+
+        String mediaAddress = carVolumeGroup.getAddressForContext(ContextNumber.MUSIC);
+
+        assertEquals(mMediaDevice.getAddress(), mediaAddress);
+    }
+
+    @Test
+    public void getAddressForContext_returnsNull() {
+        CarVolumeSettings settings =
+                generateCarVolumeGroupSettings(0 , 0, 2);
+        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+
+        String nullAddress = carVolumeGroup.getAddressForContext(ContextNumber.MUSIC);
+
+        assertNull(nullAddress);
+    }
+
     private CarVolumeGroup testVolumeGroupSetup() {
         CarVolumeSettings settings =
                 generateCarVolumeGroupSettings(0 , 0, 2);

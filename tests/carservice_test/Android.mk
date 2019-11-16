@@ -39,6 +39,7 @@ LOCAL_MODULE_PATH := $(TARGET_OUT_DATA_APPS)
 LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_STATIC_JAVA_LIBRARIES := junit
+# testng imported to use assertThrows, we can remove it once it's ported to JUnit's.
 LOCAL_STATIC_JAVA_LIBRARIES += \
     androidx.test.ext.junit \
     androidx.test.rules \
@@ -48,6 +49,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     car-systemtest \
     com.android.car.test.utils \
     mockito-target-extended \
+    testng \
     truth-prebuilt \
     vehicle-hal-support-lib-for-test
 

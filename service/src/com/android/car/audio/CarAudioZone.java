@@ -182,6 +182,21 @@ import java.util.Set;
         writer.println();
     }
 
+    String getAddressForContext(int audioContext) {
+        CarAudioDynamicRouting.precondtionCheckAudioContext(audioContext);
+        String deviceAddress = null;
+        for (CarVolumeGroup volumeGroup : getVolumeGroups()) {
+            deviceAddress = volumeGroup.getAddressForContext(audioContext);
+            if (deviceAddress != null) {
+                return deviceAddress;
+            }
+        }
+        // This should not happen unless something went wrong.
+        // Device address are unique per zone and all contexts are assigned in a zone.
+        throw new IllegalStateException("Could not find output device in zone " + mId
+                + " for audio context " + audioContext);
+    }
+
     /**
      * Update the volume groups for the new user
      * @param userId user id to update to

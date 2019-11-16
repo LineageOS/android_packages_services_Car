@@ -108,6 +108,15 @@ import java.util.Map;
     }
 
     /**
+     * Returns the devices address for the given context
+     * or {@code null} if the context does not exist in the volume group
+     */
+    @Nullable
+    String getAddressForContext(int audioContext) {
+        return mContextToAddress.get(audioContext);
+    }
+
+    /**
      * @param address Physical address for the audio device
      * @return Array of context numbers assigned to a given address
      */

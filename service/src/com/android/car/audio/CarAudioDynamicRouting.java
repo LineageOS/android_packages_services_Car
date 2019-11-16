@@ -26,6 +26,7 @@ import android.util.Log;
 import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
+import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,6 +96,14 @@ import java.util.List;
 
     CarAudioDynamicRouting(CarAudioZone[] carAudioZones) {
         mCarAudioZones = carAudioZones;
+    }
+
+    /**
+     * Checks if the audio context is with the valid range from MUSIC to SYSTEM_SOUND
+     */
+    public static void precondtionCheckAudioContext(int audioContext) {
+        Preconditions.checkArgumentInRange(audioContext,
+                ContextNumber.MUSIC, ContextNumber.SYSTEM_SOUND, "audioContext");
     }
 
     void setupAudioDynamicRouting(AudioPolicy.Builder builder) {
