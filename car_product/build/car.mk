@@ -114,10 +114,6 @@ PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service
 PRODUCT_COPY_FILES += \
     packages/services/Car/car_product/bootanimations/bootanimation-832.zip:system/media/bootanimation.zip
 
-PRODUCT_COPY_FILES += \
-    packages/services/Car/car_product/init/init.bootstat.rc:system/etc/init/init.bootstat.car.rc \
-    packages/services/Car/car_product/init/init.car.rc:system/etc/init/init.car.rc
-
 PRODUCT_LOCALES := \
     en_US \
     af_ZA \
