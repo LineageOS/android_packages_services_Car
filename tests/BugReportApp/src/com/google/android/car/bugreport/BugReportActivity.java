@@ -25,6 +25,7 @@ import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -61,9 +62,17 @@ import java.util.Random;
  * submit button it initiates {@link BugReportService}.
  *
  * <p>If bug report is in-progress, it shows a progress bar.
+ *
+ * <p>If the activity is started with action {@link #ACTION_START_SILENT}, it will start
+ * bugreporting without showing dialog and recording audio message, see
+ * {@link MetaBugReport#TYPE_SILENT}.
  */
 public class BugReportActivity extends Activity {
     private static final String TAG = BugReportActivity.class.getSimpleName();
+
+    /** Starts headless (no audio message recording) bugreporting. */
+    private static final String ACTION_START_SILENT =
+            "com.google.android.car.bugreport.action.START_SILENT";
 
     private static final int VOICE_MESSAGE_MAX_DURATION_MILLIS = 60 * 1000;
     private static final int AUDIO_PERMISSIONS_REQUEST_ID = 1;
@@ -131,6 +140,14 @@ public class BugReportActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (ACTION_START_SILENT.equals(getIntent().getAction())) {
+            Log.i(TAG, "Starting headless bugreport.");
+            MetaBugReport bugReport = createBugReport(this, MetaBugReport.TYPE_SILENT);
+            startBugReportingInService(this, bugReport);
+            finish();
+            return;
+        }
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.bug_report_activity);
@@ -261,11 +278,7 @@ public class BugReportActivity extends Activity {
         mAudioRecordingStarted = true;
         showSubmitBugReportUi(/* isRecording= */ true);
 
-        Date initiatedAt = new Date();
-        String timestamp = BUG_REPORT_TIMESTAMP_DATE_FORMAT.format(initiatedAt);
-        String username = getCurrentUserName();
-        String title = BugReportTitleGenerator.generateBugReportTitle(initiatedAt, username);
-        mMetaBugReport = BugStorageUtils.createBugReport(this, title, timestamp, username);
+        mMetaBugReport = createBugReport(this, MetaBugReport.TYPE_INTERACTIVE);
 
         if (!hasRecordPermissions()) {
             requestRecordPermissions();
@@ -294,7 +307,9 @@ public class BugReportActivity extends Activity {
     }
 
     private void buttonSubmitClick(View view) {
-        startBugReportingInService();
+        stopAudioRecording();
+        startBugReportingInService(this, mMetaBugReport);
+        mBugReportServiceStarted = true;
         finish();
     }
 
@@ -312,16 +327,6 @@ public class BugReportActivity extends Activity {
         Intent intent = new Intent(this, BugReportInfoActivity.class);
         startActivity(intent);
         finish();
-    }
-
-    private void startBugReportingInService() {
-        stopAudioRecording();
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(EXTRA_META_BUG_REPORT, mMetaBugReport);
-        Intent intent = new Intent(this, BugReportService.class);
-        intent.putExtras(bundle);
-        startService(intent);
-        mBugReportServiceStarted = true;
     }
 
     private void requestRecordPermissions() {
@@ -430,9 +435,31 @@ public class BugReportActivity extends Activity {
         mVoiceRecordingView.setRecorder(null);
     }
 
-    private String getCurrentUserName() {
-        UserManager um = UserManager.get(this);
+    private static void startBugReportingInService(Context context, MetaBugReport bugReport) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(EXTRA_META_BUG_REPORT, bugReport);
+        Intent intent = new Intent(context, BugReportService.class);
+        intent.putExtras(bundle);
+        context.startForegroundService(intent);
+    }
+
+    private static String getCurrentUserName(Context context) {
+        UserManager um = UserManager.get(context);
         return um.getUserName();
+    }
+
+    /**
+     * Creates a {@link MetaBugReport} and saves it in a local sqlite database.
+     *
+     * @param context an Android context.
+     * @param type bug report type, {@link MetaBugReport.BugReportType}.
+     */
+    private static MetaBugReport createBugReport(Context context, int type) {
+        Date initiatedAt = new Date();
+        String timestamp = BUG_REPORT_TIMESTAMP_DATE_FORMAT.format(initiatedAt);
+        String username = getCurrentUserName(context);
+        String title = BugReportTitleGenerator.generateBugReportTitle(initiatedAt, username);
+        return BugStorageUtils.createBugReport(context, title, timestamp, username, type);
     }
 
     /** A helper class to generate bugreport title. */
