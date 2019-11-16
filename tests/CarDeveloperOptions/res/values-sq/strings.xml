@@ -3156,7 +3156,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"Tonet"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Dridhjet"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Aktivizo tingujt"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"Titra automatike"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"Titra në çast"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"Media me titra automatike"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Asnjëherë"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">

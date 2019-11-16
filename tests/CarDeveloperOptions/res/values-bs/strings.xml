@@ -2097,7 +2097,7 @@
     <string name="accessibility_timeout_1min" msgid="5019003178551730551">"1 minuta"</string>
     <string name="accessibility_timeout_2mins" msgid="4124259290444829477">"2 minute"</string>
     <string name="accessibility_content_timeout_preference_title" msgid="5160746882250939464">"Vrijeme za čitanje"</string>
-    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"Rok za poduzimanje radnje"</string>
+    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"Vrijeme za poduzimanje radnje"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Odaberite koliko dugo želite da se poruke koje trebate pročitati prikazuju. One će biti vidljive samo privremeno.\n\nOvu postavku ne podržavaju sve aplikacije."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Odaberite koliko dugo želite da se prikazuju poruke koje od vas zahtijevaju da poduzmete radnju, a koje će biti vidljive samo privremeno.\n\nOvu postavku ne podržavaju sve aplikacije."</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Odgoda za dodirivanje i držanje"</string>

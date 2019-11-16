@@ -2077,7 +2077,7 @@
     <string name="accessibility_timeout_1min" msgid="5019003178551730551">"1 நிமிடம்"</string>
     <string name="accessibility_timeout_2mins" msgid="4124259290444829477">"2 நிமிடங்கள்"</string>
     <string name="accessibility_content_timeout_preference_title" msgid="5160746882250939464">"மெசேஜ்களைப் படிக்க ஆகும் நேரம்"</string>
-    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"மெசேஜ்களின்படி செயல்பட ஆகும் நேரம்"</string>
+    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"நடவடிக்கை எடுக்க வேண்டிய நேரம்"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"நீங்கள் வாசிக்க விரும்பும், தற்காலிகமாகத் தெரியும் மெசேஜ்கள் எவ்வளவு நேரம் காட்டப்பட வேண்டும் என்பதைத் தேர்வுசெய்யலாம்.\n\nஇந்த அமைப்பு அனைத்து ஆப்ஸிலும் ஆதரிக்கப்படாது."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"உங்களைச் செயல்படும்படி கூறும் மெசேஜ்களை எவ்வளவு நேரம் காட்டலாம் என்பதைத் தேர்வுசெய்யவும். இவை சற்று நேரத்திற்கு மட்டுமே காட்டப்படும்.\n\nஇந்த அமைப்பு அனைத்து ஆப்ஸாலும் ஆதரிக்கப்படாது."</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"தொட்டுப் பிடித்தல் தாமதம்"</string>
