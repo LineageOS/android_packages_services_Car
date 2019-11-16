@@ -21,6 +21,7 @@ import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.app.Service;
 import android.car.Car;
+import android.car.annotation.RequiredFeature;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
@@ -52,6 +53,7 @@ import java.lang.ref.WeakReference;
  *
  * @hide
  */
+@RequiredFeature(Car.VMS_SUBSCRIBER_SERVICE)
 @SystemApi
 public abstract class VmsPublisherClientService extends Service {
     private static final boolean DBG = false;

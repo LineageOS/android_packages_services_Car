@@ -52,7 +52,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     vehicle-hal-support-lib-for-test \
     com.android.car.keventreader-client \
     guava \
-    android.car.cluster.navigation
+    android.car.cluster.navigation \
+    car-experimental-api-static-lib
 
 LOCAL_JAVA_LIBRARIES += android.car
 

@@ -21,11 +21,14 @@ import static android.car.CarLibLog.TAG_CAR;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.annotation.SdkConstant;
 import android.annotation.SdkConstant.SdkConstantType;
 import android.annotation.SystemApi;
 import android.app.Activity;
 import android.app.Service;
+import android.car.annotation.MandatoryFeature;
+import android.car.annotation.OptionalFeature;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
 import android.car.content.pm.CarPackageManager;
@@ -69,7 +72,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Constructor;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  *   Top level car API for embedded Android Auto deployments.
@@ -89,25 +95,32 @@ public final class Car {
      *
      * @deprecated  {@link CarSensorManager} is deprecated. Use {@link CarPropertyManager} instead.
      */
+    @MandatoryFeature
     @Deprecated
     public static final String SENSOR_SERVICE = "sensor";
 
     /** Service name for {@link CarInfoManager}, to be used in {@link #getCarManager(String)}. */
+    @MandatoryFeature
     public static final String INFO_SERVICE = "info";
 
     /** Service name for {@link CarAppFocusManager}. */
+    @MandatoryFeature
     public static final String APP_FOCUS_SERVICE = "app_focus";
 
     /** Service name for {@link CarPackageManager} */
+    @MandatoryFeature
     public static final String PACKAGE_SERVICE = "package";
 
     /** Service name for {@link CarAudioManager} */
+    @MandatoryFeature
     public static final String AUDIO_SERVICE = "audio";
 
     /** Service name for {@link CarNavigationStatusManager} */
+    @MandatoryFeature
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
 
     /** Service name for {@link CarOccupantZoneManager} */
+    @MandatoryFeature
     public static final String CAR_OCCUPANT_ZONE_SERVICE = "car_occupant_zone_service";
 
     /**
@@ -115,6 +128,7 @@ public final class Car {
      *
      * @hide
      */
+    @MandatoryFeature
     @SystemApi
     public static final String CAR_USER_SERVICE = "car_user_service";
 
@@ -124,6 +138,7 @@ public final class Car {
      * @deprecated CarInstrumentClusterManager is being deprecated
      * @hide
      */
+    @MandatoryFeature
     @Deprecated
     public static final String CAR_INSTRUMENT_CLUSTER_SERVICE = "cluster_service";
 
@@ -133,6 +148,7 @@ public final class Car {
      * @deprecated {@link CarCabinManager} is deprecated. Use {@link CarPropertyManager} instead.
      * @hide
      */
+    @MandatoryFeature
     @Deprecated
     @SystemApi
     public static final String CABIN_SERVICE = "cabin";
@@ -148,6 +164,7 @@ public final class Car {
      * @deprecated {@link CarHvacManager} is deprecated. Use {@link CarPropertyManager} instead.
      * @hide
      */
+    @MandatoryFeature
     @Deprecated
     @SystemApi
     public static final String HVAC_SERVICE = "hvac";
@@ -155,18 +172,21 @@ public final class Car {
     /**
      * @hide
      */
+    @MandatoryFeature
     @SystemApi
     public static final String POWER_SERVICE = "power";
 
     /**
      * @hide
      */
+    @MandatoryFeature
     @SystemApi
     public static final String PROJECTION_SERVICE = "projection";
 
     /**
      * Service name for {@link CarPropertyManager}
      */
+    @MandatoryFeature
     public static final String PROPERTY_SERVICE = "property";
 
     /**
@@ -176,6 +196,7 @@ public final class Car {
      * Use {@link CarPropertyManager} instead.
      * @hide
      */
+    @MandatoryFeature
     @Deprecated
     @SystemApi
     public static final String VENDOR_EXTENSION_SERVICE = "vendor_extension";
@@ -183,11 +204,13 @@ public final class Car {
     /**
      * @hide
      */
+    @MandatoryFeature
     public static final String BLUETOOTH_SERVICE = "car_bluetooth";
 
     /**
      * @hide
      */
+    @OptionalFeature
     @SystemApi
     public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
 
@@ -195,6 +218,7 @@ public final class Car {
      * Service name for {@link CarDrivingStateManager}
      * @hide
      */
+    @MandatoryFeature
     @SystemApi
     public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
 
@@ -212,6 +236,7 @@ public final class Car {
      * Service name for {@link android.car.media.CarMediaManager}
      * @hide
      */
+    @MandatoryFeature
     public static final String CAR_MEDIA_SERVICE = "car_media";
 
     /**
@@ -219,11 +244,13 @@ public final class Car {
      * Service name for {@link android.car.CarBugreportManager}
      * @hide
      */
+    @MandatoryFeature
     public static final String CAR_BUGREPORT_SERVICE = "car_bugreport";
 
     /**
      * @hide
      */
+    @OptionalFeature
     @SystemApi
     public static final String STORAGE_MONITORING_SERVICE = "storage_monitoring";
 
@@ -239,6 +266,7 @@ public final class Car {
      * Service name for {@link CarTestManager}, to be used in {@link #getCarManager(String)}.
      * @hide
      */
+    @MandatoryFeature
     @SystemApi
     public static final String TEST_SERVICE = "car-service-test";
 
@@ -570,6 +598,15 @@ public final class Car {
     public static final String PERMISSION_CAR_ENROLL_TRUST =
             "android.car.permission.CAR_ENROLL_TRUST";
 
+    /**
+     * Permission necessary to dynamically enable / disable optional car features.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_CAR_FEATURES =
+            "android.car.permission.CONTROL_CAR_FEATURES";
+
     /** Type of car connection: platform runs directly in car. */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
 
@@ -700,6 +737,43 @@ public final class Car {
     @Target({ElementType.TYPE_USE})
     public @interface StateTypeEnum {}
 
+    /**
+     * The enabling request was successful and requires reboot to take effect.
+     * @hide
+     */
+    @SystemApi
+    public static final int FEATURE_REQUEST_SUCCESS = 0;
+    /**
+     * The requested feature is already enabled or disabled as requested. No need to reboot the
+     * system.
+     * @hide
+     */
+    @SystemApi
+    public static final int FEATURE_REQUEST_ALREADY_IN_THE_STATE = 1;
+    /**
+     * The requested feature is mandatory cannot be enabled or disabled. It is always enabled.
+     * @hide
+     */
+    @SystemApi
+    public static final int FEATURE_REQUEST_MANDATORY = 2;
+    /**
+     * The requested feature is not available and cannot be enabled or disabled.
+     * @hide
+     */
+    @SystemApi
+    public static final int FEATURE_REQUEST_NOT_EXISTING = 3;
+
+    /** @hide */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(prefix = "FEATURE_REQUEST_", value = {
+            FEATURE_REQUEST_SUCCESS,
+            FEATURE_REQUEST_ALREADY_IN_THE_STATE,
+            FEATURE_REQUEST_MANDATORY,
+            FEATURE_REQUEST_NOT_EXISTING,
+    })
+    @Target({ElementType.TYPE_USE})
+    public @interface FeaturerRequestEnum {}
+
     private static final boolean DBG = false;
 
     private final Context mContext;
@@ -760,6 +834,8 @@ public final class Car {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            // Car service can pick up feature changes after restart.
+            mFeatures.resetCache();
             synchronized (mLock) {
                 if (mConnectionState  == STATE_DISCONNECTED) {
                     // can happen when client calls disconnect before onServiceDisconnected call.
@@ -792,6 +868,8 @@ public final class Car {
     private final Handler mEventHandler;
 
     private final Handler mMainThreadEventHandler;
+
+    private final CarFeatures mFeatures = new CarFeatures();
 
     /**
      * A factory method that creates Car instance for all Car API access.
@@ -1202,7 +1280,7 @@ public final class Car {
                                 + serviceName);
                         return null;
                     }
-                    manager = createCarManager(serviceName, binder);
+                    manager = createCarManagerLocked(serviceName, binder);
                     if (manager == null) {
                         Log.w(TAG_CAR, "getCarManager could not create manager for service:"
                                         + serviceName);
@@ -1224,6 +1302,146 @@ public final class Car {
     @ConnectionType
     public int getCarConnectionType() {
         return CONNECTION_TYPE_EMBEDDED;
+    }
+
+    /**
+     * Checks if {code featureName} is enabled in this car.
+     *
+     * <p>For optional features, this can return false if the car cannot support it. Optional
+     * features should be used only when they are supported.</p>
+     *
+     * <p>For mandatory features, this will always return true.
+     */
+    public boolean isFeatureEnabled(@NonNull String featureName) {
+        ICar service;
+        synchronized (mLock) {
+            if (mService == null) {
+                return false;
+            }
+            service = mService;
+        }
+        return mFeatures.isFeatureEnabled(service, featureName);
+    }
+
+    /**
+     * Enables the requested car feature. It becomes no-op if the feature is already enabled. The
+     * change take effects after reboot.
+     *
+     * @return true if the feature is enabled or was enabled before.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(PERMISSION_CONTROL_CAR_FEATURES)
+    @FeaturerRequestEnum
+    public int enableFeature(@NonNull String featureName) {
+        ICar service;
+        synchronized (mLock) {
+            if (mService == null) {
+                return FEATURE_REQUEST_NOT_EXISTING;
+            }
+            service = mService;
+        }
+        try {
+            return service.enableFeature(featureName);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, FEATURE_REQUEST_NOT_EXISTING);
+        }
+    }
+
+    /**
+     * Disables the requested car feature. It becomes no-op if the feature is already disabled. The
+     * change take effects after reboot.
+     *
+     * @return true if the request succeeds or if it was already disabled.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(PERMISSION_CONTROL_CAR_FEATURES)
+    @FeaturerRequestEnum
+    public int disableFeature(@NonNull String featureName) {
+        ICar service;
+        synchronized (mLock) {
+            if (mService == null) {
+                return FEATURE_REQUEST_NOT_EXISTING;
+            }
+            service = mService;
+        }
+        try {
+            return service.disableFeature(featureName);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, FEATURE_REQUEST_NOT_EXISTING);
+        }
+    }
+
+    /**
+     * Returns all =enabled features at the moment including mandatory, optional, and
+     * experimental features.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(PERMISSION_CONTROL_CAR_FEATURES)
+    @NonNull public List<String> getAllEnabledFeatures() {
+        ICar service;
+        synchronized (mLock) {
+            if (mService == null) {
+                return Collections.EMPTY_LIST;
+            }
+            service = mService;
+        }
+        try {
+            return service.getAllEnabledFeatures();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
+        }
+    }
+
+    /**
+     * Returns the list of disabled features which are not effective yet. Those features will be
+     * disabled when system restarts later.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(PERMISSION_CONTROL_CAR_FEATURES)
+    @NonNull public List<String> getAllPendingDisabledFeatures() {
+        ICar service;
+        synchronized (mLock) {
+            if (mService == null) {
+                return Collections.EMPTY_LIST;
+            }
+            service = mService;
+        }
+        try {
+            return service.getAllPendingDisabledFeatures();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
+        }
+    }
+
+    /**
+     * Returns the list of enabled features which are not effective yet. Those features will be
+     * enabled when system restarts later.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(PERMISSION_CONTROL_CAR_FEATURES)
+    @NonNull public List<String> getAllPendingEnabledFeatures() {
+        ICar service;
+        synchronized (mLock) {
+            if (mService == null) {
+                return Collections.EMPTY_LIST;
+            }
+            service = mService;
+        }
+        try {
+            return service.getAllPendingEnabledFeatures();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
+        }
     }
 
     /** @hide */
@@ -1287,7 +1505,7 @@ public final class Car {
     }
 
     @Nullable
-    private CarManagerBase createCarManager(String serviceName, IBinder binder) {
+    private CarManagerBase createCarManagerLocked(String serviceName, IBinder binder) {
         CarManagerBase manager = null;
         switch (serviceName) {
             case AUDIO_SERVICE:
@@ -1370,9 +1588,38 @@ public final class Car {
             case CAR_USER_SERVICE:
                 manager = new CarUserManager(this, binder);
             default:
+                // Experimental or non-existing
+                String className = null;
+                try {
+                    className = mService.getCarManagerClassForFeature(serviceName);
+                } catch (RemoteException e) {
+                    handleRemoteExceptionFromCarService(e);
+                    return null;
+                }
+                if (className == null) {
+                    Log.e(TAG_CAR, "Cannot construct CarManager for service:" + serviceName
+                            + " : no class defined");
+                    return null;
+                }
+                manager = constructCarManager(className, binder);
                 break;
         }
         return manager;
+    }
+
+    private CarManagerBase constructCarManager(String className, IBinder binder) {
+        try {
+            // Should use class loader for the Context as class loader for car api does not
+            // see the class.
+            ClassLoader loader = mContext.getClassLoader();
+            Class managerClass = loader.loadClass(className);
+            Constructor constructor = managerClass.getConstructor(Car.class, IBinder.class);
+            CarManagerBase manager = (CarManagerBase) constructor.newInstance(this, binder);
+            return manager;
+        } catch (Exception e) {
+            Log.e(TAG_CAR, "Cannot construct CarManager, class:" + className, e);
+            return null;
+        }
     }
 
     private void startCarService() {

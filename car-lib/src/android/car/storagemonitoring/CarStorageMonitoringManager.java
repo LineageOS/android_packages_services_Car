@@ -19,6 +19,7 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.RequiredFeature;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -36,6 +37,7 @@ import java.util.Set;
  * @hide
  */
 @SystemApi
+@RequiredFeature(Car.STORAGE_MONITORING_SERVICE)
 public final class CarStorageMonitoringManager extends CarManagerBase {
     private static final String TAG = CarStorageMonitoringManager.class.getSimpleName();
     private static final int MSG_IO_STATS_EVENT = 0;

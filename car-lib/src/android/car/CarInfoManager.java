@@ -61,7 +61,6 @@ public final class CarInfoManager extends CarManagerBase {
     public static final String BASIC_INFO_KEY_VEHICLE_ID = "android.car.vehicle-id";
     /**
      * Key for product configuration info.
-     * @FutureFeature Cannot drop due to usage in non-flag protected place.
      * @hide
      */
     @ValueTypeDef(type = String.class)

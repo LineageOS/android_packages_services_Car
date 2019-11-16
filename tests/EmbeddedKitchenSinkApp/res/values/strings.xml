@@ -337,4 +337,7 @@
     <string name="always_crashing_activity" translatable="false">Always Crash Activity</string>
     <string name="no_crash_activity" translatable="false">No Crash Activity</string>
     <string name="empty_activity" translatable="false">Empty Activity</string>
+
+    <!-- ExperimentalFeatureTest -->
+    <string name="experimental_ping" translatable="false">Ping Service</string>
 </resources>

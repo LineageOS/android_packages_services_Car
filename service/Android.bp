@@ -68,6 +68,23 @@ android_app {
     },
 }
 
+java_library {
+
+    name: "car-service-common-util-static-lib",
+
+    srcs: [
+        "src/com/android/car/CarServiceBase.java",
+        "src/com/android/car/CarServiceUtils.java",
+        "src/com/android/car/CarLog.java",
+    ],
+
+    product_variables: {
+            pdk: {
+                enabled: false,
+            },
+    },
+}
+
 //####################################################################################
 // Build a static library to help mocking various car services in testing. This is meant to be used
 // for internal unit tests around the car service.

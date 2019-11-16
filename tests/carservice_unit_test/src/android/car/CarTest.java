@@ -48,6 +48,8 @@ import org.mockito.MockitoSession;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.quality.Strictness;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -76,6 +78,41 @@ public class CarTest {
 
         @Override
         public void onSwitchUser(int userHandle) {
+        }
+
+        @Override
+        public boolean isFeatureEnabled(String featureName) {
+            return false;
+        }
+
+        @Override
+        public int enableFeature(String featureName) {
+            return Car.FEATURE_REQUEST_SUCCESS;
+        }
+
+        @Override
+        public int disableFeature(String featureName) {
+            return Car.FEATURE_REQUEST_SUCCESS;
+        }
+
+        @Override
+        public List<String> getAllEnabledFeatures() {
+            return Collections.EMPTY_LIST;
+        }
+
+        @Override
+        public List<String> getAllPendingDisabledFeatures() {
+            return Collections.EMPTY_LIST;
+        }
+
+        @Override
+        public List<String> getAllPendingEnabledFeatures() {
+            return Collections.EMPTY_LIST;
+        }
+
+        @Override
+        public String getCarManagerClassForFeature(String featureName) {
+            return null;
         }
 
         @Override
