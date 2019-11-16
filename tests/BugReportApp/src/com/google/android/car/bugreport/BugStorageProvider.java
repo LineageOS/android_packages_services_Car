@@ -33,6 +33,9 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 
 /**
@@ -46,6 +49,8 @@ public class BugStorageProvider extends ContentProvider {
 
     private static final String AUTHORITY = "com.google.android.car.bugreport";
     private static final String BUG_REPORTS_TABLE = "bugreports";
+    private static final String URL_SEGMENT_DELETE_ZIP_FILE = "deleteZipFile";
+
     static final Uri BUGREPORT_CONTENT_URI =
             Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE);
 
@@ -61,6 +66,7 @@ public class BugStorageProvider extends ContentProvider {
     // URL Matcher IDs.
     private static final int URL_MATCHED_BUG_REPORTS_URI = 1;
     private static final int URL_MATCHED_BUG_REPORT_ID_URI = 2;
+    private static final int URL_MATCHED_DELETE_ZIP_FILE = 3;
 
     private Handler mHandler;
 
@@ -113,10 +119,19 @@ public class BugStorageProvider extends ContentProvider {
         return Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE + "/" + bugReportId);
     }
 
+    /** Builds {@link Uri} that deletes a zip file for given bugreport id. */
+    static Uri buildUriDeleteZipFile(int bugReportId) {
+        return Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE + "/"
+                + URL_SEGMENT_DELETE_ZIP_FILE + "/" + bugReportId);
+    }
+
     public BugStorageProvider() {
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         mUriMatcher.addURI(AUTHORITY, BUG_REPORTS_TABLE, URL_MATCHED_BUG_REPORTS_URI);
         mUriMatcher.addURI(AUTHORITY, BUG_REPORTS_TABLE + "/#", URL_MATCHED_BUG_REPORT_ID_URI);
+        mUriMatcher.addURI(
+                AUTHORITY, BUG_REPORTS_TABLE + "/" + URL_SEGMENT_DELETE_ZIP_FILE + "/#",
+                URL_MATCHED_DELETE_ZIP_FILE);
     }
 
     @Override
@@ -213,6 +228,7 @@ public class BugStorageProvider extends ContentProvider {
     @Override
     public int delete(
             @NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        SQLiteDatabase db = mDatabaseHelper.getReadableDatabase();
         switch (mUriMatcher.match(uri)) {
             //  returns the bugreport that match the id.
             case URL_MATCHED_BUG_REPORT_ID_URI:
@@ -222,12 +238,21 @@ public class BugStorageProvider extends ContentProvider {
                 }
                 selection = COLUMN_ID + " = ?";
                 selectionArgs = new String[]{uri.getLastPathSegment()};
-                break;
+                // Ignore the results of zip file deletion, likelihood of failure is too small.
+                deleteZipFile(Integer.parseInt(uri.getLastPathSegment()));
+                return db.delete(BUG_REPORTS_TABLE, selection, selectionArgs);
+            case URL_MATCHED_DELETE_ZIP_FILE:
+                if (selection != null || selectionArgs != null) {
+                    throw new IllegalArgumentException("selection is not allowed for "
+                            + URL_MATCHED_DELETE_ZIP_FILE);
+                }
+                if (deleteZipFile(Integer.parseInt(uri.getLastPathSegment()))) {
+                    return 1;
+                }
+                return 0;
             default:
                 throw new IllegalArgumentException("Unknown URL " + uri);
         }
-        SQLiteDatabase db = mDatabaseHelper.getReadableDatabase();
-        return db.delete(BUG_REPORTS_TABLE, selection, selectionArgs);
     }
 
     @Override
@@ -334,6 +359,26 @@ public class BugStorageProvider extends ContentProvider {
             // An IOException (for example not being able to open the file, will crash us.
             // That is ok.
             throw new RuntimeException(e);
+        }
+    }
+
+    private boolean deleteZipFile(int bugreportId) {
+        String selection = COLUMN_ID + " = ?";
+        String[] selectionArgs = new String[]{Integer.toString(bugreportId)};
+        List<MetaBugReport> bugs = BugStorageUtils.getBugreports(
+                getContext(), selection, selectionArgs, null);
+        if (bugs.isEmpty()) {
+            Log.i(TAG,
+                    "Failed to delete zip file for bug " + bugreportId + ": bugreport not found.");
+            return false;
+        }
+        Path zipPath = new File(bugs.get(0).getFilePath()).toPath();
+        try {
+            Files.delete(zipPath);
+            return true;
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to delete zip file " + zipPath, e);
+            return false;
         }
     }
 }

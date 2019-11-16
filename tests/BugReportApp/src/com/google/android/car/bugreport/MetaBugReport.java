@@ -92,6 +92,16 @@ public final class MetaBugReport implements Parcelable {
         return 0;
     }
 
+    /** Returns {@link Builder} from the meta bug report. */
+    public Builder toBuilder() {
+        return new Builder(mId, mTimestamp)
+                .setFilepath(mFilePath)
+                .setStatus(mStatus)
+                .setStatusMessage(mStatusMessage)
+                .setTitle(mTitle)
+                .setUserName(mUsername);
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mId);
