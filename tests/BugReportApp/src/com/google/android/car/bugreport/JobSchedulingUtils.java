@@ -80,7 +80,12 @@ class JobSchedulingUtils {
      * after bugreport is successfully written. A user then has an option to choose whether to
      * upload the bugreport or copy it to an external drive.
      */
-    static boolean uploadByDefault() {
+    private static boolean uploadByDefault() {
         return !SystemProperties.getBoolean(PROP_DISABLE_AUTO_UPLOAD, false);
+    }
+
+    /** Returns {@code true} if bugreports has to be auto-uploaded. */
+    static boolean autoUploadBugReport(MetaBugReport bugReport) {
+        return uploadByDefault() && bugReport.getType() == MetaBugReport.TYPE_INTERACTIVE;
     }
 }

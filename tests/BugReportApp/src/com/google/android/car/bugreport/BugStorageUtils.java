@@ -21,6 +21,7 @@ import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_STATUS;
 import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_STATUS_MESSAGE;
 import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_TIMESTAMP;
 import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_TITLE;
+import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_TYPE;
 import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_USERNAME;
 
 import android.annotation.NonNull;
@@ -30,7 +31,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.api.client.auth.oauth2.TokenResponseException;
@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A class that hides details when communicating with the bug storage provider.
@@ -68,6 +69,7 @@ final class BugStorageUtils {
      * @param title     - title of the bug report.
      * @param timestamp - timestamp when the bug report was initiated.
      * @param username  - current user name. Note, it's a user name, not an account name.
+     * @param type      - bug report type, {@link MetaBugReport.BugReportType}.
      * @return an instance of {@link MetaBugReport} that was created in a database.
      */
     @NonNull
@@ -75,12 +77,14 @@ final class BugStorageUtils {
             @NonNull Context context,
             @NonNull String title,
             @NonNull String timestamp,
-            @NonNull String username) {
+            @NonNull String username,
+            @MetaBugReport.BugReportType int type) {
         // insert bug report username and title
         ContentValues values = new ContentValues();
         values.put(COLUMN_TITLE, title);
         values.put(COLUMN_TIMESTAMP, timestamp);
         values.put(COLUMN_USERNAME, username);
+        values.put(COLUMN_TYPE, type);
 
         ContentResolver r = context.getContentResolver();
         Uri uri = r.insert(BugStorageProvider.BUGREPORT_CONTENT_URI, values);
@@ -96,6 +100,7 @@ final class BugStorageUtils {
         return new MetaBugReport.Builder(id, timestamp)
                 .setTitle(title)
                 .setUserName(username)
+                .setType(type)
                 .build();
     }
 
@@ -132,6 +137,12 @@ final class BugStorageUtils {
         return r.delete(BugStorageProvider.buildUriWithBugId(bugReportId), null, null) == 1;
     }
 
+    /** Deletes zip file for given bugreport id; doesn't delete sqlite3 record. */
+    static boolean deleteBugReportZipfile(@NonNull Context context, int bugReportId) {
+        ContentResolver r = context.getContentResolver();
+        return r.delete(BugStorageProvider.buildUriDeleteZipFile(bugReportId), null, null) == 1;
+    }
+
     /**
      * Returns bugreports that are waiting to be uploaded.
      */
@@ -152,8 +163,20 @@ final class BugStorageUtils {
         return getBugreports(context, null, null, COLUMN_ID + " DESC");
     }
 
-    private static List<MetaBugReport> getBugreports(Context context, String selection,
-            String[] selectionArgs, String order) {
+    /** Returns {@link MetaBugReport} for given bugreport id. */
+    static Optional<MetaBugReport> findBugReport(Context context, int bugreportId) {
+        String selection = COLUMN_ID + " = ?";
+        String[] selectionArgs = new String[]{Integer.toString(bugreportId)};
+        List<MetaBugReport> bugs = BugStorageUtils.getBugreports(
+                context, selection, selectionArgs, null);
+        if (bugs.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(bugs.get(0));
+    }
+
+    private static List<MetaBugReport> getBugreports(
+            Context context, String selection, String[] selectionArgs, String order) {
         ArrayList<MetaBugReport> bugReports = new ArrayList<>();
         String[] projection = {
                 COLUMN_ID,
@@ -162,7 +185,8 @@ final class BugStorageUtils {
                 COLUMN_TIMESTAMP,
                 COLUMN_FILEPATH,
                 COLUMN_STATUS,
-                COLUMN_STATUS_MESSAGE};
+                COLUMN_STATUS_MESSAGE,
+                COLUMN_TYPE};
         ContentResolver r = context.getContentResolver();
         Cursor c = r.query(BugStorageProvider.BUGREPORT_CONTENT_URI, projection,
                 selection, selectionArgs, order);
@@ -178,6 +202,7 @@ final class BugStorageUtils {
                     .setFilepath(getString(c, COLUMN_FILEPATH))
                     .setStatus(getInt(c, COLUMN_STATUS))
                     .setStatusMessage(getString(c, COLUMN_STATUS_MESSAGE))
+                    .setType(getInt(c, COLUMN_TYPE))
                     .build();
             bugReports.add(meta);
             c.moveToNext();
@@ -219,13 +244,6 @@ final class BugStorageUtils {
     }
 
     /**
-     * Sets bugreport status to upload failed.
-     */
-    public static void setUploadFailed(Context context, MetaBugReport bugReport, Exception e) {
-        setBugReportStatus(context, bugReport, Status.STATUS_UPLOAD_FAILED, getRootCauseMessage(e));
-    }
-
-    /**
      * Sets bugreport status pending, and update the message to last exception message.
      *
      * <p>Used when a transient error has occurred.
@@ -260,18 +278,37 @@ final class BugStorageUtils {
         return t.getMessage();
     }
 
-    /** Updates bug report record status. */
-    static void setBugReportStatus(
+    /**
+     * Updates bug report record status.
+     *
+     * @return Updated {@link MetaBugReport}.
+     */
+    static MetaBugReport setBugReportStatus(
             Context context, MetaBugReport bugReport, Status status, String message) {
         // update status
         ContentValues values = new ContentValues();
         values.put(COLUMN_STATUS, status.getValue());
-        if (!TextUtils.isEmpty(message)) {
-            values.put(COLUMN_STATUS_MESSAGE, message);
-        }
+        values.put(COLUMN_STATUS_MESSAGE, message);
         String where = COLUMN_ID + "=" + bugReport.getId();
-        context.getContentResolver().update(BugStorageProvider.BUGREPORT_CONTENT_URI, values,
-                where, null);
+        int updatedRows = context.getContentResolver().update(
+                BugStorageProvider.BUGREPORT_CONTENT_URI, values, where, null);
+        if (updatedRows == 1) {
+            return bugReport.toBuilder()
+                    .setStatus(status.getValue())
+                    .setStatusMessage(message)
+                    .build();
+        }
+        return bugReport;
+    }
+
+    /**
+     * Updates bug report record status.
+     *
+     * @return Updated {@link MetaBugReport}.
+     */
+    static MetaBugReport setBugReportStatus(
+            Context context, MetaBugReport bugReport, Status status, Exception e) {
+        return setBugReportStatus(context, bugReport, status, getRootCauseMessage(e));
     }
 
     private static String currentTimestamp() {

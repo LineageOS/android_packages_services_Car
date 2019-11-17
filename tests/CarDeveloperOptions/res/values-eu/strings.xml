@@ -88,7 +88,7 @@
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Testu-lagina"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Ozeko azti miragarria"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11. kapitulua: Esmeraldazko Oz hiri harrigarria"</string>
-    <string name="font_size_preview_text_body" msgid="6803085337474390845">"Begiak betaurreko berdeekin babestuta bazituzten ere, Dorothy eta haren lagunak txundituta geratu ziren Hiri zoragarri haren distira lehenbizikoz ikustean. Kaleak etxe ederrez josita zeuden; marmol berdezkoak ziren, eta esmeralda distiratsuz zeuden apainduta. Marmol berde hartaz egindako espaloian ibili ziren, eta lauzen junturak esmeraldazko errenkadak zirela nabaritu zuten, bata bestearen ondoan estu-estu jarriak, eguzkitan dir-dir egiten. Leihoen kristalak berdeak ziren. Hiria estaltzen zuen zeruak kutsu berdea zuen, eta berdeak ziren eguzki-izpiak ere. \n\nJende asko zebilen hara eta hona: gizonak, emakumeak eta haurrak, guztiak berdez jantziak eta azal berdexkakoak. Zalantzaz begiratzen zieten Dorothyri eta haren lagun talde xelebreari, eta haurrak amaren atzean ezkutatzen ziren lehoia ikusi bezain laster. Hala ere, inork ez zien txintik ere esan. Denda asko zeuden kalean, eta salgai guztiak berdeak zirela antzeman zuen Dorothyk. Gozoki berdeak eta krispeta berdeak eros zitezkeen, baita zapata berdeak, kapela berdeak eta askotariko jantzi berdeak ere. Gizon bat limonada berdea saltzen ari zen, eta haur batzuek erosi ziotenean, txanpon berdeekin ordaindu zutela ikusi zuen Dorothyk. \n\nEz zegoen zaldirik edo inolako animaliarik; gizonek orgatxo berdeak bultzatuta eramaten zituzten gauzak batetik bestera. Denak zeuden pozik, alai eta zoriontsu."</string>
+    <string name="font_size_preview_text_body" msgid="6803085337474390845">"Begiak betaurreko berdeekin babestuta bazituzten ere, Dorothy eta haren lagunak txundituta geratu ziren Hiri zoragarri haren distira lehenbizikoz ikustean. Kaleak etxe ederrez josita zeuden; marmol berdezkoak ziren, eta esmeralda distiratsuz zeuden apainduta. Marmol berde hartaz egindako espaloian ibili ziren, eta lauzen junturak esmeraldazko errenkadak zirela nabaritu zuten, bata bestearen ondoan estu-estu jarriak, eguzkitan dir-dir egiten. Leihoen kristalak berdeak ziren. Hiria estaltzen zuen zeruak kutsu berdea zuen, eta berdeak ziren eguzki-izpiak ere. \n\nJende asko zebilen hara eta hona: gizonak, emakumeak eta haurrak, guztiak berdez jantziak eta azal berdexkakoak. Zalantzaz begiratzen zieten Dorothyri eta haren lagun talde xelebreari, eta haurrak amaren atzean ezkutatzen ziren lehoia ikusi bezain laster. Hala ere, inork ez zien txintik ere esan. Denda asko zeuden kalean, eta salgai guztiak berdeak zirela atzeman zuen Dorothyk. Gozoki berdeak eta krispeta berdeak eros zitezkeen, baita zapata berdeak, kapela berdeak eta askotariko jantzi berdeak ere. Gizon bat limonada berdea saltzen ari zen, eta haur batzuek erosi ziotenean, txanpon berdeekin ordaindu zutela ikusi zuen Dorothyk. \n\nEz zegoen zaldirik edo inolako animaliarik; gizonek orgatxo berdeak bultzatuta eramaten zituzten gauzak batetik bestera. Denak zeuden pozik, alai eta zoriontsu."</string>
     <string name="font_size_save" msgid="8652044574655753921">"Ados"</string>
     <string name="sdcard_setting" product="nosdcard" msgid="1533784309105748696">"USB bidezko memoria"</string>
     <string name="sdcard_setting" product="default" msgid="8398782065765523178">"SD txartela"</string>
@@ -3125,7 +3125,7 @@
     <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"bateria-aurrezlea, finkoa, iraunkorra, energia-aurrezlea, bateria"</string>
     <string name="default_sound" msgid="6675629744816442953">"Soinu lehenetsia"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"Tonuaren bolumena: <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
-    <string name="sound_dashboard_summary" msgid="5187301919242823508">"Bolumena, dardara, \"Ez molestatu\" modua"</string>
+    <string name="sound_dashboard_summary" msgid="5187301919242823508">"Bolumena, dardara, ez molestatzeko modua"</string>
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"Dardara moduan ezarri da gailua"</string>
     <string name="sound_settings_summary_silent" msgid="899823817462768876">"Isilik moduan ezarri da gailua"</string>
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"Tonuaren bolumena: % 80"</string>
@@ -3163,8 +3163,8 @@
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> gaituta</item>
       <item quantity="one">1 gaituta</item>
     </plurals>
-    <string name="zen_mode_settings_title" msgid="3425263414594779244">"Ez molestatu"</string>
-    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"Aktibatu \"Ez molestatu\" modua"</string>
+    <string name="zen_mode_settings_title" msgid="3425263414594779244">"Ez molestatzeko modua"</string>
+    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"Aktibatu ez molestatzeko modua"</string>
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"Salbuespenak"</string>
     <string name="zen_mode_duration_settings_title" msgid="5522668871014735728">"Iraupen lehenetsia"</string>
     <string name="zen_mode_behavior_allow_title" msgid="2440627647424280842">"Baimendu soinu eta dardara hauek:"</string>
@@ -3180,7 +3180,7 @@
     <string name="zen_mode_automatic_rule_settings_page_title" msgid="5272888746413504692">"Antolatu"</string>
     <string name="zen_mode_schedule_category_title" msgid="1936785755444711221">"Ordutegia"</string>
     <string name="zen_mode_automation_suggestion_title" msgid="4921779962633710347">"Isilarazi telefonoa ordu jakinetan"</string>
-    <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"Ezarri \"Ez molestatu\" moduaren arauak"</string>
+    <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"Ezarri ez molestatzeko moduaren arauak"</string>
     <string name="zen_mode_schedule_title" msgid="5275268813192802631">"Ordutegia"</string>
     <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"Erabili ordutegia"</string>
     <string name="zen_mode_option_important_interruptions" msgid="5173944276846940149">"Lehentasuna dutenak soilik"</string>
@@ -3189,14 +3189,14 @@
     <string name="zen_mode_summary_combination" msgid="6960111215170691605">"<xliff:g id="MODE">%1$s</xliff:g>: <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_visual_interruptions_settings_title" msgid="8378266552787406849">"Blokeatu oztopo bisualak"</string>
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Baimendu seinale bisualak"</string>
-    <string name="zen_mode_settings_category" msgid="5601680733422424922">"\"Ez molestatu\" aktibatuta dagoenean"</string>
+    <string name="zen_mode_settings_category" msgid="5601680733422424922">"Ez molestatzeko modua aktibatuta dagoenean"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"Murriztu jakinarazpenak"</string>
     <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Ez egin soinurik jakinarazpenak jasotzean"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Jakinarazpenak ikusiko dituzu pantailan"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Jakinarazpenak iristen direnean, telefonoak ez du egingo soinurik edo dardararik."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Ez egin soinurik eta ez erakutsi ezer jakinarazpenak jasotzean"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Ez duzu ikusi edo entzungo jakinarazpenik"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Telefonoak ez ditu erakutsiko ez jakinarazpen berriak, ez lehendik daudenak, eta ez du dar-dar edo soinurik egingo haiek jasotzean. Kontuan izan, ordea, telefonoaren jarduerei edo egoerari buruzko ezinbesteko jakinarazpenak agertuko direla.\n\n\"Ez molestatu\" modua desaktibatzean, galdutako jakinarazpenak ikusi nahi badituzu, pasatu hatza pantailaren goialdetik behera."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Telefonoak ez ditu erakutsiko ez jakinarazpen berriak, ez lehendik daudenak, eta ez du dar-dar edo soinurik egingo haiek jasotzean. Kontuan izan, ordea, telefonoaren jarduerei edo egoerari buruzko ezinbesteko jakinarazpenak agertuko direla.\n\nEz molestatzeko modua desaktibatzean, galdutako jakinarazpenak ikusi nahi badituzu, pasatu hatza pantailaren goialdetik behera."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Pertsonalizatua"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Gaitu ezarpen pertsonalizatua"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Kendu ezarpen pertsonalizatua"</string>
@@ -3227,11 +3227,11 @@
     <string name="zen_mode_enable_dialog_turn_on" msgid="6396050543542026184">"Aktibatu"</string>
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Aktibatu"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Desaktibatu"</string>
-    <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"<xliff:g id="FORMATTED_TIME">%s</xliff:g> arte egongo da aktibatuta \"Ez molestatu\" modua"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Desaktibatzen duzun arte egongo da aktibatuta \"Ez molestatu\" modua"</string>
-    <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"Antolaketa batek (<xliff:g id="RULE_NAME">%s</xliff:g>) automatikoki aktibatu du “Ez molestatu” modua"</string>
-    <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"<xliff:g id="APP_NAME">%s</xliff:g> aplikazioak automatikoki aktibatu du \"Ez molestatu\" modua"</string>
-    <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"\"Ez molestatu\" modua aktibatuta dago <xliff:g id="RULE_NAMES">%s</xliff:g> arauetan, ezarpen pertsonalizatuekin."</string>
+    <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"<xliff:g id="FORMATTED_TIME">%s</xliff:g> arte egongo da aktibatuta ez molestatzeko modua"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Desaktibatzen duzun arte egongo da aktibatuta ez molestatzeko modua"</string>
+    <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"Antolaketa batek (<xliff:g id="RULE_NAME">%s</xliff:g>) automatikoki aktibatu du ez molestatzeko modua"</string>
+    <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"<xliff:g id="APP_NAME">%s</xliff:g> aplikazioak automatikoki aktibatu du ez molestatzeko modua"</string>
+    <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"Ez molestatzeko modua aktibatuta dago <xliff:g id="RULE_NAMES">%s</xliff:g> arauetan, ezarpen pertsonalizatuekin."</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" Ikusi ezarpen pertsonalizatuak"</annotation></string>
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"Lehentasuna dutenak soilik"</string>
     <string name="zen_mode_and_condition" msgid="4123722186007123567">"<xliff:g id="ZEN_MODE">%1$s</xliff:g>. <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
@@ -3254,7 +3254,7 @@
     <string name="zen_category_exceptions" msgid="2139670640033601899">"Salbuespenak"</string>
     <string name="zen_category_schedule" msgid="989629666210114164">"Antolaketa"</string>
     <string name="zen_sound_title" msgid="3429086967245473870">"Ikusi salbuespen guztiak"</string>
-    <string name="zen_sound_footer" msgid="1778673975517424878">"\"Ez molestatu\" modua aktibatuta dagoenean, audioa eta dardara desaktibatuta egongo dira, goian baimendutako elementuetan izan ezik."</string>
+    <string name="zen_sound_footer" msgid="1778673975517424878">"Ez molestatzeko modua aktibatuta dagoenean, audioa eta dardara desaktibatuta egongo dira, goian baimendutako elementuetan izan ezik."</string>
     <string name="zen_sound_category_title" msgid="2109447208414722786">"Desaktibatu guztien audioa eta dardara, hauena izan ezik:"</string>
     <string name="zen_sound_all_muted" msgid="4844094866910870591">"Audioa eta dardara desaktibatuta"</string>
     <string name="zen_sound_none_muted" msgid="4869385974769188085">"Audioa eta dardara desaktibatu gabe"</string>
@@ -3267,14 +3267,14 @@
     <string name="zen_custom_settings_notifications_header" msgid="7469592764589354302">"Jakinarazpenak"</string>
     <string name="zen_custom_settings_duration_header" msgid="1806465684026300942">"Iraupena"</string>
     <string name="zen_msg_event_reminder_title" msgid="8685224436389816905">"Mezuak, gertaerak eta abisuak"</string>
-    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"\"Ez molestatu\" modua aktibatuta dagoenean, mezu, abisu eta gertaeren audioa eta dardara desaktibatuta egongo dira, goian baimendutako elementuetan izan ezik. Ezarpenak alda ditzakezu lagunak, familia edo beste kontaktuak zurekin harremanetan jarri ahal daitezen."</string>
+    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"Ez molestatzeko modua aktibatuta dagoenean, mezu, abisu eta gertaeren audioa eta dardara desaktibatuta egongo dira, goian baimendutako elementuetan izan ezik. Ezarpenak alda ditzakezu lagunak, familia edo beste kontaktuak zurekin harremanetan jarri ahal daitezen."</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"Eginda"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"Ezarpenak"</string>
     <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Ez egin soinurik eta ez erakutsi ezer jakinarazpenak jasotzean"</string>
     <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Ez egin soinurik jakinarazpenak jasotzean"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Ez duzu ikusi edo entzungo jakinarazpenik. Kontaktu izardunek eta berriro deitu dutenen deiak onartu egingo dira."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Uneko ezarpena)"</string>
-    <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"\"Ez molestatu\" moduaren jakinarazpen-ezarpenak aldatu nahi dituzu?"</string>
+    <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Ez molestatzeko moduaren jakinarazpen-ezarpenak aldatu nahi dituzu?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Laneko profilaren soinuak"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Erabili profil pertsonalaren soinuak"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Soinu berberak erabiltzen dira laneko profilean nahiz profil pertsonalean"</string>
@@ -3366,10 +3366,10 @@
     <string name="no_notification_assistant" msgid="9140123568386413264">"Ez dago laguntzailerik"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Ez dago jakinarazpenetarako sarbidea eskatu duen aplikaziorik."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari jakinarazpenetarako sarbidea eman nahi diozu?"</string>
-    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> aplikazioak jakinarazpen guztiak irakurri ahalko ditu eta, haien barnean, informazio pertsonala egon daiteke (adibidez, kontaktuen izenak eta jasotzen dituzun testu-mezuak). Gainera, jakinarazpen horiek aldatu edo baztertu egin ahal izango ditu, baita haietako ekintza-botoiak sakatu ere. \n\nHorrez gain, Ez molestatu modua aktibatzeko eta desaktibatzeko aukera izango du aplikazioak, baita harekin erlazionatutako ezarpenak aldatzekoa ere."</string>
+    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> aplikazioak jakinarazpen guztiak irakurri ahalko ditu eta, haien barnean, informazio pertsonala egon daiteke (adibidez, kontaktuen izenak eta jasotzen dituzun testu-mezuak). Gainera, jakinarazpen horiek aldatu edo baztertu egin ahal izango ditu, baita haietako ekintza-botoiak sakatu ere. \n\nHorrez gain, ez molestatzeko modua aktibatzeko eta desaktibatzeko aukera izango du aplikazioak, baita harekin erlazionatutako ezarpenak aldatzekoa ere."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Jakinarazpenak atzitzeko baimena eman nahi diozu <xliff:g id="SERVICE">%1$s</xliff:g> zerbitzuari?"</string>
-    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> aplikazioak jakinarazpen guztiak irakurri ahal izango ditu, informazio pertsonala (adibidez, kontaktuen izenak eta jasotako testu-mezuak) dutenak barne. Horrez gain, jakinarazpenak baztertu eta haietako ekintza-botoiak abiarazi ahal izango ditu. \n\nGainera, Ez molestatu modua aktibatzeko eta desaktibatzeko aukera izango du aplikazioak, baita horrekin erlazionatutako ezarpenak aldatzekoa ere."</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> aplikazioari jakinarazpenak atzitzeko aukera desaktibatzen badiozu, baliteke Ez molestatu modurako sarbidea era desaktibatzea."</string>
+    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> aplikazioak jakinarazpen guztiak irakurri ahal izango ditu, informazio pertsonala (adibidez, kontaktuen izenak eta jasotako testu-mezuak) dutenak barne. Horrez gain, jakinarazpenak baztertu eta haietako ekintza-botoiak abiarazi ahal izango ditu. \n\nGainera, ez molestatzeko modua aktibatzeko eta desaktibatzeko aukera izango du aplikazioak, baita horrekin erlazionatutako ezarpenak aldatzekoa ere."</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> aplikazioari jakinarazpenak atzitzeko aukera desaktibatzen badiozu, baliteke ez molestatzeko modurako sarbidea era desaktibatzea."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Desaktibatu"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Utzi"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Errealitate birtualeko laguntza-zerbitzuak"</string>
@@ -3385,9 +3385,9 @@
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Pantaila txiki gainjarria"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Eman pantaila txiki gainjarria erabiltzeko baimena"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Baimendu aplikazio honek pantaila txiki gainjarri bat sortzea aplikazioa irekita dagoenean edo handik irtetean (adibidez, bideoak ikusten jarraitzeko). Erabiltzen ari zaren beste aplikazioen gaienean erakutsiko da leiho hori."</string>
-    <string name="manage_zen_access_title" msgid="3058206309728524196">"\"Ez molestatu\" aukerarako sarbidea"</string>
-    <string name="zen_access_detail_switch" msgid="8706332327904974500">"Eman \"Ez molestatu\" modua atzitzeko baimena"</string>
-    <string name="zen_access_empty_text" msgid="7667538993781607731">"Ez dago \"Ez molestatu\" aukerarako sarbidea eskatu duen aplikaziorik"</string>
+    <string name="manage_zen_access_title" msgid="3058206309728524196">"Ez molestatzeko modurako sarbidea"</string>
+    <string name="zen_access_detail_switch" msgid="8706332327904974500">"Eman ez molestatzeko modua atzitzeko baimena"</string>
+    <string name="zen_access_empty_text" msgid="7667538993781607731">"Ez dago ez molestatzeko modurako sarbidea eskatu duen aplikaziorik"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"Aplikazioak kargatzen…"</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"Zure eskaerari jarraikiz, aplikazio honen jakinarazpenak gailu honetan erakustea galarazten ari da Android"</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"Zure eskaerari jarraikiz, jakinarazpen-kategoria hau gailu honetan erakustea galarazten ari da Android"</string>
@@ -3417,8 +3417,8 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Ez erakutsi inoiz jakinarazpenak edo ilundutako eremuetan edo gailu osagarrietan"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Eman jakinarazpen-biribiltxoa erakusteko baimena"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Erakutsi jakinarazpen-biribiltxoa"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\"Ez molestatu\" moduaren salbuespenak"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Eman \"Ez molestatu\" aukera aktibatuta dagoenean agertzeko baimena jakinarazpen hauei"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Ez molestatzeko moduaren salbuespenak"</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Eman ez molestatzeko modua aktibatuta dagoenean agertzeko baimena jakinarazpen hauei"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Pantaila blokeatuan"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Blokeatuta"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"Lehentasuna"</string>
@@ -3441,13 +3441,13 @@
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"\"<xliff:g id="RULE">%1$s</xliff:g>\" araua ezabatu nahi duzu?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"Ezabatu"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"Ezezaguna"</string>
-    <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"Une honetan ezin dira aldatu ezarpenak. <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak automatikoki aktibatu du \"Ez molestatu\" modua, eta portaera pertsonalizatua ezarri dio."</string>
-    <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"Une honetan ezin dira aldatu ezarpenak. Aplikazio batek automatikoki aktibatu du \"Ez molestatu\" modua, eta portaera pertsonalizatua ezarri dio."</string>
-    <string name="zen_mode_qs_set_behavior" msgid="788646569296973998">"Une honetan ezin dira aldatu ezarpenak. Eskuz aktibatu da \"Ez molestatu\" modua, eta portaera pertsonalizatua ezarri dio."</string>
+    <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"Une honetan ezin dira aldatu ezarpenak. <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak automatikoki aktibatu du ez molestatzeko modua, eta portaera pertsonalizatua ezarri dio."</string>
+    <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"Une honetan ezin dira aldatu ezarpenak. Aplikazio batek automatikoki aktibatu du ez molestatzeko modua, eta portaera pertsonalizatua ezarri dio."</string>
+    <string name="zen_mode_qs_set_behavior" msgid="788646569296973998">"Une honetan ezin dira aldatu ezarpenak. Eskuz aktibatu da ez molestatzeko modua, eta portaera pertsonalizatua ezarri dio."</string>
     <string name="zen_schedule_rule_type_name" msgid="4516851728113801329">"Ordua"</string>
-    <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"Une jakin batzuetan \"Ez molestatu\" egoera aktibatzen duen arau automatikoa"</string>
+    <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"Une jakin batzuetan ez molestatzeko modua aktibatzen duen arau automatikoa"</string>
     <string name="zen_event_rule_type_name" msgid="7467729997336583342">"Gertaera"</string>
-    <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"Egoera jakin batzuetan \"Ez molestatu\" egoera aktibatzen duen arau automatikoa"</string>
+    <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"Egoera jakin batzuetan ez molestatzeko modua aktibatzen duen arau automatikoa"</string>
     <string name="zen_mode_event_rule_calendar" msgid="6088077103908487442">"Gertaerek dirauten bitartean"</string>
     <string name="zen_mode_event_rule_summary_calendar_template" msgid="4027207992040792657">"<xliff:g id="CALENDAR">%1$s</xliff:g> egutegiko gertaerek dirauten bitartean"</string>
     <string name="zen_mode_event_rule_summary_any_calendar" msgid="7590085295784895885">"edozein egutegi"</string>
@@ -3465,7 +3465,7 @@
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"Egunero"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"Alarmak amaiera-ordua deusezta dezake"</string>
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Alarmak jotzen duenean, ordutegia desaktibatu egiten da"</string>
-    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\"Ez molestatu\" moduaren jokabidea"</string>
+    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Ez molestatzeko moduaren jokabidea"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Erabili ezarpen lehenetsiak"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Sortu ezarpen pertsonalizatuak ordutegi honetarako"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g> arauari dagokionez"</string>
@@ -3506,8 +3506,8 @@
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Eman \"Ez molestatu\" ez aplikatzeko baimena aplikazioei"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Gehitu salbuespenak"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
-      <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> aplikazioren jakinarazpenek dute “Ez molestatu” moduari ez ikusi egiteko aukera</item>
-      <item quantity="one">Aplikazio baten jakinarazpenek dute “Ez molestatu” moduari ez ikusi egiteko aukera</item>
+      <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> aplikazioren jakinarazpenek dute ez molestatzeko moduari ez ikusi egiteko aukera</item>
+      <item quantity="one">Aplikazio baten jakinarazpenek dute ez molestatzeko moduari ez ikusi egiteko aukera</item>
     </plurals>
     <string name="zen_mode_events_list" msgid="8578102701815684873">"gertaerak"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"edonor"</string>
@@ -3539,10 +3539,10 @@
     <string name="zen_mode_summary_alarms_only_by_time" msgid="2462898862757904560">"Aldatu \"Alarmak soilik\" modura <xliff:g id="FORMATTEDTIME">%1$s</xliff:g> arte"</string>
     <string name="zen_mode_summary_always" msgid="2703276042913200837">"Aldatu \"Eten beti\" modura"</string>
     <string name="zen_mode_screen_on" msgid="7098470659072167219">"Pantaila piztuta dagoenean"</string>
-    <string name="zen_mode_screen_on_summary" msgid="8275416649295357524">"Baimendu \"Ez molestatu\" moduan ezkutatutako jakinarazpenak pantailan agertzea, eta erakutsi ikono bat egoera-barran"</string>
+    <string name="zen_mode_screen_on_summary" msgid="8275416649295357524">"Eman pantailan agertzeko eta egoera-barran ikono bat erakusteko baimena ez molestatzeko moduan ezkutatutako jakinarazpenei"</string>
     <string name="zen_mode_screen_off" msgid="84211490206459038">"Pantaila itzalita dagoenean"</string>
-    <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"Baimendu \"Ez molestatu\" moduan ezkutatu beharreko jakinarazpenek pantaila edo jakinarazpen-argia piztea"</string>
-    <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"Baimendu \"Ez molestatu\" moduan ezkutatu beharreko jakinarazpenek pantaila piztea"</string>
+    <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"Baimendu ez molestatzeko moduan ezkutatu beharreko jakinarazpenek pantaila edo jakinarazpen-argia piztea"</string>
+    <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"Eman pantaila pizteko baimena ez molestatzeko moduan ezkutatu beharreko jakinarazpenei"</string>
     <string name="notification_app_settings_button" msgid="3651180424198580907">"Jakinarazpen-ezarpenak"</string>
     <string name="suggestion_button_text" msgid="5783566542423813847">"Ados"</string>
     <string name="device_feedback" msgid="4042352891448769818">"Bidali gailu honi buruzko oharrak"</string>
@@ -3604,7 +3604,7 @@
     <string name="notifications_silenced" msgid="538923056987616372">"Ezkutatutakoak"</string>
     <string name="notifications_redacted" msgid="308836040236690014">"Ez erakutsi datu pertsonalik pantaila blokeatuan"</string>
     <string name="notifications_hidden" msgid="3665505522897010205">"Ez erakutsi pantaila blokeatuan"</string>
-    <string name="notifications_priority" msgid="8849045645983017929">"Ez aplikatu \"Ez molestatu\" modua"</string>
+    <string name="notifications_priority" msgid="8849045645983017929">"Ez aplikatu ez molestatzeko modua"</string>
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"%d. maila"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
@@ -3636,7 +3636,7 @@
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"Kategoriak: premiazkoak"</string>
     <string name="filter_notif_low_channels" msgid="6859599463135775287">"Kategoriak: garrantzi txikikoak"</string>
     <string name="filter_notif_blocked_channels" msgid="6110799550327612670">"Kategoriak: desaktibatutakoak"</string>
-    <string name="filter_notif_dnd_channels" msgid="3251570137256371092">"Kategoriak: \"Ez molestatu\" salbuespenak"</string>
+    <string name="filter_notif_dnd_channels" msgid="3251570137256371092">"Kat.: ez molestatzeko moduaren salb."</string>
     <string name="advanced_apps" msgid="6643869089344883537">"Aurreratuak"</string>
     <string name="configure_apps" msgid="4066683118857400943">"Konfiguratu aplikazioak"</string>
     <string name="unknown_app" msgid="2312052973570376877">"Aplikazio ezezaguna"</string>
@@ -3781,10 +3781,10 @@
     <string name="running_frequency" msgid="7545170806968474449">"Maiztasuna"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Gehieneko erabilera"</string>
     <string name="no_data_usage" msgid="903383745620135746">"Ez da erabili daturik"</string>
-    <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"<xliff:g id="APP">%1$s</xliff:g> aplikazioari \"Ez molestatu\" modua erabiltzeko baimena eman?"</string>
-    <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"Aplikazioak \"Ez molestatu\" egoera aktibatu eta desaktibatu ahal izango du, eta erlazionatutako ezarpenetan aldaketak egin ahal izango ditu."</string>
+    <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"<xliff:g id="APP">%1$s</xliff:g> aplikazioari ez molestatzeko modua erabiltzeko baimena eman?"</string>
+    <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"Aplikazioak ez molestatzeko egoera aktibatu eta desaktibatu ahal izango du, eta erlazionatutako ezarpenetan aldaketak egin ahal izango ditu."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"Aktibatuta egon behar du, jakinarazpenetarako sarbidea aktibatuta dagoelako"</string>
-    <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"Ez molestatzeko arauetarako sarbidea kendu nahi diozu <xliff:g id="APP">%1$s</xliff:g> aplikazioari?"</string>
+    <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"Ez molestatzeko modurako sarbidea kendu nahi diozu <xliff:g id="APP">%1$s</xliff:g> aplikazioari?"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"Kendu egingo dira aplikazioak sortu dituen ez molestatzeko arau guztiak."</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"Ez optimizatu"</string>
     <string name="ignore_optimizations_off" msgid="4372289432580282870">"Optimizatu"</string>
@@ -3885,7 +3885,7 @@
     <string name="condition_hotspot_title" msgid="4143299802283098506">"Sare publikoa aktiboa dago"</string>
     <string name="condition_airplane_title" msgid="8484582712516148433">"Hegaldi modua aktibatuta"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"Sareak ez daude erabilgarri"</string>
-    <string name="condition_zen_title" msgid="2128184708916052585">"Aktibatuta dago \"Ez molestatu\" modua"</string>
+    <string name="condition_zen_title" msgid="2128184708916052585">"Aktibatuta dago ez molestatzeko modua"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Telefonoaren audioa desaktibatuta dago"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"Salbuespenekin"</string>
     <string name="condition_battery_title" msgid="6704870010912986274">"Bateria-aurrezlea aktibatuta"</string>
@@ -4267,7 +4267,7 @@
     <string name="storage_movies_tv" msgid="7282484273991655296">"Zinema- eta telebista-aplikazioak"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"Operadorearen hornikuntza-informazioa"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"Abiarazi operadorearen hornikuntza"</string>
-    <string name="zen_suggestion_title" msgid="2134699720214231950">"Eguneratu \"Ez molestatu\" modua"</string>
+    <string name="zen_suggestion_title" msgid="2134699720214231950">"Eguneratu ez molestatzeko modua"</string>
     <string name="zen_suggestion_summary" msgid="4041062903237952737">"Pausatu jakinarazpenak arreta ez galtzeko"</string>
     <string name="disabled_low_ram_device" msgid="4958060232123741721">"Eginbidea ez dago erabilgarri gailu honetan"</string>
     <string name="disabled_feature" msgid="3747549387387702365">"Eginbide hau ez dago erabilgarri"</string>

@@ -33,6 +33,9 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 
 
 /**
@@ -46,9 +49,12 @@ public class BugStorageProvider extends ContentProvider {
 
     private static final String AUTHORITY = "com.google.android.car.bugreport";
     private static final String BUG_REPORTS_TABLE = "bugreports";
+    private static final String URL_SEGMENT_DELETE_ZIP_FILE = "deleteZipFile";
+
     static final Uri BUGREPORT_CONTENT_URI =
             Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE);
 
+    /** See {@link MetaBugReport} for column descriptions. */
     static final String COLUMN_ID = "_ID";
     static final String COLUMN_USERNAME = "username";
     static final String COLUMN_TITLE = "title";
@@ -57,10 +63,12 @@ public class BugStorageProvider extends ContentProvider {
     static final String COLUMN_FILEPATH = "filepath";
     static final String COLUMN_STATUS = "status";
     static final String COLUMN_STATUS_MESSAGE = "message";
+    static final String COLUMN_TYPE = "type";
 
     // URL Matcher IDs.
     private static final int URL_MATCHED_BUG_REPORTS_URI = 1;
     private static final int URL_MATCHED_BUG_REPORT_ID_URI = 2;
+    private static final int URL_MATCHED_DELETE_ZIP_FILE = 3;
 
     private Handler mHandler;
 
@@ -78,9 +86,11 @@ public class BugStorageProvider extends ContentProvider {
         /**
          * All changes in database versions should be recorded here.
          * 1: Initial version.
+         * 2: Add integer column details_needed.
          */
         private static final int INITIAL_VERSION = 1;
-        private static final int DATABASE_VERSION = INITIAL_VERSION;
+        private static final int TYPE_VERSION = 2;
+        private static final int DATABASE_VERSION = TYPE_VERSION;
 
         private static final String CREATE_TABLE = "CREATE TABLE " + BUG_REPORTS_TABLE + " ("
                 + COLUMN_ID + " INTEGER PRIMARY KEY,"
@@ -90,7 +100,8 @@ public class BugStorageProvider extends ContentProvider {
                 + COLUMN_DESCRIPTION + " TEXT NULL,"
                 + COLUMN_FILEPATH + " TEXT DEFAULT NULL,"
                 + COLUMN_STATUS + " INTEGER DEFAULT " + Status.STATUS_WRITE_PENDING.getValue() + ","
-                + COLUMN_STATUS_MESSAGE + " TEXT NULL"
+                + COLUMN_STATUS_MESSAGE + " TEXT NULL,"
+                + COLUMN_TYPE + " INTEGER DEFAULT " + MetaBugReport.TYPE_INTERACTIVE
                 + ");";
 
         DatabaseHelper(Context context) {
@@ -105,6 +116,10 @@ public class BugStorageProvider extends ContentProvider {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(TAG, "Upgrading from " + oldVersion + " to " + newVersion);
+            if (oldVersion == INITIAL_VERSION && newVersion == TYPE_VERSION) {
+                db.execSQL("ALTER TABLE " + BUG_REPORTS_TABLE + " ADD COLUMN "
+                        + COLUMN_TYPE + " INTEGER DEFAULT " + MetaBugReport.TYPE_INTERACTIVE);
+            }
         }
     }
 
@@ -113,10 +128,19 @@ public class BugStorageProvider extends ContentProvider {
         return Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE + "/" + bugReportId);
     }
 
+    /** Builds {@link Uri} that deletes a zip file for given bugreport id. */
+    static Uri buildUriDeleteZipFile(int bugReportId) {
+        return Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE + "/"
+                + URL_SEGMENT_DELETE_ZIP_FILE + "/" + bugReportId);
+    }
+
     public BugStorageProvider() {
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         mUriMatcher.addURI(AUTHORITY, BUG_REPORTS_TABLE, URL_MATCHED_BUG_REPORTS_URI);
         mUriMatcher.addURI(AUTHORITY, BUG_REPORTS_TABLE + "/#", URL_MATCHED_BUG_REPORT_ID_URI);
+        mUriMatcher.addURI(
+                AUTHORITY, BUG_REPORTS_TABLE + "/" + URL_SEGMENT_DELETE_ZIP_FILE + "/#",
+                URL_MATCHED_DELETE_ZIP_FILE);
     }
 
     @Override
@@ -213,6 +237,7 @@ public class BugStorageProvider extends ContentProvider {
     @Override
     public int delete(
             @NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        SQLiteDatabase db = mDatabaseHelper.getReadableDatabase();
         switch (mUriMatcher.match(uri)) {
             //  returns the bugreport that match the id.
             case URL_MATCHED_BUG_REPORT_ID_URI:
@@ -222,12 +247,21 @@ public class BugStorageProvider extends ContentProvider {
                 }
                 selection = COLUMN_ID + " = ?";
                 selectionArgs = new String[]{uri.getLastPathSegment()};
-                break;
+                // Ignore the results of zip file deletion, likelihood of failure is too small.
+                deleteZipFile(Integer.parseInt(uri.getLastPathSegment()));
+                return db.delete(BUG_REPORTS_TABLE, selection, selectionArgs);
+            case URL_MATCHED_DELETE_ZIP_FILE:
+                if (selection != null || selectionArgs != null) {
+                    throw new IllegalArgumentException("selection is not allowed for "
+                            + URL_MATCHED_DELETE_ZIP_FILE);
+                }
+                if (deleteZipFile(Integer.parseInt(uri.getLastPathSegment()))) {
+                    return 1;
+                }
+                return 0;
             default:
                 throw new IllegalArgumentException("Unknown URL " + uri);
         }
-        SQLiteDatabase db = mDatabaseHelper.getReadableDatabase();
-        return db.delete(BUG_REPORTS_TABLE, selection, selectionArgs);
     }
 
     @Override
@@ -276,27 +310,12 @@ public class BugStorageProvider extends ContentProvider {
             throw new IllegalArgumentException("unknown uri:" + uri);
         }
 
-        Cursor c = query(uri, new String[]{COLUMN_FILEPATH}, null, null, null);
-        int count = (c != null) ? c.getCount() : 0;
-        if (count != 1) {
-            // If there is not exactly one result, throw an appropriate
-            // exception.
-            if (c != null) {
-                c.close();
-            }
-            if (count == 0) {
-                throw new FileNotFoundException("No entry for " + uri);
-            }
-            throw new FileNotFoundException("Multiple items at " + uri);
-        }
-
-        c.moveToFirst();
-        int i = c.getColumnIndex(COLUMN_FILEPATH);
-        String path = (i >= 0 ? c.getString(i) : null);
-        c.close();
-        if (path == null) {
-            throw new FileNotFoundException("Column for path not found.");
-        }
+        // Because we expect URI to be URL_MATCHED_BUG_REPORT_ID_URI.
+        int bugreportId = Integer.parseInt(uri.getLastPathSegment());
+        MetaBugReport bugReport =
+                BugStorageUtils.findBugReport(getContext(), bugreportId)
+                        .orElseThrow(() -> new FileNotFoundException("No record found for " + uri));
+        String path = bugReport.getFilePath();
 
         int modeBits = ParcelFileDescriptor.parseMode(mode);
         try {
@@ -312,8 +331,9 @@ public class BugStorageProvider extends ContentProvider {
                 Status status;
                 if (e == null) {
                     // success writing the file. Update the field to indicate bugreport
-                    // is ready for upload
-                    status = JobSchedulingUtils.uploadByDefault() ? Status.STATUS_UPLOAD_PENDING
+                    // is ready for upload.
+                    status = JobSchedulingUtils.autoUploadBugReport(bugReport)
+                            ? Status.STATUS_UPLOAD_PENDING
                             : Status.STATUS_PENDING_USER_ACTION;
                 } else {
                     // We log it and ignore it
@@ -334,6 +354,31 @@ public class BugStorageProvider extends ContentProvider {
             // An IOException (for example not being able to open the file, will crash us.
             // That is ok.
             throw new RuntimeException(e);
+        }
+    }
+
+    private boolean deleteZipFile(int bugreportId) {
+        Optional<MetaBugReport> bugReport =
+                BugStorageUtils.findBugReport(getContext(), bugreportId);
+        if (!bugReport.isPresent()) {
+            Log.i(TAG,
+                    "Failed to delete zip file for bug " + bugreportId + ": bugreport not found.");
+            return false;
+        }
+        Path zipPath = new File(bugReport.get().getFilePath()).toPath();
+        // This statement is to prevent the app to print confusing full FileNotFound error stack
+        // when the user is navigating from BugReportActivity (audio message recording dialog) to
+        // BugReportInfoActivity by clicking "Show Bug Reports" button.
+        if (!Files.exists(zipPath)) {
+            Log.w(TAG, "Failed to delete " + zipPath + ". File not found.");
+            return false;
+        }
+        try {
+            Files.delete(zipPath);
+            return true;
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to delete zip file " + zipPath, e);
+            return false;
         }
     }
 }
