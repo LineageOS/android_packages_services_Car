@@ -41,7 +41,7 @@ LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_DEX_PREOPT := false
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
-    car-service-lib-for-test \
+    car-service-test-static-lib \
     com.google.android.material_material \
     androidx.appcompat_appcompat \
     androidx.car_car

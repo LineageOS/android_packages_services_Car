@@ -74,3 +74,11 @@ PRODUCT_COPY_FILES += \
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_minimal.mk)
 
+# Default dex optimization configurations
+PRODUCT_PROPERTY_OVERRIDES += \
+     pm.dexopt.disable_bg_dexopt=true
+
+# Required init rc files for car
+PRODUCT_COPY_FILES += \
+    packages/services/Car/car_product/init/init.bootstat.rc:system/etc/init/init.bootstat.car.rc \
+    packages/services/Car/car_product/init/init.car.rc:system/etc/init/init.car.rc

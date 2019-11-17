@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.google.android.car.kitchensink;
 
-import java.io.PrintWriter;
+import android.app.Activity;
+import android.os.Bundle;
 
 /**
- * Base class for all Car specific services.
+ * Activity for testing purpose. This one always crashes inside onCreate.
  */
-public interface CarServiceBase {
-
-    /**
-     * service is started. All necessary initialization should be done and service should be
-     * functional after this.
-     */
-    void init();
-
-    /** service should stop and all resources should be released. */
-    void release();
-
-    /** Called when connection to Vehicle HAL was restored. */
-    default void vehicleHalReconnected() {}
-
-    void dump(PrintWriter writer);
+public class AlwaysCrashingActivity extends Activity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        throw new RuntimeException("Intended crash for testing");
+    }
 }

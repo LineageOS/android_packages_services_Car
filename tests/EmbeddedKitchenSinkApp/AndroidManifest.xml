@@ -158,6 +158,27 @@
                   android:grantUriPermissions="true"
                   android:exported="true"/>
 
+        <activity android:name=".AlwaysCrashingActivity"
+                  android:label="@string/always_crashing_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".NoCrashActivity"
+                  android:label="@string/no_crash_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".EmptyActivity"
+                  android:label="@string/empty_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>
 

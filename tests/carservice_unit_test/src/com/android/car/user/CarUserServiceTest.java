@@ -456,7 +456,6 @@ public class CarUserServiceTest {
 
     private static List<UserInfo> prepareUserList() {
         List<UserInfo> users = new ArrayList<>(Arrays.asList(
-                new UserInfo(0, "test0", UserInfo.FLAG_SYSTEM),
                 new UserInfo(10, "test10", UserInfo.FLAG_PRIMARY | UserInfo.FLAG_ADMIN),
                 new UserInfo(11, "test11", NO_USER_INFO_FLAGS),
                 new UserInfo(12, "test12", UserInfo.FLAG_MANAGED_PROFILE),
@@ -468,11 +467,11 @@ public class CarUserServiceTest {
                 new UserInfo(18, "test18", UserInfo.FLAG_MANAGED_PROFILE)
         ));
         // Parent: test10, child: test12
-        associateParentChild(users.get(1), users.get(3));
+        associateParentChild(users.get(0), users.get(2));
         // Parent: test13, child: test17
-        associateParentChild(users.get(4), users.get(8));
+        associateParentChild(users.get(3), users.get(7));
         // Parent: test13, child: test18
-        associateParentChild(users.get(4), users.get(9));
+        associateParentChild(users.get(3), users.get(8));
         return users;
     }
 

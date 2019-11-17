@@ -20,7 +20,9 @@
         android:sharedUserId="com.google.android.car.uid.kitchensink"
         android:debuggable="true" >
 
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
+    <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />
+
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
             android:targetPackage="android.car.apitest"
             android:label="Tests for Car APIs"
             android:debuggable="true" />
@@ -35,5 +37,7 @@
         </activity>
         <service android:name=".CarProjectionManagerTest$TestService"
                  android:exported="true" />
+        <activity android:name=".CarActivityViewDisplayIdTest$ActivityInActivityView"/>
+        <activity android:name=".CarActivityViewDisplayIdTest$ActivityViewTestActivity"/>
     </application>
 </manifest>
