@@ -84,13 +84,6 @@ import java.util.stream.Collectors;
 public abstract class InstrumentClusterRenderingService extends Service {
     private static final String TAG = CarLibLog.TAG_CLUSTER;
 
-    /**
-     * This constant is kept here for backwards compatibility only.
-     * @deprecated TODO (b/130255007): Remove this along {@link NavigationRenderer#onEvent(int,
-     * Bundle)}
-     */
-    @Deprecated
-    private static final int NAVIGATION_STATE_EVENT_ID = 1;
     private static final String BITMAP_QUERY_WIDTH = "w";
     private static final String BITMAP_QUERY_HEIGHT = "h";
 
@@ -332,9 +325,8 @@ public abstract class InstrumentClusterRenderingService extends Service {
     }
 
     /**
-     * @deprecated Use {@link #setClusterActivityLaunchOptions(ActivityOptions)} instead.
-     *
      * @hide
+     * @deprecated Use {@link #setClusterActivityLaunchOptions(ActivityOptions)} instead.
      */
     @Deprecated
     public void setClusterActivityLaunchOptions(String category, ActivityOptions activityOptions) {
@@ -355,9 +347,8 @@ public abstract class InstrumentClusterRenderingService extends Service {
     }
 
     /**
-     * @deprecated Use {@link #setClusterActivityState(ClusterActivityState)} instead.
-     *
      * @hide
+     * @deprecated Use {@link #setClusterActivityState(ClusterActivityState)} instead.
      */
     @Deprecated
     public void setClusterActivityState(String category, Bundle state) {
@@ -434,8 +425,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
             assertContextOwnership();
             mUiHandler.post(() -> {
                 if (mNavigationRenderer != null) {
-                    // Invoking deprecated method to maintain backwards compatibility
-                    mNavigationRenderer.onEvent(NAVIGATION_STATE_EVENT_ID, bundle);
                     mNavigationRenderer.onNavigationStateChanged(bundle);
                 }
             });
@@ -495,8 +484,11 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * This is a costly operation. Returned bitmaps should be cached and fetching should be done on
      * a secondary thread.
      *
-     * Will be deprecated. Replaced by {@link #getBitmap(Uri, int, int)}.
+     * @throws IllegalArgumentException if {@code uri} does not have width and height query params.
+     *
+     * @deprecated Replaced by {@link #getBitmap(Uri, int, int)}.
      */
+    @Deprecated
     @Nullable
     public Bitmap getBitmap(Uri uri) {
         try {
@@ -557,12 +549,12 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * </ul>
      * This is a costly operation. Returned bitmaps should be fetched on a secondary thread.
      *
-     * @hide
+     * @throws IllegalArgumentException if {@code width} or {@code height} is not greater than 0.
      */
     @Nullable
-    public Bitmap getBitmap(Uri uri, int width, int height) throws InvalidSizeException {
+    public Bitmap getBitmap(Uri uri, int width, int height) {
         if (width <= 0 || height <= 0) {
-            throw new InvalidSizeException("Width and height must be > 0");
+            throw new IllegalArgumentException("Width and height must be > 0");
         }
 
         try {
