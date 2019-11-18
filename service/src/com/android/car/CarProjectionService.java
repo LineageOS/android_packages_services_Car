@@ -33,7 +33,6 @@ import android.app.ActivityOptions;
 import android.bluetooth.BluetoothDevice;
 import android.car.CarProjectionManager;
 import android.car.CarProjectionManager.ProjectionAccessPointCallback;
-import android.car.CarProjectionManager.ProjectionKeyEventHandler;
 import android.car.ICarProjection;
 import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
