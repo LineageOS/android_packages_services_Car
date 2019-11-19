@@ -342,6 +342,7 @@ public final class FixedActivityService implements CarServiceBase {
         } catch (RemoteException e) {
             Log.e(TAG_AM, "remote exception from AM", e);
         }
+        mContext.unregisterReceiver(mBroadcastReceiver);
     }
 
     @Nullable
