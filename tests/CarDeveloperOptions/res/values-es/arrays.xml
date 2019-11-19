@@ -378,7 +378,7 @@
   </string-array>
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"Predeterminado"</item>
-    <item msgid="6488643537808152001">"Ninguna"</item>
+    <item msgid="6488643537808152001">"Ninguno"</item>
     <item msgid="552332815156010137">"Contorno"</item>
     <item msgid="7187891159463789272">"Sombra paralela"</item>
     <item msgid="8019330250538856521">"Elevado"</item>
