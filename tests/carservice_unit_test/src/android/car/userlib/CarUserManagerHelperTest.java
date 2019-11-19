@@ -82,7 +82,6 @@ public class CarUserManagerHelperTest {
                 .when(mContext).getContentResolver();
         doReturn(mContext).when(mContext).getApplicationContext();
         mCarUserManagerHelper = new CarUserManagerHelper(mContext, mTestableFrameworkWrapper);
-        mCarUserManagerHelper.setDefaultAdminName(DEFAULT_ADMIN_NAME);
 
         mCurrentProcessUser = createUserInfoForId(UserHandle.myUserId());
         mSystemUser = createUserInfoForId(UserHandle.USER_SYSTEM);
@@ -131,93 +130,6 @@ public class CarUserManagerHelperTest {
         newUser.name = TEST_USER_NAME;
         doReturn(newUser).when(mUserManager).createUser(TEST_USER_NAME, 0);
         assertThat(mCarUserManagerHelper.createNewNonAdminUser(TEST_USER_NAME)).isEqualTo(newUser);
-    }
-
-    @Test
-    public void testCannotRemoveSystemUser() {
-        assertThat(mCarUserManagerHelper.removeUser(mSystemUser, GUEST_USER_NAME)).isFalse();
-    }
-
-    @Test
-    public void testAdminsCanRemoveOtherUsers() {
-        int idToRemove = mCurrentProcessUser.id + 2;
-        UserInfo userToRemove = createUserInfoForId(idToRemove);
-
-        doReturn(true).when(mUserManager).removeUser(idToRemove);
-
-        // If Admin is removing non-current, non-system user, simply calls removeUser.
-        doReturn(true).when(mUserManager).isAdminUser();
-        assertThat(mCarUserManagerHelper.removeUser(userToRemove, GUEST_USER_NAME)).isTrue();
-        verify(mUserManager).removeUser(idToRemove);
-    }
-
-    @Test
-    public void testNonAdminsCanNotRemoveOtherUsers() {
-        UserInfo otherUser = createUserInfoForId(mCurrentProcessUser.id + 2);
-
-        // Make current user non-admin.
-        doReturn(false).when(mUserManager).isAdminUser();
-
-        // Mock so that removeUser always pretends it's successful.
-        doReturn(true).when(mUserManager).removeUser(anyInt());
-
-        // If Non-Admin is trying to remove someone other than themselves, they should fail.
-        assertThat(mCarUserManagerHelper.removeUser(otherUser, GUEST_USER_NAME)).isFalse();
-        verify(mUserManager, never()).removeUser(otherUser.id);
-    }
-
-    @Test
-    public void testRemoveLastActiveUser() {
-        // Cannot remove system user.
-        assertThat(mCarUserManagerHelper.removeUser(mSystemUser, GUEST_USER_NAME)).isFalse();
-
-        UserInfo adminInfo = new UserInfo(/* id= */10, "admin", UserInfo.FLAG_ADMIN);
-        mockGetUsers(adminInfo);
-
-        assertThat(mCarUserManagerHelper.removeUser(adminInfo, GUEST_USER_NAME))
-                .isEqualTo(false);
-    }
-
-    @Test
-    public void testRemoveLastAdminUser() {
-        // Make current user admin.
-        doReturn(true).when(mUserManager).isAdminUser();
-
-        UserInfo adminInfo = new UserInfo(/* id= */10, "admin", UserInfo.FLAG_ADMIN);
-        UserInfo nonAdminInfo = new UserInfo(/* id= */11, "non-admin", 0);
-        mockGetUsers(adminInfo, nonAdminInfo);
-
-        UserInfo newAdminInfo = new UserInfo(/* id= */12, DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
-        doReturn(newAdminInfo)
-                .when(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
-
-        mCarUserManagerHelper.removeUser(adminInfo, GUEST_USER_NAME);
-        verify(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
-        verify(mActivityManager).switchUser(newAdminInfo.id);
-        verify(mUserManager).removeUser(adminInfo.id);
-    }
-
-    @Test
-    public void testRemoveLastAdminUserFailsToCreateNewUser() {
-        // Make current user admin.
-        doReturn(true).when(mUserManager).isAdminUser();
-
-        UserInfo adminInfo = new UserInfo(/* id= */10, "admin", UserInfo.FLAG_ADMIN);
-        UserInfo nonAdminInfo = new UserInfo(/* id= */11, "non-admin", 0);
-        mockGetUsers(adminInfo, nonAdminInfo);
-
-        UserInfo newAdminInfo = new UserInfo(/* id= */12, DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
-        doReturn(newAdminInfo)
-                .when(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
-
-        // Fail to create a new user to force a failure case
-        doReturn(null)
-                .when(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
-
-        mCarUserManagerHelper.removeUser(adminInfo, GUEST_USER_NAME);
-        verify(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
-        verify(mActivityManager, never()).switchUser(anyInt());
-        verify(mUserManager, never()).removeUser(adminInfo.id);
     }
 
     @Test
