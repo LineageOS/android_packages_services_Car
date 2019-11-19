@@ -37,9 +37,8 @@ public abstract class NavigationRenderer {
     /**
      * Called when a navigation state change is received.
      *
-     * @deprecated use {@link #onNavigationStateChanged(Bundle)} instead.
+     * @removed Replaced by {@link #onNavigationStateChanged(Bundle)}
      */
-    @Deprecated
     public void onEvent(int eventType, Bundle bundle) {}
 
     /**
