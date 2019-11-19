@@ -682,6 +682,8 @@ public final class Car {
 
     private final Context mContext;
 
+    private final Exception mConstructionStack;
+
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
@@ -845,6 +847,8 @@ public final class Car {
             }
             if (service != null) {
                 if (!started) {  // specialization for most common case.
+                    // Do this to crash client when car service crashes.
+                    car.startCarService();
                     return car;
                 }
                 break;
@@ -1030,6 +1034,13 @@ public final class Car {
         }
         mServiceConnectionListenerClient = serviceConnectionListener;
         mStatusChangeCallback = statusChangeListener;
+        // Store construction stack so that client can get help when it crashes when car service
+        // crashes.
+        if (serviceConnectionListener == null && statusChangeListener == null) {
+            mConstructionStack = new RuntimeException();
+        } else {
+            mConstructionStack = null;
+        }
     }
 
     /**
@@ -1206,16 +1217,20 @@ public final class Car {
         if (mContext instanceof Activity) {
             Activity activity = (Activity) mContext;
             if (!activity.isFinishing()) {
-                Log.w(TAG_CAR, "Car service crashed, client not handling it, finish Activity");
+                Log.w(TAG_CAR,
+                        "Car service crashed, client not handling it, finish Activity, created "
+                                + "from " + mConstructionStack);
                 activity.finish();
             }
             return;
         } else if (mContext instanceof Service) {
             Service service = (Service) mContext;
-            throw new RuntimeException("Car service has crashed, client not handle it:"
-                    + service.getPackageName() + "," + service.getClass().getSimpleName());
+            throw new IllegalStateException("Car service has crashed, client not handle it:"
+                    + service.getPackageName() + "," + service.getClass().getSimpleName(),
+                    mConstructionStack);
         }
-        throw new IllegalStateException("Car service crashed, client not handling it.");
+        throw new IllegalStateException("Car service crashed, client not handling it.",
+                mConstructionStack);
     }
 
     /** @hide */
