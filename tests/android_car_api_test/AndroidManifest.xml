@@ -20,8 +20,6 @@
         android:sharedUserId="com.google.android.car.uid.kitchensink"
         android:debuggable="true" >
 
-    <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />
-
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
             android:targetPackage="android.car.apitest"
             android:label="Tests for Car APIs"
@@ -39,5 +37,7 @@
                  android:exported="true" />
         <activity android:name=".CarActivityViewDisplayIdTest$ActivityInActivityView"/>
         <activity android:name=".CarActivityViewDisplayIdTest$ActivityViewTestActivity"/>
+        <activity android:name=".CarActivityViewDisplayIdTest$MultiProcessActivityViewTestActivity"
+                  android:exported="true" android:process=":activity_view_test"/>
     </application>
 </manifest>
