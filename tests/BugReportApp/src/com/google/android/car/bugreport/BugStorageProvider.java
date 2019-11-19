@@ -249,6 +249,7 @@ public class BugStorageProvider extends ContentProvider {
                 selectionArgs = new String[]{uri.getLastPathSegment()};
                 // Ignore the results of zip file deletion, likelihood of failure is too small.
                 deleteZipFile(Integer.parseInt(uri.getLastPathSegment()));
+                getContext().getContentResolver().notifyChange(uri, null);
                 return db.delete(BUG_REPORTS_TABLE, selection, selectionArgs);
             case URL_MATCHED_DELETE_ZIP_FILE:
                 if (selection != null || selectionArgs != null) {
@@ -256,6 +257,7 @@ public class BugStorageProvider extends ContentProvider {
                             + URL_MATCHED_DELETE_ZIP_FILE);
                 }
                 if (deleteZipFile(Integer.parseInt(uri.getLastPathSegment()))) {
+                    getContext().getContentResolver().notifyChange(uri, null);
                     return 1;
                 }
                 return 0;
@@ -349,6 +351,7 @@ public class BugStorageProvider extends ContentProvider {
                     JobSchedulingUtils.scheduleUploadJob(BugStorageProvider.this.getContext());
                 }
                 Log.i(TAG, "Finished adding bugreport " + path + " " + uri);
+                getContext().getContentResolver().notifyChange(uri, null);
             });
         } catch (IOException e) {
             // An IOException (for example not being able to open the file, will crash us.

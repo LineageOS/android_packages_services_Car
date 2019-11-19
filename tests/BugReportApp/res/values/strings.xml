@@ -15,36 +15,36 @@
      limitations under the License.
 -->
 <resources>
-    <string name="app_name" translatable="false">Bug Report</string>
+    <string name="app_name">Bug Report</string>
 
-    <string name="bugreport_info_quit" translatable="false">Close</string>
-    <string name="bugreport_info_start" translatable="false">Start Bug Report</string>
-    <string name="bugreport_info_status" translatable="false">Status:</string>
+    <string name="bugreport_info_quit">Close</string>
+    <string name="bugreport_info_start">Start Bug Report</string>
+    <string name="bugreport_info_status">Status:</string>
 
-    <string name="bugreport_dialog_submit" translatable="false">Submit</string>
-    <string name="bugreport_dialog_cancel" translatable="false">Cancel</string>
-    <string name="bugreport_dialog_show_bugreports" translatable="false">Show Bug Reports</string>
-    <string name="bugreport_dialog_close" translatable="false">Close</string>
-    <string name="bugreport_dialog_title" translatable="false">Speak &amp; Describe The Issue</string>
-    <string name="bugreport_dialog_recording_finished" translatable="false">Recording finished</string>
-    <string name="bugreport_dialog_in_progress_title" translatable="false">A bug report is already being collected</string>
-    <string name="bugreport_dialog_in_progress_title_finished" translatable="false">A bug report has been collected</string>
-    <string name="bugreport_move_button_text" translatable="false">Move to USB</string>
-    <string name="bugreport_upload_button_text" translatable="false">Upload to Google</string>
+    <string name="bugreport_dialog_submit">Submit</string>
+    <string name="bugreport_dialog_cancel">Cancel</string>
+    <string name="bugreport_dialog_show_bugreports">Show Bug Reports</string>
+    <string name="bugreport_dialog_close">Close</string>
+    <string name="bugreport_dialog_title">Speak &amp; Describe The Issue</string>
+    <string name="bugreport_dialog_recording_finished">Recording finished</string>
+    <string name="bugreport_dialog_in_progress_title">A bug report is already being collected</string>
+    <string name="bugreport_dialog_in_progress_title_finished">A bug report has been collected</string>
+    <string name="bugreport_move_button_text">Move to USB</string>
+    <string name="bugreport_upload_button_text">Upload to Google</string>
 
-    <string name="toast_permissions_denied" translatable="false">Please grant permissions</string>
-    <string name="toast_bug_report_in_progress" translatable="false">Bug report already being collected</string>
-    <string name="toast_timed_out" translatable="false">Timed out, cancelling</string>
-    <string name="toast_status_failed" translatable="false">Bug report failed</string>
-    <string name="toast_status_finished" translatable="false">Bug report finished</string>
-    <string name="toast_status_pending_upload" translatable="false">Bug report ready for upload</string>
-    <string name="toast_status_screencap_failed" translatable="false">Screen capture failed</string>
-    <string name="toast_status_dump_state_failed" translatable="false">Dump state failed</string>
+    <string name="toast_permissions_denied">Please grant permissions</string>
+    <string name="toast_bug_report_in_progress">Bug report already being collected</string>
+    <string name="toast_timed_out">Timed out, cancelling</string>
+    <string name="toast_status_failed">Bug report failed</string>
+    <string name="toast_status_finished">Bug report finished</string>
+    <string name="toast_status_pending_upload">Bug report ready for upload</string>
+    <string name="toast_status_screencap_failed">Screen capture failed</string>
+    <string name="toast_status_dump_state_failed">Dump state failed</string>
 
     <!-- Notification strings -->
-    <string name="notification_bugreport_in_progress" translatable="false">Bug report is in progress</string>
-    <string name="notification_bugreport_finished_title" translatable="false">Bug report is collected</string>
-    <string name="notification_bugreport_manual_upload_finished_text" translatable="false">Please upload it when the car is parked</string>
-    <string name="notification_bugreport_auto_upload_finished_text" translatable="false">The report will be upload automatically</string>
-    <string name="notification_bugreport_channel_name" translatable="false">Bug report status channel</string>
+    <string name="notification_bugreport_in_progress">Bug report is in progress</string>
+    <string name="notification_bugreport_finished_title">Bug report is collected</string>
+    <string name="notification_bugreport_manual_upload_finished_text">Please upload it when the car is parked</string>
+    <string name="notification_bugreport_auto_upload_finished_text">The report will be upload automatically</string>
+    <string name="notification_bugreport_channel_name">Bug report status channel</string>
 </resources>
