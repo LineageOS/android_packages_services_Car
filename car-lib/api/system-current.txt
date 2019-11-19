@@ -41,6 +41,7 @@ package android.car {
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     field @Deprecated public static final String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
+    field public static final String PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO = "android.car.permission.READ_CAR_VENDOR_PERMISSION_INFO";
     field public static final String PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS = "android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS";
     field public static final String PERMISSION_STORAGE_MONITORING = "android.car.permission.STORAGE_MONITORING";
     field public static final String PERMISSION_TIRES = "android.car.permission.CAR_TIRES";
@@ -730,6 +731,49 @@ package android.car.hardware.power {
   }
 
   public static interface CarPowerManager.CarPowerStateListener {
+  }
+
+}
+
+package android.car.hardware.property {
+
+  public final class VehicleVendorPermission {
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_1 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_1";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_10 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_10";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_2 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_2";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_3 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_3";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_4 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_4";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_5 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_5";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_6 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_6";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_7 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_7";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_8 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_8";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_9 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_9";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_DOOR = "android.car.permission.GET_CAR_VENDOR_CATEGORY_DOOR";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE = "android.car.permission.GET_CAR_VENDOR_CATEGORY_ENGINE";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_HVAC = "android.car.permission.GET_CAR_VENDOR_CATEGORY_HVAC";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO = "android.car.permission.GET_CAR_VENDOR_CATEGORY_INFO";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_LIGHT = "android.car.permission.GET_CAR_VENDOR_CATEGORY_LIGHT";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_MIRROR = "android.car.permission.GET_CAR_VENDOR_CATEGORY_MIRROR";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_SEAT = "android.car.permission.GET_CAR_VENDOR_CATEGORY_SEAT";
+    field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_WINDOW = "android.car.permission.GET_CAR_VENDOR_CATEGORY_WINDOW";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_1 = "android.car.permission.SET_CAR_VENDOR_CATEGORY_1";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_10 = "android.car.permission.SET_CAR_VENDOR_CATEGORY_10";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_2 = "android.car.permission.SET_CAR_VENDOR_CATEGORY_2";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_3 = "android.car.permission.SET_CAR_VENDOR_CATEGORY_3";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_4 = "android.car.permission.SET_CAR_VENDOR_CATEGORY_4";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_5 = "android.car.permission.SET_CAR_VENDOR_CATEGORY_5";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_6 = "android.car.permission.SET_CAR_VENDOR_CATEGORY_6";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_7 = "android.car.permission.SET_CAR_VENDOR_CATEGORY_7";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_8 = "android.car.permission.SET_CAR_VENDOR_CATEGORY_8";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_9 = "android.car.permission.SET_CAR_VENDOR_CATEGORY_9";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_DOOR = "android.car.permission.SET_CAR_VENDOR_CATEGORY_DOOR";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE = "android.car.permission.SET_CAR_VENDOR_CATEGORY_ENGINE";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_HVAC = "android.car.permission.SET_CAR_VENDOR_CATEGORY_HVAC";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_INFO = "android.car.permission.SET_CAR_VENDOR_CATEGORY_INFO";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_LIGHT = "android.car.permission.SET_CAR_VENDOR_CATEGORY_LIGHT";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_MIRROR = "android.car.permission.SET_CAR_VENDOR_CATEGORY_MIRROR";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_SEAT = "android.car.permission.SET_CAR_VENDOR_CATEGORY_SEAT";
+    field public static final String PERMISSION_SET_CAR_VENDOR_CATEGORY_WINDOW = "android.car.permission.SET_CAR_VENDOR_CATEGORY_WINDOW";
   }
 
 }

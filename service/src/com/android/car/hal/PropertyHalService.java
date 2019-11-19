@@ -28,6 +28,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.util.Log;
 import android.util.SparseArray;
@@ -317,6 +318,12 @@ public class PropertyHalService extends HalServiceBase {
         }
         if (mDbg) {
             Log.d(TAG, "takeSupportedProperties() took " + taken.size() + " properties");
+        }
+
+        // If vehicle hal support to select permission for vendor properties.
+        if (mProps.containsKey(VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION)) {
+            mPropIds.customizeVendorPermission(mProps.get(
+                    VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION).getConfigArray());
         }
         return taken;
     }
