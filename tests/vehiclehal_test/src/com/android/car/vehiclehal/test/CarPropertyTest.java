@@ -28,6 +28,8 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
+import android.car.hardware.property.VehicleVendorPermission;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
 import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.Log;
@@ -41,7 +43,9 @@ import org.junit.runner.RunWith;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The test suite will execute end-to-end Car Property API test by generating VHAL property data
@@ -73,6 +77,55 @@ public class CarPropertyTest extends E2eCarTestBase {
     private static final String CAR_PROPERTY_TEST_JSON = "car_property_test.json";
     private static final int GEAR_PROPERTY_ID = 289408000;
 
+    private static final Set<String> VENDOR_PERMISSIONS = new HashSet<>(Arrays.asList(
+            Car.PERMISSION_VENDOR_EXTENSION,
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_WINDOW,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_WINDOW,
+            // permissions for the property related with door
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_DOOR,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_DOOR,
+            // permissions for the property related with seat
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_SEAT,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_SEAT,
+            // permissions for the property related with mirror
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_MIRROR,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_MIRROR,
+
+            // permissions for the property related with car's information
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_INFO,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO,
+            // permissions for the property related with car's engine
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE,
+            // permissions for the property related with car's HVAC
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_HVAC,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_HVAC,
+            // permissions for the property related with car's light
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_LIGHT,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_LIGHT,
+
+            // permissions reserved for other vendor permission
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_1,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_1,
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_2,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_2,
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_3,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_3,
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_4,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_4,
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_5,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_5,
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_6,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_6,
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_7,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_7,
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_8,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_8,
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_9,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_9,
+            VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_10,
+            VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_10
+    ));
     private class CarPropertyEventReceiver implements CarPropertyEventCallback {
 
         private VhalEventVerifier mVerifier;
@@ -226,6 +279,30 @@ public class CarPropertyTest extends E2eCarTestBase {
         // check VHAL ignored the last event in car_property_test, because it is out of order.
         int currentGear = propMgr.getIntProperty(GEAR_PROPERTY_ID, 0);
         assertEquals(16, currentGear);
+    }
+
+    /**
+     * Check only vendor properties have vendor permissions.
+     */
+    @Test
+    public void checkPropertyPermission() {
+        CarPropertyManager propMgr = (CarPropertyManager) mCar.getCarManager(Car.PROPERTY_SERVICE);
+        List<CarPropertyConfig> configs = propMgr.getPropertyList();
+        for (CarPropertyConfig cfg : configs) {
+            String readPermission = propMgr.getReadPermission(cfg.getPropertyId());
+            String writePermission = propMgr.getWritePermission(cfg.getPropertyId());
+            if ((cfg.getPropertyId() & VehiclePropertyGroup.MASK) == VehiclePropertyGroup.VENDOR) {
+                Assert.assertTrue(readPermission == null
+                        || VENDOR_PERMISSIONS.contains(readPermission));
+                Assert.assertTrue(writePermission == null
+                        || VENDOR_PERMISSIONS.contains(writePermission));
+            } else {
+                Assert.assertTrue(readPermission == null
+                        || !VENDOR_PERMISSIONS.contains(readPermission));
+                Assert.assertTrue(writePermission == null
+                        || !VENDOR_PERMISSIONS.contains(writePermission));
+            }
+        }
     }
 
     private class GearEventTestCallback implements CarPropertyEventCallback {
