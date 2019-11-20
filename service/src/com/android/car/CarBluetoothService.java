@@ -98,7 +98,13 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
         public void onServiceConnected(IPerUserCarService perUserCarService) {
             logd("Connected to PerUserCarService");
             synchronized (mPerUserLock) {
+                // Explicitly clear out existing per-user objects since we can't rely on the
+                // onServiceDisconnected and onPreUnbind calls to always be called before this
+                destroyUser();
+
                 mPerUserCarService = perUserCarService;
+
+                // Create new objects with our new set of profile proxies
                 initializeUser();
             }
         }
@@ -112,9 +118,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
         @Override
         public void onServiceDisconnected() {
             logd("Disconnected from PerUserCarService");
-            synchronized (mPerUserLock) {
-                mPerUserCarService = null;
-            }
+            destroyUser();
         }
     };
 
@@ -252,6 +256,15 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
                 return;
             }
             for (int profileId : sManagedProfiles) {
+                if (mProfileDeviceManagers.get(profileId) != null) {
+                    BluetoothProfileDeviceManager deviceManager =
+                            mProfileDeviceManagers.get(profileId);
+                    deviceManager.stop();
+                    mProfileDeviceManagers.remove(profileId);
+                    logd("Existing device manager removed for profile "
+                            + Utils.getProfileName(profileId));
+                }
+
                 BluetoothProfileDeviceManager deviceManager = BluetoothProfileDeviceManager.create(
                         mContext, mUserId, mCarBluetoothUserService, profileId);
                 if (deviceManager == null) {
