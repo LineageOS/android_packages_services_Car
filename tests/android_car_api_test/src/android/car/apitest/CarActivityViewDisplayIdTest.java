@@ -313,9 +313,11 @@ public class CarActivityViewDisplayIdTest extends CarApiTestBase {
         }
 
         @Override
-        protected void onDestroy() {
+        protected void onStop() {
+            super.onStop();
+            // Moved the release of the view from onDestroy to onStop since onDestroy was called
+            // in non-deterministic timing.
             mActivityView.release();
-            super.onDestroy();
         }
 
         ActivityView getActivityView() {
