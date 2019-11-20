@@ -157,6 +157,20 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             }
         };
 
+    private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int currState = intent.getIntExtra(EXTRA_WIFI_AP_STATE, WIFI_AP_STATE_DISABLED);
+            int prevState = intent.getIntExtra(EXTRA_PREVIOUS_WIFI_AP_STATE,
+                    WIFI_AP_STATE_DISABLED);
+            int errorCode = intent.getIntExtra(EXTRA_WIFI_AP_FAILURE_REASON, 0);
+            String ifaceName = intent.getStringExtra(EXTRA_WIFI_AP_INTERFACE_NAME);
+            int mode = intent.getIntExtra(EXTRA_WIFI_AP_MODE,
+                    WifiManager.IFACE_IP_MODE_UNSPECIFIED);
+            handleWifiApStateChange(currState, prevState, errorCode, ifaceName, mode);
+        }
+    };
+
     private boolean mBound;
     private Intent mRegisteredService;
 
@@ -736,22 +750,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     @Override
     public void init() {
         mContext.registerReceiver(
-                new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        final int currState = intent.getIntExtra(EXTRA_WIFI_AP_STATE,
-                                WIFI_AP_STATE_DISABLED);
-                        final int prevState = intent.getIntExtra(EXTRA_PREVIOUS_WIFI_AP_STATE,
-                                WIFI_AP_STATE_DISABLED);
-                        final int errorCode = intent.getIntExtra(EXTRA_WIFI_AP_FAILURE_REASON, 0);
-                        final String ifaceName =
-                                intent.getStringExtra(EXTRA_WIFI_AP_INTERFACE_NAME);
-                        final int mode = intent.getIntExtra(EXTRA_WIFI_AP_MODE,
-                                WifiManager.IFACE_IP_MODE_UNSPECIFIED);
-                        handleWifiApStateChange(currState, prevState, errorCode, ifaceName, mode);
-                    }
-                },
-                new IntentFilter(WifiManager.WIFI_AP_STATE_CHANGED_ACTION));
+                mBroadcastReceiver, new IntentFilter(WifiManager.WIFI_AP_STATE_CHANGED_ACTION));
     }
 
     private void handleWifiApStateChange(int currState, int prevState, int errorCode,
@@ -778,6 +777,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         synchronized (mLock) {
             mKeyEventHandlers.clear();
         }
+        mContext.unregisterReceiver(mBroadcastReceiver);
     }
 
     @Override
