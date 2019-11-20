@@ -596,7 +596,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
         if (mSoftApCallback == null) {
             mSoftApCallback = new ProjectionSoftApCallback();
-            mWifiManager.registerSoftApCallback(mSoftApCallback, new HandlerExecutor(mHandler));
+            mWifiManager.registerSoftApCallback(new HandlerExecutor(mHandler), mSoftApCallback);
             ensureApConfiguration();
         }
 
