@@ -49,6 +49,7 @@ import android.car.trust.CarTrustAgentEnrollmentManager;
 import android.car.vms.VmsSubscriberManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -773,7 +774,9 @@ public final class Car {
 
     /**
      * A factory method that creates Car instance for all Car API access.
-     * @param context
+     * @param context App's Context. This should not be null. If you are passing
+     *                {@link ContextWrapper}, make sure that its base Context is non-null as well.
+     *                Otherwise it will throw {@link java.lang.NullPointerException}.
      * @param serviceConnectionListener listener for monitoring service connection.
      * @param handler the handler on which the callback should execute, or null to execute on the
      * service's main thread. Note: the service connection listener will be always on the main
@@ -785,6 +788,7 @@ public final class Car {
     @Deprecated
     public static Car createCar(Context context, ServiceConnection serviceConnectionListener,
             @Nullable Handler handler) {
+        assertNonNullContext(context);
         if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
             Log.e(TAG_CAR, "FEATURE_AUTOMOTIVE not declared while android.car is used");
             return null;
@@ -826,7 +830,9 @@ public final class Car {
     /**
      * Creates new {@link Car} object which connected synchronously to Car Service and ready to use.
      *
-     * @param context application's context
+     * @param context App's Context. This should not be null. If you are passing
+     *                {@link ContextWrapper}, make sure that its base Context is non-null as well.
+     *                Otherwise it will throw {@link java.lang.NullPointerException}.
      * @param handler the handler on which the manager's callbacks will be executed, or null to
      * execute on the application's main thread.
      *
@@ -834,6 +840,7 @@ public final class Car {
      */
     @Nullable
     public static Car createCar(Context context, @Nullable Handler handler) {
+        assertNonNullContext(context);
         Car car = null;
         IBinder service = null;
         boolean started = false;
@@ -911,6 +918,9 @@ public final class Car {
      * {@link CarServiceLifecycleListener#onLifecycleChanged(Car, boolean)} and avoid the
      * needs to check if returned {@link Car} is connected or not from returned {@link Car}.</p>
      *
+     * @param context App's Context. This should not be null. If you are passing
+     *                {@link ContextWrapper}, make sure that its base Context is non-null as well.
+     *                Otherwise it will throw {@link java.lang.NullPointerException}.
      * @param handler dispatches all Car*Manager events to this Handler. Exception is
      *                {@link CarServiceLifecycleListener} which will be always dispatched to main
      *                thread. Passing null leads into dispatching all Car*Manager callbacks to main
@@ -927,7 +937,7 @@ public final class Car {
     public static Car createCar(@NonNull Context context,
             @Nullable Handler handler, long waitTimeoutMs,
             @NonNull CarServiceLifecycleListener statusChangeListener) {
-        Preconditions.checkNotNull(context);
+        assertNonNullContext(context);
         Preconditions.checkNotNull(statusChangeListener);
         Car car = null;
         IBinder service = null;
@@ -1006,6 +1016,15 @@ public final class Car {
         }
         car.dispatchCarReadyToMainThread(isMainThread);
         return car;
+    }
+
+    private static void assertNonNullContext(Context context) {
+        Preconditions.checkNotNull(context);
+        if (context instanceof ContextWrapper
+                && ((ContextWrapper) context).getBaseContext() == null) {
+            throw new NullPointerException(
+                    "ContextWrapper with null base passed as Context, forgot to set base Context?");
+        }
     }
 
     private void dispatchCarReadyToMainThread(boolean isMainThread) {
