@@ -20,6 +20,7 @@
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay
 
 PRODUCT_PACKAGES += \
+    com.android.wifi \
     Home \
     BasicDreams \
     CaptivePortalLogin \
@@ -51,7 +52,6 @@ PRODUCT_PACKAGES += \
     libspeexresampler \
     libvariablespeed \
     libwebrtc_audio_preprocessing \
-    InProcessWifiStack \
     A2dpSinkService \
     PackageInstaller \
     car-bugreportd \

@@ -22,5 +22,10 @@
     <install-in-user-type package="com.android.car.media">
         <install-in user-type="FULL" />
     </install-in-user-type>
+    <!-- Mainline Wi-fi stack, it's needed for all users -->
+    <install-in-user-type package="com.android.wifi">
+        <install-in user-type="SYSTEM" />
+        <install-in user-type="FULL" />
+    </install-in-user-type>
     <!-- TODO(b/123533823): add all packages -->
 </config>
