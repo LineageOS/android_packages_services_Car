@@ -41,5 +41,9 @@ parcelable PacketDescriptor {
      * android.os.NativeHandle memHandle;
      */
     NativeHandle handle;
+    /**
+     * Timestamp of event at source. Timestamp value is milliseconds since epoch.
+     */
+    long sourceTimeStampMillis;
 }
 
