@@ -267,7 +267,7 @@ ConfigManager::readCameraMetadata(const XMLElement * const aParamElem,
                                    );
 
                     aCamera->cameraMetadata.insert_or_assign(
-                        tag, make_pair(make_unique<void *>(data), count)
+                        tag, make_pair(data, count)
                     );
 
                     ++numEntries;
@@ -286,7 +286,7 @@ ConfigManager::readCameraMetadata(const XMLElement * const aParamElem,
                            *data)
                        ) {
                         aCamera->cameraMetadata.insert_or_assign(
-                            tag, make_pair(make_unique<void *>(data), 1)
+                            tag, make_pair((void *)data, 1)
                         );
 
                         ++numEntries;
@@ -315,7 +315,7 @@ ConfigManager::readCameraMetadata(const XMLElement * const aParamElem,
                     }
 
                     aCamera->cameraMetadata.insert_or_assign(
-                        tag, make_pair(make_unique<void *>(data), len)
+                        tag, make_pair((void *)data, len)
                     );
 
                     ++numEntries;
@@ -374,7 +374,7 @@ ConfigManager::constructCameraMetadata(CameraInfo *aCamera,
         /* try to add new camera metadata entry */
         int32_t err = add_camera_metadata_entry(aCamera->characteristics,
                                                 tag,
-                                                entry.first.get(),
+                                                entry.first,
                                                 entry.second);
         if (err) {
             ALOGE("Failed to add an entry with a tag 0x%X", tag);

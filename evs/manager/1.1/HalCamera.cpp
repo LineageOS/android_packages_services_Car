@@ -127,6 +127,23 @@ bool HalCamera::changeFramesInFlight(int delta) {
 }
 
 
+UniqueFence HalCamera::requestNewFrame(sp<VirtualCamera> client) {
+    std::lock_guard<std::mutex> lock(mSessionMutex);
+
+    // If no client has requested new frame, this method marks that there is new
+    // request and returns new fence.  If there is any pending request, then
+    // this method duplicates exising fence and return simply.
+    if (mClientsWaitFrame.size() < 1) {
+        mSessionFence.Reset();
+        mTimeline->BumpFenceEventCounter();
+        mSessionFence = mTimeline->CreateFence("SessionFence");
+    }
+
+    mClientsWaitFrame.emplace_back(client);
+    return mSessionFence.Dup();
+}
+
+
 Return<EvsResult> HalCamera::clientStreamStarting() {
     Return<EvsResult> result = EvsResult::OK;
 
@@ -151,7 +168,7 @@ void HalCamera::clientStreamEnding() {
 
     // If not, then stop the hardware stream
     if (!stillRunning) {
-        mStreamState = STOPPED;
+        mStreamState = STOPPING;
         mHwCamera->stopVideoStream();
     }
 }
@@ -223,15 +240,39 @@ Return<void> HalCamera::deliverFrame(const BufferDesc_1_0& buffer) {
 Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1>& buffer) {
     ALOGV("Received a frame");
     unsigned frameDeliveries = 0;
+    // Frames are being forwarded to v1.0 clients always but, for v1.1
+    // clients, only to them who requested new frame.
     for (auto&& client : mClients) {
         sp<VirtualCamera> vCam = client.promote();
-        if (vCam != nullptr) {
-            if (vCam->deliverFrame(buffer[0])) {
-                ++frameDeliveries;
-            }
+        if (vCam == nullptr || vCam->getVersion() > 0) {
+            continue;
+        }
+
+        if (vCam->deliverFrame(buffer[0])) {
+            ++frameDeliveries;
         }
     }
 
+    unsigned frameDeliveriesV1 = 0;
+    {
+        std::lock_guard<std::mutex> lock(mSessionMutex);
+        for (auto&& client : mClientsWaitFrame) {
+            sp<VirtualCamera> vCam = client.promote();
+            if (vCam != nullptr) {
+                if (vCam->deliverFrame(buffer[0])) {
+                    ++frameDeliveriesV1;
+                }
+            }
+        }
+
+        // Increase a timeline
+        if (frameDeliveriesV1 > 0) {
+            mTimeline->BumpTimelineEventCounter();
+            mClientsWaitFrame.clear();
+        }
+    }
+
+    frameDeliveries += frameDeliveriesV1;
     if (frameDeliveries < 1) {
         // If none of our clients could accept the frame, then return it
         // right away.

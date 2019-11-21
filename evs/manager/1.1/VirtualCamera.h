@@ -62,6 +62,7 @@ public:
     sp<HalCamera>     getHalCamera()      { return mHalCamera; };
     unsigned          getAllowedBuffers() { return mFramesAllowed; };
     bool              isStreaming()       { return mStreamState == RUNNING; }
+    bool              getVersion() const  { return (int)(mStream_1_1 != nullptr); }
 
     // Proxy to receive frames and forward them to the client's stream
     bool              notify(const EvsEventDesc& event);
@@ -99,13 +100,15 @@ private:
     sp<IEvsCameraStream_1_0>    mStream;
     sp<IEvsCameraStream_1_1>    mStream_1_1;
 
-    std::deque<BufferDesc_1_1>  mFramesHeld;
     unsigned                    mFramesAllowed  = 1;
     enum {
         STOPPED,
         RUNNING,
         STOPPING,
-    }                           mStreamState    = STOPPED;
+    }                           mStreamState;
+
+    std::deque<BufferDesc_1_1>  mFramesHeld;
+    std::thread                 mCaptureThread;
 };
 
 } // namespace implementation

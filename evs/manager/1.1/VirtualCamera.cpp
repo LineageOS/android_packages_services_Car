@@ -33,7 +33,8 @@ namespace implementation {
 
 
 VirtualCamera::VirtualCamera(sp<HalCamera> halCamera) :
-    mHalCamera(halCamera) {
+    mHalCamera(halCamera),
+    mStreamState(STOPPED){
 }
 
 
@@ -44,13 +45,18 @@ VirtualCamera::~VirtualCamera() {
 
 void VirtualCamera::shutdown() {
     // In normal operation, the stream should already be stopped by the time we get here
-    if (mStreamState != STOPPED) {
+    if (mHalCamera != nullptr && mStreamState != STOPPED) {
         // Note that if we hit this case, no terminating frame will be sent to the client,
         // but they're probably already dead anyway.
         ALOGW("Virtual camera being shutdown while stream is running");
 
         // Tell the frame delivery pipeline we don't want any more frames
         mStreamState = STOPPING;
+
+        // Join a capture thread
+        if (mCaptureThread.joinable()) {
+            mCaptureThread.join();
+        }
 
         if (mFramesHeld.size() > 0) {
             ALOGW("VirtualCamera destructing with frames in flight.");
@@ -101,31 +107,22 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
         // Keep a record of this frame so we can clean up if we have to in case of client death
         mFramesHeld.emplace_back(bufDesc);
 
-        // Forward frames if new frames from all physical devices have arrived.
-        {
-            // TODO: this is only for a test - for now, forwarding only a single frame.
-            if (mStream_1_1 != nullptr) {
-                // Pass this buffer through to our client
-                hardware::hidl_vec<BufferDesc_1_1> frames;
-                frames.resize(1);
-                frames[0] = bufDesc;
-                mStream_1_1->deliverFrame_1_1(frames);
-            } else {
-                // Forward a frame to v1.0 client
-                BufferDesc_1_0 frame_1_0 = {};
-                const AHardwareBuffer_Desc* pDesc =
-                    reinterpret_cast<const AHardwareBuffer_Desc *>(&bufDesc.buffer.description);
-                frame_1_0.width     = pDesc->width;
-                frame_1_0.height    = pDesc->height;
-                frame_1_0.format    = pDesc->format;
-                frame_1_0.usage     = pDesc->usage;
-                frame_1_0.stride    = pDesc->stride;
-                frame_1_0.memHandle = bufDesc.buffer.nativeHandle;
-                frame_1_0.pixelSize = bufDesc.pixelSize;
-                frame_1_0.bufferId  = bufDesc.bufferId;
+        // v1.0 client uses an old frame-delivery mechanism.
+        if (mStream_1_1 == nullptr) {
+            // Forward a frame to v1.0 client
+            BufferDesc_1_0 frame_1_0 = {};
+            const AHardwareBuffer_Desc* pDesc =
+                reinterpret_cast<const AHardwareBuffer_Desc *>(&bufDesc.buffer.description);
+            frame_1_0.width     = pDesc->width;
+            frame_1_0.height    = pDesc->height;
+            frame_1_0.format    = pDesc->format;
+            frame_1_0.usage     = pDesc->usage;
+            frame_1_0.stride    = pDesc->stride;
+            frame_1_0.memHandle = bufDesc.buffer.nativeHandle;
+            frame_1_0.pixelSize = bufDesc.pixelSize;
+            frame_1_0.bufferId  = bufDesc.bufferId;
 
-                mStream->deliverFrame(frame_1_0);
-            }
+            mStream->deliverFrame(frame_1_0);
         }
 
         return true;
@@ -136,9 +133,9 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
 bool VirtualCamera::notify(const EvsEventDesc& event) {
     switch(event.aType) {
         case EvsEventType::STREAM_STOPPED:
-            // Warn if we got an unexpected stream termination
             if (mStreamState != STOPPING) {
-                ALOGW("Stream unexpectedly stopped");
+                // Warn if we got an unexpected stream termination
+                ALOGW("Stream unexpectedly stopped, current status 0x%X", mStreamState);
             }
 
             // Mark the stream as stopped.
@@ -235,6 +232,29 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
         return EvsResult::UNDERLYING_SERVICE_ERROR;
     }
 
+    // Start a thread that waits on the fence and forwards collected frames
+    // to the v1.1 client.
+    if (mStream_1_1 != nullptr) {
+        mCaptureThread = std::thread([this]() {
+            constexpr int kFrameTimeoutMs = 500;
+            while (mStreamState == RUNNING) {
+                UniqueFence fence = mHalCamera->requestNewFrame(this);
+                if (fence.Wait(kFrameTimeoutMs) < 0) {
+                    ALOGE("%p: Camera hangs? %s", this, strerror(errno));
+                } else {
+                    // Fetch frames and forward to the client
+                    if (mFramesHeld.size() > 0 && mStream_1_1 != nullptr) {
+                        // Pass this buffer through to our client
+                        hardware::hidl_vec<BufferDesc_1_1> frames;
+                        frames.resize(1);
+                        frames[0] = mFramesHeld.back();
+                        mStream_1_1->deliverFrame_1_1(frames);
+                    }
+                }
+            }
+        });
+    }
+
     // TODO(changyeon):
     // Detect and exit if we encounter a stalled stream or unresponsive driver?
     // Consider using a timer and watching for frame arrival?
@@ -276,6 +296,11 @@ Return<void> VirtualCamera::stopVideoStream()  {
     if (mStreamState == RUNNING) {
         // Tell the frame delivery pipeline we don't want any more frames
         mStreamState = STOPPING;
+
+        // Join a thread
+        if (mCaptureThread.joinable()) {
+            mCaptureThread.join();
+        }
 
         // Deliver an empty frame to close out the frame stream
         if (mStream_1_1 != nullptr) {

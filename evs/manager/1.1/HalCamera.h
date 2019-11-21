@@ -25,6 +25,9 @@
 #include <thread>
 #include <list>
 
+#include "sync/unique_fd.h"
+#include "sync/unique_fence.h"
+#include "sync/unique_timeline.h"
 
 using namespace ::android::hardware::automotive::evs::V1_1;
 using ::android::hardware::Return;
@@ -53,7 +56,9 @@ class VirtualCamera;    // From VirtualCamera.h
 // stream from the hardware camera and distribute it to the associated VirtualCamera objects.
 class HalCamera : public IEvsCameraStream_1_1 {
 public:
-    HalCamera(sp<IEvsCamera_1_1> hwCamera) : mHwCamera(hwCamera) {};
+    HalCamera(sp<IEvsCamera_1_1> hwCamera)
+        : mHwCamera(hwCamera),
+          mTimeline(new UniqueTimeline(0)) {}
 
     // Factory methods for client VirtualCameras
     sp<VirtualCamera>     makeVirtualCamera();
@@ -63,6 +68,7 @@ public:
     sp<IEvsCamera_1_0>  getHwCamera()       { return mHwCamera; };
     unsigned            getClientCount()    { return mClients.size(); };
     bool                changeFramesInFlight(int delta);
+    UniqueFence         requestNewFrame(sp<VirtualCamera> virtualCamera);
 
     Return<EvsResult>   clientStreamStarting();
     void                clientStreamEnding();
@@ -100,6 +106,12 @@ private:
     std::vector<FrameRecord>        mFrames;
     wp<VirtualCamera>               mMaster = nullptr;
     std::mutex                      mMasterLock;
+
+    // synchronization
+    std::mutex mSessionMutex;
+    std::list<wp<VirtualCamera>> mClientsWaitFrame GUARDED_BY(mSessionMutex);
+    std::unique_ptr<UniqueTimeline> mTimeline GUARDED_BY(mSessionMutex);
+    UniqueFence mSessionFence GUARDED_BY(mSessionMutex);
 };
 
 } // namespace implementation
