@@ -392,7 +392,7 @@ public class CarUserServiceTest {
         String userName = "testUser";
         UserInfo userInfo = new UserInfo(passengerId, userName, NO_USER_INFO_FLAGS);
         doReturn(userInfo).when(mMockedUserManager).createProfileForUser(eq(userName),
-                eq(UserInfo.FLAG_MANAGED_PROFILE), eq(driverId));
+                eq(UserManager.USER_TYPE_PROFILE_MANAGED), eq(0), eq(driverId));
         UserInfo driverInfo = new UserInfo(driverId, "driver", NO_USER_INFO_FLAGS);
         doReturn(driverInfo).when(mMockedUserManager).getUserInfo(driverId);
         assertEquals(userInfo, mCarUserService.createPassenger(userName, driverId));
@@ -403,7 +403,7 @@ public class CarUserServiceTest {
         int driverId = 90;
         String userName = "testUser";
         doReturn(null).when(mMockedUserManager).createProfileForUser(eq(userName),
-                eq(UserInfo.FLAG_MANAGED_PROFILE), anyInt());
+                eq(UserManager.USER_TYPE_PROFILE_MANAGED), anyInt(), anyInt());
         UserInfo driverInfo = new UserInfo(driverId, "driver", NO_USER_INFO_FLAGS);
         doReturn(driverInfo).when(mMockedUserManager).getUserInfo(driverId);
         assertEquals(null, mCarUserService.createPassenger(userName, driverId));

@@ -186,8 +186,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Log.w(TAG_USER, "a guest driver cannot create a passenger");
             return null;
         }
-        UserInfo user = mUserManager.createProfileForUser(name, UserInfo.FLAG_MANAGED_PROFILE,
-                driverId);
+        UserInfo user = mUserManager.createProfileForUser(name,
+                UserManager.USER_TYPE_PROFILE_MANAGED, /* flags */ 0, driverId);
         if (user == null) {
             // Couldn't create user, most likely because there are too many.
             Log.w(TAG_USER, "can't create a profile for user" + driverId);
