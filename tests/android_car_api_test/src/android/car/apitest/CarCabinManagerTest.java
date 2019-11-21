@@ -21,24 +21,33 @@ import android.car.hardware.cabin.CarCabinManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
+import androidx.test.runner.AndroidJUnit4;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarCabinManagerTest extends CarApiTestBase {
     private static final String TAG = CarCabinManagerTest.class.getSimpleName();
 
     private CarCabinManager mCabinManager;
 
+    @Before
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mCabinManager = (CarCabinManager) getCar().getCarManager(Car.CABIN_SERVICE);
         assertNotNull(mCabinManager);
     }
 
+    @Test
     public void testAllCabinProperties() throws Exception {
         List<CarPropertyConfig> properties = mCabinManager.getPropertyList();
         Set<Class> supportedTypes = new HashSet<>(Arrays.asList(

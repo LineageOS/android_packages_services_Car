@@ -42,6 +42,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         compatibility-device-util-axt \
         testng \
         truth-prebuilt \
+        androidx.test.runner \
 
 LOCAL_JAVA_LIBRARIES := android.car android.test.runner android.test.base
 

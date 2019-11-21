@@ -23,12 +23,19 @@ import static org.junit.Assert.assertArrayEquals;
 
 import android.test.suitebuilder.annotation.MediumTest;
 
+import androidx.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 /**
  * Unit tests for {@link CarPropertyValue}
  */
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarPropertyValueTest extends CarPropertyTestBase {
 
+    @Test
     public void testSimpleFloatValue() {
         CarPropertyValue<Float> floatValue =
                 new CarPropertyValue<>(FLOAT_PROPERTY_ID, WINDOW_DRIVER, 10f);
@@ -39,6 +46,7 @@ public class CarPropertyValueTest extends CarPropertyTestBase {
         assertEquals(10f, valueRead.getValue());
     }
 
+    @Test
     public void testMixedValue() {
         Object[] values = {"android", 1, 2.0};
         CarPropertyValue<Object> mixedValue =
@@ -51,5 +59,4 @@ public class CarPropertyValueTest extends CarPropertyTestBase {
         assertEquals(MIXED_TYPE_PROPERTY_ID, valueRead.getPropertyId());
         assertEquals(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, valueRead.getAreaId());
     }
-
 }

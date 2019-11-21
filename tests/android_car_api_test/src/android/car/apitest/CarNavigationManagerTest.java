@@ -37,9 +37,15 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import androidx.test.filters.RequiresDevice;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.google.android.collect.Lists;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
 /**
  * Unit tests for {@link CarNavigationStatusManager}
  */
@@ -51,8 +57,9 @@ public class CarNavigationManagerTest extends CarApiTestBase {
     private CarNavigationStatusManager mCarNavigationManager;
     private CarAppFocusManager mCarAppFocusManager;
 
+    @Before
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mCarNavigationManager =
                 (CarNavigationStatusManager) getCar().getCarManager(Car.CAR_NAVIGATION_SERVICE);
@@ -61,6 +68,7 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         assertNotNull(mCarAppFocusManager);
     }
 
+    @Test
     public void testSerializeAndDeserializeProto() throws Exception {
         ImageReference imageReference = ImageReference.newBuilder().build();
         Distance distance = Distance.newBuilder().build();
@@ -106,6 +114,7 @@ public class CarNavigationManagerTest extends CarApiTestBase {
     }
 
     @RequiresDevice
+    @Test
     public void testSendEvent() throws Exception {
         if (mCarNavigationManager == null) {
             Log.w(TAG, "Unable to run the test: "

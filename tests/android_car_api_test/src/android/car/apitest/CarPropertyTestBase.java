@@ -22,6 +22,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.test.AndroidTestCase;
 
+import org.junit.After;
+import org.junit.Before;
+
 /**
  * Base class to test {@link CarPropertyConfig} and {@link CarPropertyValue}.
  */
@@ -39,14 +42,16 @@ public class CarPropertyTestBase extends AndroidTestCase {
 
     private Parcel mParcel;
 
+    @Before
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mParcel = Parcel.obtain();
     }
 
+    @After
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         mParcel.recycle();
         super.tearDown();
     }

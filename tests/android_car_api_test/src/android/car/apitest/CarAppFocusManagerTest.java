@@ -27,12 +27,18 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import androidx.test.filters.RequiresDevice;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarAppFocusManagerTest extends CarApiTestBase {
     private static final String TAG = CarAppFocusManagerTest.class.getSimpleName();
@@ -40,8 +46,9 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
 
     private final LooperThread mEventThread = new LooperThread();
 
+    @Before
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mManager = (CarAppFocusManager) getCar().getCarManager(Car.APP_FOCUS_SERVICE);
         assertNotNull(mManager);
@@ -61,6 +68,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         mEventThread.waitForReadyState();
     }
 
+    @Test
     public void testSetActiveNullListener() throws Exception {
         try {
             mManager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, null);
@@ -70,6 +78,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         }
     }
 
+    @Test
     public void testRegisterNull() throws Exception {
         try {
             mManager.addFocusListener(null, 0);
@@ -79,6 +88,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         }
     }
 
+    @Test
     public void testRegisterUnregister() throws Exception {
         FocusChangedListener listener = new FocusChangedListener();
         FocusChangedListener listener2 = new FocusChangedListener();
@@ -89,6 +99,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         mManager.removeFocusListener(listener2);  // Double-unregister is OK
     }
 
+    @Test
     public void testRegisterUnregisterSpecificApp() throws Exception {
         FocusChangedListener listener1 = new FocusChangedListener();
         FocusChangedListener listener2 = new FocusChangedListener();
@@ -118,6 +129,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         manager.removeFocusListener(listener2, 2);    // Double-unregister is OK
     }
 
+    @Test
     public void testFocusChange() throws Exception {
         CarAppFocusManager manager1 = createManager();
         CarAppFocusManager manager2 = createManager();
@@ -215,9 +227,12 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
     }
 
     @RequiresDevice
+    @Test
     public void testFilter() throws Exception {
-        CarAppFocusManager manager1 = createManager(getContext(), mEventThread);
-        CarAppFocusManager manager2 = createManager(getContext(), mEventThread);
+        CarAppFocusManager manager1 = createManager(
+                InstrumentationRegistry.getInstrumentation().getContext(), mEventThread);
+        CarAppFocusManager manager2 = createManager(
+                InstrumentationRegistry.getInstrumentation().getContext(), mEventThread);
 
         Assert.assertArrayEquals(new int[0], manager1.getActiveAppTypes());
         Assert.assertArrayEquals(new int[0], manager2.getActiveAppTypes());
@@ -248,7 +263,8 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
     }
 
     private CarAppFocusManager createManager() throws InterruptedException {
-        return createManager(getContext(), mEventThread);
+        return createManager(
+            InstrumentationRegistry.getInstrumentation().getContext(), mEventThread);
     }
 
     private static CarAppFocusManager createManager(Context context,
@@ -271,6 +287,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
     }
 
     @RequiresDevice
+    @Test
     public void testMultipleChangeListenersPerManager() throws Exception {
         CarAppFocusManager manager = createManager();
         FocusChangedListener listener = new FocusChangedListener();

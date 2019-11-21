@@ -25,6 +25,9 @@ import android.os.Looper;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import org.junit.After;
+import org.junit.Before;
+
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -58,6 +61,7 @@ public class CarSensorManagerTest extends AndroidTestCase {
         mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
     }
 
+    @Before
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -68,6 +72,7 @@ public class CarSensorManagerTest extends AndroidTestCase {
                 (CarSensorManager) mCar.getCarManager(Car.SENSOR_SERVICE);
     }
 
+    @After
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();

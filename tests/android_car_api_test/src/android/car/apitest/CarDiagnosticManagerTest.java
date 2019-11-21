@@ -25,9 +25,19 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
+
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarDiagnosticManagerTest extends AndroidTestCase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 5000;
@@ -60,18 +70,21 @@ public class CarDiagnosticManagerTest extends AndroidTestCase {
         mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
     }
 
+    @Before
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
-        mCar = Car.createCar(getContext(), mConnectionListener);
+        mCar = Car.createCar(
+            InstrumentationRegistry.getInstrumentation().getContext(), mConnectionListener);
         mCar.connect();
         waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         mCarDiagnosticManager = (CarDiagnosticManager) mCar.getCarManager(Car.DIAGNOSTIC_SERVICE);
         assertNotNull(mCarDiagnosticManager);
     }
 
+    @After
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
         mCar.disconnect();
     }
@@ -81,6 +94,7 @@ public class CarDiagnosticManagerTest extends AndroidTestCase {
      *
      * @throws Exception
      */
+    @Test
     public void testLiveFrame() throws Exception {
         CarDiagnosticEvent liveFrame = mCarDiagnosticManager.getLatestLiveFrame();
         if (null != liveFrame) {
@@ -94,6 +108,7 @@ public class CarDiagnosticManagerTest extends AndroidTestCase {
      *
      * @throws Exception
      */
+    @Test
     public void testFreezeFrames() throws Exception {
         long[] timestamps = mCarDiagnosticManager.getFreezeFrameTimestamps();
         if (null != timestamps) {

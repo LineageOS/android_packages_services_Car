@@ -20,22 +20,32 @@ import android.car.Car;
 import android.car.CarInfoManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import androidx.test.runner.AndroidJUnit4;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CarInfoManagerTest extends CarApiTestBase {
 
     private CarInfoManager mInfoManager;
 
+    @Before
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mInfoManager = (CarInfoManager) getCar().getCarManager(Car.INFO_SERVICE);
         assertNotNull(mInfoManager);
     }
 
+    @Test
     public void testVehicleId() throws Exception {
         assertNotNull(mInfoManager.getVehicleId());
     }
 
+    @Test
     public void testNotNullItems() throws Exception {
         // call and check if it throws exception.
         assertNotNull(mInfoManager.getManufacturer());

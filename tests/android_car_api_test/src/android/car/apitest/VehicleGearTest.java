@@ -19,9 +19,16 @@ import android.car.VehicleGear;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import androidx.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
 @SmallTest
 public class VehicleGearTest extends AndroidTestCase {
 
+    @Test
     public void testMatchWithVehicleHal() {
         assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_UNKNOWN,
                 VehicleGear.GEAR_UNKNOWN);
@@ -66,6 +73,7 @@ public class VehicleGearTest extends AndroidTestCase {
                 VehicleGear.GEAR_NINTH);
     }
 
+    @Test
     public void testToString() {
         assertEquals("GEAR_UNKNOWN", VehicleGear.toString(VehicleGear.GEAR_UNKNOWN));
 

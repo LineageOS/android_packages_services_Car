@@ -20,19 +20,25 @@ import android.car.VehicleAreaType;
 import android.car.hardware.CarPropertyConfig;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import androidx.test.runner.AndroidJUnit4;
+
 import static org.junit.Assert.assertArrayEquals;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 /**
  * Unit tests for {@link CarPropertyConfig}
  */
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarPropertyConfigTest extends CarPropertyTestBase {
 
+    @Test
     public void testCarPropertyConfigBuilder() {
         createFloatPropertyConfig();
     }
@@ -59,6 +65,7 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
         return config;
     }
 
+    @Test
     public void testWriteReadFloat() {
         CarPropertyConfig<Float> config = createFloatPropertyConfig();
 
@@ -78,6 +85,7 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
         assertEquals(20f, configRead.getMaxValue(WINDOW_PASSENGER));
     }
 
+    @Test
     public void testWriteReadIntegerValue() {
         Integer expectedMinValue = 1;
         Integer expectedMaxValue = 20;
@@ -101,6 +109,7 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
         assertEquals(expectedMaxValue, configRead.getMaxValue(WINDOW_PASSENGER));
     }
 
+    @Test
     public void testWriteReadLongValue() {
         Long expectedMinValue = 0L;
         Long expectedMaxValue = 100L;
@@ -124,6 +133,7 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
         assertEquals(expectedMaxValue, configRead.getMaxValue(WINDOW_PASSENGER));
     }
 
+    @Test
     public void testWriteReadIntegerArray() {
         CarPropertyConfig<Integer[]> config = CarPropertyConfig
                 .newBuilder(Integer[].class, INT_ARRAY_PROPERTY_ID, CAR_AREA_TYPE)
@@ -147,6 +157,7 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
         assertNull(configRead.getMaxValue(WINDOW_DRIVER));
     }
 
+    @Test
     public void testWriteReadUnexpectedType() {
         CarPropertyConfig<Float> config = createFloatPropertyConfig();
 
@@ -172,6 +183,7 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
         }
     }
 
+    @Test
     public void testWriteReadMixedType() {
         List<Integer> configArray = Arrays.asList(1, 0, 1, 0, 1, 0, 0, 0, 0);
 

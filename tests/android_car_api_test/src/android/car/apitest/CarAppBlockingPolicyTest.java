@@ -22,15 +22,24 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CarAppBlockingPolicyTest extends AndroidTestCase {
     private static final String TAG = AppBlockingPackageInfoTest.class.getSimpleName();
 
+    @Test
     public void testParcelling() throws Exception {
         AppBlockingPackageInfo carServiceInfo =
                 AppBlockingPackageInfoTest.createInfoCarService(getContext());
         AppBlockingPackageInfo selfInfo =
-                AppBlockingPackageInfoTest.createInfoSelf(getContext());
+                AppBlockingPackageInfoTest.createInfoSelf(
+                    InstrumentationRegistry.getInstrumentation().getContext());
         // this is only for testing parcelling. contents has nothing to do with actual app blocking.
         AppBlockingPackageInfo[] whitelists = new AppBlockingPackageInfo[] { carServiceInfo,
                 selfInfo };
