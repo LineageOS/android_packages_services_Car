@@ -16,6 +16,7 @@
 
 package android.car.apitest;
 
+import static android.app.ActivityManager.RunningAppProcessInfo;
 import static android.view.Display.DEFAULT_DISPLAY;
 import static android.view.Display.INVALID_DISPLAY;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -39,12 +40,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
+import android.os.Process;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.Display;
 import android.view.ViewGroup;
-
-import com.android.compatibility.common.util.SystemUtil;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -53,7 +53,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 
-import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -67,20 +67,25 @@ import java.util.concurrent.TimeoutException;
 @MediumTest
 public class CarActivityViewDisplayIdTest extends CarApiTestBase {
     private static final String CAR_LAUNCHER_PKG_NAME = "com.android.car.carlauncher";
+    private static final String ACTIVITY_VIEW_TEST_PKG_NAME = "android.car.apitest";
+    private static final String ACTIVITY_VIEW_TEST_PROCESS_NAME =
+            ACTIVITY_VIEW_TEST_PKG_NAME + ":activity_view_test";
     private static final String ACTIVITY_VIEW_DISPLAY_NAME = "TaskVirtualDisplay";
-    private static final String AM_START_HOME_ACTIVITY_COMMAND =
-            "am start -a android.intent.action.MAIN -c android.intent.category.HOME";
     private static final int NONEXISTENT_DISPLAY_ID = Integer.MAX_VALUE;
     private static final int TEST_TIMEOUT_SEC = 5;
     private static final int TEST_TIMEOUT_MS = TEST_TIMEOUT_SEC * 1000;
+    private static final int TEST_POLL_MS = 50;
+    private static final int INVALID_PID = -1;
 
     private DisplayManager mDisplayManager;
+    private ActivityManager mActivityManager;
     private CarUxRestrictionsManager mCarUxRestrictionsManager;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
         mDisplayManager = getContext().getSystemService(DisplayManager.class);
+        mActivityManager = getContext().getSystemService(ActivityManager.class);
         mCarUxRestrictionsManager = (CarUxRestrictionsManager)
                 getCar().getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
     }
@@ -171,7 +176,7 @@ public class CarActivityViewDisplayIdTest extends CarApiTestBase {
     // TODO(b/143353546): Make the following tests not to rely on CarLauncher.
     @Test
     public void testThrowsExceptionOnReportingNonOwningDisplay() throws Exception {
-        int displayIdOfCarLauncher = waitForCarLauncherDisplayReady(INVALID_DISPLAY);
+        int displayIdOfCarLauncher = waitForActivityViewDisplayReady(CAR_LAUNCHER_PKG_NAME);
         assumeTrue(INVALID_DISPLAY != displayIdOfCarLauncher);
 
         // CarLauncher owns the display, so expect to throw an Exception.
@@ -179,57 +184,66 @@ public class CarActivityViewDisplayIdTest extends CarApiTestBase {
                 java.lang.SecurityException.class,
                 () -> mCarUxRestrictionsManager.reportVirtualDisplayToPhysicalDisplay(
                         displayIdOfCarLauncher, DEFAULT_DISPLAY + 1));
+
     }
 
     // The test name starts with 'testz' to run it at the last among the tests, since killing
-    // CarLauncher causes the system unstable for a while.
+    // TestActivity forcefully causes the system unstable for a while.
     @Test
     public void testzCleanUpAfterClientIsCrashed() throws Exception {
-        int displayIdOfCarLauncher = waitForCarLauncherDisplayReady(INVALID_DISPLAY);
-        assumeTrue(INVALID_DISPLAY != displayIdOfCarLauncher);
+        Intent intent = new Intent(getContext(), MultiProcessActivityViewTestActivity.class);
+        getContext().startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        int pidOfTestActivity = waitForTestActivityReady();
+        int displayIdOfTestActivity = waitForActivityViewDisplayReady(ACTIVITY_VIEW_TEST_PKG_NAME);
 
-        assertThat(getMappedPhysicalDisplayOfVirtualDisplay(displayIdOfCarLauncher))
+        assertThat(getMappedPhysicalDisplayOfVirtualDisplay(displayIdOfTestActivity))
                 .isEqualTo(DEFAULT_DISPLAY);
 
-        ActivityManager am = getContext().getSystemService(ActivityManager.class);
-        am.forceStopPackage(CAR_LAUNCHER_PKG_NAME);
-        launchHomeActivity();
-        int displayIdOfNewCarLauncher = waitForCarLauncherDisplayReady(displayIdOfCarLauncher);
+        Process.killProcess(pidOfTestActivity);
 
-        assertThat(displayIdOfNewCarLauncher).isNotEqualTo(INVALID_DISPLAY);
-        assertThat(displayIdOfNewCarLauncher).isNotEqualTo(displayIdOfCarLauncher);
-        assertThat(getMappedPhysicalDisplayOfVirtualDisplay(displayIdOfCarLauncher))
+        assertThat(waitForMappedPhysicalDisplayOfVirtualDisplayCleared(displayIdOfTestActivity))
                 .isEqualTo(INVALID_DISPLAY);
-        assertThat(getMappedPhysicalDisplayOfVirtualDisplay(displayIdOfNewCarLauncher))
-                .isEqualTo(DEFAULT_DISPLAY);
     }
 
-    private int findDisplayIdOfCarLauncher() {
-        for (Display display: mDisplayManager.getDisplays()) {
-            String displayName = display.getName();
-            if (display.getName().contains(ACTIVITY_VIEW_DISPLAY_NAME)
-                    && display.getOwnerPackageName().equals(CAR_LAUNCHER_PKG_NAME)) {
-                return display.getDisplayId();
+    private int waitForActivityViewDisplayReady(String packageName) {
+        for (int i = 0; i < TEST_TIMEOUT_MS / TEST_POLL_MS; ++i) {
+            for (Display display : mDisplayManager.getDisplays()) {
+                if (display.getName().contains(ACTIVITY_VIEW_DISPLAY_NAME)
+                        && display.getOwnerPackageName().equals(packageName)
+                        && display.getState() == Display.STATE_ON) {
+                    return display.getDisplayId();
+                }
             }
+            SystemClock.sleep(TEST_POLL_MS);
         }
         return INVALID_DISPLAY;
     }
 
-    /**
-     * Waits until CarLauncher is ready and returns the display id of its ActivityView.
-     * When killing a CarLauncher, findDisplayIdOfCarLauncher() can return the old one for
-     * a while until DisplayManagerService gets the update.
-     * To differentiate it, the method accepts the old display id and ignores it.
-     */
-    private int waitForCarLauncherDisplayReady(int oldDisplayId) {
-        for (int i = 0; i < TEST_TIMEOUT_SEC; ++i) {
-            int displayId = findDisplayIdOfCarLauncher();
-            if (displayId != INVALID_DISPLAY && displayId != oldDisplayId) {
-                return displayId;
+    private int waitForMappedPhysicalDisplayOfVirtualDisplayCleared(int displayId) {
+        // Initialized with a random number which is not DEFAULT_DISPLAY nor INVALID_DISPLAY.
+        int physicalDisplayId = 999;
+        for (int i = 0; i < TEST_TIMEOUT_MS / TEST_POLL_MS; ++i) {
+            physicalDisplayId = getMappedPhysicalDisplayOfVirtualDisplay(displayId);
+            if (physicalDisplayId == INVALID_DISPLAY) {
+                return physicalDisplayId;
             }
-            SystemClock.sleep(/*ms=*/ 1000);
+            SystemClock.sleep(TEST_POLL_MS);
         }
-        return findDisplayIdOfCarLauncher();
+        return physicalDisplayId;
+    }
+
+    private int waitForTestActivityReady() {
+        for (int i = 0; i < TEST_TIMEOUT_MS / TEST_POLL_MS; ++i) {
+            List<RunningAppProcessInfo> appProcesses = mActivityManager.getRunningAppProcesses();
+            for (RunningAppProcessInfo info : appProcesses) {
+                if (info.processName.equals(ACTIVITY_VIEW_TEST_PROCESS_NAME)
+                        && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                    return info.pid;
+                }
+            }
+            SystemClock.sleep(TEST_POLL_MS);
+        }
+        return INVALID_PID;
     }
 
     private static class TestActivity extends Activity {
@@ -278,7 +292,7 @@ public class CarActivityViewDisplayIdTest extends CarApiTestBase {
         return activity;
     }
 
-    public static final class ActivityViewTestActivity extends TestActivity {
+    public static class ActivityViewTestActivity extends TestActivity {
         private static final class ActivityViewStateCallback extends ActivityView.StateCallback {
             private final CountDownLatch mActivityViewReadyLatch = new CountDownLatch(1);
             private final CountDownLatch mActivityViewDestroyedLatch = new CountDownLatch(1);
@@ -333,6 +347,10 @@ public class CarActivityViewDisplayIdTest extends CarApiTestBase {
         }
     }
 
+    public static final class MultiProcessActivityViewTestActivity extends
+            ActivityViewTestActivity {
+    }
+
     private ActivityViewTestActivity startActivityViewTestActivity(int displayId) throws Exception {
         return (ActivityViewTestActivity) startTestActivity(ActivityViewTestActivity.class,
                 displayId);
@@ -343,13 +361,5 @@ public class CarActivityViewDisplayIdTest extends CarApiTestBase {
 
     private ActivityInActivityView startActivityInActivityView(int displayId) throws Exception {
         return (ActivityInActivityView) startTestActivity(ActivityInActivityView.class, displayId);
-    }
-
-    private void launchHomeActivity() {
-        try {
-            SystemUtil.runShellCommand(getInstrumentation(), AM_START_HOME_ACTIVITY_COMMAND);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
