@@ -16,7 +16,6 @@
 
 package com.android.car.vms;
 
-import android.app.ActivityManager;
 import android.car.Car;
 import android.car.vms.IVmsPublisherClient;
 import android.car.vms.IVmsSubscriberClient;
@@ -50,7 +49,6 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.IntSupplier;
@@ -98,7 +96,7 @@ public class VmsClientManager implements CarServiceBase {
     private int mCurrentUser;
 
     @GuardedBy("mLock")
-    private final Map<IBinder, SubscriberConnection> mSubscribers = new HashMap<>();
+    private final Map<IBinder, SubscriberConnection> mSubscribers = new ArrayMap<>();
 
     @VisibleForTesting
     final Runnable mSystemUserUnlockedListener = () -> {
@@ -109,42 +107,30 @@ public class VmsClientManager implements CarServiceBase {
     };
 
     @VisibleForTesting
-    final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
-        @Override
-        public void onUserLockChanged(int userId, boolean unlocked) {
-            if (unlocked) {
-                if (DBG) Log.d(TAG, "onUserLockChanged: " + userId);
-                switchUser();
-            }
-        }
-
+    public final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
         @Override
         public void onSwitchUser(int userId) {
-            if (DBG) Log.d(TAG, "onSwitchUser: " + userId);
-            switchUser();
+            synchronized (mLock) {
+                if (mCurrentUser != userId) {
+                    mCurrentUser = userId;
+                    terminate(mCurrentUserClients);
+                    terminate(mSubscribers.values().stream()
+                            .filter(subscriber -> subscriber.mUserId != mCurrentUser)
+                            .filter(subscriber -> subscriber.mUserId != UserHandle.USER_SYSTEM));
+                }
+            }
+            bindToUserClients();
+        }
+
+        @Override
+        public void onUserLockChanged(int userId, boolean unlocked) {
+            synchronized (mLock) {
+                if (mCurrentUser == userId && unlocked) {
+                    bindToUserClients();
+                }
+            }
         }
     };
-
-    // TODO(b/144027497): temporary until tests are refactored to not call this directly
-    /** @hide */
-    @VisibleForTesting
-    public void switchUser() {
-        synchronized (mLock) {
-            int currentUserId = ActivityManager.getCurrentUser();
-            if (mCurrentUser != currentUserId) {
-                terminate(mCurrentUserClients);
-                terminate(mSubscribers.values().stream()
-                        .filter(subscriber -> subscriber.mUserId != currentUserId)
-                        .filter(subscriber -> subscriber.mUserId != UserHandle.USER_SYSTEM));
-            }
-            mCurrentUser = currentUserId;
-
-            if (mUserManager.isUserUnlocked(mCurrentUser)) {
-                bindToSystemClients();
-                bindToUserClients();
-            }
-        }
-    }
 
     /**
      * Constructor for client manager.
@@ -171,7 +157,7 @@ public class VmsClientManager implements CarServiceBase {
         mUserManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
         mStatsService = statsService;
         mUserService = userService;
-        mCurrentUser = ActivityManager.getCurrentUser();
+        mCurrentUser = UserHandle.USER_NULL;
         mBrokerService = brokerService;
         mHandler = handler;
         mGetCallingUid = getCallingUid;
@@ -369,12 +355,21 @@ public class VmsClientManager implements CarServiceBase {
     }
 
     private void bindToUserClients() {
+        bindToSystemClients(); // Bind system clients on user switch, if they are not already bound.
         synchronized (mLock) {
+            if (mCurrentUser == UserHandle.USER_NULL) {
+                Log.e(TAG, "Unknown user in foreground.");
+                return;
+            }
             // To avoid the risk of double-binding, clients running as the system user must only
             // ever be bound in bindToSystemClients().
-            // In a headless multi-user system, the system user will never be in the foreground.
             if (mCurrentUser == UserHandle.USER_SYSTEM) {
                 Log.e(TAG, "System user in foreground. Userspace clients will not be bound.");
+                return;
+            }
+
+            if (!mUserManager.isUserUnlocked(mCurrentUser)) {
+                Log.i(TAG, "Waiting for foreground user to be unlocked.");
                 return;
             }
 

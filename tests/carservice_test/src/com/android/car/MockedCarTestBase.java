@@ -193,7 +193,7 @@ public class MockedCarTestBase {
     }
 
     public VmsClientManager getVmsClientManager() {
-        return (VmsClientManager) mCarImpl.getCarInternalService("vms_manager");
+        return (VmsClientManager) mCarImpl.getCarInternalService(ICarImpl.INTERNAL_VMS_MANAGER);
     }
 
     protected Context getCarServiceContext() {
