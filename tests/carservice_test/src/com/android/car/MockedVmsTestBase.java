@@ -18,6 +18,7 @@ package com.android.car;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.app.ActivityManager;
 import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.vms.VmsAvailableLayers;
@@ -25,7 +26,6 @@ import android.car.vms.VmsLayer;
 import android.car.vms.VmsPublisherClientService;
 import android.car.vms.VmsSubscriberManager;
 import android.car.vms.VmsSubscriptionState;
-import android.content.Intent;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
@@ -34,7 +34,6 @@ import android.hardware.automotive.vehicle.V2_0.VmsAvailabilityStateIntegerValue
 import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsStartSessionMessageIntegerValuesIndex;
-import android.os.UserHandle;
 import android.util.Log;
 import android.util.Pair;
 
@@ -83,8 +82,7 @@ public class MockedVmsTestBase extends MockedCarTestBase {
     @Before
     public void setUpVms() throws Exception {
         // Trigger VmsClientManager to bind to the MockPublisherClient
-        getContext().sendBroadcastAsUser(new Intent(Intent.ACTION_USER_UNLOCKED), UserHandle.ALL);
-
+        getVmsClientManager().mUserCallback.onSwitchUser(ActivityManager.getCurrentUser());
         mVmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         mSubscriberClient = new MockSubscriberClient();
