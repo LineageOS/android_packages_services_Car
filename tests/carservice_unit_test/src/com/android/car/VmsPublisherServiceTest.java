@@ -16,8 +16,6 @@
 
 package com.android.car;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -45,25 +43,24 @@ import android.os.RemoteException;
 
 import androidx.test.filters.SmallTest;
 
+import com.android.car.stats.CarStatsService;
+import com.android.car.stats.VmsClientLog;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 
 @SmallTest
 public class VmsPublisherServiceTest {
@@ -72,19 +69,21 @@ public class VmsPublisherServiceTest {
     private static final VmsLayersOffering OFFERING = new VmsLayersOffering(Collections.emptySet(),
             54321);
     private static final VmsLayer LAYER = new VmsLayer(1, 2, 3);
-    private static final VmsLayer LAYER2 = new VmsLayer(2, 2, 8);
-    private static final VmsLayer LAYER3 = new VmsLayer(3, 2, 8);
-    private static final VmsLayer LAYER4 = new VmsLayer(4, 2, 8);
 
     private static final int PUBLISHER_ID = 54321;
     private static final byte[] PAYLOAD = new byte[]{1, 2, 3, 4};
-    private static final byte[] PAYLOAD2 = new byte[]{1, 2, 3, 4, 5, 6};
-    private static final byte[] PAYLOAD3 = new byte[]{10, 12, 93, 4, 5, 6, 1, 1, 1};
+
+    private static final int PUBLISHER_UID = 10100;
+    private static final int SUBSCRIBER_UID = 10101;
+    private static final int SUBSCRIBER_UID2 = 10102;
+    private static final int NO_SUBSCRIBERS_UID = -1;
 
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock
     private Context mContext;
+    @Mock
+    private CarStatsService mStatsService;
     @Mock
     private VmsBrokerService mBrokerService;
     @Captor
@@ -93,13 +92,18 @@ public class VmsPublisherServiceTest {
     private VmsClientManager mClientManager;
 
     @Mock
+    private VmsClientLog mPublisherLog;
+    @Mock
+    private VmsClientLog mSubscriberLog;
+    @Mock
+    private VmsClientLog mSubscriberLog2;
+    @Mock
+    private VmsClientLog mNoSubscribersLog;
+
+    @Mock
     private IVmsSubscriberClient mSubscriberClient;
     @Mock
     private IVmsSubscriberClient mSubscriberClient2;
-    @Mock
-    private IVmsSubscriberClient mThrowingSubscriberClient;
-    @Mock
-    private IVmsSubscriberClient mThrowingSubscriberClient2;
 
     private VmsPublisherService mPublisherService;
     private MockPublisherClient mPublisherClient;
@@ -107,14 +111,27 @@ public class VmsPublisherServiceTest {
 
     @Before
     public void setUp() {
-        mPublisherService = new VmsPublisherService(mContext, mBrokerService, mClientManager);
+        mPublisherService = new VmsPublisherService(mContext, mStatsService, mBrokerService,
+                mClientManager, () -> PUBLISHER_UID);
         verify(mClientManager).setPublisherService(mPublisherService);
+
+        when(mClientManager.getSubscriberUid(mSubscriberClient)).thenReturn(SUBSCRIBER_UID);
+        when(mClientManager.getSubscriberUid(mSubscriberClient2)).thenReturn(SUBSCRIBER_UID2);
+
+        when(mStatsService.getVmsClientLog(PUBLISHER_UID)).thenReturn(mPublisherLog);
+        when(mStatsService.getVmsClientLog(SUBSCRIBER_UID)).thenReturn(mSubscriberLog);
+        when(mStatsService.getVmsClientLog(SUBSCRIBER_UID2)).thenReturn(mSubscriberLog2);
+        when(mStatsService.getVmsClientLog(NO_SUBSCRIBERS_UID)).thenReturn(mNoSubscribersLog);
 
         mPublisherClient = new MockPublisherClient();
         mPublisherClient2 = new MockPublisherClient();
         when(mBrokerService.getSubscribersForLayerFromPublisher(LAYER, PUBLISHER_ID))
                 .thenReturn(new HashSet<>(Arrays.asList(mSubscriberClient, mSubscriberClient2)));
+    }
 
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(mPublisherLog, mSubscriberLog, mSubscriberLog2, mNoSubscribersLog);
     }
 
     @Test
@@ -190,6 +207,10 @@ public class VmsPublisherServiceTest {
                 PAYLOAD);
         verify(mSubscriberClient).onVmsMessageReceived(LAYER, PAYLOAD);
         verify(mSubscriberClient2).onVmsMessageReceived(LAYER, PAYLOAD);
+
+        verify(mPublisherLog).logPacketSent(LAYER, PAYLOAD.length);
+        verify(mSubscriberLog).logPacketReceived(LAYER, PAYLOAD.length);
+        verify(mSubscriberLog2).logPacketReceived(LAYER, PAYLOAD.length);
     }
 
     @Test
@@ -202,6 +223,19 @@ public class VmsPublisherServiceTest {
     }
 
     @Test
+    public void testPublish_NoSubscribers() throws Exception {
+        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
+        when(mBrokerService.getSubscribersForLayerFromPublisher(LAYER, PUBLISHER_ID))
+                .thenReturn(Collections.emptySet());
+
+        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
+                PAYLOAD);
+
+        verify(mPublisherLog).logPacketSent(LAYER, PAYLOAD.length);
+        verify(mNoSubscribersLog).logPacketDropped(LAYER, PAYLOAD.length);
+    }
+
+    @Test
     public void testPublish_ClientError() throws Exception {
         mPublisherService.onClientConnected("SomeClient", mPublisherClient);
         doThrow(new RemoteException()).when(mSubscriberClient).onVmsMessageReceived(LAYER, PAYLOAD);
@@ -210,6 +244,10 @@ public class VmsPublisherServiceTest {
                 PAYLOAD);
         verify(mSubscriberClient).onVmsMessageReceived(LAYER, PAYLOAD);
         verify(mSubscriberClient2).onVmsMessageReceived(LAYER, PAYLOAD);
+
+        verify(mPublisherLog).logPacketSent(LAYER, PAYLOAD.length);
+        verify(mSubscriberLog).logPacketDropped(LAYER, PAYLOAD.length);
+        verify(mSubscriberLog2).logPacketReceived(LAYER, PAYLOAD.length);
     }
 
     @Test(expected = SecurityException.class)
@@ -299,341 +337,6 @@ public class VmsPublisherServiceTest {
         assertEquals(SUBSCRIPTION_STATE, mPublisherClient.mSubscriptionState);
         assertNull(mPublisherClient2.mSubscriptionState);
     }
-
-    @Test
-    public void testDump_getPacketCount() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintWriter printWriter = new PrintWriter(outputStream);
-
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherService.dump(printWriter);
-
-        printWriter.flush();
-        String dumpString = outputStream.toString();
-        String expectedPacketCountString = String.format(VmsPublisherService.PACKET_COUNT_FORMAT,
-                LAYER, 1L);
-        String expectedPacketSizeString = String.format(VmsPublisherService.PACKET_SIZE_FORMAT,
-                LAYER, PAYLOAD.length);
-        assertThat(dumpString.contains(expectedPacketCountString)).isTrue();
-        assertThat(dumpString.contains(expectedPacketSizeString)).isTrue();
-    }
-
-    @Test
-    public void testDump_getPacketCounts() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintWriter printWriter = new PrintWriter(outputStream);
-
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER2, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
-                PAYLOAD2);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER3, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
-                PAYLOAD3);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
-                PAYLOAD3);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER2, PUBLISHER_ID,
-                PAYLOAD3);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
-                PAYLOAD3);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER3, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherService.dump(printWriter);
-
-        printWriter.flush();
-        String dumpString = outputStream.toString();
-
-        // LAYER called 6 times with PAYLOAD 2 times, PAYLOAD2 1 time, PAYLOAD3 3 times
-        String expectedPacketCountString1 = String.format(VmsPublisherService.PACKET_COUNT_FORMAT,
-                LAYER, 6L);
-        String expectedPacketSizeString1 = String.format(VmsPublisherService.PACKET_SIZE_FORMAT,
-                LAYER, 2 * PAYLOAD.length + PAYLOAD2.length + 3 * PAYLOAD3.length);
-
-        // LAYER2 called 2 times with PAYLOAD 1 time, PAYLOAD2 0 time, PAYLOAD3 1 times
-        String expectedPacketCountString2 = String.format(VmsPublisherService.PACKET_COUNT_FORMAT,
-                LAYER2, 2L);
-        String expectedPacketSizeString2 = String.format(VmsPublisherService.PACKET_SIZE_FORMAT,
-                LAYER2, PAYLOAD.length + PAYLOAD3.length);
-
-        // LAYER3 called 2 times with PAYLOAD 2 times, PAYLOAD2 0 time, PAYLOAD3 0 times
-        String expectedPacketCountString3 = String.format(VmsPublisherService.PACKET_COUNT_FORMAT,
-                LAYER3, 2L);
-        String expectedPacketSizeString3 = String.format(VmsPublisherService.PACKET_SIZE_FORMAT,
-                LAYER3, 2 * PAYLOAD.length);
-
-        assertThat(dumpString.contains(expectedPacketCountString1)).isTrue();
-        assertThat(dumpString.contains(expectedPacketSizeString1)).isTrue();
-        assertThat(dumpString.contains(expectedPacketCountString2)).isTrue();
-        assertThat(dumpString.contains(expectedPacketSizeString2)).isTrue();
-        assertThat(dumpString.contains(expectedPacketCountString3)).isTrue();
-        assertThat(dumpString.contains(expectedPacketSizeString3)).isTrue();
-    }
-
-    @Test
-    public void testDumpNoListeners_getPacketFailureCount() throws Exception {
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintWriter printWriter = new PrintWriter(outputStream);
-
-        // Layer 2 has no listeners and should therefore result in a packet failure to be recorded.
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER2, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherService.dump(printWriter);
-
-        printWriter.flush();
-        String dumpString = outputStream.toString();
-
-        String expectedPacketFailureString = String.format(
-                VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT,
-                LAYER2, "SomeClient", "", 1L);
-        String expectedPacketFailureSizeString = String.format(
-                VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT,
-                LAYER2, "SomeClient", "", PAYLOAD.length);
-
-        assertThat(dumpString.contains(expectedPacketFailureString)).isTrue();
-        assertThat(dumpString.contains(expectedPacketFailureSizeString)).isTrue();
-    }
-
-    @Test
-    public void testDumpNoListeners_getPacketFailureCounts() throws Exception {
-        // LAYER2 and LAYER3 both have no listeners
-        when(mBrokerService.getSubscribersForLayerFromPublisher(LAYER2, PUBLISHER_ID))
-                .thenReturn(new HashSet<>());
-        when(mBrokerService.getSubscribersForLayerFromPublisher(LAYER3, PUBLISHER_ID))
-                .thenReturn(new HashSet<>());
-
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
-        mPublisherService.onClientConnected("SomeClient2", mPublisherClient2);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintWriter printWriter = new PrintWriter(outputStream);
-
-        // Layer 2 has no listeners and should therefore result in a packet failure to be recorded.
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER2, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherClient2.mPublisherService.publish(mPublisherClient2.mToken, LAYER3, PUBLISHER_ID,
-                PAYLOAD);
-
-        mPublisherService.dump(printWriter);
-
-        printWriter.flush();
-        String dumpString = outputStream.toString();
-
-        String expectedPacketFailureString = String.format(
-                VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT,
-                LAYER2, "SomeClient", "", 1L);
-        String expectedPacketFailureString2 = String.format(
-                VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT,
-                LAYER3, "SomeClient2", "", 1L);
-        String expectedPacketFailureSizeString = String.format(
-                VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT,
-                LAYER2, "SomeClient", "", PAYLOAD.length);
-        String expectedPacketFailureSizeString2 = String.format(
-                VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT,
-                LAYER3, "SomeClient2", "", PAYLOAD.length);
-
-        assertThat(dumpString.contains(expectedPacketFailureString)).isTrue();
-        assertThat(dumpString.contains(expectedPacketFailureSizeString)).isTrue();
-        assertThat(dumpString.contains(expectedPacketFailureString2)).isTrue();
-        assertThat(dumpString.contains(expectedPacketFailureSizeString2)).isTrue();
-    }
-
-    @Test
-    public void testDumpRemoteException_getPacketFailureCount() throws Exception {
-        // The listener on LAYER3 will throw on LAYER3 and PAYLOAD
-        Mockito.doThrow(new RemoteException()).when(mThrowingSubscriberClient).onVmsMessageReceived(
-                LAYER3, PAYLOAD);
-        when(mBrokerService.getSubscribersForLayerFromPublisher(LAYER3, PUBLISHER_ID))
-                .thenReturn(new HashSet<>(Arrays.asList(mThrowingSubscriberClient)));
-        when(mClientManager.getPackageName(mThrowingSubscriberClient)).thenReturn("Thrower");
-
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintWriter printWriter = new PrintWriter(outputStream);
-
-        // Layer 2 has no listeners and should therefore result in a packet failure to be recorded.
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER3, PUBLISHER_ID,
-                PAYLOAD);
-
-        mPublisherService.dump(printWriter);
-
-        printWriter.flush();
-        String dumpString = outputStream.toString();
-
-        String expectedPacketFailureString = String.format(
-                VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT,
-                LAYER3, "SomeClient", "Thrower", 1L);
-        String expectedPacketFailureSizeString = String.format(
-                VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT,
-                LAYER3, "SomeClient", "Thrower", PAYLOAD.length);
-
-        assertThat(dumpString.contains(expectedPacketFailureString)).isTrue();
-        assertThat(dumpString.contains(expectedPacketFailureSizeString)).isTrue();
-    }
-
-    @Test
-    public void testDumpRemoteException_getPacketFailureCounts() throws Exception {
-        // The listeners will throw on LAYER3 or LAYER4 and PAYLOAD
-        Mockito.doThrow(new RemoteException()).when(mThrowingSubscriberClient).onVmsMessageReceived(
-                LAYER3, PAYLOAD);
-        Mockito.doThrow(new RemoteException()).when(mThrowingSubscriberClient).onVmsMessageReceived(
-                LAYER4, PAYLOAD);
-        Mockito.doThrow(new RemoteException()).when(
-                mThrowingSubscriberClient2).onVmsMessageReceived(LAYER3, PAYLOAD);
-        Mockito.doThrow(new RemoteException()).when(
-                mThrowingSubscriberClient2).onVmsMessageReceived(LAYER4, PAYLOAD);
-
-        when(mBrokerService.getSubscribersForLayerFromPublisher(LAYER3, PUBLISHER_ID))
-                .thenReturn(new HashSet<>(
-                        Arrays.asList(mThrowingSubscriberClient, mThrowingSubscriberClient2)));
-        when(mBrokerService.getSubscribersForLayerFromPublisher(LAYER4, PUBLISHER_ID))
-                .thenReturn(new HashSet<>(
-                        Arrays.asList(mThrowingSubscriberClient, mThrowingSubscriberClient2)));
-
-        when(mClientManager.getPackageName(mThrowingSubscriberClient)).thenReturn("Thrower");
-        when(mClientManager.getPackageName(mThrowingSubscriberClient2)).thenReturn("Thrower2");
-
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
-        mPublisherService.onClientConnected("SomeClient2", mPublisherClient2);
-
-        // Layer 2 has no listeners and should therefore result in a packet failure to be recorded.
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER3, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER3, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER4, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER4, PUBLISHER_ID,
-                PAYLOAD);
-
-        mPublisherClient2.mPublisherService.publish(mPublisherClient2.mToken, LAYER3, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherClient2.mPublisherService.publish(mPublisherClient2.mToken, LAYER3, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherClient2.mPublisherService.publish(mPublisherClient2.mToken, LAYER4, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherClient2.mPublisherService.publish(mPublisherClient2.mToken, LAYER4, PUBLISHER_ID,
-                PAYLOAD);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintWriter printWriter = new PrintWriter(outputStream);
-        mPublisherService.dump(printWriter);
-
-        printWriter.flush();
-        String dumpString = outputStream.toString();
-
-        List<String> expectedStrings = Arrays.asList(
-                String.format(VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT, LAYER3, "SomeClient",
-                        "Thrower", 2L),
-                String.format(VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT, LAYER3, "SomeClient",
-                        "Thrower2", 2L),
-                String.format(VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT, LAYER4, "SomeClient",
-                        "Thrower", 2L),
-                String.format(VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT, LAYER4, "SomeClient",
-                        "Thrower2", 2L),
-                String.format(VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT, LAYER3,
-                        "SomeClient2",
-                        "Thrower", 2L),
-                String.format(VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT, LAYER3,
-                        "SomeClient2",
-                        "Thrower2", 2L),
-                String.format(VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT, LAYER4,
-                        "SomeClient2",
-                        "Thrower", 2L),
-                String.format(VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT, LAYER4,
-                        "SomeClient2",
-                        "Thrower2", 2L),
-
-                String.format(VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT, LAYER3, "SomeClient",
-                        "Thrower", 2 * PAYLOAD.length),
-                String.format(VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT, LAYER3, "SomeClient",
-                        "Thrower2", 2 * PAYLOAD.length),
-                String.format(VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT, LAYER4, "SomeClient",
-                        "Thrower", 2 * PAYLOAD.length),
-                String.format(VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT, LAYER4, "SomeClient",
-                        "Thrower2", 2 * PAYLOAD.length),
-                String.format(VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT, LAYER3, "SomeClient2",
-                        "Thrower", 2 * PAYLOAD.length),
-                String.format(VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT, LAYER3, "SomeClient2",
-                        "Thrower2", 2 * PAYLOAD.length),
-                String.format(VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT, LAYER4, "SomeClient2",
-                        "Thrower", 2 * PAYLOAD.length),
-                String.format(VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT, LAYER4, "SomeClient2",
-                        "Thrower2", 2 * PAYLOAD.length));
-
-        for (String expected : expectedStrings) {
-            assertThat(dumpString.contains(expected)).isTrue();
-        }
-    }
-
-    @Test
-    public void testDump_getAllMetrics() throws Exception {
-
-        // LAYER3 has no subscribers
-        when(mBrokerService.getSubscribersForLayerFromPublisher(LAYER3, PUBLISHER_ID))
-                .thenReturn(new HashSet<>(Arrays.asList()));
-
-        // LAYER4 has a subscriber that will always throw
-        Mockito.doThrow(new RemoteException()).when(mThrowingSubscriberClient).onVmsMessageReceived(
-                LAYER4, PAYLOAD);
-
-        when(mBrokerService.getSubscribersForLayerFromPublisher(LAYER4, PUBLISHER_ID))
-                .thenReturn(new HashSet<>(
-                        Arrays.asList(mThrowingSubscriberClient)));
-
-        when(mClientManager.getPackageName(mThrowingSubscriberClient)).thenReturn("Thrower");
-
-        mPublisherService.onClientConnected("SomeClient", mPublisherClient);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
-                PAYLOAD);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER, PUBLISHER_ID,
-                PAYLOAD2);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER3, PUBLISHER_ID,
-                PAYLOAD3);
-        mPublisherClient.mPublisherService.publish(mPublisherClient.mToken, LAYER4, PUBLISHER_ID,
-                PAYLOAD);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintWriter printWriter = new PrintWriter(outputStream);
-        mPublisherService.dump(printWriter);
-
-        printWriter.flush();
-        String dumpString = outputStream.toString();
-
-        List<String> expectedStrings = Arrays.asList(
-                String.format(VmsPublisherService.PACKET_COUNT_FORMAT, LAYER, 2),
-                String.format(VmsPublisherService.PACKET_COUNT_FORMAT, LAYER3, 1),
-                String.format(VmsPublisherService.PACKET_COUNT_FORMAT, LAYER4, 1),
-                String.format(VmsPublisherService.PACKET_SIZE_FORMAT, LAYER,
-                        PAYLOAD.length + PAYLOAD2.length),
-                String.format(VmsPublisherService.PACKET_SIZE_FORMAT, LAYER3, PAYLOAD3.length),
-                String.format(VmsPublisherService.PACKET_SIZE_FORMAT, LAYER4, PAYLOAD.length),
-                String.format(VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT, LAYER3, "SomeClient",
-                        "",
-                        1),
-                String.format(VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT, LAYER3, "SomeClient",
-                        "",
-                        PAYLOAD3.length),
-                String.format(VmsPublisherService.PACKET_FAILURE_COUNT_FORMAT, LAYER4, "SomeClient",
-                        "Thrower", 1),
-                String.format(VmsPublisherService.PACKET_FAILURE_SIZE_FORMAT, LAYER4, "SomeClient",
-                        "Thrower", PAYLOAD.length)
-        );
-
-        for (String expected : expectedStrings) {
-            assertThat(dumpString.contains(expected)).isTrue();
-        }
-    }
-
 
     @Test
     public void testRelease() {
