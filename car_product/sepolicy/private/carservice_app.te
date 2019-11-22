@@ -67,3 +67,6 @@ allow carservice_app sysfs_fs_lifetime_write:file { getattr open read };
 
 set_prop(carservice_app, ctl_start_prop)
 unix_socket_connect(carservice_app, dumpstate, dumpstate)
+
+# Allow reading vehicle-specific configuration
+get_prop(carservice_app, vehicle_hal_prop)
