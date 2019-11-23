@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2596316479611335185">"Informe de erros"</string>
+    <string name="bugreport_info_quit" msgid="5590138890181142473">"Pechar"</string>
+    <string name="bugreport_info_start" msgid="667324824650830832">"Iniciar informe de erros"</string>
+    <string name="bugreport_info_status" msgid="7211044508792815451">"Estado:"</string>
+    <string name="bugreport_dialog_submit" msgid="2789636252713280633">"Enviar"</string>
+    <string name="bugreport_dialog_cancel" msgid="4741928791364757040">"Cancelar"</string>
+    <string name="bugreport_dialog_show_bugreports" msgid="6964385141627170297">"Mostrar informes de erros"</string>
+    <string name="bugreport_dialog_close" msgid="289925437277364266">"Pechar"</string>
+    <string name="bugreport_dialog_title" msgid="3315160684205929910">"Fala e describe o problema"</string>
+    <string name="bugreport_dialog_recording_finished" msgid="3982335902169398758">"A gravación rematou"</string>
+    <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Xa se está recompilando un informe de erros"</string>
+    <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Recompilouse un informe de erros"</string>
+    <string name="bugreport_move_button_text" msgid="1245698439228323880">"Mover ao USB"</string>
+    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Cargar en Google"</string>
+    <string name="toast_permissions_denied" msgid="7054832711916992770">"Concede permisos"</string>
+    <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Recompilando xa un informe de erros"</string>
+    <string name="toast_timed_out" msgid="4410178570031498895">"Esgotouse o tempo de espera. Cancelando a acción"</string>
+    <string name="toast_status_failed" msgid="6365384202315043395">"Produciuse un erro no informe de erros"</string>
+    <string name="toast_status_finished" msgid="7473653838545631945">"Rematou o informe de erros"</string>
+    <string name="toast_status_pending_upload" msgid="7893505453527958690">"O informe de erros está listo para cargarse"</string>
+    <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Produciuse un erro ao capturar a pantalla"</string>
+    <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Produciuse un erro no estado do baleirado"</string>
+    <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"O informe de erros está en curso"</string>
+    <string name="notification_bugreport_finished_title" msgid="3970195939909624320">"Recompilouse o informe de erros"</string>
+    <string name="notification_bugreport_manual_upload_finished_text" msgid="7091975159082077240">"Cárgao co coche estacionado"</string>
+    <string name="notification_bugreport_auto_upload_finished_text" msgid="2598986330417740616">"O informe cargarase automaticamente"</string>
+    <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Canle de estado do informe de erros"</string>
+</resources>
