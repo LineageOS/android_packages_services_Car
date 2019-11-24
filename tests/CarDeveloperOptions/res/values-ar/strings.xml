@@ -1900,7 +1900,7 @@
     <string name="install_text" msgid="2798092278891807849">"تثبيت"</string>
     <string name="disable_text" msgid="5065834603951474397">"إيقاف"</string>
     <string name="enable_text" msgid="7179141636849225884">"تفعيل"</string>
-    <string name="clear_user_data_text" msgid="8894073247302821764">"مسح مساحة التخزين"</string>
+    <string name="clear_user_data_text" msgid="8894073247302821764">"محو مساحة التخزين"</string>
     <string name="app_factory_reset" msgid="8718986000278776272">"إزالة التحديثات"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"لقد اخترت تشغيل هذا التطبيق بشكل تلقائي لبعض الإجراءات."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"لقد اخترت السماح لهذا التطبيق بإنشاء الأدوات والوصول إلى بياناتها."</string>
