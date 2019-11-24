@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2596316479611335185">"Ripoti ya Hitilafu"</string>
+    <string name="bugreport_info_quit" msgid="5590138890181142473">"Funga"</string>
+    <string name="bugreport_info_start" msgid="667324824650830832">"Anza Kuripoti Hitilafu"</string>
+    <string name="bugreport_info_status" msgid="7211044508792815451">"Hali:"</string>
+    <string name="bugreport_dialog_submit" msgid="2789636252713280633">"Tuma"</string>
+    <string name="bugreport_dialog_cancel" msgid="4741928791364757040">"Ghairi"</string>
+    <string name="bugreport_dialog_show_bugreports" msgid="6964385141627170297">"Onyesha Ripoti za Hitilafu"</string>
+    <string name="bugreport_dialog_close" msgid="289925437277364266">"Funga"</string>
+    <string name="bugreport_dialog_title" msgid="3315160684205929910">"Zungumza na Ueleze Tatizo"</string>
+    <string name="bugreport_dialog_recording_finished" msgid="3982335902169398758">"Imemaliza kurekodi"</string>
+    <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Ripoti ya hitilafu tayari inakusanywa"</string>
+    <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Ripoti ya hitilafu imekusanywa"</string>
+    <string name="bugreport_move_button_text" msgid="1245698439228323880">"Hamishia kwenye USB"</string>
+    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Pakia kwenye Google"</string>
+    <string name="toast_permissions_denied" msgid="7054832711916992770">"Tafadhali toa ruhusa"</string>
+    <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Ripoti ya hitilafu tayari inakusanywa"</string>
+    <string name="toast_timed_out" msgid="4410178570031498895">"Muda umeisha, inaghairi"</string>
+    <string name="toast_status_failed" msgid="6365384202315043395">"Imeshindwa kuripoti hitilafu"</string>
+    <string name="toast_status_finished" msgid="7473653838545631945">"Ripoti ya hitilafu imekamilika"</string>
+    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Ripoti ya hitilafu iko tayari kupakiwa"</string>
+    <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Imeshindwa kupiga picha ya skrini"</string>
+    <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Imeshindwa kuhamishia data kwingine"</string>
+    <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Inaendelea kuripoti hitilafu"</string>
+    <string name="notification_bugreport_finished_title" msgid="3970195939909624320">"Ripoti ya hitilafu imekusanywa"</string>
+    <string name="notification_bugreport_manual_upload_finished_text" msgid="7091975159082077240">"Tafadhali ipakie wakati gari limeegeshwa"</string>
+    <string name="notification_bugreport_auto_upload_finished_text" msgid="2598986330417740616">"Ripoti itapakiwa kiotomatiki"</string>
+    <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Kituo cha hali ya ripoti ya hitilafu"</string>
+</resources>
