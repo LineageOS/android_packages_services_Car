@@ -18,6 +18,8 @@ package com.android.car.developeroptions.dashboard;
 
 import static android.content.Intent.EXTRA_USER;
 
+import static com.android.settingslib.drawer.SwitchesProvider.METHOD_GET_DYNAMIC_SUMMARY;
+import static com.android.settingslib.drawer.SwitchesProvider.METHOD_GET_PROVIDER_ICON;
 import static com.android.settingslib.drawer.TileUtils.META_DATA_PREFERENCE_ICON_URI;
 import static com.android.settingslib.drawer.TileUtils.META_DATA_PREFERENCE_SUMMARY;
 import static com.android.settingslib.drawer.TileUtils.META_DATA_PREFERENCE_SUMMARY_URI;
@@ -181,7 +183,8 @@ public class DashboardFeatureProviderImpl implements DashboardFeatureProvider {
 
             ThreadUtils.postOnBackgroundThread(() -> {
                 final Map<String, IContentProvider> providerMap = new ArrayMap<>();
-                final Uri uri = TileUtils.getCompleteUri(tile, META_DATA_PREFERENCE_SUMMARY_URI);
+                final Uri uri = TileUtils.getCompleteUri(tile, META_DATA_PREFERENCE_SUMMARY_URI,
+                        METHOD_GET_DYNAMIC_SUMMARY);
                 final String summaryFromUri = TileUtils.getTextFromUri(
                         mContext, uri, providerMap, META_DATA_PREFERENCE_SUMMARY);
                 ThreadUtils.postOnMainThread(() -> preference.setSummary(summaryFromUri));
@@ -215,7 +218,8 @@ public class DashboardFeatureProviderImpl implements DashboardFeatureProvider {
                     packageName = intent.getComponent().getPackageName();
                 }
                 final Map<String, IContentProvider> providerMap = new ArrayMap<>();
-                final Uri uri = TileUtils.getCompleteUri(tile, META_DATA_PREFERENCE_ICON_URI);
+                final Uri uri = TileUtils.getCompleteUri(tile, META_DATA_PREFERENCE_ICON_URI,
+                        METHOD_GET_PROVIDER_ICON);
                 final Pair<String, Integer> iconInfo = TileUtils.getIconFromUri(
                         mContext, packageName, uri, providerMap);
                 if (iconInfo == null) {
