@@ -37,7 +37,7 @@ android_app {
     manifest: "AndroidManifest.xml",
 
     platform_apis: true,
-    product_specific: true,
+    system_ext_specific: true,
     certificate: "platform",
     privileged: true,
 
