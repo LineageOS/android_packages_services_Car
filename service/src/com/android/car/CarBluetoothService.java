@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -130,7 +131,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      *                            to in order to receive user switch events
      */
     public CarBluetoothService(Context context, PerUserCarServiceHelper userSwitchService) {
-        mUserId = -1;
+        mUserId = UserHandle.USER_NULL;
         mContext = context;
         mUserServiceHelper = userSwitchService;
         mUseDefaultPolicy = mContext.getResources().getBoolean(
@@ -203,7 +204,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
             destroyBluetoothProfileDeviceManagers();
             destroyBluetoothUserService();
             mPerUserCarService = null;
-            mUserId = -1;
+            mUserId = UserHandle.USER_NULL;
         }
     }
 
@@ -251,7 +252,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      */
     private void createBluetoothProfileDeviceManagers() {
         synchronized (mPerUserLock) {
-            if (mUserId == -1) {
+            if (mUserId == UserHandle.USER_NULL) {
                 logd("No foreground user, cannot create profile device managers");
                 return;
             }
@@ -306,7 +307,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
     private void createBluetoothProfileInhibitManager() {
         logd("Creating inhibit manager");
         synchronized (mPerUserLock) {
-            if (mUserId == -1) {
+            if (mUserId == UserHandle.USER_NULL) {
                 logd("No foreground user, cannot create profile inhibit manager");
                 return;
             }
@@ -334,7 +335,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
     private void createBluetoothDeviceConnectionPolicy() {
         logd("Creating device connection policy");
         synchronized (mPerUserLock) {
-            if (mUserId == -1) {
+            if (mUserId == UserHandle.USER_NULL) {
                 logd("No foreground user, cannot create device connection policy");
                 return;
             }
