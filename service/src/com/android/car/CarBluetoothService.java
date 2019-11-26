@@ -101,25 +101,29 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
             synchronized (mPerUserLock) {
                 // Explicitly clear out existing per-user objects since we can't rely on the
                 // onServiceDisconnected and onPreUnbind calls to always be called before this
-                destroyUser();
+                destroyUserLocked();
 
                 mPerUserCarService = perUserCarService;
 
                 // Create new objects with our new set of profile proxies
-                initializeUser();
+                initializeUserLocked();
             }
         }
 
         @Override
         public void onPreUnbind() {
             logd("Before Unbinding from PerUserCarService");
-            destroyUser();
+            synchronized (mPerUserLock) {
+                destroyUserLocked();
+            }
         }
 
         @Override
         public void onServiceDisconnected() {
             logd("Disconnected from PerUserCarService");
-            destroyUser();
+            synchronized (mPerUserLock) {
+                destroyUserLocked();
+            }
         }
     };
 
@@ -158,7 +162,9 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
     public void release() {
         logd("release()");
         mUserServiceHelper.unregisterServiceCallback(mUserServiceCallback);
-        destroyUser();
+        synchronized (mPerUserLock) {
+            destroyUserLocked();
+        }
     }
 
     /**
@@ -175,37 +181,33 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      *
      * Only call this following a known user switch once we've connected to the user service helper.
      */
-    private void initializeUser() {
+    private void initializeUserLocked() {
         logd("Initializing new user");
-        synchronized (mPerUserLock) {
-            mUserId = ActivityManager.getCurrentUser();
-            createBluetoothUserService();
-            createBluetoothProfileDeviceManagers();
-            createBluetoothProfileInhibitManager();
+        mUserId = ActivityManager.getCurrentUser();
+        createBluetoothUserServiceLocked();
+        createBluetoothProfileDeviceManagersLocked();
+        createBluetoothProfileInhibitManagerLocked();
 
-            // Determine if we need to begin the default policy
-            mBluetoothDeviceConnectionPolicy = null;
-            if (mUseDefaultPolicy) {
-                createBluetoothDeviceConnectionPolicy();
-            }
-            logd("Switched to user " + mUserId);
+        // Determine if we need to begin the default policy
+        mBluetoothDeviceConnectionPolicy = null;
+        if (mUseDefaultPolicy) {
+            createBluetoothDeviceConnectionPolicyLocked();
         }
+        logd("Switched to user " + mUserId);
     }
 
     /**
      * Destroy the current user context, defined by the set of profile proxies, profile device
      * managers, inhibit manager and the policy.
      */
-    private void destroyUser() {
+    private void destroyUserLocked() {
         logd("Destroying user " + mUserId);
-        synchronized (mPerUserLock) {
-            destroyBluetoothDeviceConnectionPolicy();
-            destroyBluetoothProfileInhibitManager();
-            destroyBluetoothProfileDeviceManagers();
-            destroyBluetoothUserService();
-            mPerUserCarService = null;
-            mUserId = UserHandle.USER_NULL;
-        }
+        destroyBluetoothDeviceConnectionPolicyLocked();
+        destroyBluetoothProfileInhibitManagerLocked();
+        destroyBluetoothProfileDeviceManagersLocked();
+        destroyBluetoothUserServiceLocked();
+        mPerUserCarService = null;
+        mUserId = UserHandle.USER_NULL;
     }
 
     /**
@@ -214,19 +216,17 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      * Also sets up the connection proxy objects required to communicate with the Bluetooth
      * Profile Services.
      */
-    private void createBluetoothUserService() {
-        synchronized (mPerUserLock) {
-            if (mPerUserCarService != null) {
-                try {
-                    mCarBluetoothUserService = mPerUserCarService.getBluetoothUserService();
-                    mCarBluetoothUserService.setupBluetoothConnectionProxies();
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Remote Service Exception on ServiceConnection Callback: "
-                            + e.getMessage());
-                }
-            } else {
-                logd("PerUserCarService not connected. Cannot get bluetooth user proxy objects");
+    private void createBluetoothUserServiceLocked() {
+        if (mPerUserCarService != null) {
+            try {
+                mCarBluetoothUserService = mPerUserCarService.getBluetoothUserService();
+                mCarBluetoothUserService.setupBluetoothConnectionProxies();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Remote Service Exception on ServiceConnection Callback: "
+                        + e.getMessage());
             }
+        } else {
+            logd("PerUserCarService not connected. Cannot get bluetooth user proxy objects");
         }
     }
 
@@ -234,131 +234,116 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      * Close out the Per User Car Bluetooth profile proxy connections and destroys the Car Bluetooth
      * User Service object.
      */
-    private void destroyBluetoothUserService() {
-        synchronized (mPerUserLock) {
-            if (mCarBluetoothUserService == null) return;
-            try {
-                mCarBluetoothUserService.closeBluetoothConnectionProxies();
-            } catch (RemoteException e) {
-                Log.e(TAG, "Remote Service Exception on ServiceConnection Callback: "
-                        + e.getMessage());
-            }
-            mCarBluetoothUserService = null;
+    private void destroyBluetoothUserServiceLocked() {
+        if (mCarBluetoothUserService == null) return;
+        try {
+            mCarBluetoothUserService.closeBluetoothConnectionProxies();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Remote Service Exception on ServiceConnection Callback: "
+                    + e.getMessage());
         }
+        mCarBluetoothUserService = null;
     }
 
     /**
      * Clears out Profile Device Managers and re-creates them for the current user.
      */
-    private void createBluetoothProfileDeviceManagers() {
-        synchronized (mPerUserLock) {
-            if (mUserId == UserHandle.USER_NULL) {
-                logd("No foreground user, cannot create profile device managers");
-                return;
-            }
-            for (int profileId : sManagedProfiles) {
-                if (mProfileDeviceManagers.get(profileId) != null) {
-                    BluetoothProfileDeviceManager deviceManager =
-                            mProfileDeviceManagers.get(profileId);
-                    deviceManager.stop();
-                    mProfileDeviceManagers.remove(profileId);
-                    logd("Existing device manager removed for profile "
-                            + Utils.getProfileName(profileId));
-                }
-
-                BluetoothProfileDeviceManager deviceManager = BluetoothProfileDeviceManager.create(
-                        mContext, mUserId, mCarBluetoothUserService, profileId);
-                if (deviceManager == null) {
-                    logd("Failed to create profile device manager for "
-                            + Utils.getProfileName(profileId));
-                    continue;
-                }
-                mProfileDeviceManagers.put(profileId, deviceManager);
-                logd("Created profile device manager for " + Utils.getProfileName(profileId));
+    private void createBluetoothProfileDeviceManagersLocked() {
+        if (mUserId == UserHandle.USER_NULL) {
+            logd("No foreground user, cannot create profile device managers");
+            return;
+        }
+        for (int profileId : sManagedProfiles) {
+            BluetoothProfileDeviceManager deviceManager = mProfileDeviceManagers.get(profileId);
+            if (deviceManager != null) {
+                deviceManager.stop();
+                mProfileDeviceManagers.remove(profileId);
+                logd("Existing device manager removed for profile "
+                        + Utils.getProfileName(profileId));
             }
 
-            for (int i = 0; i < mProfileDeviceManagers.size(); i++) {
-                int key = mProfileDeviceManagers.keyAt(i);
-                BluetoothProfileDeviceManager deviceManager =
-                        (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(key);
-                deviceManager.start();
+            deviceManager = BluetoothProfileDeviceManager.create(mContext, mUserId,
+                    mCarBluetoothUserService, profileId);
+            if (deviceManager == null) {
+                logd("Failed to create profile device manager for "
+                        + Utils.getProfileName(profileId));
+                continue;
             }
+            mProfileDeviceManagers.put(profileId, deviceManager);
+            logd("Created profile device manager for " + Utils.getProfileName(profileId));
+        }
+
+        for (int i = 0; i < mProfileDeviceManagers.size(); i++) {
+            int key = mProfileDeviceManagers.keyAt(i);
+            BluetoothProfileDeviceManager deviceManager =
+                    (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(key);
+            deviceManager.start();
         }
     }
 
     /**
      * Stops and clears the entire set of Profile Device Managers.
      */
-    private void destroyBluetoothProfileDeviceManagers() {
-        synchronized (mPerUserLock) {
-            for (int i = 0; i < mProfileDeviceManagers.size(); i++) {
-                int key = mProfileDeviceManagers.keyAt(i);
-                BluetoothProfileDeviceManager deviceManager =
-                        (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(key);
-                deviceManager.stop();
-            }
-            mProfileDeviceManagers.clear();
+    private void destroyBluetoothProfileDeviceManagersLocked() {
+        for (int i = 0; i < mProfileDeviceManagers.size(); i++) {
+            int key = mProfileDeviceManagers.keyAt(i);
+            BluetoothProfileDeviceManager deviceManager =
+                    (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(key);
+            deviceManager.stop();
         }
+        mProfileDeviceManagers.clear();
     }
 
     /**
      * Creates an instance of a BluetoothProfileInhibitManager under the current user
      */
-    private void createBluetoothProfileInhibitManager() {
+    private void createBluetoothProfileInhibitManagerLocked() {
         logd("Creating inhibit manager");
-        synchronized (mPerUserLock) {
-            if (mUserId == UserHandle.USER_NULL) {
-                logd("No foreground user, cannot create profile inhibit manager");
-                return;
-            }
-            mInhibitManager = new BluetoothProfileInhibitManager(mContext, mUserId,
-                    mCarBluetoothUserService);
-            mInhibitManager.start();
+        if (mUserId == UserHandle.USER_NULL) {
+            logd("No foreground user, cannot create profile inhibit manager");
+            return;
         }
+        mInhibitManager = new BluetoothProfileInhibitManager(mContext, mUserId,
+                mCarBluetoothUserService);
+        mInhibitManager.start();
     }
 
     /**
      * Destroys the current instance of a BluetoothProfileInhibitManager, if one exists
      */
-    private void destroyBluetoothProfileInhibitManager() {
+    private void destroyBluetoothProfileInhibitManagerLocked() {
         logd("Destroying inhibit manager");
-        synchronized (mPerUserLock) {
-            if (mInhibitManager == null) return;
-            mInhibitManager.stop();
-            mInhibitManager = null;
-        }
+        if (mInhibitManager == null) return;
+        mInhibitManager.stop();
+        mInhibitManager = null;
     }
 
     /**
      * Creates an instance of a BluetoothDeviceConnectionPolicy under the current user
      */
-    private void createBluetoothDeviceConnectionPolicy() {
+    private void createBluetoothDeviceConnectionPolicyLocked() {
         logd("Creating device connection policy");
-        synchronized (mPerUserLock) {
-            if (mUserId == UserHandle.USER_NULL) {
-                logd("No foreground user, cannot create device connection policy");
-                return;
-            }
-            mBluetoothDeviceConnectionPolicy = BluetoothDeviceConnectionPolicy.create(mContext,
-                    mUserId, this);
-            if (mBluetoothDeviceConnectionPolicy == null) {
-                logd("Failed to create default Bluetooth device connection policy.");
-                return;
-            }
-            mBluetoothDeviceConnectionPolicy.init();
+        if (mUserId == UserHandle.USER_NULL) {
+            logd("No foreground user, cannot create device connection policy");
+            return;
         }
+        mBluetoothDeviceConnectionPolicy = BluetoothDeviceConnectionPolicy.create(mContext,
+                mUserId, this);
+        if (mBluetoothDeviceConnectionPolicy == null) {
+            logd("Failed to create default Bluetooth device connection policy.");
+            return;
+        }
+        mBluetoothDeviceConnectionPolicy.init();
     }
 
     /**
      * Destroys the current instance of a BluetoothDeviceConnectionPolicy, if one exists
      */
-    private void destroyBluetoothDeviceConnectionPolicy() {
+    private void destroyBluetoothDeviceConnectionPolicyLocked() {
         logd("Destroying device connection policy");
-        synchronized (mPerUserLock) {
-            if (mBluetoothDeviceConnectionPolicy != null) {
-                mBluetoothDeviceConnectionPolicy.release();
-                mBluetoothDeviceConnectionPolicy = null;
-            }
+        if (mBluetoothDeviceConnectionPolicy != null) {
+            mBluetoothDeviceConnectionPolicy.release();
+            mBluetoothDeviceConnectionPolicy = null;
         }
     }
 
