@@ -122,8 +122,10 @@ public class BinderInterfaceContainer<T extends IInterface> {
     public synchronized void clear() {
         Collection<BinderInterface<T>> interfaces = getInterfaces();
         for (BinderInterface<T> bInterface : interfaces) {
-            removeBinder(bInterface.binderInterface);
+            IBinder binder = bInterface.binderInterface.asBinder();
+            binder.unlinkToDeath(bInterface, 0);
         }
+        mBinders.clear();
     }
 
     private void handleBinderDeath(BinderInterface<T> bInterface) {
