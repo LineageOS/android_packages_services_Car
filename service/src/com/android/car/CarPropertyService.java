@@ -167,7 +167,7 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         if (mConfigs.get(propId) == null) {
             // Do not attempt to register an invalid propId
-            Log.e(TAG, "registerListener:  propId is not in config list:  " + propId);
+            Log.e(TAG, "registerListener:  propId is not in config list: 0x" + toHexString(propId));
             return;
         }
         ICarImpl.assertPermission(mContext, mHal.getReadPermission(propId));
