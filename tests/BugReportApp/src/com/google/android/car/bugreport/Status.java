@@ -45,7 +45,10 @@ public enum Status {
     STATUS_MOVE_FAILED(8),
 
     // Bugreport is moving to USB drive.
-    STATUS_MOVE_IN_PROGRESS(9);
+    STATUS_MOVE_IN_PROGRESS(9),
+
+    // Bugreport is expired. Associated file is deleted from the disk.
+    STATUS_EXPIRED(10);
 
     private final int mValue;
 
@@ -81,6 +84,8 @@ public enum Status {
                 return "Move failed";
             case 9:
                 return "Move in progress";
+            case 10:
+                return "Expired";
         }
         return "unknown";
     }
