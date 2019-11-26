@@ -57,12 +57,12 @@ BugReport app uses `res/raw/gcs_credentials.json` for authentication and
 
 The app supports following intents:
 
-1. `adb shell am start com.google.android.car.bugreport/com.google.android.car.bugreport.BugReportActivity`
-    - generates `MetaBugReport.Type.INTERACTIVE` bug report, with audio message, shows a
-    SUBMIT/CANCEL dialog.
-2. `adb shell am start -n com.google.android.car.bugreport/com.google.android.car.bugreport.BugReportActivity -a com.google.android.car.bugreport.action.START_SILENT`
-    - generates `MetaBugReport.Type.SILENT` bug report, without audio message. The app doesn't
-    auto-upload these bugreports.
+1. `adb shell am start com.google.android.car.bugreport/.BugReportActivity`
+    - generates `MetaBugReport.Type.INTERACTIVE` bug report, shows audio message dialog before
+    collecting bugreport.
+2. `adb shell am start-foreground-service -a com.google.android.car.bugreport.action.START_SILENT com.google.android.car.bugreport/.BugReportService`
+    - generates `MetaBugReport.Type.SILENT` bug report, without audio message. It shows audio dialog
+    after collecting bugreport.
 
 ## Testing
 

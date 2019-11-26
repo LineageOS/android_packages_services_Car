@@ -42,6 +42,7 @@ import java.util.Date;
 @MediumTest
 public class BugStorageUtilsTest {
     private static final String TIMESTAMP_TODAY = MetaBugReport.toBugReportTimestamp(new Date());
+    private static final String BUGREPORT_ZIP_FILE_NAME = "bugreport@ASD.zip";
     private static final int BUGREPORT_ZIP_FILE_CONTENT = 1;
 
     private Context mContext;
@@ -54,17 +55,16 @@ public class BugStorageUtilsTest {
     @Test
     public void test_createBugReport_createsAndReturnsMetaBugReport() throws Exception {
         MetaBugReport bug = createBugReportWithStatus(TIMESTAMP_TODAY,
-                STATUS_PENDING_USER_ACTION, TYPE_INTERACTIVE, /* createFile= */ true);
+                STATUS_PENDING_USER_ACTION, TYPE_INTERACTIVE, /* createBugReportFile= */ true);
 
         assertThat(BugStorageUtils.findBugReport(mContext, bug.getId()).get()).isEqualTo(bug);
     }
 
     @Test
-    public void test_deleteBugreport_marksBugReportDeletedAndDeletesZip() throws Exception {
+    public void test_expireBugReport_marksBugReportDeletedAndDeletesZip() throws Exception {
         MetaBugReport bug = createBugReportWithStatus(TIMESTAMP_TODAY,
-                STATUS_PENDING_USER_ACTION, TYPE_INTERACTIVE, /* createFile= */ true);
-        try (InputStream in = mContext.getContentResolver()
-                .openInputStream(BugStorageProvider.buildUriWithBugId(bug.getId()))) {
+                STATUS_PENDING_USER_ACTION, TYPE_INTERACTIVE, /* createBugReportFile= */ true);
+        try (InputStream in = BugStorageUtils.openBugReportFileToRead(mContext, bug)) {
             assertThat(in).isNotNull();
         }
         Instant now = Instant.now();
@@ -76,18 +76,15 @@ public class BugStorageUtilsTest {
                 .isEqualTo(bug.toBuilder()
                         .setStatus(Status.STATUS_EXPIRED.getValue())
                         .setStatusMessage("Expired on " + now).build());
-        try (InputStream in = mContext.getContentResolver()
-                .openInputStream(BugStorageProvider.buildUriWithBugId(bug.getId()))) {
-            assertThat(in).isNull();
-        }
+        assertThrows(FileNotFoundException.class, () ->
+                BugStorageUtils.openBugReportFileToRead(mContext, bug));
     }
 
     @Test
     public void test_completeDeleteBugReport_removesBugReportRecordFromDb() throws Exception {
         MetaBugReport bug = createBugReportWithStatus(TIMESTAMP_TODAY,
-                STATUS_PENDING_USER_ACTION, TYPE_INTERACTIVE, /* createFile= */ true);
-        try (InputStream in = mContext.getContentResolver()
-                .openInputStream(BugStorageProvider.buildUriWithBugId(bug.getId()))) {
+                STATUS_PENDING_USER_ACTION, TYPE_INTERACTIVE, /* createBugReportFile= */ true);
+        try (InputStream in = BugStorageUtils.openBugReportFileToRead(mContext, bug)) {
             assertThat(in).isNotNull();
         }
 
@@ -95,18 +92,19 @@ public class BugStorageUtilsTest {
 
         assertThat(deleteResult).isTrue();
         assertThat(BugStorageUtils.findBugReport(mContext, bug.getId()).isPresent()).isFalse();
-        assertThrows(FileNotFoundException.class, () -> {
-            mContext.getContentResolver()
-                .openInputStream(BugStorageProvider.buildUriWithBugId(bug.getId()));
-        });
+        assertThrows(IllegalArgumentException.class, () ->
+                BugStorageUtils.openBugReportFileToRead(mContext, bug));
     }
 
     private MetaBugReport createBugReportWithStatus(
-            String timestamp, Status status, int type, boolean createFile) throws IOException {
+            String timestamp, Status status, int type, boolean createBugReportFile)
+            throws IOException {
         MetaBugReport bugReport = BugStorageUtils.createBugReport(
                 mContext, "sample title", timestamp, "driver", type);
-        if (createFile) {
-            try (OutputStream out = BugStorageUtils.openBugReportFile(mContext, bugReport)) {
+        if (createBugReportFile) {
+            bugReport = BugStorageUtils.update(mContext,
+                    bugReport.toBuilder().setBugReportFileName(BUGREPORT_ZIP_FILE_NAME).build());
+            try (OutputStream out = BugStorageUtils.openBugReportFileToWrite(mContext, bugReport)) {
                 out.write(BUGREPORT_ZIP_FILE_CONTENT);
             }
         }

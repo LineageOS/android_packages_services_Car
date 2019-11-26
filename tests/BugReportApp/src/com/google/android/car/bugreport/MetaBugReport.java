@@ -20,13 +20,11 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.annotation.IntDef;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.google.auto.value.AutoValue;
 
 import java.lang.annotation.Retention;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -37,14 +35,12 @@ abstract class MetaBugReport implements Parcelable {
     private static final DateFormat BUG_REPORT_TIMESTAMP_DATE_FORMAT =
             new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
-    /** Contains {@link #TYPE_SILENT} and audio message. */
+    /** The app records audio message when initiated. Can change audio state. */
     static final int TYPE_INTERACTIVE = 0;
 
     /**
-     * Contains dumpstate and screenshots.
-     *
-     * <p>Silent bugreports are not uploaded automatically. The app asks user to add audio
-     * message either through notification or {@link BugReportInfoActivity}.
+     * The app doesn't show dialog and doesn't record audio when initiated. It allows user to
+     * add audio message when bugreport is collected.
      */
     static final int TYPE_SILENT = 1;
 
@@ -74,21 +70,22 @@ abstract class MetaBugReport implements Parcelable {
     public abstract String getTimestamp();
 
     /**
-     * @return Timestamp converted to {@link Date}.
-     */
-    public Date getTimestampDate() {
-        try {
-            return BUG_REPORT_TIMESTAMP_DATE_FORMAT.parse(getTimestamp());
-        } catch (ParseException e) {
-            Log.e(this.getClass().getSimpleName(), "Failed to parse timestamp", e);
-            return new Date(0); // Return "January 1, 1970, 00:00:00 GMT".
-        }
-    }
-
-    /**
-     * @return path to the zip file
+     * @return path to the zip file stored under the system user.
+     *
+     * <p>NOTE: This is the old way of storing final zipped bugreport. See
+     * {@link BugStorageProvider#URL_SEGMENT_OPEN_FILE} for more info.
      */
     public abstract String getFilePath();
+
+    /**
+     * @return filename of the bug report zip file stored under the system user.
+     */
+    public abstract String getBugReportFileName();
+
+    /**
+     * @return filename of the audio message file stored under the system user.
+     */
+    public abstract String getAudioFileName();
 
     /**
      * @return {@link Status} of the bug upload.
@@ -120,6 +117,8 @@ abstract class MetaBugReport implements Parcelable {
         dest.writeString(getTitle());
         dest.writeString(getUserName());
         dest.writeString(getFilePath());
+        dest.writeString(getBugReportFileName());
+        dest.writeString(getAudioFileName());
         dest.writeInt(getStatus());
         dest.writeString(getStatusMessage());
         dest.writeInt(getType());
@@ -135,6 +134,8 @@ abstract class MetaBugReport implements Parcelable {
         return new AutoValue_MetaBugReport.Builder()
                 .setTimestamp("")
                 .setFilePath("")
+                .setBugReportFileName("")
+                .setAudioFileName("")
                 .setStatusMessage("")
                 .setTitle("")
                 .setUserName("");
@@ -149,6 +150,8 @@ abstract class MetaBugReport implements Parcelable {
                     String title = in.readString();
                     String username = in.readString();
                     String filePath = in.readString();
+                    String bugReportFileName = in.readString();
+                    String audioFileName = in.readString();
                     int status = in.readInt();
                     String statusMessage = in.readString();
                     int type = in.readInt();
@@ -158,6 +161,8 @@ abstract class MetaBugReport implements Parcelable {
                             .setTitle(title)
                             .setUserName(username)
                             .setFilePath(filePath)
+                            .setBugReportFileName(bugReportFileName)
+                            .setAudioFileName(audioFileName)
                             .setStatus(status)
                             .setStatusMessage(statusMessage)
                             .setType(type)
@@ -186,6 +191,12 @@ abstract class MetaBugReport implements Parcelable {
 
         /** Sets filepath. */
         public abstract Builder setFilePath(String filePath);
+
+        /** Sets bugReportFileName. */
+        public abstract Builder setBugReportFileName(String bugReportFileName);
+
+        /** Sets audioFileName. */
+        public abstract Builder setAudioFileName(String audioFileName);
 
         /** Sets {@link Status}. */
         public abstract Builder setStatus(int status);
