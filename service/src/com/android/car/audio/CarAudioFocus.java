@@ -113,6 +113,10 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                             mAfi.getPackageName())
                     == PackageManager.PERMISSION_GRANTED);
         }
+
+        String getUsageName() {
+            return mAfi.getAttributes().usageToString();
+        }
     }
 
 
@@ -171,8 +175,9 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     // The default audio framework's behavior is to remove the previous entry in the stack (no-op
     // if the requester is already holding focus).
     int evaluateFocusRequest(AudioFocusInfo afi) {
-        Log.i(TAG, "Evaluating " + focusEventToString(afi.getGainRequest()) + " request for client "
-                + afi.getClientId());
+        Log.i(TAG, "Evaluating " + focusEventToString(afi.getGainRequest())
+                + " request for client " + afi.getClientId()
+                + " with usage " + afi.getAttributes().usageToString());
 
         // Is this a request for premanant focus?
         // AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE -- Means Notifications should be denied
@@ -588,14 +593,17 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     public synchronized void dump(String indent, PrintWriter writer) {
         writer.printf("%s*CarAudioFocus*\n", indent);
 
-        writer.printf("%s\tCurrent Focus Holders:\n", indent);
+        String innerIndent = indent + "\t";
+        writer.printf("%sCurrent Focus Holders:\n", innerIndent);
         for (String clientId : mFocusHolders.keySet()) {
-            writer.printf("%s\t\t%s\n", indent, clientId);
+            writer.printf("%s\t%s - %s\n", innerIndent, clientId,
+                    mFocusHolders.get(clientId).getUsageName());
         }
 
-        writer.printf("%s\tTransient Focus Losers:\n", indent);
+        writer.printf("%sTransient Focus Losers:\n", innerIndent);
         for (String clientId : mFocusLosers.keySet()) {
-            writer.printf("%s\t\t%s\n", indent, clientId);
+            writer.printf("%s\t%s - %s\n", innerIndent, clientId,
+                    mFocusLosers.get(clientId).getUsageName());
         }
     }
 
