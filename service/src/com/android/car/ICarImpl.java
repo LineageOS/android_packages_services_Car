@@ -255,7 +255,6 @@ public class ICarImpl extends ICar.Stub {
             mAllServices[i].release();
         }
         mHal.release();
-        CarLocalServices.removeAllServices();
     }
 
     void vehicleHalReconnected(IVehicle vehicle) {
