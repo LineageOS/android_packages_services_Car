@@ -18,6 +18,7 @@ package com.android.car;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.app.ActivityManager;
 import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.vms.VmsAvailableLayers;
@@ -81,9 +82,8 @@ public class MockedVmsTestBase extends MockedCarTestBase {
     @Before
     public void setUpVms() throws Exception {
         // Trigger VmsClientManager to bind to the MockPublisherClient
-        // TODO(b/144027497): refactor the test to call onSwitchUser(userId)
-        // in VmsClientManager's mUseCallback
-        getVmsClientManager().switchUser();
+        // TODO(b/144027497): refactor the test to  mock the behavior of CarUserService
+        getVmsClientManager().mUserCallback.onSwitchUser(ActivityManager.getCurrentUser());
         mVmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         mSubscriberClient = new MockSubscriberClient();

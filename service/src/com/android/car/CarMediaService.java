@@ -719,7 +719,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
      * Builds a string key for saving the playback state for a specific media source (and user)
      */
     private String getPlaybackStateKey() {
-        return PLAYBACK_STATE_KEY + mCurrentUser + mPrimaryMediaComponent.flattenToString();
+        return PLAYBACK_STATE_KEY + mCurrentUser
+                + (mPrimaryMediaComponent == null ? "" : mPrimaryMediaComponent.flattenToString());
     }
 
     /**
@@ -761,6 +762,9 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             case AUTOPLAY_CONFIG_ALWAYS:
                 return true;
             case AUTOPLAY_CONFIG_ADAPTIVE:
+                if (!sharedPrefsInitialized()) {
+                    return false;
+                }
                 return mSharedPrefs.getInt(getPlaybackStateKey(), PlaybackState.STATE_NONE)
                         == PlaybackState.STATE_PLAYING;
             default:
