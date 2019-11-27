@@ -251,8 +251,8 @@ ConfigManager::readCameraMetadata(const XMLElement * const aParamElem,
     size_t numEntries = 0;
     camera_metadata_tag_t tag;
     while (curElem != nullptr) {
-        if (!ConfigManagerUtil::convertToMetadataTag(curElem->FindAttribute("name")->Value(),
-                                                     tag)) {
+        if (ConfigManagerUtil::convertToMetadataTag(curElem->FindAttribute("name")->Value(),
+                                                    tag)) {
             switch(tag) {
                 case ANDROID_LENS_DISTORTION:
                 case ANDROID_LENS_POSE_ROTATION:
@@ -282,7 +282,7 @@ ConfigManager::readCameraMetadata(const XMLElement * const aParamElem,
                     camera_metadata_enum_android_request_available_capabilities_t *data =
                         new camera_metadata_enum_android_request_available_capabilities_t[1];
                     if (ConfigManagerUtil::convertToCameraCapability(
-                           curElem->FindAttribute("synchronized")->Value(),
+                           curElem->FindAttribute("value")->Value(),
                            *data)
                        ) {
                         aCamera->cameraMetadata.insert_or_assign(
@@ -315,7 +315,7 @@ ConfigManager::readCameraMetadata(const XMLElement * const aParamElem,
                     }
 
                     aCamera->cameraMetadata.insert_or_assign(
-                        tag, make_pair((void *)data, len)
+                        tag, make_pair((void *)data, len + 1)
                     );
 
                     ++numEntries;
@@ -333,6 +333,8 @@ ConfigManager::readCameraMetadata(const XMLElement * const aParamElem,
                           curElem->FindAttribute("name")->Value());
                     break;
             }
+        } else {
+            ALOGW("Unsupported metadata tag %s found", curElem->FindAttribute("name")->Value());
         }
 
         curElem = curElem->NextSiblingElement("parameter");
@@ -1030,6 +1032,39 @@ std::unique_ptr<ConfigManager> ConfigManager::Create(const char *path) {
         return nullptr;
     } else {
         return cfgMgr;
+    }
+}
+
+ConfigManager::CameraInfo::~CameraInfo() {
+    free_camera_metadata(characteristics);
+
+    for (auto&& [tag, val] : cameraMetadata) {
+        switch(tag) {
+            case ANDROID_LENS_DISTORTION:
+            case ANDROID_LENS_POSE_ROTATION:
+            case ANDROID_LENS_POSE_TRANSLATION:
+            case ANDROID_LENS_INTRINSIC_CALIBRATION: {
+                delete[] reinterpret_cast<float *>(val.first);
+                break;
+            }
+
+            case ANDROID_REQUEST_AVAILABLE_CAPABILITIES: {
+                delete[] \
+                    reinterpret_cast<
+                        camera_metadata_enum_android_request_available_capabilities_t *
+                    >(val.first);
+                break;
+            }
+
+            case ANDROID_LOGICAL_MULTI_CAMERA_PHYSICAL_IDS: {
+                delete[] reinterpret_cast<char *>(val.first);
+                break;
+            }
+
+            default:
+                ALOGW("Tag 0x%X is not supported.  Data may be corrupted?", tag);
+                break;
+        }
     }
 }
 

@@ -60,9 +60,7 @@ public:
             /* Nothing to do */
         }
 
-        virtual ~CameraInfo() {
-            free_camera_metadata(characteristics);
-        }
+        virtual ~CameraInfo();
 
         /* Allocate memory for camera_metadata_t */
         bool allocate(size_t entry_cap, size_t data_cap) {
