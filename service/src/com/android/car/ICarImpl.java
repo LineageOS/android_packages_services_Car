@@ -68,6 +68,7 @@ public class ICarImpl extends ICar.Stub {
     public static final String INTERNAL_INPUT_SERVICE = "internal_input";
     public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
             "system_activity_monitoring";
+    public static final String INTERNAL_VMS_MANAGER = "vms_manager";
 
     private final Context mContext;
     private final VehicleHal mHal;
@@ -165,8 +166,8 @@ public class ICarImpl extends ICar.Stub {
         mVmsBrokerService = new VmsBrokerService();
         mVmsClientManager = new VmsClientManager(
                 // CarStatsService needs to be passed to the constructor due to HAL init order
-                serviceContext, mCarStatsService, mCarUserService, mUserManagerHelper,
-                mVmsBrokerService, mHal.getVmsHal());
+                serviceContext, mCarStatsService, mCarUserService, mVmsBrokerService,
+                mHal.getVmsHal());
         mVmsSubscriberService = new VmsSubscriberService(
                 serviceContext, mVmsBrokerService, mVmsClientManager, mHal.getVmsHal());
         mVmsPublisherService = new VmsPublisherService(
@@ -376,6 +377,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarInputService;
             case INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE:
                 return mSystemActivityMonitoringService;
+            case INTERNAL_VMS_MANAGER:
+                return mVmsClientManager;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarInternalService for unknown service:" +
                         serviceName);
