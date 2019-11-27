@@ -15,7 +15,6 @@
  */
 package android.automotive.computepipe.runner;
 
-import android.automotive.computepipe.runner.PipeOutputConfigPacketType;
 import android.automotive.computepipe.runner.PipeOutputConfigOutputDesc;
 
 /**
@@ -23,16 +22,16 @@ import android.automotive.computepipe.runner.PipeOutputConfigOutputDesc;
  *
  * Structure that describes the output stream packets of a graph
  *
- * Provided by HIDL implementation to the client as part of GraphDescriptor
+ * Provided by AIDL implementation to the client as part of GraphDescriptor
  */
+
 parcelable PipeOutputConfig {
     /**
-     * list of output streams
+     * output stream.
      */
-    PipeOutputConfigOutputDesc[] outputs;
+    PipeOutputConfigOutputDesc output;
     /**
-     * ids for each entry above
+     * id for the stream.
      */
-    int[] outputIds;
+    int outputId;
 }
-
