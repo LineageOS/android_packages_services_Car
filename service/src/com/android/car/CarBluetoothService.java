@@ -98,7 +98,13 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
         public void onServiceConnected(ICarUserService carUserService) {
             logd("Connected to PerUserCarService");
             synchronized (mPerUserLock) {
+                // Explicitly clear out existing per-user objects since we can't rely on the
+                // onServiceDisconnected and onPreUnbind calls to always be called before this
+                destroyUser();
+
                 mCarUserService = carUserService;
+
+                // Create new objects with our new set of profile proxies
                 initializeUser();
             }
         }
@@ -112,9 +118,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
         @Override
         public void onServiceDisconnected() {
             logd("Disconnected from PerUserCarService");
-            synchronized (mPerUserLock) {
-                mCarUserService = null;
-            }
+            destroyUser();
         }
     };
 
@@ -250,8 +254,16 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
                 return;
             }
             for (int profileId : sManagedProfiles) {
-                BluetoothProfileDeviceManager deviceManager = BluetoothProfileDeviceManager.create(
-                        mContext, mUserId, mCarBluetoothUserService, profileId);
+                BluetoothProfileDeviceManager deviceManager = mProfileDeviceManagers.get(profileId);
+                if (deviceManager != null) {
+                    deviceManager.stop();
+                    mProfileDeviceManagers.remove(profileId);
+                    logd("Existing device manager removed for profile "
+                            + Utils.getProfileName(profileId));
+                }
+
+                deviceManager = BluetoothProfileDeviceManager.create(mContext, mUserId,
+                        mCarBluetoothUserService, profileId);
                 if (deviceManager == null) {
                     logd("Failed to create profile device manager for "
                             + Utils.getProfileName(profileId));
