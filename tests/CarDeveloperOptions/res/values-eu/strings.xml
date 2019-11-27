@@ -1260,7 +1260,7 @@
     <string name="doze_summary" msgid="6762274282827831706">"Argitu pantaila jakinarazpenak jasotzen dituzunean"</string>
     <string name="doze_always_on_title" msgid="8555184965031789941">"Beti aktibatuta"</string>
     <string name="doze_always_on_summary" msgid="7654436900436328950">"Erakutsi ordua, jakinarazpenen ikonoak eta bestelako informazioa. Bateria gehiago kontsumitzen du."</string>
-    <string name="title_font_size" msgid="5021464556860010851">"Letra-tipoaren tamaina"</string>
+    <string name="title_font_size" msgid="5021464556860010851">"Letra-tamaina"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"Handitu edo txikitu testua"</string>
     <string name="sim_lock_settings" msgid="1986924650622642189">"SIM txartelaren blokeo-ezarpenak"</string>
     <string name="sim_lock_settings_category" msgid="1126759898277681516">"SIM txartelaren blokeoa"</string>
@@ -2034,7 +2034,7 @@
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Pantaila-irakurgailuak, pantaila, interakzioak kontrolatzeko aukerak"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"Ikusmen-ezarpenak"</string>
     <string name="vision_settings_description" msgid="3476589459009287332">"Zure beharretara doi dezakezu gailua. Erabilerraztasun-eginbideak edonoiz alda ditzakezu Ezarpenak atalean."</string>
-    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Aldatu letra-tipoaren tamaina"</string>
+    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Aldatu letra-tamaina"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Pantaila-irakurgailuak"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Audioa eta pantailako testua"</string>
     <string name="display_category_title" msgid="545168481672250195">"Pantaila"</string>
@@ -2404,7 +2404,7 @@
     <string name="battery_sugg_display" msgid="6366790848514389990">"Murriztu pantailaren distira edota pantailaren denbora-muga"</string>
     <string name="battery_desc_wifi" msgid="3497535902126253386">"Wi-Fiak erabilitako energia"</string>
     <string name="battery_sugg_wifi" msgid="3796329601134263039">"Desaktibatu Wi‑Fi konexioa erabiltzen ari ez denean edo erabilgarri ez dagoenean."</string>
-    <string name="battery_desc_bluetooth" msgid="3468061900485447679">"Bluetoothak erabilitako bateria"</string>
+    <string name="battery_desc_bluetooth" msgid="3468061900485447679">"Bluetooth bidezko konexioak erabilitako bateria"</string>
     <string name="battery_sugg_bluetooth_basic" msgid="6353294067057749310">"Desaktibatu Bluetooth-a erabiltzen ez duzunean."</string>
     <string name="battery_sugg_bluetooth_headset" msgid="2421931037149315202">"Saiatu beste Bluetooth bidezko gailu batera konektatzen."</string>
     <string name="battery_desc_apps" msgid="6826726880149226823">"Aplikazioak erabilitako bateria"</string>
@@ -3856,8 +3856,8 @@
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> erabilita - <xliff:g id="FREE_SPACE">%2$s</xliff:g> libre"</string>
     <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Barneko memoria: <xliff:g id="PERCENTAGE">%1$s</xliff:g> erabilita - <xliff:g id="FREE_SPACE">%2$s</xliff:g> libre"</string>
     <string name="display_summary" msgid="5725269449657325797">"Lokartu <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> inaktibo egon ondoren"</string>
-    <string name="display_dashboard_summary" msgid="7678566148167010682">"Horma-papera, inaktibo ezartzea, letra-tipoaren tamaina"</string>
-    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Estiloak eta horma-paperak, egoera inaktiboa, letra-tipoaren tamaina"</string>
+    <string name="display_dashboard_summary" msgid="7678566148167010682">"Horma-papera, inaktibo ezartzea, letra-tamaina"</string>
+    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Estiloak eta horma-paperak, egoera inaktiboa, letra-tamaina"</string>
     <string name="display_dashboard_nowallpaper_summary" msgid="8612534364908229000">"Inaktibo ezartzeko modua, letra-tamaina"</string>
     <string name="display_summary_example" msgid="4555020581960719296">"Ezarri inaktibo hamar minutuan jarduerarik gabe egon ondoren"</string>
     <string name="memory_summary" msgid="9121871336058042600">"<xliff:g id="USED_MEMORY">%1$s</xliff:g> / <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g> erabili dira batez beste"</string>
