@@ -98,26 +98,6 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testGetMaxSupportedRealUsers() {
-        setMaxSupportedUsers(7);
-
-        // Create three managed profiles, and two normal users.
-        UserInfo user1 = createUserInfoForId(10);
-        UserInfo user2 =
-                new UserInfo(/* id= */ 11, /* name = */ "user11", UserInfo.FLAG_MANAGED_PROFILE);
-        UserInfo user3 =
-                new UserInfo(/* id= */ 12, /* name = */ "user12", UserInfo.FLAG_MANAGED_PROFILE);
-        UserInfo user4 = createUserInfoForId(13);
-        UserInfo user5 =
-                new UserInfo(/* id= */ 14, /* name = */ "user14", UserInfo.FLAG_MANAGED_PROFILE);
-
-        mockGetUsers(user1, user2, user3, user4, user5);
-
-        // Max users - # managed profiles - headless system user.
-        assertThat(mCarUserManagerHelper.getMaxSupportedRealUsers()).isEqualTo(3);
-    }
-
-    @Test
     public void testCreateNewNonAdminUser() {
         // Verify createUser on UserManager gets called.
         mCarUserManagerHelper.createNewNonAdminUser(TEST_USER_NAME);
