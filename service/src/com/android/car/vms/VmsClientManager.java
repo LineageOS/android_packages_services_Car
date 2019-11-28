@@ -17,14 +17,11 @@
 package com.android.car.vms;
 
 import android.car.Car;
-import android.car.userlib.CarUserManagerHelper;
 import android.car.vms.IVmsPublisherClient;
 import android.car.vms.IVmsSubscriberClient;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
@@ -52,7 +49,6 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.IntSupplier;
@@ -75,7 +71,6 @@ public class VmsClientManager implements CarServiceBase {
     private final PackageManager mPackageManager;
     private final UserManager mUserManager;
     private final CarUserService mUserService;
-    private final CarUserManagerHelper mUserManagerHelper;
     private final CarStatsService mStatsService;
     private final Handler mHandler;
     private final IntSupplier mGetCallingUid;
@@ -101,7 +96,7 @@ public class VmsClientManager implements CarServiceBase {
     private int mCurrentUser;
 
     @GuardedBy("mLock")
-    private final Map<IBinder, SubscriberConnection> mSubscribers = new HashMap<>();
+    private final Map<IBinder, SubscriberConnection> mSubscribers = new ArrayMap<>();
 
     @VisibleForTesting
     final Runnable mSystemUserUnlockedListener = () -> {
@@ -112,22 +107,25 @@ public class VmsClientManager implements CarServiceBase {
     };
 
     @VisibleForTesting
-    final BroadcastReceiver mUserSwitchReceiver = new BroadcastReceiver() {
+    public final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            if (DBG) Log.d(TAG, "Received " + intent);
+        public void onSwitchUser(int userId) {
             synchronized (mLock) {
-                int currentUserId = mUserManagerHelper.getCurrentForegroundUserId();
-                if (mCurrentUser != currentUserId) {
+                if (mCurrentUser != userId) {
+                    mCurrentUser = userId;
                     terminate(mCurrentUserClients);
                     terminate(mSubscribers.values().stream()
-                            .filter(subscriber -> subscriber.mUserId != currentUserId)
+                            .filter(subscriber -> subscriber.mUserId != mCurrentUser)
                             .filter(subscriber -> subscriber.mUserId != UserHandle.USER_SYSTEM));
                 }
-                mCurrentUser = currentUserId;
+            }
+            bindToUserClients();
+        }
 
-                if (mUserManager.isUserUnlocked(mCurrentUser)) {
-                    bindToSystemClients();
+        @Override
+        public void onUserLockChanged(int userId, boolean unlocked) {
+            synchronized (mLock) {
+                if (mCurrentUser == userId && unlocked) {
                     bindToUserClients();
                 }
             }
@@ -140,29 +138,26 @@ public class VmsClientManager implements CarServiceBase {
      * @param context           Context to use for registering receivers and binding services.
      * @param statsService      Service for logging client metrics.
      * @param userService       User service for registering system unlock listener.
-     * @param userManagerHelper User manager for querying current user state.
      * @param brokerService     Service managing the VMS publisher/subscriber state.
      * @param halService        Service providing the HAL client interface
      */
     public VmsClientManager(Context context, CarStatsService statsService,
-            CarUserService userService, CarUserManagerHelper userManagerHelper,
-            VmsBrokerService brokerService, VmsHalService halService) {
-        this(context, statsService, userService, userManagerHelper, brokerService, halService,
+            CarUserService userService, VmsBrokerService brokerService,
+            VmsHalService halService) {
+        this(context, statsService, userService, brokerService, halService,
                 new Handler(Looper.getMainLooper()), Binder::getCallingUid);
     }
 
     @VisibleForTesting
     VmsClientManager(Context context, CarStatsService statsService,
-            CarUserService userService, CarUserManagerHelper userManagerHelper,
-            VmsBrokerService brokerService, VmsHalService halService,
-            Handler handler, IntSupplier getCallingUid) {
+            CarUserService userService, VmsBrokerService brokerService,
+            VmsHalService halService, Handler handler, IntSupplier getCallingUid) {
         mContext = context;
         mPackageManager = context.getPackageManager();
         mUserManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
         mStatsService = statsService;
         mUserService = userService;
-        mUserManagerHelper = userManagerHelper;
-        mCurrentUser = mUserManagerHelper.getCurrentForegroundUserId();
+        mCurrentUser = UserHandle.USER_NULL;
         mBrokerService = brokerService;
         mHandler = handler;
         mGetCallingUid = getCallingUid;
@@ -186,17 +181,12 @@ public class VmsClientManager implements CarServiceBase {
     @Override
     public void init() {
         mUserService.runOnUser0Unlock(mSystemUserUnlockedListener);
-
-        IntentFilter userSwitchFilter = new IntentFilter();
-        userSwitchFilter.addAction(Intent.ACTION_USER_SWITCHED);
-        userSwitchFilter.addAction(Intent.ACTION_USER_UNLOCKED);
-        mContext.registerReceiverAsUser(mUserSwitchReceiver, UserHandle.ALL, userSwitchFilter, null,
-                null);
+        mUserService.addUserCallback(mUserCallback);
     }
 
     @Override
     public void release() {
-        mContext.unregisterReceiver(mUserSwitchReceiver);
+        mUserService.removeUserCallback(mUserCallback);
         synchronized (mLock) {
             if (mHalClient != null) {
                 mPublisherService.onClientDisconnected(HAL_CLIENT_NAME);
@@ -365,12 +355,21 @@ public class VmsClientManager implements CarServiceBase {
     }
 
     private void bindToUserClients() {
+        bindToSystemClients(); // Bind system clients on user switch, if they are not already bound.
         synchronized (mLock) {
+            if (mCurrentUser == UserHandle.USER_NULL) {
+                Log.e(TAG, "Unknown user in foreground.");
+                return;
+            }
             // To avoid the risk of double-binding, clients running as the system user must only
             // ever be bound in bindToSystemClients().
-            // In a headless multi-user system, the system user will never be in the foreground.
             if (mCurrentUser == UserHandle.USER_SYSTEM) {
                 Log.e(TAG, "System user in foreground. Userspace clients will not be bound.");
+                return;
+            }
+
+            if (!mUserManager.isUserUnlocked(mCurrentUser)) {
+                Log.i(TAG, "Waiting for foreground user to be unlocked.");
                 return;
             }
 

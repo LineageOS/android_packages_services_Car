@@ -25,7 +25,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atMost;
@@ -38,7 +37,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
-import android.car.userlib.CarUserManagerHelper;
 import android.car.vms.IVmsPublisherClient;
 import android.car.vms.IVmsPublisherService;
 import android.car.vms.IVmsSubscriberClient;
@@ -48,7 +46,6 @@ import android.car.vms.VmsSubscriptionState;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -95,8 +92,6 @@ public class VmsClientManagerTest {
     private static final String USER_CLIENT_NAME =
             "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsUserClient U=10";
     private static final int USER_ID_U11 = 11;
-    private static final String USER_CLIENT_NAME_U11 =
-            "com.google.android.apps.vms.test/com.google.android.apps.vms.test.VmsUserClient U=11";
 
     private static final String TEST_PACKAGE = "test.package1";
     private static final String HAL_CLIENT_NAME = "HalClient";
@@ -123,8 +118,6 @@ public class VmsClientManagerTest {
     private UserManager mUserManager;
     @Mock
     private CarUserService mUserService;
-    @Mock
-    private CarUserManagerHelper mUserManagerHelper;
 
     @Mock
     private VmsBrokerService mBrokerService;
@@ -207,16 +200,14 @@ public class VmsClientManagerTest {
                 new String[]{ USER_CLIENT });
 
         when(mContext.getSystemService(eq(Context.USER_SERVICE))).thenReturn(mUserManager);
-        when(mUserManagerHelper.getCurrentForegroundUserId())
-                .thenAnswer(invocation -> mForegroundUserId);
-
-        mForegroundUserId = USER_ID;
-        mCallingAppUid = UserHandle.getUid(USER_ID, 0);
 
         mClientManager = new VmsClientManager(mContext, mStatsService, mUserService,
-                mUserManagerHelper, mBrokerService, mHal, mHandler, () -> mCallingAppUid);
+                mBrokerService, mHal, mHandler, () -> mCallingAppUid);
         verify(mHal).setClientManager(mClientManager);
         mClientManager.setPublisherService(mPublisherService);
+
+        notifyUserSwitched(USER_ID, false);
+        mCallingAppUid = UserHandle.getUid(USER_ID, 0);
 
         when(mSubscriberClient1.asBinder()).thenReturn(mSubscriberBinder1);
         when(mSubscriberClient2.asBinder()).thenReturn(mSubscriberBinder2);
@@ -225,7 +216,7 @@ public class VmsClientManagerTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verify(mContext, atLeast(0)).getSystemService(eq(Context.USER_SERVICE));
         verify(mContext, atLeast(0)).getResources();
         verify(mContext, atLeast(0)).getPackageManager();
@@ -239,15 +230,8 @@ public class VmsClientManagerTest {
 
         // Verify registration of system user unlock listener
         verify(mUserService).runOnUser0Unlock(mClientManager.mSystemUserUnlockedListener);
-
-        // Verify registration of user switch receiver
-        ArgumentCaptor<IntentFilter> userFilterCaptor = ArgumentCaptor.forClass(IntentFilter.class);
-        verify(mContext).registerReceiverAsUser(eq(mClientManager.mUserSwitchReceiver),
-                eq(UserHandle.ALL), userFilterCaptor.capture(), isNull(), isNull());
-        IntentFilter userEventFilter = userFilterCaptor.getValue();
-        assertEquals(2, userEventFilter.countActions());
-        assertTrue(userEventFilter.hasAction(Intent.ACTION_USER_SWITCHED));
-        assertTrue(userEventFilter.hasAction(Intent.ACTION_USER_UNLOCKED));
+        // Verify user callback is added
+        verify(mUserService).addUserCallback(eq(mClientManager.mUserCallback));
     }
 
     @Test
@@ -255,7 +239,7 @@ public class VmsClientManagerTest {
         mClientManager.release();
 
         // Verify user switch receiver is unregistered
-        verify(mContext).unregisterReceiver(mClientManager.mUserSwitchReceiver);
+        verify(mUserService).removeUserCallback(mClientManager.mUserCallback);
     }
 
     @Test
@@ -322,6 +306,14 @@ public class VmsClientManagerTest {
     @Test
     public void testUserUnlocked_ForegroundUserNotUnlocked() {
         notifyUserUnlocked(USER_ID, false);
+
+        // Process will not be bound
+        verifyUserBind(0);
+    }
+
+    @Test
+    public void testUserUnlocked_OtherUserUnlocked() {
+        notifyUserUnlocked(USER_ID_U11, true);
 
         // Process will not be bound
         verifyUserBind(0);
@@ -761,6 +753,7 @@ public class VmsClientManagerTest {
         resetContext();
         reset(mPublisherService);
 
+        notifyUserSwitched(USER_ID_U11, false);
         notifyUserUnlocked(USER_ID_U11, true);
 
         verify(mContext).unbindService(connection);
@@ -780,6 +773,7 @@ public class VmsClientManagerTest {
         resetContext();
         reset(mPublisherService);
 
+        notifyUserSwitched(USER_ID_U11, false);
         notifyUserUnlocked(UserHandle.USER_SYSTEM, true);
 
         verify(mContext).unbindService(connection);
@@ -796,6 +790,7 @@ public class VmsClientManagerTest {
         ServiceConnection connection = mConnectionCaptor.getValue();
         resetContext();
 
+        notifyUserSwitched(USER_ID_U11, false);
         notifyUserUnlocked(USER_ID_U11, true);
 
         verify(mContext).unbindService(connection);
@@ -924,9 +919,7 @@ public class VmsClientManagerTest {
     public void testOnUserSwitch_RemoveSubscriber() {
         mClientManager.addSubscriber(mSubscriberClient1);
 
-        mForegroundUserId = USER_ID_U11;
-        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent());
-
+        notifyUserSwitched(USER_ID_U11, false);
         verify(mBrokerService).removeDeadSubscriber(mSubscriberClient1);
         assertEquals(UNKNOWN_PACKAGE, mClientManager.getPackageName(mSubscriberClient1));
         assertEquals(-1, mClientManager.getSubscriberUid(mSubscriberClient1));
@@ -937,8 +930,7 @@ public class VmsClientManagerTest {
     public void testOnUserSwitch_RemoveSubscriber_AddNewSubscriber() {
         mClientManager.addSubscriber(mSubscriberClient1);
 
-        mForegroundUserId = USER_ID_U11;
-        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent());
+        notifyUserSwitched(USER_ID_U11, false);
         verify(mBrokerService).removeDeadSubscriber(mSubscriberClient1);
 
         mCallingAppUid = UserHandle.getUid(USER_ID_U11, 0);
@@ -962,8 +954,7 @@ public class VmsClientManagerTest {
 
         mClientManager.addSubscriber(mSubscriberClient2);
 
-        mForegroundUserId = USER_ID_U11;
-        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent());
+        notifyUserSwitched(USER_ID_U11, false);
 
         verify(mBrokerService).removeDeadSubscriber(mSubscriberClient1);
         verify(mBrokerService, never()).removeDeadSubscriber(mSubscriberClient2);
@@ -979,8 +970,7 @@ public class VmsClientManagerTest {
         verify(mHalClientLog).logConnectionState(ConnectionState.CONNECTED);
         reset(mPublisherService);
 
-        mForegroundUserId = USER_ID_U11;
-        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent());
+        notifyUserSwitched(USER_ID_U11, false);
 
         verify(mBrokerService, never()).removeDeadSubscriber(subscriberClient);
         assertEquals(HAL_CLIENT_NAME, mClientManager.getPackageName(subscriberClient));
@@ -1045,23 +1035,14 @@ public class VmsClientManagerTest {
     }
 
     private void notifyUserSwitched(int foregroundUserId, boolean isForegroundUserUnlocked) {
-        notifyUserAction(foregroundUserId, isForegroundUserUnlocked, Intent.ACTION_USER_SWITCHED);
+        when(mUserManager.isUserUnlocked(foregroundUserId)).thenReturn(isForegroundUserUnlocked);
+        mForegroundUserId = foregroundUserId; // Member variable used by verifyUserBind()
+        mClientManager.mUserCallback.onSwitchUser(foregroundUserId);
     }
 
     private void notifyUserUnlocked(int foregroundUserId, boolean isForegroundUserUnlocked) {
-        notifyUserAction(foregroundUserId, isForegroundUserUnlocked, Intent.ACTION_USER_UNLOCKED);
-    }
-
-    // Sets the current foreground user + unlock state and dispatches the specified intent action
-    private void notifyUserAction(int foregroundUserId, boolean isForegroundUserUnlocked,
-            String action) {
-        mForegroundUserId = foregroundUserId; // Member variable used by verifyUserBind()
-        when(mUserManagerHelper.getCurrentForegroundUserId()).thenReturn(foregroundUserId);
-
-        reset(mUserManager);
         when(mUserManager.isUserUnlocked(foregroundUserId)).thenReturn(isForegroundUserUnlocked);
-
-        mClientManager.mUserSwitchReceiver.onReceive(mContext, new Intent(action));
+        mClientManager.mUserCallback.onUserLockChanged(foregroundUserId, isForegroundUserUnlocked);
     }
 
     private void verifySystemBind(int times) {
