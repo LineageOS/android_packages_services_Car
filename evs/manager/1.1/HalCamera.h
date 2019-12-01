@@ -24,12 +24,15 @@
 
 #include <thread>
 #include <list>
+#include <deque>
+#include <unordered_map>
 
 #include "sync/unique_fd.h"
 #include "sync/unique_fence.h"
 #include "sync/unique_timeline.h"
 
 using namespace ::android::hardware::automotive::evs::V1_1;
+using ::android::hardware::camera::device::V3_2::Stream;
 using ::android::hardware::Return;
 using ::android::hardware::hidl_handle;
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
@@ -56,22 +59,30 @@ class VirtualCamera;    // From VirtualCamera.h
 // stream from the hardware camera and distribute it to the associated VirtualCamera objects.
 class HalCamera : public IEvsCameraStream_1_1 {
 public:
-    HalCamera(sp<IEvsCamera_1_1> hwCamera)
+    HalCamera(sp<IEvsCamera_1_1> hwCamera, std::string deviceId = "", Stream cfg = {})
         : mHwCamera(hwCamera),
-          mTimeline(new UniqueTimeline(0)) {}
+          mId(deviceId),
+          mStreamConfig(cfg){
+        mCurrentRequests = &mFrameRequests[0];
+        mNextRequests    = &mFrameRequests[1];
+    }
 
     // Factory methods for client VirtualCameras
     sp<VirtualCamera>     makeVirtualCamera();
+    bool                  ownVirtualCamera(sp<VirtualCamera> virtualCamera);
     void                  disownVirtualCamera(sp<VirtualCamera> virtualCamera);
 
     // Implementation details
     sp<IEvsCamera_1_0>  getHwCamera()       { return mHwCamera; };
     unsigned            getClientCount()    { return mClients.size(); };
+    std::string         getId()             { return mId; }
+    Stream&             getStreamConfig()   { return mStreamConfig; }
     bool                changeFramesInFlight(int delta);
-    UniqueFence         requestNewFrame(sp<VirtualCamera> virtualCamera);
+    UniqueFence         requestNewFrame(sp<VirtualCamera> virtualCamera,
+                                        const int64_t timestamp);
 
     Return<EvsResult>   clientStreamStarting();
-    void                clientStreamEnding();
+    void                clientStreamEnding(sp<VirtualCamera> client);
     Return<void>        doneWithFrame(const BufferDesc_1_0& buffer);
     Return<void>        doneWithFrame(const BufferDesc_1_1& buffer);
     Return<EvsResult>   setMaster(sp<VirtualCamera> virtualCamera);
@@ -105,13 +116,21 @@ private:
     };
     std::vector<FrameRecord>        mFrames;
     wp<VirtualCamera>               mMaster = nullptr;
-    std::mutex                      mMasterLock;
+    std::string                     mId;
+    Stream                          mStreamConfig;
+
+    struct FrameRequest {
+        wp<VirtualCamera> client = nullptr;
+        int64_t           timestamp = -1;
+    };
 
     // synchronization
-    std::mutex mSessionMutex;
-    std::list<wp<VirtualCamera>> mClientsWaitFrame GUARDED_BY(mSessionMutex);
-    std::unique_ptr<UniqueTimeline> mTimeline GUARDED_BY(mSessionMutex);
-    UniqueFence mSessionFence GUARDED_BY(mSessionMutex);
+    std::mutex                mFrameMutex;
+    std::deque<FrameRequest>  mFrameRequests[2] GUARDED_BY(mFrameMutex);
+    std::deque<FrameRequest>* mCurrentRequests  PT_GUARDED_BY(mFrameMutex);
+    std::deque<FrameRequest>* mNextRequests     PT_GUARDED_BY(mFrameMutex);
+    std::unordered_map<uint64_t,
+                       std::unique_ptr<UniqueTimeline>> mTimelines GUARDED_BY(mFrameMutex);
 };
 
 } // namespace implementation

@@ -636,16 +636,23 @@ void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
             pV4lBuff->timestamp.tv_sec * 1e+6 + pV4lBuff->timestamp.tv_usec;
 
         // Lock our output buffer for writing
+        // TODO(b/145459970): Sometimes, physical camera device maps a buffer
+        // into the address that is about to be unmapped by another device; this
+        // causes SEGV_MAPPER.
         void *targetPixels = nullptr;
         GraphicBufferMapper &mapper = GraphicBufferMapper::get();
-        mapper.lock(bufDesc_1_1.buffer.nativeHandle,
+        status_t result = mapper.lock(bufDesc_1_1.buffer.nativeHandle,
                     GRALLOC_USAGE_SW_WRITE_OFTEN | GRALLOC_USAGE_SW_READ_NEVER,
                     android::Rect(pDesc->width, pDesc->height),
                     (void **)&targetPixels);
 
         // If we failed to lock the pixel buffer, we're about to crash, but log it first
         if (!targetPixels) {
-            ALOGE("Camera failed to gain access to image buffer for writing");
+            // TODO(b/145457727): When EvsHidlTest::CameraToDisplayRoundTrip
+            // test case was repeatedly executed, EVS occasionally fails to map
+            // a buffer.
+            ALOGE("Camera failed to gain access to image buffer for writing - "
+                  "status: %s, error: %s", statusToString(result).c_str(), strerror(errno));
         }
 
         // Transfer the video image into the output buffer, making any needed
@@ -758,6 +765,7 @@ sp<EvsV4lCamera> EvsV4lCamera::Create(const char *deviceName) {
 sp<EvsV4lCamera> EvsV4lCamera::Create(const char *deviceName,
                                       unique_ptr<ConfigManager::CameraInfo> &camInfo,
                                       const Stream *requestedStreamCfg) {
+    ALOGI("Create %s", deviceName);
     sp<EvsV4lCamera> evsCamera = new EvsV4lCamera(deviceName, camInfo);
     if (evsCamera == nullptr) {
         return nullptr;
@@ -765,7 +773,7 @@ sp<EvsV4lCamera> EvsV4lCamera::Create(const char *deviceName,
 
     // Initialize the video device
     bool success = false;
-    if (requestedStreamCfg != nullptr) {
+    if (camInfo != nullptr && requestedStreamCfg != nullptr) {
         // Validate a given stream configuration.  If there is no exact match,
         // this will try to find the best match based on:
         // 1) same output format

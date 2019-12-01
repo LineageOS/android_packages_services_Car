@@ -53,6 +53,80 @@ bool Enumerator::checkPermission() {
 }
 
 
+bool Enumerator::isLogicalCamera(const camera_metadata_t *metadata) {
+    bool found = false;
+
+    if (metadata == nullptr) {
+        ALOGE("Metadata is null");
+        return found;
+    }
+
+    camera_metadata_ro_entry_t entry;
+    int rc = find_camera_metadata_ro_entry(metadata,
+                                           ANDROID_REQUEST_AVAILABLE_CAPABILITIES,
+                                           &entry);
+    if (0 != rc) {
+        // No capabilities are found in metadata.
+        ALOGD("%s does not find a target entry", __FUNCTION__);
+        return found;
+    }
+
+    for (size_t i = 0; i < entry.count; ++i) {
+        uint8_t capability = entry.data.u8[i];
+        if (capability == ANDROID_REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA) {
+            found = true;
+            break;
+        }
+    }
+
+    ALOGE_IF(!found, "%s does not find a logical multi camera cap", __FUNCTION__);
+    return found;
+}
+
+
+std::unordered_set<std::string> Enumerator::getPhysicalCameraIds(const std::string& id) {
+    std::unordered_set<std::string> physicalCameras;
+    if (mCameraDevices.find(id) == mCameraDevices.end()) {
+        ALOGE("Queried device %s does not exist!", id.c_str());
+        return physicalCameras;
+    }
+
+    const camera_metadata_t *metadata =
+        reinterpret_cast<camera_metadata_t *>(&mCameraDevices[id].metadata[0]);
+    if (!isLogicalCamera(metadata)) {
+        // EVS assumes that the device w/o a valid metadata is a physical
+        // device.
+        ALOGI("%s is not a logical camera device.", id.c_str());
+        physicalCameras.emplace(id);
+        return physicalCameras;
+    }
+
+    camera_metadata_ro_entry entry;
+    int rc = find_camera_metadata_ro_entry(metadata,
+                                           ANDROID_LOGICAL_MULTI_CAMERA_PHYSICAL_IDS,
+                                           &entry);
+    if (0 != rc) {
+        ALOGE("No physical camera ID is found for a logical camera device %s!", id.c_str());
+        return physicalCameras;
+    }
+
+    const uint8_t *ids = entry.data.u8;
+    size_t start = 0;
+    for (size_t i = 0; i < entry.count; ++i) {
+        if (ids[i] == '\0') {
+            if (start != i) {
+                std::string id(reinterpret_cast<const char *>(ids + start));
+                physicalCameras.emplace(id);
+            }
+            start = i + 1;
+        }
+    }
+
+    ALOGE("%s consists of %d physical camera devices.", id.c_str(), (int)physicalCameras.size());
+    return physicalCameras;
+}
+
+
 // Methods from ::android::hardware::automotive::evs::V1_0::IEvsEnumerator follow.
 Return<void> Enumerator::getCameraList(getCameraList_cb list_cb)  {
     hardware::hidl_vec<CameraDesc_1_0> cameraList;
@@ -78,27 +152,9 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
 
     // Is the underlying hardware camera already open?
     sp<HalCamera> hwCamera;
-    for (auto &&cam : mCameras) {
-        bool match = false;
-        auto pHwCamera = IEvsCamera_1_1::castFrom(cam->getHwCamera())
-                        .withDefault(nullptr);
-
-        pHwCamera->getCameraInfo(
-            [cameraId, &match](CameraDesc_1_0 desc) {
-                if (desc.cameraId == cameraId) {
-                    match = true;
-                }
-            }
-        );
-
-        if (match) {
-            hwCamera = cam;
-            break;
-        }
-    }
-
-    // Do we need to open a new hardware camera?
-    if (hwCamera == nullptr) {
+    if (mActiveCameras.find(cameraId) != mActiveCameras.end()) {
+        hwCamera = mActiveCameras[cameraId];
+    } else {
         // Is the hardware camera available?
         sp<IEvsCamera_1_1> device =
             IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera(cameraId))
@@ -106,7 +162,7 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
         if (device == nullptr) {
             ALOGE("Failed to open hardware camera %s", cameraId.c_str());
         } else {
-            hwCamera = new HalCamera(device);
+            hwCamera = new HalCamera(device, cameraId);
             if (hwCamera == nullptr) {
                 ALOGE("Failed to allocate camera wrapper object");
                 mHwEnumerator->closeCamera(device);
@@ -122,7 +178,7 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
 
     // Add the hardware camera to our list, which will keep it alive via ref count
     if (clientCamera != nullptr) {
-        mCameras.emplace_back(hwCamera);
+        mActiveCameras.try_emplace(cameraId, hwCamera);
     } else {
         ALOGE("Requested camera %s not found or not available", cameraId.c_str());
     }
@@ -144,20 +200,23 @@ Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera_1_0>& client
     sp<VirtualCamera> virtualCamera = reinterpret_cast<VirtualCamera *>(clientCamera.get());
 
     // Find the parent camera that backs this virtual camera
-    sp<HalCamera> halCamera = virtualCamera->getHalCamera();
+    for (auto&& halCamera : virtualCamera->getHalCameras()) {
+        // Tell the virtual camera's parent to clean it up and drop it
+        // NOTE:  The camera objects will only actually destruct when the sp<> ref counts get to
+        //        zero, so it is important to break all cyclic references.
+        halCamera->disownVirtualCamera(virtualCamera);
 
-    // Tell the virtual camera's parent to clean it up and drop it
-    // NOTE:  The camera objects will only actually destruct when the sp<> ref counts get to
-    //        zero, so it is important to break all cyclic references.
-    halCamera->disownVirtualCamera(virtualCamera);
-
-    // Did we just remove the last client of this camera?
-    if (halCamera->getClientCount() == 0) {
-        // Take this now unused camera out of our list
-        // NOTE:  This should drop our last reference to the camera, resulting in its
-        //        destruction.
-        mCameras.remove(halCamera);
+        // Did we just remove the last client of this camera?
+        if (halCamera->getClientCount() == 0) {
+            // Take this now unused camera out of our list
+            // NOTE:  This should drop our last reference to the camera, resulting in its
+            //        destruction.
+            mActiveCameras.erase(halCamera->getId());
+        }
     }
+
+    // Make sure the virtual camera's stream is stopped
+    virtualCamera->stopVideoStream();
 
     return Void();
 }
@@ -171,68 +230,74 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
         return nullptr;
     }
 
-    // Check whether the underlying hardware camera is already open or not.
+    // If hwCamera is null, a requested camera device is either a logical camera
+    // device or a hardware camera, which is not being used now.
+    std::unordered_set<std::string> physicalCameras = getPhysicalCameraIds(cameraId);
+    std::vector<sp<HalCamera>> sourceCameras;
     sp<HalCamera> hwCamera;
-    for (auto &&cam : mCameras) {
-        bool match = false;
-        auto pHwCamera = IEvsCamera_1_1::castFrom(cam->getHwCamera())
-                         .withDefault(nullptr);
+    bool success = true;
 
-        if (pHwCamera == nullptr) {
-            continue;
-        }
-
-        pHwCamera->getCameraInfo_1_1(
-            [cameraId, &match](CameraDesc_1_1 desc) {
-                if (desc.v1.cameraId == cameraId) {
-                    match = true;
+    // 1. Try to open inactive camera devices.
+    for (auto&& id : physicalCameras) {
+        auto it = mActiveCameras.find(id);
+        if (it == mActiveCameras.end()) {
+            // Try to open a hardware camera.
+            sp<IEvsCamera_1_1> device =
+                IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera_1_1(id, streamCfg))
+                .withDefault(nullptr);
+            if (device == nullptr) {
+                ALOGE("Failed to open hardware camera %s", cameraId.c_str());
+                success = false;
+                break;
+            } else {
+                hwCamera = new HalCamera(device, id, streamCfg);
+                if (hwCamera == nullptr) {
+                    ALOGE("Failed to allocate camera wrapper object");
+                    mHwEnumerator->closeCamera(device);
+                    success = false;
+                    break;
                 }
             }
-        );
 
-        if (match) {
-            hwCamera = cam;
-            break;
-        }
-    }
-
-    // Try to open a hardware camera if it has not opened yet.
-    if (hwCamera == nullptr) {
-        sp<IEvsCamera_1_1> device =
-            IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera_1_1(cameraId, streamCfg))
-            .withDefault(nullptr);
-        if (device == nullptr) {
-            ALOGE("Failed to open hardware camera %s", cameraId.c_str());
+            // Add the hardware camera to our list, which will keep it alive via ref count
+            mActiveCameras.try_emplace(id, hwCamera);
+            sourceCameras.push_back(hwCamera);
         } else {
-            hwCamera = new HalCamera(device);
-            if (hwCamera == nullptr) {
-                ALOGE("Failed to allocate camera wrapper object");
-                mHwEnumerator->closeCamera(device);
+            if (it->second->getStreamConfig().id != streamCfg.id) {
+                ALOGW("Requested camera is already active in different configuration.");
+            } else {
+                sourceCameras.push_back(it->second);
             }
         }
+    }
+
+    if (sourceCameras.size() < 1) {
+        ALOGE("Failed to open any physical camera device");
+        return nullptr;
+    }
+
+    // TODO(b/147170360): Implement a logic to handle a failure.
+    // 3. Create a proxy camera object
+    sp<VirtualCamera> clientCamera = new VirtualCamera(sourceCameras);
+    if (clientCamera == nullptr) {
+        // TODO: Any resource needs to be cleaned up explicitly?
+        ALOGE("Failed to create a client camera object");
     } else {
-        // Return null object if requested stream configuration is different
-        // from active stream's.
-        auto& activeStreamCfg = mStreamConfigs[cameraId];
-        if (streamCfg.id != activeStreamCfg.id) {
-            return nullptr;
+        if (physicalCameras.size() > 1) {
+            // VirtualCamera, which represents a logical device, caches its
+            // descriptor.
+            clientCamera->setDescriptor(&mCameraDevices[cameraId]);
         }
-    }
 
-    // Construct a virtual camera wrapper for this hardware camera
-    sp<VirtualCamera> clientCamera;
-    if (hwCamera != nullptr) {
-        clientCamera = hwCamera->makeVirtualCamera();
-    }
-
-    // Add the hardware camera to our list, which will keep it alive via ref count
-    if (clientCamera != nullptr) {
-        mCameras.emplace_back(hwCamera);
-
-        // Store active stream configuration
-        mStreamConfigs.insert_or_assign(cameraId, streamCfg);
-    } else {
-        ALOGE("Requested camera %s not found or not available", cameraId.c_str());
+        // 4. Owns created proxy camera object
+        for (auto&& hwCamera : sourceCameras) {
+            if (!hwCamera->ownVirtualCamera(clientCamera)) {
+                // TODO: Remove a referece to this camera from a virtual camera
+                // object.
+                ALOGE("%s failed to own a created proxy camera object.",
+                      hwCamera->getId().c_str());
+            }
+        }
     }
 
     // Send the virtual camera object back to the client by strong pointer which will keep it alive
@@ -246,8 +311,25 @@ Return<void> Enumerator::getCameraList_1_1(getCameraList_1_1_cb list_cb)  {
         return Void();
     }
 
-    // Simply pass through to hardware layer
-    return mHwEnumerator->getCameraList_1_1(list_cb);
+    hardware::hidl_vec<CameraDesc_1_1> hidlCameras;
+    mHwEnumerator->getCameraList_1_1(
+        [&hidlCameras](hardware::hidl_vec<CameraDesc_1_1> enumeratedCameras) {
+            hidlCameras.resize(enumeratedCameras.size());
+            unsigned count = 0;
+            for (auto&& camdesc : enumeratedCameras) {
+                hidlCameras[count++] = camdesc;
+            }
+        }
+    );
+
+    // Update the cached device list
+    mCameraDevices.clear();
+    for (auto&& desc : hidlCameras) {
+        mCameraDevices.insert_or_assign(desc.v1.cameraId, desc);
+    }
+
+    list_cb(hidlCameras);
+    return Void();
 }
 
 

@@ -25,8 +25,10 @@
 
 #include <thread>
 #include <deque>
+#include <unordered_map>
 
 
+using namespace std;
 using namespace ::android::hardware::automotive::evs::V1_1;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
@@ -39,6 +41,7 @@ using IEvsCamera_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsCamera;
 using IEvsCamera_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsCamera;
 using IEvsCameraStream_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsCameraStream;
 using IEvsCameraStream_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsCameraStream;
+using ::android::hardware::automotive::evs::V1_1::CameraDesc;
 
 namespace android {
 namespace automotive {
@@ -55,14 +58,15 @@ class HalCamera;        // From HalCamera.h
 // IEvsCameraStream object.
 class VirtualCamera : public IEvsCamera_1_1 {
 public:
-    explicit          VirtualCamera(sp<HalCamera> halCamera);
+    explicit          VirtualCamera(const std::vector<sp<HalCamera>>& halCameras);
     virtual           ~VirtualCamera();
-    void              shutdown();
 
-    sp<HalCamera>     getHalCamera()      { return mHalCamera; };
     unsigned          getAllowedBuffers() { return mFramesAllowed; };
     bool              isStreaming()       { return mStreamState == RUNNING; }
     bool              getVersion() const  { return (int)(mStream_1_1 != nullptr); }
+    vector<sp<HalCamera>>
+                      getHalCameras();
+    void              setDescriptor(CameraDesc* desc) { mDesc = desc; }
 
     // Proxy to receive frames and forward them to the client's stream
     bool              notify(const EvsEventDesc& event);
@@ -96,7 +100,12 @@ public:
 
 
 private:
-    sp<HalCamera>               mHalCamera;     // The low level camera interface that backs this proxy
+    void shutdown();
+
+    // The low level camera interface that backs this proxy
+    unordered_map<string,
+                 wp<HalCamera>> mHalCamera;
+
     sp<IEvsCameraStream_1_0>    mStream;
     sp<IEvsCameraStream_1_1>    mStream_1_1;
 
@@ -107,8 +116,10 @@ private:
         STOPPING,
     }                           mStreamState;
 
-    std::deque<BufferDesc_1_1>  mFramesHeld;
-    std::thread                 mCaptureThread;
+    unordered_map<string,
+         deque<BufferDesc_1_1>> mFramesHeld;
+    thread                      mCaptureThread;
+    CameraDesc*                 mDesc;
 };
 
 } // namespace implementation
