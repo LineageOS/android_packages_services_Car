@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.car.annotation;
 
-import java.lang.annotation.ElementType;
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to represent future feature which is not ready for the current platform release.
- * Any API marked with this is for future development and should not be used for product.
+ * This is for optional features. Features marked with this should be first checked if it is
+ * supported using {@link android.car.Car#isFeatureSupported(featureName)}.
  *
  * @hide
  */
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR,
-        ElementType.LOCAL_VARIABLE})
-@Retention(RetentionPolicy.CLASS)
-public @interface FutureFeature {
-    Class type() default Object.class;
+@Retention(SOURCE)
+@Target({ANNOTATION_TYPE, FIELD})
+public @interface OptionalFeature {
 }

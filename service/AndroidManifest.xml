@@ -503,6 +503,15 @@
         android:label="@string/car_permission_label_car_test_service"
         android:description="@string/car_permission_desc_car_test_service" />
 
+    <!-- Allows system app to enable / disable / query features in the system.
+     <p>Protection level: signature|privileged
+    -->
+    <permission
+        android:name="android.car.permission.CONTROL_CAR_FEATURES"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_control_car_features"
+        android:description="@string/car_permission_desc_control_car_features" />
+
     <!-- Allows an application to read vendor properties related with windows.
          <p>Protection level: signature|privileged
     -->

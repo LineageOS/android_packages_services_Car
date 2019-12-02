@@ -22,6 +22,7 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.car.Car;
+import android.car.CarFeatures;
 import android.car.ICar;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.userlib.CarUserManagerHelper;
@@ -51,7 +52,6 @@ import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.VehicleHal;
-import com.android.car.internal.FeatureConfiguration;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.stats.CarStatsService;
 import com.android.car.systeminterface.SystemInterface;
@@ -79,6 +79,8 @@ public class ICarImpl extends ICar.Stub {
 
     private final Context mContext;
     private final VehicleHal mHal;
+
+    private final CarFeatureController mFeatureController;
 
     private final SystemInterface mSystemInterface;
 
@@ -115,6 +117,7 @@ public class ICarImpl extends ICar.Stub {
     private final VmsPublisherService mVmsPublisherService;
     private final CarBugreportManagerService mCarBugreportManagerService;
     private final CarStatsService mCarStatsService;
+    private final CarExperimentalFeatureServiceController mCarExperimentalFeatureServiceController;
 
     private final CarServiceBase[] mAllServices;
 
@@ -137,12 +140,20 @@ public class ICarImpl extends ICar.Stub {
         mContext = serviceContext;
         mSystemInterface = systemInterface;
         mHal = new VehicleHal(serviceContext, vehicle);
+        Resources res = mContext.getResources();
+        String[] defaultEnabledFeatures = res.getStringArray(
+                R.array.config_allowed_optional_car_features);
+        // Do this before any other service components to allow feature check. It should work
+        // even without init.
+        // TODO (b/144504820) Add vhal plumbing
+        mFeatureController = new CarFeatureController(serviceContext, defaultEnabledFeatures,
+                /* disabledFeaturesFromVhal= */ new String[0], mSystemInterface.getSystemCarDir());
+        CarLocalServices.addService(CarFeatureController.class, mFeatureController);
         mVehicleInterfaceName = vehicleInterfaceName;
         mUserManagerHelper = new CarUserManagerHelper(serviceContext);
         UserManager userManager =
                 (UserManager) serviceContext.getSystemService(Context.USER_SERVICE);
-        final Resources res = mContext.getResources();
-        final int maxRunningUsers = res.getInteger(
+        int maxRunningUsers = res.getInteger(
                 com.android.internal.R.integer.config_multiuserMaxRunningUsers);
         mCarUserService = new CarUserService(serviceContext, mUserManagerHelper, userManager,
                 ActivityManager.getService(), maxRunningUsers);
@@ -150,7 +161,11 @@ public class ICarImpl extends ICar.Stub {
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
                 systemInterface, mUserManagerHelper);
-        mCarUserNoticeService = new CarUserNoticeService(serviceContext);
+        if (mFeatureController.isFeatureEnabled(CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE)) {
+            mCarUserNoticeService = new CarUserNoticeService(serviceContext);
+        } else {
+            mCarUserNoticeService = null;
+        }
         mCarPropertyService = new CarPropertyService(serviceContext, mHal.getPropertyHal());
         mCarDrivingStateService = new CarDrivingStateService(serviceContext, mCarPropertyService);
         mCarUXRestrictionsService = new CarUxRestrictionsManagerService(serviceContext,
@@ -183,14 +198,24 @@ public class ICarImpl extends ICar.Stub {
         mVmsPublisherService = new VmsPublisherService(
                 serviceContext, mCarStatsService, mVmsBrokerService, mVmsClientManager);
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
-        mCarStorageMonitoringService = new CarStorageMonitoringService(serviceContext,
-                systemInterface);
+        if (mFeatureController.isFeatureEnabled(Car.STORAGE_MONITORING_SERVICE)) {
+            mCarStorageMonitoringService = new CarStorageMonitoringService(serviceContext,
+                    systemInterface);
+        } else {
+            mCarStorageMonitoringService = null;
+        }
         mCarConfigurationService =
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
         mCarLocationService = new CarLocationService(serviceContext);
         mCarTrustedDeviceService = new CarTrustedDeviceService(serviceContext);
         mCarMediaService = new CarMediaService(serviceContext);
         mCarBugreportManagerService = new CarBugreportManagerService(serviceContext);
+        if (!Build.IS_USER) {
+            mCarExperimentalFeatureServiceController = new CarExperimentalFeatureServiceController(
+                    serviceContext);
+        } else {
+            mCarExperimentalFeatureServiceController = null;
+        }
 
         CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
         CarLocalServices.addService(CarPropertyService.class, mCarPropertyService);
@@ -203,6 +228,7 @@ public class ICarImpl extends ICar.Stub {
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
+        allServices.add(mFeatureController);
         allServices.add(mCarUserService);
         allServices.add(mSystemActivityMonitoringService);
         allServices.add(mCarPowerManagementService);
@@ -213,7 +239,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarPackageManagerService);
         allServices.add(mCarInputService);
         allServices.add(mGarageModeService);
-        allServices.add(mCarUserNoticeService);
+        addServiceIfNonNull(allServices, mCarUserNoticeService);
         allServices.add(mAppFocusService);
         allServices.add(mCarAudioService);
         allServices.add(mCarNightService);
@@ -224,7 +250,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarBluetoothService);
         allServices.add(mCarProjectionService);
         allServices.add(mCarDiagnosticService);
-        allServices.add(mCarStorageMonitoringService);
+        addServiceIfNonNull(allServices, mCarStorageMonitoringService);
         allServices.add(mCarConfigurationService);
         allServices.add(mVmsClientManager);
         allServices.add(mVmsSubscriberService);
@@ -233,7 +259,15 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarMediaService);
         allServices.add(mCarLocationService);
         allServices.add(mCarBugreportManagerService);
+        // Always put mCarExperimentalFeatureServiceController in last.
+        addServiceIfNonNull(allServices, mCarExperimentalFeatureServiceController);
         mAllServices = allServices.toArray(new CarServiceBase[allServices.size()]);
+    }
+
+    private void addServiceIfNonNull(List<CarServiceBase> services, CarServiceBase service) {
+        if (service != null) {
+            services.add(service);
+        }
     }
 
     @MainThread
@@ -288,6 +322,49 @@ public class ICarImpl extends ICar.Stub {
         mCarUserService.onSwitchUser(userId);
     }
 
+    @Override
+    public boolean isFeatureEnabled(String featureName) {
+        return mFeatureController.isFeatureEnabled(featureName);
+    }
+
+    @Override
+    public int enableFeature(String featureName) {
+        // permission check inside the controller
+        return mFeatureController.enableFeature(featureName);
+    }
+
+    @Override
+    public int disableFeature(String featureName) {
+        // permission check inside the controller
+        return mFeatureController.disableFeature(featureName);
+    }
+
+    @Override
+    public List<String> getAllEnabledFeatures() {
+        // permission check inside the controller
+        return mFeatureController.getAllEnabledFeatures();
+    }
+
+    @Override
+    public List<String> getAllPendingDisabledFeatures() {
+        // permission check inside the controller
+        return mFeatureController.getAllPendingDisabledFeatures();
+    }
+
+    @Override
+    public List<String> getAllPendingEnabledFeatures() {
+        // permission check inside the controller
+        return mFeatureController.getAllPendingEnabledFeatures();
+    }
+
+    @Override
+    public String getCarManagerClassForFeature(String featureName) {
+        if (mCarExperimentalFeatureServiceController == null) {
+            return null;
+        }
+        return mCarExperimentalFeatureServiceController.getCarManagerClassForFeature(featureName);
+    }
+
     static void assertCallingFromSystemProcess() {
         int uid = Binder.getCallingUid();
         if (uid != Process.SYSTEM_UID) {
@@ -310,6 +387,10 @@ public class ICarImpl extends ICar.Stub {
 
     @Override
     public IBinder getCarService(String serviceName) {
+        if (!mFeatureController.isFeatureEnabled(serviceName)) {
+            Log.w(CarLog.TAG_SERVICE, "getCarService for disabled service:" + serviceName);
+            return null;
+        }
         switch (serviceName) {
             case Car.AUDIO_SERVICE:
                 return mCarAudioService;
@@ -376,8 +457,15 @@ public class ICarImpl extends ICar.Stub {
             case Car.CAR_USER_SERVICE:
                 return mCarUserService;
             default:
-                Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:" + serviceName);
-                return null;
+                IBinder service = null;
+                if (mCarExperimentalFeatureServiceController != null) {
+                    service = mCarExperimentalFeatureServiceController.getCarService(serviceName);
+                }
+                if (service == null) {
+                    Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:"
+                            + serviceName);
+                }
+                return service;
         }
     }
 
@@ -494,7 +582,6 @@ public class ICarImpl extends ICar.Stub {
 
         if (args == null || args.length == 0 || (args.length > 0 && "-a".equals(args[0]))) {
             writer.println("*Dump car service*");
-            writer.println("*FutureConfig, DEFAULT:" + FeatureConfiguration.DEFAULT);
             writer.println("*Dump all services*");
 
             dumpAllServices(writer);
@@ -618,6 +705,8 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_SET_UID_TO_ZONE = "set-zoneid-for-uid";
         private static final String COMMAND_START_FIXED_ACTIVITY_MODE = "start-fixed-activity-mode";
         private static final String COMMAND_STOP_FIXED_ACTIVITY_MODE = "stop-fixed-activity-mode";
+        private static final String COMMAND_ENABLE_FEATURE = "enable-feature";
+        private static final String COMMAND_DISABLE_FEATURE = "disable-feature";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -697,6 +786,12 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\tstop-fixed-mode displayId");
             pw.println("\t  Stop fixed Activity mode for the given display. "
                     + "The Activity will not be restarted upon crash.");
+            pw.println("\tenable-feature featureName");
+            pw.println("\t  Enable the requested feature. Change will happen after reboot.");
+            pw.println("\t  This requires root/su.");
+            pw.println("\tdisable-feature featureName");
+            pw.println("\t  Disable the requested feature. Change will happen after reboot");
+            pw.println("\t  This requires root/su.");
         }
 
         private int dumpInvalidArguments(PrintWriter pw) {
@@ -840,6 +935,18 @@ public class ICarImpl extends ICar.Stub {
                 case COMMAND_STOP_FIXED_ACTIVITY_MODE:
                     handleStopFixedMode(args, writer);
                     break;
+                case COMMAND_ENABLE_FEATURE:
+                    if (args.length != 2) {
+                        return dumpInvalidArguments(writer);
+                    }
+                    handleEnableDisableFeature(args, writer, /* enable= */ true);
+                    break;
+                case COMMAND_DISABLE_FEATURE:
+                    if (args.length != 2) {
+                        return dumpInvalidArguments(writer);
+                    }
+                    handleEnableDisableFeature(args, writer, /* enable= */ false);
+                    break;
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
                     dumpHelp(writer);
@@ -890,6 +997,48 @@ public class ICarImpl extends ICar.Stub {
                 return;
             }
             mFixedActivityService.stopFixedActivityMode(displayId);
+        }
+
+        private void handleEnableDisableFeature(String[] args, PrintWriter writer, boolean enable) {
+            if (Binder.getCallingUid() != Process.ROOT_UID) {
+                writer.println("Only allowed to root/su");
+                return;
+            }
+            String featureName = args[1];
+            long id = Binder.clearCallingIdentity();
+            // no permission check here
+            int r;
+            if (enable) {
+                r = mFeatureController.enableFeature(featureName);
+            } else {
+                r = mFeatureController.disableFeature(featureName);
+            }
+            switch (r) {
+                case Car.FEATURE_REQUEST_SUCCESS:
+                    if (enable) {
+                        writer.println("Enabled feature:" + featureName);
+                    } else {
+                        writer.println("Disabled feature:" + featureName);
+                    }
+                    break;
+                case Car.FEATURE_REQUEST_ALREADY_IN_THE_STATE:
+                    if (enable) {
+                        writer.println("Already enabled:" + featureName);
+                    } else {
+                        writer.println("Already disabled:" + featureName);
+                    }
+                    break;
+                case Car.FEATURE_REQUEST_MANDATORY:
+                    writer.println("Cannot change mandatory feature:" + featureName);
+                    break;
+                case Car.FEATURE_REQUEST_NOT_EXISTING:
+                    writer.println("Non-existing feature:" + featureName);
+                    break;
+                default:
+                    writer.println("Unknown error:" + r);
+                    break;
+            }
+            Binder.restoreCallingIdentity(id);
         }
 
         private void forceDayNightMode(String arg, PrintWriter writer) {

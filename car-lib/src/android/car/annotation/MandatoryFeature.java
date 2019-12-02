@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.internal;
+
+package android.car.annotation;
+
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
- * Class to hold static boolean flag for enabling / disabling features.
+ * This is for mandatory features. Features marked with this will be always available in all car
+ * products.
  *
  * @hide
  */
-public class FeatureConfiguration {
-    /** Enable future feature by default. */
-    public static final boolean DEFAULT = true;
-    /** product configuration in CarInfoManager */
-    public static final boolean ENABLE_PRODUCT_CONFIGURATION_INFO = DEFAULT;
-    public static final boolean ENABLE_VEHICLE_MAP_SERVICE = DEFAULT;
+@Retention(SOURCE)
+@Target({ANNOTATION_TYPE, FIELD})
+public @interface MandatoryFeature {
 }
