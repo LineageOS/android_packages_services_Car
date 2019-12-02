@@ -2661,8 +2661,8 @@
     <string name="data_usage_menu_split_4g" msgid="2264683155484246409">"4G-gebruik apart weergeven"</string>
     <string name="data_usage_menu_show_wifi" msgid="8444311679299008486">"Wifi weergeven"</string>
     <string name="data_usage_menu_hide_wifi" msgid="1808008314306824090">"Wifi verbergen"</string>
-    <string name="data_usage_menu_show_ethernet" msgid="2130574690318410238">"Ethernet-gebruik weergeven"</string>
-    <string name="data_usage_menu_hide_ethernet" msgid="1191233197312414533">"Ethernet-gebruik verbergen"</string>
+    <string name="data_usage_menu_show_ethernet" msgid="2130574690318410238">"Ethernetgebruik weergeven"</string>
+    <string name="data_usage_menu_hide_ethernet" msgid="1191233197312414533">"Ethernetgebruik verbergen"</string>
     <string name="data_usage_menu_metered" msgid="3087525150259956831">"Netwerkbeperkingen"</string>
     <string name="data_usage_menu_auto_sync" msgid="3350154877737572146">"Gegevens automatisch synchroniseren"</string>
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"Simkaarten"</string>
@@ -3934,12 +3934,12 @@
     <string name="cellular_data_usage" msgid="1236562234207782386">"Gebruik van mobiele data"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Datagebruik van app"</string>
     <string name="wifi_data_usage" msgid="275569900562265895">"Wifi-datagebruik"</string>
-    <string name="ethernet_data_usage" msgid="747614925362556718">"Ethernet-datagebruik"</string>
+    <string name="ethernet_data_usage" msgid="747614925362556718">"Ethernetdatagebruik"</string>
     <string name="wifi" msgid="1586738489862966138">"Wifi"</string>
     <string name="ethernet" msgid="2365753635113154667">"Ethernet"</string>
     <string name="cell_data_template" msgid="5473177306229738078">"<xliff:g id="AMOUNT">^1</xliff:g> mobiele data"</string>
     <string name="wifi_data_template" msgid="3146090439147042068">"<xliff:g id="AMOUNT">^1</xliff:g> wifi-data"</string>
-    <string name="ethernet_data_template" msgid="6414118030827090119">"<xliff:g id="AMOUNT">^1</xliff:g> Ethernet-data"</string>
+    <string name="ethernet_data_template" msgid="6414118030827090119">"<xliff:g id="AMOUNT">^1</xliff:g> ethernetdata"</string>
     <string name="billing_cycle" msgid="5740717948341713190">"Datawaarschuwing en -limiet"</string>
     <string name="app_usage_cycle" msgid="213483325132959663">"Gebruikscyclus app-data"</string>
     <string name="cell_data_warning" msgid="8902740337286652689">"<xliff:g id="ID_1">^1</xliff:g> datawaarschuwing"</string>

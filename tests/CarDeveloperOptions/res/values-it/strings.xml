@@ -3823,7 +3823,7 @@
     <string name="write_settings_description" msgid="2536706293042882500">"Questa autorizzazione consente a un\'app di modificare le impostazioni di sistema."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"Sì"</string>
     <string name="write_settings_off" msgid="5708257434958406202">"No"</string>
-    <string name="external_source_switch_title" msgid="5947220058496373178">"Consenti da questa fonte"</string>
+    <string name="external_source_switch_title" msgid="5947220058496373178">"Consenti da questa origine"</string>
     <string name="camera_gesture_title" msgid="899403310746415135">"Doppia rotazione per fotocamera"</string>
     <string name="camera_gesture_desc" msgid="7751841175916789527">"Apri l\'app Fotocamera ruotando due volte il polso"</string>
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"Premi due volte tasto di acc. per fotoc."</string>
