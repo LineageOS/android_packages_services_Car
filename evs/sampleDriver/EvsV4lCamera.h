@@ -30,6 +30,7 @@
 #include "VideoCapture.h"
 #include "ConfigManager.h"
 
+using ::android::hardware::hidl_string;
 using ::android::hardware::camera::device::V3_2::Stream;
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using ::android::hardware::automotive::evs::V1_0::CameraDesc;
@@ -64,6 +65,8 @@ public:
 
     // Methods from ::android::hardware::automotive::evs::V1_1::IEvsCamera follow.
     Return<void>      getCameraInfo_1_1(getCameraInfo_1_1_cb _hidl_cb)  override;
+    Return<void>      getPhysicalCameraInfo(const hidl_string& deviceId,
+                                            getPhysicalCameraInfo_cb _hidl_cb)  override;
     Return<EvsResult> pauseVideoStream() override;
     Return<EvsResult> resumeVideoStream() override;
     Return<EvsResult> doneWithFrame_1_1(const hidl_vec<BufferDesc_1_1>& buffer) override;

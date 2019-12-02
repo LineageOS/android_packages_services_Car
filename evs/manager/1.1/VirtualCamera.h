@@ -33,6 +33,7 @@ using namespace ::android::hardware::automotive::evs::V1_1;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
 using ::android::hardware::hidl_handle;
+using ::android::hardware::hidl_string;
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
 using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
@@ -83,6 +84,8 @@ public:
 
     // Methods from ::android::hardware::automotive::evs::V1_1::IEvsCamera follow.
     Return<void>      getCameraInfo_1_1(getCameraInfo_1_1_cb _hidl_cb)  override;
+    Return<void>      getPhysicalCameraInfo(const hidl_string& deviceId,
+                                            getPhysicalCameraInfo_cb _hidl_cb)  override;
     Return<EvsResult> doneWithFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1>& buffer) override;
     Return<EvsResult> pauseVideoStream() override { return EvsResult::UNDERLYING_SERVICE_ERROR; }
     Return<EvsResult> resumeVideoStream() override { return EvsResult::UNDERLYING_SERVICE_ERROR; }

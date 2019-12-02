@@ -525,6 +525,34 @@ Return<void> VirtualCamera::getCameraInfo_1_1(getCameraInfo_1_1_cb info_cb) {
 }
 
 
+Return<void> VirtualCamera::getPhysicalCameraInfo(const hidl_string& deviceId,
+                                                  getPhysicalCameraInfo_cb info_cb) {
+    auto device = mHalCamera.find(deviceId);
+    if (device != mHalCamera.end()) {
+        // Straight pass through to hardware layer
+        auto pHwCamera = device->second.promote();
+        if (pHwCamera != nullptr) {
+            auto hwCamera_1_1 =
+                IEvsCamera_1_1::castFrom(pHwCamera->getHwCamera()).withDefault(nullptr);
+            if (hwCamera_1_1 != nullptr) {
+                return hwCamera_1_1->getCameraInfo_1_1(info_cb);
+            } else {
+                ALOGW("Failed to promote HW camera to v1.1.");
+            }
+        } else {
+            ALOGW("Camera device %s is not alive.", deviceId.c_str());
+        }
+    } else {
+        ALOGW("Requested device %s does not back this device!", deviceId.c_str());
+    }
+
+    // Return an empty list
+    CameraDesc nullCamera = {};
+    info_cb(nullCamera);
+    return Void();
+}
+
+
 Return<EvsResult> VirtualCamera::doneWithFrame_1_1(
     const hardware::hidl_vec<BufferDesc_1_1>& buffers) {
 

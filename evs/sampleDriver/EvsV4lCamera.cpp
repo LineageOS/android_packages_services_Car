@@ -294,6 +294,17 @@ Return<void> EvsV4lCamera::getCameraInfo_1_1(getCameraInfo_1_1_cb _hidl_cb) {
 }
 
 
+Return<void> EvsV4lCamera::getPhysicalCameraInfo(const hidl_string& id,
+                                                 getPhysicalCameraInfo_cb _hidl_cb) {
+    ALOGD("%s", __FUNCTION__);
+
+    // This method works exactly same as getCameraInfo_1_1() in EVS HW module.
+    (void)id;
+    _hidl_cb(mDescription);
+    return Void();
+}
+
+
 Return<EvsResult> EvsV4lCamera::doneWithFrame_1_1(const hidl_vec<BufferDesc_1_1>& buffers)  {
     ALOGD(__FUNCTION__);
 
