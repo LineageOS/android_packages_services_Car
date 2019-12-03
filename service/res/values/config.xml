@@ -241,4 +241,8 @@
     <integer name="config_mediaSourceChangedAutoplay">2</integer>
     <!-- Configuration to enable media center to autoplay on boot -->
     <integer name="config_mediaBootAutoplay">2</integer>
+
+    <!-- Disable switching the user while the system is resuming from Suspend to RAM.
+         This default says to prevent changing the user during Resume. -->
+    <bool name="config_disableUserSwitchDuringResume" translatable="false">true</bool>
 </resources>
