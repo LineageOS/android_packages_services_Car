@@ -105,7 +105,7 @@ public class BluetoothProfileDeviceManagerTest {
     private final String mSettingsKey = KEY_BLUETOOTH_HFP_CLIENT_DEVICES;
     private final String mConnectionAction = BluetoothHeadsetClient.ACTION_CONNECTION_STATE_CHANGED;
     private ParcelUuid[] mUuids = new ParcelUuid[] {
-            BluetoothUuid.Handsfree_AG,
+            BluetoothUuid.HFP_AG,
             BluetoothUuid.HSP_AG};
     private ParcelUuid[] mBadUuids = new ParcelUuid[] {
             BluetoothUuid.PANU};
