@@ -284,4 +284,23 @@
     <integer name="config_mediaSourceChangedAutoplay">2</integer>
     <!-- Configuration to enable media center to autoplay on boot -->
     <integer name="config_mediaBootAutoplay">2</integer>
+
+    <!--
+        Specifies optional features that can be enabled by this image. Note that vhal can disable
+        them depending on product variation.
+        Feature name can be either service name defined in Car.*_SERVICE for Car*Manager or any
+        optional feature defined under @OptionalFeature annotation.
+        Note that '/' is used to have subfeature under main feature like "MAIN_FEATURE/SUB_FEATURE".
+
+        Some examples are:
+        <item>storage_monitoring</item>
+        <item>com.android.car.user.CarUserNoticeService</item>
+        <item>com.example.Feature/SubFeature</item>
+
+        The default list defined below will enable all optional features defined.
+    -->
+    <string-array translatable="false" name="config_allowed_optional_car_features">
+        <item>com.android.car.user.CarUserNoticeService</item>
+        <item>storage_monitoring</item>
+    </string-array>
 </resources>

@@ -2593,7 +2593,7 @@
     <string name="sync_failed" msgid="3142663443336915051">"Error de sincronización"</string>
     <string name="sync_active" msgid="1112604707180806364">"Sincronización activa"</string>
     <string name="account_sync_settings_title" msgid="3344538161552327748">"Sincronización"</string>
-    <string name="sync_is_failing" msgid="8284618104132302644">"En este momento hay incidencias con la sincronización. Se restablecerá en breve."</string>
+    <string name="sync_is_failing" msgid="8284618104132302644">"En este momento hay problemas con la sincronización. Se restablecerá en breve."</string>
     <string name="add_account_label" msgid="4461298847239641874">"Añadir cuenta"</string>
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"El perfil de trabajo aún no está disponible"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"Perfil de trabajo"</string>
@@ -4050,7 +4050,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"recorte de la pantalla, corte"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"Opción predeterminada del dispositivo"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"No se ha podido crear la superposición"</string>
-    <string name="special_access" msgid="1453926335914696206">"Acceso especial de apps"</string>
+    <string name="special_access" msgid="1453926335914696206">"Acceso especial de aplicaciones"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> aplicaciones pueden utilizar datos sin restricción</item>
       <item quantity="one">1 aplicación puede utilizar datos sin restricción</item>

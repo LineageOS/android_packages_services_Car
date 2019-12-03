@@ -36,6 +36,9 @@ import android.util.Log;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Collections;
+import java.util.List;
+
 /*
     The idea behind this class is that we can fake-out interfaces between Car*Manager and
     Car Service.  Effectively creating a fake version of Car Service that can run under Robolectric
@@ -216,6 +219,41 @@ public class FakeCar {
         @Override
         public int getCarConnectionType() throws RemoteException {
             return Car.CONNECTION_TYPE_EMBEDDED;
+        }
+
+        @Override
+        public boolean isFeatureEnabled(String featureName) {
+            return false;
+        }
+
+        @Override
+        public int enableFeature(String featureName) {
+            return Car.FEATURE_REQUEST_SUCCESS;
+        }
+
+        @Override
+        public int disableFeature(String featureName) {
+            return Car.FEATURE_REQUEST_SUCCESS;
+        }
+
+        @Override
+        public List<String> getAllEnabledFeatures() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> getAllPendingDisabledFeatures() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> getAllPendingEnabledFeatures() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public String getCarManagerClassForFeature(String featureName) {
+            return null;
         }
     }
 

@@ -96,6 +96,9 @@
     <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_SEAT" />
     <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_INFO" />
     <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_INFO" />
+
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_FEATURES"/>
+
     <application android:label="@string/app_title"
         android:icon="@drawable/ic_launcher">
         <uses-library android:name="android.test.runner"/>

@@ -69,7 +69,6 @@ java_library {
     name: "android.car",
     srcs: [
         "src/**/*.java",
-        "src_feature_future/**/*.java",
         "src/**/I*.aidl",
     ],
     aidl: {
@@ -93,7 +92,6 @@ stubs_defaults {
     name: "android.car-docs-default",
     srcs: [
         "src/**/*.java",
-        "src_feature_future/**/*.java",
     ],
     libs: [
         "android.car",

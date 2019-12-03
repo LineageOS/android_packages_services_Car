@@ -945,7 +945,7 @@
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Yhdistä <xliff:g id="SSID">%1$s</xliff:g> skannaamalla tämä QR-koodi"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"QR-koodin luku epäonnistui. Keskitä koodi ja yritä uudelleen."</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"Yritä uudelleen. Jos ongelma ei ratkea, ota yhteyttä laitteen valmistajaan"</string>
-    <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"Jokin meni pieleen"</string>
+    <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"Jotain meni pieleen"</string>
     <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"Varmista, että laite on liitetty virtalähteeseen, ladattu ja päällä"</string>
     <string name="wifi_dpp_failure_generic" msgid="7840142544736640189">"Varmista, että laite on liitetty virtalähteeseen, ladattu ja päällä. Jos ongelma ei ratkea, ota yhteyttä laitteen valmistajaan"</string>
     <string name="wifi_dpp_failure_not_supported" msgid="111779621766171626">"Tämä laite ei tue <xliff:g id="SSID">%1$s</xliff:g>:n lisäämistä"</string>

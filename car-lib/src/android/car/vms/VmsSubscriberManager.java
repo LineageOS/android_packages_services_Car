@@ -21,6 +21,7 @@ import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.RequiredFeature;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -39,6 +40,7 @@ import java.util.concurrent.Executor;
  *
  * @hide
  */
+@RequiredFeature(Car.VMS_SUBSCRIBER_SERVICE)
 @SystemApi
 public final class VmsSubscriberManager extends CarManagerBase {
     private static final String TAG = "VmsSubscriberManager";

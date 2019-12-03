@@ -48,5 +48,15 @@ interface ICar {
 
     IBinder getCarService(in String serviceName) = 3;
     int getCarConnectionType() = 4;
-
+    boolean isFeatureEnabled(in String featureName) = 5;
+    int enableFeature(in String featureName) = 6;
+    int disableFeature(in String featureName) = 7;
+    List<String> getAllEnabledFeatures() = 8;
+    List<String> getAllPendingDisabledFeatures() = 9;
+    List<String> getAllPendingEnabledFeatures() = 10;
+    /**
+     * Get class name for experimental feature. Class should have constructor taking (Car, IBinder)
+     * and should inherit CarManagerBase.
+     */
+    String getCarManagerClassForFeature(in String featureName) = 11;
 }
