@@ -421,7 +421,7 @@ public class CarTrustAgentUnlockService {
     private void sendServerAuthToClient(byte[] resumeBytes) {
         // send to client
         mCarTrustAgentBleManager.sendMessage(resumeBytes,
-                OperationType.CLIENT_MESSAGE, /* isPayloadEncrypted= */false,
+                OperationType.ENCRYPTION_HANDSHAKE, /* isPayloadEncrypted= */ false,
                 mSendMessageCallback);
     }
 
