@@ -2991,7 +2991,7 @@
     <string name="enhanced_4g_lte_mode_title" msgid="1624079276378568594">"VoLTE"</string>
     <string name="enhanced_4g_lte_mode_title_advanced_calling" msgid="5155507161065290507">"Napredno pozivanje"</string>
     <string name="enhanced_4g_lte_mode_title_4g_calling" msgid="1262729135500839141">"Pozivanje putem 4G mreže"</string>
-    <string name="enhanced_4g_lte_mode_summary" msgid="4515503153340557170">"Koristi LTE usluge za poboljšanje glasovne i drugih komunikacija (preporučeno)"</string>
+    <string name="enhanced_4g_lte_mode_summary" msgid="4515503153340557170">"Koristite LTE usluge za poboljšanje glasovne i drugih komunikacija (preporučeno)"</string>
     <string name="enhanced_4g_lte_mode_summary_4g_calling" msgid="1006226172299077404">"Koristi usluge 4G mreže za poboljšanje glasovne i drugih komunikacija (preporučeno)"</string>
     <string name="preferred_network_type_title" msgid="1980819233332592332">"Tip preferirane mreže"</string>
     <string name="preferred_network_type_summary" msgid="8828375904939960006">"LTE (preporučeno)"</string>
@@ -4494,14 +4494,14 @@
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"Nije moguće izbrisati SIM"</string>
     <string name="mobile_network_erase_sim_error_dialog_body" msgid="5955463559366034787">"Nije moguće izbrisati ovaj SIM zbog greške.\n\nPonovo pokrenite uređaj i pokušajte ponovo."</string>
     <string name="preferred_network_mode_title" msgid="8324526359482124770">"Vrsta preferirane mreže"</string>
-    <string name="preferred_network_mode_summary" msgid="388957154320426335">"Promijeni način rada mreže"</string>
+    <string name="preferred_network_mode_summary" msgid="388957154320426335">"Promijenite način rada mreže"</string>
     <string name="preferred_network_mode_dialogtitle" msgid="5448698073828567428">"Vrsta preferirane mreže"</string>
     <string name="carrier_settings_euicc" msgid="7723199738771996732">"Operater"</string>
     <string name="carrier_settings_version" msgid="2657511289029828425">"Verzija postavki"</string>
     <string name="call_category" msgid="3418535202893644015">"Pozivanje"</string>
     <string name="video_calling_settings_title" msgid="8011841542502156112">"Operater video pozivanja"</string>
     <string name="cdma_system_select_title" msgid="5620679296177526467">"Odabir sistema"</string>
-    <string name="cdma_system_select_summary" msgid="6749131988334321244">"Promijeni način rada CDMA rominga"</string>
+    <string name="cdma_system_select_summary" msgid="6749131988334321244">"Promijenite način rada CDMA rominga"</string>
     <string name="cdma_system_select_dialogtitle" msgid="7489000866289285390">"Odabir sistema"</string>
     <string name="network_operator_category" msgid="9136988058829550510">"Mreža"</string>
     <string name="network_select_title" msgid="9176906726897071251">"Mreža"</string>
