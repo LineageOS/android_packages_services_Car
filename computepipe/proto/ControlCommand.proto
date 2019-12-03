@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+package android.automotive.computepipe.proto;
+
+message StartGraph {
+    // No member fields yet, as StartGraph() does not take any arguments.
+}
+
+message StopGraph {
+    // No member fields yet, as StopGraph() does not take any arguments.
+}
+
+message ControlCommand {
+  optional StartGraph start_graph = 1;
+  optional StopGraph stop_graph = 2;
+}

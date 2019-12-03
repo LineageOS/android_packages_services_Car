@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+package android.automotive.computepipe.proto;
+
+message InputOptions {
+  enum InputType {
+    DRIVER_VIEW_CAMERA = 0;
+    OCCUPANT_VIEW_CAMERA = 1;
+    EXTERNAL_CAMERA = 2;
+    SURROUND_VIEW_CAMERA = 3;
+    VIDEO_FILE = 4;
+  }
+
+  optional InputType type = 1;
+
+  enum FormatType {
+    RGB = 0;
+    NIR = 1;
+    NIR_DEPTH = 2;
+  }
+
+  optional FormatType format = 2;
+
+  optional int32 width = 3;
+
+  optional int32 height = 4;
+
+  optional int32 stride = 5;
+
+  /**
+   * camera identifier to disambiguate multiple instances
+   * of InputType. If only one of a certain type is present
+   * this should be 0. For VIDEO_FILE this should be 0.
+   */
+  optional int32 camId = 6;
+
+  optional int32 config_id = 7;
+}
+
