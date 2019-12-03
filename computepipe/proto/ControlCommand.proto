@@ -3,14 +3,24 @@ syntax = "proto2";
 package android.automotive.computepipe.proto;
 
 message StartGraph {
-    // No member fields yet, as StartGraph() does not take any arguments.
+  // No member fields yet, as StartGraph() does not take any arguments.
 }
 
 message StopGraph {
-    // No member fields yet, as StopGraph() does not take any arguments.
+  // No member fields yet, as StopGraph() does not take any arguments.
+}
+
+message ApplyConfigs {
+  // No member fields yet, as ApplyConfigs() does not take any arguments.
+}
+
+message DeathNotification {
+  // No member fields yet.
 }
 
 message ControlCommand {
   optional StartGraph start_graph = 1;
   optional StopGraph stop_graph = 2;
+  optional ApplyConfigs apply_configs = 3;
+  optional DeathNotification death_notification = 4;
 }

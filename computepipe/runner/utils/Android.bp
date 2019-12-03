@@ -12,41 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-cc_defaults {
-    name: "libcomputepipeprotos-defaults",
-
-    proto: {
-        export_proto_headers: true,
-        include_dirs: ["external/protobuf/src"],
-    },
+cc_library {
+    name: "libRunnerInterface",
+    vendor_available: true,
 
     cflags: [
         "-Wall",
         "-Werror",
+        "-Wextra",
         "-Wno-unused-parameter",
     ],
 
-    srcs: [
-        "*.proto",
+    static_libs: [
+        "libcomputepipeprotos",
     ],
-}
 
-cc_library {
-    name: "libcomputepipeprotos",
-    defaults: ["libcomputepipeprotos-defaults"],
-    host_supported: false,
-    vendor_available: true,
-    target: {
-        android: {
-            proto: {
-                type: "lite",
-            },
-            static_libs: [
-                "libprotobuf-cpp-lite",
-            ],
-            shared: {
-                enabled: false,
-            },
-        },
-    },
+    include_dirs: ["packages/services/Car/computepipe"],
+
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+        "libutils",
+        "android.automotive.computepipe.runner-ndk_platform",
+        "libprotobuf-cpp-lite",
+    ],
+
+    srcs: [
+        "RunnerInterface.cc",
+    ],
 }
