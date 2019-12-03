@@ -68,7 +68,7 @@
           The current implementations expects the following system packages/activities to be
           whitelisted. For general guidelines to design distraction optimized apps, please refer
           to Android Auto Driver Distraction Guidelines. -->
-    <string name="systemActivityWhitelist" translatable="false">com.android.systemui,com.google.android.permissioncontroller/com.android.packageinstaller.permission.ui.GrantPermissionsActivity,android/com.android.internal.app.ResolverActivity,com.android.mtp/com.android.mtp.ReceiverActivity</string>
+    <string name="systemActivityWhitelist" translatable="false">com.android.systemui,com.google.android.permissioncontroller/com.android.packageinstaller.permission.ui.GrantPermissionsActivity,com.android.permissioncontroller/com.android.packageinstaller.permission.ui.GrantPermissionsActivity,android/com.android.internal.app.ResolverActivity,com.android.mtp/com.android.mtp.ReceiverActivity</string>
     <!--  Comma separated list of activities that will be blocked during restricted state.
           Format of each entry is either to specify package name to whitelist the whole package
           or use format of "packagename/activity_classname" for tagging each activities.-->
@@ -78,6 +78,8 @@
     </string-array>
     <!-- Default home activity -->
     <string name="defaultHomeActivity" translatable="false"><!--com.your.package/com.your.package.Activity--></string>
+    <!-- The vendor-defined HAL property used to collect VMS client metrics. Disabled by default.-->
+    <integer name="vmsHalClientMetricsProperty">0</integer>
     <!--  The com.android.car.vms.VmsClientManager will bind to this list of clients running as system user -->
     <string-array translatable="false" name="vmsPublisherSystemClients">
     </string-array>
@@ -227,4 +229,11 @@
          There is no default bugreporting app.-->
     <string name="config_car_bugreport_application" translatable="false"></string>
 
+    <!-- Specifies notice UI that will be launched when user starts a car or do user
+         switching. It is recommended to use dialog with at least TYPE_APPLICATION_OVERLAY window
+         type to show the UI regardless of activity launches. Target package will be auto-granted
+         necessary permission for TYPE_APPLICATION_OVERLAY window type. The UI package should
+         resolve permission by itself to use any higher priority window type.
+         Setting this string to empty will disable the feature. -->
+    <string name="config_userNoticeUiService" translatable="false">com.google.android.car.kitchensink/.UserNoiticeDemoUiService</string>
 </resources>

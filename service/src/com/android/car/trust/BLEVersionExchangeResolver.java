@@ -59,7 +59,7 @@ class BLEVersionExchangeResolver {
                 .setMinSupportedMessagingVersion(MESSAGING_VERSION)
                 .setMaxSupportedMessagingVersion(MESSAGING_VERSION)
                 .setMinSupportedSecurityVersion(SECURITY_VERSION)
-                .setMinSupportedSecurityVersion(SECURITY_VERSION)
+                .setMaxSupportedSecurityVersion(SECURITY_VERSION)
                 .build();
     }
 

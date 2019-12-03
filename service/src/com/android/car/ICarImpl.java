@@ -45,6 +45,7 @@ import com.android.car.internal.FeatureConfiguration;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.trust.CarTrustedDeviceService;
+import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
@@ -92,6 +93,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarMediaService mCarMediaService;
     private final CarUserManagerHelper mUserManagerHelper;
     private final CarUserService mCarUserService;
+    private final CarUserNoticeService mCarUserNoticeService;
     private final VmsClientManager mVmsClientManager;
     private final VmsBrokerService mVmsBrokerService;
     private final VmsSubscriberService mVmsSubscriberService;
@@ -118,7 +120,7 @@ public class ICarImpl extends ICar.Stub {
             CanBusErrorNotifier errorNotifier, String vehicleInterfaceName) {
         mContext = serviceContext;
         mSystemInterface = systemInterface;
-        mHal = new VehicleHal(vehicle);
+        mHal = new VehicleHal(serviceContext, vehicle);
         mVehicleInterfaceName = vehicleInterfaceName;
         mUserManagerHelper = new CarUserManagerHelper(serviceContext);
         final Resources res = mContext.getResources();
@@ -129,6 +131,7 @@ public class ICarImpl extends ICar.Stub {
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
                 systemInterface, mUserManagerHelper);
+        mCarUserNoticeService = new CarUserNoticeService(serviceContext);
         mCarPropertyService = new CarPropertyService(serviceContext, mHal.getPropertyHal());
         mCarDrivingStateService = new CarDrivingStateService(serviceContext, mCarPropertyService);
         mCarUXRestrictionsService = new CarUxRestrictionsManagerService(serviceContext,
@@ -150,11 +153,12 @@ public class ICarImpl extends ICar.Stub {
                 mAppFocusService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(
                 serviceContext, mCarAudioService, this);
-        mVmsBrokerService = new VmsBrokerService(mContext.getPackageManager());
+        mVmsBrokerService = new VmsBrokerService();
         mVmsClientManager = new VmsClientManager(
-                serviceContext, mCarUserService, mUserManagerHelper, mHal.getVmsHal());
+                serviceContext, mVmsBrokerService, mCarUserService, mUserManagerHelper,
+                mHal.getVmsHal());
         mVmsSubscriberService = new VmsSubscriberService(
-                serviceContext, mVmsBrokerService, mHal.getVmsHal());
+                serviceContext, mVmsBrokerService, mVmsClientManager, mHal.getVmsHal());
         mVmsPublisherService = new VmsPublisherService(
                 serviceContext, mVmsBrokerService, mVmsClientManager);
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
@@ -185,6 +189,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarPackageManagerService);
         allServices.add(mCarInputService);
         allServices.add(mGarageModeService);
+        allServices.add(mCarUserNoticeService);
         allServices.add(mAppFocusService);
         allServices.add(mCarAudioService);
         allServices.add(mCarNightService);
@@ -472,6 +477,8 @@ public class ICarImpl extends ICar.Stub {
         } else if ("--metrics".equals(args[0])) {
             writer.println("*Dump car service metrics*");
             dumpAllServices(writer, true);
+        } else if ("--vms-hal".equals(args[0])) {
+            mHal.getVmsHal().dumpMetrics(fd);
         } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
             execShellCmd(args, writer);
         } else {

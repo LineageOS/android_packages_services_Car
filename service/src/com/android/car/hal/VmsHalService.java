@@ -31,9 +31,11 @@ import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsOperationRecorder;
 import android.car.vms.VmsSubscriptionState;
+import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerAndPublisherIdIntegerValuesIndex;
@@ -53,7 +55,11 @@ import android.util.Log;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.car.CarLog;
+import com.android.car.vms.VmsClientManager;
 
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,7 +68,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -72,7 +77,7 @@ import java.util.function.Supplier;
  * @see android.hardware.automotive.vehicle.V2_0
  */
 public class VmsHalService extends HalServiceBase {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "VmsHalService";
     private static final int HAL_PROPERTY_ID = VehicleProperty.VEHICLE_MAP_SERVICE;
     private static final int NUM_INTEGERS_IN_VMS_LAYER = 3;
@@ -81,15 +86,13 @@ public class VmsHalService extends HalServiceBase {
     private final VehicleHal mVehicleHal;
     private final int mCoreId;
     private final MessageQueue mMessageQueue;
+    private final int mClientMetricsProperty;
     private volatile boolean mIsSupported = false;
 
+    private VmsClientManager mClientManager;
     private IVmsPublisherService mPublisherService;
-    private Consumer<IBinder> mPublisherOnHalConnected;
-    private Runnable mPublisherOnHalDisconnected;
     private IBinder mPublisherToken;
-
     private IVmsSubscriberService mSubscriberService;
-    private Consumer<IVmsSubscriberClient> mSuscriberOnHalDisconnected;
 
     private int mSubscriptionStateSequence = -1;
     private int mAvailableLayersSequence = -1;
@@ -195,15 +198,33 @@ public class VmsHalService extends HalServiceBase {
     /**
      * Constructor used by {@link VehicleHal}
      */
-    VmsHalService(VehicleHal vehicleHal) {
-        this(vehicleHal, SystemClock::uptimeMillis);
+    VmsHalService(Context context, VehicleHal vehicleHal) {
+        this(context, vehicleHal, SystemClock::uptimeMillis);
     }
 
     @VisibleForTesting
-    VmsHalService(VehicleHal vehicleHal, Supplier<Long> getCoreId) {
+    VmsHalService(Context context, VehicleHal vehicleHal, Supplier<Long> getCoreId) {
         mVehicleHal = vehicleHal;
         mCoreId = (int) (getCoreId.get() % Integer.MAX_VALUE);
         mMessageQueue = new MessageQueue();
+        mClientMetricsProperty = getClientMetricsProperty(context);
+    }
+
+    private static int getClientMetricsProperty(Context context) {
+        int propId = context.getResources().getInteger(
+                com.android.car.R.integer.vmsHalClientMetricsProperty);
+        if (propId == 0) {
+            Log.i(TAG, "Metrics collection disabled");
+            return 0;
+        }
+        if ((propId & VehiclePropertyGroup.MASK) != VehiclePropertyGroup.VENDOR) {
+            Log.w(TAG, String.format("Metrics collection disabled, non-vendor property: 0x%x",
+                    propId));
+            return 0;
+        }
+
+        Log.i(TAG, String.format("Metrics collection property: 0x%x", propId));
+        return propId;
     }
 
     /**
@@ -215,21 +236,17 @@ public class VmsHalService extends HalServiceBase {
     }
 
     /**
-     * Gets the {@link IVmsPublisherClient} implementation for the HAL's publisher callback.
+     * Sets a reference to the {@link VmsClientManager} implementation for use by the HAL.
      */
-    public void setPublisherConnectionCallbacks(Consumer<IBinder> onHalConnected,
-            Runnable onHalDisconnected) {
-        mPublisherOnHalConnected = onHalConnected;
-        mPublisherOnHalDisconnected = onHalDisconnected;
+    public void setClientManager(VmsClientManager clientManager) {
+        mClientManager = clientManager;
     }
 
     /**
      * Sets a reference to the {@link IVmsSubscriberService} implementation for use by the HAL.
      */
-    public void setVmsSubscriberService(IVmsSubscriberService service,
-            Consumer<IVmsSubscriberClient> onHalDisconnected) {
+    public void setVmsSubscriberService(IVmsSubscriberService service) {
         mSubscriberService = service;
-        mSuscriberOnHalDisconnected = onHalDisconnected;
     }
 
     @Override
@@ -247,10 +264,10 @@ public class VmsHalService extends HalServiceBase {
     @Override
     public void init() {
         if (mIsSupported) {
-            if (DBG) Log.d(TAG, "Initializing VmsHalService VHAL property");
+            Log.i(TAG, "Initializing VmsHalService VHAL property");
             mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID);
         } else {
-            if (DBG) Log.d(TAG, "VmsHalService VHAL property not supported");
+            Log.i(TAG, "VmsHalService VHAL property not supported");
             return; // Do not continue initialization
         }
 
@@ -293,6 +310,37 @@ public class VmsHalService extends HalServiceBase {
         writer.println("VmsSubscriberService: "
                 + (mSubscriberService != null ? "registered" : "unregistered"));
         writer.println("mAvailableLayersSequence: " + mAvailableLayersSequence);
+    }
+
+    /**
+     * Dumps HAL client metrics obtained by reading the VMS HAL property.
+     *
+     * @param fd Dumpsys file descriptor to write client metrics to.
+     */
+    public void dumpMetrics(FileDescriptor fd) {
+        if (mClientMetricsProperty == 0) {
+            Log.w(TAG, "Metrics collection is disabled");
+            return;
+        }
+
+        VehiclePropValue vehicleProp = null;
+        try {
+            vehicleProp = mVehicleHal.get(mClientMetricsProperty);
+        } catch (PropertyTimeoutException e) {
+            Log.e(TAG, "Timeout while reading metrics from client");
+        }
+        if (vehicleProp == null) {
+            if (DBG) Log.d(TAG, "Metrics unavailable");
+            return;
+        }
+
+        FileOutputStream fout = new FileOutputStream(fd);
+        try {
+            fout.write(toByteArray(vehicleProp.value.bytes));
+            fout.flush();
+        } catch (IOException e) {
+            Log.e(TAG, "Error writing metrics to output stream");
+        }
     }
 
     /**
@@ -363,22 +411,13 @@ public class VmsHalService extends HalServiceBase {
     private void handleStartSessionEvent(List<Integer> message) {
         int coreId = message.get(VmsStartSessionMessageIntegerValuesIndex.SERVICE_ID);
         int clientId = message.get(VmsStartSessionMessageIntegerValuesIndex.CLIENT_ID);
-        if (DBG) {
-            Log.d(TAG,
-                    "Handling a session start event with coreId: " + coreId + " client: "
-                            + clientId);
-        }
+        Log.i(TAG, "Starting new session with coreId: " + coreId + " client: " + clientId);
 
         if (coreId != mCoreId) {
-            if (mPublisherOnHalDisconnected != null) {
-                mPublisherOnHalDisconnected.run();
+            if (mClientManager != null) {
+                mClientManager.onHalDisconnected();
             } else {
-                Log.w(TAG, "Publisher disconnect callback not registered");
-            }
-            if (mSuscriberOnHalDisconnected != null) {
-                mSuscriberOnHalDisconnected.accept(mSubscriberClient);
-            } else {
-                Log.w(TAG, "Subscriber disconnect callback not registered");
+                Log.w(TAG, "Client manager not registered");
             }
 
             // Drop all queued messages and client state
@@ -392,20 +431,13 @@ public class VmsHalService extends HalServiceBase {
         }
 
         // Notify client manager of connection
-        if (mPublisherOnHalConnected != null) {
-            mPublisherOnHalConnected.accept(mPublisherClient);
+        if (mClientManager != null) {
+            mClientManager.onHalConnected(mPublisherClient, mSubscriberClient);
         } else {
-            Log.w(TAG, "Publisher connect callback not registered");
+            Log.w(TAG, "Client manager not registered");
         }
 
-        // Notify subscriber service of connection
         if (mSubscriberService != null) {
-            try {
-                mSubscriberService.addVmsSubscriberToNotifications(mSubscriberClient);
-            } catch (RemoteException e) {
-                Log.e(TAG, "While adding subscriber callback", e);
-            }
-
             // Publish layer availability to HAL clients (this triggers HAL client initialization)
             try {
                 mSubscriberClient.onLayersAvailabilityChanged(

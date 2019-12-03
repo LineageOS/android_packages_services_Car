@@ -24,9 +24,11 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_PACKAGE_NAME := MultiDisplayTest
 
-LOCAL_SDK_VERSION := current
-
 LOCAL_DEX_PREOPT := false
+
+LOCAL_JAVA_LIBRARIES += android.car
+
+LOCAL_PRIVATE_PLATFORM_APIS := true
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
     androidx.lifecycle_lifecycle-livedata \

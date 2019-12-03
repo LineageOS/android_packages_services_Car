@@ -60,6 +60,7 @@ import android.view.DisplayAddress;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.Preconditions;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -157,22 +158,23 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             mCurrentUxRestrictions.put(port, createUnrestrictedRestrictions());
         }
 
-        // subscribe to driving State
+        // Load the prod config, or if there is a staged one, promote that first only if the
+        // current driving state, as provided by the driving state service, is parked.
+        mCarUxRestrictionsConfigurations = convertToMap(loadConfig());
+
+        // subscribe to driving state changes
         mDrivingStateService.registerDrivingStateChangeListener(
                 mICarDrivingStateChangeEventListener);
         // subscribe to property service for speed
         mCarPropertyService.registerListener(VehicleProperty.PERF_VEHICLE_SPEED,
                 PROPERTY_UPDATE_RATE, mICarPropertyEventListener);
 
-        // At this point the driving state is known, which determines whether it's safe
-        // to promote staged new config.
-        mCarUxRestrictionsConfigurations = convertToMap(loadConfig());
-
         initializeUxRestrictions();
     }
 
     @Override
     public List<CarUxRestrictionsConfiguration> getConfigs() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
         return new ArrayList<>(mCarUxRestrictionsConfigurations.values());
     }
 
@@ -187,7 +189,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      * <li>hardcoded default config.
      * </ol>
      *
-     * This method attempts to promote staged config file. Doing which depends on driving state.
+     * This method attempts to promote staged config file, which requires getting the current
+     * driving state.
      */
     @VisibleForTesting
     synchronized List<CarUxRestrictionsConfiguration> loadConfig() {
@@ -237,6 +240,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         return null;
     }
 
+    /**
+     * Promotes the staged config to prod, by replacing the prod file. Only do this if the car is
+     * parked to avoid changing the restrictions during a drive.
+     */
     private void promoteStagedConfig() {
         Path stagedConfig = getFile(CONFIG_FILENAME_STAGED).toPath();
 
@@ -409,6 +416,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     @Nullable
     public List<CarUxRestrictionsConfiguration> getStagedConfigs() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+
         File stagedConfig = getFile(CONFIG_FILENAME_STAGED);
         if (stagedConfig.exists()) {
             logd("Attempting to read staged config");
@@ -433,6 +442,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     public synchronized boolean setRestrictionMode(
             @CarUxRestrictionsManager.UxRestrictionMode int mode) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+
         if (mRestrictionMode == mode) {
             return true;
         }
@@ -450,6 +461,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     @CarUxRestrictionsManager.UxRestrictionMode
     public synchronized int getRestrictionMode() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+
         return mRestrictionMode;
     }
 
@@ -699,6 +712,11 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      */
     private synchronized void handleDispatchUxRestrictions(@CarDrivingState int currentDrivingState,
             float speed) {
+        Preconditions.checkNotNull(mCarUxRestrictionsConfigurations,
+                "mCarUxRestrictionsConfigurations must be initialized");
+        Preconditions.checkNotNull(mCurrentUxRestrictions,
+                "mCurrentUxRestrictions must be initialized");
+
         if (isDebugBuild() && !mUxRChangeBroadcastEnabled) {
             Log.d(TAG, "Not dispatching UX Restriction due to setting");
             return;

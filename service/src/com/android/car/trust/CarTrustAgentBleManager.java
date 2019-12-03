@@ -57,7 +57,6 @@ import java.util.concurrent.TimeUnit;
  * the Trusted Device feature.
  */
 class CarTrustAgentBleManager extends BleManager {
-
     private static final String TAG = "CarTrustBLEManager";
 
     /**
@@ -69,6 +68,15 @@ class CarTrustAgentBleManager extends BleManager {
      */
     private static final UUID CLIENT_CHARACTERISTIC_CONFIG =
             UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+
+    /**
+     * Reserved bytes for an ATT write request payload.
+     *
+     * <p>The attribute protocol uses 3 bytes to encode the command type and attribute ID. These
+     * bytes need to be subtracted from the reported MTU size and the resulting value will
+     * represent the total amount of bytes that can be sent in a write.
+     */
+    private static final int ATT_PAYLOAD_RESERVED_BYTES = 3;
 
     /** @hide */
     @IntDef(prefix = {"TRUSTED_DEVICE_OPERATION_"}, value = {
@@ -94,7 +102,16 @@ class CarTrustAgentBleManager extends BleManager {
     private String mOriginalBluetoothName;
     private byte[] mUniqueId;
     private String mEnrollmentDeviceName;
-    private int mMtuSize = 20;
+
+    /**
+     * The maximum amount of bytes that can be written over BLE.
+     *
+     * <p>This initial value is 20 because BLE has a default write of 23 bytes. However, 3 bytes
+     * are subtracted due to bytes being reserved for the command type and attribute ID.
+     *
+     * @see #ATT_PAYLOAD_RESERVED_BYTES
+     */
+    private int mMaxWriteSize = 20;
 
     // Enrollment Service and Characteristic UUIDs
     private UUID mEnrollmentServiceUuid;
@@ -169,7 +186,12 @@ class CarTrustAgentBleManager extends BleManager {
 
     @Override
     protected void onMtuSizeChanged(int size) {
-        mMtuSize = size;
+        mMaxWriteSize = size - ATT_PAYLOAD_RESERVED_BYTES;
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "MTU size changed to: " + size
+                    + "; setting max payload size to: " + mMaxWriteSize);
+        }
     }
 
     @Override
@@ -347,7 +369,8 @@ class CarTrustAgentBleManager extends BleManager {
         // Characteristic the connected bluetooth device will write to.
         BluetoothGattCharacteristic clientCharacteristic =
                 new BluetoothGattCharacteristic(mEnrollmentClientWriteUuid,
-                        BluetoothGattCharacteristic.PROPERTY_WRITE,
+                        BluetoothGattCharacteristic.PROPERTY_WRITE
+                                | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE,
                         BluetoothGattCharacteristic.PERMISSION_WRITE);
 
         // Characteristic that this manager will write to.
@@ -380,7 +403,8 @@ class CarTrustAgentBleManager extends BleManager {
         // Characteristic the connected bluetooth device will write to.
         BluetoothGattCharacteristic clientCharacteristic = new BluetoothGattCharacteristic(
                 mUnlockClientWriteUuid,
-                BluetoothGattCharacteristic.PROPERTY_WRITE,
+                BluetoothGattCharacteristic.PROPERTY_WRITE
+                        | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE,
                 BluetoothGattCharacteristic.PERMISSION_WRITE);
 
         // Characteristic that this manager will write to.
@@ -524,7 +548,7 @@ class CarTrustAgentBleManager extends BleManager {
         }
 
         List<BLEMessage> bleMessages = BLEMessageV1Factory.makeBLEMessages(message, operation,
-                mMtuSize, isPayloadEncrypted);
+                mMaxWriteSize, isPayloadEncrypted);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "sending " + bleMessages.size() + " messages to device");

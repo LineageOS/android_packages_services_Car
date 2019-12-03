@@ -431,14 +431,22 @@ public class BugReportService extends Service {
                 if (file.isDirectory()) {
                     continue;
                 }
+                if (file.length() == 0) {
+                    // If there were issues with reading from dumpstate socket, the dumpstate zip
+                    // file still might be available in
+                    // /data/user_de/0/com.android.shell/files/bugreports/.
+                    Log.w(TAG, "File " + file.getName() + " is empty, skipping.");
+                    return;
+                }
                 String filename = file.getName();
 
-                // only for the zipped output file, we add invidiual entries to zip file
+                // only for the zipped output file, we add individual entries to zip file.
                 if (filename.equals(OUTPUT_ZIP_FILE) || filename.equals(EXTRA_OUTPUT_ZIP_FILE)) {
                     extractZippedFileToOutputStream(file, zipStream);
                 } else {
-                    FileInputStream reader = new FileInputStream(file);
-                    addFileToOutputStream(filename, reader, zipStream);
+                    try (FileInputStream reader = new FileInputStream(file)) {
+                        addFileToOutputStream(filename, reader, zipStream);
+                    }
                 }
             }
         } finally {
@@ -455,17 +463,21 @@ public class BugReportService extends Service {
         Enumeration<? extends ZipEntry> entries = zipFile.entries();
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
-            InputStream stream = zipFile.getInputStream(entry);
-            addFileToOutputStream(entry.getName(), stream, zipStream);
+            try (InputStream stream = zipFile.getInputStream(entry)) {
+                addFileToOutputStream(entry.getName(), stream, zipStream);
+            }
         }
     }
 
-    private void addFileToOutputStream(String filename, InputStream reader,
-            ZipOutputStream zipStream) throws IOException {
+    private void addFileToOutputStream(
+            String filename, InputStream reader, ZipOutputStream zipStream) {
         ZipEntry entry = new ZipEntry(filename);
-        zipStream.putNextEntry(entry);
-        rawCopyStream(zipStream, reader);
-        zipStream.closeEntry();
-        reader.close();
+        try {
+            zipStream.putNextEntry(entry);
+            rawCopyStream(zipStream, reader);
+            zipStream.closeEntry();
+        } catch (IOException e) {
+            Log.w(TAG, "Failed to add file " + filename + " to the zip.", e);
+        }
     }
 }
