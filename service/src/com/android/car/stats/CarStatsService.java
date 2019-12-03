@@ -25,7 +25,7 @@ import android.util.ArrayMap;
 import android.util.Log;
 import android.util.StatsLog;
 
-import com.android.car.stats.VmsClientLog.ConnectionState;
+import com.android.car.stats.VmsClientLogger.ConnectionState;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.car.ICarStatsService;
 
@@ -41,7 +41,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Implementation of {@link ICarStatsService}, for reporting pulled atoms via StatsCompanionService.
+ * Implementation of {@link ICarStatsService}, for reporting pulled atoms via statsd.
  *
  * Also implements collection and dumpsys reporting of atoms in CSV format.
  */
@@ -51,7 +51,7 @@ public class CarStatsService extends ICarStatsService.Stub {
     private static final String VMS_CONNECTION_STATS_DUMPSYS_HEADER =
             "uid,packageName,attempts,connected,disconnected,terminated,errors";
 
-    private static final Function<VmsClientLog, String> VMS_CONNECTION_STATS_DUMPSYS_FORMAT =
+    private static final Function<VmsClientLogger, String> VMS_CONNECTION_STATS_DUMPSYS_FORMAT =
             entry -> String.format(Locale.US,
                     "%d,%s,%d,%d,%d,%d,%d",
                     entry.getUid(), entry.getPackageName(),
@@ -84,7 +84,7 @@ public class CarStatsService extends ICarStatsService.Stub {
     private final PackageManager mPackageManager;
 
     @GuardedBy("mVmsClientStats")
-    private final Map<Integer, VmsClientLog> mVmsClientStats = new ArrayMap<>();
+    private final Map<Integer, VmsClientLogger> mVmsClientStats = new ArrayMap<>();
 
     public CarStatsService(Context context) {
         mContext = context;
@@ -94,7 +94,7 @@ public class CarStatsService extends ICarStatsService.Stub {
     /**
      * Gets a logger for the VMS client with a given UID.
      */
-    public VmsClientLog getVmsClientLog(int clientUid) {
+    public VmsClientLogger getVmsClientLogger(int clientUid) {
         synchronized (mVmsClientStats) {
             return mVmsClientStats.computeIfAbsent(
                     clientUid,
@@ -103,7 +103,7 @@ public class CarStatsService extends ICarStatsService.Stub {
                         if (DEBUG) {
                             Log.d(TAG, "Created VmsClientLog: " + packageName);
                         }
-                        return new VmsClientLog(uid, packageName);
+                        return new VmsClientLogger(uid, packageName);
                     });
         }
     }
@@ -138,7 +138,7 @@ public class CarStatsService extends ICarStatsService.Stub {
                     // Unknown UID will not have connection stats
                     .filter(entry -> entry.getUid() > 0)
                     // Sort stats by UID
-                    .sorted(Comparator.comparingInt(VmsClientLog::getUid))
+                    .sorted(Comparator.comparingInt(VmsClientLogger::getUid))
                     .forEachOrdered(entry -> writer.println(
                             VMS_CONNECTION_STATS_DUMPSYS_FORMAT.apply(entry)));
             writer.println();

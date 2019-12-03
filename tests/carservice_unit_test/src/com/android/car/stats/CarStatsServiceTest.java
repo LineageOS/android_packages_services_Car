@@ -25,7 +25,7 @@ import android.content.pm.PackageManager;
 
 import androidx.test.filters.SmallTest;
 
-import com.android.car.stats.VmsClientLog.ConnectionState;
+import com.android.car.stats.VmsClientLogger.ConnectionState;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -84,66 +84,66 @@ public class CarStatsServiceTest {
 
     @Test
     public void testLogConnectionState_Connecting() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logConnectionState(ConnectionState.CONNECTING);
         validateConnectionStats("10101,test.package,1,0,0,0,0");
     }
 
     @Test
     public void testLogConnectionState_Connected() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logConnectionState(ConnectionState.CONNECTED);
         validateConnectionStats("10101,test.package,0,1,0,0,0");
     }
 
     @Test
     public void testLogConnectionState_Disconnected() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logConnectionState(ConnectionState.DISCONNECTED);
         validateConnectionStats("10101,test.package,0,0,1,0,0");
     }
 
     @Test
     public void testLogConnectionState_Terminated() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logConnectionState(ConnectionState.TERMINATED);
         validateConnectionStats("10101,test.package,0,0,0,1,0");
     }
 
     @Test
     public void testLogConnectionState_ConnectionError() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logConnectionState(ConnectionState.CONNECTION_ERROR);
         validateConnectionStats("10101,test.package,0,0,0,0,1");
     }
 
     @Test
     public void testLogConnectionState_UnknownUID() {
-        mCarStatsService.getVmsClientLog(-1)
+        mCarStatsService.getVmsClientLogger(-1)
                 .logConnectionState(ConnectionState.CONNECTING);
         testEmptyStats();
     }
 
     @Test
     public void testLogConnectionState_MultipleClients_MultipleStates() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logConnectionState(ConnectionState.CONNECTING);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logConnectionState(ConnectionState.CONNECTED);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logConnectionState(ConnectionState.DISCONNECTED);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logConnectionState(ConnectionState.CONNECTED);
 
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logConnectionState(ConnectionState.CONNECTING);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logConnectionState(ConnectionState.CONNECTED);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logConnectionState(ConnectionState.TERMINATED);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logConnectionState(ConnectionState.CONNECTING);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logConnectionState(ConnectionState.CONNECTION_ERROR);
         validateConnectionStats(
                 "10101,test.package,1,2,1,0,0\n"
@@ -152,18 +152,18 @@ public class CarStatsServiceTest {
 
     @Test
     public void testLogPacketSent() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketSent(LAYER, 5);
         validateClientStats("10101,1,2,3,5,1,0,0,0,0");
     }
 
     @Test
     public void testLogPacketSent_MultiplePackets() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketSent(LAYER, 3);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketSent(LAYER, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketSent(LAYER, 1);
 
         validateClientStats("10101,1,2,3,6,3,0,0,0,0");
@@ -171,11 +171,11 @@ public class CarStatsServiceTest {
 
     @Test
     public void testLogPacketSent_MultipleLayers() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketSent(LAYER, 3);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketSent(LAYER2, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketSent(LAYER3, 1);
 
         validateClientStats(
@@ -186,11 +186,11 @@ public class CarStatsServiceTest {
 
     @Test
     public void testLogPacketSent_MultipleClients() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketSent(LAYER, 3);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logPacketSent(LAYER, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logPacketSent(LAYER2, 1);
 
         validateDumpsys(
@@ -203,18 +203,18 @@ public class CarStatsServiceTest {
 
     @Test
     public void testLogPacketReceived() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketReceived(LAYER, 5);
         validateClientStats("10101,1,2,3,0,0,5,1,0,0");
     }
 
     @Test
     public void testLogPacketReceived_MultiplePackets() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketReceived(LAYER, 3);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketReceived(LAYER, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketReceived(LAYER, 1);
 
         validateClientStats("10101,1,2,3,0,0,6,3,0,0");
@@ -222,11 +222,11 @@ public class CarStatsServiceTest {
 
     @Test
     public void testLogPacketReceived_MultipleLayers() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketReceived(LAYER, 3);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketReceived(LAYER2, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketReceived(LAYER3, 1);
 
         validateClientStats(
@@ -237,11 +237,11 @@ public class CarStatsServiceTest {
 
     @Test
     public void testLogPacketReceived_MultipleClients() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketReceived(LAYER, 3);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logPacketReceived(LAYER, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logPacketReceived(LAYER2, 1);
 
         validateDumpsys(
@@ -254,18 +254,18 @@ public class CarStatsServiceTest {
 
     @Test
     public void testLogPacketDropped() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketDropped(LAYER, 5);
         validateClientStats("10101,1,2,3,0,0,0,0,5,1");
     }
 
     @Test
     public void testLogPacketDropped_MultiplePackets() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketDropped(LAYER, 3);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketDropped(LAYER, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketDropped(LAYER, 1);
 
         validateClientStats("10101,1,2,3,0,0,0,0,6,3");
@@ -273,11 +273,11 @@ public class CarStatsServiceTest {
 
     @Test
     public void testLogPacketDropped_MultipleLayers() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketDropped(LAYER, 3);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketDropped(LAYER2, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketDropped(LAYER3, 1);
 
         validateClientStats(
@@ -288,11 +288,11 @@ public class CarStatsServiceTest {
 
     @Test
     public void testLogPacketDropped_MultipleClients() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketDropped(LAYER, 3);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logPacketDropped(LAYER, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logPacketDropped(LAYER2, 1);
 
         validateDumpsys(
@@ -305,21 +305,21 @@ public class CarStatsServiceTest {
 
     @Test
     public void testLogPackets_MultipleClients_MultipleLayers_MultipleOperations() {
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketSent(LAYER, 3);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketReceived(LAYER, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID)
                 .logPacketDropped(LAYER, 1);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logPacketReceived(LAYER, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logPacketReceived(LAYER, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logPacketReceived(LAYER, 2);
-        mCarStatsService.getVmsClientLog(CLIENT_UID2)
+        mCarStatsService.getVmsClientLogger(CLIENT_UID2)
                 .logPacketSent(LAYER2, 2);
-        mCarStatsService.getVmsClientLog(-1)
+        mCarStatsService.getVmsClientLogger(-1)
                 .logPacketDropped(LAYER2, 12);
 
 

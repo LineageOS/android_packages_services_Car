@@ -44,7 +44,7 @@ import android.os.RemoteException;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.stats.CarStatsService;
-import com.android.car.stats.VmsClientLog;
+import com.android.car.stats.VmsClientLogger;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
 
@@ -90,13 +90,13 @@ public class VmsPublisherServiceTest {
     private VmsClientManager mClientManager;
 
     @Mock
-    private VmsClientLog mPublisherLog;
+    private VmsClientLogger mPublisherLog;
     @Mock
-    private VmsClientLog mSubscriberLog;
+    private VmsClientLogger mSubscriberLog;
     @Mock
-    private VmsClientLog mSubscriberLog2;
+    private VmsClientLogger mSubscriberLog2;
     @Mock
-    private VmsClientLog mNoSubscribersLog;
+    private VmsClientLogger mNoSubscribersLog;
 
     @Mock
     private IVmsSubscriberClient mSubscriberClient;
@@ -116,10 +116,10 @@ public class VmsPublisherServiceTest {
         when(mClientManager.getSubscriberUid(mSubscriberClient)).thenReturn(SUBSCRIBER_UID);
         when(mClientManager.getSubscriberUid(mSubscriberClient2)).thenReturn(SUBSCRIBER_UID2);
 
-        when(mStatsService.getVmsClientLog(PUBLISHER_UID)).thenReturn(mPublisherLog);
-        when(mStatsService.getVmsClientLog(SUBSCRIBER_UID)).thenReturn(mSubscriberLog);
-        when(mStatsService.getVmsClientLog(SUBSCRIBER_UID2)).thenReturn(mSubscriberLog2);
-        when(mStatsService.getVmsClientLog(NO_SUBSCRIBERS_UID)).thenReturn(mNoSubscribersLog);
+        when(mStatsService.getVmsClientLogger(PUBLISHER_UID)).thenReturn(mPublisherLog);
+        when(mStatsService.getVmsClientLogger(SUBSCRIBER_UID)).thenReturn(mSubscriberLog);
+        when(mStatsService.getVmsClientLogger(SUBSCRIBER_UID2)).thenReturn(mSubscriberLog2);
+        when(mStatsService.getVmsClientLogger(NO_SUBSCRIBERS_UID)).thenReturn(mNoSubscribersLog);
 
         mPublisherClient = new MockPublisherClient();
         mPublisherClient2 = new MockPublisherClient();
