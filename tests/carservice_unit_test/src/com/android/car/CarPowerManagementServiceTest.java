@@ -224,7 +224,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         // second processing after wakeup
         assertFalse(mDisplayInterface.getDisplayState());
         // do not skip user switching part.
-        mService.clearIsBooting();
+        mService.clearIsBootingOrResuming();
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         // user switching should have been requested.
