@@ -191,6 +191,9 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     }
 
     private void maybeInitUser() {
+        if (mCurrentUser == 0) {
+            return;
+        }
         if (mUserManager.isUserUnlocked(mCurrentUser)) {
             initUser();
         } else {
