@@ -322,31 +322,31 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // code. To avoid contention, we don't switch users when we coming alive. The OEM's code
         // should do the switch.
         boolean allowUserSwitch = true;
-        boolean weAreBooting = false;
         synchronized (mLock) {
             if (mIsBooting) {
                 // The system is booting, so don't switch users
                 allowUserSwitch = false;
                 mIsBooting = false;
                 mIsResuming = false;
-                weAreBooting = true;
+                Log.i(CarLog.TAG_POWER, "User switch disallowed while booting");
             } else if (mIsResuming) {
                 // The system is resuming after a suspension. Optionally disable user switching.
                 allowUserSwitch = !mContext.getResources()
                         .getBoolean(R.bool.config_disableUserSwitchDuringResume);
                 mIsBooting = false;
                 mIsResuming = false;
+                if (!allowUserSwitch) {
+                    Log.i(CarLog.TAG_POWER, "User switch disallowed while resuming");
+                }
             }
         }
-        int targetUserId = mCarUserManagerHelper.getInitialUser();
-        if (targetUserId != UserHandle.USER_SYSTEM
-                && targetUserId != ActivityManager.getCurrentUser()) {
-            if (allowUserSwitch) {
+
+        if (allowUserSwitch) {
+            int targetUserId = mCarUserManagerHelper.getInitialUser();
+            if (targetUserId != UserHandle.USER_SYSTEM
+                    && targetUserId != ActivityManager.getCurrentUser()) {
                 Log.i(CarLog.TAG_POWER, "Desired user changed, switching to user:" + targetUserId);
                 mCarUserManagerHelper.switchToUserId(targetUserId);
-            } else {
-                Log.i(CarLog.TAG_POWER, "User switch disallowed while "
-                        + (weAreBooting ? "booting" : "resuming"));
             }
         }
         mSystemInterface.setDisplayState(true);
