@@ -17,6 +17,7 @@
 /**
  * Types of termination options
  */
+@VintfStability
 @Backing(type="int")
 enum PipeTerminationConfigTerminationType {
     /**

@@ -15,6 +15,7 @@
  */
 package android.automotive.computepipe.runner;
 
+@VintfStability
 @Backing(type="int")
 enum PipeInputConfigFormatType {
     /**

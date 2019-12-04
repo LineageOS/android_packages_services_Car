@@ -18,6 +18,7 @@ package android.automotive.computepipe.runner;
 /**
  * Packet type
  */
+@VintfStability
 @Backing(type="int")
 enum PipeOutputConfigPacketType {
     /**

@@ -22,6 +22,7 @@ import android.automotive.computepipe.runner.ProfilingData;
 /**
  * interface to debug and profile a graph
  */
+@VintfStability
 interface IPipeDebugger {
     /**
      * Set the debug options for a pipe. The profiling options can be an

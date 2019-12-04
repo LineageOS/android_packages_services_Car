@@ -20,6 +20,7 @@ import android.automotive.computepipe.PacketFdWrapper;
 /**
  * Remove this once native handle is available in aidl
  */
+@VintfStability
 parcelable NativeHandle {
     /**
      * Array of fds representing shared buffers

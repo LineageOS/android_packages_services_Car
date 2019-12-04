@@ -18,6 +18,7 @@ package android.automotive.computepipe.runner;
 /**
  * Types of input streams supported by runner
  */
+@VintfStability
 @Backing(type="int")
 enum PipeInputConfigInputType {
     /**

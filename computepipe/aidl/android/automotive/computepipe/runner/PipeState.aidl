@@ -18,6 +18,7 @@ package android.automotive.computepipe.runner;
 /**
  * State of the remote graph
  */
+@VintfStability
 @Backing(type="int")
 enum PipeState {
     /**

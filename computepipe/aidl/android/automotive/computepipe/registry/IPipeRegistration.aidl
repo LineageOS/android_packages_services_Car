@@ -20,6 +20,7 @@ import android.automotive.computepipe.runner.IPipeRunner;
 /**
  * Provides mechanism for graph/pipe runner to register with router.
  */
+@VintfStability
 interface IPipeRegistration {
     // Ignoring result android.automotive.computepipe.void status since AIDL has built in status types.
     /**

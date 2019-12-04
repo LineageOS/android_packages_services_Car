@@ -17,6 +17,7 @@ package android.automotive.computepipe.runner;
 
 import android.automotive.computepipe.runner.PipeState;
 
+@VintfStability
 interface IPipeStateCallback {
     /**
      * Callback that notifies a client about the state of a pipe

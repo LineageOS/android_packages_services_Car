@@ -24,7 +24,7 @@ import android.automotive.computepipe.runner.PipeOutputConfigOutputDesc;
  *
  * Provided by AIDL implementation to the client as part of GraphDescriptor
  */
-
+@VintfStability
 parcelable PipeOutputConfig {
     /**
      * output stream.
