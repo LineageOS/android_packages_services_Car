@@ -19,7 +19,6 @@ package android.car.userlib;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -63,9 +62,7 @@ public class CarUserManagerHelperTest {
     @Mock private ActivityManager mActivityManager;
     @Mock private TestableFrameworkWrapper mTestableFrameworkWrapper;
 
-    private static final String GUEST_USER_NAME = "testGuest";
     private static final String TEST_USER_NAME = "testUser";
-    private static final String DEFAULT_ADMIN_NAME = "defaultAdminName";
 
     private CarUserManagerHelper mCarUserManagerHelper;
     private UserInfo mCurrentProcessUser;
@@ -110,17 +107,6 @@ public class CarUserManagerHelperTest {
         newUser.name = TEST_USER_NAME;
         doReturn(newUser).when(mUserManager).createUser(TEST_USER_NAME, 0);
         assertThat(mCarUserManagerHelper.createNewNonAdminUser(TEST_USER_NAME)).isEqualTo(newUser);
-    }
-
-    @Test
-    public void testSwitchToGuest() {
-        mCarUserManagerHelper.startGuestSession(GUEST_USER_NAME);
-        verify(mUserManager).createGuest(mContext, GUEST_USER_NAME);
-
-        UserInfo guestInfo = new UserInfo(/* id= */21, GUEST_USER_NAME, UserInfo.FLAG_GUEST);
-        doReturn(guestInfo).when(mUserManager).createGuest(mContext, GUEST_USER_NAME);
-        mCarUserManagerHelper.startGuestSession(GUEST_USER_NAME);
-        verify(mActivityManager).switchUser(21);
     }
 
     @Test
@@ -294,37 +280,6 @@ public class CarUserManagerHelperTest {
         mockGetUsers(mSystemUser, minimumUser, user11, user12);
 
         assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(minimumUserId);
-    }
-
-    @Test
-    public void test_CreateNewOrFindExistingGuest_ReturnsExistingGuest() {
-        // Create two users and a guest user.
-        UserInfo user1 = createUserInfoForId(10);
-        UserInfo user2 = createUserInfoForId(12);
-        UserInfo user3 = new UserInfo(/* id= */ 13, /* name = */ "user13", UserInfo.FLAG_GUEST);
-
-        mockGetUsers(user1, user2, user3);
-        doReturn(null).when(mUserManager).createGuest(any(), any());
-
-        UserInfo guest = mCarUserManagerHelper.createNewOrFindExistingGuest(GUEST_USER_NAME);
-        assertThat(guest).isEqualTo(user3);
-    }
-
-    @Test
-    public void test_CreateNewOrFindExistingGuest_CreatesNewGuest_IfNoExisting() {
-        // Create two users.
-        UserInfo user1 = createUserInfoForId(10);
-        UserInfo user2 = createUserInfoForId(12);
-
-        mockGetUsers(user1, user2);
-
-        // Create a user for the "new guest" user.
-        UserInfo guestInfo = new UserInfo(/* id= */21, GUEST_USER_NAME, UserInfo.FLAG_GUEST);
-        doReturn(guestInfo).when(mUserManager).createGuest(mContext, GUEST_USER_NAME);
-
-        UserInfo guest = mCarUserManagerHelper.createNewOrFindExistingGuest(GUEST_USER_NAME);
-        verify(mUserManager).createGuest(mContext, GUEST_USER_NAME);
-        assertThat(guest).isEqualTo(guestInfo);
     }
 
     private UserInfo createUserInfoForId(int id) {
