@@ -31,12 +31,12 @@ import android.automotive.computepipe.runner.PipeOffloadConfigOffloadOptions;
  */
 parcelable PipeOffloadConfig {
     /**
-     * list of offload options that the graph can support
+     * Offload option that the graph can support.
      */
-    PipeOffloadConfigOffloadOptions[] options;
+    PipeOffloadConfigOffloadOptions options;
     /**
-     * identifier for each of the supported options
+     * identifier for the option.
      */
-    String[] configIds;
+    String configId;
 }
 

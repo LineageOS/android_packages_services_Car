@@ -20,6 +20,8 @@ import android.annotation.SystemApi;
 import android.annotation.UiThread;
 import android.content.Context;
 
+import com.android.internal.annotations.GuardedBy;
+
 /**
  * @deprecated This class is unused. Refer to {@link InstrumentClusterRenderingService} for
  * documentation on how to build a instrument cluster renderer.
@@ -30,6 +32,9 @@ import android.content.Context;
 @SystemApi
 public abstract class InstrumentClusterRenderer {
 
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
     @Nullable private NavigationRenderer mNavigationRenderer;
 
     /**
@@ -45,8 +50,10 @@ public abstract class InstrumentClusterRenderer {
 
     /** The method is thread-safe, callers should cache returned object. */
     @Nullable
-    public synchronized NavigationRenderer getNavigationRenderer() {
-        return mNavigationRenderer;
+    public NavigationRenderer getNavigationRenderer() {
+        synchronized (mLock) {
+            return mNavigationRenderer;
+        }
     }
 
     /**
@@ -54,7 +61,10 @@ public abstract class InstrumentClusterRenderer {
      * method should not be overridden by subclasses.
      */
     @UiThread
-    public synchronized final void initialize() {
-        mNavigationRenderer = createNavigationRenderer();
+    public final void initialize() {
+        synchronized (mLock) {
+            mNavigationRenderer = createNavigationRenderer();
+        }
     }
 }
+

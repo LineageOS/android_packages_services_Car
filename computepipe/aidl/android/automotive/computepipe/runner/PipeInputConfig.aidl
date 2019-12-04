@@ -27,16 +27,16 @@ import android.automotive.computepipe.runner.PipeInputConfigInputOptions;
  *
  * Structure that describes the input sources
  *
- * This is provided by the HIDL implementation to the client
+ * This is provided by the AIDL implementation to the client
  */
 parcelable PipeInputConfig {
     /**
-     * list of input options
+     * input option.
      */
-    PipeInputConfigInputOptions[] options;
+    PipeInputConfigInputOptions options;
     /**
-     * option ids, 1:1 correspondence with the options list above
+     * ID for the option.
      */
-    int[] configIds;
+    int configId;
 }
 

@@ -96,4 +96,8 @@
     <bool name="config_buttonTextAllCaps">false</bool>
 
     <bool name="config_automotiveHideNavBarForKeyboard">true</bool>
+
+    <!-- Turn off Wallpaper service -->
+    <bool name="config_enableWallpaperService">false</bool>
+
 </resources>
