@@ -30,12 +30,12 @@ import android.automotive.computepipe.runner.PipeTerminationConfigTerminationOpt
  */
 parcelable PipeTerminationConfig {
     /**
-     * list of termination options supported by graph
+     * termination option supported by graph.
      */
-    PipeTerminationConfigTerminationOptions[] options;
+    PipeTerminationConfigTerminationOptions options;
     /**
-     * identifiers for options for each of the above the list entries
+     * identifiers for the option.
      */
-    int[] configIds;
+    int configId;
 }
 

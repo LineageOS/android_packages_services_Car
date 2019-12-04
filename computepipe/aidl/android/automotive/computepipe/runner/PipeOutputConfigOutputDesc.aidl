@@ -30,4 +30,3 @@ parcelable PipeOutputConfigOutputDesc {
      */
     PipeOutputConfigPacketType type;
 }
-
