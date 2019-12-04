@@ -386,6 +386,10 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
+    CarStatsService getStatsService() {
+        return mCarStatsService;
+    }
+
     public static void assertVehicleHalMockPermission(Context context) {
         assertPermission(context, Car.PERMISSION_MOCK_VEHICLE_HAL);
     }
