@@ -97,4 +97,6 @@
     <!-- Turn off Wallpaper service -->
     <bool name="config_enableWallpaperService">false</bool>
 
+    <!-- Automotive explicitly controls when the system suspends. Do not use autoSuspend. -->
+    <bool name="config_enableAutoSuspend" translatable="false">false</bool>
 </resources>
