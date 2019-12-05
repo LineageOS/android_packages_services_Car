@@ -303,4 +303,9 @@
         <item>com.android.car.user.CarUserNoticeService</item>
         <item>storage_monitoring</item>
     </string-array>
+
+    <!-- Configuration to enable passenger support.
+         If this is set to true and there is a passenger display, a user can login to the passenger
+         display and use it as a normal Android user. -->
+    <bool name="enablePassengerSupport">false</bool>
 </resources>
