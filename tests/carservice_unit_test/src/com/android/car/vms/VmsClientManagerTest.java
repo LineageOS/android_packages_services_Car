@@ -1035,13 +1035,15 @@ public class VmsClientManagerTest {
     }
 
     private void notifyUserSwitched(int foregroundUserId, boolean isForegroundUserUnlocked) {
-        when(mUserManager.isUserUnlocked(foregroundUserId)).thenReturn(isForegroundUserUnlocked);
+        when(mUserManager.isUserUnlockingOrUnlocked(foregroundUserId))
+                .thenReturn(isForegroundUserUnlocked);
         mForegroundUserId = foregroundUserId; // Member variable used by verifyUserBind()
         mClientManager.mUserCallback.onSwitchUser(foregroundUserId);
     }
 
     private void notifyUserUnlocked(int foregroundUserId, boolean isForegroundUserUnlocked) {
-        when(mUserManager.isUserUnlocked(foregroundUserId)).thenReturn(isForegroundUserUnlocked);
+        when(mUserManager.isUserUnlockingOrUnlocked(foregroundUserId))
+                .thenReturn(isForegroundUserUnlocked);
         mClientManager.mUserCallback.onUserLockChanged(foregroundUserId, isForegroundUserUnlocked);
     }
 

@@ -368,8 +368,8 @@ public class VmsClientManager implements CarServiceBase {
                 return;
             }
 
-            if (!mUserManager.isUserUnlocked(mCurrentUser)) {
-                Log.i(TAG, "Waiting for foreground user to be unlocked.");
+            if (!mUserManager.isUserUnlockingOrUnlocked(mCurrentUser)) {
+                Log.i(TAG, "Waiting for foreground user " + mCurrentUser + " to be unlocked.");
                 return;
             }
 
