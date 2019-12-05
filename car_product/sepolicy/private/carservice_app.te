@@ -12,6 +12,9 @@ set_prop(carservice_app, system_prop)
 # Allow Car Service to register/access itself with ServiceManager
 add_service(carservice_app, carservice_service)
 
+# Allow Car Service to register its stats service with ServiceManager
+add_service(carservice_app, carstats_service)
+
 allow carservice_app wifi_service:service_manager find;
 
 # Allow Car Service to access certain system services.
