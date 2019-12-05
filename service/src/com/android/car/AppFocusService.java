@@ -26,16 +26,18 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.util.ArraySet;
 import android.util.Log;
+import android.util.SparseArray;
 
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * App focus service ensures only one instance of application type is active at a time.
@@ -46,17 +48,32 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     private static final boolean DBG_EVENT = false;
 
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
+
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
     private final ClientHolder mAllChangeClients;
+
+    @GuardedBy("mLock")
     private final OwnershipClientHolder mAllOwnershipClients;
+
     /** K: appType, V: client owning it */
-    private final HashMap<Integer, OwnershipClientInfo> mFocusOwners = new HashMap<>();
-    private final Set<Integer> mActiveAppTypes = new HashSet<>();
-    private final CopyOnWriteArrayList<FocusOwnershipCallback> mFocusOwnershipCallbacks =
-            new CopyOnWriteArrayList<>();
+    @GuardedBy("mLock")
+    private final SparseArray<OwnershipClientInfo> mFocusOwners = new SparseArray<>();
+
+    @GuardedBy("mLock")
+    private final Set<Integer> mActiveAppTypes = new ArraySet<>();
+
+    @GuardedBy("mLock")
+    private final List<FocusOwnershipCallback> mFocusOwnershipCallbacks = new ArrayList<>();
+
     private final BinderInterfaceContainer.BinderEventHandler<IAppFocusListener>
             mAllBinderEventHandler = bInterface -> { /* nothing to do.*/ };
 
+    @GuardedBy("mLock")
     private DispatchHandler mDispatchHandler;
+
+    @GuardedBy("mLock")
     private HandlerThread mHandlerThread;
 
     public AppFocusService(Context context,
@@ -68,7 +85,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     @Override
     public void registerFocusListener(IAppFocusListener listener, int appType) {
-        synchronized (this) {
+        synchronized (mLock) {
             ClientInfo info = (ClientInfo) mAllChangeClients.getBinderInterface(listener);
             if (info == null) {
                 info = new ClientInfo(mAllChangeClients, listener, Binder.getCallingUid(),
@@ -82,7 +99,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     @Override
     public void unregisterFocusListener(IAppFocusListener listener, int appType) {
-        synchronized (this) {
+        synchronized (mLock) {
             ClientInfo info = (ClientInfo) mAllChangeClients.getBinderInterface(listener);
             if (info == null) {
                 return;
@@ -96,26 +113,26 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     @Override
     public int[] getActiveAppTypes() {
-        synchronized (this) {
-            return toIntArray(mActiveAppTypes);
+        synchronized (mLock) {
+            return mActiveAppTypes.stream().mapToInt(Integer::intValue).toArray();
         }
     }
 
     @Override
     public boolean isOwningFocus(IAppFocusOwnershipCallback callback, int appType) {
-        synchronized (this) {
-            OwnershipClientInfo info =
-                    (OwnershipClientInfo) mAllOwnershipClients.getBinderInterface(callback);
-            if (info == null) {
-                return false;
-            }
-            return info.getOwnedAppTypes().contains(appType);
+        OwnershipClientInfo info;
+        synchronized (mLock) {
+            info = (OwnershipClientInfo) mAllOwnershipClients.getBinderInterface(callback);
         }
+        if (info == null) {
+            return false;
+        }
+        return info.getOwnedAppTypes().contains(appType);
     }
 
     @Override
     public int requestAppFocus(IAppFocusOwnershipCallback callback, int appType) {
-        synchronized (this) {
+        synchronized (mLock) {
             OwnershipClientInfo info =
                     (OwnershipClientInfo) mAllOwnershipClients.getBinderInterface(callback);
             if (info == null) {
@@ -172,7 +189,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     @Override
     public void abandonAppFocus(IAppFocusOwnershipCallback callback, int appType) {
-        synchronized (this) {
+        synchronized (mLock) {
             OwnershipClientInfo info =
                     (OwnershipClientInfo) mAllOwnershipClients.getBinderInterface(callback);
             if (info == null) {
@@ -188,7 +205,8 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                 // ignore as listener doesn't own focus.
                 return;
             }
-            if (mFocusOwners.remove(appType) != null) {
+            if (mFocusOwners.contains(appType)) {
+                mFocusOwners.remove(appType);
                 mActiveAppTypes.remove(appType);
                 info.removeOwnedAppType(appType);
                 if (DBG) {
@@ -212,7 +230,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     @Override
     public void init() {
-        synchronized (this) {
+        synchronized (mLock) {
             mHandlerThread = new HandlerThread(AppFocusService.class.getSimpleName());
             mHandlerThread.start();
             mDispatchHandler = new DispatchHandler(mHandlerThread.getLooper());
@@ -221,16 +239,22 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     @VisibleForTesting
     public Looper getLooper() {
-        return mHandlerThread.getLooper();
+        synchronized (mLock) {
+            return mHandlerThread.getLooper();
+        }
     }
 
     @Override
     public void release() {
-        synchronized (this) {
+        synchronized (mLock) {
+            if (mDispatchHandler == null) {
+                return;
+            }
             mHandlerThread.quitSafely();
             try {
                 mHandlerThread.join(1000);
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 Log.e(CarLog.TAG_APP_FOCUS, "Timeout while waiting for handler thread to join.");
             }
             mDispatchHandler = null;
@@ -245,15 +269,17 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     public void onBinderDeath(
             BinderInterfaceContainer.BinderInterface<IAppFocusOwnershipCallback> bInterface) {
         OwnershipClientInfo info = (OwnershipClientInfo) bInterface;
-        for (Integer appType : info.getOwnedAppTypes()) {
-            abandonAppFocus(bInterface.binderInterface, appType);
+        synchronized (mLock) {
+            for (Integer appType : info.getOwnedAppTypes()) {
+                abandonAppFocus(bInterface.binderInterface, appType);
+            }
         }
     }
 
     @Override
     public void dump(PrintWriter writer) {
         writer.println("**AppFocusService**");
-        synchronized (this) {
+        synchronized (mLock) {
             writer.println("mActiveAppTypes:" + mActiveAppTypes);
             for (BinderInterfaceContainer.BinderInterface<IAppFocusOwnershipCallback> client :
                     mAllOwnershipClients.getInterfaces()) {
@@ -267,8 +293,8 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
      * Returns true if process with given uid and pid owns provided focus.
      */
     public boolean isFocusOwner(int uid, int pid, int appType) {
-        synchronized (this) {
-            if (mFocusOwners.containsKey(appType)) {
+        synchronized (mLock) {
+            if (mFocusOwners.contains(appType)) {
                 OwnershipClientInfo clientInfo = mFocusOwners.get(appType);
                 return clientInfo.getUid() == uid && clientInfo.getPid() == pid;
             }
@@ -291,16 +317,15 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
      * {@link FocusOwnershipCallback#onFocusAcquired} call immediately in the same thread.
      */
     public void registerContextOwnerChangedCallback(FocusOwnershipCallback callback) {
-        mFocusOwnershipCallbacks.add(callback);
-
-        HashSet<Map.Entry<Integer, OwnershipClientInfo>> owners;
-        synchronized (this) {
-            owners = new HashSet<>(mFocusOwners.entrySet());
+        SparseArray<OwnershipClientInfo> owners;
+        synchronized (mLock) {
+            mFocusOwnershipCallbacks.add(callback);
+            owners = mFocusOwners.clone();
         }
-
-        for (Map.Entry<Integer, OwnershipClientInfo> entry : owners) {
-            OwnershipClientInfo clientInfo = entry.getValue();
-            callback.onFocusAcquired(entry.getKey(), clientInfo.getUid(), clientInfo.getPid());
+        for (int idx = 0; idx < owners.size(); idx++) {
+            int key = owners.keyAt(idx);
+            OwnershipClientInfo clientInfo = owners.valueAt(idx);
+            callback.onFocusAcquired(key, clientInfo.getUid(), clientInfo.getPid());
         }
     }
 
@@ -308,16 +333,19 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
      * Unregisters provided callback.
      */
     public void unregisterContextOwnerChangedCallback(FocusOwnershipCallback callback) {
-        mFocusOwnershipCallbacks.remove(callback);
+        synchronized (mLock) {
+            mFocusOwnershipCallbacks.remove(callback);
+        }
     }
 
     private void updateFocusOwner(int appType, OwnershipClientInfo owner) {
         CarServiceUtils.runOnMain(() -> {
-            synchronized (this) {
+            List<FocusOwnershipCallback> focusOwnershipCallbacks;
+            synchronized (mLock) {
                 mFocusOwners.put(appType, owner);
+                focusOwnershipCallbacks = new ArrayList<>(mFocusOwnershipCallbacks);
             }
-
-            for (FocusOwnershipCallback callback : mFocusOwnershipCallbacks) {
+            for (FocusOwnershipCallback callback : focusOwnershipCallbacks) {
                 callback.onFocusAcquired(appType, owner.getUid(), owner.getPid());
             }
         });
@@ -357,11 +385,13 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         }
     }
 
-    private static class ClientInfo extends
+    private class ClientInfo extends
             BinderInterfaceContainer.BinderInterface<IAppFocusListener> {
         private final int mUid;
         private final int mPid;
-        private final Set<Integer> mAppTypes = new HashSet<>();
+
+        @GuardedBy("AppFocusService.mLock")
+        private final Set<Integer> mAppTypes = new ArraySet<>();
 
         private ClientInfo(ClientHolder holder, IAppFocusListener binder, int uid, int pid,
                 int appType) {
@@ -371,32 +401,40 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
             this.mAppTypes.add(appType);
         }
 
-        private synchronized Set<Integer> getAppTypes() {
-            return mAppTypes;
+        private Set<Integer> getAppTypes() {
+            synchronized (mLock) {
+                return Collections.unmodifiableSet(mAppTypes);
+            }
         }
 
-        private synchronized boolean addAppType(Integer appType) {
-            return mAppTypes.add(appType);
+        private boolean addAppType(Integer appType) {
+            synchronized (mLock) {
+                return mAppTypes.add(appType);
+            }
         }
 
-        private synchronized boolean removeAppType(Integer appType) {
-            return mAppTypes.remove(appType);
+        private boolean removeAppType(Integer appType) {
+            synchronized (mLock) {
+                return mAppTypes.remove(appType);
+            }
         }
 
         @Override
         public String toString() {
-            synchronized (this) {
+            synchronized (mLock) {
                 return "ClientInfo{mUid=" + mUid + ",mPid=" + mPid
                         + ",appTypes=" + mAppTypes + "}";
             }
         }
     }
 
-    private static class OwnershipClientInfo extends
+    private class OwnershipClientInfo extends
             BinderInterfaceContainer.BinderInterface<IAppFocusOwnershipCallback> {
         private final int mUid;
         private final int mPid;
-        private final Set<Integer> mOwnedAppTypes = new HashSet<>();
+
+        @GuardedBy("AppFocusService.mLock")
+        private final Set<Integer> mOwnedAppTypes = new ArraySet<>();
 
         private OwnershipClientInfo(OwnershipClientHolder holder, IAppFocusOwnershipCallback binder,
                 int uid, int pid) {
@@ -405,25 +443,31 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
             this.mPid = pid;
         }
 
-        private synchronized Set<Integer> getOwnedAppTypes() {
+        private Set<Integer> getOwnedAppTypes() {
             if (DBG_EVENT) {
                 Log.i(CarLog.TAG_APP_FOCUS, "getOwnedAppTypes " + mOwnedAppTypes);
             }
-            return mOwnedAppTypes;
+            synchronized (mLock) {
+                return Collections.unmodifiableSet(mOwnedAppTypes);
+            }
         }
 
-        private synchronized boolean addOwnedAppType(Integer appType) {
+        private boolean addOwnedAppType(Integer appType) {
             if (DBG_EVENT) {
                 Log.i(CarLog.TAG_APP_FOCUS, "addOwnedAppType " + appType);
             }
-            return mOwnedAppTypes.add(appType);
+            synchronized (mLock) {
+                return mOwnedAppTypes.add(appType);
+            }
         }
 
-        private synchronized boolean removeOwnedAppType(Integer appType) {
+        private boolean removeOwnedAppType(Integer appType) {
             if (DBG_EVENT) {
                 Log.i(CarLog.TAG_APP_FOCUS, "removeOwnedAppType " + appType);
             }
-            return mOwnedAppTypes.remove(appType);
+            synchronized (mLock) {
+                return mOwnedAppTypes.remove(appType);
+            }
         }
 
         int getUid() {
@@ -436,7 +480,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
         @Override
         public String toString() {
-            synchronized (this) {
+            synchronized (mLock) {
                 return "ClientInfo{mUid=" + mUid + ",mPid=" + mPid
                         + ",owned=" + mOwnedAppTypes + "}";
             }
@@ -487,14 +531,5 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                     Log.e(CarLog.TAG_APP_FOCUS, "Can't dispatch message: " + msg);
             }
         }
-    }
-
-    private static int[] toIntArray(Set<Integer> intSet) {
-        int[] intArr = new int[intSet.size()];
-        int index = 0;
-        for (Integer value : intSet) {
-            intArr[index++] = value;
-        }
-        return intArr;
     }
 }
