@@ -19,6 +19,12 @@
      Documentation at frameworks/base/data/etc/preinstalled-packages-platform.xml
 -->
 <config>
+<!--
+  Here the apps will have SYSTEM only.
+-->
+    <install-in-user-type package="com.android.experimentalcar">
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
 
 <!--
   Apps that need to run on SYSTEM. Some criteria:
