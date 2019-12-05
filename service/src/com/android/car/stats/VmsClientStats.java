@@ -56,15 +56,15 @@ class VmsClientStats {
      * @param layer Vehicle Maps Service layer.
      */
     VmsClientStats(int uid, VmsLayer layer) {
-        this.mUid = uid;
+        mUid = uid;
 
-        this.mLayerType = layer.getType();
-        this.mLayerChannel = layer.getSubtype();
-        this.mLayerVersion = layer.getVersion();
+        mLayerType = layer.getType();
+        mLayerChannel = layer.getSubtype();
+        mLayerVersion = layer.getVersion();
     }
 
     /**
-     * Copy constructor for entries exported from {@link VmsClientLog} to {@link CarStatsService}.
+     * Copy constructor for entries exported from {@link VmsClientLogger}.
      */
     VmsClientStats(VmsClientStats other) {
         synchronized (other.mLock) {

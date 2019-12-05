@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 /**
  * Logger for per-client VMS statistics.
  */
-public class VmsClientLog {
+public class VmsClientLogger {
     /**
      * Constants used for identifying client connection states.
      */
@@ -64,7 +64,7 @@ public class VmsClientLog {
     @GuardedBy("mLock")
     private final Map<VmsLayer, VmsClientStats> mLayerStats = new ArrayMap<>();
 
-    VmsClientLog(int clientUid, @Nullable String clientPackage) {
+    VmsClientLogger(int clientUid, @Nullable String clientPackage) {
         mUid = clientUid;
         mPackageName = clientPackage != null ? clientPackage : "";
     }

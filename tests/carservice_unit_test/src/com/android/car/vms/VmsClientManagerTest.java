@@ -63,8 +63,8 @@ import androidx.test.filters.SmallTest;
 import com.android.car.VmsPublisherService;
 import com.android.car.hal.VmsHalService;
 import com.android.car.stats.CarStatsService;
-import com.android.car.stats.VmsClientLog;
-import com.android.car.stats.VmsClientLog.ConnectionState;
+import com.android.car.stats.VmsClientLogger;
+import com.android.car.stats.VmsClientLogger.ConnectionState;
 import com.android.car.user.CarUserService;
 
 import org.junit.After;
@@ -151,13 +151,13 @@ public class VmsClientManagerTest {
     private ArgumentCaptor<ServiceConnection> mConnectionCaptor;
 
     @Mock
-    private VmsClientLog mSystemClientLog;
+    private VmsClientLogger mSystemClientLog;
     @Mock
-    private VmsClientLog mUserClientLog;
+    private VmsClientLogger mUserClientLog;
     @Mock
-    private VmsClientLog mUserClientLog2;
+    private VmsClientLogger mUserClientLog2;
     @Mock
-    private VmsClientLog mHalClientLog;
+    private VmsClientLogger mHalClientLog;
 
     private VmsClientManager mClientManager;
 
@@ -176,7 +176,7 @@ public class VmsClientManagerTest {
         mSystemServiceInfo.applicationInfo.uid = TEST_APP_ID;
         when(mPackageManager.getServiceInfo(eq(SYSTEM_CLIENT_COMPONENT), anyInt()))
                 .thenReturn(mSystemServiceInfo);
-        when(mStatsService.getVmsClientLog(TEST_SYSTEM_UID)).thenReturn(mSystemClientLog);
+        when(mStatsService.getVmsClientLogger(TEST_SYSTEM_UID)).thenReturn(mSystemClientLog);
 
         mUserServiceInfo = new ServiceInfo();
         mUserServiceInfo.permission = Car.PERMISSION_BIND_VMS_CLIENT;
@@ -184,10 +184,10 @@ public class VmsClientManagerTest {
         mUserServiceInfo.applicationInfo.uid = TEST_APP_ID;
         when(mPackageManager.getServiceInfo(eq(USER_CLIENT_COMPONENT), anyInt()))
                 .thenReturn(mUserServiceInfo);
-        when(mStatsService.getVmsClientLog(TEST_USER_UID)).thenReturn(mUserClientLog);
-        when(mStatsService.getVmsClientLog(TEST_USER_UID_U11)).thenReturn(mUserClientLog2);
+        when(mStatsService.getVmsClientLogger(TEST_USER_UID)).thenReturn(mUserClientLog);
+        when(mStatsService.getVmsClientLogger(TEST_USER_UID_U11)).thenReturn(mUserClientLog2);
 
-        when(mStatsService.getVmsClientLog(Process.myUid())).thenReturn(mHalClientLog);
+        when(mStatsService.getVmsClientLogger(Process.myUid())).thenReturn(mHalClientLog);
 
         when(mResources.getInteger(
                 com.android.car.R.integer.millisecondsBeforeRebindToVmsPublisher)).thenReturn(

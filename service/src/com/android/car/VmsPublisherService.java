@@ -181,7 +181,7 @@ public class VmsPublisherService implements CarServiceBase {
             }
 
             int payloadLength = payload != null ? payload.length : 0;
-            mStatsService.getVmsClientLog(mGetCallingUid.getAsInt())
+            mStatsService.getVmsClientLogger(mGetCallingUid.getAsInt())
                     .logPacketSent(layer, payloadLength);
 
             // Send the message to subscribers
@@ -192,7 +192,7 @@ public class VmsPublisherService implements CarServiceBase {
 
             if (listeners.size() == 0) {
                 // A negative UID signals that the packet had zero subscribers
-                mStatsService.getVmsClientLog(-1)
+                mStatsService.getVmsClientLogger(-1)
                         .logPacketDropped(layer, payloadLength);
             }
 
@@ -200,10 +200,10 @@ public class VmsPublisherService implements CarServiceBase {
                 int subscriberUid = mClientManager.getSubscriberUid(listener);
                 try {
                     listener.onVmsMessageReceived(layer, payload);
-                    mStatsService.getVmsClientLog(subscriberUid)
+                    mStatsService.getVmsClientLogger(subscriberUid)
                             .logPacketReceived(layer, payloadLength);
                 } catch (RemoteException ex) {
-                    mStatsService.getVmsClientLog(subscriberUid)
+                    mStatsService.getVmsClientLogger(subscriberUid)
                             .logPacketDropped(layer, payloadLength);
                     String subscriberName = mClientManager.getPackageName(listener);
                     Log.e(TAG, String.format("Unable to publish to listener: %s", subscriberName));
