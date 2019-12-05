@@ -46,8 +46,8 @@ class RouterSvc {
     }
 
   private:
-    router::Error initQueryEngine(const char* name);
-    router::Error initRegistrationEngine(const char* name);
+    router::Error initQueryEngine();
+    router::Error initRegistrationEngine();
 
     std::string mSvcName = "ComputePipeRouter";
     sp<PipeQuery> mQueryEngine;

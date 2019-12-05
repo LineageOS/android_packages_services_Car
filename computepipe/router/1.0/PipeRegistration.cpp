@@ -44,6 +44,10 @@ Status PipeRegistration::convertToBinderStatus(Error err) {
             return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_STATE);
     }
 }
+
+String16 PipeRegistration::getIfaceName() {
+    return this->getInterfaceDescriptor();
+}
 }  // namespace implementation
 }  // namespace V1_0
 }  // namespace router

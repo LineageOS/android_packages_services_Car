@@ -54,6 +54,9 @@ Status PipeQuery::getPipeRunner(const std::string& graphName, const sp<IClientIn
     return Status::ok();
 }
 
+String16 PipeQuery::getIfaceName() {
+    return this->getInterfaceDescriptor();
+}
 }  // namespace implementation
 }  // namespace V1_0
 }  // namespace router
