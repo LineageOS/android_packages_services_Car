@@ -20,6 +20,7 @@ import android.car.annotation.ExperimentalFeature;
 
 /**
  * Top level class for experimental Car features
+ *
  * @hide
  */
 public final class ExperimentalCar {
@@ -31,4 +32,13 @@ public final class ExperimentalCar {
     @ExperimentalFeature
     public static final String TEST_EXPERIMENTAL_FEATURE_SERVICE =
             "android.car.experimental.test_demo_experimental_feature_service";
+
+    /**
+     * Service for monitoring the driver distraction level.
+     *
+     * @hide
+     */
+    @ExperimentalFeature
+    public static final String DRIVER_DISTRACTION_EXPERIMENTAL_FEATURE_SERVICE =
+            "android.car.experimental.driver_distraction_experimental_feature_service";
 }
