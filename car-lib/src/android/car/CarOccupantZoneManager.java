@@ -19,6 +19,7 @@ package android.car;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.UserIdInt;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.os.IBinder;
@@ -350,6 +351,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * Returns android user id assigned for the given zone. It will return
      * {@link UserHandle#USER_NULL} if user is not assigned or if zone is not available.
      */
+    @UserIdInt
     public int getUserForOccupant(@NonNull OccupantZoneInfo occupantZone) {
         assertNonNullOccupant(occupantZone);
         try {
