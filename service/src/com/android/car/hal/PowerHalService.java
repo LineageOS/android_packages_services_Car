@@ -278,7 +278,7 @@ public class PowerHalService extends HalServiceBase {
         try {
             mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, 0).to(brightness);
             Log.i(CarLog.TAG_POWER, "send display brightness = " + brightness);
-        } catch (PropertyTimeoutException e) {
+        } catch (PropertyTimeoutException | IllegalArgumentException e) {
             Log.e(CarLog.TAG_POWER, "cannot set DISPLAY_BRIGHTNESS", e);
         }
     }
