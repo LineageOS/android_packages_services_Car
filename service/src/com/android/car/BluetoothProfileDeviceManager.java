@@ -89,12 +89,12 @@ public class BluetoothProfileDeviceManager {
         sProfileActions.put(BluetoothProfile.A2DP_SINK,
                 new BluetoothProfileInfo(BluetoothA2dpSink.ACTION_CONNECTION_STATE_CHANGED,
                         KEY_BLUETOOTH_A2DP_SINK_DEVICES, new ParcelUuid[] {
-                            BluetoothUuid.AudioSource
+                            BluetoothUuid.A2DP_SOURCE
                         }, new int[] {}));
         sProfileActions.put(BluetoothProfile.HEADSET_CLIENT,
                 new BluetoothProfileInfo(BluetoothHeadsetClient.ACTION_CONNECTION_STATE_CHANGED,
                         KEY_BLUETOOTH_HFP_CLIENT_DEVICES, new ParcelUuid[] {
-                            BluetoothUuid.Handsfree_AG,
+                            BluetoothUuid.HFP_AG,
                             BluetoothUuid.HSP_AG
                         }, new int[] {BluetoothProfile.MAP_CLIENT, BluetoothProfile.PBAP_CLIENT}));
         sProfileActions.put(BluetoothProfile.MAP_CLIENT,
