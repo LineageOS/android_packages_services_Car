@@ -41,8 +41,8 @@ import com.android.car.R;
 import com.android.car.VmsPublisherService;
 import com.android.car.hal.VmsHalService;
 import com.android.car.stats.CarStatsService;
-import com.android.car.stats.VmsClientLog;
-import com.android.car.stats.VmsClientLog.ConnectionState;
+import com.android.car.stats.VmsClientLogger;
+import com.android.car.stats.VmsClientLogger.ConnectionState;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -311,7 +311,7 @@ public class VmsClientManager implements CarServiceBase {
                     new SubscriberConnection(subscriberClient, Process.myUid(), HAL_CLIENT_NAME,
                             UserHandle.USER_SYSTEM));
         }
-        mStatsService.getVmsClientLog(Process.myUid())
+        mStatsService.getVmsClientLogger(Process.myUid())
                 .logConnectionState(ConnectionState.CONNECTED);
     }
 
@@ -322,7 +322,7 @@ public class VmsClientManager implements CarServiceBase {
         synchronized (mLock) {
             if (mHalClient != null) {
                 mPublisherService.onClientDisconnected(HAL_CLIENT_NAME);
-                mStatsService.getVmsClientLog(Process.myUid())
+                mStatsService.getVmsClientLogger(Process.myUid())
                         .logConnectionState(ConnectionState.DISCONNECTED);
             }
             mHalClient = null;
@@ -405,7 +405,7 @@ public class VmsClientManager implements CarServiceBase {
             return;
         }
 
-        VmsClientLog statsLog = mStatsService.getVmsClientLog(
+        VmsClientLogger statsLog = mStatsService.getVmsClientLogger(
                 UserHandle.getUid(userHandle.getIdentifier(), serviceInfo.applicationInfo.uid));
 
         if (!Car.PERMISSION_BIND_VMS_CLIENT.equals(serviceInfo.permission)) {
@@ -433,13 +433,13 @@ public class VmsClientManager implements CarServiceBase {
         private final ComponentName mName;
         private final UserHandle mUser;
         private final String mFullName;
-        private final VmsClientLog mStatsLog;
+        private final VmsClientLogger mStatsLog;
         private boolean mIsBound = false;
         private boolean mIsTerminated = false;
         private boolean mRebindScheduled = false;
         private IVmsPublisherClient mClientService;
 
-        PublisherConnection(ComponentName name, UserHandle user, VmsClientLog statsLog) {
+        PublisherConnection(ComponentName name, UserHandle user, VmsClientLogger statsLog) {
             mName = name;
             mUser = user;
             mFullName = mName.flattenToString() + " U=" + mUser.getIdentifier();

@@ -494,6 +494,7 @@ public class ICarImpl extends ICar.Stub {
             }
         } else if ("--metrics".equals(args[0])) {
             // Strip the --metrics flag when passing dumpsys arguments to CarStatsService
+            // allowing for nested flag selection
             mCarStatsService.dump(fd, writer, Arrays.copyOfRange(args, 1, args.length));
         } else if ("--vms-hal".equals(args[0])) {
             mHal.getVmsHal().dumpMetrics(fd);
