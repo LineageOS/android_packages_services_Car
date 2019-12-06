@@ -1,1 +1,1 @@
-type computepipe_router, domain;
+type computepipe_router, domain, coredomain;

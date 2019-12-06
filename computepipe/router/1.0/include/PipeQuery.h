@@ -38,6 +38,7 @@ class PipeQuery : public android::automotive::computepipe::registry::BnPipeQuery
         const std::string& graphName,
         const sp<::android::automotive::computepipe::registry::IClientInfo>& info,
         sp<::android::automotive::computepipe::runner::IPipeRunner>* outRunner) override;
+    String16 getIfaceName();
 
   private:
     std::shared_ptr<PipeRegistry<PipeRunner>> mRegistry;

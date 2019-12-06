@@ -18,6 +18,7 @@ package android.automotive.computepipe.runner;
 /**
  * types of packet
  */
+@VintfStability
 @Backing(type="int")
 enum PacketDescriptorPacketType {
     /**

@@ -29,6 +29,7 @@ import android.automotive.computepipe.runner.PipeOffloadConfigOffloadOptions;
  *
  * This is provided by the HIDL implementation to the client
  */
+@VintfStability
 parcelable PipeOffloadConfig {
     /**
      * Offload option that the graph can support.

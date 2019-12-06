@@ -36,6 +36,7 @@ import android.automotive.computepipe.runner.PipeOutputConfig;
  *
  * This descriptor is returned by the HAL to the client.
  */
+@VintfStability
 parcelable PipeDescriptor {
     /**
      * input configurations supported by the graph.

@@ -20,6 +20,7 @@ import android.os.ParcelFileDescriptor;
 /**
  * Remove this once NativeHandle is available in aidl
  */
+@VintfStability
 parcelable PacketFdWrapper {
     ParcelFileDescriptor pfd;
 }

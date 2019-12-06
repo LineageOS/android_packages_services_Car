@@ -27,6 +27,8 @@ namespace router {
 namespace V1_0 {
 namespace implementation {
 
+const static char kRouterName[] = "router";
+
 Error RouterSvc::parseArgs(int argc, char** argv) {
     (void)argc;
     (void)argv;
@@ -35,40 +37,44 @@ Error RouterSvc::parseArgs(int argc, char** argv) {
 
 Error RouterSvc::initSvc() {
     mRegistry = std::make_shared<RouterRegistry>();
-    auto ret = initRegistrationEngine("CPR-Register");
+    auto ret = initRegistrationEngine();
     if (ret != OK) {
         return ret;
     }
-    ret = initQueryEngine("CPR-Query");
+    ret = initQueryEngine();
     if (ret != OK) {
         return ret;
     }
     return OK;
 }
 
-Error RouterSvc::initRegistrationEngine(const char* name) {
+Error RouterSvc::initRegistrationEngine() {
     mRegisterEngine = new PipeRegistration(mRegistry);
     if (!mRegisterEngine) {
-        ALOGE("unable to allocate registration engine %s", name);
+        ALOGE("unable to allocate registration engine");
         return NOMEM;
     }
-    auto status = defaultServiceManager()->addService(String16(name), mRegisterEngine);
+    std::string name =
+        std::string() + String8(mRegisterEngine->getIfaceName()).c_str() + "/" + kRouterName;
+    auto status = defaultServiceManager()->addService(String16(name.c_str()), mRegisterEngine);
     if (status != android::OK) {
-        ALOGE("unable to add registration service %s", name);
+        ALOGE("unable to add registration service %s", name.c_str());
         return INTERNAL_ERR;
     }
     return OK;
 }
 
-Error RouterSvc::initQueryEngine(const char* name) {
+Error RouterSvc::initQueryEngine() {
     mQueryEngine = new PipeQuery(mRegistry);
     if (!mQueryEngine) {
-        ALOGE("unable to allocate query service %s", name);
+        ALOGE("unable to allocate query service");
         return NOMEM;
     }
-    auto status = defaultServiceManager()->addService(String16(name), mQueryEngine);
+    std::string name =
+        std::string() + String8(mQueryEngine->getIfaceName()).c_str() + "/" + kRouterName;
+    auto status = defaultServiceManager()->addService(String16(name.c_str()), mQueryEngine);
     if (status != android::OK) {
-        ALOGE("unable to add query service %s", name);
+        ALOGE("unable to add query service %s", name.c_str());
         return INTERNAL_ERR;
     }
     return OK;

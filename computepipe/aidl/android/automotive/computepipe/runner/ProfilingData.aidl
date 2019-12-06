@@ -22,6 +22,7 @@ import android.automotive.computepipe.NativeHandle;
  * Structure that describes the profiling information output from
  * an executing pipe.
  */
+@VintfStability
 parcelable ProfilingData {
     /**
      * Type of profiling information

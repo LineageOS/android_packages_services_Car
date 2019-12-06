@@ -18,6 +18,7 @@ package android.automotive.computepipe.runner;
 /**
  * Profiling types
  */
+@VintfStability
 @Backing(type="int")
 enum PipeProfilingType {
     /**
