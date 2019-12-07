@@ -20,6 +20,7 @@ package android.automotive.computepipe.runner;
  * All of the offload options maybe virtualized for different execution
  * environments.
  */
+@VintfStability
 @Backing(type="int")
 enum PipeOffloadConfigOffloadType {
     /**

@@ -17,6 +17,7 @@ package android.automotive.computepipe.runner;
 
 import android.automotive.computepipe.runner.PacketDescriptor;
 
+@VintfStability
 interface IPipeStream {
     /**
      * Receives calls from the HIDL implementation each time a new packet is available.

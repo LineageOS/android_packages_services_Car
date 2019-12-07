@@ -22,6 +22,7 @@ import android.automotive.computepipe.NativeHandle;
  * Structure that describes the output packet for a specific outputstream
  * that gets returned to the client.
  */
+@VintfStability
 parcelable PacketDescriptor {
     /**
      * packet id

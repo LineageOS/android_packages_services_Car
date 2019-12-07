@@ -41,6 +41,7 @@ class PipeRegistration : public android::automotive::computepipe::registry::BnPi
 
     explicit PipeRegistration(std::shared_ptr<PipeRegistry<PipeRunner>> r) : mRegistry(r) {
     }
+    String16 getIfaceName();
 
   private:
     // Convert internal registry error codes to PipeStatus

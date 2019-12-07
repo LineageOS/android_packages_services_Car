@@ -21,6 +21,7 @@ import android.automotive.computepipe.runner.PipeOffloadConfigOffloadType;
  * structure that describes the combination of offload options.
  * This is a per graph specific combination.
  */
+@VintfStability
 parcelable PipeOffloadConfigOffloadOptions {
     /**
      * combination of different offload engines

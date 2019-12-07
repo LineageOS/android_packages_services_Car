@@ -20,6 +20,7 @@ import android.automotive.computepipe.runner.IPipeStateCallback;
 import android.automotive.computepipe.runner.IPipeStream;
 import android.automotive.computepipe.runner.IPipeDebugger;
 
+@VintfStability
 interface IPipeRunner {
     /**
      * Returns the descriptor for the associated mediapipe

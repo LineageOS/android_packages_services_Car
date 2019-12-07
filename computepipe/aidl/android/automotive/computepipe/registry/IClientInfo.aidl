@@ -15,6 +15,7 @@
  */
 package android.automotive.computepipe.registry;
 
+@VintfStability
 interface IClientInfo {
     /**
      * Retrieve the ID assigned to the client

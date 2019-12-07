@@ -22,6 +22,7 @@ import android.automotive.computepipe.runner.PipeInputConfigFormatType;
 /**
  * Options for the client to choose from
  */
+@VintfStability
 parcelable PipeInputConfigInputOptions {
     /**
      * input stream type

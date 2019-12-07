@@ -29,6 +29,7 @@ import android.automotive.computepipe.runner.PipeInputConfigInputOptions;
  *
  * This is provided by the AIDL implementation to the client
  */
+@VintfStability
 parcelable PipeInputConfig {
     /**
      * input option.

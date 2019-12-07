@@ -21,6 +21,7 @@ import android.automotive.computepipe.runner.PipeTerminationConfigTerminationTyp
  * structure that describes the different termination options supported
  * by the graph
  */
+@VintfStability
 parcelable PipeTerminationConfigTerminationOptions {
     /**
      * type of termination criteria

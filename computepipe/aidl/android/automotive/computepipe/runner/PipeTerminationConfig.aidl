@@ -28,6 +28,7 @@ import android.automotive.computepipe.runner.PipeTerminationConfigTerminationOpt
  * The client has the option of choosing one of the provided options supported
  * by the graph or calling calling stopPipe() explicitly.
  */
+@VintfStability
 parcelable PipeTerminationConfig {
     /**
      * termination option supported by graph.

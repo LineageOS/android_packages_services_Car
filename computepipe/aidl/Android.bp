@@ -5,6 +5,12 @@ aidl_interface {
         "android/automotive/computepipe/runner/*.aidl",
 	"android/automotive/computepipe/*.aidl",
     ],
+    stability: "vintf",
+    backend: {
+        java: {
+            enabled: false,
+        },
+    },
 }
 
 aidl_interface {
@@ -15,4 +21,10 @@ aidl_interface {
         "android/automotive/computepipe/registry/*.aidl",
 	"android/automotive/computepipe/*.aidl",
     ],
+    stability: "vintf",
+    backend: {
+        java: {
+            enabled: false,
+        },
+    },
 }

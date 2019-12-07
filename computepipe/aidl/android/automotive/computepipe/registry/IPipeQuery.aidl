@@ -21,6 +21,7 @@ import android.automotive.computepipe.runner.IPipeRunner;
 /**
  * Provides mechanism for pipe/graph runner discovery
  */
+@VintfStability
 interface IPipeQuery {
     /**
      * A client will lookup the registered graphs using this method
