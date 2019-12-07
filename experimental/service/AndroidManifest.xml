@@ -15,19 +15,20 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
-        package="com.android.experimentalcar"
-        coreApp="true"
-        android:sharedUserId="android.uid.system">
+          package="com.android.experimentalcar"
+          coreApp="true"
+          android:sharedUserId="android.uid.system">
 
-    <original-package android:name="com.android.experimentalcar" />
+    <original-package android:name="com.android.experimentalcar"/>
 
     <application android:label="@string/app_title"
                  android:directBootAware="true"
                  android:allowBackup="false"
                  android:persistent="false">
         <service android:name=".ExperimentalCarService"
-                android:singleUser="true">
+                 android:singleUser="true">
         </service>
+        <service android:name=".TouchDriverAwarenessSupplier"/>
+        <service android:name=".SampleExternalDriverAwarenessSupplier"/>
     </application>
 </manifest>
