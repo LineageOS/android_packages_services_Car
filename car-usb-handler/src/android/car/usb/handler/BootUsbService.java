@@ -46,14 +46,14 @@ public class BootUsbService extends Service {
     static final String USB_DEVICE_LIST_KEY = "usb_device_list";
 
     private ArrayList<UsbDevice> mDeviceList;
-
-    private class UserSwitchBroadcastReceiver extends BroadcastReceiver {
+    private boolean mReceiverRegistered = false;
+    private final BroadcastReceiver mUserSwitchBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             processDevices();
-            unregisterReceiver(this);
+            unregisterUserSwitchReceiver();
         }
-    }
+    };
 
     @Override
     public Binder onBind(Intent intent) {
@@ -86,13 +86,17 @@ public class BootUsbService extends Service {
         // immediately.
         if (ActivityManager.getCurrentUser() == UserHandle.USER_SYSTEM) {
             Log.d(TAG, "Current user is still the system user, waiting for user switch");
-            registerReceiver(
-                    new UserSwitchBroadcastReceiver(), new IntentFilter(ACTION_USER_SWITCHED));
+            registerUserSwitchReceiver();
         } else {
             processDevices();
         }
 
         return START_NOT_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        unregisterUserSwitchReceiver();
     }
 
     private void processDevices() {
@@ -109,5 +113,19 @@ public class BootUsbService extends Service {
         manageDevice.putExtra(UsbManager.EXTRA_DEVICE, device);
         manageDevice.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivityAsUser(manageDevice, UserHandle.CURRENT);
+    }
+
+    private void registerUserSwitchReceiver() {
+        if (!mReceiverRegistered) {
+            registerReceiver(mUserSwitchBroadcastReceiver, new IntentFilter(ACTION_USER_SWITCHED));
+            mReceiverRegistered = true;
+        }
+    }
+
+    private void unregisterUserSwitchReceiver() {
+        if (mReceiverRegistered) {
+            unregisterReceiver(mUserSwitchBroadcastReceiver);
+            mReceiverRegistered = false;
+        }
     }
 }
