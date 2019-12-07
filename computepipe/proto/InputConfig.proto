@@ -2,7 +2,7 @@ syntax = "proto2";
 
 package android.automotive.computepipe.proto;
 
-message InputOptions {
+message InputConfig {
   enum InputType {
     DRIVER_VIEW_CAMERA = 0;
     OCCUPANT_VIEW_CAMERA = 1;
