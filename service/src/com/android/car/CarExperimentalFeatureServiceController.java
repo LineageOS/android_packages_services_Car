@@ -96,11 +96,11 @@ public final class CarExperimentalFeatureServiceController implements CarService
             // Do conversion to make indexed accesses
             ArrayList<String> classNamesInArray = new ArrayList<>(classNames);
             ArrayList<IBinder> bindersInArray = new ArrayList<>(binders);
-            int i = 0;
             synchronized (mLock) {
-                for (String feature : startedFeatures) {
-                    mEnabledFeatures.put(feature, new FeatureInfo(classNamesInArray.get(i),
-                            bindersInArray.get(i)));
+                for (int i = 0; i < startedFeatures.size(); i++) {
+                    mEnabledFeatures.put(startedFeatures.get(i),
+                            new FeatureInfo(classNamesInArray.get(i),
+                                    bindersInArray.get(i)));
                 }
             }
             CarFeatureController featureController = CarLocalServices.getService(

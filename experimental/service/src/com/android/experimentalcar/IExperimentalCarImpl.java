@@ -48,7 +48,8 @@ public final class IExperimentalCarImpl extends IExperimentalCar.Stub {
     private static final String TAG = "CAR.EXPIMPL";
 
     private static final List<String> ALL_AVAILABLE_FEATURES = Arrays.asList(
-            ExperimentalCar.TEST_EXPERIMENTAL_FEATURE_SERVICE
+            ExperimentalCar.TEST_EXPERIMENTAL_FEATURE_SERVICE,
+            ExperimentalCar.DRIVER_DISTRACTION_EXPERIMENTAL_FEATURE_SERVICE
     );
 
     private final Context mContext;
@@ -172,6 +173,8 @@ public final class IExperimentalCarImpl extends IExperimentalCar.Stub {
         switch (featureName) {
             case ExperimentalCar.TEST_EXPERIMENTAL_FEATURE_SERVICE:
                 return new TestDemoExperimentalFeatureService();
+            case ExperimentalCar.DRIVER_DISTRACTION_EXPERIMENTAL_FEATURE_SERVICE:
+                return new DriverDistractionExperimentalFeatureService();
             default:
                 return null;
         }
