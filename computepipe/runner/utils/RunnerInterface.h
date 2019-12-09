@@ -19,9 +19,9 @@
 #include <string>
 
 #include "RunnerInterfaceCallbacks.h"
+#include "runner/stream_manager/MemHandle.h"
 #include "types/GraphState.h"
 #include "types/Status.h"
-#include "runner/stream_manager/MemHandle.h"
 
 namespace android {
 namespace automotive {
@@ -30,54 +30,46 @@ namespace runner_utils {
 
 // RunnerInterface registers an IPipeRunner interface with computepipe router.
 // RunnerInterface handles binder IPC calls and invokes appropriate callbacks.
-class RunnerInterface :
-    public aidl::android::automotive::computepipe::runner::BnPipeRunner {
- public:
-    explicit RunnerInterface(
-        const std::string& graphName,
-        const RunnerInterfaceCallbacks& runnerInterfaceCallbacks):
-          mGraphName(graphName),
-          mRunnerInterfaceCallbacks(runnerInterfaceCallbacks) {}
+class RunnerInterface : public aidl::android::automotive::computepipe::runner::BnPipeRunner {
+  public:
+    explicit RunnerInterface(const std::string& graphName,
+                             const RunnerInterfaceCallbacks& runnerInterfaceCallbacks)
+        : mGraphName(graphName), mRunnerInterfaceCallbacks(runnerInterfaceCallbacks) {
+    }
 
     // Init() should be invoked when the process is ready to receive commands
     // from Clients.
     Status Init();
 
     // Thread-safe function to deliver new packets to client.
-    Status NewPacketNotification(
-        int32_t streamId, const std::shared_ptr<MemHandle>& packetHandle);
+    Status NewPacketNotification(int32_t streamId, const std::shared_ptr<MemHandle>& packetHandle);
 
     // Thread-safe function to notify clients of new state.
     Status StateUpdateNotification(const GraphState newState);
 
     // Methods from android::automotive::computepipe::runner::BnPipeRunner
+    ndk::ScopedAStatus init(
+        const std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeStateCallback>&
+            stateCb) override;
     ndk::ScopedAStatus getPipeDescriptor(
-        aidl::android::automotive::computepipe::runner::PipeDescriptor*
-            _aidl_return) override;
+        aidl::android::automotive::computepipe::runner::PipeDescriptor* _aidl_return) override;
     ndk::ScopedAStatus setPipeInputSource(int32_t configId) override;
     ndk::ScopedAStatus setPipeOffloadOptions(int32_t configId) override;
     ndk::ScopedAStatus setPipeTermination(int32_t configId) override;
-    ndk::ScopedAStatus setPipeStateCallback(
-        const std::shared_ptr<
-            aidl::android::automotive::computepipe::runner::IPipeStateCallback>& stateCb)
-        override;
     ndk::ScopedAStatus setPipeOutputConfig(
-        int32_t streamId,
-        int32_t maxInFlightCount,
-        const std::shared_ptr<
-        aidl::android::automotive::computepipe::runner::IPipeStream>& handler)
+        int32_t streamId, int32_t maxInFlightCount,
+        const std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeStream>& handler)
         override;
     ndk::ScopedAStatus applyPipeConfigs() override;
     ndk::ScopedAStatus startPipe() override;
     ndk::ScopedAStatus stopPipe() override;
     ndk::ScopedAStatus doneWithPacket(int32_t id) override;
 
- private:
+  private:
     std::string mGraphName;
     const RunnerInterfaceCallbacks& mRunnerInterfaceCallbacks;
 
-    std::map<int,
-        std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeStateCallback>>
+    std::map<int, std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeStateCallback>>
         mPacketHandlers;
 };
 

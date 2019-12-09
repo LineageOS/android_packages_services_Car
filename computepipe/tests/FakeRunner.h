@@ -33,14 +33,14 @@ namespace tests {
 
 class FakeRunner : public runner::BnPipeRunner {
   public:
+    ::android::binder::Status init(
+        const ::android::sp<::android::automotive::computepipe::runner::IPipeStateCallback>& stateCb)
+        override;
     ::android::binder::Status getPipeDescriptor(
         ::android::automotive::computepipe::runner::PipeDescriptor* _aidl_return) override;
     ::android::binder::Status setPipeInputSource(int32_t configId) override;
     ::android::binder::Status setPipeOffloadOptions(int32_t configId) override;
     ::android::binder::Status setPipeTermination(int32_t configId) override;
-    ::android::binder::Status setPipeStateCallback(
-        const ::android::sp<::android::automotive::computepipe::runner::IPipeStateCallback>& stateCb)
-        override;
     ::android::binder::Status setPipeOutputConfig(
         int32_t configId, int32_t maxInFlightCount,
         const ::android::sp<::android::automotive::computepipe::runner::IPipeStream>& handler)
