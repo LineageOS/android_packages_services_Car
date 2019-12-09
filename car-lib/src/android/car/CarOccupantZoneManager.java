@@ -40,7 +40,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -278,7 +277,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @NonNull
     public List<OccupantZoneInfo> getAllOccupantZones() {
         try {
-            return Arrays.asList(mService.getAllOccupantZones());
+            return mService.getAllOccupantZones();
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }

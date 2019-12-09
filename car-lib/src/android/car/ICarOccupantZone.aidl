@@ -22,7 +22,7 @@ import android.view.DisplayInfo;
 
 /** @hide */
 interface ICarOccupantZone {
-    CarOccupantZoneManager.OccupantZoneInfo[] getAllOccupantZones();
+    List<CarOccupantZoneManager.OccupantZoneInfo> getAllOccupantZones();
     int[] getAllDisplaysForOccupantZone(in int occupantZoneId);
     int getDisplayForOccupant(in int occupantZoneId, in int displayType);
     int getDisplayType(in int displayId);
