@@ -352,14 +352,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     @Override
-    public OccupantZoneInfo[] getAllOccupantZones() {
+    public List<OccupantZoneInfo> getAllOccupantZones() {
         synchronized (mLock) {
-            OccupantZoneInfo[] infos = new OccupantZoneInfo[mActiveOccupantConfigs.size()];
-            int i = 0;
+            List<OccupantZoneInfo> infos = new ArrayList<>();
             for (Integer zoneId : mActiveOccupantConfigs.keySet()) {
                 // no need for deep copy as OccupantZoneInfo itself is static.
-                infos[i] = mOccupantsConfig.get(zoneId);
-                i++;
+                infos.add(mOccupantsConfig.get(zoneId));
             }
             return infos;
         }

@@ -519,6 +519,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             return;
         }
 
+        // Clear playback state callback so we preserve the state before stopping
+        if (mActiveUserMediaController != null) {
+            mActiveUserMediaController.unregisterCallback(mMediaControllerCallback);
+            mActiveUserMediaController = null;
+        }
         stop();
 
         mPreviousMediaComponent = mPrimaryMediaComponent;
@@ -535,9 +540,9 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
 
         notifyListeners();
-        if (shouldStartPlayback(mPlayOnMediaSourceChangedConfig)) {
-            startMediaConnectorService(true, new UserHandle(mCurrentUser));
-        }
+
+        startMediaConnectorService(shouldStartPlayback(mPlayOnMediaSourceChangedConfig),
+                new UserHandle(mCurrentUser));
     }
 
     private void notifyListeners() {
