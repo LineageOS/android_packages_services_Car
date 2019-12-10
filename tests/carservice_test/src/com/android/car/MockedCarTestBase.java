@@ -112,6 +112,9 @@ public class MockedCarTestBase {
     protected synchronized void configureMockedHal() {
     }
 
+    protected synchronized void spyOnInitMockedHal() {
+    }
+
     protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
         return Builder.newSystemInterface()
                 .withSystemStateInterface(new MockSystemStateInterface())
@@ -167,11 +170,11 @@ public class MockedCarTestBase {
         // This prevents one test failure in tearDown from triggering assertion failure for single
         // CarLocalServices service.
         CarLocalServices.removeAllServices();
-        ICarImpl carImpl = new ICarImpl(context, mMockedVehicleHal, mFakeSystemInterface,
+        mCarImpl = new ICarImpl(context, mMockedVehicleHal, mFakeSystemInterface,
                 null /* error notifier */, "MockedCar");
 
-        initMockedHal(carImpl, false /* no need to release */);
-        mCarImpl = carImpl;
+        spyOnInitMockedHal();
+        initMockedHal(mCarImpl, false /* no need to release */);
         mCar = new Car(context, mCarImpl, null /* handler */);
     }
 
@@ -186,6 +189,10 @@ public class MockedCarTestBase {
         if (mMockIOInterface != null) {
             mMockIOInterface.tearDown();
         }
+    }
+
+    public CarPropertyService getCarPropertyService() {
+        return (CarPropertyService) mCarImpl.getCarService(Car.PROPERTY_SERVICE);
     }
 
     public CarPackageManagerService getPackageManagerService() {
