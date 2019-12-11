@@ -162,5 +162,14 @@ public class CarSettings {
          */
         public static final String KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER =
                 "android.car.ENABLE_INITIAL_NOTICE_SCREEN_TO_USER";
+
+        /**
+         * Key to indicate Setup Wizard is in progress. It differs from USER_SETUP_COMPLETE in
+         * that this flag can be reset to 0 in deferred Setup Wizard flow.
+         * The value is boolean (1 or 0).
+         * @hide
+         */
+        public static final String KEY_SETUP_WIZARD_IN_PROGRESS =
+                "android.car.SETUP_WIZARD_IN_PROGRESS";
     }
 }
