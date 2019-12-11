@@ -1529,8 +1529,10 @@ public class RadioInfo extends Activity {
     };
 
     boolean isCbrsSupported() {
-        return getResources().getBoolean(
-              com.android.internal.R.bool.config_cbrs_supported);
+        // No longer possible to access com.android.internal.R.bool.config_cbrs_supported, so
+        // returning false for now.
+        // TODO: This needs to be cleaned up in future CL.
+        return false;
     }
 
     void updateCbrsDataState(boolean state) {
