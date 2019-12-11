@@ -38,9 +38,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +63,7 @@ public class BugReportInfoActivity extends Activity {
     private MetaBugReport mLastSelectedBugReport;
     private BugInfoAdapter.BugInfoViewHolder mLastSelectedBugInfoViewHolder;
     private BugStorageObserver mBugStorageObserver;
+    private Config mConfig;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +80,10 @@ public class BugReportInfoActivity extends Activity {
         mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
                 DividerItemDecoration.VERTICAL));
 
-        mBugInfoAdapter = new BugInfoAdapter(this::onBugReportItemClicked);
+        mConfig = new Config();
+        mConfig.start();
+
+        mBugInfoAdapter = new BugInfoAdapter(this::onBugReportItemClicked, mConfig);
         mRecyclerView.setAdapter(mBugInfoAdapter);
 
         mBugStorageObserver = new BugStorageObserver(this, new Handler());
@@ -170,6 +176,21 @@ public class BugReportInfoActivity extends Activity {
         startActivity(intent);
     }
 
+    /**
+     * Print the Provider's state into the given stream. This gets invoked if
+     * you run "adb shell dumpsys activity BugReportInfoActivity".
+     *
+     * @param prefix Desired prefix to prepend at each line of output.
+     * @param fd The raw file descriptor that the dump is being sent to.
+     * @param writer The PrintWriter to which you should dump your state.  This will be
+     * closed for you after you return.
+     * @param args additional arguments to the dump request.
+     */
+    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        super.dump(prefix, fd, writer, args);
+        mConfig.dump(prefix, writer);
+    }
+
     /** Observer for {@link BugStorageProvider}. */
     private static class BugStorageObserver extends ContentObserver {
         private final BugReportInfoActivity mInfoActivity;
@@ -251,18 +272,15 @@ public class BugReportInfoActivity extends Activity {
                 } else {
                     Log.w(TAG, "Failed to delete the local bugreport " + mBugReport.getFilePath());
                 }
-                BugStorageUtils.setBugReportStatus(
-                        mActivity, mBugReport,
-                        com.google.android.car.bugreport.Status.STATUS_MOVE_SUCCESSFUL, "");
+                return BugStorageUtils.setBugReportStatus(mActivity, mBugReport,
+                            com.google.android.car.bugreport.Status.STATUS_MOVE_SUCCESSFUL,
+                            "Moved to: " + mDestinationDirUri.getPath());
             } catch (IOException e) {
                 Log.e(TAG, "Failed to create the bug report in the location.", e);
                 return BugStorageUtils.setBugReportStatus(
                         mActivity, mBugReport,
                         com.google.android.car.bugreport.Status.STATUS_MOVE_FAILED, e);
             }
-            return BugStorageUtils.setBugReportStatus(mActivity, mBugReport,
-                        com.google.android.car.bugreport.Status.STATUS_MOVE_SUCCESSFUL,
-                        "Moved to: " + mDestinationDirUri.getPath());
         }
 
         @Override
