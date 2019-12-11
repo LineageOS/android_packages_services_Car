@@ -117,13 +117,21 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_SPEED)
     public static final int PERF_VEHICLE_SPEED_DISPLAY = 291504648;
     /**
-     * Steering angle of the vehicle
+     * Front bicycle model steering angle for vehicle
      *
      * Angle is in degrees. Left is negative.
      * Requires permission: {@link Car#PERMISSION_READ_STEERING_STATE}.
      */
     @RequiresPermission(Car.PERMISSION_READ_STEERING_STATE)
     public static final int PERF_STEERING_ANGLE = 291504649;
+    /**
+     * Rear bicycle model steering angle for vehicle
+     *
+     * Angle is in degrees. Left is negative.
+     * Requires permission: {@link Car#PERMISSION_READ_STEERING_STATE}.
+     */
+    @RequiresPermission(Car.PERMISSION_READ_STEERING_STATE)
+    public static final int PERF_REAR_STEERING_ANGLE = 291504656;
     /**
      * Temperature of engine coolant
      * Requires permission: {@link Car#PERMISSION_CAR_ENGINE_DETAILED}.
@@ -927,7 +935,10 @@ public final class VehiclePropertyIds {
             return "PERF_VEHICLE_SPEED_DISPLAY";
         }
         if (o == PERF_STEERING_ANGLE) {
-            return "PERF__STEERING_ANGLE";
+            return "PERF_STEERING_ANGLE";
+        }
+        if (o == PERF_REAR_STEERING_ANGLE) {
+            return "PERF_REAR_STEERING_ANGLE";
         }
         if (o == ENGINE_COOLANT_TEMP) {
             return "ENGINE_COOLANT_TEMP";
