@@ -325,6 +325,9 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.INFO_DRIVER_SEAT, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
+        mProps.put(VehicleProperty.INFO_EXTERIOR_DIMENSIONS, new Pair<>(
+                    Car.PERMISSION_CAR_INFO,
+                    null));
 
         // Sensor properties
         mProps.put(VehicleProperty.PERF_ODOMETER, new Pair<>(

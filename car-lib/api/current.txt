@@ -277,6 +277,7 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_EV_BATTERY_CAPACITY = 291504390; // 0x11600106
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_EV_CONNECTOR_TYPE = 289472775; // 0x11410107
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_EV_PORT_LOCATION = 289407241; // 0x11400109
+    field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_EXTERIOR_DIMENSIONS = 289472779; // 0x1141010b
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_FUEL_CAPACITY = 291504388; // 0x11600104
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_FUEL_DOOR_LOCATION = 289407240; // 0x11400108
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_FUEL_TYPE = 289472773; // 0x11410105
