@@ -248,7 +248,7 @@ class VendorServiceController implements CarUserService.UserCallback {
      * Represents connection to the vendor service.
      */
     private static class VendorServiceConnection implements ServiceConnection {
-        private static final int REBIND_DELAY_MS = 1000;
+        private static final int REBIND_DELAY_MS = 5000;
         private static final int MAX_RECENT_FAILURES = 5;
         private static final int FAILURE_COUNTER_RESET_TIMEOUT = 5 * 60 * 1000; // 5 min.
         private static final int MSG_REBIND = 0;
