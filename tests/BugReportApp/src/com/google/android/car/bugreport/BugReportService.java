@@ -43,6 +43,7 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.AtomicDouble;
 
@@ -182,6 +183,8 @@ public class BugReportService extends Service {
 
     @Override
     public void onCreate() {
+        Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
+
         mNotificationManager = getSystemService(NotificationManager.class);
         mNotificationManager.createNotificationChannel(new NotificationChannel(
                 PROGRESS_CHANNEL_ID,
