@@ -94,6 +94,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarInputService mCarInputService;
     private final CarDrivingStateService mCarDrivingStateService;
     private final CarUxRestrictionsManagerService mCarUXRestrictionsService;
+    private final OccupantAwarenessService mOccupantAwarenessService;
     private final CarAudioService mCarAudioService;
     private final CarProjectionService mCarProjectionService;
     private final CarPropertyService mCarPropertyService;
@@ -186,6 +187,11 @@ public class ICarImpl extends ICar.Stub {
         mCarDrivingStateService = new CarDrivingStateService(serviceContext, mCarPropertyService);
         mCarUXRestrictionsService = new CarUxRestrictionsManagerService(serviceContext,
                 mCarDrivingStateService, mCarPropertyService);
+        if (mFeatureController.isFeatureEnabled(Car.OCCUPANT_AWARENESS_SERVICE)) {
+            mOccupantAwarenessService = new OccupantAwarenessService(serviceContext);
+        } else {
+            mOccupantAwarenessService = null;
+        }
         mCarPackageManagerService = new CarPackageManagerService(serviceContext,
                 mCarUXRestrictionsService,
                 mSystemActivityMonitoringService);
@@ -264,6 +270,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarDrivingStateService);
         allServices.add(mCarOccupantZoneService);
         allServices.add(mCarUXRestrictionsService);
+        addServiceIfNonNull(allServices, mOccupantAwarenessService);
         allServices.add(mCarPackageManagerService);
         allServices.add(mCarInputService);
         allServices.add(mGarageModeService);

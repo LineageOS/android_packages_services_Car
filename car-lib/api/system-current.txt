@@ -28,6 +28,7 @@ package android.car {
     field public static final int FEATURE_REQUEST_NOT_EXISTING = 3; // 0x3
     field public static final int FEATURE_REQUEST_SUCCESS = 0; // 0x0
     field @Deprecated public static final String HVAC_SERVICE = "hvac";
+    field public static final String OCCUPANT_AWARENESS_SERVICE = "occupant_awareness";
     field public static final String PERMISSION_ADJUST_RANGE_REMAINING = "android.car.permission.ADJUST_RANGE_REMAINING";
     field public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.CLEAR_CAR_DIAGNOSTICS";
     field public static final String PERMISSION_CAR_DIAGNOSTIC_READ_ALL = "android.car.permission.CAR_DIAGNOSTICS";
@@ -45,12 +46,14 @@ package android.car {
     field public static final String PERMISSION_CONTROL_CAR_DOORS = "android.car.permission.CONTROL_CAR_DOORS";
     field public static final String PERMISSION_CONTROL_CAR_FEATURES = "android.car.permission.CONTROL_CAR_FEATURES";
     field public static final String PERMISSION_CONTROL_CAR_MIRRORS = "android.car.permission.CONTROL_CAR_MIRRORS";
+    field public static final String PERMISSION_CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM = "android.car.permission.CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM";
     field public static final String PERMISSION_CONTROL_CAR_SEATS = "android.car.permission.CONTROL_CAR_SEATS";
     field public static final String PERMISSION_CONTROL_CAR_WINDOWS = "android.car.permission.CONTROL_CAR_WINDOWS";
     field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     field @Deprecated public static final String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
+    field public static final String PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE = "android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE";
     field public static final String PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO = "android.car.permission.READ_CAR_VENDOR_PERMISSION_INFO";
     field public static final String PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS = "android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS";
     field public static final String PERMISSION_STORAGE_MONITORING = "android.car.permission.STORAGE_MONITORING";
@@ -864,6 +867,111 @@ package android.car.navigation {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public android.car.navigation.CarNavigationInstrumentCluster getInstrumentClusterInfo();
     method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public void sendEvent(int, android.os.Bundle);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public void sendNavigationStateChange(android.os.Bundle);
+  }
+
+}
+
+package android.car.occupantawareness {
+
+  public final class DriverMonitoringDetection implements android.os.Parcelable {
+    ctor public DriverMonitoringDetection();
+    ctor public DriverMonitoringDetection(int, boolean, long);
+    method public int describeContents();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.occupantawareness.DriverMonitoringDetection> CREATOR;
+    field public final int confidenceLevel;
+    field public final long gazeDurationMillis;
+    field public final boolean isLookingOnRoad;
+  }
+
+  public final class GazeDetection implements android.os.Parcelable {
+    ctor public GazeDetection(int, @Nullable android.car.occupantawareness.Point3D, @Nullable android.car.occupantawareness.Point3D, @Nullable android.car.occupantawareness.Point3D, @Nullable android.car.occupantawareness.Point3D, int, long);
+    method public int describeContents();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.occupantawareness.GazeDetection> CREATOR;
+    field public static final int VEHICLE_REGION_CENTER_INSTRUMENT_CLUSTER = 1; // 0x1
+    field public static final int VEHICLE_REGION_FORWARD_ROADWAY = 5; // 0x5
+    field public static final int VEHICLE_REGION_HEAD_UNIT_DISPLAY = 8; // 0x8
+    field public static final int VEHICLE_REGION_LEFT_ROADWAY = 6; // 0x6
+    field public static final int VEHICLE_REGION_LEFT_SIDE_MIRROR = 3; // 0x3
+    field public static final int VEHICLE_REGION_REAR_VIEW_MIRROR = 2; // 0x2
+    field public static final int VEHICLE_REGION_RIGHT_ROADWAY = 7; // 0x7
+    field public static final int VEHICLE_REGION_RIGHT_SIDE_MIRROR = 4; // 0x4
+    field public static final int VEHICLE_REGION_UNKNOWN = 0; // 0x0
+    field public final int confidenceLevel;
+    field public final long durationOnTargetMillis;
+    field @Nullable public final android.car.occupantawareness.Point3D gazeAngleUnitVector;
+    field public final int gazeTarget;
+    field @Nullable public final android.car.occupantawareness.Point3D headAngleUnitVector;
+    field @Nullable public final android.car.occupantawareness.Point3D leftEyePosition;
+    field @Nullable public final android.car.occupantawareness.Point3D rightEyePosition;
+  }
+
+  public final class OccupantAwarenessDetection implements android.os.Parcelable {
+    ctor public OccupantAwarenessDetection(int, long, boolean, @Nullable android.car.occupantawareness.GazeDetection, @Nullable android.car.occupantawareness.DriverMonitoringDetection);
+    method public int describeContents();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field public static final int CONFIDENCE_LEVEL_HIGH = 2; // 0x2
+    field public static final int CONFIDENCE_LEVEL_LOW = 1; // 0x1
+    field public static final int CONFIDENCE_LEVEL_MAX = 3; // 0x3
+    field public static final int CONFIDENCE_LEVEL_NONE = 0; // 0x0
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.occupantawareness.OccupantAwarenessDetection> CREATOR;
+    field public static final int VEHICLE_OCCUPANT_ALL_FRONT_OCCUPANTS = 6; // 0x6
+    field public static final int VEHICLE_OCCUPANT_ALL_OCCUPANTS = 510; // 0x1fe
+    field public static final int VEHICLE_OCCUPANT_ALL_ROW_2_OCCUPANTS = 56; // 0x38
+    field public static final int VEHICLE_OCCUPANT_ALL_ROW_3_OCCUPANTS = 448; // 0x1c0
+    field public static final int VEHICLE_OCCUPANT_DRIVER = 4; // 0x4
+    field public static final int VEHICLE_OCCUPANT_FRONT_PASSENGER = 2; // 0x2
+    field public static final int VEHICLE_OCCUPANT_NONE = 0; // 0x0
+    field public static final int VEHICLE_OCCUPANT_ROW_2_PASSENGER_CENTER = 16; // 0x10
+    field public static final int VEHICLE_OCCUPANT_ROW_2_PASSENGER_LEFT = 8; // 0x8
+    field public static final int VEHICLE_OCCUPANT_ROW_2_PASSENGER_RIGHT = 32; // 0x20
+    field public static final int VEHICLE_OCCUPANT_ROW_3_PASSENGER_CENTER = 128; // 0x80
+    field public static final int VEHICLE_OCCUPANT_ROW_3_PASSENGER_LEFT = 64; // 0x40
+    field public static final int VEHICLE_OCCUPANT_ROW_3_PASSENGER_RIGHT = 256; // 0x100
+    field @Nullable public final android.car.occupantawareness.DriverMonitoringDetection driverMonitoringDetection;
+    field @Nullable public final android.car.occupantawareness.GazeDetection gazeDetection;
+    field public final boolean isPresent;
+    field public final int role;
+    field public final long timestampMillis;
+  }
+
+  public class OccupantAwarenessManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE) public int getCapabilityForRole(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE) public void registerChangeCallback(@NonNull android.car.occupantawareness.OccupantAwarenessManager.ChangeCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE) public void unregisterChangeCallback();
+  }
+
+  public abstract class OccupantAwarenessManager.ChangeCallback {
+    ctor public OccupantAwarenessManager.ChangeCallback();
+  }
+
+  public final class Point3D implements android.os.Parcelable {
+    ctor public Point3D(double, double, double);
+    method public int describeContents();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.occupantawareness.Point3D> CREATOR;
+    field public final double x;
+    field public final double y;
+    field public final double z;
+  }
+
+  public final class SystemStatusEvent implements android.os.Parcelable {
+    ctor public SystemStatusEvent(int, int);
+    ctor public SystemStatusEvent();
+    method public int describeContents();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.occupantawareness.SystemStatusEvent> CREATOR;
+    field public static final int DETECTION_TYPE_DRIVER_MONITORING = 4; // 0x4
+    field public static final int DETECTION_TYPE_GAZE = 2; // 0x2
+    field public static final int DETECTION_TYPE_NONE = 0; // 0x0
+    field public static final int DETECTION_TYPE_PRESENCE = 1; // 0x1
+    field public static final int SYSTEM_STATUS_NOT_READY = 2; // 0x2
+    field public static final int SYSTEM_STATUS_NOT_SUPPORTED = 1; // 0x1
+    field public static final int SYSTEM_STATUS_READY = 0; // 0x0
+    field public static final int SYSTEM_STATUS_SYSTEM_FAILURE = 3; // 0x3
+    field public final int detectionType;
+    field public final int systemStatus;
   }
 
 }
