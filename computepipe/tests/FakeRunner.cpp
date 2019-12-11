@@ -25,6 +25,11 @@ using namespace android::binder;
 using namespace android::automotive::computepipe::runner;
 
 // Methods from ::android::automotive::computepipe::runner::V1_0::IFakeRunnerV1_0 follow.
+Status FakeRunner::init(const sp<IPipeStateCallback>& stateCb) {
+    mStateCallback = stateCb;
+    return Status::ok();
+}
+
 Status FakeRunner::getPipeDescriptor(
     ::android::automotive::computepipe::runner::PipeDescriptor* _aidl_return) {
     (void)_aidl_return;
@@ -43,11 +48,6 @@ Status FakeRunner::setPipeOffloadOptions(int32_t configId) {
 
 Status FakeRunner::setPipeTermination(int32_t configId) {
     (void)configId;
-    return Status::ok();
-}
-
-Status FakeRunner::setPipeStateCallback(const sp<IPipeStateCallback>& stateCb) {
-    mStateCallback = stateCb;
     return Status::ok();
 }
 
