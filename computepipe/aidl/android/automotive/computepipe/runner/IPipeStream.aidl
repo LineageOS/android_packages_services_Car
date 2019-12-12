@@ -20,10 +20,11 @@ import android.automotive.computepipe.runner.PacketDescriptor;
 @VintfStability
 interface IPipeStream {
     /**
-     * Receives calls from the HIDL implementation each time a new packet is available.
-     * Packets received by this method must be returned via calls to
-     * IPipeRunner::doneWithPacket(). After the pipe execution has
-     * stopped this callback may continue to happen for sometime.
+     * Receives calls from the AIDL implementation each time a new packet is available.
+     * Semantic data is contaied in the packet descriptor.
+     * Only Zero copy data packets received by this method must be returned via calls to
+     * IPipeRunner::doneWithPacket(), using the bufId field in the descriptor.
+     * After the pipe execution has stopped this callback may continue to happen for sometime.
      * Those packets must still be returned. Last frame will be indicated with
      * a null packet. After that there will not be any further packets.
      *

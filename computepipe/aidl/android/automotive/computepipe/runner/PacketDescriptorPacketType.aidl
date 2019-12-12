@@ -30,7 +30,7 @@ enum PacketDescriptorPacketType {
      */
     PIXEL_DATA,
     /**
-     * Pixel data with zero copy semantics
+     * Semantic data with zero copy requirements.
      */
-    PIXEL_ZERO_COPY_DATA,
+    SEMANTIC_ZERO_COPY_DATA,
 }
