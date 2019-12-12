@@ -47,6 +47,7 @@
                   android:theme="@android:style/Theme.DeviceDefault.Dialog"
                   android:exported="true"
                   android:launchMode="singleInstance">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
         </activity>
 
         <service android:name=".BugReportService"

@@ -26,7 +26,6 @@ import static android.net.wifi.WifiManager.EXTRA_WIFI_AP_STATE;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLING;
-import static android.net.wifi.WifiManager.WIFI_FREQUENCY_BAND_5GHZ;
 
 import android.annotation.Nullable;
 import android.app.ActivityOptions;
@@ -938,9 +937,9 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     private void ensureApConfiguration() {
         // Always prefer 5GHz configuration whenever it is available.
         WifiConfiguration apConfig = mWifiManager.getWifiApConfiguration();
-        if (apConfig != null && apConfig.apBand != WIFI_FREQUENCY_BAND_5GHZ
+        if (apConfig != null && apConfig.apBand != WifiConfiguration.AP_BAND_5GHZ
                 && mWifiManager.is5GHzBandSupported()) {
-            apConfig.apBand = WIFI_FREQUENCY_BAND_5GHZ;
+            apConfig.apBand = WifiConfiguration.AP_BAND_5GHZ;
             mWifiManager.setWifiApConfiguration(apConfig);
         }
     }
