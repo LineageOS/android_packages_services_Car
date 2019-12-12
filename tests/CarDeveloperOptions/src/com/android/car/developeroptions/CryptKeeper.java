@@ -60,12 +60,12 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.android.car.developeroptions.widget.ImeAwareEditText;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.LockPatternView;
 import com.android.internal.widget.LockPatternView.Cell;
 import com.android.internal.widget.LockPatternView.DisplayMode;
-import com.android.car.developeroptions.widget.ImeAwareEditText;
 
 import java.util.List;
 
@@ -964,7 +964,7 @@ public class CryptKeeper extends Activity implements TextView.OnEditorActionList
     }
 
     private boolean isEmergencyCallCapable() {
-        return getResources().getBoolean(com.android.internal.R.bool.config_voice_capable);
+        return getTelephonyManager().isVoiceCapable();
     }
 
     private void takeEmergencyCallAction() {
