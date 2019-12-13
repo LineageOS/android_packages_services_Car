@@ -15,9 +15,8 @@
 #ifndef COMPUTEPIPE_RUNNER_STREAM_MANAGER_MEMHANDLE_H
 #define COMPUTEPIPE_RUNNER_STREAM_MANAGER_MEMHANDLE_H
 
+#include <OutputConfig.pb.h>
 #include <cutils/native_handle.h>
-
-#include "OutputConfig.pb.h"
 
 namespace android {
 namespace automotive {
@@ -32,15 +31,16 @@ class MemHandle {
     /* Get size */
     virtual uint32_t getSize() = 0;
     /* Get data, raw pointer. Only implemented for copy semantics */
-    virtual const void *getData() = 0;
+    virtual const char* getData() = 0;
     /* Get native handle. data with zero copy semantics */
     virtual native_handle_t getNativeHandle() = 0;
 
-    virtual ~MemHandle() {}
+    virtual ~MemHandle() {
+    }
 };
 
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android
 
-#endif // COMPUTEPIPE_RUNNER_STREAM_MANAGER_MEMHANDLE_H
+#endif  // COMPUTEPIPE_RUNNER_STREAM_MANAGER_MEMHANDLE_H

@@ -12,34 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-cc_library {
-    name: "libRunnerInterface",
-
-    cflags: [
-        "-Wall",
-        "-Werror",
-        "-Wextra",
-        "-Wno-unused-parameter",
-    ],
-
+cc_library_headers {
+    name: "computepipe_runner_includes",
+    export_include_dirs: ["include"],
     static_libs: [
-        "libcomputepipeprotos",
+         "libcomputepipeprotos",
     ],
-
-    header_libs: ["computepipe_runner_includes"],
-    include_dirs: ["packages/services/Car/computepipe"],
-
-    shared_libs: [
-        "libbase",
-        "libbinder_ndk",
-        "liblog",
-        "libutils",
-        "android.automotive.computepipe.runner-ndk_platform",
-        "libprotobuf-cpp-lite",
-    ],
-
     visibility:["//packages/services/Car/computepipe/runner:__subpackages__"],
-    srcs: [
-        "RunnerInterface.cc",
-    ],
 }
