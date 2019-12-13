@@ -372,11 +372,13 @@ public class BugReportService extends Service {
 
     private void zipDirectoryAndScheduleForUpload() {
         try {
+            // All the generated zip files, images and audio messages are located in this dir.
+            // This is located under the current user.
+            File bugReportTempDir = FileUtils.createTempDir(this, mMetaBugReport.getTimestamp());
             // When OutputStream from openBugReportFile is closed, BugStorageProvider automatically
             // schedules an upload job.
             zipDirectoryToOutputStream(
-                    FileUtils.createTempDir(this, mMetaBugReport.getTimestamp()),
-                    BugStorageUtils.openBugReportFile(this, mMetaBugReport));
+                    bugReportTempDir, BugStorageUtils.openBugReportFile(this, mMetaBugReport));
             showBugReportFinishedNotification();
         } catch (IOException e) {
             Log.e(TAG, "Failed to zip files", e);

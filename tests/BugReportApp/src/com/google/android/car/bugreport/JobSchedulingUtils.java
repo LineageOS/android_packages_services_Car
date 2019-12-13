@@ -31,7 +31,7 @@ class JobSchedulingUtils {
     private static final int RETRY_DELAY_IN_MS = 5_000;
 
     /**
-     * Schedules an upload job under the current user.
+     * Schedules {@link UploadJob} under the current user.
      *
      * <p>Make sure this method is called under the primary user.
      *

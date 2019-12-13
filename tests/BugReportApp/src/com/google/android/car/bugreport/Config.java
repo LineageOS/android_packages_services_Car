@@ -28,7 +28,8 @@ import java.io.PrintWriter;
 /**
  * Contains config for BugReport App.
  *
- * <p>The config is kept synchronized with {@link DeviceConfig#NAMESPACE_CAR}.
+ * <p>The config is kept synchronized with {@code car} namespace. It's not defined in
+ * {@link DeviceConfig}.
  *
  * <ul>To get/set the flags via adb:
  *   <li>{@code adb shell device_config get car bugreport_upload_destination}
@@ -38,6 +39,13 @@ import java.io.PrintWriter;
  */
 final class Config {
     private static final String TAG = Config.class.getSimpleName();
+
+    /**
+     * Namespace for all Android Automotive related features.
+     *
+     * <p>In the future it will move to {@code DeviceConfig#NAMESPACE_CAR}.
+     */
+    private static final String NAMESPACE_CAR = "car";
 
     /**
      * A string flag, can be one of {@code null} or {@link #UPLOAD_DESTINATION_GCS}.
@@ -73,7 +81,7 @@ final class Config {
     private String mUploadDestination = null;
 
     void start() {
-        DeviceConfig.addOnPropertiesChangedListener(DeviceConfig.NAMESPACE_CAR,
+        DeviceConfig.addOnPropertiesChangedListener(NAMESPACE_CAR,
                 ActivityThread.currentApplication().getMainExecutor(), this::onPropertiesChanged);
         updateConstants();
     }
@@ -129,7 +137,7 @@ final class Config {
 
     private void updateConstants() {
         synchronized (mLock) {
-            mUploadDestination = DeviceConfig.getString(DeviceConfig.NAMESPACE_CAR,
+            mUploadDestination = DeviceConfig.getString(NAMESPACE_CAR,
                     KEY_BUGREPORT_UPLOAD_DESTINATION, /* defaultValue= */ null);
         }
     }

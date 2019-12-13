@@ -52,6 +52,7 @@ public class BugStorageProvider extends ContentProvider {
     private static final String AUTHORITY = "com.google.android.car.bugreport";
     private static final String BUG_REPORTS_TABLE = "bugreports";
     private static final String URL_SEGMENT_DELETE_ZIP_FILE = "deleteZipFile";
+    private static final String URL_SEGMENT_COMPLETE_DELETE = "completeDelete";
 
     static final Uri BUGREPORT_CONTENT_URI =
             Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE);
@@ -71,6 +72,7 @@ public class BugStorageProvider extends ContentProvider {
     private static final int URL_MATCHED_BUG_REPORTS_URI = 1;
     private static final int URL_MATCHED_BUG_REPORT_ID_URI = 2;
     private static final int URL_MATCHED_DELETE_ZIP_FILE = 3;
+    private static final int URL_MATCHED_COMPLETE_DELETE = 4;
 
     private Handler mHandler;
 
@@ -131,6 +133,12 @@ public class BugStorageProvider extends ContentProvider {
         return Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE + "/" + bugReportId);
     }
 
+    /** Builds {@link Uri} that completely deletes the bugreport from DB and files. */
+    static Uri buildUriCompleteDelete(int bugReportId) {
+        return Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE + "/"
+                + URL_SEGMENT_COMPLETE_DELETE + "/" + bugReportId);
+    }
+
     /** Builds {@link Uri} that deletes a zip file for given bugreport id. */
     static Uri buildUriDeleteZipFile(int bugReportId) {
         return Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE + "/"
@@ -144,6 +152,9 @@ public class BugStorageProvider extends ContentProvider {
         mUriMatcher.addURI(
                 AUTHORITY, BUG_REPORTS_TABLE + "/" + URL_SEGMENT_DELETE_ZIP_FILE + "/#",
                 URL_MATCHED_DELETE_ZIP_FILE);
+        mUriMatcher.addURI(
+                AUTHORITY, BUG_REPORTS_TABLE + "/" + URL_SEGMENT_COMPLETE_DELETE + "/#",
+                URL_MATCHED_COMPLETE_DELETE);
     }
 
     @Override
@@ -244,18 +255,6 @@ public class BugStorageProvider extends ContentProvider {
             @NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         SQLiteDatabase db = mDatabaseHelper.getReadableDatabase();
         switch (mUriMatcher.match(uri)) {
-            //  returns the bugreport that match the id.
-            case URL_MATCHED_BUG_REPORT_ID_URI:
-                if (selection != null || selectionArgs != null) {
-                    throw new IllegalArgumentException("selection is not allowed for "
-                            + URL_MATCHED_BUG_REPORT_ID_URI);
-                }
-                selection = COLUMN_ID + " = ?";
-                selectionArgs = new String[]{uri.getLastPathSegment()};
-                // Ignore the results of zip file deletion, likelihood of failure is too small.
-                deleteZipFile(Integer.parseInt(uri.getLastPathSegment()));
-                getContext().getContentResolver().notifyChange(uri, null);
-                return db.delete(BUG_REPORTS_TABLE, selection, selectionArgs);
             case URL_MATCHED_DELETE_ZIP_FILE:
                 if (selection != null || selectionArgs != null) {
                     throw new IllegalArgumentException("selection is not allowed for "
@@ -266,6 +265,17 @@ public class BugStorageProvider extends ContentProvider {
                     return 1;
                 }
                 return 0;
+            case URL_MATCHED_COMPLETE_DELETE:
+                if (selection != null || selectionArgs != null) {
+                    throw new IllegalArgumentException("selection is not allowed for "
+                            + URL_MATCHED_COMPLETE_DELETE);
+                }
+                selection = COLUMN_ID + " = ?";
+                selectionArgs = new String[]{uri.getLastPathSegment()};
+                // Ignore the results of zip file deletion, possibly it wasn't even created.
+                deleteZipFile(Integer.parseInt(uri.getLastPathSegment()));
+                getContext().getContentResolver().notifyChange(uri, null);
+                return db.delete(BUG_REPORTS_TABLE, selection, selectionArgs);
             default:
                 throw new IllegalArgumentException("Unknown URL " + uri);
         }
@@ -334,7 +344,7 @@ public class BugStorageProvider extends ContentProvider {
                     Log.e(TAG, "Only read-only or write-only mode supported; mode=" + mode);
                     return;
                 }
-                Log.i(TAG, "File " + path + " opened in write-only mode.");
+                Log.i(TAG, "File " + path + " opened in write-only mode, scheduling for upload.");
                 Status status;
                 if (e == null) {
                     // success writing the file. Update the field to indicate bugreport

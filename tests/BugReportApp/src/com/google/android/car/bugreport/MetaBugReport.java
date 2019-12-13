@@ -20,13 +20,22 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.annotation.IntDef;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
-import com.google.common.base.Strings;
+import com.google.auto.value.AutoValue;
 
 import java.lang.annotation.Retention;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /** Represents the information that a bugreport can contain. */
-public final class MetaBugReport implements Parcelable {
+@AutoValue
+abstract class MetaBugReport implements Parcelable {
+
+    private static final DateFormat BUG_REPORT_TIMESTAMP_DATE_FORMAT =
+            new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
     /** Contains {@link #TYPE_SILENT} and audio message. */
     static final int TYPE_INTERACTIVE = 0;
@@ -44,109 +53,91 @@ public final class MetaBugReport implements Parcelable {
     @IntDef({TYPE_INTERACTIVE, TYPE_SILENT})
     @interface BugReportType {};
 
-    private final int mId;
-    private final String mTimestamp;
-    private final String mTitle;
-    private final String mUsername;
-    private final String mFilePath;
-    private final int mStatus;
-    private final String mStatusMessage;
-    /** One of {@link BugReportType}. */
-    private final int mType;
-
-    private MetaBugReport(Builder builder) {
-        mId = builder.mId;
-        mTimestamp = builder.mTimestamp;
-        mTitle = builder.mTitle;
-        mUsername = builder.mUsername;
-        mFilePath = builder.mFilePath;
-        mStatus = builder.mStatus;
-        mStatusMessage = builder.mStatusMessage;
-        mType = builder.mType;
-    }
-
     /**
      * @return Id of the bug report. Bug report id monotonically increases and is unique.
      */
-    public int getId() {
-        return mId;
-    }
+    public abstract int getId();
 
     /**
      * @return Username (LDAP) that created this bugreport
      */
-    public String getUsername() {
-        return Strings.nullToEmpty(mUsername);
-    }
+    public abstract String getUserName();
 
     /**
      * @return Title of the bug.
      */
-    public String getTitle() {
-        return Strings.nullToEmpty(mTitle);
-    }
+    public abstract String getTitle();
 
     /**
      * @return Timestamp when the bug report is initialized.
      */
-    public String getTimestamp() {
-        return Strings.nullToEmpty(mTimestamp);
+    public abstract String getTimestamp();
+
+    /**
+     * @return Timestamp converted to {@link Date}.
+     */
+    public Date getTimestampDate() {
+        try {
+            return BUG_REPORT_TIMESTAMP_DATE_FORMAT.parse(getTimestamp());
+        } catch (ParseException e) {
+            Log.e(this.getClass().getSimpleName(), "Failed to parse timestamp", e);
+            return new Date(0); // Return "January 1, 1970, 00:00:00 GMT".
+        }
     }
 
     /**
      * @return path to the zip file
      */
-    public String getFilePath() {
-        return Strings.nullToEmpty(mFilePath);
-    }
+    public abstract String getFilePath();
 
     /**
      * @return {@link Status} of the bug upload.
      */
-    public int getStatus() {
-        return mStatus;
-    }
+    public abstract int getStatus();
 
     /**
      * @return StatusMessage of the bug upload.
      */
-    public String getStatusMessage() {
-        return Strings.nullToEmpty(mStatusMessage);
-    }
+    public abstract String getStatusMessage();
 
     /**
      * @return {@link BugReportType}.
      */
-    public int getType() {
-        return mType;
-    }
+    public abstract int getType();
+
+    /** @return {@link Builder} from the meta bug report. */
+    public abstract Builder toBuilder();
 
     @Override
     public int describeContents() {
         return 0;
     }
 
-    /** Returns {@link Builder} from the meta bug report. */
-    public Builder toBuilder() {
-        return new Builder(mId, mTimestamp)
-                .setFilepath(mFilePath)
-                .setStatus(mStatus)
-                .setStatusMessage(mStatusMessage)
-                .setTitle(mTitle)
-                .setUserName(mUsername)
-                .setType(mType);
-    }
-
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(mId);
-        dest.writeString(mTimestamp);
-        dest.writeString(mTitle);
-        dest.writeString(mUsername);
-        dest.writeString(mFilePath);
-        dest.writeInt(mStatus);
-        dest.writeString(mStatusMessage);
-        dest.writeInt(mType);
+        dest.writeInt(getId());
+        dest.writeString(getTimestamp());
+        dest.writeString(getTitle());
+        dest.writeString(getUserName());
+        dest.writeString(getFilePath());
+        dest.writeInt(getStatus());
+        dest.writeString(getStatusMessage());
+        dest.writeInt(getType());
+    }
+
+    /** Converts {@link Date} to bugreport timestamp. */
+    static String toBugReportTimestamp(Date date) {
+        return BUG_REPORT_TIMESTAMP_DATE_FORMAT.format(date);
+    }
+
+    /** Creates a {@link Builder} with default, non-null values. */
+    static Builder builder() {
+        return new AutoValue_MetaBugReport.Builder()
+                .setTimestamp("")
+                .setFilePath("")
+                .setStatusMessage("")
+                .setTitle("")
+                .setUserName("");
     }
 
     /** A creator that's used by Parcelable. */
@@ -161,10 +152,12 @@ public final class MetaBugReport implements Parcelable {
                     int status = in.readInt();
                     String statusMessage = in.readString();
                     int type = in.readInt();
-                    return new Builder(id, timestamp)
+                    return MetaBugReport.builder()
+                            .setId(id)
+                            .setTimestamp(timestamp)
                             .setTitle(title)
                             .setUserName(username)
-                            .setFilepath(filePath)
+                            .setFilePath(filePath)
                             .setStatus(status)
                             .setStatusMessage(statusMessage)
                             .setType(type)
@@ -177,66 +170,32 @@ public final class MetaBugReport implements Parcelable {
             };
 
     /** Builder for MetaBugReport. */
-    public static class Builder {
-        private final int mId;
-        private final String mTimestamp;
-        private String mTitle;
-        private String mUsername;
-        private String mFilePath;
-        private int mStatus;
-        private String mStatusMessage;
-        private int mType;
+    @AutoValue.Builder
+    abstract static class Builder {
+        /** Sets id. */
+        public abstract Builder setId(int id);
 
-        /**
-         * Initializes MetaBugReport.Builder.
-         *
-         * @param id        - mandatory bugreport id
-         * @param timestamp - mandatory timestamp when bugreport initialized.
-         */
-        public Builder(int id, String timestamp) {
-            mId = id;
-            mTimestamp = timestamp;
-        }
+        /** Sets timestamp. */
+        public abstract Builder setTimestamp(String timestamp);
 
         /** Sets title. */
-        public Builder setTitle(String title) {
-            mTitle = title;
-            return this;
-        }
+        public abstract Builder setTitle(String title);
 
         /** Sets username. */
-        public Builder setUserName(String username) {
-            mUsername = username;
-            return this;
-        }
+        public abstract Builder setUserName(String username);
 
         /** Sets filepath. */
-        public Builder setFilepath(String filePath) {
-            mFilePath = filePath;
-            return this;
-        }
+        public abstract Builder setFilePath(String filePath);
 
         /** Sets {@link Status}. */
-        public Builder setStatus(int status) {
-            mStatus = status;
-            return this;
-        }
+        public abstract Builder setStatus(int status);
 
         /** Sets statusmessage. */
-        public Builder setStatusMessage(String statusMessage) {
-            mStatusMessage = statusMessage;
-            return this;
-        }
+        public abstract Builder setStatusMessage(String statusMessage);
 
         /** Sets the {@link BugReportType}. */
-        public Builder setType(@BugReportType int type) {
-            mType = type;
-            return this;
-        }
+        public abstract Builder setType(@BugReportType int type);
 
-        /** Returns a {@link MetaBugReport}. */
-        public MetaBugReport build() {
-            return new MetaBugReport(this);
-        }
+        public abstract MetaBugReport build();
     }
 }
