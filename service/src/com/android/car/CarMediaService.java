@@ -389,9 +389,12 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
     /**
      * Attempts to stop the current source using MediaController.TransportControls.stop()
+     * This method also unregisters callbacks to the active media controller before calling stop(),
+     * to preserve the PlaybackState before stopping.
      */
-    private void stop() {
+    private void stopAndUnregisterCallback() {
         if (mActiveUserMediaController != null) {
+            mActiveUserMediaController.unregisterCallback(mMediaControllerCallback);
             if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
                 Log.d(CarLog.TAG_MEDIA, "stopping " + mActiveUserMediaController.getPackageName());
             }
@@ -519,13 +522,9 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             return;
         }
 
-        // Clear playback state callback so we preserve the state before stopping
-        if (mActiveUserMediaController != null) {
-            mActiveUserMediaController.unregisterCallback(mMediaControllerCallback);
-            mActiveUserMediaController = null;
-        }
-        stop();
+        stopAndUnregisterCallback();
 
+        mActiveUserMediaController = null;
         mPreviousMediaComponent = mPrimaryMediaComponent;
         mPrimaryMediaComponent = componentName;
         updateActiveMediaController(mMediaSessionManager
