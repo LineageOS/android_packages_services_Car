@@ -58,6 +58,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.TransactionTooLargeException;
 import android.os.UserHandle;
 import android.util.Log;
 
@@ -1225,7 +1226,12 @@ public final class Car {
 
     /** @hide */
     void handleRemoteExceptionFromCarService(RemoteException e) {
-        Log.w(TAG_CAR, "Car service has crashed", e);
+        if (e instanceof TransactionTooLargeException) {
+            Log.w(TAG_CAR, "Car service threw TransactionTooLargeException", e);
+            throw new CarTransactionException(e, "Car service threw TransactionTooLargException");
+        } else {
+            Log.w(TAG_CAR, "Car service has crashed", e);
+        }
     }
 
 
@@ -1261,10 +1267,18 @@ public final class Car {
 
     /** @hide */
     public static  void handleRemoteExceptionFromCarService(Service service, RemoteException e) {
-        Log.w(TAG_CAR,
-                "Car service has crashed, client:" + service.getPackageName() + ","
-                        + service.getClass().getSimpleName(), e);
-        service.stopSelf();
+        if (e instanceof TransactionTooLargeException) {
+            Log.w(TAG_CAR, "Car service threw TransactionTooLargeException, client:"
+                    + service.getPackageName() + ","
+                    + service.getClass().getSimpleName(), e);
+            throw new CarTransactionException(e, "Car service threw TransactionTooLargeException, "
+                + "client: %s, %s", service.getPackageName(), service.getClass().getSimpleName());
+        } else {
+            Log.w(TAG_CAR, "Car service has crashed, client:"
+                    + service.getPackageName() + ","
+                    + service.getClass().getSimpleName(), e);
+            service.stopSelf();
+        }
     }
 
     @Nullable
