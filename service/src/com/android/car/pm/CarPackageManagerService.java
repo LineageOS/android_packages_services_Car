@@ -212,7 +212,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if (DBG_POLICY_SET) {
             Log.i(CarLog.TAG_PACKAGE, "policy setting from binder call, client:" + packageName);
         }
-        doSetAppBlockingPolicy(packageName, policy, flags, true /*setNow*/);
+        doSetAppBlockingPolicy(packageName, policy, flags);
     }
 
     /**
@@ -223,8 +223,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mSystemActivityMonitoringService.restartTask(taskId);
     }
 
-    private void doSetAppBlockingPolicy(String packageName, CarAppBlockingPolicy policy, int flags,
-            boolean setNow) {
+    private void doSetAppBlockingPolicy(String packageName, CarAppBlockingPolicy policy,
+            int flags) {
         if (mContext.checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_APP_BLOCKING)
                 != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException(
@@ -239,18 +239,22 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             throw new IllegalArgumentException(
                     "Cannot set both FLAG_SET_POLICY_ADD and FLAG_SET_POLICY_REMOVE flag");
         }
-        mHandler.requestUpdatingPolicy(packageName, policy, flags);
-        if (setNow) {
-            mHandler.requestPolicySetting();
+        synchronized (mLock) {
             if ((flags & CarPackageManager.FLAG_SET_POLICY_WAIT_FOR_CHANGE) != 0) {
-                synchronized (policy) {
-                    try {
-                        policy.wait();
-                    } catch (InterruptedException e) {
-                        Log.e(CarLog.TAG_PACKAGE,
-                                "Interrupted wait during doSetAppBlockingPolicy");
-                        Thread.currentThread().interrupt();
+                mWaitingPolicies.add(policy);
+            }
+        }
+        mHandler.requestUpdatingPolicy(packageName, policy, flags);
+        if ((flags & CarPackageManager.FLAG_SET_POLICY_WAIT_FOR_CHANGE) != 0) {
+            synchronized (mLock) {
+                try {
+                    while (mWaitingPolicies.contains(policy)) {
+                        wait();
                     }
+                } catch (InterruptedException e) {
+                    // Pass it over binder call
+                    throw new IllegalStateException(
+                            "Interrupted while waiting for policy completion", e);
                 }
             }
         }
@@ -399,7 +403,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 }
                 mProxies.clear();
             }
-            wakeupClientsWaitingForPolicySettingLocked();
+            mWaitingPolicies.clear();
+            notifyAll();
         }
         mContext.unregisterReceiver(mPackageParsingEventReceiver);
         mContext.unregisterReceiver(mUserSwitchedEventReceiver);
@@ -463,23 +468,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
     }
 
-    @GuardedBy("mLock")
-    private void wakeupClientsWaitingForPolicySettingLocked() {
-        for (CarAppBlockingPolicy waitingPolicy : mWaitingPolicies) {
-            synchronized (waitingPolicy) {
-                waitingPolicy.notifyAll();
-            }
-        }
-        mWaitingPolicies.clear();
-    }
-
-    private void doSetPolicy() {
-        synchronized (mLock) {
-            wakeupClientsWaitingForPolicySettingLocked();
-        }
-        blockTopActivitiesIfNecessary();
-    }
-
     private void doUpdatePolicy(String packageName, CarAppBlockingPolicy policy, int flags) {
         if (DBG_POLICY_SET) {
             Log.i(CarLog.TAG_PACKAGE, "setting policy from:" + packageName + ",policy:" + policy +
@@ -504,7 +492,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 clientPolicy.replaceWhitelists(whitelistWrapper);
             }
             if ((flags & CarPackageManager.FLAG_SET_POLICY_WAIT_FOR_CHANGE) != 0) {
-                mWaitingPolicies.add(policy);
+                mWaitingPolicies.remove(policy);
+                notifyAll();
             }
             if (DBG_POLICY_SET) {
                 Log.i(CarLog.TAG_PACKAGE, "policy set:" + dumpPoliciesLocked(false));
@@ -862,7 +851,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         policyIntent.setAction(CarAppBlockingPolicyService.SERVICE_INTERFACE);
         List<ResolveInfo> policyInfos = mPackageManager.queryIntentServices(policyIntent, 0);
         if (policyInfos == null) { //no need to wait for service binding and retrieval.
-            mHandler.requestPolicySetting();
             return;
         }
         LinkedList<AppBlockingPolicyProxy> proxies = new LinkedList<>();
@@ -899,7 +887,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private void doHandlePolicyConnection(AppBlockingPolicyProxy proxy,
             CarAppBlockingPolicy policy) {
-        boolean shouldSetPolicy = false;
         synchronized (mLock) {
             if (mProxies == null) {
                 proxy.disconnect();
@@ -907,7 +894,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
             mProxies.remove(proxy);
             if (mProxies.size() == 0) {
-                shouldSetPolicy = true;
                 mProxies = null;
             }
         }
@@ -917,13 +903,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     Log.i(CarLog.TAG_PACKAGE, "policy setting from policy service:" +
                             proxy.getPackageName());
                 }
-                doSetAppBlockingPolicy(proxy.getPackageName(), policy, 0, false /*setNow*/);
+                doSetAppBlockingPolicy(proxy.getPackageName(), policy, 0);
             }
         } finally {
             proxy.disconnect();
-            if (shouldSetPolicy) {
-                mHandler.requestPolicySetting();
-            }
         }
     }
 
@@ -1194,11 +1177,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
      * Reading policy and setting policy can take time. Run it in a separate handler thread.
      */
     private class PackageHandler extends Handler {
-        private final int MSG_INIT = 0;
-        private final int MSG_PARSE_PKG = 1;
-        private final int MSG_SET_POLICY = 2;
-        private final int MSG_UPDATE_POLICY = 3;
-        private final int MSG_RELEASE = 4;
+        private static final int MSG_INIT = 0;
+        private static final int MSG_PARSE_PKG = 1;
+        private static final int MSG_UPDATE_POLICY = 2;
+        private static final int MSG_RELEASE = 3;
 
         private PackageHandler(Looper looper) {
             super(looper);
@@ -1210,14 +1192,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
 
         private void requestRelease() {
-            removeMessages(MSG_SET_POLICY);
             removeMessages(MSG_UPDATE_POLICY);
             Message msg = obtainMessage(MSG_RELEASE);
-            sendMessage(msg);
-        }
-
-        private void requestPolicySetting() {
-            Message msg = obtainMessage(MSG_SET_POLICY);
             sendMessage(msg);
         }
 
@@ -1248,9 +1224,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     break;
                 case MSG_PARSE_PKG:
                     doParseInstalledPackages();
-                    break;
-                case MSG_SET_POLICY:
-                    doSetPolicy();
                     break;
                 case MSG_UPDATE_POLICY:
                     Pair<String, CarAppBlockingPolicy> pair =
