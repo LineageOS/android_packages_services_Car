@@ -20,6 +20,7 @@ import android.automotive.watchdog.ICarWatchdogClient;
 import android.automotive.watchdog.ICarWatchdogMonitor;
 import android.automotive.watchdog.PowerCycle;
 import android.automotive.watchdog.TimeoutLength;
+import android.automotive.watchdog.UserState;
 
 /**
  * ICarWatchdog is an interface implemented by watchdog server.
@@ -124,4 +125,13 @@ interface ICarWatchdog {
    * @return                     Whether the notification is processed.
    */
   boolean notifyPowerCycleChange(in PowerCycle cycle);
+
+  /**
+   * Notify watchdog server that Android user is started or stopped.
+   * The caller should have system UID.
+   *
+   * @param userId               Android user id.
+   * @return                     Whether the notification is processed.
+   */
+  boolean notifyUserStateChange(in int userId, in UserState state);
 }

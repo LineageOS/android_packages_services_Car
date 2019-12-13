@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.automotive.computepipe.runner;
+
+package android.automotive.watchdog;
 
 /**
- * types of packet
+ * Used by ICarWatchdog to describe whether user is started or stopped.
  */
+
 @VintfStability
 @Backing(type="int")
-enum PacketDescriptorPacketType {
-    /**
-     * General semantic data derived from input stream
-     */
-    SEMANTIC_DATA = 0,
-    /**
-     * Pixel data generated, for eg annotated frames
-     */
-    PIXEL_DATA,
-    /**
-     * Semantic data with zero copy requirements.
-     */
-    SEMANTIC_ZERO_COPY_DATA,
+enum UserState {
+  /**
+   * The user is started.
+   */
+  USER_STATE_STARTED,
+
+  /**
+   * The user is stopped.
+   */
+  USER_STATE_STOPPED,
 }
