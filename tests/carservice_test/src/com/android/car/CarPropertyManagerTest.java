@@ -17,10 +17,12 @@
 package com.android.car;
 
 import android.car.Car;
+import android.car.VehicleAreaType;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
+import android.hardware.automotive.vehicle.V2_0.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
@@ -67,9 +69,17 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     private static final Object[] EXPECTED_VALUE_2 = {"android", true, 3, 1.1f, 2f};
 
     private static final int CUSTOM_GLOBAL_MIXED_PROP_ID_1 =
-            0x1101 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.MIXED | VehicleArea.GLOBAL;
+            0x1101 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.MIXED | VehicleArea.SEAT;
     private static final int CUSTOM_GLOBAL_MIXED_PROP_ID_2 =
             0x1102 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.MIXED | VehicleArea.GLOBAL;
+    // Use FAKE_PROPERTY_ID to test api return null or throw exception.
+    private static final int FAKE_PROPERTY_ID = 0x111;
+
+    private static final int DRIVER_SIDE_AREA_ID = VehicleAreaSeat.ROW_1_LEFT
+                                                    | VehicleAreaSeat.ROW_2_LEFT;
+    private static final int PASSENGER_SIDE_AREA_ID = VehicleAreaSeat.ROW_1_RIGHT
+                                                    | VehicleAreaSeat.ROW_2_CENTER
+                                                    | VehicleAreaSeat.ROW_2_RIGHT;
 
     private CarPropertyManager mManager;
 
@@ -116,14 +126,49 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         Assert.assertArrayEquals(EXPECTED_VALUE_2, result.getValue());
     }
 
+    @Test
+    public void testGetPropertyConfig() {
+        CarPropertyConfig config = mManager.getCarPropertyConfig(CUSTOM_GLOBAL_MIXED_PROP_ID_1);
+        Assert.assertEquals(CUSTOM_GLOBAL_MIXED_PROP_ID_1, config.getPropertyId());
+        // return null if can not find the propertyConfig for the property.
+        Assert.assertNull(mManager.getCarPropertyConfig(FAKE_PROPERTY_ID));
+    }
+
+    @Test
+    public void testGetAreaId() {
+        int result = mManager.getAreaId(CUSTOM_GLOBAL_MIXED_PROP_ID_1, VehicleAreaSeat.ROW_1_LEFT);
+        Assert.assertEquals(DRIVER_SIDE_AREA_ID, result);
+
+        //test for the GLOBAL property
+        int globalAreaId =
+                mManager.getAreaId(CUSTOM_GLOBAL_MIXED_PROP_ID_2, VehicleAreaSeat.ROW_1_LEFT);
+        Assert.assertEquals(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, globalAreaId);
+
+        //test exception
+        try {
+            int areaId = mManager.getAreaId(CUSTOM_GLOBAL_MIXED_PROP_ID_1,
+                    VehicleAreaSeat.ROW_3_CENTER);
+            Assert.fail("Unexpected areaId: " + areaId);
+        } catch (IllegalArgumentException e) {
+            Log.v(TAG, e.getMessage());
+        }
+
+        try {
+            // test exception
+            int areaIdForFakeProp = mManager.getAreaId(FAKE_PROPERTY_ID,
+                    VehicleAreaSeat.ROW_1_LEFT);
+            Assert.fail("Unexpected areaId for fake property: " + areaIdForFakeProp);
+        } catch (IllegalArgumentException e) {
+            Log.v(TAG, e.getMessage());
+        }
+    }
 
     @Override
     protected synchronized void configureMockedHal() {
         PropertyHandler handler = new PropertyHandler();
-        addProperty(CUSTOM_GLOBAL_MIXED_PROP_ID_1, handler).setConfigArray(CONFIG_ARRAY_1);
+        addProperty(CUSTOM_GLOBAL_MIXED_PROP_ID_1, handler).setConfigArray(CONFIG_ARRAY_1)
+                .addAreaConfig(DRIVER_SIDE_AREA_ID).addAreaConfig(PASSENGER_SIDE_AREA_ID);
         addProperty(CUSTOM_GLOBAL_MIXED_PROP_ID_2, handler).setConfigArray(CONFIG_ARRAY_2);
-
-
     }
 
     private class PropertyHandler implements VehicleHalPropertyHandler {
