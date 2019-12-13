@@ -18,8 +18,8 @@
 
 #include <string>
 
+#include "MemHandle.h"
 #include "RunnerInterfaceCallbacks.h"
-#include "runner/stream_manager/MemHandle.h"
 #include "types/GraphState.h"
 #include "types/Status.h"
 

@@ -18,11 +18,11 @@
 #include <functional>
 #include <string>
 
-#include "RunnerInterface.h"
 #include "ConfigurationCommand.pb.h"
 #include "ControlCommand.pb.h"
+#include "MemHandle.h"
+#include "RunnerInterface.h"
 #include "types/Status.h"
-#include "runner/stream_manager/MemHandle.h"
 
 namespace android {
 namespace automotive {
