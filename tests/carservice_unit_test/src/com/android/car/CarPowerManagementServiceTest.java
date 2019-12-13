@@ -280,6 +280,8 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         mService.clearIsBootingOrResuming();
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        // Should wait until Handler has finished ON processing.
+        CarServiceUtils.runOnLooperSync(mService.getHandlerThread().getLooper(), () -> { });
         // user switching should have been requested.
         verify(mCarUserManagerHelper, times(1)).switchToUserId(newUserId);
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
