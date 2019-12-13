@@ -169,6 +169,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
+    @VisibleForTesting
+    protected HandlerThread getHandlerThread() {
+        synchronized (mLock) {
+            return mHandlerThread;
+        }
+    }
+
     @Override
     public void init() {
         synchronized (mLock) {
