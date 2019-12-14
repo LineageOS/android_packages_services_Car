@@ -32,7 +32,7 @@ message InputConfig {
    * of InputType. If only one of a certain type is present
    * this should be 0. For VIDEO_FILE this should be 0.
    */
-  optional int32 camId = 6;
+  optional int32 cam_id = 6;
 
   optional int32 config_id = 7;
 }
