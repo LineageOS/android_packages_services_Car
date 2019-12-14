@@ -15,6 +15,8 @@
  */
 package com.google.android.car.bugreport;
 
+import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_AUDIO_FILENAME;
+import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_BUGREPORT_FILENAME;
 import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_FILEPATH;
 import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_ID;
 import static com.google.android.car.bugreport.BugStorageProvider.COLUMN_STATUS;
@@ -37,6 +39,7 @@ import com.google.api.client.auth.oauth2.TokenResponseException;
 import com.google.common.base.Strings;
 
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -93,24 +96,52 @@ final class BugStorageUtils {
         return findBugReport(context, Integer.parseInt(uri.getLastPathSegment())).get();
     }
 
-    /**
-     * Returns a file stream to write the zipped file to. The content provider listens for file
-     * descriptor to be closed, and as soon as it is closed, {@link BugStorageProvider} schedules
-     * it for upload.
-     *
-     * @param context       - an application context.
-     * @param metaBugReport - a bug report.
-     * @return a file descriptor where a zip content should be written.
-     */
+    /** Returns an output stream to write the zipped file to. */
     @NonNull
-    static OutputStream openBugReportFile(
+    static OutputStream openBugReportFileToWrite(
             @NonNull Context context, @NonNull MetaBugReport metaBugReport)
             throws FileNotFoundException {
         ContentResolver r = context.getContentResolver();
+        return r.openOutputStream(BugStorageProvider.buildUriWithSegment(
+                metaBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_BUGREPORT_FILE));
+    }
 
-        // Write the file. When file is closed, bug report record status
-        // will automatically be made ready for uploading.
-        return r.openOutputStream(BugStorageProvider.buildUriWithBugId(metaBugReport.getId()));
+    /** Returns an output stream to write the audio message file to. */
+    static OutputStream openAudioMessageFileToWrite(
+            @NonNull Context context, @NonNull MetaBugReport metaBugReport)
+            throws FileNotFoundException {
+        ContentResolver r = context.getContentResolver();
+        return r.openOutputStream(BugStorageProvider.buildUriWithSegment(
+                metaBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_AUDIO_FILE));
+    }
+
+    /**
+     * Returns an input stream to read the final zip file from.
+     *
+     * <p>NOTE: This is the old way of storing final zipped bugreport. See
+     * {@link BugStorageProvider#URL_SEGMENT_OPEN_FILE} for more info.
+     */
+    static InputStream openFileToRead(Context context, MetaBugReport bug)
+            throws FileNotFoundException {
+        return context.getContentResolver().openInputStream(
+                BugStorageProvider.buildUriWithSegment(
+                        bug.getId(), BugStorageProvider.URL_SEGMENT_OPEN_FILE));
+    }
+
+    /** Returns an input stream to read the bug report zip file from. */
+    static InputStream openBugReportFileToRead(Context context, MetaBugReport bug)
+            throws FileNotFoundException {
+        return context.getContentResolver().openInputStream(
+                BugStorageProvider.buildUriWithSegment(
+                        bug.getId(), BugStorageProvider.URL_SEGMENT_OPEN_BUGREPORT_FILE));
+    }
+
+    /** Returns an input stream to read the audio file from. */
+    static InputStream openAudioFileToRead(Context context, MetaBugReport bug)
+            throws FileNotFoundException {
+        return context.getContentResolver().openInputStream(
+                BugStorageProvider.buildUriWithSegment(
+                        bug.getId(), BugStorageProvider.URL_SEGMENT_OPEN_AUDIO_FILE));
     }
 
     /**
@@ -124,13 +155,15 @@ final class BugStorageUtils {
      */
     static boolean completeDeleteBugReport(@NonNull Context context, int bugReportId) {
         ContentResolver r = context.getContentResolver();
-        return r.delete(BugStorageProvider.buildUriCompleteDelete(bugReportId), null, null) == 1;
+        return r.delete(BugStorageProvider.buildUriWithSegment(
+                bugReportId, BugStorageProvider.URL_SEGMENT_COMPLETE_DELETE), null, null) == 1;
     }
 
-    /** Deletes zip file for given bugreport id; doesn't delete sqlite3 record. */
-    static boolean deleteBugReportZipfile(@NonNull Context context, int bugReportId) {
+    /** Deletes all files for given bugreport id; doesn't delete sqlite3 record. */
+    static boolean deleteBugReportFiles(@NonNull Context context, int bugReportId) {
         ContentResolver r = context.getContentResolver();
-        return r.delete(BugStorageProvider.buildUriDeleteZipFile(bugReportId), null, null) == 1;
+        return r.delete(BugStorageProvider.buildUriWithSegment(
+                bugReportId, BugStorageProvider.URL_SEGMENT_DELETE_FILES), null, null) == 1;
     }
 
     /**
@@ -173,6 +206,8 @@ final class BugStorageUtils {
                 COLUMN_USERNAME,
                 COLUMN_TITLE,
                 COLUMN_TIMESTAMP,
+                COLUMN_BUGREPORT_FILENAME,
+                COLUMN_AUDIO_FILENAME,
                 COLUMN_FILEPATH,
                 COLUMN_STATUS,
                 COLUMN_STATUS_MESSAGE,
@@ -190,6 +225,8 @@ final class BugStorageUtils {
                     .setTimestamp(getString(c, COLUMN_TIMESTAMP))
                     .setUserName(getString(c, COLUMN_USERNAME))
                     .setTitle(getString(c, COLUMN_TITLE))
+                    .setBugReportFileName(getString(c, COLUMN_BUGREPORT_FILENAME))
+                    .setAudioFileName(getString(c, COLUMN_AUDIO_FILENAME))
                     .setFilePath(getString(c, COLUMN_FILEPATH))
                     .setStatus(getInt(c, COLUMN_STATUS))
                     .setStatusMessage(getString(c, COLUMN_STATUS_MESSAGE))
@@ -266,7 +303,7 @@ final class BugStorageUtils {
         if (metaBugReport.getStatus() != Status.STATUS_EXPIRED.getValue()) {
             return false;
         }
-        return deleteBugReportZipfile(context, metaBugReport.getId());
+        return deleteBugReportFiles(context, metaBugReport.getId());
     }
 
     /** Gets the root cause of the error. */
@@ -288,34 +325,49 @@ final class BugStorageUtils {
     /**
      * Updates bug report record status.
      *
+     * <p>NOTE: When status is set to STATUS_UPLOAD_PENDING, BugStorageProvider automatically
+     * schedules the bugreport to be uploaded.
+     *
      * @return Updated {@link MetaBugReport}.
      */
     static MetaBugReport setBugReportStatus(
             Context context, MetaBugReport bugReport, Status status, String message) {
-        // update status
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_STATUS, status.getValue());
-        values.put(COLUMN_STATUS_MESSAGE, message);
-        String where = COLUMN_ID + "=" + bugReport.getId();
-        int updatedRows = context.getContentResolver().update(
-                BugStorageProvider.BUGREPORT_CONTENT_URI, values, where, null);
-        if (updatedRows == 1) {
-            return bugReport.toBuilder()
-                    .setStatus(status.getValue())
-                    .setStatusMessage(message)
-                    .build();
-        }
-        return bugReport;
+        return update(context, bugReport.toBuilder()
+                .setStatus(status.getValue())
+                .setStatusMessage(message)
+                .build());
     }
 
     /**
      * Updates bug report record status.
+     *
+     * <p>NOTE: When status is set to STATUS_UPLOAD_PENDING, BugStorageProvider automatically
+     * schedules the bugreport to be uploaded.
      *
      * @return Updated {@link MetaBugReport}.
      */
     static MetaBugReport setBugReportStatus(
             Context context, MetaBugReport bugReport, Status status, Exception e) {
         return setBugReportStatus(context, bugReport, status, getRootCauseMessage(e));
+    }
+
+    /**
+     * Updates the bugreport and returns the updated version.
+     *
+     * <p>NOTE: doesn't update all the fields.
+     */
+    static MetaBugReport update(Context context, MetaBugReport bugReport) {
+        // Update only necessary fields.
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_BUGREPORT_FILENAME, bugReport.getBugReportFileName());
+        values.put(COLUMN_AUDIO_FILENAME, bugReport.getAudioFileName());
+        values.put(COLUMN_STATUS, bugReport.getStatus());
+        values.put(COLUMN_STATUS_MESSAGE, bugReport.getStatusMessage());
+        String where = COLUMN_ID + "=" + bugReport.getId();
+        context.getContentResolver().update(
+                BugStorageProvider.BUGREPORT_CONTENT_URI, values, where, null);
+        return findBugReport(context, bugReport.getId()).orElseThrow(
+                () -> new IllegalArgumentException("Bug " + bugReport.getId() + " not found"));
     }
 
     private static String currentTimestamp() {

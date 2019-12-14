@@ -48,7 +48,10 @@ public enum Status {
     STATUS_MOVE_IN_PROGRESS(9),
 
     // Bugreport is expired. Associated file is deleted from the disk.
-    STATUS_EXPIRED(10);
+    STATUS_EXPIRED(10),
+
+    // Bugreport needs audio message.
+    STATUS_AUDIO_PENDING(11);
 
     private final int mValue;
 
@@ -86,6 +89,8 @@ public enum Status {
                 return "Move in progress";
             case 10:
                 return "Expired";
+            case 11:
+                return "Audio message pending";
         }
         return "unknown";
     }

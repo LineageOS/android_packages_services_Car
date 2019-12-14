@@ -17,6 +17,8 @@ package com.google.android.car.bugreport;
 
 import android.content.Context;
 
+import com.google.common.base.Preconditions;
+
 import java.io.File;
 
 /**
@@ -34,14 +36,16 @@ import java.io.File;
  */
 public class FileUtils {
     private static final String PREFIX = "bugreport-";
-    // bug reports waiting to be uploaded
+    /** A directory under the system user; contains bugreport zip files and audio files. */
     private static final String PENDING_DIR = "bug_reports_pending";
-    // temporary directory, used for zipping files
+    // Temporary directory under the current user, used for zipping files.
     private static final String TEMP_DIR = "bug_reports_temp";
 
     private static final String FS = "@";
 
-    private static File getPendingDir(Context context) {
+    static File getPendingDir(Context context) {
+        Preconditions.checkArgument(context.getUser().isSystem(),
+                "Must be called from the system user.");
         File dir = new File(context.getDataDir(), PENDING_DIR);
         dir.mkdirs();
         return dir;
@@ -62,15 +66,38 @@ public class FileUtils {
      * single file.
      */
     static File getTempDir(Context context, String timestamp) {
+        Preconditions.checkArgument(!context.getUser().isSystem(),
+                "Must be called from the current user.");
         return new File(context.getDataDir(), TEMP_DIR + "/" + timestamp);
     }
 
     /**
-     * Returns zip file directory with the given timestamp and ldap
+     * Constructs a bugreport zip file name.
+     *
+     * <p>Add lookup code to the filename to allow matching audio file and bugreport file in USB.
      */
-    static File getZipFile(Context context, String timestamp, String ldap) {
-        File zipdir = getPendingDir(context);
-        return new File(zipdir, PREFIX + ldap + FS + timestamp + ".zip");
+    static String getZipFileName(MetaBugReport bug) {
+        String lookupCode = extractLookupCode(bug);
+        return PREFIX + bug.getUserName() + FS + bug.getTimestamp() + "-" + lookupCode + ".zip";
+    }
+
+    /**
+     * Constructs a audio message file name.
+     *
+     * <p>Add lookup code to the filename to allow matching audio file and bugreport file in USB.
+     *
+     * @param timestamp - current timestamp, when audio was created.
+     * @param bug       - a bug report.
+     */
+    static String getAudioFileName(String timestamp, MetaBugReport bug) {
+        String lookupCode = extractLookupCode(bug);
+        return PREFIX + bug.getUserName() + FS + timestamp + "-" + lookupCode + "-message.3gp";
+    }
+
+    private static String extractLookupCode(MetaBugReport bug) {
+        Preconditions.checkArgument(bug.getTitle().startsWith("["),
+                "Invalid bugreport title, doesn't contain lookup code. ");
+        return bug.getTitle().substring(1, BugReportActivity.LOOKUP_STRING_LENGTH + 1);
     }
 
     /**
@@ -98,7 +125,6 @@ public class FileUtils {
     static File getFile(Context context, String timestamp, String name) {
         return new File(getTempDir(context, timestamp), name);
     }
-
 
     /**
      * Deletes a directory and its contents recursively
