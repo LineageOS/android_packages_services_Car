@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Ja s\'està recollint un informe d\'errors"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"S\'ha recollit un informe d\'errors"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Mou a l\'USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Penja a Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Penja"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Penja a GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Concedeix permisos"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Ja s\'està recollint l\'informe d\'errors"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"S\'ha esgotat el temps d\'espera; s\'està cancel·lant"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Ha fallat l\'informe d\'errors"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"L\'informe d\'errors ha finalitzat"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Ja pots penjar l\'informe d\'errors"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"No s\'ha pogut capturar la pantalla"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Ha fallat l\'estat d\'abocament"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"L\'informe d\'errors està en curs"</string>

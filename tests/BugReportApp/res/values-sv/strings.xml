@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"En felrapport samlas redan in"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"En felrapport har samlats in"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Flytta till USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Ladda upp till Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Ladda upp"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Ladda upp till GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Bevilja behörigheter"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Felrapporten samlas redan in"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Tidsgränsen uppnåddes. Avbryter"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Felrapporten misslyckades"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Felrapporten har slutförts"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Felrapporten är klar att laddas upp"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Skärmdumpen misslyckades"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Statusdumpen misslyckades"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Felrapporten har påbörjats"</string>

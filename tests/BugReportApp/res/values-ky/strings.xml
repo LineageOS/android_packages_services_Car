@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Мүчүлүштүк тууралуу кабар алынган"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Мүчүлүштүк тууралуу кабар алынды"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"USB\'ге жылдыруу"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Google\'га жүктөп берүү"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Жүктөп берүү"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCS\'ке жүктөп берүү"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Уруксаттарды бериңиз"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Мүчүлүштүк тууралуу кабар алынган"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Күтүү убакыты аяктады, жокко чыгарылууда"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Мүчүлүштүк тууралуу кабар берилген жок"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Мүчүлүштүк тууралуу кабар берилди"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Мүчүлүштүк тууралуу кабар жүктөлүп берилүүгө даяр"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Экран тартылып алынган жок"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Абал тууралуу маалымат алынган жок"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Мүчүлүштүк тууралуу кабар даярдалууда"</string>

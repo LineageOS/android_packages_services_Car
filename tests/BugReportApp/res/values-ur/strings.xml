@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"بگ رپورٹ پہلے سے ہی جمع کی جارہی ہے"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"بگ رپورٹ جمع کر لی گئی ہے"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"USB میں منتقل کریں"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Google پر اپ لوڈ کریں"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"اپ لوڈ کریں"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCS پر اپ لوڈ کریں"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"براہ کرم اجازتوں کی منظوری دیں"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"بگ رپورٹ پہلے سے ہی جمع کی جا رہی ہے"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"ٹائم آؤٹ ہونے کی وجہ سے منسوخ کیا جا رہا ہے"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"بگ رپورٹ ناکام ہو گئی"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"بگ رپورٹ مکمل ہو گئی"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"بگ رپورٹ اپ لوڈ کے لیے تیار ہے"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"اسکرین کیپچر ناکام ہو گیا"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"ڈمپ اسٹیٹ ناکام ہو گیا"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"بگ رپورٹ پیشرفت میں ہے"</string>

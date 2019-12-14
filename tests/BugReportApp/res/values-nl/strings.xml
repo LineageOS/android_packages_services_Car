@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Er wordt al een bugrapport verzameld"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Er is een bugrapport verzameld"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Naar USB verplaatsen"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Uploaden naar Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Uploaden"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Uploaden naar GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Verleen rechten"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Bugrapport wordt al verzameld"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Time-out, bezig met annuleren"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Bugrapport is mislukt"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Bugrapport afgerond"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Bugrapport klaar om te uploaden"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Screenshot maken is mislukt"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Dumpstatus mislukt"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Bugrapport wordt uitgevoerd"</string>

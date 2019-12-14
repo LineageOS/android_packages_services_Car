@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Një raport i defekteve në kod po merret tashmë"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Është marrë një raport i defekteve në kod"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Zhvendos te njësia USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Ngarko te Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Ngarko"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Ngarko në GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Jep lejet"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Raporti i defekteve në kod është marrë tashmë"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Skadoi, po anulohet"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Raporti i defekteve në kod dështoi"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Raporti i defekteve në kod përfundoi"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Raporti i defekteve në kod gati për ngarkim"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Regjistrimi i ekranit dështoi"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Gjendja e mbledhjes dështoi"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Raporti i defekteve në kod është në vazhdim"</string>

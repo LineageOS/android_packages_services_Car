@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Dane do raportu o błędzie są już zbierane"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Zebrano dane do raportu o błędzie"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Przenieś na USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Prześlij do Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Prześlij"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Prześlij do GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Przyznaj uprawnienia"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Dane do raportu o błędzie są już zbierane"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Przekroczono limit czasu – anuluję"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Nie udało się zgłosić błędu"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Raport o błędzie jest gotowy"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Raport o błędzie jest gotowy do przesłania"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Nie udało się przechwycić zawartości ekranu"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Nie udało się utworzyć zrzutu stanu"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Trwa zgłaszanie błędu"</string>

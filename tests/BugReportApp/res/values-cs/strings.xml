@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Zaznamenávání zprávy o chybě již probíhá"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Zpráva o chybě byla zaznamenána"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Přesunout na USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Nahrát na Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Nahrát"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Nahrát do GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Udělte prosím oprávnění"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Zaznamenávání zprávy o chybě již probíhá"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Časový limit vypršel, probíhá rušení"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Vytvoření zprávy o chybě se nezdařilo"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Zpráva o chybě dokončena"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Zpráva o chybě připravena k nahrání"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Snímek obrazovky se nezdařil"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Vypsání stavu se nezdařilo"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Probíhá vytváření zprávy o chybě"</string>

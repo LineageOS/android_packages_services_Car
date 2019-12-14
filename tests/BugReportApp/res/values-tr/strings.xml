@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Şu anda zaten bir hata raporu alınıyor"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Hata raporu alındı"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"USB\'ye taşı"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Google\'a yükle"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Yükle"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCS\'ye yükle"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Lütfen izinleri verin"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Hata raporu zaten alınmış"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Zaman aşımına uğradı, iptal ediliyor"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Hata raporu başarısız"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Hata raporu tamamlandı"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Hata raporu yüklenmeye hazır"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Ekran görüntüsü alınamadı"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Döküm durumu başarısız"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Hata raporu devam ediyor"</string>

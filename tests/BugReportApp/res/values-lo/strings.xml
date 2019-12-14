@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"ກຳລັງເກັບກຳລາຍງານບັນຫາ"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"ເກັບກຳລາຍງານບັນຫາແລ້ວ"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"ຍ້າຍໄປໃສ່ USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"ອັບໂຫຼດໃສ່ Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"ອັບໂຫລດ"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"ອັບໂຫຼດໃສ່ GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"ກະລຸນາໃຫ້ການອະນຸຍາດ"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"ເກັບກຳລາຍງານບັນຫາແລ້ວ"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"ໝົດເວລາແລ້ວ, ກຳລັງຍົກເລີກ"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"ລາຍງານບັນຫາບໍ່ສຳເລັດ"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"ສຳເລັດລາຍງານບັນຫາແລ້ວ"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"ລາຍງານບັນຫາພ້ອມໃຫ້ອັບໂຫຼດແລ້ວ"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"ບັນທຶກພາບໜ້າຈໍບໍ່ສຳເລັດ"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"ດຳສະເຕດບໍ່ສຳເລັດ"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"ລາຍງານບັນຫາພວມດຳເນີນຢູ່"</string>

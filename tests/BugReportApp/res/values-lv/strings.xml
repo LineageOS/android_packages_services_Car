@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Kļūdas pārskats jau tiek iegūts"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Kļūdas pārskats ir iegūts"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Pārvietot uz USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Augšupielādēt Google tīklā"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Augšupielādēt"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Augšupielādēt GCS krātuvē"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Lūdzu, piešķiriet atļaujas"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Kļūdas pārskats jau tiek iegūts."</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Radās noildze. Notiek atcelšana."</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Neizdevās izveidot kļūdas pārskatu."</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Kļūdas pārskata izveide ir pabeigta."</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Kļūdas pārskats ir gatavs augšupielādei."</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Neizdevās veikt ekrānuzņēmumu."</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Neizdevās iegūt sistēmas datus un statusu."</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Kļūdas pārskats tiek veidots."</string>

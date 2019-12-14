@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Már folyamatban van a hibajelentés begyűjtése"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"A rendszerbe hibajelentés érkezett"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Áthelyezés USB-re"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Feltöltés a Google rendszerébe"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Feltöltés"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Feltöltés ide: GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Adja meg az engedélyeket"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Már folyamatban van a hibajelentés begyűjtése"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Időtúllépés történt; megszakítás folyamatban"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Sikertelen hibajelentés"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Hibajelentés befejezve"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"A hibajelentés készen áll a feltöltésre"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Nem sikerült a képernyő rögzítése"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Kiírás állapota sikertelen"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"A hibajelentés folyamatban van"</string>
