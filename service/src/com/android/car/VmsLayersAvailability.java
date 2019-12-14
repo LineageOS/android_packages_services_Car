@@ -109,9 +109,6 @@ public class VmsLayersAvailability {
             mPotentialLayersAndPublishers.clear();
             mAvailableAssociatedLayers = Collections.EMPTY_SET;
             mUnavailableAssociatedLayers = Collections.EMPTY_SET;
-            if (mSeq + 1 < mSeq) {
-                throw new IllegalStateException("Sequence is about to loop");
-            }
             mSeq += 1;
         }
     }
