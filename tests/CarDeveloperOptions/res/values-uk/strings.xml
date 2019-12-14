@@ -2579,7 +2579,7 @@
     <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Підтримка команд швидкого запуску та взаємодії"</string>
     <string name="voice_recognizer_preference_summary" msgid="3681161319745912594">"Просте перетворення мовлення на текст"</string>
     <string name="voice_interaction_security_warning" msgid="4986261746316889768">"Ця служба голосового вводу зможе постійно відстежувати голос і контролювати додатки, у яких увімкнено голосовий ввід, від вашого імені. Вона походить із додатка <xliff:g id="VOICE_INPUT_SERVICE_APP_NAME">%s</xliff:g>. Увімкнути цю службу?"</string>
-    <string name="tts_engine_preference_title" msgid="1183116842356275061">"Бажана система"</string>
+    <string name="tts_engine_preference_title" msgid="1183116842356275061">"Система за умовчанням"</string>
     <string name="tts_engine_settings_title" msgid="4079757915136562358">"Налаштування системи"</string>
     <string name="tts_sliders_title" msgid="1927481069989092278">"Темп і тон мовлення"</string>
     <string name="tts_engine_section_title" msgid="7796486438271227076">"Система"</string>

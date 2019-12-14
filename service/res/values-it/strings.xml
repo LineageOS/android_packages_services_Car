@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="car_permission_label" msgid="741004755205554376">"Accesso alle informazioni dell\'automobile"</string>
+    <string name="car_permission_label" msgid="741004755205554376">"Accesso alle informazioni dell\'auto"</string>
     <string name="car_permission_desc" msgid="162499818870052725">"Consente di accedere alle informazioni dell\'automobile."</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"Accesso alla videocamera dell\'automobile"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Consente di accedere alle videocamere dell\'automobile."</string>
@@ -275,5 +275,7 @@
     <skip />
     <!-- no translation found for car_permission_desc_set_car_vendor_category_10 (6353592281201463231) -->
     <skip />
+    <string name="car_permission_label_control_car_features" msgid="3905791560378888286">"Attiva o disattiva le funzionalità dell\'auto"</string>
+    <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Attiva o disattiva le funzionalità dell\'auto."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mio dispositivo"</string>
 </resources>
