@@ -27,6 +27,9 @@ public class UploadJob extends JobService {
 
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
+        if (!Config.isBugReportEnabled()) {
+            return false;
+        }
         Log.v(TAG, "Starting upload job");
         mUploader = new SimpleUploaderAsyncTask(
                 this, reschedule -> jobFinished(jobParameters, reschedule));

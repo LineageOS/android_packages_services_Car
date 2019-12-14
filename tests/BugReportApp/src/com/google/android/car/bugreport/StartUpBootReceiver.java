@@ -33,6 +33,9 @@ public class StartUpBootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (!Config.isBugReportEnabled()) {
+            return;
+        }
         // Run it only once for the system user (u0) and ignore for other users.
         UserManager userManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
         if (!userManager.isSystemUser()) {
