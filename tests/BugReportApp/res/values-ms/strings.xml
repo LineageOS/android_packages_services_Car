@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Laporan pepijat sudah dikumpulkan"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Laporan pepijat telah dikumpulkan"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Alihkan ke USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Muat naik ke Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Muat naik"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Muat naik ke GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Sila beri kebenaran"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Laporan pepijat sudah dikumpulkan"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Tamat masa, membatalkan"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Laporan pepijat gagal"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Laporan pepijat selesai"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Laporan pepijat sedia untuk dimuat naik"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Tangkapan skrin gagal"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Keadaan longgokan gagal"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Laporan pepijat sedang berjalan"</string>

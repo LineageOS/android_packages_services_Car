@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"En feilrapport blir allerede samlet inn"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"En feilrapport er samlet inn"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Flytt til USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Last opp til Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Last opp"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Last opp til GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Gi tillatelser"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"En feilrapport blir allerede samlet inn"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Tidsavbrutt. Avbryter"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Feilrapporten mislyktes"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Feilrapporten er fullført"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Feilrapporten er klar til opplasting"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Skjermdumpen mislyktes"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Dumptilstand mislyktes"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"En feilrapport pågår"</string>

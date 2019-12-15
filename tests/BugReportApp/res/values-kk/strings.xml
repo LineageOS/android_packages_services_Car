@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Қате туралы есеп әлдеқашан алынып жатыр"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Қате туралы есеп алынды"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"USB-ге көшіру"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Google-ға жүктеп салу"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Жүктеп салу"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCS серверіне жүктеп салу"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Рұқсаттар беріңіз."</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Қате туралы есеп әлдеқашан алынып жатыр."</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Уақыт аяқталды, бас тартылуда"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Қате туралы есеп алынбады."</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Қате туралы есеп аяқталды."</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Қате туралы есеп жүктеп салуға дайын."</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Скриншот түсірілмеді."</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Дамп күйі алынбады."</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Қате туралы есеп алынуда"</string>

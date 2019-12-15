@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"ಬಗ್ ವರದಿಯನ್ನು ಈಗಾಗಲೇ ಸಂಗ್ರಹಿಸಲಾಗಿದೆ"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"ಬಗ್ ವರದಿಯನ್ನು ಸಂಗ್ರಹಿಸಲಾಗಿದೆ"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"USB ಗೆ ಸರಿಸಿ"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Google ಗೆ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"ಅಪ್‌ಲೋಡ್ ಮಾಡಿ"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCS ಗೆ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"ಅನುಮತಿಗಳನ್ನು ನೀಡಿ"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"ಬಗ್ ವರದಿಯನ್ನು ಈಗಾಗಲೇ ಸಂಗ್ರಹಿಸಲಾಗಿದೆ"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"ಅವಧಿ ಮೀರಿದೆ, ರದ್ದುಗೊಳಿಸಲಾಗುತ್ತಿದೆ"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"ಬಗ್ ವರದಿಮಾಡುವಿಕೆ ವಿಫಲವಾಗಿದೆ"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"ಬಗ್ ವರದಿಮಾಡುವಿಕೆ ಪೂರ್ಣಗೊಂಡಿದೆ"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"ಬಗ್ ವರದಿಯು ಅಪ್‌ಲೋಡ್ ಮಾಡಲು ಸಿದ್ಧವಾಗಿದೆ"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"ಸ್ಕ್ರೀನ್ ಕ್ಯಾಪ್ಚರ್ ವಿಫಲವಾಗಿದೆ"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"ಡಂಪ್ ಸ್ಥಿತಿ ವಿಫಲವಾಗಿದೆ"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"ಬಗ್ ವರದಿಮಾಡುವಿಕೆ ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿದೆ"</string>

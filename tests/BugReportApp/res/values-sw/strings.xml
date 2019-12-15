@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Ripoti ya hitilafu tayari inakusanywa"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Ripoti ya hitilafu imekusanywa"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Hamishia kwenye USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Pakia kwenye Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Pakia"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Pakia kwenye GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Tafadhali toa ruhusa"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Ripoti ya hitilafu tayari inakusanywa"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Muda umeisha, inaghairi"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Imeshindwa kuripoti hitilafu"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Ripoti ya hitilafu imekamilika"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Ripoti ya hitilafu iko tayari kupakiwa"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Imeshindwa kupiga picha ya skrini"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Imeshindwa kuhamishia data kwingine"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Inaendelea kuripoti hitilafu"</string>

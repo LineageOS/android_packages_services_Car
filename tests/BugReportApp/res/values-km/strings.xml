@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"កំពុង​ប្រមូល​របាយការណ៍​អំពី​បញ្ហា​ស្រាប់ហើយ"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"បានប្រមូល​របាយការណ៍​អំពី​បញ្ហា​ហើយ"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"ផ្លាស់​ទី​ទៅ USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"បង្ហោះ​ទៅ Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"បង្ហោះ"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"បង្ហោះ​ទៅ GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"សូម​ផ្ដល់​ការ​អនុញ្ញាត"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"កំពុង​ប្រមូល​របាយការណ៍​អំពី​បញ្ហា​ស្រាប់ហើយ"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"អស់​ម៉ោង​ហើយ កំពុង​បោះបង់"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"មិនអាច​ប្រមូល​របាយការណ៍​អំពី​បញ្ហា​បានទេ"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"បាន​បញ្ចប់​របាយការណ៍​អំពី​បញ្ហា​ហើយ"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"អាច​បង្ហោះ​របាយការណ៍​អំពី​បញ្ហា​បានហើយ"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"មិន​អាច​ថត​អេក្រង់​បានទេ"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"មិនអាច​ប្រមូល​ស្ថិតិ​បានទេ"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"កំពុង​ប្រមូល​របាយការណ៍​អំពី​បញ្ហា"</string>

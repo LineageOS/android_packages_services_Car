@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"이미 버그 신고를 수집하는 중"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"버그 신고가 수집됨"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"USB로 이동"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Google에 업로드"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"업로드"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCS로 업로드"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"권한을 부여해 주세요."</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"이미 버그 신고를 수집하는 중입니다."</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"타임아웃되어 취소하는 중입니다."</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"버그 신고 실패"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"버그 신고가 완료되었습니다."</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"버그 보고서 업로드 준비가 완료되었습니다."</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"화면 캡처에 실패했습니다."</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"dumpstate에 실패했습니다."</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"버그 신고가 진행 중입니다."</string>

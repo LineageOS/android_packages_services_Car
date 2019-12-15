@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"ଏକ ବଗ୍ ରିପୋର୍ଟ ପୂର୍ବରୁ ସଂଗ୍ରହ କରାଯାଇଛି"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"ଏକ ବଗ୍ ରିପୋର୍ଟ ସଂଗ୍ରହ କରାଯାଇଛି"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"USBକୁ ଘୁଞ୍ଚାନ୍ତୁ"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Googleକୁ ଅପଲୋଡ୍ କରନ୍ତୁ"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"ଅପ୍‌ଲୋଡ୍ କରନ୍ତୁ"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCSରେ ଅପ୍‌ଲୋଡ୍ କରନ୍ତୁ"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"ଦୟାକରି ଅନୁମତି ଅନୁମୋଦନ କରନ୍ତୁ"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"ବଗ୍ ରିପୋର୍ଟ ପୂର୍ବରୁ ସଂଗୃହିତ ହୋଇଛି"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"ସମୟ ସୀମା ସମାପ୍ତ, ବାତିଲ୍ କରାଯାଉଛି"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"ବଗ୍ ରିପୋର୍ଟ ବିଫଳ ହୋଇଛି"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"ବଗ୍ ରିପୋର୍ଟ ସମାପ୍ତ ହୋଇଛି"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"ବଗ୍ ରିପୋର୍ଟ ଅପ୍‍‍ଲୋଡ୍ କରିବାକୁ ବିଫଳ ହୋଇଛି"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"ସ୍କ୍ରିନ୍ କ୍ୟାପ୍‍ଚର୍ ବିଫଳ ହୋଇଛି"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"ଡମ୍ପ ଷ୍ଟେଟ୍ ବିଫଳ ହୋଇଛି"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"ବଗ୍ ରିପୋର୍ଟ ଜାରି ଅଛି"</string>

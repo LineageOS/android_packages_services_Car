@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"ખામીની જાણકારી પહેલેથી એકત્રિત કરવામાં આવી રહી છે"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"ખામીની જાણકારી એકત્રિત કરવામાં આવી છે"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"USBમાં ખસેડો"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Google પર અપલોડ કરો"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"અપલોડ કરો"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCS પર અપલોડ કરો"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"કૃપા કરીને પરવાનાગીઓ આપો"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"ખામીની જાણકારી પહેલેથી એકત્રિત કરેલી છે"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"સમય સમાપ્ત, રદ કરી રહ્યાં છીએ"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"ખામીની જાણકારી નિષ્ફળ થઈ"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"ખામીની જાણકારી સમાપ્ત થઈ"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"ખામીની જાણકારી અપલોડ માટે તૈયાર છે"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"સ્ક્રીન કૅપ્ચર કરવું નિષ્ફળ થયું"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"ડમ્પ સ્ટેટ નિષ્ફળ થયું"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"ખામીની જાણકારીની પ્રક્રિયા ચાલુ છે"</string>

@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Отчет об ошибке уже загружается"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Отчет об ошибке загружен."</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Перенести на USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Загрузить в Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Загрузить"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Загрузить в GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Предоставьте разрешения."</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Отчет об ошибке уже загружается."</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Превышено время ожидания. Отмена…"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Произошла ошибка."</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Отчет об ошибке завершен."</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Отчет об ошибке готов к загрузке."</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Не удалось сделать скриншот."</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Ошибка дампа состояния."</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Отчет об ошибке загружается…"</string>

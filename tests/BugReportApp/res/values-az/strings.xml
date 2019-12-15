@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Baq hesabatı hazırda əldə edilir"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Baq hesabatı əldə edilib"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"USB\'yə köçürün"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Google\'a yükləyin"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Yükləyin"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCS\'a yükləyin"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"İcazələri təmin edin"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Baq hesabatı hazırda əldə edilir"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Vaxt bitdi, ləğv edilir"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Baq hesabatı alınmadı"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Baq hesabatı bitdi"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Baq hesabatı yüklənməyə hazırdır"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Ekran çəkilişi alınmadı"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Dampinq alınmadı"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Baq hesabatı davam edir"</string>

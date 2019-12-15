@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Վրիպակների մասին զեկույցն արդեն բեռնվում է"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Սխալի մասին զեկույցը բեռնվել է"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Տեղափոխել USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Վերբեռնել Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Վերբեռնել"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Վերբեռնել GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Տրամադրեք թույլտվություններ"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Վրիպակների մասին զեկույցն արդեն բեռնվել է"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Սպասման ժամանակը գերազանցվել է։ Չեղարկում…"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Վրիպակի զեկույցի հետ կապված սխալ առաջացավ"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Վրիպակի մասին զեկույցն ավարտված է"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Վրիպակի մասին զեկույցը պատրաստ է վերբեռնման"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Չհաջողվեց ստեղծել սքրինշոթ"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Գրանցման կարգավիճակի սխալ"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Վրիպակի մասին զեկույցը բեռնվում է"</string>
