@@ -3382,7 +3382,7 @@
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"Inne dźwięki i wibracje"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"Powiadomienia"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"Ostatnio wysłane"</string>
-    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Zobacz wszystkie z ostatnich siedmiu dni"</string>
+    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Zobacz wszystkie z ostatnich 7 dni"</string>
     <string name="advanced_section_header" msgid="984680389373090015">"Zaawansowane"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"Powiadomienia związane z pracą"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"Automatyczne nadawanie priorytetów powiadomieniom"</string>
@@ -4066,11 +4066,11 @@
     <string name="cell_data_template" msgid="5473177306229738078">"<xliff:g id="AMOUNT">^1</xliff:g> danych mobilnych"</string>
     <string name="wifi_data_template" msgid="3146090439147042068">"Dane Wi-Fi: <xliff:g id="AMOUNT">^1</xliff:g>"</string>
     <string name="ethernet_data_template" msgid="6414118030827090119">"Dane ethernet: <xliff:g id="AMOUNT">^1</xliff:g>"</string>
-    <string name="billing_cycle" msgid="5740717948341713190">"Dane i limit"</string>
+    <string name="billing_cycle" msgid="5740717948341713190">"Ostrzeżenie dotyczące danych i limit"</string>
     <string name="app_usage_cycle" msgid="213483325132959663">"Cykl użycia danych w aplikacjach"</string>
-    <string name="cell_data_warning" msgid="8902740337286652689">"Próg ostrzegawczy: <xliff:g id="ID_1">^1</xliff:g>"</string>
+    <string name="cell_data_warning" msgid="8902740337286652689">"Ostrzeżenie dotyczące danych: <xliff:g id="ID_1">^1</xliff:g>"</string>
     <string name="cell_data_limit" msgid="3175933829235314233">"Limit danych: <xliff:g id="ID_1">^1</xliff:g>"</string>
-    <string name="cell_data_warning_and_limit" msgid="3846150001253927594">"Próg ostrzegawczy: <xliff:g id="ID_1">^1</xliff:g> / limit danych: <xliff:g id="ID_2">^2</xliff:g>"</string>
+    <string name="cell_data_warning_and_limit" msgid="3846150001253927594">"Ostrzeżenie dotyczące danych: <xliff:g id="ID_1">^1</xliff:g> / limit danych: <xliff:g id="ID_2">^2</xliff:g>"</string>
     <string name="billing_cycle_fragment_summary" msgid="4926047002107855543">"<xliff:g id="ID_1">%1$s</xliff:g>. każdego miesiąca"</string>
     <string name="network_restrictions" msgid="196294262243618198">"Ograniczenia sieci"</string>
     <plurals name="network_restrictions_summary" formatted="false" msgid="1664494781594839837">
@@ -4081,8 +4081,8 @@
     </plurals>
     <string name="operator_warning" msgid="4676042739221117031">"Operator komórkowy może obliczać ilość przesłanych danych inaczej niż urządzenie"</string>
     <string name="data_used_template" msgid="761605393453849477">"Wykorzystano <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="set_data_warning" msgid="8115980184415563941">"Ustaw próg ostrzegawczy"</string>
-    <string name="data_warning" msgid="2699207195535036240">"Próg ostrzegawczy"</string>
+    <string name="set_data_warning" msgid="8115980184415563941">"Ustaw ostrzeżenie dotyczące danych"</string>
+    <string name="data_warning" msgid="2699207195535036240">"Ostrzeżenie dotyczące danych"</string>
     <string name="data_warning_footnote" msgid="965724845580257305">"Ostrzeżenie dotyczące użycia danych i limit danych są oparte na pomiarach wykonywanych przez Twoje urządzenie. Dane operatora mogą być inne."</string>
     <string name="set_data_limit" msgid="5043770023229990674">"Ustaw limit transmisji danych"</string>
     <string name="data_limit" msgid="5793521160051596228">"Limit danych"</string>

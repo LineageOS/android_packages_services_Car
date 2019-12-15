@@ -128,7 +128,7 @@
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"दूसरे डिवाइस से जोड़ने का अनुरोध किया गया है"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> से युग्मित करने के लिए टैप करें."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"मिलने वाली फ़ाइलें"</string>
-    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"ब्लूटूथ के ज़रिए मिली फ़ाइलें"</string>
+    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"ब्लूटूथ से मिली फ़ाइलें"</string>
     <string name="device_picker" msgid="8345264486071697705">"ब्लूटूथ डिवाइस चुनें"</string>
     <string name="bluetooth_ask_enablement" msgid="8716802066127746062">"<xliff:g id="APP_NAME">%1$s</xliff:g> ब्लूटूथ को चालू करना चाहता है"</string>
     <string name="bluetooth_ask_disablement" msgid="7125319551097350783">"<xliff:g id="APP_NAME">%1$s</xliff:g> ब्लूटूथ को बंद करना चाहता है"</string>
@@ -823,7 +823,7 @@
     <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"डीबग किए जा सकने वाले ऐप्लिकेशन के लिए, ART को बाइटकोड की पुष्टि करने की मंज़ूरी दें"</string>
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"आस-पास के डिवाइस से संपर्क (एनएफसी)"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"जब टैबलेट अन्य डिवाइस को स्पर्श करे तो डेटा ट्रांसफर करने दें"</string>
-    <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"जब फ़ोन दूसरे डिवाइस को टच करे तो डेटा ट्रांसफर करने दें"</string>
+    <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"जब फ़ोन दूसरे डिवाइस को टच करे, तो डेटा ट्रांसफर करने दें"</string>
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"NFC चालू करें"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"NFC इस डिवाइस और आस-पास के अन्य डिवाइस या लक्ष्यों के बीच डेटा का लेन-देन करता है, जैसे कि भुगतान टर्मिनल, ऐक्सेस रीडर और सहभागी विज्ञापन या टैग."</string>
     <string name="nfc_secure_settings_title" msgid="5153751163174916581">"NFC सुरक्षित करें"</string>
