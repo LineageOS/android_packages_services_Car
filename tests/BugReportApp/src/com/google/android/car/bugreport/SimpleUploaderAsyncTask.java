@@ -29,18 +29,24 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.storage.Storage;
 import com.google.api.services.storage.model.StorageObject;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipOutputStream;
 
 /**
- * Uploads a file to GCS using a simple (no-multipart / no-resume) upload policy.
+ * Uploads a bugreport files to GCS using a simple (no-multipart / no-resume) upload policy.
+ *
+ * <p>It merges bugreport zip file and audio file into one final zip file and uploads it.
  *
  * <p>Please see {@code res/values/configs.xml} and {@code res/raw/gcs_credentials.json} for the
  * configuration.
@@ -113,14 +119,51 @@ class SimpleUploaderAsyncTask extends AsyncTask<Void, Void, Boolean> {
         Storage storage = new Storage.Builder(httpTransport, jsonFactory, credential)
                 .setApplicationName("Bugreportupload/1.0").build();
 
-        File bugReportFile = new File(bugReport.getFilePath());
-        String fileName = bugReportFile.getName();
-        try (FileInputStream inputStream = new FileInputStream(bugReportFile)) {
-            StorageObject object = uploadSimple(storage, bugReport, fileName, inputStream);
-            Log.v(TAG, "finished uploading object " + object.getName() + " file " + fileName);
+        File tmpBugReportFile = zipBugReportFiles(bugReport);
+        Log.d(TAG, "Uploading file " + tmpBugReportFile);
+        try {
+            // Upload filename is bugreport filename, although, now it contains the audio message.
+            String fileName = bugReport.getBugReportFileName();
+            try (FileInputStream inputStream = new FileInputStream(tmpBugReportFile)) {
+                StorageObject object = uploadSimple(storage, bugReport, fileName, inputStream);
+                Log.v(TAG, "finished uploading object " + object.getName() + " file " + fileName);
+            }
+            File pendingDir = FileUtils.getPendingDir(mContext);
+            // Delete only after successful upload; the files are needed for retry.
+            if (!Strings.isNullOrEmpty(bugReport.getAudioFileName())) {
+                Log.v(TAG, "Deleting file " + bugReport.getAudioFileName());
+                new File(pendingDir, bugReport.getAudioFileName()).delete();
+            }
+            if (!Strings.isNullOrEmpty(bugReport.getBugReportFileName())) {
+                Log.v(TAG, "Deleting file " + bugReport.getBugReportFileName());
+                new File(pendingDir, bugReport.getBugReportFileName()).delete();
+            }
+        } finally {
+            // Delete the temp file if it's not a MetaBugReport#getFilePath, because it's needed
+            // for retry.
+            if (Strings.isNullOrEmpty(bugReport.getFilePath())) {
+                Log.v(TAG, "Deleting file " + tmpBugReportFile);
+                tmpBugReportFile.delete();
+            }
         }
-        Log.v(TAG, "Deleting file " + fileName);
-        bugReportFile.delete();
+    }
+
+    private File zipBugReportFiles(MetaBugReport bugReport) throws IOException {
+        if (!Strings.isNullOrEmpty(bugReport.getFilePath())) {
+            // Old bugreports still have this field.
+            return new File(bugReport.getFilePath());
+        }
+        File finalZipFile =
+                File.createTempFile("bugreport", ".zip", mContext.getCacheDir());
+        File pendingDir = FileUtils.getPendingDir(mContext);
+        try (ZipOutputStream zipStream = new ZipOutputStream(
+                new BufferedOutputStream(new FileOutputStream(finalZipFile)))) {
+            ZipUtils.extractZippedFileToZipStream(
+                    new File(pendingDir, bugReport.getBugReportFileName()), zipStream);
+            ZipUtils.addFileToZipStream(
+                    new File(pendingDir, bugReport.getAudioFileName()), zipStream);
+        }
+        return finalZipFile;
     }
 
     @Override
