@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Se colectează deja un raport de eroare"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"S-a colectat un raport de eroare"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Mutați pe USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Încărcați în Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Încărcați"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Încărcați în GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Acordați permisiuni"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Se colectează deja raportul de eroare"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"A expirat, se anulează"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Raportul de eroare nu s-a realizat"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Raportul de eroare s-a încheiat"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Raportul de eroare este gata pentru încărcare"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Captura de ecran nu a reușit"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Nu s-a preluat starea fișierului dump"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Raportul de eroare este în curs"</string>

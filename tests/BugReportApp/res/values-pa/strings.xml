@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"ਬੱਗ ਰਿਪੋਰਟ ਪਹਿਲਾਂ ਹੀ ਇਕੱਤਰ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"ਬੱਗ ਰਿਪੋਰਟ ਇਕੱਤਰ ਕੀਤੀ ਜਾ ਚੁੱਕੀ ਹੈ"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"USB ਵਿੱਚ ਲਿਜਾਓ"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Google \'ਤੇ ਅੱਪਲੋਡ ਕਰੋ"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"ਅੱਪਲੋਡ ਕਰੋ"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCS \'ਤੇ ਅੱਪਲੋਡ ਕਰੋ"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"ਕਿਰਪਾ ਕਰਕੇ ਇਜਾਜ਼ਤਾਂ ਦਿਓ"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"ਬੱਗ ਰਿਪੋਰਟ ਪਹਿਲਾਂ ਹੀ ਇਕੱਤਰ ਕੀਤੀ ਗਈ ਹੈ"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"ਸਮਾਂ ਸਮਾਪਤ ਹੋਣ ਕਰਕੇ ਰੱਦ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"ਬੱਗ ਰਿਪੋਰਟ ਇਕੱਤਰ ਕਰਨਾ ਅਸਫਲ ਰਿਹਾ"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"ਬੱਗ ਰਿਪੋਰਟ ਇਕੱਤਰ ਕਰਨ ਦਾ ਕਾਰਜ ਪੂਰਾ ਹੋਇਆ"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"ਬੱਗ ਰਿਪੋਰਟ ਅੱਪਲੋਡ ਕਰਨ ਲਈ ਤਿਆਰ ਹੈ"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"ਸਕ੍ਰੀਨ ਨੂੰ ਕੈਪਚਰ ਕਰਨਾ ਅਸਫਲ ਰਿਹਾ"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"ਡੰਪ ਸਥਿਤੀ ਅਸਫਲ ਰਹੀ"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"ਬੱਗ ਰਿਪੋਰਟ ਇਕੱਤਰ ਕਰਨਾ ਜਾਰੀ ਹੈ"</string>

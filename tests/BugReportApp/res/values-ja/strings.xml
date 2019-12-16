@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"バグレポートの収集はすでに開始しています"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"バグレポートを収集しました"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"USB へ移動"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Google にアップロード"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"アップロード"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCS にアップロード"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"権限を付与してください"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"バグレポートの収集はすでに開始しています"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"タイムアウトしました。キャンセルしています"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"バグレポートを収集できませんでした"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"バグレポートの収集が終了しました"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"バグレポートをアップロードできます"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"画面をキャプチャできませんでした"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"ステータスをダンプできませんでした"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"バグレポートを収集しています"</string>

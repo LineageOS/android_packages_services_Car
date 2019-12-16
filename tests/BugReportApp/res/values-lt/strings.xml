@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Pranešimas apie riktą jau gaunamas"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Gautas pranešimas apie riktą"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Perkelti į USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Įkelti į „Google“"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Įkelti"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Įkelti į GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Suteikite leidimus"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Pranešimas apie riktą jau gaunamas"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Baigėsi skirtasis laikas, atšaukiama"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Nepavyko gauti pranešimo apie riktą"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Pranešimas apie riktą baigtas"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Pranešimas apie riktą paruoštas įkelti"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Nepavyko užfiksuoti ekrano"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Nepavyko pateikti atminties išklotinės"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Pranešimas apie riktą vykdomas"</string>

@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"È già in corso la raccolta di una segnalazione di bug"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"È stata raccolta una segnalazione di bug"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Sposta su USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Carica su Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Carica"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Carica su GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Concedi le autorizzazioni"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Raccolta della segnalazione di bug già in corso"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Timeout, annullamento"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Segnalazione di bug non riuscita"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Segnalazione di bug terminata"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Segnalazione di bug pronta per il caricamento"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Acquisizione schermata non riuscita"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Dump dello stato non riuscito"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Segnalazione di bug in corso"</string>

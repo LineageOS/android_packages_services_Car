@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"ချွတ်ယွင်းမှု အစီရင်ခံစာကို လက်ခံရယူနေပါပြီ"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"ချွတ်ယွင်းမှု အစီရင်ခံစာကို လက်ခံရယူပြီးပါပြီ"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"USB သို့ ရွှေ့ရန်"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Google သို့ အပ်လုဒ်လုပ်ရန်"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"အပ်လုဒ်လုပ်ရန်"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCS သို့ အပ်လုဒ်လုပ်ရန်"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"ခွင့်ပြုချက်များ ပေးပါ"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"ချွတ်ယွင်းမှု အစီရင်ခံစာကို လက်ခံရယူနေပြီး ဖြစ်သည်"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"အချိန်ကုန်သွားသည်၊ ပယ်ဖျက်နေသည်"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"ချွတ်ယွင်းမှု အစီရင်ခံ၍မရပါ"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"ချွတ်ယွင်းမှု အစီရင်ခံပြီးပါပြီ"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"ချွတ်ယွင်းမှု အစီရင်ခံချက်ကို အပ်လုဒ်လုပ်ရန် အဆင်သင့်ဖြစ်နေပါပြီ"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"မျက်နှာပြင် ပုံဖမ်း၍ မရပါ"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Dump state မအောင်မြင်ပါ"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"ချွတ်ယွင်းမှု အစီရင်ခံစာကို ဆောင်ရွက်နေဆဲဖြစ်သည်"</string>

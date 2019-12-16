@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"گزارش اشکالی از قبل جمع‌آوری شده است"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"گزارش اشکالی جمع‌آوری شد"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"انتقال به USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"بارگذاری در Google"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"بارگذاری"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"بارگذاری در GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"لطفاً اجازه اعطا کنید"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"گزارش اشکال از قبل جمع‌آوری شده است"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"پایان مهلت زمانی، درحال لغو"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"گزارش اشکال انجام نشد"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"گزارش اشکال تمام شد"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"گزارش اشکال آماده بارگیری است"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"ضبط صفحه انجام نشد"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"وضعیت کپی نشد"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"گزارش اشکال درحال انجام است"</string>

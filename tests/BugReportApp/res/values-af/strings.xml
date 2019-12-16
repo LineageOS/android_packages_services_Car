@@ -30,13 +30,12 @@
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"\'n Foutverslag word reeds saamgestel"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"\'n Foutverslag is saamgestel"</string>
     <string name="bugreport_move_button_text" msgid="1245698439228323880">"Skuif na USB"</string>
-    <string name="bugreport_upload_button_text" msgid="2322576150507025845">"Laai na Google toe op"</string>
+    <string name="bugreport_upload_button_text" msgid="4136749466634820848">"Laai op"</string>
+    <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"Laai op na GCS"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"Gee asseblief toestemmings"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Foutverslag word reeds saamgestel"</string>
-    <string name="toast_timed_out" msgid="4410178570031498895">"Uitgetel; kanselleer tans"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Foutverslag het misluk"</string>
     <string name="toast_status_finished" msgid="7473653838545631945">"Foutverslag is klaar"</string>
-    <string name="toast_status_pending_upload" msgid="7893505453527958690">"Foutverslag is gereed om opgelaai te word"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Kon nie skerm opneem nie"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Stortingstand het misluk"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Foutverslag is aan die gang"</string>
