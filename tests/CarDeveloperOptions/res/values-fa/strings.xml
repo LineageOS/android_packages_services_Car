@@ -1849,7 +1849,7 @@
     <string name="filter_dlg_title" msgid="115313222190512670">"انتخاب گزینه‌های فیلتر"</string>
     <string name="filter_apps_all" msgid="3938077534861382701">"همه برنامه‌ها"</string>
     <string name="filter_apps_disabled" msgid="5394488790555678117">"برنامه‌های غیرفعال‌شده"</string>
-    <string name="filter_apps_third_party" msgid="3985794876813232322">"دانلودشده"</string>
+    <string name="filter_apps_third_party" msgid="3985794876813232322">"بارگیری‌شده"</string>
     <string name="filter_apps_running" msgid="6852975378502426359">"در حال اجرا"</string>
     <string name="filter_apps_onsdcard" product="nosdcard" msgid="3501701148760911442">"حافظهٔ USB"</string>
     <string name="filter_apps_onsdcard" product="default" msgid="135989136394672864">"در کارت SD"</string>

@@ -1213,7 +1213,7 @@
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Tidsplan"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Ingen"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Aktiveres på valgt tidspunkt"</string>
-    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Aktiveres fra sol ned til sol op"</string>
+    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Aktiveres fra solnedgang til solopgang"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Starttidspunkt"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Sluttidspunkt"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"Status"</string>

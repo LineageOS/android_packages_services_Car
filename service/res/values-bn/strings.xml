@@ -275,5 +275,7 @@
     <skip />
     <!-- no translation found for car_permission_desc_set_car_vendor_category_10 (6353592281201463231) -->
     <skip />
+    <string name="car_permission_label_control_car_features" msgid="3905791560378888286">"গাড়ির ফিচার চালু বা বন্ধ করুন"</string>
+    <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"গাড়ির ফিচার চালু বা বন্ধ করুন।"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"আমার ডিভাইস"</string>
 </resources>

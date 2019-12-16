@@ -56,7 +56,7 @@
     <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"IMS-ի գրանցում՝ <xliff:g id="STATUS">%1$s</xliff:g>\nVoice over LTE՝ <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nVoice over WiFi՝ <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nՏեսազանգ՝ <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nUT միջերես՝ <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"Շահագործման մեջ է"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"Չի շահագործվում"</string>
-    <string name="radioInfo_service_emergency" msgid="7674989004735662599">"Միայն արտակարգ իրավիճակների զանգեր"</string>
+    <string name="radioInfo_service_emergency" msgid="7674989004735662599">"Միայն շտապ կանչեր"</string>
     <string name="radioInfo_service_off" msgid="1873939869994136791">"Ռադիոն անջատված է"</string>
     <string name="radioInfo_roaming_in" msgid="7059350234710947417">"Ռոումինգ"</string>
     <string name="radioInfo_roaming_not" msgid="7733269160603599835">"Ռոումինգում չէ"</string>
