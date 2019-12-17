@@ -127,6 +127,8 @@ public class BugReportActivity extends Activity {
                         Car.CAR_DRIVING_STATE_SERVICE);
                 mDrivingStateManager.registerListener(
                         BugReportActivity.this::onCarDrivingStateChanged);
+                // Call onCarDrivingStateChanged(), because it's not called when Car is connected.
+                onCarDrivingStateChanged(mDrivingStateManager.getCurrentCarDrivingState());
             } catch (CarNotConnectedException e) {
                 Log.w(TAG, "Failed to get CarDrivingStateManager.", e);
             }
@@ -248,7 +250,6 @@ public class BugReportActivity extends Activity {
         mShowBugReportsButton.setVisibility(View.GONE);
         if (mDrivingStateManager != null) {
             try {
-                // Call onCarDrivingStateChanged(), because it's not called when Car is connected.
                 onCarDrivingStateChanged(mDrivingStateManager.getCurrentCarDrivingState());
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Failed to get current driving state.", e);
