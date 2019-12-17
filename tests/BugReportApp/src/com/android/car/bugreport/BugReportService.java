@@ -213,6 +213,9 @@ public class BugReportService extends Service {
     }
 
     private Notification buildProgressNotification() {
+        Intent intent = new Intent(getApplicationContext(), BugReportInfoActivity.class);
+        PendingIntent startBugReportInfoActivity =
+                PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
         return new Notification.Builder(this, PROGRESS_CHANNEL_ID)
                 .setContentTitle(getText(R.string.notification_bugreport_in_progress))
                 .setSubText(String.format("%.1f%%", mBugReportProgress.get()))
@@ -220,6 +223,7 @@ public class BugReportService extends Service {
                 .setCategory(Notification.CATEGORY_STATUS)
                 .setOngoing(true)
                 .setProgress((int) MAX_PROGRESS_VALUE, (int) mBugReportProgress.get(), false)
+                .setContentIntent(startBugReportInfoActivity)
                 .build();
     }
 
@@ -346,12 +350,16 @@ public class BugReportService extends Service {
         Intent intent = new Intent(getApplicationContext(), BugReportInfoActivity.class);
         PendingIntent startBugReportInfoActivity =
                 PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+        CharSequence contentText;
+        if (JobSchedulingUtils.autoUploadBugReport(mMetaBugReport)) {
+            contentText = getText(R.string.notification_bugreport_auto_upload_finished_text);
+        } else {
+            contentText = getText(R.string.notification_bugreport_manual_upload_finished_text);
+        }
         Notification notification = new Notification
                 .Builder(getApplicationContext(), STATUS_CHANNEL_ID)
                 .setContentTitle(getText(R.string.notification_bugreport_finished_title))
-                .setContentText(getText(JobSchedulingUtils.uploadByDefault()
-                        ? R.string.notification_bugreport_auto_upload_finished_text
-                        : R.string.notification_bugreport_manual_upload_finished_text))
+                .setContentText(contentText)
                 .setCategory(Notification.CATEGORY_STATUS)
                 .setSmallIcon(R.drawable.ic_upload)
                 .setContentIntent(startBugReportInfoActivity)
