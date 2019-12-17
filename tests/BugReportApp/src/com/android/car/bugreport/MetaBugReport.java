@@ -15,11 +15,35 @@
  */
 package com.android.car.bugreport;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
+import android.annotation.IntDef;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.common.base.Strings;
+
+import java.lang.annotation.Retention;
+
 /** Represents the information that a bugreport can contain. */
 public final class MetaBugReport implements Parcelable {
+
+    /** Contains {@link #TYPE_SILENT} and audio message. */
+    static final int TYPE_INTERACTIVE = 0;
+
+    /**
+     * Contains dumpstate and screenshots.
+     *
+     * <p>Silent bugreports are not uploaded automatically. The app asks user to add audio
+     * message either through notification or {@link BugReportInfoActivity}.
+     */
+    static final int TYPE_SILENT = 1;
+
+    /** Annotation for bug report types. */
+    @Retention(SOURCE)
+    @IntDef({TYPE_INTERACTIVE, TYPE_SILENT})
+    @interface BugReportType {};
+
     private final int mId;
     private final String mTimestamp;
     private final String mTitle;
@@ -27,6 +51,8 @@ public final class MetaBugReport implements Parcelable {
     private final String mFilePath;
     private final int mStatus;
     private final String mStatusMessage;
+    /** One of {@link BugReportType}. */
+    private final int mType;
 
     private MetaBugReport(Builder builder) {
         mId = builder.mId;
@@ -36,6 +62,7 @@ public final class MetaBugReport implements Parcelable {
         mFilePath = builder.mFilePath;
         mStatus = builder.mStatus;
         mStatusMessage = builder.mStatusMessage;
+        mType = builder.mType;
     }
 
     /**
@@ -49,32 +76,32 @@ public final class MetaBugReport implements Parcelable {
      * @return Username (LDAP) that created this bugreport
      */
     public String getUsername() {
-        return mUsername == null ? "" : mUsername;
+        return Strings.nullToEmpty(mUsername);
     }
 
     /**
      * @return Title of the bug.
      */
     public String getTitle() {
-        return mTitle == null ? "" : mTitle;
+        return Strings.nullToEmpty(mTitle);
     }
 
     /**
      * @return Timestamp when the bug report is initialized.
      */
     public String getTimestamp() {
-        return mTimestamp == null ? "" : mTimestamp;
+        return Strings.nullToEmpty(mTimestamp);
     }
 
     /**
      * @return path to the zip file
      */
     public String getFilePath() {
-        return mFilePath == null ? "" : mFilePath;
+        return Strings.nullToEmpty(mFilePath);
     }
 
     /**
-     * @return Status of the bug upload.
+     * @return {@link Status} of the bug upload.
      */
     public int getStatus() {
         return mStatus;
@@ -84,7 +111,14 @@ public final class MetaBugReport implements Parcelable {
      * @return StatusMessage of the bug upload.
      */
     public String getStatusMessage() {
-        return mStatusMessage == null ? "" : mStatusMessage;
+        return Strings.nullToEmpty(mStatusMessage);
+    }
+
+    /**
+     * @return {@link BugReportType}.
+     */
+    public int getType() {
+        return mType;
     }
 
     @Override
@@ -99,7 +133,8 @@ public final class MetaBugReport implements Parcelable {
                 .setStatus(mStatus)
                 .setStatusMessage(mStatusMessage)
                 .setTitle(mTitle)
-                .setUserName(mUsername);
+                .setUserName(mUsername)
+                .setType(mType);
     }
 
     @Override
@@ -111,6 +146,7 @@ public final class MetaBugReport implements Parcelable {
         dest.writeString(mFilePath);
         dest.writeInt(mStatus);
         dest.writeString(mStatusMessage);
+        dest.writeInt(mType);
     }
 
     /** A creator that's used by Parcelable. */
@@ -124,12 +160,14 @@ public final class MetaBugReport implements Parcelable {
                     String filePath = in.readString();
                     int status = in.readInt();
                     String statusMessage = in.readString();
+                    int type = in.readInt();
                     return new Builder(id, timestamp)
                             .setTitle(title)
                             .setUserName(username)
                             .setFilepath(filePath)
                             .setStatus(status)
                             .setStatusMessage(statusMessage)
+                            .setType(type)
                             .build();
                 }
 
@@ -147,6 +185,7 @@ public final class MetaBugReport implements Parcelable {
         private String mFilePath;
         private int mStatus;
         private String mStatusMessage;
+        private int mType;
 
         /**
          * Initializes MetaBugReport.Builder.
@@ -177,7 +216,7 @@ public final class MetaBugReport implements Parcelable {
             return this;
         }
 
-        /** Sets status. */
+        /** Sets {@link Status}. */
         public Builder setStatus(int status) {
             mStatus = status;
             return this;
@@ -186,6 +225,12 @@ public final class MetaBugReport implements Parcelable {
         /** Sets statusmessage. */
         public Builder setStatusMessage(String statusMessage) {
             mStatusMessage = statusMessage;
+            return this;
+        }
+
+        /** Sets the {@link BugReportType}. */
+        public Builder setType(@BugReportType int type) {
+            mType = type;
             return this;
         }
 

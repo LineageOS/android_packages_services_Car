@@ -30,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
+            android:textColor="@*android:color/car_yellow_500"
             android:textSize="@dimen/bug_report_default_text_size" />
 
         <LinearLayout
@@ -53,7 +54,6 @@
             android:id="@+id/bug_info_row_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@*android:color/car_yellow_500"
             android:visibility="gone"
             android:textSize="@dimen/bug_report_default_text_size" />
 

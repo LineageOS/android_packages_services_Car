@@ -16,8 +16,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.android.car.bugreport"
-          android:versionCode="9"
-          android:versionName="1.6.1">
+          android:versionCode="10"
+          android:versionName="1.6.2">
 
     <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -41,6 +41,7 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
                 <action android:name="android.intent.action.VIEW"/>
+                <action android:name="com.android.car.bugreport.action.START_SILENT"/>
             </intent-filter>
         </activity>
 
