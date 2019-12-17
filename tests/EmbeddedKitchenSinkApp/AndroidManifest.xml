@@ -146,13 +146,6 @@
 
         <activity android:name=".activityview.ActivityViewTestFragment"/>
 
-        <!-- temporary solution until b/68882625 is fixed. -->
-        <receiver android:name=".touchsound.DisableTouchSoundOnBoot" android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-            </intent-filter>
-        </receiver>
-
         <service android:name=".vendorservice.LogLifecycleService"
                  android:exported="false" android:directBootAware="true">
         </service>

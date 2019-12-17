@@ -197,8 +197,7 @@ public abstract class DashboardFragment extends SettingsPreferenceFragment
         Collection<List<AbstractPreferenceController>> controllers =
                 mPreferenceControllers.values();
         // If preference contains intent, log it before handling.
-        mMetricsFeatureProvider.logDashboardStartIntent(
-                getContext(), preference.getIntent(), getMetricsCategory());
+        mMetricsFeatureProvider.logStartedIntent(preference.getIntent(), getMetricsCategory());
         // Give all controllers a chance to handle click.
         for (List<AbstractPreferenceController> controllerList : controllers) {
             for (AbstractPreferenceController controller : controllerList) {
