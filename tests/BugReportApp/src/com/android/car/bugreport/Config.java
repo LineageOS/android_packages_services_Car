@@ -93,7 +93,7 @@ final class Config {
     }
 
     /** If new bugreports should be scheduled for uploading. */
-    private boolean getAutoUpload() {
+    boolean getAutoUpload() {
         if (isTempForceAutoUploadGcsEnabled()) {
             Log.d(TAG, "Enabling auto-upload because ENABLE_AUTO_UPLOAD is true");
             return true;
@@ -115,11 +115,6 @@ final class Config {
         //       property.
         return (UPLOAD_DESTINATION_GCS.equals(getUploadDestination()) && Build.IS_DEBUGGABLE)
                 || SystemProperties.getBoolean(PROP_FORCE_ENABLE_GCS_UPLOAD, /* def= */ false);
-    }
-
-    /** Returns {@code true} if the bugreport should be auto-uploaded to a cloud. */
-    boolean autoUploadBugReport(MetaBugReport bugReport) {
-        return getAutoUpload() && bugReport.getType() == MetaBugReport.TYPE_INTERACTIVE;
     }
 
     private static boolean isTempForceAutoUploadGcsEnabled() {

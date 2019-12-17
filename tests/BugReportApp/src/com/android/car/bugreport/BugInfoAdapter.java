@@ -35,6 +35,7 @@ import java.util.List;
 public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoViewHolder> {
     static final int BUTTON_TYPE_UPLOAD = 0;
     static final int BUTTON_TYPE_MOVE = 1;
+    static final int BUTTON_TYPE_ADD_AUDIO = 2;
 
     /** Provides a handler for click events*/
     interface ItemClickedListener {
@@ -42,7 +43,8 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
          * Handles click events differently depending on provided buttonType and
          * uses additional information provided in metaBugReport.
          *
-         * @param buttonType One of {@link #BUTTON_TYPE_UPLOAD} or {@link #BUTTON_TYPE_MOVE}.
+         * @param buttonType One of {@link #BUTTON_TYPE_UPLOAD}, {@link #BUTTON_TYPE_MOVE} or
+         *                   {@link #BUTTON_TYPE_ADD_AUDIO}.
          * @param metaBugReport Selected bugreport.
          * @param holder ViewHolder of the clicked item.
          */
@@ -68,6 +70,9 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
         /** Upload Button */
         Button mUploadButton;
 
+        /** Add Audio Button */
+        Button mAddAudioButton;
+
         BugInfoViewHolder(View v) {
             super(v);
             mTitleView = itemView.findViewById(R.id.bug_info_row_title);
@@ -75,6 +80,7 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
             mMessageView = itemView.findViewById(R.id.bug_info_row_message);
             mMoveButton = itemView.findViewById(R.id.bug_info_move_button);
             mUploadButton = itemView.findViewById(R.id.bug_info_upload_button);
+            mAddAudioButton = itemView.findViewById(R.id.bug_info_add_audio_button);
         }
     }
 
@@ -123,9 +129,9 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
             holder.mMoveButton.setEnabled(false);
             holder.mMoveButton.setVisibility(View.GONE);
         }
-        // TODO(b/144851443): Enable upload button only if upload destination is GCS until
-        //                    we create a way to allow implementing OEMs custom upload logic.
-        if (enableUserActionButtons && mConfig.isUploadDestinationGcs()) {
+        // Always enable upload to GCS button, because the app is enabled only for userdebug,
+        // and sometimes Config might not be properly set.
+        if (enableUserActionButtons) {
             holder.mUploadButton.setText(R.string.bugreport_upload_gcs_button_text);
             holder.mUploadButton.setEnabled(true);
             holder.mUploadButton.setVisibility(View.VISIBLE);
@@ -135,6 +141,20 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
         } else {
             holder.mUploadButton.setVisibility(View.GONE);
             holder.mUploadButton.setEnabled(false);
+        }
+        if (bugreport.getStatus() == Status.STATUS_AUDIO_PENDING.getValue()) {
+            if (mConfig.getAutoUpload()) {
+                holder.mAddAudioButton.setText(R.string.bugreport_add_audio_upload_button_text);
+            } else {
+                holder.mAddAudioButton.setText(R.string.bugreport_add_audio_button_text);
+            }
+            holder.mAddAudioButton.setEnabled(true);
+            holder.mAddAudioButton.setVisibility(View.VISIBLE);
+            holder.mAddAudioButton.setOnClickListener(view ->
+                    mItemClickedListener.onItemClicked(BUTTON_TYPE_ADD_AUDIO, bugreport, holder));
+        } else {
+            holder.mAddAudioButton.setEnabled(false);
+            holder.mAddAudioButton.setVisibility(View.GONE);
         }
     }
 

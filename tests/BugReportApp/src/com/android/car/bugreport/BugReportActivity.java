@@ -15,7 +15,6 @@
  */
 package com.android.car.bugreport;
 
-import static com.android.car.bugreport.BugReportService.EXTRA_META_BUG_REPORT;
 import static com.android.car.bugreport.BugReportService.MAX_PROGRESS_VALUE;
 
 import android.Manifest;
@@ -42,12 +41,18 @@ import android.os.UserManager;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.io.ByteStreams;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
@@ -60,42 +65,53 @@ import java.util.Random;
  * submit button it initiates {@link BugReportService}.
  *
  * <p>If bug report is in-progress, it shows a progress bar.
- *
- * <p>If the activity is started with action {@link #ACTION_START_SILENT}, it will start
- * bugreporting without showing dialog and recording audio message, see
- * {@link MetaBugReport#TYPE_SILENT}.
  */
 public class BugReportActivity extends Activity {
     private static final String TAG = BugReportActivity.class.getSimpleName();
 
-    /** Starts headless (no audio message recording) bugreporting. */
+    /** Starts silent (no audio message recording) bugreporting. */
     private static final String ACTION_START_SILENT =
             "com.android.car.bugreport.action.START_SILENT";
+
+    /** This is deprecated action. Please start SILENT bugreport using {@link BugReportService}. */
+    private static final String ACTION_ADD_AUDIO =
+            "com.android.car.bugreport.action.ADD_AUDIO";
 
     private static final int VOICE_MESSAGE_MAX_DURATION_MILLIS = 60 * 1000;
     private static final int AUDIO_PERMISSIONS_REQUEST_ID = 1;
 
+    private static final String EXTRA_BUGREPORT_ID = "bugreport-id";
+
     private final Handler mHandler = new Handler(Looper.getMainLooper());
+
+    /** Look up string length, e.g. [ABCDEF]. */
+    static final int LOOKUP_STRING_LENGTH = 6;
 
     private TextView mInProgressTitleText;
     private ProgressBar mProgressBar;
     private TextView mProgressText;
+    private TextView mAddAudioText;
     private VoiceRecordingView mVoiceRecordingView;
     private View mVoiceRecordingFinishedView;
     private View mSubmitBugReportLayout;
     private View mInProgressLayout;
     private View mShowBugReportsButton;
+    private Button mSubmitButton;
 
     private boolean mBound;
     private boolean mAudioRecordingStarted;
-    private boolean mBugReportServiceStarted;
+    private boolean mIsNewBugReport;
+    private boolean mIsOnActivityStartedWithBugReportServiceBoundCalled;
+    private boolean mIsSubmitButtonClicked;
     private BugReportService mService;
     private MediaRecorder mRecorder;
     private MetaBugReport mMetaBugReport;
+    private File mAudioFile;
     private Car mCar;
     private CarDrivingStateManager mDrivingStateManager;
     private AudioManager mAudioManager;
     private AudioFocusRequest mLastAudioFocusRequest;
+    private Config mConfig;
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -104,7 +120,7 @@ public class BugReportActivity extends Activity {
             BugReportService.ServiceBinder binder = (BugReportService.ServiceBinder) service;
             mService = binder.getService();
             mBound = true;
-            startAudioMessageRecording();
+            onActivityStartedWithBugReportServiceBound();
         }
 
         @Override
@@ -114,7 +130,7 @@ public class BugReportActivity extends Activity {
         }
     };
 
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+    private final ServiceConnection mCarServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             try {
@@ -134,38 +150,21 @@ public class BugReportActivity extends Activity {
         }
     };
 
+    /**
+     * Builds an intent that starts {@link BugReportActivity} to add audio message to the existing
+     * bug report.
+     */
+    static Intent buildAddAudioIntent(Context context, MetaBugReport bug) {
+        Intent addAudioIntent = new Intent(context, BugReportActivity.class);
+        addAudioIntent.setAction(ACTION_ADD_AUDIO);
+        addAudioIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        addAudioIntent.putExtra(EXTRA_BUGREPORT_ID, bug.getId());
+        return addAudioIntent;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (ACTION_START_SILENT.equals(getIntent().getAction())) {
-            Log.i(TAG, "Starting headless bugreport.");
-            MetaBugReport bugReport = createBugReport(this, MetaBugReport.TYPE_SILENT);
-            startBugReportingInService(this, bugReport);
-            finish();
-            return;
-        }
-
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.bug_report_activity);
-
-        mInProgressTitleText = findViewById(R.id.in_progress_title_text);
-        mProgressBar = findViewById(R.id.progress_bar);
-        mProgressText = findViewById(R.id.progress_text);
-        mVoiceRecordingView = findViewById(R.id.voice_recording_view);
-        mVoiceRecordingFinishedView = findViewById(R.id.voice_recording_finished_text_view);
-        mSubmitBugReportLayout = findViewById(R.id.submit_bug_report_layout);
-        mInProgressLayout = findViewById(R.id.in_progress_layout);
-        mShowBugReportsButton = findViewById(R.id.button_show_bugreports);
-
-        mShowBugReportsButton.setOnClickListener(this::buttonShowBugReportsClick);
-        findViewById(R.id.button_submit).setOnClickListener(this::buttonSubmitClick);
-        findViewById(R.id.button_cancel).setOnClickListener(this::buttonCancelClick);
-        findViewById(R.id.button_close).setOnClickListener(this::buttonCancelClick);
-
-        mCar = Car.createCar(this, mServiceConnection);
-        mCar.connect();
-        mAudioManager = getSystemService(AudioManager.class);
 
         // Bind to BugReportService.
         Intent intent = new Intent(this, BugReportService.class);
@@ -177,19 +176,26 @@ public class BugReportActivity extends Activity {
         super.onStart();
 
         if (mBound) {
-            startAudioMessageRecording();
+            onActivityStartedWithBugReportServiceBound();
         }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (!mBugReportServiceStarted && mAudioRecordingStarted) {
+        // If SUBMIT button is clicked, cancelling audio has been taken care of.
+        if (!mIsSubmitButtonClicked) {
             cancelAudioMessageRecording();
         }
         if (mBound) {
             mService.removeBugReportProgressListener();
         }
+        // Reset variables for the next onStart().
+        mAudioRecordingStarted = false;
+        mIsSubmitButtonClicked = false;
+        mIsOnActivityStartedWithBugReportServiceBoundCalled = false;
+        mMetaBugReport = null;
+        mAudioFile = null;
     }
 
     @Override
@@ -208,7 +214,14 @@ public class BugReportActivity extends Activity {
     }
 
     private void onCarDrivingStateChanged(CarDrivingStateEvent event) {
-        if (event.eventValue == CarDrivingStateEvent.DRIVING_STATE_PARKED) {
+        // When adding audio message to the existing bugreport, do not show "Show Bug Reports"
+        // button, users either should explicitly Submit or Cancel.
+        if (mAudioRecordingStarted && !mIsNewBugReport) {
+            mShowBugReportsButton.setVisibility(View.GONE);
+            return;
+        }
+        if (event.eventValue == CarDrivingStateEvent.DRIVING_STATE_PARKED
+                || event.eventValue == CarDrivingStateEvent.DRIVING_STATE_IDLING) {
             mShowBugReportsButton.setVisibility(View.VISIBLE);
         } else {
             mShowBugReportsButton.setVisibility(View.GONE);
@@ -221,6 +234,44 @@ public class BugReportActivity extends Activity {
         mProgressText.setText(progressValue + "%");
         if (progressValue == MAX_PROGRESS_VALUE) {
             mInProgressTitleText.setText(R.string.bugreport_dialog_in_progress_title_finished);
+        }
+    }
+
+    private void prepareUi() {
+        if (mSubmitBugReportLayout != null) {
+            return;
+        }
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.bug_report_activity);
+
+        // Connect to the services here, because they are used only when showing the dialog.
+        // We need to minimize system state change when performing SILENT bug report.
+        mConfig = new Config();
+        mConfig.start();
+        mCar = Car.createCar(this, mCarServiceConnection);
+        mCar.connect();
+
+        mInProgressTitleText = findViewById(R.id.in_progress_title_text);
+        mProgressBar = findViewById(R.id.progress_bar);
+        mProgressText = findViewById(R.id.progress_text);
+        mAddAudioText = findViewById(R.id.bug_report_add_audio_to_existing);
+        mVoiceRecordingView = findViewById(R.id.voice_recording_view);
+        mVoiceRecordingFinishedView = findViewById(R.id.voice_recording_finished_text_view);
+        mSubmitBugReportLayout = findViewById(R.id.submit_bug_report_layout);
+        mInProgressLayout = findViewById(R.id.in_progress_layout);
+        mShowBugReportsButton = findViewById(R.id.button_show_bugreports);
+        mSubmitButton = findViewById(R.id.button_submit);
+
+        mShowBugReportsButton.setOnClickListener(this::buttonShowBugReportsClick);
+        mSubmitButton.setOnClickListener(this::buttonSubmitClick);
+        findViewById(R.id.button_cancel).setOnClickListener(this::buttonCancelClick);
+        findViewById(R.id.button_close).setOnClickListener(this::buttonCancelClick);
+
+        if (mIsNewBugReport) {
+            mSubmitButton.setText(R.string.bugreport_dialog_submit);
+        } else {
+            mSubmitButton.setText(mConfig.getAutoUpload()
+                    ? R.string.bugreport_dialog_upload : R.string.bugreport_dialog_save);
         }
     }
 
@@ -257,24 +308,89 @@ public class BugReportActivity extends Activity {
      *
      * <p>This method expected to be called when the activity is started and bound to the service.
      */
-    private void startAudioMessageRecording() {
-        mService.setBugReportProgressListener(this::onProgressChanged);
+    private void onActivityStartedWithBugReportServiceBound() {
+        if (mIsOnActivityStartedWithBugReportServiceBoundCalled) {
+            return;
+        }
+        mIsOnActivityStartedWithBugReportServiceBoundCalled = true;
 
         if (mService.isCollectingBugReport()) {
             Log.i(TAG, "Bug report is already being collected.");
+            mService.setBugReportProgressListener(this::onProgressChanged);
+            prepareUi();
             showInProgressUi();
             return;
         }
 
+        if (ACTION_START_SILENT.equals(getIntent().getAction())) {
+            Log.i(TAG, "Starting a silent bugreport.");
+            MetaBugReport bugReport = createBugReport(this, MetaBugReport.TYPE_SILENT);
+            startBugReportCollection(bugReport);
+            finish();
+            return;
+        }
+
+        // Close the notification shade and other dialogs when showing BugReportActivity dialog.
+        sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+
+        if (ACTION_ADD_AUDIO.equals(getIntent().getAction())) {
+            addAudioToExistingBugReport(
+                    getIntent().getIntExtra(EXTRA_BUGREPORT_ID, /* defaultValue= */ -1));
+            return;
+        }
+
+        Log.i(TAG, "Starting an interactive bugreport.");
+        createNewBugReportWithAudioMessage();
+    }
+
+    private void addAudioToExistingBugReport(int bugreportId) {
+        MetaBugReport bug = BugStorageUtils.findBugReport(this, bugreportId).orElseThrow(
+                () -> new RuntimeException("Failed to find bug report with id " + bugreportId));
+        Log.i(TAG, "Adding audio to the existing bugreport " + bug.getTimestamp());
+        if (bug.getStatus() != Status.STATUS_AUDIO_PENDING.getValue()) {
+            Log.e(TAG, "Failed to add audio, bad status, expected "
+                    + Status.STATUS_AUDIO_PENDING.getValue() + ", got " + bug.getStatus());
+            finish();
+        }
+        File audioFile;
+        try {
+            audioFile = File.createTempFile("audio", "mp3", getCacheDir());
+        } catch (IOException e) {
+            throw new RuntimeException("failed to create temp audio file");
+        }
+        startAudioMessageRecording(/* isNewBugReport= */ false, bug, audioFile);
+    }
+
+    private void createNewBugReportWithAudioMessage() {
+        MetaBugReport bug = createBugReport(this, MetaBugReport.TYPE_INTERACTIVE);
+        startAudioMessageRecording(
+                /* isNewBugReport= */ true,
+                bug,
+                FileUtils.getFileWithSuffix(this, bug.getTimestamp(), "-message.3gp"));
+    }
+
+    /** Shows a dialog UI and starts recording audio message. */
+    private void startAudioMessageRecording(
+            boolean isNewBugReport, MetaBugReport bug, File audioFile) {
         if (mAudioRecordingStarted) {
             Log.i(TAG, "Audio message recording is already started.");
             return;
         }
-
         mAudioRecordingStarted = true;
+        mAudioManager = getSystemService(AudioManager.class);
+        mIsNewBugReport = isNewBugReport;
+        mMetaBugReport = bug;
+        mAudioFile = audioFile;
+        prepareUi();
         showSubmitBugReportUi(/* isRecording= */ true);
-
-        mMetaBugReport = createBugReport(this, MetaBugReport.TYPE_INTERACTIVE);
+        if (isNewBugReport) {
+            mAddAudioText.setVisibility(View.GONE);
+        } else {
+            mAddAudioText.setVisibility(View.VISIBLE);
+            mAddAudioText.setText(String.format(
+                    getString(R.string.bugreport_dialog_add_audio_to_existing),
+                    mMetaBugReport.getTimestamp()));
+        }
 
         if (!hasRecordPermissions()) {
             requestRecordPermissions();
@@ -291,10 +407,17 @@ public class BugReportActivity extends Activity {
             return;
         }
         stopAudioRecording();
-        File tempDir = FileUtils.getTempDir(this, mMetaBugReport.getTimestamp());
-        new DeleteDirectoryAsyncTask().execute(tempDir);
-        BugStorageUtils.setBugReportStatus(this, mMetaBugReport, Status.STATUS_USER_CANCELLED, "");
-        Log.i(TAG, "Bug report is cancelled");
+        if (mIsNewBugReport) {
+            // The app creates a temp dir only for new INTERACTIVE bugreports.
+            File tempDir = FileUtils.getTempDir(this, mMetaBugReport.getTimestamp());
+            new DeleteFilesAndDirectoriesAsyncTask().execute(tempDir);
+        } else {
+            BugStorageUtils.deleteBugReportFiles(this, mMetaBugReport.getId());
+            new DeleteFilesAndDirectoriesAsyncTask().execute(mAudioFile);
+        }
+        BugStorageUtils.setBugReportStatus(
+                this, mMetaBugReport, Status.STATUS_USER_CANCELLED, "");
+        Log.i(TAG, "Bug report " + mMetaBugReport.getTimestamp() + " is cancelled");
         mAudioRecordingStarted = false;
     }
 
@@ -304,16 +427,34 @@ public class BugReportActivity extends Activity {
 
     private void buttonSubmitClick(View view) {
         stopAudioRecording();
-        startBugReportingInService(this, mMetaBugReport);
-        mBugReportServiceStarted = true;
+        mIsSubmitButtonClicked = true;
+        if (mIsNewBugReport) {
+            Log.i(TAG, "Starting bugreport service.");
+            startBugReportCollection(mMetaBugReport);
+        } else {
+            Log.i(TAG, "Adding audio file to the bugreport " + mMetaBugReport.getTimestamp());
+            new AddAudioToBugReportAsyncTask(this, mConfig, mMetaBugReport, mAudioFile).execute();
+        }
+        setResult(Activity.RESULT_OK);
         finish();
+    }
+
+    /** Starts the {@link BugReportService} to collect bug report. */
+    private void startBugReportCollection(MetaBugReport bug) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(BugReportService.EXTRA_META_BUG_REPORT, bug);
+        Intent intent = new Intent(this, BugReportService.class);
+        intent.putExtras(bundle);
+        startForegroundService(intent);
     }
 
     /**
      * Starts {@link BugReportInfoActivity} and finishes current activity, so it won't be running
-     * in the background and closing {@link BugReportInfoActivity} will not open it again.
+     * in the background and closing {@link BugReportInfoActivity} will not open the current
+     * activity again.
      */
     private void buttonShowBugReportsClick(View view) {
+        // First cancel the audio recording, then delete the bug report from database.
         cancelAudioMessageRecording();
         // Delete the bugreport from database, otherwise pressing "Show Bugreports" button will
         // create unnecessary cancelled bugreports.
@@ -362,9 +503,7 @@ public class BugReportActivity extends Activity {
     }
 
     private void startRecordingWithPermission() {
-        File recordingFile = FileUtils.getFileWithSuffix(this, mMetaBugReport.getTimestamp(),
-                "-message.3gp");
-        Log.i(TAG, "Started voice recording, and saving audio to " + recordingFile);
+        Log.i(TAG, "Started voice recording, and saving audio to " + mAudioFile);
 
         mLastAudioFocusRequest = new AudioFocusRequest.Builder(
                         AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
@@ -389,12 +528,12 @@ public class BugReportActivity extends Activity {
                 Log.i(TAG, "OnMediaRecorderInfo: what=" + what + ", extra=" + extra));
         mRecorder.setOnErrorListener((MediaRecorder recorder, int what, int extra) ->
                 Log.i(TAG, "OnMediaRecorderError: what=" + what + ", extra=" + extra));
-        mRecorder.setOutputFile(recordingFile);
+        mRecorder.setOutputFile(mAudioFile);
 
         try {
             mRecorder.prepare();
         } catch (IOException e) {
-            Log.e(TAG, "Failed on MediaRecorder#prepare(), filename: " + recordingFile, e);
+            Log.e(TAG, "Failed on MediaRecorder#prepare(), filename: " + mAudioFile, e);
             finish();
             return;
         }
@@ -414,7 +553,7 @@ public class BugReportActivity extends Activity {
             Log.i(TAG, "Recording ended, stopping the MediaRecorder.");
             try {
                 mRecorder.stop();
-            } catch (IllegalStateException e) {
+            } catch (RuntimeException e) {
                 // Sometimes MediaRecorder doesn't start and stopping it throws an error.
                 // We just log these cases, no need to crash the app.
                 Log.w(TAG, "Couldn't stop media recorder", e);
@@ -431,14 +570,6 @@ public class BugReportActivity extends Activity {
         mVoiceRecordingView.setRecorder(null);
     }
 
-    private static void startBugReportingInService(Context context, MetaBugReport bugReport) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(EXTRA_META_BUG_REPORT, bugReport);
-        Intent intent = new Intent(context, BugReportService.class);
-        intent.putExtras(bundle);
-        context.startForegroundService(intent);
-    }
-
     private static String getCurrentUserName(Context context) {
         UserManager um = UserManager.get(context);
         return um.getUserName();
@@ -450,7 +581,7 @@ public class BugReportActivity extends Activity {
      * @param context an Android context.
      * @param type bug report type, {@link MetaBugReport.BugReportType}.
      */
-    private static MetaBugReport createBugReport(Context context, int type) {
+    static MetaBugReport createBugReport(Context context, int type) {
         String timestamp = MetaBugReport.toBugReportTimestamp(new Date());
         String username = getCurrentUserName(context);
         String title = BugReportTitleGenerator.generateBugReportTitle(timestamp, username);
@@ -463,8 +594,6 @@ public class BugReportActivity extends Activity {
         private static final char[] CHARS_FOR_RANDOM_GENERATOR =
                 new char[]{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P',
                         'R', 'S', 'T', 'U', 'W', 'X', 'Y', 'Z'};
-
-        private static final int LOOKUP_STRING_LENGTH = 6;
 
         /**
          * Generates a bugreport title from given timestamp and username.
@@ -488,14 +617,65 @@ public class BugReportActivity extends Activity {
         }
     }
 
-    /** AsyncTask that recursively deletes directories. */
-    private static class DeleteDirectoryAsyncTask extends AsyncTask<File, Void, Void> {
+    /** AsyncTask that recursively deletes files and directories. */
+    private static class DeleteFilesAndDirectoriesAsyncTask extends AsyncTask<File, Void, Void> {
         @Override
         protected Void doInBackground(File... files) {
             for (File file : files) {
                 Log.i(TAG, "Deleting " + file.getAbsolutePath());
-                FileUtils.deleteDirectory(file);
+                if (file.isFile()) {
+                    file.delete();
+                } else {
+                    FileUtils.deleteDirectory(file);
+                }
             }
+            return null;
+        }
+    }
+
+    /**
+     * AsyncTask that moves audio file to the system user's {@link FileUtils#getPendingDir} and
+     * sets status to either STATUS_UPLOAD_PENDING or STATUS_PENDING_USER_ACTION.
+     */
+    private static class AddAudioToBugReportAsyncTask extends AsyncTask<Void, Void, Void> {
+        private final Context mContext;
+        private final Config mConfig;
+        private final File mAudioFile;
+        private final MetaBugReport mOriginalBug;
+
+        AddAudioToBugReportAsyncTask(
+                Context context, Config config, MetaBugReport bug, File audioFile) {
+            mContext = context;
+            mConfig = config;
+            mOriginalBug = bug;
+            mAudioFile = audioFile;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            String audioFileName = FileUtils.getAudioFileName(
+                    MetaBugReport.toBugReportTimestamp(new Date()), mOriginalBug);
+            MetaBugReport bug = BugStorageUtils.update(mContext,
+                    mOriginalBug.toBuilder().setAudioFileName(audioFileName).build());
+            try (OutputStream out = BugStorageUtils.openAudioMessageFileToWrite(mContext, bug);
+                 InputStream input = new FileInputStream(mAudioFile)) {
+                ByteStreams.copy(input, out);
+            } catch (IOException e) {
+                BugStorageUtils.setBugReportStatus(mContext, bug,
+                        com.android.car.bugreport.Status.STATUS_WRITE_FAILED,
+                        "Failed to write audio to bug report");
+                Log.e(TAG, "Failed to write audio to bug report", e);
+                return null;
+            }
+            if (mConfig.getAutoUpload()) {
+                BugStorageUtils.setBugReportStatus(mContext, bug,
+                        com.android.car.bugreport.Status.STATUS_UPLOAD_PENDING, "");
+            } else {
+                BugStorageUtils.setBugReportStatus(mContext, bug,
+                        com.android.car.bugreport.Status.STATUS_PENDING_USER_ACTION, "");
+                BugReportService.showBugReportFinishedNotification(mContext, bug);
+            }
+            mAudioFile.delete();
             return null;
         }
     }

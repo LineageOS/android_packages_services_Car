@@ -37,6 +37,9 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.common.base.Strings;
+import com.google.common.io.ByteStreams;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -56,6 +59,9 @@ public class BugReportInfoActivity extends Activity {
     /** Used for moving bug reports to a new location (e.g. USB drive). */
     private static final int SELECT_DIRECTORY_REQUEST_CODE = 1;
 
+    /** Used to start {@link BugReportActivity} to add audio message. */
+    private static final int ADD_AUDIO_MESSAGE_REQUEST_CODE = 2;
+
     private RecyclerView mRecyclerView;
     private BugInfoAdapter mBugInfoAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -64,6 +70,7 @@ public class BugReportInfoActivity extends Activity {
     private BugInfoAdapter.BugInfoViewHolder mLastSelectedBugInfoViewHolder;
     private BugStorageObserver mBugStorageObserver;
     private Config mConfig;
+    private boolean mAudioRecordingStarted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,11 +135,18 @@ public class BugReportInfoActivity extends Activity {
             // Refresh the UI to reflect the new status.
             new BugReportsLoaderAsyncTask(this).execute();
         } else if (buttonType == BugInfoAdapter.BUTTON_TYPE_MOVE) {
-            Log.i(TAG, "Moving " + bugReport.getFilePath());
+            Log.i(TAG, "Moving " + bugReport.getTimestamp());
             mLastSelectedBugReport = bugReport;
             mLastSelectedBugInfoViewHolder = holder;
             startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE),
                     SELECT_DIRECTORY_REQUEST_CODE);
+        } else if (buttonType == BugInfoAdapter.BUTTON_TYPE_ADD_AUDIO) {
+            // Check mAudioRecordingStarted to prevent double click to BUTTON_TYPE_ADD_AUDIO.
+            if (!mAudioRecordingStarted) {
+                mAudioRecordingStarted = true;
+                startActivityForResult(BugReportActivity.buildAddAudioIntent(this, bugReport),
+                        ADD_AUDIO_MESSAGE_REQUEST_CODE);
+            }
         } else {
             throw new IllegalStateException("unreachable");
         }
@@ -191,31 +205,12 @@ public class BugReportInfoActivity extends Activity {
         mConfig.dump(prefix, writer);
     }
 
-    /** Observer for {@link BugStorageProvider}. */
-    private static class BugStorageObserver extends ContentObserver {
-        private final BugReportInfoActivity mInfoActivity;
-
-        /**
-         * Creates a content observer.
-         *
-         * @param activity A {@link BugReportInfoActivity} instance.
-         * @param handler The handler to run {@link #onChange} on, or null if none.
-         */
-        BugStorageObserver(BugReportInfoActivity activity, Handler handler) {
-            super(handler);
-            mInfoActivity = activity;
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            new BugReportsLoaderAsyncTask(mInfoActivity).execute();
-        }
-    }
-
-    /** Moves bugreport zip to a new location and updates RecyclerView. */
+    /**
+     * Moves bugreport zip to USB drive and updates RecyclerView.
+     *
+     * <p>It merges bugreport zip file and audio file into one final zip file and moves it.
+     */
     private static final class AsyncMoveFilesTask extends AsyncTask<Void, Void, MetaBugReport> {
-        private static final int COPY_BUFFER_SIZE = 4096; // bytes
-
         private final BugReportInfoActivity mActivity;
         private final MetaBugReport mBugReport;
         private final Uri mDestinationDirUri;
@@ -223,6 +218,7 @@ public class BugReportInfoActivity extends Activity {
         private final BugInfoAdapter mBugInfoAdapter;
         /** ViewHolder for {@link #mBugReport}. */
         private final BugInfoAdapter.BugInfoViewHolder mBugViewHolder;
+        private final ContentResolver mResolver;
 
         AsyncMoveFilesTask(BugReportInfoActivity activity, BugInfoAdapter bugInfoAdapter,
                 MetaBugReport bugReport, BugInfoAdapter.BugInfoViewHolder holder,
@@ -232,54 +228,63 @@ public class BugReportInfoActivity extends Activity {
             mBugReport = bugReport;
             mBugViewHolder = holder;
             mDestinationDirUri = destinationDir;
+            mResolver = mActivity.getContentResolver();
         }
 
         /** Moves the bugreport to the USB drive and returns the updated {@link MetaBugReport}. */
         @Override
         protected MetaBugReport doInBackground(Void... params) {
-            Uri sourceUri = BugStorageProvider.buildUriWithBugId(mBugReport.getId());
-            ContentResolver resolver = mActivity.getContentResolver();
+            try {
+                return copyFilesToUsb();
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to copy bugreport "
+                        + mBugReport.getTimestamp() + " to USB", e);
+                return BugStorageUtils.setBugReportStatus(
+                    mActivity, mBugReport,
+                    com.android.car.bugreport.Status.STATUS_MOVE_FAILED, e);
+            }
+        }
+
+        private MetaBugReport copyFilesToUsb() throws IOException {
             String documentId = DocumentsContract.getTreeDocumentId(mDestinationDirUri);
             Uri parentDocumentUri =
                     DocumentsContract.buildDocumentUriUsingTree(mDestinationDirUri, documentId);
-            String mimeType = resolver.getType(sourceUri);
-            try {
-                Uri newFileUri = DocumentsContract.createDocument(resolver, parentDocumentUri,
-                        mimeType,
-                        new File(mBugReport.getFilePath()).toPath().getFileName().toString());
-                if (newFileUri == null) {
-                    Log.e(TAG, "Unable to create a new file.");
-                    return BugStorageUtils.setBugReportStatus(
-                            mActivity,
-                            mBugReport,
-                            com.android.car.bugreport.Status.STATUS_MOVE_FAILED,
-                            "Unable to create a new file.");
-                }
-                try (InputStream input = resolver.openInputStream(sourceUri);
-                     AssetFileDescriptor fd = resolver.openAssetFileDescriptor(newFileUri, "w")) {
-                    OutputStream output = fd.createOutputStream();
-                    byte[] buffer = new byte[COPY_BUFFER_SIZE];
-                    int len;
-                    while ((len = input.read(buffer)) > 0) {
-                        output.write(buffer, 0, len);
-                    }
-                    // Force sync the written data from memory to the disk.
-                    fd.getFileDescriptor().sync();
-                }
-                Log.d(TAG, "Finished writing to " + newFileUri.getPath());
-                if (BugStorageUtils.deleteBugReportZipfile(mActivity, mBugReport.getId())) {
-                    Log.i(TAG, "Local bugreport zip is deleted.");
-                } else {
-                    Log.w(TAG, "Failed to delete the local bugreport " + mBugReport.getFilePath());
-                }
-                return BugStorageUtils.setBugReportStatus(mActivity, mBugReport,
-                            com.android.car.bugreport.Status.STATUS_MOVE_SUCCESSFUL,
-                            "Moved to: " + mDestinationDirUri.getPath());
-            } catch (IOException e) {
-                Log.e(TAG, "Failed to create the bug report in the location.", e);
-                return BugStorageUtils.setBugReportStatus(
-                        mActivity, mBugReport,
-                        com.android.car.bugreport.Status.STATUS_MOVE_FAILED, e);
+            if (!Strings.isNullOrEmpty(mBugReport.getFilePath())) {
+                // There are still old bugreports with deprecated filePath.
+                Uri sourceUri = BugStorageProvider.buildUriWithSegment(
+                        mBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_FILE);
+                copyFileToUsb(
+                        new File(mBugReport.getFilePath()).getName(), sourceUri, parentDocumentUri);
+            } else {
+                Uri sourceBugReport = BugStorageProvider.buildUriWithSegment(
+                        mBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_BUGREPORT_FILE);
+                copyFileToUsb(
+                        mBugReport.getBugReportFileName(), sourceBugReport, parentDocumentUri);
+                Uri sourceAudio = BugStorageProvider.buildUriWithSegment(
+                        mBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_AUDIO_FILE);
+                copyFileToUsb(mBugReport.getAudioFileName(), sourceAudio, parentDocumentUri);
+            }
+            Log.d(TAG, "Deleting local bug report files.");
+            BugStorageUtils.deleteBugReportFiles(mActivity, mBugReport.getId());
+            return BugStorageUtils.setBugReportStatus(mActivity, mBugReport,
+                    com.android.car.bugreport.Status.STATUS_MOVE_SUCCESSFUL,
+                    "Moved to: " + mDestinationDirUri.getPath());
+        }
+
+        private void copyFileToUsb(String filename, Uri sourceUri, Uri parentDocumentUri)
+                throws IOException {
+            String mimeType = mResolver.getType(sourceUri);
+            Uri newFileUri = DocumentsContract.createDocument(
+                    mResolver, parentDocumentUri, mimeType, filename);
+            if (newFileUri == null) {
+                throw new IOException("Unable to create a file " + filename + " in USB");
+            }
+            try (InputStream input = mResolver.openInputStream(sourceUri);
+                 AssetFileDescriptor fd = mResolver.openAssetFileDescriptor(newFileUri, "w")) {
+                OutputStream output = fd.createOutputStream();
+                ByteStreams.copy(input, output);
+                // Force sync the written data from memory to the disk.
+                fd.getFileDescriptor().sync();
             }
         }
 
@@ -318,6 +323,27 @@ public class BugReportInfoActivity extends Activity {
                 return;
             }
             activity.mBugInfoAdapter.setDataset(result);
+        }
+    }
+
+    /** Observer for {@link BugStorageProvider}. */
+    private static class BugStorageObserver extends ContentObserver {
+        private final BugReportInfoActivity mInfoActivity;
+
+        /**
+         * Creates a content observer.
+         *
+         * @param activity A {@link BugReportInfoActivity} instance.
+         * @param handler The handler to run {@link #onChange} on, or null if none.
+         */
+        BugStorageObserver(BugReportInfoActivity activity, Handler handler) {
+            super(handler);
+            mInfoActivity = activity;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            new BugReportsLoaderAsyncTask(mInfoActivity).execute();
         }
     }
 }
