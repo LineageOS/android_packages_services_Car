@@ -31,8 +31,10 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -74,6 +76,7 @@ public class BugStorageProvider extends ContentProvider {
 
     private DatabaseHelper mDatabaseHelper;
     private final UriMatcher mUriMatcher;
+    private Config mConfig;
 
     /**
      * A helper class to work with sqlite database.
@@ -147,6 +150,8 @@ public class BugStorageProvider extends ContentProvider {
     public boolean onCreate() {
         mDatabaseHelper = new DatabaseHelper(getContext());
         mHandler = new Handler();
+        mConfig = new Config();
+        mConfig.start();
         return true;
     }
 
@@ -334,7 +339,7 @@ public class BugStorageProvider extends ContentProvider {
                 if (e == null) {
                     // success writing the file. Update the field to indicate bugreport
                     // is ready for upload.
-                    status = JobSchedulingUtils.autoUploadBugReport(bugReport)
+                    status = mConfig.autoUploadBugReport(bugReport)
                             ? Status.STATUS_UPLOAD_PENDING
                             : Status.STATUS_PENDING_USER_ACTION;
                 } else {
@@ -358,6 +363,20 @@ public class BugStorageProvider extends ContentProvider {
             // That is ok.
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Print the Provider's state into the given stream. This gets invoked if
+     * you run "dumpsys activity provider com.android.car.bugreport/.BugStorageProvider".
+     *
+     * @param fd The raw file descriptor that the dump is being sent to.
+     * @param writer The PrintWriter to which you should dump your state.  This will be
+     * closed for you after you return.
+     * @param args additional arguments to the dump request.
+     */
+    public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
+        writer.println("BugStorageProvider:");
+        mConfig.dump(/* prefix= */ "  ", writer);
     }
 
     private boolean deleteZipFile(int bugreportId) {

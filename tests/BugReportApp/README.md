@@ -38,10 +38,15 @@ UI and upload configs are located in `res/` directory. Resources can be
 [overlayed](https://source.android.com/setup/develop/new-device#use-resource-overlays)
 for specific products.
 
+### Config
+
+Configs are defined in `Config.java`.
+
 ### System Properties
 
-- `android.car.bugreport.disableautoupload` - set it to `true` to disable auto-upload to Google
-   Cloud, and allow users to manually upload or copy the bugreports to flash drive.
+- `android.car.bugreport.enableautoupload` - please see Config#ENABLE_AUTO_UPLOAD to learn more.
+- `android.car.bugreport.force_enable_gcs_upload` - set it `true` to enable uploading
+  bugreports to GCS for **all builds**.
 
 ### Upload configuration
 

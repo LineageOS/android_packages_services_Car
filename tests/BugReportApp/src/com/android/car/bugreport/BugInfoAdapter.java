@@ -80,10 +80,12 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
 
     private List<MetaBugReport> mDataset;
     private final ItemClickedListener mItemClickedListener;
+    private final Config mConfig;
 
-    BugInfoAdapter(ItemClickedListener itemClickedListener) {
+    BugInfoAdapter(ItemClickedListener itemClickedListener, Config config) {
         mItemClickedListener = itemClickedListener;
         mDataset = new ArrayList<>();
+        mConfig = config;
         // Allow RecyclerView to efficiently update UI; getItemId() is implemented below.
         setHasStableIds(true);
     }
@@ -117,14 +119,20 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
             holder.mMoveButton.setOnClickListener(
                     view -> mItemClickedListener.onItemClicked(BUTTON_TYPE_MOVE, bugreport,
                             holder));
+        } else {
+            holder.mMoveButton.setEnabled(false);
+            holder.mMoveButton.setVisibility(View.GONE);
+        }
+        // TODO(b/144851443): Enable upload button only if upload destination is GCS until
+        //                    we create a way to allow implementing OEMs custom upload logic.
+        if (enableUserActionButtons && mConfig.isUploadDestinationGcs()) {
+            holder.mUploadButton.setText(R.string.bugreport_upload_gcs_button_text);
             holder.mUploadButton.setEnabled(true);
             holder.mUploadButton.setVisibility(View.VISIBLE);
             holder.mUploadButton.setOnClickListener(
                     view -> mItemClickedListener.onItemClicked(BUTTON_TYPE_UPLOAD, bugreport,
                             holder));
         } else {
-            holder.mMoveButton.setVisibility(View.GONE);
-            holder.mMoveButton.setEnabled(false);
             holder.mUploadButton.setVisibility(View.GONE);
             holder.mUploadButton.setEnabled(false);
         }
