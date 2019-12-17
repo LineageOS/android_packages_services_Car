@@ -22,9 +22,12 @@ import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
+import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.UserHandle;
 import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
@@ -57,6 +60,7 @@ public class BugReportInfoActivity extends Activity {
     private NotificationManager mNotificationManager;
     private MetaBugReport mLastSelectedBugReport;
     private BugInfoAdapter.BugInfoViewHolder mLastSelectedBugInfoViewHolder;
+    private BugStorageObserver mBugStorageObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +80,8 @@ public class BugReportInfoActivity extends Activity {
         mBugInfoAdapter = new BugInfoAdapter(this::onBugReportItemClicked);
         mRecyclerView.setAdapter(mBugInfoAdapter);
 
+        mBugStorageObserver = new BugStorageObserver(this, new Handler());
+
         findViewById(R.id.quit_button).setOnClickListener(this::onQuitButtonClick);
         findViewById(R.id.start_bug_report_button).setOnClickListener(
                 this::onStartBugReportButtonClick);
@@ -89,6 +95,15 @@ public class BugReportInfoActivity extends Activity {
     protected void onStart() {
         super.onStart();
         new BugReportsLoaderAsyncTask(this).execute();
+        // As BugStorageProvider is running under user0, we register using USER_ALL.
+        getContentResolver().registerContentObserver(BugStorageProvider.BUGREPORT_CONTENT_URI, true,
+                mBugStorageObserver, UserHandle.USER_ALL);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        getContentResolver().unregisterContentObserver(mBugStorageObserver);
     }
 
     /**
@@ -153,6 +168,27 @@ public class BugReportInfoActivity extends Activity {
         // MediaRecorder crashes.
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+    }
+
+    /** Observer for {@link BugStorageProvider}. */
+    private static class BugStorageObserver extends ContentObserver {
+        private final BugReportInfoActivity mInfoActivity;
+
+        /**
+         * Creates a content observer.
+         *
+         * @param activity A {@link BugReportInfoActivity} instance.
+         * @param handler The handler to run {@link #onChange} on, or null if none.
+         */
+        BugStorageObserver(BugReportInfoActivity activity, Handler handler) {
+            super(handler);
+            mInfoActivity = activity;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            new BugReportsLoaderAsyncTask(mInfoActivity).execute();
+        }
     }
 
     /** Moves bugreport zip to a new location and updates RecyclerView. */
@@ -250,7 +286,7 @@ public class BugReportInfoActivity extends Activity {
         protected List<MetaBugReport> doInBackground(Void... voids) {
             BugReportInfoActivity activity = mBugReportInfoActivityWeakReference.get();
             if (activity == null) {
-                Log.w(TAG, "Activity is gone, cancelling BugReportInfoTask.");
+                Log.w(TAG, "Activity is gone, cancelling BugReportsLoaderAsyncTask.");
                 return new ArrayList<>();
             }
             return BugStorageUtils.getAllBugReportsDescending(activity);
