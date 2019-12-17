@@ -131,7 +131,7 @@ class SimpleUploaderAsyncTask extends AsyncTask<Void, Void, Boolean> {
     /** Returns true is there are more files to upload. */
     @Override
     protected Boolean doInBackground(Void... voids) {
-        List<MetaBugReport> bugReports = BugStorageUtils.getPendingBugReports(mContext);
+        List<MetaBugReport> bugReports = BugStorageUtils.getUploadPendingBugReports(mContext);
 
         for (MetaBugReport bugReport : bugReports) {
             try {

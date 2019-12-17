@@ -37,7 +37,8 @@ LOCAL_PRIVILEGED_MODULE := true
 LOCAL_DEX_PREOPT := false
 
 LOCAL_JAVA_LIBRARIES += \
-    android.car
+    android.car \
+    br_google_auto_value_target
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
     androidx.recyclerview_recyclerview \
@@ -55,6 +56,11 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     jsr305
 
 LOCAL_REQUIRED_MODULES := privapp_whitelist_com.android.car.bugreport
+
+# Explicitly define annotation processors even if javac can find them from
+# LOCAL_STATIC_JAVA_LIBRARIES.
+LOCAL_ANNOTATION_PROCESSORS := br_google_auto_value
+LOCAL_ANNOTATION_PROCESSOR_CLASSES := com.google.auto.value.processor.AutoValueProcessor
 
 include $(BUILD_PACKAGE)
 
@@ -76,3 +82,28 @@ LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
     br_apache_commons:$(COMMON_LIBS_PATH)/org/eclipse/tycho/tycho-bundles-external/0.18.1/eclipse/plugins/org.apache.commons.codec_1.4.0.v201209201156.jar
 
 include $(BUILD_MULTI_PREBUILT)
+
+# Following shenanigans are needed for LOCAL_ANNOTATION_PROCESSORS.
+
+# ====  prebuilt host libraries  ========================
+include $(CLEAR_VARS)
+
+LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
+    br_google_auto_value:../../../../../prebuilts/tools/common/m2/repository/com/google/auto/value/auto-value/1.5.2/auto-value-1.5.2.jar
+
+include $(BUILD_HOST_PREBUILT)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE_CLASS := JAVA_LIBRARIES
+LOCAL_MODULE := br_google_auto_value_target
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := ../../../../../prebuilts/tools/common/m2/repository/com/google/auto/value/auto-value/1.5.2/auto-value-1.5.2.jar
+LOCAL_UNINSTALLABLE_MODULE := true
+
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+
+# Use the following include to make our test apk.
+include $(call all-makefiles-under,$(LOCAL_PATH))
