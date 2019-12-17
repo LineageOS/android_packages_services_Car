@@ -42,7 +42,10 @@ public enum Status {
     STATUS_MOVE_SUCCESSFUL(7),
 
     // Bugreport move has failed.
-    STATUS_MOVE_FAILED(8);
+    STATUS_MOVE_FAILED(8),
+
+    // Bugreport is moving to USB drive.
+    STATUS_MOVE_IN_PROGRESS(9);
 
     private final int mValue;
 
@@ -76,6 +79,8 @@ public enum Status {
                 return "Move successful";
             case 8:
                 return "Move failed";
+            case 9:
+                return "Move in progress";
         }
         return "unknown";
     }
