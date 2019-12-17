@@ -30,6 +30,7 @@ import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 import java.io.File;
@@ -207,6 +208,8 @@ public class BugStorageProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
+        Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
+
         mDatabaseHelper = new DatabaseHelper(getContext());
         mConfig = new Config();
         mConfig.start();

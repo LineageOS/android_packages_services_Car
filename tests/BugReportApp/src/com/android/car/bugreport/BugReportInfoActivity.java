@@ -37,6 +37,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 
@@ -74,6 +75,8 @@ public class BugReportInfoActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.bug_report_info_activity);
 
@@ -130,7 +133,7 @@ public class BugReportInfoActivity extends Activity {
     private void onBugReportItemClicked(
             int buttonType, MetaBugReport bugReport, BugInfoAdapter.BugInfoViewHolder holder) {
         if (buttonType == BugInfoAdapter.BUTTON_TYPE_UPLOAD) {
-            Log.i(TAG, "Uploading " + bugReport.getFilePath());
+            Log.i(TAG, "Uploading " + bugReport.getTimestamp());
             BugStorageUtils.setBugReportStatus(this, bugReport, Status.STATUS_UPLOAD_PENDING, "");
             // Refresh the UI to reflect the new status.
             new BugReportsLoaderAsyncTask(this).execute();

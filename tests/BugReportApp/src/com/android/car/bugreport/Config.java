@@ -60,11 +60,9 @@ final class Config {
     private static final String UPLOAD_DESTINATION_GCS = "gcs";
 
     /**
-     * A system property to force enable uploading new bugreports to GCS.
-     * Unlike {@link #UPLOAD_DESTINATION_GCS}, it bypasses the {@code userdebug} build check.
+     * A system property to force enable the app bypassing the {@code userdebug/eng} build check.
      */
-    private static final String PROP_FORCE_ENABLE_GCS_UPLOAD =
-            "android.car.bugreport.force_enable_gcs_upload";
+    private static final String PROP_FORCE_ENABLE = "android.car.bugreport.force_enable";
 
     /**
      * Temporary flag to retain the old behavior.
@@ -92,6 +90,11 @@ final class Config {
         }
     }
 
+    /** Returns true if bugreport app is enabled for this device. */
+    static boolean isBugReportEnabled() {
+        return Build.IS_DEBUGGABLE || SystemProperties.getBoolean(PROP_FORCE_ENABLE, false);
+    }
+
     /** If new bugreports should be scheduled for uploading. */
     boolean getAutoUpload() {
         if (isTempForceAutoUploadGcsEnabled()) {
@@ -113,8 +116,7 @@ final class Config {
         }
         // NOTE: enable it only for userdebug builds, unless it's force enabled using a system
         //       property.
-        return (UPLOAD_DESTINATION_GCS.equals(getUploadDestination()) && Build.IS_DEBUGGABLE)
-                || SystemProperties.getBoolean(PROP_FORCE_ENABLE_GCS_UPLOAD, /* def= */ false);
+        return UPLOAD_DESTINATION_GCS.equals(getUploadDestination()) && Build.IS_DEBUGGABLE;
     }
 
     private static boolean isTempForceAutoUploadGcsEnabled() {
