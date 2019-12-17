@@ -46,6 +46,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 
 import java.io.File;
@@ -82,6 +83,9 @@ public class BugReportActivity extends Activity {
 
     private static final String EXTRA_BUGREPORT_ID = "bugreport-id";
 
+    /**
+     * NOTE: mRecorder related messages are cleared when the activity finishes.
+     */
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     /** Look up string length, e.g. [ABCDEF]. */
@@ -164,7 +168,10 @@ public class BugReportActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
+
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         // Bind to BugReportService.
         Intent intent = new Intent(this, BugReportService.class);
@@ -202,7 +209,9 @@ public class BugReportActivity extends Activity {
     public void onDestroy() {
         super.onDestroy();
 
-        mHandler.removeCallbacksAndMessages(null);
+        if (mRecorder != null) {
+            mHandler.removeCallbacksAndMessages(/* token= */ mRecorder);
+        }
         if (mBound) {
             unbindService(mConnection);
             mBound = false;
@@ -241,7 +250,6 @@ public class BugReportActivity extends Activity {
         if (mSubmitBugReportLayout != null) {
             return;
         }
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.bug_report_activity);
 
         // Connect to the services here, because they are used only when showing the dialog.
@@ -485,7 +493,9 @@ public class BugReportActivity extends Activity {
         for (int i = 0; i < grantResults.length; i++) {
             if (Manifest.permission.RECORD_AUDIO.equals(permissions[i])
                     && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                startRecordingWithPermission();
+                // Start recording from UI thread, otherwise when MediaRecord#start() fails,
+                // stack trace gets confusing.
+                mHandler.post(this::startRecordingWithPermission);
                 return;
             }
         }
@@ -541,16 +551,18 @@ public class BugReportActivity extends Activity {
         mRecorder.start();
         mVoiceRecordingView.setRecorder(mRecorder);
 
+        // Messages with token mRecorder are cleared when the activity finishes or recording stops.
         mHandler.postDelayed(() -> {
             Log.i(TAG, "Timed out while recording voice message, cancelling.");
             stopAudioRecording();
             showSubmitBugReportUi(/* isRecording= */ false);
-        }, VOICE_MESSAGE_MAX_DURATION_MILLIS);
+        }, /* token= */ mRecorder, VOICE_MESSAGE_MAX_DURATION_MILLIS);
     }
 
     private void stopAudioRecording() {
         if (mRecorder != null) {
             Log.i(TAG, "Recording ended, stopping the MediaRecorder.");
+            mHandler.removeCallbacksAndMessages(/* token= */ mRecorder);
             try {
                 mRecorder.stop();
             } catch (RuntimeException e) {
