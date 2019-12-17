@@ -50,8 +50,8 @@ class RouterSvc {
     router::Error initRegistrationEngine();
 
     std::string mSvcName = "ComputePipeRouter";
-    sp<PipeQuery> mQueryEngine;
-    sp<PipeRegistration> mRegisterEngine;
+    std::shared_ptr<PipeQuery> mQueryEngine;
+    std::shared_ptr<PipeRegistration> mRegisterEngine;
     std::shared_ptr<RouterRegistry> mRegistry;
 };
 }  // namespace implementation

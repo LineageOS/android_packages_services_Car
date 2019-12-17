@@ -17,7 +17,8 @@
 #ifndef ANDROID_AUTOMOTIVE_COMPUTEPIPE_TESTS
 #define ANDROID_AUTOMOTIVE_COMPUTEPIPE_TESTS
 
-#include <android/automotive/computepipe/runner/BnPipeRunner.h>
+#include <aidl/android/automotive/computepipe/runner/BnPipeRunner.h>
+#include <aidl/android/automotive/computepipe/runner/IPipeRunner.h>
 
 #include <memory>
 
@@ -31,42 +32,37 @@ namespace tests {
 // This is a fake runner class whose various methods can be mocked in order
 // to test the Runner logic.
 
-class FakeRunner : public runner::BnPipeRunner {
+class FakeRunner : public aidl::android::automotive::computepipe::runner::BnPipeRunner {
   public:
-    ::android::binder::Status init(
-        const ::android::sp<::android::automotive::computepipe::runner::IPipeStateCallback>& stateCb)
-        override;
-    ::android::binder::Status getPipeDescriptor(
-        ::android::automotive::computepipe::runner::PipeDescriptor* _aidl_return) override;
-    ::android::binder::Status setPipeInputSource(int32_t configId) override;
-    ::android::binder::Status setPipeOffloadOptions(int32_t configId) override;
-    ::android::binder::Status setPipeTermination(int32_t configId) override;
-    ::android::binder::Status setPipeOutputConfig(
-        int32_t configId, int32_t maxInFlightCount,
-        const ::android::sp<::android::automotive::computepipe::runner::IPipeStream>& handler)
-        override;
-    ::android::binder::Status applyPipeConfigs() override;
-    ::android::binder::Status startPipe() override;
-    ::android::binder::Status stopPipe() override;
-    ::android::binder::Status doneWithPacket(int32_t id) override;
-    ::android::binder::Status getPipeDebugger(
-        ::android::sp<::android::automotive::computepipe::runner::IPipeDebugger>* _aidl_return)
-        override;
-    ::android::binder::Status releaseRunner() override;
-    status_t linkToDeath(const sp<DeathRecipient>& recipient, void* cookie = nullptr,
-                         uint32_t flags = 0) override {
-        (void)recipient;
-        (void)cookie;
-        (void)flags;
-        return OK;
-    };
+    ::ndk::ScopedAStatus init(
+        const std::shared_ptr<::aidl::android::automotive::computepipe::runner::IPipeStateCallback>&
+            in_statecb) override;
+    ::ndk::ScopedAStatus getPipeDescriptor(
+        ::aidl::android::automotive::computepipe::runner::PipeDescriptor* _aidl_return) override;
+    ::ndk::ScopedAStatus setPipeInputSource(int32_t in_configId) override;
+    ::ndk::ScopedAStatus setPipeOffloadOptions(int32_t in_configId) override;
+    ::ndk::ScopedAStatus setPipeTermination(int32_t in_configId) override;
+    ::ndk::ScopedAStatus setPipeOutputConfig(
+        int32_t in_configId, int32_t in_maxInFlightCount,
+        const std::shared_ptr<::aidl::android::automotive::computepipe::runner::IPipeStream>&
+            in_handler) override;
+    ::ndk::ScopedAStatus applyPipeConfigs() override;
+    ::ndk::ScopedAStatus startPipe() override;
+    ::ndk::ScopedAStatus stopPipe() override;
+    ::ndk::ScopedAStatus doneWithPacket(int32_t in_id) override;
+    ::ndk::ScopedAStatus getPipeDebugger(
+        std::shared_ptr<::aidl::android::automotive::computepipe::runner::IPipeDebugger>*
+            _aidl_return) override;
+    ::ndk::ScopedAStatus releaseRunner() override;
     ~FakeRunner() {
         mOutputCallbacks.clear();
     }
 
   private:
-    std::vector<wp<::android::automotive::computepipe::runner::IPipeStream>> mOutputCallbacks;
-    wp<::android::automotive::computepipe::runner::IPipeStateCallback> mStateCallback;
+    aidl::android::automotive::computepipe::runner::PipeDescriptor mDesc;
+    std::vector<std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeStream>>
+        mOutputCallbacks;
+    std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeStateCallback> mStateCallback;
 };
 
 }  // namespace tests

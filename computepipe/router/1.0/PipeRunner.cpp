@@ -16,6 +16,8 @@
 
 #include "PipeRunner.h"
 
+#include <android/binder_ibinder.h>
+
 #include <mutex>
 
 namespace android {
@@ -25,34 +27,27 @@ namespace router {
 namespace V1_0 {
 namespace implementation {
 
-using namespace android::automotive::computepipe::runner;
+using namespace aidl::android::automotive::computepipe::runner;
+using namespace ndk;
 
-PipeRunner::PipeRunner(const sp<IPipeRunner>& graphRunner) : runner(graphRunner) {
+PipeRunner::PipeRunner(const std::shared_ptr<IPipeRunner>& graphRunner) : runner(graphRunner) {
 }
 
-void PipeMonitor::binderDied(const wp<android::IBinder>& /* base */) {
-    mNotifier();
-}
-
-RunnerHandle::RunnerHandle(const sp<IPipeRunner>& r) : PipeHandle(std::make_unique<PipeRunner>(r)) {
+RunnerHandle::RunnerHandle(const std::shared_ptr<IPipeRunner>& r)
+    : PipeHandle(std::make_unique<PipeRunner>(r)),
+      mDeathMonitor(AIBinder_DeathRecipient_new(RemoteMonitor::BinderDiedCallback)) {
 }
 
 bool RunnerHandle::startPipeMonitor() {
-    sp<PipeMonitor> monitor = new PipeMonitor([this]() { this->markDead(); });
-    // We store a weak reference to be able to perform an unlink
-    mPipeMonitor = monitor;
-    sp<IBinder> iface = IInterface::asBinder(mInterface->runner);
-    return iface->linkToDeath(monitor) == OK;
-}
-
-void RunnerHandle::markDead() {
-    std::lock_guard<std::mutex> lock(mStateLock);
-    mAlive = false;
+    mState = std::make_shared<RemoteState>();
+    auto monitor = new RemoteMonitor(mState);
+    auto status = ScopedAStatus::fromStatus(
+        AIBinder_linkToDeath(mInterface->runner->asBinder().get(), mDeathMonitor.get(), monitor));
+    return status.isOk();
 }
 
 bool RunnerHandle::isAlive() {
-    std::lock_guard<std::mutex> lock(mStateLock);
-    return mAlive;
+    return mState->isAlive();
 }
 
 PipeHandle<PipeRunner>* RunnerHandle::clone() const {
@@ -60,8 +55,6 @@ PipeHandle<PipeRunner>* RunnerHandle::clone() const {
 }
 
 RunnerHandle::~RunnerHandle() {
-    sp<IBinder> iface = IInterface::asBinder(mInterface->runner);
-    iface->unlinkToDeath(mPipeMonitor.promote());
 }
 
 }  // namespace implementation

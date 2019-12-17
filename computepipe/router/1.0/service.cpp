@@ -1,5 +1,4 @@
-#include <binder/IPCThreadState.h>
-#include <binder/ProcessState.h>
+#include <android/binder_process.h>
 #include <utils/Errors.h>
 #include <utils/Log.h>
 
@@ -29,9 +28,9 @@ int main(int argc, char** argv) {
         ALOGE("Bad Args");
         exit(2);
     }
-    android::ProcessState::self()->startThreadPool();
+    ABinderProcess_startThreadPool();
     std::thread registrationThread(startService);
-    android::IPCThreadState::self()->joinThreadPool();
+    ABinderProcess_joinThreadPool();
     ALOGE("Router thread joined IPC pool");
     return 1;
 }
