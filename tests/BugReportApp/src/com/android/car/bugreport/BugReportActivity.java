@@ -48,8 +48,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
@@ -76,9 +74,6 @@ public class BugReportActivity extends Activity {
 
     private static final int VOICE_MESSAGE_MAX_DURATION_MILLIS = 60 * 1000;
     private static final int AUDIO_PERMISSIONS_REQUEST_ID = 1;
-
-    private static final DateFormat BUG_REPORT_TIMESTAMP_DATE_FORMAT =
-            new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -323,7 +318,7 @@ public class BugReportActivity extends Activity {
         // Delete the bugreport from database, otherwise pressing "Show Bugreports" button will
         // create unnecessary cancelled bugreports.
         if (mMetaBugReport != null) {
-            BugStorageUtils.deleteBugReport(this, mMetaBugReport.getId());
+            BugStorageUtils.completeDeleteBugReport(this, mMetaBugReport.getId());
         }
         Intent intent = new Intent(this, BugReportInfoActivity.class);
         startActivity(intent);
@@ -456,10 +451,9 @@ public class BugReportActivity extends Activity {
      * @param type bug report type, {@link MetaBugReport.BugReportType}.
      */
     private static MetaBugReport createBugReport(Context context, int type) {
-        Date initiatedAt = new Date();
-        String timestamp = BUG_REPORT_TIMESTAMP_DATE_FORMAT.format(initiatedAt);
+        String timestamp = MetaBugReport.toBugReportTimestamp(new Date());
         String username = getCurrentUserName(context);
-        String title = BugReportTitleGenerator.generateBugReportTitle(initiatedAt, username);
+        String title = BugReportTitleGenerator.generateBugReportTitle(timestamp, username);
         return BugStorageUtils.createBugReport(context, title, timestamp, username, type);
     }
 
@@ -477,10 +471,9 @@ public class BugReportActivity extends Activity {
          *
          * <p>Example: "[A45E8] Feedback from user Driver at 2019-09-21_12:00:00"
          */
-        static String generateBugReportTitle(Date initiatedAt, String username) {
+        static String generateBugReportTitle(String timestamp, String username) {
             // Lookup string is used to search a bug in Buganizer (see b/130915969).
             String lookupString = generateRandomString(LOOKUP_STRING_LENGTH);
-            String timestamp = BUG_REPORT_TIMESTAMP_DATE_FORMAT.format(initiatedAt);
             return "[" + lookupString + "] Feedback from user " + username + " at " + timestamp;
         }
 

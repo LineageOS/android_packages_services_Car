@@ -34,11 +34,13 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.google.api.client.auth.oauth2.TokenResponseException;
+import com.google.common.base.Strings;
 
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -88,20 +90,7 @@ final class BugStorageUtils {
 
         ContentResolver r = context.getContentResolver();
         Uri uri = r.insert(BugStorageProvider.BUGREPORT_CONTENT_URI, values);
-
-        Cursor c = r.query(uri, new String[]{COLUMN_ID}, null, null, null);
-        int count = (c == null) ? 0 : c.getCount();
-        if (count != 1) {
-            throw new RuntimeException("Could not create a bug report entry.");
-        }
-        c.moveToFirst();
-        int id = getInt(c, COLUMN_ID);
-        c.close();
-        return new MetaBugReport.Builder(id, timestamp)
-                .setTitle(title)
-                .setUserName(username)
-                .setType(type)
-                .build();
+        return findBugReport(context, Integer.parseInt(uri.getLastPathSegment())).get();
     }
 
     /**
@@ -125,16 +114,17 @@ final class BugStorageUtils {
     }
 
     /**
-     * Deletes {@link MetaBugReport} record from a local database. Returns true if the record was
-     * deleted.
+     * Deletes {@link MetaBugReport} record from a local database and deletes the associated file.
+     *
+     * <p>WARNING: destructive operation.
      *
      * @param context     - an application context.
      * @param bugReportId - a bug report id.
      * @return true if the record was deleted.
      */
-    static boolean deleteBugReport(@NonNull Context context, int bugReportId) {
+    static boolean completeDeleteBugReport(@NonNull Context context, int bugReportId) {
         ContentResolver r = context.getContentResolver();
-        return r.delete(BugStorageProvider.buildUriWithBugId(bugReportId), null, null) == 1;
+        return r.delete(BugStorageProvider.buildUriCompleteDelete(bugReportId), null, null) == 1;
     }
 
     /** Deletes zip file for given bugreport id; doesn't delete sqlite3 record. */
@@ -144,10 +134,10 @@ final class BugStorageUtils {
     }
 
     /**
-     * Returns bugreports that are waiting to be uploaded.
+     * Returns all the bugreports that are waiting to be uploaded.
      */
     @NonNull
-    public static List<MetaBugReport> getPendingBugReports(@NonNull Context context) {
+    public static List<MetaBugReport> getUploadPendingBugReports(@NonNull Context context) {
         String selection = COLUMN_STATUS + "=?";
         String[] selectionArgs = new String[]{
                 Integer.toString(Status.STATUS_UPLOAD_PENDING.getValue())};
@@ -195,11 +185,12 @@ final class BugStorageUtils {
 
         if (count > 0) c.moveToFirst();
         for (int i = 0; i < count; i++) {
-            MetaBugReport meta = new MetaBugReport.Builder(getInt(c, COLUMN_ID),
-                    getString(c, COLUMN_TIMESTAMP))
+            MetaBugReport meta = MetaBugReport.builder()
+                    .setId(getInt(c, COLUMN_ID))
+                    .setTimestamp(getString(c, COLUMN_TIMESTAMP))
                     .setUserName(getString(c, COLUMN_USERNAME))
                     .setTitle(getString(c, COLUMN_TITLE))
-                    .setFilepath(getString(c, COLUMN_FILEPATH))
+                    .setFilePath(getString(c, COLUMN_FILEPATH))
                     .setStatus(getInt(c, COLUMN_STATUS))
                     .setStatusMessage(getString(c, COLUMN_STATUS_MESSAGE))
                     .setType(getInt(c, COLUMN_TYPE))
@@ -232,7 +223,7 @@ final class BugStorageUtils {
             Log.w(TAG, "Column " + colName + " not found.");
             return "";
         }
-        return c.getString(colIndex);
+        return Strings.nullToEmpty(c.getString(colIndex));
     }
 
     /**
@@ -260,6 +251,22 @@ final class BugStorageUtils {
      */
     public static void setUploadRetry(Context context, MetaBugReport bugReport, String msg) {
         setBugReportStatus(context, bugReport, Status.STATUS_UPLOAD_PENDING, msg);
+    }
+
+    /**
+     * Sets {@link MetaBugReport} status {@link Status#STATUS_EXPIRED}.
+     * Deletes the associated zip file from disk.
+     *
+     * @return true if succeeded.
+     */
+    static boolean expireBugReport(@NonNull Context context,
+            @NonNull MetaBugReport metaBugReport, @NonNull Instant expiredAt) {
+        metaBugReport = setBugReportStatus(
+                context, metaBugReport, Status.STATUS_EXPIRED, "Expired on " + expiredAt);
+        if (metaBugReport.getStatus() != Status.STATUS_EXPIRED.getValue()) {
+            return false;
+        }
+        return deleteBugReportZipfile(context, metaBugReport.getId());
     }
 
     /** Gets the root cause of the error. */
