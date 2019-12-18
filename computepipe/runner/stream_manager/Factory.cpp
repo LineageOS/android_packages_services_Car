@@ -12,24 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPUTEPIPE_TYPES_STATUS_H_
-#define COMPUTEPIPE_TYPES_STATUS_H_
+#include "OutputConfig.pb.h"
+#include "SemanticManager.h"
+#include "StreamManager.h"
 
 namespace android {
 namespace automotive {
 namespace computepipe {
+namespace runner {
+namespace stream_manager {
 
-enum Status {
-    SUCCESS = 0,
-    INTERNAL_ERROR,
-    INVALID_ARGUMENT,
-    ILLEGAL_STATE,
-    NO_MEMORY,
-    FATAL_ERROR,
-};
+std::unique_ptr<StreamManager> StreamManagerFactory::getStreamManager(
+    const proto::OutputConfig& config) {
+    if (!config.has_type()) {
+        return nullptr;
+    }
+    switch (config.type()) {
+        case proto::PacketType::SEMANTIC_DATA:
+            return std::make_unique<SemanticManager>(config.stream_name(), config.type());
+        default:
+            return nullptr;
+    }
+    return nullptr;
+}
 
+}  // namespace stream_manager
+}  // namespace runner
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android
-
-#endif  // COMPUTEPIPE_TYPES_STATUS_H_
