@@ -100,4 +100,9 @@
     <!-- Turn off Wallpaper service -->
     <bool name="config_enableWallpaperService">false</bool>
 
+    <!-- Default user restrictions for system user 0. -->
+    <string-array translatable="false" name="config_defaultFirstUserRestrictions">
+        <item>"no_modify_accounts"</item>
+    </string-array>
+
 </resources>

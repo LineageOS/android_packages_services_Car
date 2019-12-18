@@ -24,7 +24,6 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -75,18 +74,6 @@ public final class CarUserManagerHelper {
             UserManager.DISALLOW_OUTGOING_CALLS,
             UserManager.DISALLOW_SMS,
             UserManager.DISALLOW_INSTALL_APPS,
-            UserManager.DISALLOW_UNINSTALL_APPS
-    );
-
-    /**
-     * Default set of restrictions for Guest users.
-     */
-    private static final Set<String> DEFAULT_GUEST_RESTRICTIONS = Sets.newArraySet(
-            UserManager.DISALLOW_FACTORY_RESET,
-            UserManager.DISALLOW_REMOVE_USER,
-            UserManager.DISALLOW_MODIFY_ACCOUNTS,
-            UserManager.DISALLOW_INSTALL_APPS,
-            UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES,
             UserManager.DISALLOW_UNINSTALL_APPS
     );
 
@@ -189,19 +176,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Sets default guest restrictions that will be applied every time a Guest user is created.
-     *
-     * <p> Restrictions are written to disk and persistent across boots.
-     */
-    public void initDefaultGuestRestrictions() {
-        Bundle defaultGuestRestrictions = new Bundle();
-        for (String restriction : DEFAULT_GUEST_RESTRICTIONS) {
-            defaultGuestRestrictions.putBoolean(restriction, true);
-        }
-        mUserManager.setDefaultGuestRestrictions(defaultGuestRestrictions);
-    }
-
-    /**
      * Gets all the users that can be brought to the foreground on the system.
      *
      * @return List of {@code UserInfo} for users that associated with a real person.
@@ -289,13 +263,6 @@ public final class CarUserManagerHelper {
             return null;
         }
         setDefaultNonAdminRestrictions(user, /* enable= */ true);
-
-        // Each non-admin has sms and outgoing call restrictions applied by the UserManager on
-        // creation. We want to enable these permissions by default in the car.
-        mUserManager.setUserRestriction(
-                UserManager.DISALLOW_SMS, /* enable= */ false, user.getUserHandle());
-        mUserManager.setUserRestriction(
-                UserManager.DISALLOW_OUTGOING_CALLS, /* enable= */ false, user.getUserHandle());
 
         assignDefaultIcon(user);
         return user;
