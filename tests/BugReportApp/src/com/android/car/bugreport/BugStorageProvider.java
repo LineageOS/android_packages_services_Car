@@ -17,6 +17,7 @@ package com.android.car.bugreport;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.StringDef;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
@@ -26,13 +27,19 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.CancellationSignal;
-import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.function.Function;
 
 
 /**
@@ -40,32 +47,76 @@ import java.io.IOException;
  * In Android Automotive user 0 runs as the system and all the time, while other users won't once
  * their session ends. This content provider enables bug reports to be uploaded even after
  * user session ends.
+ *
+ * <p>A bugreport constists of two files: bugreport zip file and audio file. Audio file is added
+ * later through notification. {@link SimpleUploaderAsyncTask} merges two files into one zip file
+ * before uploading.
+ *
+ * <p>All files are stored under system user's {@link FileUtils#getPendingDir}.
  */
 public class BugStorageProvider extends ContentProvider {
     private static final String TAG = BugStorageProvider.class.getSimpleName();
 
     private static final String AUTHORITY = "com.android.car.bugreport";
     private static final String BUG_REPORTS_TABLE = "bugreports";
-    static final Uri BUGREPORT_CONTENT_URI =
-            Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE);
 
-    static final String COLUMN_ID = "_ID";
-    static final String COLUMN_USERNAME = "username";
-    static final String COLUMN_TITLE = "title";
-    static final String COLUMN_TIMESTAMP = "timestamp";
-    static final String COLUMN_DESCRIPTION = "description";
-    static final String COLUMN_FILEPATH = "filepath";
-    static final String COLUMN_STATUS = "status";
-    static final String COLUMN_STATUS_MESSAGE = "message";
+    /** Deletes files associated with a bug report. */
+    static final String URL_SEGMENT_DELETE_FILES = "deleteZipFile";
+    /** Destructively deletes a bug report. */
+    static final String URL_SEGMENT_COMPLETE_DELETE = "completeDelete";
+    /** Opens bugreport file of a bug report, uses column {@link #COLUMN_BUGREPORT_FILENAME}. */
+    static final String URL_SEGMENT_OPEN_BUGREPORT_FILE = "openBugReportFile";
+    /** Opens audio file of a bug report, uses column {@link #URL_MATCHED_OPEN_AUDIO_FILE}. */
+    static final String URL_SEGMENT_OPEN_AUDIO_FILE = "openAudioFile";
+    /**
+     * Opens final bugreport zip file, uses column {@link #COLUMN_FILEPATH}.
+     *
+     * <p>NOTE: This is the old way of storing final zipped bugreport. In
+     * {@code BugStorageProvider#AUDIO_VERSION} {@link #COLUMN_FILEPATH} is dropped. But there are
+     * still some devices with this field set.
+     */
+    static final String URL_SEGMENT_OPEN_FILE = "openFile";
 
     // URL Matcher IDs.
     private static final int URL_MATCHED_BUG_REPORTS_URI = 1;
     private static final int URL_MATCHED_BUG_REPORT_ID_URI = 2;
+    private static final int URL_MATCHED_DELETE_FILES = 3;
+    private static final int URL_MATCHED_COMPLETE_DELETE = 4;
+    private static final int URL_MATCHED_OPEN_BUGREPORT_FILE = 5;
+    private static final int URL_MATCHED_OPEN_AUDIO_FILE = 6;
+    private static final int URL_MATCHED_OPEN_FILE = 7;
 
-    private Handler mHandler;
+    @StringDef({
+            URL_SEGMENT_DELETE_FILES,
+            URL_SEGMENT_COMPLETE_DELETE,
+            URL_SEGMENT_OPEN_BUGREPORT_FILE,
+            URL_SEGMENT_OPEN_AUDIO_FILE,
+            URL_SEGMENT_OPEN_FILE,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @interface UriActionSegments {}
+
+    static final Uri BUGREPORT_CONTENT_URI =
+            Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE);
+
+    /** See {@link MetaBugReport} for column descriptions. */
+    static final String COLUMN_ID = "_ID";
+    static final String COLUMN_USERNAME = "username";
+    static final String COLUMN_TITLE = "title";
+    static final String COLUMN_TIMESTAMP = "timestamp";
+    /** not used anymore */
+    static final String COLUMN_DESCRIPTION = "description";
+    /** not used anymore, but some devices still might have bugreports with this field set. */
+    static final String COLUMN_FILEPATH = "filepath";
+    static final String COLUMN_STATUS = "status";
+    static final String COLUMN_STATUS_MESSAGE = "message";
+    static final String COLUMN_TYPE = "type";
+    static final String COLUMN_BUGREPORT_FILENAME = "bugreport_filename";
+    static final String COLUMN_AUDIO_FILENAME = "audio_filename";
 
     private DatabaseHelper mDatabaseHelper;
     private final UriMatcher mUriMatcher;
+    private Config mConfig;
 
     /**
      * A helper class to work with sqlite database.
@@ -78,9 +129,13 @@ public class BugStorageProvider extends ContentProvider {
         /**
          * All changes in database versions should be recorded here.
          * 1: Initial version.
+         * 2: Add integer column details_needed.
+         * 3: Add string column audio_filename and bugreport_filename.
          */
         private static final int INITIAL_VERSION = 1;
-        private static final int DATABASE_VERSION = INITIAL_VERSION;
+        private static final int TYPE_VERSION = 2;
+        private static final int AUDIO_VERSION = 3;
+        private static final int DATABASE_VERSION = AUDIO_VERSION;
 
         private static final String CREATE_TABLE = "CREATE TABLE " + BUG_REPORTS_TABLE + " ("
                 + COLUMN_ID + " INTEGER PRIMARY KEY,"
@@ -90,7 +145,10 @@ public class BugStorageProvider extends ContentProvider {
                 + COLUMN_DESCRIPTION + " TEXT NULL,"
                 + COLUMN_FILEPATH + " TEXT DEFAULT NULL,"
                 + COLUMN_STATUS + " INTEGER DEFAULT " + Status.STATUS_WRITE_PENDING.getValue() + ","
-                + COLUMN_STATUS_MESSAGE + " TEXT NULL"
+                + COLUMN_STATUS_MESSAGE + " TEXT NULL,"
+                + COLUMN_TYPE + " INTEGER DEFAULT " + MetaBugReport.TYPE_INTERACTIVE + ","
+                + COLUMN_BUGREPORT_FILENAME + " TEXT DEFAULT NULL,"
+                + COLUMN_AUDIO_FILENAME + " TEXT DEFAULT NULL"
                 + ");";
 
         DatabaseHelper(Context context) {
@@ -105,24 +163,56 @@ public class BugStorageProvider extends ContentProvider {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(TAG, "Upgrading from " + oldVersion + " to " + newVersion);
+            if (oldVersion < TYPE_VERSION) {
+                db.execSQL("ALTER TABLE " + BUG_REPORTS_TABLE + " ADD COLUMN "
+                        + COLUMN_TYPE + " INTEGER DEFAULT " + MetaBugReport.TYPE_INTERACTIVE);
+            }
+            if (oldVersion < AUDIO_VERSION) {
+                db.execSQL("ALTER TABLE " + BUG_REPORTS_TABLE + " ADD COLUMN "
+                        + COLUMN_BUGREPORT_FILENAME + " TEXT DEFAULT NULL");
+                db.execSQL("ALTER TABLE " + BUG_REPORTS_TABLE + " ADD COLUMN "
+                        + COLUMN_AUDIO_FILENAME + " TEXT DEFAULT NULL");
+            }
         }
     }
 
-    /** Builds {@link Uri} that points to a bugreport entry with provided bugreport id. */
-    static Uri buildUriWithBugId(int bugReportId) {
-        return Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE + "/" + bugReportId);
+    /**
+     * Builds an {@link Uri} that points to the single bug report and performs an action
+     * defined by given URI segment.
+     */
+    static Uri buildUriWithSegment(int bugReportId, @UriActionSegments String segment) {
+        return Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE + "/"
+                + segment + "/" + bugReportId);
     }
 
     public BugStorageProvider() {
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         mUriMatcher.addURI(AUTHORITY, BUG_REPORTS_TABLE, URL_MATCHED_BUG_REPORTS_URI);
         mUriMatcher.addURI(AUTHORITY, BUG_REPORTS_TABLE + "/#", URL_MATCHED_BUG_REPORT_ID_URI);
+        mUriMatcher.addURI(
+                AUTHORITY, BUG_REPORTS_TABLE + "/" + URL_SEGMENT_DELETE_FILES + "/#",
+                URL_MATCHED_DELETE_FILES);
+        mUriMatcher.addURI(
+                AUTHORITY, BUG_REPORTS_TABLE + "/" + URL_SEGMENT_COMPLETE_DELETE + "/#",
+                URL_MATCHED_COMPLETE_DELETE);
+        mUriMatcher.addURI(
+                AUTHORITY, BUG_REPORTS_TABLE + "/" + URL_SEGMENT_OPEN_BUGREPORT_FILE + "/#",
+                URL_MATCHED_OPEN_BUGREPORT_FILE);
+        mUriMatcher.addURI(
+                AUTHORITY, BUG_REPORTS_TABLE + "/" + URL_SEGMENT_OPEN_AUDIO_FILE + "/#",
+                URL_MATCHED_OPEN_AUDIO_FILE);
+        mUriMatcher.addURI(
+                AUTHORITY, BUG_REPORTS_TABLE + "/" + URL_SEGMENT_OPEN_FILE + "/#",
+                URL_MATCHED_OPEN_FILE);
     }
 
     @Override
     public boolean onCreate() {
+        Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
+
         mDatabaseHelper = new DatabaseHelper(getContext());
-        mHandler = new Handler();
+        mConfig = new Config();
+        mConfig.start();
         return true;
     }
 
@@ -181,10 +271,6 @@ public class BugStorageProvider extends ContentProvider {
         switch (mUriMatcher.match(uri)) {
             case URL_MATCHED_BUG_REPORTS_URI:
                 table = BUG_REPORTS_TABLE;
-                String filepath = FileUtils.getZipFile(getContext(),
-                        (String) values.get(COLUMN_TIMESTAMP),
-                        (String) values.get(COLUMN_USERNAME)).getPath();
-                values.put(COLUMN_FILEPATH, filepath);
                 break;
             default:
                 throw new IllegalArgumentException("unknown uri" + uri);
@@ -203,31 +289,46 @@ public class BugStorageProvider extends ContentProvider {
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
-        if (mUriMatcher.match(uri) != URL_MATCHED_BUG_REPORT_ID_URI) {
-            throw new IllegalArgumentException("unknown uri:" + uri);
+        switch (mUriMatcher.match(uri)) {
+            case URL_MATCHED_OPEN_BUGREPORT_FILE:
+            case URL_MATCHED_OPEN_FILE:
+                return "application/zip";
+            case URL_MATCHED_OPEN_AUDIO_FILE:
+                return "audio/3gpp";
+            default:
+                throw new IllegalArgumentException("unknown uri:" + uri);
         }
-        // We only store zip files in this provider.
-        return "application/zip";
     }
 
     @Override
     public int delete(
             @NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        SQLiteDatabase db = mDatabaseHelper.getReadableDatabase();
         switch (mUriMatcher.match(uri)) {
-            //  returns the bugreport that match the id.
-            case URL_MATCHED_BUG_REPORT_ID_URI:
+            case URL_MATCHED_DELETE_FILES:
                 if (selection != null || selectionArgs != null) {
                     throw new IllegalArgumentException("selection is not allowed for "
-                            + URL_MATCHED_BUG_REPORT_ID_URI);
+                            + URL_MATCHED_DELETE_FILES);
+                }
+                if (deleteFilesFor(getBugReportFromUri(uri))) {
+                    getContext().getContentResolver().notifyChange(uri, null);
+                    return 1;
+                }
+                return 0;
+            case URL_MATCHED_COMPLETE_DELETE:
+                if (selection != null || selectionArgs != null) {
+                    throw new IllegalArgumentException("selection is not allowed for "
+                            + URL_MATCHED_COMPLETE_DELETE);
                 }
                 selection = COLUMN_ID + " = ?";
                 selectionArgs = new String[]{uri.getLastPathSegment()};
-                break;
+                // Ignore the results of zip file deletion, possibly it wasn't even created.
+                deleteFilesFor(getBugReportFromUri(uri));
+                getContext().getContentResolver().notifyChange(uri, null);
+                return db.delete(BUG_REPORTS_TABLE, selection, selectionArgs);
             default:
                 throw new IllegalArgumentException("Unknown URL " + uri);
         }
-        SQLiteDatabase db = mDatabaseHelper.getReadableDatabase();
-        return db.delete(BUG_REPORTS_TABLE, selection, selectionArgs);
     }
 
     @Override
@@ -263,77 +364,72 @@ public class BugStorageProvider extends ContentProvider {
     }
 
     /**
-     * This is called when the OutputStream is requested by
-     * {@link BugStorageUtils#openBugReportFile}.
+     * This is called when a file is opened.
      *
-     * It expects the file to be a zip file and schedules an upload under the primary user.
+     * <p>See {@link BugStorageUtils#openBugReportFileToWrite},
+     * {@link BugStorageUtils#openAudioMessageFileToWrite}.
      */
     @Nullable
     @Override
     public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode)
             throws FileNotFoundException {
-        if (mUriMatcher.match(uri) != URL_MATCHED_BUG_REPORT_ID_URI) {
-            throw new IllegalArgumentException("unknown uri:" + uri);
+        Function<MetaBugReport, String> fileNameExtractor;
+        switch (mUriMatcher.match(uri)) {
+            case URL_MATCHED_OPEN_BUGREPORT_FILE:
+                fileNameExtractor = MetaBugReport::getBugReportFileName;
+                break;
+            case URL_MATCHED_OPEN_AUDIO_FILE:
+                fileNameExtractor = MetaBugReport::getAudioFileName;
+                break;
+            case URL_MATCHED_OPEN_FILE:
+                File file = new File(getBugReportFromUri(uri).getFilePath());
+                Log.v(TAG, "Opening file " + file + " with mode " + mode);
+                return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode));
+            default:
+                throw new IllegalArgumentException("unknown uri:" + uri);
         }
-
-        Cursor c = query(uri, new String[]{COLUMN_FILEPATH}, null, null, null);
-        int count = (c != null) ? c.getCount() : 0;
-        if (count != 1) {
-            // If there is not exactly one result, throw an appropriate
-            // exception.
-            if (c != null) {
-                c.close();
-            }
-            if (count == 0) {
-                throw new FileNotFoundException("No entry for " + uri);
-            }
-            throw new FileNotFoundException("Multiple items at " + uri);
-        }
-
-        c.moveToFirst();
-        int i = c.getColumnIndex(COLUMN_FILEPATH);
-        String path = (i >= 0 ? c.getString(i) : null);
-        c.close();
-        if (path == null) {
-            throw new FileNotFoundException("Column for path not found.");
-        }
-
+        // URI contains bugreport ID as the last segment, see the matched urls.
+        MetaBugReport bugReport = getBugReportFromUri(uri);
+        File file = new File(
+                FileUtils.getPendingDir(getContext()), fileNameExtractor.apply(bugReport));
+        Log.v(TAG, "Opening file " + file + " with mode " + mode);
         int modeBits = ParcelFileDescriptor.parseMode(mode);
-        try {
-            return ParcelFileDescriptor.open(new File(path), modeBits, mHandler, e -> {
-                if (mode.equals("r")) {
-                    Log.i(TAG, "File " + path + " opened in read-only mode.");
-                    return;
-                } else if (!mode.equals("w")) {
-                    Log.e(TAG, "Only read-only or write-only mode supported; mode=" + mode);
-                    return;
-                }
-                Log.i(TAG, "File " + path + " opened in write-only mode.");
-                Status status;
-                if (e == null) {
-                    // success writing the file. Update the field to indicate bugreport
-                    // is ready for upload
-                    status = JobSchedulingUtils.uploadByDefault() ? Status.STATUS_UPLOAD_PENDING
-                            : Status.STATUS_PENDING_USER_ACTION;
-                } else {
-                    // We log it and ignore it
-                    Log.e(TAG, "Bug report file write failed ", e);
-                    status = Status.STATUS_WRITE_FAILED;
-                }
-                SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-                ContentValues values = new ContentValues();
-                values.put(COLUMN_STATUS, status.getValue());
-                db.update(BUG_REPORTS_TABLE, values, COLUMN_ID + "=?",
-                        new String[]{ uri.getLastPathSegment() });
-                if (status == Status.STATUS_UPLOAD_PENDING) {
-                    JobSchedulingUtils.scheduleUploadJob(BugStorageProvider.this.getContext());
-                }
-                Log.i(TAG, "Finished adding bugreport " + path + " " + uri);
-            });
-        } catch (IOException e) {
-            // An IOException (for example not being able to open the file, will crash us.
-            // That is ok.
-            throw new RuntimeException(e);
+        return ParcelFileDescriptor.open(file, modeBits);
+    }
+
+    private MetaBugReport getBugReportFromUri(@NonNull Uri uri) {
+        int bugreportId = Integer.parseInt(uri.getLastPathSegment());
+        return BugStorageUtils.findBugReport(getContext(), bugreportId)
+                .orElseThrow(() -> new IllegalArgumentException("No record found for " + uri));
+    }
+
+    /**
+     * Print the Provider's state into the given stream. This gets invoked if
+     * you run "dumpsys activity provider com.android.car.bugreport/.BugStorageProvider".
+     *
+     * @param fd The raw file descriptor that the dump is being sent to.
+     * @param writer The PrintWriter to which you should dump your state.  This will be
+     * closed for you after you return.
+     * @param args additional arguments to the dump request.
+     */
+    public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
+        writer.println("BugStorageProvider:");
+        mConfig.dump(/* prefix= */ "  ", writer);
+    }
+
+    private boolean deleteFilesFor(MetaBugReport bugReport) {
+        if (!Strings.isNullOrEmpty(bugReport.getFilePath())) {
+            // Old bugreports have only filePath.
+            return new File(bugReport.getFilePath()).delete();
         }
+        File pendingDir = FileUtils.getPendingDir(getContext());
+        boolean result = true;
+        if (!Strings.isNullOrEmpty(bugReport.getAudioFileName())) {
+            result = new File(pendingDir, bugReport.getAudioFileName()).delete();
+        }
+        if (!Strings.isNullOrEmpty(bugReport.getBugReportFileName())) {
+            result = result && new File(pendingDir, bugReport.getBugReportFileName()).delete();
+        }
+        return result;
     }
 }

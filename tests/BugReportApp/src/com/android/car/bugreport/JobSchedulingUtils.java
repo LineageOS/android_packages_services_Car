@@ -19,7 +19,6 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
-import android.os.SystemProperties;
 import android.util.Log;
 
 /**
@@ -32,15 +31,7 @@ class JobSchedulingUtils {
     private static final int RETRY_DELAY_IN_MS = 5_000;
 
     /**
-     * The system property to disable auto-upload when bug reports are collected. When auto-upload
-     * is disabled, the app waits for user action on collected bug reports: user can either
-     * upload to Google Cloud or copy to flash drive.
-     */
-    private static final String PROP_DISABLE_AUTO_UPLOAD =
-            "android.car.bugreport.disableautoupload";
-
-    /**
-     * Schedules an upload job under the current user.
+     * Schedules {@link UploadJob} under the current user.
      *
      * <p>Make sure this method is called under the primary user.
      *
@@ -71,16 +62,5 @@ class JobSchedulingUtils {
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setBackoffCriteria(RETRY_DELAY_IN_MS, JobInfo.BACKOFF_POLICY_LINEAR)
                 .build());
-    }
-
-    /**
-     * Returns true if collected bugreports should be uploaded automatically.
-     *
-     * <p>If it returns false, the app maps to an alternative workflow that requires user action
-     * after bugreport is successfully written. A user then has an option to choose whether to
-     * upload the bugreport or copy it to an external drive.
-     */
-    static boolean uploadByDefault() {
-        return !SystemProperties.getBoolean(PROP_DISABLE_AUTO_UPLOAD, false);
     }
 }

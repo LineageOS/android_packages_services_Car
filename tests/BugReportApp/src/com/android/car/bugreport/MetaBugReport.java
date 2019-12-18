@@ -15,77 +15,95 @@
  */
 package com.android.car.bugreport;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
+import android.annotation.IntDef;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/** Represents the information that a bugreport can contain. */
-public final class MetaBugReport implements Parcelable {
-    private final int mId;
-    private final String mTimestamp;
-    private final String mTitle;
-    private final String mUsername;
-    private final String mFilePath;
-    private final int mStatus;
-    private final String mStatusMessage;
+import com.google.auto.value.AutoValue;
 
-    private MetaBugReport(Builder builder) {
-        mId = builder.mId;
-        mTimestamp = builder.mTimestamp;
-        mTitle = builder.mTitle;
-        mUsername = builder.mUsername;
-        mFilePath = builder.mFilePath;
-        mStatus = builder.mStatus;
-        mStatusMessage = builder.mStatusMessage;
-    }
+import java.lang.annotation.Retention;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+/** Represents the information that a bugreport can contain. */
+@AutoValue
+abstract class MetaBugReport implements Parcelable {
+
+    private static final DateFormat BUG_REPORT_TIMESTAMP_DATE_FORMAT =
+            new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+
+    /** The app records audio message when initiated. Can change audio state. */
+    static final int TYPE_INTERACTIVE = 0;
+
+    /**
+     * The app doesn't show dialog and doesn't record audio when initiated. It allows user to
+     * add audio message when bugreport is collected.
+     */
+    static final int TYPE_SILENT = 1;
+
+    /** Annotation for bug report types. */
+    @Retention(SOURCE)
+    @IntDef({TYPE_INTERACTIVE, TYPE_SILENT})
+    @interface BugReportType {};
 
     /**
      * @return Id of the bug report. Bug report id monotonically increases and is unique.
      */
-    public int getId() {
-        return mId;
-    }
+    public abstract int getId();
 
     /**
      * @return Username (LDAP) that created this bugreport
      */
-    public String getUsername() {
-        return mUsername == null ? "" : mUsername;
-    }
+    public abstract String getUserName();
 
     /**
      * @return Title of the bug.
      */
-    public String getTitle() {
-        return mTitle == null ? "" : mTitle;
-    }
+    public abstract String getTitle();
 
     /**
      * @return Timestamp when the bug report is initialized.
      */
-    public String getTimestamp() {
-        return mTimestamp == null ? "" : mTimestamp;
-    }
+    public abstract String getTimestamp();
 
     /**
-     * @return path to the zip file
+     * @return path to the zip file stored under the system user.
+     *
+     * <p>NOTE: This is the old way of storing final zipped bugreport. See
+     * {@link BugStorageProvider#URL_SEGMENT_OPEN_FILE} for more info.
      */
-    public String getFilePath() {
-        return mFilePath == null ? "" : mFilePath;
-    }
+    public abstract String getFilePath();
 
     /**
-     * @return Status of the bug upload.
+     * @return filename of the bug report zip file stored under the system user.
      */
-    public int getStatus() {
-        return mStatus;
-    }
+    public abstract String getBugReportFileName();
+
+    /**
+     * @return filename of the audio message file stored under the system user.
+     */
+    public abstract String getAudioFileName();
+
+    /**
+     * @return {@link Status} of the bug upload.
+     */
+    public abstract int getStatus();
 
     /**
      * @return StatusMessage of the bug upload.
      */
-    public String getStatusMessage() {
-        return mStatusMessage == null ? "" : mStatusMessage;
-    }
+    public abstract String getStatusMessage();
+
+    /**
+     * @return {@link BugReportType}.
+     */
+    public abstract int getType();
+
+    /** @return {@link Builder} from the meta bug report. */
+    public abstract Builder toBuilder();
 
     @Override
     public int describeContents() {
@@ -94,13 +112,33 @@ public final class MetaBugReport implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(mId);
-        dest.writeString(mTimestamp);
-        dest.writeString(mTitle);
-        dest.writeString(mUsername);
-        dest.writeString(mFilePath);
-        dest.writeInt(mStatus);
-        dest.writeString(mStatusMessage);
+        dest.writeInt(getId());
+        dest.writeString(getTimestamp());
+        dest.writeString(getTitle());
+        dest.writeString(getUserName());
+        dest.writeString(getFilePath());
+        dest.writeString(getBugReportFileName());
+        dest.writeString(getAudioFileName());
+        dest.writeInt(getStatus());
+        dest.writeString(getStatusMessage());
+        dest.writeInt(getType());
+    }
+
+    /** Converts {@link Date} to bugreport timestamp. */
+    static String toBugReportTimestamp(Date date) {
+        return BUG_REPORT_TIMESTAMP_DATE_FORMAT.format(date);
+    }
+
+    /** Creates a {@link Builder} with default, non-null values. */
+    static Builder builder() {
+        return new AutoValue_MetaBugReport.Builder()
+                .setTimestamp("")
+                .setFilePath("")
+                .setBugReportFileName("")
+                .setAudioFileName("")
+                .setStatusMessage("")
+                .setTitle("")
+                .setUserName("");
     }
 
     /** A creator that's used by Parcelable. */
@@ -112,14 +150,22 @@ public final class MetaBugReport implements Parcelable {
                     String title = in.readString();
                     String username = in.readString();
                     String filePath = in.readString();
+                    String bugReportFileName = in.readString();
+                    String audioFileName = in.readString();
                     int status = in.readInt();
                     String statusMessage = in.readString();
-                    return new Builder(id, timestamp)
+                    int type = in.readInt();
+                    return MetaBugReport.builder()
+                            .setId(id)
+                            .setTimestamp(timestamp)
                             .setTitle(title)
                             .setUserName(username)
-                            .setFilepath(filePath)
+                            .setFilePath(filePath)
+                            .setBugReportFileName(bugReportFileName)
+                            .setAudioFileName(audioFileName)
                             .setStatus(status)
                             .setStatusMessage(statusMessage)
+                            .setType(type)
                             .build();
                 }
 
@@ -129,59 +175,38 @@ public final class MetaBugReport implements Parcelable {
             };
 
     /** Builder for MetaBugReport. */
-    public static class Builder {
-        private final int mId;
-        private final String mTimestamp;
-        private String mTitle;
-        private String mUsername;
-        private String mFilePath;
-        private int mStatus;
-        private String mStatusMessage;
+    @AutoValue.Builder
+    abstract static class Builder {
+        /** Sets id. */
+        public abstract Builder setId(int id);
 
-        /**
-         * Initializes MetaBugReport.Builder.
-         *
-         * @param id        - mandatory bugreport id
-         * @param timestamp - mandatory timestamp when bugreport initialized.
-         */
-        public Builder(int id, String timestamp) {
-            mId = id;
-            mTimestamp = timestamp;
-        }
+        /** Sets timestamp. */
+        public abstract Builder setTimestamp(String timestamp);
 
         /** Sets title. */
-        public Builder setTitle(String title) {
-            mTitle = title;
-            return this;
-        }
+        public abstract Builder setTitle(String title);
 
         /** Sets username. */
-        public Builder setUserName(String username) {
-            mUsername = username;
-            return this;
-        }
+        public abstract Builder setUserName(String username);
 
         /** Sets filepath. */
-        public Builder setFilepath(String filePath) {
-            mFilePath = filePath;
-            return this;
-        }
+        public abstract Builder setFilePath(String filePath);
 
-        /** Sets status. */
-        public Builder setStatus(int status) {
-            mStatus = status;
-            return this;
-        }
+        /** Sets bugReportFileName. */
+        public abstract Builder setBugReportFileName(String bugReportFileName);
+
+        /** Sets audioFileName. */
+        public abstract Builder setAudioFileName(String audioFileName);
+
+        /** Sets {@link Status}. */
+        public abstract Builder setStatus(int status);
 
         /** Sets statusmessage. */
-        public Builder setStatusMessage(String statusMessage) {
-            mStatusMessage = statusMessage;
-            return this;
-        }
+        public abstract Builder setStatusMessage(String statusMessage);
 
-        /** Returns a {@link MetaBugReport}. */
-        public MetaBugReport build() {
-            return new MetaBugReport(this);
-        }
+        /** Sets the {@link BugReportType}. */
+        public abstract Builder setType(@BugReportType int type);
+
+        public abstract MetaBugReport build();
     }
 }

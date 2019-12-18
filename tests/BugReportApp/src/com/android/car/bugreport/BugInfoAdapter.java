@@ -23,63 +23,77 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Shows bugreport title, status, status message and user action buttons. "Upload to Google" button
+ * is enabled when the status is {@link Status#STATUS_PENDING_USER_ACTION}, "Move to USB" button is
+ * enabled only when status is  {@link Status#STATUS_PENDING_USER_ACTION} and USB device is plugged
+ * in.
+ */
 public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoViewHolder> {
-
     static final int BUTTON_TYPE_UPLOAD = 0;
     static final int BUTTON_TYPE_MOVE = 1;
+    static final int BUTTON_TYPE_ADD_AUDIO = 2;
 
     /** Provides a handler for click events*/
     interface ItemClickedListener {
-        /** onItemClicked handles click events differently depending on provided buttonType and
-         * uses additional information provided in metaBugReport. */
-        void onItemClicked(int buttonType, MetaBugReport metaBugReport);
+        /**
+         * Handles click events differently depending on provided buttonType and
+         * uses additional information provided in metaBugReport.
+         *
+         * @param buttonType One of {@link #BUTTON_TYPE_UPLOAD}, {@link #BUTTON_TYPE_MOVE} or
+         *                   {@link #BUTTON_TYPE_ADD_AUDIO}.
+         * @param metaBugReport Selected bugreport.
+         * @param holder ViewHolder of the clicked item.
+         */
+        void onItemClicked(int buttonType, MetaBugReport metaBugReport, BugInfoViewHolder holder);
     }
 
     /**
      * Reference to each bug report info views.
      */
-    public static class BugInfoViewHolder extends RecyclerView.ViewHolder {
+    static class BugInfoViewHolder extends RecyclerView.ViewHolder {
         /** Title view */
-        public TextView titleView;
-
-        /** User view */
-        public TextView userView;
-
-        /** TimeStamp View */
-        public TextView timestampView;
+        TextView mTitleView;
 
         /** Status View */
-        public TextView statusView;
+        TextView mStatusView;
 
         /** Message View */
-        public TextView messageView;
+        TextView mMessageView;
 
         /** Move Button */
-        public Button moveButton;
+        Button mMoveButton;
 
         /** Upload Button */
-        public Button uploadButton;
+        Button mUploadButton;
+
+        /** Add Audio Button */
+        Button mAddAudioButton;
 
         BugInfoViewHolder(View v) {
             super(v);
-            titleView = itemView.findViewById(R.id.bug_info_row_title);
-            userView = itemView.findViewById(R.id.bug_info_row_user);
-            timestampView = itemView.findViewById(R.id.bug_info_row_timestamp);
-            statusView = itemView.findViewById(R.id.bug_info_row_status);
-            messageView = itemView.findViewById(R.id.bug_info_row_message);
-            moveButton = itemView.findViewById(R.id.bug_info_move_button);
-            uploadButton = itemView.findViewById(R.id.bug_info_upload_button);
+            mTitleView = itemView.findViewById(R.id.bug_info_row_title);
+            mStatusView = itemView.findViewById(R.id.bug_info_row_status);
+            mMessageView = itemView.findViewById(R.id.bug_info_row_message);
+            mMoveButton = itemView.findViewById(R.id.bug_info_move_button);
+            mUploadButton = itemView.findViewById(R.id.bug_info_upload_button);
+            mAddAudioButton = itemView.findViewById(R.id.bug_info_add_audio_button);
         }
     }
 
-    private final List<MetaBugReport> mDataset;
+    private List<MetaBugReport> mDataset;
     private final ItemClickedListener mItemClickedListener;
+    private final Config mConfig;
 
-    BugInfoAdapter(List<MetaBugReport> dataSet, ItemClickedListener itemClickedListener) {
-        mDataset = dataSet;
+    BugInfoAdapter(ItemClickedListener itemClickedListener, Config config) {
         mItemClickedListener = itemClickedListener;
+        mDataset = new ArrayList<>();
+        mConfig = config;
+        // Allow RecyclerView to efficiently update UI; getItemId() is implemented below.
+        setHasStableIds(true);
     }
 
     @Override
@@ -93,22 +107,74 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
     @Override
     public void onBindViewHolder(BugInfoViewHolder holder, int position) {
         MetaBugReport bugreport = mDataset.get(position);
-        holder.titleView.setText(mDataset.get(position).getTitle());
-        holder.userView.setText(mDataset.get(position).getUsername());
-        holder.timestampView.setText(mDataset.get(position).getTimestamp());
-        holder.statusView.setText(Status.toString(mDataset.get(position).getStatus()));
-        holder.messageView.setText(mDataset.get(position).getStatusMessage());
-        if (bugreport.getStatus() == Status.STATUS_PENDING_USER_ACTION.getValue()
-                || bugreport.getStatus() == Status.STATUS_MOVE_FAILED.getValue()
-                || bugreport.getStatus() == Status.STATUS_UPLOAD_FAILED.getValue()) {
-            holder.moveButton.setOnClickListener(
-                    view -> mItemClickedListener.onItemClicked(BUTTON_TYPE_MOVE, bugreport));
-            holder.uploadButton.setOnClickListener(
-                    view -> mItemClickedListener.onItemClicked(BUTTON_TYPE_UPLOAD, bugreport));
+        holder.mTitleView.setText(bugreport.getTitle());
+        holder.mStatusView.setText(Status.toString(bugreport.getStatus()));
+        holder.mMessageView.setText(bugreport.getStatusMessage());
+        if (bugreport.getStatusMessage().isEmpty()) {
+            holder.mMessageView.setVisibility(View.GONE);
         } else {
-            holder.moveButton.setEnabled(false);
-            holder.uploadButton.setEnabled(false);
+            holder.mMessageView.setVisibility(View.VISIBLE);
         }
+        boolean enableUserActionButtons =
+                bugreport.getStatus() == Status.STATUS_PENDING_USER_ACTION.getValue()
+                        || bugreport.getStatus() == Status.STATUS_MOVE_FAILED.getValue()
+                        || bugreport.getStatus() == Status.STATUS_UPLOAD_FAILED.getValue();
+        if (enableUserActionButtons) {
+            holder.mMoveButton.setEnabled(true);
+            holder.mMoveButton.setVisibility(View.VISIBLE);
+            holder.mMoveButton.setOnClickListener(
+                    view -> mItemClickedListener.onItemClicked(BUTTON_TYPE_MOVE, bugreport,
+                            holder));
+        } else {
+            holder.mMoveButton.setEnabled(false);
+            holder.mMoveButton.setVisibility(View.GONE);
+        }
+        // Always enable upload to GCS button, because the app is enabled only for userdebug,
+        // and sometimes Config might not be properly set.
+        if (enableUserActionButtons) {
+            holder.mUploadButton.setText(R.string.bugreport_upload_gcs_button_text);
+            holder.mUploadButton.setEnabled(true);
+            holder.mUploadButton.setVisibility(View.VISIBLE);
+            holder.mUploadButton.setOnClickListener(
+                    view -> mItemClickedListener.onItemClicked(BUTTON_TYPE_UPLOAD, bugreport,
+                            holder));
+        } else {
+            holder.mUploadButton.setVisibility(View.GONE);
+            holder.mUploadButton.setEnabled(false);
+        }
+        if (bugreport.getStatus() == Status.STATUS_AUDIO_PENDING.getValue()) {
+            if (mConfig.getAutoUpload()) {
+                holder.mAddAudioButton.setText(R.string.bugreport_add_audio_upload_button_text);
+            } else {
+                holder.mAddAudioButton.setText(R.string.bugreport_add_audio_button_text);
+            }
+            holder.mAddAudioButton.setEnabled(true);
+            holder.mAddAudioButton.setVisibility(View.VISIBLE);
+            holder.mAddAudioButton.setOnClickListener(view ->
+                    mItemClickedListener.onItemClicked(BUTTON_TYPE_ADD_AUDIO, bugreport, holder));
+        } else {
+            holder.mAddAudioButton.setEnabled(false);
+            holder.mAddAudioButton.setVisibility(View.GONE);
+        }
+    }
+
+    /** Sets dataSet; it copies the list, because it modifies it in this adapter. */
+    void setDataset(List<MetaBugReport> bugReports) {
+        mDataset = new ArrayList<>(bugReports);
+        notifyDataSetChanged();
+    }
+
+    /** Update a bug report in the data set. */
+    void updateBugReportInDataSet(MetaBugReport bugReport, int position) {
+        if (position != RecyclerView.NO_POSITION) {
+            mDataset.set(position, bugReport);
+            notifyItemChanged(position);
+        }
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mDataset.get(position).getId();
     }
 
     @Override
