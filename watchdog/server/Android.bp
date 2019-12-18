@@ -72,3 +72,40 @@ cc_test {
         "libwatchdog_ioperfcollection",
     ],
 }
+
+cc_defaults {
+    name: "libwatchdog_process_service_defaults",
+    shared_libs: [
+        "carwatchdog_aidl_interface-cpp",
+        "libbase",
+        "libbinder",
+        "liblog",
+        "libutils",
+    ],
+}
+
+cc_library {
+    name: "libwatchdog_process_service",
+    defaults: [
+        "carwatchdogd_defaults",
+        "libwatchdog_process_service_defaults"
+    ],
+    srcs: [
+        "src/WatchdogProcessService.cpp",
+    ],
+}
+
+cc_binary {
+    name: "carwatchdogd",
+    defaults: [
+        "carwatchdogd_defaults",
+        "libwatchdog_process_service_defaults",
+    ],
+    srcs: [
+        "src/main.cpp",
+    ],
+    init_rc: ["carwatchdogd.rc"],
+    shared_libs: [
+    	"libwatchdog_process_service",
+    ],
+}
