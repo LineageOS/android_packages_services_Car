@@ -16,12 +16,15 @@
 #define COMPUTEPIPE_RUNNER_UTILS_RUNNERINTERFACE_H_
 #include <aidl/android/automotive/computepipe/runner/BnPipeRunner.h>
 
+#include <memory>
 #include <string>
 
-#include "MemHandle.h"
+#include "InterfaceImpl.h"
 #include "RunnerInterfaceCallbacks.h"
 #include "types/GraphState.h"
 #include "types/Status.h"
+
+#include "Options.pb.h"
 
 namespace android {
 namespace automotive {
@@ -30,47 +33,40 @@ namespace runner_utils {
 
 // RunnerInterface registers an IPipeRunner interface with computepipe router.
 // RunnerInterface handles binder IPC calls and invokes appropriate callbacks.
-class RunnerInterface : public aidl::android::automotive::computepipe::runner::BnPipeRunner {
+class RunnerInterface {
   public:
-    explicit RunnerInterface(const std::string& graphName,
+    explicit RunnerInterface(const proto::Options graphOptions,
                              const RunnerInterfaceCallbacks& runnerInterfaceCallbacks)
-        : mGraphName(graphName), mRunnerInterfaceCallbacks(runnerInterfaceCallbacks) {
+        : mGraphOptions(graphOptions), mRunnerInterfaceCallbacks(runnerInterfaceCallbacks) {
     }
 
-    // Init() should be invoked when the process is ready to receive commands
+    ~RunnerInterface() {
+    }
+
+    // init() should be invoked when the process is ready to receive commands
     // from Clients.
-    Status Init();
+    Status init();
 
     // Thread-safe function to deliver new packets to client.
-    Status NewPacketNotification(int32_t streamId, const std::shared_ptr<MemHandle>& packetHandle);
+    Status newPacketNotification(int32_t streamId, const std::shared_ptr<MemHandle>& packetHandle);
 
     // Thread-safe function to notify clients of new state.
-    Status StateUpdateNotification(const GraphState newState);
+    Status stateUpdateNotification(const GraphState newState);
 
-    // Methods from android::automotive::computepipe::runner::BnPipeRunner
-    ndk::ScopedAStatus init(
-        const std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeStateCallback>&
-            stateCb) override;
-    ndk::ScopedAStatus getPipeDescriptor(
-        aidl::android::automotive::computepipe::runner::PipeDescriptor* _aidl_return) override;
-    ndk::ScopedAStatus setPipeInputSource(int32_t configId) override;
-    ndk::ScopedAStatus setPipeOffloadOptions(int32_t configId) override;
-    ndk::ScopedAStatus setPipeTermination(int32_t configId) override;
-    ndk::ScopedAStatus setPipeOutputConfig(
-        int32_t streamId, int32_t maxInFlightCount,
-        const std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeStream>& handler)
-        override;
-    ndk::ScopedAStatus applyPipeConfigs() override;
-    ndk::ScopedAStatus startPipe() override;
-    ndk::ScopedAStatus stopPipe() override;
-    ndk::ScopedAStatus doneWithPacket(int32_t id) override;
+    void routerDied();
 
   private:
-    std::string mGraphName;
-    const RunnerInterfaceCallbacks& mRunnerInterfaceCallbacks;
+    // Attempt to register pipe runner with router. Returns true on success.
+    // This is a blocking API, calling thread will be blocked until router connection is
+    // established or max attempts are made without success.
+    bool tryRegisterPipeRunner();
 
-    std::map<int, std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeStateCallback>>
-        mPacketHandlers;
+    const int mMaxRouterConnectionAttempts = 10;
+    const int mRouterConnectionAttemptIntervalSeconds = 2;
+
+    const proto::Options mGraphOptions;
+    const RunnerInterfaceCallbacks mRunnerInterfaceCallbacks;
+    std::shared_ptr<InterfaceImpl> mPipeRunner = nullptr;
 };
 
 }  // namespace runner_utils
