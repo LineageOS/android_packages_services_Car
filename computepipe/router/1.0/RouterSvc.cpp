@@ -15,8 +15,11 @@
  */
 #include "RouterSvc.h"
 
+#include <android/binder_interface_utils.h>
+#include <android/binder_manager.h>
 #include <binder/IServiceManager.h>
 
+#include "PipeQuery.h"
 #include "PipeRegistration.h"
 #include "Registry.h"
 
@@ -49,15 +52,14 @@ Error RouterSvc::initSvc() {
 }
 
 Error RouterSvc::initRegistrationEngine() {
-    mRegisterEngine = new PipeRegistration(mRegistry);
+    mRegisterEngine = ndk::SharedRefBase::make<PipeRegistration>(mRegistry);
     if (!mRegisterEngine) {
         ALOGE("unable to allocate registration engine");
         return NOMEM;
     }
-    std::string name =
-        std::string() + String8(mRegisterEngine->getIfaceName()).c_str() + "/" + kRouterName;
-    auto status = defaultServiceManager()->addService(String16(name.c_str()), mRegisterEngine);
-    if (status != android::OK) {
+    std::string name = std::string() + mRegisterEngine->getIfaceName() + "/" + kRouterName;
+    auto status = AServiceManager_addService(mRegisterEngine->asBinder().get(), name.c_str());
+    if (status != STATUS_OK) {
         ALOGE("unable to add registration service %s", name.c_str());
         return INTERNAL_ERR;
     }
@@ -65,15 +67,14 @@ Error RouterSvc::initRegistrationEngine() {
 }
 
 Error RouterSvc::initQueryEngine() {
-    mQueryEngine = new PipeQuery(mRegistry);
+    mQueryEngine = ndk::SharedRefBase::make<PipeQuery>(mRegistry);
     if (!mQueryEngine) {
         ALOGE("unable to allocate query service");
         return NOMEM;
     }
-    std::string name =
-        std::string() + String8(mQueryEngine->getIfaceName()).c_str() + "/" + kRouterName;
-    auto status = defaultServiceManager()->addService(String16(name.c_str()), mQueryEngine);
-    if (status != android::OK) {
+    std::string name = std::string() + mQueryEngine->getIfaceName() + "/" + kRouterName;
+    auto status = AServiceManager_addService(mQueryEngine->asBinder().get(), name.c_str());
+    if (status != STATUS_OK) {
         ALOGE("unable to add query service %s", name.c_str());
         return INTERNAL_ERR;
     }

@@ -13,49 +13,6 @@
 // limitations under the License.
 
 cc_test {
-    name: "registry_test",
-    test_suites: ["device-tests"],
-    srcs: [
-        "RegistryTest.cpp",
-	"FakeRunner.cpp",
-    ],
-    static_libs: [
-        "libgtest",
-        "libgmock",
-    ],
-    header_libs: [
-      "computepipe_router_headers",
-    ],
-    shared_libs: [
-        "libbinder",
-        "libutils",
-        "android.automotive.computepipe.registry-cpp",
-        "android.automotive.computepipe.runner-cpp",
-    ],
-}
-
-cc_test {
-    name: "pipecontext_test",
-    test_suites: ["device-tests"],
-    srcs: [
-        "PipeContextTest.cpp",
-	"FakeRunner.cpp",
-    ],
-    static_libs: [
-        "libgtest",
-        "libgmock",
-    ],
-    header_libs: [
-      "computepipe_router_headers",
-    ],
-    shared_libs: [
-        "libbinder",
-        "libutils",
-        "android.automotive.computepipe.runner-cpp",
-    ],
-}
-
-cc_test {
     name: "piperegistration_test",
     test_suites: ["device-tests"],
     srcs: [
@@ -70,11 +27,14 @@ cc_test {
       "computepipe_router_headers",
     ],
     shared_libs: [
+        "libbinder_ndk",
         "libbinder",
         "libutils",
         "android.automotive.computepipe.router@1.0-impl",
         "android.automotive.computepipe.runner-cpp",
         "android.automotive.computepipe.registry-cpp",
+        "android.automotive.computepipe.runner-ndk_platform",
+        "android.automotive.computepipe.registry-ndk_platform",
     ],
 }
 
@@ -94,8 +54,11 @@ cc_test {
     ],
     shared_libs: [
         "libbinder",
+	"libbinder_ndk",
         "libutils",
         "android.automotive.computepipe.router@1.0-impl",
+        "android.automotive.computepipe.runner-ndk_platform",
+        "android.automotive.computepipe.registry-ndk_platform",
         "android.automotive.computepipe.runner-cpp",
         "android.automotive.computepipe.registry-cpp",
     ],

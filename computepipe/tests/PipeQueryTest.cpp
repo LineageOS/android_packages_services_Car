@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <android/automotive/computepipe/registry/BnClientInfo.h>
+#include <aidl/android/automotive/computepipe/registry/BnClientInfo.h>
 #include <binder/IInterface.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -32,9 +32,8 @@
 using namespace android::automotive::computepipe::router;
 using namespace android::automotive::computepipe::router::V1_0::implementation;
 using namespace android::automotive::computepipe::tests;
-using namespace android::automotive::computepipe::runner;
-using namespace android::automotive::computepipe::registry;
-using namespace android::binder;
+using namespace aidl::android::automotive::computepipe::runner;
+using namespace aidl::android::automotive::computepipe::registry;
 using namespace ::testing;
 
 /**
@@ -42,17 +41,10 @@ using namespace ::testing;
  */
 class FakeClientInfo : public BnClientInfo {
   public:
-    Status getClientId(int32_t* id) override {
+    ndk::ScopedAStatus getClientId(int32_t* id) override {
         *id = 1;
-        return Status::ok();
+        return ndk::ScopedAStatus::ok();
     }
-    android::status_t linkToDeath(const android::sp<DeathRecipient>& recipient,
-                                  void* cookie = nullptr, uint32_t flags = 0) override {
-        (void)recipient;
-        (void)cookie;
-        (void)flags;
-        return OK;
-    };
 };
 
 /**
@@ -86,7 +78,7 @@ class PipeQueryTest : public ::testing::Test {
     /**
      * Utility to generate fake runners
      */
-    void addFakeRunner(const std::string& name, const android::sp<IPipeRunner>& runnerIface) {
+    void addFakeRunner(const std::string& name, const std::shared_ptr<IPipeRunner>& runnerIface) {
         std::unique_ptr<PipeHandle<PipeRunner>> handle = std::make_unique<RunnerHandle>(runnerIface);
         Error status = mRegistry->RegisterPipe(std::move(handle), name);
         ASSERT_THAT(status, testing::Eq(Error::OK));
@@ -108,10 +100,10 @@ class PipeQueryTest : public ::testing::Test {
 
 // Check retrieval of inserted entries
 TEST_F(PipeQueryTest, GetGraphListTest) {
-    android::sp<IPipeRunner> dummy1 = new FakeRunner();
+    std::shared_ptr<IPipeRunner> dummy1 = ndk::SharedRefBase::make<FakeRunner>();
     addFakeRunner("dummy1", dummy1);
-    android::sp<IPipeRunner> dummy2 = new FakeRunner();
-    addFakeRunner("dummy2", dummy1);
+    std::shared_ptr<IPipeRunner> dummy2 = ndk::SharedRefBase::make<FakeRunner>();
+    addFakeRunner("dummy2", dummy2);
 
     std::vector<std::string>* outNames = new std::vector<std::string>();
     std::unique_ptr<PipeQuery> qIface = std::make_unique<PipeQuery>(mRegistry);
@@ -126,26 +118,12 @@ TEST_F(PipeQueryTest, GetGraphListTest) {
 
 // Check successful retrieval of runner
 TEST_F(PipeQueryTest, GetRunnerTest) {
-    android::sp<IPipeRunner> dummy1 = new FakeRunner();
+    std::shared_ptr<IPipeRunner> dummy1 = ndk::SharedRefBase::make<FakeRunner>();
     addFakeRunner("dummy1", dummy1);
 
     std::unique_ptr<PipeQuery> qIface = std::make_unique<PipeQuery>(mRegistry);
-    android::sp<IClientInfo> info = new FakeClientInfo();
-    android::sp<IPipeRunner> runner;
+    std::shared_ptr<IClientInfo> info = ndk::SharedRefBase::make<FakeClientInfo>();
+    std::shared_ptr<IPipeRunner> runner;
     ASSERT_TRUE(qIface->getPipeRunner("dummy1", info, &runner).isOk());
     EXPECT_THAT(runner, testing::NotNull());
-}
-
-// Check retrieval of dead runner
-TEST_F(PipeQueryTest, DeadRunnerTest) {
-    android::sp<IPipeRunner> dummy1 = new FakeRunner();
-    addFakeRunner("dummy1", dummy1);
-
-    std::unique_ptr<PipeQuery> qIface = std::make_unique<PipeQuery>(mRegistry);
-    dummy1.clear();
-    removeRunner("dummy1");
-    android::sp<IClientInfo> info = new FakeClientInfo();
-    android::sp<IPipeRunner> runner;
-    qIface->getPipeRunner("dummy1", info, &runner);
-    EXPECT_THAT(runner, testing::IsNull());
 }

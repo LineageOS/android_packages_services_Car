@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_PIPECLIENT
-#define ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_PIPECLIENT
+#ifndef ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_REMOTESTATE
+#define ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_REMOTESTATE
 
-#include <aidl/android/automotive/computepipe/registry/IClientInfo.h>
-#include <android/binder_auto_utils.h>
+#include <utils/RefBase.h>
 
-#include <functional>
 #include <memory>
 #include <mutex>
-
-#include "ClientHandle.h"
-#include "RemoteState.h"
 
 namespace android {
 namespace automotive {
@@ -35,23 +30,31 @@ namespace V1_0 {
 namespace implementation {
 
 /**
- * PipeClient: Encapsulated the IPC interface to the client.
- *
- * Allows for querrying the client state
+ * Wrapper for the Runner State machine
  */
-class PipeClient : public ClientHandle {
+class RemoteState {
   public:
-    explicit PipeClient(
-        const std::shared_ptr<aidl::android::automotive::computepipe::registry::IClientInfo>& info);
-    bool startClientMonitor() override;
-    uint32_t getClientId() override;
-    bool isAlive() override;
-    ~PipeClient();
+    RemoteState() = default;
+    void markDead();
+    bool isAlive();
 
   private:
-    ::ndk::ScopedAIBinder_DeathRecipient mDeathMonitor;
-    std::shared_ptr<RemoteState> mState;
-    const std::shared_ptr<aidl::android::automotive::computepipe::registry::IClientInfo> mClientInfo;
+    std::mutex mStateLock;
+    bool mAlive = true;
+};
+
+/**
+ * Monitor for tracking remote state
+ */
+class RemoteMonitor : public RefBase {
+  public:
+    explicit RemoteMonitor(const std::weak_ptr<RemoteState>& s) : mState(s) {
+    }
+    static void BinderDiedCallback(void* cookie);
+    void binderDied();
+
+  private:
+    std::weak_ptr<RemoteState> mState;
 };
 
 }  // namespace implementation

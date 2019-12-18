@@ -17,7 +17,9 @@
 #ifndef ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_PIPEQUERY
 #define ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_PIPEQUERY
 
-#include <android/automotive/computepipe/registry/BnPipeQuery.h>
+#include <aidl/android/automotive/computepipe/registry/BnPipeQuery.h>
+
+#include <memory>
 
 #include "PipeRunner.h"
 #include "Registry.h"
@@ -29,16 +31,17 @@ namespace router {
 namespace V1_0 {
 namespace implementation {
 
-class PipeQuery : public android::automotive::computepipe::registry::BnPipeQuery {
+class PipeQuery : public aidl::android::automotive::computepipe::registry::BnPipeQuery {
   public:
     explicit PipeQuery(std::shared_ptr<PipeRegistry<PipeRunner>> r) : mRegistry(r) {
     }
-    binder::Status getGraphList(::std::vector<std::string>* outNames) override;
-    binder::Status getPipeRunner(
+    ndk::ScopedAStatus getGraphList(::std::vector<std::string>* outNames) override;
+    ndk::ScopedAStatus getPipeRunner(
         const std::string& graphName,
-        const sp<::android::automotive::computepipe::registry::IClientInfo>& info,
-        sp<::android::automotive::computepipe::runner::IPipeRunner>* outRunner) override;
-    String16 getIfaceName();
+        const std::shared_ptr<aidl::android::automotive::computepipe::registry::IClientInfo>& info,
+        std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeRunner>* outRunner)
+        override;
+    const char* getIfaceName();
 
   private:
     std::shared_ptr<PipeRegistry<PipeRunner>> mRegistry;
