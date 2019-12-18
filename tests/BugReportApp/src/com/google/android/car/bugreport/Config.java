@@ -40,6 +40,8 @@ import java.io.PrintWriter;
 final class Config {
     private static final String TAG = Config.class.getSimpleName();
 
+    private static final String HAWK = "hawk";
+
     /**
      * Namespace for all Android Automotive related features.
      *
@@ -112,6 +114,10 @@ final class Config {
     boolean isUploadDestinationGcs() {
         if (isTempForceAutoUploadGcsEnabled()) {
             Log.d(TAG, "Setting upload dest to GCS ENABLE_AUTO_UPLOAD is true");
+            return true;
+        }
+        // TODO(b/146214182): Enable uploading to GCS if the device is hawk.
+        if (HAWK.equals(Build.DEVICE) && Build.IS_DEBUGGABLE) {
             return true;
         }
         // NOTE: enable it only for userdebug builds, unless it's force enabled using a system
