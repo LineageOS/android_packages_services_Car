@@ -54,22 +54,6 @@ public class CarSettings {
                 "android.car.GARAGE_MODE_MAINTENANCE_WINDOW";
 
         /**
-         * Key for default user id to boot into.
-         *
-         * @hide
-         */
-        public static final String DEFAULT_USER_ID_TO_BOOT_INTO =
-                "android.car.DEFAULT_BOOT_INTO_USER_ID";
-
-        /**
-         * Key for user id that is last logged in to.
-         *
-         * @hide
-         */
-        public static final String LAST_ACTIVE_USER_ID =
-                "android.car.LAST_ACTIVE_USER_ID";
-
-        /**
          * Whether default restrictions for users have been set.
          *
          * @hide
