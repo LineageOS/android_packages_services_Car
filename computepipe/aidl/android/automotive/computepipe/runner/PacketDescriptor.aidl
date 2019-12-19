@@ -16,7 +16,7 @@
 package android.automotive.computepipe.runner;
 
 import android.automotive.computepipe.runner.PacketDescriptorPacketType;
-import android.automotive.computepipe.NativeHandle;
+import android.hardware.graphics.common.HardwareBuffer;
 
 /**
  * Structure that describes the output packet for a specific outputstream
@@ -40,8 +40,10 @@ parcelable PacketDescriptor {
     /**
      * handle to memory region containing zero copy data
      * This handle can be mapped and data retrieved.
+     * In case of Pixel data the description field will contain the
+     * graphics buffer description.
      */
-    NativeHandle handle;
+    HardwareBuffer handle;
     /**
      * Timestamp of event at source. Timestamp value is milliseconds since epoch.
      */
@@ -51,4 +53,3 @@ parcelable PacketDescriptor {
      */
     @utf8InCpp String data;
 }
-

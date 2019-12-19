@@ -3,11 +3,17 @@ aidl_interface {
     vendor_available: true,
     srcs: [
         "android/automotive/computepipe/runner/*.aidl",
-	"android/automotive/computepipe/*.aidl",
+        "android/automotive/computepipe/*.aidl",
+    ],
+    imports: [
+        "vintf-graphics-common",
     ],
     stability: "vintf",
     backend: {
         java: {
+            enabled: false,
+        },
+        cpp: {
             enabled: false,
         },
     },
@@ -19,11 +25,14 @@ aidl_interface {
     imports: ["android.automotive.computepipe.runner"],
     srcs: [
         "android/automotive/computepipe/registry/*.aidl",
-	"android/automotive/computepipe/*.aidl",
+        "android/automotive/computepipe/*.aidl",
     ],
     stability: "vintf",
     backend: {
         java: {
+            enabled: false,
+        },
+        cpp: {
             enabled: false,
         },
     },
