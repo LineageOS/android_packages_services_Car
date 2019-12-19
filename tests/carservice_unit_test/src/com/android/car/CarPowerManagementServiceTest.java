@@ -16,11 +16,20 @@
 
 package com.android.car;
 
+import static android.content.pm.UserInfo.FLAG_EPHEMERAL;
+import static android.content.pm.UserInfo.FLAG_GUEST;
+import static android.os.UserHandle.USER_SYSTEM;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -109,6 +118,9 @@ public class CarPowerManagementServiceTest {
     // Wakeup time for the test; it's automatically set based on @WakeupTime annotation
     private int mWakeupTime;
 
+    // Value used to set config_disableUserSwitchDuringResume - must be defined before initTest();
+    private boolean mDisableUserSwitchDuringResume;
+
     @Rule
     public final TestRule setWakeupTimeRule = new TestWatcher() {
         protected void starting(Description description) {
@@ -157,7 +169,7 @@ public class CarPowerManagementServiceTest {
         when(mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs))
                 .thenReturn(900);
         when(mResources.getBoolean(R.bool.config_disableUserSwitchDuringResume))
-                .thenReturn(false);
+                .thenReturn(mDisableUserSwitchDuringResume);
 
         Log.i(TAG, "initTest(): overridden overlay properties: "
                 + "config_disableUserSwitchDuringResume="
@@ -324,7 +336,7 @@ public class CarPowerManagementServiceTest {
     }
 
     @Test
-    public void testSleepEntryAndWakeUpForProcessing() throws Exception {
+    public void testUserSwitchingOnResume_differentUser() throws Exception {
         initTest();
         setUserInfo(10, NO_USER_INFO_FLAGS);
         setUserInfo(11, NO_USER_INFO_FLAGS);
@@ -334,6 +346,251 @@ public class CarPowerManagementServiceTest {
         suspendAndResumeForUserSwitchingTests();
 
         verifyUserSwitched(11);
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_sameUser() throws Exception {
+        initTest();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setInitialUser(10);
+        setCurrentUser(10);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserNotSwitched();
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_differentEphemeralUser() throws Exception {
+        initTest();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setUserInfo(11, FLAG_EPHEMERAL);
+        setCurrentUser(10);
+        setInitialUser(11);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserSwitched(11);
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_sameGuest() throws Exception {
+        initTest();
+        setUserInfo(10, "ElGuesto", FLAG_GUEST | FLAG_EPHEMERAL);
+        setInitialUser(10);
+        setCurrentUser(10);
+        expectGuestMarkedForDeletionOk(10);
+        expectNewGuestCreated(11, "ElGuesto");
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserRemoved(10);
+        verifyUserSwitched(11);
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_differentGuest() throws Exception {
+        initTest();
+        setUserInfo(11, "ElGuesto", FLAG_GUEST | FLAG_EPHEMERAL);
+        setInitialUser(11);
+        setCurrentUser(10);
+        expectGuestMarkedForDeletionOk(11);
+        expectNewGuestCreated(12, "ElGuesto");
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserRemoved(11);
+        verifyUserSwitched(12);
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_guestCreationFailed() throws Exception {
+        initTest();
+        setUserInfo(10, "ElGuesto", FLAG_GUEST | FLAG_EPHEMERAL);
+        setInitialUser(10);
+        setCurrentUser(10);
+        expectGuestMarkedForDeletionOk(10);
+        expectNewGuestCreationFailed("ElGuesto");
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserNotSwitched();
+        verifyUserNotRemoved(10);
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_differentPersistentGuest() throws Exception {
+        initTest();
+        setUserInfo(11, "ElGuesto", FLAG_GUEST);
+        setInitialUser(11);
+        setCurrentUser(10);
+        expectGuestMarkedForDeletionOk(11);
+        expectNewGuestCreated(12, "ElGuesto");
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserRemoved(11);
+        verifyUserSwitched(12);
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_preDeleteGuestFail() throws Exception {
+        initTest();
+        setUserInfo(10, "ElGuesto", FLAG_GUEST | FLAG_EPHEMERAL);
+        setInitialUser(10);
+        setCurrentUser(10);
+        expectGuestMarkedForDeletionFail(10);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserNotSwitched();
+        verifyNoGuestCreated();
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_systemUser() throws Exception {
+        initTest();
+        setInitialUser(USER_SYSTEM);
+        setCurrentUser(10);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserNotSwitched();
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_disabledByOEM_differentUser() throws Exception {
+        disableUserSwitchingDuringResume();
+        initTest();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setUserInfo(11, NO_USER_INFO_FLAGS);
+        setCurrentUser(10);
+        setInitialUser(11);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserNotSwitched();
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_disabledByOEM_sameUser() throws Exception {
+        disableUserSwitchingDuringResume();
+        initTest();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setInitialUser(10);
+        setCurrentUser(10);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserNotSwitched();
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_disabledByOEM_differentEphemeralUser() throws Exception {
+        disableUserSwitchingDuringResume();
+        initTest();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setUserInfo(11, FLAG_EPHEMERAL);
+        setCurrentUser(10);
+        setInitialUser(11);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserNotSwitched();
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_disabledByOEM_sameGuest() throws Exception {
+        disableUserSwitchingDuringResume();
+        initTest();
+        setUserInfo(10, "ElGuesto", FLAG_GUEST | FLAG_EPHEMERAL);
+        setInitialUser(10);
+        setCurrentUser(10);
+        expectGuestMarkedForDeletionOk(10);
+        expectNewGuestCreated(11, "ElGuesto");
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserRemoved(10);
+        verifyUserSwitched(11);
+
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_disabledByOEM_differentGuest() throws Exception {
+        disableUserSwitchingDuringResume();
+        initTest();
+        setUserInfo(11, "ElGuesto", FLAG_GUEST | FLAG_EPHEMERAL);
+        setInitialUser(11);
+        setCurrentUser(10);
+        expectGuestMarkedForDeletionOk(11);
+        expectNewGuestCreated(12, "ElGuesto");
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserRemoved(11);
+        verifyUserSwitched(12);
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_disabledByOEM_guestCreationFailed() throws Exception {
+        disableUserSwitchingDuringResume();
+        initTest();
+        initTest();
+        setUserInfo(10, "ElGuesto", FLAG_GUEST | FLAG_EPHEMERAL);
+        setInitialUser(10);
+        setCurrentUser(10);
+        expectGuestMarkedForDeletionOk(10);
+        expectNewGuestCreationFailed("ElGuesto");
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserNotSwitched();
+        verifyUserNotRemoved(10);
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_disabledByOEM_differentPersistentGuest()
+            throws Exception {
+        disableUserSwitchingDuringResume();
+        initTest();
+        setUserInfo(11, "ElGuesto", FLAG_GUEST);
+        setInitialUser(11);
+        setCurrentUser(10);
+        expectGuestMarkedForDeletionOk(11);
+        expectNewGuestCreated(12, "ElGuesto");
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserRemoved(11);
+        verifyUserSwitched(12);
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_disabledByOEM_preDeleteGuestFail() throws Exception {
+        disableUserSwitchingDuringResume();
+        initTest();
+        setUserInfo(10, "ElGuesto", FLAG_GUEST | FLAG_EPHEMERAL);
+        setInitialUser(10);
+        setCurrentUser(10);
+        expectGuestMarkedForDeletionFail(10);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserNotSwitched();
+        verifyNoGuestCreated();
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_disabledByOEM_systemUser() throws Exception {
+        disableUserSwitchingDuringResume();
+        initTest();
+        setInitialUser(USER_SYSTEM);
+        setCurrentUser(10);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserNotSwitched();
     }
 
     private void suspendAndResumeForUserSwitchingTests() throws Exception {
@@ -443,11 +700,51 @@ public class CarPowerManagementServiceTest {
         userInfo.id = userId;
         userInfo.name = name;
         userInfo.flags = flags;
+        Log.v(TAG, "UM.getUserInfo("  + userId + ") will return " + userInfo.toFullString());
         when(mUserManager.getUserInfo(userId)).thenReturn(userInfo);
+    }
+
+    private void verifyUserNotSwitched() {
+        verify(mCarUserManagerHelper, never()).switchToUserId(anyInt());
     }
 
     private void verifyUserSwitched(int userId) {
         verify(mCarUserManagerHelper, times(1)).switchToUserId(userId);
+    }
+
+    private void verifyNoGuestCreated() {
+        verify(mUserManager, never()).createGuest(notNull(), anyString());
+    }
+
+    private void expectGuestMarkedForDeletionOk(int userId) {
+        when(mUserManager.markGuestForDeletion(userId)).thenReturn(true);
+    }
+
+    private void expectGuestMarkedForDeletionFail(int userId) {
+        when(mUserManager.markGuestForDeletion(userId)).thenReturn(false);
+    }
+
+    private void expectNewGuestCreated(int userId, String name) {
+        final UserInfo userInfo = new UserInfo();
+        userInfo.id = userId;
+        userInfo.name = name;
+        when(mUserManager.createGuest(notNull(), eq(name))).thenReturn(userInfo);
+    }
+
+    private void expectNewGuestCreationFailed(String name) {
+        when(mUserManager.createGuest(notNull(), eq(name))).thenReturn(null);
+    }
+
+    private void verifyUserRemoved(int userId) {
+        verify(mUserManager, times(1)).removeUser(userId);
+    }
+
+    private void verifyUserNotRemoved(int userId) {
+        verify(mUserManager, never()).removeUser(userId);
+    }
+
+    private void disableUserSwitchingDuringResume() {
+        mDisableUserSwitchDuringResume = true;
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {
