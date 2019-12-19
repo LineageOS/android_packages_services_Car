@@ -38,12 +38,18 @@ parcelable PacketDescriptor {
      */
     int size;
     /**
-     * handle to memory region containing zero copy data
-     * This handle can be mapped and data retrieved.
-     * In case of Pixel data the description field will contain the
-     * graphics buffer description.
+     * Handle to pixel data. This handle can be mapped and data retrieved.
+     * The description field will contain the
+     * graphics buffer description. Must be freed with call to doneWithPacket()
+     * This is populated only if type is PIXEL
      */
     HardwareBuffer handle;
+    /**
+     * Zero copy semantic data handle.
+     * Must be freed with call to doneWithPacket().
+     * This is populated only if type is SEMANTIC
+     */
+    ParcelFileDescriptor[] dataFds;
     /**
      * Timestamp of event at source. Timestamp value is milliseconds since epoch.
      */
