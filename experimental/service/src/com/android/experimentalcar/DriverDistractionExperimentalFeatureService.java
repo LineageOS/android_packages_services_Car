@@ -139,8 +139,8 @@ public final class DriverDistractionExperimentalFeatureService implements CarSer
     @GuardedBy("mLock")
     private ITimer mExpiredDriverAwarenessTimer;
 
-    private final ITimeSource mTimeSource;
     private final Context mContext;
+    private final ITimeSource mTimeSource;
 
     /**
      * Create an instance of {@link DriverDistractionExperimentalFeatureService}.
@@ -164,9 +164,9 @@ public final class DriverDistractionExperimentalFeatureService implements CarSer
         // constructor, unlike other suppliers
         ComponentName touchComponent = new ComponentName(mContext,
                 TouchDriverAwarenessSupplier.class);
-        TouchDriverAwarenessSupplier touchSupplier = new TouchDriverAwarenessSupplier();
+        TouchDriverAwarenessSupplier touchSupplier = new TouchDriverAwarenessSupplier(mContext,
+                new DriverAwarenessSupplierCallback(touchComponent));
         addDriverAwarenessSupplier(touchComponent, touchSupplier, /* priority= */ 0);
-        touchSupplier.setCallback(new DriverAwarenessSupplierCallback(touchComponent));
         touchSupplier.onReady();
 
         String[] preferredDriverAwarenessSuppliers = mContext.getResources().getStringArray(
