@@ -97,7 +97,8 @@
 
     <bool name="config_automotiveHideNavBarForKeyboard">true</bool>
 
-    <!-- Turn off Wallpaper service -->
-    <bool name="config_enableWallpaperService">false</bool>
+    <!-- Turn on Wallpaper service -->
+    <!-- Enabled temporarily to watch the dashboard-->
+    <bool name="config_enableWallpaperService">true</bool>
 
 </resources>
