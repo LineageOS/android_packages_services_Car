@@ -12,25 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-cc_test {
-    name: "computepipe_semantic_manager_test",
-    test_suites: ["device-tests"],
-    srcs: [
-        "SemanticManagerTest.cpp",
+cc_library {
+    name: "computepipe_prebuilt_graph",
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wno-unused-parameter",
     ],
+
+    export_include_dirs: ["include"],
     static_libs: [
-        "libgtest",
-        "libgmock",
-	  "libcomputepipeprotos",
+        "computepipe_runner_component",
+        "libcomputepipeprotos",
     ],
-    shared_libs: [
-        "libcomputepipe_stream_manager",
-	"libprotobuf-cpp-full",
-    ],
-    header_libs: [
-        "computepipe_runner_includes",
-    ],
+
+    header_libs: ["computepipe_runner_includes"],
     include_dirs: [
-        "packages/services/Car/computepipe"
+          "packages/services/Car/computepipe",
+          "packages/services/Car/computepipe/runner/graph",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libdl",
+        "liblog",
+        "libutils",
+        "libprotobuf-cpp-lite",
+    ],
+
+    srcs: [
+        "PrebuiltGraph.cpp",
     ],
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The Android Open Source Project
+// Copyright (C) 2020 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,25 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-cc_test {
-    name: "computepipe_semantic_manager_test",
-    test_suites: ["device-tests"],
-    srcs: [
-        "SemanticManagerTest.cpp",
-    ],
-    static_libs: [
-        "libgtest",
-        "libgmock",
-	  "libcomputepipeprotos",
-    ],
+cc_prebuilt_library_shared {
+    name: "libstubgraphimpl",
+    target: {
+        android_arm64: {
+            srcs: ["arm64/libstubgraphimpl.so"],
+        },
+        android_arm: {
+            srcs: ["arm/libstubgraphimpl.so"],
+        },
+        android_x86: {
+            srcs: ["x86/libstubgraphimpl.so"],
+        },
+        android_x86_64: {
+            srcs: ["x86_64/libstubgraphimpl.so"],
+        },
+    },
+
     shared_libs: [
-        "libcomputepipe_stream_manager",
-	"libprotobuf-cpp-full",
+        "libc",
+        "libdl",
+        "liblog",
+        "libm"
     ],
-    header_libs: [
-        "computepipe_runner_includes",
-    ],
-    include_dirs: [
-        "packages/services/Car/computepipe"
-    ],
+    strip: {
+        keep_symbols: true,
+    }
 }

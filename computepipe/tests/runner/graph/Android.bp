@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The Android Open Source Project
+// Copyright (C) 2020 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,24 +13,32 @@
 // limitations under the License.
 
 cc_test {
-    name: "computepipe_semantic_manager_test",
+    name: "computepipe_prebuilt_graph_test",
     test_suites: ["device-tests"],
     srcs: [
-        "SemanticManagerTest.cpp",
+        "EnumConversionTest.cpp",
+        "PrebuiltGraphTest.cpp",
     ],
     static_libs: [
+        "computepipe_prebuilt_graph",
+        "computepipe_runner_component",
         "libgtest",
         "libgmock",
-	  "libcomputepipeprotos",
+	      "libcomputepipeprotos",
     ],
     shared_libs: [
-        "libcomputepipe_stream_manager",
-	"libprotobuf-cpp-full",
+        "libstubgraphimpl",
+	      "libprotobuf-cpp-full",
+        "liblog",
+        "libdl",
+        "libbase",
     ],
     header_libs: [
         "computepipe_runner_includes",
     ],
     include_dirs: [
-        "packages/services/Car/computepipe"
+        "packages/services/Car/computepipe",
+        "packages/services/Car/computepipe/runner/graph",
     ],
+
 }
