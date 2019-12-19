@@ -22,31 +22,31 @@ namespace router {
 namespace V1_0 {
 namespace implementation {
 
-using namespace android::binder;
 using namespace android::automotive::computepipe;
-using namespace android::automotive::computepipe::runner;
+using namespace aidl::android::automotive::computepipe::runner;
+using namespace ndk;
 // Methods from ::android::automotive::computepipe::registry::V1_0::IPipeRegistration follow.
-Status PipeRegistration::registerPipeRunner(const std::string& graphName,
-                                            const sp<IPipeRunner>& graphRunner) {
+ScopedAStatus PipeRegistration::registerPipeRunner(const std::string& graphName,
+                                                   const std::shared_ptr<IPipeRunner>& graphRunner) {
     if (!mRegistry) {
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_STATE);
+        return ScopedAStatus(AStatus_fromExceptionCode(EX_ILLEGAL_STATE));
     }
     std::unique_ptr<PipeHandle<PipeRunner>> handle = std::make_unique<RunnerHandle>(graphRunner);
     auto err = mRegistry->RegisterPipe(std::move(handle), graphName);
     return convertToBinderStatus(err);
 }
 
-Status PipeRegistration::convertToBinderStatus(Error err) {
+ScopedAStatus PipeRegistration::convertToBinderStatus(Error err) {
     switch (err) {
         case OK:
-            return Status::ok();
+            return ScopedAStatus::ok();
         default:
-            return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_STATE);
+            return ScopedAStatus(AStatus_fromExceptionCode(EX_ILLEGAL_STATE));
     }
 }
 
-String16 PipeRegistration::getIfaceName() {
-    return this->getInterfaceDescriptor();
+const char* PipeRegistration::getIfaceName() {
+    return this->descriptor;
 }
 }  // namespace implementation
 }  // namespace V1_0

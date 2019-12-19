@@ -21,70 +21,76 @@ namespace automotive {
 namespace computepipe {
 namespace tests {
 
-using namespace android::binder;
-using namespace android::automotive::computepipe::runner;
+using namespace aidl::android::automotive::computepipe::runner;
 
 // Methods from ::android::automotive::computepipe::runner::V1_0::IFakeRunnerV1_0 follow.
-Status FakeRunner::init(const sp<IPipeStateCallback>& stateCb) {
-    mStateCallback = stateCb;
-    return Status::ok();
+
+::ndk::ScopedAStatus FakeRunner::init(
+    const std::shared_ptr<
+        ::aidl::android::automotive::computepipe::runner::IPipeStateCallback>& /* in_statecb */) {
+    return ndk::ScopedAStatus::ok();
 }
 
-Status FakeRunner::getPipeDescriptor(
-    ::android::automotive::computepipe::runner::PipeDescriptor* _aidl_return) {
-    (void)_aidl_return;
-    return Status::ok();
+::ndk::ScopedAStatus FakeRunner::getPipeDescriptor(
+    ::aidl::android::automotive::computepipe::runner::PipeDescriptor* desc) {
+    *desc = mDesc;
+    return ndk::ScopedAStatus::ok();
+}
+::ndk::ScopedAStatus FakeRunner::setPipeInputSource(int32_t /*in_configId*/) {
+    ::ndk::ScopedAStatus _aidl_status;
+    _aidl_status.set(AStatus_fromStatus(STATUS_UNKNOWN_TRANSACTION));
+    return _aidl_status;
+}
+::ndk::ScopedAStatus FakeRunner::setPipeOffloadOptions(int32_t /*in_configId*/) {
+    ::ndk::ScopedAStatus _aidl_status;
+    _aidl_status.set(AStatus_fromStatus(STATUS_UNKNOWN_TRANSACTION));
+    return _aidl_status;
+}
+::ndk::ScopedAStatus FakeRunner::setPipeTermination(int32_t /*in_configId*/) {
+    ::ndk::ScopedAStatus _aidl_status;
+    _aidl_status.set(AStatus_fromStatus(STATUS_UNKNOWN_TRANSACTION));
+    return _aidl_status;
 }
 
-Status FakeRunner::setPipeInputSource(int32_t configId) {
-    (void)configId;
-    return Status::ok();
+::ndk::ScopedAStatus FakeRunner::setPipeOutputConfig(
+    int32_t /*in_configId*/, int32_t /*in_maxInFlightCount*/,
+    const std::shared_ptr<
+        ::aidl::android::automotive::computepipe::runner::IPipeStream>& /*in_handler*/) {
+    ::ndk::ScopedAStatus _aidl_status;
+    _aidl_status.set(AStatus_fromStatus(STATUS_UNKNOWN_TRANSACTION));
+    return _aidl_status;
 }
-
-Status FakeRunner::setPipeOffloadOptions(int32_t configId) {
-    (void)configId;
-    return Status::ok();
+::ndk::ScopedAStatus FakeRunner::applyPipeConfigs() {
+    ::ndk::ScopedAStatus _aidl_status;
+    _aidl_status.set(AStatus_fromStatus(STATUS_UNKNOWN_TRANSACTION));
+    return _aidl_status;
 }
-
-Status FakeRunner::setPipeTermination(int32_t configId) {
-    (void)configId;
-    return Status::ok();
+::ndk::ScopedAStatus FakeRunner::startPipe() {
+    ::ndk::ScopedAStatus _aidl_status;
+    _aidl_status.set(AStatus_fromStatus(STATUS_UNKNOWN_TRANSACTION));
+    return _aidl_status;
 }
-
-Status FakeRunner::setPipeOutputConfig(int32_t configId, int32_t maxInFlightCount,
-                                       const ::android::sp<IPipeStream>& handler) {
-    (void)configId;
-    (void)maxInFlightCount;
-    mOutputCallbacks.push_back(handler);
-    return Status::ok();
+::ndk::ScopedAStatus FakeRunner::stopPipe() {
+    ::ndk::ScopedAStatus _aidl_status;
+    _aidl_status.set(AStatus_fromStatus(STATUS_UNKNOWN_TRANSACTION));
+    return _aidl_status;
 }
-
-Status FakeRunner::applyPipeConfigs() {
-    return Status::ok();
+::ndk::ScopedAStatus FakeRunner::doneWithPacket(int32_t /*in_id*/) {
+    ::ndk::ScopedAStatus _aidl_status;
+    _aidl_status.set(AStatus_fromStatus(STATUS_UNKNOWN_TRANSACTION));
+    return _aidl_status;
 }
-
-Status FakeRunner::startPipe() {
-    return Status::ok();
+::ndk::ScopedAStatus FakeRunner::getPipeDebugger(
+    std::shared_ptr<::aidl::android::automotive::computepipe::runner::IPipeDebugger>* /*_aidl_return*/) {
+    ::ndk::ScopedAStatus _aidl_status;
+    _aidl_status.set(AStatus_fromStatus(STATUS_UNKNOWN_TRANSACTION));
+    return _aidl_status;
 }
-
-Status FakeRunner::stopPipe() {
-    return Status::ok();
+::ndk::ScopedAStatus FakeRunner::releaseRunner() {
+    ::ndk::ScopedAStatus _aidl_status;
+    _aidl_status.set(AStatus_fromStatus(STATUS_UNKNOWN_TRANSACTION));
+    return _aidl_status;
 }
-
-Status FakeRunner::doneWithPacket(int32_t id) {
-    (void)id;
-    return Status::ok();
-}
-
-Status FakeRunner::getPipeDebugger(sp<IPipeDebugger>* _aidl_return) {
-    (void)_aidl_return;
-    return Status::ok();
-}
-
-Status FakeRunner::releaseRunner() {
-    return Status::ok();
-}
-
 }  // namespace tests
 }  // namespace computepipe
 }  // namespace automotive

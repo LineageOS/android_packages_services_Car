@@ -12,33 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 cc_library {
     name: "android.automotive.computepipe.router@1.0-impl",
-    vendor_available : true,
+    vendor_available: true,
     srcs: [
         "PipeClient.cpp",
-	"PipeRunner.cpp",
-	"PipeRegistration.cpp",
-	"PipeQuery.cpp",
+        "PipeRunner.cpp",
+        "PipeRegistration.cpp",
+        "PipeQuery.cpp",
+        "RemoteState.cpp",
     ],
-    cflags: ["-DLOG_TAG=\"ComputepipeRouter\""]
-    + [
-    	"-Wall",
-	"-Werror",
-	"-Wextra",
-	"-Wno-unused-parameter",
-    ],
+    cflags: ["-DLOG_TAG=\"ComputepipeRouter\""] +
+        [
+            "-Wall",
+            "-Werror",
+            "-Wextra",
+            "-Wno-unused-parameter",
+        ],
     header_libs: [
-      "computepipe_router_headers",
+        "computepipe_router_headers",
     ],
     export_include_dirs: ["include"],
     shared_libs: [
-	"liblog",
+        "liblog",
         "libutils",
-	"libbinder",
-        "android.automotive.computepipe.registry-cpp",
-        "android.automotive.computepipe.runner-cpp",
+        "libbinder_ndk",
+        "android.automotive.computepipe.registry-ndk_platform",
+        "android.automotive.computepipe.runner-ndk_platform",
     ],
 }
 
@@ -48,22 +48,18 @@ cc_binary {
         "service.cpp",
         "RouterSvc.cpp",
     ],
-         
     shared_libs: [
         "libcutils",
         "liblog",
         "libutils",
-        "libbinder",
+        "libbinder_ndk",
         "android.automotive.computepipe.router@1.0-impl",
-        "android.automotive.computepipe.registry-cpp",
+        "android.automotive.computepipe.registry-ndk_platform",
     ],
-
     header_libs: [
-      "computepipe_router_headers",
+        "computepipe_router_headers",
     ],
-
     init_rc: ["android.automotive.computepipe.router@1.0.rc"],
-
     cflags: ["-DLOG_TAG=\"ComputepipeRouter\""] + [
         "-DGL_GLEXT_PROTOTYPES",
         "-DEGL_EGLEXT_PROTOTYPES",
@@ -73,5 +69,4 @@ cc_binary {
         "-Wunused",
         "-Wunreachable-code",
     ],
-
 }

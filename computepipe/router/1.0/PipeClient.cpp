@@ -16,7 +16,7 @@
 
 #include "PipeClient.h"
 
-#include <binder/ProcessState.h>
+#include <android/binder_ibinder.h>
 
 namespace android {
 namespace automotive {
@@ -25,7 +25,13 @@ namespace router {
 namespace V1_0 {
 namespace implementation {
 
-using namespace android::automotive::computepipe::registry;
+using namespace aidl::android::automotive::computepipe::registry;
+using namespace ndk;
+
+PipeClient::PipeClient(const std::shared_ptr<IClientInfo>& info)
+    : mDeathMonitor(AIBinder_DeathRecipient_new(RemoteMonitor::BinderDiedCallback)),
+      mClientInfo(info) {
+}
 
 uint32_t PipeClient::getClientId() {
     if (mClientInfo == nullptr) {
@@ -38,37 +44,19 @@ uint32_t PipeClient::getClientId() {
 }
 
 bool PipeClient::startClientMonitor() {
-    mClientMonitor = new ClientMonitor();
-    if (!mClientMonitor) {
-        return false;
-    }
-    const sp<IBinder> client = IInterface::asBinder(mClientInfo);
-    if (!client) {
-        return false;
-    }
-    auto res = client->linkToDeath(mClientMonitor);
-    return res == OK;
+    mState = std::make_shared<RemoteState>();
+    auto monitor = new RemoteMonitor(mState);
+    auto status = ScopedAStatus::fromStatus(
+        AIBinder_linkToDeath(mClientInfo->asBinder().get(), mDeathMonitor.get(), monitor));
+    return status.isOk();
 }
 
 bool PipeClient::isAlive() {
-    return mClientMonitor->isAlive();
+    return mState->isAlive();
 }
 
 PipeClient::~PipeClient() {
-    const sp<IBinder> client = IInterface::asBinder(mClientInfo);
-    (void)client->unlinkToDeath(mClientMonitor);
 }
-
-void ClientMonitor::binderDied(const wp<android::IBinder>& /* base */) {
-    std::lock_guard<std::mutex> lock(mStateLock);
-    mAlive = false;
-}
-
-bool ClientMonitor::isAlive() {
-    std::lock_guard<std::mutex> lock(mStateLock);
-    return mAlive;
-}
-
 }  // namespace implementation
 }  // namespace V1_0
 }  // namespace router

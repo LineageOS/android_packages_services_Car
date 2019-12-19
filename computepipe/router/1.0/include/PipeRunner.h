@@ -16,12 +16,14 @@
 
 #ifndef ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_PIPERUNNER
 #define ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_V1_0_PIPERUNNER
-#include <android/automotive/computepipe/runner/IPipeRunner.h>
+#include <aidl/android/automotive/computepipe/runner/IPipeRunner.h>
 
 #include <functional>
+#include <memory>
 #include <mutex>
 
 #include "PipeHandle.h"
+#include "RemoteState.h"
 
 namespace android {
 namespace automotive {
@@ -34,11 +36,11 @@ namespace implementation {
  * Wrapper for IPC handle
  */
 struct PipeRunner {
-    explicit PipeRunner(const sp<android::automotive::computepipe::runner::IPipeRunner>& graphRunner);
-    sp<android::automotive::computepipe::runner::IPipeRunner> runner;
+    explicit PipeRunner(
+        const std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeRunner>&
+            graphRunner);
+    std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeRunner> runner;
 };
-
-class PipeMonitor;
 
 /**
  * Runner Handle to be stored with registry.
@@ -48,7 +50,8 @@ class PipeMonitor;
  */
 class RunnerHandle : public android::automotive::computepipe::router::PipeHandle<PipeRunner> {
   public:
-    explicit RunnerHandle(const sp<android::automotive::computepipe::runner::IPipeRunner>& r);
+    explicit RunnerHandle(
+        const std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeRunner>& r);
     /**
      * override registry pipehandle methods
      */
@@ -58,28 +61,8 @@ class RunnerHandle : public android::automotive::computepipe::router::PipeHandle
     ~RunnerHandle();
 
   private:
-    /**
-     * method used by monitor to report death
-     */
-    void markDead();
-    bool mAlive = true;
-    std::mutex mStateLock;
-    // Instance of the monitor for the associated runner
-    wp<PipeMonitor> mPipeMonitor;
-};
-
-/**
- * Monitors binder death notifications to handle death of the graph runner
- * process
- */
-class PipeMonitor : public IBinder::DeathRecipient {
-  public:
-    PipeMonitor(std::function<void()> cb) : mNotifier(cb) {
-    }
-    void binderDied(const wp<android::IBinder>& base) override;
-
-  private:
-    std::function<void()> mNotifier;
+    std::shared_ptr<RemoteState> mState;
+    ndk::ScopedAIBinder_DeathRecipient mDeathMonitor;
 };
 
 }  // namespace implementation

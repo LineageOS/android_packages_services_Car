@@ -12,14 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-cc_library_headers {
-    name: "computepipe_runner_includes",
+cc_library {
+    name: "libcomputepipe_stream_manager",
+    srcs: [
+        "Factory.cpp",
+	"SemanticManager.cpp",
+    ],
     export_include_dirs: ["include"],
+    visibility: [
+        "//packages/services/Car/computepipe/runner:__subpackages__",
+        "//packages/services/Car/computepipe/tests:__subpackages__",
+    ],
+    header_libs: [
+        "computepipe_runner_includes",
+    ],
     static_libs: [
          "libcomputepipeprotos",
     ],
-    visibility:[
-        "//packages/services/Car/computepipe/runner:__subpackages__",
-	"//packages/services/Car/computepipe/tests:__subpackages__",
+    include_dirs: [
+        "packages/services/Car/computepipe",
     ],
 }

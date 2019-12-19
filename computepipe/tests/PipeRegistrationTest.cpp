@@ -30,10 +30,8 @@
 using namespace android::automotive::computepipe::router;
 using namespace android::automotive::computepipe::router::V1_0::implementation;
 using namespace android::automotive::computepipe::tests;
-using namespace android::automotive::computepipe::runner;
-using namespace android::automotive::computepipe::registry;
-using namespace android::binder;
-using android::sp;
+using namespace aidl::android::automotive::computepipe::runner;
+using namespace aidl::android::automotive::computepipe::registry;
 /**
  * Test fixture that manages the underlying registry creation and tear down
  */
@@ -52,15 +50,17 @@ class PipeRegistrationTest : public ::testing::Test {
 
 // Valid registration succeeds
 TEST_F(PipeRegistrationTest, RegisterFakeRunner) {
-    sp<IPipeRunner> dummy = new FakeRunner();
-    std::unique_ptr<IPipeRegistration> rIface(new PipeRegistration(this->mRegistry));
+    std::shared_ptr<IPipeRunner> dummy = ndk::SharedRefBase::make<FakeRunner>();
+    std::shared_ptr<IPipeRegistration> rIface =
+        ndk::SharedRefBase::make<PipeRegistration>(this->mRegistry);
     EXPECT_TRUE(rIface->registerPipeRunner("dummy", dummy).isOk());
 }
 
 // Duplicate registration fails
 TEST_F(PipeRegistrationTest, RegisterDuplicateRunner) {
-    sp<IPipeRunner> dummy = new FakeRunner();
-    std::unique_ptr<IPipeRegistration> rIface(new PipeRegistration(this->mRegistry));
+    std::shared_ptr<IPipeRunner> dummy = ndk::SharedRefBase::make<FakeRunner>();
+    std::shared_ptr<IPipeRegistration> rIface =
+        ndk::SharedRefBase::make<PipeRegistration>(this->mRegistry);
     ASSERT_TRUE(rIface->registerPipeRunner("dummy", dummy).isOk());
     EXPECT_FALSE(rIface->registerPipeRunner("dummy", dummy).isOk());
 }

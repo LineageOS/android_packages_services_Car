@@ -11,7 +11,7 @@ message Options {
   /**
    * input configurations supported by the graph
    */
-  optional InputConfig input_configs = 1;
+  repeated InputConfig input_configs = 1;
 
   /**
    * Offload options supported by the graph
@@ -25,4 +25,9 @@ message Options {
    * Output streams supported by the graph.
    */
   repeated OutputConfig output_configs = 4;
+
+  /**
+   * Name of the computer vision graph.
+   */
+  optional string graph_name = 5;
 }

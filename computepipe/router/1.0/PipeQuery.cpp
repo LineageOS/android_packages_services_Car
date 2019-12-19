@@ -25,37 +25,38 @@ namespace V1_0 {
 namespace implementation {
 
 using namespace android::automotive::computepipe::router;
-using namespace android::automotive::computepipe::registry;
-using namespace android::automotive::computepipe::runner;
-using namespace android::binder;
+using namespace aidl::android::automotive::computepipe::registry;
+using namespace aidl::android::automotive::computepipe::runner;
+using namespace ndk;
 
-Status PipeQuery::getGraphList(std::vector<std::string>* outNames) {
+ScopedAStatus PipeQuery::getGraphList(std::vector<std::string>* outNames) {
     if (!mRegistry || !outNames) {
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_STATE);
+        return ScopedAStatus(AStatus_fromExceptionCode(EX_ILLEGAL_STATE));
     }
     auto names = mRegistry->getPipeList();
     std::copy(names.begin(), names.end(), std::back_inserter(*outNames));
-    return Status::ok();
+    return ScopedAStatus::ok();
 }
 
-Status PipeQuery::getPipeRunner(const std::string& graphName, const sp<IClientInfo>& info,
-                                sp<IPipeRunner>* outRunner) {
+ScopedAStatus PipeQuery::getPipeRunner(const std::string& graphName,
+                                       const std::shared_ptr<IClientInfo>& info,
+                                       std::shared_ptr<IPipeRunner>* outRunner) {
     *outRunner = nullptr;
     if (!mRegistry) {
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_STATE);
+        return ScopedAStatus(AStatus_fromExceptionCode(EX_ILLEGAL_STATE));
     }
     std::unique_ptr<ClientHandle> clientHandle = std::make_unique<PipeClient>(info);
     auto pipeHandle = mRegistry->getClientPipeHandle(graphName, std::move(clientHandle));
     if (!pipeHandle) {
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_STATE);
+        return ScopedAStatus(AStatus_fromExceptionCode(EX_ILLEGAL_STATE));
     }
     auto pipeRunner = pipeHandle->getInterface();
     *outRunner = pipeRunner->runner;
-    return Status::ok();
+    return ScopedAStatus::ok();
 }
 
-String16 PipeQuery::getIfaceName() {
-    return this->getInterfaceDescriptor();
+const char* PipeQuery::getIfaceName() {
+    return this->descriptor;
 }
 }  // namespace implementation
 }  // namespace V1_0
