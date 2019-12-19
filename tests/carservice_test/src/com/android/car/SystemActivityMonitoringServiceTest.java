@@ -30,8 +30,8 @@ import android.util.Log;
 import android.view.Display;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.RequiresDevice;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
@@ -72,7 +72,7 @@ public class SystemActivityMonitoringServiceTest {
     }
 
     @Test
-    @RequiresDevice
+    @FlakyTest
     public void testActivityLaunch() throws Exception {
         ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
         mService.registerActivityLaunchListener(new FilteredLaunchListener(activityA));
@@ -86,6 +86,7 @@ public class SystemActivityMonitoringServiceTest {
     }
 
     @Test
+    @FlakyTest
     public void testActivityBlocking() throws Exception {
         ComponentName blackListedActivity = toComponentName(getTestContext(), ActivityC.class);
         ComponentName blockingActivity = toComponentName(getTestContext(), BlockingActivity.class);
@@ -104,6 +105,7 @@ public class SystemActivityMonitoringServiceTest {
     }
 
     @Test
+    @FlakyTest
     public void testRemovesFromTopTasks() throws Exception {
         ComponentName activityThatFinishesImmediately =
                 toComponentName(getTestContext(), ActivityThatFinishesImmediately.class);
@@ -113,6 +115,7 @@ public class SystemActivityMonitoringServiceTest {
     }
 
     @Test
+    @FlakyTest
     public void testGetTopTasksOnMultiDisplay() throws Exception {
         String virtualDisplayName = "virtual_display";
         DisplayManager displayManager = getContext().getSystemService(DisplayManager.class);

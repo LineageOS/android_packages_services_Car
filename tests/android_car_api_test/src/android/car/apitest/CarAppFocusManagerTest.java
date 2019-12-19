@@ -26,6 +26,7 @@ import android.os.Looper;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.RequiresDevice;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
@@ -130,6 +131,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
     }
 
     @Test
+    @FlakyTest
     public void testFocusChange() throws Exception {
         CarAppFocusManager manager1 = createManager();
         CarAppFocusManager manager2 = createManager();

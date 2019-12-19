@@ -33,6 +33,7 @@ import android.os.UserManager;
 import android.provider.Settings;
 
 import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -234,6 +235,7 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
+    @FlakyTest
     public void test_GetInitialUserWithOverrideId_ReturnsOverrideId() {
         int lastActiveUserId = 12;
         int overrideUserId = 11;

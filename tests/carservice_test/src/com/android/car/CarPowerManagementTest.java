@@ -31,8 +31,8 @@ import android.os.SystemClock;
 
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.RequiresDevice;
 
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
@@ -161,7 +161,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
     @Test
     @UiThreadTest
-    @RequiresDevice
+    @FlakyTest
     public void testInvalidTransitionsFromPrepareShutdown() throws Exception {
         assertWaitForVhal();
         // Increase the timeout to handle all the test cases here
@@ -187,6 +187,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
     @Test
     @UiThreadTest
+    @FlakyTest
     public void testInvalidTransitionsFromWaitForFinish() throws Exception {
         assertWaitForVhal();
         mPowerStateHandler.sendStateAndCheckResponse(
@@ -210,6 +211,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
     @Test
     @UiThreadTest
+    @FlakyTest
     public void testInvalidTransitionsFromWaitForFinish2() throws Exception {
         assertWaitForVhal();
         mPowerStateHandler.sendStateAndCheckResponse(
