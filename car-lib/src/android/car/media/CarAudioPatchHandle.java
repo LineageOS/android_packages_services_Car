@@ -42,6 +42,8 @@ public final class CarAudioPatchHandle implements Parcelable {
      * Construct a audio patch handle container given the system level handle
      * NOTE: Assumes (as it true today), that there is exactly one device port in the source
      * and sink arrays.
+     *
+     * @hide
      */
     public CarAudioPatchHandle(AudioPatch patch) {
         Preconditions.checkArgument(patch.sources().length == 1
