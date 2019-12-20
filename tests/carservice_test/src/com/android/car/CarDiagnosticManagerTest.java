@@ -41,6 +41,7 @@ import android.util.JsonWriter;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.vehiclehal.DiagnosticEventBuilder;
@@ -487,7 +488,9 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertFalse(compressionIgnitionMonitors.NMHCCatalyst.incomplete);
     }
 
-    @Test public void testFuelType() throws Exception {
+    @Test
+    @FlakyTest
+    public void testFuelType() throws Exception {
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,

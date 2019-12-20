@@ -43,6 +43,7 @@ import android.os.UserManager;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
+import androidx.test.filters.FlakyTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.hal.PowerHalService;
@@ -236,6 +237,7 @@ public class CarPowerManagementServiceTest {
 
     @Test
     @WakeupTime(100)
+    @FlakyTest
     public void testShutdownWithProcessing() throws Exception {
         initTest();
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE, 0));
@@ -264,6 +266,7 @@ public class CarPowerManagementServiceTest {
     }
 
     @Test
+    @FlakyTest
     public void testSleepEntryAndWakeUpForProcessing() throws Exception {
         initTest();
         setUserInfo(10, NO_USER_INFO_FLAGS);

@@ -34,6 +34,7 @@ import android.util.Log;
 import android.util.MutableInt;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
@@ -141,6 +142,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
 
     // Test an event
     @Test
+    @FlakyTest
     public void testEvent() throws Exception {
         mCarCabinManager.registerCallback(new EventListener());
         // Wait for two events generated on registration

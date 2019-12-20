@@ -32,6 +32,7 @@ import android.car.vms.VmsSubscriptionState;
 import android.util.Pair;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.RequiresDevice;
 
@@ -519,6 +520,7 @@ public class VmsPublisherSubscriberTest extends MockedVmsTestBase {
     }
 
     @Test
+    @FlakyTest
     public void testUnsubscribeToPublisher_MultiplePublishers() {
         int publisherId = mPublisher.getPublisherId(PUBLISHER_INFO);
         int publisherId2 = mPublisher.getPublisherId(PUBLISHER_INFO_OTHER);

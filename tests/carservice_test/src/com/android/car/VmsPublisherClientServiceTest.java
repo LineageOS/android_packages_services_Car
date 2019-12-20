@@ -27,8 +27,8 @@ import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.RequiresDevice;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +47,7 @@ public class VmsPublisherClientServiceTest extends MockedVmsTestBase {
     public static final byte[] PAYLOAD = new byte[]{1, 1, 2, 3, 5, 8, 13};
 
     @Test
-    @RequiresDevice
+    @FlakyTest
     public void testPublish() throws Exception {
         MockHalClient client = getMockHalClient();
         client.sendMessage(

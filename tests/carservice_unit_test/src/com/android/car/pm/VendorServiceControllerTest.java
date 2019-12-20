@@ -39,6 +39,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.FlakyTest;
 
 import com.android.car.CarLocalServices;
 import com.android.car.user.CarUserService;
@@ -137,6 +138,7 @@ public class VendorServiceControllerTest {
     }
 
     @Test
+    @FlakyTest
     public void systemUserUnlocked() {
         mController.init();
         mContext.reset();
@@ -150,6 +152,7 @@ public class VendorServiceControllerTest {
     }
 
     @Test
+    @FlakyTest
     public void fgUserUnlocked() {
         mController.init();
         mContext.reset();
