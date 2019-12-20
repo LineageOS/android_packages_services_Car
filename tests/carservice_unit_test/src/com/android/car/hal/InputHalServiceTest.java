@@ -49,7 +49,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.LongSupplier;
@@ -101,10 +100,8 @@ public class InputHalServiceTest {
                 HW_KEY_INPUT_CONFIG,
                 VehiclePropConfigBuilder.newBuilder(VehicleProperty.CURRENT_GEAR).build());
 
-        Collection<VehiclePropConfig> takenProps =
-                mInputHalService.takeSupportedProperties(offeredProps);
+        mInputHalService.takeProperties(offeredProps);
 
-        assertThat(takenProps).containsExactly(HW_KEY_INPUT_CONFIG);
         assertThat(mInputHalService.isKeyInputSupported()).isTrue();
         assertThat(mInputHalService.isRotaryInputSupported()).isFalse();
     }
@@ -116,10 +113,8 @@ public class InputHalServiceTest {
                 HW_ROTARY_INPUT_CONFIG,
                 VehiclePropConfigBuilder.newBuilder(VehicleProperty.CURRENT_GEAR).build());
 
-        Collection<VehiclePropConfig> takenProps =
-                mInputHalService.takeSupportedProperties(offeredProps);
+        mInputHalService.takeProperties(offeredProps);
 
-        assertThat(takenProps).containsExactly(HW_ROTARY_INPUT_CONFIG);
         assertThat(mInputHalService.isRotaryInputSupported()).isTrue();
         assertThat(mInputHalService.isKeyInputSupported()).isFalse();
     }
@@ -132,10 +127,8 @@ public class InputHalServiceTest {
                 HW_ROTARY_INPUT_CONFIG,
                 VehiclePropConfigBuilder.newBuilder(VehicleProperty.CURRENT_GEAR).build());
 
-        Collection<VehiclePropConfig> takenProps =
-                mInputHalService.takeSupportedProperties(offeredProps);
+        mInputHalService.takeProperties(offeredProps);
 
-        assertThat(takenProps).containsExactly(HW_KEY_INPUT_CONFIG, HW_ROTARY_INPUT_CONFIG);
         assertThat(mInputHalService.isKeyInputSupported()).isTrue();
         assertThat(mInputHalService.isRotaryInputSupported()).isTrue();
     }
@@ -333,7 +326,7 @@ public class InputHalServiceTest {
     }
 
     private void subscribeListener() {
-        mInputHalService.takeSupportedProperties(ImmutableSet.of(HW_KEY_INPUT_CONFIG));
+        mInputHalService.takeProperties(ImmutableSet.of(HW_KEY_INPUT_CONFIG));
         assertThat(mInputHalService.isKeyInputSupported()).isTrue();
 
         mInputHalService.setInputListener(mInputListener);
