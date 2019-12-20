@@ -146,20 +146,6 @@ public class CarUserServiceTest {
     }
 
     /**
-     * Test that the {@link CarUserService} does set the disable modify account permission for
-     * user 0 upon user 0 unlock when user 0 is headless.
-     */
-    @Test
-    public void testDisableModifyAccountsForHeadlessSystemUserOnFirstRun() {
-        mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
-        verify(mMockedUserManager)
-                .setUserRestriction(
-                        UserManager.DISALLOW_MODIFY_ACCOUNTS,
-                        true,
-                        UserHandle.of(UserHandle.USER_SYSTEM));
-    }
-
-    /**
      * Test that the {@link CarUserService} does not set restrictions on user 0 if they have already
      * been set.
      */
