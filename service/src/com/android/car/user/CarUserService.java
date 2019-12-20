@@ -196,7 +196,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * @see CarUserManager.createDriver
+     * Creates a driver who is a regular user and is allowed to login to the driving occupant zone.
+     *
+     * @param name The name of the driver to be created.
+     * @param admin Whether the created driver will be an admin.
+     * @return {@link UserInfo} object of the created driver, or {@code null} if the driver could
+     *         not be created.
      */
     @Override
     @Nullable
@@ -210,7 +215,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * @see CarUserManager.createPassenger
+     * Creates a passenger who is a profile of the given driver.
+     *
+     * @param name The name of the passenger to be created.
+     * @param driverId User id of the driver under whom a passenger is created.
+     * @return {@link UserInfo} object of the created passenger, or {@code null} if the passenger
+     *         could not be created.
      */
     @Override
     @Nullable
@@ -269,7 +279,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * @see CarUserManager.getAllDrivers
+     * Returns all drivers who can occupy the driving zone. Guest users are included in the list.
+     *
+     * @return the list of {@link UserInfo} who can be a driver on the device.
      */
     @Override
     @NonNull
@@ -282,7 +294,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * @see CarUserManager.getPassengers
+     * Returns all passengers under the given driver.
+     *
+     * @param driverId User id of a driver.
+     * @return the list of {@link UserInfo} who is a passenger under the given driver.
      */
     @Override
     @NonNull
