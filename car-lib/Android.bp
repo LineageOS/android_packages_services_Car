@@ -222,9 +222,7 @@ java_library {
     srcs: [
         ":android.car-stub-docs",
     ],
-    libs: [
-        "android.car",
-    ],
+    sdk_version: "current",
     product_variables: {
         pdk: {
             enabled: false,
@@ -239,6 +237,7 @@ java_library {
 java_library {
     name: "android.car-stubs-dex",
     static_libs: ["android.car-stubs"],
+    sdk_version: "current",
     product_variables: {
         pdk: {
             enabled: false,
@@ -252,9 +251,7 @@ java_library {
     srcs: [
         ":android.car-system-stubs-docs",
     ],
-    libs: [
-        "android.car",
-    ],
+    sdk_version: "system_current",
     product_variables: {
         pdk: {
             enabled: false,
@@ -269,6 +266,7 @@ java_library {
 java_library {
     name: "android.car-system-stubs-dex",
     static_libs: ["android.car-system-stubs"],
+    sdk_version: "system_current",
     product_variables: {
         pdk: {
             enabled: false,
@@ -277,14 +275,12 @@ java_library {
     compile_dex: true,
 }
 
-java_library_static {
+java_library {
     name: "android.car-test-stubs",
     srcs: [
         ":android.car-test-stubs-docs",
     ],
-    libs: [
-        "android.car",
-    ],
+    sdk_version: "test_current",
     product_variables: {
         pdk: {
             enabled: false,
@@ -296,6 +292,7 @@ java_library_static {
 java_library {
     name: "android.car-test-stubs-dex",
     static_libs: ["android.car-test-stubs"],
+    sdk_version: "test_current",
     product_variables: {
         pdk: {
             enabled: false,
