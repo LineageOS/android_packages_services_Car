@@ -400,7 +400,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (UserManager.isHeadlessSystemUserMode()) {
             setSystemUserRestrictions();
         }
-        mCarUserManagerHelper.initDefaultGuestRestrictions();
         Settings.Global.putInt(mContext.getContentResolver(),
                 CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
     }
@@ -627,15 +626,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void setSystemUserRestrictions() {
-        // Disable adding accounts for system user.
-        UserHandle systemUserHandle = UserHandle.of(UserHandle.USER_SYSTEM);
-        mUserManager.setUserRestriction(
-                UserManager.DISALLOW_MODIFY_ACCOUNTS, /* value= */ true, systemUserHandle);
-
         // Disable Location service for system user.
         LocationManager locationManager =
                 (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.setLocationEnabledForUser(/* enabled= */ false, systemUserHandle);
+        locationManager.setLocationEnabledForUser(
+                /* enabled= */ false, UserHandle.of(UserHandle.USER_SYSTEM));
     }
 
     /**

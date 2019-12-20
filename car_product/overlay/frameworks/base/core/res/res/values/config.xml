@@ -101,4 +101,9 @@
     <!-- Enabled temporarily to watch the dashboard-->
     <bool name="config_enableWallpaperService">true</bool>
 
+    <!-- Default user restrictions for system user 0. -->
+    <string-array translatable="false" name="config_defaultFirstUserRestrictions">
+        <item>"no_modify_accounts"</item>
+    </string-array>
+
 </resources>
