@@ -148,6 +148,12 @@ public class VmsClientManagerTest {
     @Captor
     private ArgumentCaptor<ServiceConnection> mConnectionCaptor;
 
+    @Captor
+    private ArgumentCaptor<Runnable> mSystemUserUnlockedListenerCaptor;
+
+    @Captor
+    private ArgumentCaptor<CarUserService.UserCallback> mUserCallbackCaptor;
+
     @Mock
     private VmsClientLogger mSystemClientLog;
     @Mock
@@ -158,6 +164,7 @@ public class VmsClientManagerTest {
     private VmsClientLogger mHalClientLog;
 
     private VmsClientManager mClientManager;
+
 
     private int mForegroundUserId;
     private int mCallingAppUid;
@@ -201,6 +208,10 @@ public class VmsClientManagerTest {
 
         mClientManager = new VmsClientManager(mContext, mStatsService, mUserService,
                 mBrokerService, mHal, mHandler, () -> mCallingAppUid);
+
+        // call init() so the listener and callback are captured
+        verifyInit();
+
         verify(mHal).setClientManager(mClientManager);
         mClientManager.setPublisherService(mPublisherService);
 
@@ -222,14 +233,13 @@ public class VmsClientManagerTest {
         verifyNoMoreInteractions(mSystemClientLog, mUserClientLog, mUserClientLog2, mHalClientLog);
     }
 
-    @Test
-    public void testInit() {
+    private void verifyInit() {
         mClientManager.init();
 
         // Verify registration of system user unlock listener
-        verify(mUserService).runOnUser0Unlock(mClientManager.mSystemUserUnlockedListener);
+        verify(mUserService).runOnUser0Unlock(mSystemUserUnlockedListenerCaptor.capture());
         // Verify user callback is added
-        verify(mUserService).addUserCallback(eq(mClientManager.mUserCallback));
+        verify(mUserService).addUserCallback(mUserCallbackCaptor.capture());
     }
 
     @Test
@@ -237,7 +247,7 @@ public class VmsClientManagerTest {
         mClientManager.release();
 
         // Verify user switch receiver is unregistered
-        verify(mUserService).removeUserCallback(mClientManager.mUserCallback);
+        verify(mUserService).removeUserCallback(mUserCallbackCaptor.getValue());
     }
 
     @Test
@@ -1029,20 +1039,21 @@ public class VmsClientManagerTest {
     }
 
     private void notifySystemUserUnlocked() {
-        mClientManager.mSystemUserUnlockedListener.run();
+        mSystemUserUnlockedListenerCaptor.getValue().run();
     }
 
     private void notifyUserSwitched(int foregroundUserId, boolean isForegroundUserUnlocked) {
         when(mUserManager.isUserUnlockingOrUnlocked(foregroundUserId))
                 .thenReturn(isForegroundUserUnlocked);
         mForegroundUserId = foregroundUserId; // Member variable used by verifyUserBind()
-        mClientManager.mUserCallback.onSwitchUser(foregroundUserId);
+        mUserCallbackCaptor.getValue().onSwitchUser(foregroundUserId);
     }
 
     private void notifyUserUnlocked(int foregroundUserId, boolean isForegroundUserUnlocked) {
         when(mUserManager.isUserUnlockingOrUnlocked(foregroundUserId))
                 .thenReturn(isForegroundUserUnlocked);
-        mClientManager.mUserCallback.onUserLockChanged(foregroundUserId, isForegroundUserUnlocked);
+        mUserCallbackCaptor.getValue().onUserLockChanged(foregroundUserId,
+                isForegroundUserUnlocked);
     }
 
     private void verifySystemBind(int times) {

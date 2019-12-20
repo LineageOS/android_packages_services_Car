@@ -61,6 +61,7 @@ import com.android.car.user.CarUserService;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.ICarServiceHelper;
 import com.android.internal.util.ArrayUtils;
 
@@ -137,6 +138,14 @@ public class ICarImpl extends ICar.Stub {
 
     public ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
             CanBusErrorNotifier errorNotifier, String vehicleInterfaceName) {
+        this(serviceContext, vehicle, systemInterface, errorNotifier, vehicleInterfaceName,
+                /* carUserService= */ null);
+    }
+
+    @VisibleForTesting
+    ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
+            CanBusErrorNotifier errorNotifier, String vehicleInterfaceName,
+            @Nullable CarUserService carUserService) {
         mContext = serviceContext;
         mSystemInterface = systemInterface;
         mHal = new VehicleHal(serviceContext, vehicle);
@@ -151,12 +160,16 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(CarFeatureController.class, mFeatureController);
         mVehicleInterfaceName = vehicleInterfaceName;
         mUserManagerHelper = new CarUserManagerHelper(serviceContext);
-        UserManager userManager =
-                (UserManager) serviceContext.getSystemService(Context.USER_SERVICE);
-        int maxRunningUsers = res.getInteger(
-                com.android.internal.R.integer.config_multiuserMaxRunningUsers);
-        mCarUserService = new CarUserService(serviceContext, mUserManagerHelper, userManager,
-                ActivityManager.getService(), maxRunningUsers);
+        if (carUserService != null) {
+            mCarUserService = carUserService;
+        } else {
+            UserManager userManager =
+                    (UserManager) serviceContext.getSystemService(Context.USER_SERVICE);
+            int maxRunningUsers = res.getInteger(
+                    com.android.internal.R.integer.config_multiuserMaxRunningUsers);
+            mCarUserService = new CarUserService(serviceContext, mUserManagerHelper, userManager,
+                    ActivityManager.getService(), maxRunningUsers);
+        }
         mCarOccupantZoneService = new CarOccupantZoneService(serviceContext);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
