@@ -836,7 +836,6 @@ package android.car.media {
   }
 
   public final class CarAudioPatchHandle implements android.os.Parcelable {
-    ctor public CarAudioPatchHandle(android.media.AudioPatch);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.media.CarAudioPatchHandle> CREATOR;
