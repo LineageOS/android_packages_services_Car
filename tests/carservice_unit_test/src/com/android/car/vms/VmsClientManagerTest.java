@@ -58,6 +58,7 @@ import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.VmsPublisherService;
@@ -582,6 +583,7 @@ public class VmsClientManagerTest {
     }
 
     @Test
+    @FlakyTest
     public void testOnUserServiceDisconnected() throws Exception {
         notifyUserUnlocked(USER_ID, true);
         verifyUserBind(1);

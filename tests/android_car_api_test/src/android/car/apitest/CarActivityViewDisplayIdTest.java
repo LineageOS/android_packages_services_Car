@@ -46,6 +46,8 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.view.Display;
 import android.view.ViewGroup;
 
+import androidx.test.filters.FlakyTest;
+
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -95,6 +97,7 @@ public class CarActivityViewDisplayIdTest extends CarApiTestBase {
     }
 
     @Test
+    @FlakyTest
     public void testSingleActivityView() throws Exception {
         ActivityViewTestActivity activity = startActivityViewTestActivity(DEFAULT_DISPLAY);
         activity.waitForActivityViewReady();
@@ -117,6 +120,7 @@ public class CarActivityViewDisplayIdTest extends CarApiTestBase {
     }
 
     @Test
+    @FlakyTest
     public void testDoubleActivityView() throws Exception {
         ActivityViewTestActivity activity1 = startActivityViewTestActivity(DEFAULT_DISPLAY);
         activity1.waitForActivityViewReady();
@@ -151,6 +155,7 @@ public class CarActivityViewDisplayIdTest extends CarApiTestBase {
     }
 
     @Test
+    @FlakyTest
     public void testThrowsExceptionOnReportingNonExistingDisplay() throws Exception {
         ActivityViewTestActivity activity = startActivityViewTestActivity(DEFAULT_DISPLAY);
         activity.waitForActivityViewReady();
@@ -175,6 +180,7 @@ public class CarActivityViewDisplayIdTest extends CarApiTestBase {
 
     // TODO(b/143353546): Make the following tests not to rely on CarLauncher.
     @Test
+    @FlakyTest
     public void testThrowsExceptionOnReportingNonOwningDisplay() throws Exception {
         int displayIdOfCarLauncher = waitForActivityViewDisplayReady(CAR_LAUNCHER_PKG_NAME);
         assumeTrue(INVALID_DISPLAY != displayIdOfCarLauncher);
@@ -190,6 +196,7 @@ public class CarActivityViewDisplayIdTest extends CarApiTestBase {
     // The test name starts with 'testz' to run it at the last among the tests, since killing
     // TestActivity forcefully causes the system unstable for a while.
     @Test
+    @FlakyTest
     public void testzCleanUpAfterClientIsCrashed() throws Exception {
         Intent intent = new Intent(getContext(), MultiProcessActivityViewTestActivity.class);
         getContext().startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));

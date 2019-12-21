@@ -24,6 +24,7 @@ import android.media.AudioManager;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.RequiresDevice;
 
 import org.junit.Before;
@@ -105,6 +106,7 @@ public class AudioFocusTest {
     }
 
     @Test
+    @FlakyTest
     public void exclusiveInteractionsForFocusGain_requestGrantedAndFocusLossSent()
             throws Exception {
         // For each interaction the focus request is granted and on the second request
@@ -202,6 +204,7 @@ public class AudioFocusTest {
     }
 
     @Test
+    @FlakyTest
     public void concurrentInteractionsTransientGain_requestGrantedAndFocusLossTransientSent()
             throws Exception {
         // Test concurrent interactions i.e. interactions that can

@@ -97,6 +97,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mLock")
     private boolean mShutdownOnFinish;
     @GuardedBy("mLock")
+    private boolean mShutdownOnNextSuspend;
+    @GuardedBy("mLock")
     private boolean mIsBooting = true;
     @GuardedBy("mLock")
     private boolean mIsResuming;
@@ -233,6 +235,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         writer.print(",mProcessingStartTime:" + mProcessingStartTime);
         writer.print(",mLastSleepEntryTime:" + mLastSleepEntryTime);
         writer.print(",mNextWakeupSec:" + mNextWakeupSec);
+        writer.print(",mShutdownOnNextSuspend:" + mShutdownOnNextSuspend);
         writer.print(",mShutdownOnFinish:" + mShutdownOnFinish);
         writer.println(",sShutdownPrepareTimeMs:" + sShutdownPrepareTimeMs);
     }
@@ -329,6 +332,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 mHal.sendWaitForVhal();
                 break;
             case CarPowerStateListener.SHUTDOWN_CANCELLED:
+                mShutdownOnNextSuspend = false; // This cancels the "NextSuspend"
                 mHal.sendShutdownCancel();
                 break;
             case CarPowerStateListener.SUSPEND_EXIT:
@@ -377,7 +381,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mSystemInterface.setDisplayState(false);
         // Shutdown on finish if the system doesn't support deep sleep or doesn't allow it.
         synchronized (mLock) {
-            mShutdownOnFinish |= !mHal.isDeepSleepAllowed()
+            mShutdownOnFinish = mShutdownOnNextSuspend
+                    || !mHal.isDeepSleepAllowed()
                     || !mSystemInterface.isSystemSupportingDeepSleep()
                     || !newState.mCanSleep;
         }
@@ -439,6 +444,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         } else {
             doHandleDeepSleep(simulatedMode);
         }
+        mShutdownOnNextSuspend = false;
     }
 
     @GuardedBy("mLock")
@@ -523,7 +529,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 listener.onStateChanged(newState);
             } catch (RemoteException e) {
                 // It's likely the connection snapped. Let binder death handle the situation.
-                Log.e(CarLog.TAG_POWER, "onStateChanged() call failed: " + e, e);
+                Log.e(CarLog.TAG_POWER, "onStateChanged() call failed", e);
             }
         }
         listenerList.finishBroadcast();
@@ -698,7 +704,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public void requestShutdownOnNextSuspend() {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         synchronized (mLock) {
-            mShutdownOnFinish = true;
+            mShutdownOnNextSuspend = true;
         }
     }
 

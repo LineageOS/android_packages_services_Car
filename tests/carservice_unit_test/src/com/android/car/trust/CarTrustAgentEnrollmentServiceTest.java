@@ -37,6 +37,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 
 import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.FlakyTest;
 
 import com.android.car.Utils;
 import com.android.car.trust.CarTrustAgentBleManager.SendMessageCallback;
@@ -118,6 +119,7 @@ public class CarTrustAgentEnrollmentServiceTest {
     }
 
     @Test
+    @FlakyTest
     public void testDisableEnrollment_startEnrollmentAdvertisingFail() {
         mCarTrustAgentEnrollmentService.setTrustedDeviceEnrollmentEnabled(false);
         mCarTrustAgentEnrollmentService.startEnrollmentAdvertising();
