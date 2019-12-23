@@ -174,7 +174,10 @@ public final class IExperimentalCarImpl extends IExperimentalCar.Stub {
             case ExperimentalCar.TEST_EXPERIMENTAL_FEATURE_SERVICE:
                 return new TestDemoExperimentalFeatureService();
             case ExperimentalCar.DRIVER_DISTRACTION_EXPERIMENTAL_FEATURE_SERVICE:
-                return new DriverDistractionExperimentalFeatureService();
+                return new DriverDistractionExperimentalFeatureService(
+                        mContext,
+                        new SystemTimeSource(),
+                        new SystemTimer());
             default:
                 return null;
         }

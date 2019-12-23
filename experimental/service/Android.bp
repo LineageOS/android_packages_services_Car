@@ -16,13 +16,12 @@
 
 // Build the Experimental Car service.
 
+experimentalcar_service_sources = ["src/**/*.java"]
 
 android_app {
     name: "ExperimentalCarService",
 
-    srcs: [
-        "src/**/*.java"
-    ],
+    srcs: experimentalcar_service_sources,
 
     resource_dirs: ["res"],
 
@@ -47,6 +46,35 @@ android_app {
     required: ["privapp_whitelist_com.android.experimentalcar"],
 
     // Disable build in PDK, missing aidl import breaks build
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+}
+
+//####################################################################################
+// Build a static library to help mocking various car services in testing. This is meant to be used
+// for internal unit tests around the car service.
+//####################################################################################
+android_library {
+    name: "experimentalcar-service-test-static-lib",
+
+    srcs: experimentalcar_service_sources,
+
+    resource_dirs: ["res"],
+
+    libs: [
+        "android.car",
+    ],
+
+    static_libs: [
+      "car-service-common-util-static-lib",
+      "car-experimental-api-static-lib",
+    ],
+
+    min_sdk_version: "25",
+
     product_variables: {
         pdk: {
             enabled: false,
