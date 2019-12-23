@@ -203,10 +203,23 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
-     * @return Value type of VehicleProperty.
-     * @hide
+     * Returns the value type of the vehicle property.
+     * <p>The value type could be one of the following:
+     * <ul>
+     *   <li>Boolean</li>
+     *   <li>Float</li>
+     *   <li>Float[]</li>
+     *   <li>Integer</li>
+     *   <li>Integer[]</li>
+     *   <li>Long</li>
+     *   <li>Long[]</li>
+     *   <li>String</li>
+     *   <li>byte[]</li>
+     *   <li>Object[]</li>
+     * </ul>
+     *
+     * @return the value type of the vehicle property.
      */
-    @SystemApi
     @NonNull
     public Class<T> getPropertyType() {
         return mType;

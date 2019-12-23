@@ -594,7 +594,6 @@ package android.car.drivingstate {
 package android.car.hardware {
 
   public final class CarPropertyConfig<T> implements android.os.Parcelable {
-    method @NonNull public Class<T> getPropertyType();
     method public static <T> android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(Class<T>, int, int, int);
   }
 

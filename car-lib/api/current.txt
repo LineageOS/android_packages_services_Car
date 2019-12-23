@@ -420,6 +420,7 @@ package android.car.hardware {
     method @Nullable public T getMinValue(int);
     method @Nullable public T getMinValue();
     method public int getPropertyId();
+    method @NonNull public Class<T> getPropertyType();
     method public boolean isGlobalProperty();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.hardware.CarPropertyConfig> CREATOR;
