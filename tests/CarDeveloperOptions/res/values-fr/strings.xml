@@ -1222,7 +1222,7 @@
     <string name="night_display_summary_on" msgid="6580571388791426596">"Activé - <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_on_auto_mode_never" msgid="5461580863060506687">"Ne jamais désactiver automatiquement"</string>
     <string name="night_display_summary_on_auto_mode_custom" msgid="2200631112239399233">"Désactiver automatiquement à <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_summary_on_auto_mode_twilight" msgid="8386769601369289561">"Désactiver automatiquement au lever du soleil"</string>
+    <string name="night_display_summary_on_auto_mode_twilight" msgid="8386769601369289561">"Se désactivera automatiquement au lever du soleil"</string>
     <string name="night_display_activation_on_manual" msgid="8379477527072027346">"Activer maintenant"</string>
     <string name="night_display_activation_off_manual" msgid="7776082151269794201">"Désactiver"</string>
     <string name="night_display_activation_on_twilight" msgid="5610294051700287249">"Activer jusqu\'au lever du soleil"</string>

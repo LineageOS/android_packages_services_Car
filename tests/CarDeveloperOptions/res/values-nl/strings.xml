@@ -4471,7 +4471,7 @@
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Suggestie verwijderd"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Ongedaan maken"</string>
     <string name="low_storage_summary" msgid="4562224870189133400">"Opslag is bijna vol. <xliff:g id="PERCENTAGE">%1$s</xliff:g> gebruikt - <xliff:g id="FREE_SPACE">%2$s</xliff:g> vrij"</string>
-    <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Feedback verzenden"</string>
+    <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Feedback sturen"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Wil je ons feedback geven over deze suggestie?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g> gekopieerd naar klembord."</string>
     <string name="search_bar_account_avatar_content_description" msgid="947628881535053409"></string>

@@ -370,7 +370,7 @@
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Account"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Geolocalizzazione"</string>
     <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Usa geolocalizzazione"</string>
-    <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Off"</string>
+    <string name="location_settings_summary_location_off" msgid="5563530256978372978">"OFF"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">On - <xliff:g id="COUNT_1">%1$d</xliff:g> app possono accedere alla posizione</item>
       <item quantity="one">On - <xliff:g id="COUNT_0">%1$d</xliff:g> app può accedere alla posizione</item>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_require_confirmation_details" msgid="8740564864091803429">"Chiedi sempre conferma per l\'autenticazione nelle app"</string>
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Rimuovi dati viso"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Il tuo viso può essere utilizzato per sbloccare il tuo dispositivo e accedere alle app. "<annotation id="url">"Ulteriori informazioni"</annotation></string>
-    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Rimuovere i dati del viso?"</string>
+    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Eliminare i dati del volto?"</string>
     <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"I dati registrati da Sblocco con il volto verranno eliminati in modo definitivo e sicuro. Dopo la rimozione, ti serviranno il tuo PIN, la tua sequenza o la tua password per sbloccare il telefono, accedere alle app e confermare i pagamenti."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Impronta digitale"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Gestisci impronte digitali"</string>
@@ -827,7 +827,7 @@
     <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Consenti il pagamento NFC e l\'utilizzo di biglietti per il trasporto pubblico solo quando lo schermo è sbloccato"</string>
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Pronto a trasmettere i contenuti dell\'app tramite NFC"</string>
-    <string name="android_beam_off_summary" msgid="7365818039159364600">"Off"</string>
+    <string name="android_beam_off_summary" msgid="7365818039159364600">"OFF"</string>
     <string name="nfc_disabled_summary" msgid="2181777971122724361">"Non disponibile perché la tecnologia NFC non è attiva"</string>
     <string name="android_beam_label" msgid="5340299879556025708">"Android Beam"</string>
     <string name="android_beam_explained" msgid="4501176353247859329">"Quando questa funzione è attiva, puoi trasmettere contenuti di app a un altro dispositivo che supporta la tecnologia NFC tenendo vicini i dispositivi. Ad esempio, puoi trasmettere pagine web, video di YouTube, contatti e altro ancora.\n\nÈ sufficiente avvicinare i dispositivi (generalmente mettendo a contatto le parti posteriori), quindi toccare lo schermo. L\'app stabilisce quali dati trasferire."</string>
@@ -1182,13 +1182,13 @@
     <string name="brightness_summary" msgid="8687101964451818730">"Regola la luminosità dello schermo"</string>
     <string name="auto_brightness_title" msgid="908511534369820426">"Luminosità adattiva"</string>
     <string name="auto_brightness_summary_on" msgid="121488862610275737">"Attiva"</string>
-    <string name="auto_brightness_summary_off" msgid="8569141123211510256">"Off"</string>
+    <string name="auto_brightness_summary_off" msgid="8569141123211510256">"OFF"</string>
     <string name="auto_brightness_summary_very_low" msgid="7625647285740629347">"Luminosità preferita molto bassa"</string>
     <string name="auto_brightness_summary_low" msgid="1829314781781906712">"Luminosità preferita bassa"</string>
     <string name="auto_brightness_summary_default" msgid="4095465958108128891">"Luminosità preferita predefinita"</string>
     <string name="auto_brightness_summary_high" msgid="8980041483278767898">"Luminosità preferita alta"</string>
     <string name="auto_brightness_summary_very_high" msgid="8891768063638513875">"Luminosità preferita molto alta"</string>
-    <string name="auto_brightness_off_title" msgid="6410562081118281572">"Off"</string>
+    <string name="auto_brightness_off_title" msgid="6410562081118281572">"OFF"</string>
     <string name="auto_brightness_very_low_title" msgid="8716493755125824074">"Molto bassa"</string>
     <string name="auto_brightness_low_title" msgid="5005479920075366970">"Bassa"</string>
     <string name="auto_brightness_default_title" msgid="5446692891470912829">"Predefinita"</string>
@@ -1202,7 +1202,7 @@
     <string name="display_white_balance_title" msgid="5747260735311935143">"Bilanciamento bianco display"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Screen aware"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"On/Lo schermo non si spegne se lo stai guardando"</string>
-    <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Off"</string>
+    <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"OFF"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Consente di impedire lo spegnimento dello schermo se lo stai guardando."</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Screen aware usa la fotocamera anteriore per controllare se qualcuno sta guardando lo schermo. Funziona sul dispositivo e le immagini non vengono mai memorizzate o inviate a Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Luminosità notturna"</string>
@@ -1215,7 +1215,7 @@
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Ora fine"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"Stato"</string>
     <string name="night_display_temperature_title" msgid="8375126629902616296">"Intensità"</string>
-    <string name="night_display_summary_off" msgid="8850539785332228069">"Off/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="night_display_summary_off" msgid="8850539785332228069">"OFF/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"Non verrà mai attivata automaticamente"</string>
     <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"Verrà attivata automaticamente alle ore <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"Verrà attivata automaticamente al tramonto"</string>
@@ -1246,7 +1246,7 @@
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Durante la ricarica"</string>
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Quando inserito nel dock"</string>
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"Mai"</string>
-    <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"Off"</string>
+    <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"OFF"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"Attiva il salvaschermo per controllare ciò che accade quando il telefono è inserito nel dock e/o in standby."</string>
     <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"Quando avviare"</string>
     <string name="screensaver_settings_current" msgid="4017556173596361672">"Salvaschermo attuale"</string>
@@ -2105,7 +2105,7 @@
       <item quantity="one"><xliff:g id="NUMBER_DEVICE_COUNT_0">%1$d</xliff:g> apparecchio acustico salvato</item>
     </plurals>
     <string name="accessibility_summary_state_enabled" msgid="7357731696603247963">"On"</string>
-    <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"Off"</string>
+    <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"OFF"</string>
     <string name="accessibility_summary_state_stopped" msgid="3170264683616172746">"Non funziona. Tocca per avere informazioni."</string>
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Questo servizio non funziona correttamente."</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"Mostra in Impostazioni rapide"</string>
@@ -2141,7 +2141,7 @@
     <string name="accessibility_vibration_intensity_high" msgid="7850793704772123134">"Vibrazione alta"</string>
     <string name="accessibility_menu_item_settings" msgid="6809813639403725032">"Impostazioni"</string>
     <string name="accessibility_feature_state_on" msgid="8649102771420898911">"On"</string>
-    <string name="accessibility_feature_state_off" msgid="7536392255214437050">"Off"</string>
+    <string name="accessibility_feature_state_off" msgid="7536392255214437050">"OFF"</string>
     <string name="captioning_preview_title" msgid="6072706647310074854">"Anteprima"</string>
     <string name="captioning_standard_options_title" msgid="4124898413348084226">"Opzioni standard"</string>
     <string name="captioning_locale" msgid="4734464353806207943">"Lingua"</string>
@@ -2188,7 +2188,7 @@
     <string name="accessibility_service_default_description" msgid="857921874644864502">"Nessuna descrizione fornita."</string>
     <string name="settings_button" msgid="8557747862035866953">"Impostazioni"</string>
     <string name="print_settings" msgid="7886184656544483072">"Stampa"</string>
-    <string name="print_settings_summary_no_service" msgid="634173687975841526">"Off"</string>
+    <string name="print_settings_summary_no_service" msgid="634173687975841526">"OFF"</string>
     <plurals name="print_settings_summary" formatted="false" msgid="7580293760281445137">
       <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> servizi di stampa attivi</item>
       <item quantity="one">1 servizio di stampa attivo</item>
@@ -2203,7 +2203,7 @@
     <string name="print_menu_item_settings" msgid="2654804159012579508">"Impostazioni"</string>
     <string name="print_menu_item_add_printers" msgid="8198201275621756510">"Aggiungi stampanti"</string>
     <string name="print_feature_state_on" msgid="1838010230650403367">"On"</string>
-    <string name="print_feature_state_off" msgid="208580346723223688">"Off"</string>
+    <string name="print_feature_state_off" msgid="208580346723223688">"OFF"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"Aggiungi servizio"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"Aggiungi stampante"</string>
     <string name="print_menu_item_search" msgid="1165316329772287360">"Cerca"</string>
@@ -2331,7 +2331,7 @@
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Usa Battery Manager"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Rileva quando le app scaricano la batteria"</string>
     <string name="battery_manager_on" msgid="5626982529932239656">"Opzione attiva/Rileva quando le app scaricano la batteria"</string>
-    <string name="battery_manager_off" msgid="9114027524232450371">"Off"</string>
+    <string name="battery_manager_off" msgid="9114027524232450371">"OFF"</string>
     <plurals name="battery_manager_app_restricted" formatted="false" msgid="6721813588142691216">
       <item quantity="other">%1$d app con restrizioni</item>
       <item quantity="one">%1$d app con restrizioni</item>
@@ -2543,7 +2543,7 @@
     <string name="emergency_tone_summary" msgid="8035940153401622240">"Imposta il comportamento in caso di chiamata di emergenza"</string>
     <string name="privacy_settings_title" msgid="3573891462732375772">"Backup"</string>
     <string name="backup_summary_state_on" msgid="1725597360282574647">"On"</string>
-    <string name="backup_summary_state_off" msgid="7138020503288730492">"Off"</string>
+    <string name="backup_summary_state_off" msgid="7138020503288730492">"OFF"</string>
     <string name="backup_section_title" msgid="8177209731777904656">"Backup e ripristino"</string>
     <string name="personal_data_section_title" msgid="9161854418510071558">"Dati personali"</string>
     <string name="backup_data_title" msgid="4461508563849583624">"Backup dei miei dati"</string>
@@ -3236,8 +3236,8 @@
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"Solo con priorità"</string>
     <string name="zen_mode_and_condition" msgid="4123722186007123567">"<xliff:g id="ZEN_MODE">%1$s</xliff:g>. <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_sound_summary_on_with_info" msgid="2539952366467518398">"On/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Off/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"Off"</string>
+    <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"OFF/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"OFF"</string>
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"On"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Chiedi ogni volta (a meno che l\'opzione non sia stata attivata automaticamente)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Fino alla disattivazione (a meno che l\'opzione non sia stata attivata automaticamente)"</string>
@@ -3548,7 +3548,7 @@
     <string name="device_feedback" msgid="4042352891448769818">"Invia feedback sul dispositivo"</string>
     <string name="restr_pin_enter_admin_pin" msgid="8577847751493521230">"Inserisci PIN amministratore"</string>
     <string name="switch_on_text" msgid="7100491749799298324">"On"</string>
-    <string name="switch_off_text" msgid="3539551289454353555">"Off"</string>
+    <string name="switch_off_text" msgid="3539551289454353555">"OFF"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"Blocco su schermo"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"Quando l\'impostazione è attiva, puoi usare il blocco su schermo per lasciare visibile la schermata corrente finché non la sblocchi.\n\nPer usare la funzione:\n\n1. Assicurati che il blocco su schermo sia attivo\n\n2. Apri Panoramica\n\n3. Tocca l\'icona dell\'app in alto nella schermata, quindi tocca Blocca"</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Richiedi sequenza di sblocco prima di sbloccare"</string>
@@ -3599,7 +3599,7 @@
     <string name="notifications_label" msgid="2792398288062643318">"Notifiche"</string>
     <string name="notifications_enabled" msgid="439339392141736137">"On"</string>
     <string name="notifications_enabled_with_info" msgid="7706460489443809452">"<xliff:g id="NOTIFICATIONS_SENT">%1$s</xliff:g>/<xliff:g id="NOTIFICATIONS_CATEGORIES_OFF">%2$s</xliff:g>"</string>
-    <string name="notifications_disabled" msgid="316658185757688983">"Off"</string>
+    <string name="notifications_disabled" msgid="316658185757688983">"OFF"</string>
     <string name="notifications_partly_blocked" msgid="6330451240669068819">"<xliff:g id="COUNT_0">%1$d</xliff:g> di <xliff:g id="COUNT_1">%2$d</xliff:g> categorie disattivate"</string>
     <string name="notifications_silenced" msgid="538923056987616372">"Senza audio"</string>
     <string name="notifications_redacted" msgid="308836040236690014">"Nessun contenuto riservato nella schermata di blocco"</string>
@@ -3984,7 +3984,7 @@
     <string name="unrestricted_data_saver" msgid="9139401849550738720">"Dati senza limitazioni"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"I dati in background sono disattivati"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"On"</string>
-    <string name="data_saver_off" msgid="7439439787358504018">"Off"</string>
+    <string name="data_saver_off" msgid="7439439787358504018">"OFF"</string>
     <string name="data_saver_switch_title" msgid="8244008132112735207">"Usa Risparmio dati"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"Uso dati senza limitazioni"</string>
     <string name="unrestricted_app_summary" msgid="2829141815077800483">"Consenti accesso senza limitazioni con Risparmio dati attivo"</string>
@@ -4137,7 +4137,7 @@
     <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"Per controllare le notifiche, scorri verso il basso sul sensore di impronte digitali sul retro del dispositivo."</string>
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"Visualizza rapidamente le notifiche"</string>
     <string name="gesture_setting_on" msgid="7573680730101327866">"On"</string>
-    <string name="gesture_setting_off" msgid="2540159841716890511">"Off"</string>
+    <string name="gesture_setting_off" msgid="2540159841716890511">"OFF"</string>
     <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="7233244080078311793">"Il bootloader è già sbloccato"</string>
     <string name="oem_unlock_enable_disabled_summary_connectivity" msgid="262986780389836168">"Devi prima connetterti a Internet"</string>
     <string name="oem_unlock_enable_disabled_summary_connectivity_or_locked" msgid="3331374502670483142">"Connettiti a Internet o contatta il tuo operatore"</string>
@@ -4260,7 +4260,7 @@
     <string name="show_operator_name_title" msgid="5056163028128447308">"Nome della rete"</string>
     <string name="show_operator_name_summary" msgid="6352180285743777497">"Nome della Rete Display nella bara di stato"</string>
     <string name="storage_manager_indicator" msgid="4255140732848476875">"Gestione memoria: <xliff:g id="STATUS">^1</xliff:g>"</string>
-    <string name="storage_manager_indicator_off" msgid="6404056007102580777">"Off"</string>
+    <string name="storage_manager_indicator_off" msgid="6404056007102580777">"OFF"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"Attiva"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"App istantanea"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"Disattivare la gestione della memoria?"</string>
@@ -4405,7 +4405,7 @@
     <string name="mobile_network_sim_name" msgid="8228870017368926761">"Nome SIM"</string>
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"Rinomina"</string>
     <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"Utilizza SIM"</string>
-    <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"Off"</string>
+    <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"OFF"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"Passare a <xliff:g id="CARRIER">%1$s</xliff:g>?"</string>
     <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"È possibile attivare una sola SIM scaricata alla volta.\n\nIl passaggio a <xliff:g id="CARRIER1">%1$s</xliff:g> non annullerà il servizio di <xliff:g id="CARRIER2">%2$s</xliff:g>."</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"Passa a <xliff:g id="CARRIER">%1$s</xliff:g>"</string>

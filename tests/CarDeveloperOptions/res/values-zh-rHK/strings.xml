@@ -1205,7 +1205,7 @@
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"關閉"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"防止在您望向螢幕時螢幕關閉。"</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"螢幕意識利用前置鏡頭偵測使用者是否正望向螢幕。此功能只在裝置上使用，同時圖片不會被儲存或傳送至 Google。"</string>
-    <string name="night_display_title" msgid="1305002424893349814">"夜燈模式"</string>
+    <string name="night_display_title" msgid="1305002424893349814">"夜間模式"</string>
     <string name="night_display_text" msgid="5330502493684652527">"「夜燈模式」會將螢幕調校至橙黃色，在光線昏暗的環境下看螢幕或閱讀時就更舒適，並讓您更易入睡。"</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"設定時間"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"無"</string>
@@ -2026,7 +2026,7 @@
     <string name="allow_bind_app_widget_activity_always_allow_bind" msgid="1185486443615658430">"永遠允許「<xliff:g id="WIDGET_HOST_NAME">%1$s</xliff:g>」建立小工具並存取其資料"</string>
     <string name="usage_stats_label" msgid="3128999956478977035">"用量統計資料"</string>
     <string name="testing_usage_stats" msgid="704965692323956976">"用量統計資料"</string>
-    <string name="display_order_text" msgid="2973620313510295873">"排序依據："</string>
+    <string name="display_order_text" msgid="2973620313510295873">"排序方式："</string>
     <string name="app_name_label" msgid="2258469951312794816">"應用程式"</string>
     <string name="last_time_used_label" msgid="1119322667349666930">"上次使用時間"</string>
     <string name="usage_time_label" msgid="5615725415876461039">"使用時間"</string>

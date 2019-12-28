@@ -2694,9 +2694,9 @@
     <string name="remove_account_label" msgid="5885425720323823387">"Odstrániť účet"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Pridať účet"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Chcete účet odstrániť?"</string>
-    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Odstránením tohto účtu budú z tabletu odstránené aj všetky správy, kontakty a ďalšie údaje!"</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Odstránením tohto účtu budú z telefónu odstránené aj všetky správy, kontakty a ďalšie dáta."</string>
-    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Odstránením tohto účtu budú zo zariadenia odstránené aj všetky správy, kontakty a ďalšie dáta."</string>
+    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Odstránením účtu odstránite z tabletu aj všetky správy, kontakty a ďalšie údaje tohto účtu."</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Odstránením účtu odstránite z telefónu aj všetky správy, kontakty a ďalšie údaje tohto účtu."</string>
+    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Odstránením účtu odstránite zo zariadenia aj všetky správy, kontakty a ďalšie údaje tohto účtu."</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Správca túto zmenu zakázal"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Nie je možné ručne synchronizovať"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"Synchronizácia tejto položky je momentálne zakázaná. Ak chcete toto nastavenie zmeniť, dočasne zapnite dátové prenosy na pozadí a automatickú synchronizáciu."</string>

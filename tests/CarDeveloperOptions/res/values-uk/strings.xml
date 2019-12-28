@@ -2574,7 +2574,7 @@
     <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Підтримка команд швидкого запуску та взаємодії"</string>
     <string name="voice_recognizer_preference_summary" msgid="3681161319745912594">"Просте перетворення мовлення на текст"</string>
     <string name="voice_interaction_security_warning" msgid="4986261746316889768">"Ця служба голосового вводу зможе постійно відстежувати голос і контролювати додатки, у яких увімкнено голосовий ввід, від вашого імені. Вона походить із додатка <xliff:g id="VOICE_INPUT_SERVICE_APP_NAME">%s</xliff:g>. Увімкнути цю службу?"</string>
-    <string name="tts_engine_preference_title" msgid="1183116842356275061">"Бажана система"</string>
+    <string name="tts_engine_preference_title" msgid="1183116842356275061">"Система за умовчанням"</string>
     <string name="tts_engine_settings_title" msgid="4079757915136562358">"Налаштування системи"</string>
     <string name="tts_sliders_title" msgid="1927481069989092278">"Темп і тон мовлення"</string>
     <string name="tts_engine_section_title" msgid="7796486438271227076">"Система"</string>
@@ -4309,7 +4309,7 @@
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Список додатків на вашому пристрої"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Час роботи й обсяг використаного трафіку в кожному додатку"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"Останній журнал мережевого трафіку"</string>
-    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"Останнє повідомлення про помилку"</string>
+    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"Останній звіт про помилку"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"Останній журнал безпеки"</string>
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"Немає"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"Установлені додатки"</string>

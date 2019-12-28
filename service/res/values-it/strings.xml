@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="car_permission_label" msgid="741004755205554376">"Accesso alle informazioni dell\'automobile"</string>
+    <string name="car_permission_label" msgid="741004755205554376">"Accesso alle informazioni dell\'auto"</string>
     <string name="car_permission_desc" msgid="162499818870052725">"Consente di accedere alle informazioni dell\'automobile."</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"Accesso alla videocamera dell\'automobile"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Consente di accedere alle videocamere dell\'automobile."</string>

@@ -1609,10 +1609,10 @@
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"Hotspot portátil"</string>
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Conexión Bluetooth"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Compartir conexión"</string>
-    <string name="tether_settings_title_all" msgid="6935843543433954181">"Hotspots y dispositivos portátiles"</string>
-    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Hotspot activado, conexión mediante dispositivo portátil"</string>
+    <string name="tether_settings_title_all" msgid="6935843543433954181">"Hotspot y conexión mediante dispositivos móviles"</string>
+    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Hotspot activado, conexión mediante dispositivo móvil"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Hotspot activado"</string>
-    <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Conexión mediante dispositivo portátil"</string>
+    <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Conexión mediante dispositivo móvil"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"No podrán establecerse conexiones a través del dispositivo portátil ni hotspots portátiles cuando se active el modo Ahorro de datos."</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"Conexión USB"</string>
@@ -1624,7 +1624,7 @@
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Compartiendo la conexión a Internet de <xliff:g id="DEVICE_NAME">%1$d</xliff:g> mediante Bluetooth"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"No se puede anclar a red a más de <xliff:g id="MAXCONNECTION">%1$d</xliff:g> dispositivos."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ya no se anclará a red."</string>
-    <string name="tethering_footer_info" msgid="8019555174339154124">"Usa la función de hotspot y conexión mediante dispositivo portátil para brindar acceso a Internet a otros dispositivos mediante tu conexión de datos móviles. Las apps también pueden crear un hotspot para compartir contenido con dispositivos cercanos."</string>
+    <string name="tethering_footer_info" msgid="8019555174339154124">"Usa la función de hotspot y conexión mediante dispositivo móvil para brindar acceso a Internet a otros dispositivos mediante tu conexión de datos móviles. Las apps también pueden crear un hotspot para compartir contenido con dispositivos cercanos."</string>
     <string name="tethering_help_button_text" msgid="7653022000284543996">"Ayuda"</string>
     <string name="network_settings_title" msgid="8516526011407061679">"Red móvil"</string>
     <string name="manage_mobile_plan_title" msgid="3312016665522553062">"Plan móvil"</string>

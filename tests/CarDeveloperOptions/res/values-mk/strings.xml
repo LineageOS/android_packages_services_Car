@@ -3316,7 +3316,7 @@
     <string name="notification_pulse_title" msgid="4861418327614907116">"Трепкај со сијаличката"</string>
     <string name="lock_screen_notifications_title" msgid="6889072265118747835">"На заклучен екран"</string>
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"При заклучен работен профил"</string>
-    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Прикажи ја целата содржина од известувањето"</string>
+    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Прикажи ја целата содржина од известувањата"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"Сокриј чувствителни содржини"</string>
     <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"Воопшто не прикажувај известувања"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"Кога уредот е заклучен, како сакате да се прикажуваат известувањата?"</string>

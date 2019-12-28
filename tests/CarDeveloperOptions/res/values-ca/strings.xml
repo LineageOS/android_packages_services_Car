@@ -1218,11 +1218,11 @@
     <string name="night_display_summary_off" msgid="8850539785332228069">"Desactivada / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"No s\'activarà mai automàticament"</string>
     <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"S\'activarà automàticament a les <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"S\'activarà automàticament quan es pongui el sol"</string>
+    <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"S\'activarà automàticament al vespre"</string>
     <string name="night_display_summary_on" msgid="6580571388791426596">"Activat / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_on_auto_mode_never" msgid="5461580863060506687">"No es desactivarà mai automàticament"</string>
     <string name="night_display_summary_on_auto_mode_custom" msgid="2200631112239399233">"Es desactivarà automàticament a les <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_summary_on_auto_mode_twilight" msgid="8386769601369289561">"Es desactivarà automàticament quan surti el sol"</string>
+    <string name="night_display_summary_on_auto_mode_twilight" msgid="8386769601369289561">"Es desactivarà automàticament a l\'alba"</string>
     <string name="night_display_activation_on_manual" msgid="8379477527072027346">"Activa ara"</string>
     <string name="night_display_activation_off_manual" msgid="7776082151269794201">"Desactiva ara"</string>
     <string name="night_display_activation_on_twilight" msgid="5610294051700287249">"Activa fins a l\'alba"</string>
@@ -2247,7 +2247,7 @@
     <string name="battery_stats_screen_on_label" msgid="1223495366609581497">"Pantalla activada"</string>
     <string name="battery_stats_gps_on_label" msgid="3944533098574423359">"GPS activat"</string>
     <string name="battery_stats_camera_on_label" msgid="557892808497848886">"Càmera activada"</string>
-    <string name="battery_stats_flashlight_on_label" msgid="162279812156241905">"Llanterna activada"</string>
+    <string name="battery_stats_flashlight_on_label" msgid="162279812156241905">"Llanterna encesa"</string>
     <string name="battery_stats_wifi_running_label" msgid="3223557320252465826">"Wi-Fi"</string>
     <string name="battery_stats_wake_lock_label" msgid="670884103452713535">"Activa"</string>
     <string name="battery_stats_phone_signal_label" msgid="2502589944816260503">"Senyal de xarxa mòbil"</string>
@@ -2625,8 +2625,8 @@
     <string name="header_add_an_account" msgid="8482614556580804956">"Afegeix un compte"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Vols suprimir el compte?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Si elimines aquest compte, se\'n suprimiran tots els missatges, els contactes i les altres dades de la tauleta."</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Si suprimeixes aquest compte, se n\'eliminaran tots els missatges, els contactes i altres dades del telèfon."</string>
-    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Si suprimeixes aquest compte, se\'n suprimiran tots els missatges, els contactes i la resta de dades del dispositiu."</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Si suprimeixes aquest compte, se\'n suprimiran tots els missatges, els contactes i altres dades del telèfon."</string>
+    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Si suprimeixes aquest compte, se\'n suprimiran tots els missatges, els contactes i altres dades del dispositiu."</string>
     <string name="remove_account_failed" msgid="491458185327106966">"L\'administrador no permet aquest canvi"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"No es pot sincronitzar manualment"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"En aquest moment, la sincronització d\'aquest element no està disponible. Per canviar la preferència, activa temporalment les dades en segon pla i la sincronització automàtica."</string>
@@ -3291,7 +3291,7 @@
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"Vibracions i altres sons"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"Notificacions"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"Enviades fa poc"</string>
-    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Mostra-les totes des de fa 7 dies"</string>
+    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Mostra totes les dels 7 darrers dies"</string>
     <string name="advanced_section_header" msgid="984680389373090015">"Configuració avançada"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"Notificacions de la feina"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"Prioritat de les notificacions automàtiques"</string>
