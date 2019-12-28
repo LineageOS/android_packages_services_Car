@@ -16,10 +16,23 @@ cc_library_headers {
     name: "computepipe_runner_includes",
     export_include_dirs: ["include"],
     static_libs: [
-         "libcomputepipeprotos",
+        "libcomputepipeprotos",
     ],
-    visibility:[
+    visibility: [
         "//packages/services/Car/computepipe/runner:__subpackages__",
-	"//packages/services/Car/computepipe/tests:__subpackages__",
+        "//packages/services/Car/computepipe/tests:__subpackages__",
+    ],
+}
+
+cc_library {
+    name: "computepipe_runner_component",
+    srcs: [
+        "RunnerComponent.cpp",
+    ],
+    header_libs: [
+        "computepipe_runner_includes",
+    ],
+    include_dirs: [
+        "packages/services/Car/computepipe",
     ],
 }

@@ -18,12 +18,46 @@
 #include <gtest/gtest.h>
 
 #include "OutputConfig.pb.h"
+#include "RunnerComponent.h"
 #include "StreamManager.h"
 #include "gmock/gmock-matchers.h"
 #include "types/Status.h"
 
 using namespace android::automotive::computepipe::runner::stream_manager;
 using namespace android::automotive::computepipe;
+using android::automotive::computepipe::runner::RunnerComponentInterface;
+using android::automotive::computepipe::runner::RunnerEvent;
+
+namespace {
+enum EventType {
+    ENTER = 0,
+    TRANSITION_COMPLETE,
+    ABORT,
+};
+
+class TestEvent : public RunnerEvent {
+  public:
+    TestEvent(EventType t) : mEventType(t) {
+    }
+    bool isPhaseEntry() const override {
+        return mEventType == EventType::ENTER;
+    }
+    bool isTransitionComplete() const override {
+        return mEventType == EventType::TRANSITION_COMPLETE;
+    }
+    bool isAborted() const override {
+        return mEventType == EventType::ABORT;
+    }
+    Status dispatchToComponent(
+        const std::shared_ptr<RunnerComponentInterface>& /* component */) override {
+        return SUCCESS;
+    }
+    ~TestEvent() = default;
+
+  private:
+    EventType mEventType;
+};
+}  // namespace
 
 class SemanticManagerTest : public ::testing::Test {
   protected:
@@ -36,7 +70,7 @@ class SemanticManagerTest : public ::testing::Test {
         proto::OutputConfig config;
         config.set_type(proto::PacketType::SEMANTIC_DATA);
         config.set_stream_name("semantic_stream");
-        mStreamManager = mFactory.getStreamManager(config);
+
         std::function<Status(std::shared_ptr<MemHandle>)> cb =
             [this](std::shared_ptr<MemHandle> handle) -> Status {
             this->mPacketSize = handle->getSize();
@@ -45,7 +79,7 @@ class SemanticManagerTest : public ::testing::Test {
 
             return SUCCESS;
         };
-        ASSERT_EQ(mStreamManager->setIpcDispatchCallback(cb), Status::SUCCESS);
+        mStreamManager = mFactory.getStreamManager(config, cb, 0);
     }
     void deleteCurrentPacket() {
         if (mCurrentPacket) {
@@ -66,23 +100,13 @@ class SemanticManagerTest : public ::testing::Test {
 };
 
 /**
- * Checks the ability to start semantic stream management
- * without config state
- */
-TEST_F(SemanticManagerTest, NoConfigTest) {
-    EXPECT_EQ(mStreamManager->start(), Status::ILLEGAL_STATE);
-    mStreamManager->setMaxInFlightPackets(0);
-    EXPECT_EQ(mStreamManager->start(), Status::SUCCESS);
-}
-
-/**
  * Checks Packet Queing without start.
  * Checks Packet Queuing with bad arguments.
  * Checks successful packet queuing.
  */
 TEST_F(SemanticManagerTest, PacketQueueTest) {
-    ASSERT_EQ(mStreamManager->setMaxInFlightPackets(0), Status::SUCCESS);
-    ASSERT_EQ(mStreamManager->start(), Status::SUCCESS);
+    auto e = TestEvent(EventType::ENTER);
+    ASSERT_EQ(mStreamManager->handleExecutionPhase(e), Status::SUCCESS);
     std::string fakeData("FakeData");
     uint32_t size = fakeData.size();
     EXPECT_EQ(mStreamManager->queuePacket(nullptr, size, 0), Status::INVALID_ARGUMENT);
