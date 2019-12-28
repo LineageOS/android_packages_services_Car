@@ -12,13 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.c
 
-#define LOG_TAG "RunnerIpcInterface"
-
 #include "InterfaceImpl.h"
 
-#include <android-base/logging.h>
+#include "OutputConfig.pb.h"
 #include "PacketDescriptor.pb.h"
 #include "PipeOptionsConverter.h"
+
+#define LOG_TAG "RunnerIpcInterface"
+#include <aidl/android/automotive/computepipe/runner/PacketDescriptor.h>
+#include <aidl/android/automotive/computepipe/runner/PacketDescriptorPacketType.h>
+#include <android-base/logging.h>
+#include <android/binder_auto_utils.h>
 
 namespace android {
 namespace automotive {
@@ -28,6 +32,8 @@ namespace {
 
 using ::aidl::android::automotive::computepipe::runner::IPipeStateCallback;
 using ::aidl::android::automotive::computepipe::runner::IPipeStream;
+using ::aidl::android::automotive::computepipe::runner::PacketDescriptor;
+using ::aidl::android::automotive::computepipe::runner::PacketDescriptorPacketType;
 using ::aidl::android::automotive::computepipe::runner::PipeDescriptor;
 using ::aidl::android::automotive::computepipe::runner::PipeState;
 using ::ndk::ScopedAStatus;
@@ -67,13 +73,65 @@ void deathNotifier(void* cookie) {
     iface->clientDied();
 }
 
+Status ToAidlPacketType(proto::PacketType type, PacketDescriptorPacketType& outType) {
+    switch (type) {
+        case proto::SEMANTIC_DATA:
+            outType = PacketDescriptorPacketType::SEMANTIC_DATA;
+            return Status::SUCCESS;
+        case proto::PIXEL_DATA:
+            outType = PacketDescriptorPacketType::PIXEL_DATA;
+            return Status::SUCCESS;
+        default:
+            LOG(ERROR) << "unknown packet type " << type;
+            return Status::INVALID_ARGUMENT;
+    }
+}
+
 }  // namespace
+
+Status InterfaceImpl::DispatchSemanticData(int32_t streamId,
+                                           const std::shared_ptr<MemHandle>& packetHandle) {
+    PacketDescriptor desc;
+
+    if (mPacketHandlers.find(streamId) == mPacketHandlers.end()) {
+        LOG(ERROR) << "Bad streamId";
+        return Status::INVALID_ARGUMENT;
+    }
+    Status status = ToAidlPacketType(packetHandle->getType(), desc.type);
+    if (status != SUCCESS) {
+        return status;
+    }
+    desc.data = packetHandle->getData();
+    desc.size = packetHandle->getSize();
+    if (static_cast<int32_t>(desc.data.size()) != desc.size) {
+        LOG(ERROR) << "mismatch in char data size and reported size";
+        return Status::INVALID_ARGUMENT;
+    }
+    desc.sourceTimeStampMillis = packetHandle->getTimeStamp();
+    desc.bufId = 0;
+    ScopedAStatus ret = mPacketHandlers[streamId]->deliverPacket(desc);
+    if (!ret.isOk()) {
+        LOG(ERROR) << "Dropping Semantic packet due to error ";
+    }
+    return Status::SUCCESS;
+}
 
 // Thread-safe function to deliver new packets to client.
 Status InterfaceImpl::newPacketNotification(int32_t streamId,
                                             const std::shared_ptr<MemHandle>& packetHandle) {
     // TODO(146464279) implement.
-    (void)packetHandle;
+    if (!packetHandle) {
+        LOG(ERROR) << "invalid packetHandle";
+        return Status::INVALID_ARGUMENT;
+    }
+    proto::PacketType packetType = packetHandle->getType();
+    switch (packetType) {
+        case proto::SEMANTIC_DATA:
+            return DispatchSemanticData(streamId, packetHandle);
+        default:
+            LOG(ERROR) << "Unsupported packet type " << packetHandle->getType();
+            return Status::INVALID_ARGUMENT;
+    }
     return Status::SUCCESS;
 }
 

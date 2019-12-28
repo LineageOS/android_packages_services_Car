@@ -20,12 +20,11 @@
 #include <memory>
 #include <string>
 
-#include "RunnerInterfaceCallbacks.h"
 #include "MemHandle.h"
+#include "Options.pb.h"
+#include "RunnerInterfaceCallbacks.h"
 #include "types/GraphState.h"
 #include "types/Status.h"
-
-#include "Options.pb.h"
 
 namespace android {
 namespace automotive {
@@ -75,6 +74,9 @@ class InterfaceImpl : public aidl::android::automotive::computepipe::runner::BnP
     void clientDied();
 
   private:
+    // Dispatch semantic data to client. Has copy semantics and does not expect
+    // client to invoke doneWithPacket.
+    Status DispatchSemanticData(int32_t streamId, const std::shared_ptr<MemHandle>& packetHandle);
     const proto::Options mGraphOptions;
     const RunnerInterfaceCallbacks& mRunnerInterfaceCallbacks;
 
