@@ -2623,7 +2623,7 @@
     <string name="header_account_settings" msgid="8586173964125512219">"Kontuaren ezarpenak"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"Kendu kontua"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Gehitu kontu bat"</string>
-    <string name="really_remove_account_title" msgid="4166512362915154319">"Kontua kendu?"</string>
+    <string name="really_remove_account_title" msgid="4166512362915154319">"Kontua kendu nahi duzu?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Kontua kentzen baduzu, bere mezu, kontaktu eta bestelako datu guztiak tabletatik ezabatuko dira!"</string>
     <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Kontua kentzen baduzu, bere mezu, kontaktu eta bestelako datu guztiak telefonotik ezabatuko dira!"</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Kontua kentzen baduzu, bertako mezu, kontaktu eta bestelako datu guztiak ezabatuko dira gailutik!"</string>
@@ -4157,8 +4157,8 @@
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"Sinkronizatu laneko datuak automatikoki"</string>
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"Utzi aplikazioei datuak automatikoki freskatzen"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"Kontuaren sinkronizazioa"</string>
-    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$d</xliff:g> elementuk aktibatuta dute sinkronizazioa"</string>
-    <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Elementu guztiek aktibatuta dute sinkronizazioa"</string>
+    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$d</xliff:g> elementuk aktibatuta daukate sinkronizazioa"</string>
+    <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Elementu guztiek aktibatuta daukate sinkronizazioa"</string>
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"Elementu guztiek desaktibatuta dute sinkronizazioa"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"Gailu kudeatuaren informazioa"</string>
     <string name="enterprise_privacy_settings_summary_generic" msgid="5557859169062703683">"Erakundeak kudeatzen dituen aldaketak eta ezarpenak"</string>

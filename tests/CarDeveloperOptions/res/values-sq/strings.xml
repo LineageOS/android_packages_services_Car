@@ -2661,7 +2661,7 @@
     <string name="data_usage_menu_show_ethernet" msgid="2130574690318410238">"Shfaq përdorimin e Eternetit"</string>
     <string name="data_usage_menu_hide_ethernet" msgid="1191233197312414533">"Fshih përdorimin e eternetit"</string>
     <string name="data_usage_menu_metered" msgid="3087525150259956831">"Kufizimet e rrjetit"</string>
-    <string name="data_usage_menu_auto_sync" msgid="3350154877737572146">"Të dhënat e autosinkronizimit"</string>
+    <string name="data_usage_menu_auto_sync" msgid="3350154877737572146">"Të dhënat e sinkronizimit automatik"</string>
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"Kartat SIM"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"U ndërpre në kufi"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Auto-sinkronizo të dhënat"</string>

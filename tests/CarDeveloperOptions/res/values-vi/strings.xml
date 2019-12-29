@@ -3183,7 +3183,7 @@
     <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"Đặt quy tắc Không làm phiền"</string>
     <string name="zen_mode_schedule_title" msgid="5275268813192802631">"Lên lịch"</string>
     <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"Sử dụng lịch biểu"</string>
-    <string name="zen_mode_option_important_interruptions" msgid="5173944276846940149">"Chỉ ưu tiên"</string>
+    <string name="zen_mode_option_important_interruptions" msgid="5173944276846940149">"Chỉ cho các mục ưu tiên"</string>
     <string name="zen_mode_option_alarms" msgid="4843278125235203076">"Chỉ chuông báo"</string>
     <string name="zen_mode_option_no_interruptions" msgid="4723700274519260852">"Hoàn toàn tắt tiếng"</string>
     <string name="zen_mode_summary_combination" msgid="6960111215170691605">"<xliff:g id="MODE">%1$s</xliff:g>: <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
@@ -3233,7 +3233,7 @@
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"Chế độ Không làm phiền đã được một ứng dụng (<xliff:g id="APP_NAME">%s</xliff:g>) bật tự động"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"Chế độ Không làm phiền đang bật đối với <xliff:g id="RULE_NAMES">%s</xliff:g> với các mục cài đặt tùy chỉnh."</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" Xem mục cài đặt tùy chỉnh"</annotation></string>
-    <string name="zen_interruption_level_priority" msgid="9178419297408319234">"Chỉ ưu tiên"</string>
+    <string name="zen_interruption_level_priority" msgid="9178419297408319234">"Chỉ cho các mục ưu tiên"</string>
     <string name="zen_mode_and_condition" msgid="4123722186007123567">"<xliff:g id="ZEN_MODE">%1$s</xliff:g>. <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_sound_summary_on_with_info" msgid="2539952366467518398">"Đang bật / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Đang tắt / <xliff:g id="ID_1">%1$s</xliff:g>"</string>

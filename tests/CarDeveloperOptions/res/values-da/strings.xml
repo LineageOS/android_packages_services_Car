@@ -253,8 +253,8 @@
     <string name="sdcard_settings_not_present_status" product="nosdcard" msgid="5419085128792417589">"USB-lageret er ikke monteret."</string>
     <string name="sdcard_settings_not_present_status" product="default" msgid="5831286239151349794">"Der er intet SD-kort."</string>
     <string name="sdcard_settings_available_bytes_label" msgid="2392868635606041278">"Ledige bytes:"</string>
-    <string name="sdcard_settings_mass_storage_status" product="nosdcard" msgid="5888349723543445382">"USB-lageret bruges som masselagringsenhed."</string>
-    <string name="sdcard_settings_mass_storage_status" product="default" msgid="637014061735266364">"SD-kortet bruges som masselagringsenhed."</string>
+    <string name="sdcard_settings_mass_storage_status" product="nosdcard" msgid="5888349723543445382">"USB-lageret bruges som masselagerenhed."</string>
+    <string name="sdcard_settings_mass_storage_status" product="default" msgid="637014061735266364">"SD-kortet bruges som masselagerenhed."</string>
     <string name="sdcard_settings_unmounted_status" product="nosdcard" msgid="1489916516292644696">"Du kan nu fjerne USB-lageret."</string>
     <string name="sdcard_settings_unmounted_status" product="default" msgid="6250598657624241686">"Du kan nu fjerne SD-kortet."</string>
     <string name="sdcard_settings_bad_removal_status" product="nosdcard" msgid="4694941967864756404">"USB-lager fjernet under brug!"</string>
@@ -1210,7 +1210,7 @@
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Tidsplan"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Ingen"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Aktiveres på valgt tidspunkt"</string>
-    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Aktiveres fra sol ned til sol op"</string>
+    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Aktiveres fra solnedgang til solopgang"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Starttidspunkt"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Sluttidspunkt"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"Status"</string>

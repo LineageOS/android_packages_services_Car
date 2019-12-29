@@ -791,7 +791,7 @@
     <string name="bluetooth_pan_nap_profile_summary_connected" msgid="3103296701913705646">"Deler lokal internettilkobling med enhet"</string>
     <string name="bluetooth_dock_settings" msgid="3193180757893817101">"Innstillinger for forankringsstasjon"</string>
     <string name="bluetooth_dock_settings_title" msgid="4444650787249778130">"Bruk forankring til lyd"</string>
-    <string name="bluetooth_dock_settings_headset" msgid="6043070852100434218">"Som høyttalertelefon"</string>
+    <string name="bluetooth_dock_settings_headset" msgid="6043070852100434218">"Som høyttaler"</string>
     <string name="bluetooth_dock_settings_a2dp" msgid="6618893632901282661">"For musikk og medier"</string>
     <string name="bluetooth_dock_settings_remember" msgid="5512957564380371067">"Husk innstillinger"</string>
     <string name="bluetooth_max_connected_audio_devices_string" msgid="6799012540303500020">"Maksimalt antall Bluetooth-lydenheter"</string>

@@ -1243,7 +1243,7 @@
     <string name="night_display_text" msgid="5330502493684652527">"Nočna svetloba zaslon obarva z jantarnim odtenkom. To olajša gledanje na zaslon ali branje pri šibki svetlobi in vam lahko pomaga prej zaspati."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Urnik"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Brez"</string>
-    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Vklop ob poljubni nastavljeni uri"</string>
+    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Vklop ob poljubni uri"</string>
     <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Vklop od sončn. zahoda do vzhoda"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Začetni čas"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Končni čas"</string>
@@ -2085,7 +2085,7 @@
     <string name="talkback_title" msgid="3717960404234260050">"TalkBack"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"Bralnik zaslona je predvsem za slepe in slabovidne"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"Če želite slišati vsebino elementov na zaslonu, se jih dotaknite"</string>
-    <string name="accessibility_captioning_title" msgid="5878371993023439642">"Napisi"</string>
+    <string name="accessibility_captioning_title" msgid="5878371993023439642">"Podnapisi"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Povečava"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Povečevanje s trikratnim dotikom"</string>
     <string name="accessibility_screen_magnification_navbar_title" msgid="400655612610761242">"Povečevanje z gumbom"</string>
@@ -2209,7 +2209,7 @@
     <string name="captioning_edge_color" msgid="4330622137047993780">"Barva roba"</string>
     <string name="captioning_edge_type" msgid="4414946407430588162">"Vrsta roba"</string>
     <string name="captioning_typeface" msgid="7893208796949341767">"Skupina pisav"</string>
-    <string name="captioning_preview_text" msgid="4877753964772618049">"Napisi bodo videti tako:"</string>
+    <string name="captioning_preview_text" msgid="4877753964772618049">"Podnapisi bodo videti tako:"</string>
     <string name="captioning_preview_characters" msgid="6469599599352973561">"Aa"</string>
     <string name="locale_default" msgid="910074908458214054">"Privzeto"</string>
     <string name="color_title" msgid="132875486061816584">"Barva"</string>
@@ -3237,7 +3237,7 @@
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Vibriranje"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Zvoki ob zagonu"</string>
     <string name="live_caption_title" msgid="7926591158657997051">"Samodejni podnapisi"</string>
-    <string name="live_caption_summary" msgid="9064771862352393125">"Samodejni napisi predstavnosti"</string>
+    <string name="live_caption_summary" msgid="9064771862352393125">"Samodejni podnapisi predstavnosti"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Nikoli"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
       <item quantity="one"><xliff:g id="ON_COUNT">%d</xliff:g> omogočen</item>

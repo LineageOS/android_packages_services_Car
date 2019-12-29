@@ -820,7 +820,7 @@
     <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"ડીબગ કરવા યોગ્ય ઍપ માટે બાઇટકોડને ચકાસવા ARTને મંજૂરી આપો"</string>
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"NFC"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"જ્યારે ટેબ્લેટ બીજા ઉપકરણને ટચ કરે ત્યારે ડેટા વિનિમયની મંજૂરી આપો"</string>
-    <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"જ્યારે ફોન બીજા ઉપકરણને ટચ કરે ત્યારે ડેટા વિનિમયની મંજૂરી આપો"</string>
+    <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"જ્યારે ફોન બીજા ડિવાઇસને ટચ કરે ત્યારે ડેટા વિનિમયની મંજૂરી આપો"</string>
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"NFC ચાલુ કરો"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"NFC આ ઉપકરણ અને અન્ય નજીકના ઉપકરણો અથવા લક્ષ્યો વચ્ચે ડેટાની આપ-લે કરે છે, જેમ કે ચુકવણી ટર્મિનલ્સ, અ‍ૅક્સેસ રીડર્સ અને ક્રિયા-પ્રતિક્રિયાત્મક જાહેરાતો અથવા ટૅગ્સ."</string>
     <string name="nfc_secure_settings_title" msgid="5153751163174916581">"NFCને સુરક્ષિત કરો"</string>
@@ -1165,7 +1165,7 @@
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"વ્યક્તિગત એકાઉન્ટ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="search_settings" msgid="5809250790214921377">"શોધો"</string>
     <string name="display_settings" msgid="1045535829232307190">"ડિસ્પ્લે"</string>
-    <string name="accelerometer_title" msgid="2427487734964971453">"સ્ક્રીનને આપમેળે ફેરવો"</string>
+    <string name="accelerometer_title" msgid="2427487734964971453">"ઑટો રોટેટ સ્ક્રીન"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"રંગો"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"કુદરતી"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"બુસ્ટ કરેલ"</string>
@@ -1216,7 +1216,7 @@
     <string name="night_display_status_title" msgid="1727020934735770319">"સ્થિતિ"</string>
     <string name="night_display_temperature_title" msgid="8375126629902616296">"તીવ્રતા"</string>
     <string name="night_display_summary_off" msgid="8850539785332228069">"બંધ / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"આપમેળે ક્યારેય ચાલુ નહીં થાય"</string>
+    <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"ક્યારેય ઑટોમૅટિક રીતે ચાલુ નહીં થાય"</string>
     <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"<xliff:g id="ID_1">%1$s</xliff:g> વાગ્યે આપમેળે ચાલુ થઈ જશે"</string>
     <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"સૂર્યાસ્ત સમયે આપમેળે ચાલુ થઈ જશે"</string>
     <string name="night_display_summary_on" msgid="6580571388791426596">"ચાલુ / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
@@ -2379,7 +2379,7 @@
     <string name="usage_type_data_wifi_send" msgid="4457097885099163617">"વાઇ-ફાઇ પૅકેટ્સ મોકલ્યાં"</string>
     <string name="usage_type_data_wifi_recv" msgid="6629526425662663926">"વાઇ-ફાઇ પૅકેટ્સ પ્રાપ્ત થયાં"</string>
     <string name="usage_type_audio" msgid="510459400845396879">"ઑડિઓ"</string>
-    <string name="usage_type_video" msgid="8161701367674306793">"વીડિઓ"</string>
+    <string name="usage_type_video" msgid="8161701367674306793">"વીડિયો"</string>
     <string name="usage_type_camera" msgid="2276450385733155264">"કૅમેરો"</string>
     <string name="usage_type_flashlight" msgid="954750302897154167">"ફ્લેશલાઇટ"</string>
     <string name="usage_type_on_time" msgid="4622180623970638221">"સમય ચાલુ"</string>
@@ -2970,7 +2970,7 @@
     <string name="restriction_nfc_enable_title" msgid="5146674482590550598">"NFC"</string>
     <string name="restriction_nfc_enable_summary_config" msgid="405349698260328073">"જ્યારે આ <xliff:g id="DEVICE_NAME">%1$s</xliff:g> બીજા NFC ઉપકરણને ટચ કરે ત્યારે ડેટા ફેરબદલીની મંજૂરી આપો"</string>
     <string name="restriction_nfc_enable_summary" product="tablet" msgid="3292205836938064931">"જ્યારે ટેબ્લેટ બીજા ઉપકરણને ટચ કરે ત્યારે ડેટા વિનિમયની મંજૂરી આપો"</string>
-    <string name="restriction_nfc_enable_summary" product="default" msgid="226439584043333608">"જ્યારે ફોન બીજા ઉપકરણને ટચ કરે ત્યારે ડેટા વિનિમયની મંજૂરી આપો"</string>
+    <string name="restriction_nfc_enable_summary" product="default" msgid="226439584043333608">"જ્યારે ફોન બીજા ડિવાઇસને ટચ કરે ત્યારે ડેટા વિનિમયની મંજૂરી આપો"</string>
     <string name="restriction_location_enable_title" msgid="358506740636434856">"સ્થાન"</string>
     <string name="restriction_location_enable_summary" msgid="4159500201124004463">"એપ્લિકેશન્સને તમારી સ્થાન માહિતીનો ઉપયોગ કરવા દો"</string>
     <string name="wizard_back" msgid="223654213898117594">"પાછળ"</string>

@@ -1216,7 +1216,7 @@
     <string name="night_display_status_title" msgid="1727020934735770319">"სტატუსი"</string>
     <string name="night_display_temperature_title" msgid="8375126629902616296">"ინტენსივობა"</string>
     <string name="night_display_summary_off" msgid="8850539785332228069">"გამორთულია / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"არასოდეს ჩაირთოს ავტომატურად"</string>
+    <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"არასოდეს ჩაირთვება ავტომატურად"</string>
     <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"ავტომატურად ჩაირთვება <xliff:g id="ID_1">%1$s</xliff:g>-ზე"</string>
     <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"ავტომატურად ჩაირთვება მზის ჩასვლისას"</string>
     <string name="night_display_summary_on" msgid="6580571388791426596">"ჩართულია / <xliff:g id="ID_1">%1$s</xliff:g>"</string>

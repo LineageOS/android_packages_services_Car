@@ -1180,7 +1180,7 @@
     <string name="brightness" msgid="7309120144111305275">"উজ্জ্বলতার স্তর"</string>
     <string name="brightness_title" msgid="5660190946911149690">"উজ্জ্বলতা"</string>
     <string name="brightness_summary" msgid="8687101964451818730">"স্ক্রীনের উজ্জ্বলতা সামঞ্জস্য করুন"</string>
-    <string name="auto_brightness_title" msgid="908511534369820426">"অ্যাডাপ্টিভ উজ্জ্বলতা"</string>
+    <string name="auto_brightness_title" msgid="908511534369820426">"অভিযোজিত উজ্জ্বলতা"</string>
     <string name="auto_brightness_summary_on" msgid="121488862610275737">"চালু আছে"</string>
     <string name="auto_brightness_summary_off" msgid="8569141123211510256">"বন্ধ আছে"</string>
     <string name="auto_brightness_summary_very_low" msgid="7625647285740629347">"পছন্দের উজ্জ্বলতার মান খুব কম"</string>
@@ -3125,7 +3125,7 @@
     <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"ব্যাটারি সেভার, স্টিকি, লেগে থাকা, পাওয়ার সেভার, ব্যাটারি"</string>
     <string name="default_sound" msgid="6675629744816442953">"ডিফল্ট সাউন্ড"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"রিং ভলিউম <xliff:g id="PERCENTAGE">%1$s</xliff:g> তে রয়েছে"</string>
-    <string name="sound_dashboard_summary" msgid="5187301919242823508">"ভলিউম, কম্পন, বিরক্ত করবে না"</string>
+    <string name="sound_dashboard_summary" msgid="5187301919242823508">"ভলিউম, ভাইব্রেশন, বিরক্ত করবে না"</string>
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"রিঙ্গারকে ভাইব্রেট অবস্থায় সেট করা হয়েছে"</string>
     <string name="sound_settings_summary_silent" msgid="899823817462768876">"রিঙ্গারকে নীরব অবস্থায় সেট করা হয়েছে"</string>
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"রিং ভলিউম ৮০% তে রয়েছে"</string>

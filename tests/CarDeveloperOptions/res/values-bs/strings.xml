@@ -3732,7 +3732,7 @@
     <string name="usage_access" msgid="2023443456361489516">"Pristup korištenju"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"Dopusti pristup korištenju"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Postavke upotrebe aplikacija"</string>
-    <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"Vrijeme upotrebe"</string>
+    <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"Vrijeme korištenja uređaja"</string>
     <string name="usage_access_description" msgid="2178083292760305207">"Pristup korištenju omogućava aplikaciji da prati koje druge aplikacije koristite i koliko često, kao i da vidi vašeg mobilnog operatera, postavke jezika i druge detalje."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"Memorija"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"Detalji o memoriji"</string>

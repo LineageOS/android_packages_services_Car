@@ -2340,7 +2340,7 @@
     <string name="power_usage_level_and_status" msgid="8873534076894160727">"<xliff:g id="LEVEL">%1$s</xliff:g> - <xliff:g id="STATUS">%2$s</xliff:g>"</string>
     <string name="power_discharge_remaining" msgid="3461915627093471868">"الوقت المتبقي: <xliff:g id="REMAIN">%1$s</xliff:g>"</string>
     <string name="power_charge_remaining" msgid="2730510256218879651">"<xliff:g id="UNTIL_CHARGED">%1$s</xliff:g> للشحن"</string>
-    <string name="background_activity_title" msgid="7207836362312111483">"تقييد الخلفية"</string>
+    <string name="background_activity_title" msgid="7207836362312111483">"حظر العمل في الخلفية"</string>
     <string name="background_activity_summary" msgid="582372194738538145">"السماح بتشغيل التطبيق في الخلفية"</string>
     <string name="background_activity_summary_disabled" msgid="457944930942085876">"غير مسموح بتشغيل التطبيق في الخلفية"</string>
     <string name="background_activity_summary_whitelisted" msgid="4713321059375873828">"يتعذر تقييد استخدام الخلفية."</string>
@@ -2439,7 +2439,7 @@
     <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"لتوفير شحن البطارية، أوقف <xliff:g id="APP">%1$s</xliff:g> عن استخدام البطارية في الخلفية علمًا بأن هذا التطبيق قد لا يعمل على نحو صحيح وقد تتأخر الإشعارات."</string>
     <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"لتوفير شحن البطارية، أوقف هذه التطبيقات عن استخدام البطارية في الخلفية علمًا بأن التطبيقات المقيدة قد لا تعمل على نحو صحيح وقد تتأخر الإشعارات.\n\nالتطبيقات:"</string>
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"لتوفير شحن البطارية، أوقف هذه التطبيقات عن استخدام البطارية في الخلفية علمًا بأن التطبيقات المقيدة قد لا تعمل على نحو صحيح وقد تتأخر الإشعارات.\n\nالتطبيقات:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
-    <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"تقييد"</string>
+    <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"حظر التشغيل"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"هل تريد إزالة التقييد؟"</string>
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"سيتمكّن هذا التطبيق من استخدام البطارية في الخلفية، وقد يؤدي ذلك إلى نفاد شحنها قبل الوقت المتوقع."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"إزالة"</string>
@@ -3463,7 +3463,7 @@
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"الأصوات والاهتزازات الأخرى"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"الإشعارات"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"تم إرسالها مؤخرًا"</string>
-    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"عرض الكل من آخر 7 أيام"</string>
+    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"عرض كل التطبيقات من آخر 7 أيام"</string>
     <string name="advanced_section_header" msgid="984680389373090015">"إعدادات متقدّمة"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"إشعارات العمل"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"إعداد أولوية الإشعارات التلقائية"</string>
@@ -4433,7 +4433,7 @@
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"مزامنة بيانات العمل تلقائيًا"</string>
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"السماح للتطبيقات بتحديث البيانات تلقائيًا"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"مزامنة الحساب"</string>
-    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"تم تفعيل المزامنة لـ <xliff:g id="ID_1">%1$d</xliff:g> من إجمالي <xliff:g id="ID_2">%2$d</xliff:g> عناصر"</string>
+    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"تم تفعيل المزامنة لـ <xliff:g id="ID_1">%1$d</xliff:g> من إجمالي <xliff:g id="ID_2">%2$d</xliff:g> عنصر."</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"تم تفعيل المزامنة لكل العناصر"</string>
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"المزامنة متوقفة لكل العناصر"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"معلومات الجهاز المُدار"</string>

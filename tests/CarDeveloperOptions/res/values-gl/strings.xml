@@ -1613,7 +1613,7 @@
     <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Zona wifi e conexión compartida activadas"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Zona wifi activada"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Conexión compartida activada"</string>
-    <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Non se pode compartir a conexión nin utilizar zonas wifi portátiles mentres o economizador de datos estea activado"</string>
+    <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Non se pode compartir a conexión nin utilizar zonas wifi portátiles mentres o aforro de datos estea activado"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"Compartir conexión por USB"</string>
     <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Comparte a conexión a Internet do teléfono por USB"</string>
@@ -3893,7 +3893,7 @@
     <string name="condition_battery_summary" msgid="1236078243905690620">"Hai funcións restrinxidas"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Datos móbiles desactivados"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Internet só está dispoñible mediante a wifi"</string>
-    <string name="condition_bg_data_title" msgid="184684435298857712">"Economizador de datos"</string>
+    <string name="condition_bg_data_title" msgid="184684435298857712">"Aforro de datos"</string>
     <string name="condition_bg_data_summary" msgid="5194942860807136682">"Hai funcións restrinxidas"</string>
     <string name="condition_work_title" msgid="9046811302347490371">"Perfil de traballo desactivado"</string>
     <string name="condition_work_summary" msgid="5586134491975748565">"Para aplicacións e notificacións"</string>
@@ -3960,8 +3960,8 @@
     <string name="configure" msgid="8232696842838580549">"Configurar"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Outras aplicacións incluídas no uso"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> aplicacións poden usar datos sen restricións cando o Economizador de datos está activado</item>
-      <item quantity="one">1 aplicación pode usar datos sen restricións cando o Economizador de datos está activado</item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> aplicacións poden usar datos sen restricións cando o aforro de datos está activado</item>
+      <item quantity="one">1 aplicación pode usar datos sen restricións cando o aforro de datos está activado</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"Datos principais"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Datos wifi"</string>
@@ -3981,14 +3981,14 @@
     <string name="no_carrier_update_now_text" msgid="4405472895804759042">"Actualizado agora mesmo"</string>
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"Ver plan"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"Ver detalles"</string>
-    <string name="data_saver_title" msgid="7903308134514179256">"Economizador de datos"</string>
+    <string name="data_saver_title" msgid="7903308134514179256">"Aforro de datos"</string>
     <string name="unrestricted_data_saver" msgid="9139401849550738720">"Datos sen restricións"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Desactiváronse os datos en segundo plano"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"Activado"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Desactivado"</string>
-    <string name="data_saver_switch_title" msgid="8244008132112735207">"Usar Economizador de datos"</string>
+    <string name="data_saver_switch_title" msgid="8244008132112735207">"Usar Aforro de datos"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"Uso de datos sen restricións"</string>
-    <string name="unrestricted_app_summary" msgid="2829141815077800483">"Acceso sen restricións co Economizador de datos activado"</string>
+    <string name="unrestricted_app_summary" msgid="2829141815077800483">"Acceso sen restricións co aforro de datos activado"</string>
     <string name="home_app" msgid="3695063566006954160">"Aplicación de Inicio"</string>
     <string name="no_default_home" msgid="1518949210961918497">"Non hai inicio predeterminado"</string>
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"Inicio seguro"</string>

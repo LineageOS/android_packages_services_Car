@@ -2267,10 +2267,10 @@
     <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"Таблет батарейг цаана энгийн байдлаар ашигладаг"</string>
     <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"Төхөөрөмж батарейг цаана энгийн байдлаар ашигладаг"</string>
     <string name="battery_tip_low_battery_title" msgid="6784043681672161175">"Бага батерейны багтаамж"</string>
-    <string name="battery_tip_low_battery_summary" msgid="9151355911381188604">"Батерейны амь бага байна"</string>
-    <string name="battery_tip_smart_battery_title" product="default" msgid="5517122075918038665">"Утасныхаа батерейны амийг сайжруулах"</string>
-    <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"Таблетынхаа батерейны амийг сайжруулах"</string>
-    <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Төхөөрөмжийнхөө батерейны амийг сайжруулах"</string>
+    <string name="battery_tip_low_battery_summary" msgid="9151355911381188604">"Батарейн ажиллах хугацаа бага байна"</string>
+    <string name="battery_tip_smart_battery_title" product="default" msgid="5517122075918038665">"Утасныхаа батарейн ажиллах хугацааг нэмэгдүүлэх"</string>
+    <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"Таблетынхаа батарейн ажиллах хугацааг нэмэгдүүлэх"</string>
+    <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Төхөөрөмжийнхөө батарейн ажиллах хугацааг нэмэгдүүлэх"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Батерейны менежерийг асаах"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Тэжээл хэмнэгчийг асаах"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Батерей ердийнхөөс хурдан дуусаж болзошгүй"</string>
@@ -2623,7 +2623,7 @@
     <string name="header_account_settings" msgid="8586173964125512219">"Акаунтын тохиргоо"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"Бүртгэлийг хасах"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Бүртгэл нэмэх"</string>
-    <string name="really_remove_account_title" msgid="4166512362915154319">"Акаунтыг арилгах уу?"</string>
+    <string name="really_remove_account_title" msgid="4166512362915154319">"Бүртгэлийг арилгах уу?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Энэ акаунтыг арилгаснаас үүний бүх зурвас, харилцагчид болон бусад өгөгдлүүдийг таблетаас устгах болно!"</string>
     <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Энэ акаунтыг арилгаснаар үүний бүх зурвас, харилцагчид, бусад өгөгдлүүдийг утаснаас устгах болно!"</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Энэ бүртгэлийг устгаснаар үүний бүх зурвас, харилцагч болон бусад өгөгдлийг төхөөрөмжөөс устгана!"</string>
@@ -4310,9 +4310,9 @@
     <string name="media_output_summary_unavailable" msgid="6629338032551086053">"Боломжгүй"</string>
     <string name="take_call_on_title" msgid="6570776899869030724">"Дуудлага авах"</string>
     <string name="cannot_change_apn_toast" msgid="5405823369239466817">"Энэ APN-г өөрчлөх боломжгүй."</string>
-    <string name="battery_suggestion_title" product="tablet" msgid="10172199242166440">"Таблетын батерейны амийг сайжруулах"</string>
-    <string name="battery_suggestion_title" product="device" msgid="765005476863631528">"Төхөөрөмжийн батерейны амийг сайжруулах"</string>
-    <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"Утасны батерейны амийг сайжруулах"</string>
+    <string name="battery_suggestion_title" product="tablet" msgid="10172199242166440">"Таблетын батарейн ажиллах хугацааг нэмэгдүүлэх"</string>
+    <string name="battery_suggestion_title" product="device" msgid="765005476863631528">"Төхөөрөмжийн батарейн ажиллах хугацааг нэмэгдүүлэх"</string>
+    <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"Утасны батарейн ажиллах хугацааг нэмэгдүүлэх"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Хонх дуугаргахаас сэргийлэх"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Асаах &amp; Дууны түвшинг нэмэх товчлуурыг зэрэг дарж"</string>
