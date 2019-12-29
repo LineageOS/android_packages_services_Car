@@ -145,7 +145,7 @@ EvsEnumerator::EvsEnumerator() {
     if (sConfigManager == nullptr) {
         /* loads and initializes ConfigManager in a separate thread */
         sConfigManager =
-            ConfigManager::Create("/etc/automotive/evs/evs_sample_configuration.xml");
+            ConfigManager::Create("/vendor/etc/automotive/evs/evs_sample_configuration.xml");
     }
 
     enumerateDevices();

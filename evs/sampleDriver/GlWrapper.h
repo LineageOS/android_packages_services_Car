@@ -24,23 +24,23 @@
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
 
-#include <gui/ISurfaceComposer.h>
-#include <gui/Surface.h>
-#include <gui/SurfaceComposerClient.h>
-
+#include <android/frameworks/automotive/display/1.0/ICarWindowService.h>
 #include <android/hardware/automotive/evs/1.1/types.h>
+#include <bufferqueueconverter/BufferQueueConverter.h>
 
 
 using ::android::sp;
-using ::android::SurfaceComposerClient;
-using ::android::SurfaceControl;
-using ::android::Surface;
+using ::android::SurfaceHolder;
 using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 using BufferDesc_1_1 = ::android::hardware::automotive::evs::V1_1::BufferDesc;
+using ::android::hardware::graphics::bufferqueue::V2_0::IGraphicBufferProducer;
+using ::android::frameworks::automotive::display::V1_0::ICarWindowService;
 
 
 class GlWrapper {
 public:
+    GlWrapper()
+        : mSurfaceHolder(android::SurfaceHolderUniquePtr(nullptr, nullptr)) {}
     bool initialize();
     void shutdown();
 
@@ -55,9 +55,9 @@ public:
     unsigned getHeight()    { return mHeight; };
 
 private:
-    sp<SurfaceComposerClient>   mFlinger;
-    sp<SurfaceControl>          mFlingerSurfaceControl;
-    sp<Surface>                 mFlingerSurface;
+    sp<ICarWindowService>       mCarWindowService;
+    sp<IGraphicBufferProducer>  mGfxBufferProducer;
+
     EGLDisplay                  mDisplay;
     EGLSurface                  mSurface;
     EGLContext                  mContext;
@@ -69,6 +69,13 @@ private:
 
     GLuint mTextureMap    = 0;
     GLuint mShaderProgram = 0;
+
+    // Opaque handle for a native hardware buffer defined in
+    // frameworks/native/opengl/include/EGL/eglplatform.h
+    ANativeWindow*                  mWindow;
+
+    // Pointer to a Surface wrapper.
+    android::SurfaceHolderUniquePtr mSurfaceHolder;
 };
 
 #endif // ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_DISPLAY_GLWRAPPER_H

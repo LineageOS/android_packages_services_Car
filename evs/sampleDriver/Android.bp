@@ -19,6 +19,8 @@
 cc_binary {
     name: "android.hardware.automotive.evs@1.1-sample",
 
+    vendor: true,
+
     srcs: [
         "service.cpp",
         "EvsEnumerator.cpp",
@@ -36,7 +38,6 @@ cc_binary {
         "android.hardware.automotive.evs@1.1",
         "android.hardware.camera.device@3.2",
         "libui",
-        "libgui",
         "libEGL",
         "libGLESv2",
         "libbase",
@@ -49,6 +50,11 @@ cc_binary {
         "libhardware_legacy",
         "libcamera_metadata",
         "libtinyxml2",
+        "libbufferqueueconverter",
+        "android.hidl.token@1.0-utils",
+        "android.frameworks.automotive.display@1.0",
+        "android.hardware.graphics.bufferqueue@1.0",
+        "android.hardware.graphics.bufferqueue@2.0",
     ],
 
     init_rc: ["android.hardware.automotive.evs@1.1-sample.rc"],
@@ -71,18 +77,22 @@ cc_binary {
         "evs_configuration.dtd",
         "evs_sample_configuration.xml",
     ],
+
+    include_dirs: [
+        "frameworks/native/include/",
+    ],
 }
 
 prebuilt_etc {
     name: "evs_configuration.dtd",
-
+    soc_specific: true,
     src: "resources/evs_configuration.dtd",
     sub_dir: "automotive/evs",
 }
 
 prebuilt_etc {
     name: "evs_sample_configuration.xml",
-
+    soc_specific: true,
     src: "resources/evs_sample_configuration.xml",
     sub_dir: "automotive/evs",
 }
