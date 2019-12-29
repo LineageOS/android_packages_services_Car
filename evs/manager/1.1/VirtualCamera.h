@@ -20,7 +20,7 @@
 #include <android/hardware/automotive/evs/1.1/types.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
-#include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
+#include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
 #include <ui/GraphicBuffer.h>
 
 #include <thread>
@@ -42,7 +42,8 @@ using IEvsCamera_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsCamera;
 using IEvsCamera_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsCamera;
 using IEvsCameraStream_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsCameraStream;
 using IEvsCameraStream_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsCameraStream;
-using ::android::hardware::automotive::evs::V1_1::CameraDesc;
+using IEvsDisplay_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
+using IEvsDisplay_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsDisplay;
 
 namespace android {
 namespace automotive {
@@ -90,7 +91,7 @@ public:
     Return<EvsResult> pauseVideoStream() override { return EvsResult::UNDERLYING_SERVICE_ERROR; }
     Return<EvsResult> resumeVideoStream() override { return EvsResult::UNDERLYING_SERVICE_ERROR; }
     Return<EvsResult> setMaster() override;
-    Return<EvsResult> forceMaster(const sp<IEvsDisplay>& display) override;
+    Return<EvsResult> forceMaster(const sp<IEvsDisplay_1_0>& display) override;
     Return<EvsResult> unsetMaster() override;
     Return<void>      getParameterList(getParameterList_cb _hidl_cb) override;
     Return<void>      getIntParameterRange(CameraParam id,

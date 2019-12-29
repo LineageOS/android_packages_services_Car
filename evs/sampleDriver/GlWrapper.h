@@ -33,23 +33,23 @@ using ::android::sp;
 using ::android::SurfaceHolder;
 using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 using BufferDesc_1_1 = ::android::hardware::automotive::evs::V1_1::BufferDesc;
-using ::android::hardware::graphics::bufferqueue::V2_0::IGraphicBufferProducer;
 using ::android::frameworks::automotive::display::V1_0::IAutomotiveDisplayProxyService;
+using ::android::hardware::graphics::bufferqueue::V2_0::IGraphicBufferProducer;
 
 
 class GlWrapper {
 public:
     GlWrapper()
         : mSurfaceHolder(android::SurfaceHolderUniquePtr(nullptr, nullptr)) {}
-    bool initialize();
+    bool initialize(sp<IAutomotiveDisplayProxyService> pWindowService, uint64_t displayId);
     void shutdown();
 
     bool updateImageTexture(const BufferDesc_1_0& buffer);
     bool updateImageTexture(const BufferDesc_1_1& buffer);
     void renderImageToScreen();
 
-    void showWindow();
-    void hideWindow();
+    void showWindow(sp<IAutomotiveDisplayProxyService>& pWindowService, uint64_t id);
+    void hideWindow(sp<IAutomotiveDisplayProxyService>& pWindowService, uint64_t id);
 
     unsigned getWidth()     { return mWidth; };
     unsigned getHeight()    { return mHeight; };

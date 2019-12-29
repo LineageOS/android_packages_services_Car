@@ -24,7 +24,7 @@
 #include "android-base/macros.h"    // arraysize
 
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
-#include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
+#include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
 
 #include <hwbinder/ProcessState.h>
 
@@ -73,6 +73,7 @@ int main(int argc, char** argv)
     bool useVehicleHal = true;
     bool printHelp = false;
     const char* evsServiceName = "default";
+    int displayId = 0;
     for (int i=1; i< argc; i++) {
         if (strcmp(argv[i], "--test") == 0) {
             useVehicleHal = false;
@@ -82,6 +83,8 @@ int main(int argc, char** argv)
             evsServiceName = "EvsEnumeratorHw-Mock";
         } else if (strcmp(argv[i], "--help") == 0) {
             printHelp = true;
+        } else if (strcmp(argv[i], "--display") == 0) {
+            displayId = std::stoi(argv[++i]);
         } else {
             printf("Ignoring unrecognized command line arg '%s'\n", argv[i]);
             printHelp = true;
@@ -120,12 +123,14 @@ int main(int argc, char** argv)
 
     // Request exclusive access to the EVS display
     ALOGI("Acquiring EVS Display");
-    android::sp <IEvsDisplay> pDisplay;
-    pDisplay = pEvs->openDisplay();
+
+    // We'll use an available display device.
+    android::sp<IEvsDisplay> pDisplay = pEvs->openDisplay_1_1(displayId);
     if (pDisplay.get() == nullptr) {
         ALOGE("EVS Display unavailable.  Exiting.");
         return 1;
     }
+    config.setActiveDisplayId(displayId);
 
     // Connect to the Vehicle HAL so we can monitor state
     sp<IVehicle> pVnet;

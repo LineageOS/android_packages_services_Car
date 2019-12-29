@@ -18,10 +18,13 @@
     "frontExtent" : 44.7,       // The extent of the car body ahead of the front axel
     "rearExtent" : 40           // The extent of the car body behind the read axel
   },
-  "display" : {                 // This configures the dimensions of the surround view display
-    "frontRange" : 100,         // How far to render the view in front of the front bumper
-    "rearRange" : 100           // How far the view extends behind the rear bumper
-  },
+  "displays" : [                // This configures the dimensions of the surround view display
+    {
+      "displayPort" : 1         // Display port number, the target display is connected to.
+      "frontRange" : 100,       // How far to render the view in front of the front bumper
+      "rearRange" : 100         // How far the view extends behind the rear bumper
+    }
+  ],
   "graphic" : {                 // This maps the car texture into the projected view space
     "frontPixel" : 23,          // The pixel row in CarFromTop.png at which the front bumper appears
     "rearPixel" : 223           // The pixel row in CarFromTop.png at which the back bumper ends

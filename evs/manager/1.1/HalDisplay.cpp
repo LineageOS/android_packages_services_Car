@@ -23,7 +23,7 @@ namespace evs {
 namespace V1_1 {
 namespace implementation {
 
-HalDisplay::HalDisplay(sp<IEvsDisplay>& display) :
+HalDisplay::HalDisplay(sp<IEvsDisplay_1_0> display) :
   mHwDisplay(display) {
     // nothing to do.
 }
@@ -40,7 +40,7 @@ void HalDisplay::shutdown() {
 /**
  * Returns a strong pointer to remote display object.
  */
-sp<IEvsDisplay> HalDisplay::getHwDisplay() {
+sp<IEvsDisplay_1_0> HalDisplay::getHwDisplay() {
     return mHwDisplay;
 }
 
@@ -98,6 +98,20 @@ Return<EvsResult> HalDisplay::returnTargetBufferForDisplay(const BufferDesc_1_0&
     } else {
         return EvsResult::OWNERSHIP_LOST;
     }
+}
+
+/**
+ * Gets basic display information from a hardware display object
+ * and returns.
+ */
+Return<void> HalDisplay::getDisplayInfo_1_1(getDisplayInfo_1_1_cb _info_cb) {
+    sp<IEvsDisplay_1_1> display = IEvsDisplay_1_1::castFrom(mHwDisplay)
+                                  .withDefault(nullptr);
+    if (display != nullptr) {
+        display->getDisplayInfo_1_1(_info_cb);
+    }
+
+    return Void();
 }
 
 } // namespace implementation

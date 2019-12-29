@@ -33,7 +33,8 @@ using android::hardware::joinRpcThreadpool;
 
 // Generated HIDL files
 using android::hardware::automotive::evs::V1_1::IEvsEnumerator;
-using android::hardware::automotive::evs::V1_0::IEvsDisplay;
+using android::hardware::automotive::evs::V1_1::IEvsDisplay;
+using android::frameworks::automotive::display::V1_0::IAutomotiveDisplayProxyService;
 
 // The namespace in which all our implementation code lives
 using namespace android::hardware::automotive::evs::V1_1::implementation;
@@ -43,11 +44,17 @@ using namespace android;
 int main() {
     ALOGI("EVS Hardware Enumerator service is starting");
 
+    android::sp<IAutomotiveDisplayProxyService> carWindowService = IAutomotiveDisplayProxyService::getService("default");
+    if (carWindowService == nullptr) {
+        ALOGE("Cannot use AutomotiveDisplayProxyService.  Exiting.");
+        return 1;
+    }
+
     // Start a thread to listen video device addition events.
     std::atomic<bool> running { true };
     std::thread ueventHandler(EvsEnumerator::EvsUeventThread, std::ref(running));
 
-    android::sp<IEvsEnumerator> service = new EvsEnumerator();
+    android::sp<IEvsEnumerator> service = new EvsEnumerator(carWindowService);
 
     configureRpcThreadpool(1, true /* callerWillJoin */);
 

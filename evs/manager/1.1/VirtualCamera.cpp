@@ -608,7 +608,7 @@ Return<EvsResult> VirtualCamera::setMaster() {
 }
 
 
-Return<EvsResult> VirtualCamera::forceMaster(const sp<IEvsDisplay>& display) {
+Return<EvsResult> VirtualCamera::forceMaster(const sp<IEvsDisplay_1_0>& display) {
     if (mHalCamera.size() > 1) {
         ALOGW("Logical camera device does not support %s.", __FUNCTION__);
         return EvsResult::INVALID_ARG;
