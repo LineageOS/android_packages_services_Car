@@ -26,10 +26,12 @@ import android.annotation.Nullable;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.VehicleHalStatusCode;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
+import android.os.ServiceSpecificException;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -223,8 +225,9 @@ public class PropertyHalService extends HalServiceBase {
         try {
             mVehicleHal.set(halProp);
         } catch (PropertyTimeoutException e) {
+            // TODO(b/147896616): throw ServiceSpecificException at first place.
             Log.e(CarLog.TAG_PROPERTY, "set, property not ready 0x" + toHexString(halPropId), e);
-            throw new RuntimeException(e);
+            throw new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN);
         }
     }
 

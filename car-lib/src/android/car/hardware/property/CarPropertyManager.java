@@ -28,6 +28,7 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.os.Handler;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -474,7 +475,11 @@ public class CarPropertyManager extends CarManagerBase {
      * @param clazz The class object for the CarPropertyValue
      * @param propId Property ID to get
      * @param areaId Zone of the property to get
-     * @throws IllegalArgumentException if there is invalid property type.
+     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
+     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
+     * property.
+     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
+     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
      * @return CarPropertyValue. Null if property's id is invalid.
      */
     @SuppressWarnings("unchecked")
@@ -496,6 +501,8 @@ public class CarPropertyManager extends CarManagerBase {
             return propVal;
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
+        } catch (ServiceSpecificException e) {
+            return handleCarServiceSpecificException(e.errorCode, propId, areaId, null);
         }
     }
 
@@ -503,7 +510,12 @@ public class CarPropertyManager extends CarManagerBase {
      * Query CarPropertyValue with property id and areaId.
      * @param propId Property Id
      * @param areaId areaId
-     * @param <E>
+     * @param <E> Value type of the property
+     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
+     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
+     * property.
+     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
+     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
      * @return CarPropertyValue. Null if property's id is invalid.
      */
     @Nullable
@@ -513,6 +525,8 @@ public class CarPropertyManager extends CarManagerBase {
             return propVal;
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
+        } catch (ServiceSpecificException e) {
+            return handleCarServiceSpecificException(e.errorCode, propId, areaId, null);
         }
     }
 
@@ -524,7 +538,15 @@ public class CarPropertyManager extends CarManagerBase {
      * @param val Value of CarPropertyValue
      * @param <E> data type of the given property, for example property that was
      * defined as {@code VEHICLE_VALUE_TYPE_INT32} in vehicle HAL could be accessed using
-     * {@code Integer.class}
+     * {@code Integer.class}.
+     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
+     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
+     * property.
+     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
+     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
+     * not available and likely that retrying will be successful.
+     * @throws {@link IllegalStateException} when get an unexpected error code.
+     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
      */
     public <E> void setProperty(@NonNull Class<E> clazz, int propId, int areaId, @NonNull E val) {
         if (DBG) {
@@ -535,6 +557,8 @@ public class CarPropertyManager extends CarManagerBase {
             mService.setProperty(new CarPropertyValue<>(propId, areaId, val));
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
+        } catch (ServiceSpecificException e) {
+            handleCarServiceSpecificException(e.errorCode, propId, areaId, null);
         }
     }
 
@@ -572,6 +596,22 @@ public class CarPropertyManager extends CarManagerBase {
         setProperty(Integer.class, prop, areaId, val);
     }
 
+    private <T> T handleCarServiceSpecificException(int errorCode, int propId, int areaId,
+            T returnValue) {
+        switch (errorCode) {
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:
+                throw new PropertyNotAvailableException(propId, areaId);
+            case VehicleHalStatusCode.STATUS_TRY_AGAIN:
+                throw new PropertyNotAvailableAndRetryException(propId, areaId);
+            case VehicleHalStatusCode.STATUS_ACCESS_DENIED:
+                throw new PropertyAccessDeniedSecurityException(propId, areaId);
+            case VehicleHalStatusCode.STATUS_INTERNAL_ERROR:
+                throw new CarInternalErrorException(propId, areaId);
+            default:
+                Log.e(TAG, "Invalid errorCode: " + errorCode + " in CarService");
+        }
+        return returnValue;
+    }
 
     private class CarPropertyListeners extends CarRatedFloatListeners<CarPropertyEventCallback> {
         CarPropertyListeners(float rate) {
