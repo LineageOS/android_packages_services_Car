@@ -16,7 +16,7 @@ cc_library {
     name: "libcomputepipe_stream_manager",
     srcs: [
         "Factory.cpp",
-	"SemanticManager.cpp",
+        "SemanticManager.cpp",
     ],
     export_include_dirs: ["include"],
     visibility: [
@@ -27,7 +27,10 @@ cc_library {
         "computepipe_runner_includes",
     ],
     static_libs: [
-         "libcomputepipeprotos",
+        "libcomputepipeprotos",
+    ],
+    shared_libs: [
+        "computepipe_runner_component",
     ],
     include_dirs: [
         "packages/services/Car/computepipe",

@@ -18,7 +18,9 @@
 #include <mutex>
 
 #include "OutputConfig.pb.h"
+#include "RunnerComponent.h"
 #include "StreamManager.h"
+#include "StreamManagerInit.h"
 
 namespace android {
 namespace automotive {
@@ -51,23 +53,24 @@ class SemanticHandle : public MemHandle {
     proto::PacketType mType;
 };
 
-class SemanticManager : public StreamManager {
+class SemanticManager : public StreamManager, StreamManagerInit {
   public:
     Status setIpcDispatchCallback(
         std::function<Status(const std::shared_ptr<MemHandle>)>& cb) override;
     /* Set Max in flight packets based on client specification */
     Status setMaxInFlightPackets(uint32_t maxPackets) override;
-    /* Start stream manager */
-    Status start() override;
-    /* Stop stream manager */
-    Status stop(bool flush) override;
-    /* initiate cleanup. Forget maxinflightPackets */
-    Status cleanup() override;
     /* Free previously dispatched packet. Once client has confirmed usage */
     Status freePacket(const std::shared_ptr<MemHandle>& memhandle) override;
     /* Queue packet produced by graph stream */
     Status queuePacket(const char* data, const uint32_t size, uint64_t timestamp) override;
+    /* Override handling of Runner Engine Events */
+
+    Status handleExecutionPhase(const RunnerEvent& e) override;
+    Status handleStopWithFlushPhase(const RunnerEvent& e) override;
+    Status handleStopImmediatePhase(const RunnerEvent& e) override;
+
     explicit SemanticManager(std::string name, const proto::PacketType& type);
+    ~SemanticManager() = default;
 
   private:
     std::mutex mStateLock;

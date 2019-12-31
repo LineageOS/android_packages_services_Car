@@ -22,14 +22,35 @@ namespace computepipe {
 namespace runner {
 namespace stream_manager {
 
+namespace {
+
+/**
+ * Build an instance of the Semantic Manager and initialize it
+ */
+std::unique_ptr<SemanticManager> buildSemanticManager(
+    const proto::OutputConfig& config, std::function<Status(std::shared_ptr<MemHandle>)>& cb,
+    uint32_t maxPackets) {
+    std::unique_ptr<SemanticManager> semanticManager =
+        std::make_unique<SemanticManager>(config.stream_name(), config.type());
+    if (semanticManager->setIpcDispatchCallback(cb) != SUCCESS) {
+        return nullptr;
+    }
+    if (semanticManager->setMaxInFlightPackets(maxPackets) != SUCCESS) {
+        return nullptr;
+    }
+    return semanticManager;
+}
+}  // namespace
+
 std::unique_ptr<StreamManager> StreamManagerFactory::getStreamManager(
-    const proto::OutputConfig& config) {
+    const proto::OutputConfig& config, std::function<Status(std::shared_ptr<MemHandle>)>& cb,
+    uint32_t maxPackets) {
     if (!config.has_type()) {
         return nullptr;
     }
     switch (config.type()) {
         case proto::PacketType::SEMANTIC_DATA:
-            return std::make_unique<SemanticManager>(config.stream_name(), config.type());
+            return buildSemanticManager(config, cb, maxPackets);
         default:
             return nullptr;
     }

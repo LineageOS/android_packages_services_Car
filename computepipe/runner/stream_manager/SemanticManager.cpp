@@ -71,32 +71,56 @@ Status SemanticManager::setMaxInFlightPackets(uint32_t /* maxPackets */) {
     return SUCCESS;
 }
 
-Status SemanticManager::start() {
+Status SemanticManager::handleExecutionPhase(const RunnerEvent& e) {
     std::lock_guard<std::mutex> lock(mStateLock);
-    if (mState != CONFIG_DONE) {
+    if (mState == CONFIG_DONE && e.isPhaseEntry()) {
+        mState = RUNNING;
         return ILLEGAL_STATE;
     }
-    mState = RUNNING;
+    if (mState == RESET) {
+        /* Cannot get to running phase from reset state without config phase*/
+        return ILLEGAL_STATE;
+    }
+    if (mState == RUNNING && e.isAborted()) {
+        /* Transition back to config completed */
+        mState = CONFIG_DONE;
+        return SUCCESS;
+    }
+    if (mState == RUNNING) {
+        return ILLEGAL_STATE;
+    }
     return SUCCESS;
 }
 
-Status SemanticManager::stop(bool /* flush */) {
+Status SemanticManager::handleStopWithFlushPhase(const RunnerEvent& e) {
     std::lock_guard<std::mutex> lock(mStateLock);
-    if (mState != RUNNING) {
+    if (mState == CONFIG_DONE || mState == RESET) {
         return ILLEGAL_STATE;
     }
-    /*
-     * We skip directly to config_done as there is no outstanding cleanup
-     * required
-     */
-    mState = CONFIG_DONE;
+    /* Cannot have stop completed if we never entered stop state */
+    if (mState == RUNNING && (e.isAborted() || e.isTransitionComplete())) {
+        return ILLEGAL_STATE;
+    }
+    /* We are being asked to stop */
+    if (mState == RUNNING && e.isPhaseEntry()) {
+        mState = STOPPED;
+        return SUCCESS;
+    }
+    /* Other Components have stopped, we can transition back to CONFIG_DONE */
+    if (mState == STOPPED && e.isTransitionComplete()) {
+        mState = CONFIG_DONE;
+        return SUCCESS;
+    }
+    /* We were stopped, but stop was aborted. */
+    if (mState == STOPPED && e.isAborted()) {
+        mState = RUNNING;
+        return SUCCESS;
+    }
     return SUCCESS;
 }
 
-Status SemanticManager::cleanup() {
-    std::lock_guard<std::mutex> lock(mStateLock);
-    mState = RESET;
-    return SUCCESS;
+Status SemanticManager::handleStopImmediatePhase(const RunnerEvent& e) {
+    return handleStopWithFlushPhase(e);
 }
 
 Status SemanticManager::freePacket(const std::shared_ptr<MemHandle>& /* handle */) {
@@ -125,7 +149,6 @@ Status SemanticManager::queuePacket(const char* data, const uint32_t size, uint6
 SemanticManager::SemanticManager(std::string name, const proto::PacketType& type)
     : StreamManager(name, type) {
 }
-
 }  // namespace stream_manager
 }  // namespace runner
 }  // namespace computepipe

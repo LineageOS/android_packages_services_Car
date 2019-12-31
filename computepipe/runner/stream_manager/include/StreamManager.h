@@ -21,6 +21,7 @@
 
 #include "MemHandle.h"
 #include "OutputConfig.pb.h"
+#include "RunnerComponent.h"
 #include "types/Status.h"
 
 namespace android {
@@ -36,7 +37,7 @@ namespace stream_manager {
  * description specified in OuputConfig.
  */
 
-class StreamManager {
+class StreamManager : public RunnerComponentInterface {
   public:
     enum State {
         /* State on construction. */
@@ -55,23 +56,10 @@ class StreamManager {
     explicit StreamManager(std::string streamName, const proto::PacketType& type)
         : mName(streamName), mType(type) {
     }
-    /**
-     * IPC dispatch routine invoked by Stream manager, to send output packet to client.
-     * Callback must be set before any client specific configs are applied.
-     */
-    virtual Status setIpcDispatchCallback(std::function<Status(std::shared_ptr<MemHandle>)>& cb) = 0;
     /* Retrieves the current state */
     State getState() {
         return mState;
     }
-    /* Sets max in flight packets based on client specification */
-    virtual Status setMaxInFlightPackets(uint32_t maxPackets) = 0;
-    /* Starts stream manager */
-    virtual Status start() = 0;
-    /* Stops stream manager */
-    virtual Status stop(bool flush) = 0;
-    /* Initiates cleanup. Forgets maxinflightPackets */
-    virtual Status cleanup() = 0;
     /* Frees previously dispatched packet. Once client has confirmed usage */
     virtual Status freePacket(const std::shared_ptr<MemHandle>& memhandle) = 0;
     /* Queue's packet produced by graph stream */
@@ -87,10 +75,14 @@ class StreamManager {
 
 /**
  * Factory for generating stream manager instances
+ * It initializes the instances for a given client configuration prior to
+ * returning. (Follows RAII semantics)
  */
 class StreamManagerFactory {
   public:
-    std::unique_ptr<StreamManager> getStreamManager(const proto::OutputConfig& config);
+    std::unique_ptr<StreamManager> getStreamManager(
+        const proto::OutputConfig& config, std::function<Status(std::shared_ptr<MemHandle>)>& cb,
+        uint32_t maxInFlightPackets);
     StreamManagerFactory(const StreamManagerFactory&) = delete;
     StreamManagerFactory& operator=(const StreamManagerFactory&) = delete;
     StreamManagerFactory() = default;
