@@ -48,7 +48,7 @@ public final class AppListAdapter extends ArrayAdapter<AppEntry> {
     void setData(@NonNull List<AppEntry> data, @NonNull Set<String> blackList) {
         clear();
 
-        data.stream().filter(app -> !blackList.contains(app.getComponentName()))
+        data.stream().filter(app -> !blackList.contains(app.getComponentName().getPackageName()))
                 .forEach(app -> add(app));
 
         sort(AppEntry.AppNameComparator);
