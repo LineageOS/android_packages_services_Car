@@ -14,6 +14,7 @@
 
 #include "RunnerComponent.h"
 
+#include "ClientConfig.pb.h"
 #include "types/Status.h"
 
 namespace android {
@@ -21,8 +22,85 @@ namespace automotive {
 namespace computepipe {
 namespace runner {
 
+/* Is this a notification to enter the phase */
+bool RunnerEvent::isPhaseEntry() const {
+    return false;
+}
+/* Is this a notification that all components have transitioned to the phase */
+bool RunnerEvent::isTransitionComplete() const {
+    return false;
+}
+
+bool RunnerEvent::isAborted() const {
+    return false;
+}
+
+/**
+ * ClientConfig methods
+ */
+Status ClientConfig::dispatchToComponent(const std::shared_ptr<RunnerComponentInterface>& iface) {
+    return iface->handleConfigPhase(*this);
+}
+
+std::string ClientConfig::getSerializedClientConfig() const {
+    proto::ClientConfig config;
+    std::string output;
+
+    config.set_input_stream_id(inputStreamId);
+    config.set_termination_id(terminationId);
+    config.set_offload_id(offloadId);
+    for (auto it : outputConfigs) {
+        (*config.mutable_output_options())[it.first] = it.second;
+    }
+    if (!config.SerializeToString(&output)) {
+        return "";
+    }
+    return output;
+}
+
+Status ClientConfig::getInputStreamId(int* outId) const {
+    if (inputStreamId == kInvalidId) {
+        return Status::ILLEGAL_STATE;
+    }
+    *outId = inputStreamId;
+    return Status::SUCCESS;
+}
+
+Status ClientConfig::getOffloadId(int* outId) const {
+    if (offloadId == kInvalidId) {
+        return Status::ILLEGAL_STATE;
+    }
+    *outId = offloadId;
+    return Status::SUCCESS;
+}
+
+Status ClientConfig::getTerminationId(int* outId) const {
+    if (terminationId == kInvalidId) {
+        return Status::ILLEGAL_STATE;
+    }
+    *outId = terminationId;
+    return Status::SUCCESS;
+}
+
+Status ClientConfig::getOutputStreamConfigs(std::map<int, int>& outputConfig) const {
+    if (outputConfigs.empty()) {
+        return Status::ILLEGAL_STATE;
+    }
+    outputConfig = outputConfigs;
+    return Status::SUCCESS;
+}
+
+Status ClientConfig::getOptionalConfigs(std::string& outOptional) const {
+    outOptional = optionalConfigs;
+    return Status::SUCCESS;
+}
+
+/**
+ * Methods for ComponentInterface
+ */
+
 /* handle a ConfigPhase related event notification from Runner Engine */
-Status RunnerComponentInterface::handleConfigPhase(const RunnerEvent& /* e*/) {
+Status RunnerComponentInterface::handleConfigPhase(const ClientConfig& /* e*/) {
     return Status::SUCCESS;
 }
 /* handle execution phase notification from Runner Engine */

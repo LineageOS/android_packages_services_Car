@@ -9,6 +9,7 @@ message InputConfig {
     EXTERNAL_CAMERA = 2;
     SURROUND_VIEW_CAMERA = 3;
     VIDEO_FILE = 4;
+    IMAGE_FILES = 5;
   }
 
   optional InputType type = 1;
@@ -35,5 +36,16 @@ message InputConfig {
   optional int32 cam_id = 6;
 
   optional int32 config_id = 7;
-}
 
+  /**
+   * for image file input type the following attributes apply
+   */
+  optional string image_dir = 8;
+
+  enum ImageFileType {
+    JPEG = 0;
+    PNG = 1;
+  }
+
+  optional ImageFileType file_type = 9;
+}
