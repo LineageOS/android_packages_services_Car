@@ -70,6 +70,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -372,7 +373,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     private CarVolumeGroup getCarVolumeGroup(int zoneId, int groupId) {
-        Preconditions.checkNotNull(mCarAudioZones);
+        Objects.requireNonNull(mCarAudioZones);
         Preconditions.checkArgumentInRange(zoneId, 0, mCarAudioZones.length - 1,
                 "zoneId out of range: " + zoneId);
         return mCarAudioZones[zoneId].getVolumeGroup(groupId);
@@ -598,11 +599,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 break;
             }
         }
-        Preconditions.checkNotNull(sourcePortInfo,
+        Objects.requireNonNull(sourcePortInfo,
                 "Specified source is not available: " + sourceAddress);
 
         // Find the output port associated with the given carUsage
-        AudioDevicePort sinkPort = Preconditions.checkNotNull(getAudioPort(usage),
+        AudioDevicePort sinkPort = Objects.requireNonNull(getAudioPort(usage),
                 "Sink not available for usage: " + AudioAttributes.usageToString(usage));
 
         // {@link android.media.AudioPort#activeConfig()} is valid for mixer port only,
@@ -615,7 +616,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         // Configure the source port to match the output port except for a gain adjustment
         final CarAudioDeviceInfo helper = new CarAudioDeviceInfo(sourcePortInfo);
-        AudioGain audioGain = Preconditions.checkNotNull(helper.getAudioGain(),
+        AudioGain audioGain = Objects.requireNonNull(helper.getAudioGain(),
                 "Gain controller not available for source port");
 
         // size of gain values is 1 in MODE_JOINT
@@ -636,7 +637,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             throw new RuntimeException("createAudioPatch failed with code " + result);
         }
 
-        Preconditions.checkNotNull(patch[0],
+        Objects.requireNonNull(patch[0],
                 "createAudioPatch didn't provide expected single handle");
         Log.d(CarLog.TAG_AUDIO, "Audio patch created: " + patch[0]);
 
@@ -962,7 +963,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private @Nullable AudioDevicePort getAudioPort(@AudioAttributes.AttributeUsage int usage) {
         int zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
         final int groupId = getVolumeGroupIdForUsage(zoneId, usage);
-        final CarVolumeGroup group = Preconditions.checkNotNull(
+        final CarVolumeGroup group = Objects.requireNonNull(
                 mCarAudioZones[zoneId].getVolumeGroup(groupId),
                 "Can not find CarVolumeGroup by usage: "
                         + AudioAttributes.usageToString(usage));

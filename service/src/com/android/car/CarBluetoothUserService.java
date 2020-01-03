@@ -27,10 +27,9 @@ import android.car.ICarBluetoothUserService;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 
-import com.android.internal.util.Preconditions;
-
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -82,7 +81,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         mBluetoothProxyLock = new ReentrantLock();
         mConditionAllProxiesConnected = mBluetoothProxyLock.newCondition();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        Preconditions.checkNotNull(mBluetoothAdapter, "Bluetooth adapter cannot be null");
+        Objects.requireNonNull(mBluetoothAdapter, "Bluetooth adapter cannot be null");
     }
 
     /**

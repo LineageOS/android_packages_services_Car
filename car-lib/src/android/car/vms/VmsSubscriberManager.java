@@ -28,8 +28,8 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.util.Preconditions;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -130,9 +130,9 @@ public final class VmsSubscriberManager extends CarManagerBase {
             if (mClientCallback != null) {
                 throw new IllegalStateException("Client callback is already configured.");
             }
-            mClientCallback = Preconditions.checkNotNull(clientCallback,
+            mClientCallback = Objects.requireNonNull(clientCallback,
                     "clientCallback cannot be null");
-            mExecutor = Preconditions.checkNotNull(executor, "executor cannot be null");
+            mExecutor = Objects.requireNonNull(executor, "executor cannot be null");
         }
         try {
             mVmsSubscriberService.addVmsSubscriberToNotifications(mSubscriberManagerClient);

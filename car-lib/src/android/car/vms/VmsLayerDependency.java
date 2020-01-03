@@ -21,8 +21,6 @@ import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.android.internal.util.Preconditions;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -50,7 +48,7 @@ public final class VmsLayerDependency implements Parcelable {
      * @param dependencies layers that the given layer depends on
      */
     public VmsLayerDependency(@NonNull VmsLayer layer, @NonNull Set<VmsLayer> dependencies) {
-        mLayer = Preconditions.checkNotNull(layer, "layer cannot be null");
+        mLayer = Objects.requireNonNull(layer, "layer cannot be null");
         mDependency = Collections.unmodifiableSet(dependencies);
     }
 

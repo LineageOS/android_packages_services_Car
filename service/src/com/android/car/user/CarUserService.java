@@ -45,7 +45,6 @@ import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.util.Preconditions;
 import com.android.internal.util.UserIcons;
 
 import java.io.PrintWriter;
@@ -53,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -202,7 +202,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Nullable
     public UserInfo createDriver(@NonNull String name, boolean admin) {
         checkManageUsersPermission("createDriver");
-        Preconditions.checkNotNull(name, "name cannot be null");
+        Objects.requireNonNull(name, "name cannot be null");
         if (admin) {
             return createNewAdminUser(name);
         }
@@ -216,7 +216,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Nullable
     public UserInfo createPassenger(@NonNull String name, @UserIdInt int driverId) {
         checkManageUsersPermission("createPassenger");
-        Preconditions.checkNotNull(name, "name cannot be null");
+        Objects.requireNonNull(name, "name cannot be null");
         UserInfo driver = mUserManager.getUserInfo(driverId);
         if (driver == null) {
             Log.w(TAG_USER, "the driver is invalid");
@@ -410,25 +410,25 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     /** Adds callback to listen to user activity events. */
     public void addUserCallback(@NonNull UserCallback callback) {
-        Preconditions.checkNotNull(callback, "callback cannot be null");
+        Objects.requireNonNull(callback, "callback cannot be null");
         mUserCallbacks.add(callback);
     }
 
     /** Removes previously added callback to listen user events. */
     public void removeUserCallback(@NonNull UserCallback callback) {
-        Preconditions.checkNotNull(callback, "callback cannot be null");
+        Objects.requireNonNull(callback, "callback cannot be null");
         mUserCallbacks.remove(callback);
     }
 
     /** Adds callback to listen to passenger activity events. */
     public void addPassengerCallback(@NonNull PassengerCallback callback) {
-        Preconditions.checkNotNull(callback, "callback cannot be null");
+        Objects.requireNonNull(callback, "callback cannot be null");
         mPassengerCallbacks.add(callback);
     }
 
     /** Removes previously added callback to listen passenger events. */
     public void removePassengerCallback(@NonNull PassengerCallback callback) {
-        Preconditions.checkNotNull(callback, "callback cannot be null");
+        Objects.requireNonNull(callback, "callback cannot be null");
         mPassengerCallbacks.remove(callback);
     }
 
@@ -601,7 +601,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * @param r Runnable to run.
      */
     public void runOnUser0Unlock(@NonNull Runnable r) {
-        Preconditions.checkNotNull(r, "runnable cannot be null");
+        Objects.requireNonNull(r, "runnable cannot be null");
         boolean runNow = false;
         synchronized (mLockUser) {
             if (mUser0Unlocked) {
