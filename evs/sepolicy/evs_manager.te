@@ -9,3 +9,6 @@ init_daemon_domain(evs_manager)
 
 # allow use of hwservices
 allow evs_manager hal_graphics_allocator_default:fd use;
+
+# allow use of sw_sync device
+allow evs_manager sw_sync_device:chr_file rw_file_perms;

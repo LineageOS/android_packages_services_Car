@@ -39,9 +39,9 @@
                              a member of the group.
          @attr device_id   : Comma-separated list of unique camera identifiers of member camera
                              devices.
-         @attr synchronized: Boolean field that tells whether or not this camera is synchronized
-                             with other cameras in the same group.  This will be ineffective if
-                             there is a single camera in the group or a group is invalid.
+         @attr synchronized: NONE if cameras are not synchronized.
+                             CALIBRATED if cameras are synchronized by hardware.
+                             APPROXIMATE if cameras are synchronized by other means.
     -->
     <!ELEMENT group (caps)>
     <!ATTLIST group

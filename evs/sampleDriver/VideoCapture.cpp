@@ -179,6 +179,7 @@ bool VideoCapture::startStream(std::function<void(VideoCapture*, imageBuffer*, v
     ALOGI("Buffer description:");
     ALOGI("  offset: %d", mBufferInfo.m.offset);
     ALOGI("  length: %d", mBufferInfo.length);
+    ALOGI("  flags : 0x%X", mBufferInfo.flags);
 
     // Get a pointer to the buffer contents by mapping into our address space
     mPixelBuffer = mmap(

@@ -123,7 +123,10 @@ void StreamHandler::doneWithFrame(const BufferDesc_1_1& bufDesc_1_1) {
     }
 
     // Send the buffer back to the underlying camera
-    mCamera->doneWithFrame_1_1(mBuffers[mHeldBuffer]);
+    hidl_vec<BufferDesc_1_1> frames;
+    frames.resize(1);
+    frames[0] = mBuffers[mHeldBuffer];
+    mCamera->doneWithFrame_1_1(frames);
 
     // Clear the held position
     mHeldBuffer = -1;
@@ -138,12 +141,12 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc_1_0& bufDesc_1_0) {
 }
 
 
-Return<void> StreamHandler::deliverFrame_1_1(const BufferDesc_1_1& bufDesc) {
-    ALOGD("Received a frame event from the camera (%p)",
-          bufDesc.buffer.nativeHandle.getNativeHandle());
+Return<void> StreamHandler::deliverFrame_1_1(const hidl_vec<BufferDesc_1_1>& buffers) {
+    ALOGD("Received frames from the camera");
 
     // Take the lock to protect our frame slots and running state variable
     std::unique_lock <std::mutex> lock(mLock);
+    BufferDesc_1_1 bufDesc = buffers[0];
     if (bufDesc.buffer.nativeHandle.getNativeHandle() == nullptr) {
         // Signal that the last frame has been received and the stream is stopped
         ALOGW("Invalid null frame (id: 0x%X) is ignored", bufDesc.bufferId);
@@ -151,7 +154,10 @@ Return<void> StreamHandler::deliverFrame_1_1(const BufferDesc_1_1& bufDesc) {
         // Do we already have a "ready" frame?
         if (mReadyBuffer >= 0) {
             // Send the previously saved buffer back to the camera unused
-            mCamera->doneWithFrame_1_1(mBuffers[mReadyBuffer]);
+            hidl_vec<BufferDesc_1_1> frames;
+            frames.resize(1);
+            frames[0] = mBuffers[mReadyBuffer];
+            mCamera->doneWithFrame_1_1(frames);
 
             // We'll reuse the same ready buffer index
         } else if (mHeldBuffer >= 0) {
@@ -174,7 +180,7 @@ Return<void> StreamHandler::deliverFrame_1_1(const BufferDesc_1_1& bufDesc) {
 }
 
 
-Return<void> StreamHandler::notify(const EvsEvent& event) {
+Return<void> StreamHandler::notify(const EvsEventDesc& event) {
     switch(event.aType) {
         case EvsEventType::STREAM_STOPPED:
         {
