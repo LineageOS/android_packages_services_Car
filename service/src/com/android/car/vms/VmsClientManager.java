@@ -98,16 +98,14 @@ public class VmsClientManager implements CarServiceBase {
     @GuardedBy("mLock")
     private final Map<IBinder, SubscriberConnection> mSubscribers = new ArrayMap<>();
 
-    @VisibleForTesting
-    final Runnable mSystemUserUnlockedListener = () -> {
+    private final Runnable mSystemUserUnlockedListener = () -> {
         synchronized (mLock) {
             mSystemUserUnlocked = true;
         }
         bindToSystemClients();
     };
 
-    @VisibleForTesting
-    public final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
+    private final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
         @Override
         public void onSwitchUser(int userId) {
             synchronized (mLock) {
