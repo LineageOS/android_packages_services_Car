@@ -24,9 +24,11 @@ import android.annotation.UserIdInt;
 import android.content.pm.UserInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.UserHandle;
 
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,6 +39,9 @@ import java.util.List;
  */
 @SystemApi
 public final class CarUserManager extends CarManagerBase {
+
+    /* User id representing invalid user */
+    public static final int INVALID_USER_ID = UserHandle.USER_NULL;
 
     private static final String TAG = CarUserManager.class.getSimpleName();
     private final ICarUserService mService;
@@ -53,7 +58,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @param name The name of the driver to be created.
      * @param admin Whether the created driver will be an admin.
-     * @return {@link UserInfo} object of the created driver, or {@code null} if the driver could
+     * @return user id of the created driver, or {@code INVALID_USER_ID} if the driver could
      *         not be created.
      *
      * @hide
@@ -61,9 +66,10 @@ public final class CarUserManager extends CarManagerBase {
     @SystemApi
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @Nullable
-    public UserInfo createDriver(@NonNull String name, boolean admin) {
+    public int createDriver(@NonNull String name, boolean admin) {
         try {
-            return mService.createDriver(name, admin);
+            UserInfo ui = mService.createDriver(name, admin);
+            return ui != null ? ui.id : INVALID_USER_ID;
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         }
@@ -74,7 +80,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @param name The name of the passenger to be created.
      * @param driverId User id of the driver under whom a passenger is created.
-     * @return {@link UserInfo} object of the created passenger, or {@code null} if the passenger
+     * @return user id of the created passenger, or {@code INVALID_USER_ID} if the passenger
      *         could not be created.
      *
      * @hide
@@ -82,9 +88,10 @@ public final class CarUserManager extends CarManagerBase {
     @SystemApi
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @Nullable
-    public UserInfo createPassenger(@NonNull String name, @UserIdInt int driverId) {
+    public int createPassenger(@NonNull String name, @UserIdInt int driverId) {
         try {
-            return mService.createPassenger(name, driverId);
+            UserInfo ui = mService.createPassenger(name, driverId);
+            return ui != null ? ui.id : INVALID_USER_ID;
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         }
@@ -111,16 +118,16 @@ public final class CarUserManager extends CarManagerBase {
     /**
      * Returns all drivers who can occupy the driving zone. Guest users are included in the list.
      *
-     * @return the list of {@link UserInfo} who can be a driver on the device.
+     * @return the list of user ids who can be a driver on the device.
      *
      * @hide
      */
     @SystemApi
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @NonNull
-    public List<UserInfo> getAllDrivers() {
+    public List<Integer> getAllDrivers() {
         try {
-            return mService.getAllDrivers();
+            return getUserIdsFromUserInfos(mService.getAllDrivers());
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
@@ -130,16 +137,16 @@ public final class CarUserManager extends CarManagerBase {
      * Returns all passengers under the given driver.
      *
      * @param driverId User id of a driver.
-     * @return the list of {@link UserInfo} who is a passenger under the given driver.
+     * @return the list of user ids who are passengers under the given driver.
      *
      * @hide
      */
     @SystemApi
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @NonNull
-    public List<UserInfo> getPassengers(@UserIdInt int driverId) {
+    public List<Integer> getPassengers(@UserIdInt int driverId) {
         try {
-            return mService.getPassengers(driverId);
+            return getUserIdsFromUserInfos(mService.getPassengers(driverId));
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
@@ -187,5 +194,13 @@ public final class CarUserManager extends CarManagerBase {
     @Override
     public void onCarDisconnected() {
         // nothing to do
+    }
+
+    private List<Integer> getUserIdsFromUserInfos(List<UserInfo> infos) {
+        List<Integer> ids = new ArrayList<>(infos.size());
+        for (UserInfo ui : infos) {
+            ids.add(ui.id);
+        }
+        return ids;
     }
 }
