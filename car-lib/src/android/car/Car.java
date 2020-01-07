@@ -49,6 +49,7 @@ import android.car.settings.CarConfigurationManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.car.trust.CarTrustAgentEnrollmentManager;
+import android.car.user.CarUserManager;
 import android.car.vms.VmsSubscriberManager;
 import android.content.ComponentName;
 import android.content.Context;
