@@ -33,6 +33,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Implements {@link AudioPolicy.AudioPolicyFocusListener}
@@ -52,7 +53,7 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         //Create the zones here, the policy will be set setOwningPolicy,
         // which is called right after this constructor.
 
-        Preconditions.checkNotNull(carAudioZones);
+        Objects.requireNonNull(carAudioZones);
         Preconditions.checkArgument(carAudioZones.length != 0,
                 "There must be a minimum of one audio zone");
 

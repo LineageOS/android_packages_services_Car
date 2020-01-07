@@ -63,7 +63,6 @@ import android.view.DisplayAddress;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.util.Preconditions;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -81,6 +80,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -724,9 +724,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      */
     private synchronized void handleDispatchUxRestrictions(@CarDrivingState int currentDrivingState,
             float speed) {
-        Preconditions.checkNotNull(mCarUxRestrictionsConfigurations,
+        Objects.requireNonNull(mCarUxRestrictionsConfigurations,
                 "mCarUxRestrictionsConfigurations must be initialized");
-        Preconditions.checkNotNull(mCurrentUxRestrictions,
+        Objects.requireNonNull(mCurrentUxRestrictions,
                 "mCurrentUxRestrictions must be initialized");
 
         if (isDebugBuild() && !mUxRChangeBroadcastEnabled) {

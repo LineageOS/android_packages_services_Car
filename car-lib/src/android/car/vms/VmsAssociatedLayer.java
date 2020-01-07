@@ -21,8 +21,6 @@ import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.android.internal.util.Preconditions;
-
 import java.util.*;
 
 /**
@@ -42,7 +40,7 @@ public final class VmsAssociatedLayer implements Parcelable {
      * @param publisherIds IDs of publishers associated with the layer
      */
     public VmsAssociatedLayer(@NonNull VmsLayer layer, @NonNull Set<Integer> publisherIds) {
-        mLayer = Preconditions.checkNotNull(layer, "layer cannot be null");
+        mLayer = Objects.requireNonNull(layer, "layer cannot be null");
         mPublisherIds = Collections.unmodifiableSet(publisherIds);
     }
 

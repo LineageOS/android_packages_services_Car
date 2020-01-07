@@ -28,6 +28,7 @@ import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
+import java.util.Objects;
 
 /**
  * A helper class wraps {@link AudioDeviceInfo}, and helps get/set the gain on a specific port
@@ -59,7 +60,7 @@ import java.io.PrintWriter;
         mSampleRate = getMaxSampleRate(audioDeviceInfo);
         mEncodingFormat = getEncodingFormat(audioDeviceInfo);
         mChannelCount = getMaxChannels(audioDeviceInfo);
-        final AudioGain audioGain = Preconditions.checkNotNull(
+        final AudioGain audioGain = Objects.requireNonNull(
                 getAudioGain(), "No audio gain on device port " + audioDeviceInfo);
         mDefaultGain = audioGain.defaultValue();
         mMaxGain = audioGain.maxValue();

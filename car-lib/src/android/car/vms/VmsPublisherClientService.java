@@ -34,9 +34,9 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.util.Preconditions;
 
 import java.lang.ref.WeakReference;
+import java.util.Objects;
 
 /**
  * API implementation of a Vehicle Map Service publisher client.
@@ -109,7 +109,7 @@ public abstract class VmsPublisherClientService extends Service {
      * @throws IllegalStateException if publisher services are not available
      */
     public final void publish(@NonNull VmsLayer layer, int publisherId, byte[] payload) {
-        Preconditions.checkNotNull(layer, "layer cannot be null");
+        Objects.requireNonNull(layer, "layer cannot be null");
         if (DBG) Log.d(TAG, "Publishing for layer : " + layer);
 
         IBinder token = getTokenForPublisherServiceThreadSafe();
@@ -128,7 +128,7 @@ public abstract class VmsPublisherClientService extends Service {
      * @throws IllegalStateException if publisher services are not available
      */
     public final void setLayersOffering(@NonNull VmsLayersOffering offering) {
-        Preconditions.checkNotNull(offering, "offering cannot be null");
+        Objects.requireNonNull(offering, "offering cannot be null");
         if (DBG) Log.d(TAG, "Setting layers offering : " + offering);
 
         IBinder token = getTokenForPublisherServiceThreadSafe();

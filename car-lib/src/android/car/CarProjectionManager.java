@@ -56,6 +56,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -264,7 +265,7 @@ public final class CarProjectionManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public void registerProjectionListener(@NonNull CarProjectionListener listener,
             int voiceSearchFilter) {
-        Preconditions.checkNotNull(listener, "listener cannot be null");
+        Objects.requireNonNull(listener, "listener cannot be null");
         synchronized (mLock) {
             if (mListener == null || mVoiceSearchFilter != voiceSearchFilter) {
                 addKeyEventHandler(
@@ -462,7 +463,7 @@ public final class CarProjectionManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public void registerProjectionRunner(@NonNull Intent serviceIntent) {
-        Preconditions.checkNotNull("serviceIntent cannot be null");
+        Objects.requireNonNull("serviceIntent cannot be null");
         synchronized (mLock) {
             try {
                 mService.registerProjectionRunner(serviceIntent);
@@ -479,7 +480,7 @@ public final class CarProjectionManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public void unregisterProjectionRunner(@NonNull Intent serviceIntent) {
-        Preconditions.checkNotNull("serviceIntent cannot be null");
+        Objects.requireNonNull("serviceIntent cannot be null");
         synchronized (mLock) {
             try {
                 mService.unregisterProjectionRunner(serviceIntent);
@@ -506,7 +507,7 @@ public final class CarProjectionManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public void startProjectionAccessPoint(@NonNull ProjectionAccessPointCallback callback) {
-        Preconditions.checkNotNull(callback, "callback cannot be null");
+        Objects.requireNonNull(callback, "callback cannot be null");
         synchronized (mLock) {
             Looper looper = getEventHandler().getLooper();
             ProjectionAccessPointCallbackProxy proxy =
@@ -572,7 +573,7 @@ public final class CarProjectionManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public boolean requestBluetoothProfileInhibit(
             @NonNull BluetoothDevice device, int profile) {
-        Preconditions.checkNotNull(device, "device cannot be null");
+        Objects.requireNonNull(device, "device cannot be null");
         try {
             return mService.requestBluetoothProfileInhibit(device, profile, mToken);
         } catch (RemoteException e) {
@@ -590,7 +591,7 @@ public final class CarProjectionManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public boolean releaseBluetoothProfileInhibit(@NonNull BluetoothDevice device, int profile) {
-        Preconditions.checkNotNull(device, "device cannot be null");
+        Objects.requireNonNull(device, "device cannot be null");
         try {
             return mService.releaseBluetoothProfileInhibit(device, profile, mToken);
         } catch (RemoteException e) {
@@ -608,7 +609,7 @@ public final class CarProjectionManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public void updateProjectionStatus(@NonNull ProjectionStatus status) {
-        Preconditions.checkNotNull(status, "status cannot be null");
+        Objects.requireNonNull(status, "status cannot be null");
         try {
             mService.updateProjectionStatus(status, mToken);
         } catch (RemoteException e) {
@@ -626,7 +627,7 @@ public final class CarProjectionManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION_STATUS)
     public void registerProjectionStatusListener(@NonNull ProjectionStatusListener listener) {
-        Preconditions.checkNotNull(listener, "listener cannot be null");
+        Objects.requireNonNull(listener, "listener cannot be null");
         synchronized (mLock) {
             mProjectionStatusListeners.add(listener);
 
@@ -657,7 +658,7 @@ public final class CarProjectionManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION_STATUS)
     public void unregisterProjectionStatusListener(@NonNull ProjectionStatusListener listener) {
-        Preconditions.checkNotNull(listener, "listener cannot be null");
+        Objects.requireNonNull(listener, "listener cannot be null");
         synchronized (mLock) {
             if (!mProjectionStatusListeners.remove(listener)
                     || !mProjectionStatusListeners.isEmpty()) {
