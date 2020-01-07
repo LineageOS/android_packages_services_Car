@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package android.car;
+package android.car.user;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
+import android.car.Car;
+import android.car.CarManagerBase;
+import android.car.ICarUserService;
 import android.content.pm.UserInfo;
 import android.os.IBinder;
 import android.os.RemoteException;

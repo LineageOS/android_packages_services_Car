@@ -118,17 +118,6 @@ package android.car {
     method public void onProjectionStatusChanged(int, @Nullable String, @NonNull java.util.List<android.car.projection.ProjectionStatus>);
   }
 
-  public final class CarUserManager {
-    method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public int createDriver(@NonNull String, boolean);
-    method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public int createPassenger(@NonNull String, int);
-    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public java.util.List<java.lang.Integer> getAllDrivers();
-    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public java.util.List<java.lang.Integer> getPassengers(int);
-    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean startPassenger(int, int);
-    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean stopPassenger(int);
-    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean switchDriver(int);
-    field public static final int INVALID_USER_ID = -10000; // 0xffffd8f0
-  }
-
   public final class VehicleAreaDoor {
     field public static final int DOOR_HOOD = 268435456; // 0x10000000
     field public static final int DOOR_REAR = 536870912; // 0x20000000
@@ -1093,6 +1082,21 @@ package android.car.trust {
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator CREATOR;
     field public static final String DEFAULT_NAME = "Default";
+  }
+
+}
+
+package android.car.user {
+
+  public final class CarUserManager {
+    method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public int createDriver(@NonNull String, boolean);
+    method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public int createPassenger(@NonNull String, int);
+    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public java.util.List<java.lang.Integer> getAllDrivers();
+    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public java.util.List<java.lang.Integer> getPassengers(int);
+    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean startPassenger(int, int);
+    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean stopPassenger(int);
+    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean switchDriver(int);
+    field public static final int INVALID_USER_ID = -10000; // 0xffffd8f0
   }
 
 }
