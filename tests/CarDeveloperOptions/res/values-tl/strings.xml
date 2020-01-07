@@ -2628,7 +2628,7 @@
     <string name="header_add_an_account" msgid="8482614556580804956">"Magdagdag ng account"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Alisin ang account?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Ang pag-aalis ng account na ito ay magtatanggal sa lahat ng mensahe, contact, at iba pang data nito mula sa tablet!"</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Ang pag-aalis ng account na ito ay magde-delete sa lahat ng mensahe, contact at iba pang data nito mula sa telepono!"</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Ang pag-aalis ng account na ito ay magde-delete sa lahat ng mensahe, contact, at iba pang data nito mula sa telepono!"</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Kapag inalis ang account na ito, made-delete ang lahat ng mensahe, contact, at iba pang data nito mula sa device!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Hindi pinapahintulutan ng iyong admin ang pagbabagong ito"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Hindi makapag-sync nang manual"</string>
