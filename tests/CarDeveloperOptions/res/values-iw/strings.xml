@@ -2696,7 +2696,7 @@
     <string name="header_data_and_synchronization" msgid="400831816068697286">"נתונים וסינכרון"</string>
     <string name="preference_change_password_title" msgid="7243527448378789274">"שנה סיסמה"</string>
     <string name="header_account_settings" msgid="8586173964125512219">"הגדרות חשבון"</string>
-    <string name="remove_account_label" msgid="5885425720323823387">"הסר חשבון"</string>
+    <string name="remove_account_label" msgid="5885425720323823387">"הסרת החשבון"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"הוספת חשבון"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"להסיר את החשבון?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"הסרת חשבון זה תגרום להסרת כל ההודעות, אנשי הקשר ונתונים נוספים מהטאבלט!"</string>
@@ -3923,7 +3923,7 @@
     <string name="system_alert_window_settings" msgid="3024330223417646567">"תצוגה מעל אפליקציות אחרות"</string>
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"אפליקציות"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"תצוגה מעל אפליקציות אחרות"</string>
-    <string name="permit_draw_overlay" msgid="9039092257052422344">"אפשר הצגה מעל אפליקציות אחרות"</string>
+    <string name="permit_draw_overlay" msgid="9039092257052422344">"הצגה מעל אפליקציות אחרות"</string>
     <string name="allow_overlay_description" msgid="6669524816705082807">"הגדרה זו מתירה לאפליקציה להופיע מעל אפליקציות אחרות שנמצאות בשימוש. הפעולה הזאת עשויה להפריע לשימוש שלך באפליקציות האלה או לשנות את האופן שבו הן מוצגות או מתנהגות."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"שירות מסייע של מציאות מדומה VR להאזנה סטריאופונית"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"חלון ההתרעה יוצג מעל אפליקציות אחרות"</string>

@@ -4424,8 +4424,8 @@
     <string name="install_type_instant" msgid="6248487669862821874">"Імгненная праграма"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"Выключыць менеджар сховішча?"</string>
     <string name="storage_movies_tv" msgid="7282484273991655296">"Праграмы для фільмаў і ТБ"</string>
-    <string name="carrier_provisioning" msgid="3309125279191534469">"Інфармацыя аператара"</string>
-    <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"Уключыць/выключыць забеспячэнне аператарам"</string>
+    <string name="carrier_provisioning" msgid="3309125279191534469">"Звесткі аб аператары"</string>
+    <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"Запусціць сінхранізацыю з аператарам"</string>
     <string name="zen_suggestion_title" msgid="2134699720214231950">"Абнавіце рэжым \"Не турбаваць\""</string>
     <string name="zen_suggestion_summary" msgid="4041062903237952737">"Прыпыніце апавяшчэнні, каб яны не адцягвалі ўвагу"</string>
     <string name="disabled_low_ram_device" msgid="4958060232123741721">"Гэта функцыя недаступная на гэтай прыладзе"</string>

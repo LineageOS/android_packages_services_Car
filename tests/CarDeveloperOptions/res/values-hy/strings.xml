@@ -527,7 +527,7 @@
     <string name="crypt_keeper_setup_time_remaining" product="default" msgid="8049188590821796173">"Սպասեք մինչև ձեր հեռախոսը գաղտնագրվի: Մնաց՝ <xliff:g id="DURATION">^1</xliff:g>"</string>
     <string name="crypt_keeper_force_power_cycle" product="tablet" msgid="9168213181845231795">"Գրասալիկն ապակողպելու համար անջատեք, ապա նորից միացրեք այն:"</string>
     <string name="crypt_keeper_force_power_cycle" product="default" msgid="1182690469082263666">"Հեռախոսն ապակողպելու համար անջատեք, ապա նորից միացրեք այն:"</string>
-    <string name="crypt_keeper_warn_wipe" msgid="700814581500057050">"Զգուշացում. Եթե ևս <xliff:g id="COUNT">^1</xliff:g> անգամ չկարողանաք ճիշտ ապակողպել, ձեր սարքի ողջ տվյալները կմաքրվեն:"</string>
+    <string name="crypt_keeper_warn_wipe" msgid="700814581500057050">"Զգուշացում. Եթե ևս <xliff:g id="COUNT">^1</xliff:g> անգամ չկարողանաք ճիշտ ապակողպել, ձեր սարքի ողջ տվյալները կջնջվեն:"</string>
     <string name="crypt_keeper_enter_password" msgid="726933635335219421">"Մուտքագրեք ձեր գաղտնաբառը"</string>
     <string name="crypt_keeper_failed_title" msgid="1906382607060855782">"Գաղտնագրումը անհաջող էր"</string>
     <string name="crypt_keeper_failed_summary" product="tablet" msgid="7844833877734529625">"Գաղտնագրումը դադարեցվեց, և այն հնարավոր չէ ավարտել: Արդյունքում ձեր պլանշետի տվյալները այլևս մատչելի չեն: \n\n Շարունակելու համար օգտագործել ձեր պլանշետը` դուք պետք է կատարեք գործարանային վերականգնում: Ձեր պլանշետի վերականգնումից և կարգավորումից հետո դուք հնարավորություն կունենանք վերականգնել ցանկացած տվյալ, որը պահուստավորվել էր ձեր Google հաշվում:"</string>
@@ -2626,9 +2626,9 @@
     <string name="header_account_settings" msgid="8586173964125512219">"Հաշվի կարգավորումները"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"Հեռացնել հաշիվը"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Ավելացնել հաշիվ"</string>
-    <string name="really_remove_account_title" msgid="4166512362915154319">"Հեռացնե՞լ հաշիվը:"</string>
+    <string name="really_remove_account_title" msgid="4166512362915154319">"Հեռացնե՞լ հաշիվը"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Այս հաշիվը հեռացնելիս պլանշետից կջնջվեն նաև բոլոր հաղորդագրությունները, կոնտակտները և այլ տվյալները:"</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Այս հաշվի հեռացումից հեռախոսից կջնջվեն նաև բոլոր հաղորդագրությունները, կոնտակտները և այլ տվյալները:"</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Հաշիվը հեռացնելու դեպքում հեռախոսից կջնջվեն նաև բոլոր հաղորդագրությունները, կոնտակտները և այլ տվյալներ։"</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Այս հաշիվը հեռացնելու դեպքում սարքից կջնջվեն նաև հաշվի բոլոր հաղորդագրությունները, կոնտակտներն ու մյուս տվյալները:"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Ձեր ադմինիստրատորը չի թույլատրում այս փոփոխությունը"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Հնարավոր չէ ձեռքով համաժամացնել"</string>

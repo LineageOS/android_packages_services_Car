@@ -2627,8 +2627,8 @@
     <string name="remove_account_label" msgid="5885425720323823387">"Ondoa akaunti"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Ongeza akaunti"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Je, ungependa kuondoa akaunti?"</string>
-    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Kuondoa hii akaunti kutafuta mazungumzo yako yote, anwani, na data zingine kutoka kwa kompyuta kibao!"</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Kuondoa hii akaunti hii kutafuta mazungumzo yako yote, anwani, na data zingine kutoka kwa simu!"</string>
+    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Kuondoa akaunti hii kutafuta mazungumzo yako yote, anwani na data zingine kwenye kompyuta kibao!"</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Kuondoa akaunti hii kutafuta mazungumzo yako yote, anwani na data nyingine kwenye simu!"</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Kuondoa akaunti hii kutasabibisha kufutwa kwa ujumbe, anwani na data nyingine kwenye kifaa!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Mabadiliko haya hayaruhusiwi na msimamizi wako"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Huwezi kusawazisha mwenyewe"</string>
