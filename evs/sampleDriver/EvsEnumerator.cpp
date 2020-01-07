@@ -114,7 +114,18 @@ void EvsEnumerator::EvsUeventThread(std::atomic<bool>& running) {
             } else if (cmd_addition) {
                 // NOTE: we are here adding new device without a validation
                 // because it always fails to open, b/132164956.
-                sCameraList.emplace(devpath, devpath.c_str());
+                CameraRecord cam(devpath.c_str());
+                if (sConfigManager != nullptr) {
+                    unique_ptr<ConfigManager::CameraInfo> &camInfo =
+                        sConfigManager->getCameraInfo(devpath);
+                    if (camInfo != nullptr) {
+                        cam.desc.metadata.setToExternal(
+                            (uint8_t *)camInfo->characteristics,
+                             get_camera_metadata_size(camInfo->characteristics)
+                        );
+                    }
+                }
+                sCameraList.emplace(devpath, cam);
                 ALOGI("%s is added", devpath.c_str());
             } else {
                 // Ignore all other actions including "change".
@@ -131,19 +142,13 @@ void EvsEnumerator::EvsUeventThread(std::atomic<bool>& running) {
 EvsEnumerator::EvsEnumerator() {
     ALOGD("EvsEnumerator created");
 
-    std::thread initCfgMgr;
     if (sConfigManager == nullptr) {
         /* loads and initializes ConfigManager in a separate thread */
-        initCfgMgr = std::thread([](){
-            sConfigManager =
-                ConfigManager::Create("/etc/automotive/evs/evs_sample_configuration.xml");
-        });
+        sConfigManager =
+            ConfigManager::Create("/etc/automotive/evs/evs_sample_configuration.xml");
     }
 
     enumerateDevices();
-    if (initCfgMgr.joinable()) {
-        initCfgMgr.join();
-    }
 }
 
 void EvsEnumerator::enumerateDevices() {
@@ -348,7 +353,6 @@ Return<void> EvsEnumerator::getCameraList_1_1(getCameraList_1_1_cb _hidl_cb)  {
         std::unique_lock<std::mutex> lock(sLock);
         if (sCameraList.size() < 1) {
             // No qualified device has been found.  Wait until new device is ready,
-            // for 10 seconds.
             if (!sCameraSignal.wait_for(lock,
                                         kEnumerationTimeout,
                                         []{ return sCameraList.size() > 0; })) {
@@ -357,32 +361,55 @@ Return<void> EvsEnumerator::getCameraList_1_1(getCameraList_1_1_cb _hidl_cb)  {
         }
     }
 
-    const unsigned numCameras = sCameraList.size();
+    std::vector<CameraDesc_1_1> hidlCameras;
+    if (sConfigManager == nullptr) {
+        auto numCameras = sCameraList.size();
 
-    // Build up a packed array of CameraDesc for return
-    hidl_vec<CameraDesc_1_1> hidlCameras;
-    hidlCameras.resize(numCameras);
-    unsigned i = 0;
-    for (auto& [key, cam] : sCameraList) {
-        if (sConfigManager != nullptr) {
-            unique_ptr<ConfigManager::CameraInfo> &tempInfo = sConfigManager->getCameraInfo(key);
+        // Build up a packed array of CameraDesc for return
+        hidlCameras.resize(numCameras);
+        unsigned i = 0;
+        for (auto&& [key, cam] : sCameraList) {
+            hidlCameras[i++] = cam.desc;
+        }
+    } else {
+        // Build up a packed array of CameraDesc for return
+        for (auto&& [key, cam] : sCameraList) {
+            unique_ptr<ConfigManager::CameraInfo> &tempInfo =
+                sConfigManager->getCameraInfo(key);
             if (tempInfo != nullptr) {
-                //TODO(b/140668179): There are multiple places where camera metadata
-                //                   is being updated and, as it may raise a
-                //                   performance concern, redundant tries need to be
-                //                   removed.
                 cam.desc.metadata.setToExternal(
                     (uint8_t *)tempInfo->characteristics,
                      get_camera_metadata_size(tempInfo->characteristics)
                 );
             }
+
+            hidlCameras.emplace_back(cam.desc);
         }
 
-        hidlCameras[i++] = cam.desc;
+        // Adding camera groups that represent logical camera devices
+        auto camGroups = sConfigManager->getCameraGroupIdList();
+        for (auto&& id : camGroups) {
+            if (sCameraList.find(id) != sCameraList.end()) {
+                // Already exists in the list
+                continue;
+            }
+
+            unique_ptr<ConfigManager::CameraGroupInfo> &tempInfo =
+                sConfigManager->getCameraGroupInfo(id);
+            CameraRecord cam(id.c_str());
+            if (tempInfo != nullptr) {
+                cam.desc.metadata.setToExternal(
+                    (uint8_t *)tempInfo->characteristics,
+                     get_camera_metadata_size(tempInfo->characteristics)
+                );
+            }
+
+            sCameraList.emplace(id, cam);
+            hidlCameras.emplace_back(cam.desc);
+        }
     }
 
     // Send back the results
-    ALOGD("reporting %zu cameras available", hidlCameras.size());
     _hidl_cb(hidlCameras);
 
     // HIDL convention says we return Void if we sent our result back via callback
@@ -399,6 +426,10 @@ Return<sp<IEvsCamera_1_1>> EvsEnumerator::openCamera_1_1(const hidl_string& came
 
     // Is this a recognized camera id?
     CameraRecord *pRecord = findCameraById(cameraId);
+    if (pRecord == nullptr) {
+        ALOGE("%s does not exist!", cameraId.c_str());
+        return nullptr;
+    }
 
     // Has this camera already been instantiated by another caller?
     sp<EvsV4lCamera> pActiveCamera = pRecord->activeInstance.promote();

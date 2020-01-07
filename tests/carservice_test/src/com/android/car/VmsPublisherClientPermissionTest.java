@@ -27,6 +27,8 @@ import android.car.vms.VmsSubscriptionState;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.android.car.vms.VmsClientManager;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -100,8 +102,7 @@ public class VmsPublisherClientPermissionTest extends MockedCarTestBase {
 
     @Before
     public void triggerClientBinding() {
-        // TODO(b/144027497): refactor the test to  mock the behavior of CarUserService
-        getVmsClientManager().mUserCallback.onSwitchUser(ActivityManager.getCurrentUser());
+        switchUser(ActivityManager.getCurrentUser(), VmsClientManager.class.getSimpleName());
     }
 
     @Test

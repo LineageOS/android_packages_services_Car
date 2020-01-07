@@ -39,6 +39,7 @@ import android.util.Pair;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
+import com.android.car.vms.VmsClientManager;
 
 import org.junit.Before;
 
@@ -82,8 +83,7 @@ public class MockedVmsTestBase extends MockedCarTestBase {
     @Before
     public void setUpVms() throws Exception {
         // Trigger VmsClientManager to bind to the MockPublisherClient
-        // TODO(b/144027497): refactor the test to  mock the behavior of CarUserService
-        getVmsClientManager().mUserCallback.onSwitchUser(ActivityManager.getCurrentUser());
+        switchUser(ActivityManager.getCurrentUser(), VmsClientManager.class.getSimpleName());
         mVmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         mSubscriberClient = new MockSubscriberClient();

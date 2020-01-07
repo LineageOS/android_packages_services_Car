@@ -19,6 +19,7 @@
 
 #include <list>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "HalCamera.h"
 #include "VirtualCamera.h"
@@ -26,6 +27,7 @@
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
 #include <android/hardware/camera/device/3.2/ICameraDevice.h>
+#include <system/camera_metadata.h>
 
 using namespace ::android::hardware::automotive::evs::V1_1;
 using ::android::hardware::Return;
@@ -64,12 +66,20 @@ public:
     bool init(const char* hardwareServiceName);
 
 private:
-    bool checkPermission();
-    sp<IEvsEnumerator_1_1>      mHwEnumerator;      // Hardware enumerator
-    wp<IEvsDisplay>             mActiveDisplay;     // Display proxy object warpping hw display
-    std::list<sp<HalCamera>>    mCameras;           // Camera proxy objects wrapping hw cameras
-    std::unordered_map<std::string,                 // Active stream configuration of
-                       Stream>  mStreamConfigs;     // a camera device.
+    bool inline                     checkPermission();
+    bool                            isLogicalCamera(const camera_metadata_t *metadata);
+    std::unordered_set<std::string> getPhysicalCameraIds(const std::string& id);
+
+    sp<IEvsEnumerator_1_1>            mHwEnumerator;  // Hardware enumerator
+    wp<IEvsDisplay>                   mActiveDisplay; // Display proxy object warpping hw display
+
+    // List of active camera proxy objects that wrap hw cameras
+    std::unordered_map<std::string,
+                       sp<HalCamera>> mActiveCameras;
+
+    // List of camera descriptors of enumerated hw cameras
+    std::unordered_map<std::string,
+                       CameraDesc>    mCameraDevices;
 };
 
 } // namespace implementation

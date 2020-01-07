@@ -31,13 +31,33 @@
     <!-- camera device information -->
     <camera>
         <!-- camera group 0 -->
-        <group group_id='group1'
-               device_id='/dev/video1,/dev/video2'
-               synchronized='false'
-        >
+        <group id='group0' synchronized='CALIBRATED'>
             <caps>
-                <stream id='0' width='960' height='540' format='RGBA_8888' framerate='30'/>
+                <!-- list of supported controls supported by all physical devices -->
+                <supported_controls>
+                    <control name='BRIGHTNESS' min='0' max='255'/>
+                    <control name='CONTRAST' min='0' max='255'/>
+                </supported_controls>
+
+                <!-- list of stream configuration supported by all physical devices -->
+                <stream id='0' width='640' height='480' format='RGBA_8888' framerate='30'/>
             </caps>
+
+            <!-- list of parameters -->
+            <characteristics>
+                <parameter
+                    name='REQUEST_AVAILABLE_CAPABILITIES'
+                    type='enum'
+                    size='1'
+                    value='LOGICAL_MULTI_CAMERA'
+                />
+                <parameter
+                    name='LOGICAL_MULTI_CAMERA_PHYSICAL_IDS'
+                    type='byte[]'
+                    size='2'
+                    value='/dev/video1,/dev/video2'
+                />
+            </characteristics>
         </group>
 
         <!-- camera device starts -->
@@ -111,9 +131,71 @@
         </device>
         <device id='/dev/video2' position='front'>
             <caps>
+                <!-- list of supported controls -->
+                <supported_controls>
+                    <control name='BRIGHTNESS' min='0' max='255'/>
+                    <control name='CONTRAST' min='0' max='255'/>
+                    <control name='AUTO_WHITE_BALANCE' min='0' max='1'/>
+                    <control name='WHITE_BALANCE_TEMPERATURE' min='2000' max='7500'/>
+                    <control name='SHARPNESS' min='0' max='255'/>
+                    <control name='AUTO_FOCUS' min='0' max='1'/>
+                    <control name='ABSOLUTE_FOCUS' min='0' max='255' step='5'/>
+                    <control name='ABSOLUTE_ZOOM' min='100' max='400'/>
+                </supported_controls>
+
                 <!-- list of supported stream configurations -->
-                <stream id='0' width='1280' height='720' format='RGBA_8888' framerate='30'/>
+                <!-- below configurations were taken from v4l2-ctrl query on Logitech Webcam C930e device -->
+                <stream id='0' width='1920' height='1080' format='RGBA_8888' framerate='5'/>
+                <stream id='1' width='2304' height='1296' format='RGBA_8888' framerate='2'/>
+                <stream id='2' width='2304' height='1536' format='RGBA_8888' framerate='2'/>
+                <stream id='4' width='1280' height='720'  format='RGBA_8888' framerate='10'/>
+                <stream id='4' width='1024' height='576'  format='RGBA_8888' framerate='15'/>
+                <stream id='5' width='960'  height='540'  format='RGBA_8888' framerate='15'/>
+                <stream id='6' width='848'  height='480'  format='RGBA_8888' framerate='30'/>
+                <stream id='7' width='640'  height='360'  format='RGBA_8888' framerate='30'/>
+                <stream id='8' width='480'  height='270'  format='RGBA_8888' framerate='30'/>
+                <stream id='9' width='160'  height='120'  format='RGBA_8888' framerate='30'/>
             </caps>
+
+            <!-- list of parameters -->
+            <characteristics>
+                <!-- Lens distortion information. See
+                     https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics.html#LENS_DISTORTION
+                -->
+                <parameter
+                    name='LENS_DISTORTION'
+                    type='float'
+                    size='5'
+                    value='0.0,0.0,0.0,0.0,0.0'
+                />
+
+                <!-- Camera intrinsic calibration matrix. See
+                     https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics.html#LENS_INTRINSIC_CALIBRATION
+                -->
+                <parameter
+                    name='LENS_INTRINSIC_CALIBRATION'
+                    type='float'
+                    size='5'
+                    value='0.0,0.0,0.0,0.0,0.0'
+                />
+
+                <!-- Camera pose translation and rotation.  See
+                     https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics.html#LENS_POSE_TRANSLATION
+                     https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics.html#LENS_POSE_ROTATION
+                -->
+                <parameter
+                    name='LENS_POSE_TRANSLATION'
+                    type='float'
+                    size='3'
+                    value='0.0,0.0,0.0'
+                />
+                <parameter
+                    name='LENS_POSE_ROTATION'
+                    type='float'
+                    size='4'
+                    value='0.0,0.0,0.0,0.0'
+                />
+            </characteristics>
         </device>
     </camera>
 

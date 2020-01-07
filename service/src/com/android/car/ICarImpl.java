@@ -41,16 +41,19 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.ShellCallback;
 import android.os.ShellCommand;
+import android.os.SystemClock;
 import android.os.Trace;
 import android.os.UserManager;
 import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
+import android.view.KeyEvent;
 
 import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.garagemode.GarageModeService;
+import com.android.car.hal.InputHalService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.stats.CarStatsService;
@@ -61,6 +64,7 @@ import com.android.car.user.CarUserService;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.ICarServiceHelper;
 import com.android.internal.util.ArrayUtils;
 
@@ -137,6 +141,14 @@ public class ICarImpl extends ICar.Stub {
 
     public ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
             CanBusErrorNotifier errorNotifier, String vehicleInterfaceName) {
+        this(serviceContext, vehicle, systemInterface, errorNotifier, vehicleInterfaceName,
+                /* carUserService= */ null);
+    }
+
+    @VisibleForTesting
+    ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
+            CanBusErrorNotifier errorNotifier, String vehicleInterfaceName,
+            @Nullable CarUserService carUserService) {
         mContext = serviceContext;
         mSystemInterface = systemInterface;
         mHal = new VehicleHal(serviceContext, vehicle);
@@ -151,12 +163,16 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(CarFeatureController.class, mFeatureController);
         mVehicleInterfaceName = vehicleInterfaceName;
         mUserManagerHelper = new CarUserManagerHelper(serviceContext);
-        UserManager userManager =
-                (UserManager) serviceContext.getSystemService(Context.USER_SERVICE);
-        int maxRunningUsers = res.getInteger(
-                com.android.internal.R.integer.config_multiuserMaxRunningUsers);
-        mCarUserService = new CarUserService(serviceContext, mUserManagerHelper, userManager,
-                ActivityManager.getService(), maxRunningUsers);
+        if (carUserService != null) {
+            mCarUserService = carUserService;
+        } else {
+            UserManager userManager =
+                    (UserManager) serviceContext.getSystemService(Context.USER_SERVICE);
+            int maxRunningUsers = res.getInteger(
+                    com.android.internal.R.integer.config_multiuserMaxRunningUsers);
+            mCarUserService = new CarUserService(serviceContext, mUserManagerHelper, userManager,
+                    ActivityManager.getService(), maxRunningUsers);
+        }
         mCarOccupantZoneService = new CarOccupantZoneService(serviceContext);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
@@ -708,6 +724,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_STOP_FIXED_ACTIVITY_MODE = "stop-fixed-activity-mode";
         private static final String COMMAND_ENABLE_FEATURE = "enable-feature";
         private static final String COMMAND_DISABLE_FEATURE = "disable-feature";
+        private static final String COMMAND_INJECT_KEY = "inject-key";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -793,6 +810,12 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\tdisable-feature featureName");
             pw.println("\t  Disable the requested feature. Change will happen after reboot");
             pw.println("\t  This requires root/su.");
+            pw.println("\tinject-key [-d display] [-t down_delay_ms] key_code");
+            pw.println("\t  inject key down / up event to car service");
+            pw.println("\t  display: 0 for main, 1 for cluster. If not specified, it will be 0.");
+            pw.println("\t  down_delay_ms: delay from down to up key event. If not specified,");
+            pw.println("\t                 it will be 0");
+            pw.println("\t  key_code: int key code defined in android KeyEvent");
         }
 
         private int dumpInvalidArguments(PrintWriter pw) {
@@ -948,6 +971,12 @@ public class ICarImpl extends ICar.Stub {
                     }
                     handleEnableDisableFeature(args, writer, /* enable= */ false);
                     break;
+                case COMMAND_INJECT_KEY:
+                    if (args.length < 2) {
+                        return dumpInvalidArguments(writer);
+                    }
+                    handleInjectKey(args, writer);
+                    break;
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
                     dumpHelp(writer);
@@ -1040,6 +1069,60 @@ public class ICarImpl extends ICar.Stub {
                     break;
             }
             Binder.restoreCallingIdentity(id);
+        }
+
+        private void handleInjectKey(String[] args, PrintWriter writer) {
+            int i = 1; // 0 is command itself
+            int display = InputHalService.DISPLAY_MAIN;
+            int delayMs = 0;
+            int keyCode = KeyEvent.KEYCODE_UNKNOWN;
+            try {
+                while (i < args.length) {
+                    switch (args[i]) {
+                        case "-d":
+                            i++;
+                            display = Integer.parseInt(args[i]);
+                            break;
+                        case "-t":
+                            i++;
+                            delayMs = Integer.parseInt(args[i]);
+                            break;
+                        default:
+                            if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
+                                throw new IllegalArgumentException("key_code already set:"
+                                        + keyCode);
+                            }
+                            keyCode = Integer.parseInt(args[i]);
+                    }
+                    i++;
+                }
+            } catch (Exception e) {
+                writer.println("Invalid args:" + e);
+                dumpHelp(writer);
+                return;
+            }
+            if (keyCode == KeyEvent.KEYCODE_UNKNOWN) {
+                writer.println("Missing key code or invalid keycode");
+                dumpHelp(writer);
+                return;
+            }
+            if (display != InputHalService.DISPLAY_MAIN
+                    && display != InputHalService.DISPLAY_INSTRUMENT_CLUSTER) {
+                writer.println("Invalid display:" + display);
+                dumpHelp(writer);
+                return;
+            }
+            if (delayMs < 0) {
+                writer.println("Invalid delay:" + delayMs);
+                dumpHelp(writer);
+                return;
+            }
+            KeyEvent keyDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
+            mCarInputService.onKeyEvent(keyDown, display);
+            SystemClock.sleep(delayMs);
+            KeyEvent keyUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
+            mCarInputService.onKeyEvent(keyUp, display);
+            writer.println("Succeeded");
         }
 
         private void forceDayNightMode(String arg, PrintWriter writer) {

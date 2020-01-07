@@ -25,6 +25,9 @@ cc_binary {
         "HalCamera.cpp",
         "VirtualCamera.cpp",
         "HalDisplay.cpp",
+        "sync/unique_fd.cpp",
+        "sync/unique_fence.cpp",
+        "sync/unique_timeline.cpp",
     ],
 
     shared_libs: [
@@ -32,8 +35,10 @@ cc_binary {
         "liblog",
         "libutils",
         "libui",
+        "libsync",
         "libhidlbase",
         "libhardware",
+        "libcamera_metadata",
         "android.hardware.automotive.evs@1.0",
         "android.hardware.automotive.evs@1.1",
     ],
@@ -47,11 +52,15 @@ cc_binary {
     cflags: ["-DLOG_TAG=\"EvsManagerV1_1\""] + [
         "-DGL_GLEXT_PROTOTYPES",
         "-DEGL_EGLEXT_PROTOTYPES",
-    ] + [
+        "-D_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
         "-Wall",
         "-Werror",
         "-Wunused",
         "-Wunreachable-code",
+        "-Wthread-safety",
     ],
 
+    include_dirs: [
+        "system/core/libsync",
+    ],
 }
