@@ -249,7 +249,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             synchronized (mLock) {
                 try {
                     while (mWaitingPolicies.contains(policy)) {
-                        wait();
+                        mLock.wait();
                     }
                 } catch (InterruptedException e) {
                     // Pass it over binder call
@@ -404,7 +404,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 mProxies.clear();
             }
             mWaitingPolicies.clear();
-            notifyAll();
+            mLock.notifyAll();
         }
         mContext.unregisterReceiver(mPackageParsingEventReceiver);
         mContext.unregisterReceiver(mUserSwitchedEventReceiver);
@@ -493,7 +493,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
             if ((flags & CarPackageManager.FLAG_SET_POLICY_WAIT_FOR_CHANGE) != 0) {
                 mWaitingPolicies.remove(policy);
-                notifyAll();
+                mLock.notifyAll();
             }
             if (DBG_POLICY_SET) {
                 Log.i(CarLog.TAG_PACKAGE, "policy set:" + dumpPoliciesLocked(false));
