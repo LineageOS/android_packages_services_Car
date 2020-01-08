@@ -49,6 +49,7 @@ import android.car.settings.CarConfigurationManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.car.trust.CarTrustAgentEnrollmentManager;
+import android.car.user.CarUserManager;
 import android.car.vms.VmsSubscriberManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -67,7 +68,6 @@ import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -77,6 +77,7 @@ import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *   Top level car API for embedded Android Auto deployments.
@@ -1036,7 +1037,7 @@ public final class Car {
             @Nullable Handler handler, long waitTimeoutMs,
             @NonNull CarServiceLifecycleListener statusChangeListener) {
         assertNonNullContext(context);
-        Preconditions.checkNotNull(statusChangeListener);
+        Objects.requireNonNull(statusChangeListener);
         Car car = null;
         IBinder service = null;
         boolean started = false;
@@ -1117,7 +1118,7 @@ public final class Car {
     }
 
     private static void assertNonNullContext(Context context) {
-        Preconditions.checkNotNull(context);
+        Objects.requireNonNull(context);
         if (context instanceof ContextWrapper
                 && ((ContextWrapper) context).getBaseContext() == null) {
             throw new NullPointerException(

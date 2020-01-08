@@ -2626,9 +2626,9 @@
     <string name="header_account_settings" msgid="8586173964125512219">"Есептік жазба параметрлері"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"Есептік жазбаны жою"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Есептік жазба қосу"</string>
-    <string name="really_remove_account_title" msgid="4166512362915154319">"Есептік жазба алынсын ба?"</string>
+    <string name="really_remove_account_title" msgid="4166512362915154319">"Есептік жазба жойылсын ба?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Бұл есептік жазбаны алып тастау нәтижесінде оның хабарлары, контактілері және басқа планшет деректері жойылады!"</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Бұл есептік жазбаны алып тастаса, телефоннан барлық хабарлар, контактілер мен басқа деректер жойылады!"</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Бұл есептік жазба жойылса, телефоннан барлық хабарлар, контактілер мен басқа деректер өшіріледі!"</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Бұл есептік жазба жойылса, құрылғыдағы барлық хабарлар, контактілер және басқа деректер қоса жойылады!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Әкімші бұл өзгертуге рұқсат бермеген"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Қолмен синхрондау мүмкін болмады"</string>

@@ -543,7 +543,7 @@
     <string name="crypt_keeper_setup_time_remaining" product="default" msgid="8049188590821796173">"انتظر بينما يتم تشفير هاتفك. الوقت المتبقي: <xliff:g id="DURATION">^1</xliff:g>"</string>
     <string name="crypt_keeper_force_power_cycle" product="tablet" msgid="9168213181845231795">"لإلغاء تأمين الجهاز اللوحي، يمكنك إيقافه وتشغيله مرة أخرى."</string>
     <string name="crypt_keeper_force_power_cycle" product="default" msgid="1182690469082263666">"لإلغاء تأمين الهاتف، يمكنك إيقافه وتشغيله مرة أخرى."</string>
-    <string name="crypt_keeper_warn_wipe" msgid="700814581500057050">"تحذير: سيتم محو محتويات جهازك بعد إخفاق <xliff:g id="COUNT">^1</xliff:g> من المحاولات الأخرى لإلغاء القفل!"</string>
+    <string name="crypt_keeper_warn_wipe" msgid="700814581500057050">"تحذير: سيتم محو محتوى جهازك بعد فشل <xliff:g id="COUNT">^1</xliff:g> من المحاولات الأخرى في فتح القفل!"</string>
     <string name="crypt_keeper_enter_password" msgid="726933635335219421">"اكتب كلمة المرور"</string>
     <string name="crypt_keeper_failed_title" msgid="1906382607060855782">"لم يتم التشفير بنجاح"</string>
     <string name="crypt_keeper_failed_summary" product="tablet" msgid="7844833877734529625">"تمت مقاطعة التشفير ويتعذر الاستكمال. ونتيجة لذلك، لن تتمكن بعد الآن من الدخول إلى البيانات على جهازك اللوحي. \n\nلاستئناف استخدام الجهاز اللوحي، يلزمك إجراء إعادة ضبط المصنع. وعند إعداد الجهاز اللوحي بعد إعادة الضبط، ستكون لديك فرصة استعادة أي بيانات تم نسخها احتياطيًا إلى حساب Google."</string>
@@ -1531,7 +1531,7 @@
     <string name="storage_detail_other" msgid="9164851767437306618">"غير ذلك"</string>
     <string name="storage_detail_system" msgid="6784247618772153283">"النظام"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"استكشاف <xliff:g id="NAME">^1</xliff:g>"</string>
-    <string name="storage_detail_dialog_other" msgid="5073511663616043370">"تشمل الملفات الأخرى الملفات المشتركة التي تم حفظها بواسطة التطبيقات والملفات التي تم تنزيلها من مواقع الإنترنت أو عبر البلوتوث وملفات Android وما إلى ذلك. \n\nللاطلاع على المحتويات المرئية على بطاقة <xliff:g id="NAME">^1</xliff:g> هذه، انقر على \"استكشاف\"."</string>
+    <string name="storage_detail_dialog_other" msgid="5073511663616043370">"تشمل الملفات الأخرى الملفات المشتركة التي تم حفظها بواسطة التطبيقات والملفات التي تم تنزيلها من مواقع الإنترنت أو عبر البلوتوث وملفات Android وما إلى ذلك. \n\nللاطلاع على المحتوى المرئي على بطاقة <xliff:g id="NAME">^1</xliff:g> هذه، انقر على \"استكشاف\"."</string>
     <string name="storage_detail_dialog_system" msgid="1472572861360014226">"يتضمّن النظام الملفات المستخدمة لتشغيل إصدار Android <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"ربما يكون لدى <xliff:g id="USER_0">^1</xliff:g> صور أو موسيقى أو تطبيقات أو بيانات أخرى محفوظة، ويتم استخدام <xliff:g id="SIZE">^2</xliff:g> من مساحة التخزين. \n\nللاطلاع على التفاصيل، يمكنك التبديل إلى <xliff:g id="USER_1">^1</xliff:g>."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"إعداد <xliff:g id="NAME">^1</xliff:g>"</string>
@@ -3470,7 +3470,7 @@
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"الأصوات والاهتزازات الأخرى"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"الإشعارات"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"تم إرسالها مؤخرًا"</string>
-    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"عرض الكل من آخر 7 أيام"</string>
+    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"عرض كل التطبيقات من آخر 7 أيام"</string>
     <string name="advanced_section_header" msgid="984680389373090015">"إعدادات متقدّمة"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"إشعارات العمل"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"إعداد أولوية الإشعارات التلقائية"</string>
@@ -4440,7 +4440,7 @@
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"مزامنة بيانات العمل تلقائيًا"</string>
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"السماح للتطبيقات بتحديث البيانات تلقائيًا"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"مزامنة الحساب"</string>
-    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"تم تفعيل المزامنة لـ <xliff:g id="ID_1">%1$d</xliff:g> من إجمالي <xliff:g id="ID_2">%2$d</xliff:g> عناصر"</string>
+    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"تم تفعيل المزامنة لـ <xliff:g id="ID_1">%1$d</xliff:g> من إجمالي <xliff:g id="ID_2">%2$d</xliff:g> عنصر."</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"تم تفعيل المزامنة لكل العناصر"</string>
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"المزامنة متوقفة لكل العناصر"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"معلومات الجهاز المُدار"</string>

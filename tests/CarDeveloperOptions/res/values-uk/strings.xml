@@ -4314,7 +4314,7 @@
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Список додатків на вашому пристрої"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Час роботи й обсяг використаного трафіку в кожному додатку"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"Останній журнал мережевого трафіку"</string>
-    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"Останнє повідомлення про помилку"</string>
+    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"Останній звіт про помилку"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"Останній журнал безпеки"</string>
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"Немає"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"Установлені додатки"</string>

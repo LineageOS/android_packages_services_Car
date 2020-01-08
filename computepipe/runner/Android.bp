@@ -32,6 +32,12 @@ cc_library {
     header_libs: [
         "computepipe_runner_includes",
     ],
+    static_libs: [
+        "libcomputepipeprotos",
+    ],
+    shared_libs: [
+        "libprotobuf-cpp-lite",
+    ],
     include_dirs: [
         "packages/services/Car/computepipe",
     ],

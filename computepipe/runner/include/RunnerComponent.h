@@ -14,7 +14,9 @@
 
 #ifndef COMPUTEPIPE_RUNNER_COMPONENT_H
 #define COMPUTEPIPE_RUNNER_COMPONENT_H
+#include <map>
 #include <memory>
+#include <string>
 
 #include "types/Status.h"
 
@@ -31,15 +33,110 @@ class RunnerComponentInterface;
 class RunnerEvent {
   public:
     /* Is this a notification to enter the phase */
-    virtual bool isPhaseEntry() const = 0;
+    virtual bool isPhaseEntry() const;
     /* Is this a notification that all components have transitioned to the phase */
-    virtual bool isTransitionComplete() const = 0;
+    virtual bool isTransitionComplete() const;
     /* Is this a notification to abort the transition to the started phase */
-    virtual bool isAborted() const = 0;
+    virtual bool isAborted() const;
     /* Dispatch event to component */
     virtual Status dispatchToComponent(const std::shared_ptr<RunnerComponentInterface>& iface) = 0;
     /* Destructor */
     virtual ~RunnerEvent() = default;
+};
+
+/**
+ * Configuration that gets emitted once client has completely specified config
+ * options
+ */
+class ClientConfig : public RunnerEvent {
+  public:
+    static const int kInvalidId = -1;
+
+    /**
+     * Represents the state of the config phase a particular client config is in
+     */
+    enum PhaseState {
+        ENTRY = 0,
+        TRANSITION_COMPLETE,
+        ABORTED,
+    };
+
+    /**
+     * Override relevant methods from RunnerEvent
+     */
+    bool isPhaseEntry() const override {
+        return mState == ENTRY;
+    }
+    bool isTransitionComplete() const override {
+        return mState == TRANSITION_COMPLETE;
+    }
+    bool isAborted() const override {
+        return mState == ABORTED;
+    }
+
+    Status dispatchToComponent(const std::shared_ptr<RunnerComponentInterface>& iface) override;
+    /**
+     * Accessor methods
+     */
+    Status getInputStreamId(int* outId) const;
+    Status getOffloadId(int* outId) const;
+    Status getTerminationId(int* outId) const;
+    Status getOptionalConfigs(std::string& outOptional) const;
+    Status getOutputStreamConfigs(std::map<int, int>& outputConfig) const;
+    std::string getSerializedClientConfig() const;
+    /**
+     * Constructors
+     */
+    ClientConfig& operator=(ClientConfig&& r) {
+        inputStreamId = r.inputStreamId;
+        terminationId = r.terminationId;
+        offloadId = r.offloadId;
+        optionalConfigs = std::move(r.optionalConfigs);
+        outputConfigs = std::move(r.outputConfigs);
+        return *this;
+    }
+    ClientConfig(ClientConfig&& c) {
+        *this = std::move(c);
+    }
+    ClientConfig(int input, int offload, int termination, std::map<int, int>& output,
+                 std::string opt = "")
+        : inputStreamId(input),
+          outputConfigs(output),
+          terminationId(termination),
+          offloadId(offload),
+          optionalConfigs(opt) {
+    }
+
+    void setPhaseState(PhaseState state) {
+        mState = state;
+    }
+
+  private:
+    /**
+     * input streamd id from the graph descriptor options
+     */
+    int inputStreamId = kInvalidId;
+    /**
+     * Options for different output streams
+     */
+    std::map<int, int> outputConfigs;
+    /**
+     * Termination Option
+     */
+    int terminationId = kInvalidId;
+    /**
+     * offload option
+     */
+    int offloadId = kInvalidId;
+    /**
+     * serialized optional config
+     */
+    std::string optionalConfigs = "";
+    /**
+     * The state of the client config corresponding
+     * to entry, transition complete or aborted
+     */
+    PhaseState mState = ENTRY;
 };
 
 /**
@@ -52,7 +149,7 @@ class RunnerEvent {
 class RunnerComponentInterface {
   public:
     /* handle a ConfigPhase related event notification from Runner Engine */
-    virtual Status handleConfigPhase(const RunnerEvent& e);
+    virtual Status handleConfigPhase(const ClientConfig& e);
     /* handle execution phase notification from Runner Engine */
     virtual Status handleExecutionPhase(const RunnerEvent& e);
     /* handle a stop with flushing semantics phase notification from the engine */

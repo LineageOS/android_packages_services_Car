@@ -25,13 +25,12 @@ import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 
-import com.android.internal.util.Preconditions;
-
 import libcore.io.IoUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+import java.util.Objects;
 
 /**
  * Car specific bugreport manager. Only available for userdebug and eng builds.
@@ -178,9 +177,9 @@ public final class CarBugreportManager extends CarManagerBase {
             @NonNull ParcelFileDescriptor output,
             @NonNull ParcelFileDescriptor extraOutput,
             @NonNull CarBugreportManagerCallback callback) {
-        Preconditions.checkNotNull(output);
-        Preconditions.checkNotNull(extraOutput);
-        Preconditions.checkNotNull(callback);
+        Objects.requireNonNull(output);
+        Objects.requireNonNull(extraOutput);
+        Objects.requireNonNull(callback);
         try {
             CarBugreportManagerCallbackWrapper wrapper =
                     new CarBugreportManagerCallbackWrapper(callback, getEventHandler());

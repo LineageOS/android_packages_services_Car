@@ -42,4 +42,8 @@ enum PipeInputConfigInputType {
      * Video file
      */
     VIDEO_FILE,
+    /**
+     * Image files
+     */
+    IMAGE_FILES,
 }
