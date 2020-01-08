@@ -612,7 +612,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             ensureApConfiguration();
         }
 
-        if (!mWifiManager.startSoftAp(null /* use existing config*/)) {
+        if (!mWifiManager.startTetheredHotspot(null /* use existing config*/)) {
             // The indicates that AP might be already started.
             if (mWifiManager.getWifiApState() == WIFI_AP_STATE_ENABLED) {
                 sendApStarted(mWifiManager.getWifiApConfiguration());
@@ -716,7 +716,6 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         Log.i(TAG, "Sending PROJECTION_AP_STARTED, ssid: "
                 + localWifiConfig.getPrintableSsid()
                 + ", apBand: " + localWifiConfig.apBand
-                + ", apChannel: " + localWifiConfig.apChannel
                 + ", bssid: " + localWifiConfig.BSSID);
         sendApStatusMessage(message);
     }
