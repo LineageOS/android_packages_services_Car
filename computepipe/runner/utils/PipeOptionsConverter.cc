@@ -14,6 +14,8 @@
 
 #include "PipeOptionsConverter.h"
 
+#include "aidl/android/automotive/computepipe/runner/PipeInputConfigInputType.h"
+
 namespace android {
 namespace automotive {
 namespace computepipe {
@@ -44,6 +46,8 @@ PipeInputConfigInputType ConvertInputType(proto::InputConfig_InputType type) {
             return PipeInputConfigInputType::SURROUND_VIEW_CAMERA;
         case proto::InputConfig_InputType_VIDEO_FILE:
             return PipeInputConfigInputType::VIDEO_FILE;
+        case proto::InputConfig_InputType_IMAGE_FILES:
+            return PipeInputConfigInputType::IMAGE_FILES;
     }
 }
 

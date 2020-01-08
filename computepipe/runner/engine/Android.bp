@@ -12,31 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-cc_library_headers {
-    name: "computepipe_runner_includes",
-    export_include_dirs: ["include"],
-    static_libs: [
-        "libcomputepipeprotos",
-    ],
-    visibility: [
-        "//packages/services/Car/computepipe/runner:__subpackages__",
-        "//packages/services/Car/computepipe/tests:__subpackages__",
-    ],
-}
-
 cc_library {
-    name: "computepipe_runner_component",
+    name: "computepipe_runner_engine",
     srcs: [
-        "RunnerComponent.cpp",
+        "ConfigBuilder.cpp",
     ],
     header_libs: [
         "computepipe_runner_includes",
     ],
-    static_libs: [
-        "libcomputepipeprotos",
-    ],
     shared_libs: [
-        "libprotobuf-cpp-lite",
+        "computepipe_runner_component",
     ],
     include_dirs: [
         "packages/services/Car/computepipe",
