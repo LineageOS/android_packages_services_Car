@@ -28,6 +28,7 @@ cc_library {
     name: "computepipe_runner_component",
     srcs: [
         "RunnerComponent.cpp",
+        "EventGenerator.cpp",
     ],
     header_libs: [
         "computepipe_runner_includes",
