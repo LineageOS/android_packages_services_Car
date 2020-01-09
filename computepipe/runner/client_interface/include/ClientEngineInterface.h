@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef COMPUTEPIPE_RUNNER_CLIENT_ENGINE_INTERFACE_H
+#define COMPUTEPIPE_RUNNER_CLIENT_ENGINE_INTERFACE_H
+
 #include <memory>
 
 #include "ConfigurationCommand.pb.h"
@@ -51,3 +54,5 @@ class ClientEngineInterface {
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android
+
+#endif  // COMPUTEPIPE_RUNNER_CLIENT_ENGINE_INTERFACE_H

@@ -14,7 +14,7 @@
 
 #define LOG_TAG "RunnerIpcInterface"
 
-#include "InterfaceImpl.h"
+#include "AidlClientImpl.h"
 
 #include "OutputConfig.pb.h"
 #include "PacketDescriptor.pb.h"
@@ -28,7 +28,9 @@
 namespace android {
 namespace automotive {
 namespace computepipe {
-namespace runner_utils {
+namespace runner {
+namespace client_interface {
+namespace aidl_client {
 namespace {
 
 using ::aidl::android::automotive::computepipe::runner::IPipeStateCallback;
@@ -70,7 +72,8 @@ PipeState ToAidlState(GraphState state) {
 }
 
 void deathNotifier(void* cookie) {
-    InterfaceImpl* iface = static_cast<InterfaceImpl*>(cookie);
+    CHECK(cookie);
+    AidlClientImpl* iface = static_cast<AidlClientImpl*>(cookie);
     iface->clientDied();
 }
 
@@ -93,7 +96,7 @@ Status ToAidlPacketType(proto::PacketType type, PacketDescriptorPacketType* outT
 
 }  // namespace
 
-Status InterfaceImpl::DispatchSemanticData(int32_t streamId,
+Status AidlClientImpl::DispatchSemanticData(int32_t streamId,
                                            const std::shared_ptr<MemHandle>& packetHandle) {
     PacketDescriptor desc;
 
@@ -121,8 +124,8 @@ Status InterfaceImpl::DispatchSemanticData(int32_t streamId,
 }
 
 // Thread-safe function to deliver new packets to client.
-Status InterfaceImpl::newPacketNotification(int32_t streamId,
-                                            const std::shared_ptr<MemHandle>& packetHandle) {
+Status AidlClientImpl::dispatchPacketToClient(int32_t streamId,
+                                              const std::shared_ptr<MemHandle>& packetHandle) {
     // TODO(146464279) implement.
     if (!packetHandle) {
         LOG(ERROR) << "invalid packetHandle";
@@ -139,12 +142,12 @@ Status InterfaceImpl::newPacketNotification(int32_t streamId,
     return Status::SUCCESS;
 }
 
-Status InterfaceImpl::stateUpdateNotification(const GraphState newState) {
+Status AidlClientImpl::stateUpdateNotification(const GraphState newState) {
     (void)mClientStateChangeCallback->handleState(ToAidlState(newState));
     return Status::SUCCESS;
 }
 
-ScopedAStatus InterfaceImpl::getPipeDescriptor(PipeDescriptor* _aidl_return) {
+ScopedAStatus AidlClientImpl::getPipeDescriptor(PipeDescriptor* _aidl_return) {
     if (_aidl_return == nullptr) {
         return ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT);
     }
@@ -152,7 +155,7 @@ ScopedAStatus InterfaceImpl::getPipeDescriptor(PipeDescriptor* _aidl_return) {
     return ScopedAStatus::ok();
 }
 
-ScopedAStatus InterfaceImpl::setPipeInputSource(int32_t configId) {
+ScopedAStatus AidlClientImpl::setPipeInputSource(int32_t configId) {
     if (!isClientInitDone()) {
         return ScopedAStatus::fromExceptionCode(EX_ILLEGAL_STATE);
     }
@@ -160,11 +163,11 @@ ScopedAStatus InterfaceImpl::setPipeInputSource(int32_t configId) {
     proto::ConfigurationCommand configurationCommand;
     configurationCommand.mutable_set_input_source()->set_source_id(configId);
 
-    Status status = mRunnerInterfaceCallbacks.mProcessConfigurationCommand(configurationCommand);
+    Status status = mEngine->processClientConfigUpdate(configurationCommand);
     return ToNdkStatus(status);
 }
 
-ScopedAStatus InterfaceImpl::setPipeOffloadOptions(int32_t configId) {
+ScopedAStatus AidlClientImpl::setPipeOffloadOptions(int32_t configId) {
     if (!isClientInitDone()) {
         return ScopedAStatus::fromExceptionCode(EX_ILLEGAL_STATE);
     }
@@ -172,11 +175,11 @@ ScopedAStatus InterfaceImpl::setPipeOffloadOptions(int32_t configId) {
     proto::ConfigurationCommand configurationCommand;
     configurationCommand.mutable_set_offload_offload()->set_offload_option_id(configId);
 
-    Status status = mRunnerInterfaceCallbacks.mProcessConfigurationCommand(configurationCommand);
+    Status status = mEngine->processClientConfigUpdate(configurationCommand);
     return ToNdkStatus(status);
 }
 
-ScopedAStatus InterfaceImpl::setPipeTermination(int32_t configId) {
+ScopedAStatus AidlClientImpl::setPipeTermination(int32_t configId) {
     if (!isClientInitDone()) {
         return ScopedAStatus::fromExceptionCode(EX_ILLEGAL_STATE);
     }
@@ -184,11 +187,11 @@ ScopedAStatus InterfaceImpl::setPipeTermination(int32_t configId) {
     proto::ConfigurationCommand configurationCommand;
     configurationCommand.mutable_set_termination_option()->set_termination_option_id(configId);
 
-    Status status = mRunnerInterfaceCallbacks.mProcessConfigurationCommand(configurationCommand);
+    Status status = mEngine->processClientConfigUpdate(configurationCommand);
     return ToNdkStatus(status);
 }
 
-ScopedAStatus InterfaceImpl::init(const std::shared_ptr<IPipeStateCallback>& stateCb) {
+ScopedAStatus AidlClientImpl::init(const std::shared_ptr<IPipeStateCallback>& stateCb) {
     if (isClientInitDone()) {
         return ScopedAStatus::fromExceptionCode(EX_ILLEGAL_STATE);
     }
@@ -200,20 +203,20 @@ ScopedAStatus InterfaceImpl::init(const std::shared_ptr<IPipeStateCallback>& sta
     return ScopedAStatus::ok();
 }
 
-bool InterfaceImpl::isClientInitDone() {
+bool AidlClientImpl::isClientInitDone() {
     if (mClientStateChangeCallback == nullptr) {
         return false;
     }
     return true;
 }
 
-void InterfaceImpl::clientDied() {
+void AidlClientImpl::clientDied() {
     LOG(INFO) << "Client has died";
     releaseRunner();
 }
 
-ScopedAStatus InterfaceImpl::setPipeOutputConfig(int32_t streamId, int32_t maxInFlightCount,
-                                                 const std::shared_ptr<IPipeStream>& handler) {
+ScopedAStatus AidlClientImpl::setPipeOutputConfig(int32_t streamId, int32_t maxInFlightCount,
+                                                  const std::shared_ptr<IPipeStream>& handler) {
     if (!isClientInitDone()) {
         return ScopedAStatus::fromExceptionCode(EX_ILLEGAL_STATE);
     }
@@ -231,7 +234,7 @@ ScopedAStatus InterfaceImpl::setPipeOutputConfig(int32_t streamId, int32_t maxIn
     configurationCommand.mutable_set_output_stream()->set_stream_id(streamId);
     configurationCommand.mutable_set_output_stream()->set_max_inflight_packets_count(
         maxInFlightCount);
-    Status status = mRunnerInterfaceCallbacks.mProcessConfigurationCommand(configurationCommand);
+    Status status = mEngine->processClientConfigUpdate(configurationCommand);
 
     if (status != SUCCESS) {
         LOG(INFO) << "Failed to register handler for stream id " << streamId;
@@ -240,7 +243,7 @@ ScopedAStatus InterfaceImpl::setPipeOutputConfig(int32_t streamId, int32_t maxIn
     return ToNdkStatus(status);
 }
 
-ScopedAStatus InterfaceImpl::applyPipeConfigs() {
+ScopedAStatus AidlClientImpl::applyPipeConfigs() {
     if (!isClientInitDone()) {
         return ScopedAStatus::fromExceptionCode(EX_ILLEGAL_STATE);
     }
@@ -248,49 +251,52 @@ ScopedAStatus InterfaceImpl::applyPipeConfigs() {
     proto::ControlCommand controlCommand;
     *controlCommand.mutable_apply_configs() = proto::ApplyConfigs();
 
-    Status status = mRunnerInterfaceCallbacks.mProcessControlCommand(controlCommand);
+    Status status = mEngine->processClientCommand(controlCommand);
     return ToNdkStatus(status);
 }
 
-ScopedAStatus InterfaceImpl::startPipe() {
+ScopedAStatus AidlClientImpl::startPipe() {
     proto::ControlCommand controlCommand;
     *controlCommand.mutable_start_graph() = proto::StartGraph();
 
-    Status status = mRunnerInterfaceCallbacks.mProcessControlCommand(controlCommand);
+    Status status = mEngine->processClientCommand(controlCommand);
     return ToNdkStatus(status);
 }
 
-ScopedAStatus InterfaceImpl::stopPipe() {
+ScopedAStatus AidlClientImpl::stopPipe() {
     proto::ControlCommand controlCommand;
     *controlCommand.mutable_stop_graph() = proto::StopGraph();
 
-    Status status = mRunnerInterfaceCallbacks.mProcessControlCommand(controlCommand);
+    Status status = mEngine->processClientCommand(controlCommand);
     return ToNdkStatus(status);
 }
 
-ScopedAStatus InterfaceImpl::doneWithPacket(int32_t id) {
+ScopedAStatus AidlClientImpl::doneWithPacket(int32_t /* id */) {
     // TODO(146464279) implement.
     return ScopedAStatus::ok();
 }
 
-ndk::ScopedAStatus InterfaceImpl::getPipeDebugger(
-    std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeDebugger>* _aidl_return) {
+ndk::ScopedAStatus AidlClientImpl::getPipeDebugger(
+    std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeDebugger>*
+    /* _aidl_return */ ) {
     // TODO(146464281) implement.
     return ScopedAStatus::ok();
 }
 
-ndk::ScopedAStatus InterfaceImpl::releaseRunner() {
+ndk::ScopedAStatus AidlClientImpl::releaseRunner() {
     proto::ControlCommand controlCommand;
     *controlCommand.mutable_death_notification() = proto::DeathNotification();
 
-    Status status = mRunnerInterfaceCallbacks.mProcessControlCommand(controlCommand);
+    Status status = mEngine->processClientCommand(controlCommand);
 
     mClientStateChangeCallback = nullptr;
     mPacketHandlers.clear();
     return ToNdkStatus(status);
 }
 
-}  // namespace runner_utils
+}  // namespace aidl_client
+}  // namespace client_interface
+}  // namespace runner
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android

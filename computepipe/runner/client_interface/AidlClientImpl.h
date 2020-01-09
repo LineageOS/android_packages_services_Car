@@ -12,38 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPUTEPIPE_RUNNER_UTILS_INTERFACEIMPL_H_
-#define COMPUTEPIPE_RUNNER_UTILS_INTERFACEIMPL_H_
+#ifndef COMPUTEPIPE_RUNNER_CLIENTINTERFACE_AIDLCLIENTIMPL_H
+#define COMPUTEPIPE_RUNNER_CLIENTINTERFACE_AIDLCLIENTIMPL_H
 #include <aidl/android/automotive/computepipe/runner/BnPipeRunner.h>
 
 #include <map>
 #include <memory>
 #include <string>
 
+#include "ClientEngineInterface.h"
 #include "MemHandle.h"
 #include "Options.pb.h"
-#include "RunnerInterfaceCallbacks.h"
 #include "types/GraphState.h"
 #include "types/Status.h"
 
 namespace android {
 namespace automotive {
 namespace computepipe {
-namespace runner_utils {
+namespace runner {
+namespace client_interface {
+namespace aidl_client {
 
 // RunnerInterface registers an IPipeRunner interface with computepipe router.
 // RunnerInterface handles binder IPC calls and invokes appropriate callbacks.
-class InterfaceImpl : public aidl::android::automotive::computepipe::runner::BnPipeRunner {
+class AidlClientImpl : public aidl::android::automotive::computepipe::runner::BnPipeRunner {
   public:
-    explicit InterfaceImpl(const proto::Options graphOptions,
-                           const RunnerInterfaceCallbacks& runnerInterfaceCallbacks)
-        : mGraphOptions(graphOptions), mRunnerInterfaceCallbacks(runnerInterfaceCallbacks) {
+    explicit AidlClientImpl(const proto::Options graphOptions,
+                            const std::shared_ptr<ClientEngineInterface>& engine)
+        : mGraphOptions(graphOptions), mEngine(engine) {
     }
 
-    ~InterfaceImpl() {
+    ~AidlClientImpl() {
     }
 
-    Status newPacketNotification(int32_t streamId, const std::shared_ptr<MemHandle>& packetHandle);
+    Status dispatchPacketToClient(int32_t streamId, const std::shared_ptr<MemHandle>& packetHandle);
 
     Status stateUpdateNotification(const GraphState newState);
 
@@ -77,10 +79,11 @@ class InterfaceImpl : public aidl::android::automotive::computepipe::runner::BnP
     // Dispatch semantic data to client. Has copy semantics and does not expect
     // client to invoke doneWithPacket.
     Status DispatchSemanticData(int32_t streamId, const std::shared_ptr<MemHandle>& packetHandle);
-    const proto::Options mGraphOptions;
-    const RunnerInterfaceCallbacks& mRunnerInterfaceCallbacks;
 
     bool isClientInitDone();
+
+    const proto::Options mGraphOptions;
+    std::shared_ptr<ClientEngineInterface> mEngine;
 
     // If value of mClientStateChangeCallback is null pointer, client has not
     // invoked init.
@@ -91,9 +94,11 @@ class InterfaceImpl : public aidl::android::automotive::computepipe::runner::BnP
         mPacketHandlers;
 };
 
-}  // namespace runner_utils
+}  // namespace aidl_client
+}  // namespace client_interface
+}  // namespace runner
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android
 
-#endif  // COMPUTEPIPE_RUNNER_UTILS_INTERFACEIMPL_H_
+#endif  // COMPUTEPIPE_RUNNER_CLIENTINTERFACE_AIDLCLIENTIMPL_H
