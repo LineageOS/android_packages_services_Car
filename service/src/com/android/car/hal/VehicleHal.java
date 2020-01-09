@@ -74,6 +74,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private final PropertyHalService mPropertyHal;
     private final InputHalService mInputHal;
     private final VmsHalService mVmsHal;
+    private final UserHalService mUserHal;
     private DiagnosticHalService mDiagnosticHal = null;
 
     /** Might be re-assigned if Vehicle HAL is reconnected. */
@@ -99,11 +100,13 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mInputHal = new InputHalService(this);
         mVmsHal = new VmsHalService(context, this);
         mDiagnosticHal = new DiagnosticHalService(this);
+        mUserHal = new UserHalService(this);
         mAllServices.addAll(Arrays.asList(mPowerHal,
                 mInputHal,
                 mPropertyHal,
                 mDiagnosticHal,
-                mVmsHal));
+                mVmsHal,
+                mUserHal));
 
         mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(), this /*IVehicleCallback*/);
     }
@@ -120,6 +123,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mVmsHal = null;
         mHalClient = halClient;
         mDiagnosticHal = diagnosticHal;
+        mUserHal = null;
     }
 
     public void vehicleHalReconnected(IVehicle vehicle) {
@@ -156,10 +160,12 @@ public class VehicleHal extends IVehicleCallback.Stub {
         for (HalServiceBase service: mAllServices) {
             Collection<VehiclePropConfig> taken = service.takeSupportedProperties(properties);
             if (taken == null) {
+                Log.w(CarLog.TAG_HAL, "HalService " + service + " didn't take any property");
                 continue;
             }
             if (DBG) {
-                Log.i(CarLog.TAG_HAL, "HalService " + service + " take properties " + taken.size());
+                Log.i(CarLog.TAG_HAL, "HalService " + service + " took " + taken.size()
+                        + " properties ");
             }
             synchronized (this) {
                 for (VehiclePropConfig p: taken) {
@@ -203,6 +209,10 @@ public class VehicleHal extends IVehicleCallback.Stub {
 
     public InputHalService getInputHal() {
         return mInputHal;
+    }
+
+    public UserHalService getUserHal() {
+        return mUserHal;
     }
 
     public VmsHalService getVmsHal() { return mVmsHal; }
@@ -500,6 +510,10 @@ public class VehicleHal extends IVehicleCallback.Stub {
             }
         } else if (areaId.equals("")) {
             VehiclePropConfig config = mAllProperties.get(Integer.parseInt(propId, 16));
+            if (config == null) {
+                writer.printf("Property 0x%s not supported by HAL\n", propId);
+                return;
+            }
             dumpPropertyValueByConfig(writer, config);
         } else {
             int id = Integer.parseInt(propId, 16);

@@ -45,6 +45,7 @@ import android.util.TimingsTraceLog;
 
 import com.android.car.CarServiceBase;
 import com.android.car.R;
+import com.android.car.hal.UserHalService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.UserIcons;
@@ -97,6 +98,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private final CopyOnWriteArrayList<UserCallback> mUserCallbacks = new CopyOnWriteArrayList<>();
 
+    private final UserHalService mHal;
+
     /** Interface for callbacks related to user activities. */
     public interface UserCallback {
         /** Gets called when user lock status has been changed. */
@@ -133,13 +136,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @GuardedBy("mLockHelper")
     private ZoneUserBindingHelper mZoneUserBindingHelper;
 
-    public CarUserService(
-            @NonNull Context context, @NonNull CarUserManagerHelper carUserManagerHelper,
+    public CarUserService(@NonNull Context context, @NonNull UserHalService hal,
+            @NonNull CarUserManagerHelper carUserManagerHelper,
             @NonNull UserManager userManager, @NonNull IActivityManager am, int maxRunningUsers) {
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
             Log.d(TAG_USER, "constructed");
         }
         mContext = context;
+        mHal = hal;
         mCarUserManagerHelper = carUserManagerHelper;
         mAm = am;
         mMaxRunningUsers = maxRunningUsers;

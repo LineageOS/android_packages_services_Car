@@ -901,6 +901,13 @@ public final class VehiclePropertyIds {
     public static final int READING_LIGHTS_SWITCH = 356519684;
 
     /**
+     * Property to get the initial settings for multi-user management (such as initial user).
+     *
+     * <p>Doesn't require permission because it's not exposed externally.
+     */
+    public static final int INITIAL_USER_INFO = 299896583;
+
+    /**
      * Gets a user-friendly representation of a property.
      */
     public static String toString(int property) {
@@ -1167,6 +1174,8 @@ public final class VehiclePropertyIds {
                 return "READING_LIGHTS_SWITCH";
             case VEHICLE_SPEED_DISPLAY_UNITS:
                 return "VEHICLE_SPEED_DISPLAY_UNITS";
+            case INITIAL_USER_INFO:
+                return "INITIAL_USER_INFO";
             default:
                 return "0x" + Integer.toHexString(property);
         }
