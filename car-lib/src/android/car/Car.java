@@ -1602,6 +1602,7 @@ public final class Car {
                 break;
             case CAR_USER_SERVICE:
                 manager = new CarUserManager(this, binder);
+                break;
             default:
                 // Experimental or non-existing
                 String className = null;
