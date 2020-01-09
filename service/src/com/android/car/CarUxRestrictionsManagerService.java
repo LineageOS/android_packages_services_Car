@@ -818,7 +818,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 byte port = ((DisplayAddress.Physical) display.getAddress()).getPort();
                 if (Log.isLoggable(TAG, Log.INFO)) {
                     Log.i(TAG, String.format(
-                            "Display %d uses port %d", display.getDisplayId(), port));
+                            "Display %d uses port %d", display.getDisplayId(),
+                                                       Byte.toUnsignedInt(port)));
                 }
                 mPhysicalPorts.add(port);
             } else {
