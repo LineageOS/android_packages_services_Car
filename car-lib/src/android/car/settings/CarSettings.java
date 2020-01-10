@@ -69,6 +69,15 @@ public class CarSettings {
          */
         public static final String DISABLE_INSTRUMENTATION_SERVICE =
                 "android.car.DISABLE_INSTRUMENTATION_SERVICE";
+
+        /**
+         * Developer settings String used to explicitly enable the user switch message when
+         * set to {@code "true"}.
+         *
+         * @hide
+         */
+        public static final String ENABLE_USER_SWITCH_DEVELOPER_MESSAGE =
+                "android.car.ENABLE_USER_SWITCH_DEVELOPER_MESSAGE";
     }
 
     /**
