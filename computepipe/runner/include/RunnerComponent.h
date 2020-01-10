@@ -26,6 +26,16 @@ namespace computepipe {
 namespace runner {
 
 class RunnerComponentInterface;
+
+/**
+ * Represents the state of the config phase a particular client config is in
+ */
+enum PhaseState {
+    ENTRY = 0,
+    TRANSITION_COMPLETE,
+    ABORTED,
+};
+
 /**
  * RunnerEvent represents an event corresponding to a runner phase
  * Along with start, abort or transition complete query methods.
@@ -51,15 +61,6 @@ class RunnerEvent {
 class ClientConfig : public RunnerEvent {
   public:
     static const int kInvalidId = -1;
-
-    /**
-     * Represents the state of the config phase a particular client config is in
-     */
-    enum PhaseState {
-        ENTRY = 0,
-        TRANSITION_COMPLETE,
-        ABORTED,
-    };
 
     /**
      * Override relevant methods from RunnerEvent
