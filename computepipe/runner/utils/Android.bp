@@ -39,11 +39,7 @@ cc_library {
         "libprotobuf-cpp-lite",
     ],
 
-    visibility:[
-        "//packages/services/Car/computepipe/runner:__subpackages__",
-        "//packages/services/Car/computepipe/tests:__subpackages__",
-    ],
-
+    visibility:["//packages/services/Car/computepipe/runner:__subpackages__"],
     srcs: [
         "InterfaceImpl.cc",
         "PipeOptionsConverter.cc",

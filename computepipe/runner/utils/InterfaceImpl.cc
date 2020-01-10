@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.c
 
-#define LOG_TAG "RunnerIpcInterface"
-
 #include "InterfaceImpl.h"
 
 #include "OutputConfig.pb.h"
 #include "PacketDescriptor.pb.h"
 #include "PipeOptionsConverter.h"
 
+#define LOG_TAG "RunnerIpcInterface"
 #include <aidl/android/automotive/computepipe/runner/PacketDescriptor.h>
 #include <aidl/android/automotive/computepipe/runner/PacketDescriptorPacketType.h>
 #include <android-base/logging.h>
@@ -74,16 +73,13 @@ void deathNotifier(void* cookie) {
     iface->clientDied();
 }
 
-Status ToAidlPacketType(proto::PacketType type, PacketDescriptorPacketType* outType) {
-    if (outType == nullptr) {
-        return Status::INTERNAL_ERROR;
-    }
+Status ToAidlPacketType(proto::PacketType type, PacketDescriptorPacketType& outType) {
     switch (type) {
         case proto::SEMANTIC_DATA:
-            *outType = PacketDescriptorPacketType::SEMANTIC_DATA;
+            outType = PacketDescriptorPacketType::SEMANTIC_DATA;
             return Status::SUCCESS;
         case proto::PIXEL_DATA:
-            *outType = PacketDescriptorPacketType::PIXEL_DATA;
+            outType = PacketDescriptorPacketType::PIXEL_DATA;
             return Status::SUCCESS;
         default:
             LOG(ERROR) << "unknown packet type " << type;
@@ -101,7 +97,7 @@ Status InterfaceImpl::DispatchSemanticData(int32_t streamId,
         LOG(ERROR) << "Bad streamId";
         return Status::INVALID_ARGUMENT;
     }
-    Status status = ToAidlPacketType(packetHandle->getType(), &desc.type);
+    Status status = ToAidlPacketType(packetHandle->getType(), desc.type);
     if (status != SUCCESS) {
         return status;
     }
