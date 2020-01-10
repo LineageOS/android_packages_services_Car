@@ -31,7 +31,7 @@ std::unique_ptr<SemanticManager> buildSemanticManager(
     const proto::OutputConfig& config, std::function<Status(std::shared_ptr<MemHandle>)>& cb,
     uint32_t maxPackets) {
     std::unique_ptr<SemanticManager> semanticManager =
-        std::make_unique<SemanticManager>(config.stream_name(), config.type());
+        std::make_unique<SemanticManager>(config.stream_name(), config.stream_id(), config.type());
     if (semanticManager->setIpcDispatchCallback(cb) != SUCCESS) {
         return nullptr;
     }

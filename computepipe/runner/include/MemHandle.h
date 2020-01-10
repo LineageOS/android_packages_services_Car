@@ -24,16 +24,18 @@ namespace computepipe {
 
 class MemHandle {
   public:
+    /* Retrieve stream Id */
+    virtual int getStreamId() const = 0;
     /* Retrieve packet type */
-    virtual proto::PacketType getType() = 0;
+    virtual proto::PacketType getType() const = 0;
     /* Retrieve packet time stamp */
-    virtual uint64_t getTimeStamp() = 0;
+    virtual uint64_t getTimeStamp() const = 0;
     /* Get size */
-    virtual uint32_t getSize() = 0;
+    virtual uint32_t getSize() const = 0;
     /* Get data, raw pointer. Only implemented for copy semantics */
-    virtual const char* getData() = 0;
+    virtual const char* getData() const = 0;
     /* Get native handle. data with zero copy semantics */
-    virtual native_handle_t getNativeHandle() = 0;
+    virtual native_handle_t getNativeHandle() const = 0;
 
     virtual ~MemHandle() {
     }

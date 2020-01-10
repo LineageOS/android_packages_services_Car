@@ -10,34 +10,39 @@ namespace computepipe {
 namespace runner {
 namespace stream_manager {
 
-proto::PacketType SemanticHandle::getType() {
+proto::PacketType SemanticHandle::getType() const {
     return mType;
 }
 
-uint64_t SemanticHandle::getTimeStamp() {
+uint64_t SemanticHandle::getTimeStamp() const {
     return mTimestamp;
 }
 
-uint32_t SemanticHandle::getSize() {
+uint32_t SemanticHandle::getSize() const {
     return mSize;
 }
 
-const char* SemanticHandle::getData() {
+const char* SemanticHandle::getData() const {
     return mData;
 }
 
-native_handle_t SemanticHandle::getNativeHandle() {
+native_handle_t SemanticHandle::getNativeHandle() const {
     native_handle_t temp;
     temp.numFds = 0;
     temp.numInts = 0;
     return temp;
 }
 
-Status SemanticHandle::setMemInfo(const char* data, uint32_t size, uint64_t timestamp,
+int SemanticHandle::getStreamId() const {
+    return mStreamId;
+}
+
+Status SemanticHandle::setMemInfo(int streamId, const char* data, uint32_t size, uint64_t timestamp,
                                   const proto::PacketType& type) {
     if (data == nullptr || size == 0 || size > kMaxSemanticDataSize) {
         return INVALID_ARGUMENT;
     }
+    mStreamId = streamId;
     mData = (char*)malloc(size);
     if (!mData) {
         return NO_MEMORY;
@@ -138,7 +143,7 @@ Status SemanticManager::queuePacket(const char* data, const uint32_t size, uint6
         return INTERNAL_ERROR;
     }
     auto memHandle = std::make_shared<SemanticHandle>();
-    auto status = memHandle->setMemInfo(data, size, timestamp, mType);
+    auto status = memHandle->setMemInfo(mStreamId, data, size, timestamp, mType);
     if (status != SUCCESS) {
         return status;
     }
@@ -146,8 +151,8 @@ Status SemanticManager::queuePacket(const char* data, const uint32_t size, uint6
     return SUCCESS;
 }
 
-SemanticManager::SemanticManager(std::string name, const proto::PacketType& type)
-    : StreamManager(name, type) {
+SemanticManager::SemanticManager(std::string name, int streamId, const proto::PacketType& type)
+    : StreamManager(name, type), mStreamId(streamId) {
 }
 }  // namespace stream_manager
 }  // namespace runner
