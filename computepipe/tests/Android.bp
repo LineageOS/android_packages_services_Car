@@ -41,14 +41,14 @@ cc_test {
     test_suites: ["device-tests"],
     srcs: [
         "PipeQueryTest.cpp",
-	"FakeRunner.cpp",
+        "FakeRunner.cpp",
     ],
     static_libs: [
         "libgtest",
         "libgmock",
     ],
     header_libs: [
-      "computepipe_router_headers",
+        "computepipe_router_headers",
     ],
     shared_libs: [
         "libbinder",
