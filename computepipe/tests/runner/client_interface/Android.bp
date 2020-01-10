@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The Android Open Source Project
+// Copyright (C) 2020 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,41 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-cc_library {
-    name: "libRunnerInterface",
-
-    cflags: [
-        "-Wall",
-        "-Werror",
-        "-Wextra",
-        "-Wno-unused-parameter",
+cc_test {
+    name: "clientinterface_test",
+    test_suites: ["device-tests"],
+    srcs: [
+        "ClientInterfaceTest.cc",
     ],
-
     static_libs: [
+        "libgtest",
+        "libgmock",
         "libcomputepipeprotos",
     ],
-
-    header_libs: ["computepipe_runner_includes"],
+    header_libs: [
+        "computepipe_router_headers",
+        "computepipe_runner_includes",
+    ],
     include_dirs: ["packages/services/Car/computepipe"],
-
     shared_libs: [
-        "libbase",
         "libbinder_ndk",
-        "liblog",
         "libutils",
-        "android.automotive.computepipe.runner-ndk_platform",
+        "libRunnerInterface",
         "android.automotive.computepipe.registry-ndk_platform",
+        "android.automotive.computepipe.runner-ndk_platform",
+        "android.automotive.computepipe.runner-ndk_platform",
         "libprotobuf-cpp-lite",
-    ],
-
-    visibility:[
-        "//packages/services/Car/computepipe/runner:__subpackages__",
-        "//packages/services/Car/computepipe/tests:__subpackages__",
-    ],
-
-    srcs: [
-        "InterfaceImpl.cc",
-        "PipeOptionsConverter.cc",
-        "RunnerInterface.cc",
     ],
 }
