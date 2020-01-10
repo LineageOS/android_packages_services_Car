@@ -26,6 +26,14 @@ enum Status {
     ILLEGAL_STATE,
     NO_MEMORY,
     FATAL_ERROR,
+    STATUS_MAX,
+};
+
+enum PixelFormat {
+    RGB = 0,
+    RGBA,
+    GRAY,
+    PIXELFORMAT_MAX,
 };
 
 }  // namespace computepipe
