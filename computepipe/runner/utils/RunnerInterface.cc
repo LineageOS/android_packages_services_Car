@@ -16,11 +16,11 @@
 
 #include "RunnerInterface.h"
 
-#include <thread>
-
 #include <aidl/android/automotive/computepipe/registry/IPipeRegistration.h>
 #include <android/binder_manager.h>
 #include <android-base/logging.h>
+
+#include <thread>
 
 namespace android {
 namespace automotive {
@@ -45,7 +45,7 @@ Status RunnerInterface::init() {
         return Status::INVALID_ARGUMENT;
     }
 
-    mPipeRunner = std::make_shared<InterfaceImpl>(mGraphOptions, mRunnerInterfaceCallbacks);
+    mPipeRunner = ndk::SharedRefBase::make<InterfaceImpl>(mGraphOptions, mRunnerInterfaceCallbacks);
     std::thread t(&RunnerInterface::tryRegisterPipeRunner, this);
     t.detach();
     return Status::SUCCESS;
