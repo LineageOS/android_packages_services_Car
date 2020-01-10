@@ -21,7 +21,7 @@ cc_test {
     static_libs: [
         "libgtest",
         "libgmock",
-	  "libcomputepipeprotos",
+	"libcomputepipeprotos",
     ],
     shared_libs: [
         "libcomputepipe_stream_manager",
