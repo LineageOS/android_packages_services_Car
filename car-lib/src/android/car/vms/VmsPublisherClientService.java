@@ -36,6 +36,7 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 
 /**
  * API implementation of a Vehicle Map Service publisher client.
@@ -56,6 +57,10 @@ import java.lang.ref.WeakReference;
 public abstract class VmsPublisherClientService extends Service {
     private static final boolean DBG = false;
     private static final String TAG = "VmsPublisherClientService";
+
+    private static final VmsSubscriptionState DEFAULT_SUBSCRIPTIONS =
+            new VmsSubscriptionState(0, Collections.emptySet(),
+                    Collections.emptySet());
 
     private final Object mLock = new Object();
 
@@ -193,7 +198,7 @@ public abstract class VmsPublisherClientService extends Service {
         try {
             return mVmsPublisherService.getSubscriptions();
         } catch (RemoteException e) {
-            return Car.handleRemoteExceptionFromCarService(this, e, null);
+            return Car.handleRemoteExceptionFromCarService(this, e, DEFAULT_SUBSCRIPTIONS);
         }
     }
 
