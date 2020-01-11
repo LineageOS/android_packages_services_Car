@@ -29,6 +29,7 @@ import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
@@ -44,6 +45,10 @@ import java.util.concurrent.Executor;
 @SystemApi
 public final class VmsSubscriberManager extends CarManagerBase {
     private static final String TAG = "VmsSubscriberManager";
+
+    private static final byte[] DEFAULT_PUBLISHER_INFO = new byte[0];
+    private static final VmsAvailableLayers DEFAULT_AVAILABLE_LAYERS =
+            new VmsAvailableLayers(Collections.emptySet(), 0);
 
     private final IVmsSubscriberService mVmsSubscriberService;
     private final IVmsSubscriberClient mSubscriberManagerClient;
@@ -172,7 +177,7 @@ public final class VmsSubscriberManager extends CarManagerBase {
         try {
             return mVmsSubscriberService.getPublisherInfo(publisherId);
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, null);
+            return handleRemoteExceptionFromCarService(e, DEFAULT_PUBLISHER_INFO);
         }
     }
 
@@ -186,7 +191,7 @@ public final class VmsSubscriberManager extends CarManagerBase {
         try {
             return mVmsSubscriberService.getAvailableLayers();
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, null);
+            return handleRemoteExceptionFromCarService(e, DEFAULT_AVAILABLE_LAYERS);
         }
     }
 

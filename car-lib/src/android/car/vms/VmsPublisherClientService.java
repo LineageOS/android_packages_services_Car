@@ -36,6 +36,7 @@ import android.util.Log;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -58,6 +59,10 @@ import java.util.Objects;
 public abstract class VmsPublisherClientService extends Service {
     private static final boolean DBG = false;
     private static final String TAG = "VmsPublisherClientService";
+
+    private static final VmsSubscriptionState DEFAULT_SUBSCRIPTIONS =
+            new VmsSubscriptionState(0, Collections.emptySet(),
+                    Collections.emptySet());
 
     private final Object mLock = new Object();
 
@@ -195,7 +200,7 @@ public abstract class VmsPublisherClientService extends Service {
         try {
             return mVmsPublisherService.getSubscriptions();
         } catch (RemoteException e) {
-            return Car.handleRemoteExceptionFromCarService(this, e, null);
+            return Car.handleRemoteExceptionFromCarService(this, e, DEFAULT_SUBSCRIPTIONS);
         }
     }
 
