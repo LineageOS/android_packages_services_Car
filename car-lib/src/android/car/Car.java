@@ -51,6 +51,7 @@ import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.car.trust.CarTrustAgentEnrollmentManager;
 import android.car.user.CarUserManager;
+import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -210,6 +211,11 @@ public final class Car {
      */
     @MandatoryFeature
     public static final String BLUETOOTH_SERVICE = "car_bluetooth";
+
+    /**
+     * @hide
+     */
+    public static final String VEHICLE_MAP_SERVICE = "vehicle_map_service";
 
     /**
      * @hide
@@ -1606,6 +1612,9 @@ public final class Car {
                 /* CarTestManager exist in static library. So instead of constructing it here,
                  * only pass binder wrapper so that CarTestManager can be constructed outside. */
                 manager = new CarTestManagerBinderWrapper(this, binder);
+                break;
+            case VEHICLE_MAP_SERVICE:
+                manager = new VmsClientManager(this, binder);
                 break;
             case VMS_SUBSCRIBER_SERVICE:
                 manager = new VmsSubscriberManager(this, binder);

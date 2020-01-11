@@ -63,6 +63,7 @@ import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
+import com.android.car.vms.VmsNewBrokerService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.ICarServiceHelper;
@@ -116,8 +117,9 @@ public class ICarImpl extends ICar.Stub {
     private final CarUserService mCarUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final CarUserNoticeService mCarUserNoticeService;
+    private final VmsNewBrokerService mVmsBrokerService;
     private final VmsClientManager mVmsClientManager;
-    private final VmsBrokerService mVmsBrokerService;
+    private final VmsBrokerService mVmsLegacyBrokerService;
     private final VmsSubscriberService mVmsSubscriberService;
     private final VmsPublisherService mVmsPublisherService;
     private final CarBugreportManagerService mCarBugreportManagerService;
@@ -212,18 +214,23 @@ public class ICarImpl extends ICar.Stub {
                 serviceContext, mCarAudioService, this);
         mCarStatsService = new CarStatsService(serviceContext);
         mCarStatsService.init();
-        if (mFeatureController.isFeatureEnabled(Car.VMS_SUBSCRIBER_SERVICE)) {
-            mVmsBrokerService = new VmsBrokerService();
-            mVmsClientManager = new VmsClientManager(
-                    // CarStatsService needs to be passed to the constructor due to HAL init order
-                    serviceContext, mCarStatsService, mCarUserService, mVmsBrokerService,
-                    mHal.getVmsHal());
-            mVmsSubscriberService = new VmsSubscriberService(
-                    serviceContext, mVmsBrokerService, mVmsClientManager, mHal.getVmsHal());
-            mVmsPublisherService = new VmsPublisherService(
-                    serviceContext, mCarStatsService, mVmsBrokerService, mVmsClientManager);
+        if (mFeatureController.isFeatureEnabled(Car.VEHICLE_MAP_SERVICE)) {
+            mVmsBrokerService = new VmsNewBrokerService(mContext, mCarStatsService);
         } else {
             mVmsBrokerService = null;
+        }
+        if (mFeatureController.isFeatureEnabled(Car.VMS_SUBSCRIBER_SERVICE)) {
+            mVmsLegacyBrokerService = new VmsBrokerService();
+            mVmsClientManager = new VmsClientManager(
+                    // CarStatsService needs to be passed to the constructor due to HAL init order
+                    serviceContext, mCarStatsService, mCarUserService, mVmsLegacyBrokerService,
+                    mHal.getVmsHal());
+            mVmsSubscriberService = new VmsSubscriberService(
+                    serviceContext, mVmsLegacyBrokerService, mVmsClientManager, mHal.getVmsHal());
+            mVmsPublisherService = new VmsPublisherService(
+                    serviceContext, mCarStatsService, mVmsLegacyBrokerService, mVmsClientManager);
+        } else {
+            mVmsLegacyBrokerService = null;
             mVmsClientManager = null;
             mVmsSubscriberService = null;
             mVmsPublisherService = null;
@@ -289,6 +296,7 @@ public class ICarImpl extends ICar.Stub {
         addServiceIfNonNull(allServices, mCarDiagnosticService);
         addServiceIfNonNull(allServices, mCarStorageMonitoringService);
         allServices.add(mCarConfigurationService);
+        addServiceIfNonNull(allServices, mVmsBrokerService);
         addServiceIfNonNull(allServices, mVmsClientManager);
         addServiceIfNonNull(allServices, mVmsSubscriberService);
         addServiceIfNonNull(allServices, mVmsPublisherService);
@@ -458,6 +466,9 @@ public class ICarImpl extends ICar.Stub {
                 return mInstrumentClusterService.getManagerService();
             case Car.PROJECTION_SERVICE:
                 return mCarProjectionService;
+            case Car.VEHICLE_MAP_SERVICE:
+                assertAnyVmsPermission(mContext);
+                return mVmsBrokerService;
             case Car.VMS_SUBSCRIBER_SERVICE:
                 assertVmsSubscriberPermission(mContext);
                 return mVmsSubscriberService;
@@ -560,6 +571,16 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertDrivingStatePermission(Context context) {
         assertPermission(context, Car.PERMISSION_CAR_DRIVING_STATE);
+    }
+
+    /**
+     * Verify the calling context has either {@link Car#PERMISSION_VMS_SUBSCRIBER} or
+     * {@link Car#PERMISSION_VMS_PUBLISHER}
+     */
+    public static void assertAnyVmsPermission(Context context) {
+        assertAnyPermission(context,
+                Car.PERMISSION_VMS_SUBSCRIBER,
+                Car.PERMISSION_VMS_PUBLISHER);
     }
 
     public static void assertVmsPublisherPermission(Context context) {

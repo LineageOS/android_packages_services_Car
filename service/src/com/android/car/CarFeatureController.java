@@ -87,6 +87,7 @@ public final class CarFeatureController implements CarServiceBase {
             CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE,
             Car.DIAGNOSTIC_SERVICE,
             Car.STORAGE_MONITORING_SERVICE,
+            Car.VEHICLE_MAP_SERVICE,
             Car.VMS_SUBSCRIBER_SERVICE
     ));
 
