@@ -1,6 +1,10 @@
 // Signature format: 2.0
 package android.car {
 
+  public final class CarAppFocusManager {
+    method public int[] getActiveAppTypes();
+  }
+
   public class VehiclePropertyType {
     field public static final int BOOLEAN = 2097152; // 0x200000
     field public static final int BYTES = 7340032; // 0x700000
