@@ -1225,8 +1225,8 @@
     <string name="night_display_summary_on_auto_mode_twilight" msgid="8386769601369289561">"將會在日出時自動關閉"</string>
     <string name="night_display_activation_on_manual" msgid="8379477527072027346">"立即開啟"</string>
     <string name="night_display_activation_off_manual" msgid="7776082151269794201">"立即關閉"</string>
-    <string name="night_display_activation_on_twilight" msgid="5610294051700287249">"保持開啟狀態，直至日出"</string>
-    <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"保持關閉狀態，直至日落"</string>
+    <string name="night_display_activation_on_twilight" msgid="5610294051700287249">"開啟，直至日出"</string>
+    <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"關閉，直至日落"</string>
     <string name="night_display_activation_on_custom" msgid="4761140206778957611">"開啟 (直至<xliff:g id="ID_1">%1$s</xliff:g>)"</string>
     <string name="night_display_activation_off_custom" msgid="4207238846687792731">"保持關閉狀態，直至<xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_not_currently_on" msgid="1436588493764429281">"目前沒有開啟「夜燈模式」"</string>

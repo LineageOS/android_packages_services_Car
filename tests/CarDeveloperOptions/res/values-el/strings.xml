@@ -2146,7 +2146,7 @@
     <string name="captioning_standard_options_title" msgid="4124898413348084226">"Βασικές επιλογές"</string>
     <string name="captioning_locale" msgid="4734464353806207943">"Γλώσσα"</string>
     <string name="captioning_text_size" msgid="1707122517246408084">"Μέγεθος κειμένου"</string>
-    <string name="captioning_preset" msgid="7429888317480872337">"Στυλ υποτίτλων"</string>
+    <string name="captioning_preset" msgid="7429888317480872337">"Στιλ υποτίτλων"</string>
     <string name="captioning_custom_options_title" msgid="4530479671071326732">"Προσαρμοσμένες επιλογές"</string>
     <string name="captioning_background_color" msgid="2434458880326292180">"Χρώμα φόντου"</string>
     <string name="captioning_background_opacity" msgid="8178926599201811936">"Αδιαφάνεια φόντου"</string>
