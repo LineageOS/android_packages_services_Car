@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The Android Open Source Project
+// Copyright (C) 2020 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,25 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-cc_test {
-    name: "computepipe_semantic_manager_test",
-    test_suites: ["device-tests"],
+cc_library {
+    name: "computepipe_input_manager",
     srcs: [
-        "SemanticManagerTest.cpp",
+        "Factory.cpp",
     ],
-    static_libs: [
-        "libgtest",
-        "libgmock",
-	  "libcomputepipeprotos",
-    ],
-    shared_libs: [
-        "libcomputepipe_stream_manager",
-	"libprotobuf-cpp-full",
-    ],
+    export_include_dirs: ["include"],
     header_libs: [
         "computepipe_runner_includes",
     ],
+    static_libs: [
+        "libcomputepipeprotos",
+    ],
+    shared_libs: [
+        "computepipe_runner_component",
+        "libprotobuf-cpp-lite",
+    ],
     include_dirs: [
-        "packages/services/Car/computepipe"
+        "packages/services/Car/computepipe",
     ],
 }

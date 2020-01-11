@@ -31,17 +31,17 @@ namespace stream_manager {
 class SemanticHandle : public MemHandle {
   public:
     static constexpr uint32_t kMaxSemanticDataSize = 1024;
-    proto::PacketType getType() override;
-    /* Retrieve packet time stamp */
-    uint64_t getTimeStamp() override;
-    /* Get size */
-    uint32_t getSize() override;
-    /* Get data, raw pointer. Only implemented for copy semantics */
-    const char* getData() override;
-    /* Get native handle. data with zero copy semantics */
-    native_handle_t getNativeHandle() override;
+    /**
+     * Override mem handle methods
+     */
+    int getStreamId() const override;
+    proto::PacketType getType() const override;
+    uint64_t getTimeStamp() const override;
+    uint32_t getSize() const override;
+    const char* getData() const override;
+    native_handle_t getNativeHandle() const override;
     /* set info for the memory. Make a copy */
-    Status setMemInfo(const char* data, uint32_t size, uint64_t timestamp,
+    Status setMemInfo(int streamId, const char* data, uint32_t size, uint64_t timestamp,
                       const proto::PacketType& type);
     /* Destroy local copy */
     ~SemanticHandle();
@@ -51,6 +51,7 @@ class SemanticHandle : public MemHandle {
     uint32_t mSize;
     uint64_t mTimestamp;
     proto::PacketType mType;
+    int mStreamId;
 };
 
 class SemanticManager : public StreamManager, StreamManagerInit {
@@ -69,11 +70,12 @@ class SemanticManager : public StreamManager, StreamManagerInit {
     Status handleStopWithFlushPhase(const RunnerEvent& e) override;
     Status handleStopImmediatePhase(const RunnerEvent& e) override;
 
-    explicit SemanticManager(std::string name, const proto::PacketType& type);
+    explicit SemanticManager(std::string name, int streamId, const proto::PacketType& type);
     ~SemanticManager() = default;
 
   private:
     std::mutex mStateLock;
+    int mStreamId;
     std::function<Status(const std::shared_ptr<MemHandle>&)> mDispatchCallback = nullptr;
 };
 }  // namespace stream_manager

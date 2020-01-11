@@ -12,25 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-cc_test {
-    name: "computepipe_semantic_manager_test",
-    test_suites: ["device-tests"],
-    srcs: [
-        "SemanticManagerTest.cpp",
-    ],
-    static_libs: [
-        "libgtest",
-        "libgmock",
-	  "libcomputepipeprotos",
-    ],
-    shared_libs: [
-        "libcomputepipe_stream_manager",
-	"libprotobuf-cpp-full",
-    ],
-    header_libs: [
-        "computepipe_runner_includes",
-    ],
-    include_dirs: [
-        "packages/services/Car/computepipe"
-    ],
+#include "InputManager.h"
+
+namespace android {
+namespace automotive {
+namespace computepipe {
+namespace runner {
+namespace input_manager {
+
+std::unique_ptr<InputManager> InputManagerFactory::createInputManager(
+    const proto::InputConfig& /* config */, std::shared_ptr<InputEngineInterface> /* engine */) {
+    return nullptr;
 }
+
+}  // namespace input_manager
+}  // namespace runner
+}  // namespace computepipe
+}  // namespace automotive
+}  // namespace android
