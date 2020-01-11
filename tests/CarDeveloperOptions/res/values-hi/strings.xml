@@ -4147,7 +4147,7 @@
     <string name="web_action_enable_title" msgid="4462106633708675959">"झटपट ऐप्लिकेशन"</string>
     <string name="web_action_enable_summary" msgid="1729016644691793085">"सभी लिंक ऐप्लिकेशन में खोलें, भले ही वे इंस्टॉल न हों"</string>
     <string name="web_action_section_title" msgid="5563229447734734662">"झटपट ऐप्लिकेशन"</string>
-    <string name="instant_apps_settings" msgid="879003203555847537">"इंस्टेंट ऐप से जुड़ी पसंद की सेटिंग"</string>
+    <string name="instant_apps_settings" msgid="879003203555847537">"झटपट ऐप्लिकेशन से जुड़ी पसंद की सेटिंग"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"इंस्‍टॉल किए गए ऐप्‍लिकेशन"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"आपकी जगह का प्रबंधन अब जगह प्रबंधक द्वारा किया जा रहा है"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g> के खाते"</string>

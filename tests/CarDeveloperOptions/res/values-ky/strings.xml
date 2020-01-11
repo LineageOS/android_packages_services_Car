@@ -636,7 +636,7 @@
     <string name="unlock_footer_low_complexity_requested" msgid="513212093196833566">"<xliff:g id="APP_NAME">%1$s</xliff:g> колонмосу жаңы графикалык ачкычты, PIN кодду же сырсөздү сунуштайт, ансыз талапка ылайык иштебеши мүмкүн"</string>
     <string name="unlock_footer_none_complexity_requested" msgid="1669550050597044896">"<xliff:g id="APP_NAME">%1$s</xliff:g> колдонмосу экрандын жаңы кулпусун сунуштайт"</string>
     <string name="lock_failed_attempts_before_wipe" msgid="7565412834122130877">"Кайра аракет кылыңыз. <xliff:g id="TOTAL_ATTEMPTS">%2$d</xliff:g> аракеттен <xliff:g id="CURRENT_ATTEMPTS">%1$d</xliff:g> аракет калды."</string>
-    <string name="lock_last_attempt_before_wipe_warning_title" msgid="7853820095898368793">"Дайындарыңыз жок кылынат"</string>
+    <string name="lock_last_attempt_before_wipe_warning_title" msgid="7853820095898368793">"Дайын-даректериңиз жок кылынат"</string>
     <string name="lock_last_pattern_attempt_before_wipe_device" msgid="1021644947949306054">"Эгер графикалык ачкычты кийинки жолу туура эмес киргизсеңиз, бул түзмөктүн дайындары жок кылынат"</string>
     <string name="lock_last_pin_attempt_before_wipe_device" msgid="3823600293847594141">"Эгер PIN кодду кийинки жолу туура эмес киргизсеңиз, бул түзмөктүн дайындары жок кылынат"</string>
     <string name="lock_last_password_attempt_before_wipe_device" msgid="3548966006264835462">"Эгер сырсөздү кийинки жолу туура эмес киргизсеңиз, бул түзмөктүн дайындары жок кылынат"</string>
@@ -1787,9 +1787,9 @@
     <string name="install_applications_title" msgid="8164828577588659496">"Бардк колднмо булактрна урукст"</string>
     <string name="recent_app_category_title" msgid="7688788038277126727">"Акыркы ачылган колдонмолор"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"<xliff:g id="COUNT">%1$d</xliff:g> колдонмонун баарын көрүү"</string>
-    <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Планшетиңиз жана жеке дайындарыңыз белгисиз колдонмолордон зыян тартып калышы мүмкүн. Бул булактан келген колдонмолорду орнотуу менен, аларды пайдалануудан улам планшетиңизге кандайдыр бир зыян келтирилсе же дайындарыңызды жоготуп алсаңыз, өзүңүз жооптуу болосуз."</string>
-    <string name="install_all_warning" product="default" msgid="7445839116997296358">"Телефонуңуз жана жеке дайындарыңыз белгисиз колдонмолордон зыян тартып калышы мүмкүн. Бул булактан келген колдонмолорду орнотуу менен, аларды пайдалануудан улам телефонуңузга кандайдыр бир зыян келтирилсе же дайындарыңызды жоготуп алсаңыз, өзүңүз жооптуу болосуз."</string>
-    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Түзмөгүңүз жана жеке дайындарыңыз белгисиз колдонмолордон зыян тартып калышы мүмкүн. Бул булактан келген колдонмолорду орнотуп, түзмөгүңүзгө кандайдыр бир зыян келтирип алсаңыз же дайын-даректериңизди жоготуп алсаңыз, өзүңүз жооптуу болосуз."</string>
+    <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Планшетиңиз жана жеке дайын-даректериңиз белгисиз колдонмолордон зыян тартып калышы мүмкүн. Бул булактан келген колдонмолорду орнотуу менен, аларды пайдалануудан улам планшетиңизге кандайдыр бир зыян келтирилсе же дайын-даректериңизды жоготуп алсаңыз, өзүңүз жооптуу болосуз."</string>
+    <string name="install_all_warning" product="default" msgid="7445839116997296358">"Телефонуңуз жана жеке дайын-даректериңиз белгисиз колдонмолордон зыян тартып калышы мүмкүн. Бул булактан келген колдонмолорду орнотуу менен, аларды пайдалануудан улам телефонуңузга кандайдыр бир зыян келтирилсе же дайын-даректериңизды жоготуп алсаңыз, өзүңүз жооптуу болосуз."</string>
+    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Түзмөгүңүз жана жеке дайын-даректериңиз белгисиз колдонмолордон зыян тартып калышы мүмкүн. Бул булактан келген колдонмолорду орнотуп, түзмөгүңүзгө кандайдыр бир зыян келтирип алсаңыз же дайын-даректериңизди жоготуп алсаңыз, өзүңүз жооптуу болосуз."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Өркүндөтүлгөн жөндөөлөр"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Көбүрөөк тууралоо опцияларын көрсөтүү"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Колдонмо тууралуу"</string>
@@ -2576,7 +2576,7 @@
     <string name="device_admin_warning" msgid="4421817419326480449">"Түзмөктү башкаруучу колдонмо иштетилгенде, <xliff:g id="APP_NAME">%1$s</xliff:g> колдонмосу төмөнкү аракеттерди аткарат:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"Администратордун колдонмосу иштетилген жана <xliff:g id="APP_NAME">%1$s</xliff:g> колдонмосуна төмөнкү аракеттерди аткарууга уруксат берет:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Профиль башкаргычы жандырылсынбы?"</string>
-    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Улантсаңыз, профилиңизди администратор башкарып, ал жеке дайындарыңыз менен кошо башка тийиштүү дайындарды да сактап турат.\n\nАдминистратор бул колдонуучунун жөндөөлөрүн, кирүү мүмкүнчүлүгүн, колдонмолорду жана дайындарды, ошондой эле тармактагы аракеттер менен түзмөгүңүздүн жайгашкан жери тууралуу маалыматты көзөмөлдөп, башкара алат."</string>
+    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Улантсаңыз, профилиңизди администратор башкарып, ал жеке дайын-даректериңиз менен кошо башка тийиштүү дайындарды да сактап турат.\n\nАдминистратор бул колдонуучунун жөндөөлөрүн, кирүү мүмкүнчүлүгүн, колдонмолорду жана дайындарды, ошондой эле тармактагы аракеттер менен түзмөгүңүздүн жайгашкан жери тууралуу маалыматты көзөмөлдөп, башкара алат."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"Башка параметрлер администратор тарабынан өчүрүлгөн"</string>
     <string name="admin_more_details" msgid="1719819589822345585">"Көбүрөөк маалымат"</string>
     <string name="notification_log_title" msgid="4200467765474474753">"Билдирмелер таржымалы"</string>
@@ -3624,7 +3624,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> кошумча уруксат</item>
     </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"Эч уруксат берилген жок"</string>
-    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Эч уруксат суралган жок"</string>
+    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Колдонмо уруксат сурай элек"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"Бардык колдонмолор"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Орнотулган колдонмолор"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"Ыкчам ачылуучу колдонмолор"</string>
@@ -4237,7 +4237,7 @@
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"колдонулду <xliff:g id="TOTAL">%1$s</xliff:g> ичинен"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"колдонулду"</string>
-    <string name="clear_instant_app_data" msgid="3673669086522890405">"Колдонмонун дайындарын тазалоо"</string>
+    <string name="clear_instant_app_data" msgid="3673669086522890405">"Колдонмонун дайын-даректерин тазалоо"</string>
     <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"Бул ыкчам ачылуучу колдонмо алынып салынсынбы?"</string>
     <string name="launch_instant_app" msgid="5251693061228352333">"Ачуу"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"Оюндар"</string>
