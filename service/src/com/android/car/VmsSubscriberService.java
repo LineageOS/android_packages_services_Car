@@ -55,7 +55,6 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub implements 
         mBrokerService = brokerService;
         mClientManager = clientManager;
         mBrokerService.addSubscriberListener(this);
-        hal.setVmsSubscriberService(this);
     }
 
     @Override

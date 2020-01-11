@@ -213,7 +213,6 @@ public class VmsClientManagerTest {
         // call init() so the listener and callback are captured
         verifyInit();
 
-        verify(mHal).setClientManager(mClientManager);
         mClientManager.setPublisherService(mPublisherService);
 
         notifyUserSwitched(USER_ID, false);

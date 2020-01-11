@@ -31,6 +31,7 @@ import android.util.Log;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -105,6 +106,19 @@ public class VmsClientManager extends CarManagerBase {
     public void registerVmsClientCallback(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull VmsClientCallback callback) {
+        registerVmsClientCallback(executor, callback, false);
+    }
+
+    /**
+     * @hide
+     */
+    @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
+    void registerVmsClientCallback(
+            @NonNull @CallbackExecutor Executor executor,
+            @NonNull VmsClientCallback callback,
+            boolean legacyClient) {
+        Objects.requireNonNull(executor, "executor cannot be null");
+        Objects.requireNonNull(callback, "callback cannot be null");
         VmsClient client;
         synchronized (mLock) {
             if (mClients.containsKey(callback)) {
@@ -112,7 +126,7 @@ public class VmsClientManager extends CarManagerBase {
                 return;
             }
 
-            client = new VmsClient(mBrokerService, executor, callback,
+            client = new VmsClient(mBrokerService, executor, callback, legacyClient,
                     this::handleRemoteExceptionFromCarService);
             mClients.put(callback, client);
             if (DBG) Log.d(TAG, "Client count: " + mClients.size());
@@ -133,8 +147,10 @@ public class VmsClientManager extends CarManagerBase {
         if (DBG) Log.d(TAG, "Triggering callbacks for new VmsClient");
         executor.execute(() -> {
             callback.onClientConnected(client);
-            callback.onLayerAvailabilityChanged(client.getAvailableLayers());
-            callback.onSubscriptionStateChanged(client.getSubscriptionState());
+            if (!legacyClient) {
+                callback.onLayerAvailabilityChanged(client.getAvailableLayers());
+                callback.onSubscriptionStateChanged(client.getSubscriptionState());
+            }
         });
     }
 

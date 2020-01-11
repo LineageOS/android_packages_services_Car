@@ -74,7 +74,6 @@ public class VmsSubscriberServiceTest {
         mSubscriberService = new VmsSubscriberService(mContext, mBrokerService, mClientManager,
                 mHal);
         verify(mBrokerService).addSubscriberListener(eq(mSubscriberService));
-        verify(mHal).setVmsSubscriberService(eq(mSubscriberService));
     }
 
     @After

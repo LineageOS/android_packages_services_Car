@@ -68,8 +68,6 @@ import com.android.car.trust.CarTrustedDeviceService;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.car.user.UserMetrics;
-import com.android.car.vms.VmsBrokerService;
-import com.android.car.vms.VmsClientManager;
 import com.android.car.vms.VmsNewBrokerService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -89,7 +87,6 @@ public class ICarImpl extends ICar.Stub {
     public static final String INTERNAL_INPUT_SERVICE = "internal_input";
     public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
             "system_activity_monitoring";
-    public static final String INTERNAL_VMS_MANAGER = "vms_manager";
 
     private final Context mContext;
     private final VehicleHal mHal;
@@ -127,10 +124,6 @@ public class ICarImpl extends ICar.Stub {
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final CarUserNoticeService mCarUserNoticeService;
     private final VmsNewBrokerService mVmsBrokerService;
-    private final VmsClientManager mVmsClientManager;
-    private final VmsBrokerService mVmsLegacyBrokerService;
-    private final VmsSubscriberService mVmsSubscriberService;
-    private final VmsPublisherService mVmsPublisherService;
     private final CarBugreportManagerService mCarBugreportManagerService;
     private final CarStatsService mCarStatsService;
     private final CarExperimentalFeatureServiceController mCarExperimentalFeatureServiceController;
@@ -225,26 +218,11 @@ public class ICarImpl extends ICar.Stub {
                 serviceContext, mCarAudioService, this);
         mCarStatsService = new CarStatsService(serviceContext);
         mCarStatsService.init();
-        if (mFeatureController.isFeatureEnabled(Car.VEHICLE_MAP_SERVICE)) {
+        if (mFeatureController.isFeatureEnabled(Car.VEHICLE_MAP_SERVICE)
+                || mFeatureController.isFeatureEnabled(Car.VMS_SUBSCRIBER_SERVICE)) {
             mVmsBrokerService = new VmsNewBrokerService(mContext, mCarStatsService);
         } else {
             mVmsBrokerService = null;
-        }
-        if (mFeatureController.isFeatureEnabled(Car.VMS_SUBSCRIBER_SERVICE)) {
-            mVmsLegacyBrokerService = new VmsBrokerService();
-            mVmsClientManager = new VmsClientManager(
-                    // CarStatsService needs to be passed to the constructor due to HAL init order
-                    serviceContext, mCarStatsService, mCarUserService, mVmsLegacyBrokerService,
-                    mHal.getVmsHal());
-            mVmsSubscriberService = new VmsSubscriberService(
-                    serviceContext, mVmsLegacyBrokerService, mVmsClientManager, mHal.getVmsHal());
-            mVmsPublisherService = new VmsPublisherService(
-                    serviceContext, mCarStatsService, mVmsLegacyBrokerService, mVmsClientManager);
-        } else {
-            mVmsLegacyBrokerService = null;
-            mVmsClientManager = null;
-            mVmsSubscriberService = null;
-            mVmsPublisherService = null;
         }
         if (mFeatureController.isFeatureEnabled(Car.DIAGNOSTIC_SERVICE)) {
             mCarDiagnosticService = new CarDiagnosticService(serviceContext,
@@ -279,6 +257,7 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(CarDrivingStateService.class, mCarDrivingStateService);
         CarLocalServices.addService(PerUserCarServiceHelper.class, mPerUserCarServiceHelper);
         CarLocalServices.addService(FixedActivityService.class, mFixedActivityService);
+        CarLocalServices.addService(VmsNewBrokerService.class, mVmsBrokerService);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
@@ -308,9 +287,6 @@ public class ICarImpl extends ICar.Stub {
         addServiceIfNonNull(allServices, mCarStorageMonitoringService);
         allServices.add(mCarConfigurationService);
         addServiceIfNonNull(allServices, mVmsBrokerService);
-        addServiceIfNonNull(allServices, mVmsClientManager);
-        addServiceIfNonNull(allServices, mVmsSubscriberService);
-        addServiceIfNonNull(allServices, mVmsPublisherService);
         allServices.add(mCarTrustedDeviceService);
         allServices.add(mCarMediaService);
         allServices.add(mCarLocationService);
@@ -493,7 +469,7 @@ public class ICarImpl extends ICar.Stub {
                 return mVmsBrokerService;
             case Car.VMS_SUBSCRIBER_SERVICE:
                 assertVmsSubscriberPermission(mContext);
-                return mVmsSubscriberService;
+                return mVmsBrokerService;
             case Car.TEST_SERVICE: {
                 assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
                 synchronized (this) {
@@ -552,9 +528,6 @@ public class ICarImpl extends ICar.Stub {
                 return mCarInputService;
             case INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE:
                 return mSystemActivityMonitoringService;
-            // TODO(b/144027497): temporary until tests are refactored to not use it
-            case INTERNAL_VMS_MANAGER:
-                return mVmsClientManager;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarInternalService for unknown service:" +
                         serviceName);

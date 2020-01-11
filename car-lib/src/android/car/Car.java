@@ -1679,7 +1679,8 @@ public final class Car {
                 manager = new VmsClientManager(this, binder);
                 break;
             case VMS_SUBSCRIBER_SERVICE:
-                manager = new VmsSubscriberManager(this, binder);
+                manager = VmsSubscriberManager.wrap(this,
+                        (VmsClientManager) getCarManager(VEHICLE_MAP_SERVICE));
                 break;
             case BLUETOOTH_SERVICE:
                 manager = new CarBluetoothManager(this, binder);

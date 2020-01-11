@@ -161,8 +161,6 @@ public class VmsClientManager implements CarServiceBase {
         mGetCallingUid = getCallingUid;
         mMillisBeforeRebind = context.getResources().getInteger(
                 com.android.car.R.integer.millisecondsBeforeRebindToVmsPublisher);
-
-        halService.setClientManager(this);
     }
 
     /**
