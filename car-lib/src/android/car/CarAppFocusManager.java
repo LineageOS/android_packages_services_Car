@@ -17,6 +17,7 @@
 package android.car;
 
 import android.annotation.IntDef;
+import android.annotation.TestApi;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -204,6 +205,7 @@ public final class CarAppFocusManager extends CarManagerBase {
      * Returns application types currently active in the system.
      * @hide
      */
+    @TestApi
     public int[] getActiveAppTypes() {
         try {
             return mService.getActiveAppTypes();
