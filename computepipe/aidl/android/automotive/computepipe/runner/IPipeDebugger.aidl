@@ -35,7 +35,7 @@ interface IPipeDebugger {
 
     /**
      * Start the profiling for the mediapipe graph.
-     * This can be done at any point of a funtional pipe state, RESET, RUNNING, INIT_DONE
+     * This can be done at any point of a funtional pipe state, RESET, RUNNING, CONFIG_DONE
      *
      * @param out if starting profiling was successful it returns binder::Status::OK
      */
@@ -43,7 +43,7 @@ interface IPipeDebugger {
 
     /**
      * Stop the profiling for the mediapipe graph.
-     * This can be done at any point of a funtional pipe state, RUNNING, INIT_DONE
+     * This can be done at any point of a funtional pipe state, RUNNING, CONFIG_DONE
      *
      * @param out if stoping profiling was successful, it returns binder::Status::OK
      */
