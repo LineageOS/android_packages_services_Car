@@ -29,7 +29,7 @@ class ConfigBuilder {
     /**
      * Update current input option
      */
-    ConfigBuilder& updateInputStreamOption(int id);
+    ConfigBuilder& updateInputConfigOption(int id);
     /**
      * Update current output options
      */
@@ -56,7 +56,7 @@ class ConfigBuilder {
     ConfigBuilder& reset();
 
   private:
-    int mInputStreamId;
+    int mInputConfigId;
     int mOffloadId;
     int mTerminationId;
     std::map<int, int> mOutputConfig;

@@ -17,6 +17,7 @@ cc_test {
     test_suites: ["device-tests"],
     srcs: [
         "ClientInterfaceTest.cc",
+	"PipeOptionsConverterTest.cpp",
     ],
     static_libs: [
         "libgtest",

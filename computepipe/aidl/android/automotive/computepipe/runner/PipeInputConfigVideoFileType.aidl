@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,14 @@
  */
 package android.automotive.computepipe.runner;
 
-import android.automotive.computepipe.runner.PipeOffloadConfigOffloadType;
-
 /**
- * structure that describes the combination of offload options.
- * This is a per graph specific combination.
+ *Type of encoding for the video file
  */
 @VintfStability
-parcelable PipeOffloadConfigOffloadOptions {
+@Backing(type="int")
+enum PipeInputConfigVideoFileType {
     /**
-     * combination of different offload engines
+     * MPEG
      */
-    PipeOffloadConfigOffloadType[] type;
-    /**
-     * 1:1 correspondence for each type above.
-     * Every offload engine has a flag describing if its virtual device
-     */
-    boolean[] isVirtual;
+    MPEG = 0,
 }
-
