@@ -49,6 +49,8 @@ interface ICarAudio {
 
     int getZoneIdForDisplayPortId(byte displayPortId);
 
+    String getOutputDeviceAddressForUsage(int zoneId, int usage);
+
     /**
      * IBinder is ICarVolumeCallback but passed as IBinder due to aidl hidden.
      */
