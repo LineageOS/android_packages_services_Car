@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The Android Open Source Project
+// Copyright (C) 2020 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPUTEPIPE_RUNNER_STREAM_MANAGER_INIT_H
-#define COMPUTEPIPE_RUNNER_STREAM_MANAGER_INIT_H
+#ifndef COMPUTEPIPE_RUNNER_STREAM_MOCK_ENGINE_H
+#define COMPUTEPIPE_RUNNER_STREAM_MOCK_ENGINE_H
 
-#include <functional>
-#include <memory>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-#include "MemHandle.h"
 #include "StreamEngineInterface.h"
-#include "types/Status.h"
 
 namespace android {
 namespace automotive {
@@ -28,12 +26,16 @@ namespace computepipe {
 namespace runner {
 namespace stream_manager {
 
-class StreamManagerInit {
+class MockEngine : public StreamEngineInterface {
   public:
-    virtual void setEngineInterface(std::shared_ptr<StreamEngineInterface> engine) = 0;
-    /* Set Max in flight packets based on client specification */
-    virtual Status setMaxInFlightPackets(uint32_t maxPackets) = 0;
-    virtual ~StreamManagerInit() = default;
+    MockEngine() = default;
+    MOCK_METHOD(Status, dispatchPacket, (const std::shared_ptr<MemHandle>& data), (override));
+    MOCK_METHOD(void, notifyEndOfStream, (), (override));
+    MOCK_METHOD(void, notifyError, (std::string msg), (override));
+    void delegateToFake(const std::shared_ptr<StreamEngineInterface>& fake);
+
+  private:
+    std::shared_ptr<StreamEngineInterface> mFake;
 };
 
 }  // namespace stream_manager
@@ -41,4 +43,5 @@ class StreamManagerInit {
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android
+
 #endif

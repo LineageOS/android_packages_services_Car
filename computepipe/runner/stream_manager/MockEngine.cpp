@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The Android Open Source Project
+// Copyright (C) 2020 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPUTEPIPE_RUNNER_STREAM_MANAGER_INIT_H
-#define COMPUTEPIPE_RUNNER_STREAM_MANAGER_INIT_H
-
-#include <functional>
-#include <memory>
-
-#include "MemHandle.h"
-#include "StreamEngineInterface.h"
-#include "types/Status.h"
+#include "MockEngine.h"
 
 namespace android {
 namespace automotive {
@@ -28,17 +20,19 @@ namespace computepipe {
 namespace runner {
 namespace stream_manager {
 
-class StreamManagerInit {
-  public:
-    virtual void setEngineInterface(std::shared_ptr<StreamEngineInterface> engine) = 0;
-    /* Set Max in flight packets based on client specification */
-    virtual Status setMaxInFlightPackets(uint32_t maxPackets) = 0;
-    virtual ~StreamManagerInit() = default;
-};
+using ::testing::_;
+
+void MockEngine::delegateToFake(const std::shared_ptr<StreamEngineInterface>& engine) {
+    mFake = engine;
+    ON_CALL(*this, dispatchPacket).WillByDefault([this](const std::shared_ptr<MemHandle>& handle) {
+        return mFake->dispatchPacket(handle);
+    });
+    ON_CALL(*this, notifyError).WillByDefault([this](std::string msg) { mFake->notifyError(msg); });
+    ON_CALL(*this, notifyEndOfStream).WillByDefault([this]() { mFake->notifyEndOfStream(); });
+}
 
 }  // namespace stream_manager
 }  // namespace runner
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android
-#endif
