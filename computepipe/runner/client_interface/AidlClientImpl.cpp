@@ -255,6 +255,18 @@ ScopedAStatus AidlClientImpl::applyPipeConfigs() {
     return ToNdkStatus(status);
 }
 
+ScopedAStatus AidlClientImpl::resetPipeConfigs() {
+    if (!isClientInitDone()) {
+        return ScopedAStatus::fromExceptionCode(EX_ILLEGAL_STATE);
+    }
+
+    proto::ControlCommand controlCommand;
+    *controlCommand.mutable_reset_configs() = proto::ResetConfigs();
+
+    Status status = mEngine->processClientCommand(controlCommand);
+    return ToNdkStatus(status);
+}
+
 ScopedAStatus AidlClientImpl::startPipe() {
     proto::ControlCommand controlCommand;
     *controlCommand.mutable_start_graph() = proto::StartGraph();
