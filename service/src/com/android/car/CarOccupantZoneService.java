@@ -407,7 +407,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             if (portAddress == null) {
                 continue;
             }
-            DisplayConfig config = mDisplayConfigs.get(portAddress.intValue());
+            DisplayConfig config =
+                mDisplayConfigs.get(Byte.toUnsignedInt(portAddress));
             return config;
         }
         return null;
@@ -651,11 +652,13 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     private void handleActiveDisplaysLocked() {
         mActiveOccupantConfigs.clear();
         for (Display display : mDisplayManager.getDisplays()) {
-            Byte portAddress = getPortAddress(display);
-            if (portAddress == null) {
+            Byte rawPortAddress = getPortAddress(display);
+            if (rawPortAddress == null) {
                 continue;
             }
-            DisplayConfig displayConfig = mDisplayConfigs.get(portAddress.intValue());
+
+            int portAddress = Byte.toUnsignedInt(rawPortAddress);
+            DisplayConfig displayConfig = mDisplayConfigs.get(portAddress);
             if (displayConfig == null) {
                 Log.w(CarLog.TAG_OCCUPANT,
                         "Display id:" + display.getDisplayId() + " port:" + portAddress

@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
@@ -830,6 +831,18 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
             return false;
         }
+    }
+
+    @Override
+    public String getOutputDeviceAddressForUsage(int zoneId,
+            @AudioAttributes.AttributeUsage int usage) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        Preconditions.checkArgumentInRange(zoneId, 0, mCarAudioZones.length - 1,
+                "zoneId (" + zoneId + ")");
+        int contextForUsage = getContextForUsage(usage);
+        Preconditions.checkArgument(contextForUsage != ContextNumber.INVALID,
+                "Invalid audio attribute usage %d", usage);
+        return mCarAudioZones[zoneId].getAddressForContext(contextForUsage);
     }
 
     /**

@@ -35,7 +35,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Display;
 import android.view.DisplayAddress;
 import android.view.LayoutInflater;
@@ -67,9 +66,6 @@ public class AudioTestFragment extends Fragment {
     // Key for communicating to hall which audio zone has been selected to play
     private static final String AAE_PARAMETER_KEY_FOR_SELECTED_ZONE =
             "com.android.car.emulator.selected_zone";
-    // For demoing get zone display API. Maps the display port id to audio device.
-    // This is for emulating purposes only.
-    private SparseArray<String> mDisplayToAudioDeviceMap;
 
     private AudioManager mAudioManager;
     private FocusHandler mAudioFocusHandler;
@@ -230,10 +226,6 @@ public class AudioTestFragment extends Fragment {
 
         connectCar();
         initializePlayers();
-
-        mDisplayToAudioDeviceMap =
-                DisplayToAudioDeviceParser.parseDisplayToDeviceMapping(mContext.getResources()
-                                .getStringArray(R.array.config_displayToAudioDeviceConfig));
 
         mAudioManager = (AudioManager) mContext.getSystemService(
                 Context.AUDIO_SERVICE);
@@ -572,28 +564,23 @@ public class AudioTestFragment extends Fragment {
                 .addBundle(bundle)
                 .build();
 
+        AudioDeviceInfo audioDeviceInfo =
+                mCarAudioManager.getOutputDeviceForUsage(zoneIdForDisplayId,
+                        AudioAttributes.USAGE_MEDIA);
+
         mMusicPlayerForSelectedDisplay = new AudioPlayer(mContext,
                 R.raw.well_worth_the_wait,
-                mMusicAudioAttribForDisplay);
+                mMusicAudioAttribForDisplay,
+                audioDeviceInfo);
 
         mDisplayLayout.findViewById(R.id.audio_display_layout)
                 .setVisibility(View.VISIBLE);
     }
 
     private void startDisplayAudio() {
-        Integer selectedDisplayPortId = mDisplayAdapter.getItem(
-                mDisplaySpinner.getSelectedItemPosition());
-        int zoneIdForDisplayId = mCarAudioManager.getZoneIdForDisplayPortId(
-                selectedDisplayPortId.byteValue());
-        Log.d(TAG, "Starting display audio in zone " + zoneIdForDisplayId);
-        // Direct audio to the correct source
-        // TODO: Figure out a way to facilitate this for the user
-        // Currently there is no way of distinguishing apps from the same package to different zones
-        // One suggested way would be to create a unique id for each focus requester that is also
-        // share with the audio router
-        String audioDeviceName = mDisplayToAudioDeviceMap.get(selectedDisplayPortId);
+        Log.d(TAG, "Starting display audio");
         mMusicPlayerForSelectedDisplay.start(true, false,
-                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, audioDeviceName);
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
     }
 
     public void handleDisplaySelection() {

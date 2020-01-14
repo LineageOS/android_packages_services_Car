@@ -16,7 +16,6 @@
 package android.automotive.computepipe.runner;
 
 import android.automotive.computepipe.runner.PipeProfilingType;
-import android.automotive.computepipe.NativeHandle;
 
 /**
  * Structure that describes the profiling information output from
@@ -36,6 +35,6 @@ parcelable ProfilingData {
      * handle to memory region containing zero copy or semantic data
      * as described in https://mediapipe.readthedocs.io/en/latest/measure_performance.html
      */
-    NativeHandle handle;
+    ParcelFileDescriptor[] dataFds;
 }
 
