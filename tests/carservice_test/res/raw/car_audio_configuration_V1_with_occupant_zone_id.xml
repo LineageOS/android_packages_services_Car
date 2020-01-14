@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<carAudioConfiguration version="2">
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<carAudioConfiguration version="1">
     <zones>
-        <zone name="primary zone" isPrimary="true" audioZoneId="0" occupantZoneId="1">
+        <zone name="primary zone" isPrimary="true" occupantZoneId="1">
             <volumeGroups>
                 <group>
                     <device address="bus0_media_out">
@@ -17,12 +33,8 @@
                     </device>
                 </group>
             </volumeGroups>
-            <displays>
-                <display port="1"/>
-                <display port="2"/>
-            </displays>
         </zone>
-        <zone name="rear seat zone" audioZoneId="2">
+        <zone name="rear seat zone">
             <volumeGroups>
                 <group>
                     <device address="bus100_rear_seat">
