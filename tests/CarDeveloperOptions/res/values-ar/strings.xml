@@ -397,8 +397,8 @@
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"الجهاز ليس مشفرًا."</string>
     <string name="lockscreen_settings_title" msgid="1221505938891948413">"عرض شاشة القفل"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"ما يتم عرضه"</string>
-    <string name="security_settings_summary" msgid="5210109100643223686">"تعيين موقعي، إلغاء تأمين الشاشة، تأمين شريحة SIM، تأمين تخزين الاعتماد"</string>
-    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"تعيين موقعي، إلغاء تأمين الشاشة، تأمين تخزين الاعتماد"</string>
+    <string name="security_settings_summary" msgid="5210109100643223686">"تعيين موقعي، فتح قفل الشاشة، تأمين شريحة SIM، تأمين تخزين الاعتماد"</string>
+    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"تعيين موقعي، فتح قفل الشاشة، تأمين تخزين الاعتماد"</string>
     <string name="security_passwords_title" msgid="6853942836045862315">"الخصوصية"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"تم إيقاف الإعداد بواسطة المشرف"</string>
     <string name="security_status_title" msgid="1261960357751754428">"حالة الأمان"</string>
@@ -412,7 +412,7 @@
     <string name="security_settings_face_enroll_introduction_accessibility_diversity" msgid="1130222333285509856"></string>
     <string name="security_settings_face_enroll_introduction_accessibility_vision" msgid="356568621735811168"></string>
     <string name="security_settings_face_enroll_introduction_cancel" msgid="4190924649721437238">"إلغاء"</string>
-    <string name="security_settings_face_enroll_introduction_title" msgid="6073249653318265486">"إلغاء القفل باستخدام وجهك"</string>
+    <string name="security_settings_face_enroll_introduction_title" msgid="6073249653318265486">"فتح القفل باستخدام وجهك"</string>
     <string name="security_settings_face_enroll_introduction_title_unlock_disabled" msgid="9223270521083202896">"استخدام وجهك للمصادقة"</string>
     <string name="security_settings_face_enroll_introduction_message" msgid="484806903869220184">"استخدم وجهك لإلغاء قفل الهاتف أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات."</string>
     <string name="security_settings_face_enroll_introduction_message_unlock_disabled" msgid="2850101281254663082">"يمكنك استخدام وجهك لفتح الهاتف أو الموافقة على عمليات الشراء.\n\nملاحظة: لا يمكنك استخدام وجهك لفتح هذا الجهاز. للحصول على المزيد من المعلومات، اتصل بمشرف المؤسسة."</string>
@@ -437,7 +437,7 @@
     <string name="security_settings_face_settings_require_confirmation" msgid="7312024271060416438">"طلب التأكيد دائمًا"</string>
     <string name="security_settings_face_settings_require_confirmation_details" msgid="8740564864091803429">"عند إجراء مصادقة في التطبيقات، يجب طلب التأكيد دائمًا."</string>
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"إزالة بيانات الوجه"</string>
-    <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"يمكن إلغاء قفل جهازك والوصول إلى التطبيقات بالوجه. "<annotation id="url">"مزيد من المعلومات"</annotation></string>
+    <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"يمكن فتح قفل جهازك والوصول إلى التطبيقات بالوجه. "<annotation id="url">"مزيد من المعلومات"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"هل تريد حذف بيانات الوجه؟"</string>
     <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"سيتم حذف البيانات المسجّلة باستخدام ميزة \"فتح القفل بالوجه\" نهائيًا وبشكل آمن. وبعد إزالتها، ستحتاج إلى رقم التعريف الشخصي أو النقش أو كلمة المرور لفتح قفل الهاتف وتسجيل الدخول إلى التطبيقات وتأكيد الدفعات."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"بصمة الإصبع"</string>
@@ -509,7 +509,7 @@
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"تعذّر تسجيل بصمة الإصبع. يُرجى إعادة المحاولة أو استخدام إصبع آخر."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"إضافة بصمة إصبع أخرى"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"التالي"</string>
-    <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"بالإضافة إلى إلغاء قفل هاتفك، يمكنك أيضًا استخدام بصمة إصبعك للسماح بعمليات الشراء والوصول إلى التطبيق. "<annotation id="url">"مزيد من المعلومات"</annotation></string>
+    <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"بالإضافة إلى فتح قفل هاتفك، يمكنك أيضًا استخدام بصمة إصبعك للسماح بعمليات الشراء والوصول إلى التطبيق. "<annotation id="url">"مزيد من المعلومات"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" تم إيقاف خيار قفل الشاشة. لمعرفة المزيد من المعلومات، اتصل بمشرف مؤسستك. "<annotation id="admin_details">"مزيد من التفاصيل"</annotation>\n\n"ما زال بإمكانك استخدام بصمة إصبعك للسماح بعمليات الشراء والوصول إلى التطبيقات. "<annotation id="url">"مزيد من المعلومات"</annotation></string>
     <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"ارفع إصبعك ثم المس زر الاستشعار مرة أخرى"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"يمكنك إضافة ما يصل إلى <xliff:g id="COUNT">%d</xliff:g> بصمات الإصبع"</string>
@@ -525,8 +525,8 @@
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"تشفير الجهاز اللوحي"</string>
     <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"تشفير الهاتف"</string>
     <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"مشفّر"</string>
-    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"يمكنك تشفير حساباتك وإعداداتك والتطبيقات التي تم تنزيلها وبياناتها والوسائط والملفات الأخرى. وبعد تشفير جهازك اللوحي، بافتراض أنك قد أعددت قفل الشاشة (باستخدام نقش أو رقم تعريف شخصي أو كلمة مرور)، يجب إلغاء قفل الشاشة لفك تشفير الجهاز اللوحي في كل مرة تشغله فيها. والوسيلة الأخرى الوحيدة لفك تشفير الجهاز هي إجراء إعادة الضبط بحسب بيانات المصنع، ومحو كل بياناتك.\n\nيستغرق التشفير ساعة أو أكثر. ويجب البدء ببطارية مشحونة وتوصيل الجهاز اللوحي بالشاحن أثناء عملية التشفير. فإذا أوقفت العملية، ستفقد بعض أو كل بياناتك"</string>
-    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"يمكنك تشفير حساباتك وإعداداتك والتطبيقات التي تم تنزيلها وبياناتها والوسائط والملفات الأخرى. وبعد تشفير هاتفك، وبافتراض أنك قد أعددت قفل الشاشة (عبر النقش أو رقم التعريف الشخصي أو كلمة المرور)، يجب إلغاء قفل الشاشة لفك تشفير الهاتف في كل مرة تشغله فيها. الطريقة الوحيدة الأخرى لفك تشفير الجهاز هي إجراء إعادة الضبط بحسب بيانات المصنع، ومحو كل بياناتك.\n\nيستغرق التشفير ساعة أو أكثر. يجب البدء ببطارية مشحونة وتوصيل الهاتف بالشاحن أثناء عملية التشفير. فإذا أوقفت هذه العملية، ستفقد بعض أو كل البيانات."</string>
+    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"يمكنك تشفير حساباتك وإعداداتك والتطبيقات التي تم تنزيلها وبياناتها والوسائط والملفات الأخرى. وبعد تشفير جهازك اللوحي، بافتراض أنك قد أعددت قفل الشاشة (باستخدام نقش أو رقم تعريف شخصي أو كلمة مرور)، يجب فتح قفل الشاشة لفك تشفير الجهاز اللوحي في كل مرة تشغله فيها. والوسيلة الأخرى الوحيدة لفك تشفير الجهاز هي إجراء إعادة الضبط بحسب بيانات المصنع، ومحو كل بياناتك.\n\nيستغرق التشفير ساعة أو أكثر. ويجب البدء ببطارية مشحونة وتوصيل الجهاز اللوحي بالشاحن أثناء عملية التشفير. فإذا أوقفت العملية، ستفقد بعض أو كل بياناتك"</string>
+    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"يمكنك تشفير حساباتك وإعداداتك والتطبيقات التي تم تنزيلها وبياناتها والوسائط والملفات الأخرى. وبعد تشفير هاتفك، وبافتراض أنك قد أعددت قفل الشاشة (عبر النقش أو رقم التعريف الشخصي أو كلمة المرور)، يجب فتح قفل الشاشة لفك تشفير الهاتف في كل مرة تشغله فيها. الطريقة الوحيدة الأخرى لفك تشفير الجهاز هي إجراء إعادة الضبط بحسب بيانات المصنع، ومحو كل بياناتك.\n\nيستغرق التشفير ساعة أو أكثر. يجب البدء ببطارية مشحونة وتوصيل الهاتف بالشاحن أثناء عملية التشفير. فإذا أوقفت هذه العملية، ستفقد بعض أو كل البيانات."</string>
     <string name="crypt_keeper_button_text" product="tablet" msgid="7918671468758813824">"تشفير الجهاز اللوحي"</string>
     <string name="crypt_keeper_button_text" product="default" msgid="8737394386627318489">"تشفير الهاتف"</string>
     <string name="crypt_keeper_low_charge_text" msgid="1422879728632636311">"اشحن البطارية وأعد المحاولة."</string>
@@ -543,7 +543,7 @@
     <string name="crypt_keeper_setup_time_remaining" product="default" msgid="8049188590821796173">"انتظر بينما يتم تشفير هاتفك. الوقت المتبقي: <xliff:g id="DURATION">^1</xliff:g>"</string>
     <string name="crypt_keeper_force_power_cycle" product="tablet" msgid="9168213181845231795">"لإلغاء تأمين الجهاز اللوحي، يمكنك إيقافه وتشغيله مرة أخرى."</string>
     <string name="crypt_keeper_force_power_cycle" product="default" msgid="1182690469082263666">"لإلغاء تأمين الهاتف، يمكنك إيقافه وتشغيله مرة أخرى."</string>
-    <string name="crypt_keeper_warn_wipe" msgid="700814581500057050">"تحذير: سيتم محو محتويات جهازك بعد إخفاق <xliff:g id="COUNT">^1</xliff:g> من المحاولات الأخرى لإلغاء القفل!"</string>
+    <string name="crypt_keeper_warn_wipe" msgid="700814581500057050">"تحذير: سيتم محو محتوى جهازك بعد فشل <xliff:g id="COUNT">^1</xliff:g> من المحاولات الأخرى في فتح القفل!"</string>
     <string name="crypt_keeper_enter_password" msgid="726933635335219421">"اكتب كلمة المرور"</string>
     <string name="crypt_keeper_failed_title" msgid="1906382607060855782">"لم يتم التشفير بنجاح"</string>
     <string name="crypt_keeper_failed_summary" product="tablet" msgid="7844833877734529625">"تمت مقاطعة التشفير ويتعذر الاستكمال. ونتيجة لذلك، لن تتمكن بعد الآن من الدخول إلى البيانات على جهازك اللوحي. \n\nلاستئناف استخدام الجهاز اللوحي، يلزمك إجراء إعادة ضبط المصنع. وعند إعداد الجهاز اللوحي بعد إعادة الضبط، ستكون لديك فرصة استعادة أي بيانات تم نسخها احتياطيًا إلى حساب Google."</string>
@@ -596,12 +596,12 @@
     <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"بصمة الإصبع ورقم التعريف الشخصي"</string>
     <string name="fingerprint_unlock_set_unlock_password" msgid="3325527833422156515">"بصمة الإصبع وكلمة المرور"</string>
     <string name="fingerprint_unlock_skip_fingerprint" msgid="2063700014903801639">"المتابعة بدون بصمة الإصبع"</string>
-    <string name="fingerprint_unlock_title" msgid="8009992449332532869">"يمكنك إلغاء قفل هاتفك باستخدام بصمة إصبعك. ولأغراض أمنية، يتطلب هذا الخيار استخدام قفل شاشة احتياطي."</string>
+    <string name="fingerprint_unlock_title" msgid="8009992449332532869">"يمكنك فتح قفل هاتفك باستخدام بصمة إصبعك. ولأغراض أمنية، يتطلب هذا الخيار استخدام قفل شاشة احتياطي."</string>
     <string name="face_unlock_set_unlock_pattern" msgid="3748596996869406905">"مصادقة الوجه + نمط"</string>
     <string name="face_unlock_set_unlock_pin" msgid="3320824093518497476">"مصادقة الوجه + رقم التعريف الشخصي"</string>
     <string name="face_unlock_set_unlock_password" msgid="8962344604388383659">"مصادقة الوجه + كلمة المرور"</string>
     <string name="face_unlock_skip_face" msgid="7173197040501143880">"المتابعة بدون مصادقة الوجه"</string>
-    <string name="face_unlock_title" msgid="1298031162909236127">"يمكنك إلغاء قفل هاتفك باستخدام وجهك. ولأغراض أمنية، يتطلب هذا الخيار استخدام قفل شاشة احتياطي."</string>
+    <string name="face_unlock_title" msgid="1298031162909236127">"يمكنك فتح قفل هاتفك باستخدام وجهك. ولأغراض أمنية، يتطلب هذا الخيار استخدام قفل شاشة احتياطي."</string>
     <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"تم إيقافه بواسطة المشرف، أو سياسة التشفير، أو وحدة تخزين بيانات الاعتماد"</string>
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"بدون قفل"</string>
     <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"التمرير السريع"</string>
@@ -615,35 +615,35 @@
     <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"لن تعمل ميزات حماية الجهاز بدون النقش."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"لن تعمل ميزات حماية الجهاز بدون النقش.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الجهاز ولن تتمكن من إلغاء قفل هاتفك أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
+</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الجهاز ولن تتمكن من فتح قفل هاتفك أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
     <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"لن تعمل ميزات حماية الجهاز بدون رقم التعريف الشخصي."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"لن تعمل ميزات حماية الجهاز بدون رقم التعريف الشخصي.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الجهاز ولن تتمكن من إلغاء قفل هاتفك أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
+</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الجهاز ولن تتمكن من فتح قفل هاتفك أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
     <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"لن تعمل ميزات حماية الجهاز بدون كلمة المرور."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"لن تعمل ميزات حماية الجهاز بدون كلمة المرور.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الجهاز ولن تتمكن من إلغاء قفل هاتفك أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
+</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الجهاز ولن تتمكن من فتح قفل هاتفك أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
     <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"لن تعمل ميزات حماية الجهاز بدون قفل الشاشة."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"لن تعمل ميزات حماية الجهاز بدون قفل الشاشة.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الجهاز ولن تتمكن من إلغاء قفل هاتفك أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
+</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الجهاز ولن تتمكن من فتح قفل هاتفك أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
     <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"لن تعمل ميزات حماية الملف الشخصي بدون النقش."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"لن تعمل ميزات حماية الملف الشخصي بدون النقش.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الملف الشخصي ولن تتمكن من إلغاء تأمين ملفك الشخصي أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
+</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الملف الشخصي ولن تتمكن من فتح قفل ملفك الشخصي أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
     <string name="unlock_disable_frp_warning_content_pin_profile" msgid="7114165651000498040">"لن تعمل ميزات حماية الملف الشخصي بدون رقم التعريف الشخصي."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint_profile" msgid="5118210431544156122">"لن تعمل ميزات حماية الملف الشخصي بدون رقم التعريف الشخصي.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الملف الشخصي ولن تتمكن من إلغاء تأمين ملفك الشخصي أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
+</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الملف الشخصي ولن تتمكن من فتح قفل ملفك الشخصي أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
     <string name="unlock_disable_frp_warning_content_password_profile" msgid="3989497526180082037">"لن تعمل ميزات حماية الملف الشخصي بدون كلمة المرور."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint_profile" msgid="8360485354164416198">"لن تعمل ميزات حماية الملف الشخصي بدون كلمة المرور.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>كما ستتم ازالة بصمات الإصبع المحفوظة من هذا الملف الشخصي ولن تتمكن من إلغاء تأمين ملفك الشخصي أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
+</xliff:g>كما ستتم ازالة بصمات الإصبع المحفوظة من هذا الملف الشخصي ولن تتمكن من فتح قفل ملفك الشخصي أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
     <string name="unlock_disable_frp_warning_content_unknown_profile" msgid="4066001421137974082">"لن تعمل ميزات حماية الملف الشخصي بدون قفل الشاشة."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint_profile" msgid="1201259228331105948">"لن تعمل ميزات حماية الملف الشخصي بدون قفل الشاشة.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الملف الشخصي ولن تتمكن من إلغاء تأمين ملفك الشخصي أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
+</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الملف الشخصي ولن تتمكن من فتح قفل ملفك الشخصي أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
     <string name="unlock_disable_frp_warning_ok" msgid="2373890505202766456">"نعم، إزالة"</string>
     <string name="unlock_change_lock_pattern_title" msgid="7622476883851319877">"تغيير نقش فتح القفل"</string>
     <string name="unlock_change_lock_pin_title" msgid="6671224158800812238">"تغيير رمز PIN لإلغاء التأمين"</string>
@@ -1343,7 +1343,7 @@
     <string name="sim_pin_change" msgid="5615972926944053213">"تغيير رقم التعريف الشخصي لشريحة SIM"</string>
     <string name="sim_enter_pin" msgid="149201344579560481">"رقم التعريف الشخصي لشريحة SIM"</string>
     <string name="sim_enable_sim_lock" msgid="4478794975656337476">"قفل شريحة SIM"</string>
-    <string name="sim_disable_sim_lock" msgid="394864376519820956">"إلغاء قفل شريحة SIM"</string>
+    <string name="sim_disable_sim_lock" msgid="394864376519820956">"فتح قفل شريحة SIM"</string>
     <string name="sim_enter_old" msgid="8984991229691526849">"رقم التعريف الشخصي القديم لشريحة SIM"</string>
     <string name="sim_enter_new" msgid="1720792957661107585">"رقم تعريف شخصي جديد لبطاقة SIM"</string>
     <string name="sim_reenter_new" msgid="5692585822458989725">"إعادة كتابة رقم التعريف الشخصي الجديد"</string>
@@ -1524,7 +1524,7 @@
     <string name="storage_detail_other" msgid="9164851767437306618">"غير ذلك"</string>
     <string name="storage_detail_system" msgid="6784247618772153283">"النظام"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"استكشاف <xliff:g id="NAME">^1</xliff:g>"</string>
-    <string name="storage_detail_dialog_other" msgid="5073511663616043370">"تشمل الملفات الأخرى الملفات المشتركة التي تم حفظها بواسطة التطبيقات والملفات التي تم تنزيلها من مواقع الإنترنت أو عبر البلوتوث وملفات Android وما إلى ذلك. \n\nللاطلاع على المحتويات المرئية على بطاقة <xliff:g id="NAME">^1</xliff:g> هذه، انقر على \"استكشاف\"."</string>
+    <string name="storage_detail_dialog_other" msgid="5073511663616043370">"تشمل الملفات الأخرى الملفات المشتركة التي تم حفظها بواسطة التطبيقات والملفات التي تم تنزيلها من مواقع الإنترنت أو عبر البلوتوث وملفات Android وما إلى ذلك. \n\nللاطلاع على المحتوى المرئي على بطاقة <xliff:g id="NAME">^1</xliff:g> هذه، انقر على \"استكشاف\"."</string>
     <string name="storage_detail_dialog_system" msgid="1472572861360014226">"يتضمّن النظام الملفات المستخدمة لتشغيل إصدار Android <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"ربما يكون لدى <xliff:g id="USER_0">^1</xliff:g> صور أو موسيقى أو تطبيقات أو بيانات أخرى محفوظة، ويتم استخدام <xliff:g id="SIZE">^2</xliff:g> من مساحة التخزين. \n\nللاطلاع على التفاصيل، يمكنك التبديل إلى <xliff:g id="USER_1">^1</xliff:g>."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"إعداد <xliff:g id="NAME">^1</xliff:g>"</string>
@@ -1553,7 +1553,7 @@
     <string name="storage_wizard_ready_internal_body" msgid="2258287496678469217">"تعمل <xliff:g id="NAME">^1</xliff:g> الجديدة. \n\nلنقل الصور والملفات وبيانات التطبيقات إلى هذا الجهاز، انتقل إلى الإعدادات &gt; التخزين."</string>
     <string name="storage_wizard_move_confirm_title" msgid="7362472162039287488">"نقل <xliff:g id="APP">^1</xliff:g>"</string>
     <string name="storage_wizard_move_confirm_body" msgid="502315190416551319">"لن يستغرق نقل <xliff:g id="APP">^1</xliff:g> والبيانات التابعة له إلى <xliff:g id="NAME_0">^2</xliff:g> سوى بضع دقائق. ولن تتمكن من استخدام التطبيق حتى الانتهاء من عملية النقل. \n\nلا تزِل <xliff:g id="NAME_1">^2</xliff:g> أثناء عملية النقل."</string>
-    <string name="storage_wizard_move_unlock" msgid="7978193904519827600">"لنقل البيانات، يجب إلغاء قفل المستخدم <xliff:g id="APP">^1</xliff:g>."</string>
+    <string name="storage_wizard_move_unlock" msgid="7978193904519827600">"لنقل البيانات، يجب فتح قفل المستخدم <xliff:g id="APP">^1</xliff:g>."</string>
     <string name="storage_wizard_move_progress_title" msgid="5250929161803336592">"جارٍ نقل <xliff:g id="APP">^1</xliff:g>…"</string>
     <string name="storage_wizard_move_progress_body" msgid="1713792142250410169">"لا تزِل <xliff:g id="NAME">^1</xliff:g> أثناء عملية النقل. \n\nولن يكون التطبيق <xliff:g id="APP">^2</xliff:g> على هذا الجهاز متاحًا حتى الانتهاء من عملية النقل."</string>
     <string name="storage_wizard_move_progress_cancel" msgid="9047521329704060401">"إلغاء عملية النقل"</string>
@@ -1744,7 +1744,7 @@
     <string name="location_street_level" product="tablet" msgid="4459804798444296650">"السماح للتطبيقات باستخدام GPS على جهازك اللوحي لتحديد موقعك"</string>
     <string name="location_street_level" product="default" msgid="7407688345675450051">"السماح للتطبيقات باستخدام GPS على هاتفك لتحديد موقعك"</string>
     <string name="assisted_gps" msgid="5411780261117055175">"استخدام نظام GPS المساعد"</string>
-    <string name="assisted_gps_enabled" msgid="2561022181775725369">"استخدام الخادم لمساعدة GPS (إلغاء التحديد لتقليل استخدام الشبكة)"</string>
+    <string name="assisted_gps_enabled" msgid="2561022181775725369">"استخدام الخادم لمساعدة GPS (إلغاء الاختيار لتقليل استخدام الشبكة)"</string>
     <string name="assisted_gps_disabled" msgid="6448758788217415937">"استخدام الخادم لمساعدة GPS (ألغِ التحديد لتحسين أداء GPS)"</string>
     <string name="use_location_title" msgid="7724788634359496634">"الموقع وبحث Google"</string>
     <string name="use_location_summary" msgid="7396716606067400283">"السماح لـ Google باستخدام الموقع لتحسين نتائج البحث والخدمات الأخرى"</string>
@@ -1790,7 +1790,7 @@
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"كلمات المرور غير متطابقة"</string>
     <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"أرقام التعريف الشخصي غير متطابقة"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"ارسم النقش مرة أخرى"</string>
-    <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"تحديد طريقة إلغاء القفل"</string>
+    <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"تحديد طريقة فتح القفل"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"تم تعيين كلمة المرور"</string>
     <string name="lockpassword_pin_set_toast" msgid="172594825722240059">"تم تعيين رمز PIN"</string>
     <string name="lockpassword_pattern_set_toast" msgid="6923260369475481406">"تم تعيين النقش"</string>
@@ -2160,7 +2160,7 @@
     <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"وقت اتخاذ الإجراء"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"اختَر مدة عرض الرسائل التي تحتاج إلى قراءتها، علمًا بأنّ عرضها يقتصر على فترة مؤقتة.\n\nلا تتوافق بعض التطبيقات مع هذا الإعداد."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"اختَر مدة عرض الرسائل التي تطلب منك اتخاذ إجراء، ولكن يقتصر عرضها على فترة مؤقتة.\n\nلا تتوافق بعض التطبيقات مع هذا الإعداد."</string>
-    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"مهلة اللمس مع الاستمرار"</string>
+    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"مهلة النقر مع الاستمرار"</string>
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"عكس اللون"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"قد يؤثر في الأداء"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"فترة الثبات"</string>
@@ -2782,7 +2782,7 @@
     <string name="misc_files" msgid="1012397035001764693">"ملفات متنوعة"</string>
     <string name="misc_files_selected_count" msgid="1434146080729502726">"تم تحديد <xliff:g id="NUMBER">%1$d</xliff:g> من إجمالي <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="misc_files_selected_count_bytes" msgid="3752262902203465861">"<xliff:g id="NUMBER">%1$s</xliff:g> من إجمالي <xliff:g id="TOTAL">%2$s</xliff:g>"</string>
-    <string name="select_all" msgid="452240217913675728">"تحديد الكل"</string>
+    <string name="select_all" msgid="452240217913675728">"اختيار الكل"</string>
     <string name="data_usage_summary_title" msgid="7288431048564861043">"استخدام البيانات"</string>
     <string name="data_usage_app_summary_title" msgid="8277327968906074983">"بيانات الجوّال وWi‑Fi"</string>
     <string name="data_usage_accounting" msgid="4681642832010140640">"قد تختلف طريقة احتساب بيانات مشغّل شبكة الجوّال عن طريقة الاحتساب على جهازك."</string>
@@ -3948,8 +3948,8 @@
     <string name="additional_permissions" msgid="3142290772324571654">"أذونات إضافية"</string>
     <string name="additional_permissions_more" msgid="714264060348056246">"<xliff:g id="COUNT">%1$d</xliff:g> أخرى"</string>
     <string name="share_remote_bugreport_dialog_title" msgid="1390719492733882678">"هل تريد مشاركة تقرير الخطأ؟"</string>
-    <string name="share_remote_bugreport_dialog_message_finished" msgid="5133489230646384192">"طلب مشرف تكنولوجيا المعلومات الحصول على تقرير خطأ للمساعدة في تحرِّي مشكلة هذا الجهاز وإصلاحها؛ ويمكن أن تتم مشاركة التطبيقات والبيانات."</string>
-    <string name="share_remote_bugreport_dialog_message" msgid="6680361103125933760">"طلب مشرف تكنولوجيا المعلومات الحصول على تقرير خطأ للمساعدة في تحرِّي مشكلة هذا الجهاز وإصلاحها؛ ويمكن أن تتم مشاركة التطبيقات والبيانات، كما يمكن أن تبطَأ سرعة تشغيل جهازك مؤقتًا."</string>
+    <string name="share_remote_bugreport_dialog_message_finished" msgid="5133489230646384192">"طلب مشرف تكنولوجيا المعلومات الحصول على تقرير خطأ للمساعدة في تحديد مشكلة هذا الجهاز وحلّها؛ ويمكن أن تتم مشاركة التطبيقات والبيانات."</string>
+    <string name="share_remote_bugreport_dialog_message" msgid="6680361103125933760">"طلب مشرف تكنولوجيا المعلومات الحصول على تقرير خطأ للمساعدة في تحديد مشكلة هذا الجهاز وحلّها؛ ويمكن أن تتم مشاركة التطبيقات والبيانات، كما يمكن أن تبطَأ سرعة تشغيل جهازك مؤقتًا."</string>
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"تتم مشاركة تقرير الخطأ هذا مع مشرف تكنولوجيا المعلومات. اتصل به للحصول على المزيد من التفاصيل."</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"مشاركة"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"رفض"</string>
@@ -4060,7 +4060,7 @@
     <string name="camera_gesture_title" msgid="899403310746415135">"يمكنك اللف مرتين لفتح الكاميرا"</string>
     <string name="camera_gesture_desc" msgid="7751841175916789527">"يمكنك فتح تطبيق الكاميرا من خلال لف رسغك مرتين"</string>
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"اضغط على زر التشغيل مرتين لتشغيل الكاميرا"</string>
-    <string name="camera_double_tap_power_gesture_desc" msgid="6166349645433682873">"فتح الكاميرا سريعًا بدون إلغاء تأمين الشاشة"</string>
+    <string name="camera_double_tap_power_gesture_desc" msgid="6166349645433682873">"فتح الكاميرا سريعًا بدون فتح قفل الشاشة"</string>
     <string name="screen_zoom_title" msgid="164369086350486104">"حجم العرض"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"يمكنك تكبير العناصر المعروضة على الشاشة أو تصغيرها."</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"عرض، كثافة، شاشة تصغير/تكبير، تغيير الحجم، ضبط الحجم"</string>
@@ -4255,7 +4255,7 @@
     <string name="lockpattern_settings_require_pin_before_startup_summary" msgid="1058173991832208485">"رقم التعريف الشخصي مطلوب لبدء تشغيل جهازك. ويتعذر على هذا الجهاز استقبال المكالمات أو الرسائل أو الإشعارات أو التنبيهات أثناء إيقاف تشغيله."</string>
     <string name="lockpattern_settings_require_password_before_startup_summary" msgid="1266300087760553585">"كلمة المرور مطلوبة لبدء تشغيل جهازك. ويتعذر على هذا الجهاز استقبال المكالمات أو الرسائل أو الإشعارات أو التنبيهات أثناء إيقاف تشغيله."</string>
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"إضافة بصمة إصبع أخرى"</string>
-    <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"إلغاء القفل باستخدام إصبع مختلف"</string>
+    <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"فتح القفل باستخدام إصبع مختلف"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"مفعّل"</string>
     <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"سيتم التشغيل تلقائيًا عند الوصول إلى <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"غير مفعّل"</string>
@@ -4414,7 +4414,7 @@
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"الاطّلاع على الإشعارات بسرعة"</string>
     <string name="gesture_setting_on" msgid="7573680730101327866">"مفعّل"</string>
     <string name="gesture_setting_off" msgid="2540159841716890511">"غير مفعّلة"</string>
-    <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="7233244080078311793">"تم إلغاء قفل برنامج التحميل مسبقاً"</string>
+    <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="7233244080078311793">"تم فتح قفل برنامج التحميل مسبقاً"</string>
     <string name="oem_unlock_enable_disabled_summary_connectivity" msgid="262986780389836168">"الاتصال بالإنترنت أولاً"</string>
     <string name="oem_unlock_enable_disabled_summary_connectivity_or_locked" msgid="3331374502670483142">"الاتصال بالإنترنت أو الاتصال بمشغِّل شبكة الجوّال"</string>
     <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5223278198179877704">"عدم التوفر على الأجهزة التي يقفلها مشغل شبكة الجوال"</string>

@@ -232,7 +232,7 @@ class GarageMode {
         int count = 0;
         List<String> currentPendingJobs = new ArrayList<>();
         final List<JobSnapshot> allJobs = mJobScheduler.getAllJobSnapshots();
-        if (allJobs != null) {
+        if (allJobs != null && startedJobs != null) {
             for (JobSnapshot snap : allJobs) {
                 if (startedJobs.contains(snap.getJobInfo())
                         && snap.getJobInfo().isRequireDeviceIdle()) {

@@ -1226,7 +1226,7 @@
     <string name="night_display_activation_on_manual" msgid="8379477527072027346">"立即开启"</string>
     <string name="night_display_activation_off_manual" msgid="7776082151269794201">"立即关闭"</string>
     <string name="night_display_activation_on_twilight" msgid="5610294051700287249">"开启，直到日出"</string>
-    <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"保持关闭状态，直到日落"</string>
+    <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"关闭，直到日落"</string>
     <string name="night_display_activation_on_custom" msgid="4761140206778957611">"保持开启状态，直到<xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_activation_off_custom" msgid="4207238846687792731">"保持关闭状态，直到<xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_not_currently_on" msgid="1436588493764429281">"目前未开启护眼模式"</string>
