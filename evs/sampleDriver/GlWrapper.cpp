@@ -215,8 +215,7 @@ bool GlWrapper::initialize() {
         return false;
     }
 
-    if (mainDpyInfo.orientation != DISPLAY_ORIENTATION_0 &&
-        mainDpyInfo.orientation != DISPLAY_ORIENTATION_180) {
+    if (mainDpyInfo.orientation != ui::ROTATION_0 && mainDpyInfo.orientation != ui::ROTATION_180) {
         // rotated
         mWidth = mainDpyInfo.h;
         mHeight = mainDpyInfo.w;
