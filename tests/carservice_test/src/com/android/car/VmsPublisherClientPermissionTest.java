@@ -21,10 +21,9 @@ import static com.android.car.MockedVmsTestBase.PUBLISHER_BIND_TIMEOUT_SECS;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.app.ActivityManager;
 import android.car.vms.VmsPublisherClientService;
 import android.car.vms.VmsSubscriptionState;
-import android.content.Intent;
-import android.os.UserHandle;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -98,7 +97,7 @@ public class VmsPublisherClientPermissionTest extends MockedCarTestBase {
 
     @Before
     public void triggerClientBinding() {
-        getContext().sendBroadcastAsUser(new Intent(Intent.ACTION_USER_UNLOCKED), UserHandle.ALL);
+        getVmsClientManager().mUserCallback.onSwitchUser(ActivityManager.getCurrentUser());
     }
 
     @Test

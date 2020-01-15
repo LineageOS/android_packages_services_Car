@@ -10,6 +10,8 @@ allow kitchensink_app {
     accessibility_service
     activity_service
     activity_task_service
+    audio_service
+    audioserver_service
     autofill_service
     carservice_service
     connectivity_service
@@ -20,11 +22,13 @@ allow kitchensink_app {
     input_method_service
     input_service
     location_service
+    mediaserver_service
     network_management_service
     power_service
     sensorservice_service
     surfaceflinger_service
     uimode_service
+    wifi_service
 }:service_manager find;
 
 # Read and write /data/data subdirectory.

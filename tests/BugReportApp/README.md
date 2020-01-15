@@ -38,15 +38,30 @@ UI and upload configs are located in `res/` directory. Resources can be
 [overlayed](https://source.android.com/setup/develop/new-device#use-resource-overlays)
 for specific products.
 
+### Config
+
+Configs are defined in `Config.java`.
+
 ### System Properties
 
-- `android.car.bugreport.disableautoupload` - set it to `true` to disable auto-upload to Google
-   Cloud, and allow users to manually upload or copy the bugreports to flash drive.
+- `android.car.bugreport.enableautoupload` - please see Config#ENABLE_AUTO_UPLOAD to learn more.
+- `android.car.bugreport.force_enable` - set it `true` to enable bugreport app on **all builds**.
 
 ### Upload configuration
 
 BugReport app uses `res/raw/gcs_credentials.json` for authentication and
 `res/values/configs.xml` for obtaining GCS bucket name.
+
+## Starting bugreporting
+
+The app supports following intents:
+
+1. `adb shell am start com.google.android.car.bugreport/.BugReportActivity`
+    - generates `MetaBugReport.Type.INTERACTIVE` bug report, shows audio message dialog before
+    collecting bugreport.
+2. `adb shell am start-foreground-service -a com.google.android.car.bugreport.action.START_SILENT com.google.android.car.bugreport/.BugReportService`
+    - generates `MetaBugReport.Type.SILENT` bug report, without audio message. It shows audio dialog
+    after collecting bugreport.
 
 ## Testing
 

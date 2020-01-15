@@ -18,12 +18,15 @@ package com.android.car;
 
 import android.annotation.MainThread;
 import android.app.ActivityManager;
+import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.car.Car;
 import android.car.ICar;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.userlib.CarUserManagerHelper;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -37,12 +40,14 @@ import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
 
+import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.car.pm.CarPackageManagerService;
+import com.android.car.stats.CarStatsService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.trust.CarTrustedDeviceService;
 import com.android.car.user.CarUserNoticeService;
@@ -63,6 +68,7 @@ public class ICarImpl extends ICar.Stub {
     public static final String INTERNAL_INPUT_SERVICE = "internal_input";
     public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
             "system_activity_monitoring";
+    public static final String INTERNAL_VMS_MANAGER = "vms_manager";
 
     private final Context mContext;
     private final VehicleHal mHal;
@@ -80,6 +86,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarPropertyService mCarPropertyService;
     private final CarNightService mCarNightService;
     private final AppFocusService mAppFocusService;
+    private final FixedActivityService mFixedActivityService;
     private final GarageModeService mGarageModeService;
     private final InstrumentClusterService mInstrumentClusterService;
     private final CarLocationService mCarLocationService;
@@ -99,6 +106,7 @@ public class ICarImpl extends ICar.Stub {
     private final VmsSubscriberService mVmsSubscriberService;
     private final VmsPublisherService mVmsPublisherService;
     private final CarBugreportManagerService mCarBugreportManagerService;
+    private final CarStatsService mCarStatsService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -149,18 +157,21 @@ public class ICarImpl extends ICar.Stub {
         mAppFocusService = new AppFocusService(serviceContext, mSystemActivityMonitoringService);
         mCarAudioService = new CarAudioService(serviceContext);
         mCarNightService = new CarNightService(serviceContext, mCarPropertyService);
+        mFixedActivityService = new FixedActivityService(serviceContext);
         mInstrumentClusterService = new InstrumentClusterService(serviceContext,
                 mAppFocusService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(
                 serviceContext, mCarAudioService, this);
+        mCarStatsService = new CarStatsService(serviceContext);
         mVmsBrokerService = new VmsBrokerService();
         mVmsClientManager = new VmsClientManager(
-                serviceContext, mVmsBrokerService, mCarUserService, mUserManagerHelper,
+                // CarStatsService needs to be passed to the constructor due to HAL init order
+                serviceContext, mCarStatsService, mCarUserService, mVmsBrokerService,
                 mHal.getVmsHal());
         mVmsSubscriberService = new VmsSubscriberService(
                 serviceContext, mVmsBrokerService, mVmsClientManager, mHal.getVmsHal());
         mVmsPublisherService = new VmsPublisherService(
-                serviceContext, mVmsBrokerService, mVmsClientManager);
+                serviceContext, mCarStatsService, mVmsBrokerService, mVmsClientManager);
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
         mCarStorageMonitoringService = new CarStorageMonitoringService(serviceContext,
                 systemInterface);
@@ -177,6 +188,7 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
         CarLocalServices.addService(CarDrivingStateService.class, mCarDrivingStateService);
         CarLocalServices.addService(PerUserCarServiceHelper.class, mPerUserCarServiceHelper);
+        CarLocalServices.addService(FixedActivityService.class, mFixedActivityService);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
@@ -193,6 +205,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mAppFocusService);
         allServices.add(mCarAudioService);
         allServices.add(mCarNightService);
+        allServices.add(mFixedActivityService);
         allServices.add(mInstrumentClusterService);
         allServices.add(mSystemStateControllerService);
         allServices.add(mPerUserCarServiceHelper);
@@ -231,7 +244,6 @@ public class ICarImpl extends ICar.Stub {
             mAllServices[i].release();
         }
         mHal.release();
-        CarLocalServices.removeAllServices();
     }
 
     void vehicleHalReconnected(IVehicle vehicle) {
@@ -365,11 +377,17 @@ public class ICarImpl extends ICar.Stub {
                 return mCarInputService;
             case INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE:
                 return mSystemActivityMonitoringService;
+            case INTERNAL_VMS_MANAGER:
+                return mVmsClientManager;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarInternalService for unknown service:" +
                         serviceName);
                 return null;
         }
+    }
+
+    CarStatsService getStatsService() {
+        return mCarStatsService;
     }
 
     public static void assertVehicleHalMockPermission(Context context) {
@@ -463,7 +481,7 @@ public class ICarImpl extends ICar.Stub {
             writer.println("*FutureConfig, DEFAULT:" + FeatureConfiguration.DEFAULT);
             writer.println("*Dump all services*");
 
-            dumpAllServices(writer, false);
+            dumpAllServices(writer);
 
             writer.println("*Dump Vehicle HAL*");
             writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
@@ -475,8 +493,9 @@ public class ICarImpl extends ICar.Stub {
                 e.printStackTrace(writer);
             }
         } else if ("--metrics".equals(args[0])) {
-            writer.println("*Dump car service metrics*");
-            dumpAllServices(writer, true);
+            // Strip the --metrics flag when passing dumpsys arguments to CarStatsService
+            // allowing for nested flag selection
+            mCarStatsService.dump(fd, writer, Arrays.copyOfRange(args, 1, args.length));
         } else if ("--vms-hal".equals(args[0])) {
             mHal.getVmsHal().dumpMetrics(fd);
         } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
@@ -486,23 +505,18 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
-    private void dumpAllServices(PrintWriter writer, boolean dumpMetricsOnly) {
+    private void dumpAllServices(PrintWriter writer) {
         for (CarServiceBase service : mAllServices) {
-            dumpService(service, writer, dumpMetricsOnly);
+            dumpService(service, writer);
         }
         if (mCarTestService != null) {
-            dumpService(mCarTestService, writer, dumpMetricsOnly);
+            dumpService(mCarTestService, writer);
         }
-
     }
 
-    private void dumpService(CarServiceBase service, PrintWriter writer, boolean dumpMetricsOnly) {
+    private void dumpService(CarServiceBase service, PrintWriter writer) {
         try {
-            if (dumpMetricsOnly) {
-                service.dumpMetrics(writer);
-            } else {
-                service.dump(writer);
-            }
+            service.dump(writer);
         } catch (Exception e) {
             writer.println("Failed dumping: " + service.getClass().getName());
             e.printStackTrace(writer);
@@ -540,6 +554,8 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_SUSPEND = "suspend";
         private static final String COMMAND_ENABLE_TRUSTED_DEVICE = "enable-trusted-device";
         private static final String COMMAND_REMOVE_TRUSTED_DEVICES = "remove-trusted-devices";
+        private static final String COMMAND_START_FIXED_ACTIVITY_MODE = "start-fixed-activity-mode";
+        private static final String COMMAND_STOP_FIXED_ACTIVITY_MODE = "stop-fixed-activity-mode";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -584,6 +600,11 @@ public class ICarImpl extends ICar.Stub {
                     + " wireless projection");
             pw.println("\t--metrics");
             pw.println("\t  When used with dumpsys, only metrics will be in the dumpsys output.");
+            pw.println("\tstart-fixed-activity displayId packageName activityName");
+            pw.println("\t  Start an Activity the specified display as fixed mode");
+            pw.println("\tstop-fixed-mode displayId");
+            pw.println("\t  Stop fixed Activity mode for the given display. "
+                    + "The Activity will not be restarted upon crash.");
         }
 
         public void exec(String[] args, PrintWriter writer) {
@@ -710,10 +731,60 @@ public class ICarImpl extends ICar.Stub {
                             .removeAllTrustedDevices(
                                     mUserManagerHelper.getCurrentForegroundUserId());
                     break;
+                case COMMAND_START_FIXED_ACTIVITY_MODE:
+                    handleStartFixedActivity(args, writer);
+                    break;
+                case COMMAND_STOP_FIXED_ACTIVITY_MODE:
+                    handleStopFixedMode(args, writer);
+                    break;
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
                     dumpHelp(writer);
             }
+        }
+
+        private void handleStartFixedActivity(String[] args, PrintWriter writer) {
+            if (args.length != 4) {
+                writer.println("Incorrect number of arguments");
+                dumpHelp(writer);
+                return;
+            }
+            int displayId;
+            try {
+                displayId = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                writer.println("Wrong display id:" + args[1]);
+                return;
+            }
+            String packageName = args[2];
+            String activityName = args[3];
+            Intent intent = new Intent();
+            intent.setComponent(new ComponentName(packageName, activityName));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            ActivityOptions options = ActivityOptions.makeBasic();
+            options.setLaunchDisplayId(displayId);
+            if (!mFixedActivityService.startFixedActivityModeForDisplayAndUser(intent, options,
+                    displayId, ActivityManager.getCurrentUser())) {
+                writer.println("Failed to start");
+                return;
+            }
+            writer.println("Succeeded");
+        }
+
+        private void handleStopFixedMode(String[] args, PrintWriter writer) {
+            if (args.length != 2) {
+                writer.println("Incorrect number of arguments");
+                dumpHelp(writer);
+                return;
+            }
+            int displayId;
+            try {
+                displayId = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                writer.println("Wrong display id:" + args[1]);
+                return;
+            }
+            mFixedActivityService.stopFixedActivityMode(displayId);
         }
 
         private void forceDayNightMode(String arg, PrintWriter writer) {
