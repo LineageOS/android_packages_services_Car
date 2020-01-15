@@ -16,6 +16,7 @@ cc_library {
     name: "computepipe_input_manager",
     srcs: [
         "Factory.cpp",
+        "EvsInputManager.cpp",
     ],
     export_include_dirs: ["include"],
     header_libs: [
@@ -25,10 +26,24 @@ cc_library {
         "libcomputepipeprotos",
     ],
     shared_libs: [
+        "android.hardware.automotive.evs@1.0",
         "computepipe_runner_component",
+        "libbase",
+        "libcutils",
+        "libdl",
+        "libevssupport",
+        "libhardware",
+        "libhidlbase",
+        "liblog",
+        "libpng",
         "libprotobuf-cpp-lite",
+        "libui",
+        "libutils",
+        "libEGL",
+        "libGLESv2",
     ],
     include_dirs: [
         "packages/services/Car/computepipe",
+        "packages/services/Car/evs/support_library",
     ],
 }

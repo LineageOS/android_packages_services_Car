@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "EvsInputManager.h"
 #include "InputManager.h"
 
 namespace android {
@@ -19,10 +20,32 @@ namespace automotive {
 namespace computepipe {
 namespace runner {
 namespace input_manager {
+namespace {
 
+enum InputManagerType {
+    EVS = 0,
+    IMAGES,
+    VIDEO,
+};
+
+// Helper function to determine the type of input manager to be created from the
+// input config.
+// TODO(b/147803315): Implement the actual algorithm to determine the input manager to be
+// used. Right now, only EVS manager is enabled, so that is used.
+InputManagerType getInputManagerType(const proto::InputConfig& /* inputConfig */) {
+    return InputManagerType::EVS;
+}
+
+}  // namespace
 std::unique_ptr<InputManager> InputManagerFactory::createInputManager(
-    const proto::InputConfig& /* config */, std::shared_ptr<InputEngineInterface> /* engine */) {
-    return nullptr;
+    const proto::InputConfig& config, std::shared_ptr<InputEngineInterface> inputEngineInterface) {
+    InputManagerType inputManagerType = getInputManagerType(config);
+    switch (inputManagerType) {
+        case InputManagerType::EVS:
+            return EvsInputManager::createEvsInputManager(config, inputEngineInterface);
+        default:
+            return nullptr;
+    }
 }
 
 }  // namespace input_manager
