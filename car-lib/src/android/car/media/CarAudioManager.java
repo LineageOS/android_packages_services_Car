@@ -63,6 +63,13 @@ public final class CarAudioManager extends CarManagerBase {
     public static final int PRIMARY_AUDIO_ZONE = 0x0;
 
     /**
+     * Zone id of the invalid audio zone.
+     * @hide
+     */
+    @SystemApi
+    public static final int INVALID_AUDIO_ZONE = 0xffffffff;
+
+    /**
      * Extra for {@link android.media.AudioAttributes.Builder#addBundle(Bundle)}: when used in an
      * {@link android.media.AudioFocusRequest}, the requester should receive all audio focus events,
      * including {@link android.media.AudioManager#AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK}.
@@ -434,12 +441,18 @@ public final class CarAudioManager extends CarManagerBase {
      * @return audio zone ids
      * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    public @NonNull int[] getAudioZoneIds() {
+    public @NonNull List<Integer> getAudioZoneIds() {
         try {
-            return mService.getAudioZoneIds();
+            int[] zoneIdArray = mService.getAudioZoneIds();
+            List<Integer> zoneIdList = new ArrayList<Integer>(zoneIdArray.length);
+            for (int zoneIdValue : zoneIdArray) {
+                zoneIdList.add(zoneIdValue);
+            }
+            return zoneIdList;
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new int[0]);
+            return handleRemoteExceptionFromCarService(e, new ArrayList<>());
         }
     }
 
