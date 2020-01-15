@@ -14,31 +14,32 @@
  * limitations under the License.
  */
 
-#ifndef COMPUTEPIPE_TESTS_RUNNER_CLIENTINTERFACE_MOCKMEMHANDLE_H
-#define COMPUTEPIPE_TESTS_RUNNER_CLIENTINTERFACE_MOCKMEMHANDLE_H
+#ifndef COMPUTEPIPE_TESTS_RUNNER_CLIENTINTERFACE_MOCKRUNNEREVENT_H
+#define COMPUTEPIPE_TESTS_RUNNER_CLIENTINTERFACE_MOCKRUNNEREVENT_H
 
 #include <gmock/gmock.h>
 
-#include "MemHandle.h"
+#include "RunnerComponent.h"
 
 namespace android {
 namespace automotive {
 namespace computepipe {
+namespace runner {
 namespace tests {
 
-class MockMemHandle : public MemHandle {
+class MockRunnerEvent : public RunnerEvent {
   public:
-    MOCK_CONST_METHOD0(getStreamId, int());
-    MOCK_CONST_METHOD0(getType, proto::PacketType());
-    MOCK_CONST_METHOD0(getTimeStamp, uint64_t());
-    MOCK_CONST_METHOD0(getSize, uint32_t());
-    MOCK_CONST_METHOD0(getData, const char*());
-    MOCK_CONST_METHOD0(getNativeHandle, native_handle_t());
+    MOCK_CONST_METHOD0(isPhaseEntry, bool());
+    MOCK_CONST_METHOD0(isTransitionComplete, bool());
+    MOCK_CONST_METHOD0(isAborted, bool());
+    MOCK_METHOD1(
+        dispatchToComponent, Status(const std::shared_ptr<RunnerComponentInterface>& iface));
 };
 
 }  // namespace tests
+}  // namespce runner
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android
 
-#endif  // COMPUTEPIPE_TESTS_RUNNER_CLIENTINTERFACE_MOCKMEMHANDLE_H
+#endif  // COMPUTEPIPE_TESTS_RUNNER_CLIENTINTERFACE_MOCKRUNNEREVENT_H

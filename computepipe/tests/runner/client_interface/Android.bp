@@ -31,7 +31,8 @@ cc_test {
     shared_libs: [
         "libbinder_ndk",
         "libutils",
-        "libRunnerInterface",
+        "computepipe_client_interface",
+        "computepipe_runner_component",
         "android.automotive.computepipe.registry-ndk_platform",
         "android.automotive.computepipe.runner-ndk_platform",
         "android.automotive.computepipe.runner-ndk_platform",

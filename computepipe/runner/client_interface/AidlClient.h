@@ -14,9 +14,11 @@
 
 #ifndef COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_AIDL_CLIENT_H
 #define COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_AIDL_CLIENT_H
+
 #include <memory>
 
 #include "ClientInterface.h"
+#include "AidlClientImpl.h"
 
 namespace android {
 namespace automotive {
@@ -28,7 +30,8 @@ namespace aidl_client {
 class AidlClient : public ClientInterface {
   public:
     explicit AidlClient(const proto::Options graphOptions,
-                        const std::shared_ptr<ClientEngineInterface>& engine);
+                        const std::shared_ptr<ClientEngineInterface>& engine)
+            : mGraphOptions(graphOptions), mRunnerEngine(engine) {}
     /**
      * Override ClientInterface Functions
      */
@@ -38,13 +41,24 @@ class AidlClient : public ClientInterface {
     /**
      * Override RunnerComponentInterface function
      */
+    Status handleResetPhase(const RunnerEvent& e) override;
+    Status handleConfigPhase(const ClientConfig& e) override;
     Status handleExecutionPhase(const RunnerEvent& e) override;
     Status handleStopWithFlushPhase(const RunnerEvent& e) override;
     Status handleStopImmediatePhase(const RunnerEvent& e) override;
 
+    void routerDied();
+
     virtual ~AidlClient() = default;
 
   private:
+
+    // Attempt to register pipe runner with router. Returns true on success.
+    // This is a blocking API, calling thread will be blocked until router connection is
+    // established or max attempts are made without success.
+    void tryRegisterPipeRunner();
+    const proto::Options mGraphOptions;
+    std::shared_ptr<AidlClientImpl> mPipeRunner = nullptr;
     std::shared_ptr<ClientEngineInterface> mRunnerEngine;
 };
 

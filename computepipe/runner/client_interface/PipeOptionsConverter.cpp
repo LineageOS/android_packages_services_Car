@@ -19,7 +19,9 @@
 namespace android {
 namespace automotive {
 namespace computepipe {
-namespace runner_utils {
+namespace runner {
+namespace client_interface {
+namespace aidl_client {
 
 using ::aidl::android::automotive::computepipe::runner::PipeDescriptor;
 using ::aidl::android::automotive::computepipe::runner::PipeInputConfig;
@@ -170,7 +172,9 @@ PipeDescriptor OptionsToPipeDesciptor(proto::Options options) {
     return desc;
 }
 
-}  // namespace runner_utils
+}  // namespace aidl_client
+}  // namespace client_interface
+}  // namespace runner
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android

@@ -15,8 +15,10 @@
 cc_library {
     name: "computepipe_client_interface",
     srcs: [
+        "AidlClient.cpp",
+        "AidlClientImpl.cpp",
         "Factory.cpp",
-	"AidlClient.cpp",
+        "PipeOptionsConverter.cpp",
     ],
     export_include_dirs: ["include"],
     header_libs: [
@@ -27,6 +29,12 @@ cc_library {
     ],
     shared_libs: [
         "computepipe_runner_component",
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+        "libutils",
+        "android.automotive.computepipe.runner-ndk_platform",
+        "android.automotive.computepipe.registry-ndk_platform",
         "libprotobuf-cpp-lite",
     ],
     include_dirs: [
