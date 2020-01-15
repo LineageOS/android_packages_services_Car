@@ -218,7 +218,7 @@ TEST_F(ClientInterface, TestControlCommands) {
     proto::ControlCommand command;
     // Configure runner to return success.
     EXPECT_CALL(*mEngine, processClientCommand(_))
-        .Times(AtLeast(3))
+        .Times(AtLeast(4))
         .WillRepeatedly(DoAll(SaveArg<0>(&command), Return(Status::SUCCESS)));
 
     // Initialize pipe runner.
@@ -229,6 +229,10 @@ TEST_F(ClientInterface, TestControlCommands) {
     // Test that apply-configs api returns ok status.
     EXPECT_TRUE(mPipeRunner->applyPipeConfigs().isOk());
     EXPECT_EQ(command.has_apply_configs(), true);
+
+    // Test that set stop graph api returns ok status.
+    EXPECT_TRUE(mPipeRunner->resetPipeConfigs().isOk());
+    EXPECT_EQ(command.has_reset_configs(), true);
 
     // Test that set start graph api returns ok status.
     EXPECT_TRUE(mPipeRunner->startPipe().isOk());
@@ -247,7 +251,7 @@ TEST_F(ClientInterface, TestControlCommandsFailure) {
 
     // Configure runner to return success.
     EXPECT_CALL(*mEngine, processClientCommand(_))
-        .Times(AtLeast(3))
+        .Times(AtLeast(4))
         .WillRepeatedly(DoAll(SaveArg<0>(&command), Return(Status::INTERNAL_ERROR)));
     ScopedAStatus status;
 
@@ -260,6 +264,10 @@ TEST_F(ClientInterface, TestControlCommandsFailure) {
     status = mPipeRunner->applyPipeConfigs();
     EXPECT_EQ(status.getExceptionCode(), EX_TRANSACTION_FAILED);
     EXPECT_EQ(command.has_apply_configs(), true);
+
+    status = mPipeRunner->resetPipeConfigs();
+    EXPECT_EQ(status.getExceptionCode(), EX_TRANSACTION_FAILED);
+    EXPECT_EQ(command.has_reset_configs(), true);
 
     // Test that start graph api returns error status.
     status = mPipeRunner->startPipe();

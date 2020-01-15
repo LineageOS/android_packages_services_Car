@@ -100,6 +100,17 @@ interface IPipeRunner {
     void applyPipeConfigs();
 
     /**
+     * Reset all configs.
+     * The runner stores the configuration even after pipe execution has
+     * completed. This call erases the previous configuration, so that client
+     * can modify and set the configuration again. This call is only allowed
+     * when pipe is not running.
+     *
+     * @param out void::OK if the runner was notified to apply config.
+     */
+    void resetPipeConfigs();
+
+    /**
      * Start Mediapipe execution on the runner. Prior to this step
      * each of the configuration steps should be completed. Once the
      * configurations have been applied the state handler will be invoked with
