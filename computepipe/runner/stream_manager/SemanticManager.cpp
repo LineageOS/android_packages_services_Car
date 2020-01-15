@@ -1,6 +1,7 @@
 #include "SemanticManager.h"
 
 #include <cstdlib>
+#include <thread>
 
 #include "types/Status.h"
 
@@ -59,17 +60,19 @@ SemanticHandle::~SemanticHandle() {
     free(mData);
 }
 
-Status SemanticManager::setIpcDispatchCallback(
-    std::function<Status(const std::shared_ptr<MemHandle>)>& cb) {
-    mDispatchCallback = cb;
+void SemanticManager::setEngineInterface(std::shared_ptr<StreamEngineInterface> engine) {
+    mEngine = engine;
     std::lock_guard<std::mutex> lock(mStateLock);
     mState = RESET;
-    return SUCCESS;
+}
+
+void SemanticManager::notifyEndOfStream() {
+    mEngine->notifyEndOfStream();
 }
 
 // TODO: b/146495240 Add support for batching
 Status SemanticManager::setMaxInFlightPackets(uint32_t /* maxPackets */) {
-    if (!mDispatchCallback) {
+    if (!mEngine) {
         return ILLEGAL_STATE;
     }
     mState = CONFIG_DONE;
@@ -109,6 +112,8 @@ Status SemanticManager::handleStopWithFlushPhase(const RunnerEvent& e) {
     /* We are being asked to stop */
     if (mState == RUNNING && e.isPhaseEntry()) {
         mState = STOPPED;
+        std::thread t(&SemanticManager::notifyEndOfStream, this);
+        t.detach();
         return SUCCESS;
     }
     /* Other Components have stopped, we can transition back to CONFIG_DONE */
@@ -139,7 +144,7 @@ Status SemanticManager::queuePacket(const char* data, const uint32_t size, uint6
         return SUCCESS;
     }
     // Invalid state.
-    if (mDispatchCallback == nullptr) {
+    if (mEngine == nullptr) {
         return INTERNAL_ERROR;
     }
     auto memHandle = std::make_shared<SemanticHandle>();
@@ -147,7 +152,7 @@ Status SemanticManager::queuePacket(const char* data, const uint32_t size, uint6
     if (status != SUCCESS) {
         return status;
     }
-    mDispatchCallback(memHandle);
+    mEngine->dispatchPacket(memHandle);
     return SUCCESS;
 }
 

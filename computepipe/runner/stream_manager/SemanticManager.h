@@ -56,8 +56,7 @@ class SemanticHandle : public MemHandle {
 
 class SemanticManager : public StreamManager, StreamManagerInit {
   public:
-    Status setIpcDispatchCallback(
-        std::function<Status(const std::shared_ptr<MemHandle>)>& cb) override;
+    void setEngineInterface(std::shared_ptr<StreamEngineInterface> engine) override;
     /* Set Max in flight packets based on client specification */
     Status setMaxInFlightPackets(uint32_t maxPackets) override;
     /* Free previously dispatched packet. Once client has confirmed usage */
@@ -65,6 +64,7 @@ class SemanticManager : public StreamManager, StreamManagerInit {
     /* Queue packet produced by graph stream */
     Status queuePacket(const char* data, const uint32_t size, uint64_t timestamp) override;
     /* Override handling of Runner Engine Events */
+    void notifyEndOfStream();
 
     Status handleExecutionPhase(const RunnerEvent& e) override;
     Status handleStopWithFlushPhase(const RunnerEvent& e) override;
@@ -76,7 +76,7 @@ class SemanticManager : public StreamManager, StreamManagerInit {
   private:
     std::mutex mStateLock;
     int mStreamId;
-    std::function<Status(const std::shared_ptr<MemHandle>&)> mDispatchCallback = nullptr;
+    std::shared_ptr<StreamEngineInterface> mEngine;
 };
 }  // namespace stream_manager
 }  // namespace runner
