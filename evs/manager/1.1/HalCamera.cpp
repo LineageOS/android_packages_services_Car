@@ -38,7 +38,7 @@ sp<VirtualCamera> HalCamera::makeVirtualCamera() {
     // Create the client camera interface object
     std::vector<sp<HalCamera>> sourceCameras;
     sourceCameras.reserve(1);
-    sourceCameras[0] = this;
+    sourceCameras.emplace_back(this);
     sp<VirtualCamera> client = new VirtualCamera(sourceCameras);
     if (client == nullptr) {
         ALOGE("Failed to create client camera object");
