@@ -79,7 +79,8 @@ class ClientConfig : public RunnerEvent {
     /**
      * Accessor methods
      */
-    Status getInputStreamId(int* outId) const;
+    Status getInputConfigId(int* outId) const;
+    Status getOutputConfigId(int* outId) const;
     Status getOffloadId(int* outId) const;
     Status getTerminationId(int* outId) const;
     Status getOptionalConfigs(std::string& outOptional) const;
@@ -89,23 +90,23 @@ class ClientConfig : public RunnerEvent {
      * Constructors
      */
     ClientConfig& operator=(ClientConfig&& r) {
-        inputStreamId = r.inputStreamId;
-        terminationId = r.terminationId;
-        offloadId = r.offloadId;
-        optionalConfigs = std::move(r.optionalConfigs);
-        outputConfigs = std::move(r.outputConfigs);
+        mInputConfigId = r.mInputConfigId;
+        mTerminationId = r.mTerminationId;
+        mOffloadId = r.mOffloadId;
+        mOptionalConfigs = std::move(r.mOptionalConfigs);
+        mOutputConfigs = std::move(r.mOutputConfigs);
         return *this;
     }
     ClientConfig(ClientConfig&& c) {
         *this = std::move(c);
     }
-    ClientConfig(int input, int offload, int termination, std::map<int, int>& output,
+    ClientConfig(int inputConfigId, int offload, int termination, std::map<int, int>& outputConfigs,
                  std::string opt = "")
-        : inputStreamId(input),
-          outputConfigs(output),
-          terminationId(termination),
-          offloadId(offload),
-          optionalConfigs(opt) {
+        : mInputConfigId(inputConfigId),
+          mOutputConfigs(outputConfigs),
+          mTerminationId(termination),
+          mOffloadId(offload),
+          mOptionalConfigs(opt) {
     }
 
     void setPhaseState(PhaseState state) {
@@ -116,23 +117,23 @@ class ClientConfig : public RunnerEvent {
     /**
      * input streamd id from the graph descriptor options
      */
-    int inputStreamId = kInvalidId;
+    int mInputConfigId = kInvalidId;
     /**
      * Options for different output streams
      */
-    std::map<int, int> outputConfigs;
+    std::map<int, int> mOutputConfigs;
     /**
      * Termination Option
      */
-    int terminationId = kInvalidId;
+    int mTerminationId = kInvalidId;
     /**
      * offload option
      */
-    int offloadId = kInvalidId;
+    int mOffloadId = kInvalidId;
     /**
      * serialized optional config
      */
-    std::string optionalConfigs = "";
+    std::string mOptionalConfigs = "";
     /**
      * The state of the client config corresponding
      * to entry, transition complete or aborted

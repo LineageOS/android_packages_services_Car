@@ -46,10 +46,10 @@ std::string ClientConfig::getSerializedClientConfig() const {
     proto::ClientConfig config;
     std::string output;
 
-    config.set_input_stream_id(inputStreamId);
-    config.set_termination_id(terminationId);
-    config.set_offload_id(offloadId);
-    for (auto it : outputConfigs) {
+    config.set_input_config_id(mInputConfigId);
+    config.set_termination_id(mTerminationId);
+    config.set_offload_id(mOffloadId);
+    for (auto it : mOutputConfigs) {
         (*config.mutable_output_options())[it.first] = it.second;
     }
     if (!config.SerializeToString(&output)) {
@@ -58,40 +58,40 @@ std::string ClientConfig::getSerializedClientConfig() const {
     return output;
 }
 
-Status ClientConfig::getInputStreamId(int* outId) const {
-    if (inputStreamId == kInvalidId) {
+Status ClientConfig::getInputConfigId(int* outId) const {
+    if (mInputConfigId == kInvalidId) {
         return Status::ILLEGAL_STATE;
     }
-    *outId = inputStreamId;
+    *outId = mInputConfigId;
     return Status::SUCCESS;
 }
 
 Status ClientConfig::getOffloadId(int* outId) const {
-    if (offloadId == kInvalidId) {
+    if (mOffloadId == kInvalidId) {
         return Status::ILLEGAL_STATE;
     }
-    *outId = offloadId;
+    *outId = mOffloadId;
     return Status::SUCCESS;
 }
 
 Status ClientConfig::getTerminationId(int* outId) const {
-    if (terminationId == kInvalidId) {
+    if (mTerminationId == kInvalidId) {
         return Status::ILLEGAL_STATE;
     }
-    *outId = terminationId;
+    *outId = mTerminationId;
     return Status::SUCCESS;
 }
 
 Status ClientConfig::getOutputStreamConfigs(std::map<int, int>& outputConfig) const {
-    if (outputConfigs.empty()) {
+    if (mOutputConfigs.empty()) {
         return Status::ILLEGAL_STATE;
     }
-    outputConfig = outputConfigs;
+    outputConfig = mOutputConfigs;
     return Status::SUCCESS;
 }
 
 Status ClientConfig::getOptionalConfigs(std::string& outOptional) const {
-    outOptional = optionalConfigs;
+    outOptional = mOptionalConfigs;
     return Status::SUCCESS;
 }
 

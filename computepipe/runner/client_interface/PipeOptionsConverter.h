@@ -26,8 +26,8 @@ namespace runner {
 namespace client_interface {
 namespace aidl_client {
 
-aidl::android::automotive::computepipe::runner::PipeDescriptor OptionsToPipeDesciptor(
-    proto::Options options);
+aidl::android::automotive::computepipe::runner::PipeDescriptor OptionsToPipeDescriptor(
+    const proto::Options& options);
 
 }  // namespace aidl_client
 }  // namespace client_interface

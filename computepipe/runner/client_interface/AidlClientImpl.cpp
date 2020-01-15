@@ -151,7 +151,7 @@ ScopedAStatus AidlClientImpl::getPipeDescriptor(PipeDescriptor* _aidl_return) {
     if (_aidl_return == nullptr) {
         return ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT);
     }
-    *_aidl_return = OptionsToPipeDesciptor(mGraphOptions);
+    *_aidl_return = OptionsToPipeDescriptor(mGraphOptions);
     return ScopedAStatus::ok();
 }
 

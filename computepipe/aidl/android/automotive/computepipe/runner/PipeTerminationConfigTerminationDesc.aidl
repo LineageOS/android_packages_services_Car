@@ -15,28 +15,22 @@
  */
 package android.automotive.computepipe.runner;
 
-import android.automotive.computepipe.runner.PipeTerminationConfigTerminationDesc;
 import android.automotive.computepipe.runner.PipeTerminationConfigTerminationType;
 
 /**
- * Termination configs
- *
- * Structure that describes the termination options a graph can advertise
- *
- * Provided by HIDL implementation to the client as part of GraphDescriptor
- *
- * The client has the option of choosing one of the provided options supported
- * by the graph or calling calling stopPipe() explicitly.
+ * structure that describes the different termination options supported
+ * by the graph
  */
 @VintfStability
-parcelable PipeTerminationConfig {
+parcelable PipeTerminationConfigTerminationDesc {
     /**
-     * termination option supported by graph.
+     * type of termination criteria
      */
-    PipeTerminationConfigTerminationDesc desc;
+    PipeTerminationConfigTerminationType type;
     /**
-     * identifiers for the option.
+     * type based qualifier, could be run time, packet count, or usecase
+     * specific event identifier.
      */
-    int configId;
+    int qualifier;
 }
 

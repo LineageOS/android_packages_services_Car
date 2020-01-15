@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,21 @@
 
 package android.automotive.computepipe.runner;
 
-import android.automotive.computepipe.runner.PipeInputConfigInputType;
-import android.automotive.computepipe.runner.PipeInputConfigFormatType;
+import android.automotive.computepipe.runner.PipeInputConfigCameraType;
 
 /**
- * Options for the client to choose from
+ * Camera config descriptor
  */
 @VintfStability
-parcelable PipeInputConfigInputOptions {
+parcelable PipeInputConfigCameraDesc {
     /**
      * input stream type
      */
-    PipeInputConfigInputType type;
-    /**
-     * format of the input stream
-     */
-    PipeInputConfigFormatType format;
-    /**
-     * width resolution of the input stream
-     */
-    int width;
-    /**
-     * height resolution of the input stream
-     */
-    int height;
-    /**
-     * stride for the frame
-     */
-    int stride;
+    PipeInputConfigCameraType type;
     /**
      * camera identifier to disambiguate multiple instances
      * of InputType. If only one of a certain type is present
      * this should be 0. For VIDEO_FILE this should be 0.
      */
-    int camId;
+    @utf8InCpp String camId;
 }
-
