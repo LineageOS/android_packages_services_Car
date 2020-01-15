@@ -239,7 +239,6 @@ package android.car.cluster.renderer {
     ctor public InstrumentClusterRenderingService();
     method @Deprecated @Nullable public android.graphics.Bitmap getBitmap(android.net.Uri);
     method @Nullable public android.graphics.Bitmap getBitmap(android.net.Uri, int, int);
-    method @Nullable public android.graphics.Bitmap getBitmap(android.net.Uri, int, int, float);
     method @MainThread @Nullable public abstract android.car.cluster.renderer.NavigationRenderer getNavigationRenderer();
     method @CallSuper public android.os.IBinder onBind(android.content.Intent);
     method @MainThread public void onKeyEvent(@NonNull android.view.KeyEvent);
