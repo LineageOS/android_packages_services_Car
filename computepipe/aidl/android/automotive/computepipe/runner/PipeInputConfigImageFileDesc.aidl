@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.automotive.computepipe.runner;
 
-import android.automotive.computepipe.runner.PipeTerminationConfigTerminationType;
+import android.automotive.computepipe.runner.PipeInputConfigImageFileType;
 
 /**
- * structure that describes the different termination options supported
- * by the graph
+ * Image file descriptor
  */
 @VintfStability
-parcelable PipeTerminationConfigTerminationOptions {
+parcelable PipeInputConfigImageFileDesc {
     /**
-     * type of termination criteria
+     * File type
      */
-    PipeTerminationConfigTerminationType type;
-    /**
-     * type based qualifier, could be run time, packet count, or usecase
-     * specific event identifier.
-     */
-    int qualifier;
-}
+    PipeInputConfigImageFileType fileType;
 
+    /**
+     * File path
+     */
+     @utf8InCpp String filePath;
+}

@@ -20,8 +20,8 @@ namespace computepipe {
 namespace runner {
 namespace engine {
 
-ConfigBuilder& ConfigBuilder::updateInputStreamOption(int id) {
-    mInputStreamId = id;
+ConfigBuilder& ConfigBuilder::updateInputConfigOption(int id) {
+    mInputConfigId = id;
     return *this;
 }
 
@@ -46,11 +46,11 @@ ConfigBuilder& ConfigBuilder::updateOptionalConfig(std::string options) {
 }
 
 ClientConfig ConfigBuilder::emitClientOptions() {
-    return ClientConfig(mInputStreamId, mOffloadId, mTerminationId, mOutputConfig, mOptionalConfig);
+    return ClientConfig(mInputConfigId, mOffloadId, mTerminationId, mOutputConfig, mOptionalConfig);
 }
 
 ConfigBuilder& ConfigBuilder::reset() {
-    mInputStreamId = ClientConfig::kInvalidId;
+    mInputConfigId = ClientConfig::kInvalidId;
     mTerminationId = ClientConfig::kInvalidId;
     mOffloadId = ClientConfig::kInvalidId;
     mOutputConfig.clear();

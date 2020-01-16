@@ -15,9 +15,7 @@
  */
 package android.automotive.computepipe.runner;
 
-import android.automotive.computepipe.runner.PipeInputConfigInputType;
-import android.automotive.computepipe.runner.PipeInputConfigFormatType;
-import android.automotive.computepipe.runner.PipeInputConfigInputOptions;
+import android.automotive.computepipe.runner.PipeInputConfigInputSourceDesc;
 
 /**
  * Transaction data types
@@ -34,7 +32,7 @@ parcelable PipeInputConfig {
     /**
      * input option.
      */
-    PipeInputConfigInputOptions options;
+    PipeInputConfigInputSourceDesc[] inputSources;
     /**
      * ID for the option.
      */

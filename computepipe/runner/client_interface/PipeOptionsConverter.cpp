@@ -19,12 +19,19 @@
 namespace android {
 namespace automotive {
 namespace computepipe {
-namespace runner_utils {
+namespace runner {
+namespace client_interface {
+namespace aidl_client {
 
 using ::aidl::android::automotive::computepipe::runner::PipeDescriptor;
 using ::aidl::android::automotive::computepipe::runner::PipeInputConfig;
+using ::aidl::android::automotive::computepipe::runner::PipeInputConfigCameraDesc;
+using ::aidl::android::automotive::computepipe::runner::PipeInputConfigCameraType;
 using ::aidl::android::automotive::computepipe::runner::PipeInputConfigFormatType;
+using ::aidl::android::automotive::computepipe::runner::PipeInputConfigImageFileType;
+using ::aidl::android::automotive::computepipe::runner::PipeInputConfigInputSourceDesc;
 using ::aidl::android::automotive::computepipe::runner::PipeInputConfigInputType;
+using ::aidl::android::automotive::computepipe::runner::PipeInputConfigVideoFileType;
 using ::aidl::android::automotive::computepipe::runner::PipeOffloadConfig;
 using ::aidl::android::automotive::computepipe::runner::PipeOffloadConfigOffloadType;
 using ::aidl::android::automotive::computepipe::runner::PipeOutputConfig;
@@ -34,30 +41,53 @@ using ::aidl::android::automotive::computepipe::runner::PipeTerminationConfigTer
 
 namespace {
 
-PipeInputConfigInputType ConvertInputType(proto::InputConfig_InputType type) {
+PipeInputConfigInputType ConvertInputType(proto::InputStreamConfig_InputType type) {
     switch (type) {
-        case proto::InputConfig_InputType_DRIVER_VIEW_CAMERA:
-            return PipeInputConfigInputType::DRIVER_VIEW_CAMERA;
-        case proto::InputConfig_InputType_OCCUPANT_VIEW_CAMERA:
-            return PipeInputConfigInputType::OCCUPANT_VIEW_CAMERA;
-        case proto::InputConfig_InputType_EXTERNAL_CAMERA:
-            return PipeInputConfigInputType::EXTERNAL_CAMERA;
-        case proto::InputConfig_InputType_SURROUND_VIEW_CAMERA:
-            return PipeInputConfigInputType::SURROUND_VIEW_CAMERA;
-        case proto::InputConfig_InputType_VIDEO_FILE:
+        case proto::InputStreamConfig_InputType_CAMERA:
+            return PipeInputConfigInputType::CAMERA;
+        case proto::InputStreamConfig_InputType_VIDEO_FILE:
             return PipeInputConfigInputType::VIDEO_FILE;
-        case proto::InputConfig_InputType_IMAGE_FILES:
+        case proto::InputStreamConfig_InputType_IMAGE_FILES:
             return PipeInputConfigInputType::IMAGE_FILES;
     }
 }
 
-PipeInputConfigFormatType ConvertInputFormat(proto::InputConfig_FormatType type) {
+PipeInputConfigCameraType ConvertCameraType(proto::CameraConfig_CameraType type) {
     switch (type) {
-        case proto::InputConfig_FormatType_RGB:
+        case proto::CameraConfig_CameraType_DRIVER_VIEW_CAMERA:
+            return PipeInputConfigCameraType::DRIVER_VIEW_CAMERA;
+        case proto::CameraConfig_CameraType_OCCUPANT_VIEW_CAMERA:
+            return PipeInputConfigCameraType::OCCUPANT_VIEW_CAMERA;
+        case proto::CameraConfig_CameraType_EXTERNAL_CAMERA:
+            return PipeInputConfigCameraType::EXTERNAL_CAMERA;
+        case proto::CameraConfig_CameraType_SURROUND_VIEW_CAMERA:
+            return PipeInputConfigCameraType::SURROUND_VIEW_CAMERA;
+    }
+}
+
+PipeInputConfigImageFileType ConvertImageFileType(proto::ImageFileConfig_ImageFileType type) {
+    switch (type) {
+        case proto::ImageFileConfig_ImageFileType_JPEG:
+            return PipeInputConfigImageFileType::JPEG;
+        case proto::ImageFileConfig_ImageFileType_PNG:
+            return PipeInputConfigImageFileType::PNG;
+    }
+}
+
+PipeInputConfigVideoFileType ConvertVideoFileType(proto::VideoFileConfig_VideoFileType type) {
+    switch (type) {
+        case proto::VideoFileConfig_VideoFileType_MPEG:
+            return PipeInputConfigVideoFileType::MPEG;
+    }
+}
+
+PipeInputConfigFormatType ConvertInputFormat(proto::InputStreamConfig_FormatType type) {
+    switch (type) {
+        case proto::InputStreamConfig_FormatType_RGB:
             return PipeInputConfigFormatType::RGB;
-        case proto::InputConfig_FormatType_NIR:
+        case proto::InputStreamConfig_FormatType_NIR:
             return PipeInputConfigFormatType::NIR;
-        case proto::InputConfig_FormatType_NIR_DEPTH:
+        case proto::InputStreamConfig_FormatType_NIR_DEPTH:
             return PipeInputConfigFormatType::NIR_DEPTH;
     }
 }
@@ -100,34 +130,47 @@ PipeTerminationConfigTerminationType ConvertTerminationType(
     }
 }
 
-PipeInputConfig ConvertInputConfigProto(proto::InputConfig proto) {
+PipeInputConfig ConvertInputConfigProto(const proto::InputConfig& proto) {
     PipeInputConfig aidlConfig;
-    aidlConfig.options.type = ConvertInputType(proto.type());
-    aidlConfig.options.format = ConvertInputFormat(proto.format());
-    aidlConfig.options.width = proto.width();
-    aidlConfig.options.height = proto.height();
-    aidlConfig.options.stride = proto.stride();
-    aidlConfig.options.camId = proto.cam_id();
+
+    for (const auto& inputStreamConfig : proto.input_stream()) {
+        PipeInputConfigInputSourceDesc aidlInputDesc;
+        aidlInputDesc.type = ConvertInputType(inputStreamConfig.type());
+        aidlInputDesc.format = ConvertInputFormat(inputStreamConfig.format());
+        aidlInputDesc.width = inputStreamConfig.width();
+        aidlInputDesc.height = inputStreamConfig.height();
+        aidlInputDesc.stride = inputStreamConfig.stride();
+        aidlInputDesc.camDesc.camId = inputStreamConfig.cam_config().cam_id();
+        aidlInputDesc.camDesc.type = ConvertCameraType(inputStreamConfig.cam_config().camera_type());
+        aidlInputDesc.imageDesc.fileType =
+            ConvertImageFileType(inputStreamConfig.image_config().file_type());
+        aidlInputDesc.imageDesc.filePath = inputStreamConfig.image_config().image_dir();
+        aidlInputDesc.videoDesc.fileType =
+            ConvertVideoFileType(inputStreamConfig.video_config().file_type());
+        aidlInputDesc.videoDesc.filePath = inputStreamConfig.video_config().file_path();
+        aidlConfig.inputSources.emplace_back(aidlInputDesc);
+    }
     aidlConfig.configId = proto.config_id();
+
     return aidlConfig;
 }
 
-PipeOffloadConfig ConvertOffloadConfigProto(proto::OffloadConfig proto) {
+PipeOffloadConfig ConvertOffloadConfigProto(const proto::OffloadConfig& proto) {
     PipeOffloadConfig aidlConfig;
 
     for (int i = 0; i < proto.options().offload_types_size(); i++) {
         auto offloadType =
             static_cast<proto::OffloadOption_OffloadType>(proto.options().offload_types()[i]);
         PipeOffloadConfigOffloadType aidlType = ConvertOffloadType(offloadType);
-        aidlConfig.options.type.emplace_back(aidlType);
-        aidlConfig.options.isVirtual.emplace_back(proto.options().is_virtual()[i]);
+        aidlConfig.desc.type.emplace_back(aidlType);
+        aidlConfig.desc.isVirtual.emplace_back(proto.options().is_virtual()[i]);
     }
 
     aidlConfig.configId = proto.config_id();
     return aidlConfig;
 }
 
-PipeOutputConfig ConvertOutputConfigProto(proto::OutputConfig proto) {
+PipeOutputConfig ConvertOutputConfigProto(const proto::OutputConfig& proto) {
     PipeOutputConfig aidlConfig;
     aidlConfig.output.name = proto.stream_name();
     aidlConfig.output.type = ConvertOutputType(proto.type());
@@ -135,17 +178,17 @@ PipeOutputConfig ConvertOutputConfigProto(proto::OutputConfig proto) {
     return aidlConfig;
 }
 
-PipeTerminationConfig ConvertTerminationConfigProto(proto::TerminationConfig proto) {
+PipeTerminationConfig ConvertTerminationConfigProto(const proto::TerminationConfig& proto) {
     PipeTerminationConfig aidlConfig;
-    aidlConfig.options.type = ConvertTerminationType(proto.options().type());
-    aidlConfig.options.qualifier = proto.options().qualifier();
+    aidlConfig.desc.type = ConvertTerminationType(proto.options().type());
+    aidlConfig.desc.qualifier = proto.options().qualifier();
     aidlConfig.configId = proto.config_id();
     return aidlConfig;
 }
 
 }  // namespace
 
-PipeDescriptor OptionsToPipeDesciptor(proto::Options options) {
+PipeDescriptor OptionsToPipeDescriptor(const proto::Options& options) {
     PipeDescriptor desc;
     for (int i = 0; i < options.input_configs_size(); i++) {
         PipeInputConfig inputConfig = ConvertInputConfigProto(options.input_configs()[i]);
@@ -170,7 +213,9 @@ PipeDescriptor OptionsToPipeDesciptor(proto::Options options) {
     return desc;
 }
 
-}  // namespace runner_utils
+}  // namespace aidl_client
+}  // namespace client_interface
+}  // namespace runner
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android

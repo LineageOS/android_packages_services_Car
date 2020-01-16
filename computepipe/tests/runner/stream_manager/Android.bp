@@ -21,16 +21,19 @@ cc_test {
     static_libs: [
         "libgtest",
         "libgmock",
-	  "libcomputepipeprotos",
+        "libcomputepipeprotos",
     ],
     shared_libs: [
         "libcomputepipe_stream_manager",
-	"libprotobuf-cpp-full",
+        "computepipe_runner_component",
+        "mock_stream_engine_interface",
+        "libprotobuf-cpp-full",
     ],
     header_libs: [
         "computepipe_runner_includes",
     ],
     include_dirs: [
-        "packages/services/Car/computepipe"
+        "packages/services/Car/computepipe",
+        "packages/services/Car/computepipe/runner/stream_manager",
     ],
 }

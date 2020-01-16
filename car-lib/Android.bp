@@ -148,6 +148,10 @@ droidstubs {
                 " -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 " +
                 " -error 21 -error 23 -error 24 -error 25 -hide 113 ",
         },
+        api_lint: {
+            enabled: true,
+            baseline_file: "api/lint-baseline.txt",
+        }
     },
 }
 
@@ -175,6 +179,10 @@ droidstubs {
                 " -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 " +
                 " -error 21 -error 23 -error 24 -error 25 -hide 113 ",
         },
+        api_lint: {
+            enabled: true,
+            baseline_file: "api/system-lint-baseline.txt",
+        }
     },
 }
 

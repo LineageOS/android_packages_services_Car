@@ -12,33 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPUTEPIPE_RUNNER_STREAM_MANAGER_INIT_H
-#define COMPUTEPIPE_RUNNER_STREAM_MANAGER_INIT_H
+#ifndef COMPUTEPIPE_RUNNER_UTILS_PIPEOPTIONSCONVERTER_H_
+#define COMPUTEPIPE_RUNNER_UTILS_PIPEOPTIONSCONVERTER_H_
 
-#include <functional>
-#include <memory>
+#include <aidl/android/automotive/computepipe/runner/BnPipeRunner.h>
 
-#include "MemHandle.h"
-#include "StreamEngineInterface.h"
-#include "types/Status.h"
+#include "Options.pb.h"
 
 namespace android {
 namespace automotive {
 namespace computepipe {
 namespace runner {
-namespace stream_manager {
+namespace client_interface {
+namespace aidl_client {
 
-class StreamManagerInit {
-  public:
-    virtual void setEngineInterface(std::shared_ptr<StreamEngineInterface> engine) = 0;
-    /* Set Max in flight packets based on client specification */
-    virtual Status setMaxInFlightPackets(uint32_t maxPackets) = 0;
-    virtual ~StreamManagerInit() = default;
-};
+aidl::android::automotive::computepipe::runner::PipeDescriptor OptionsToPipeDescriptor(
+    const proto::Options& options);
 
-}  // namespace stream_manager
+}  // namespace aidl_client
+}  // namespace client_interface
 }  // namespace runner
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android
-#endif
+
+#endif  // COMPUTEPIPE_RUNNER_UTILS_PIPEOPTIONSCONVERTER_H_

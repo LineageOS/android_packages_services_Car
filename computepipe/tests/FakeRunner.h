@@ -47,6 +47,7 @@ class FakeRunner : public aidl::android::automotive::computepipe::runner::BnPipe
         const std::shared_ptr<::aidl::android::automotive::computepipe::runner::IPipeStream>&
             in_handler) override;
     ::ndk::ScopedAStatus applyPipeConfigs() override;
+    ::ndk::ScopedAStatus resetPipeConfigs() override;
     ::ndk::ScopedAStatus startPipe() override;
     ::ndk::ScopedAStatus stopPipe() override;
     ::ndk::ScopedAStatus doneWithPacket(int32_t in_id) override;

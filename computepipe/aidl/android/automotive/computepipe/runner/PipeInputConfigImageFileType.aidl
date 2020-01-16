@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,17 @@
 package android.automotive.computepipe.runner;
 
 /**
- * Types of input streams supported by runner
+ * Image file type
  */
 @VintfStability
 @Backing(type="int")
-enum PipeInputConfigInputType {
+enum PipeInputConfigImageFileType {
     /**
-     * Camera type is used
+     * JPEG
      */
-    CAMERA = 0,
+    JPEG = 0,
     /**
-     * Video file
+     * Configuration completed
      */
-    VIDEO_FILE,
-    /**
-     * Image files
-     */
-    IMAGE_FILES,
+    PNG,
 }

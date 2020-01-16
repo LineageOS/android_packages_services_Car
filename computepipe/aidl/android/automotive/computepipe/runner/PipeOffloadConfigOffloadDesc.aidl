@@ -16,28 +16,21 @@
 package android.automotive.computepipe.runner;
 
 import android.automotive.computepipe.runner.PipeOffloadConfigOffloadType;
-import android.automotive.computepipe.runner.PipeOffloadConfigOffloadDesc;
 
 /**
- * Offload configs
- *
- * Structure that describes the offload options that a graph can use.
- * This is determined at graph creation time by the developer.
- * A graph can advertise different combinations of offload options that it
- * can use. A client can choose amongst the combinations of offload options, for
- * any given iteration of the graph execution.
- *
- * This is provided by the HIDL implementation to the client
+ * structure that describes the combination of offload options.
+ * This is a per graph specific combination.
  */
 @VintfStability
-parcelable PipeOffloadConfig {
+parcelable PipeOffloadConfigOffloadDesc {
     /**
-     * Offload descriptor that the graph can support.
+     * combination of different offload engines
      */
-    PipeOffloadConfigOffloadDesc desc;
+    PipeOffloadConfigOffloadType[] type;
     /**
-     * identifier for the option.
+     * 1:1 correspondence for each type above.
+     * Every offload engine has a flag describing if its virtual device
      */
-    String configId;
+    boolean[] isVirtual;
 }
 

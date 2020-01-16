@@ -22,6 +22,7 @@
 #include "MemHandle.h"
 #include "OutputConfig.pb.h"
 #include "RunnerComponent.h"
+#include "StreamEngineInterface.h"
 #include "types/Status.h"
 
 namespace android {
@@ -44,7 +45,7 @@ class StreamManager : public RunnerComponentInterface {
         RESET = 0,
         /* State once inflight packets set */
         CONFIG_DONE = 1,
-        /* State once packets are */
+        /* State once handleRunPhase() notifies of entry to run phase */
         RUNNING = 2,
         /**
          * State once stop issued
@@ -80,10 +81,12 @@ class StreamManager : public RunnerComponentInterface {
  */
 class StreamManagerFactory {
   public:
-    std::unique_ptr<StreamManager> getStreamManager(
-        const proto::OutputConfig& config, std::function<Status(std::shared_ptr<MemHandle>)>& cb,
-        uint32_t maxInFlightPackets);
+    std::unique_ptr<StreamManager> getStreamManager(const proto::OutputConfig& config,
+                                                    std::shared_ptr<StreamEngineInterface> engine,
+                                                    uint32_t maxInFlightPackets);
     StreamManagerFactory(const StreamManagerFactory&) = delete;
+    StreamManagerFactory(const StreamManagerFactory&&) = delete;
+    StreamManagerFactory& operator=(const StreamManagerFactory&&) = delete;
     StreamManagerFactory& operator=(const StreamManagerFactory&) = delete;
     StreamManagerFactory() = default;
 };

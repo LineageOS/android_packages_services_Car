@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,26 @@
 package android.automotive.computepipe.runner;
 
 /**
- * Types of input streams supported by runner
+ * State of the remote graph
  */
 @VintfStability
 @Backing(type="int")
-enum PipeInputConfigInputType {
+enum PipeInputConfigCameraType {
     /**
-     * Camera type is used
+     * Driver focused Camera stream
      */
-    CAMERA = 0,
+    DRIVER_VIEW_CAMERA = 0,
     /**
-     * Video file
+     * Camera with wider field of view that can capture
+     * occupants in the car.
      */
-    VIDEO_FILE,
+    OCCUPANT_VIEW_CAMERA,
     /**
-     * Image files
+     * External Camera
      */
-    IMAGE_FILES,
+    EXTERNAL_CAMERA,
+    /**
+     * Surround view
+     */
+    SURROUND_VIEW_CAMERA,
 }

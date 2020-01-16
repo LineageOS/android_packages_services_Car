@@ -36,3 +36,29 @@ cc_library {
         "packages/services/Car/computepipe",
     ],
 }
+
+cc_library {
+    name: "mock_stream_engine_interface",
+    srcs: [
+        "MockEngine.cpp",
+    ],
+    visibility: [
+        "//packages/services/Car/computepipe/runner:__subpackages__",
+        "//packages/services/Car/computepipe/tests:__subpackages__",
+    ],
+    header_libs: [
+        "computepipe_runner_includes",
+    ],
+    static_libs: [
+        "libgtest",
+        "libgmock",
+        "libcomputepipeprotos",
+    ],
+    shared_libs: [
+        "computepipe_runner_component",
+        "libcomputepipe_stream_manager",
+    ],
+    include_dirs: [
+        "packages/services/Car/computepipe",
+    ],
+}

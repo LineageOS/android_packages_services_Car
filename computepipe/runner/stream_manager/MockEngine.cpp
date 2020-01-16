@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The Android Open Source Project
+// Copyright (C) 2020 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPUTEPIPE_RUNNER_UTILS_PIPEOPTIONSCONVERTER_H_
-#define COMPUTEPIPE_RUNNER_UTILS_PIPEOPTIONSCONVERTER_H_
-
-#include <aidl/android/automotive/computepipe/runner/BnPipeRunner.h>
-
-#include "Options.pb.h"
+#include "MockEngine.h"
 
 namespace android {
 namespace automotive {
 namespace computepipe {
-namespace runner_utils {
+namespace runner {
+namespace stream_manager {
 
-aidl::android::automotive::computepipe::runner::PipeDescriptor OptionsToPipeDesciptor(
-    proto::Options options);
+using ::testing::_;
 
-}  // namespace runner_utils
+void MockEngine::delegateToFake(const std::shared_ptr<StreamEngineInterface>& engine) {
+    mFake = engine;
+    ON_CALL(*this, dispatchPacket).WillByDefault([this](const std::shared_ptr<MemHandle>& handle) {
+        return mFake->dispatchPacket(handle);
+    });
+    ON_CALL(*this, notifyError).WillByDefault([this](std::string msg) { mFake->notifyError(msg); });
+    ON_CALL(*this, notifyEndOfStream).WillByDefault([this]() { mFake->notifyEndOfStream(); });
+}
+
+}  // namespace stream_manager
+}  // namespace runner
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android
-
-#endif  // COMPUTEPIPE_RUNNER_UTILS_PIPEOPTIONSCONVERTER_H_

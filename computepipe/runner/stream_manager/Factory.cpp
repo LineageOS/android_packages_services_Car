@@ -14,6 +14,7 @@
 
 #include "OutputConfig.pb.h"
 #include "SemanticManager.h"
+#include "StreamEngineInterface.h"
 #include "StreamManager.h"
 
 namespace android {
@@ -27,14 +28,12 @@ namespace {
 /**
  * Build an instance of the Semantic Manager and initialize it
  */
-std::unique_ptr<SemanticManager> buildSemanticManager(
-    const proto::OutputConfig& config, std::function<Status(std::shared_ptr<MemHandle>)>& cb,
-    uint32_t maxPackets) {
+std::unique_ptr<SemanticManager> buildSemanticManager(const proto::OutputConfig& config,
+                                                      std::shared_ptr<StreamEngineInterface> engine,
+                                                      uint32_t maxPackets) {
     std::unique_ptr<SemanticManager> semanticManager =
         std::make_unique<SemanticManager>(config.stream_name(), config.stream_id(), config.type());
-    if (semanticManager->setIpcDispatchCallback(cb) != SUCCESS) {
-        return nullptr;
-    }
+    semanticManager->setEngineInterface(engine);
     if (semanticManager->setMaxInFlightPackets(maxPackets) != SUCCESS) {
         return nullptr;
     }
@@ -43,14 +42,14 @@ std::unique_ptr<SemanticManager> buildSemanticManager(
 }  // namespace
 
 std::unique_ptr<StreamManager> StreamManagerFactory::getStreamManager(
-    const proto::OutputConfig& config, std::function<Status(std::shared_ptr<MemHandle>)>& cb,
+    const proto::OutputConfig& config, std::shared_ptr<StreamEngineInterface> engine,
     uint32_t maxPackets) {
     if (!config.has_type()) {
         return nullptr;
     }
     switch (config.type()) {
         case proto::PacketType::SEMANTIC_DATA:
-            return buildSemanticManager(config, cb, maxPackets);
+            return buildSemanticManager(config, engine, maxPackets);
         default:
             return nullptr;
     }
