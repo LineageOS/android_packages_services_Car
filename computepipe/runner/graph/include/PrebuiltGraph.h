@@ -51,8 +51,6 @@ class PrebuiltGraph : public runner::RunnerComponentInterface {
     // No copy or move constructors or operators are available.
     PrebuiltGraph(const PrebuiltGraph&) = delete;
     PrebuiltGraph& operator=(const PrebuiltGraph&) = delete;
-    PrebuiltGraph(PrebuiltGraph&&) = delete;
-    PrebuiltGraph& operator=(PrebuiltGraph&&) = delete;
 
     // Override RunnerComponent interface functions for applying configs,
     // starting the graph and stopping the graph.

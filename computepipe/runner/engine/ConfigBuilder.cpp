@@ -20,12 +20,24 @@ namespace computepipe {
 namespace runner {
 namespace engine {
 
+void ConfigBuilder::setDebugDisplayStream(int id) {
+    mDisplayStream = id;
+    mOutputConfig.emplace(id, 1);
+}
+
+bool ConfigBuilder::clientConfigEnablesDisplayStream() {
+    return mConfigHasDisplayStream;
+}
+
 ConfigBuilder& ConfigBuilder::updateInputConfigOption(int id) {
     mInputConfigId = id;
     return *this;
 }
 
 ConfigBuilder& ConfigBuilder::updateOutputStreamOption(int id, int maxInFlightPackets) {
+    if (id == mDisplayStream) {
+        mConfigHasDisplayStream = true;
+    }
     mOutputConfig.emplace(id, maxInFlightPackets);
     return *this;
 }
@@ -54,6 +66,7 @@ ConfigBuilder& ConfigBuilder::reset() {
     mTerminationId = ClientConfig::kInvalidId;
     mOffloadId = ClientConfig::kInvalidId;
     mOutputConfig.clear();
+    mConfigHasDisplayStream = false;
     return *this;
 }
 

@@ -83,7 +83,7 @@ Status SemanticManager::handleExecutionPhase(const RunnerEvent& e) {
     std::lock_guard<std::mutex> lock(mStateLock);
     if (mState == CONFIG_DONE && e.isPhaseEntry()) {
         mState = RUNNING;
-        return ILLEGAL_STATE;
+        return SUCCESS;
     }
     if (mState == RESET) {
         /* Cannot get to running phase from reset state without config phase*/
