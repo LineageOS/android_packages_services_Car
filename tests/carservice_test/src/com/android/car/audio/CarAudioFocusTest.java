@@ -17,7 +17,9 @@
 package com.android.car.audio;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
+import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -27,15 +29,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.RequiresDevice;
 
+import com.android.car.R;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class AudioFocusTest {
-
-    private static final String TAG = "AudioFocusTest";
-
+public class CarAudioFocusTest {
     private static final int TEST_TIMING_TOLERANCE_MS = 100;
 
     // ContextNumber.INVALID
@@ -88,7 +89,13 @@ public class AudioFocusTest {
 
     @Before
     public void setUp() {
-        mAudioManager = new AudioManager(ApplicationProvider.getApplicationContext());
+        Context context = ApplicationProvider.getApplicationContext();
+        mAudioManager = new AudioManager(context);
+
+        boolean isDynamicRoutingEnabled = context.getResources().getBoolean(
+                R.bool.audioUseDynamicRouting);
+        assumeTrue("Dynamic routing must be enabled to run CarAudioFocusTests",
+                isDynamicRoutingEnabled);
     }
 
     @Test
