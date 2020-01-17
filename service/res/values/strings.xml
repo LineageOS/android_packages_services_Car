@@ -452,7 +452,7 @@
 
     <!-- Permission text: enable or disable car's features [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_control_car_features">Enable or disable car\u2019s features</string>
-    <!-- Permission text: apps control vendor properties in category 10 [CHAR LIMIT=NONE] -->
+    <!-- Permission text: enable or disable car's features [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_car_features">Enable or disable car\u2019s features.</string>
 
     <!-- Permission text: apps use car watchdog [CHAR LIMIT=NONE] -->
