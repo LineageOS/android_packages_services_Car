@@ -74,11 +74,15 @@ java_library {
     aidl: {
         include_dirs: [
             "system/bt/binder",
+            "packages/services/Car/watchdog/aidl",
         ],
     },
     exclude_srcs: [
         "src/android/car/storagemonitoring/IoStats.aidl",
         "src/android/car/storagemonitoring/IoStatsEntry.aidl",
+    ],
+    static_libs: [
+        "carwatchdog_aidl_interface-java",
     ],
     product_variables: {
         pdk: {

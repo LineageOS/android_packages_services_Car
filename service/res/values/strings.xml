@@ -455,6 +455,11 @@
     <!-- Permission text: apps control vendor properties in category 10 [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_car_features">Enable or disable car\u2019s features.</string>
 
+    <!-- Permission text: apps use car watchdog [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_use_car_watchdog">use car watchdog</string>
+    <!-- Permission text: apps use car watchdog [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_use_car_watchdog">Use car watchdog.</string>
+
     <!-- The default name of device enrolled as trust device [CHAR LIMIT=NONE] -->
     <string name="trust_device_default_name">My Device</string>
 
