@@ -46,6 +46,9 @@ public class FakeCarUxRestrictionsService extends ICarUxRestrictionsManager.Stub
     @GuardedBy("mLock")
     private ICarUxRestrictionsChangeListener mListener;
 
+    @GuardedBy("mLock")
+    private String mMode = "baseline";
+
     private static CarUxRestrictions createCarUxRestrictions(int activeRestrictions) {
         return new CarUxRestrictions.Builder(
                 false, /* requires driving distraction optimization */
@@ -93,13 +96,18 @@ public class FakeCarUxRestrictionsService extends ICarUxRestrictionsManager.Stub
     }
 
     @Override
-    public boolean setRestrictionMode(int mode) throws RemoteException {
-        return false;
+    public boolean setRestrictionMode(String mode) throws RemoteException {
+        synchronized (mLock) {
+            mMode = mode;
+        }
+        return true;
     }
 
     @Override
-    public int getRestrictionMode() throws RemoteException {
-        return mCarUxRestrictions.getActiveRestrictions();
+    public String getRestrictionMode() throws RemoteException {
+        synchronized (mLock) {
+            return mMode;
+        }
     }
 
     @Override
