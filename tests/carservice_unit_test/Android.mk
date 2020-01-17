@@ -18,7 +18,9 @@ LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_SRC_FILES := \
+    $(call all-java-files-under, src) \
+    ../../../../../frameworks/opt/car/services/src/com/android/internal/car/ICarServiceHelper.aidl
 
 LOCAL_RESOURCE_DIR += $(LOCAL_PATH)/res \
     packages/services/Car/service/res
