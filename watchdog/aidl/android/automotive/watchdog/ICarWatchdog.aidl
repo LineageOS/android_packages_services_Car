@@ -42,14 +42,14 @@ interface ICarWatchdog {
    * @param client              Watchdog client to register.
    * @param timeout             Timeout length specified through enum.
    */
-  oneway void registerClient(in ICarWatchdogClient client, in TimeoutLength timeout);
+  void registerClient(in ICarWatchdogClient client, in TimeoutLength timeout);
 
   /**
    * Unregister the client from the watchdog server.
    *
    * @param client              Watchdog client to unregister.
    */
-  oneway void unregisterClient(in ICarWatchdogClient client);
+  void unregisterClient(in ICarWatchdogClient client);
 
   /**
    * Register the mediator to the watchdog server.
@@ -58,7 +58,7 @@ interface ICarWatchdog {
    *
    * @param mediator            Watchdog mediator to register.
    */
-  oneway void registerMediator(in ICarWatchdogClient mediator);
+  void registerMediator(in ICarWatchdogClient mediator);
 
   /**
    * Unregister the mediator from the watchdog server.
@@ -67,7 +67,7 @@ interface ICarWatchdog {
    *
    * @param mediator            Watchdog mediator to unregister.
    */
-  oneway void unregisterMediator(in ICarWatchdogClient mediator);
+  void unregisterMediator(in ICarWatchdogClient mediator);
 
   /**
    * Register the monitor to the watchdog server.
@@ -75,7 +75,7 @@ interface ICarWatchdog {
    *
    * @param monitor             Watchdog monitor to register.
    */
-  oneway void registerMonitor(in ICarWatchdogMonitor monitor);
+  void registerMonitor(in ICarWatchdogMonitor monitor);
 
   /**
    * Unregister the monitor from the watchdog server.
@@ -83,16 +83,15 @@ interface ICarWatchdog {
    *
    * @param monitor             Watchdog monitor to unregister.
    */
-  oneway void unregisterMonitor(in ICarWatchdogMonitor monitor);
+  void unregisterMonitor(in ICarWatchdogMonitor monitor);
 
   /**
    * Tell watchdog server that the client is alive.
    *
    * @param client              Watchdog client that is responding.
    * @param sessionId           Session id given by watchdog server.
-   * @return                    Whether the response is accepted.
    */
-  boolean tellClientAlive(in ICarWatchdogClient client, in int sessionId);
+  void tellClientAlive(in ICarWatchdogClient client, in int sessionId);
 
   /**
    * Tell watchdog server that the mediator is alive together with the status of clients under
@@ -103,9 +102,8 @@ interface ICarWatchdog {
    * @param clientsNotResponding Array of process id of clients which haven't responded to the
    *                             mediator.
    * @param sessionId            Session id given by watchdog server.
-   * @return                     Whether the response is accepted.
    */
-  boolean tellMediatorAlive(
+  void tellMediatorAlive(
           in ICarWatchdogClient mediator, in int[] clientsNotResponding, in int sessionId);
 
   /**
@@ -115,23 +113,22 @@ interface ICarWatchdog {
    * @param monitor              Watchdog monitor that is registered to watchdog server.
    * @param pid                  Process id that has been dumped.
    */
-  oneway void tellDumpFinished(in ICarWatchdogMonitor monitor, in int pid);
+  void tellDumpFinished(in ICarWatchdogMonitor monitor, in int pid);
 
   /**
    * Notify watchdog server that the device goes into a new power cycle.
    * The caller should have system UID.
    *
    * @param cycle                Power cycle of the device.
-   * @return                     Whether the notification is processed.
    */
-  boolean notifyPowerCycleChange(in PowerCycle cycle);
+  void notifyPowerCycleChange(in PowerCycle cycle);
 
   /**
    * Notify watchdog server that Android user is started or stopped.
    * The caller should have system UID.
    *
    * @param userId               Android user id.
-   * @return                     Whether the notification is processed.
+   * @param state                User state.
    */
-  boolean notifyUserStateChange(in int userId, in UserState state);
+  void notifyUserStateChange(in int userId, in UserState state);
 }
