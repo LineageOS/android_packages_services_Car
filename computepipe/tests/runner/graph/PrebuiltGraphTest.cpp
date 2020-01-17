@@ -95,6 +95,7 @@ TEST(PrebuiltGraphTest, FunctionMappingFromLibraryIsSuccessful) {
         PrebuiltGraph::GetPrebuiltGraphFromLibrary("libstubgraphimpl.so", engineInterface);
     ASSERT_TRUE(graph);
     EXPECT_NE(graph->GetGraphState(), PrebuiltGraphState::UNINITIALIZED);
+    EXPECT_EQ(graph->GetSupportedGraphConfigs().graph_name(), "stub_graph");
 }
 
 TEST(PrebuiltGraphTest, GraphConfigurationIssuesCorrectFunctionCalls) {

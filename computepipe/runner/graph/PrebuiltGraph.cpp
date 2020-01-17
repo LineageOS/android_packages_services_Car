@@ -197,11 +197,19 @@ PrebuiltGraph* PrebuiltGraph::GetPrebuiltGraphFromLibrary(
             initialized = false;
         }
 
-        const unsigned char* (*getSupportedGraphConfigsFn)() = (const unsigned char* (*)())dlsym(
-            mPrebuiltGraphInstance->mHandle, "PrebuiltComputepipeRunner_GetSupportedGraphConfigs");
+        void (*getSupportedGraphConfigsFn)(const void**, size_t*) = (void (*)(
+            const void**, size_t*))dlsym(mPrebuiltGraphInstance->mHandle,
+                                         "PrebuiltComputepipeRunner_GetSupportedGraphConfigs");
         if (getSupportedGraphConfigsFn != nullptr) {
-            initialized &= mPrebuiltGraphInstance->mGraphConfig.ParseFromString(
-                std::string(reinterpret_cast<const char*>(getSupportedGraphConfigsFn())));
+            size_t graphConfigSize;
+            const void* graphConfig;
+
+            getSupportedGraphConfigsFn(&graphConfig, &graphConfigSize);
+
+            if (graphConfigSize > 0) {
+                initialized &= mPrebuiltGraphInstance->mGraphConfig.ParseFromString(
+                    std::string(reinterpret_cast<const char*>(graphConfig), graphConfigSize));
+            }
         } else {
             LOG(ERROR) << std::string(dlerror());
             initialized = false;
