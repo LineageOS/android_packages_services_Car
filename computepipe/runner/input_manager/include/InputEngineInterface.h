@@ -29,7 +29,7 @@ class InputEngineInterface {
     /**
      * Dispatch input frame to engine for consumption by the graph
      */
-    virtual Status dispatchInputFrame(const InputFrame& frame) = 0;
+    virtual Status dispatchInputFrame(int streamId, const InputFrame& frame) = 0;
     /**
      * Report Error Halt to Engine. Engine should report error to other
      * components.
