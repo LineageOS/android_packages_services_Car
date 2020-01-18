@@ -204,6 +204,13 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     @Override
+    protected synchronized void configureResourceOverrides(MockResources resources) {
+        super.configureResourceOverrides(resources);
+        resources.overrideResource(com.android.car.R.array.config_allowed_optional_car_features,
+                new String[]{Car.DIAGNOSTIC_SERVICE});
+    }
+
+    @Override
     protected synchronized void configureMockedHal() {
         java.util.Collection<Integer> numVendorSensors = Arrays.asList(0, 0);
         java.util.Collection<Integer> selectiveClear = Collections.singletonList(1);

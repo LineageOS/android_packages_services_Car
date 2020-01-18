@@ -371,6 +371,8 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     @Override
     protected synchronized void configureResourceOverrides(MockResources resources) {
         super.configureResourceOverrides(resources);
+        resources.overrideResource(com.android.car.R.array.config_allowed_optional_car_features,
+                new String[] {Car.STORAGE_MONITORING_SERVICE});
         final ResourceOverrides overrides = PER_TEST_RESOURCES.getOrDefault(getName(), null);
         if (overrides != null) {
             overrides.overrideResources(resources);

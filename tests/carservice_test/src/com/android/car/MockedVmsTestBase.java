@@ -63,6 +63,8 @@ public class MockedVmsTestBase extends MockedCarTestBase {
     @Override
     protected synchronized void configureResourceOverrides(MockResources resources) {
         super.configureResourceOverrides(resources);
+        resources.overrideResource(com.android.car.R.array.config_allowed_optional_car_features,
+                new String[] {Car.VMS_SUBSCRIBER_SERVICE});
         // Override publisher client endpoint configurations
         // Both lists must be set, but only one will be used (see setUp)
         resources.overrideResource(com.android.car.R.array.vmsPublisherSystemClients,

@@ -111,7 +111,11 @@ public class MainActivity extends Activity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Connected to " + name.flattenToString());
-
+            if (!mCar.isFeatureEnabled(Car.STORAGE_MONITORING_SERVICE)) {
+                Log.e(TAG, "Car.STORAGE_MONITORING_SERVICE feature not supported, will finish");
+                finish();
+                return;
+            }
             CarStorageMonitoringManager storageMonitoringManager =
                     (CarStorageMonitoringManager) mCar.getCarManager(
                             Car.STORAGE_MONITORING_SERVICE);

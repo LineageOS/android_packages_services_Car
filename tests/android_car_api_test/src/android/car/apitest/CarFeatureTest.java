@@ -39,35 +39,33 @@ public class CarFeatureTest extends CarApiTestBase  {
             Car.AUDIO_SERVICE,
             Car.BLUETOOTH_SERVICE,
             Car.CAR_BUGREPORT_SERVICE,
+            Car.CAR_CONFIGURATION_SERVICE,
             Car.CAR_DRIVING_STATE_SERVICE,
             Car.CAR_MEDIA_SERVICE,
             Car.CAR_NAVIGATION_SERVICE,
             Car.CAR_OCCUPANT_ZONE_SERVICE,
+            Car.CAR_TRUST_AGENT_ENROLLMENT_SERVICE,
             Car.CAR_USER_SERVICE,
+            Car.CAR_UX_RESTRICTION_SERVICE,
             Car.INFO_SERVICE,
             Car.PACKAGE_SERVICE,
             Car.POWER_SERVICE,
             Car.PROJECTION_SERVICE,
             Car.PROPERTY_SERVICE,
             Car.TEST_SERVICE,
-            // Deprecated, but still should be supported
-            Car.SENSOR_SERVICE,
+            // All items below here are deprecated, but still should be supported
             Car.CAR_INSTRUMENT_CLUSTER_SERVICE,
             Car.CABIN_SERVICE,
             Car.HVAC_SERVICE,
-            Car.VENDOR_EXTENSION_SERVICE,
-            // Candidate for Optional, but stay mandatory for now until final decision is made.
-            Car.CAR_CONFIGURATION_SERVICE,
-            Car.CAR_TRUST_AGENT_ENROLLMENT_SERVICE,
-            Car.DIAGNOSTIC_SERVICE,
-            Car.CAR_UX_RESTRICTION_SERVICE,
-            // Marked as optional, but requires additional work
-            Car.VMS_SUBSCRIBER_SERVICE
+            Car.SENSOR_SERVICE,
+            Car.VENDOR_EXTENSION_SERVICE
     );
 
     private static final List<String> OPTIONAL_FEATURES = Arrays.asList(
+            CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE,
+            Car.DIAGNOSTIC_SERVICE,
             Car.STORAGE_MONITORING_SERVICE,
-            CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE
+            Car.VMS_SUBSCRIBER_SERVICE
     );
 
     private static final String NON_EXISTING_FEATURE = "ThisFeatureDoesNotExist";
