@@ -56,7 +56,6 @@ import com.google.android.car.kitchensink.CarEmulator;
 import com.google.android.car.kitchensink.R;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class AudioTestFragment extends Fragment {
@@ -146,8 +145,8 @@ public class AudioTestFragment extends Fragment {
                     mCarAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
 
                     //take care of zone selection
-                    int[] zoneList = mCarAudioManager.getAudioZoneIds();
-                    Integer[] zoneArray = Arrays.stream(zoneList).boxed().toArray(Integer[]::new);
+                    List<Integer> zoneList = mCarAudioManager.getAudioZoneIds();
+                    Integer[] zoneArray = zoneList.stream().toArray(Integer[]::new);
                     mZoneAdapter = new ArrayAdapter<>(mContext,
                             android.R.layout.simple_spinner_item, zoneArray);
                     mZoneAdapter.setDropDownViewResource(

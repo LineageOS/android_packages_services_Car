@@ -19,6 +19,8 @@ package android.car;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
@@ -225,10 +227,16 @@ public class CarOccupantZoneManager extends CarManagerBase {
     /** Zone config change caused by user change. Assigned user for passenger zones have changed. */
     public static final int ZONE_CONFIG_CHANGE_FLAG_USER = 0x2;
 
+    /** Zone config change caused by audio zone change.
+     * Assigned audio zone for passenger zones have changed.
+     **/
+    public static final int ZONE_CONFIG_CHANGE_FLAG_AUDIO = 0x3;
+
     /** @hide */
     @IntDef(flag = true, prefix = { "ZONE_CONFIG_CHANGE_FLAG_" }, value = {
             ZONE_CONFIG_CHANGE_FLAG_DISPLAY,
             ZONE_CONFIG_CHANGE_FLAG_USER,
+            ZONE_CONFIG_CHANGE_FLAG_AUDIO,
     })
     @Retention(RetentionPolicy.SOURCE)
     @interface ZoneConfigChangeFlags {}
@@ -327,6 +335,41 @@ public class CarOccupantZoneManager extends CarManagerBase {
                 return null;
             }
             return mDisplayManager.getDisplay(displayId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, null);
+        }
+    }
+
+    /**
+     * Gets the audio zone id for the occupant, or returns
+     * {@code CarAudioManager.INVALID_AUDIO_ZONE} if no audio zone matches the requirements.
+     * throws InvalidArgumentException if occupantZone does not exist.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public int getAudioZoneIdForOccupant(@NonNull OccupantZoneInfo occupantZone) {
+        assertNonNullOccupant(occupantZone);
+        try {
+            return mService.getAudioZoneIdForOccupant(occupantZone.zoneId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, null);
+        }
+    }
+
+    /**
+     * Gets occupant for the audio zone id, or returns {@code null}
+     * if no audio zone matches the requirements.
+     *
+     * @hide
+     */
+    @Nullable
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public OccupantZoneInfo getOccupantForAudioZoneId(int audioZoneId) {
+        try {
+            return mService.getOccupantForAudioZoneId(audioZoneId);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         }
