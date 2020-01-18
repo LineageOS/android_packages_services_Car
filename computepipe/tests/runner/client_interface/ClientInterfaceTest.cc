@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <vector>
+
 #include <aidl/android/automotive/computepipe/registry/BnClientInfo.h>
 #include <aidl/android/automotive/computepipe/registry/IPipeQuery.h>
 #include <aidl/android/automotive/computepipe/registry/IPipeRegistration.h>
@@ -77,7 +79,7 @@ class StateChangeCallback : public BnPipeStateCallback {
 class StreamCallback : public BnPipeStream {
   public:
     ScopedAStatus deliverPacket(const PacketDescriptor& in_packet) override {
-        data = in_packet.data;
+        data = std::string(in_packet.data.begin(), in_packet.data.end());
         timestamp = in_packet.sourceTimeStampMillis;
         return ScopedAStatus::ok();
     }

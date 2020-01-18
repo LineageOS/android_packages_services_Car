@@ -609,6 +609,15 @@ public final class Car {
     public static final String PERMISSION_CONTROL_CAR_FEATURES =
             "android.car.permission.CONTROL_CAR_FEATURES";
 
+    /**
+     * Permission necessary to be car watchdog clients.
+     *
+     * @hide
+     */
+    // TODO(b/147845170): change to SystemApi after API review.
+    public static final String PERMISSION_USE_CAR_WATCHDOG =
+            "android.car.permission.USE_CAR_WATCHDOG";
+
     /** Type of car connection: platform runs directly in car. */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
 

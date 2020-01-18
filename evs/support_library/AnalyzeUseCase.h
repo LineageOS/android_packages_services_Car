@@ -48,7 +48,6 @@ private:
     bool mIsInitialized = false;
     BaseAnalyzeCallback* mAnalyzeCallback = nullptr;
 
-    std::mutex                  mLock;
     sp<StreamHandler>           mStreamHandler;
     sp<ResourceManager>         mResourceManager;
 };

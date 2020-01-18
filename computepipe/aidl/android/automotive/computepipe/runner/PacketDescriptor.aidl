@@ -57,5 +57,5 @@ parcelable PacketDescriptor {
     /**
      * semantic data. Requires no doneWithPacket() acknowledgement.
      */
-    @utf8InCpp String data;
+    byte[] data;
 }

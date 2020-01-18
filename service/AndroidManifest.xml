@@ -512,6 +512,15 @@
         android:label="@string/car_permission_label_control_car_features"
         android:description="@string/car_permission_desc_control_car_features" />
 
+    <!-- Allows an application to use car watchdog service.
+        <p>Protection level: signature|privileged
+    -->
+    <permission
+        android:name="android.car.permission.USE_CAR_WATCHDOG"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_use_car_watchdog"
+        android:description="@string/car_permission_desc_use_car_watchdog" />
+
     <!-- Allows an application to read vendor properties related with windows.
          <p>Protection level: signature|privileged
     -->

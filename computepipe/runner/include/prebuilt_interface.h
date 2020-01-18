@@ -58,8 +58,10 @@ PrebuiltComputepipeRunner_ErrorCode COMPUTEPIPE_RUNNER(GetErrorCode)();
 PrebuiltComputepipeRunner_ErrorCode COMPUTEPIPE_RUNNER(GetErrorMessage)(
     unsigned char* error_msg_buffer, size_t error_msg_buffer_size, size_t* error_msg_size);
 
-// Gets the supported graph config options.
-const unsigned char* COMPUTEPIPE_RUNNER(GetSupportedGraphConfigs)();
+// Gets the supported graph config options. This is ideally generated once and
+// cached for subsequent calls.
+PrebuiltComputepipeRunner_ErrorCode COMPUTEPIPE_RUNNER(GetSupportedGraphConfigs)(
+    const void** config, size_t* config_size);
 
 // Sets the graph configuration or updates it if an incomplete config is passed.
 PrebuiltComputepipeRunner_ErrorCode COMPUTEPIPE_RUNNER(UpdateGraphConfig)(

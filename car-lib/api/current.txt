@@ -277,6 +277,7 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_EV_BATTERY_CAPACITY = 291504390; // 0x11600106
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_EV_CONNECTOR_TYPE = 289472775; // 0x11410107
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_EV_PORT_LOCATION = 289407241; // 0x11400109
+    field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_EXTERIOR_DIMENSIONS = 289472779; // 0x1141010b
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_FUEL_CAPACITY = 291504388; // 0x11600104
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_FUEL_DOOR_LOCATION = 289407240; // 0x11400108
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_FUEL_TYPE = 289472773; // 0x11410105
@@ -299,6 +300,7 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int PARKING_BRAKE_AUTO_APPLY = 287310851; // 0x11200403
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int PARKING_BRAKE_ON = 287310850; // 0x11200402
     field @RequiresPermission("android.car.permission.CAR_MILEAGE") public static final int PERF_ODOMETER = 291504644; // 0x11600204
+    field @RequiresPermission(android.car.Car.PERMISSION_READ_STEERING_STATE) public static final int PERF_REAR_STEERING_ANGLE = 291504656; // 0x11600210
     field @RequiresPermission(android.car.Car.PERMISSION_READ_STEERING_STATE) public static final int PERF_STEERING_ANGLE = 291504649; // 0x11600209
     field @RequiresPermission(android.car.Car.PERMISSION_SPEED) public static final int PERF_VEHICLE_SPEED = 291504647; // 0x11600207
     field @RequiresPermission(android.car.Car.PERMISSION_SPEED) public static final int PERF_VEHICLE_SPEED_DISPLAY = 291504648; // 0x11600208

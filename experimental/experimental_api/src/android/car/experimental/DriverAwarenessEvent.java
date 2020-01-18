@@ -19,6 +19,8 @@ import android.annotation.FloatRange;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Objects;
+
 /**
  * Event about a driver's awareness level at a certain point in time.
  *
@@ -104,6 +106,23 @@ public final class DriverAwarenessEvent implements Parcelable {
         dest.writeFloat(mAwarenessValue);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DriverAwarenessEvent)) {
+            return false;
+        }
+        DriverAwarenessEvent that = (DriverAwarenessEvent) o;
+        return mTimeStamp == that.mTimeStamp
+                && Float.compare(that.mAwarenessValue, mAwarenessValue) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mTimeStamp, mAwarenessValue);
+    }
 
     @Override
     public String toString() {

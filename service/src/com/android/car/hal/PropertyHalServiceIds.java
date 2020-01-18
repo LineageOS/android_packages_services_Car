@@ -325,6 +325,9 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.INFO_DRIVER_SEAT, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
+        mProps.put(VehicleProperty.INFO_EXTERIOR_DIMENSIONS, new Pair<>(
+                    Car.PERMISSION_CAR_INFO,
+                    null));
 
         // Sensor properties
         mProps.put(VehicleProperty.PERF_ODOMETER, new Pair<>(
@@ -376,6 +379,9 @@ public class PropertyHalServiceIds {
                 Car.PERMISSION_TIRES,
                 null));
         mProps.put(VehicleProperty.PERF_STEERING_ANGLE, new Pair<>(
+                Car.PERMISSION_READ_STEERING_STATE,
+                null));
+        mProps.put(VehicleProperty.PERF_REAR_STEERING_ANGLE, new Pair<>(
                 Car.PERMISSION_READ_STEERING_STATE,
                 null));
         mProps.put(VehicleProperty.GEAR_SELECTION, new Pair<>(
