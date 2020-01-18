@@ -381,6 +381,9 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.PERF_STEERING_ANGLE, new Pair<>(
                 Car.PERMISSION_READ_STEERING_STATE,
                 null));
+        mProps.put(VehicleProperty.PERF_REAR_STEERING_ANGLE, new Pair<>(
+                Car.PERMISSION_READ_STEERING_STATE,
+                null));
         mProps.put(VehicleProperty.GEAR_SELECTION, new Pair<>(
                 Car.PERMISSION_POWERTRAIN,
                 null));
