@@ -74,7 +74,7 @@ struct InputFrame {
      * underlying frame data
      */
     const uint8_t* getFramePtr() const;
-    FrameInfo getFrameInfo() {
+    FrameInfo getFrameInfo() const {
         return mInfo;
     }
     /**
