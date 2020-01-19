@@ -35,13 +35,13 @@ interface IPipeRunner {
      * Returns the descriptor for the associated mediapipe
      *
      * @param out A descriptor that describes the input options, offload options
-     * and the outputstreams of a media pipe instance.
+     * and the outputstreams of a computepipe instance.
      */
     PipeDescriptor getPipeDescriptor();
 
     /**
-     * Set the input source for the mediapipe graph.
-     * This should be done prior to invoking startMediaPipe.
+     * Set the input source for the computepipe graph.
+     * This should be done prior to invoking startPipe.
      *
      * @param configId id selected from the available input options.
      * @param out if selection of input source was supported returns OK
@@ -51,7 +51,7 @@ interface IPipeRunner {
     /**
      * Set the offload options for a graph.
      * This should be a subset of the supported offload options present in the
-     * descriptor. This should be done prior to invoking startMediaPipe
+     * descriptor. This should be done prior to invoking startPipe
      *
      * @param configID offload option id from the advertised offload options.
      * @param out if offload option was set then returns OK.
@@ -61,9 +61,7 @@ interface IPipeRunner {
     /**
      * Set the termination options for a graph.
      * This should be a subset of the supported termination options present in the
-     * descriptor. This should be done prior to invoking startMediaPipe.
-     * If this step is not performed then it is assumed the client will
-     * stop pipe using stopPipe().
+     * descriptor. This should be done prior to invoking startPipe.
      *
      * @param terminationId id of the supported termination option as advertized
      * in the pipe descriptor
@@ -73,7 +71,7 @@ interface IPipeRunner {
 
     /**
      * Enable a output stream and install call back for packets from that
-     * stream. This should be invoked prior to calling startMediaPipe.
+     * stream. This should be invoked prior to calling startPipe.
      * Call this for each output stream that a client wants to enable
      *
      * @param configId: describes the output stream configuration the client
@@ -91,9 +89,13 @@ interface IPipeRunner {
      * The client has finsihed specifying all the config options.
      * Now the configs should be applied. Once the configs are applied the
      * client will get a notification saying PipeState::CONFIG_DONE.
-     * This also allows the client to modify a subset of the config options
-     * using a subset of the setPipe* methods and request the modified config
-     * option to be applied, prior to restarting the pipe.
+     * The configuration applied with this step, will be retained for all future runs
+     * unless explicitly reset by calling resetPipeConfigs().
+     * In case of client death as well, the applied configurations are reset.
+     * In case the runner reports a ERR_HALT state, at any time after applyPipeConfigs(),
+     * all configurations are retained, and expected to be reset by the client
+     * explicitly, prior to attempting a new run.
+     * This call is only allowed when pipe is not running.
      *
      * @param out void::OK if the runner was notified to apply config.
      */
@@ -111,35 +113,36 @@ interface IPipeRunner {
     void resetPipeConfigs();
 
     /**
-     * Start Mediapipe execution on the runner. Prior to this step
+     * Start pipe execution on the runner. Prior to this step
      * each of the configuration steps should be completed. Once the
-     * configurations have been applied the state handler will be invoked with
-     * the PipeState::CONFIG_DONE notification. Wait for this notification before starting the PIPE.
+     * configurations have been applied, the state handler will be invoked with
+     * the PipeState::CONFIG_DONE notification. Wait for this notification before starting the pipe.
      * Once the Pipe starts execution the client will receive the state
-     * notification PipeState::RUNNING through IPipeStateHandler::handleState
+     * notification PipeState::RUNNING through the state handler.
      *
      * @param out OK void if start succeeded.
      */
     void startPipe();
 
     /**
-     * Stop Mediapipe execution on the runner.
+     * Stop pipe execution on the runner.
      *
-     * This can invoked only when the pipe is run state ie PipeState::RUNNING.
+     * This can invoked only when the pipe is in run state ie PipeState::RUNNING.
      * If a client has already chosen a termination option, then this
      * call overrides that termination criteria.
      *
-     * Client will be notified once the pipe has stopped.
-     * Until then, outstanding packets may continue to be received.
-     * These packets must still be returned with doneWithPacket().
+     * Client will be notified once the pipe has stopped using PipeState::DONE
+     * notification. Until then, outstanding packets may continue to be received.
+     * These packets must still be returned with doneWithPacket(). (This does not
+     * apply to SEMANTIC_DATA, as they are copied in the stream callback).
      *
      * Once the Pipe stops execution (no new packets generated),
      * the client will receive the state
-     * notification, PipeState::DONE, through IPipeStateHandler::handleState.
+     * notification, PipeState::DONE.
      *
      * Once the pipe has completely quiesced, it will transition back to
-     * PipeState::CONFIG_DONE and at this point a new startPipe() can be issued.
-     *
+     * PipeState::CONFIG_DONE and at this point a new startPipe() can be issued or
+     * previously applied configs can be reset using the resetPipeConfigs() call.
      *
      * @param out OK void if stop succeeded
      */
@@ -178,7 +181,6 @@ interface IPipeRunner {
      * the client should first invoke IPipeDebugger::Release() prior to
      * this method.
      *
-     * FIXME: The following return was removed
      * @return status OK if all resources were freed up.
      */
     void releaseRunner();

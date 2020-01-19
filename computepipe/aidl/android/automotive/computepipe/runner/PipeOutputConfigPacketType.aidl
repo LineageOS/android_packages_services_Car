@@ -22,16 +22,15 @@ package android.automotive.computepipe.runner;
 @Backing(type="int")
 enum PipeOutputConfigPacketType {
     /**
-     * semantic data that can be copied, with mediapipe time stamps
+     * semantic data that can be copied.
      */
     SEMANTIC_DATA = 0,
     /**
-     * pixel data with copy semantics, retains mediapipe time stamps
+     * pixel data with copy semantics.
      */
     PIXEL_DATA,
     /**
-     * pixel data with zero copy requirement, no time stamps output as
-     * gralloc buffers
+     * pixel data with zero copy requirement.
      */
     PIXEL_ZERO_COPY_DATA,
 }
