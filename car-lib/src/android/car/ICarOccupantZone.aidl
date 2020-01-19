@@ -23,10 +23,14 @@ import android.view.DisplayInfo;
 /** @hide */
 interface ICarOccupantZone {
     List<CarOccupantZoneManager.OccupantZoneInfo> getAllOccupantZones();
+    int getAudioZoneIdForOccupant(in int occupantZoneId);
     int[] getAllDisplaysForOccupantZone(in int occupantZoneId);
     int getDisplayForOccupant(in int occupantZoneId, in int displayType);
+    CarOccupantZoneManager.OccupantZoneInfo getOccupantForAudioZoneId(in int audioZoneId);
     int getDisplayType(in int displayId);
     int getUserForOccupant(in int occupantZoneId);
+    int getOccupantZoneIdForUserId(in int userId);
+    void setAudioZoneIdsForOccupantZoneIds(in int[] audioZoneIds, in int[] occupantZoneIds);
     void registerCallback(in ICarOccupantZoneCallback callback);
     void unregisterCallback(in ICarOccupantZoneCallback callback);
 }
