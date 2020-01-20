@@ -27,6 +27,14 @@ namespace engine {
 class ConfigBuilder {
   public:
     /**
+     * Set debug display stream in the final client config
+     */
+    void setDebugDisplayStream(int id);
+    /**
+     * Does client explicitly enable display stream
+     */
+    bool clientConfigEnablesDisplayStream();
+    /**
      * Update current input option
      */
     ConfigBuilder& updateInputConfigOption(int id);
@@ -56,9 +64,11 @@ class ConfigBuilder {
     ConfigBuilder& reset();
 
   private:
+    int mDisplayStream;
     int mInputConfigId;
     int mOffloadId;
     int mTerminationId;
+    bool mConfigHasDisplayStream = false;
     std::map<int, int> mOutputConfig;
     std::string mOptionalConfig;
 };

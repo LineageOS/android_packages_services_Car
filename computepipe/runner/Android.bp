@@ -18,10 +18,6 @@ cc_library_headers {
     static_libs: [
         "libcomputepipeprotos",
     ],
-    visibility: [
-        "//packages/services/Car/computepipe/runner:__subpackages__",
-        "//packages/services/Car/computepipe/tests:__subpackages__",
-    ],
 }
 
 cc_library {
