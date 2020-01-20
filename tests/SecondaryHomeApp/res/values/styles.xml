@@ -31,4 +31,9 @@
         <item name="android:layout_width">96dp</item>
         <item name="android:background">@drawable/nav_button_background</item>
     </style>
+        <style name="ClearButton">
+        <item name="android:layout_height">96dp</item>
+        <item name="android:layout_width">96dp</item>
+        <item name="android:background">@drawable/nav_button_background</item>
+    </style>
 </resources>
