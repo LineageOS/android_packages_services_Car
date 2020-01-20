@@ -16,6 +16,7 @@
 package com.android.car.audio;
 
 import android.car.media.CarAudioManager;
+import android.media.AudioDeviceAddress;
 import android.media.AudioDeviceInfo;
 import android.util.Log;
 import android.view.DisplayAddress;
@@ -45,12 +46,14 @@ import java.util.Set;
     private final String mName;
     private final List<CarVolumeGroup> mVolumeGroups;
     private final List<DisplayAddress.Physical> mPhysicalDisplayAddresses;
+    private List<AudioDeviceAddress> mInputAudioDeviceAddress;
 
     CarAudioZone(int id, String name) {
         mId = id;
         mName = name;
         mVolumeGroups = new ArrayList<>();
         mPhysicalDisplayAddresses = new ArrayList<>();
+        mInputAudioDeviceAddress = new ArrayList<>();
     }
 
     int getId() {
@@ -169,15 +172,23 @@ import java.util.Set;
     }
 
     void dump(String indent, PrintWriter writer) {
+        String internalIndent = indent + "\t";
         writer.printf("%sCarAudioZone(%s:%d) isPrimary? %b\n", indent, mName, mId, isPrimaryZone());
         for (DisplayAddress.Physical physical: mPhysicalDisplayAddresses) {
             long port = (long) physical.getPort();
-            writer.printf("%sDisplayAddress.Physical(%d)\n", indent + "\t", port);
+            writer.printf("%sDisplayAddress.Physical(%d)\n", internalIndent, port);
         }
         writer.println();
 
         for (CarVolumeGroup group : mVolumeGroups) {
-            group.dump(indent + "\t", writer);
+            group.dump(internalIndent, writer);
+        }
+
+        writer.printf("%sInput Audio Device Addresses\n", internalIndent);
+        String devicesIndent = internalIndent + "\t";
+        for (AudioDeviceAddress audioDeviceAddress : mInputAudioDeviceAddress) {
+            writer.printf("%sDevice Address(%s)\n", devicesIndent,
+                    audioDeviceAddress.getAddress());
         }
         writer.println();
     }
@@ -205,5 +216,13 @@ import java.util.Set;
         for (CarVolumeGroup group : mVolumeGroups) {
             group.loadVolumesForUser(userId);
         }
+    }
+
+    void addInputAudioDeviceAddress(AudioDeviceAddress address) {
+        mInputAudioDeviceAddress.add(address);
+    }
+
+    List<AudioDeviceAddress> getInputAudioDeviceAddresses() {
+        return mInputAudioDeviceAddress;
     }
 }

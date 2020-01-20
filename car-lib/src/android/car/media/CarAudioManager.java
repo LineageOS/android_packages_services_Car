@@ -24,8 +24,10 @@ import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAddress;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.media.AudioManager.AudioDeviceRole;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -34,7 +36,10 @@ import android.view.Display;
 import android.view.DisplayAddress;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * APIs for handling audio in a car.
@@ -452,7 +457,7 @@ public final class CarAudioManager extends CarManagerBase {
             }
             return zoneIdList;
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new ArrayList<>());
+            return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
     }
 
@@ -600,6 +605,24 @@ public final class CarAudioManager extends CarManagerBase {
         }
     }
 
+    /**
+     * Gets the input devices for an audio zone
+     *
+     * @return list of input devices
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public @NonNull List<AudioDeviceInfo> getInputDevicesForZoneId(int zoneId) {
+        try {
+            return convertInputDeviceAddressesToDeviceInfos(
+                    mService.getInputDevicesAddressesForZoneId(zoneId),
+                    AudioManager.GET_DEVICES_INPUTS);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, new ArrayList<>());
+        }
+    }
+
     /** @hide */
     @Override
     public void onCarDisconnected() {
@@ -639,6 +662,25 @@ public final class CarAudioManager extends CarManagerBase {
      */
     public void unregisterCarVolumeCallback(@NonNull CarVolumeCallback callback) {
         mCarVolumeCallbacks.remove(callback);
+    }
+
+    private List<AudioDeviceInfo> convertInputDeviceAddressesToDeviceInfos(
+            List<AudioDeviceAddress> addresses, @AudioDeviceRole int flag) {
+        int addressesSize = addresses.size();
+        Set<String> deviceAddressMap = new HashSet<>(addressesSize);
+        for (int i = 0; i < addressesSize; ++i) {
+            AudioDeviceAddress deviceAddress = addresses.get(i);
+            deviceAddressMap.add(deviceAddress.getAddress());
+        }
+        List<AudioDeviceInfo> deviceInfoList = new ArrayList<>(addresses.size());
+        AudioDeviceInfo[] inputDevices = mAudioManager.getDevices(flag);
+        for (int i = 0; i < inputDevices.length; ++i) {
+            AudioDeviceInfo info = inputDevices[i];
+            if (info.isSource() && deviceAddressMap.contains(info.getAddress())) {
+                deviceInfoList.add(info);
+            }
+        }
+        return deviceInfoList;
     }
 
     /**
