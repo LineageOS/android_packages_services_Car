@@ -26,8 +26,9 @@ import android.automotive.computepipe.runner.ProfilingData;
 interface IPipeDebugger {
     /**
      * Set the debug options for a pipe. The profiling options can be an
-     * externsion of the options mentioned here
+     * externsion of the options mentioned here.
      * https://mediapipe.readthedocs.io/en/latest/measure_performance.html
+     * This should be done prior to the applyPipeConfigs() call.
      *
      * @param type: The type of profiling a client wants to enable
      */
@@ -35,7 +36,7 @@ interface IPipeDebugger {
 
     /**
      * Start the profiling for the mediapipe graph.
-     * This can be done at any point of a funtional pipe state, RESET, RUNNING, CONFIG_DONE
+     * This should be issued after the pipe has transitioned to the PipeState::RUNNING
      *
      * @param out if starting profiling was successful it returns binder::Status::OK
      */
@@ -43,7 +44,7 @@ interface IPipeDebugger {
 
     /**
      * Stop the profiling for the mediapipe graph.
-     * This can be done at any point of a funtional pipe state, RUNNING, CONFIG_DONE
+     * This can be done at any point of after a pipe is in RUNNING state.
      *
      * @param out if stoping profiling was successful, it returns binder::Status::OK
      */
@@ -51,13 +52,14 @@ interface IPipeDebugger {
 
     /**
      * Retrieve the profiling information
-     * This can be done at any point a pipe is RUNNING.
+     * This can be done after a stopPipeProfiling() call or if a PipeState::DONE
+     * notification has been received.
+     *
      * This is a polling api, If the pipe crashes, any calls to this api will fail.
      * It blocks until profiling information is available.
      * It returns the profiling data associated with the profiling options
-     * chosen by setPipeProfileOptions().
-     *
-     * collected while graph was executing.
+     * chosen by setPipe*().
+     * The profiling data is not retained after a call to resetPipeConfigs().
      */
     ProfilingData getPipeProfilingInfo();
 

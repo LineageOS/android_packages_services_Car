@@ -22,10 +22,9 @@ import android.automotive.computepipe.runner.IPipeRunner;
  */
 @VintfStability
 interface IPipeRegistration {
-    // Ignoring result android.automotive.computepipe.void status since AIDL has built in status types.
     /**
      * Returns a successful registration
-     * A runner will reigster itself as supporting a graph only once.
+     * A runner will register itself as supporting a graph only once.
      *
      * @param graphName: Graph id for which runner and debugger are registered
      * @param runner: Graph runner for associated graph.
