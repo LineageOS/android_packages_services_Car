@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "ClientConfig.pb.h"
+#include "InputFrame.h"
 #include "RunnerComponent.h"
 #include "prebuilt_interface.h"
 #include "types/Status.h"
@@ -295,8 +296,7 @@ Status PrebuiltGraph::SetInputStreamData(int streamIndex, int64_t timestamp,
 }
 
 Status PrebuiltGraph::SetInputStreamPixelData(int streamIndex, int64_t timestamp,
-                                              const uint8_t* pixels, int width, int height,
-                                              int step, PixelFormat format) {
+                                              const runner::InputFrame& inputFrame) {
     if (mGraphState.load() == PrebuiltGraphState::UNINITIALIZED) {
         return Status::ILLEGAL_STATE;
     }
@@ -305,8 +305,10 @@ Status PrebuiltGraph::SetInputStreamPixelData(int streamIndex, int64_t timestamp
         int, int64_t, const uint8_t*, int, int, int,
         PrebuiltComputepipeRunner_PixelDataFormat))mFnSetInputStreamPixelData;
     PrebuiltComputepipeRunner_ErrorCode errorCode =
-        mappedFn(streamIndex, timestamp, pixels, width, height, step,
-                 static_cast<PrebuiltComputepipeRunner_PixelDataFormat>(static_cast<int>(format)));
+        mappedFn(streamIndex, timestamp, inputFrame.getFramePtr(), inputFrame.getFrameInfo().width,
+                 inputFrame.getFrameInfo().height, inputFrame.getFrameInfo().stride,
+                 static_cast<PrebuiltComputepipeRunner_PixelDataFormat>(
+                     static_cast<int>(inputFrame.getFrameInfo().format)));
     return static_cast<Status>(static_cast<int>(errorCode));
 }
 
