@@ -21,6 +21,15 @@
 
     <original-package android:name="com.android.experimentalcar"/>
 
+    <!-- Allows an application to get the driver's current distraction level.
+         <p>Protection level: signature|privileged
+    -->
+    <permission
+        android:name="android.car.permission.CAR_DRIVER_DISTRACTION"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_driver_distraction"
+        android:description="@string/car_permission_desc_driver_distraction"/>
+
     <application android:label="@string/app_title"
                  android:directBootAware="true"
                  android:allowBackup="false"

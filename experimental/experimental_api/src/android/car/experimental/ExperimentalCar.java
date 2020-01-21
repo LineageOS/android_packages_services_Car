@@ -41,4 +41,14 @@ public final class ExperimentalCar {
     @ExperimentalFeature
     public static final String DRIVER_DISTRACTION_EXPERIMENTAL_FEATURE_SERVICE =
             "android.car.experimental.driver_distraction_experimental_feature_service";
+
+
+    /**
+     * Permission necessary to observe the driver distraction level through {@link
+     * CarDriverDistractionManager}.
+     *
+     * @hide
+     */
+    public static final String PERMISSION_READ_CAR_DRIVER_DISTRACTION =
+            "android.car.permission.CAR_DRIVER_DISTRACTION";
 }

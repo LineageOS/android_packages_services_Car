@@ -16,17 +16,25 @@
 
 package com.android.experimentalcar;
 
+import android.annotation.FloatRange;
 import android.annotation.Nullable;
 import android.car.experimental.DriverAwarenessEvent;
 import android.car.experimental.DriverAwarenessSupplierConfig;
 import android.car.experimental.DriverAwarenessSupplierService;
+import android.car.experimental.DriverDistractionChangeEvent;
+import android.car.experimental.ExperimentalCar;
 import android.car.experimental.IDriverAwarenessSupplier;
 import android.car.experimental.IDriverAwarenessSupplierCallback;
+import android.car.experimental.IDriverDistractionChangeListener;
+import android.car.experimental.IDriverDistractionManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
@@ -55,12 +63,19 @@ import java.util.TimerTask;
  * TouchDriverAwarenessSupplier} is always set to the fallback implementation - it is configured
  * to send change-events, so its data will not become stale.
  */
-public final class DriverDistractionExperimentalFeatureService implements CarServiceBase {
+public final class DriverDistractionExperimentalFeatureService extends
+        IDriverDistractionManager.Stub implements CarServiceBase {
 
     private static final String TAG = "CAR.DriverDistractionService";
 
     private static final float DEFAULT_AWARENESS_VALUE_FOR_LOG = 1.0f;
+    private static final float DEFAULT_REQUIRED_AWARENESS = 1.0f;
     private static final int MAX_DRIVER_AWARENESS_EVENT_LOG_COUNT = 50;
+    @VisibleForTesting
+    static final float DEFAULT_AWARENESS_PERCENTAGE = 1.0f;
+
+    private final HandlerThread mClientDispatchHandlerThread;
+    private final Handler mClientDispatchHandler;
 
     private final Object mLock = new Object();
 
@@ -104,6 +119,12 @@ public final class DriverDistractionExperimentalFeatureService implements CarSer
             new HashMap<>();
 
     /**
+     * List of clients listening to UX restriction events.
+     */
+    private final RemoteCallbackList<IDriverDistractionChangeListener> mDistractionClients =
+            new RemoteCallbackList<>();
+
+    /**
      * Comparator used to sort {@link #mDriverAwarenessSupplierPriorities}.
      */
     private final Comparator<IDriverAwarenessSupplier> mPrioritizedSuppliersComparator =
@@ -139,6 +160,21 @@ public final class DriverDistractionExperimentalFeatureService implements CarSer
     @GuardedBy("mLock")
     private ITimer mExpiredDriverAwarenessTimer;
 
+    /**
+     * The current, non-stale, driver distraction event. Defaults to 100% awareness.
+     */
+    @GuardedBy("mLock")
+    private DriverDistractionChangeEvent mCurrentDistractionEvent;
+
+    /**
+     * The required driver awareness based on the current driving environment, where 1.0 means that
+     * full awareness is required and 0.0 means than no awareness is required.
+     */
+    // TODO(b/148229726) update required awareness based on drive state
+    @FloatRange(from = 0.0f, to = 1.0f)
+    @GuardedBy("mLock")
+    private float mRequiredAwareness = DEFAULT_REQUIRED_AWARENESS;
+
     private final Context mContext;
     private final ITimeSource mTimeSource;
 
@@ -156,6 +192,13 @@ public final class DriverDistractionExperimentalFeatureService implements CarSer
         mContext = context;
         mTimeSource = timeSource;
         mExpiredDriverAwarenessTimer = timer;
+        mCurrentDistractionEvent = new DriverDistractionChangeEvent.Builder()
+                .setElapsedRealtimeTimestamp(mTimeSource.elapsedRealtime())
+                .setAwarenessPercentage(DEFAULT_AWARENESS_PERCENTAGE)
+                .build();
+        mClientDispatchHandlerThread = new HandlerThread(TAG);
+        mClientDispatchHandlerThread.start();
+        mClientDispatchHandler = new Handler(mClientDispatchHandlerThread.getLooper());
     }
 
     @Override
@@ -183,6 +226,7 @@ public final class DriverDistractionExperimentalFeatureService implements CarSer
     @Override
     public void release() {
         logd("release");
+        mDistractionClients.kill();
         synchronized (mLock) {
             for (ServiceConnection serviceConnection : mServiceConnections) {
                 mContext.unbindService(serviceConnection);
@@ -193,6 +237,7 @@ public final class DriverDistractionExperimentalFeatureService implements CarSer
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*DriverDistractionExperimentalFeatureService*");
+        mDistractionClients.dump(writer, "Distraction Clients ");
         writer.println("Prioritized Driver Awareness Suppliers (highest to lowest priority):");
         synchronized (mLock) {
             for (int i = 0; i < mPrioritizedDriverAwarenessSuppliers.size(); i++) {
@@ -291,6 +336,8 @@ public final class DriverDistractionExperimentalFeatureService implements CarSer
                     awarenessEventWrapper.mAwarenessEvent.getAwarenessValue(),
                     awarenessEventWrapper.mSupplier.getClass().getSimpleName());
         }
+
+        updateCurrentDistractionEventLocked();
     }
 
     /**
@@ -316,6 +363,52 @@ public final class DriverDistractionExperimentalFeatureService implements CarSer
             mPrioritizedDriverAwarenessSuppliers.add(pair.first);
         }
         mPrioritizedDriverAwarenessSuppliers.sort(mPrioritizedSuppliersComparator);
+    }
+
+    @GuardedBy("mLock")
+    private void updateCurrentDistractionEventLocked() {
+        float awarenessPercentage;
+        if (mRequiredAwareness == 0) {
+            // avoid divide by 0 error - awareness percentage should be 100% when required
+            // awareness is 0
+            awarenessPercentage = 1.0f;
+        } else {
+            // Cap awareness percentage at 100%
+            awarenessPercentage = Math.min(
+                    mCurrentDriverAwareness.mAwarenessEvent.getAwarenessValue()
+                            / mRequiredAwareness, 1.0f);
+        }
+        if (Float.compare(mCurrentDistractionEvent.getAwarenessPercentage(), awarenessPercentage)
+                == 0) {
+            // no need to dispatch unless there's a change
+            return;
+        }
+
+        mCurrentDistractionEvent = new DriverDistractionChangeEvent.Builder()
+                .setElapsedRealtimeTimestamp(mTimeSource.elapsedRealtime())
+                .setAwarenessPercentage(awarenessPercentage)
+                .build();
+
+        // TODO(b/148231321) throttle to emit events at most once every 50ms
+        DriverDistractionChangeEvent changeEvent = mCurrentDistractionEvent;
+        mClientDispatchHandler.post(
+                () -> dispatchCurrentDistractionEventToClientsLocked(changeEvent));
+    }
+
+    @GuardedBy("mLock")
+    private void dispatchCurrentDistractionEventToClientsLocked(
+            DriverDistractionChangeEvent changeEvent) {
+        logd("dispatching to clients");
+        int numClients = mDistractionClients.beginBroadcast();
+        for (int i = 0; i < numClients; i++) {
+            IDriverDistractionChangeListener callback = mDistractionClients.getBroadcastItem(i);
+            try {
+                callback.onDriverDistractionChange(changeEvent);
+            } catch (RemoteException ignores) {
+                // ignore
+            }
+        }
+        mDistractionClients.finishBroadcast();
     }
 
     /**
@@ -404,6 +497,7 @@ public final class DriverDistractionExperimentalFeatureService implements CarSer
                 logd("Driver awareness has become stale. Selecting new awareness level.");
                 synchronized (mLock) {
                     updateCurrentAwarenessValueLocked();
+                    updateCurrentDistractionEventLocked();
                 }
             }
         }, delay);
@@ -437,6 +531,48 @@ public final class DriverDistractionExperimentalFeatureService implements CarSer
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, message);
         }
+    }
+
+    @Override
+    public DriverDistractionChangeEvent getLastDistractionEvent() throws RemoteException {
+        IExperimentalCarImpl.assertPermission(mContext,
+                ExperimentalCar.PERMISSION_READ_CAR_DRIVER_DISTRACTION);
+        synchronized (mLock) {
+            return mCurrentDistractionEvent;
+        }
+    }
+
+    @Override
+    public void addDriverDistractionChangeListener(IDriverDistractionChangeListener listener)
+            throws RemoteException {
+        IExperimentalCarImpl.assertPermission(mContext,
+                ExperimentalCar.PERMISSION_READ_CAR_DRIVER_DISTRACTION);
+        if (listener == null) {
+            throw new IllegalArgumentException("IDriverDistractionChangeListener is null");
+        }
+        mDistractionClients.register(listener);
+
+        DriverDistractionChangeEvent changeEvent = mCurrentDistractionEvent;
+        mClientDispatchHandler.post(() -> {
+            try {
+                listener.onDriverDistractionChange(changeEvent);
+            } catch (RemoteException ignores) {
+                // ignore
+            }
+        });
+    }
+
+
+    @Override
+    public void removeDriverDistractionChangeListener(IDriverDistractionChangeListener listener)
+            throws RemoteException {
+        IExperimentalCarImpl.assertPermission(mContext,
+                ExperimentalCar.PERMISSION_READ_CAR_DRIVER_DISTRACTION);
+        if (listener == null) {
+            Log.e(TAG, "unregisterUxRestrictionsChangeListener(): listener null");
+            throw new IllegalArgumentException("Listener is null");
+        }
+        mDistractionClients.unregister(listener);
     }
 
     /**
