@@ -18,6 +18,7 @@
 #define ANDROID_AUTOMOTIVE_COMPUTEPIPE_ROUTER_CLIENT_HANDLE
 
 #include <cstdint>
+#include <string>
 
 namespace android {
 namespace automotive {
@@ -34,7 +35,7 @@ namespace router {
 class ClientHandle {
   public:
     /* Get client identifier as defined by the graph */
-    virtual uint32_t getClientId() = 0;
+    virtual std::string getClientName() = 0;
     /* Is client alive */
     virtual bool isAlive() = 0;
     /* start client monitor */

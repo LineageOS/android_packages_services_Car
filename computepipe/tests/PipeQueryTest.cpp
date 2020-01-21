@@ -41,8 +41,8 @@ using namespace ::testing;
  */
 class FakeClientInfo : public BnClientInfo {
   public:
-    ndk::ScopedAStatus getClientId(int32_t* id) override {
-        *id = 1;
+    ndk::ScopedAStatus getClientName(std::string* name) override {
+        *name = "FakeClient";
         return ndk::ScopedAStatus::ok();
     }
 };
