@@ -18,6 +18,16 @@ PRODUCT_PACKAGES += android.automotive.computepipe.router@1.0-impl
 # Enable computepipe router
 PRODUCT_PACKAGES += android.automotive.computepipe.router@1.0
 
+# Enable computepipe runner engine library
+PRODUCT_PACKAGES += computepipe_runner_engine
+
+# Enable computepipe runner engine client interface library
+PRODUCT_PACKAGES += computepipe_client_interface
+
+# Enable computepipe runner engine prebuilt graph library
+PRODUCT_PACKAGES += computepipe_prebuilt_graph
+
+
 # Selinux public policies for computepipe services
 BOARD_PLAT_PUBLIC_SEPOLICY_DIR += packages/services/Car/computepipe/sepolicy/public
 
