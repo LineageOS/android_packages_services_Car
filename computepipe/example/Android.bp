@@ -67,7 +67,7 @@ cc_prebuilt_library_shared {
             srcs: ["lib_x86_64/libfacegraph.so"],
         },
         android_x86: {
-            srcs: ["lib_x86_64/libfacegraph.so"],
+            srcs: ["lib_x86/libfacegraph.so"],
         },
     },
     shared_libs: [
