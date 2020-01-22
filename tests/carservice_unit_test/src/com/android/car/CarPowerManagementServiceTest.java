@@ -207,8 +207,8 @@ public class CarPowerManagementServiceTest {
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isTrue();
     }
 
-    // TODO(b/147846930) Fix this
-    // @Test
+    @Ignore("Disabled until b/147846930 is fixed")
+    @Test
     public void testShutdown() throws Exception {
         initTest();
 
@@ -308,8 +308,8 @@ public class CarPowerManagementServiceTest {
                 PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
     }
 
-    // TODO(b/147846930) Fix this
-    // @Test
+    @Ignore("Disabled until b/147846930 is fixed")
+    @Test
     public void testSleepImmediately() throws Exception {
         initTest();
 
