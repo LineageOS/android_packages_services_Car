@@ -15,6 +15,11 @@
  */
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.USAGE_ANNOUNCEMENT;
+import static android.media.AudioAttributes.USAGE_EMERGENCY;
+import static android.media.AudioAttributes.USAGE_SAFETY;
+import static android.media.AudioAttributes.USAGE_VEHICLE_STATUS;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
@@ -30,6 +35,7 @@ import android.content.pm.PackageManager;
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
+import android.media.AudioAttributes.AttributeSystemUsage;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioFocusInfo;
@@ -96,6 +102,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private static final String[] AUDIO_CONFIGURATION_PATHS = new String[] {
             "/vendor/etc/car_audio_configuration.xml",
             "/system/etc/car_audio_configuration.xml"
+    };
+
+    private static final @AttributeSystemUsage int[] SYSTEM_USAGES = new int[] {
+            USAGE_EMERGENCY,
+            USAGE_SAFETY,
+            USAGE_VEHICLE_STATUS,
+            USAGE_ANNOUNCEMENT
     };
 
     private final Object mImplLock = new Object();
@@ -217,6 +230,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 boolean storedMasterMute = mCarVolumeSettings.getMasterMute();
                 setMasterMute(storedMasterMute, 0);
             }
+
+            mAudioManager.setSupportedSystemUsages(SYSTEM_USAGES);
         }
     }
 
