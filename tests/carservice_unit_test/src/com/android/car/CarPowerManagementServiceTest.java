@@ -207,7 +207,8 @@ public class CarPowerManagementServiceTest {
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isTrue();
     }
 
-    @Test
+    // TODO(b/147846930) Fix this
+    // @Test
     public void testShutdown() throws Exception {
         initTest();
 
@@ -307,7 +308,8 @@ public class CarPowerManagementServiceTest {
                 PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
     }
 
-    @Test
+    // TODO(b/147846930) Fix this
+    // @Test
     public void testSleepImmediately() throws Exception {
         initTest();
 
