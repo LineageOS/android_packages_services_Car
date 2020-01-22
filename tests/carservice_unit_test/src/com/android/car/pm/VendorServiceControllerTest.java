@@ -39,10 +39,10 @@ import android.os.UserHandle;
 import android.os.UserManager;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.FlakyTest;
 
 import com.android.car.CarLocalServices;
 import com.android.car.user.CarUserService;
+import com.android.internal.annotations.GuardedBy;
 
 import org.junit.After;
 import org.junit.Before;
@@ -138,28 +138,27 @@ public class VendorServiceControllerTest {
     }
 
     @Test
-    @FlakyTest
     public void systemUserUnlocked() {
         mController.init();
         mContext.reset();
 
         // Unlock system user
         mockUserUnlock(UserHandle.USER_SYSTEM, true);
-        runOnMainThread(() -> mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true));
+        runOnMainThreadAndWaitForIdle(() -> mCarUserService.setUserLockStatus(
+                UserHandle.USER_SYSTEM, true));
 
         mContext.assertStartedService(SERVICE_START_SYSTEM_UNLOCKED);
         mContext.verifyNoMoreServiceLaunches();
     }
 
     @Test
-    @FlakyTest
     public void fgUserUnlocked() {
         mController.init();
         mContext.reset();
 
         // Switch user to foreground
         when(ActivityManager.getCurrentUser()).thenReturn(FG_USER_ID);
-        runOnMainThread(() -> mCarUserService.onSwitchUser(FG_USER_ID));
+        runOnMainThreadAndWaitForIdle(() -> mCarUserService.onSwitchUser(FG_USER_ID));
 
         // Expect only services with ASAP trigger to be started
         mContext.assertBoundService(SERVICE_BIND_ALL_USERS_ASAP);
@@ -167,14 +166,16 @@ public class VendorServiceControllerTest {
 
         // Unlock foreground user
         mockUserUnlock(FG_USER_ID, true);
-        runOnMainThread(() -> mCarUserService.setUserLockStatus(FG_USER_ID, true));
+        runOnMainThreadAndWaitForIdle(() -> mCarUserService.setUserLockStatus(FG_USER_ID, true));
 
         mContext.assertBoundService(SERVICE_BIND_FG_USER_UNLOCKED);
         mContext.verifyNoMoreServiceLaunches();
     }
 
-    private void runOnMainThread(Runnable r) {
+    private void runOnMainThreadAndWaitForIdle(Runnable r) {
         Handler.getMain().runWithScissors(r, DEFAULT_TIMEOUT_MS);
+        // Run empty runnable to make sure that all posted handlers are done.
+        Handler.getMain().runWithScissors(() -> { }, DEFAULT_TIMEOUT_MS);
     }
 
     private void mockUserUnlock(int userId, boolean unlock) {
@@ -189,7 +190,11 @@ public class VendorServiceControllerTest {
 
     /** Overrides framework behavior to succeed on binding/starting processes. */
     public class ServiceLauncherContext extends ContextWrapper {
+        private final Object mLock = new Object();
+
+        @GuardedBy("mLock")
         private List<Intent> mBoundIntents = new ArrayList<>();
+        @GuardedBy("mLock")
         private List<Intent> mStartedServicesIntents = new ArrayList<>();
 
         ServiceLauncherContext(Context base) {
@@ -198,14 +203,18 @@ public class VendorServiceControllerTest {
 
         @Override
         public ComponentName startServiceAsUser(Intent service, UserHandle user) {
-            mStartedServicesIntents.add(service);
+            synchronized (mLock) {
+                mStartedServicesIntents.add(service);
+            }
             return service.getComponent();
         }
 
         @Override
         public boolean bindServiceAsUser(Intent service, ServiceConnection conn, int flags,
                 Handler handler, UserHandle user) {
-            mBoundIntents.add(service);
+            synchronized (mLock) {
+                mBoundIntents.add(service);
+            }
             conn.onServiceConnected(service.getComponent(), null);
             return true;
         }
@@ -222,27 +231,35 @@ public class VendorServiceControllerTest {
         }
 
         void assertBoundService(String service) {
-            assertThat(mBoundIntents).hasSize(1);
-            assertThat(mBoundIntents.get(0).getComponent())
-                    .isEqualTo(ComponentName.unflattenFromString(service));
-            mBoundIntents.clear();
+            synchronized (mLock) {
+                assertThat(mBoundIntents).hasSize(1);
+                assertThat(mBoundIntents.get(0).getComponent())
+                        .isEqualTo(ComponentName.unflattenFromString(service));
+                mBoundIntents.clear();
+            }
         }
 
         void assertStartedService(String service) {
-            assertThat(mStartedServicesIntents).hasSize(1);
-            assertThat(mStartedServicesIntents.get(0).getComponent())
-                    .isEqualTo(ComponentName.unflattenFromString(service));
-            mStartedServicesIntents.clear();
+            synchronized (mLock) {
+                assertThat(mStartedServicesIntents).hasSize(1);
+                assertThat(mStartedServicesIntents.get(0).getComponent())
+                        .isEqualTo(ComponentName.unflattenFromString(service));
+                mStartedServicesIntents.clear();
+            }
         }
 
         void verifyNoMoreServiceLaunches() {
-            assertThat(mStartedServicesIntents).isEmpty();
-            assertThat(mBoundIntents).isEmpty();
+            synchronized (mLock) {
+                assertThat(mStartedServicesIntents).isEmpty();
+                assertThat(mBoundIntents).isEmpty();
+            }
         }
 
         void reset() {
-            mStartedServicesIntents.clear();
-            mBoundIntents.clear();
+            synchronized (mLock) {
+                mStartedServicesIntents.clear();
+                mBoundIntents.clear();
+            }
 
         }
 
