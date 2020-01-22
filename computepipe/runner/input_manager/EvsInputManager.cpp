@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "EvsInputManager.h"
 
+#include <chrono>
 #include <map>
 #include <shared_mutex>
 #include <string>
@@ -36,9 +37,13 @@ namespace input_manager {
 void AnalyzeCallback::analyze(const ::android::automotive::evs::support::Frame& frame) {
     std::shared_lock lock(mEngineInterfaceLock);
     if (mInputEngineInterface != nullptr) {
-        InputFrame inputFrame(frame.height, frame.width, PixelFormat::RGB, frame.stride, frame.data,
-                              mFrameDeleter);
-        mInputEngineInterface->dispatchInputFrame(mInputStreamId, inputFrame);
+        auto time_point = std::chrono::system_clock::now();
+        int64_t timestamp = std::chrono::time_point_cast<std::chrono::microseconds>(time_point)
+                                .time_since_epoch()
+                                .count();
+        InputFrame inputFrame(frame.height, frame.width, PixelFormat::RGBA, frame.stride,
+                              frame.data, mFrameDeleter);
+        mInputEngineInterface->dispatchInputFrame(mInputStreamId, timestamp, inputFrame);
     }
 }
 

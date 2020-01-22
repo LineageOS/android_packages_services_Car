@@ -20,6 +20,7 @@
 #include <string>
 
 #include "ClientConfig.pb.h"
+#include "InputFrame.h"
 #include "Options.pb.h"
 #include "PrebuiltEngineInterface.h"
 #include "RunnerComponent.h"
@@ -81,8 +82,8 @@ class PrebuiltGraph : public runner::RunnerComponentInterface {
     Status SetInputStreamData(int streamIndex, int64_t timestamp, const std::string& streamData);
 
     // Sets pixel data to the specified input stream index.
-    Status SetInputStreamPixelData(int streamIndex, int64_t timestamp, const uint8_t* pixels,
-                                   int width, int height, int step, PixelFormat format);
+    Status SetInputStreamPixelData(int streamIndex, int64_t timestamp,
+                                   const runner::InputFrame& inputFrame);
 
     // Collects debugging and profiling information for the graph. The graph
     // needs to be started with debugging enabled in order to get valid info.

@@ -169,25 +169,21 @@ TEST(PrebuiltGraphTest, GraphOperationEndToEndIsSuccessful) {
     functionVisited = graph->GetErrorMessage();
     EXPECT_THAT(functionVisited, HasSubstr("StartGraphExecution"));
 
+    runner::InputFrame inputFrame(0, 0, PixelFormat::RGB, 0, nullptr);
     EXPECT_EQ(graph->SetInputStreamPixelData(
-                  /*streamIndex =*/0, /*timestamp =*/0, /*pixels =*/nullptr,
-                  /*width = */ 0, /*height =*/0, /*step =*/0, PixelFormat::RGB),
+                  /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     EXPECT_EQ(graph->SetInputStreamPixelData(
-                  /*streamIndex =*/0, /*timestamp =*/0, /*pixels =*/nullptr,
-                  /*width = */ 0, /*height =*/0, /*step =*/0, PixelFormat::RGB),
+                  /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     EXPECT_EQ(graph->SetInputStreamPixelData(
-                  /*streamIndex =*/0, /*timestamp =*/0, /*pixels =*/nullptr,
-                  /*width = */ 0, /*height =*/0, /*step =*/0, PixelFormat::RGB),
+                  /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     EXPECT_EQ(graph->SetInputStreamPixelData(
-                  /*streamIndex =*/1, /*timestamp =*/0, /*pixels =*/nullptr,
-                  /*width = */ 0, /*height =*/0, /*step =*/0, PixelFormat::RGB),
+                  /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     EXPECT_EQ(graph->SetInputStreamPixelData(
-                  /*streamIndex =*/1, /*timestamp =*/0, /*pixels =*/nullptr,
-                  /*width = */ 0, /*height =*/0, /*step =*/0, PixelFormat::RGB),
+                  /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     functionVisited = graph->GetErrorMessage();
     EXPECT_THAT(functionVisited, HasSubstr("SetInputStreamPixelData"));

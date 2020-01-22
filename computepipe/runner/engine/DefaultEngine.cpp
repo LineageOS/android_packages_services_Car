@@ -480,7 +480,9 @@ Status DefaultEngine::populateInputManagers(const ClientConfig& config) {
                     std::string source = "InputManager:" + std::to_string(id);
                     this->queueError(source, "", false);
                 },
-                [](int /*streamId */, const InputFrame& /* frame */) { return Status::SUCCESS; });
+                [this](int streamId, int64_t timestamp, const InputFrame& frame) {
+                    return this->mGraph->SetInputStreamPixelData(streamId, timestamp, frame);
+                });
             mInputManagers.emplace(selectedId,
                                    mInputFactory.createInputManager(inputDescriptor, cb));
             if (mInputManagers[selectedId] == nullptr) {
@@ -581,14 +583,16 @@ void DefaultEngine::queueError(std::string source, std::string msg, bool fatal) 
 /**
  * InputCallback implementation
  */
-InputCallback::InputCallback(int id, const std::function<void(int)>&& cb,
-                             const std::function<Status(int, const InputFrame&)>&& packetCb)
+InputCallback::InputCallback(
+    int id, const std::function<void(int)>&& cb,
+    const std::function<Status(int, int64_t timestamp, const InputFrame&)>&& packetCb)
     : mErrorCallback(cb), mPacketHandler(packetCb), mInputId(id) {
 }
 
-Status InputCallback::dispatchInputFrame(int streamId, const InputFrame& frame) {
-    return mPacketHandler(streamId, frame);
+Status InputCallback::dispatchInputFrame(int streamId, int64_t timestamp, const InputFrame& frame) {
+    return mPacketHandler(streamId, timestamp, frame);
 }
+
 void InputCallback::notifyInputError() {
     mErrorCallback(mInputId);
 }

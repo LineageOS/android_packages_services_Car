@@ -307,14 +307,14 @@ class StreamCallback : public stream_manager::StreamEngineInterface {
 class InputCallback : public input_manager::InputEngineInterface {
   public:
     explicit InputCallback(int id, const std::function<void(int)>&& cb,
-                           const std::function<Status(int, const InputFrame&)>&& packetCb);
-    Status dispatchInputFrame(int streamId, const InputFrame& frame) override;
+                           const std::function<Status(int, int64_t, const InputFrame&)>&& packetCb);
+    Status dispatchInputFrame(int streamId, int64_t timestamp, const InputFrame& frame) override;
     void notifyInputError() override;
     ~InputCallback() = default;
 
   private:
     std::function<void(int)> mErrorCallback;
-    std::function<Status(int, const InputFrame&)> mPacketHandler;
+    std::function<Status(int, int64_t, const InputFrame&)> mPacketHandler;
     int mInputId;
 };
 

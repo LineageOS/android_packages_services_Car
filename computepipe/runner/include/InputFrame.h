@@ -73,7 +73,9 @@ struct InputFrame {
      * This is an unsafe method, that a consumer should use to copy the
      * underlying frame data
      */
-    const uint8_t* getFramePtr() const;
+    const uint8_t* getFramePtr() const {
+        return mDataPtr.get();
+    }
     FrameInfo getFrameInfo() const {
         return mInfo;
     }
