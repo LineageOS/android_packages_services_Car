@@ -41,6 +41,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -97,6 +99,8 @@ public class CarUserNoticeServiceTest {
     private MockitoSession mSession;
     private CarUserNoticeService mCarUserNoticeService;
 
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
+
     /**
      * Initialize all of the objects with the @Mock annotation.
      */
@@ -126,8 +130,7 @@ public class CarUserNoticeServiceTest {
         doReturn(mMockAppOpsManager).when(mMockContext).getSystemService(AppOpsManager.class);
         doReturn(mMockPackageManager).when(mMockContext).getPackageManager();
         doReturn(1).when(mMockPackageManager).getPackageUidAsUser(any(), anyInt());
-
-        mCarUserNoticeService = new CarUserNoticeService(mMockContext);
+        mCarUserNoticeService = new CarUserNoticeService(mMockContext, mHandler);
         mCarUserNoticeService.init();
         verify(mMockCarUserService).addUserCallback(mUserCallback.capture());
         verify(mMockContext).registerReceiver(mDisplayBroadcastReceiver.capture(),
@@ -274,7 +277,7 @@ public class CarUserNoticeServiceTest {
     private void sendBroadcast(String action) {
         Intent intent = new Intent();
         intent.setAction(action);
-        mDisplayBroadcastReceiver.getValue().onReceive(mMockContext, intent);
+        mHandler.post(() -> mDisplayBroadcastReceiver.getValue().onReceive(mMockContext, intent));
     }
 
     private void sendPowerStateChange(int state) {
