@@ -57,9 +57,9 @@ class RemoteState {
 
 class ClientInfo : public BnClientInfo {
   public:
-    ndk::ScopedAStatus getClientId(int32_t* _aidl_return) {
+    ndk::ScopedAStatus getClientName(std::string* _aidl_return) override {
         if (_aidl_return) {
-            *_aidl_return = 0;
+            *_aidl_return = "FaceTrackerClient";
             return ndk::ScopedAStatus::ok();
         }
         return ndk::ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED);

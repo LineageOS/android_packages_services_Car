@@ -44,7 +44,7 @@ class PipeClient : public ClientHandle {
     explicit PipeClient(
         const std::shared_ptr<aidl::android::automotive::computepipe::registry::IClientInfo>& info);
     bool startClientMonitor() override;
-    uint32_t getClientId() override;
+    std::string getClientName() override;
     bool isAlive() override;
     ~PipeClient();
 
