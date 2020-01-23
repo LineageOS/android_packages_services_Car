@@ -101,6 +101,7 @@ PRODUCT_PACKAGES += \
     libcar-framework-service-jni \
 
 # System Server components
+# Order is important: if X depends on Y, then Y should precede X on the list.
 PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service
 
 # Boot animation
@@ -184,8 +185,6 @@ PRODUCT_LOCALES := \
     zh_CN zh_HK zh_TW \
     zu_ZA
 
-# should add to BOOT_JARS only once
-ifeq (,$(INCLUDED_ANDROID_CAR_TO_PRODUCT_BOOT_JARS))
 PRODUCT_BOOT_JARS += \
     android.car
 
@@ -197,9 +196,6 @@ PRODUCT_HIDDENAPI_STUBS_SYSTEM := \
 
 PRODUCT_HIDDENAPI_STUBS_TEST := \
     android.car-test-stubs-dex
-
-INCLUDED_ANDROID_CAR_TO_PRODUCT_BOOT_JARS := yes
-endif
 
 # Disable Prime Shader Cache in SurfaceFlinger to make it available faster
 PRODUCT_PROPERTY_OVERRIDES += \
