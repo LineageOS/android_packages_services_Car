@@ -66,6 +66,7 @@ import com.android.car.test.utils.TemporaryDirectory;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -207,6 +208,7 @@ public class CarPowerManagementServiceTest {
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isTrue();
     }
 
+    @Ignore("Disabled until b/147846930 is fixed")
     @Test
     public void testShutdown() throws Exception {
         initTest();
@@ -307,6 +309,7 @@ public class CarPowerManagementServiceTest {
                 PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
     }
 
+    @Ignore("Disabled until b/147846930 is fixed")
     @Test
     public void testSleepImmediately() throws Exception {
         initTest();
