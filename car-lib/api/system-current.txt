@@ -1102,21 +1102,6 @@ package android.car.trust {
 
 }
 
-package android.car.user {
-
-  public final class CarUserManager {
-    method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public int createDriver(@NonNull String, boolean);
-    method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public int createPassenger(@NonNull String, int);
-    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public java.util.List<java.lang.Integer> getAllDrivers();
-    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public java.util.List<java.lang.Integer> getPassengers(int);
-    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean startPassenger(int, int);
-    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean stopPassenger(int);
-    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean switchDriver(int);
-    field public static final int INVALID_USER_ID = -10000; // 0xffffd8f0
-  }
-
-}
-
 package android.car.vms {
 
   public final class VmsAssociatedLayer implements android.os.Parcelable {
