@@ -65,6 +65,7 @@ import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.SystemActivityMonitoringService;
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -90,6 +91,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private static final int LOG_SIZE = 20;
 
     private final Context mContext;
+    private final CarUserService mUserService;
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
     private final PackageManager mPackageManager;
     private final ActivityManager mActivityManager;
@@ -143,8 +145,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private final PackageParsingEventReceiver mPackageParsingEventReceiver =
             new PackageParsingEventReceiver();
-    private final UserSwitchedEventReceiver mUserSwitchedEventReceiver =
-            new UserSwitchedEventReceiver();
 
     // To track if the packages have been parsed for building white/black lists. If we haven't had
     // received any intents (boot complete or package changed), then the white list is null leading
@@ -186,8 +186,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     public CarPackageManagerService(Context context,
             CarUxRestrictionsManagerService uxRestrictionsService,
-            SystemActivityMonitoringService systemActivityMonitoringService) {
+            SystemActivityMonitoringService systemActivityMonitoringService,
+            CarUserService userService) {
         mContext = context;
+        mUserService = userService;
         mCarUxRestrictionsService = uxRestrictionsService;
         mSystemActivityMonitoringService = systemActivityMonitoringService;
         mPackageManager = mContext.getPackageManager();
@@ -407,7 +409,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             mLock.notifyAll();
         }
         mContext.unregisterReceiver(mPackageParsingEventReceiver);
-        mContext.unregisterReceiver(mUserSwitchedEventReceiver);
+        mUserService.removeUserCallback(mUserCallback);
         mSystemActivityMonitoringService.registerActivityLaunchListener(null);
         for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
             UxRestrictionsListener listener = mUxRestrictionsListeners.valueAt(i);
@@ -415,12 +417,24 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
     }
 
+    private final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
+
+        @Override
+        public void onUserLockChanged(int userId, boolean unlocked) {
+            // Do Nothing
+        }
+
+        @Override
+        public void onSwitchUser(int userId) {
+            mHandler.requestParsingInstalledPkgs(0);
+        }
+
+    };
+
     // run from HandlerThread
     private void doHandleInit() {
         startAppBlockingPolicies();
-        IntentFilter intent = new IntentFilter();
-        intent.addAction(Intent.ACTION_USER_SWITCHED);
-        mContext.registerReceiver(mUserSwitchedEventReceiver, intent);
+        mUserService.addUserCallback(mUserCallback);
         IntentFilter pkgParseIntent = new IntentFilter();
         for (String action : mPackageManagerActions) {
             pkgParseIntent.addAction(action);
@@ -666,11 +680,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             Map<String, Set<String>> configWhitelist, Map<String, Set<String>> configBlacklist) {
         HashMap<String, AppBlockingPackageInfoWrapper> activityWhitelist = new HashMap<>();
 
-        List<PackageInfo> packages = mPackageManager.getInstalledPackagesAsUser(
-                PackageManager.GET_SIGNATURES | PackageManager.GET_ACTIVITIES
-                        | PackageManager.MATCH_DIRECT_BOOT_AWARE
-                        | PackageManager.MATCH_DIRECT_BOOT_UNAWARE,
-                userId);
+        List<PackageInfo> packages = mPackageManager
+                .getInstalledPackagesAsUser(PackageManager.GET_SIGNATURES
+                        | PackageManager.GET_ACTIVITIES | PackageManager.MATCH_DIRECT_BOOT_AWARE
+                        | PackageManager.MATCH_DIRECT_BOOT_UNAWARE, userId);
         for (PackageInfo info : packages) {
             if (info.applicationInfo == null) {
                 continue;
@@ -747,9 +760,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     // Some of the activities in this app are Distraction Optimized.
                     if (DBG_POLICY_CHECK) {
                         for (String activity : doActivities) {
-                            Log.d(CarLog.TAG_PACKAGE,
-                                    "adding " + activity + " from " + info.packageName
-                                            + " to whitelist");
+                            Log.d(CarLog.TAG_PACKAGE, "adding " + activity + " from "
+                                    + info.packageName + " to whitelist");
                         }
                     }
                     activities.addAll(Arrays.asList(doActivities));
@@ -1135,7 +1147,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 != PackageManager.SIGNATURE_MATCH) {
             throw new SecurityException(
                     "Caller " + mPackageManager.getNameForUid(Binder.getCallingUid())
-                            + " does not have the right signature");
+                    + " does not have the right signature");
         }
         mCarUxRestrictionsService.setUxRChangeBroadcastEnabled(enable);
     }
@@ -1400,21 +1412,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             // return not restricted.  This maintains parity with previous implementation but needs
             // a revisit as we test more.
             return false;
-        }
-    }
-
-    /**
-     * Listens to the Boot intent to initiate parsing installed packages.
-     */
-    private class UserSwitchedEventReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent == null || intent.getAction() == null) {
-                return;
-            }
-            if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
-                mHandler.requestParsingInstalledPkgs(0);
-            }
         }
     }
 
