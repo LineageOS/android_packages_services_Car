@@ -257,4 +257,7 @@ java_library {
         },
     },
     compile_dex: true,
+    dist: {
+        targets: ["dist_files"],
+    }
 }
