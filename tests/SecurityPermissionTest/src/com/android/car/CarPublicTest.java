@@ -55,11 +55,18 @@ public class CarPublicTest {
         assertThrows(SecurityException.class, () -> mCar.getCarManager(Car.CAR_NAVIGATION_SERVICE));
         assertThrows(SecurityException.class, () -> mCar.getCarManager(
                 Car.CAR_TRUST_AGENT_ENROLLMENT_SERVICE));
-        assertThrows(SecurityException.class, () -> mCar.getCarManager(Car.DIAGNOSTIC_SERVICE));
+        if (mCar.isFeatureEnabled(Car.DIAGNOSTIC_SERVICE)) {
+            assertThrows(SecurityException.class, () -> mCar.getCarManager(Car.DIAGNOSTIC_SERVICE));
+        }
         assertThrows(SecurityException.class, () -> mCar.getCarManager(Car.POWER_SERVICE));
-        assertThrows(SecurityException.class, () -> mCar.getCarManager(Car.VMS_SUBSCRIBER_SERVICE));
+        if (mCar.isFeatureEnabled(Car.VMS_SUBSCRIBER_SERVICE)) {
+            assertThrows(SecurityException.class, () -> mCar.getCarManager(
+                    Car.VMS_SUBSCRIBER_SERVICE));
+        }
         assertThrows(SecurityException.class, () -> mCar.getCarManager(Car.TEST_SERVICE));
-        assertThrows(SecurityException.class, () -> mCar.getCarManager(
-                Car.STORAGE_MONITORING_SERVICE));
+        if (mCar.isFeatureEnabled(Car.STORAGE_MONITORING_SERVICE)) {
+            assertThrows(SecurityException.class, () -> mCar.getCarManager(
+                    Car.STORAGE_MONITORING_SERVICE));
+        }
     }
 }

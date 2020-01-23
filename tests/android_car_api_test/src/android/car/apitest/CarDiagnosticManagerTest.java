@@ -16,6 +16,8 @@
 
 package android.car.apitest;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.car.Car;
 import android.car.diagnostic.CarDiagnosticEvent;
 import android.car.diagnostic.CarDiagnosticManager;
@@ -78,6 +80,7 @@ public class CarDiagnosticManagerTest extends AndroidTestCase {
             InstrumentationRegistry.getInstrumentation().getContext(), mConnectionListener);
         mCar.connect();
         waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
+        assumeTrue(mCar.isFeatureEnabled(Car.DIAGNOSTIC_SERVICE));
         mCarDiagnosticManager = (CarDiagnosticManager) mCar.getCarManager(Car.DIAGNOSTIC_SERVICE);
         assertNotNull(mCarDiagnosticManager);
     }

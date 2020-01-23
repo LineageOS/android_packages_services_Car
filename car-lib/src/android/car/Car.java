@@ -158,6 +158,7 @@ public final class Car {
     /**
      * @hide
      */
+    @OptionalFeature
     @SystemApi
     public static final String DIAGNOSTIC_SERVICE = "diagnostic";
 

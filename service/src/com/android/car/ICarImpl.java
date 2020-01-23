@@ -204,16 +204,28 @@ public class ICarImpl extends ICar.Stub {
         mSystemStateControllerService = new SystemStateControllerService(
                 serviceContext, mCarAudioService, this);
         mCarStatsService = new CarStatsService(serviceContext);
-        mVmsBrokerService = new VmsBrokerService();
-        mVmsClientManager = new VmsClientManager(
-                // CarStatsService needs to be passed to the constructor due to HAL init order
-                serviceContext, mCarStatsService, mCarUserService, mVmsBrokerService,
-                mHal.getVmsHal());
-        mVmsSubscriberService = new VmsSubscriberService(
-                serviceContext, mVmsBrokerService, mVmsClientManager, mHal.getVmsHal());
-        mVmsPublisherService = new VmsPublisherService(
-                serviceContext, mCarStatsService, mVmsBrokerService, mVmsClientManager);
-        mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
+        if (mFeatureController.isFeatureEnabled(Car.VMS_SUBSCRIBER_SERVICE)) {
+            mVmsBrokerService = new VmsBrokerService();
+            mVmsClientManager = new VmsClientManager(
+                    // CarStatsService needs to be passed to the constructor due to HAL init order
+                    serviceContext, mCarStatsService, mCarUserService, mVmsBrokerService,
+                    mHal.getVmsHal());
+            mVmsSubscriberService = new VmsSubscriberService(
+                    serviceContext, mVmsBrokerService, mVmsClientManager, mHal.getVmsHal());
+            mVmsPublisherService = new VmsPublisherService(
+                    serviceContext, mCarStatsService, mVmsBrokerService, mVmsClientManager);
+        } else {
+            mVmsBrokerService = null;
+            mVmsClientManager = null;
+            mVmsSubscriberService = null;
+            mVmsPublisherService = null;
+        }
+        if (mFeatureController.isFeatureEnabled(Car.DIAGNOSTIC_SERVICE)) {
+            mCarDiagnosticService = new CarDiagnosticService(serviceContext,
+                    mHal.getDiagnosticHal());
+        } else {
+            mCarDiagnosticService = null;
+        }
         if (mFeatureController.isFeatureEnabled(Car.STORAGE_MONITORING_SERVICE)) {
             mCarStorageMonitoringService = new CarStorageMonitoringService(serviceContext,
                     systemInterface);
@@ -265,12 +277,12 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mPerUserCarServiceHelper);
         allServices.add(mCarBluetoothService);
         allServices.add(mCarProjectionService);
-        allServices.add(mCarDiagnosticService);
+        addServiceIfNonNull(allServices, mCarDiagnosticService);
         addServiceIfNonNull(allServices, mCarStorageMonitoringService);
         allServices.add(mCarConfigurationService);
-        allServices.add(mVmsClientManager);
-        allServices.add(mVmsSubscriberService);
-        allServices.add(mVmsPublisherService);
+        addServiceIfNonNull(allServices, mVmsClientManager);
+        addServiceIfNonNull(allServices, mVmsSubscriberService);
+        addServiceIfNonNull(allServices, mVmsPublisherService);
         allServices.add(mCarTrustedDeviceService);
         allServices.add(mCarMediaService);
         allServices.add(mCarLocationService);

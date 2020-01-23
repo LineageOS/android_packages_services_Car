@@ -305,7 +305,9 @@
     -->
     <string-array translatable="false" name="config_allowed_optional_car_features">
         <item>com.android.car.user.CarUserNoticeService</item>
+        <item>diagnostic</item>
         <item>storage_monitoring</item>
+        <item>vehicle_map_subscriber_service</item>
     </string-array>
 
     <!-- Configuration to enable passenger support.
