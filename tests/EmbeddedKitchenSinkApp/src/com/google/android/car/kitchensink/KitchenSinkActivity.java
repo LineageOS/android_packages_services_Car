@@ -57,6 +57,7 @@ import com.google.android.car.kitchensink.experimental.ExperimentalFeatureTestFr
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
 import com.google.android.car.kitchensink.notification.NotificationFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
+import com.google.android.car.kitchensink.packageinfo.PackageInfoFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
 import com.google.android.car.kitchensink.projection.ProjectionFragment;
 import com.google.android.car.kitchensink.property.PropertyTestFragment;
@@ -189,7 +190,8 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("volume test", VolumeTestFragment.class),
             new FragmentMenuEntry("vehicle ctrl", VehicleCtrlFragment.class),
             new FragmentMenuEntry("vehicle hal", VehicleHalFragment.class),
-            new FragmentMenuEntry("web links", WebLinksTestFragment.class)
+            new FragmentMenuEntry("web links", WebLinksTestFragment.class),
+            new FragmentMenuEntry("package info", PackageInfoFragment.class)
     );
 
     private Car mCarApi;
