@@ -120,11 +120,11 @@ public final class PackageInfoFragment extends Fragment{
             if (mFilterSharedUid) {
                 if (DEBUG) {
                     Log.d(TAG, "sharedUid flagged: " + (packageInfo.sharedUserId == null
-                                || packageInfo.sharedUserId.equals(SYSTEM_UID)));
+                                || !packageInfo.sharedUserId.equals(SYSTEM_UID)));
                 }
 
                 toBlacklist &= (packageInfo.sharedUserId == null
-                        || packageInfo.sharedUserId.equals(SYSTEM_UID));
+                        || !packageInfo.sharedUserId.equals(SYSTEM_UID));
             }
 
             // check permissions, show package does not require selected permissions
