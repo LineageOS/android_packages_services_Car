@@ -233,7 +233,8 @@ package android.car.cluster.renderer {
   public abstract class InstrumentClusterRenderingService extends android.app.Service {
     ctor public InstrumentClusterRenderingService();
     method @Deprecated @Nullable public android.graphics.Bitmap getBitmap(android.net.Uri);
-    method @Nullable public android.graphics.Bitmap getBitmap(android.net.Uri, int, int);
+    method @Nullable public android.graphics.Bitmap getBitmap(@NonNull android.net.Uri, int, int);
+    method @Nullable public android.graphics.Bitmap getBitmap(@NonNull android.net.Uri, int, int, float);
     method @MainThread @Nullable public abstract android.car.cluster.renderer.NavigationRenderer getNavigationRenderer();
     method @CallSuper public android.os.IBinder onBind(android.content.Intent);
     method @MainThread public void onKeyEvent(@NonNull android.view.KeyEvent);
@@ -815,6 +816,7 @@ package android.car.media {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupMinVolume(int, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupVolume(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupVolume(int, int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<android.media.AudioDeviceInfo> getInputDevicesForZoneId(int);
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.media.AudioDeviceInfo getOutputDeviceForUsage(int, int);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int[] getUsagesForVolumeGroupId(int);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int[] getUsagesForVolumeGroupId(int, int);
@@ -923,6 +925,14 @@ package android.car.projection {
     method @NonNull public android.car.projection.ProjectionStatus.MobileDevice build();
     method @NonNull public android.car.projection.ProjectionStatus.MobileDevice.Builder setExtras(android.os.Bundle);
     method @NonNull public android.car.projection.ProjectionStatus.MobileDevice.Builder setProjecting(boolean);
+  }
+
+}
+
+package android.car.settings {
+
+  public static final class CarSettings.Secure {
+    field public static final String KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL = "android.car.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL";
   }
 
 }
@@ -1089,21 +1099,6 @@ package android.car.trust {
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator CREATOR;
     field public static final String DEFAULT_NAME = "Default";
-  }
-
-}
-
-package android.car.user {
-
-  public final class CarUserManager {
-    method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public int createDriver(@NonNull String, boolean);
-    method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public int createPassenger(@NonNull String, int);
-    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public java.util.List<java.lang.Integer> getAllDrivers();
-    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public java.util.List<java.lang.Integer> getPassengers(int);
-    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean startPassenger(int, int);
-    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean stopPassenger(int);
-    method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public boolean switchDriver(int);
-    field public static final int INVALID_USER_ID = -10000; // 0xffffd8f0
   }
 
 }

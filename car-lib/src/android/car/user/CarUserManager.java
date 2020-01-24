@@ -19,7 +19,6 @@ package android.car.user;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
-import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.CarManagerBase;
@@ -40,7 +39,6 @@ import java.util.List;
  *
  * @hide
  */
-@SystemApi
 public final class CarUserManager extends CarManagerBase {
 
     /* User id representing invalid user */
@@ -49,7 +47,6 @@ public final class CarUserManager extends CarManagerBase {
     private static final String TAG = CarUserManager.class.getSimpleName();
     private final ICarUserService mService;
 
-    /** @hide */
     @VisibleForTesting
     public CarUserManager(Car car, @NonNull IBinder service) {
         super(car);
@@ -63,10 +60,7 @@ public final class CarUserManager extends CarManagerBase {
      * @param admin Whether the created driver will be an admin.
      * @return user id of the created driver, or {@code INVALID_USER_ID} if the driver could
      *         not be created.
-     *
-     * @hide
      */
-    @SystemApi
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @Nullable
     public int createDriver(@NonNull String name, boolean admin) {
@@ -85,10 +79,7 @@ public final class CarUserManager extends CarManagerBase {
      * @param driverId User id of the driver under whom a passenger is created.
      * @return user id of the created passenger, or {@code INVALID_USER_ID} if the passenger
      *         could not be created.
-     *
-     * @hide
      */
-    @SystemApi
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @Nullable
     public int createPassenger(@NonNull String name, @UserIdInt int driverId) {
@@ -105,10 +96,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @param driverId User id of the driver to switch to.
      * @return {@code true} if user switching succeeds, or {@code false} if it fails.
-     *
-     * @hide
      */
-    @SystemApi
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     public boolean switchDriver(@UserIdInt int driverId) {
         try {
@@ -122,10 +110,7 @@ public final class CarUserManager extends CarManagerBase {
      * Returns all drivers who can occupy the driving zone. Guest users are included in the list.
      *
      * @return the list of user ids who can be a driver on the device.
-     *
-     * @hide
      */
-    @SystemApi
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @NonNull
     public List<Integer> getAllDrivers() {
@@ -141,10 +126,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @param driverId User id of a driver.
      * @return the list of user ids who are passengers under the given driver.
-     *
-     * @hide
      */
-    @SystemApi
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @NonNull
     public List<Integer> getPassengers(@UserIdInt int driverId) {
@@ -162,10 +144,7 @@ public final class CarUserManager extends CarManagerBase {
      * @param zoneId Zone id to which the passenger is assigned.
      * @return {@code true} if the user is successfully started or the user is already running.
      *         Otherwise, {@code false}.
-     *
-     * @hide
      */
-    @SystemApi
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     public boolean startPassenger(@UserIdInt int passengerId, int zoneId) {
         try {
@@ -180,10 +159,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @param passengerId User id of the passenger to be stopped.
      * @return {@code true} if successfully stopped, or {@code false} if failed.
-     *
-     * @hide
      */
-    @SystemApi
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     public boolean stopPassenger(@UserIdInt int passengerId) {
         try {
@@ -193,7 +169,6 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
-    /** @hide */
     @Override
     public void onCarDisconnected() {
         // nothing to do

@@ -33,14 +33,13 @@ PipeClient::PipeClient(const std::shared_ptr<IClientInfo>& info)
       mClientInfo(info) {
 }
 
-uint32_t PipeClient::getClientId() {
+std::string PipeClient::getClientName() {
     if (mClientInfo == nullptr) {
         return 0;
     }
-    int id = 0;
-    auto status = mClientInfo->getClientId(&id);
-    uint32_t res = (status.isOk() && id > 0) ? id : 0;
-    return res;
+    std::string name;
+    auto status = mClientInfo->getClientName(&name);
+    return (status.isOk()) ? name : "";
 }
 
 bool PipeClient::startClientMonitor() {

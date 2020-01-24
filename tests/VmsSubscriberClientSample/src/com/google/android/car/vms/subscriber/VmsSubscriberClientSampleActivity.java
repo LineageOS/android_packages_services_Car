@@ -80,6 +80,10 @@ public class VmsSubscriberClientSampleActivity extends Activity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Connected to Car Service");
+            if (!mCarApi.isFeatureEnabled(Car.VMS_SUBSCRIBER_SERVICE)) {
+                Log.e(TAG, "VMS not supported");
+                finish();
+            }
             mVmsSubscriberManager = getVmsSubscriberManager();
             configureSubscriptions(mVmsSubscriberManager);
         }

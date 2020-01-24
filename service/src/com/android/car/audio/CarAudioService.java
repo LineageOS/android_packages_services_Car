@@ -36,6 +36,7 @@ import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeSystemUsage;
+import android.media.AudioDeviceAddress;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioFocusInfo;
@@ -412,10 +413,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 .collect(Collectors.toList());
     }
 
+    private AudioDeviceInfo[] getAllInputDevices() {
+        return mAudioManager.getDevices(
+                AudioManager.GET_DEVICES_INPUTS);
+    }
+
     private CarAudioZone[] loadCarAudioConfiguration(List<CarAudioDeviceInfo> carAudioDeviceInfos) {
+        AudioDeviceInfo[] inputDevices = getAllInputDevices();
         try (InputStream inputStream = new FileInputStream(mCarAudioConfigurationPath)) {
             CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mContext, inputStream,
-                    carAudioDeviceInfos);
+                    carAudioDeviceInfos, inputDevices);
             return zonesHelper.loadAudioZones();
         } catch (IOException | XmlPullParserException e) {
             throw new RuntimeException("Failed to parse audio zone configuration", e);
@@ -1021,6 +1028,21 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 return CarAudioDynamicRouting.DEFAULT_AUDIO_USAGE;
             }
         }
+    }
+
+    /**
+     * Gets the input devices for zone zoneId
+     */
+    public @NonNull List<AudioDeviceAddress> getInputDevicesAddressesForZoneId(int zoneId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        Preconditions.checkArgumentInRange(zoneId, 0, mCarAudioZones.length - 1,
+                "zoneId out of range: " + zoneId);
+        for (CarAudioZone zone : mCarAudioZones) {
+            if (zone.getId() == zoneId) {
+                return zone.getInputAudioDeviceAddresses();
+            }
+        }
+        throw new IllegalArgumentException("zoneId does not exist" + zoneId);
     }
 
     /**

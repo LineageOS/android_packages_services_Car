@@ -16,6 +16,8 @@
 
 package android.car.settings;
 
+import android.annotation.SystemApi;
+
 /**
  * System level car related settings.
  */
@@ -97,7 +99,29 @@ public class CarSettings {
     /**
      * @hide
      */
+    @SystemApi
     public static final class Secure {
+        private Secure() {}
+
+        /**
+         * Key to indicate whether audio focus requests for
+         * {@link android.hardware.automotive.audiocontrol.V1_0.ContextNumber.NAVIGATION} should
+         * be rejected if focus is currently held by
+         * {@link android.hardware.automotive.audiocontrol.V1_0.ContextNumber.CALL}.
+         * <p>The value is a boolean (1 or 0) where:
+         * <ul>
+         * <li>1 indicates {@code NAVIGATION} should be rejected when a {@code CALL} is in progress.
+         * <li>0 indicates {@code NAVIGATION} and {@code CALL} should be allowed to hold focus
+         * concurrently.
+         * </ul>
+         *
+         * <p>Recommended {@code false} as default value.
+         *
+         * @hide
+         */
+        @SystemApi
+        public static final String KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL =
+                "android.car.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL";
 
         /**
          * Key for a list of devices to automatically connect on Bluetooth A2DP Sink profile

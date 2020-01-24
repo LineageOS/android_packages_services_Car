@@ -635,7 +635,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         writer.println("UX Restriction display info:");
         for (int i = mActivityViewDisplayInfoMap.size() - 1; i >= 0; --i) {
             DisplayInfo info = mActivityViewDisplayInfoMap.valueAt(i);
-            writer.printf("Display%d: physicalDisplayId=%d, owner=%s",
+            writer.printf("Display%d: physicalDisplayId=%d, owner=%s\n",
                     mActivityViewDisplayInfoMap.keyAt(i), info.mPhysicalDisplayId, info.mOwner);
         }
     }

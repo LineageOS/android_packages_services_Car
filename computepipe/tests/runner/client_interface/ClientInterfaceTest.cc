@@ -12,19 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
-
 #include <aidl/android/automotive/computepipe/registry/BnClientInfo.h>
 #include <aidl/android/automotive/computepipe/registry/IPipeQuery.h>
 #include <aidl/android/automotive/computepipe/registry/IPipeRegistration.h>
 #include <aidl/android/automotive/computepipe/runner/BnPipeStateCallback.h>
 #include <aidl/android/automotive/computepipe/runner/BnPipeStream.h>
 #include <aidl/android/automotive/computepipe/runner/PipeState.h>
-
 #include <android/binder_manager.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
 #include <utility>
+#include <vector>
 
 #include "ConfigurationCommand.pb.h"
 #include "ControlCommand.pb.h"
@@ -53,16 +52,16 @@ using ::aidl::android::automotive::computepipe::runner::IPipeRunner;
 using ::aidl::android::automotive::computepipe::runner::IPipeStateCallback;
 using ::aidl::android::automotive::computepipe::runner::PacketDescriptor;
 using ::aidl::android::automotive::computepipe::runner::PipeState;
-using ::android::automotive::computepipe::tests::MockMemHandle;
 using ::android::automotive::computepipe::runner::tests::MockRunnerEvent;
+using ::android::automotive::computepipe::tests::MockMemHandle;
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
-using ::testing::AtLeast;
+using ::testing::_;
 using ::testing::AnyNumber;
+using ::testing::AtLeast;
 using ::testing::DoAll;
 using ::testing::Return;
 using ::testing::SaveArg;
-using ::testing::_;
 
 const char kRegistryInterfaceName[] = "router";
 int testIx = 0;
@@ -89,9 +88,9 @@ class StreamCallback : public BnPipeStream {
 
 class ClientInfo : public BnClientInfo {
   public:
-    ScopedAStatus getClientId(int32_t* _aidl_return) {
+    ScopedAStatus getClientName(std::string* _aidl_return) {
         if (_aidl_return) {
-            *_aidl_return = 0;
+            *_aidl_return = "ClientInfo";
             return ScopedAStatus::ok();
         }
         return ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED);
@@ -200,8 +199,7 @@ TEST_F(ClientInterface, TestSetConfigurationError) {
     status = mPipeRunner->setPipeTermination(3);
     EXPECT_EQ(status.getExceptionCode(), EX_TRANSACTION_FAILED);
     EXPECT_EQ(command.has_set_termination_option(), true);
-    EXPECT_EQ(command.set_termination_option().termination_option_id(),
-              3);
+    EXPECT_EQ(command.set_termination_option().termination_option_id(), 3);
 
     // Test that set output callback returns error status.
     std::shared_ptr<StreamCallback> streamCb = ndk::SharedRefBase::make<StreamCallback>();
@@ -209,8 +207,7 @@ TEST_F(ClientInterface, TestSetConfigurationError) {
     EXPECT_EQ(status.getExceptionCode(), EX_TRANSACTION_FAILED);
     EXPECT_EQ(command.has_set_output_stream(), true);
     EXPECT_EQ(command.set_output_stream().stream_id(), 0);
-    EXPECT_EQ(command.set_output_stream().max_inflight_packets_count(),
-              10);
+    EXPECT_EQ(command.set_output_stream().max_inflight_packets_count(), 10);
 
     // Release runner here. This should remove registry entry from router registry.
     mAidlClient.reset();
@@ -309,7 +306,7 @@ TEST_F(ClientInterface, TestStateChangeNotification) {
     EXPECT_TRUE(mPipeRunner->init(stateCallback).isOk());
 
     // Test that config complete status is conveyed to client.
-    std::map<int,int> m;
+    std::map<int, int> m;
     ClientConfig config(0, 0, 0, m);
     config.setPhaseState(TRANSITION_COMPLETE);
     EXPECT_EQ(mAidlClient->handleConfigPhase(config), Status::SUCCESS);
@@ -346,7 +343,7 @@ TEST_F(ClientInterface, TestStateChangeToError) {
     EXPECT_TRUE(mPipeRunner->init(stateCallback).isOk());
 
     // Test that error while applying config is conveyed to client.
-    std::map<int,int> m;
+    std::map<int, int> m;
     ClientConfig config(0, 0, 0, m);
     config.setPhaseState(ABORTED);
     EXPECT_EQ(mAidlClient->handleConfigPhase(config), Status::SUCCESS);
@@ -380,23 +377,21 @@ TEST_F(ClientInterface, TestPacketDelivery) {
     EXPECT_TRUE(mPipeRunner->setPipeOutputConfig(0, 10, streamCb).isOk());
     EXPECT_EQ(command.has_set_output_stream(), true);
     EXPECT_EQ(command.set_output_stream().stream_id(), 0);
-    EXPECT_EQ(command.set_output_stream().max_inflight_packets_count(),
-              10);
+    EXPECT_EQ(command.set_output_stream().max_inflight_packets_count(), 10);
 
     // Send a packet to client and verify the packet.
     std::shared_ptr<MockMemHandle> packet = std::make_unique<MockMemHandle>();
     uint64_t timestamp = 100;
     const std::string testData = "Test String.";
-    EXPECT_CALL(*packet, getType()).Times(AtLeast(1))
+    EXPECT_CALL(*packet, getType())
+        .Times(AtLeast(1))
         .WillRepeatedly(Return(proto::PacketType::SEMANTIC_DATA));
-    EXPECT_CALL(*packet, getTimeStamp()).Times(AtLeast(1))
-        .WillRepeatedly(Return(timestamp));
-    EXPECT_CALL(*packet, getSize()).Times(AtLeast(1))
-        .WillRepeatedly(Return(testData.size()));
-    EXPECT_CALL(*packet, getData()).Times(AtLeast(1))
-        .WillRepeatedly(Return(testData.c_str()));
-    EXPECT_EQ(mAidlClient->dispatchPacketToClient(
-        0, static_cast<std::shared_ptr<MemHandle>>(packet)), Status::SUCCESS);
+    EXPECT_CALL(*packet, getTimeStamp()).Times(AtLeast(1)).WillRepeatedly(Return(timestamp));
+    EXPECT_CALL(*packet, getSize()).Times(AtLeast(1)).WillRepeatedly(Return(testData.size()));
+    EXPECT_CALL(*packet, getData()).Times(AtLeast(1)).WillRepeatedly(Return(testData.c_str()));
+    EXPECT_EQ(
+        mAidlClient->dispatchPacketToClient(0, static_cast<std::shared_ptr<MemHandle>>(packet)),
+        Status::SUCCESS);
     EXPECT_EQ(streamCb->data, packet->getData());
     EXPECT_EQ(streamCb->timestamp, packet->getTimeStamp());
 }

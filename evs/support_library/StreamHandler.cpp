@@ -275,7 +275,6 @@ bool StreamHandler::processFrame(const BufferDesc& input,
         output.usage = input.usage;
         output.stride = input.stride;
         output.pixelSize = input.pixelSize;
-        output.bufferId = input.bufferId;
 
         // free the allocated output frame handle if it is not null
         if (output.memHandle.getNativeHandle() != nullptr) {
@@ -287,6 +286,7 @@ bool StreamHandler::processFrame(const BufferDesc& input,
             return false;
         }
     }
+    output.bufferId = input.bufferId;
 
     // Create a GraphicBuffer from the existing handle
     sp<GraphicBuffer> inputBuffer = new GraphicBuffer(

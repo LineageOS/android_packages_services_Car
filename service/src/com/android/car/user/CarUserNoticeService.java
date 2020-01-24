@@ -48,6 +48,8 @@ import android.util.Log;
 import android.view.IWindowManager;
 import android.view.WindowManagerGlobal;
 
+import androidx.annotation.VisibleForTesting;
+
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceBase;
 import com.android.car.R;
@@ -78,7 +80,7 @@ public final class CarUserNoticeService implements CarServiceBase {
     @Nullable
     private final Intent mServiceIntent;
 
-    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    private final Handler mMainHandler;
 
     private final Object mLock = new Object();
 
@@ -203,6 +205,12 @@ public final class CarUserNoticeService implements CarServiceBase {
     };
 
     public CarUserNoticeService(Context context) {
+        this(context, new Handler(Looper.getMainLooper()));
+    }
+
+    @VisibleForTesting
+    CarUserNoticeService(Context context, Handler handler) {
+        mMainHandler = handler;
         Resources res = context.getResources();
         String componentName = res.getString(R.string.config_userNoticeUiService);
         if (componentName.isEmpty()) {

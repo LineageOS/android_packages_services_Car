@@ -49,7 +49,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class DiagnosticHalService extends  HalServiceBase{
     static final int OBD2_SELECTIVE_FRAME_CLEAR = 1;
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
     private final Object mLock = new Object();
     private final VehicleHal mVehicleHal;
 
