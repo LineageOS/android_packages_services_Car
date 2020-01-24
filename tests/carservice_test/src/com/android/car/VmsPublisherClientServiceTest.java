@@ -27,7 +27,6 @@ import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import org.junit.Test;
@@ -47,8 +46,7 @@ public class VmsPublisherClientServiceTest extends MockedVmsTestBase {
     public static final byte[] PAYLOAD = new byte[]{1, 1, 2, 3, 5, 8, 13};
 
     @Test
-    @FlakyTest
-    public void testPublish() throws Exception {
+    public void testPublish() {
         MockHalClient client = getMockHalClient();
         client.sendMessage(
                 VmsMessageType.SUBSCRIBE,
@@ -56,6 +54,7 @@ public class VmsPublisherClientServiceTest extends MockedVmsTestBase {
                 MOCK_PUBLISHER_LAYER_SUBTYPE,
                 MOCK_PUBLISHER_LAYER_VERSION);
 
+        getMockPublisherClient().receiveSubscriptionState(); // Wait for subscription to propagate
         getMockPublisherClient().publish(MOCK_PUBLISHER_LAYER, MOCK_PUBLISHER_ID, PAYLOAD);
 
         VehiclePropValue message;
