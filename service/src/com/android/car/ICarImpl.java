@@ -204,6 +204,7 @@ public class ICarImpl extends ICar.Stub {
         mSystemStateControllerService = new SystemStateControllerService(
                 serviceContext, mCarAudioService, this);
         mCarStatsService = new CarStatsService(serviceContext);
+        mCarStatsService.init();
         if (mFeatureController.isFeatureEnabled(Car.VMS_SUBSCRIBER_SERVICE)) {
             mVmsBrokerService = new VmsBrokerService();
             mVmsClientManager = new VmsClientManager(
@@ -516,10 +517,6 @@ public class ICarImpl extends ICar.Stub {
                         serviceName);
                 return null;
         }
-    }
-
-    CarStatsService getStatsService() {
-        return mCarStatsService;
     }
 
     public static void assertVehicleHalMockPermission(Context context) {
