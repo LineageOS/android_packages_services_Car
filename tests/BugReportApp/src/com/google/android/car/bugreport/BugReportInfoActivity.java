@@ -41,6 +41,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -50,6 +51,9 @@ import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Provides an activity that provides information on the bugreports that are filed.
@@ -259,19 +263,52 @@ public class BugReportInfoActivity extends Activity {
                 copyFileToUsb(
                         new File(mBugReport.getFilePath()).getName(), sourceUri, parentDocumentUri);
             } else {
-                Uri sourceBugReport = BugStorageProvider.buildUriWithSegment(
-                        mBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_BUGREPORT_FILE);
-                copyFileToUsb(
-                        mBugReport.getBugReportFileName(), sourceBugReport, parentDocumentUri);
-                Uri sourceAudio = BugStorageProvider.buildUriWithSegment(
-                        mBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_AUDIO_FILE);
-                copyFileToUsb(mBugReport.getAudioFileName(), sourceAudio, parentDocumentUri);
+                mergeFilesAndCopyToUsb(parentDocumentUri);
             }
             Log.d(TAG, "Deleting local bug report files.");
             BugStorageUtils.deleteBugReportFiles(mActivity, mBugReport.getId());
             return BugStorageUtils.setBugReportStatus(mActivity, mBugReport,
                     com.google.android.car.bugreport.Status.STATUS_MOVE_SUCCESSFUL,
                     "Moved to: " + mDestinationDirUri.getPath());
+        }
+
+        private void mergeFilesAndCopyToUsb(Uri parentDocumentUri) throws IOException {
+            Uri sourceBugReport = BugStorageProvider.buildUriWithSegment(
+                    mBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_BUGREPORT_FILE);
+            Uri sourceAudio = BugStorageProvider.buildUriWithSegment(
+                    mBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_AUDIO_FILE);
+            String mimeType = mResolver.getType(sourceBugReport); // It's a zip file.
+            Uri newFileUri = DocumentsContract.createDocument(
+                    mResolver, parentDocumentUri, mimeType, mBugReport.getBugReportFileName());
+            if (newFileUri == null) {
+                throw new IOException(
+                        "Unable to create a file " + mBugReport.getBugReportFileName() + " in USB");
+            }
+            try (InputStream bugReportInput = mResolver.openInputStream(sourceBugReport);
+                 AssetFileDescriptor fd = mResolver.openAssetFileDescriptor(newFileUri, "w");
+                 OutputStream outputStream = fd.createOutputStream();
+                 ZipOutputStream zipOutStream =
+                         new ZipOutputStream(new BufferedOutputStream(outputStream))) {
+                // Extract bugreport zip file to the final zip file in USB drive.
+                ZipInputStream zipInStream = new ZipInputStream(bugReportInput);
+                ZipEntry entry;
+                while ((entry = zipInStream.getNextEntry()) != null) {
+                    ZipUtils.writeInputStreamToZipStream(
+                            entry.getName(), zipInStream, zipOutStream);
+                }
+                // Add audio file to the final zip file.
+                if (!Strings.isNullOrEmpty(mBugReport.getAudioFileName())) {
+                    try (InputStream audioInput = mResolver.openInputStream(sourceAudio)) {
+                        ZipUtils.writeInputStreamToZipStream(
+                                mBugReport.getAudioFileName(), audioInput, zipOutStream);
+                    }
+                }
+            }
+            try (AssetFileDescriptor fd = mResolver.openAssetFileDescriptor(newFileUri, "w")) {
+                // Force sync the written data from memory to the disk.
+                fd.getFileDescriptor().sync();
+            }
+            Log.d(TAG, "Writing to " + newFileUri + " finished");
         }
 
         private void copyFileToUsb(String filename, Uri sourceUri, Uri parentDocumentUri)
