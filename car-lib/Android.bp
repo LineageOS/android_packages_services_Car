@@ -311,6 +311,9 @@ java_library {
         },
     },
     compile_dex: true,
+    dist: {
+        targets: ["dist_files"],
+    }
 }
 
 // Export the api/system-current.txt file.

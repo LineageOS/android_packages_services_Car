@@ -34,7 +34,8 @@ import android.car.testapi.CarProjectionController;
 import android.car.testapi.FakeCar;
 import android.content.Context;
 import android.content.Intent;
-import android.net.wifi.WifiConfiguration;
+import android.net.MacAddress;
+import android.net.wifi.SoftApConfiguration;
 import android.util.ArraySet;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -93,7 +94,7 @@ public class CarProjectionManagerTest {
 
     @Test
     public void startAp_fail() throws InterruptedException {
-        mController.setWifiConfiguration(null);
+        mController.setSoftApConfiguration(null);
 
         mProjectionManager.startProjectionAccessPoint(mApCallback);
         mApCallback.mFailed.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
@@ -102,16 +103,16 @@ public class CarProjectionManagerTest {
 
     @Test
     public void startAp_success() throws InterruptedException {
-        WifiConfiguration wifiConfiguration = new WifiConfiguration();
-        wifiConfiguration.SSID = "Hello";
-        wifiConfiguration.BSSID = "AA:BB:CC:CC:DD:EE";
-        wifiConfiguration.preSharedKey = "password";
-
-        mController.setWifiConfiguration(wifiConfiguration);
+        SoftApConfiguration config = new SoftApConfiguration.Builder()
+                .setSsid("Hello")
+                .setBssid(MacAddress.fromString("AA:BB:CC:CC:DD:EE"))
+                .setPassphrase("password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+                .build();
+        mController.setSoftApConfiguration(config);
 
         mProjectionManager.startProjectionAccessPoint(mApCallback);
         mApCallback.mStarted.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertThat(mApCallback.mWifiConfiguration).isEqualTo(wifiConfiguration);
+        assertThat(mApCallback.mSoftApConfiguration).isEqualTo(config);
     }
 
     @Test
@@ -258,11 +259,11 @@ public class CarProjectionManagerTest {
         CountDownLatch mStarted = new CountDownLatch(1);
         CountDownLatch mFailed = new CountDownLatch(1);
         int mFailureReason = -1;
-        WifiConfiguration mWifiConfiguration;
+        SoftApConfiguration mSoftApConfiguration;
 
         @Override
-        public void onStarted(WifiConfiguration wifiConfiguration) {
-            mWifiConfiguration = wifiConfiguration;
+        public void onStarted(SoftApConfiguration softApConfiguration) {
+            mSoftApConfiguration = softApConfiguration;
             mStarted.countDown();
         }
 

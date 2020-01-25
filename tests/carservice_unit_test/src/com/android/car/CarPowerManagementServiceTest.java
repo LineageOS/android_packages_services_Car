@@ -67,7 +67,6 @@ import com.android.car.test.utils.TemporaryDirectory;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -76,6 +75,7 @@ import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoSession;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.quality.Strictness;
 
@@ -128,7 +128,7 @@ public class CarPowerManagementServiceTest {
 
     // Tracks Log.wtf() calls made during code execution / used on verifyWtfNeverLogged()
     // TODO: move mechanism to common code / custom Rule
-    private final List<Exception> mWtfs = new ArrayList<>();
+    private final List<UnsupportedOperationException> mWtfs = new ArrayList<>();
 
     @Rule
     public final TestRule setWakeupTimeRule = new TestWatcher() {
@@ -162,10 +162,10 @@ public class CarPowerManagementServiceTest {
             .withWakeLockInterface(mWakeLockInterface)
             .withIOInterface(mIOInterface).build();
         doAnswer((invocation) -> {
-            mWtfs.add(new UnsupportedOperationException("Called " + invocation)); return null;
+            return addWtf(invocation);
         }).when(() -> Log.wtf(anyString(), anyString()));
         doAnswer((invocation) -> {
-            mWtfs.add(new UnsupportedOperationException("Called " + invocation)); return null;
+            return addWtf(invocation);
         }).when(() -> Log.wtf(anyString(), anyString(), notNull()));
     }
 
@@ -176,6 +176,14 @@ public class CarPowerManagementServiceTest {
         }
         mIOInterface.tearDown();
         mSession.finishMocking();
+    }
+
+
+    private Object addWtf(InvocationOnMock invocation) {
+        String message = "Called " + invocation;
+        Log.d(TAG, message); // Log always, as some test expect it
+        mWtfs.add(new UnsupportedOperationException(message));
+        return null;
     }
 
     /**
@@ -204,6 +212,16 @@ public class CarPowerManagementServiceTest {
         assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);
     }
 
+    /**
+     * Same as {@link #initTest()}, but it also assumes the current and initial users are user 10.
+     */
+    private void initTestForUser10() throws Exception {
+        initTest();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setCurrentUser(10);
+        setInitialUser(10);
+    }
+
     @Test
     public void testBootComplete() throws Exception {
         initTest();
@@ -226,10 +244,9 @@ public class CarPowerManagementServiceTest {
         verifyWtfNeverLogged();
     }
 
-    @Ignore("Disabled until b/147846930 is fixed")
     @Test
     public void testShutdown() throws Exception {
-        initTest();
+        initTestForUser10();
 
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
@@ -251,7 +268,7 @@ public class CarPowerManagementServiceTest {
 
     @Test
     public void testSuspend() throws Exception {
-        initTest();
+        initTestForUser10();
 
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
@@ -270,7 +287,7 @@ public class CarPowerManagementServiceTest {
 
     @Test
     public void testShutdownOnSuspend() throws Exception {
-        initTest();
+        initTestForUser10();
 
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
@@ -307,7 +324,7 @@ public class CarPowerManagementServiceTest {
 
     @Test
     public void testShutdownCancel() throws Exception {
-        initTest();
+        initTestForUser10();
 
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
@@ -333,10 +350,9 @@ public class CarPowerManagementServiceTest {
         verifyWtfNeverLogged();
     }
 
-    @Ignore("Disabled until b/147846930 is fixed")
     @Test
     public void testSleepImmediately() throws Exception {
-        initTest();
+        initTestForUser10();
 
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
@@ -359,7 +375,7 @@ public class CarPowerManagementServiceTest {
     @WakeupTime(100)
     @FlakyTest
     public void testShutdownWithProcessing() throws Exception {
-        initTest();
+        initTestForUser10();
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE, 0));
         assertStateReceivedForShutdownOrSleepWithPostpone(
                 PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
@@ -474,7 +490,7 @@ public class CarPowerManagementServiceTest {
 
         verifyUserNotSwitched();
         verifyUserNotRemoved(10);
-        verifyWtfNeverLogged();
+        // expects WTF
     }
 
     @Test
@@ -517,7 +533,7 @@ public class CarPowerManagementServiceTest {
         suspendAndResumeForUserSwitchingTests();
 
         verifyUserNotSwitched();
-        verifyWtfNeverLogged();
+        // expects WTF
     }
 
     @Test
@@ -578,7 +594,7 @@ public class CarPowerManagementServiceTest {
 
         verifyUserRemoved(10);
         verifyUserSwitched(11);
-
+        verifyWtfNeverLogged();
     }
 
     @Test
@@ -613,7 +629,7 @@ public class CarPowerManagementServiceTest {
 
         verifyUserNotSwitched();
         verifyUserNotRemoved(10);
-        verifyWtfNeverLogged();
+        // expects WTF
     }
 
     @Test
@@ -660,7 +676,7 @@ public class CarPowerManagementServiceTest {
         suspendAndResumeForUserSwitchingTests();
 
         verifyUserNotSwitched();
-        verifyWtfNeverLogged();
+        // expects WTF
     }
 
     private void suspendAndResumeForUserSwitchingTests() throws Exception {
@@ -749,15 +765,18 @@ public class CarPowerManagementServiceTest {
     // TODO: should be part of @After, but then it would hide the real test failure (if any). We'd
     // need a custom rule (like CTS's SafeCleaner) for it...
     private void verifyWtfNeverLogged() {
-        if (mWtfs.isEmpty()) return;
         int size = mWtfs.size();
-        StringBuilder msg = new StringBuilder("wtf called ").append(size).append(" times")
-                .append(": ").append(mWtfs);
-        if (true) { // TODO(b/147846930): remove
-            Log.w(TAG, msg.toString());
-            return;
+
+        switch (size) {
+            case 0:
+                return;
+            case 1:
+                throw mWtfs.get(0);
+            default:
+                StringBuilder msg = new StringBuilder("wtf called ").append(size).append(" times")
+                        .append(": ").append(mWtfs);
+                fail(msg.toString());
         }
-        fail(msg.toString());
     }
 
     private static void waitForSemaphore(Semaphore semaphore, long timeoutMs)

@@ -99,7 +99,6 @@ public class CarService extends Service {
         linkToDeath(mVehicle, mVehicleDeathRecipient);
 
         ServiceManager.addService("car_service", mICarImpl);
-        ServiceManager.addService("car_stats", mICarImpl.getStatsService());
         SystemProperties.set("boot.car_service_created", "1");
         super.onCreate();
     }

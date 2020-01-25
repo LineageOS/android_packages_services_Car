@@ -178,6 +178,14 @@
     <string name="sw_center" translatable="false">Center</string>
     <string name="sw_back" translatable="false">Back</string>
 
+    <!-- package info test -->
+    <string name="select_user" translatable="false">Select user</string>
+    <string name="checkbox_activities" translatable="false">contains only activities</string>
+    <string name="checkbox_services" translatable="false">services are not exported</string>
+    <string name="checkbox_permissions" translatable="false"> does not require selected permissions</string>
+    <string name="checkbox_shareduid" translatable="false">sharedUserId is not system</string>
+    <string name="button_show" translatable="false">Show</string>
+
     <!-- power test -->
     <string name="power_request_shutdown" translatable="false">Request Shutdown</string>
     <string name="power_shutdown" translatable="false">Shutdown</string>
