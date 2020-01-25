@@ -221,6 +221,18 @@ void WatchdogProcessService::doHealthCheck(int what) {
     }
 }
 
+void WatchdogProcessService::terminate() {
+    Mutex::Autolock lock(mMutex);
+    for (const auto& timeout : kTimeouts) {
+        std::vector<ClientInfo>& clients = mClients[timeout];
+        for (auto it = clients.begin(); it != clients.end();) {
+            sp<IBinder> binder = asBinder((*it).client);
+            binder->unlinkToDeath(this);
+            it = clients.erase(it);
+        }
+    }
+}
+
 void WatchdogProcessService::binderDied(const wp<IBinder>& who) {
     Mutex::Autolock lock(mMutex);
     IBinder* binder = who.unsafe_get();
