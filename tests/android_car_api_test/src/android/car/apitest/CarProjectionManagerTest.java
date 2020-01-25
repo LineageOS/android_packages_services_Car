@@ -20,7 +20,7 @@ import android.car.Car;
 import android.car.CarProjectionManager;
 import android.car.CarProjectionManager.ProjectionAccessPointCallback;
 import android.content.Intent;
-import android.net.wifi.WifiConfiguration;
+import android.net.wifi.SoftApConfiguration;
 import android.os.Binder;
 import android.os.IBinder;
 import android.test.suitebuilder.annotation.LargeTest;
@@ -124,7 +124,7 @@ public class CarProjectionManagerTest extends CarApiTestBase {
 
         mManager.startProjectionAccessPoint(new ProjectionAccessPointCallback() {
             @Override
-            public void onStarted(WifiConfiguration wifiConfiguration) {
+            public void onStarted(SoftApConfiguration softApConfiguration) {
                 startedLatch.countDown();
             }
         });

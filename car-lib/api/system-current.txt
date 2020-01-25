@@ -107,7 +107,8 @@ package android.car {
   public abstract static class CarProjectionManager.ProjectionAccessPointCallback {
     ctor public CarProjectionManager.ProjectionAccessPointCallback();
     method public void onFailed(int);
-    method public void onStarted(android.net.wifi.WifiConfiguration);
+    method @Deprecated public void onStarted(@Nullable android.net.wifi.WifiConfiguration);
+    method public void onStarted(@NonNull android.net.wifi.SoftApConfiguration);
     method public void onStopped();
     field public static final int ERROR_GENERIC = 2; // 0x2
     field public static final int ERROR_INCOMPATIBLE_MODE = 3; // 0x3
