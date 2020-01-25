@@ -23,6 +23,8 @@ import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.io.PrintWriter;
 
 /**
@@ -39,8 +41,6 @@ import java.io.PrintWriter;
  */
 final class Config {
     private static final String TAG = Config.class.getSimpleName();
-
-    private static final String HAWK = "hawk";
 
     /**
      * Namespace for all Android Automotive related features.
@@ -66,14 +66,12 @@ final class Config {
      */
     private static final String PROP_FORCE_ENABLE = "android.car.bugreport.force_enable";
 
-    /**
-     * Temporary flag to retain the old behavior.
-     *
-     * Default is {@code true}.
-     *
-     * TODO(b/143183993): Disable auto-upload to GCS after testing DeviceConfig.
+    /*
+     * Enable uploading new bugreports to GCS for these devices. If the device is not in this list,
+     * {@link #KEY_UPLOAD_DESTINATION} flag will be used instead.
      */
-    private static final String ENABLE_AUTO_UPLOAD = "android.car.bugreport.enableautoupload";
+    private static final ImmutableSet<String> ENABLE_FORCE_UPLOAD_TO_GCS_FOR_DEVICES =
+            ImmutableSet.of("hawk");
 
     private final Object mLock = new Object();
 
@@ -99,10 +97,6 @@ final class Config {
 
     /** If new bugreports should be scheduled for uploading. */
     boolean getAutoUpload() {
-        if (isTempForceAutoUploadGcsEnabled()) {
-            Log.d(TAG, "Enabling auto-upload because ENABLE_AUTO_UPLOAD is true");
-            return true;
-        }
         // TODO(b/144851443): Enable auto-upload only if upload destination is Gcs until
         //                    we create a way to allow implementing OEMs custom upload logic.
         return isUploadDestinationGcs();
@@ -111,22 +105,17 @@ final class Config {
     /**
      * Returns {@link true} if bugreport upload destination is GCS.
      */
-    boolean isUploadDestinationGcs() {
+    private boolean isUploadDestinationGcs() {
         if (isTempForceAutoUploadGcsEnabled()) {
             Log.d(TAG, "Setting upload dest to GCS ENABLE_AUTO_UPLOAD is true");
             return true;
         }
-        // TODO(b/146214182): Enable uploading to GCS if the device is hawk.
-        if (HAWK.equals(Build.DEVICE) && Build.IS_DEBUGGABLE) {
-            return true;
-        }
-        // NOTE: enable it only for userdebug builds, unless it's force enabled using a system
-        //       property.
+        // NOTE: enable it only for userdebug/eng builds.
         return UPLOAD_DESTINATION_GCS.equals(getUploadDestination()) && Build.IS_DEBUGGABLE;
     }
 
     private static boolean isTempForceAutoUploadGcsEnabled() {
-        return SystemProperties.getBoolean(ENABLE_AUTO_UPLOAD, /* def= */ true);
+        return ENABLE_FORCE_UPLOAD_TO_GCS_FOR_DEVICES.contains(Build.DEVICE);
     }
 
     /**
