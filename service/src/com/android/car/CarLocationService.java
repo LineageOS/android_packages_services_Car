@@ -62,13 +62,26 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         CarPowerStateListenerWithCompletion {
     private static final String TAG = "CarLocationService";
     private static final String FILENAME = "location_cache.json";
-    private static final boolean DBG = true;
     // The accuracy for the stored timestamp
     private static final long GRANULARITY_ONE_DAY_MS = 24 * 60 * 60 * 1000L;
     // The time-to-live for the cached location
     private static final long TTL_THIRTY_DAYS_MS = 30 * GRANULARITY_ONE_DAY_MS;
     // The maximum number of times to try injecting a location
     private static final int MAX_LOCATION_INJECTION_ATTEMPTS = 10;
+
+    // Constants for location serialization.
+    private static final String PROVIDER = "provider";
+    private static final String LATITUDE = "latitude";
+    private static final String LONGITUDE = "longitude";
+    private static final String ALTITUDE = "altitude";
+    private static final String SPEED = "speed";
+    private static final String BEARING = "bearing";
+    private static final String ACCURACY = "accuracy";
+    private static final String VERTICAL_ACCURACY = "verticalAccuracy";
+    private static final String SPEED_ACCURACY = "speedAccuracy";
+    private static final String BEARING_ACCURACY = "bearingAccuracy";
+    private static final String IS_FROM_MOCK_PROVIDER = "isFromMockProvider";
+    private static final String CAPTURE_TIME = "captureTime";
 
     // Used internally for mHandlerThread synchronization
     private final Object mLock = new Object();
@@ -106,7 +119,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                         }
                     }
                     int currentUser = ActivityManager.getCurrentUser();
-                    logd("Current user: " + currentUser);
+                    logd("Current user: %s", currentUser);
                     if (UserManager.isHeadlessSystemUserMode()
                             && currentUser > UserHandle.USER_SYSTEM) {
                         asyncOperation(() -> loadLocation());
@@ -134,7 +147,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
             new ICarDrivingStateChangeListener.Stub() {
                 @Override
                 public void onDrivingStateChanged(CarDrivingStateEvent event) {
-                    logd("onDrivingStateChanged " + event);
+                    logd("onDrivingStateChanged: %s", event);
                     if (event != null
                             && event.eventValue == CarDrivingStateEvent.DRIVING_STATE_MOVING) {
                         deleteCacheFile();
@@ -202,7 +215,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
 
     @Override
     public void onStateChanged(int state, CompletableFuture<Void> future) {
-        logd("onStateChanged: " + state);
+        logd("onStateChanged: %s", state);
         switch (state) {
             case CarPowerStateListener.SHUTDOWN_PREPARE:
                 asyncOperation(() -> {
@@ -240,7 +253,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        logd("onReceive " + intent);
+        logd("onReceive %s", intent);
         // If the system user is headless but the current user is still the system user, then we
         // should not delete the location cache file due to missing location permissions.
         if (isCurrentUserHeadlessSystemUser()) {
@@ -256,7 +269,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
             try {
                 if (action == LocationManager.MODE_CHANGED_ACTION) {
                     boolean locationEnabled = mILocationManagerProxy.isLocationEnabled();
-                    logd("isLocationEnabled(): " + locationEnabled);
+                    logd("isLocationEnabled(): %s", locationEnabled);
                     if (!locationEnabled) {
                         deleteCacheFile();
                     }
@@ -303,39 +316,39 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                 fos = atomicFile.startWrite();
                 try (JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(fos, "UTF-8"))) {
                     jsonWriter.beginObject();
-                    jsonWriter.name("provider").value(location.getProvider());
-                    jsonWriter.name("latitude").value(location.getLatitude());
-                    jsonWriter.name("longitude").value(location.getLongitude());
+                    jsonWriter.name(PROVIDER).value(location.getProvider());
+                    jsonWriter.name(LATITUDE).value(location.getLatitude());
+                    jsonWriter.name(LONGITUDE).value(location.getLongitude());
                     if (location.hasAltitude()) {
-                        jsonWriter.name("altitude").value(location.getAltitude());
+                        jsonWriter.name(ALTITUDE).value(location.getAltitude());
                     }
                     if (location.hasSpeed()) {
-                        jsonWriter.name("speed").value(location.getSpeed());
+                        jsonWriter.name(SPEED).value(location.getSpeed());
                     }
                     if (location.hasBearing()) {
-                        jsonWriter.name("bearing").value(location.getBearing());
+                        jsonWriter.name(BEARING).value(location.getBearing());
                     }
                     if (location.hasAccuracy()) {
-                        jsonWriter.name("accuracy").value(location.getAccuracy());
+                        jsonWriter.name(ACCURACY).value(location.getAccuracy());
                     }
                     if (location.hasVerticalAccuracy()) {
-                        jsonWriter.name("verticalAccuracy").value(
+                        jsonWriter.name(VERTICAL_ACCURACY).value(
                                 location.getVerticalAccuracyMeters());
                     }
                     if (location.hasSpeedAccuracy()) {
-                        jsonWriter.name("speedAccuracy").value(
+                        jsonWriter.name(SPEED_ACCURACY).value(
                                 location.getSpeedAccuracyMetersPerSecond());
                     }
                     if (location.hasBearingAccuracy()) {
-                        jsonWriter.name("bearingAccuracy").value(
+                        jsonWriter.name(BEARING_ACCURACY).value(
                                 location.getBearingAccuracyDegrees());
                     }
                     if (location.isFromMockProvider()) {
-                        jsonWriter.name("isFromMockProvider").value(true);
+                        jsonWriter.name(IS_FROM_MOCK_PROVIDER).value(true);
                     }
                     long currentTime = location.getTime();
                     // Round the time down to only be accurate within one day.
-                    jsonWriter.name("captureTime").value(
+                    jsonWriter.name(CAPTURE_TIME).value(
                             currentTime - currentTime % GRANULARITY_ONE_DAY_MS);
                     jsonWriter.endObject();
                 }
@@ -352,7 +365,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
      */
     private void loadLocation() {
         Location location = readLocationFromCacheFile();
-        logd("Read location from timestamp " + location.getTime());
+        logd("Read location from timestamp %s", location.getTime());
         long currentTime = System.currentTimeMillis();
         if (location.getTime() + TTL_THIRTY_DAYS_MS < currentTime) {
             logd("Location expired.");
@@ -369,43 +382,58 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
 
     private Location readLocationFromCacheFile() {
         Location location = new Location((String) null);
-        AtomicFile atomicFile = new AtomicFile(getLocationCacheFile());
+        File file = getLocationCacheFile();
+        AtomicFile atomicFile = new AtomicFile(file);
         try (FileInputStream fis = atomicFile.openRead()) {
             JsonReader reader = new JsonReader(new InputStreamReader(fis, "UTF-8"));
             reader.beginObject();
             while (reader.hasNext()) {
                 String name = reader.nextName();
-                if (name.equals("provider")) {
-                    location.setProvider(reader.nextString());
-                } else if (name.equals("latitude")) {
-                    location.setLatitude(reader.nextDouble());
-                } else if (name.equals("longitude")) {
-                    location.setLongitude(reader.nextDouble());
-                } else if (name.equals("altitude")) {
-                    location.setAltitude(reader.nextDouble());
-                } else if (name.equals("speed")) {
-                    location.setSpeed((float) reader.nextDouble());
-                } else if (name.equals("bearing")) {
-                    location.setBearing((float) reader.nextDouble());
-                } else if (name.equals("accuracy")) {
-                    location.setAccuracy((float) reader.nextDouble());
-                } else if (name.equals("verticalAccuracy")) {
-                    location.setVerticalAccuracyMeters((float) reader.nextDouble());
-                } else if (name.equals("speedAccuracy")) {
-                    location.setSpeedAccuracyMetersPerSecond((float) reader.nextDouble());
-                } else if (name.equals("bearingAccuracy")) {
-                    location.setBearingAccuracyDegrees((float) reader.nextDouble());
-                } else if (name.equals("isFromMockProvider")) {
-                    location.setIsFromMockProvider(reader.nextBoolean());
-                } else if (name.equals("captureTime")) {
-                    location.setTime(reader.nextLong());
-                } else {
-                    reader.skipValue();
+                switch (name) {
+                    case PROVIDER:
+                        location.setProvider(reader.nextString());
+                        break;
+                    case LATITUDE:
+                        location.setLatitude(reader.nextDouble());
+                        break;
+                    case LONGITUDE:
+                        location.setLongitude(reader.nextDouble());
+                        break;
+                    case ALTITUDE:
+                        location.setAltitude(reader.nextDouble());
+                        break;
+                    case SPEED:
+                        location.setSpeed((float) reader.nextDouble());
+                        break;
+                    case BEARING:
+                        location.setBearing((float) reader.nextDouble());
+                        break;
+                    case ACCURACY:
+                        location.setAccuracy((float) reader.nextDouble());
+                        break;
+                    case VERTICAL_ACCURACY:
+                        location.setVerticalAccuracyMeters((float) reader.nextDouble());
+                        break;
+                    case SPEED_ACCURACY:
+                        location.setSpeedAccuracyMetersPerSecond((float) reader.nextDouble());
+                        break;
+                    case BEARING_ACCURACY:
+                        location.setBearingAccuracyDegrees((float) reader.nextDouble());
+                        break;
+                    case IS_FROM_MOCK_PROVIDER:
+                        location.setIsFromMockProvider(reader.nextBoolean());
+                        break;
+                    case CAPTURE_TIME:
+                        location.setTime(reader.nextLong());
+                        break;
+                    default:
+                        Log.w(TAG, String.format("Unrecognized key: %s", name));
+                        reader.skipValue();
                 }
             }
             reader.endObject();
         } catch (FileNotFoundException e) {
-            Log.d(TAG, "Location cache file not found.");
+            logd("Location cache file not found: %s", file);
         } catch (IOException e) {
             Log.e(TAG, "Unable to read from disk", e);
         } catch (NumberFormatException | IllegalStateException e) {
@@ -415,8 +443,13 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     }
 
     private void deleteCacheFile() {
-        boolean deleted = getLocationCacheFile().delete();
-        logd("Deleted cache file: " + deleted);
+        File file = getLocationCacheFile();
+        boolean deleted = file.delete();
+        if (deleted) {
+            logd("Successfully deleted cache file at %s", file);
+        } else {
+            logd("Failed to delete cache file at %s", file);
+        }
     }
 
     /**
@@ -436,11 +469,11 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                 }
             }
         }
-        logd("Injected location with result " + success + " on attempt "
-                + attemptCount);
         if (success) {
+            logd("Successfully injected stored location on attempt %s.", attemptCount);
             return;
         } else if (attemptCount <= MAX_LOCATION_INJECTION_ATTEMPTS) {
+            logd("Failed to inject stored location on attempt %s.", attemptCount);
             asyncOperation(() -> {
                 injectLocation(location, attemptCount + 1);
             }, 200 * attemptCount);
@@ -451,9 +484,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
 
     private File getLocationCacheFile() {
         SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
-        File file = new File(systemInterface.getSystemCarDir(), FILENAME);
-        logd("File: " + file);
-        return file;
+        return new File(systemInterface.getSystemCarDir(), FILENAME);
     }
 
     @VisibleForTesting
@@ -486,9 +517,8 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         }, delayMillis);
     }
 
-    private static void logd(String msg) {
-        if (DBG) {
-            Log.d(TAG, msg);
-        }
+    private static void logd(String msg, Object... vals) {
+        // Disable logs here if they become too spammy.
+        Log.d(TAG, String.format(msg, vals));
     }
 }
