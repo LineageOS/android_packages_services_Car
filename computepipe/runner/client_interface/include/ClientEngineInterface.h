@@ -45,7 +45,7 @@ class ClientEngineInterface {
     /**
      * Used by client to notify the engine of a consumed packet
      */
-    virtual Status freePacket(const std::shared_ptr<MemHandle>& packet) = 0;
+    virtual Status freePacket(int bufferId, int streamId) = 0;
     virtual ~ClientEngineInterface() = default;
 };
 

@@ -126,6 +126,53 @@ Status AidlClientImpl::DispatchSemanticData(int32_t streamId,
     return Status::SUCCESS;
 }
 
+Status AidlClientImpl::DispatchPixelData(int32_t streamId,
+                                         const std::shared_ptr<MemHandle>& packetHandle) {
+    PacketDescriptor desc;
+
+    if (mPacketHandlers.find(streamId) == mPacketHandlers.end()) {
+        LOG(ERROR) << "Bad stream id";
+        return Status::INVALID_ARGUMENT;
+    }
+    Status status = ToAidlPacketType(packetHandle->getType(), &desc.type);
+    if (status != Status::SUCCESS) {
+        LOG(ERROR) << "Invalid packet type";
+        return status;
+    }
+
+    // Copies the native handle to the aidl interface.
+    const native_handle_t* nativeHandle =
+        AHardwareBuffer_getNativeHandle(packetHandle->getHardwareBuffer());
+    for (int i = 0; i < nativeHandle->numFds; i++) {
+        desc.handle.handle.fds.push_back(ndk::ScopedFileDescriptor(nativeHandle->data[i]));
+    }
+    for (int i = 0; i < nativeHandle->numInts; i++) {
+        desc.handle.handle.ints.push_back(nativeHandle->data[i + nativeHandle->numFds]);
+    }
+
+    // Copies buffer descriptor to the aidl interface.
+    AHardwareBuffer_Desc bufferDesc;
+    AHardwareBuffer_describe(packetHandle->getHardwareBuffer(), &bufferDesc);
+    desc.handle.description.width = bufferDesc.width;
+    desc.handle.description.height = bufferDesc.height;
+    desc.handle.description.stride = bufferDesc.stride;
+    desc.handle.description.layers = bufferDesc.layers;
+    desc.handle.description.format =
+        static_cast<::aidl::android::hardware::graphics::common::PixelFormat>(bufferDesc.format);
+    desc.handle.description.usage =
+        static_cast<::aidl::android::hardware::graphics::common::BufferUsage>(bufferDesc.usage);
+
+    desc.bufId = packetHandle->getBufferId();
+    desc.sourceTimeStampMillis = packetHandle->getTimeStamp();
+
+    ScopedAStatus ret = mPacketHandlers[streamId]->deliverPacket(desc);
+    if (!ret.isOk()) {
+        LOG(ERROR) << "Unable to deliver packet. Dropping it and returning an error";
+        return Status::INTERNAL_ERROR;
+    }
+    return Status::SUCCESS;
+}
+
 // Thread-safe function to deliver new packets to client.
 Status AidlClientImpl::dispatchPacketToClient(int32_t streamId,
                                               const std::shared_ptr<MemHandle>& packetHandle) {
@@ -138,6 +185,8 @@ Status AidlClientImpl::dispatchPacketToClient(int32_t streamId,
     switch (packetType) {
         case proto::SEMANTIC_DATA:
             return DispatchSemanticData(streamId, packetHandle);
+        case proto::PIXEL_DATA:
+            return DispatchPixelData(streamId, packetHandle);
         default:
             LOG(ERROR) << "Unsupported packet type " << packetHandle->getType();
             return Status::INVALID_ARGUMENT;
@@ -286,9 +335,14 @@ ScopedAStatus AidlClientImpl::stopPipe() {
     return ToNdkStatus(status);
 }
 
-ScopedAStatus AidlClientImpl::doneWithPacket(int32_t /* bufferId */, int32_t /* streamId */) {
-    // TODO(146464279) implement.
-    return ScopedAStatus::ok();
+ScopedAStatus AidlClientImpl::doneWithPacket(int32_t bufferId, int32_t streamId) {
+    auto it = mPacketHandlers.find(streamId);
+    if (it == mPacketHandlers.end()) {
+        LOG(ERROR) << "Bad stream id provided for doneWithPacket call";
+        return ToNdkStatus(Status::INVALID_ARGUMENT);
+    }
+
+    return ToNdkStatus(mEngine->freePacket(bufferId, streamId));
 }
 
 ndk::ScopedAStatus AidlClientImpl::getPipeDebugger(

@@ -13,9 +13,10 @@
 // limitations under the License.
 
 cc_library {
-    name: "libcomputepipe_stream_manager",
+    name: "computepipe_stream_manager",
     srcs: [
         "Factory.cpp",
+        "PixelStreamManager.cpp",
         "SemanticManager.cpp",
     ],
     export_include_dirs: ["include"],
@@ -30,7 +31,10 @@ cc_library {
         "libcomputepipeprotos",
     ],
     shared_libs: [
+        "libbase",
         "computepipe_runner_component",
+        "libbase",
+        "libnativewindow",
     ],
     include_dirs: [
         "packages/services/Car/computepipe",
@@ -50,13 +54,15 @@ cc_library {
         "computepipe_runner_includes",
     ],
     static_libs: [
+        "libbase",
         "libgtest",
         "libgmock",
         "libcomputepipeprotos",
     ],
     shared_libs: [
         "computepipe_runner_component",
-        "libcomputepipe_stream_manager",
+        "computepipe_stream_manager",
+        "libnativewindow",
     ],
     include_dirs: [
         "packages/services/Car/computepipe",

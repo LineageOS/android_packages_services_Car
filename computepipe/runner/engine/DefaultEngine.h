@@ -94,7 +94,7 @@ class DefaultEngine : public RunnerEngine {
      */
     Status processClientConfigUpdate(const proto::ConfigurationCommand& command) override;
     Status processClientCommand(const proto::ControlCommand& command) override;
-    Status freePacket(const std::shared_ptr<MemHandle>& packet) override;
+    Status freePacket(int bufferId, int streamId) override;
     /**
      * Methods from PrebuiltEngineInterface to override
      */
