@@ -75,7 +75,8 @@ final class ZipUtils {
         }
     }
 
-    private static void writeInputStreamToZipStream(
+    /** Writes a new file from input stream to the zip stream. */
+    static void writeInputStreamToZipStream(
             String filename, InputStream input, ZipOutputStream zipStream) throws IOException {
         ZipEntry entry = new ZipEntry(filename);
         zipStream.putNextEntry(entry);
