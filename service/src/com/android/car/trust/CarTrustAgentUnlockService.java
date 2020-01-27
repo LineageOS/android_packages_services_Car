@@ -87,7 +87,10 @@ import java.util.UUID;
  * <li>Phone sends the encrypted escrow token and handle to the IHU.
  * <li>IHU retrieves the user id and authenticates the user.
  * </ol>
+ *
+ * @deprecated Unlocking of a trusted device is no longer a supported feature of car service.
  */
+@Deprecated
 public class CarTrustAgentUnlockService {
     private static final String TAG = "CarTrustAgentUnlock";
     private static final String TRUSTED_DEVICE_UNLOCK_ENABLED_KEY = "trusted_device_unlock_enabled";

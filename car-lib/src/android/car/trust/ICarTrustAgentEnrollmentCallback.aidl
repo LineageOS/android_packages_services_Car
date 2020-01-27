@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothDevice;
  * Callback interface for state changes during Trusted device enrollment.
  *
  * @hide
+ * @deprecated Enrolling a trusted device is no longer a supported feature.
  */
 oneway interface ICarTrustAgentEnrollmentCallback {
     /**

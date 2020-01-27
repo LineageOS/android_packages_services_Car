@@ -1045,50 +1045,50 @@ package android.car.storagemonitoring {
 
 package android.car.trust {
 
-  public final class CarTrustAgentEnrollmentManager {
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void enrollmentHandshakeAccepted(android.bluetooth.BluetoothDevice);
-    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public java.util.List<android.car.trust.TrustedDeviceInfo> getEnrolledDeviceInfoForUser(int);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public boolean isEscrowTokenActive(long, int);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeAllTrustedDevices(int);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeEscrowToken(long, int);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setBleCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setEnrollmentCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setTrustedDeviceEnrollmentEnabled(boolean);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setTrustedDeviceUnlockEnabled(boolean);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void startEnrollmentAdvertising();
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void stopEnrollmentAdvertising();
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void terminateEnrollmentHandshake();
-    field public static final int ENROLLMENT_HANDSHAKE_FAILURE = 1; // 0x1
-    field public static final int ENROLLMENT_NOT_ALLOWED = 2; // 0x2
+  @Deprecated public final class CarTrustAgentEnrollmentManager {
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void enrollmentHandshakeAccepted(android.bluetooth.BluetoothDevice);
+    method @Deprecated @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public java.util.List<android.car.trust.TrustedDeviceInfo> getEnrolledDeviceInfoForUser(int);
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public boolean isEscrowTokenActive(long, int);
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeAllTrustedDevices(int);
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeEscrowToken(long, int);
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setBleCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback);
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setEnrollmentCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback);
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setTrustedDeviceEnrollmentEnabled(boolean);
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setTrustedDeviceUnlockEnabled(boolean);
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void startEnrollmentAdvertising();
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void stopEnrollmentAdvertising();
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void terminateEnrollmentHandshake();
+    field @Deprecated public static final int ENROLLMENT_HANDSHAKE_FAILURE = 1; // 0x1
+    field @Deprecated public static final int ENROLLMENT_NOT_ALLOWED = 2; // 0x2
   }
 
-  public static interface CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback {
-    method public void onBleEnrollmentDeviceConnected(android.bluetooth.BluetoothDevice);
-    method public void onBleEnrollmentDeviceDisconnected(android.bluetooth.BluetoothDevice);
-    method public void onEnrollmentAdvertisingFailed();
-    method public void onEnrollmentAdvertisingStarted();
+  @Deprecated public static interface CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback {
+    method @Deprecated public void onBleEnrollmentDeviceConnected(android.bluetooth.BluetoothDevice);
+    method @Deprecated public void onBleEnrollmentDeviceDisconnected(android.bluetooth.BluetoothDevice);
+    method @Deprecated public void onEnrollmentAdvertisingFailed();
+    method @Deprecated public void onEnrollmentAdvertisingStarted();
   }
 
-  public static interface CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback {
-    method public void onAuthStringAvailable(android.bluetooth.BluetoothDevice, String);
-    method public void onEnrollmentHandshakeFailure(@Nullable android.bluetooth.BluetoothDevice, int);
-    method public void onEscrowTokenActiveStateChanged(long, boolean);
-    method public void onEscrowTokenAdded(long);
-    method public void onEscrowTokenRemoved(long);
+  @Deprecated public static interface CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback {
+    method @Deprecated public void onAuthStringAvailable(android.bluetooth.BluetoothDevice, String);
+    method @Deprecated public void onEnrollmentHandshakeFailure(@Nullable android.bluetooth.BluetoothDevice, int);
+    method @Deprecated public void onEscrowTokenActiveStateChanged(long, boolean);
+    method @Deprecated public void onEscrowTokenAdded(long);
+    method @Deprecated public void onEscrowTokenRemoved(long);
   }
 
-  public final class TrustedDeviceInfo implements android.os.Parcelable {
-    ctor public TrustedDeviceInfo(long, @NonNull String, @NonNull String);
-    ctor public TrustedDeviceInfo(android.os.Parcel);
-    method public int describeContents();
-    method public static android.car.trust.TrustedDeviceInfo deserialize(String);
-    method @NonNull public String getAddress();
-    method public long getHandle();
-    method @NonNull public String getName();
-    method public String serialize();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator CREATOR;
-    field public static final String DEFAULT_NAME = "Default";
+  @Deprecated public final class TrustedDeviceInfo implements android.os.Parcelable {
+    ctor @Deprecated public TrustedDeviceInfo(long, @NonNull String, @NonNull String);
+    ctor @Deprecated public TrustedDeviceInfo(android.os.Parcel);
+    method @Deprecated public int describeContents();
+    method @Deprecated public static android.car.trust.TrustedDeviceInfo deserialize(String);
+    method @Deprecated @NonNull public String getAddress();
+    method @Deprecated public long getHandle();
+    method @Deprecated @NonNull public String getName();
+    method @Deprecated public String serialize();
+    method @Deprecated public void writeToParcel(android.os.Parcel, int);
+    field @Deprecated public static final android.os.Parcelable.Creator CREATOR;
+    field @Deprecated public static final String DEFAULT_NAME = "Default";
   }
 
 }

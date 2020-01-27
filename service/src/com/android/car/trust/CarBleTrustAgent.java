@@ -48,7 +48,10 @@ import java.util.List;
  * The system {@link com.android.server.trust.TrustManagerService} binds to this agent and uses
  * the data it receives from this agent to authorize a user in lieu of the PIN/Pattern/Password
  * credentials.
+ *
+ * @deprecated Enrolling a trusted device through car service is no longer supported.
  */
+@Deprecated
 public class CarBleTrustAgent extends TrustAgentService {
     private static final String TAG = CarBleTrustAgent.class.getSimpleName();
     private boolean mIsDeviceLocked;
