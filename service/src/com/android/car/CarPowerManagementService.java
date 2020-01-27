@@ -305,7 +305,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         handler.cancelProcessingComplete();
         Log.i(CarLog.TAG_POWER, "setCurrentState " + state.toString());
-        CarStatsLog.logPowerState(state.mState);
+        CarStatsLogHelper.logPowerState(state.mState);
         mCurrentState = state;
         switch (state.mState) {
             case CpmsState.WAIT_FOR_VHAL:
