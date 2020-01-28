@@ -17,16 +17,15 @@
 package com.android.car;
 
 import android.car.IPerUserCarService;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.UserHandle;
 import android.util.Log;
 
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
@@ -42,22 +41,21 @@ import java.util.List;
 public class PerUserCarServiceHelper implements CarServiceBase {
     private static final String TAG = "PerUserCarSvcHelper";
     private static boolean DBG = false;
-    private Context mContext;
+    private final Context mContext;
+    private final CarUserService mUserService;
     private IPerUserCarService mPerUserCarService;
     // listener to call on a ServiceConnection to PerUserCarService
     private List<ServiceCallback> mServiceCallbacks;
-    private UserSwitchBroadcastReceiver mReceiver;
-    private IntentFilter mUserSwitchFilter;
     private static final String EXTRA_USER_HANDLE = "android.intent.extra.user_handle";
     private final Object mServiceBindLock = new Object();
     @GuardedBy("mServiceBindLock")
     private boolean mBound = false;
 
-    public PerUserCarServiceHelper(Context context) {
+    public PerUserCarServiceHelper(Context context, CarUserService userService) {
         mContext = context;
         mServiceCallbacks = new ArrayList<>();
-        mReceiver = new UserSwitchBroadcastReceiver();
-        setupUserSwitchListener();
+        mUserService = userService;
+        mUserService.addUserCallback(mUserCallback);
     }
 
     @Override
@@ -71,39 +69,24 @@ public class PerUserCarServiceHelper implements CarServiceBase {
     public void release() {
         synchronized (mServiceBindLock) {
             unbindFromPerUserCarService();
+            mUserService.removeUserCallback(mUserCallback);
         }
     }
 
-    /**
-     * Setting up the intent filter for
-     * 2. UserSwitch events
-     */
-    private void setupUserSwitchListener() {
-        mUserSwitchFilter = new IntentFilter();
-        mUserSwitchFilter.addAction(Intent.ACTION_USER_SWITCHED);
-        mContext.registerReceiver(mReceiver, mUserSwitchFilter);
-        if (DBG) {
-            Log.d(TAG, "UserSwitch Listener Registered");
-        }
-    }
+    private final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
 
-    /**
-     * UserSwitchBroadcastReceiver receives broadcasts on User account switches.
-     */
-    public class UserSwitchBroadcastReceiver extends BroadcastReceiver {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onUserLockChanged(int userId, boolean unlocked) {
+            // Do Nothing
+        }
+
+        @Override
+        public void onSwitchUser(int userId) {
             List<ServiceCallback> callbacks;
             if (DBG) {
-                Log.d(TAG, "User Switch Happened");
-                boolean userSwitched = intent.getAction().equals(
-                        Intent.ACTION_USER_SWITCHED);
-
-                int user = intent.getExtras().getInt(EXTRA_USER_HANDLE);
-                if (userSwitched) {
-                    Log.d(TAG, "New User " + user);
-                }
+                Log.d(TAG, "User Switch Happened. New User" + userId);
             }
+
             // Before unbinding, notify the callbacks about unbinding from the service
             // so the callbacks can clean up their state through the binder before the service is
             // killed.
@@ -120,7 +103,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
             // bind to the service running as the new user
             bindToPerUserCarService();
         }
-    }
+    };
 
     /**
      * ServiceConnection to detect connecting/disconnecting to {@link PerUserCarService}

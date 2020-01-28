@@ -36,10 +36,12 @@ import android.graphics.Bitmap;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.RemoteException;
+import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.TimingsTraceLog;
 
 import com.android.car.CarServiceBase;
 import com.android.car.R;
@@ -83,7 +85,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private @UserIdInt int mLastPassengerId;
     /**
      * Background users that will be restarted in garage mode. This list can include the
-     * current foreground user bit the current foreground user should not be restarted.
+     * current foreground user but the current foreground user should not be restarted.
      */
     @GuardedBy("mLockUser")
     private final ArrayList<Integer> mBackgroundUsersToRestart = new ArrayList<>();
@@ -461,12 +463,23 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * @param unlocked Unlocked (={@code true}) or locked (={@code false}).
      */
     public void setUserLockStatus(@UserIdInt int userId, boolean unlocked) {
+        TimingsTraceLog t = new TimingsTraceLog(TAG_USER,
+                Trace.TRACE_TAG_SYSTEM_SERVER);
+        t.traceBegin("onUserLockChanged-" + userId
+                + (unlocked ? "-unlocked" : "-locked"));
         for (UserCallback callback : mUserCallbacks) {
+            t.traceBegin("onUserLockChanged-"
+                    + callback.getClass().getSimpleName());
             callback.onUserLockChanged(userId, unlocked);
+            t.traceEnd();
         }
+        t.traceEnd();
+
         if (!unlocked) { // nothing else to do when it is locked back.
             return;
         }
+
+        t.traceBegin("setUserLockStatus-UnlockTasks-" + userId);
         ArrayList<Runnable> tasks = null;
         synchronized (mLockUser) {
             if (userId == UserHandle.USER_SYSTEM) {
@@ -502,6 +515,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 r.run();
             }
         }
+        t.traceEnd();
     }
 
     /**
@@ -594,6 +608,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * @param userId User id of new user.
      */
     public void onSwitchUser(@UserIdInt int userId) {
+        TimingsTraceLog t = new TimingsTraceLog(TAG_USER,
+                Trace.TRACE_TAG_SYSTEM_SERVER);
+        t.traceBegin("onSwitchUser-" + userId);
         if (!isSystemUser(userId)) {
             mCarUserManagerHelper.setLastActiveUser(userId);
         }
@@ -605,8 +622,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             startFirstPassenger(userId);
         }
         for (UserCallback callback : mUserCallbacks) {
+            t.traceBegin("onSwitchUser-" + callback.getClass().getSimpleName());
             callback.onSwitchUser(userId);
+            t.traceEnd();
         }
+        t.traceEnd();
     }
 
     /**

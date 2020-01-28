@@ -51,6 +51,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.android.car.user.CarUserService;
+
 import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -86,6 +88,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private static final int AUTOPLAY_CONFIG_ADAPTIVE = 2;
 
     private final Context mContext;
+    private final CarUserService mUserService;
     private final UserManager mUserManager;
     private final MediaSessionManager mMediaSessionManager;
     private final MediaSessionUpdater mMediaSessionUpdater = new MediaSessionUpdater();
@@ -148,18 +151,24 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
     };
 
-    private final BroadcastReceiver mUserSwitchReceiver = new BroadcastReceiver() {
+    private final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
+
         @Override
-        public void onReceive(Context context, Intent intent) {
-            mCurrentUser = ActivityManager.getCurrentUser();
+        public void onSwitchUser(int userId) {
             if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
-                Log.d(CarLog.TAG_MEDIA, "Switched to user " + mCurrentUser);
+                Log.d(CarLog.TAG_MEDIA, "Switched to user " + userId);
             }
             maybeInitUser();
         }
+
+        @Override
+        public void onUserLockChanged(int userId, boolean unlocked) {
+            // Do Nothing
+        }
+
     };
 
-    public CarMediaService(Context context) {
+    public CarMediaService(Context context, CarUserService userService) {
         mContext = context;
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
@@ -173,10 +182,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
         mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         mPackageUpdateFilter.addDataScheme("package");
-
-        IntentFilter userSwitchFilter = new IntentFilter();
-        userSwitchFilter.addAction(Intent.ACTION_USER_SWITCHED);
-        mContext.registerReceiver(mUserSwitchReceiver, userSwitchFilter);
+        mUserService = userService;
+        mUserService.addUserCallback(mUserCallback);
 
         mPlayOnMediaSourceChangedConfig =
                 mContext.getResources().getInteger(R.integer.config_mediaSourceChangedAutoplay);
@@ -219,8 +226,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 mPackageUpdateFilter, null, null);
         mIsPackageUpdateReceiverRegistered = true;
 
-        mPrimaryMediaComponent =
-                isCurrentUserEphemeral() ? getDefaultMediaSource() : getLastMediaSource();
+        mPrimaryMediaComponent = isCurrentUserEphemeral() ? getDefaultMediaSource()
+                : getLastMediaSource();
         mActiveUserMediaController = null;
 
         updateMediaSessionCallbackForCurrentUser();
@@ -267,6 +274,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     @Override
     public void release() {
         mMediaSessionUpdater.unregisterCallbacks();
+        mUserService.removeUserCallback(mUserCallback);
     }
 
     @Override
@@ -282,9 +290,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             writer.println(
                     "\tCurrent browse service extra: " + getClassName(mActiveUserMediaController));
         }
-        writer.println("\tNumber of active media sessions: "
-                + mMediaSessionManager.getActiveSessionsForUser(null,
-                ActivityManager.getCurrentUser()).size());
+        writer.println("\tNumber of active media sessions: " + mMediaSessionManager
+                .getActiveSessionsForUser(null, ActivityManager.getCurrentUser()).size());
     }
 
     /**
@@ -674,8 +681,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             Deque<String> componentNames = getComponentNameList(serialized);
             componentNames.remove(componentName);
             componentNames.addFirst(componentName);
-            mSharedPrefs.edit().putString(key, serializeComponentNameList(componentNames))
-                    .apply();
+            mSharedPrefs.edit().putString(key, serializeComponentNameList(componentNames)).apply();
         }
     }
 
