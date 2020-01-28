@@ -536,6 +536,9 @@ package android.car.hardware {
 
 package android.car.hardware.property {
 
+  public class CarInternalErrorException extends java.lang.RuntimeException {
+  }
+
   public class CarPropertyManager {
     method public int getAreaId(int, int);
     method public boolean getBooleanProperty(int, int);
@@ -565,6 +568,15 @@ package android.car.hardware.property {
   public static interface CarPropertyManager.CarPropertyEventCallback {
     method public void onChangeEvent(android.car.hardware.CarPropertyValue);
     method public void onErrorEvent(int, int);
+  }
+
+  public class PropertyAccessDeniedSecurityException extends java.lang.SecurityException {
+  }
+
+  public class PropertyNotAvailableAndRetryException extends java.lang.IllegalStateException {
+  }
+
+  public class PropertyNotAvailableException extends java.lang.IllegalStateException {
   }
 
 }
