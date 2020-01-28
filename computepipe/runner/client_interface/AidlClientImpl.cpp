@@ -286,7 +286,7 @@ ScopedAStatus AidlClientImpl::stopPipe() {
     return ToNdkStatus(status);
 }
 
-ScopedAStatus AidlClientImpl::doneWithPacket(int32_t /* id */) {
+ScopedAStatus AidlClientImpl::doneWithPacket(int32_t /* bufferId */, int32_t /* streamId */) {
     // TODO(146464279) implement.
     return ScopedAStatus::ok();
 }

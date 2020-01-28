@@ -82,7 +82,7 @@ using namespace aidl::android::automotive::computepipe::runner;
     _aidl_status.set(AStatus_fromStatus(STATUS_UNKNOWN_TRANSACTION));
     return _aidl_status;
 }
-::ndk::ScopedAStatus FakeRunner::doneWithPacket(int32_t /*in_id*/) {
+::ndk::ScopedAStatus FakeRunner::doneWithPacket(int32_t /*in_bufferId*/, int32_t /*in_streamId*/) {
     ::ndk::ScopedAStatus _aidl_status;
     _aidl_status.set(AStatus_fromStatus(STATUS_UNKNOWN_TRANSACTION));
     return _aidl_status;

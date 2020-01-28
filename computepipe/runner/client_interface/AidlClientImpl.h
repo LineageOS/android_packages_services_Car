@@ -66,7 +66,7 @@ class AidlClientImpl : public aidl::android::automotive::computepipe::runner::Bn
     ndk::ScopedAStatus resetPipeConfigs() override;
     ndk::ScopedAStatus startPipe() override;
     ndk::ScopedAStatus stopPipe() override;
-    ndk::ScopedAStatus doneWithPacket(int32_t id) override;
+    ndk::ScopedAStatus doneWithPacket(int32_t bufferId, int32_t streamId) override;
 
     ndk::ScopedAStatus getPipeDebugger(
         std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeDebugger>* _aidl_return)
