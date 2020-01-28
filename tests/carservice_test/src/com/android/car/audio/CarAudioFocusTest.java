@@ -39,47 +39,47 @@ import org.junit.runner.RunWith;
 public class CarAudioFocusTest {
     private static final int TEST_TIMING_TOLERANCE_MS = 100;
 
-    // ContextNumber.INVALID
+    // CarAudioContext.INVALID
     private static final AudioAttributes ATTR_VIRTUAL_SOURCE = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_VIRTUAL_SOURCE)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build();
-    // ContextNumber.MUSIC
+    // CarAudioContext.MUSIC
     private static final AudioAttributes ATTR_MEDIA = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build();
-    // ContextNumber.NAVIGATION
+    // CarAudioContext.NAVIGATION
     private static final AudioAttributes ATTR_DRIVE_DIR = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build();
-    // ContextNumber.VOICE_COMMAND
+    // CarAudioContext.VOICE_COMMAND
     private static final AudioAttributes ATTR_A11Y = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build();
-    // ContextNumber.CALL_RING
+    // CarAudioContext.CALL_RING
     private static final AudioAttributes ATTR_RINGTONE = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build();
-    // ContextNumber.CALL
+    // CarAudioContext.CALL
     private static final AudioAttributes ATTR_VOICE_COM = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build();
-    // ContextNumber.ALARM
+    // CarAudioContext.ALARM
     private static final AudioAttributes ATTR_ALARM = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ALARM)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build();
-    // ContextNumber.NOTIFICATION
+    // CarAudioContext.NOTIFICATION
     private static final AudioAttributes ATTR_NOTIFICATION = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build();
-    // ContextNumber.SYSTEM_SOUND
+    // CarAudioContext.SYSTEM_SOUND
     private static final AudioAttributes ATTR_A11Y_NOTIFICATION = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)

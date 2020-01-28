@@ -38,7 +38,7 @@ import java.util.Objects;
 /**
  * Implements {@link AudioPolicy.AudioPolicyFocusListener}
  *
- * @note Manages audio focus on a per zone basis.
+ * <p><b>Note:</b> Manages audio focus on a per zone basis.
  */
 class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
@@ -112,17 +112,18 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     /**
      * Sets the owning policy of the audio focus
      *
-     * @param audioService owning car audio service
-     * @param parentPolicy owning parent car audio policy
-     * @Note This has to happen after the construction to avoid a chicken and egg
+     * <p><b>Note:</b> This has to happen after the construction to avoid a chicken and egg
      * problem when setting up the AudioPolicy which must depend on this object.
+
+     * @param carAudioService owning car audio service
+     * @param parentPolicy owning parent car audio policy
      */
-    void setOwningPolicy(CarAudioService audioService, AudioPolicy parentPolicy) {
-        mCarAudioService = audioService;
+    void setOwningPolicy(CarAudioService carAudioService, AudioPolicy parentPolicy) {
         mAudioPolicy = parentPolicy;
+        mCarAudioService = carAudioService;
 
         for (int zoneId : mFocusZones.keySet()) {
-            mFocusZones.get(zoneId).setOwningPolicy(mCarAudioService, mAudioPolicy);
+            mFocusZones.get(zoneId).setOwningPolicy(mAudioPolicy);
         }
     }
 

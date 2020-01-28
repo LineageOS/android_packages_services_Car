@@ -18,7 +18,6 @@ package com.android.car.audio;
 import android.car.Car;
 import android.car.media.CarAudioManager;
 import android.content.pm.PackageManager;
-import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
@@ -41,7 +40,6 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private final AudioManager mAudioManager;
     private final PackageManager mPackageManager;
-    private CarAudioService mCarAudioService; // Dynamically assigned just after construction
     private AudioPolicy mAudioPolicy; // Dynamically assigned just after construction
 
 
@@ -52,15 +50,6 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private final LocalLog mFocusEventLogger;
 
-    // TODO:  Make this an overlayable resource...
-    //  MUSIC           = 1,        // Music playback
-    //  NAVIGATION      = 2,        // Navigation directions
-    //  VOICE_COMMAND   = 3,        // Voice command session
-    //  CALL_RING       = 4,        // Voice call ringing
-    //  CALL            = 5,        // Voice call
-    //  ALARM           = 6,        // Alarm sound from Android
-    //  NOTIFICATION    = 7,        // Notifications
-    //  SYSTEM_SOUND    = 8,        // User interaction sounds (button clicks, etc)
     private static int sInteractionMatrix[][] = {
         // Row selected by playing sound (labels along the right)
         // Column selected by incoming request (labels along the top)
@@ -71,7 +60,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         {  0,       2,     2,   1,     2,    1,    2,     2,            2 }, // Nav
         {  0,       2,     0,   2,     1,    1,    0,     0,            0 }, // Voice
         {  0,       0,     2,   2,     2,    2,    0,     0,            2 }, // Ring
-        {  0,       0,     2,   0,     2,    2,    2,     2,            0 }, // Context
+        {  0,       0,     2,   0,     2,    2,    2,     2,            0 }, // Call
         {  0,       2,     2,   1,     1,    1,    2,     2,            2 }, // Alarm
         {  0,       2,     2,   1,     1,    1,    2,     2,            2 }, // Notification
         {  0,       2,     2,   1,     1,    1,    2,     2,            2 }, // System
@@ -150,8 +139,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     // This has to happen after the construction to avoid a chicken and egg problem when setting up
     // the AudioPolicy which must depend on this object.
-    public void setOwningPolicy(CarAudioService audioService, AudioPolicy parentPolicy) {
-        mCarAudioService = audioService;
+    public void setOwningPolicy(AudioPolicy parentPolicy) {
         mAudioPolicy     = parentPolicy;
     }
 
@@ -201,7 +189,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
 
         // Convert from audio attributes "usage" to HAL level "context"
-        final int requestedContext = mCarAudioService.getContextForUsage(
+        final int requestedContext = CarAudioContext.getContextForUsage(
                 afi.getAttributes().getUsage());
 
         // If we happen to find entries that this new request should replace, we'll store them here.
@@ -223,9 +211,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             // This matches the hardwired behavior in the default audio policy engine which apps
             // might expect (The interaction matrix doesn't have any provision for dealing with
             // override flags like this).
-            if ((requestedContext == ContextNumber.NOTIFICATION) &&
-                    (entry.mAfi.getGainRequest() ==
-                            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)) {
+            if ((requestedContext == CarAudioContext.NOTIFICATION) && (entry.mAfi.getGainRequest()
+                    == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)) {
                 return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
             }
 
@@ -241,10 +228,12 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                     continue;
                 } else {
                     // Trivially reject a request for a different USAGE
-                    Log.e(TAG, "Client " + entry.getClientId() + " has already requested focus "
-                            + "for " + entry.mAfi.getAttributes().usageToString() + " - cannot "
-                            + "request focus for " + afi.getAttributes().usageToString() + " on "
-                            + "same listener.");
+                    Log.e(TAG, String.format(
+                            "Client %s has already requested focus for %s - cannot request focus "
+                                    + "for %s on same listener.",
+                            entry.getClientId(),
+                            entry.mAfi.getAttributes().usageToString(),
+                            afi.getAttributes().usageToString()));
                     return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
                 }
             }
@@ -283,9 +272,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
             // If this request is for Notifications and a pending focus holder has specified
             // AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE, then reject the request
-            if ((requestedContext == ContextNumber.NOTIFICATION) &&
-                    (entry.mAfi.getGainRequest() ==
-                            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)) {
+            if ((requestedContext == CarAudioContext.NOTIFICATION) && (entry.mAfi.getGainRequest()
+                    == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)) {
                 return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
             }
 
@@ -302,10 +290,12 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                     continue;
                 } else {
                     // Trivially reject a request for a different USAGE
-                    Log.e(TAG, "Client " + entry.getClientId() + " has already requested focus "
-                            + "for " + entry.mAfi.getAttributes().usageToString() + " - cannot "
-                            + "request focus for " + afi.getAttributes().usageToString() + " on "
-                            + "same listener.");
+                    Log.e(TAG, String.format(
+                            "Client %s has already requested focus for %s - cannot request focus "
+                                    + "for %s on same listener.",
+                            entry.getClientId(),
+                            entry.mAfi.getAttributes().usageToString(),
+                            afi.getAttributes().usageToString()));
                     return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
                 }
             }

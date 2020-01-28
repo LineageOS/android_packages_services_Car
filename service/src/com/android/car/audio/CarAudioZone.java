@@ -153,12 +153,11 @@ import java.util.Set;
         }
 
         // All contexts are assigned
-        if (contextSet.size() != CarAudioDynamicRouting.CONTEXT_NUMBERS.length) {
+        if (contextSet.size() != CarAudioContext.CONTEXTS.length) {
             Log.e(CarLog.TAG_AUDIO, "Some contexts are not assigned to group");
-            Log.e(CarLog.TAG_AUDIO, "Assigned contexts "
-                    + Arrays.toString(contextSet.toArray(new Integer[0])));
+            Log.e(CarLog.TAG_AUDIO, "Assigned contexts " + contextSet);
             Log.e(CarLog.TAG_AUDIO,
-                    "All contexts " + Arrays.toString(CarAudioDynamicRouting.CONTEXT_NUMBERS));
+                    "All contexts " + Arrays.toString(CarAudioContext.CONTEXTS));
             return false;
         }
 
@@ -194,7 +193,7 @@ import java.util.Set;
     }
 
     String getAddressForContext(int audioContext) {
-        CarAudioDynamicRouting.precondtionCheckAudioContext(audioContext);
+        CarAudioContext.preconditionCheckAudioContext(audioContext);
         String deviceAddress = null;
         for (CarVolumeGroup volumeGroup : getVolumeGroups()) {
             deviceAddress = volumeGroup.getAddressForContext(audioContext);

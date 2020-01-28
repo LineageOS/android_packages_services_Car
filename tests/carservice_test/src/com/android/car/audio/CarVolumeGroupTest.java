@@ -23,8 +23,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.common.primitives.Ints;
@@ -70,10 +68,10 @@ public class CarVolumeGroupTest {
                 generateCarVolumeGroupSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
-        carVolumeGroup.bind(ContextNumber.MUSIC, mMediaDevice);
+        carVolumeGroup.bind(CarAudioContext.MUSIC, mMediaDevice);
         assertEquals(1, carVolumeGroup.getAddresses().size());
 
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, mNavigationDevice);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, mNavigationDevice);
 
         List<String> addresses = carVolumeGroup.getAddresses();
         assertEquals(2, addresses.size());
@@ -87,14 +85,14 @@ public class CarVolumeGroupTest {
                 generateCarVolumeGroupSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
-        carVolumeGroup.bind(ContextNumber.MUSIC, mMediaDevice);
+        carVolumeGroup.bind(CarAudioContext.MUSIC, mMediaDevice);
         CarAudioDeviceInfo differentStepValueDevice = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE + 1,
                 MIN_GAIN, MAX_GAIN);
 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Gain controls within one group must have same step value");
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, differentStepValueDevice);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, differentStepValueDevice);
     }
 
     @Test
@@ -105,19 +103,19 @@ public class CarVolumeGroupTest {
 
         CarAudioDeviceInfo largestMinGain = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, 1, 10, 10);
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, largestMinGain);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, largestMinGain);
 
         assertEquals(0, carVolumeGroup.getMaxGainIndex());
 
         CarAudioDeviceInfo smallestMinGain = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, 1, 2, 10);
-        carVolumeGroup.bind(ContextNumber.NOTIFICATION, smallestMinGain);
+        carVolumeGroup.bind(CarAudioContext.NOTIFICATION, smallestMinGain);
 
         assertEquals(8, carVolumeGroup.getMaxGainIndex());
 
         CarAudioDeviceInfo middleMinGain = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, 1, 7, 10);
-        carVolumeGroup.bind(ContextNumber.VOICE_COMMAND, middleMinGain);
+        carVolumeGroup.bind(CarAudioContext.VOICE_COMMAND, middleMinGain);
 
         assertEquals(8, carVolumeGroup.getMaxGainIndex());
     }
@@ -130,19 +128,19 @@ public class CarVolumeGroupTest {
 
         CarAudioDeviceInfo smallestMaxGain = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, 1, 1, 5);
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, smallestMaxGain);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, smallestMaxGain);
 
         assertEquals(4, carVolumeGroup.getMaxGainIndex());
 
         CarAudioDeviceInfo largestMaxGain = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, 1, 1, 10);
-        carVolumeGroup.bind(ContextNumber.NOTIFICATION, largestMaxGain);
+        carVolumeGroup.bind(CarAudioContext.NOTIFICATION, largestMaxGain);
 
         assertEquals(9, carVolumeGroup.getMaxGainIndex());
 
         CarAudioDeviceInfo middleMaxGain = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, 1, 1, 7);
-        carVolumeGroup.bind(ContextNumber.VOICE_COMMAND, middleMaxGain);
+        carVolumeGroup.bind(CarAudioContext.VOICE_COMMAND, middleMaxGain);
 
         assertEquals(9, carVolumeGroup.getMaxGainIndex());
     }
@@ -153,13 +151,13 @@ public class CarVolumeGroupTest {
                 generateCarVolumeGroupSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, mMediaDevice);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, mMediaDevice);
 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(
                 "Context NAVIGATION has already been bound to " + MEDIA_DEVICE_ADDRESS);
 
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, mMediaDevice);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, mMediaDevice);
     }
 
     @Test
@@ -171,12 +169,12 @@ public class CarVolumeGroupTest {
         assertEquals(6, contexts.length);
 
         List<Integer> contextsList = Ints.asList(contexts);
-        assertTrue(contextsList.contains(ContextNumber.MUSIC));
-        assertTrue(contextsList.contains(ContextNumber.CALL));
-        assertTrue(contextsList.contains(ContextNumber.CALL_RING));
-        assertTrue(contextsList.contains(ContextNumber.NAVIGATION));
-        assertTrue(contextsList.contains(ContextNumber.ALARM));
-        assertTrue(contextsList.contains(ContextNumber.NOTIFICATION));
+        assertTrue(contextsList.contains(CarAudioContext.MUSIC));
+        assertTrue(contextsList.contains(CarAudioContext.CALL));
+        assertTrue(contextsList.contains(CarAudioContext.CALL_RING));
+        assertTrue(contextsList.contains(CarAudioContext.NAVIGATION));
+        assertTrue(contextsList.contains(CarAudioContext.ALARM));
+        assertTrue(contextsList.contains(CarAudioContext.NOTIFICATION));
     }
 
     @Test
@@ -187,9 +185,9 @@ public class CarVolumeGroupTest {
 
         assertEquals(3, contexts.length);
         List<Integer> contextsList = Ints.asList(contexts);
-        assertTrue(contextsList.contains(ContextNumber.MUSIC));
-        assertTrue(contextsList.contains(ContextNumber.CALL));
-        assertTrue(contextsList.contains(ContextNumber.CALL_RING));
+        assertTrue(contextsList.contains(CarAudioContext.MUSIC));
+        assertTrue(contextsList.contains(CarAudioContext.CALL));
+        assertTrue(contextsList.contains(CarAudioContext.CALL_RING));
     }
 
     @Test
@@ -267,13 +265,13 @@ public class CarVolumeGroupTest {
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
         CarAudioDeviceInfo minGainPlusOneDevice = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, 10, MAX_GAIN);
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, minGainPlusOneDevice);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, minGainPlusOneDevice);
 
         assertEquals(0, carVolumeGroup.getMinGainIndex());
 
         CarAudioDeviceInfo minGainDevice = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, 1, MAX_GAIN);
-        carVolumeGroup.bind(ContextNumber.NOTIFICATION, minGainDevice);
+        carVolumeGroup.bind(CarAudioContext.NOTIFICATION, minGainDevice);
 
         assertEquals(0, carVolumeGroup.getMinGainIndex());
     }
@@ -295,7 +293,7 @@ public class CarVolumeGroupTest {
 
         CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, deviceInfo);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, deviceInfo);
         carVolumeGroup.loadVolumesForUser(10);
 
         assertEquals(2, carVolumeGroup.getCurrentGainIndex());
@@ -313,7 +311,7 @@ public class CarVolumeGroupTest {
 
         CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, deviceInfo);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, deviceInfo);
 
         carVolumeGroup.setCurrentGainIndex(2);
 
@@ -332,7 +330,7 @@ public class CarVolumeGroupTest {
 
         CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, deviceInfo);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, deviceInfo);
 
 
         assertEquals(2, carVolumeGroup.getCurrentGainIndex());
@@ -345,9 +343,9 @@ public class CarVolumeGroupTest {
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
 
-        carVolumeGroup.bind(ContextNumber.MUSIC, mMediaDevice);
+        carVolumeGroup.bind(CarAudioContext.MUSIC, mMediaDevice);
 
-        String mediaAddress = carVolumeGroup.getAddressForContext(ContextNumber.MUSIC);
+        String mediaAddress = carVolumeGroup.getAddressForContext(CarAudioContext.MUSIC);
 
         assertEquals(mMediaDevice.getAddress(), mediaAddress);
     }
@@ -358,7 +356,7 @@ public class CarVolumeGroupTest {
                 generateCarVolumeGroupSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
-        String nullAddress = carVolumeGroup.getAddressForContext(ContextNumber.MUSIC);
+        String nullAddress = carVolumeGroup.getAddressForContext(CarAudioContext.MUSIC);
 
         assertNull(nullAddress);
     }
@@ -369,13 +367,13 @@ public class CarVolumeGroupTest {
         CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
 
 
-        carVolumeGroup.bind(ContextNumber.MUSIC, mMediaDevice);
-        carVolumeGroup.bind(ContextNumber.CALL, mMediaDevice);
-        carVolumeGroup.bind(ContextNumber.CALL_RING, mMediaDevice);
+        carVolumeGroup.bind(CarAudioContext.MUSIC, mMediaDevice);
+        carVolumeGroup.bind(CarAudioContext.CALL, mMediaDevice);
+        carVolumeGroup.bind(CarAudioContext.CALL_RING, mMediaDevice);
 
-        carVolumeGroup.bind(ContextNumber.NAVIGATION, mNavigationDevice);
-        carVolumeGroup.bind(ContextNumber.ALARM, mNavigationDevice);
-        carVolumeGroup.bind(ContextNumber.NOTIFICATION, mNavigationDevice);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, mNavigationDevice);
+        carVolumeGroup.bind(CarAudioContext.ALARM, mNavigationDevice);
+        carVolumeGroup.bind(CarAudioContext.NOTIFICATION, mNavigationDevice);
 
         return carVolumeGroup;
     }

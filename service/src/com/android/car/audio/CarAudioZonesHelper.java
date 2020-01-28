@@ -18,7 +18,6 @@ package com.android.car.audio;
 import android.annotation.NonNull;
 import android.car.media.CarAudioManager;
 import android.content.Context;
-import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.media.AudioDevice;
 import android.media.AudioDeviceInfo;
 import android.text.TextUtils;
@@ -79,14 +78,14 @@ import java.util.stream.Collectors;
 
     static {
         CONTEXT_NAME_MAP = new HashMap<>(8);
-        CONTEXT_NAME_MAP.put("music", ContextNumber.MUSIC);
-        CONTEXT_NAME_MAP.put("navigation", ContextNumber.NAVIGATION);
-        CONTEXT_NAME_MAP.put("voice_command", ContextNumber.VOICE_COMMAND);
-        CONTEXT_NAME_MAP.put("call_ring", ContextNumber.CALL_RING);
-        CONTEXT_NAME_MAP.put("call", ContextNumber.CALL);
-        CONTEXT_NAME_MAP.put("alarm", ContextNumber.ALARM);
-        CONTEXT_NAME_MAP.put("notification", ContextNumber.NOTIFICATION);
-        CONTEXT_NAME_MAP.put("system_sound", ContextNumber.SYSTEM_SOUND);
+        CONTEXT_NAME_MAP.put("music", CarAudioContext.MUSIC);
+        CONTEXT_NAME_MAP.put("navigation", CarAudioContext.NAVIGATION);
+        CONTEXT_NAME_MAP.put("voice_command", CarAudioContext.VOICE_COMMAND);
+        CONTEXT_NAME_MAP.put("call_ring", CarAudioContext.CALL_RING);
+        CONTEXT_NAME_MAP.put("call", CarAudioContext.CALL);
+        CONTEXT_NAME_MAP.put("alarm", CarAudioContext.ALARM);
+        CONTEXT_NAME_MAP.put("notification", CarAudioContext.NOTIFICATION);
+        CONTEXT_NAME_MAP.put("system_sound", CarAudioContext.SYSTEM_SOUND);
 
         SUPPORTED_VERSIONS = new SparseIntArray(2);
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_1, SUPPORTED_VERSION_1);
@@ -107,10 +106,8 @@ import java.util.stream.Collectors;
     private int mCurrentVersion;
 
     /**
-     *  <p><b>Note: <b/> CarAudioZonesHelper is expected to be used
-     *  from a single thread. This should be the same thread that
-     *  originally called new CarAudioZonesHelper.<p/>
-     *
+     * <p><b>Note: <b/> CarAudioZonesHelper is expected to be used from a single thread. This
+     * should be the same thread that originally called new CarAudioZonesHelper.
      */
     CarAudioZonesHelper(Context context, @NonNull InputStream inputStream,
             @NonNull List<CarAudioDeviceInfo> carAudioDeviceInfos,
@@ -290,12 +287,13 @@ import java.util.stream.Collectors;
                     + integerString + "\" instead.", e);
         }
     }
+
     private void parseInputAudioDevices(XmlPullParser parser, CarAudioZone zone)
             throws IOException, XmlPullParserException {
         if (mCurrentVersion == SUPPORTED_VERSION_1) {
             throw new IllegalStateException(
                     TAG_INPUT_DEVICES + " are not supported in car_audio_configuration.xml version "
-                    + SUPPORTED_VERSION_1);
+                            + SUPPORTED_VERSION_1);
         }
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
@@ -344,7 +342,7 @@ import java.util.stream.Collectors;
         try {
             portId = Long.parseLong(port);
         } catch (NumberFormatException e) {
-            throw new RuntimeException("Port " +  port + " is not a number", e);
+            throw new IllegalArgumentException(String.format("Port %s is not a number", port), e);
         }
         validatePortIsUnique(portId);
         return DisplayAddress.fromPhysicalDisplayId(portId);
@@ -352,7 +350,8 @@ import java.util.stream.Collectors;
 
     private void validatePortIsUnique(Long portId) {
         if (mPortIds.contains(portId)) {
-            throw new RuntimeException("Port Id " + portId + " is already associated with a zone");
+            throw new IllegalArgumentException(
+                    String.format("Port Id %d is already associated with a zone", portId));
         }
         mPortIds.add(portId);
     }
@@ -417,9 +416,9 @@ import java.util.stream.Collectors;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_CONTEXT.equals(parser.getName())) {
-                group.bind(
-                        parseContextNumber(parser.getAttributeValue(NAMESPACE, ATTR_CONTEXT_NAME)),
-                        mAddressToCarAudioDeviceInfo.get(address));
+                int audioContext = parseCarAudioContext(
+                        parser.getAttributeValue(NAMESPACE, ATTR_CONTEXT_NAME));
+                group.bind(audioContext, mAddressToCarAudioDeviceInfo.get(address));
             }
             // Always skip to upper level since we're at the lowest.
             skip(parser);
@@ -443,8 +442,8 @@ import java.util.stream.Collectors;
         }
     }
 
-    private int parseContextNumber(String context) {
-        return CONTEXT_NAME_MAP.getOrDefault(context.toLowerCase(), ContextNumber.INVALID);
+    private int parseCarAudioContext(String context) {
+        return CONTEXT_NAME_MAP.getOrDefault(context.toLowerCase(), CarAudioContext.INVALID);
     }
 
     private int getNextSecondaryZoneId() {
