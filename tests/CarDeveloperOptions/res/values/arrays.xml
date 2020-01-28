@@ -221,7 +221,7 @@
     <!-- Values for security type for wireless tether -->
     <string-array name="wifi_tether_security_values" translatable="false">
         <!-- Do not translate. -->
-        <item>4</item>
+        <item>1</item>
         <!-- Do not translate. -->
         <item>0</item>
     </string-array>
@@ -249,8 +249,8 @@
    <!-- Wi-Fi AP band settings.  Either Auto, 2.4GHz or 5GHz. -->
    <!-- Note that adding/removing/moving the items will need wifi settings code change. -->
     <string-array translatable="false" name="wifi_ap_band_config_full">
-        <item>0</item>
         <item>1</item>
+        <item>2</item>
     </string-array>
 
     <string-array translatable="false" name="wifi_ap_band_summary_full">
@@ -259,8 +259,8 @@
     </string-array>
 
     <string-array translatable="false" name="wifi_ap_band_dual_mode">
-        <item>0</item>
-        <item>-1</item>
+        <item>1</item>
+        <item>3</item>
     </string-array>
 
     <string-array translatable="false" name="wifi_ap_band_dual_mode_summary">
