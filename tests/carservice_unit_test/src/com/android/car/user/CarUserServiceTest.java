@@ -111,6 +111,7 @@ public class CarUserServiceTest {
                 .initMocks(this)
                 .strictness(Strictness.LENIENT)
                 .spyStatic(ActivityManager.class)
+                .mockStatic(Settings.Global.class)
                 .startMocking();
 
         doReturn(mApplicationContext).when(mMockContext).getApplicationContext();
@@ -134,6 +135,7 @@ public class CarUserServiceTest {
 
         mFakeCarOccupantZoneService = new FakeCarOccupantZoneService(mCarUserService);
         // Restore default value at the beginning of each test.
+        mockSettingsGlobal();
         putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 0);
     }
 
@@ -583,6 +585,19 @@ public class CarUserServiceTest {
     private void putSettingsInt(String key, int value) {
         Settings.Global.putInt(InstrumentationRegistry.getTargetContext().getContentResolver(),
                 key, value);
+    }
+
+    // TODO(b/148403316): Refactor to use common fake settings provider
+    private void mockSettingsGlobal() {
+        when(Settings.Global.putInt(any(), eq(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET),
+                anyInt())).thenAnswer(invocation -> {
+                            int value = (int) invocation.getArguments()[2];
+                            when(Settings.Global.getInt(any(),
+                                    eq(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET), anyInt()))
+                                    .thenReturn(value);
+                            return null;
+                        }
+        );
     }
 
     private int getSettingsInt(String key) {
