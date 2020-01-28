@@ -16,7 +16,18 @@
 
 // Build the Car service.
 
-car_service_sources = ["src/**/*.java"]
+genrule {
+    name: "statslog-Car-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module car --javaPackage com.android.car"
+        + " --javaClass CarStatsLog",
+    out: ["com/android/car/CarStatsLog.java"],
+}
+
+car_service_sources = [
+    "src/**/*.java",
+    ":statslog-Car-java-gen",
+]
 
 common_lib_deps = [
     "android.car.userlib",

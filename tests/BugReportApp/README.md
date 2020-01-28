@@ -44,7 +44,6 @@ Configs are defined in `Config.java`.
 
 ### System Properties
 
-- `android.car.bugreport.enableautoupload` - please see Config#ENABLE_AUTO_UPLOAD to learn more.
 - `android.car.bugreport.force_enable` - set it `true` to enable bugreport app on **all builds**.
 
 ### Upload configuration

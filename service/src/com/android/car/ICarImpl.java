@@ -188,8 +188,9 @@ public class ICarImpl extends ICar.Stub {
                 mCarDrivingStateService, mCarPropertyService);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext,
                 mCarUXRestrictionsService,
-                mSystemActivityMonitoringService);
-        mPerUserCarServiceHelper = new PerUserCarServiceHelper(serviceContext);
+                mSystemActivityMonitoringService,
+                mCarUserService);
+        mPerUserCarServiceHelper = new PerUserCarServiceHelper(serviceContext, mCarUserService);
         mCarBluetoothService = new CarBluetoothService(serviceContext, mPerUserCarServiceHelper);
         mCarInputService = new CarInputService(serviceContext, mHal.getInputHal());
         mCarProjectionService = new CarProjectionService(
@@ -237,7 +238,7 @@ public class ICarImpl extends ICar.Stub {
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
         mCarLocationService = new CarLocationService(serviceContext);
         mCarTrustedDeviceService = new CarTrustedDeviceService(serviceContext);
-        mCarMediaService = new CarMediaService(serviceContext);
+        mCarMediaService = new CarMediaService(serviceContext, mCarUserService);
         mCarBugreportManagerService = new CarBugreportManagerService(serviceContext);
         if (!Build.IS_USER) {
             mCarExperimentalFeatureServiceController = new CarExperimentalFeatureServiceController(

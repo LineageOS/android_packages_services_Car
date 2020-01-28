@@ -23,8 +23,8 @@ import android.content.pm.PackageManager;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.util.StatsEvent;
-import android.util.StatsLog;
 
+import com.android.car.CarStatsLog;
 import com.android.car.stats.VmsClientLogger.ConnectionState;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.os.BackgroundThread;
@@ -100,7 +100,7 @@ public class CarStatsService {
                 .setAdditiveFields(new int[] {5, 6, 7, 8, 9, 10})
                 .build();
         mStatsManager.registerPullAtomCallback(
-                StatsLog.VMS_CLIENT_STATS,
+                CarStatsLog.VMS_CLIENT_STATS,
                 metadata,
                 BackgroundThread.getExecutor(),
                 (atomTag, data) -> pullVmsClientStats(atomTag, data)
@@ -150,7 +150,7 @@ public class CarStatsService {
     }
 
     private int pullVmsClientStats(int atomTag, List<StatsEvent> pulledData) {
-        if (atomTag != StatsLog.VMS_CLIENT_STATS) {
+        if (atomTag != CarStatsLog.VMS_CLIENT_STATS) {
             Log.w(TAG, "Unexpected atom tag: " + atomTag);
             return StatsManager.PULL_SKIP;
         }

@@ -16,28 +16,26 @@
 
 package com.android.car;
 
-import android.util.StatsLog;
-
 /**
- * CarStatsLog provides API to send Car events to statd.
+ * CarStatsLogHelper provides API to send Car events to statd.
  * @hide
  */
-public class CarStatsLog {
+public class CarStatsLogHelper {
     /**
      * Logs a power state change event.
      * @param state an integer defined in CarPowerManagementService.CpmsState
      */
     public static void logPowerState(int state) {
-        StatsLog.write(StatsLog.CAR_POWER_STATE_CHANGED, state);
+        CarStatsLog.write(CarStatsLog.CAR_POWER_STATE_CHANGED, state);
     }
 
     /** Logs a GarageMode start event. */
     public static void logGarageModeStart() {
-        StatsLog.write(StatsLog.GARAGE_MODE_INFO, true);
+        CarStatsLog.write(CarStatsLog.GARAGE_MODE_INFO, true);
     }
 
     /** Logs a GarageMode stop event. */
     public static void logGarageModeStop() {
-        StatsLog.write(StatsLog.GARAGE_MODE_INFO, false);
+        CarStatsLog.write(CarStatsLog.GARAGE_MODE_INFO, false);
     }
 }
