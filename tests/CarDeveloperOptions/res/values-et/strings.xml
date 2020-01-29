@@ -1784,7 +1784,7 @@
     <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"Sama mis seadme ekraanilukk"</string>
     <string name="manageapplications_settings_title" msgid="6876782217962262376">"Halda rakendusi"</string>
     <string name="manageapplications_settings_summary" msgid="5092964799412478962">"Installitud rakenduste haldamine ja eemaldamine"</string>
-    <string name="applications_settings" msgid="368331725658793179">"Rakenduste teave"</string>
+    <string name="applications_settings" msgid="368331725658793179">"Rakenduse teave"</string>
     <string name="applications_settings_summary" msgid="8888258399577123906">"Rakenduste haldamine, kiirkäivituse otseteede seadistamine"</string>
     <string name="applications_settings_header" msgid="3766501606045211098">"Rakenduse seaded"</string>
     <string name="install_applications" msgid="7745902974984889179">"Tundmatud allikad"</string>
@@ -1796,7 +1796,7 @@
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"Teie seade ja isiklikud andmed on tundmatute rakenduste rünnakute suhtes haavatavamad. Sellest allikast rakendusi installides nõustute, et vastutate seadme kõigi kahjude ja andmekao eest, mis võivad selliste rakenduste kasutamisest tuleneda."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Täpsemad seaded"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Luba rohkem seadete valikuid"</string>
-    <string name="application_info_label" msgid="3886253474964599105">"Rakenduste teave"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"Rakenduse teave"</string>
     <string name="storage_label" msgid="1109537840103290384">"Mäluruum"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"Avamine vaikimisi"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Vaikeseaded"</string>
@@ -2391,7 +2391,7 @@
     <string name="usage_type_computed_power" msgid="2594890316149868151">"Arvutatud energiatarbimine"</string>
     <string name="usage_type_actual_power" msgid="8067253427718526111">"Tuvastatud energiatarbimine"</string>
     <string name="battery_action_stop" msgid="1866624019460630143">"Sunni peatuma"</string>
-    <string name="battery_action_app_details" msgid="1077011181969550402">"Rakenduste teave"</string>
+    <string name="battery_action_app_details" msgid="1077011181969550402">"Rakenduse teave"</string>
     <string name="battery_action_app_settings" msgid="587998773852488539">"Rakenduse seaded"</string>
     <string name="battery_action_display" msgid="4887913003634317465">"Ekraani seaded"</string>
     <string name="battery_action_wifi" msgid="7123520587925323824">"WiFi-seaded"</string>

@@ -4264,7 +4264,7 @@
     <string name="storage_manager_indicator" msgid="4255140732848476875">"ଷ୍ଟୋରେଜ ମ୍ୟାନେଜର: <xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"ଅଫ୍"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"ଅନ୍"</string>
-    <string name="install_type_instant" msgid="6248487669862821874">"ତତ୍‌କ୍ଷଣାତ୍ ଆପ୍‌"</string>
+    <string name="install_type_instant" msgid="6248487669862821874">"ଇନଷ୍ଟାଣ୍ଟ୍ ଆପ୍"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"ଷ୍ଟୋରେଜ୍‌ ମ୍ୟାନେଜର୍‌କୁ ବନ୍ଦ କରିବେ?"</string>
     <string name="storage_movies_tv" msgid="7282484273991655296">"ମୁଭି ଓ ଟିଭି ଆପ୍‌"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"ମୋବାଇଲ୍‌ ନେଟ୍‌ୱର୍କ ବାହକ ପ୍ରାବଧାନ ସୂଚନା"</string>

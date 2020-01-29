@@ -4159,7 +4159,7 @@
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"Synchroniser automatiquement les données personnelles"</string>
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"Synchroniser automatiquement les données professionnelles"</string>
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"Autoriser les applications à actualiser les données automatiquement"</string>
-    <string name="account_sync_title" msgid="1570164819114297154">"Synchro. du compte"</string>
+    <string name="account_sync_title" msgid="1570164819114297154">"Synchro du compte"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"La synchronisation est activée pour <xliff:g id="ID_1">%1$d</xliff:g> élément(s) sur <xliff:g id="ID_2">%2$d</xliff:g>"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"La synchronisation est activée pour tous les éléments"</string>
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"La synchronisation est désactivée pour tous les éléments"</string>
