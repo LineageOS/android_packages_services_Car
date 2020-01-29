@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.util.Log;
 
 import com.android.car.CarLog;
@@ -98,9 +99,9 @@ class  HalClient {
         }
 
         if (StatusCode.OK != status) {
-            throw new IllegalStateException(
-                    String.format("Failed to set property: 0x%x, areaId: 0x%x, "
-                            + "code: %d", propValue.prop, propValue.areaId, status));
+            Log.i(CarLog.TAG_HAL, String.format("Failed to set property: 0x%x, areaId: 0x%x, "
+                    + "code: %d", propValue.prop, propValue.areaId, status));
+            throw new ServiceSpecificException(status);
         }
     }
 
@@ -124,9 +125,9 @@ class  HalClient {
         }
 
         if (StatusCode.OK != status || valueWrapper.object == null) {
-            throw new IllegalStateException(
-                    String.format("Failed to get property: 0x%x, areaId: 0x%x, "
-                            + "code: %d", propId, areaId, status));
+            Log.i(CarLog.TAG_HAL, String.format("Failed to get property: 0x%x, areaId: 0x%x, "
+                    + "code: %d", requestedPropValue.prop, requestedPropValue.areaId, status));
+            throw new ServiceSpecificException(status);
         }
 
         return valueWrapper.object;

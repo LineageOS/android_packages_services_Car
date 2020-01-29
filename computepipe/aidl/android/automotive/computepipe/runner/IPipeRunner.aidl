@@ -152,10 +152,11 @@ interface IPipeRunner {
      * Signal completion of a packet having been consumed by the client.
      * With this signal from client the runner should release buffer corresponding to the packet.
      *
-     * @param id packet id
+     * @param bufferId Buffer id of the packet
+     * @param streamId Stream id of the packet
      * @param out OK void if successful
      */
-    void doneWithPacket(in int id);
+    void doneWithPacket(in int bufferId, in int streamId);
 
     /**
      * Returns the debugger associated with the runner for this graph

@@ -266,6 +266,7 @@ public class BugReportService extends Service {
                 PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
         return new Notification.Builder(this, PROGRESS_CHANNEL_ID)
                 .setContentTitle(getText(R.string.notification_bugreport_in_progress))
+                .setContentText(mMetaBugReport.getTitle())
                 .setSubText(String.format("%.1f%%", mBugReportProgress.get()))
                 .setSmallIcon(R.drawable.download_animation)
                 .setCategory(Notification.CATEGORY_STATUS)

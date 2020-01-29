@@ -45,6 +45,7 @@ import android.car.hardware.property.ICarProperty;
 import android.car.media.CarAudioManager;
 import android.car.media.CarMediaManager;
 import android.car.navigation.CarNavigationStatusManager;
+import android.car.occupantawareness.OccupantAwarenessManager;
 import android.car.settings.CarConfigurationManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.test.CarTestManagerBinderWrapper;
@@ -229,6 +230,11 @@ public final class Car {
      * Service name for {@link CarUxRestrictionsManager}
      */
     public static final String CAR_UX_RESTRICTION_SERVICE = "uxrestriction";
+
+    /** @hide */
+    @OptionalFeature
+    @SystemApi
+    public static final String OCCUPANT_AWARENESS_SERVICE = "occupant_awareness";
 
     /**
      * Service name for {@link android.car.settings.CarConfigurationManager}
@@ -582,6 +588,24 @@ public final class Car {
      */
     public static final String PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION =
             "android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION";
+
+    /**
+     * Permission necessary to listen to occupant awareness state {@link OccupantAwarenessManager}.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE =
+            "android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE";
+
+    /**
+     * Permission necessary to modify occupant awareness graph.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM =
+            "android.car.permission.CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM";
 
     /**
      * Permissions necessary to clear diagnostic information.
@@ -1597,6 +1621,9 @@ public final class Car {
                 break;
             case CAR_UX_RESTRICTION_SERVICE:
                 manager = new CarUxRestrictionsManager(this, binder);
+                break;
+            case OCCUPANT_AWARENESS_SERVICE:
+                manager = new OccupantAwarenessManager(this, binder);
                 break;
             case CAR_CONFIGURATION_SERVICE:
                 manager = new CarConfigurationManager(this, binder);
