@@ -81,6 +81,10 @@ class AidlClientImpl : public aidl::android::automotive::computepipe::runner::Bn
     // client to invoke doneWithPacket.
     Status DispatchSemanticData(int32_t streamId, const std::shared_ptr<MemHandle>& packetHandle);
 
+    // Dispatch pixel data to client. Expects the client to invoke done with
+    // packet.
+    Status DispatchPixelData(int32_t streamId, const std::shared_ptr<MemHandle>& packetHandle);
+
     bool isClientInitDone();
 
     const proto::Options mGraphOptions;

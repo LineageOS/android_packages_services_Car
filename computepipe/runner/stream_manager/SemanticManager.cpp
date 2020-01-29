@@ -1,8 +1,11 @@
 #include "SemanticManager.h"
 
+#include <android-base/logging.h>
+
 #include <cstdlib>
 #include <thread>
 
+#include "InputFrame.h"
 #include "types/Status.h"
 
 namespace android {
@@ -27,15 +30,18 @@ const char* SemanticHandle::getData() const {
     return mData;
 }
 
-native_handle_t SemanticHandle::getNativeHandle() const {
-    native_handle_t temp;
-    temp.numFds = 0;
-    temp.numInts = 0;
-    return temp;
+AHardwareBuffer* SemanticHandle::getHardwareBuffer() const {
+    return nullptr;
 }
 
 int SemanticHandle::getStreamId() const {
     return mStreamId;
+}
+
+// Buffer id is not tracked for semantic handle as they do not need a
+// doneWithPacket() call.
+int SemanticHandle::getBufferId() const {
+    return -1;
 }
 
 Status SemanticHandle::setMemInfo(int streamId, const char* data, uint32_t size, uint64_t timestamp,
@@ -133,7 +139,7 @@ Status SemanticManager::handleStopImmediatePhase(const RunnerEvent& e) {
     return handleStopWithFlushPhase(e);
 }
 
-Status SemanticManager::freePacket(const std::shared_ptr<MemHandle>& /* handle */) {
+Status SemanticManager::freePacket(int /* bufferId */) {
     return SUCCESS;
 }
 
@@ -154,6 +160,11 @@ Status SemanticManager::queuePacket(const char* data, const uint32_t size, uint6
     }
     mEngine->dispatchPacket(memHandle);
     return SUCCESS;
+}
+
+Status SemanticManager::queuePacket(const InputFrame& /*inputData*/, uint64_t /*timestamp*/) {
+    LOG(ERROR) << "Unexpected call to queue a pixel packet from a semantic stream manager.";
+    return Status::ILLEGAL_STATE;
 }
 
 SemanticManager::SemanticManager(std::string name, int streamId, const proto::PacketType& type)

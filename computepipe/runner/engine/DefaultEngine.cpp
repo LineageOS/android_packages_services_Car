@@ -137,10 +137,13 @@ Status DefaultEngine::processClientCommand(const proto::ControlCommand& command)
     return Status::SUCCESS;
 }
 
-Status DefaultEngine::freePacket(const std::shared_ptr<MemHandle>& packet) {
-    int streamId = packet->getStreamId();
-    mStreamManagers[streamId]->freePacket(packet);
-    return Status::SUCCESS;
+Status DefaultEngine::freePacket(int bufferId, int streamId) {
+    if (mStreamManagers.find(streamId) == mStreamManagers.end()) {
+        LOG(ERROR)
+            << "Unable to find the stream manager corresponding to the id for freeing the packet.";
+        return Status::INVALID_ARGUMENT;
+    }
+    return mStreamManagers[streamId]->freePacket(bufferId);
 }
 
 /**

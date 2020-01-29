@@ -16,7 +16,7 @@
 #define COMPUTEPIPE_RUNNER_STREAM_MANAGER_MEMHANDLE_H
 
 #include <OutputConfig.pb.h>
-#include <cutils/native_handle.h>
+#include <vndk/hardware_buffer.h>
 
 namespace android {
 namespace automotive {
@@ -26,6 +26,8 @@ class MemHandle {
   public:
     /* Retrieve stream Id */
     virtual int getStreamId() const = 0;
+    /* Retrieves the buffer id */
+    virtual int getBufferId() const = 0;
     /* Retrieve packet type */
     virtual proto::PacketType getType() const = 0;
     /* Retrieve packet time stamp */
@@ -35,7 +37,7 @@ class MemHandle {
     /* Get data, raw pointer. Only implemented for copy semantics */
     virtual const char* getData() const = 0;
     /* Get native handle. data with zero copy semantics */
-    virtual native_handle_t getNativeHandle() const = 0;
+    virtual AHardwareBuffer* getHardwareBuffer() const = 0;
 
     virtual ~MemHandle() {
     }

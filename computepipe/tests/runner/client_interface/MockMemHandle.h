@@ -29,11 +29,12 @@ namespace tests {
 class MockMemHandle : public MemHandle {
   public:
     MOCK_CONST_METHOD0(getStreamId, int());
+    MOCK_CONST_METHOD0(getBufferId, int());
     MOCK_CONST_METHOD0(getType, proto::PacketType());
     MOCK_CONST_METHOD0(getTimeStamp, uint64_t());
     MOCK_CONST_METHOD0(getSize, uint32_t());
     MOCK_CONST_METHOD0(getData, const char*());
-    MOCK_CONST_METHOD0(getNativeHandle, native_handle_t());
+    MOCK_CONST_METHOD0(getHardwareBuffer, AHardwareBuffer*());
 };
 
 }  // namespace tests
