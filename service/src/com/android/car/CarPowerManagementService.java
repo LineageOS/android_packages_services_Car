@@ -109,6 +109,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mLock")
     private boolean mIsResuming;
     @GuardedBy("mLock")
+    private int mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
+    @GuardedBy("mLock")
+    private int mShutdownPollingIntervalMs = SHUTDOWN_POLLING_INTERVAL_MS;
+    @GuardedBy("mLock")
     private boolean mRebootAfterGarageMode;
     private final boolean mDisableUserSwitchDuringResume;
     private final CarUserManagerHelper mCarUserManagerHelper;
@@ -120,8 +124,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     // maxGarageModeRunningDurationInSecs should be equal or greater than this. 15 min for now.
     private static final int MIN_MAX_GARAGE_MODE_DURATION_MS = 15 * 60 * 1000;
-
-    private static int sShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
 
     // in secs
     private static final String PROP_MAX_GARAGE_MODE_DURATION_OVERRIDE =
@@ -156,14 +158,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mUserManager = userManager;
         mDisableUserSwitchDuringResume = resources
                 .getBoolean(R.bool.config_disableUserSwitchDuringResume);
-        sShutdownPrepareTimeMs = resources.getInteger(
+        mShutdownPrepareTimeMs = resources.getInteger(
                 R.integer.maxGarageModeRunningDurationInSecs) * 1000;
-        if (sShutdownPrepareTimeMs < MIN_MAX_GARAGE_MODE_DURATION_MS) {
+        if (mShutdownPrepareTimeMs < MIN_MAX_GARAGE_MODE_DURATION_MS) {
             Log.w(CarLog.TAG_POWER,
                     "maxGarageModeRunningDurationInSecs smaller than minimum required, resource:"
-                    + sShutdownPrepareTimeMs + "(ms) while should exceed:"
+                    + mShutdownPrepareTimeMs + "(ms) while should exceed:"
                     +  MIN_MAX_GARAGE_MODE_DURATION_MS + "(ms), Ignore resource.");
-            sShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
+            mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
         }
     }
 
@@ -185,12 +187,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @VisibleForTesting
-    protected static void setShutdownPrepareTimeout(int timeoutMs) {
-        // Override the timeout to keep testing time short
-        if (timeoutMs < SHUTDOWN_EXTEND_MAX_MS) {
-            sShutdownPrepareTimeMs = SHUTDOWN_EXTEND_MAX_MS;
-        } else {
-            sShutdownPrepareTimeMs = timeoutMs;
+    protected void setShutdownTimersForTest(int pollingIntervalMs, int shutdownTimeoutMs) {
+        // Override timers to keep testing time short
+        // Passing in '0' resets the value to the default
+        synchronized (mLock) {
+            mShutdownPollingIntervalMs =
+                    (pollingIntervalMs == 0) ? SHUTDOWN_POLLING_INTERVAL_MS : pollingIntervalMs;
+            mShutdownPrepareTimeMs =
+                    (shutdownTimeoutMs == 0) ? SHUTDOWN_EXTEND_MAX_MS : shutdownTimeoutMs;
         }
     }
 
@@ -243,16 +247,19 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void dump(PrintWriter writer) {
-        writer.println("*PowerManagementService*");
-        writer.print("mCurrentState:" + mCurrentState);
-        writer.print(",mProcessingStartTime:" + mProcessingStartTime);
-        writer.print(",mLastSleepEntryTime:" + mLastSleepEntryTime);
-        writer.print(",mNextWakeupSec:" + mNextWakeupSec);
-        writer.print(",mShutdownOnNextSuspend:" + mShutdownOnNextSuspend);
-        writer.print(",mShutdownOnFinish:" + mShutdownOnFinish);
-        writer.print(",sShutdownPrepareTimeMs:" + sShutdownPrepareTimeMs);
-        writer.print(",mDisableUserSwitchDuringResume:" + mDisableUserSwitchDuringResume);
-        writer.println(",mRebootAfterGarageMode:" + mRebootAfterGarageMode);
+        synchronized (mLock) {
+            writer.println("*PowerManagementService*");
+            writer.print("mCurrentState:" + mCurrentState);
+            writer.print(",mProcessingStartTime:" + mProcessingStartTime);
+            writer.print(",mLastSleepEntryTime:" + mLastSleepEntryTime);
+            writer.print(",mNextWakeupSec:" + mNextWakeupSec);
+            writer.print(",mShutdownOnNextSuspend:" + mShutdownOnNextSuspend);
+            writer.print(",mShutdownOnFinish:" + mShutdownOnFinish);
+            writer.print(",mShutdownPollingIntervalMs:" + mShutdownPollingIntervalMs);
+            writer.print(",mShutdownPrepareTimeMs:" + mShutdownPrepareTimeMs);
+            writer.print(",mDisableUserSwitchDuringResume:" + mDisableUserSwitchDuringResume);
+            writer.println(",mRebootAfterGarageMode:" + mRebootAfterGarageMode);
+        }
     }
 
     @Override
@@ -578,13 +585,18 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void doHandlePreprocessing() {
-        int pollingCount = (sShutdownPrepareTimeMs / SHUTDOWN_POLLING_INTERVAL_MS) + 1;
+        int intervalMs;
+        int pollingCount;
+        synchronized (mLock) {
+            intervalMs = mShutdownPollingIntervalMs;
+            pollingCount = (mShutdownPrepareTimeMs / mShutdownPollingIntervalMs) + 1;
+        }
         if (Build.IS_USERDEBUG || Build.IS_ENG) {
             int shutdownPrepareTimeOverrideInSecs =
                     SystemProperties.getInt(PROP_MAX_GARAGE_MODE_DURATION_OVERRIDE, -1);
             if (shutdownPrepareTimeOverrideInSecs >= 0) {
                 pollingCount =
-                        (shutdownPrepareTimeOverrideInSecs * 1000 / SHUTDOWN_POLLING_INTERVAL_MS)
+                        (shutdownPrepareTimeOverrideInSecs * 1000 / intervalMs)
                                 + 1;
                 Log.i(CarLog.TAG_POWER,
                         "Garage mode duration overridden secs:"
@@ -592,7 +604,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
         }
         Log.i(CarLog.TAG_POWER, "processing before shutdown expected for: "
-                + sShutdownPrepareTimeMs + " ms, adding polling:" + pollingCount);
+                + mShutdownPrepareTimeMs + " ms, adding polling:" + pollingCount);
         synchronized (mLock) {
             mProcessingStartTime = SystemClock.elapsedRealtime();
             releaseTimerLocked();
@@ -601,7 +613,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mTimer.scheduleAtFixedRate(
                     new ShutdownProcessingTimerTask(pollingCount),
                     0 /*delay*/,
-                    SHUTDOWN_POLLING_INTERVAL_MS);
+                    intervalMs);
         }
     }
 

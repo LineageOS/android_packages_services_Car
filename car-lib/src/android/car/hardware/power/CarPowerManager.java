@@ -220,14 +220,18 @@ public class CarPowerManager extends CarManagerBase {
                             future = mFuture;
                         }
                         // Notify user that the state has changed and supply a future
-                        listenerWithCompletion.onStateChanged(state, future);
+                        if (listenerWithCompletion != null) {
+                            listenerWithCompletion.onStateChanged(state, future);
+                        }
                     } else {
                         CarPowerStateListener listener;
                         synchronized (mLock) {
                             listener = mListener;
                         }
                         // Notify the user without supplying a future
-                        listener.onStateChanged(state);
+                        if (listener != null) {
+                            listener.onStateChanged(state);
+                        }
                     }
                 }
             };
