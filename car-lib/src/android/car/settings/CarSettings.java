@@ -76,6 +76,15 @@ public class CarSettings {
          */
         public static final String DEFAULT_USER_RESTRICTIONS_SET =
                 "android.car.DEFAULT_USER_RESTRICTIONS_SET";
+
+        /**
+         * Developer settings String used to explicitly enable the user switch message when
+         * set to {@code "true"}.
+         *
+         * @hide
+         */
+        public static final String ENABLE_USER_SWITCH_DEVELOPER_MESSAGE =
+                "android.car.ENABLE_USER_SWITCH_DEVELOPER_MESSAGE";
     }
 
     /**
