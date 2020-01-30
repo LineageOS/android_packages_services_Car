@@ -231,7 +231,6 @@ public final class CarUserManagerHelper {
      */
     @SystemApi
     public int getInitialUser() {
-        // TODO(b/146020398): update tests cases, as it used to return persistent users only
         List<Integer> allUsers = userInfoListToUserIdList(getAllUsers());
 
         int bootUserOverride = mTestableFrameworkWrapper.getBootUserOverrideId(BOOT_USER_NOT_FOUND);

@@ -427,6 +427,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             return;
         } else if (isTargetPersistent) {
+            // TODO(b/146380030): decide whether we should delete it or not
             // Shouldn't happen neither, but it's not a big deal (guest will be replaced below
             // anyway), but it's worth logging as well...
             Log.w(CarLog.TAG_POWER, "target user is a non-ephemeral guest: "
@@ -452,6 +453,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mUserManager.removeUser(targetUserId);
         } else {
             Log.wtf(CarLog.TAG_POWER, "Could not create new guest");
+            // TODO(b/146380030): decide whether we should switch to SYSTEM
         }
     }
 
@@ -468,7 +470,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mCarUserManagerHelper.switchToUserId(toUser);
     }
 
-    // TODO(b/146020398): test scenarios that return it
     private int getFirstSwitchableUser() {
         List<UserInfo> allUsers = mUserManager.getUsers();
         for (UserInfo user : allUsers) {
