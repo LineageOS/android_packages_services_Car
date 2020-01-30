@@ -61,6 +61,7 @@ public:
     Return<void>                getCameraList_1_1(getCameraList_1_1_cb _hidl_cb) override;
     Return<sp<IEvsCamera_1_1>>  openCamera_1_1(const hidl_string& cameraId,
                                                const Stream& streamCfg) override;
+    Return<bool>                isHardware() override { return false; }
 
     // Implementation details
     bool init(const char* hardwareServiceName);
