@@ -65,6 +65,12 @@ java_library {
     srcs: ["src/android/car/navigation/navigation_state.proto"]
 }
 
+// library to access settings from CarSettings 
+java_library {
+    name: "android.car.settings",
+    srcs: ["src/android/car/settings/CarSettings.java"]
+}
+
 java_library {
     name: "android.car",
     srcs: [
