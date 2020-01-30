@@ -165,7 +165,7 @@ public class CarPowerManagementServiceTest {
                 + ", maxGarageModeRunningDurationInSecs="
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
-                mSystemInterface, mCarUserManagerHelper);
+                mSystemInterface, mCarUserManagerHelper, mUserManager);
         mService.init();
         CarPowerManagementService.setShutdownPrepareTimeout(0);
         mPowerHal.setSignalListener(mPowerSignalListener);
