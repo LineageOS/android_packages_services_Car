@@ -4129,7 +4129,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Pak je telefoon op om de tijd, meldingen en andere informatie te bekijken."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Pak je tablet op om de tijd, meldingen en andere informatie te bekijken."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Pak je apparaat op om de tijd, meldingen en andere informatie te bekijken."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tik om telefoon te controleren"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tikken om telefoon te checken"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Tik om tablet te controleren"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Tik om apparaat te controleren"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Tik op je scherm om de tijd, meldingen en andere informatie te bekijken."</string>

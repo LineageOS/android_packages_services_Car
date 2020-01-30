@@ -131,5 +131,7 @@
     <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"Testmodus van auto bedienen"</string>
     <string name="car_permission_label_control_car_features" msgid="3905791560378888286">"Functies van de auto in- of uitschakelen"</string>
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Functies van de auto in- of uitschakelen."</string>
+    <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"auto-watchdog gebruiken"</string>
+    <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Auto-watchdog gebruiken."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mijn apparaat"</string>
 </resources>

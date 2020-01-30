@@ -131,5 +131,7 @@
     <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"Auto testrežiimi haldamine"</string>
     <string name="car_permission_label_control_car_features" msgid="3905791560378888286">"Auto funktsioonide lubamine ja keelamine"</string>
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Võimalik on lubada ja keelata auto funktsioone."</string>
+    <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"kasuta auto valvesüsteemi"</string>
+    <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Kasuta auto valvesüsteemi."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Minu seade"</string>
 </resources>

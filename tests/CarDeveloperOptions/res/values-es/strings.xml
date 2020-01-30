@@ -4160,7 +4160,7 @@
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"Sincronizar datos del trabajo automáticamente"</string>
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"Permitir que las aplicaciones actualicen los datos automáticamente"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"Sincronización"</string>
-    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"Elementos con la sincronización activada: <xliff:g id="ID_1">%1$d</xliff:g> de <xliff:g id="ID_2">%2$d</xliff:g>"</string>
+    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"Sincronización activada para <xliff:g id="ID_1">%1$d</xliff:g> de <xliff:g id="ID_2">%2$d</xliff:g> elementos"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Sincronización activada para todos los elementos"</string>
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"Sincronización desactivada para todos los elementos"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"Información sobre el dispositivo administrado"</string>

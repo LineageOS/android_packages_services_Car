@@ -3590,7 +3590,7 @@
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"လင့်ခ်များကို ဖွင့်ခြင်း"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"ထောက်ပံ့ထားသည့် လင့်များကို ဖွင့်မည်"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"မမ​ေးမြန်းဘဲ ဖွင့်မည်"</string>
-    <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"ထောက်ပံ့ထားသည့်လင့်ခ်များ"</string>
+    <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"ပံ့ပိုးထားသည့်လင့်ခ်များ"</string>
     <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"အခြား မူရင်းများ"</string>
     <string name="storage_summary_format" msgid="2166430500147022935">"<xliff:g id="STORAGE_TYPE">%2$s</xliff:g>ထဲတွင် <xliff:g id="SIZE">%1$s</xliff:g>သုံးထားသည်"</string>
     <string name="storage_type_internal" msgid="4434212376539293892">"စက်တွင်း သိုလှောင်ထားမှု"</string>

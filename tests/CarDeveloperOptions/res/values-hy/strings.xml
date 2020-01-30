@@ -4241,7 +4241,7 @@
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"Օգտագործված է <xliff:g id="TOTAL">%1$s</xliff:g>-ից"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"զբաղված է"</string>
-    <string name="clear_instant_app_data" msgid="3673669086522890405">"Մաքրել հավելվածի տվյալները"</string>
+    <string name="clear_instant_app_data" msgid="3673669086522890405">"Հեռացնել սարքից"</string>
     <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"Հեռացնե՞լ այս ակնթարթային հավելվածը։"</string>
     <string name="launch_instant_app" msgid="5251693061228352333">"Բացել"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"Խաղեր"</string>

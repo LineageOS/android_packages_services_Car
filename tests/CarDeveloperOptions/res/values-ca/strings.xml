@@ -503,7 +503,7 @@
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"Suprimeix <xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>"</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Vols suprimir aquesta empremta digital?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"No podràs fer servir les empremtes digitals per desbloquejar el telèfon, autoritzar compres ni iniciar la sessió en aplicacions"</string>
-    <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"No podràs utilitzar les empremtes digitals per desbloquejar el teu perfil professional, autoritzar compres ni iniciar la sessió en aplicacions de la feina"</string>
+    <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"No podràs utilitzar les empremtes digitals per desbloquejar el teu perfil professional, autoritzar compres ni iniciar la sessió en aplicacions de treball"</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"Sí, suprimeix"</string>
     <string name="crypt_keeper_settings_title" msgid="839783588093862748">"Encriptació"</string>
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"Encriptació de la tauleta"</string>
@@ -1150,12 +1150,12 @@
     <string name="dock_audio_settings_title" msgid="569878977159555611">"Àudio"</string>
     <string name="dock_audio_summary_desk" msgid="7392976991908633214">"Configuració de la base d\'escriptori"</string>
     <string name="dock_audio_summary_car" msgid="56931858694127021">"Configuració de la base del vehicle"</string>
-    <string name="dock_audio_summary_none" product="tablet" msgid="1406968511715778099">"Tauleta no connectada"</string>
-    <string name="dock_audio_summary_none" product="default" msgid="2704912407397319084">"Telèfon no connectat"</string>
+    <string name="dock_audio_summary_none" product="tablet" msgid="1406968511715778099">"Tauleta no acoblada"</string>
+    <string name="dock_audio_summary_none" product="default" msgid="2704912407397319084">"Telèfon no acoblat"</string>
     <string name="dock_audio_summary_unknown" msgid="1615958511030469507">"Configuració de la base adjunta"</string>
     <string name="dock_not_found_title" msgid="2035088760477532435">"No s\'ha trobat la base"</string>
     <string name="dock_not_found_text" product="tablet" msgid="5996654431405111902">"Per configurar l\'àudio de la base, has de connectar-hi la tauleta."</string>
-    <string name="dock_not_found_text" product="default" msgid="8275091896320216368">"Per configurar l\'àudio de la base, has de connectar-hi el telèfon."</string>
+    <string name="dock_not_found_text" product="default" msgid="8275091896320216368">"Per configurar l\'àudio de la base, has de acoblar-hi el telèfon."</string>
     <string name="dock_sounds_enable_title" msgid="3385931465312084061">"So en inserir a la base"</string>
     <string name="dock_sounds_enable_summary_on" product="tablet" msgid="4322104626905111669">"Reprodueix so en inserir o retirar la tauleta de la base"</string>
     <string name="dock_sounds_enable_summary_on" product="default" msgid="2751810717801098293">"Reprodueix so en inserir o treure el telèfon de la base"</string>
@@ -1244,10 +1244,10 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Personalitza la pantalla"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Selecciona fons de pantalla de"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Estalvi de pantalla"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Mentre es carrega o està connectat a la base"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Mentre es carrega o està acoblat a la base"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"Els dos casos"</string>
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Mentre es carrega"</string>
-    <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Mentre està connectat a la base"</string>
+    <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Mentre està acoblat a la base"</string>
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"Mai"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"Desactivat"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"Per controlar què passa quan el telèfon està acoblat a una base o en mode de repòs, activa l\'estalvi de pantalla."</string>
@@ -2250,7 +2250,7 @@
     <string name="battery_stats_screen_on_label" msgid="1223495366609581497">"Pantalla activada"</string>
     <string name="battery_stats_gps_on_label" msgid="3944533098574423359">"GPS activat"</string>
     <string name="battery_stats_camera_on_label" msgid="557892808497848886">"Càmera activada"</string>
-    <string name="battery_stats_flashlight_on_label" msgid="162279812156241905">"Llanterna activada"</string>
+    <string name="battery_stats_flashlight_on_label" msgid="162279812156241905">"Llanterna encesa"</string>
     <string name="battery_stats_wifi_running_label" msgid="3223557320252465826">"Wi-Fi"</string>
     <string name="battery_stats_wake_lock_label" msgid="670884103452713535">"Activa"</string>
     <string name="battery_stats_phone_signal_label" msgid="2502589944816260503">"Senyal de xarxa mòbil"</string>
@@ -2628,8 +2628,8 @@
     <string name="header_add_an_account" msgid="8482614556580804956">"Afegeix un compte"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Vols suprimir el compte?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Si elimines aquest compte, se\'n suprimiran tots els missatges, els contactes i les altres dades de la tauleta."</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Si suprimeixes aquest compte, se n\'eliminaran tots els missatges, els contactes i altres dades del telèfon."</string>
-    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Si suprimeixes aquest compte, se\'n suprimiran tots els missatges, els contactes i la resta de dades del dispositiu."</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Si suprimeixes aquest compte, se\'n suprimiran tots els missatges, els contactes i altres dades del telèfon."</string>
+    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Si suprimeixes aquest compte, se\'n suprimiran tots els missatges, els contactes i altres dades del dispositiu."</string>
     <string name="remove_account_failed" msgid="491458185327106966">"L\'administrador no permet aquest canvi"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"No es pot sincronitzar manualment"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"En aquest moment, la sincronització d\'aquest element no està disponible. Per canviar la preferència, activa temporalment les dades en segon pla i la sincronització automàtica."</string>
