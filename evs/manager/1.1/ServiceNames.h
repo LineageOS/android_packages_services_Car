@@ -19,7 +19,7 @@
 const static char kManagedEnumeratorName[] = "default";
 
 // This is the name of the hardware provider to which we'll bind by default
-const static char kHardwareEnumeratorName[]  = "EvsEnumeratorHw";
+const static char kHardwareEnumeratorName[]  = "hw/1";
 
 // This is the name of the mock hardware provider selectable via command line.
 // (should match .../hardware/interfaces/automotive/evs/1.1/default/ServiceNames.h)
