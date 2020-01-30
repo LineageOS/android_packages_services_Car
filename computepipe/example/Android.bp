@@ -31,9 +31,9 @@ cc_binary {
         "android.automotive.computepipe.registry-ndk_platform",
         "liblog",
         "libutils",
-        "libbase",
         "libdl",
         "libfacegraph",
+	"libnativewindow",
     ],
     cflags: ["-DLOG_TAG=\"ComputepipeRunner\""] + [
         "-D_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",

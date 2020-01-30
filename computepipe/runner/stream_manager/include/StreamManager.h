@@ -19,6 +19,7 @@
 #include <memory>
 #include <string>
 
+#include "InputFrame.h"
 #include "MemHandle.h"
 #include "OutputConfig.pb.h"
 #include "RunnerComponent.h"
@@ -61,10 +62,12 @@ class StreamManager : public RunnerComponentInterface {
     State getState() {
         return mState;
     }
-    /* Frees previously dispatched packet. Once client has confirmed usage */
-    virtual Status freePacket(const std::shared_ptr<MemHandle>& memhandle) = 0;
+    /* Frees previously dispatched packet based on bufferID. Once client has confirmed usage */
+    virtual Status freePacket(int bufferId) = 0;
     /* Queue's packet produced by graph stream */
     virtual Status queuePacket(const char* data, const uint32_t size, uint64_t timestamp) = 0;
+    /* Queues a pixel stream packet produced by graph stream */
+    virtual Status queuePacket(const InputFrame& pixelData, uint64_t timestamp) = 0;
     /* Destructor */
     virtual ~StreamManager() = default;
 

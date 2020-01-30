@@ -27,7 +27,7 @@ cc_library {
         "libcomputepipeprotos",
         "computepipe_runner_component",
         "computepipe_input_manager",
-        "libcomputepipe_stream_manager",
+        "computepipe_stream_manager",
     ],
     shared_libs: [
         "computepipe_client_interface",
@@ -41,6 +41,7 @@ cc_library {
         "libhardware",
         "libhidlbase",
         "liblog",
+	"libnativewindow",
         "libpng",
         "libprotobuf-cpp-lite",
         "libui",

@@ -32,7 +32,7 @@ class MockEngine : public ClientEngineInterface {
   public:
     MOCK_METHOD1(processClientConfigUpdate, Status(const proto::ConfigurationCommand&));
     MOCK_METHOD1(processClientCommand, Status(const proto::ControlCommand&));
-    MOCK_METHOD1(freePacket, Status(const std::shared_ptr<MemHandle>&));
+    MOCK_METHOD2(freePacket, Status(int bufferId, int streamId));
 };
 
 }  // namespace tests

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "OutputConfig.pb.h"
+#include "PixelStreamManager.h"
 #include "SemanticManager.h"
 #include "StreamEngineInterface.h"
 #include "StreamManager.h"
@@ -39,6 +40,19 @@ std::unique_ptr<SemanticManager> buildSemanticManager(const proto::OutputConfig&
     }
     return semanticManager;
 }
+
+std::unique_ptr<PixelStreamManager> buildPixelStreamManager(
+    const proto::OutputConfig& config, std::shared_ptr<StreamEngineInterface> engine,
+    uint32_t maxPackets) {
+    std::unique_ptr<PixelStreamManager> pixelStreamManager =
+        std::make_unique<PixelStreamManager>(config.stream_name(), config.stream_id());
+    pixelStreamManager->setEngineInterface(engine);
+    if (pixelStreamManager->setMaxInFlightPackets(maxPackets) != Status::SUCCESS) {
+        return nullptr;
+    }
+    return pixelStreamManager;
+}
+
 }  // namespace
 
 std::unique_ptr<StreamManager> StreamManagerFactory::getStreamManager(
@@ -50,6 +64,8 @@ std::unique_ptr<StreamManager> StreamManagerFactory::getStreamManager(
     switch (config.type()) {
         case proto::PacketType::SEMANTIC_DATA:
             return buildSemanticManager(config, engine, maxPackets);
+        case proto::PacketType::PIXEL_DATA:
+            return buildPixelStreamManager(config, engine, maxPackets);
         default:
             return nullptr;
     }
