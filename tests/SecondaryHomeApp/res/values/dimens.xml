@@ -24,4 +24,6 @@
     <dimen name="app_grid_margin_top">24dp</dimen>
     <dimen name="app_grid_margin_left">8dp</dimen>
     <dimen name="app_grid_margin_right">8dp</dimen>
+    <dimen name="notification_title_bar_height">8dp</dimen>
+    <dimen name="notification_primary_icon_size">64dp</dimen>
 </resources>

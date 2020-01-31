@@ -22,4 +22,5 @@
     <string-array name="hidden_apps" translatable="false">
         <item>com.android.car.secondaryhome</item>
     </string-array>
+    <string name="clear_all">Clear all</string>
 </resources>
