@@ -944,8 +944,10 @@ package android.car.occupantawareness {
     method @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE) public void unregisterChangeCallback();
   }
 
-  public abstract class OccupantAwarenessManager.ChangeCallback {
+  public abstract static class OccupantAwarenessManager.ChangeCallback {
     ctor public OccupantAwarenessManager.ChangeCallback();
+    method public abstract void onDetectionEvent(@NonNull android.car.occupantawareness.OccupantAwarenessDetection);
+    method public abstract void onSystemStateChanged(@NonNull android.car.occupantawareness.SystemStatusEvent);
   }
 
   public final class Point3D implements android.os.Parcelable {
