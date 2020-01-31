@@ -22,8 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Acceder ás cámaras do coche."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"acceder a información sobre o nivel de enerxía do coche"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Acceder a información de enerxía do coche."</string>
-    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"axustar alcance restante do coche"</string>
-    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Axusta o valor de alcance restante do coche."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"axustar autonomía restante do coche"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Axusta o valor de autonomía restante do coche."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"acceder ao sistema de climatización do coche"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Acceder ao sistema de HVAC coche."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"acceder a información da quilometraxe do coche"</string>
@@ -131,5 +131,7 @@
     <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"Controlar o modo de proba do coche"</string>
     <string name="car_permission_label_control_car_features" msgid="3905791560378888286">"Activar ou desactivar funcións do coche"</string>
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Activa ou desactiva as funcións do coche."</string>
+    <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"utilizar sistema de vixilancia do coche"</string>
+    <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Utiliza o sistema de vixilancia do coche."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Dispositivo"</string>
 </resources>

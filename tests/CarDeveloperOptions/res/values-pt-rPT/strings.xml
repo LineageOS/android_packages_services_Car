@@ -1790,7 +1790,7 @@
     <string name="install_applications" msgid="7745902974984889179">"Fontes desconhecidas"</string>
     <string name="install_applications_title" msgid="8164828577588659496">"Permit. todas as fontes app"</string>
     <string name="recent_app_category_title" msgid="7688788038277126727">"Aplicações abertas recentemente"</string>
-    <string name="see_all_apps_title" msgid="6435061912110347474">"Ver as <xliff:g id="COUNT">%1$d</xliff:g> aplicações"</string>
+    <string name="see_all_apps_title" msgid="6435061912110347474">"Ver as <xliff:g id="COUNT">%1$d</xliff:g> apps"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"O seu tablet e os dados pessoais são mais vulneráveis a ataques de aplicações desconhecidas. Ao instalar aplicações desta fonte, aceita ser responsável por quaisquer danos no tablet ou perdas de dados que possam resultar da utilização do mesmo."</string>
     <string name="install_all_warning" product="default" msgid="7445839116997296358">"O seu telemóvel e os dados pessoais são mais vulneráveis a ataques de aplicações desconhecidas. Ao instalar aplicações desta fonte, aceita ser responsável por quaisquer danos no telemóvel ou perdas de dados que possam resultar da utilização do mesmo."</string>
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"O dispositivo e os dados pessoais são mais vulneráveis a ataques de aplicações desconhecidas. Ao instalar aplicações desta fonte, aceita ser responsável por quaisquer danos no dispositivo ou perdas de dados que possam resultar da utilização do mesmo."</string>
@@ -2924,7 +2924,7 @@
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Num terminal Tocar e pagar, pagar com:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagar num terminal"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configure uma aplicação de pagamento. Em seguida, basta aproximar a parte de trás do telemóvel a um terminal com o símbolo de pagamento sem contacto."</string>
-    <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Compreendi"</string>
+    <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"OK"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Mais..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Definir como preferência?"</string>
     <string name="nfc_payment_set_default" msgid="1186837502664412132">"Pretende utilizar sempre <xliff:g id="APP">%1$s</xliff:g> com a funcionalidade Tocar e pagar?"</string>
@@ -3038,7 +3038,7 @@
     <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"Bluetooth, modo de condução"</string>
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"Bluetooth, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"Bluetooth"</string>
-    <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"Aplicações e notificações"</string>
+    <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"Apps e notificações"</string>
     <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistente, aplicações recentes, aplicações predefinidas"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"O acesso às notificações não está disponível para aplicações no perfil de trabalho."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"Contas"</string>
@@ -3266,7 +3266,7 @@
     <string name="zen_sound_three_allowed" msgid="8374564453060696012">"Desativado, mas permitir <xliff:g id="SOUND_TYPE_0">%1$s</xliff:g>, <xliff:g id="SOUND_TYPE_1">%2$s</xliff:g> e <xliff:g id="SOUND_TYPE_2">%3$s</xliff:g>."</string>
     <string name="zen_custom_settings_dialog_title" msgid="908049494676219236">"Definições personalizadas"</string>
     <string name="zen_custom_settings_dialog_review_schedule" msgid="2247761749333893513">"Rever horário"</string>
-    <string name="zen_custom_settings_dialog_ok" msgid="3572754922025853427">"Compreendi"</string>
+    <string name="zen_custom_settings_dialog_ok" msgid="3572754922025853427">"OK"</string>
     <string name="zen_custom_settings_notifications_header" msgid="7469592764589354302">"Notificações"</string>
     <string name="zen_custom_settings_duration_header" msgid="1806465684026300942">"Duração"</string>
     <string name="zen_msg_event_reminder_title" msgid="8685224436389816905">"Mensagens, eventos e lembretes"</string>

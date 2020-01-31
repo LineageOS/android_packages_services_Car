@@ -40,7 +40,7 @@ public class WifiTetherApBandPreferenceController extends WifiTetherBasePreferen
     public WifiTetherApBandPreferenceController(Context context,
             OnTetherConfigUpdateListener listener) {
         super(context, listener);
-        isDualMode = mWifiManager.isDualModeSupported();
+        isDualMode = mWifiManager.isStaApConcurrencySupported();
         updatePreferenceEntries();
     }
 
@@ -96,7 +96,7 @@ public class WifiTetherApBandPreferenceController extends WifiTetherBasePreferen
 
     private int validateSelection(int band) {
         // Reset the band to 2.4 GHz if we get a weird config back to avoid a crash.
-        final boolean isDualMode = mWifiManager.isDualModeSupported();
+        final boolean isDualMode = mWifiManager.isStaApConcurrencySupported();
 
         // unsupported states:
         // 1: no dual mode means we can't have AP_BAND_ANY - default to 5GHZ

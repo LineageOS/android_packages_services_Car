@@ -1796,7 +1796,7 @@
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"Gailuak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartu egingo duzu haiek erabiltzeagatik gailuari agian gertatuko zaizkion kalteen edo datu-galeren erantzulea zeu izango zarela."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Ezarpen aurreratuak"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Gaitu ezarpenen aukera gehiago"</string>
-    <string name="application_info_label" msgid="3886253474964599105">"Aplikazioen informazioa"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"Aplikazioaren informazioa"</string>
     <string name="storage_label" msgid="1109537840103290384">"Memoria"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"Ireki modu lehenetsian"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Balio lehenetsiak"</string>
@@ -2626,7 +2626,7 @@
     <string name="header_account_settings" msgid="8586173964125512219">"Kontuaren ezarpenak"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"Kendu kontua"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Gehitu kontu bat"</string>
-    <string name="really_remove_account_title" msgid="4166512362915154319">"Kontua kendu?"</string>
+    <string name="really_remove_account_title" msgid="4166512362915154319">"Kontua kendu nahi duzu?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Kontua kentzen baduzu, bere mezu, kontaktu eta bestelako datu guztiak tabletatik ezabatuko dira!"</string>
     <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Kontua kentzen baduzu, bere mezu, kontaktu eta bestelako datu guztiak telefonotik ezabatuko dira!"</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Kontua kentzen baduzu, bertako mezu, kontaktu eta bestelako datu guztiak ezabatuko dira gailutik!"</string>
@@ -2650,7 +2650,7 @@
     <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Datu-konexioa eta wifi-konexioa"</string>
     <string name="data_usage_accounting" msgid="4681642832010140640">"Beharbada operadoreak zenbatzen duen datu kopurua eta gailuak zenbatzen duena ez datoz bat."</string>
     <string name="data_usage_app" msgid="4995297799363021198">"Aplikazioen erabilera"</string>
-    <string name="data_usage_app_info_label" msgid="5358288895158910477">"APLIKAZIOEN INFORMAZIOA"</string>
+    <string name="data_usage_app_info_label" msgid="5358288895158910477">"APLIKAZIOARI BURUZKO INFORMAZIOA"</string>
     <string name="data_usage_cellular_data" msgid="3509117353455285808">"Datu-konexioa"</string>
     <string name="data_usage_data_limit" msgid="4070740691087063670">"Ezarri datuen muga"</string>
     <string name="data_usage_cycle" msgid="1877235461828192940">"Datuen erabilera-zikloa"</string>
@@ -3588,9 +3588,9 @@
     <string name="slot_number" msgid="785422579177068698">"(<xliff:g id="SLOT_NUM">%1$d</xliff:g>. zirrikitua)"</string>
     <string name="launch_by_default" msgid="6106985160202769725">"Ireki modu lehenetsian"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Irekiko diren estekak"</string>
-    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Ireki onartzen diren estekak"</string>
+    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Ireki esteka bateragarriak"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Ireki galdetu gabe"</string>
-    <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Onartzen diren estekak"</string>
+    <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Esteka bateragarriak"</string>
     <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"Beste aplikazio lehenetsi batzuk"</string>
     <string name="storage_summary_format" msgid="2166430500147022935">"<xliff:g id="SIZE">%1$s</xliff:g> erabilita (<xliff:g id="STORAGE_TYPE">%2$s</xliff:g>)"</string>
     <string name="storage_type_internal" msgid="4434212376539293892">"Barneko memoria"</string>
@@ -3648,7 +3648,7 @@
     <string name="tap_to_wake" msgid="1902991239401652323">"Sakatu aktibatzeko"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Sakatu birritan pantailako edozein puntu gailua aktibatzeko"</string>
     <string name="domain_urls_title" msgid="7939209950373945367">"Irekiko diren estekak"</string>
-    <string name="domain_urls_summary_none" msgid="5401203416941265109">"Ez ireki onartzen diren estekak"</string>
+    <string name="domain_urls_summary_none" msgid="5401203416941265109">"Ez ireki esteka bateragarriak"</string>
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"Ireki <xliff:g id="DOMAIN">%s</xliff:g>"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"Ireki <xliff:g id="DOMAIN">%s</xliff:g> eta beste URL batzuk"</string>
     <string name="domain_urls_apps_summary_off" msgid="1110203970617922543">"Ez dago esteka bateragarriak ireki ditzakeen aplikaziorik"</string>
@@ -4160,8 +4160,8 @@
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"Sinkronizatu laneko datuak automatikoki"</string>
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"Utzi aplikazioei datuak automatikoki freskatzen"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"Kontuaren sinkronizazioa"</string>
-    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$d</xliff:g> elementuk aktibatuta dute sinkronizazioa"</string>
-    <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Elementu guztiek aktibatuta dute sinkronizazioa"</string>
+    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$d</xliff:g> elementuk aktibatuta daukate sinkronizazioa"</string>
+    <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Elementu guztiek aktibatuta daukate sinkronizazioa"</string>
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"Elementu guztiek desaktibatuta dute sinkronizazioa"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"Gailu kudeatuaren informazioa"</string>
     <string name="enterprise_privacy_settings_summary_generic" msgid="5557859169062703683">"Erakundeak kudeatzen dituen aldaketak eta ezarpenak"</string>

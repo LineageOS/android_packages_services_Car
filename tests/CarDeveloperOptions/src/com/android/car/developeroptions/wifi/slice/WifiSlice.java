@@ -322,7 +322,7 @@ public class WifiSlice implements CustomSliceable {
         if (mWifiManager.getWifiState() != WifiManager.WIFI_STATE_ENABLED) {
             return WifiManager.UNKNOWN_SSID;
         }
-        return WifiInfo.removeDoubleQuotes(mWifiManager.getConnectionInfo().getSSID());
+        return WifiInfo.sanitizeSsid(mWifiManager.getConnectionInfo().getSSID());
     }
 
     private boolean isWifiEnabled() {

@@ -1820,7 +1820,7 @@
     <string name="external_data_size_label" product="default" msgid="1097584278225902734">"SD કાર્ડ"</string>
     <string name="uninstall_text" msgid="4859715815689705801">"અનઇન્સ્ટોલ કરો"</string>
     <string name="uninstall_all_users_text" msgid="2620518509352561416">"બધા વપરાશકર્તાઓ માટે અનઇન્સ્ટોલ કરો"</string>
-    <string name="install_text" msgid="2798092278891807849">"ઇન્સ્ટોલ કરો"</string>
+    <string name="install_text" msgid="2798092278891807849">"ઇન્સ્ટૉલ કરો"</string>
     <string name="disable_text" msgid="5065834603951474397">"અક્ષમ કરો"</string>
     <string name="enable_text" msgid="7179141636849225884">"સક્ષમ કરો"</string>
     <string name="clear_user_data_text" msgid="8894073247302821764">"સ્ટોરેજ સાફ કરો"</string>

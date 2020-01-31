@@ -16,6 +16,6 @@
 #ifndef ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_SERVICENAMES_H
 #define ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_SERVICENAMES_H
 
-const static char kEnumeratorServiceName[] = "EvsEnumeratorHw";
+const static char kEnumeratorServiceName[] = "hw/1";
 
 #endif // ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_SERVICENAMES_H
