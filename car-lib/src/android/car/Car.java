@@ -55,6 +55,7 @@ import android.car.trust.CarTrustAgentEnrollmentManager;
 import android.car.user.CarUserManager;
 import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
+import android.car.watchdog.CarWatchdogManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -322,6 +323,14 @@ public final class Car {
      */
     @SystemApi
     public static final String CAR_TRUST_AGENT_ENROLLMENT_SERVICE = "trust_enroll";
+
+    /**
+     * Service name for {@link android.car.watchdog.CarWatchdogManager}
+     * @hide
+     */
+    @MandatoryFeature
+    @SystemApi
+    public static final String CAR_WATCHDOG_SERVICE = "car_watchdog";
 
     /**
      * Service for testing. This is system app only feature.
@@ -700,7 +709,7 @@ public final class Car {
      *
      * @hide
      */
-    // TODO(b/147845170): change to SystemApi after API review.
+    @SystemApi
     public static final String PERMISSION_USE_CAR_WATCHDOG =
             "android.car.permission.USE_CAR_WATCHDOG";
 
@@ -1711,6 +1720,9 @@ public final class Car {
                 break;
             case CAR_USER_SERVICE:
                 manager = new CarUserManager(this, binder);
+                break;
+            case CAR_WATCHDOG_SERVICE:
+                manager = new CarWatchdogManager(this, binder);
                 break;
             default:
                 // Experimental or non-existing
