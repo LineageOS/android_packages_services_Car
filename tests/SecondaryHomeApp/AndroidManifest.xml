@@ -27,6 +27,8 @@
     <!-- System permissions to bring hosted activity to front on current display -->
     <uses-permission android:name="android.permission.MANAGE_ACTIVITY_STACKS"/>
     <uses-permission android:name="android.permission.REORDER_TASKS"/>
+    <!-- System permissions to querry user -->
+    <uses-permission android:name="android.permission.MANAGE_USERS"/>
 
     <application
         android:label="@string/app_name"
@@ -45,6 +47,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <service android:name=".launcher.NotificationListener"
+              android:label="@string/notification_service_label"
+              android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+              android:directBootAware="true">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService"/>
+            </intent-filter>
+        </service>
     </application>
 </manifest>
 

@@ -28,6 +28,8 @@ android_app {
         "androidx.legacy_legacy-support-v4",
         "androidx.lifecycle_lifecycle-extensions",
         "com.google.android.material_material",
+        "CarNotificationLib",
+        "car-ui-lib"
     ],
 
     libs: [
@@ -37,9 +39,9 @@ android_app {
     manifest: "AndroidManifest.xml",
 
     platform_apis: true,
-    system_ext_specific: true,
     certificate: "platform",
     privileged: true,
+    required: ["privapp_whitelist_com.android.car.secondaryhome"],
 
     resource_dirs: [
         "res",

@@ -20,9 +20,11 @@ import android.annotation.MainThread;
 import android.annotation.Nullable;
 import android.car.IExperimentalCar;
 import android.car.IExperimentalCarHelper;
+import android.car.experimental.CarDriverDistractionManager;
 import android.car.experimental.CarTestDemoExperimentalFeatureManager;
 import android.car.experimental.ExperimentalCar;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -163,6 +165,8 @@ public final class IExperimentalCarImpl extends IExperimentalCar.Stub {
         switch (featureName) {
             case ExperimentalCar.TEST_EXPERIMENTAL_FEATURE_SERVICE:
                 return CarTestDemoExperimentalFeatureManager.class.getName();
+            case ExperimentalCar.DRIVER_DISTRACTION_EXPERIMENTAL_FEATURE_SERVICE:
+                return CarDriverDistractionManager.class.getName();
             default:
                 return null;
         }
@@ -189,6 +193,15 @@ public final class IExperimentalCarImpl extends IExperimentalCar.Stub {
         if (uid != Process.SYSTEM_UID && pid != Process.myPid()) {
             throw new SecurityException("Only allowed from system or self, uid:" + uid
                     + " pid:" + pid);
+        }
+    }
+
+    /**
+     * Assert that a permission has been granted for the current context.
+     */
+    public static void assertPermission(Context context, String permission) {
+        if (context.checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException("requires " + permission);
         }
     }
 }

@@ -30,6 +30,9 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.CarUxRestrictionsConfiguration.DrivingStateRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
+import android.car.experimental.CarDriverDistractionManager;
+import android.car.experimental.DriverDistractionChangeEvent;
+import android.car.experimental.ExperimentalCar;
 import android.os.Bundle;
 import android.util.JsonWriter;
 import android.widget.Button;
@@ -56,15 +59,19 @@ public class MainActivity extends AppCompatActivity
     private CarDrivingStateManager mCarDrivingStateManager;
     private CarUxRestrictionsManager mCarUxRestrictionsManager;
     private CarPackageManager mCarPackageManager;
+    private CarDriverDistractionManager mDistractionManager;
 
     private CarUxRestrictionsManager.OnUxRestrictionsChangedListener mUxRChangeListener =
             this::updateUxRText;
     private CarDrivingStateManager.CarDrivingStateEventListener mDrvStateChangeListener =
             this::updateDrivingStateText;
+    private CarDriverDistractionManager.OnDriverDistractionChangeListener
+            mDistractionChangedListener = this::onDriverDistractionChange;
 
     private TextView mDrvStatus;
     private TextView mDistractionOptStatus;
     private TextView mUxrStatus;
+    private TextView mDistractionStatus;
     private Button mToggleButton;
     private Button mSaveUxrConfigButton;
     private Button mShowStagedConfig;
@@ -82,6 +89,7 @@ public class MainActivity extends AppCompatActivity
         mDrvStatus = findViewById(R.id.driving_state);
         mDistractionOptStatus = findViewById(R.id.do_status);
         mUxrStatus = findViewById(R.id.uxr_status);
+        mDistractionStatus = findViewById(R.id.current_driver_distraction);
 
         mToggleButton = findViewById(R.id.toggle_status);
         mToggleButton.setOnClickListener(v -> updateToggleUxREnable());
@@ -115,6 +123,18 @@ public class MainActivity extends AppCompatActivity
             mCarUxRestrictionsManager.registerListener(mUxRChangeListener);
             updateUxRText(mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
         }
+
+        if (mCar.isFeatureEnabled(
+                ExperimentalCar.DRIVER_DISTRACTION_EXPERIMENTAL_FEATURE_SERVICE)) {
+            mDistractionManager = (CarDriverDistractionManager) mCar.getCarManager(
+                    ExperimentalCar.DRIVER_DISTRACTION_EXPERIMENTAL_FEATURE_SERVICE);
+            if (mDistractionManager != null) {
+                mDistractionManager.addDriverDistractionChangeListener(mDistractionChangedListener);
+            }
+        } else {
+            mDistractionStatus.setText(
+                    getString(R.string.current_driver_distraction, "feature disabled"));
+        }
     }
 
     @Override
@@ -125,6 +145,9 @@ public class MainActivity extends AppCompatActivity
         }
         if (mCarDrivingStateManager != null) {
             mCarDrivingStateManager.unregisterListener();
+        }
+        if (mDistractionManager != null) {
+            mDistractionManager.removeDriverDistractionChangeListener(mDistractionChangedListener);
         }
         if (mCar != null) {
             mCar.disconnect();
@@ -144,6 +167,11 @@ public class MainActivity extends AppCompatActivity
 
         mDistractionOptStatus.requestLayout();
         mUxrStatus.requestLayout();
+    }
+
+    private void onDriverDistractionChange(DriverDistractionChangeEvent event) {
+        mDistractionStatus.setText(
+                getString(R.string.current_driver_distraction, event.getAwarenessPercentage()));
     }
 
     private void updateToggleUxREnable() {

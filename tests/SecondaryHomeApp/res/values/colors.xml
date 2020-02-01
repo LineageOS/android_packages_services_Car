@@ -19,4 +19,5 @@
     <color name="background_color">#263238</color>
     <color name="nav_icon_fill_color">#8Fffffff</color>
     <color name="nav_bar_ripple_background_color">#40ffffff</color>
+    <color name="notification_unseen_color">#e25142</color>
 </resources>
