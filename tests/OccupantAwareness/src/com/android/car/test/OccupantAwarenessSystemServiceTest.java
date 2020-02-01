@@ -251,6 +251,31 @@ public class OccupantAwarenessSystemServiceTest extends TestCase {
                 .isEqualTo(SystemStatusEvent.DETECTION_TYPE_NONE);
     }
 
+    @Test
+    public void test_serviceStartsAndStopGraphWithListeners() throws Exception {
+        // Verify that the service starts the detection graph when the first client connects, and
+        // stop when the last client disconnects.
+
+        // Should be not running on start (no clients are yet connected).
+        assertThat(mMockHal.isGraphRunning()).isFalse();
+
+        // Connect a client. Graph should be running.
+        IOccupantAwarenessEventCallback first_client = registerCallbackToService();
+        assertThat(mMockHal.isGraphRunning()).isTrue();
+
+        // Connect a second client. Graph should continue running.
+        IOccupantAwarenessEventCallback second_client = registerCallbackToService();
+        assertThat(mMockHal.isGraphRunning()).isTrue();
+
+        // Remove the first client. Graph should continue to run since a client still remains.
+        mOasService.unregisterEventListener(first_client);
+        assertThat(mMockHal.isGraphRunning()).isTrue();
+
+        // Remove the second client. Graph should now stop since all clients have now closed.
+        mOasService.unregisterEventListener(second_client);
+        assertThat(mMockHal.isGraphRunning()).isFalse();
+    }
+
     /** Registers a listener to the service. */
     private IOccupantAwarenessEventCallback registerCallbackToService() {
         IOccupantAwarenessEventCallback callback =
