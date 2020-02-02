@@ -439,7 +439,7 @@
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"Кулпну манж из менн ач"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"Манжа изиңизди колдонуңуз"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"Телефонуңуздун кулпусун ачып, кандайдыр бир нерсени сатып алып жатканыңызды ырастап же колдонмолорго кирүү үчүн жөн гана манжаңызды сенсорго тийгизип коюңуз. Кимдир-бирөөнүн манжа изин кошуп жатканыңызда этият болуңуз. Бир эле манжа изи кошулса да, ушул нерселердин бардыгын аткара алат.\n\nТүзмөгүңүздү манжа изи менен коргоого караганда графикалык ачкыч же PIN код менен коргоо бир кыйла коопсуз."</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"Телефонуңуздун кулпусун ачып, кандайдыр бир нерсени сатып алып жатканыңызды ырастап же колдонмолорго кирүү үчүн жөн гана манжаңызды сенсорго тийгизип коюңуз. Кимдир-бирөөнүн манжа изин кошуп жатканыңызда этият болуңуз. Бир эле манжа изи кошулса да, ушул нерселердин баарын аткара алат.\n\nТүзмөгүңүздү манжа изи менен коргоого караганда графикалык ачкыч же PIN код менен коргоо бир кыйла коопсуз."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"Телефонуңуздун кулпусун ачуу же сатып алууларды ырастоо үчүн манжа изиңизди пайдаланыңыз.\n\nЭскертүү: Манжа изиңизди бул түзмөктүн кулпусун ачууга колдоно албайсыз. Кеңири маалымат үчүн ишканаңыздын администраторуна кайрылыңыз."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Телефонуңуздун кулпусун ачуу же сатып алууларды ырастоо үчүн манжа изиңизди пайдаланыңыз.\n\nЭскертүү: Түзмөгүңүздү манжа изи менен коргоого караганда графикалык ачкыч же PIN код менен коргоо бир кыйла коопсуз."</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"Жокко чыгаруу"</string>
@@ -598,35 +598,35 @@
     <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Графикалык ачкычсыз түзмөктү коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Графикалык ачкычыңызсыз түзмөгүңүздү коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн алынып салынат жана алардын жардамы менен түзмөгүңүздүн кулпусун ачып, ар кандай нерселерди сатып алып же каттоо эсебине кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн алынып салынат жана алардын жардамы менен түзмөгүңүздүн кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"PIN кодсуз түзмөктү коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"PIN кодуңузсуз түзмөктү коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн алынып салынат жана алардын жардамы менен түзмөгүңүздүн кулпусун ачып, ар кандай нерселерди сатып алып же каттоо эсебине кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн алынып салынат жана алардын жардамы менен түзмөгүңүздүн кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Сырсөзүңүзсүз түзмөктү коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"Сырсөзүңүзсүз түзмөктү коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн алынып салынат жана алар менен телефонуңуздун кулпусун ачып, сатып алууга уруксат берип же каттоо эсебине кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн алынып салынат жана алар менен телефонуңуздун кулпусун ачып, сатып алууга уруксат берип же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"Экраныңыздын кулпусусуз түзмөктү коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"Экраныңыздын кулпусусуз түзмөктү коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн алынып салынат жана алардын жардамы менен түзмөгүңүздүн кулпусун ачып, ар кандай нерселерди сатып алып же каттоо эсебине кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн алынып салынат жана алардын жардамы менен түзмөгүңүздүн кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"Графикалык ачкычыңызсыз профилди коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"Графикалык ачкычыңызсыз профилди коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул профилден алынып салынат жана алардын жардамы менен профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же каттоо эсебине кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул профилден алынып салынат жана алардын жардамы менен профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_pin_profile" msgid="7114165651000498040">"PIN кодуңузсуз профилди коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint_profile" msgid="5118210431544156122">"PIN кодуңузсуз профилди коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул профилден алынып салынат жана алардын жардамы менен профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же каттоо эсебине кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул профилден алынып салынат жана алардын жардамы менен профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_password_profile" msgid="3989497526180082037">"Сырсөзүңүзсүз профилди коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint_profile" msgid="8360485354164416198">"Сырсөзүңүзсүз профилди коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул профилден алынып салынат жана алардын жардамы менен профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же каттоо эсебине кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул профилден алынып салынат жана алардын жардамы менен профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_unknown_profile" msgid="4066001421137974082">"Экраныңыздын кулпусусуз профилди коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint_profile" msgid="1201259228331105948">"Экраныңыздын кулпусусуз профилди коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул профилден алынып салынат жана алардын жардамы менен профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же каттоо эсебине кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул профилден алынып салынат жана алардын жардамы менен профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_ok" msgid="2373890505202766456">"Ооба, өчүрүлсүн"</string>
     <string name="unlock_change_lock_pattern_title" msgid="7622476883851319877">"Кулпн ачуу үлгсн өзгрт"</string>
     <string name="unlock_change_lock_pin_title" msgid="6671224158800812238">"Клпн ачуу PIN кдн өзгр"</string>
@@ -1456,7 +1456,7 @@
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> дегенди изилдөө"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"Колдонмолор аркылуу сакталган жалпыга ачык документтер, Интернеттен жүктөлүп алынган же Bluetooth, Android файлдары жана башкалар. \n\nБул <xliff:g id="NAME">^1</xliff:g> ичиндеги көрүнгөн мазмунду көрүү үчүн Изилдөө баскычын таптап коюңуз."</string>
     <string name="storage_detail_dialog_system" msgid="1472572861360014226">"Тутумда Android <xliff:g id="VERSION">%s</xliff:g> версиясында иштеген файлдар бар"</string>
-    <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> сактагычта жалпы көлөмү <xliff:g id="SIZE">^2</xliff:g> болгон сүрөттөрдү, музыканы, колдонмолорду жана башка дайындарды сактап койгон окшойт. \n\nЧоо-жайын көрүү үчүн <xliff:g id="USER_1">^1</xliff:g> деген колдонуучунун каттоо эсебине кириңиз."</string>
+    <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> сактагычта жалпы көлөмү <xliff:g id="SIZE">^2</xliff:g> болгон сүрөттөрдү, музыканы, колдонмолорду жана башка дайындарды сактап койгон окшойт. \n\nЧоо-жайын көрүү үчүн <xliff:g id="USER_1">^1</xliff:g> деген колдонуучунун аккаунтка кириңиз."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"<xliff:g id="NAME">^1</xliff:g> түзмөгүңүздү орнотуңуз"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"Ташыма эстутум катары колдонуу"</string>
     <string name="storage_wizard_init_external_summary" msgid="6993815290050489327">"Сүрөттөрдү жана башка медианы түзмөктөргө жылдыруу үчүн."</string>
@@ -4276,6 +4276,10 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Ал функция телефондун иштешин жайлатат"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"GNSS көрсөткүчтөрүнө толук көз салууну иштетүү"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Иштөө цикли өчүрүлүп, бардык GNSS топторуна жана жыштыктарга көз салынат"</string>
+    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
+    <skip />
+    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
+    <skip />
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Фондогу аракеттерге уруксат берүү"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Бардык фондогу аракеттерге уруксат берет"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Ката диалогун ар дайым көрсөтүү"</string>

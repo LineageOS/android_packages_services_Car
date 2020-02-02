@@ -64,6 +64,14 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX നിയന്ത്രണങ്ങൾ കോൺഫിഗർ ചെയ്യുക"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP മോഡിൽ USB ഉപകരണം ഉപയോഗിച്ച് ആശയവിനിമയം നടത്തുക"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP മോഡിലുള്ള ഉപകരണവുമായി ബന്ധപ്പെടാൻ ആപ്പിനെ അനുവദിക്കുന്നു"</string>
+    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
+    <skip />
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"കാറിന്റെ ഇൻപുട്ട് സേവനം"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ഇൻപുട്ട് ഇവന്റുകൾ കൈകാര്യം ചെയ്യുക"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ബസ് പരാജയപ്പെട്ടു"</string>
