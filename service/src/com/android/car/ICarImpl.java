@@ -480,6 +480,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarDrivingStateService;
             case Car.CAR_UX_RESTRICTION_SERVICE:
                 return mCarUXRestrictionsService;
+            case Car.OCCUPANT_AWARENESS_SERVICE:
+                return mOccupantAwarenessService;
             case Car.CAR_CONFIGURATION_SERVICE:
                 return mCarConfigurationService;
             case Car.CAR_TRUST_AGENT_ENROLLMENT_SERVICE:

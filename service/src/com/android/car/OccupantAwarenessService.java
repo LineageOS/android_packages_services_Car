@@ -61,6 +61,9 @@ public class OccupantAwarenessService
         extends android.car.occupantawareness.IOccupantAwarenessManager.Stub
         implements CarServiceBase {
     private static final String TAG = CarLog.TAG_OAS;
+    private static final boolean DBG = false;
+
+    // HAL service identifier name.
     private static final String OAS_SERVICE_ID =
             "android.hardware.automotive.occupant_awareness.IOccupantAwareness/default";
 
@@ -108,6 +111,10 @@ public class OccupantAwarenessService
 
     @Override
     public void init() {
+        if (DBG) {
+            Log.d(TAG, "Initialing service");
+        }
+
         synchronized (mLock) {
             if (mOasHal == null) {
                 mOasHal =
@@ -129,6 +136,9 @@ public class OccupantAwarenessService
 
     @Override
     public void release() {
+        if (DBG) {
+            Log.d(TAG, "Will stop detection and disconnect listeners");
+        }
         stopDetectionGraph();
         mListeners.kill();
     }
@@ -144,6 +154,10 @@ public class OccupantAwarenessService
 
     /** Sends a message via the HAL to start the detection graph. */
     private void startDetectionGraph() {
+        if (DBG) {
+            Log.d(TAG, "Attempting to start detection graph");
+        }
+
         // Grab a copy of 'mOasHal' to avoid sitting on the lock longer than is necessary.
         IOccupantAwareness hal;
         synchronized (mLock) {
@@ -156,6 +170,8 @@ public class OccupantAwarenessService
             } catch (RemoteException e) {
                 Log.e(TAG, "startDetection() HAL invocation failed: " + e, e);
             }
+        } else {
+            Log.e(TAG, "No HAL is connected. Cannot request graph start");
         }
     }
 
@@ -173,6 +189,8 @@ public class OccupantAwarenessService
             } catch (RemoteException e) {
                 Log.e(TAG, "stopDetection() HAL invocation failed: " + e, e);
             }
+        } else {
+            Log.e(TAG, "No HAL is connected. Cannot request graph stop");
         }
     }
 
@@ -225,6 +243,10 @@ public class OccupantAwarenessService
      */
     @Override
     public void registerEventListener(@NonNull IOccupantAwarenessEventCallback listener) {
+        if (DBG) {
+            Log.d(TAG, "Registering a new listener");
+        }
+
         ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE);
 
         synchronized (mLock) {
