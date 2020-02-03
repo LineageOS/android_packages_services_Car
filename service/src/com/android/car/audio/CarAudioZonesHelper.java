@@ -394,12 +394,21 @@ import java.util.stream.Collectors;
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_AUDIO_DEVICE.equals(parser.getName())) {
                 String address = parser.getAttributeValue(NAMESPACE, ATTR_DEVICE_ADDRESS);
+                validateOutputDeviceExist(address);
                 parseVolumeGroupContexts(parser, group, address);
             } else {
                 skip(parser);
             }
         }
         return group;
+    }
+
+    private void validateOutputDeviceExist(String address) {
+        if (!mAddressToCarAudioDeviceInfo.containsKey(address)) {
+            throw new IllegalStateException(String.format(
+                    "Output device address %s does not belong to any configured output device.",
+                    address));
+        }
     }
 
     private void parseVolumeGroupContexts(
