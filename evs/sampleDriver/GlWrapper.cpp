@@ -20,7 +20,10 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
-#include <ui/DisplayInfo.h>
+#include <utility>
+
+#include <ui/DisplayConfig.h>
+#include <ui/DisplayState.h>
 #include <ui/GraphicBuffer.h>
 
 
@@ -201,27 +204,33 @@ bool GlWrapper::initialize() {
         return false;
     }
 
-    // Get main display parameters.
-    sp<IBinder> mainDpy = SurfaceComposerClient::getInternalDisplayToken();
-    if (mainDpy == nullptr) {
+    const sp<IBinder> displayToken = SurfaceComposerClient::getInternalDisplayToken();
+    if (displayToken == nullptr) {
         ALOGE("ERROR: no internal display");
         return false;
     }
 
-    DisplayInfo mainDpyInfo;
-    err = SurfaceComposerClient::getDisplayInfo(mainDpy, &mainDpyInfo);
+    DisplayConfig displayConfig;
+    err = SurfaceComposerClient::getActiveDisplayConfig(displayToken, &displayConfig);
     if (err != NO_ERROR) {
-        ALOGE("ERROR: unable to get display characteristics");
+        ALOGE("ERROR: unable to get active display config");
         return false;
     }
 
-    if (mainDpyInfo.orientation != ui::ROTATION_0 && mainDpyInfo.orientation != ui::ROTATION_180) {
-        // rotated
-        mWidth = mainDpyInfo.h;
-        mHeight = mainDpyInfo.w;
-    } else {
-        mWidth = mainDpyInfo.w;
-        mHeight = mainDpyInfo.h;
+    ui::DisplayState displayState;
+    err = SurfaceComposerClient::getDisplayState(displayToken, &displayState);
+    if (err != NO_ERROR) {
+        ALOGE("ERROR: unable to get display state");
+        return false;
+    }
+
+    const ui::Size& resolution = displayConfig.resolution;
+    mWidth = resolution.getWidth();
+    mHeight = resolution.getHeight();
+
+    if (displayState.orientation == ui::ROTATION_90 ||
+        displayState.orientation == ui::ROTATION_270) {
+        std::swap(mWidth, mHeight);
     }
 
     mFlingerSurfaceControl = mFlinger->createSurface(
