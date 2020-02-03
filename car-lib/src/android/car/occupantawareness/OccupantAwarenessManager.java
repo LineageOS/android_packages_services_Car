@@ -46,7 +46,8 @@ import java.lang.ref.WeakReference;
 @RequiredFeature(Car.OCCUPANT_AWARENESS_SERVICE)
 @SystemApi
 public class OccupantAwarenessManager extends CarManagerBase {
-    private static final String TAG = "OccupantAwarenessManager";
+    private static final String TAG = "OAS.Manager";
+    private static final boolean DBG = false;
 
     private static final int MSG_HANDLE_SYSTEM_STATUS_CHANGE = 0;
     private static final int MSG_HANDLE_DETECTION_EVENT = 1;
@@ -108,20 +109,20 @@ public class OccupantAwarenessManager extends CarManagerBase {
      * Callbacks for listening to changes to {@link SystemStatusEvent} and {@link
      * OccupantAwarenessDetection}.
      */
-    public abstract class ChangeCallback {
+    public abstract static class ChangeCallback {
         /**
          * Called when the system state changes changes.
          *
          * @param systemStatus The new system state as a {@link SystemStatusEvent}.
          */
-        abstract void onSystemStateChanged(@NonNull SystemStatusEvent systemStatus);
+        public abstract void onSystemStateChanged(@NonNull SystemStatusEvent systemStatus);
 
         /**
          * Called when a detection event is generated.
          *
          * @param event The new detection state as a {@link OccupantAwarenessDetection}.
          */
-        abstract void onDetectionEvent(@NonNull OccupantAwarenessDetection event);
+        public abstract void onDetectionEvent(@NonNull OccupantAwarenessDetection event);
     }
 
     /**
@@ -135,6 +136,10 @@ public class OccupantAwarenessManager extends CarManagerBase {
      */
     @RequiresPermission(value = Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE)
     public void registerChangeCallback(@NonNull ChangeCallback callback) {
+        if (DBG) {
+            Log.d(TAG, "Registering change listener");
+        }
+
         synchronized (mLock) {
             // Check if the listener has been already registered.
             if (mChangeCallback != null) {
@@ -160,9 +165,13 @@ public class OccupantAwarenessManager extends CarManagerBase {
     /** Unregisters a previously registered {@link ChangeCallback}. */
     @RequiresPermission(value = Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE)
     public void unregisterChangeCallback() {
+        if (DBG) {
+            Log.d(TAG, "Unregistering change listener");
+        }
+
         synchronized (mLock) {
             if (mChangeCallback == null) {
-                Log.d(TAG, "No listener exists to unregister.");
+                Log.e(TAG, "No listener exists to unregister.");
                 return;
             }
             mChangeCallback = null;
