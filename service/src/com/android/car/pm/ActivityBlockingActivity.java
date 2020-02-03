@@ -195,6 +195,7 @@ public class ActivityBlockingActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mCar.disconnect();
         mUxRManager.unregisterListener();
     }
 
