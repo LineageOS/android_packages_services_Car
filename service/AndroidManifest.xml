@@ -168,6 +168,15 @@
         android:label="@string/car_permission_label_car_energy_ports"
         android:description="@string/car_permission_desc_car_energy_ports" />
 
+    <!-- Allows an application to control the vehicle fuel and charge port status.
+         <p>Protection level: signature|privileged
+    -->
+    <permission
+        android:name="android.car.permission.CONTROL_CAR_ENERGY_PORTS"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_control_car_energy_ports"
+        android:description="@string/car_permission_desc_control_car_energy_ports" />
+
     <!-- Allows an application to read the vehicle engine information. For example, it allows an
          application to read the engine oil level, oil temperature, coolant temperature and RPM.
          <p>Protection level: signature|privileged

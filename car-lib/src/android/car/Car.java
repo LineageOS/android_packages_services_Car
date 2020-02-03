@@ -313,7 +313,15 @@ public final class Car {
     /** Permission necessary to access car's fuel door and ev charge port. */
     public static final String PERMISSION_ENERGY_PORTS = "android.car.permission.CAR_ENERGY_PORTS";
 
-    /** Permission necessary to read car's exterior lights information.
+    /**
+     * Permission necessary to control car's fuel door and ev charge port.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_ENERGY_PORTS =
+            "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
+    /**
+     * Permission necessary to read car's exterior lights information.
      *  @hide
      */
     @SystemApi

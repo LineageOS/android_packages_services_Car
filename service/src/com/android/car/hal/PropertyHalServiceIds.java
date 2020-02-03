@@ -359,13 +359,13 @@ public class PropertyHalServiceIds {
                 null));
         mProps.put(VehicleProperty.FUEL_DOOR_OPEN, new Pair<>(
                 Car.PERMISSION_ENERGY_PORTS,
-                null));
+                Car.PERMISSION_CONTROL_ENERGY_PORTS));
         mProps.put(VehicleProperty.EV_BATTERY_LEVEL, new Pair<>(
                 Car.PERMISSION_ENERGY,
                 null));
         mProps.put(VehicleProperty.EV_CHARGE_PORT_OPEN, new Pair<>(
                 Car.PERMISSION_ENERGY_PORTS,
-                null));
+                Car.PERMISSION_CONTROL_ENERGY_PORTS));
         mProps.put(VehicleProperty.EV_CHARGE_PORT_CONNECTED, new Pair<>(
                 Car.PERMISSION_ENERGY_PORTS,
                 null));
