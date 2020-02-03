@@ -168,13 +168,12 @@ final class FocusInteraction {
      * focusHolder} to the {@code focusLosers} list when appropriate.
      *
      * @param requestedContext CarAudioContextType of incoming focus request
-     * @param focusHolder      FocusEntry for current focus holder
+     * @param focusHolder      {@link FocusEntry} for current focus holder
      * @param focusLosers      Mutable array to add focusHolder to if it should lose focus
      * @return {@link FocusRequestResult} result of focus interaction
      */
     static @FocusRequestResult int evaluateRequest(@AudioContext int requestedContext,
-            CarAudioFocus.FocusEntry focusHolder, List<CarAudioFocus.FocusEntry> focusLosers,
-            boolean allowDucking) {
+            FocusEntry focusHolder, List<FocusEntry> focusLosers, boolean allowDucking) {
         @AudioContext int holderContext = focusHolder.getAudioContext();
         Preconditions.checkArgumentInRange(holderContext, 0, sInteractionMatrix.length - 1,
                 "holderContext");

@@ -32,8 +32,6 @@ import android.media.AudioManager;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.android.car.audio.CarAudioFocus.FocusEntry;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
