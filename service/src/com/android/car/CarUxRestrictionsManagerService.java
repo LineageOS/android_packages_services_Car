@@ -109,7 +109,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private static final int MAX_TRANSITION_LOG_SIZE = 20;
     private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz
     private static final float SPEED_NOT_AVAILABLE = -1.0F;
-    private static final byte DEFAULT_PORT = 0;
 
     private static final int UNKNOWN_JSON_SCHEMA_VERSION = -1;
     private static final int JSON_SCHEMA_VERSION_V1 = 1;
@@ -122,6 +121,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private static final String JSON_NAME_SCHEMA_VERSION = "schema_version";
     private static final String JSON_NAME_RESTRICTIONS = "restrictions";
 
+    @VisibleForTesting
+    static final byte DEFAULT_PORT = 0;
     @VisibleForTesting
     static final String CONFIG_FILENAME_PRODUCTION = "ux_restrictions_prod_config.json";
     @VisibleForTesting
@@ -139,8 +140,11 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     // Byte represents a physical port for display.
     private byte mDefaultDisplayPhysicalPort;
     private final List<Byte> mPhysicalPorts = new ArrayList<>();
-    // This lookup caches the mapping from an int display id
-    // to a byte that represents a physical port.
+    /**
+     * This lookup caches the mapping from an int display id to a byte that represents a physical
+     * port. It includes mappings for virtual displays.
+     */
+    @GuardedBy("mMapLock")
     private final Map<Integer, Byte> mPortLookup = new HashMap<>();
     private Map<Byte, CarUxRestrictionsConfiguration> mCarUxRestrictionsConfigurations;
     private Map<Byte, CarUxRestrictions> mCurrentUxRestrictions;
@@ -404,7 +408,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      */
     @Override
     public synchronized CarUxRestrictions getCurrentUxRestrictions(int displayId) {
-        CarUxRestrictions restrictions = mCurrentUxRestrictions.get(getPhysicalPort(displayId));
+        CarUxRestrictions restrictions;
+        synchronized (mMapLock) {
+            restrictions = mCurrentUxRestrictions.get(getPhysicalPortLocked(displayId));
+        }
         if (restrictions == null) {
             Log.e(TAG, String.format(
                     "Restrictions are null for displayId:%d. Returning full restrictions.",
@@ -502,15 +509,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
         try (JsonWriter jsonWriter = new JsonWriter(
                 new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
-            jsonWriter.beginObject();
-            jsonWriter.name(JSON_NAME_SCHEMA_VERSION).value(JSON_SCHEMA_VERSION_V2);
-            jsonWriter.name(JSON_NAME_RESTRICTIONS);
-            jsonWriter.beginArray();
-            for (CarUxRestrictionsConfiguration config : configs) {
-                config.writeJson(jsonWriter);
-            }
-            jsonWriter.endArray();
-            jsonWriter.endObject();
+            writeJson(jsonWriter, configs);
         } catch (IOException e) {
             Log.e(TAG, "Could not persist config", e);
             stagedFile.failWrite(fos);
@@ -518,6 +517,20 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
         stagedFile.finishWrite(fos);
         return true;
+    }
+
+    @VisibleForTesting
+    void writeJson(JsonWriter jsonWriter, List<CarUxRestrictionsConfiguration> configs)
+            throws IOException {
+        jsonWriter.beginObject();
+        jsonWriter.name(JSON_NAME_SCHEMA_VERSION).value(JSON_SCHEMA_VERSION_V2);
+        jsonWriter.name(JSON_NAME_RESTRICTIONS);
+        jsonWriter.beginArray();
+        for (CarUxRestrictionsConfiguration config : configs) {
+            config.writeJson(jsonWriter);
+        }
+        jsonWriter.endArray();
+        jsonWriter.endObject();
     }
 
     @Nullable
@@ -748,7 +761,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      * Map the driving state to the corresponding UX Restrictions and dispatch the
      * UX Restriction change to the registered clients.
      */
-    private synchronized void handleDrivingStateEvent(CarDrivingStateEvent event) {
+    @VisibleForTesting
+    synchronized void handleDrivingStateEvent(CarDrivingStateEvent event) {
         if (event == null) {
             return;
         }
@@ -868,7 +882,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
         logd("dispatching to clients");
         for (UxRestrictionsClient client : mUxRClients) {
-            Byte clientDisplayPort = getPhysicalPort(client.mDisplayId);
+            Byte clientDisplayPort;
+            synchronized (mMapLock) {
+                clientDisplayPort = getPhysicalPortLocked(client.mDisplayId);
+            }
             if (clientDisplayPort == null) {
                 clientDisplayPort = mDefaultDisplayPhysicalPort;
             }
@@ -984,7 +1001,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      * DisplayManager#getDisplay(int)} is not aware of the provided id.
      */
     @Nullable
-    private Byte getPhysicalPort(int displayId) {
+    @GuardedBy("mMapLock")
+    private Byte getPhysicalPortLocked(int displayId) {
         if (!mPortLookup.containsKey(displayId)) {
             Display display = mDisplayManager.getDisplay(displayId);
             if (display == null) {
@@ -999,7 +1017,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     private byte getPhysicalPort(@NonNull Display display) {
         if (display.getType() == Display.TYPE_VIRTUAL) {
-            // We require all virtual displays to be launched on default display.
+            Log.e(TAG, "Display " + display
+                    + " is a virtual display and does not have a known port.");
             return mDefaultDisplayPhysicalPort;
         }
 
@@ -1101,6 +1120,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                             if (info.mOwner == callback) {
                                 logd("onCallbackDied: clean up callback=" + callback);
                                 mActivityViewDisplayInfoMap.removeAt(i);
+                                mPortLookup.remove(mActivityViewDisplayInfoMap.keyAt(i));
                             }
                         }
                     }
@@ -1119,11 +1139,13 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             if (release) {
                 mRemoteCallbackList.unregister(callback);
                 mActivityViewDisplayInfoMap.delete(virtualDisplayId);
+                mPortLookup.remove(virtualDisplayId);
                 return;
             }
             mRemoteCallbackList.register(callback);
             mActivityViewDisplayInfoMap.put(virtualDisplayId,
                     new DisplayInfo(callback, physicalDisplayId));
+            mPortLookup.put(virtualDisplayId, (byte) physicalDisplayId);
         }
     }
 
