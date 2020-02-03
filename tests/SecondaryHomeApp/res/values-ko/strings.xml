@@ -20,4 +20,6 @@
     <string name="app_name" msgid="1232190134475133062">"보조 Home 앱"</string>
     <string name="app_launcher" msgid="3285007106222765396">"SecHome 런처"</string>
     <string name="launch_fail_msg" msgid="2935729218024647088">"실행할 수 없음"</string>
+    <!-- no translation found for clear_all (7403807937179450743) -->
+    <skip />
 </resources>

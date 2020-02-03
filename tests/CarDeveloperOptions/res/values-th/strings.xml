@@ -2900,12 +2900,12 @@
     <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"ต้องการนำผู้เข้าร่วมออกไหม"</string>
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"ระบบจะลบแอปและข้อมูลทั้งหมดในเซสชันนี้"</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"นำออก"</string>
-    <string name="user_enable_calling" msgid="864760054792249503">"เปิดโทรศัพท์"</string>
-    <string name="user_enable_calling_sms" msgid="3450252891736718793">"เปิดโทรศัพท์และ SMS"</string>
+    <string name="user_enable_calling" msgid="864760054792249503">"เปิดการโทร"</string>
+    <string name="user_enable_calling_sms" msgid="3450252891736718793">"เปิดการโทรและ SMS"</string>
     <string name="user_remove_user" msgid="3687544420125911166">"ลบผู้ใช้"</string>
-    <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"เปิดโทรศัพท์ไหม"</string>
+    <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"เปิดการโทรไหม"</string>
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"ระบบจะแชร์ประวัติการโทรกับผู้ใช้รายนี้"</string>
-    <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"เปิดโทรศัพท์และ SMS ไหม"</string>
+    <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"เปิดการโทรและ SMS ไหม"</string>
     <string name="user_enable_calling_and_sms_confirm_message" msgid="3278802798876095734">"ระบบจะแชร์ประวัติการโทรและ SMS กับผู้ใช้รายนี้"</string>
     <string name="emergency_info_title" msgid="1522609271881425375">"ข้อมูลสำหรับกรณีฉุกเฉิน"</string>
     <string name="emergency_info_summary" msgid="7280464759837387342">"ข้อมูลและรายชื่อติดต่อสำหรับ <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
@@ -4277,6 +4277,10 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"ฟีเจอร์ดังกล่าวจะทำให้โทรศัพท์เครื่องนี้ทำงานช้าลง"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"บังคับใช้การวัด GNSS เต็มรูปแบบ"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"ติดตามระบบดาวเทียมและความถี่สัญญาณ GNSS ทั้งหมดโดยไม่มีการปิดพักเพื่อประหยัดพลังงาน"</string>
+    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
+    <skip />
+    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
+    <skip />
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"อนุญาตให้เริ่มกิจกรรมในเบื้องหลัง"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"อนุญาตให้เริ่มกิจกรรมในเบื้องหลังทั้งหมด"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"แสดงปัญหาที่ขัดข้องเสมอ"</string>

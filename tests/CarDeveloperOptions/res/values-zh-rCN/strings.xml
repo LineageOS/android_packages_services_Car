@@ -4277,6 +4277,10 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"它会降低这部手机的速度"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"强制启用 GNSS 测量结果全面跟踪"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"在停用工作周期的情况下跟踪所有 GNSS 星座和频率"</string>
+    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
+    <skip />
+    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
+    <skip />
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"允许系统执行后台活动"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"允许系统执行所有后台活动"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"一律显示崩溃对话框"</string>
