@@ -106,11 +106,11 @@
     <string name="car_permission_label_car_handle_usb_aoap_device">Communicate with USB device in AOAP mode</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device">Allows an app to communicate with a device in AOAP mode</string>
 
-    <string name="car_permission_label_read_car_occupant_awareness_state">Occupant Awareness System</string>
-    <string name="car_permission_desc_read_car_occupant_awareness_state">Read Occupant Awareness System state</string>
+    <string name="car_permission_label_read_car_occupant_awareness_state">Occupant Awareness System Read Access</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state">Allows reading status and detection data for Occupant Awareness System</string>
 
-    <string name="car_permission_label_control_car_occupant_awareness_system">Occupant Awareness System</string>
-    <string name="car_permission_desc_control_car_occupant_awareness_system">Control Occupant Awareness System</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system">Control Occupant Awareness System Graph</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system">Allows controlling the start and stopping of the Occupant Awareness System detection graph</string>
 
     <!-- Permission text: apps can handle input events [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_bind_input_service">Car Input Service</string>

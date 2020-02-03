@@ -475,23 +475,23 @@
         android:label="@string/car_permission_label_car_ux_restrictions_configuration"
         android:description="@string/car_permission_desc_car_ux_restrictions_configuration" />
 
-    <!-- Allows an application to read occupant awareness state.
+    <!-- Allows an application to read state data from the 'Occupant Awareness System'.
          <p>Protection level: signature|privileged
     -->
     <permission
         android:name="android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE"
         android:protectionLevel="signature|privileged"
         android:label="@string/car_permission_label_read_car_occupant_awareness_state"
-      android:description="@string/car_permission_desc_read_car_occupant_awareness_state" />
+        android:description="@string/car_permission_desc_read_car_occupant_awareness_state" />
 
-    <!-- Allows an application to control occupant awareness state.
+    <!-- Allows an application to control the detection graph for the 'Occupant Awareness System'.
          <p>Protection level: signature|privileged
     -->
     <permission
         android:name="android.car.permission.CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM"
         android:protectionLevel="signature|privileged"
         android:label="@string/car_permission_label_control_car_occupant_awareness_system"
-      android:description="@string/car_permission_desc_control_car_occupant_awareness_system" />
+        android:description="@string/car_permission_desc_control_car_occupant_awareness_system" />
 
     <!-- Allows an application to monitor flash storage usage.
          <p>Protection level: signature|privileged
