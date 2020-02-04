@@ -498,6 +498,9 @@ public class PropertyHalServiceIds {
                 Log.e(TAG, "propId is not available for reading : 0x" + toHexString(propId));
             }
             return p.first;
+        } else if (isVendorProperty(propId)) {
+            // if property is vendor property and do not have specific permission.
+            return Car.PERMISSION_VENDOR_EXTENSION;
         } else {
             return null;
         }
@@ -517,22 +520,11 @@ public class PropertyHalServiceIds {
                 Log.e(TAG, "propId is not writable : 0x" + toHexString(propId));
             }
             return p.second;
+        } else if (isVendorProperty(propId)) {
+            // if property is vendor property and do not have specific permission.
+            return Car.PERMISSION_VENDOR_EXTENSION;
         } else {
             return null;
-        }
-    }
-
-    /**
-     * Return true if property is a vendor property and was added
-     */
-    public boolean insertVendorProperty(int propId) {
-        if (isVendorProperty(propId)) {
-            mProps.put(propId, new Pair<>(
-                    Car.PERMISSION_VENDOR_EXTENSION, Car.PERMISSION_VENDOR_EXTENSION));
-            return true;
-        } else {
-            // This is not a vendor extension property, it is not added
-            return false;
         }
     }
 
@@ -543,13 +535,8 @@ public class PropertyHalServiceIds {
      * Check if property ID is in the list of known IDs that PropertyHalService is interested it.
      */
     public boolean isSupportedProperty(int propId) {
-        if (mProps.get(propId) != null) {
-            // Property is in the list of supported properties
-            return true;
-        } else {
-            // If it's a vendor property, insert it into the propId list and handle it
-            return insertVendorProperty(propId);
-        }
+        // Property is in the list of supported properties
+        return mProps.get(propId) != null || isVendorProperty(propId);
     }
 
     /**
