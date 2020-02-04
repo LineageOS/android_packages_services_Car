@@ -188,59 +188,48 @@ static GLuint buildShaderProgram(const char* vtxSrc, const char* pxlSrc) {
 
 // Main entry point
 bool GlWrapper::initialize() {
-    //
-    //  Create the native full screen window and get a suitable configuration to match it
-    //
-    status_t err;
+    ALOGD("%s", __FUNCTION__);
 
-    mFlinger = new SurfaceComposerClient();
-    if (mFlinger == nullptr) {
-        ALOGE("SurfaceComposerClient couldn't be allocated");
-        return false;
-    }
-    err = mFlinger->initCheck();
-    if (err != NO_ERROR) {
-        ALOGE("SurfaceComposerClient::initCheck error: %#x", err);
+    mCarWindowService = ICarWindowService::getService("default");
+    if (mCarWindowService == nullptr) {
+        ALOGE("Could not get ICarWindowService.");
         return false;
     }
 
-    const sp<IBinder> displayToken = SurfaceComposerClient::getInternalDisplayToken();
-    if (displayToken == nullptr) {
-        ALOGE("ERROR: no internal display");
+    mGfxBufferProducer = mCarWindowService->getIGraphicBufferProducer();
+    if (mGfxBufferProducer == nullptr) {
+        ALOGE("Failed to get IGraphicBufferProducer from ICarWindowService.");
         return false;
     }
 
-    DisplayConfig displayConfig;
-    err = SurfaceComposerClient::getActiveDisplayConfig(displayToken, &displayConfig);
-    if (err != NO_ERROR) {
-        ALOGE("ERROR: unable to get active display config");
+    mCarWindowService->getDisplayInfo(
+        [this](auto dpyCfg, auto dpyState) {
+            DisplayConfig *pCfg = (DisplayConfig*)dpyCfg.data();
+            mWidth = pCfg->resolution.getWidth();
+            mHeight = pCfg->resolution.getHeight();
+
+            android::ui::DisplayState *pState = (android::ui::DisplayState*)dpyState.data();
+            if ((pState->orientation != ui::ROTATION_0) &&
+                (pState->orientation != ui::ROTATION_180)) {
+                // rotate
+                std::swap(mWidth, mHeight);
+            }
+
+            ALOGD("Display resolution is %d x %d", mWidth, mHeight);
+        }
+    );
+
+    mSurfaceHolder = getSurfaceFromHGBP(mGfxBufferProducer);
+    if (mSurfaceHolder == nullptr) {
+        ALOGE("Failed to get a Surface from HGBP.");
         return false;
     }
 
-    ui::DisplayState displayState;
-    err = SurfaceComposerClient::getDisplayState(displayToken, &displayState);
-    if (err != NO_ERROR) {
-        ALOGE("ERROR: unable to get display state");
+    mWindow = getNativeWindow(mSurfaceHolder.get());
+    if (mWindow == nullptr) {
+        ALOGE("Failed to get a native window from Surface.");
         return false;
     }
-
-    const ui::Size& resolution = displayConfig.resolution;
-    mWidth = resolution.getWidth();
-    mHeight = resolution.getHeight();
-
-    if (displayState.orientation == ui::ROTATION_90 ||
-        displayState.orientation == ui::ROTATION_270) {
-        std::swap(mWidth, mHeight);
-    }
-
-    mFlingerSurfaceControl = mFlinger->createSurface(
-            String8("Evs Display"), mWidth, mHeight,
-            PIXEL_FORMAT_RGBX_8888, ISurfaceComposerClient::eOpaque);
-    if (mFlingerSurfaceControl == nullptr || !mFlingerSurfaceControl->isValid()) {
-        ALOGE("Failed to create SurfaceControl");
-        return false;
-    }
-    mFlingerSurface = mFlingerSurfaceControl->getSurface();
 
 
     // Set up our OpenGL ES context associated with the default display
@@ -277,9 +266,9 @@ bool GlWrapper::initialize() {
     }
 
     // Create the EGL render target surface
-    mSurface = eglCreateWindowSurface(mDisplay, egl_config, mFlingerSurface.get(), nullptr);
+    mSurface = eglCreateWindowSurface(mDisplay, egl_config, mWindow, nullptr);
     if (mSurface == EGL_NO_SURFACE) {
-        ALOGE("gelCreateWindowSurface failed.");
+        ALOGE("eglCreateWindowSurface failed.");
         return false;
     }
 
@@ -342,28 +331,25 @@ void GlWrapper::shutdown() {
     mContext = EGL_NO_CONTEXT;
     mDisplay = EGL_NO_DISPLAY;
 
-    // Let go of our SurfaceComposer resources
-    mFlingerSurface.clear();
-    mFlingerSurfaceControl.clear();
-    mFlinger.clear();
+    // Release the window
+    mSurfaceHolder = nullptr;
 }
 
 
 void GlWrapper::showWindow() {
-    if (mFlingerSurfaceControl != nullptr) {
-        SurfaceComposerClient::Transaction{}
-                .setLayer(mFlingerSurfaceControl, 0x7FFFFFFF)     // always on top
-                .show(mFlingerSurfaceControl)
-                .apply();
+    if (mCarWindowService != nullptr) {
+        mCarWindowService->showWindow();
+    } else {
+        ALOGE("ICarWindowService is not available.");
     }
 }
 
 
 void GlWrapper::hideWindow() {
-    if (mFlingerSurfaceControl != nullptr) {
-        SurfaceComposerClient::Transaction{}
-                .hide(mFlingerSurfaceControl)
-                .apply();
+    if (mCarWindowService != nullptr) {
+        mCarWindowService->hideWindow();
+    } else {
+        ALOGE("ICarWindowService is not available.");
     }
 }
 
