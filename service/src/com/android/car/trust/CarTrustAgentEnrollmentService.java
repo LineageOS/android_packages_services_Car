@@ -85,7 +85,10 @@ import java.util.UUID;
  * phone to enroll as a trusted device.  The enrolled phone can then be used for authenticating a
  * user on the HU.  This implements the {@link android.car.trust.CarTrustAgentEnrollmentManager}
  * APIs that an app like Car Settings can call to conduct an enrollment.
+ *
+ * @deprecated Enrollment of a trusted device is no longer a supported feature of car service.
  */
+@Deprecated
 public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stub implements
         DataReceivedListener {
     private static final String TAG = "CarTrustAgentEnroll";

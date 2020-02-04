@@ -28,7 +28,9 @@ import java.util.Objects;
  * Contains basic info of a trusted device.
  *
  * @hide
+ * @deprecated Adding a trusted device is no longer a supported feature.
  */
+@Deprecated
 @SystemApi
 public final class TrustedDeviceInfo implements Parcelable {
 

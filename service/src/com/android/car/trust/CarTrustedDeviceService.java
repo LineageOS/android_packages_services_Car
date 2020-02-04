@@ -36,7 +36,9 @@ import java.util.List;
  * It is comprised of the {@link CarTrustAgentEnrollmentService} for handling enrollment and
  * {@link CarTrustAgentUnlockService} for handling unlock/auth.
  *
+ * @deprecated Enrolling a trusted device is no longer a supported feature of car service.
  */
+@Deprecated
 public class CarTrustedDeviceService implements CarServiceBase, BleEventCallback {
     private static final String TAG = CarTrustedDeviceService.class.getSimpleName();
 

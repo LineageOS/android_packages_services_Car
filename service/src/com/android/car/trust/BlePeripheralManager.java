@@ -48,8 +48,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * A generic class that manages BLE peripheral operations like start/stop advertising, notifying
  * connects/disconnects and reading/writing values to GATT characteristics.
  *
- * TODO(b/123248433) This could move to a separate comms library.
+ * @deprecated Enrolling a trusted device through car service is no longer a supported feature.
  */
+@Deprecated
 public class BlePeripheralManager {
     private static final String TAG = BlePeripheralManager.class.getSimpleName();
 
