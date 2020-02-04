@@ -64,6 +64,7 @@ public class CarAudioZonesHelperTest {
     private static final String BUS_1_ADDRESS = "bus1_navigation_out";
     private static final String BUS_3_ADDRESS = "bus3_call_ring_out";
     private static final String BUS_100_ADDRESS = "bus100_rear_seat";
+    private static final String BUS_1000_ADDRESS_DOES_NOT_EXIST = "bus1000_does_not_exist";
 
     private static final String PRIMARY_ZONE_MICROPHONE_ADDRESS = "Built-In Mic";
     private static final String PRIMARY_ZONE_FM_TUNER_ADDRESS = "fm_tuner";
@@ -561,6 +562,20 @@ public class CarAudioZonesHelperTest {
                     expectThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("can not repeat.");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_failsOnMissingOutputDevice() throws Exception {
+        try (InputStream outputDevicesStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_output_address_does_not_exist)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mContext, outputDevicesStream,
+                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+
+            IllegalStateException thrown =
+                    expectThrows(IllegalStateException.class,
+                            () -> cazh.loadAudioZones());
+            assertThat(thrown).hasMessageThat().contains(BUS_1000_ADDRESS_DOES_NOT_EXIST);
         }
     }
 

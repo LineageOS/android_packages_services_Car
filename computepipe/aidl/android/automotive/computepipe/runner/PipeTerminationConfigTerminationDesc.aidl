@@ -15,6 +15,7 @@
  */
 package android.automotive.computepipe.runner;
 
+import android.automotive.computepipe.runner.PipeOutputConfig;
 import android.automotive.computepipe.runner.PipeTerminationConfigTerminationType;
 
 /**
@@ -32,5 +33,9 @@ parcelable PipeTerminationConfigTerminationDesc {
      * specific event identifier.
      */
     int qualifier;
+    /**
+     * Output stream config. This will only be used when type is MAX_PACKET_COUNT
+     */
+     PipeOutputConfig streamConfig;
 }
 

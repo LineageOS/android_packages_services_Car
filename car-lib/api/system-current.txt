@@ -49,6 +49,7 @@ package android.car {
     field public static final String PERMISSION_CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM = "android.car.permission.CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM";
     field public static final String PERMISSION_CONTROL_CAR_SEATS = "android.car.permission.CONTROL_CAR_SEATS";
     field public static final String PERMISSION_CONTROL_CAR_WINDOWS = "android.car.permission.CONTROL_CAR_WINDOWS";
+    field public static final String PERMISSION_CONTROL_ENERGY_PORTS = "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
     field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
@@ -944,8 +945,10 @@ package android.car.occupantawareness {
     method @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE) public void unregisterChangeCallback();
   }
 
-  public abstract class OccupantAwarenessManager.ChangeCallback {
+  public abstract static class OccupantAwarenessManager.ChangeCallback {
     ctor public OccupantAwarenessManager.ChangeCallback();
+    method public abstract void onDetectionEvent(@NonNull android.car.occupantawareness.OccupantAwarenessDetection);
+    method public abstract void onSystemStateChanged(@NonNull android.car.occupantawareness.SystemStatusEvent);
   }
 
   public final class Point3D implements android.os.Parcelable {
