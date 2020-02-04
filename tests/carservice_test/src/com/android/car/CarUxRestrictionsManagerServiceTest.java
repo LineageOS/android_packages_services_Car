@@ -15,9 +15,17 @@
  */
 package com.android.car;
 
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_IDLING;
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
+import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
+import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
+
 import static com.android.car.CarUxRestrictionsManagerService.CONFIG_FILENAME_PRODUCTION;
 import static com.android.car.CarUxRestrictionsManagerService.CONFIG_FILENAME_STAGED;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -40,7 +48,6 @@ import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.util.JsonReader;
 import android.util.JsonWriter;
 
 import androidx.test.filters.MediumTest;
@@ -61,12 +68,12 @@ import org.mockito.junit.MockitoRule;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -74,6 +81,9 @@ import java.util.concurrent.CountDownLatch;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarUxRestrictionsManagerServiceTest {
+
+    private static final String UX_RESTRICTION_MODE_PASSENGER = "passenger";
+
     private CarUxRestrictionsManagerService mService;
 
     @Rule
@@ -118,7 +128,15 @@ public class CarUxRestrictionsManagerServiceTest {
         CarUxRestrictionsConfiguration config = createEmptyConfig();
 
         assertTrue(mService.saveUxRestrictionsConfigurationForNextBoot(Arrays.asList(config)));
-        assertTrue(readFile(staged).equals(config));
+
+        String expectedConfig = "{\"schema_version\":2,\"restrictions\":[{\"physical_port\":null,"
+                + "\"max_content_depth\":-1,\"max_cumulative_content_items\":-1,"
+                + "\"max_string_length\":-1,\"baseline\":{\"parked_restrictions\":[{\"req_opt"
+                + "\":true,\"restrictions\":511}],\"idling_restrictions\":[{\"req_opt\":true,"
+                + "\"restrictions\":511}],\"moving_restrictions\":[{\"req_opt\":true,"
+                + "\"restrictions\":511}],\"unknown_restrictions\":[{\"req_opt\":true,"
+                + "\"restrictions\":511}]}}]}";
+        assertEquals(readFile(staged.toPath()), expectedConfig);
         // Verify prod config file was not created.
         assertFalse(new File(mTempSystemCarDir, CONFIG_FILENAME_PRODUCTION).exists());
     }
@@ -162,6 +180,71 @@ public class CarUxRestrictionsManagerServiceTest {
         CarUxRestrictionsConfiguration actual = mService.loadConfig().get(0);
 
         assertTrue(actual.equals(expected));
+    }
+
+    @Test
+    public void testLoadConfig_SupportsLegacyV1() throws IOException {
+        String v1LegacyJsonFormat = "[{\"physical_port\":1,\"max_content_depth\":2,"
+                + "\"max_cumulative_content_items\":20,\"max_string_length\":21,"
+                + "\"parked_restrictions\":[{\"req_opt\":false,\"restrictions\":0}],"
+                + "\"idling_restrictions\":[{\"req_opt\":true,\"restrictions\":7}],"
+                + "\"moving_restrictions\":[{\"req_opt\":true,\"restrictions\":8}],"
+                + "\"unknown_restrictions\":[{\"req_opt\":true,\"restrictions\":511}],"
+                + "\"passenger_parked_restrictions\":[{\"req_opt\":false,\"restrictions\":0}],"
+                + "\"passenger_idling_restrictions\":[{\"req_opt\":true,\"restrictions\":56}],"
+                + "\"passenger_moving_restrictions\":[{\"req_opt\":true,\"restrictions\":57}],"
+                + "\"passenger_unknown_restrictions\":[{\"req_opt\":true,\"restrictions\":510}]}]";
+        setupMockFileFromString(CONFIG_FILENAME_PRODUCTION, v1LegacyJsonFormat);
+
+        CarUxRestrictionsConfiguration actual = mService.loadConfig().get(0);
+
+        CarUxRestrictionsConfiguration expectedConfig = new Builder()
+                .setPhysicalPort((byte) 1)
+                .setMaxContentDepth(2)
+                .setMaxCumulativeContentItems(20)
+                .setMaxStringLength(21)
+                .setUxRestrictions(DRIVING_STATE_PARKED,
+                        new CarUxRestrictionsConfiguration.DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(false)
+                                .setRestrictions(UX_RESTRICTIONS_BASELINE)
+                                .setMode(UX_RESTRICTION_MODE_BASELINE))
+                .setUxRestrictions(DRIVING_STATE_IDLING,
+                        new CarUxRestrictionsConfiguration.DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(true)
+                                .setRestrictions(7)
+                                .setMode(UX_RESTRICTION_MODE_BASELINE))
+                .setUxRestrictions(DRIVING_STATE_MOVING,
+                        new CarUxRestrictionsConfiguration.DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(true)
+                                .setRestrictions(8)
+                                .setMode(UX_RESTRICTION_MODE_BASELINE))
+                .setUxRestrictions(DRIVING_STATE_UNKNOWN,
+                        new CarUxRestrictionsConfiguration.DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(true)
+                                .setRestrictions(511)
+                                .setMode(UX_RESTRICTION_MODE_BASELINE))
+                .setUxRestrictions(DRIVING_STATE_PARKED,
+                        new CarUxRestrictionsConfiguration.DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(false)
+                                .setRestrictions(UX_RESTRICTIONS_BASELINE)
+                                .setMode(UX_RESTRICTION_MODE_PASSENGER))
+                .setUxRestrictions(DRIVING_STATE_IDLING,
+                        new CarUxRestrictionsConfiguration.DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(true)
+                                .setRestrictions(56)
+                                .setMode(UX_RESTRICTION_MODE_PASSENGER))
+                .setUxRestrictions(DRIVING_STATE_MOVING,
+                        new CarUxRestrictionsConfiguration.DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(true)
+                                .setRestrictions(57)
+                                .setMode(UX_RESTRICTION_MODE_PASSENGER))
+                .setUxRestrictions(DRIVING_STATE_UNKNOWN,
+                        new CarUxRestrictionsConfiguration.DrivingStateRestrictions()
+                                .setDistractionOptimizationRequired(true)
+                                .setRestrictions(510)
+                                .setMode(UX_RESTRICTION_MODE_PASSENGER))
+                .build();
+        assertTrue(actual.equals(expectedConfig));
     }
 
     @Test
@@ -469,14 +552,21 @@ public class CarUxRestrictionsManagerServiceTest {
         return f;
     }
 
-    private CarUxRestrictionsConfiguration readFile(File file) throws Exception {
-        try (JsonReader reader = new JsonReader(
-                new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
-            CarUxRestrictionsConfiguration config = null;
-            reader.beginArray();
-            config = CarUxRestrictionsConfiguration.readJson(reader);
-            reader.endArray();
-            return config;
+    private File setupMockFileFromString(String filename, String config)
+            throws IOException {
+        File f = new File(mTempSystemCarDir, filename);
+        assertTrue(f.createNewFile());
+
+        if (config != null) {
+            try (FileOutputStream writer = new FileOutputStream(f)) {
+                byte[] bytes = config.getBytes();
+                writer.write(bytes);
+            }
         }
+        return f;
+    }
+
+    private String readFile(Path path) throws Exception {
+        return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
     }
 }
