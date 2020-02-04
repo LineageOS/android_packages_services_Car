@@ -109,14 +109,14 @@ public class BluetoothAudioCodecPreferenceController extends
             case 6:
                 synchronized (mBluetoothA2dpConfigStore) {
                     if (mBluetoothA2dp != null) {
-                        mBluetoothA2dp.enableOptionalCodecs(null); // Use current active device
+                        mBluetoothA2dp.enableOptionalCodecs(mBluetoothA2dp.getActiveDevice());
                     }
                 }
                 return;
             case 7:
                 synchronized (mBluetoothA2dpConfigStore) {
                     if (mBluetoothA2dp != null) {
-                        mBluetoothA2dp.disableOptionalCodecs(null); // Use current active device
+                        mBluetoothA2dp.disableOptionalCodecs(mBluetoothA2dp.getActiveDevice());
                     }
                 }
                 return;
