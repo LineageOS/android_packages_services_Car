@@ -65,6 +65,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     carsettings-contextual-card-protos-lite \
     carsettings-log-bridge-protos-lite \
     carsettings-logtags \
+    statslog-settings \
     zxing-core-1.7
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
