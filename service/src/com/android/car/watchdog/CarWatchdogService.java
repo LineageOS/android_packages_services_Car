@@ -16,10 +16,24 @@
 
 package com.android.car.watchdog;
 
+import static com.android.car.CarLog.TAG_WATCHDOG;
+
+import android.annotation.Nullable;
+import android.automotive.watchdog.ICarWatchdog;
 import android.automotive.watchdog.ICarWatchdogClient;
 import android.car.watchdog.ICarWatchdogService;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Process;
+import android.os.RemoteException;
+import android.os.ServiceManager;
+import android.util.Log;
+
+import androidx.annotation.VisibleForTesting;
 
 import com.android.car.CarServiceBase;
+import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
@@ -32,25 +46,79 @@ import java.lang.ref.WeakReference;
  */
 public final class CarWatchdogService extends ICarWatchdogService.Stub implements CarServiceBase {
 
-    private final ICarWatchdogClientImpl mWatchogClient;
+    private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
+            "android.automotive.watchdog.ICarWatchdog/default";
 
-    CarWatchdogService() {
-        mWatchogClient = new ICarWatchdogClientImpl(this);
+    private final Context mContext;
+    private final ICarWatchdogClientImpl mWatchdogClient;
+    private final Object mLock = new Object();
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    @GuardedBy("mLock")
+    private @Nullable ICarWatchdog mCarWatchdogDaemon;
+
+    public CarWatchdogService(Context context) {
+        // Car watchdog daemon is found at init().
+        this(context, null);
+    }
+
+    @VisibleForTesting
+    CarWatchdogService(Context context, ICarWatchdog daemon) {
+        mContext = context;
+        // For testing, we use the given car watchdog daemon.
+        mCarWatchdogDaemon = daemon;
+        mWatchdogClient = new ICarWatchdogClientImpl(this);
     }
 
     @Override
     public void init() {
-        // TODO(b/145556670): implement body.
+        ICarWatchdog daemon;
+        synchronized (mLock) {
+            daemon = mCarWatchdogDaemon;
+        }
+        if (daemon == null) {
+            daemon = ICarWatchdog.Stub.asInterface(
+                    ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE));
+            if (daemon == null) {
+                Log.wtf(TAG_WATCHDOG, "Cannot initialize because no watchdog daemon is found");
+                Process.killProcess(Process.myPid());
+            }
+        }
+        try {
+            daemon.registerMediator(mWatchdogClient);
+        } catch (RemoteException e) {
+            daemon = null;
+            Log.w(TAG_WATCHDOG, "Cannot register to car watchdog daemon: " + e);
+        } catch (IllegalArgumentException e) {
+            // Do nothing.
+            Log.w(TAG_WATCHDOG, "Already registered as mediator: " + e);
+        }
+        synchronized (mLock) {
+            mCarWatchdogDaemon = daemon;
+        }
     }
 
     @Override
     public void release() {
-        // TODO(b/145556670): implement body.
+        ICarWatchdog daemon;
+        synchronized (mLock) {
+            daemon = mCarWatchdogDaemon;
+            mCarWatchdogDaemon = null;
+        }
+        if (daemon != null) {
+            try {
+                daemon.unregisterClient(mWatchdogClient);
+            } catch (RemoteException e) {
+                Log.w(TAG_WATCHDOG, "Cannot unregister from car watchdog daemon: " + e);
+            }
+        }
     }
 
     @Override
     public void dump(PrintWriter writer) {
-        // TODO(b/145556670): implement body.
+        writer.println("*CarWatchdogService*");
+        synchronized (mLock) {
+            writer.printf("bound to car watchddog daemon: %b\n", mCarWatchdogDaemon != null);
+        }
     }
 
     @Override
@@ -68,6 +136,26 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         // TODO(b/145556670): implement body.
     }
 
+    private void doHealthCheck(int sessionId) {
+        mMainHandler.post(() -> {
+            ICarWatchdog daemon;
+            synchronized (mLock) {
+                if (mCarWatchdogDaemon == null) {
+                    return;
+                }
+                daemon = mCarWatchdogDaemon;
+            }
+            try {
+                // TODO(b/145556670): Check clients status and include them in the response.
+                int[] clientsNotResponding = new int[0];
+                daemon.tellMediatorAlive(mWatchdogClient, clientsNotResponding, sessionId);
+            } catch (RemoteException e) {
+                Log.w(TAG_WATCHDOG, "Cannot respond to car watchdog daemon (sessionId="
+                        + sessionId + "): " + e);
+            }
+        });
+    }
+
     private static final class ICarWatchdogClientImpl extends ICarWatchdogClient.Stub {
         private final WeakReference<CarWatchdogService> mService;
 
@@ -77,7 +165,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
         @Override
         public void checkIfAlive(int sessionId, int timeout) {
-            // TODO(b/145556670): implement body.
+            CarWatchdogService service = mService.get();
+            if (service == null) {
+                Log.w(TAG_WATCHDOG, "CarWatchdogService is not available");
+                return;
+            }
+            service.doHealthCheck(sessionId);
         }
     }
 }
