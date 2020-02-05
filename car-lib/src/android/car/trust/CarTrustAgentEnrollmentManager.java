@@ -66,7 +66,10 @@ import java.util.List;
  * </ol>
  *
  * @hide
+ *
+ * @deprecated Enrollment of a trusted device is no longer a supported feature.
  */
+@Deprecated
 @SystemApi
 public final class CarTrustAgentEnrollmentManager extends CarManagerBase {
     private static final String TAG = "CarTrustEnrollMgr";

@@ -364,7 +364,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 mIsBooting = false;
                 mIsResuming = false;
                 Log.i(CarLog.TAG_POWER, "User switch disallowed while booting");
-            } else if (mIsResuming) {
+            } else {
                 // The system is resuming after a suspension. Optionally disable user switching.
                 allowUserSwitch = !mDisableUserSwitchDuringResume;
                 mIsBooting = false;

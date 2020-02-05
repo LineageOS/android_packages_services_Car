@@ -40,12 +40,12 @@ import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Common interface for HAL services that send Vehicle Properties back and forth via ICarProperty.
@@ -55,16 +55,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PropertyHalService extends HalServiceBase {
     private final boolean mDbg = true;
     private final LinkedList<CarPropertyEvent> mEventsToDispatch = new LinkedList<>();
-    private final Map<Integer, CarPropertyConfig<?>> mProps =
-            new ConcurrentHashMap<>();
-    private final SparseArray<Float> mRates = new SparseArray<Float>();
+    @GuardedBy("mLock")
+    private final Map<Integer, CarPropertyConfig<?>> mProps = new HashMap<>();
+    @GuardedBy("mLock")
+    private final SparseArray<VehiclePropConfig> mPropConfigSparseArray = new SparseArray<>();
     private static final String TAG = "PropertyHalService";
     private final VehicleHal mVehicleHal;
     private final PropertyHalServiceIds mPropIds;
 
     @GuardedBy("mLock")
     private PropertyHalListener mListener;
-
+    @GuardedBy("mLock")
     private Set<Integer> mSubscribedPropIds;
 
     private final Object mLock = new Object();
@@ -74,10 +75,12 @@ public class PropertyHalService extends HalServiceBase {
      * If property is not supported, it will return {@link #NOT_SUPPORTED_PROPERTY}.
      */
     private int managerToHalPropId(int propId) {
-        if (mProps.containsKey(propId)) {
-            return propId;
-        } else {
-            return NOT_SUPPORTED_PROPERTY;
+        synchronized (mLock) {
+            if (mPropConfigSparseArray.get(propId) != null) {
+                return propId;
+            } else {
+                return NOT_SUPPORTED_PROPERTY;
+            }
         }
     }
 
@@ -86,10 +89,12 @@ public class PropertyHalService extends HalServiceBase {
      * If property is not supported, it will return {@link #NOT_SUPPORTED_PROPERTY}.
      */
     private int halToManagerPropId(int halPropId) {
-        if (mProps.containsKey(halPropId)) {
-            return halPropId;
-        } else {
-            return NOT_SUPPORTED_PROPERTY;
+        synchronized (mLock) {
+            if (mPropConfigSparseArray.get(halPropId) != null) {
+                return halPropId;
+            } else {
+                return NOT_SUPPORTED_PROPERTY;
+            }
         }
     }
 
@@ -137,6 +142,15 @@ public class PropertyHalService extends HalServiceBase {
         if (mDbg) {
             Log.d(TAG, "getPropertyList");
         }
+        synchronized (mLock) {
+            if (mProps.size() == 0) {
+                for (int i = 0; i < mPropConfigSparseArray.size(); i++) {
+                    VehiclePropConfig p = mPropConfigSparseArray.valueAt(i);
+                    CarPropertyConfig config = CarPropertyUtils.toCarPropertyConfig(p, p.prop);
+                    mProps.put(p.prop, config);
+                }
+            }
+        }
         return mProps;
     }
 
@@ -160,8 +174,11 @@ public class PropertyHalService extends HalServiceBase {
         }
 
         if (isMixedTypeProperty(halPropId)) {
-            CarPropertyConfig<?>  propertyConfig = mProps.get(halPropId);
-            boolean containBooleanType = propertyConfig.getConfigArray().get(1) == 1;
+            VehiclePropConfig propConfig;
+            synchronized (mLock) {
+                propConfig = mPropConfigSparseArray.get(halPropId);
+            }
+            boolean containBooleanType = propConfig.configArray.get(1) == 1;
             return value == null ? null : toMixedCarPropertyValue(value,
                     mgrPropId, containBooleanType);
         }
@@ -216,8 +233,11 @@ public class PropertyHalService extends HalServiceBase {
         VehiclePropValue halProp;
         if (isMixedTypeProperty(halPropId)) {
             // parse mixed type property value.
-            CarPropertyConfig<?>  propertyConfig = mProps.get(prop.getPropertyId());
-            int[] configArray = propertyConfig.getConfigArray().stream().mapToInt(i->i).toArray();
+            VehiclePropConfig propConfig;
+            synchronized (mLock) {
+                propConfig = mPropConfigSparseArray.get(prop.getPropertyId());
+            }
+            int[] configArray = propConfig.configArray.stream().mapToInt(i->i).toArray();
             halProp = toMixedVehiclePropValue(prop, halPropId, configArray);
         } else {
             halProp = toVehiclePropValue(prop, halPropId);
@@ -245,16 +265,16 @@ public class PropertyHalService extends HalServiceBase {
             throw new IllegalArgumentException("Invalid property Id : 0x"
                     + toHexString(propId));
         }
-        // Validate the min/max rate
-        CarPropertyConfig cfg = mProps.get(propId);
-        if (rate > cfg.getMaxSampleRate()) {
-            rate = cfg.getMaxSampleRate();
-        } else if (rate < cfg.getMinSampleRate()) {
-            rate = cfg.getMinSampleRate();
-        }
-        synchronized (mSubscribedPropIds) {
+        synchronized (mLock) {
+            VehiclePropConfig cfg = mPropConfigSparseArray.get(propId);
+            if (rate > cfg.maxSampleRate) {
+                rate = cfg.maxSampleRate;
+            } else if (rate < cfg.minSampleRate) {
+                rate = cfg.minSampleRate;
+            }
             mSubscribedPropIds.add(halPropId);
         }
+
         mVehicleHal.subscribeProperty(this, halPropId, rate);
     }
 
@@ -271,7 +291,7 @@ public class PropertyHalService extends HalServiceBase {
             throw new IllegalArgumentException("Invalid property Id : 0x"
                     + toHexString(propId));
         }
-        synchronized (mSubscribedPropIds) {
+        synchronized (mLock) {
             if (mSubscribedPropIds.contains(halPropId)) {
                 mSubscribedPropIds.remove(halPropId);
                 mVehicleHal.unsubscribeProperty(this, halPropId);
@@ -291,15 +311,13 @@ public class PropertyHalService extends HalServiceBase {
         if (mDbg) {
             Log.d(TAG, "release()");
         }
-        synchronized (mSubscribedPropIds) {
+        synchronized (mLock) {
             for (Integer prop : mSubscribedPropIds) {
                 mVehicleHal.unsubscribeProperty(this, prop);
             }
             mSubscribedPropIds.clear();
-        }
-        mProps.clear();
-
-        synchronized (mLock) {
+            mPropConfigSparseArray.clear();
+            mProps.clear();
             mListener = null;
         }
     }
@@ -308,12 +326,12 @@ public class PropertyHalService extends HalServiceBase {
     public Collection<VehiclePropConfig> takeSupportedProperties(
             Collection<VehiclePropConfig> allProperties) {
         List<VehiclePropConfig> taken = new LinkedList<>();
-
         for (VehiclePropConfig p : allProperties) {
             if (mPropIds.isSupportedProperty(p.prop)) {
-                CarPropertyConfig config = CarPropertyUtils.toCarPropertyConfig(p, p.prop);
                 taken.add(p);
-                mProps.put(p.prop, config);
+                synchronized (mLock) {
+                    mPropConfigSparseArray.put(p.prop, p);
+                }
                 if (mDbg) {
                     Log.d(TAG, "takeSupportedProperties: " + toHexString(p.prop));
                 }
@@ -322,11 +340,14 @@ public class PropertyHalService extends HalServiceBase {
         if (mDbg) {
             Log.d(TAG, "takeSupportedProperties() took " + taken.size() + " properties");
         }
-
         // If vehicle hal support to select permission for vendor properties.
-        if (mProps.containsKey(VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION)) {
-            mPropIds.customizeVendorPermission(mProps.get(
-                    VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION).getConfigArray());
+        VehiclePropConfig customizePermission;
+        synchronized (mLock) {
+            customizePermission = mPropConfigSparseArray.get(
+                    VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION);
+        }
+        if (customizePermission != null) {
+            mPropIds.customizeVendorPermission(customizePermission.configArray);
         }
         return taken;
     }
@@ -350,17 +371,18 @@ public class PropertyHalService extends HalServiceBase {
                 CarPropertyValue<?> propVal;
                 if (isMixedTypeProperty(v.prop)) {
                     // parse mixed type property value.
-                    CarPropertyConfig<?>  propertyConfig = mProps.get(v.prop);
-                    boolean containBooleanType = propertyConfig.getConfigArray().get(1) == 1;
+                    VehiclePropConfig propConfig;
+                    synchronized (mLock) {
+                        propConfig = mPropConfigSparseArray.get(v.prop);
+                    }
+                    boolean containBooleanType = propConfig.configArray.get(1) == 1;
                     propVal = toMixedCarPropertyValue(v, mgrPropId, containBooleanType);
                 } else {
                     propVal = toCarPropertyValue(v, mgrPropId);
                 }
                 CarPropertyEvent event = new CarPropertyEvent(
                         CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, propVal);
-                if (event != null) {
-                    mEventsToDispatch.add(event);
-                }
+                mEventsToDispatch.add(event);
             }
             listener.onPropertyChange(mEventsToDispatch);
             mEventsToDispatch.clear();
@@ -382,8 +404,11 @@ public class PropertyHalService extends HalServiceBase {
     public void dump(PrintWriter writer) {
         writer.println(TAG);
         writer.println("  Properties available:");
-        for (CarPropertyConfig prop : mProps.values()) {
-            writer.println("    " + prop.toString());
+        synchronized (mLock) {
+            for (int i = 0; i < mPropConfigSparseArray.size(); i++) {
+                VehiclePropConfig p = mPropConfigSparseArray.valueAt(i);
+                writer.println("    " + p);
+            }
         }
     }
 

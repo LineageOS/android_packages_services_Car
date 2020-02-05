@@ -96,9 +96,6 @@ public class PropertyHalServiceIdsTest {
      */
     @Test
     public void checkPermissionForVendorProperty() {
-        for (int propId : VENDOR_PROPERTY_IDS) {
-            mPropertyHalServiceIds.insertVendorProperty(propId);
-        }
         // test insert a valid config
         mPropertyHalServiceIds.customizeVendorPermission(CONFIG_ARRAY);
 

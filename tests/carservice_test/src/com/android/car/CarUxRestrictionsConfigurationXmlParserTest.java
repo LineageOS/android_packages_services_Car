@@ -19,7 +19,6 @@ import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_IDLING
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
 import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
-import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_PASSENGER;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -45,6 +44,9 @@ import java.util.Set;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarUxRestrictionsConfigurationXmlParserTest {
+
+    private static final String UX_RESTRICTION_MODE_PASSENGER = "passenger";
+
     private Context getContext() {
         return InstrumentationRegistry.getInstrumentation().getTargetContext();
     }
@@ -167,7 +169,7 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
         Set<Byte> expected = new ArraySet<>();
         expected.add((byte) 1);
         expected.add((byte) 2);
-        for (CarUxRestrictionsConfiguration config: configs) {
+        for (CarUxRestrictionsConfiguration config : configs) {
             assertTrue(expected.contains(config.getPhysicalPort()));
         }
     }
@@ -179,7 +181,7 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
                 CarUxRestrictionsConfigurationXmlParser.parse(
                         getContext(), R.xml.ux_restrictions_multiple_display_ports);
 
-        for (CarUxRestrictionsConfiguration config: configs) {
+        for (CarUxRestrictionsConfiguration config : configs) {
             CarUxRestrictions r = config.getUxRestrictions(DRIVING_STATE_PARKED, 0f);
             assertEquals(1, r.getMaxContentDepth());
             assertEquals(1, r.getMaxCumulativeContentItems());
