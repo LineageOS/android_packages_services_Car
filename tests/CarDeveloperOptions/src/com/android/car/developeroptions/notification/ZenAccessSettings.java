@@ -86,11 +86,7 @@ public class ZenAccessSettings extends EmptyTextSettings implements
     @Override
     public void onResume() {
         super.onResume();
-        if (!ActivityManager.isLowRamDeviceStatic()) {
-            reloadList();
-        } else {
-            setEmptyText(R.string.disabled_low_ram_device);
-        }
+        reloadList();
     }
 
     @Override
