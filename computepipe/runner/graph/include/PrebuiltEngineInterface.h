@@ -16,6 +16,7 @@
 
 #include <functional>
 
+#include "InputFrame.h"
 #include "types/Status.h"
 
 namespace android {
@@ -27,8 +28,8 @@ class PrebuiltEngineInterface {
   public:
     virtual ~PrebuiltEngineInterface() = default;
 
-    virtual void DispatchPixelData(int streamId, int64_t timestamp, const uint8_t* pixels,
-                                   int width, int height, int step, PixelFormat format) = 0;
+    virtual void DispatchPixelData(int streamId, int64_t timestamp,
+                                   const runner::InputFrame& frame) = 0;
 
     virtual void DispatchSerializedData(int streamId, int64_t timestamp, std::string&&) = 0;
 

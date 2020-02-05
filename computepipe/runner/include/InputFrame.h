@@ -42,39 +42,23 @@ struct FrameInfo {
 struct InputFrame {
   public:
     /**
-     * Take info about frame data, and ownership of pixel data
+     * Take info about frame data. InputFrame does not take ownership of the data.
      */
     explicit InputFrame(uint32_t height, uint32_t width, PixelFormat format, uint32_t stride,
-                        uint8_t* ptr, FrameDeleter del = std::default_delete<uint8_t[]>()) {
+                        const uint8_t* ptr) {
         mInfo.height = height;
         mInfo.width = width;
         mInfo.format = format;
         mInfo.stride = stride;
-        mDataPtr = {ptr, del};
+        mDataPtr = ptr;
     }
-    InputFrame(InputFrame&& f) {
-        *this = std::move(f);
-    };
-    InputFrame& operator=(InputFrame&& f) {
-        mInfo.height = f.mInfo.height;
-        mInfo.width = f.mInfo.width;
-        mInfo.format = f.mInfo.format;
-        mInfo.stride = f.mInfo.stride;
-        mInfo.cameraId = f.mInfo.cameraId;
-        mDataPtr = std::move(f.mDataPtr);
-        f.mInfo.format = PIXELFORMAT_MAX;
-        f.mInfo.width = 0;
-        f.mInfo.height = 0;
-        f.mInfo.stride = 0;
-        f.mInfo.cameraId = -1;
-        return *this;
-    }
+
     /**
      * This is an unsafe method, that a consumer should use to copy the
      * underlying frame data
      */
     const uint8_t* getFramePtr() const {
-        return mDataPtr.get();
+        return mDataPtr;
     }
     FrameInfo getFrameInfo() const {
         return mInfo;
@@ -85,17 +69,13 @@ struct InputFrame {
     InputFrame() = delete;
     InputFrame(const InputFrame&) = delete;
     InputFrame& operator=(const InputFrame& f) = delete;
-
-    ~InputFrame() {
-        if (mDataPtr) {
-            mDataPtr = nullptr;
-        }
-    }
+    InputFrame(InputFrame&& f) = delete;
+    InputFrame& operator=(InputFrame&& f) = delete;
 
   private:
     FrameInfo mInfo;
     FrameDeleter mDeleter;
-    std::unique_ptr<uint8_t[], FrameDeleter> mDataPtr;
+    const uint8_t* mDataPtr;
 };
 
 }  // namespace runner

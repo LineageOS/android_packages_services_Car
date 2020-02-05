@@ -49,10 +49,6 @@ class AnalyzeCallback : public ::android::automotive::evs::support::BaseAnalyzeC
     std::shared_ptr<InputEngineInterface> mInputEngineInterface;
     std::shared_mutex mEngineInterfaceLock;
     const int mInputStreamId;
-
-    // Frame deleter does nothing here because AnalyzeCallback does not pass ownership of the data.
-    // The image data is expected to be used immediately or copied if necessary.
-    FrameDeleter mFrameDeleter = [](uint8_t* /*data*/) {};
 };
 
 class EvsInputManager : public InputManager {

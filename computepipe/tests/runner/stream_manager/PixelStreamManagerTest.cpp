@@ -102,8 +102,7 @@ TEST(PixelMemHandleTest, SuccessfullyCreatesMemHandleOnFirstAttempt) {
     EXPECT_EQ(memHandle.getHardwareBuffer(), nullptr);
 
     std::vector<uint8_t> data(16 * 16 * 3, 0);
-    std::function<void(uint8_t*)> dataDeleter = [](uint8_t* /*data*/) {};
-    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0], dataDeleter);
+    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0]);
     Status status = memHandle.setFrameData(timestamp, frame);
     EXPECT_EQ(status, Status::SUCCESS);
     ASSERT_NE(memHandle.getHardwareBuffer(), nullptr);
@@ -131,17 +130,16 @@ TEST(PixelMemHandleTest, FailsToOverwriteFrameDataWithDifferentImageFormat) {
     EXPECT_EQ(memHandle.getHardwareBuffer(), nullptr);
 
     uint8_t data[16 * 16 * 3] = {0};
-    std::function<void(uint8_t*)> dataDeleter = [](uint8_t* /*data*/) {};
-    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0], dataDeleter);
+    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0]);
     Status status = memHandle.setFrameData(timestamp, frame);
     EXPECT_EQ(status, Status::SUCCESS);
     ASSERT_NE(memHandle.getHardwareBuffer(), nullptr);
 
-    InputFrame frameWithNewFormat(16, 16, PixelFormat::RGBA, 16 * 4, nullptr, dataDeleter);
+    InputFrame frameWithNewFormat(16, 16, PixelFormat::RGBA, 16 * 4, nullptr);
     status = memHandle.setFrameData(timestamp, frameWithNewFormat);
     EXPECT_EQ(status, Status::INVALID_ARGUMENT);
 
-    InputFrame frameWithNewDimensions(8, 8, PixelFormat::RGB, 8 * 3, nullptr, dataDeleter);
+    InputFrame frameWithNewDimensions(8, 8, PixelFormat::RGB, 8 * 3, nullptr);
     status = memHandle.setFrameData(timestamp, frameWithNewDimensions);
     EXPECT_EQ(status, Status::INVALID_ARGUMENT);
 }
@@ -157,8 +155,7 @@ TEST(PixelMemHandleTest, SuccessfullyOverwritesOldData) {
     EXPECT_EQ(memHandle.getHardwareBuffer(), nullptr);
 
     std::vector<uint8_t> data(16 * 16 * 3, 0);
-    std::function<void(uint8_t*)> dataDeleter = [](uint8_t* /*data*/) {};
-    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0], dataDeleter);
+    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0]);
     Status status = memHandle.setFrameData(timestamp, frame);
     EXPECT_EQ(status, Status::SUCCESS);
     ASSERT_NE(memHandle.getHardwareBuffer(), nullptr);
@@ -166,7 +163,7 @@ TEST(PixelMemHandleTest, SuccessfullyOverwritesOldData) {
 
     std::vector<uint8_t> newData(16 * 16 * 3, 1);
     uint64_t newTimestamp = 200;
-    InputFrame newFrame(16, 16, PixelFormat::RGB, 16 * 3, &newData[0], dataDeleter);
+    InputFrame newFrame(16, 16, PixelFormat::RGB, 16 * 3, &newData[0]);
     memHandle.setFrameData(newTimestamp, newFrame);
     EXPECT_THAT(memHandle.getHardwareBuffer(), ContainsDataFromFrame(&newFrame));
     EXPECT_THAT(memHandle.getTimeStamp(), newTimestamp);
@@ -176,22 +173,21 @@ TEST(PixelMemHandleTest, CreatesBuffersOfExpectedFormats) {
     int bufferId = 10;
     int streamId = 1;
     uint64_t timestamp = 100;
-    std::function<void(uint8_t*)> dataDeleter = [](uint8_t* /*data*/) {};
 
     std::vector<uint8_t> rgbData(16 * 16 * 3, 10);
-    InputFrame rgbFrame(16, 16, PixelFormat::RGB, 16 * 3, &rgbData[0], dataDeleter);
+    InputFrame rgbFrame(16, 16, PixelFormat::RGB, 16 * 3, &rgbData[0]);
     PixelMemHandle rgbHandle(bufferId, streamId, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN);
     rgbHandle.setFrameData(timestamp, rgbFrame);
     EXPECT_THAT(rgbHandle.getHardwareBuffer(), ContainsDataFromFrame(&rgbFrame));
 
     std::vector<uint8_t> rgbaData(16 * 16 * 4, 20);
-    InputFrame rgbaFrame(16, 16, PixelFormat::RGBA, 16 * 4, &rgbaData[0], dataDeleter);
+    InputFrame rgbaFrame(16, 16, PixelFormat::RGBA, 16 * 4, &rgbaData[0]);
     PixelMemHandle rgbaHandle(bufferId, streamId, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN);
     rgbaHandle.setFrameData(timestamp, rgbaFrame);
     EXPECT_THAT(rgbaHandle.getHardwareBuffer(), ContainsDataFromFrame(&rgbaFrame));
 
     std::vector<uint8_t> yData(16 * 16, 40);
-    InputFrame yFrame(16, 16, PixelFormat::GRAY, 16, &yData[0], dataDeleter);
+    InputFrame yFrame(16, 16, PixelFormat::GRAY, 16, &yData[0]);
     PixelMemHandle yHandle(bufferId, streamId, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN);
     yHandle.setFrameData(timestamp, yFrame);
     EXPECT_THAT(yHandle.getHardwareBuffer(), ContainsDataFromFrame(&yFrame));
@@ -219,8 +215,7 @@ TEST(PixelStreamManagerTest, PacketQueueingProducesACallback) {
 
     ASSERT_EQ(manager->handleExecutionPhase(e), Status::SUCCESS);
     std::vector<uint8_t> data(16 * 16 * 3, 100);
-    std::function<void(uint8_t*)> dataDeleter = [](uint8_t* /*data*/) {};
-    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0], dataDeleter);
+    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0]);
 
     std::shared_ptr<MemHandle> memHandle;
     EXPECT_CALL((*mockEngine), dispatchPacket)
@@ -241,8 +236,7 @@ TEST(PixelStreamManagerTest, MorePacketsThanMaxInFlightAreNotDispatched) {
 
     ASSERT_EQ(manager->handleExecutionPhase(e), Status::SUCCESS);
     std::vector<uint8_t> data(16 * 16 * 3, 100);
-    std::function<void(uint8_t*)> dataDeleter = [](uint8_t* /*data*/) {};
-    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0], dataDeleter);
+    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0]);
     std::set<int> activeBufferIds;
 
     std::shared_ptr<MemHandle> memHandle;
@@ -289,8 +283,7 @@ TEST(PixelStreamManagerTest, DoneWithPacketCallReleasesAPacket) {
 
     ASSERT_EQ(manager->handleExecutionPhase(e), Status::SUCCESS);
     std::vector<uint8_t> data(16 * 16 * 3, 100);
-    std::function<void(uint8_t*)> dataDeleter = [](uint8_t* /*data*/) {};
-    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0], dataDeleter);
+    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0]);
 
     std::shared_ptr<MemHandle> memHandle;
     EXPECT_CALL((*mockEngine), dispatchPacket)
@@ -323,8 +316,7 @@ TEST(PixelStreamManagerTest, EngineReceivesEndOfStreamCallbackOnStoppage) {
 
     ASSERT_EQ(manager->handleExecutionPhase(e), Status::SUCCESS);
     std::vector<uint8_t> data(16 * 16 * 3, 100);
-    std::function<void(uint8_t*)> dataDeleter = [](uint8_t* /*data*/) {};
-    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0], dataDeleter);
+    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0]);
 
     std::shared_ptr<MemHandle> memHandle;
     EXPECT_CALL((*mockEngine), dispatchPacket)
