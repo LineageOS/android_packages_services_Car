@@ -37,7 +37,8 @@
         <service android:name=".ExperimentalCarService"
                  android:singleUser="true">
         </service>
-        <service android:name=".TouchDriverAwarenessSupplier"/>
-        <service android:name=".SampleExternalDriverAwarenessSupplier"/>
+        <service android:name=".TouchDriverAwarenessSupplier" android:exported="false"/>
+        <service android:name=".GazeDriverAwarenessSupplier" android:exported="false"/>
+        <service android:name=".SampleExternalDriverAwarenessSupplier" android:exported="false"/>
     </application>
 </manifest>

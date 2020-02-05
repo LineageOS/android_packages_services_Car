@@ -27,6 +27,9 @@
         <item>
             com.android.experimentalcar/.SampleExternalDriverAwarenessSupplier
         </item>
+        <item>
+            com.android.experimentalcar/.GazeDriverAwarenessSupplier
+        </item>
     </string-array>
 
     <!-- The maximum, and default, number of permits a driver has. Each unthrottled tap will
@@ -41,4 +44,14 @@
 
     <!-- Number of milliseconds that taps should be ignored following a first tap. -->
     <integer name="driverAwarenessTouchModelThrottleMs">600</integer>
+
+    <!-- Initial value for the gaze based attention buffer [0, 1]. -->
+    <item name="driverAwarenessGazeModelInitialValue" format="float" type="fraction">1</item>
+
+    <!-- Rate at which the attention buffer decreases when the driver is looking off-road, in attention units/second-->
+    <item name="driverAwarenessGazeModelDecayRate" format="float" type="fraction">0.167</item>
+
+     <!-- Rate at which the attention buffer increases when the driver is looking on-road, in attention units/second-->
+    <item name="driverAwarenessGazeModelGrowthRate" format="float" type="fraction">0.167</item>
+
 </resources>
