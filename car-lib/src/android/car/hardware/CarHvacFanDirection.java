@@ -17,28 +17,39 @@
 package android.car.hardware;
 
 import android.annotation.IntDef;
+import android.annotation.SystemApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * CarHvacFanDirection is an abstraction for the fan directions.It exists to isolate the java APIs
- * from the VHAL definitions.
+ * CarHvacFanDirection is an abstraction for car's fan directions.
+ * <p>
+ * {@link android.car.VehiclePropertyIds#HVAC_FAN_DIRECTION} and
+ * {@link android.car.VehiclePropertyIds#HVAC_FAN_DIRECTION_AVAILABLE} use constants in
+ * {@link CarHvacFanDirection} as their property value.
+ * Developers can compare the property value with constants in this class to know which fan
+ * direction is used in cars.
+ * </p>
  * @hide
  */
+// This class is only designed to provide constants for car's fan direction. The constants should
+// exactly be same as VehicleHvacFanDirection in file
+// hardware/interfaces/automotive/vehicle/2.0/types.hal.
+@SystemApi
 public final class CarHvacFanDirection {
+    /** Constant for unknown fan direction. */
     public static final int UNKNOWN = 0x0;
+    /** Constant for face direction. */
     public static final int FACE = 0x01;
+    /** Constant for floor direction. */
     public static final int FLOOR = 0x02;
-    /**
-     * FACE_AND_FLOOR = FACE | FLOOR
-     */
-    public static final int FACE_AND_FLOOR = 0x03;
+    /** Constant for face and floor direction. */
+    public static final int FACE_AND_FLOOR = 0x03; // FACE_AND_FLOOR = FACE | FLOOR
+    /** Constant for defrost direction. */
     public static final int DEFROST = 0x04;
-    /**
-     * DEFROST_AND_FLOOR = DEFROST | FLOOR
-     */
-    public static final int DEFROST_AND_FLOOR = 0x06;
+    /** Constant for defrost and floor direction.*/
+    public static final int DEFROST_AND_FLOOR = 0x06; // DEFROST_AND_FLOOR = DEFROST | FLOOR
 
     /**@hide*/
     @IntDef(value = {
@@ -52,30 +63,4 @@ public final class CarHvacFanDirection {
     @Retention(RetentionPolicy.SOURCE)
     public @interface Enum {}
     private CarHvacFanDirection() {}
-
-    /**
-     * @param direction
-     * @return String of fan directions
-     */
-    public static String toString(int direction) {
-        if (direction == UNKNOWN) {
-            return "UNKNOWN";
-        }
-        if (direction == FACE) {
-            return "FACE";
-        }
-        if (direction == FLOOR) {
-            return "FLOOR";
-        }
-        if (direction == FACE_AND_FLOOR) {
-            return "FACE_AND_FLOOR";
-        }
-        if (direction == DEFROST) {
-            return "DEFROST";
-        }
-        if (direction == DEFROST_AND_FLOOR) {
-            return "DEFROST_AND_FLOOR";
-        }
-        return "0x" + Integer.toHexString(direction);
-    }
 }

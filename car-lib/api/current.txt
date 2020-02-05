@@ -195,6 +195,14 @@ package android.car {
     field public static final int VEHICLE_AREA_TYPE_WINDOW = 2; // 0x2
   }
 
+  public final class VehicleAreaWheel {
+    field public static final int WHEEL_LEFT_FRONT = 1; // 0x1
+    field public static final int WHEEL_LEFT_REAR = 4; // 0x4
+    field public static final int WHEEL_RIGHT_FRONT = 2; // 0x2
+    field public static final int WHEEL_RIGHT_REAR = 8; // 0x8
+    field public static final int WHEEL_UNKNOWN = 0; // 0x0
+  }
+
   public final class VehicleGear {
     method public static String toString(int);
     field public static final int GEAR_DRIVE = 8; // 0x8

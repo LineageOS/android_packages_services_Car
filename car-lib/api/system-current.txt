@@ -145,14 +145,6 @@ package android.car {
     field public static final int MIRROR_DRIVER_RIGHT = 2; // 0x2
   }
 
-  public final class VehicleAreaWheel {
-    field public static final int WHEEL_LEFT_FRONT = 1; // 0x1
-    field public static final int WHEEL_LEFT_REAR = 4; // 0x4
-    field public static final int WHEEL_RIGHT_FRONT = 2; // 0x2
-    field public static final int WHEEL_RIGHT_REAR = 8; // 0x8
-    field public static final int WHEEL_UNKNOWN = 0; // 0x0
-  }
-
   public final class VehicleAreaWindow {
     field public static final int WINDOW_FRONT_WINDSHIELD = 1; // 0x1
     field public static final int WINDOW_REAR_WINDSHIELD = 2; // 0x2
@@ -593,6 +585,15 @@ package android.car.drivingstate {
 }
 
 package android.car.hardware {
+
+  public final class CarHvacFanDirection {
+    field public static final int DEFROST = 4; // 0x4
+    field public static final int DEFROST_AND_FLOOR = 6; // 0x6
+    field public static final int FACE = 1; // 0x1
+    field public static final int FACE_AND_FLOOR = 3; // 0x3
+    field public static final int FLOOR = 2; // 0x2
+    field public static final int UNKNOWN = 0; // 0x0
+  }
 
   public final class CarPropertyConfig<T> implements android.os.Parcelable {
     method public static <T> android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(Class<T>, int, int, int);
