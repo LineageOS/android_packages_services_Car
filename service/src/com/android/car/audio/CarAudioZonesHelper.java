@@ -19,7 +19,7 @@ import android.annotation.NonNull;
 import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
-import android.media.AudioDeviceAddress;
+import android.media.AudioDevice;
 import android.media.AudioDeviceInfo;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
@@ -100,7 +100,7 @@ import java.util.stream.Collectors;
     private final Set<Long> mPortIds;
     private final SparseIntArray mZoneIdToOccupantZoneIdMapping;
     private final Set<Integer> mAudioZoneIds;
-    private final Set<String> mInputAudioDeviceAddresses;
+    private final Set<String> mInputAudioDevices;
 
     private boolean mHasPrimaryZone;
     private int mNextSecondaryZoneId;
@@ -125,7 +125,7 @@ import java.util.stream.Collectors;
         mPortIds = new HashSet<>();
         mZoneIdToOccupantZoneIdMapping = new SparseIntArray();
         mAudioZoneIds = new HashSet<>();
-        mInputAudioDeviceAddresses = new HashSet<>();
+        mInputAudioDevices = new HashSet<>();
     }
 
     SparseIntArray getCarAudioZoneIdToOccupantZoneIdMapping() {
@@ -308,7 +308,7 @@ import java.util.stream.Collectors;
                         "%s %s of %s does not exist, add input device to"
                                 + " audio_policy_configuration.xml.",
                         ATTR_DEVICE_ADDRESS, audioDeviceAddress, TAG_INPUT_DEVICE);
-                zone.addInputAudioDeviceAddress(new AudioDeviceAddress(info));
+                zone.addInputAudioDevice(new AudioDevice(info));
             }
             skip(parser);
         }
@@ -320,11 +320,11 @@ import java.util.stream.Collectors;
         Preconditions.checkArgument(!audioDeviceAddress.isEmpty(),
                 "%s %s attribute can not be empty.",
                 TAG_INPUT_DEVICE, ATTR_DEVICE_ADDRESS);
-        if (mInputAudioDeviceAddresses.contains(audioDeviceAddress)) {
+        if (mInputAudioDevices.contains(audioDeviceAddress)) {
             throw new IllegalArgumentException(TAG_INPUT_DEVICE + " " + audioDeviceAddress
                     + " repeats, " + TAG_INPUT_DEVICES + " can not repeat.");
         }
-        mInputAudioDeviceAddresses.add(audioDeviceAddress);
+        mInputAudioDevices.add(audioDeviceAddress);
     }
 
     private void parseDisplays(XmlPullParser parser, CarAudioZone zone)
