@@ -36,7 +36,7 @@ vector<string> Utils::getRearViewCameraIds() {
         return sCameraIds;
     }
 
-    const char* evsServiceName = "EvsEnumeratorV1_0";
+    const char* evsServiceName = "default";
 
     // Load our configuration information
     ConfigManager config;
