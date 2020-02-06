@@ -368,7 +368,7 @@ public class NotificationStation extends SettingsPreferenceFragment {
         }
         try {
             NotificationChannel channel = mNoMan.getNotificationChannelForPackage(
-                    sbn.getPackageName(), sbn.getUid(), n.getChannelId(), false);
+                    sbn.getPackageName(), sbn.getUid(), n.getChannelId(), null, false);
             sb.append("\n")
                     .append(bold(getString(R.string.notification_log_details_sound)))
                     .append(delim);
