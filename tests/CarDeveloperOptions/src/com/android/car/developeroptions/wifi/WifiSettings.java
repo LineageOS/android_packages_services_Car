@@ -17,6 +17,7 @@
 package com.android.car.developeroptions.wifi;
 
 import static android.net.NetworkCapabilities.TRANSPORT_WIFI;
+import static android.net.wifi.WifiConfiguration.NetworkSelectionStatus.NETWORK_SELECTION_ENABLED;
 import static android.os.UserManager.DISALLOW_CONFIG_WIFI;
 
 import android.annotation.NonNull;
@@ -698,7 +699,8 @@ public class WifiSettings extends RestrictedSettingsFragment
         }
         WifiConfiguration.NetworkSelectionStatus networkStatus =
                 config.getNetworkSelectionStatus();
-        if (networkStatus == null || networkStatus.isNetworkEnabled()) {
+        if (networkStatus == null
+                || networkStatus.getNetworkSelectionStatus() == NETWORK_SELECTION_ENABLED) {
             return false;
         }
         int reason = networkStatus.getNetworkSelectionDisableReason();
