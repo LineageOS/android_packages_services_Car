@@ -40,6 +40,20 @@ AHardwareBuffer_Format PixelFormatToHardwareBufferFormat(PixelFormat pixelFormat
     return AHardwareBuffer_Format::AHARDWAREBUFFER_FORMAT_BLOB;
 }
 
+int numBytesPerPixel(PixelFormat pixelFormat) {
+    switch (pixelFormat) {
+        case PixelFormat::RGBA:
+            return 4;
+        case PixelFormat::RGB:
+            return 3;
+        case PixelFormat::GRAY:
+            return 1;
+        default:
+            CHECK(false) << "Unrecognized pixel format seen";
+    }
+    return 1;
+}
+
 PixelMemHandle::PixelMemHandle(int bufferId, int streamId, int additionalUsageFlags)
     : mBufferId(bufferId),
       mStreamId(streamId),
@@ -118,13 +132,16 @@ Status PixelMemHandle::setFrameData(uint64_t timestamp, const InputFrame& inputF
     }
 
     // Copies the input frame data.
-    if (mDesc.stride == frameInfo.stride) {
-        memcpy(mappedBuffer, inputFrame.getFramePtr(), mDesc.stride * mDesc.height);
+    int bytesPerPixel = numBytesPerPixel(frameInfo.format);
+    // The stride for hardware buffer is specified in pixels while the stride
+    // for InputFrame data structure is specified in bytes.
+    if (mDesc.stride * bytesPerPixel == frameInfo.stride) {
+        memcpy(mappedBuffer, inputFrame.getFramePtr(), mDesc.stride * mDesc.height * bytesPerPixel);
     } else {
         for (int y = 0; y < frameInfo.height; y++) {
-            memcpy((uint8_t*)mappedBuffer + mDesc.stride * y,
+            memcpy((uint8_t*)mappedBuffer + mDesc.stride * y * bytesPerPixel,
                    inputFrame.getFramePtr() + y * frameInfo.stride,
-                   std::min(frameInfo.stride, mDesc.stride));
+                   std::min(frameInfo.stride, mDesc.stride * bytesPerPixel));
         }
     }
 
