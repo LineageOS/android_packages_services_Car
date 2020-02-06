@@ -19,8 +19,8 @@ package com.android.car.developeroptions.wifi.tether;
 import android.annotation.NonNull;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.wifi.SoftApConfiguration;
 import android.net.wifi.WifiClient;
-import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.text.BidiFormatter;
 import android.util.Log;
@@ -150,8 +150,7 @@ public class WifiTetherPreferenceController extends AbstractPreferenceController
                 mPreference.setSummary(R.string.wifi_tether_starting);
                 break;
             case WifiManager.WIFI_AP_STATE_ENABLED:
-                WifiConfiguration wifiConfig = mWifiManager.getWifiApConfiguration();
-                updateConfigSummary(wifiConfig);
+                updateConfigSummary(mWifiManager.getSoftApConfiguration());
                 break;
             case WifiManager.WIFI_AP_STATE_DISABLING:
                 mPreference.setSummary(R.string.wifi_tether_stopping);
@@ -168,13 +167,13 @@ public class WifiTetherPreferenceController extends AbstractPreferenceController
         }
     }
 
-    private void updateConfigSummary(@NonNull WifiConfiguration wifiConfig) {
-        if (wifiConfig == null) {
+    private void updateConfigSummary(@NonNull SoftApConfiguration softApConfig) {
+        if (softApConfig == null) {
             // should never happen.
             Log.e(TAG, "Ap config null unexpectedly");
             return;
         }
         mPreference.setSummary(mContext.getString(R.string.wifi_tether_enabled_subtext,
-                BidiFormatter.getInstance().unicodeWrap(wifiConfig.SSID)));
+                BidiFormatter.getInstance().unicodeWrap(softApConfig.getSsid())));
     }
 }
