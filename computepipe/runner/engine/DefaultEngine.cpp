@@ -154,6 +154,7 @@ void DefaultEngine::DispatchPixelData(int streamId, int64_t timestamp, const Inp
               << timestamp;
     if (mStreamManagers.find(streamId) == mStreamManagers.end()) {
         LOG(ERROR) << "Engine::Received bad stream id from prebuilt graph";
+        return;
     }
     mStreamManagers[streamId]->queuePacket(frame, timestamp);
 }
@@ -162,6 +163,7 @@ void DefaultEngine::DispatchSerializedData(int streamId, int64_t timestamp, std:
     LOG(INFO) << "Engine::Received data for stream  " << streamId << " with timestamp " << timestamp;
     if (mStreamManagers.find(streamId) == mStreamManagers.end()) {
         LOG(ERROR) << "Engine::Received bad stream id from prebuilt graph";
+        return;
     }
     std::string data(output);
     mStreamManagers[streamId]->queuePacket(data.c_str(), data.size(), timestamp);
