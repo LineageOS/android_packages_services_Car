@@ -42,7 +42,7 @@ void AnalyzeCallback::analyze(const ::android::automotive::evs::support::Frame& 
                                 .time_since_epoch()
                                 .count();
         InputFrame inputFrame(frame.height, frame.width, PixelFormat::RGBA, frame.stride,
-                              frame.data, mFrameDeleter);
+                              frame.data);
         mInputEngineInterface->dispatchInputFrame(mInputStreamId, timestamp, inputFrame);
     }
 }

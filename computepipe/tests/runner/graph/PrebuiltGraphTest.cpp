@@ -37,7 +37,7 @@ namespace {
 
 // Barebones implementation of the PrebuiltEngineInterface. This implementation should suffice for
 // basic cases. More complicated use cases might need their own implementation of it.
-typedef std::function<void(int, int64_t, const uint8_t*, int, int, int, PixelFormat)> PixelCallback;
+typedef std::function<void(int, int64_t, const runner::InputFrame&)> PixelCallback;
 typedef std::function<void(int, int64_t, std::string&&)> SerializedStreamCallback;
 typedef std::function<void(Status, std::string&&)> GraphTerminationCallback;
 class PrebuiltEngineInterfaceImpl : public PrebuiltEngineInterface {
@@ -49,9 +49,8 @@ class PrebuiltEngineInterfaceImpl : public PrebuiltEngineInterface {
   public:
     virtual ~PrebuiltEngineInterfaceImpl() = default;
 
-    void DispatchPixelData(int streamId, int64_t timestamp, const uint8_t* pixels, int width,
-                           int height, int step, PixelFormat format) override {
-        mPixelCallbackFn(streamId, timestamp, pixels, width, height, step, format);
+    void DispatchPixelData(int streamId, int64_t timestamp, const runner::InputFrame& frame) override {
+        mPixelCallbackFn(streamId, timestamp, frame);
     }
 
     void DispatchSerializedData(int streamId, int64_t timestamp, std::string&& data) override {
@@ -133,8 +132,7 @@ TEST(PrebuiltGraphTest, GraphOperationEndToEndIsSuccessful) {
 
     // Add multiple pixel stream callback functions to see if all of them register.
     callback.SetPixelCallback([&numOutputStreamCallbacksReceived](int streamIndex, int64_t,
-                                                                  const uint8_t*, int, int, int,
-                                                                  PixelFormat) {
+                                                                  const runner::InputFrame&) {
         ASSERT_TRUE(streamIndex == 0 || streamIndex == 1);
         numOutputStreamCallbacksReceived[streamIndex]++;
     });

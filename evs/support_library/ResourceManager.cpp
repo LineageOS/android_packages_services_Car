@@ -23,7 +23,7 @@ namespace support {
 
 using ::std::lock_guard;
 
-const string ResourceManager::kDefaultServiceName = "EvsEnumeratorV1_0";
+const string ResourceManager::kDefaultServiceName = "default";
 sp<ResourceManager> ResourceManager::sInstance;
 mutex ResourceManager::sLockSingleton;
 mutex ResourceManager::sLockEvs;

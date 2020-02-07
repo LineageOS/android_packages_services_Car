@@ -98,8 +98,7 @@ class DefaultEngine : public RunnerEngine {
     /**
      * Methods from PrebuiltEngineInterface to override
      */
-    void DispatchPixelData(int streamId, int64_t timestamp, const uint8_t* pixels, int width,
-                           int height, int step, PixelFormat format) override;
+    void DispatchPixelData(int streamId, int64_t timestamp, const InputFrame& frame) override;
 
     void DispatchSerializedData(int streamId, int64_t timestamp, std::string&& output) override;
 

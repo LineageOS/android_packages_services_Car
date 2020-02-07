@@ -149,11 +149,13 @@ Status DefaultEngine::freePacket(int bufferId, int streamId) {
 /**
  * Methods from PrebuiltEngineInterface
  */
-void DefaultEngine::DispatchPixelData(int /* streamId */, int64_t /* timestamp */,
-                                      const uint8_t* /* pixels */, int /* width */,
-                                      int /* height */, int /* step */, PixelFormat /* format*/) {
-    // TODO: b/147975150 Add pixel stream forwarding to stream manager.
-    return;
+void DefaultEngine::DispatchPixelData(int streamId, int64_t timestamp, const InputFrame& frame) {
+    LOG(INFO) << "Engine::Received data for pixel stream  " << streamId << " with timestamp "
+              << timestamp;
+    if (mStreamManagers.find(streamId) == mStreamManagers.end()) {
+        LOG(ERROR) << "Engine::Received bad stream id from prebuilt graph";
+    }
+    mStreamManagers[streamId]->queuePacket(frame, timestamp);
 }
 
 void DefaultEngine::DispatchSerializedData(int streamId, int64_t timestamp, std::string&& output) {

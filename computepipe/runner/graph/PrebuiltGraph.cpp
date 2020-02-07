@@ -355,8 +355,9 @@ void PrebuiltGraph::OutputPixelStreamCallbackFunction(void* cookie, int streamIn
                                                       int width, int height, int step, int format) {
     PrebuiltGraph* graph = reinterpret_cast<PrebuiltGraph*>(cookie);
     CHECK(graph);
-    graph->mEngineInterface->DispatchPixelData(streamIndex, timestamp, pixels, width, height, step,
-                                               static_cast<PixelFormat>(format));
+    runner::InputFrame frame(height, width, static_cast<PixelFormat>(format), step, pixels);
+
+    graph->mEngineInterface->DispatchPixelData(streamIndex, timestamp, frame);
 }
 
 void PrebuiltGraph::GraphTerminationCallbackFunction(void* cookie,
