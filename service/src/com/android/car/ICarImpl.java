@@ -745,6 +745,8 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_DISABLE_FEATURE = "disable-feature";
         private static final String COMMAND_INJECT_KEY = "inject-key";
 
+        // TODO(b/146207078): add a "get-initial-user-info" command
+
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
         private static final String PARAM_SENSOR_MODE = "sensor";
