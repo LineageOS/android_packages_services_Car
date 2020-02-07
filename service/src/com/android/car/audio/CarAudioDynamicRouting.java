@@ -15,7 +15,6 @@
  */
 package com.android.car.audio;
 
-import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -23,32 +22,15 @@ import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioMixingRule;
 import android.media.audiopolicy.AudioPolicy;
 import android.util.Log;
-import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
-import com.android.internal.util.Preconditions;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Builds dynamic audio routing in a car from audio zone configuration.
  */
 /* package */ class CarAudioDynamicRouting {
-
-    static final int[] CONTEXT_NUMBERS = new int[] {
-            ContextNumber.MUSIC,
-            ContextNumber.NAVIGATION,
-            ContextNumber.VOICE_COMMAND,
-            ContextNumber.CALL_RING,
-            ContextNumber.CALL,
-            ContextNumber.ALARM,
-            ContextNumber.NOTIFICATION,
-            ContextNumber.SYSTEM_SOUND
-    };
-
-    static final SparseIntArray USAGE_TO_CONTEXT = new SparseIntArray();
 
     static final int DEFAULT_AUDIO_USAGE = AudioAttributes.USAGE_MEDIA;
 
@@ -65,45 +47,10 @@ import java.util.List;
             AudioAttributes.USAGE_NOTIFICATION_RINGTONE
     };
 
-    static {
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_UNKNOWN, ContextNumber.MUSIC);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_MEDIA, ContextNumber.MUSIC);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_VOICE_COMMUNICATION, ContextNumber.CALL);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING,
-                ContextNumber.CALL);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_ALARM, ContextNumber.ALARM);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_NOTIFICATION, ContextNumber.NOTIFICATION);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_NOTIFICATION_RINGTONE, ContextNumber.CALL_RING);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST,
-                ContextNumber.NOTIFICATION);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT,
-                ContextNumber.NOTIFICATION);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED,
-                ContextNumber.NOTIFICATION);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_NOTIFICATION_EVENT, ContextNumber.NOTIFICATION);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY,
-                ContextNumber.VOICE_COMMAND);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
-                ContextNumber.NAVIGATION);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION,
-                ContextNumber.SYSTEM_SOUND);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_GAME, ContextNumber.MUSIC);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_VIRTUAL_SOURCE, ContextNumber.INVALID);
-        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_ASSISTANT, ContextNumber.VOICE_COMMAND);
-    }
-
     private final CarAudioZone[] mCarAudioZones;
 
     CarAudioDynamicRouting(CarAudioZone[] carAudioZones) {
         mCarAudioZones = carAudioZones;
-    }
-
-    /**
-     * Checks if the audio context is with the valid range from MUSIC to SYSTEM_SOUND
-     */
-    public static void precondtionCheckAudioContext(int audioContext) {
-        Preconditions.checkArgumentInRange(audioContext,
-                ContextNumber.MUSIC, ContextNumber.SYSTEM_SOUND, "audioContext");
     }
 
     void setupAudioDynamicRouting(AudioPolicy.Builder builder) {
@@ -131,19 +78,20 @@ import java.util.List;
                     .setChannelMask(info.getChannelCount())
                     .build();
             AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
-            for (int contextNumber : group.getContextsForAddress(address)) {
+            for (int carAudioContext : group.getContextsForAddress(address)) {
                 hasContext = true;
-                int[] usages = getUsagesForContext(contextNumber);
+                int[] usages = CarAudioContext.getUsagesForContext(carAudioContext);
                 for (int usage : usages) {
                     mixingRuleBuilder.addRule(
                             new AudioAttributes.Builder().setUsage(usage).build(),
                             AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
                 }
-                Log.d(CarLog.TAG_AUDIO, "Address: " + address
-                        + " contextNumber: " + contextNumber
-                        + " sampleRate: " + info.getSampleRate()
-                        + " channels: " + info.getChannelCount()
-                        + " usages: " + Arrays.toString(usages));
+                if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+                    Log.d(CarLog.TAG_AUDIO, String.format(
+                            "Address: %s AudioContext: %s sampleRate: %d channels: %d usages: %s",
+                            address, carAudioContext, info.getSampleRate(), info.getChannelCount(),
+                            Arrays.toString(usages)));
+                }
             }
             if (hasContext) {
                 // It's a valid case that an audio output address is defined in
@@ -157,15 +105,5 @@ import java.util.List;
                 builder.addMix(audioMix);
             }
         }
-    }
-
-    private int[] getUsagesForContext(int contextNumber) {
-        final List<Integer> usages = new ArrayList<>();
-        for (int i = 0; i < CarAudioDynamicRouting.USAGE_TO_CONTEXT.size(); i++) {
-            if (CarAudioDynamicRouting.USAGE_TO_CONTEXT.valueAt(i) == contextNumber) {
-                usages.add(CarAudioDynamicRouting.USAGE_TO_CONTEXT.keyAt(i));
-            }
-        }
-        return usages.stream().mapToInt(i -> i).toArray();
     }
 }

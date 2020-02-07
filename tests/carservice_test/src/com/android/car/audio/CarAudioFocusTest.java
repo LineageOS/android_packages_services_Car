@@ -38,48 +38,51 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class CarAudioFocusTest {
     private static final int TEST_TIMING_TOLERANCE_MS = 100;
+    private static final int INTERACTION_REJECT     = 0;    // Focus not granted
+    private static final int INTERACTION_EXCLUSIVE  = 1;    // Focus granted, others loose focus
+    private static final int INTERACTION_CONCURRENT = 2;    // Focus granted, others keep focus
 
-    // ContextNumber.INVALID
+    // CarAudioContext.INVALID
     private static final AudioAttributes ATTR_VIRTUAL_SOURCE = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_VIRTUAL_SOURCE)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build();
-    // ContextNumber.MUSIC
+    // CarAudioContext.MUSIC
     private static final AudioAttributes ATTR_MEDIA = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build();
-    // ContextNumber.NAVIGATION
+    // CarAudioContext.NAVIGATION
     private static final AudioAttributes ATTR_DRIVE_DIR = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build();
-    // ContextNumber.VOICE_COMMAND
+    // CarAudioContext.VOICE_COMMAND
     private static final AudioAttributes ATTR_A11Y = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build();
-    // ContextNumber.CALL_RING
+    // CarAudioContext.CALL_RING
     private static final AudioAttributes ATTR_RINGTONE = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build();
-    // ContextNumber.CALL
+    // CarAudioContext.CALL
     private static final AudioAttributes ATTR_VOICE_COM = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build();
-    // ContextNumber.ALARM
+    // CarAudioContext.ALARM
     private static final AudioAttributes ATTR_ALARM = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ALARM)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build();
-    // ContextNumber.NOTIFICATION
+    // CarAudioContext.NOTIFICATION
     private static final AudioAttributes ATTR_NOTIFICATION = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build();
-    // ContextNumber.SYSTEM_SOUND
+    // CarAudioContext.SYSTEM_SOUND
     private static final AudioAttributes ATTR_A11Y_NOTIFICATION = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
@@ -163,7 +166,7 @@ public class CarAudioFocusTest {
         // Test different paired interaction between different usages
         // for each interaction pair the first focus request will be granted but the second
         // will be rejected
-        int interaction = CarAudioFocus.INTERACTION_REJECT;
+        int interaction = INTERACTION_REJECT;
         int gain = AudioManager.AUDIOFOCUS_GAIN;
         testInteraction(ATTR_VIRTUAL_SOURCE, ATTR_VIRTUAL_SOURCE, interaction, gain, false);
         testInteraction(ATTR_VIRTUAL_SOURCE, ATTR_MEDIA, interaction, gain, false);
@@ -244,7 +247,7 @@ public class CarAudioFocusTest {
             throws Exception {
         // Test paired concurrent interactions i.e. interactions that can
         // potentially gain focus at the same time.
-        int interaction = CarAudioFocus.INTERACTION_CONCURRENT;
+        int interaction = INTERACTION_CONCURRENT;
         testInteraction(ATTR_MEDIA, ATTR_DRIVE_DIR, interaction, gain, pauseForDucking);
         testInteraction(ATTR_MEDIA, ATTR_NOTIFICATION, interaction, gain, pauseForDucking);
         testInteraction(ATTR_MEDIA, ATTR_A11Y_NOTIFICATION, interaction, gain, pauseForDucking);
@@ -299,7 +302,7 @@ public class CarAudioFocusTest {
         // Test exclusive interaction, interaction where each usage will not share focus with other
         // another usage. As a result once focus is gained any current focus listener
         // in this interaction will lose focus.
-        int interaction = CarAudioFocus.INTERACTION_EXCLUSIVE;
+        int interaction = INTERACTION_EXCLUSIVE;
         testInteraction(ATTR_MEDIA, ATTR_MEDIA, interaction, gain, pauseForDucking);
         testInteraction(ATTR_MEDIA, ATTR_A11Y, interaction, gain, pauseForDucking);
         testInteraction(ATTR_MEDIA, ATTR_RINGTONE, interaction, gain, pauseForDucking);
@@ -330,8 +333,8 @@ public class CarAudioFocusTest {
      * Test paired usage interactions with gainType and pause instead ducking
      * @param attributes1 Attributes of the first usage (first focus requester) in the interaction
      * @param attributes2 Attributes of the second usage (second focus requester) in the interaction
-     * @param interaction type of interaction {@link CarAudioFocus.INTERACTION_REJECT},
-     * {@link CarAudioFocus.INTERACTION_EXCLUSIVE}, {@link CarAudioFocus.INTERACTION_CONCURRENT}
+     * @param interaction type of interaction {@link INTERACTION_REJECT},
+     * {@link INTERACTION_EXCLUSIVE}, {@link INTERACTION_CONCURRENT}
      * @param gainType Type of gain {@link AudioManager.AUDIOFOCUS_GAIN} ,
      * {@link CarAudioFocus.AUDIOFOCUS_GAIN_TRANSIENT},
      * {@link CarAudioFocus.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK}
@@ -375,7 +378,7 @@ public class CarAudioFocusTest {
             case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
                 expectedLoss = AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
                 // Note loss or gain will not be sent as both can live concurrently
-                if (interaction == CarAudioFocus.INTERACTION_CONCURRENT && !pauseForDucking) {
+                if (interaction == INTERACTION_CONCURRENT && !pauseForDucking) {
                     expectedLoss = AudioManager.AUDIOFOCUS_NONE;
                 }
                 break;
@@ -383,7 +386,7 @@ public class CarAudioFocusTest {
 
         int secondRequestResultsExpected = AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
-        if (interaction == CarAudioFocus.INTERACTION_REJECT) {
+        if (interaction == INTERACTION_REJECT) {
             secondRequestResultsExpected = AudioManager.AUDIOFOCUS_REQUEST_FAILED;
         }
 
@@ -400,7 +403,7 @@ public class CarAudioFocusTest {
 
         // If the results is rejected for second one we only have to clean up first
         // as the second focus request is rejected
-        if (interaction == CarAudioFocus.INTERACTION_REJECT) {
+        if (interaction == INTERACTION_REJECT) {
             requestResult = mAudioManager.abandonAudioFocusRequest(audioFocusRequest1);
             message = "Focus loss request failed for 1st "
                     + AudioAttributes.usageToString(attributes1.getUsage());
@@ -409,8 +412,7 @@ public class CarAudioFocusTest {
 
         // If exclusive we expect to lose focus on 1st one
         // unless we have a concurrent interaction
-        if (interaction == CarAudioFocus.INTERACTION_EXCLUSIVE
-                || interaction == CarAudioFocus.INTERACTION_CONCURRENT) {
+        if (interaction == INTERACTION_EXCLUSIVE || interaction == INTERACTION_CONCURRENT) {
             Thread.sleep(TEST_TIMING_TOLERANCE_MS);
             message = "Focus change was not dispatched for 1st "
                     + AudioAttributes.usageToString(ATTR_MEDIA.getUsage());
@@ -428,7 +430,7 @@ public class CarAudioFocusTest {
 
                 // Since ducking and concurrent can exist together
                 // this needs to be skipped as the focus lost is not sent
-                if (!(interaction == CarAudioFocus.INTERACTION_CONCURRENT
+                if (!(interaction == INTERACTION_CONCURRENT
                         && gainType == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)) {
                     Thread.sleep(TEST_TIMING_TOLERANCE_MS);
                     message = "Focus change was not dispatched for 1st "

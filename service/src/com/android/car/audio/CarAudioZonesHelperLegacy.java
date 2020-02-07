@@ -65,7 +65,7 @@ import java.util.List;
         // Initialize context => bus mapping once.
         mContextToBus = new SparseIntArray();
         try {
-            for (int contextNumber : CarAudioDynamicRouting.CONTEXT_NUMBERS) {
+            for (int contextNumber : CarAudioContext.CONTEXTS) {
                 mContextToBus.put(contextNumber, audioControl.getBusForContext(contextNumber));
             }
         } catch (RemoteException e) {
