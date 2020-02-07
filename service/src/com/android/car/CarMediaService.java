@@ -530,8 +530,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mActiveUserMediaController = null;
         mPreviousMediaComponent = mPrimaryMediaComponent;
         mPrimaryMediaComponent = componentName;
-        updateActiveMediaController(mMediaSessionManager
-                .getActiveSessionsForUser(null, ActivityManager.getCurrentUser()));
 
         if (mPrimaryMediaComponent != null && !TextUtils.isEmpty(
                 mPrimaryMediaComponent.flattenToString())) {
@@ -546,8 +544,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         startMediaConnectorService(shouldStartPlayback(mPlayOnMediaSourceChangedConfig),
                 new UserHandle(mCurrentUser));
         // Reset current playback state for the new source, in the case that the app is in an error
-        // state (e.g. not signed in). This state will be updated when the app begins playback.
+        // state (e.g. not signed in). This state will be updated from the app callback registered
+        // below, to make sure mCurrentPlaybackState reflects the current source only.
         mCurrentPlaybackState = PlaybackState.STATE_NONE;
+        updateActiveMediaController(mMediaSessionManager
+                .getActiveSessionsForUser(null, ActivityManager.getCurrentUser()));
     }
 
     private void notifyListeners() {
