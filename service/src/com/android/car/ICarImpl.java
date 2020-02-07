@@ -752,6 +752,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String PARAM_ON_MODE = "on";
         private static final String PARAM_OFF_MODE = "off";
         private static final String PARAM_QUERY_MODE = "query";
+        private static final String PARAM_REBOOT = "reboot";
 
         private static final int RESULT_OK = 0;
         private static final int RESULT_ERROR = -1; // Arbitrary value, any non-0 is fine
@@ -794,8 +795,9 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  Inject an error event from VHAL for testing.");
             pw.println("\tenable-uxr true|false");
             pw.println("\t  Enable/Disable UX restrictions and App blocking.");
-            pw.println("\tgarage-mode [on|off|query]");
-            pw.println("\t  Force into garage mode or check status.");
+            pw.println("\tgarage-mode [on|off|query|reboot]");
+            pw.println("\t  Force into or out of garage mode, or check status.");
+            pw.println("\t  With 'reboot', enter garage mode, then reboot when it completes.");
             pw.println("\tget-do-activities pkgname");
             pw.println("\t  Get Distraction Optimized activities in given package.");
             pw.println("\tget-carpropertyconfig [propertyId]");
@@ -817,7 +819,7 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t--metrics");
             pw.println("\t  When used with dumpsys, only metrics will be in the dumpsys output.");
             pw.println("\tset-zoneid-for-uid [zoneid] [uid]");
-            pw.println("\t Maps the audio zoneid to uid.");
+            pw.println("\t  Maps the audio zoneid to uid.");
             pw.println("\tstart-fixed-activity displayId packageName activityName");
             pw.println("\t  Start an Activity the specified display as fixed mode");
             pw.println("\tstop-fixed-mode displayId");
@@ -946,7 +948,7 @@ public class ICarImpl extends ICar.Stub {
                     writer.println("Resume: Simulating resuming from Deep Sleep");
                     break;
                 case COMMAND_SUSPEND:
-                    mCarPowerManagementService.forceSimulatedSuspend();
+                    mCarPowerManagementService.forceSuspendAndMaybeReboot(false);
                     writer.println("Resume: Simulating powering down to Deep Sleep");
                     break;
                 case COMMAND_ENABLE_TRUSTED_DEVICE:
@@ -1190,9 +1192,13 @@ public class ICarImpl extends ICar.Stub {
                 case PARAM_QUERY_MODE:
                     mGarageModeService.dump(writer);
                     break;
+                case PARAM_REBOOT:
+                    mCarPowerManagementService.forceSuspendAndMaybeReboot(true);
+                    writer.println("Entering Garage Mode. Will reboot when it completes.");
+                    break;
                 default:
                     writer.println("Unknown value. Valid argument: " + PARAM_ON_MODE + "|"
-                            + PARAM_OFF_MODE + "|" + PARAM_QUERY_MODE);
+                            + PARAM_OFF_MODE + "|" + PARAM_QUERY_MODE + "|" + PARAM_REBOOT);
             }
         }
 

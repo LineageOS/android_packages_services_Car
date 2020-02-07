@@ -33,6 +33,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.PowerManager;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -107,6 +108,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private boolean mIsBooting = true;
     @GuardedBy("mLock")
     private boolean mIsResuming;
+    @GuardedBy("mLock")
+    private boolean mRebootAfterGarageMode;
     private final boolean mDisableUserSwitchDuringResume;
     private final CarUserManagerHelper mCarUserManagerHelper;
     private final UserManager mUserManager;    // CarUserManagerHelper is deprecated...
@@ -248,7 +251,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         writer.print(",mShutdownOnNextSuspend:" + mShutdownOnNextSuspend);
         writer.print(",mShutdownOnFinish:" + mShutdownOnFinish);
         writer.print(",sShutdownPrepareTimeMs:" + sShutdownPrepareTimeMs);
-        writer.println(",mDisableUserSwitchDuringResume:" + mDisableUserSwitchDuringResume);
+        writer.print(",mDisableUserSwitchDuringResume:" + mDisableUserSwitchDuringResume);
+        writer.println(",mRebootAfterGarageMode:" + mRebootAfterGarageMode);
     }
 
     @Override
@@ -539,8 +543,21 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             simulatedMode = mInSimulatedDeepSleepMode;
         }
         boolean mustShutDown;
+        boolean forceReboot;
         synchronized (mLock) {
             mustShutDown = mShutdownOnFinish && !simulatedMode;
+            forceReboot = mRebootAfterGarageMode;
+            mRebootAfterGarageMode = false;
+        }
+        if (forceReboot) {
+            PowerManager powerManager = mContext.getSystemService(PowerManager.class);
+            if (powerManager == null) {
+                Log.wtf(CarLog.TAG_POWER, "No PowerManager. Cannot reboot.");
+            } else {
+                Log.i(CarLog.TAG_POWER, "GarageMode has completed. Forcing reboot.");
+                powerManager.reboot("GarageModeReboot");
+                throw new AssertionError("Should not return from PowerManager.reboot()");
+            }
         }
         if (mustShutDown) {
             // shutdown HU
@@ -1119,18 +1136,23 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     /**
-     * Manually enter simulated suspend (Deep Sleep) mode
-     * Invoked using "adb shell dumpsys activity service com.android.car suspend".
+     * Manually enter simulated suspend (Deep Sleep) mode, trigging Garage mode.
+     * If the parameter is 'true', reboot the system when Garage Mode completes.
+     *
+     * Invoked using "adb shell dumpsys activity service com.android.car suspend" or
+     * "adb shell dumpsys activity service com.android.car garage-mode reboot".
      * This is similar to 'onApPowerStateChange()' except that it needs to create a CpmsState
      * that is not directly derived from a VehicleApPowerStateReq.
      */
-    public void forceSimulatedSuspend() {
+    @VisibleForTesting
+    void forceSuspendAndMaybeReboot(boolean shouldReboot) {
         synchronized (mSimulationWaitObject) {
             mInSimulatedDeepSleepMode = true;
             mWakeFromSimulatedSleep = false;
         }
         PowerHandler handler;
         synchronized (mLock) {
+            mRebootAfterGarageMode = shouldReboot;
             mPendingPowerStates.addFirst(new CpmsState(CpmsState.SIMULATE_SLEEP,
                                                        CarPowerStateListener.SHUTDOWN_PREPARE));
             handler = mHandler;
