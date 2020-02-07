@@ -15,6 +15,7 @@
  */
 package com.android.car.bugreport;
 
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -129,9 +130,8 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
             holder.mMoveButton.setEnabled(false);
             holder.mMoveButton.setVisibility(View.GONE);
         }
-        // Always enable upload to GCS button, because the app is enabled only for userdebug,
-        // and sometimes Config might not be properly set.
-        if (enableUserActionButtons) {
+        // Enable the upload button only for userdebug/eng builds.
+        if (enableUserActionButtons && Build.IS_DEBUGGABLE) {
             holder.mUploadButton.setText(R.string.bugreport_upload_gcs_button_text);
             holder.mUploadButton.setEnabled(true);
             holder.mUploadButton.setVisibility(View.VISIBLE);
