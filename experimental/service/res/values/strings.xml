@@ -16,7 +16,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_title" translatable="false">Experimental Car service</string>
     <!-- Permission text: apps can access the driver's distraction level [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_driver_distraction">Driver Distraction</string>
+    <string name="car_permission_label_driver_distraction">read driver\u2019s distraction level</string>
     <!-- Permission text: apps can access the driver's distraction level [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_driver_distraction">Read driver distraction level.</string>
 </resources>
