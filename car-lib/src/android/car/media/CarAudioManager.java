@@ -24,7 +24,7 @@ import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.media.AudioAttributes;
-import android.media.AudioDeviceAddress;
+import android.media.AudioDevice;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.AudioManager.AudioDeviceRole;
@@ -615,8 +615,8 @@ public final class CarAudioManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public @NonNull List<AudioDeviceInfo> getInputDevicesForZoneId(int zoneId) {
         try {
-            return convertInputDeviceAddressesToDeviceInfos(
-                    mService.getInputDevicesAddressesForZoneId(zoneId),
+            return convertInputDevicesToDeviceInfos(
+                    mService.getInputDevicesForZoneId(zoneId),
                     AudioManager.GET_DEVICES_INPUTS);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, new ArrayList<>());
@@ -664,15 +664,15 @@ public final class CarAudioManager extends CarManagerBase {
         mCarVolumeCallbacks.remove(callback);
     }
 
-    private List<AudioDeviceInfo> convertInputDeviceAddressesToDeviceInfos(
-            List<AudioDeviceAddress> addresses, @AudioDeviceRole int flag) {
-        int addressesSize = addresses.size();
+    private List<AudioDeviceInfo> convertInputDevicesToDeviceInfos(
+            List<AudioDevice> devices, @AudioDeviceRole int flag) {
+        int addressesSize = devices.size();
         Set<String> deviceAddressMap = new HashSet<>(addressesSize);
         for (int i = 0; i < addressesSize; ++i) {
-            AudioDeviceAddress deviceAddress = addresses.get(i);
+            AudioDevice deviceAddress = devices.get(i);
             deviceAddressMap.add(deviceAddress.getAddress());
         }
-        List<AudioDeviceInfo> deviceInfoList = new ArrayList<>(addresses.size());
+        List<AudioDeviceInfo> deviceInfoList = new ArrayList<>(devices.size());
         AudioDeviceInfo[] inputDevices = mAudioManager.getDevices(flag);
         for (int i = 0; i < inputDevices.length; ++i) {
             AudioDeviceInfo info = inputDevices[i];

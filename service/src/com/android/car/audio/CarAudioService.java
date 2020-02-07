@@ -36,7 +36,7 @@ import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeSystemUsage;
-import android.media.AudioDeviceAddress;
+import android.media.AudioDevice;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioFocusInfo;
@@ -1033,13 +1033,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     /**
      * Gets the input devices for zone zoneId
      */
-    public @NonNull List<AudioDeviceAddress> getInputDevicesAddressesForZoneId(int zoneId) {
+    public @NonNull List<AudioDevice> getInputDevicesForZoneId(int zoneId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         Preconditions.checkArgumentInRange(zoneId, 0, mCarAudioZones.length - 1,
                 "zoneId out of range: " + zoneId);
         for (CarAudioZone zone : mCarAudioZones) {
             if (zone.getId() == zoneId) {
-                return zone.getInputAudioDeviceAddresses();
+                return zone.getInputAudioDevices();
             }
         }
         throw new IllegalArgumentException("zoneId does not exist" + zoneId);
