@@ -190,19 +190,19 @@ static GLuint buildShaderProgram(const char* vtxSrc, const char* pxlSrc) {
 bool GlWrapper::initialize() {
     ALOGD("%s", __FUNCTION__);
 
-    mCarWindowService = ICarWindowService::getService("default");
-    if (mCarWindowService == nullptr) {
-        ALOGE("Could not get ICarWindowService.");
+    mAutomotiveDisplayProxyService = IAutomotiveDisplayProxyService::getService("default");
+    if (mAutomotiveDisplayProxyService == nullptr) {
+        ALOGE("Could not get IAutomotiveDisplayProxyService.");
         return false;
     }
 
-    mGfxBufferProducer = mCarWindowService->getIGraphicBufferProducer();
+    mGfxBufferProducer = mAutomotiveDisplayProxyService->getIGraphicBufferProducer();
     if (mGfxBufferProducer == nullptr) {
-        ALOGE("Failed to get IGraphicBufferProducer from ICarWindowService.");
+        ALOGE("Failed to get IGraphicBufferProducer from IAutomotiveDisplayProxyService.");
         return false;
     }
 
-    mCarWindowService->getDisplayInfo(
+    mAutomotiveDisplayProxyService->getDisplayInfo(
         [this](auto dpyCfg, auto dpyState) {
             DisplayConfig *pCfg = (DisplayConfig*)dpyCfg.data();
             mWidth = pCfg->resolution.getWidth();
@@ -337,19 +337,19 @@ void GlWrapper::shutdown() {
 
 
 void GlWrapper::showWindow() {
-    if (mCarWindowService != nullptr) {
-        mCarWindowService->showWindow();
+    if (mAutomotiveDisplayProxyService != nullptr) {
+        mAutomotiveDisplayProxyService->showWindow();
     } else {
-        ALOGE("ICarWindowService is not available.");
+        ALOGE("IAutomotiveDisplayProxyService is not available.");
     }
 }
 
 
 void GlWrapper::hideWindow() {
-    if (mCarWindowService != nullptr) {
-        mCarWindowService->hideWindow();
+    if (mAutomotiveDisplayProxyService != nullptr) {
+        mAutomotiveDisplayProxyService->hideWindow();
     } else {
-        ALOGE("ICarWindowService is not available.");
+        ALOGE("IAutomotiveDisplayProxyService is not available.");
     }
 }
 
