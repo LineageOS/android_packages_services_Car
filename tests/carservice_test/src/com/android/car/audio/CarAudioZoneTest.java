@@ -67,7 +67,7 @@ public class CarAudioZoneTest {
                 expectThrows(IllegalArgumentException.class,
                         () -> mTestAudioZone.getAddressForContext(ContextNumber.INVALID));
 
-        assertThat(thrown).hasMessageThat().contains("audioContext is out of range of ");
+        assertThat(thrown).hasMessageThat().contains("audioContext 0 is invalid");
     }
 
     @Test

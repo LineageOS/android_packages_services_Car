@@ -36,7 +36,7 @@ import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeSystemUsage;
-import android.media.AudioDeviceAddress;
+import android.media.AudioDevice;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioFocusInfo;
@@ -512,13 +512,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return null;
     }
 
-    /**
-     * @return Context number for a given audio usage, 0 if the given usage is unrecognized.
-     */
-    int getContextForUsage(int audioUsage) {
-        return CarAudioDynamicRouting.USAGE_TO_CONTEXT.get(audioUsage);
-    }
-
     @Override
     public void setFadeTowardFront(float value) {
         synchronized (mImplLock) {
@@ -724,7 +717,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             for (int i = 0; i < groups.length; i++) {
                 int[] contexts = groups[i].getContexts();
                 for (int context : contexts) {
-                    if (getContextForUsage(usage) == context) {
+                    if (CarAudioContext.getContextForUsage(usage) == context) {
                         return i;
                     }
                 }
@@ -747,9 +740,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Set<Integer> contexts =
                     Arrays.stream(group.getContexts()).boxed().collect(Collectors.toSet());
             final List<Integer> usages = new ArrayList<>();
-            for (int i = 0; i < CarAudioDynamicRouting.USAGE_TO_CONTEXT.size(); i++) {
-                if (contexts.contains(CarAudioDynamicRouting.USAGE_TO_CONTEXT.valueAt(i))) {
-                    usages.add(CarAudioDynamicRouting.USAGE_TO_CONTEXT.keyAt(i));
+            for (@CarAudioContext.AudioContext int context : contexts) {
+                int[] usagesForContext = CarAudioContext.getUsagesForContext(context);
+                for (@AudioAttributes.AttributeUsage int usage : usagesForContext) {
+                    usages.add(usage);
                 }
             }
             return usages.stream().mapToInt(i -> i).toArray();
@@ -861,7 +855,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         Preconditions.checkArgumentInRange(zoneId, 0, mCarAudioZones.length - 1,
                 "zoneId (" + zoneId + ")");
-        int contextForUsage = getContextForUsage(usage);
+        int contextForUsage = CarAudioContext.getContextForUsage(usage);
         Preconditions.checkArgument(contextForUsage != ContextNumber.INVALID,
                 "Invalid audio attribute usage %d", usage);
         return mCarAudioZones[zoneId].getAddressForContext(contextForUsage);
@@ -1002,7 +996,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 mCarAudioZones[zoneId].getVolumeGroup(groupId),
                 "Can not find CarVolumeGroup by usage: "
                         + AudioAttributes.usageToString(usage));
-        return group.getAudioDevicePortForContext(getContextForUsage(usage));
+        return group.getAudioDevicePortForContext(CarAudioContext.getContextForUsage(usage));
     }
 
     /**
@@ -1033,13 +1027,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     /**
      * Gets the input devices for zone zoneId
      */
-    public @NonNull List<AudioDeviceAddress> getInputDevicesAddressesForZoneId(int zoneId) {
+    public @NonNull List<AudioDevice> getInputDevicesForZoneId(int zoneId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         Preconditions.checkArgumentInRange(zoneId, 0, mCarAudioZones.length - 1,
                 "zoneId out of range: " + zoneId);
         for (CarAudioZone zone : mCarAudioZones) {
             if (zone.getId() == zoneId) {
-                return zone.getInputAudioDeviceAddresses();
+                return zone.getInputAudioDevices();
             }
         }
         throw new IllegalArgumentException("zoneId does not exist" + zoneId);

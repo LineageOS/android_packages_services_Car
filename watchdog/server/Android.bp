@@ -24,17 +24,51 @@ cc_defaults {
     include_dirs: [
         "system/core/base/include",
     ],
+}
+
+cc_defaults {
+    name: "libwatchdog_ioperfcollection_defaults",
     shared_libs: [
+        "libbinder",
         "libbase",
         "libcutils",
         "liblog",
+        "libutils",
     ],
 }
 
 cc_library {
-    name: "libioperfcollection",
-    defaults: ["carwatchdogd_defaults"],
+    name: "libwatchdog_ioperfcollection",
+    defaults: [
+        "carwatchdogd_defaults",
+        "libwatchdog_ioperfcollection_defaults",
+    ],
     srcs: [
         "src/IoPerfCollection.cpp",
+        "src/UidIoStats.cpp",
+    ],
+    static_libs: [
+        "libgtest_prod",
+    ],
+    export_include_dirs: [
+        "src",
+    ],
+}
+
+cc_test {
+    name: "libwatchdog_ioperfcollection_test",
+    defaults: [
+        "carwatchdogd_defaults",
+        "libwatchdog_ioperfcollection_defaults",
+    ],
+    test_suites: ["general-tests"],
+    srcs: [
+        "tests/IoPerfCollectionTest.cpp",
+        "tests/UidIoStatsTest.cpp",
+    ],
+    static_libs: [
+        "libgmock",
+        "libgtest",
+        "libwatchdog_ioperfcollection",
     ],
 }

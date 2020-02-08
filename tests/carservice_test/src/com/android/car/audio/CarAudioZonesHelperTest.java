@@ -29,8 +29,7 @@ import static org.testng.Assert.expectThrows;
 
 import android.car.media.CarAudioManager;
 import android.content.Context;
-import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
-import android.media.AudioDeviceAddress;
+import android.media.AudioDevice;
 import android.media.AudioDeviceInfo;
 import android.util.SparseIntArray;
 import android.view.DisplayAddress;
@@ -247,12 +246,10 @@ public class CarAudioZonesHelperTest {
 
         CarAudioZone primaryZone = zones[0];
         CarVolumeGroup volumeGroup = primaryZone.getVolumeGroups()[0];
-        int[] expectedContextForBus0 = {ContextNumber.MUSIC};
+        int[] expectedContextForBus0 = {CarAudioContext.MUSIC};
         assertArrayEquals(expectedContextForBus0, volumeGroup.getContextsForAddress(BUS_0_ADDRESS));
 
-        int[] expectedContextForBus100 = new int[]{ContextNumber.MUSIC, ContextNumber.NAVIGATION,
-                ContextNumber.VOICE_COMMAND, ContextNumber.CALL_RING, ContextNumber.CALL,
-                ContextNumber.ALARM, ContextNumber.NOTIFICATION, ContextNumber.SYSTEM_SOUND};
+        int[] expectedContextForBus100 = CarAudioContext.CONTEXTS;
         CarAudioZone rearSeatEntertainmentZone = zones[1];
         CarVolumeGroup rseVolumeGroup = rearSeatEntertainmentZone.getVolumeGroups()[0];
         int[] contextForBus100 = rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS);
@@ -368,8 +365,8 @@ public class CarAudioZonesHelperTest {
             CarAudioZone[] zones = cazh.loadAudioZones();
 
             CarAudioZone primaryZone = zones[0];
-            List<AudioDeviceAddress> primaryZoneInputDevices =
-                    primaryZone.getInputAudioDeviceAddresses();
+            List<AudioDevice> primaryZoneInputDevices =
+                    primaryZone.getInputAudioDevices();
             assertThat(primaryZoneInputDevices).hasSize(2);
 
             List<String> primaryZoneInputAddresses =
@@ -379,8 +376,8 @@ public class CarAudioZonesHelperTest {
                     PRIMARY_ZONE_MICROPHONE_ADDRESS).inOrder();
 
             CarAudioZone secondaryZone = zones[1];
-            List<AudioDeviceAddress> secondaryZoneInputDevices =
-                    secondaryZone.getInputAudioDeviceAddresses();
+            List<AudioDevice> secondaryZoneInputDevices =
+                    secondaryZone.getInputAudioDevices();
             List<String> secondaryZoneInputAddresses =
                     secondaryZoneInputDevices.stream().map(a ->a.getAddress()).collect(
                             Collectors.toList());

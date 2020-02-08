@@ -43,6 +43,7 @@ namespace runner {
 namespace stream_manager {
 
 AHardwareBuffer_Format PixelFormatToHardwareBufferFormat(PixelFormat pixelFormat);
+int numBytesPerPixel(PixelFormat pixelFormat);
 
 namespace {
 
@@ -79,9 +80,11 @@ MATCHER_P(ContainsDataFromFrame, data, "") {
     }
 
     bool dataMatched = true;
+    int bytesPerPixel = numBytesPerPixel(info.format);
     for (int y = 0; y < info.height; y++) {
-        uint8_t* mappedRow = (uint8_t*)mappedBuffer + y * desc.stride;
-        if (memcmp(mappedRow, dataPtr + y * info.stride, std::min(info.stride, desc.stride))) {
+        uint8_t* mappedRow = (uint8_t*)mappedBuffer + y * desc.stride * bytesPerPixel;
+        if (memcmp(mappedRow, dataPtr + y * info.stride,
+                   std::min(info.stride, desc.stride * bytesPerPixel))) {
             *result_listener << "Row " << y << " does not match";
             dataMatched = false;
             break;
@@ -222,6 +225,7 @@ TEST(PixelStreamManagerTest, PacketQueueingProducesACallback) {
         .WillOnce(testing::DoAll(testing::SaveArg<0>(&memHandle), (Return(Status::SUCCESS))));
 
     EXPECT_EQ(manager->queuePacket(frame, 0), Status::SUCCESS);
+    sleep(1);
     ASSERT_NE(memHandle, nullptr);
     EXPECT_THAT(memHandle->getHardwareBuffer(), ContainsDataFromFrame(&frame));
     EXPECT_THAT(memHandle->getTimeStamp(), 0);
@@ -245,6 +249,7 @@ TEST(PixelStreamManagerTest, MorePacketsThanMaxInFlightAreNotDispatched) {
         .WillRepeatedly(testing::DoAll(testing::SaveArg<0>(&memHandle), (Return(Status::SUCCESS))));
 
     EXPECT_EQ(manager->queuePacket(frame, 0), Status::SUCCESS);
+    sleep(1);
     ASSERT_NE(memHandle, nullptr);
     EXPECT_THAT(memHandle->getHardwareBuffer(), ContainsDataFromFrame(&frame));
     EXPECT_THAT(memHandle->getTimeStamp(), 0);
@@ -252,6 +257,7 @@ TEST(PixelStreamManagerTest, MorePacketsThanMaxInFlightAreNotDispatched) {
     activeBufferIds.insert(memHandle->getBufferId());
 
     EXPECT_EQ(manager->queuePacket(frame, 10), Status::SUCCESS);
+    sleep(1);
     ASSERT_NE(memHandle, nullptr);
     EXPECT_THAT(memHandle->getHardwareBuffer(), ContainsDataFromFrame(&frame));
     EXPECT_THAT(memHandle->getTimeStamp(), 10);
@@ -260,6 +266,7 @@ TEST(PixelStreamManagerTest, MorePacketsThanMaxInFlightAreNotDispatched) {
     activeBufferIds.insert(memHandle->getBufferId());
 
     EXPECT_EQ(manager->queuePacket(frame, 20), Status::SUCCESS);
+    sleep(1);
     ASSERT_NE(memHandle, nullptr);
     EXPECT_THAT(memHandle->getHardwareBuffer(), ContainsDataFromFrame(&frame));
     EXPECT_THAT(memHandle->getTimeStamp(), 20);
@@ -270,6 +277,7 @@ TEST(PixelStreamManagerTest, MorePacketsThanMaxInFlightAreNotDispatched) {
     // No new packet is produced as we have now reached the limit of number of
     // packets.
     EXPECT_EQ(manager->queuePacket(frame, 30), Status::SUCCESS);
+    sleep(1);
     EXPECT_THAT(memHandle->getTimeStamp(), 20);
     EXPECT_THAT(activeBufferIds, Contains(memHandle->getBufferId()));
 }
@@ -291,6 +299,7 @@ TEST(PixelStreamManagerTest, DoneWithPacketCallReleasesAPacket) {
         .WillRepeatedly(testing::DoAll(testing::SaveArg<0>(&memHandle), (Return(Status::SUCCESS))));
 
     EXPECT_EQ(manager->queuePacket(frame, 10), Status::SUCCESS);
+    sleep(1);
     ASSERT_NE(memHandle, nullptr);
     activeBufferIds.insert(memHandle->getBufferId());
     EXPECT_THAT(memHandle->getHardwareBuffer(), ContainsDataFromFrame(&frame));
@@ -299,11 +308,13 @@ TEST(PixelStreamManagerTest, DoneWithPacketCallReleasesAPacket) {
 
     // Check that new packet has not been dispatched as the old packet has not been released yet.
     EXPECT_EQ(manager->queuePacket(frame, 20), Status::SUCCESS);
+    sleep(1);
     ASSERT_NE(memHandle, nullptr);
     EXPECT_THAT(memHandle->getTimeStamp(), 10);
 
     EXPECT_THAT(manager->freePacket(memHandle->getBufferId()), Status::SUCCESS);
     EXPECT_EQ(manager->queuePacket(frame, 30), Status::SUCCESS);
+    sleep(1);
     ASSERT_NE(memHandle, nullptr);
     EXPECT_THAT(memHandle->getTimeStamp(), 30);
 }
@@ -323,6 +334,7 @@ TEST(PixelStreamManagerTest, EngineReceivesEndOfStreamCallbackOnStoppage) {
         .WillOnce(testing::DoAll(testing::SaveArg<0>(&memHandle), (Return(Status::SUCCESS))));
 
     EXPECT_EQ(manager->queuePacket(frame, 10), Status::SUCCESS);
+    sleep(1);
     ASSERT_NE(memHandle, nullptr);
     EXPECT_THAT(memHandle->getHardwareBuffer(), ContainsDataFromFrame(&frame));
     EXPECT_THAT(memHandle->getTimeStamp(), 10);

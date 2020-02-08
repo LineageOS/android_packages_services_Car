@@ -16,7 +16,7 @@
 package com.android.car.audio;
 
 import android.car.media.CarAudioManager;
-import android.media.AudioDeviceAddress;
+import android.media.AudioDevice;
 import android.media.AudioDeviceInfo;
 import android.util.Log;
 import android.view.DisplayAddress;
@@ -46,14 +46,14 @@ import java.util.Set;
     private final String mName;
     private final List<CarVolumeGroup> mVolumeGroups;
     private final List<DisplayAddress.Physical> mPhysicalDisplayAddresses;
-    private List<AudioDeviceAddress> mInputAudioDeviceAddress;
+    private List<AudioDevice> mInputAudioDevice;
 
     CarAudioZone(int id, String name) {
         mId = id;
         mName = name;
         mVolumeGroups = new ArrayList<>();
         mPhysicalDisplayAddresses = new ArrayList<>();
-        mInputAudioDeviceAddress = new ArrayList<>();
+        mInputAudioDevice = new ArrayList<>();
     }
 
     int getId() {
@@ -153,12 +153,11 @@ import java.util.Set;
         }
 
         // All contexts are assigned
-        if (contextSet.size() != CarAudioDynamicRouting.CONTEXT_NUMBERS.length) {
+        if (contextSet.size() != CarAudioContext.CONTEXTS.length) {
             Log.e(CarLog.TAG_AUDIO, "Some contexts are not assigned to group");
-            Log.e(CarLog.TAG_AUDIO, "Assigned contexts "
-                    + Arrays.toString(contextSet.toArray(new Integer[0])));
+            Log.e(CarLog.TAG_AUDIO, "Assigned contexts " + contextSet);
             Log.e(CarLog.TAG_AUDIO,
-                    "All contexts " + Arrays.toString(CarAudioDynamicRouting.CONTEXT_NUMBERS));
+                    "All contexts " + Arrays.toString(CarAudioContext.CONTEXTS));
             return false;
         }
 
@@ -186,15 +185,15 @@ import java.util.Set;
 
         writer.printf("%sInput Audio Device Addresses\n", internalIndent);
         String devicesIndent = internalIndent + "\t";
-        for (AudioDeviceAddress audioDeviceAddress : mInputAudioDeviceAddress) {
+        for (AudioDevice audioDevice : mInputAudioDevice) {
             writer.printf("%sDevice Address(%s)\n", devicesIndent,
-                    audioDeviceAddress.getAddress());
+                    audioDevice.getAddress());
         }
         writer.println();
     }
 
     String getAddressForContext(int audioContext) {
-        CarAudioDynamicRouting.precondtionCheckAudioContext(audioContext);
+        CarAudioContext.preconditionCheckAudioContext(audioContext);
         String deviceAddress = null;
         for (CarVolumeGroup volumeGroup : getVolumeGroups()) {
             deviceAddress = volumeGroup.getAddressForContext(audioContext);
@@ -218,11 +217,11 @@ import java.util.Set;
         }
     }
 
-    void addInputAudioDeviceAddress(AudioDeviceAddress address) {
-        mInputAudioDeviceAddress.add(address);
+    void addInputAudioDevice(AudioDevice device) {
+        mInputAudioDevice.add(device);
     }
 
-    List<AudioDeviceAddress> getInputAudioDeviceAddresses() {
-        return mInputAudioDeviceAddress;
+    List<AudioDevice> getInputAudioDevices() {
+        return mInputAudioDevice;
     }
 }

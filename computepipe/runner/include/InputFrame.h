@@ -29,10 +29,10 @@ typedef std::function<void(uint8_t[])> FrameDeleter;
  * Information about the input frame
  */
 struct FrameInfo {
-    uint32_t height;
-    uint32_t width;
+    uint32_t height;  // In pixels
+    uint32_t width;   // In pixels
     PixelFormat format;
-    uint32_t stride;
+    uint32_t stride;  // In bytes
     int cameraId;
 };
 

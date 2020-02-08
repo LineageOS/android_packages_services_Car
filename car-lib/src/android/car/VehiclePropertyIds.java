@@ -901,403 +901,274 @@ public final class VehiclePropertyIds {
     public static final int READING_LIGHTS_SWITCH = 356519684;
 
     /**
-     * @param o Integer
-     * @return String
+     * Gets a user-friendly representation of a property.
      */
-    public static  String toString(int o) {
-        if (o == INVALID) {
-            return "INVALID";
+    public static String toString(int property) {
+        switch (property) {
+            case INVALID:
+                return "INVALID";
+            case INFO_VIN:
+                return "INFO_VIN";
+            case INFO_MAKE:
+                return "INFO_MAKE";
+            case INFO_MODEL:
+                return "INFO_MODEL";
+            case INFO_MODEL_YEAR:
+                return "INFO_MODEL_YEAR";
+            case INFO_FUEL_CAPACITY:
+                return "INFO_FUEL_CAPACITY";
+            case INFO_FUEL_TYPE:
+                return "INFO_FUEL_TYPE";
+            case INFO_EV_BATTERY_CAPACITY:
+                return "INFO_EV_BATTERY_CAPACITY";
+            case INFO_EV_CONNECTOR_TYPE:
+                return "INFO_EV_CONNECTOR_TYPE";
+            case INFO_FUEL_DOOR_LOCATION:
+                return "INFO_FUEL_DOOR_LOCATION";
+            case INFO_EV_PORT_LOCATION:
+                return "INFO_EV_PORT_LOCATION";
+            case INFO_DRIVER_SEAT:
+                return "INFO_DRIVER_SEAT";
+            case INFO_EXTERIOR_DIMENSIONS:
+                return "INFO_EXTERIOR_DIMENSIONS";
+            case PERF_ODOMETER:
+                return "PERF_ODOMETER";
+            case PERF_VEHICLE_SPEED:
+                return "PERF_VEHICLE_SPEED";
+            case PERF_VEHICLE_SPEED_DISPLAY:
+                return "PERF_VEHICLE_SPEED_DISPLAY";
+            case PERF_STEERING_ANGLE:
+                return "PERF_STEERING_ANGLE";
+            case PERF_REAR_STEERING_ANGLE:
+                return "PERF_REAR_STEERING_ANGLE";
+            case ENGINE_COOLANT_TEMP:
+                return "ENGINE_COOLANT_TEMP";
+            case ENGINE_OIL_LEVEL:
+                return "ENGINE_OIL_LEVEL";
+            case ENGINE_OIL_TEMP:
+                return "ENGINE_OIL_TEMP";
+            case ENGINE_RPM:
+                return "ENGINE_RPM";
+            case WHEEL_TICK:
+                return "WHEEL_TICK";
+            case FUEL_LEVEL:
+                return "FUEL_LEVEL";
+            case FUEL_DOOR_OPEN:
+                return "FUEL_DOOR_OPEN";
+            case EV_BATTERY_LEVEL:
+                return "EV_BATTERY_LEVEL";
+            case EV_CHARGE_PORT_OPEN:
+                return "EV_CHARGE_PORT_OPEN";
+            case EV_CHARGE_PORT_CONNECTED:
+                return "EV_CHARGE_PORT_CONNECTED";
+            case EV_BATTERY_INSTANTANEOUS_CHARGE_RATE:
+                return "EV_BATTERY_INSTANTANEOUS_CHARGE_RATE";
+            case RANGE_REMAINING:
+                return "RANGE_REMAINING";
+            case TIRE_PRESSURE:
+                return "TIRE_PRESSURE";
+            case GEAR_SELECTION:
+                return "GEAR_SELECTION";
+            case CURRENT_GEAR:
+                return "CURRENT_GEAR";
+            case PARKING_BRAKE_ON:
+                return "PARKING_BRAKE_ON";
+            case PARKING_BRAKE_AUTO_APPLY:
+                return "PARKING_BRAKE_AUTO_APPLY";
+            case FUEL_LEVEL_LOW:
+                return "FUEL_LEVEL_LOW";
+            case NIGHT_MODE:
+                return "NIGHT_MODE";
+            case TURN_SIGNAL_STATE:
+                return "TURN_SIGNAL_STATE";
+            case IGNITION_STATE:
+                return "IGNITION_STATE";
+            case ABS_ACTIVE:
+                return "ABS_ACTIVE";
+            case TRACTION_CONTROL_ACTIVE:
+                return "TRACTION_CONTROL_ACTIVE";
+            case HVAC_FAN_SPEED:
+                return "HVAC_FAN_SPEED";
+            case HVAC_FAN_DIRECTION:
+                return "HVAC_FAN_DIRECTION";
+            case HVAC_TEMPERATURE_CURRENT:
+                return "HVAC_TEMPERATURE_CURRENT";
+            case HVAC_TEMPERATURE_SET:
+                return "HVAC_TEMPERATURE_SET";
+            case HVAC_DEFROSTER:
+                return "HVAC_DEFROSTER";
+            case HVAC_AC_ON:
+                return "HVAC_AC_ON";
+            case HVAC_MAX_AC_ON:
+                return "HVAC_MAX_AC_ON";
+            case HVAC_MAX_DEFROST_ON:
+                return "HVAC_MAX_DEFROST_ON";
+            case HVAC_RECIRC_ON:
+                return "HVAC_RECIRC_ON";
+            case HVAC_DUAL_ON:
+                return "HVAC_DUAL_ON";
+            case HVAC_AUTO_ON:
+                return "HVAC_AUTO_ON";
+            case HVAC_SEAT_TEMPERATURE:
+                return "HVAC_SEAT_TEMPERATURE";
+            case HVAC_SIDE_MIRROR_HEAT:
+                return "HVAC_SIDE_MIRROR_HEAT";
+            case HVAC_STEERING_WHEEL_HEAT:
+                return "HVAC_STEERING_WHEEL_HEAT";
+            case HVAC_TEMPERATURE_DISPLAY_UNITS:
+                return "HVAC_TEMPERATURE_DISPLAY_UNITS";
+            case HVAC_ACTUAL_FAN_SPEED_RPM:
+                return "HVAC_ACTUAL_FAN_SPEED_RPM";
+            case HVAC_POWER_ON:
+                return "HVAC_POWER_ON";
+            case HVAC_FAN_DIRECTION_AVAILABLE:
+                return "HVAC_FAN_DIRECTION_AVAILABLE";
+            case HVAC_AUTO_RECIRC_ON:
+                return "HVAC_AUTO_RECIRC_ON";
+            case HVAC_SEAT_VENTILATION:
+                return "HVAC_SEAT_VENTILATION";
+            case HVAC_ELECTRIC_DEFROSTER_ON:
+                return "HVAC_ELECTRIC_DEFROSTER_ON";
+            case DISTANCE_DISPLAY_UNITS:
+                return "DISTANCE_DISPLAY_UNITS";
+            case FUEL_VOLUME_DISPLAY_UNITS:
+                return "FUEL_VOLUME_DISPLAY_UNITS";
+            case TIRE_PRESSURE_DISPLAY_UNITS:
+                return "TIRE_PRESSURE_DISPLAY_UNITS";
+            case EV_BATTERY_DISPLAY_UNITS:
+                return "EV_BATTERY_DISPLAY_UNITS";
+            case FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME:
+                return "FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME";
+            case ENV_OUTSIDE_TEMPERATURE:
+                return "ENV_OUTSIDE_TEMPERATURE";
+            case AP_POWER_STATE_REQ:
+                return "AP_POWER_STATE_REQ";
+            case AP_POWER_STATE_REPORT:
+                return "AP_POWER_STATE_REPORT";
+            case AP_POWER_BOOTUP_REASON:
+                return "AP_POWER_BOOTUP_REASON";
+            case DISPLAY_BRIGHTNESS:
+                return "DISPLAY_BRIGHTNESS";
+            case HW_KEY_INPUT:
+                return "HW_KEY_INPUT";
+            case DOOR_POS:
+                return "DOOR_POS";
+            case DOOR_MOVE:
+                return "DOOR_MOVE";
+            case DOOR_LOCK:
+                return "DOOR_LOCK";
+            case MIRROR_Z_POS:
+                return "MIRROR_Z_POS";
+            case MIRROR_Z_MOVE:
+                return "MIRROR_Z_MOVE";
+            case MIRROR_Y_POS:
+                return "MIRROR_Y_POS";
+            case MIRROR_Y_MOVE:
+                return "MIRROR_Y_MOVE";
+            case MIRROR_LOCK:
+                return "MIRROR_LOCK";
+            case MIRROR_FOLD:
+                return "MIRROR_FOLD";
+            case SEAT_MEMORY_SELECT:
+                return "SEAT_MEMORY_SELECT";
+            case SEAT_MEMORY_SET:
+                return "SEAT_MEMORY_SET";
+            case SEAT_BELT_BUCKLED:
+                return "SEAT_BELT_BUCKLED";
+            case SEAT_BELT_HEIGHT_POS:
+                return "SEAT_BELT_HEIGHT_POS";
+            case SEAT_BELT_HEIGHT_MOVE:
+                return "SEAT_BELT_HEIGHT_MOVE";
+            case SEAT_FORE_AFT_POS:
+                return "SEAT_FORE_AFT_POS";
+            case SEAT_FORE_AFT_MOVE:
+                return "SEAT_FORE_AFT_MOVE";
+            case SEAT_BACKREST_ANGLE_1_POS:
+                return "SEAT_BACKREST_ANGLE_1_POS";
+            case SEAT_BACKREST_ANGLE_1_MOVE:
+                return "SEAT_BACKREST_ANGLE_1_MOVE";
+            case SEAT_BACKREST_ANGLE_2_POS:
+                return "SEAT_BACKREST_ANGLE_2_POS";
+            case SEAT_BACKREST_ANGLE_2_MOVE:
+                return "SEAT_BACKREST_ANGLE_2_MOVE";
+            case SEAT_HEIGHT_POS:
+                return "SEAT_HEIGHT_POS";
+            case SEAT_HEIGHT_MOVE:
+                return "SEAT_HEIGHT_MOVE";
+            case SEAT_DEPTH_POS:
+                return "SEAT_DEPTH_POS";
+            case SEAT_DEPTH_MOVE:
+                return "SEAT_DEPTH_MOVE";
+            case SEAT_TILT_POS:
+                return "SEAT_TILT_POS";
+            case SEAT_TILT_MOVE:
+                return "SEAT_TILT_MOVE";
+            case SEAT_LUMBAR_FORE_AFT_POS:
+                return "SEAT_LUMBAR_FORE_AFT_POS";
+            case SEAT_LUMBAR_FORE_AFT_MOVE:
+                return "SEAT_LUMBAR_FORE_AFT_MOVE";
+            case SEAT_LUMBAR_SIDE_SUPPORT_POS:
+                return "SEAT_LUMBAR_SIDE_SUPPORT_POS";
+            case SEAT_LUMBAR_SIDE_SUPPORT_MOVE:
+                return "SEAT_LUMBAR_SIDE_SUPPORT_MOVE";
+            case SEAT_HEADREST_HEIGHT_POS:
+                return "SEAT_HEADREST_HEIGHT_POS";
+            case SEAT_HEADREST_HEIGHT_MOVE:
+                return "SEAT_HEADREST_HEIGHT_MOVE";
+            case SEAT_HEADREST_ANGLE_POS:
+                return "SEAT_HEADREST_ANGLE_POS";
+            case SEAT_HEADREST_ANGLE_MOVE:
+                return "SEAT_HEADREST_ANGLE_MOVE";
+            case SEAT_HEADREST_FORE_AFT_POS:
+                return "SEAT_HEADREST_FORE_AFT_POS";
+            case SEAT_HEADREST_FORE_AFT_MOVE:
+                return "SEAT_HEADREST_FORE_AFT_MOVE";
+            case SEAT_OCCUPANCY:
+                return "SEAT_OCCUPANCY";
+            case WINDOW_POS:
+                return "WINDOW_POS";
+            case WINDOW_MOVE:
+                return "WINDOW_MOVE";
+            case WINDOW_LOCK:
+                return "WINDOW_LOCK";
+            case VEHICLE_MAP_SERVICE:
+                return "VEHICLE_MAP_SERVICE";
+            case OBD2_LIVE_FRAME:
+                return "OBD2_LIVE_FRAME";
+            case OBD2_FREEZE_FRAME:
+                return "OBD2_FREEZE_FRAME";
+            case OBD2_FREEZE_FRAME_INFO:
+                return "OBD2_FREEZE_FRAME_INFO";
+            case OBD2_FREEZE_FRAME_CLEAR:
+                return "OBD2_FREEZE_FRAME_CLEAR";
+            case HEADLIGHTS_STATE:
+                return "HEADLIGHTS_STATE";
+            case HIGH_BEAM_LIGHTS_STATE:
+                return "HIGH_BEAM_LIGHTS_STATE";
+            case FOG_LIGHTS_STATE:
+                return "FOG_LIGHTS_STATE";
+            case HAZARD_LIGHTS_STATE:
+                return "HAZARD_LIGHTS_STATE";
+            case HEADLIGHTS_SWITCH:
+                return "HEADLIGHTS_SWITCH";
+            case HIGH_BEAM_LIGHTS_SWITCH:
+                return "HIGH_BEAM_LIGHTS_SWITCH";
+            case FOG_LIGHTS_SWITCH:
+                return "FOG_LIGHTS_SWITCH";
+            case HAZARD_LIGHTS_SWITCH:
+                return "HAZARD_LIGHTS_SWITCH";
+            case CABIN_LIGHTS_STATE:
+                return "CABIN_LIGHTS_STATE";
+            case CABIN_LIGHTS_SWITCH:
+                return "CABIN_LIGHTS_SWITCH";
+            case READING_LIGHTS_STATE:
+                return "READING_LIGHTS_STATE";
+            case READING_LIGHTS_SWITCH:
+                return "READING_LIGHTS_SWITCH";
+            case VEHICLE_SPEED_DISPLAY_UNITS:
+                return "VEHICLE_SPEED_DISPLAY_UNITS";
+            default:
+                return "0x" + Integer.toHexString(property);
         }
-        if (o == INFO_VIN) {
-            return "INFO_VIN";
-        }
-        if (o == INFO_MAKE) {
-            return "INFO_MAKE";
-        }
-        if (o == INFO_MODEL) {
-            return "INFO_MODEL";
-        }
-        if (o == INFO_MODEL_YEAR) {
-            return "INFO_MODEL_YEAR";
-        }
-        if (o == INFO_FUEL_CAPACITY) {
-            return "INFO_FUEL_CAPACITY";
-        }
-        if (o == INFO_FUEL_TYPE) {
-            return "INFO_FUEL_TYPE";
-        }
-        if (o == INFO_EV_BATTERY_CAPACITY) {
-            return "INFO_EV_BATTERY_CAPACITY";
-        }
-        if (o == INFO_EV_CONNECTOR_TYPE) {
-            return "INFO_EV_CONNECTOR_TYPE";
-        }
-        if (o == INFO_FUEL_DOOR_LOCATION) {
-            return "INFO_FUEL_DOOR_LOCATION";
-        }
-        if (o == INFO_EV_PORT_LOCATION) {
-            return "INFO_EV_PORT_LOCATION";
-        }
-        if (o == INFO_DRIVER_SEAT) {
-            return "INFO_DRIVER_SEAT";
-        }
-        if (o == INFO_EXTERIOR_DIMENSIONS) {
-            return "INFO_EXTERIOR_DIMENSIONS";
-        }
-        if (o == PERF_ODOMETER) {
-            return "PERF_ODOMETER";
-        }
-        if (o == PERF_VEHICLE_SPEED) {
-            return "PERF_VEHICLE_SPEED";
-        }
-        if (o == PERF_VEHICLE_SPEED_DISPLAY) {
-            return "PERF_VEHICLE_SPEED_DISPLAY";
-        }
-        if (o == PERF_STEERING_ANGLE) {
-            return "PERF_STEERING_ANGLE";
-        }
-        if (o == PERF_REAR_STEERING_ANGLE) {
-            return "PERF_REAR_STEERING_ANGLE";
-        }
-        if (o == ENGINE_COOLANT_TEMP) {
-            return "ENGINE_COOLANT_TEMP";
-        }
-        if (o == ENGINE_OIL_LEVEL) {
-            return "ENGINE_OIL_LEVEL";
-        }
-        if (o == ENGINE_OIL_TEMP) {
-            return "ENGINE_OIL_TEMP";
-        }
-        if (o == ENGINE_RPM) {
-            return "ENGINE_RPM";
-        }
-        if (o == WHEEL_TICK) {
-            return "WHEEL_TICK";
-        }
-        if (o == FUEL_LEVEL) {
-            return "FUEL_LEVEL";
-        }
-        if (o == FUEL_DOOR_OPEN) {
-            return "FUEL_DOOR_OPEN";
-        }
-        if (o == EV_BATTERY_LEVEL) {
-            return "EV_BATTERY_LEVEL";
-        }
-        if (o == EV_CHARGE_PORT_OPEN) {
-            return "EV_CHARGE_PORT_OPEN";
-        }
-        if (o == EV_CHARGE_PORT_CONNECTED) {
-            return "EV_CHARGE_PORT_CONNECTED";
-        }
-        if (o == EV_BATTERY_INSTANTANEOUS_CHARGE_RATE) {
-            return "EV_BATTERY_INSTANTANEOUS_CHARGE_RATE";
-        }
-        if (o == RANGE_REMAINING) {
-            return "RANGE_REMAINING";
-        }
-        if (o == TIRE_PRESSURE) {
-            return "TIRE_PRESSURE";
-        }
-        if (o == GEAR_SELECTION) {
-            return "GEAR_SELECTION";
-        }
-        if (o == CURRENT_GEAR) {
-            return "CURRENT_GEAR";
-        }
-        if (o == PARKING_BRAKE_ON) {
-            return "PARKING_BRAKE_ON";
-        }
-        if (o == PARKING_BRAKE_AUTO_APPLY) {
-            return "PARKING_BRAKE_AUTO_APPLY";
-        }
-        if (o == FUEL_LEVEL_LOW) {
-            return "FUEL_LEVEL_LOW";
-        }
-        if (o == NIGHT_MODE) {
-            return "NIGHT_MODE";
-        }
-        if (o == TURN_SIGNAL_STATE) {
-            return "TURN_SIGNAL_STATE";
-        }
-        if (o == IGNITION_STATE) {
-            return "IGNITION_STATE";
-        }
-        if (o == ABS_ACTIVE) {
-            return "ABS_ACTIVE";
-        }
-        if (o == TRACTION_CONTROL_ACTIVE) {
-            return "TRACTION_CONTROL_ACTIVE";
-        }
-        if (o == HVAC_FAN_SPEED) {
-            return "HVAC_FAN_SPEED";
-        }
-        if (o == HVAC_FAN_DIRECTION) {
-            return "HVAC_FAN_DIRECTION";
-        }
-        if (o == HVAC_TEMPERATURE_CURRENT) {
-            return "HVAC_TEMPERATURE_CURRENT";
-        }
-        if (o == HVAC_TEMPERATURE_SET) {
-            return "HVAC_TEMPERATURE_SET";
-        }
-        if (o == HVAC_DEFROSTER) {
-            return "HVAC_DEFROSTER";
-        }
-        if (o == HVAC_AC_ON) {
-            return "HVAC_AC_ON";
-        }
-        if (o == HVAC_MAX_AC_ON) {
-            return "HVAC_MAX_AC_ON";
-        }
-        if (o == HVAC_MAX_DEFROST_ON) {
-            return "HVAC_MAX_DEFROST_ON";
-        }
-        if (o == HVAC_RECIRC_ON) {
-            return "HVAC_RECIRC_ON";
-        }
-        if (o == HVAC_DUAL_ON) {
-            return "HVAC_DUAL_ON";
-        }
-        if (o == HVAC_AUTO_ON) {
-            return "HVAC_AUTO_ON";
-        }
-        if (o == HVAC_SEAT_TEMPERATURE) {
-            return "HVAC_SEAT_TEMPERATURE";
-        }
-        if (o == HVAC_SIDE_MIRROR_HEAT) {
-            return "HVAC_SIDE_MIRROR_HEAT";
-        }
-        if (o == HVAC_STEERING_WHEEL_HEAT) {
-            return "HVAC_STEERING_WHEEL_HEAT";
-        }
-        if (o == HVAC_TEMPERATURE_DISPLAY_UNITS) {
-            return "HVAC_TEMPERATURE_DISPLAY_UNITS";
-        }
-        if (o == HVAC_ACTUAL_FAN_SPEED_RPM) {
-            return "HVAC_ACTUAL_FAN_SPEED_RPM";
-        }
-        if (o == HVAC_POWER_ON) {
-            return "HVAC_POWER_ON";
-        }
-        if (o == HVAC_FAN_DIRECTION_AVAILABLE) {
-            return "HVAC_FAN_DIRECTION_AVAILABLE";
-        }
-        if (o == HVAC_AUTO_RECIRC_ON) {
-            return "HVAC_AUTO_RECIRC_ON";
-        }
-        if (o == HVAC_SEAT_VENTILATION) {
-            return "HVAC_SEAT_VENTILATION";
-        }
-        if (o == HVAC_ELECTRIC_DEFROSTER_ON) {
-            return "HVAC_ELECTRIC_DEFROSTER_ON";
-        }
-        if (o == DISTANCE_DISPLAY_UNITS) {
-            return "DISTANCE_DISPLAY_UNITS";
-        }
-        if (o == FUEL_VOLUME_DISPLAY_UNITS) {
-            return "FUEL_VOLUME_DISPLAY_UNITS";
-        }
-        if (o == TIRE_PRESSURE_DISPLAY_UNITS) {
-            return "TIRE_PRESSURE_DISPLAY_UNITS";
-        }
-        if (o == EV_BATTERY_DISPLAY_UNITS) {
-            return "EV_BATTERY_DISPLAY_UNITS";
-        }
-        if (o == FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME) {
-            return "FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME";
-        }
-        if (o == ENV_OUTSIDE_TEMPERATURE) {
-            return "ENV_OUTSIDE_TEMPERATURE";
-        }
-        if (o == AP_POWER_STATE_REQ) {
-            return "AP_POWER_STATE_REQ";
-        }
-        if (o == AP_POWER_STATE_REPORT) {
-            return "AP_POWER_STATE_REPORT";
-        }
-        if (o == AP_POWER_BOOTUP_REASON) {
-            return "AP_POWER_BOOTUP_REASON";
-        }
-        if (o == DISPLAY_BRIGHTNESS) {
-            return "DISPLAY_BRIGHTNESS";
-        }
-        if (o == HW_KEY_INPUT) {
-            return "HW_KEY_INPUT";
-        }
-        if (o == DOOR_POS) {
-            return "DOOR_POS";
-        }
-        if (o == DOOR_MOVE) {
-            return "DOOR_MOVE";
-        }
-        if (o == DOOR_LOCK) {
-            return "DOOR_LOCK";
-        }
-        if (o == MIRROR_Z_POS) {
-            return "MIRROR_Z_POS";
-        }
-        if (o == MIRROR_Z_MOVE) {
-            return "MIRROR_Z_MOVE";
-        }
-        if (o == MIRROR_Y_POS) {
-            return "MIRROR_Y_POS";
-        }
-        if (o == MIRROR_Y_MOVE) {
-            return "MIRROR_Y_MOVE";
-        }
-        if (o == MIRROR_LOCK) {
-            return "MIRROR_LOCK";
-        }
-        if (o == MIRROR_FOLD) {
-            return "MIRROR_FOLD";
-        }
-        if (o == SEAT_MEMORY_SELECT) {
-            return "SEAT_MEMORY_SELECT";
-        }
-        if (o == SEAT_MEMORY_SET) {
-            return "SEAT_MEMORY_SET";
-        }
-        if (o == SEAT_BELT_BUCKLED) {
-            return "SEAT_BELT_BUCKLED";
-        }
-        if (o == SEAT_BELT_HEIGHT_POS) {
-            return "SEAT_BELT_HEIGHT_POS";
-        }
-        if (o == SEAT_BELT_HEIGHT_MOVE) {
-            return "SEAT_BELT_HEIGHT_MOVE";
-        }
-        if (o == SEAT_FORE_AFT_POS) {
-            return "SEAT_FORE_AFT_POS";
-        }
-        if (o == SEAT_FORE_AFT_MOVE) {
-            return "SEAT_FORE_AFT_MOVE";
-        }
-        if (o == SEAT_BACKREST_ANGLE_1_POS) {
-            return "SEAT_BACKREST_ANGLE_1_POS";
-        }
-        if (o == SEAT_BACKREST_ANGLE_1_MOVE) {
-            return "SEAT_BACKREST_ANGLE_1_MOVE";
-        }
-        if (o == SEAT_BACKREST_ANGLE_2_POS) {
-            return "SEAT_BACKREST_ANGLE_2_POS";
-        }
-        if (o == SEAT_BACKREST_ANGLE_2_MOVE) {
-            return "SEAT_BACKREST_ANGLE_2_MOVE";
-        }
-        if (o == SEAT_HEIGHT_POS) {
-            return "SEAT_HEIGHT_POS";
-        }
-        if (o == SEAT_HEIGHT_MOVE) {
-            return "SEAT_HEIGHT_MOVE";
-        }
-        if (o == SEAT_DEPTH_POS) {
-            return "SEAT_DEPTH_POS";
-        }
-        if (o == SEAT_DEPTH_MOVE) {
-            return "SEAT_DEPTH_MOVE";
-        }
-        if (o == SEAT_TILT_POS) {
-            return "SEAT_TILT_POS";
-        }
-        if (o == SEAT_TILT_MOVE) {
-            return "SEAT_TILT_MOVE";
-        }
-        if (o == SEAT_LUMBAR_FORE_AFT_POS) {
-            return "SEAT_LUMBAR_FORE_AFT_POS";
-        }
-        if (o == SEAT_LUMBAR_FORE_AFT_MOVE) {
-            return "SEAT_LUMBAR_FORE_AFT_MOVE";
-        }
-        if (o == SEAT_LUMBAR_SIDE_SUPPORT_POS) {
-            return "SEAT_LUMBAR_SIDE_SUPPORT_POS";
-        }
-        if (o == SEAT_LUMBAR_SIDE_SUPPORT_MOVE) {
-            return "SEAT_LUMBAR_SIDE_SUPPORT_MOVE";
-        }
-        if (o == SEAT_HEADREST_HEIGHT_POS) {
-            return "SEAT_HEADREST_HEIGHT_POS";
-        }
-        if (o == SEAT_HEADREST_HEIGHT_MOVE) {
-            return "SEAT_HEADREST_HEIGHT_MOVE";
-        }
-        if (o == SEAT_HEADREST_ANGLE_POS) {
-            return "SEAT_HEADREST_ANGLE_POS";
-        }
-        if (o == SEAT_HEADREST_ANGLE_MOVE) {
-            return "SEAT_HEADREST_ANGLE_MOVE";
-        }
-        if (o == SEAT_HEADREST_FORE_AFT_POS) {
-            return "SEAT_HEADREST_FORE_AFT_POS";
-        }
-        if (o == SEAT_HEADREST_FORE_AFT_MOVE) {
-            return "SEAT_HEADREST_FORE_AFT_MOVE";
-        }
-        if (o == SEAT_OCCUPANCY) {
-            return "SEAT_OCCUPANCY";
-        }
-        if (o == WINDOW_POS) {
-            return "WINDOW_POS";
-        }
-        if (o == WINDOW_MOVE) {
-            return "WINDOW_MOVE";
-        }
-        if (o == WINDOW_LOCK) {
-            return "WINDOW_LOCK";
-        }
-        if (o == VEHICLE_MAP_SERVICE) {
-            return "VEHICLE_MAP_SERVICE";
-        }
-        if (o == OBD2_LIVE_FRAME) {
-            return "OBD2_LIVE_FRAME";
-        }
-        if (o == OBD2_FREEZE_FRAME) {
-            return "OBD2_FREEZE_FRAME";
-        }
-        if (o == OBD2_FREEZE_FRAME_INFO) {
-            return "OBD2_FREEZE_FRAME_INFO";
-        }
-        if (o == OBD2_FREEZE_FRAME_CLEAR) {
-            return "OBD2_FREEZE_FRAME_CLEAR";
-        }
-        if (o == HEADLIGHTS_STATE) {
-            return "HEADLIGHTS_STATE";
-        }
-        if (o == HIGH_BEAM_LIGHTS_STATE) {
-            return "HIGH_BEAM_LIGHTS_STATE";
-        }
-        if (o == FOG_LIGHTS_STATE) {
-            return "FOG_LIGHTS_STATE";
-        }
-        if (o == HAZARD_LIGHTS_STATE) {
-            return "HAZARD_LIGHTS_STATE";
-        }
-        if (o == HEADLIGHTS_SWITCH) {
-            return "HEADLIGHTS_SWITCH";
-        }
-        if (o == HIGH_BEAM_LIGHTS_SWITCH) {
-            return "HIGH_BEAM_LIGHTS_SWITCH";
-        }
-        if (o == FOG_LIGHTS_SWITCH) {
-            return "FOG_LIGHTS_SWITCH";
-        }
-        if (o == HAZARD_LIGHTS_SWITCH) {
-            return "HAZARD_LIGHTS_SWITCH";
-        }
-        if (o == CABIN_LIGHTS_STATE) {
-            return "CABIN_LIGHTS_STATE";
-        }
-        if (o == CABIN_LIGHTS_SWITCH) {
-            return "CABIN_LIGHTS_SWITCH";
-        }
-        if (o == READING_LIGHTS_STATE) {
-            return "READING_LIGHTS_STATE";
-        }
-        if (o == READING_LIGHTS_SWITCH) {
-            return "READING_LIGHTS_SWITCH";
-        }
-        if (o == VEHICLE_SPEED_DISPLAY_UNITS) {
-            return "VEHICLE_SPEED_DISPLAY_UNITS";
-        }
-        return "0x" + Integer.toHexString(o);
     }
 }

@@ -20,7 +20,6 @@ import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.media.CarAudioManager;
 import android.content.Context;
-import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.media.AudioDevicePort;
 import android.util.Log;
 import android.util.SparseArray;
@@ -97,14 +96,14 @@ import java.util.Map;
     }
 
     /**
-     * @return Array of context numbers in this {@link CarVolumeGroup}
+     * @return Array of car audio contexts {@link CarAudioContext} in this {@link CarVolumeGroup}
      */
     int[] getContexts() {
-        final int[] contextNumbers = new int[mContextToAddress.size()];
-        for (int i = 0; i < contextNumbers.length; i++) {
-            contextNumbers[i] = mContextToAddress.keyAt(i);
+        final int[] carAudioContexts = new int[mContextToAddress.size()];
+        for (int i = 0; i < carAudioContexts.length; i++) {
+            carAudioContexts[i] = mContextToAddress.keyAt(i);
         }
-        return contextNumbers;
+        return carAudioContexts;
     }
 
     /**
@@ -118,17 +117,17 @@ import java.util.Map;
 
     /**
      * @param address Physical address for the audio device
-     * @return Array of context numbers assigned to a given address
+     * @return Array of car audio contexts {@link CarAudioContext} assigned to a given address
      */
     int[] getContextsForAddress(@NonNull String address) {
-        List<Integer> contextNumbers = new ArrayList<>();
+        List<Integer> carAudioContexts = new ArrayList<>();
         for (int i = 0; i < mContextToAddress.size(); i++) {
             String value = mContextToAddress.valueAt(i);
             if (address.equals(value)) {
-                contextNumbers.add(mContextToAddress.keyAt(i));
+                carAudioContexts.add(mContextToAddress.keyAt(i));
             }
         }
-        return contextNumbers.stream().mapToInt(i -> i).toArray();
+        return carAudioContexts.stream().mapToInt(i -> i).toArray();
     }
 
     /**
@@ -144,15 +143,14 @@ import java.util.Map;
      * a gain before this call, all calls to this function must happen at startup before any
      * set/getGainIndex calls.
      *
-     * @param contextNumber Context number as defined in audio control HAL
+     * @param carAudioContext Context to bind audio to {@link CarAudioContext}
      * @param info {@link CarAudioDeviceInfo} instance relates to the physical address
      */
-    void bind(int contextNumber, CarAudioDeviceInfo info) {
-        Preconditions.checkArgument(mContextToAddress.get(contextNumber) == null,
-                "Context "
-                        + ContextNumber.toString(contextNumber)
-                        + " has already been bound to "
-                        + mContextToAddress.get(contextNumber));
+    void bind(int carAudioContext, CarAudioDeviceInfo info) {
+        Preconditions.checkArgument(mContextToAddress.get(carAudioContext) == null,
+                String.format("Context %s has already been bound to %s",
+                        CarAudioContext.toString(carAudioContext),
+                        mContextToAddress.get(carAudioContext)));
 
         if (mAddressToCarAudioDeviceInfo.size() == 0) {
             mStepSize = info.getStepValue();
@@ -163,7 +161,7 @@ import java.util.Map;
         }
 
         mAddressToCarAudioDeviceInfo.put(info.getAddress(), info);
-        mContextToAddress.put(contextNumber, info.getAddress());
+        mContextToAddress.put(carAudioContext, info.getAddress());
 
         if (info.getDefaultGain() > mDefaultGain) {
             // We're arbitrarily selecting the highest device default gain as the group's default.
@@ -264,8 +262,8 @@ import java.util.Map;
      * Gets {@link AudioDevicePort} from a context number
      */
     @Nullable
-    AudioDevicePort getAudioDevicePortForContext(int contextNumber) {
-        final String address = mContextToAddress.get(contextNumber);
+    AudioDevicePort getAudioDevicePortForContext(int carAudioContext) {
+        final String address = mContextToAddress.get(carAudioContext);
         if (address == null || mAddressToCarAudioDeviceInfo.get(address) == null) {
             return null;
         }
@@ -293,7 +291,7 @@ import java.util.Map;
                 getDefaultGainIndex(), mCurrentGainIndex);
         for (int i = 0; i < mContextToAddress.size(); i++) {
             writer.printf("%sContext: %s -> Address: %s\n", indent,
-                    ContextNumber.toString(mContextToAddress.keyAt(i)),
+                    CarAudioContext.toString(mContextToAddress.keyAt(i)),
                     mContextToAddress.valueAt(i));
         }
         mAddressToCarAudioDeviceInfo.keySet().stream()
