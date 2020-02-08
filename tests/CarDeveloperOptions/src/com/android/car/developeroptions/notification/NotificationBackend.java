@@ -145,7 +145,7 @@ public class NotificationBackend {
         try {
             if (onlyHasDefaultChannel(pkg, uid)) {
                 NotificationChannel defaultChannel =
-                        getChannel(pkg, uid, NotificationChannel.DEFAULT_CHANNEL_ID);
+                        getChannel(pkg, uid, NotificationChannel.DEFAULT_CHANNEL_ID, null);
                 defaultChannel.setImportance(enabled ? IMPORTANCE_UNSPECIFIED : IMPORTANCE_NONE);
                 updateChannel(pkg, uid, defaultChannel);
             }
@@ -195,13 +195,26 @@ public class NotificationBackend {
         }
     }
 
-
     public NotificationChannel getChannel(String pkg, int uid, String channelId) {
         if (channelId == null) {
             return null;
         }
         try {
-            return sINM.getNotificationChannelForPackage(pkg, uid, channelId, true);
+            return sINM.getNotificationChannelForPackage(pkg, uid, channelId, null, true);
+        } catch (Exception e) {
+            Log.w(TAG, "Error calling NoMan", e);
+            return null;
+        }
+    }
+
+
+    public NotificationChannel getChannel(String pkg, int uid, String channelId,
+            String conversationId) {
+        if (channelId == null) {
+            return null;
+        }
+        try {
+            return sINM.getNotificationChannelForPackage(pkg, uid, channelId, conversationId, true);
         } catch (Exception e) {
             Log.w(TAG, "Error calling NoMan", e);
             return null;
