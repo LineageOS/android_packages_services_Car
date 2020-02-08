@@ -103,7 +103,10 @@ public class BugReportActivity extends Activity {
     private Button mSubmitButton;
 
     private boolean mBound;
+    /** Audio message recording process started (including waiting for permission). */
     private boolean mAudioRecordingStarted;
+    /** Audio recording using MIC is running (permission given). */
+    private boolean mAudioRecordingIsRunning;
     private boolean mIsNewBugReport;
     private boolean mIsOnActivityStartedWithBugReportServiceBoundCalled;
     private boolean mIsSubmitButtonClicked;
@@ -199,6 +202,7 @@ public class BugReportActivity extends Activity {
         }
         // Reset variables for the next onStart().
         mAudioRecordingStarted = false;
+        mAudioRecordingIsRunning = false;
         mIsSubmitButtonClicked = false;
         mIsOnActivityStartedWithBugReportServiceBoundCalled = false;
         mMetaBugReport = null;
@@ -411,7 +415,10 @@ public class BugReportActivity extends Activity {
      * Cancels bugreporting by stopping audio recording and deleting temp files.
      */
     private void cancelAudioMessageRecording() {
-        if (!mAudioRecordingStarted) {
+        // If audio recording is not running, most likely there were permission issues,
+        // so leave the bugreport as is without cancelling it.
+        if (!mAudioRecordingIsRunning) {
+            Log.w(TAG, "Cannot cancel, audio recording is not running.");
             return;
         }
         stopAudioRecording();
@@ -427,6 +434,7 @@ public class BugReportActivity extends Activity {
                 this, mMetaBugReport, Status.STATUS_USER_CANCELLED, "");
         Log.i(TAG, "Bug report " + mMetaBugReport.getTimestamp() + " is cancelled");
         mAudioRecordingStarted = false;
+        mAudioRecordingIsRunning = false;
     }
 
     private void buttonCancelClick(View view) {
@@ -507,8 +515,13 @@ public class BugReportActivity extends Activity {
                 + Arrays.toString(permissions);
         Log.w(TAG, text);
         Toast.makeText(this, text, Toast.LENGTH_LONG).show();
-        BugStorageUtils.setBugReportStatus(this, mMetaBugReport,
-                Status.STATUS_USER_CANCELLED, text);
+        if (mIsNewBugReport) {
+            BugStorageUtils.setBugReportStatus(this, mMetaBugReport,
+                    Status.STATUS_USER_CANCELLED, text);
+        } else {
+            BugStorageUtils.setBugReportStatus(this, mMetaBugReport,
+                    Status.STATUS_AUDIO_PENDING, text);
+        }
         finish();
     }
 
@@ -550,6 +563,7 @@ public class BugReportActivity extends Activity {
 
         mRecorder.start();
         mVoiceRecordingView.setRecorder(mRecorder);
+        mAudioRecordingIsRunning = true;
 
         // Messages with token mRecorder are cleared when the activity finishes or recording stops.
         mHandler.postDelayed(() -> {

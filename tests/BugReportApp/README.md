@@ -66,23 +66,28 @@ The app supports following intents:
 
 ### Manually testing the app using the test script
 
-BugReportApp comes with `utils/bugreport_app_tester.py` script that automates
-many of the BugReportApp testing process. Please follow these instructions
-to test the app:
+Please follow these instructions to test the app:
 
 1. Connect the device to your computer.
 2. Make sure the device has Internet.
-3. Run the script: `$ python bugreport_app_tester.py`
-   * The script works on python 2.7 and above.
-   * If multiple devices connected, see the usage
-     `$ python bugreport_app_tester.py --help`.
-   * Warning: the script will delete all the bug reports on the device.
-4. Script might take up to 10 minutes to finish.
+3. Start BugReport app; here is the list of possible ways to start:
+   * Long press HVAC (A/C) icon
+   * Long press Rear Defrost hardware button (hold up to 6 seconds)
+   * Long press notification icon
+   * Open BugReport app from launcher menu or external apps menu; and click Start Bug Report button.
+   * Using adb, see above instructions under `Starting bugreporting`.
+4. Bug report collection might take up to 7 minutes to finish.
    * It might fail to upload bugreport when time/time-zone is invalid.
    * In rare cases it might not upload the bugreport, depending Android's
      task scheduling rules.
-5. Please manually verify the script's results.
+   * You should see progress bar in notification shade.
+5. Pull collected zip files from the device:
+   * `adb pull /data/user/0/com.google.android.car.bugreport/bug_reports_pending/`
 6. Please manually verify bug report contents.
    * Images - the should contain screenshots of all the physical displays.
    * Audio files - they should contain the audio message you recorded.
    * Dumpstate (bugreport) - it should contain logs and other information.
+7. In any case if bugreport app is not properly functioning, please take adb bugreport and share
+   the zip file with developers: `$ adb bugreport`.
+
+NOTE: `utils/bugreport_app_tester.py` is deprecated.
