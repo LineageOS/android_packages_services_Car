@@ -15,6 +15,9 @@
 # limitations under the License.
 """Semi-automatic AAE BugReport App test utility.
 
+WARNING: the script is deprecated, because BugReportApp contains complicated logic of statuses,
+         and the script requires many changes to test them.
+
 It automates most of mundane steps when testing AAE BugReport app, but still
 requires manual input from a tester.
 
@@ -349,7 +352,7 @@ class BugreportAppTester(object):
             _bugreport_status_to_str(meta_bugreport.status))
 
   def _wait_for_bugreport_to_complete(self, bugreport_id):
-    """Waits until status changes to WRITE_PENDING.
+    """Waits until status changes to UPLOAD_PENDING.
 
     It means dumpstate (bugreport) is completed (or failed).
 
@@ -370,8 +373,7 @@ class BugreportAppTester(object):
   def _wait_for_bugreport_to_upload(self, bugreport_id):
     """Waits bugreport to be uploaded and returns None if succeeds.
 
-    NOTE: If "android.car.bugreport.disableautoupload" system property is set,
-    the App will not upload.
+    NOTE: Depending on configuration BugReportApp will not upload bugreports by default.
     """
     print('\nWaiting for the bug report to be uploaded.')
     err_msg = self._wait_for_bugreport_status_to_change_to(

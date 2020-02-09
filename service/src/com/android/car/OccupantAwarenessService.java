@@ -64,7 +64,8 @@ public class OccupantAwarenessService
     private static final boolean DBG = false;
 
     // HAL service identifier name.
-    private static final String OAS_SERVICE_ID =
+    @VisibleForTesting
+    static final String OAS_SERVICE_ID =
             "android.hardware.automotive.occupant_awareness.IOccupantAwareness/default";
 
     private final Object mLock = new Object();
@@ -111,34 +112,13 @@ public class OccupantAwarenessService
 
     @Override
     public void init() {
-        if (DBG) {
-            Log.d(TAG, "Initialing service");
-        }
-
-        synchronized (mLock) {
-            if (mOasHal == null) {
-                mOasHal =
-                        android.hardware.automotive.occupant_awareness.IOccupantAwareness.Stub
-                                .asInterface(ServiceManager.getService(OAS_SERVICE_ID));
-            }
-
-            if (mOasHal == null) {
-                Log.e(TAG, "Failed to find OAS service at: [" + OAS_SERVICE_ID + "]");
-            } else {
-                try {
-                    mOasHal.setCallback(mHalListener);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Failed to set callback: " + e);
-                }
-            }
-        }
+        logd("Initialing service");
+        connectToHalServiceIfNotConnected();
     }
 
     @Override
     public void release() {
-        if (DBG) {
-            Log.d(TAG, "Will stop detection and disconnect listeners");
-        }
+        logd("Will stop detection and disconnect listeners");
         stopDetectionGraph();
         mListeners.kill();
     }
@@ -148,15 +128,51 @@ public class OccupantAwarenessService
         writer.println("*OccupantAwarenessService*");
         writer.println(
                 String.format(
+                        "%s to HAL service", mOasHal == null ? "NOT connected" : "Connected"));
+        writer.println(
+                String.format(
                         "%d change listeners subscribed.",
                         mListeners.getRegisteredCallbackCount()));
     }
 
+    /** Attempts to connect to the HAL service if it is not already connected. */
+    private void connectToHalServiceIfNotConnected() {
+        logd("connectToHalServiceIfNotConnected()");
+
+        synchronized (mLock) {
+            // If already connected, nothing more needs to be done.
+            if (mOasHal != null) {
+                logd("Client is already connected, nothing more to do");
+                return;
+            }
+
+            // Attempt to find the HAL service.
+            logd("Attempting to connect to client at: " + OAS_SERVICE_ID);
+            mOasHal =
+                    android.hardware.automotive.occupant_awareness.IOccupantAwareness.Stub
+                            .asInterface(ServiceManager.getService(OAS_SERVICE_ID));
+
+            if (mOasHal == null) {
+                Log.e(TAG, "Failed to find OAS hal_service at: [" + OAS_SERVICE_ID + "]");
+                return;
+            }
+
+            // Register for callbacks.
+            try {
+                mOasHal.setCallback(mHalListener);
+            } catch (RemoteException e) {
+                mOasHal = null;
+                Log.e(TAG, "Failed to set callback: " + e);
+                return;
+            }
+
+            logd("Successfully connected to hal_service at: [" + OAS_SERVICE_ID + "]");
+        }
+    }
+
     /** Sends a message via the HAL to start the detection graph. */
     private void startDetectionGraph() {
-        if (DBG) {
-            Log.d(TAG, "Attempting to start detection graph");
-        }
+        logd("Attempting to start detection graph");
 
         // Grab a copy of 'mOasHal' to avoid sitting on the lock longer than is necessary.
         IOccupantAwareness hal;
@@ -169,6 +185,10 @@ public class OccupantAwarenessService
                 hal.startDetection();
             } catch (RemoteException e) {
                 Log.e(TAG, "startDetection() HAL invocation failed: " + e, e);
+
+                synchronized (mLock) {
+                    mOasHal = null;
+                }
             }
         } else {
             Log.e(TAG, "No HAL is connected. Cannot request graph start");
@@ -188,6 +208,10 @@ public class OccupantAwarenessService
                 hal.stopDetection();
             } catch (RemoteException e) {
                 Log.e(TAG, "stopDetection() HAL invocation failed: " + e, e);
+
+                synchronized (mLock) {
+                    mOasHal = null;
+                }
             }
         } else {
             Log.e(TAG, "No HAL is connected. Cannot request graph stop");
@@ -210,6 +234,8 @@ public class OccupantAwarenessService
     public @DetectionTypeFlags int getCapabilityForRole(@VehicleOccupantRole int role) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE);
 
+        connectToHalServiceIfNotConnected();
+
         // Grab a copy of 'mOasHal' to avoid sitting on the lock longer than is necessary.
         IOccupantAwareness hal;
         synchronized (mLock) {
@@ -220,7 +246,13 @@ public class OccupantAwarenessService
             try {
                 return hal.getCapabilityForRole(role);
             } catch (RemoteException e) {
+
                 Log.e(TAG, "getCapabilityForRole() HAL invocation failed: " + e, e);
+
+                synchronized (mLock) {
+                    mOasHal = null;
+                }
+
                 return SystemStatusEvent.DETECTION_TYPE_NONE;
             }
         } else {
@@ -243,13 +275,17 @@ public class OccupantAwarenessService
      */
     @Override
     public void registerEventListener(@NonNull IOccupantAwarenessEventCallback listener) {
-        if (DBG) {
-            Log.d(TAG, "Registering a new listener");
-        }
-
         ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE);
 
+        connectToHalServiceIfNotConnected();
+
         synchronized (mLock) {
+            if (mOasHal == null) {
+                Log.e(TAG, "Attempting to register a listener, but could not connect to HAL.");
+                return;
+            }
+
+            logd("Registering a new listener");
             mListeners.register(listener);
 
             // After the first client connects, request that the detection graph start.
@@ -270,6 +306,8 @@ public class OccupantAwarenessService
     @Override
     public void unregisterEventListener(@NonNull IOccupantAwarenessEventCallback listener) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE);
+
+        connectToHalServiceIfNotConnected();
 
         synchronized (mLock) {
             mListeners.unregister(listener);
@@ -318,6 +356,12 @@ public class OccupantAwarenessService
             if (mListeners.getRegisteredCallbackCount() == 0) {
                 stopDetectionGraph();
             }
+        }
+    }
+
+    private static void logd(String msg) {
+        if (DBG) {
+            Log.d(TAG, msg);
         }
     }
 
