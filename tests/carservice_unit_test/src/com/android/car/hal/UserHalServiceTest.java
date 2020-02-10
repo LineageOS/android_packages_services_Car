@@ -386,7 +386,7 @@ public final class UserHalServiceTest {
             int responseId = rightRequestId ? requestId : requestId + 1000;
             response.value.int32Values.set(0, responseId);
             Log.d(TAG, "mockSetPropertyWithOnChange(): resp=" + response + " for req=" + request);
-            mUserHalService.handleHalEvents(Arrays.asList(response));
+            mUserHalService.onHalEvents(Arrays.asList(response));
             return null;
         }).when(mVehicleHal).set(isProperty(prop));
         return ref;

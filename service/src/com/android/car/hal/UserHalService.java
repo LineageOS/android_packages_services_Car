@@ -109,7 +109,7 @@ public final class UserHalService extends HalServiceBase {
     }
 
     @Override
-    public void handleHalEvents(List<VehiclePropValue> values) {
+    public void onHalEvents(List<VehiclePropValue> values) {
         if (DBG) Log.d(TAG, "handleHalEvents(): " + values);
 
         for (int i = 0; i < values.size(); i++) {
@@ -125,7 +125,7 @@ public final class UserHalService extends HalServiceBase {
     }
 
     @Override
-    public void handlePropertySetError(int property, int area) {
+    public void onPropertySetError(int property, int area) {
         if (DBG)Log.d(TAG, "handlePropertySetError(" + property + "/" + area + ")");
     }
 

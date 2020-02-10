@@ -385,7 +385,7 @@ public class PowerHalService extends HalServiceBase {
     }
 
     @Override
-    public void handleHalEvents(List<VehiclePropValue> values) {
+    public void onHalEvents(List<VehiclePropValue> values) {
         PowerEventListener listener;
         synchronized (mLock) {
             if (mListener == null) {

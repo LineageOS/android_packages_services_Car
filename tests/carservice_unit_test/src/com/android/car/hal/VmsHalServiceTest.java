@@ -1079,7 +1079,7 @@ public class VmsHalServiceTest {
     }
 
     private void sendHalMessage(VehiclePropValue message) {
-        mHalService.handleHalEvents(Collections.singletonList(message));
+        mHalService.onHalEvents(Collections.singletonList(message));
     }
 
     private void waitForHandlerCompletion() throws Exception {

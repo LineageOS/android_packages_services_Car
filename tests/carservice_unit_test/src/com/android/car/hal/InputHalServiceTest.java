@@ -87,7 +87,7 @@ public class InputHalServiceTest {
 
         mInputHalService.setInputListener(mInputListener);
 
-        mInputHalService.handleHalEvents(
+        mInputHalService.onHalEvents(
                 ImmutableList.of(makeKeyPropValue(Key.DOWN, KeyEvent.KEYCODE_ENTER)));
         verify(mInputListener, never()).onKeyEvent(any(), anyInt());
     }
@@ -128,7 +128,7 @@ public class InputHalServiceTest {
             return null;
         }).when(mInputListener).onKeyEvent(any(), eq(DISPLAY));
 
-        mInputHalService.handleHalEvents(
+        mInputHalService.onHalEvents(
                 ImmutableList.of(
                         makeKeyPropValue(Key.DOWN, KeyEvent.KEYCODE_ENTER),
                         makeKeyPropValue(Key.DOWN, KeyEvent.KEYCODE_MENU)));
@@ -252,7 +252,7 @@ public class InputHalServiceTest {
     private KeyEvent dispatchSingleEvent(Key action, int code) {
         ArgumentCaptor<KeyEvent> captor = ArgumentCaptor.forClass(KeyEvent.class);
         reset(mInputListener);
-        mInputHalService.handleHalEvents(ImmutableList.of(makeKeyPropValue(action, code)));
+        mInputHalService.onHalEvents(ImmutableList.of(makeKeyPropValue(action, code)));
         verify(mInputListener).onKeyEvent(captor.capture(), eq(DISPLAY));
         reset(mInputListener);
         return captor.getValue();
@@ -272,7 +272,7 @@ public class InputHalServiceTest {
     private KeyEvent dispatchSingleEventWithIndents(int code, int indents) {
         ArgumentCaptor<KeyEvent> captor = ArgumentCaptor.forClass(KeyEvent.class);
         reset(mInputListener);
-        mInputHalService.handleHalEvents(
+        mInputHalService.onHalEvents(
                 ImmutableList.of(makeKeyPropValueWithIndents(code, indents)));
         verify(mInputListener, times(indents)).onKeyEvent(captor.capture(), eq(DISPLAY));
         reset(mInputListener);
