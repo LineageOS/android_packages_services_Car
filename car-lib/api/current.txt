@@ -294,6 +294,7 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_MODEL = 286261506; // 0x11100102
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_MODEL_YEAR = 289407235; // 0x11400103
     field @RequiresPermission(android.car.Car.PERMISSION_IDENTIFICATION) public static final int INFO_VIN = 286261504; // 0x11100100
+    field public static final int INITIAL_USER_INFO = 299896583; // 0x11e00f07
     field public static final int INVALID = 0; // 0x0
     field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_FOLD = 287312709; // 0x11200b45
     field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_LOCK = 287312708; // 0x11200b44

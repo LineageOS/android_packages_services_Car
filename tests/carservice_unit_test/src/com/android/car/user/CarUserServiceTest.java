@@ -56,6 +56,7 @@ import android.util.SparseArray;
 
 import androidx.test.InstrumentationRegistry;
 
+import com.android.car.hal.UserHalService;
 import com.android.internal.R;
 
 import org.junit.After;
@@ -91,6 +92,7 @@ public class CarUserServiceTest {
     @Mock private Context mMockContext;
     @Mock private Context mApplicationContext;
     @Mock private LocationManager mLocationManager;
+    @Mock private UserHalService mUserHal;
     @Mock private CarUserManagerHelper mMockedCarUserManagerHelper;
     @Mock private IActivityManager mMockedIActivityManager;
     @Mock private UserManager mMockedUserManager;
@@ -128,6 +130,7 @@ public class CarUserServiceTest {
         mCarUserService =
                 new CarUserService(
                         mMockContext,
+                        mUserHal,
                         mMockedCarUserManagerHelper,
                         mMockedUserManager,
                         mMockedIActivityManager,
