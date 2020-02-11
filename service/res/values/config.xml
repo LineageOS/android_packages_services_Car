@@ -246,4 +246,8 @@
     <!-- Disable switching the user while the system is resuming from Suspend to RAM.
          This default says to prevent changing the user during Resume. -->
     <bool name="config_disableUserSwitchDuringResume" translatable="false">true</bool>
+
+    <!-- Class name of the custom country detector to be used. Override the default value in the
+         device specific config file.  -->
+    <string name="config_customCountryDetector" translatable="false">com.android.server.location.ComprehensiveCountryDetector</string>
 </resources>
