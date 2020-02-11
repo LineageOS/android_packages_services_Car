@@ -16,7 +16,7 @@ IndentWidth: 4
 TabWidth: 4
 ContinuationIndentWidth: 8
 ConstructorInitializerIndentWidth: 6
-SpacesBeforeTrailingComments: 1
+SpacesBeforeTrailingComments: 2
 IncludeBlocks: Preserve
 DerivePointerAlignment: false
 PointerAlignment: Left
