@@ -41,6 +41,7 @@ import android.os.UserManager;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.CarLocalServices;
+import com.android.car.hal.UserHalService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 
@@ -80,6 +81,9 @@ public class VendorServiceControllerTest {
     @Mock
     private UserManager mUserManager;
 
+    @Mock
+    private UserHalService mUserHal;
+
     private MockitoSession mSession;
     private ServiceLauncherContext mContext;
     private CarUserManagerHelper mUserManagerHelper;
@@ -94,7 +98,7 @@ public class VendorServiceControllerTest {
                 .startMocking();
         mContext = new ServiceLauncherContext(ApplicationProvider.getApplicationContext());
         mUserManagerHelper = Mockito.spy(new CarUserManagerHelper(mContext));
-        mCarUserService = new CarUserService(mContext, mUserManagerHelper, mUserManager,
+        mCarUserService = new CarUserService(mContext, mUserHal, mUserManagerHelper, mUserManager,
                 ActivityManager.getService(), 2 /* max running users */);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
 

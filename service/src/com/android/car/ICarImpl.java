@@ -171,8 +171,8 @@ public class ICarImpl extends ICar.Stub {
                     (UserManager) serviceContext.getSystemService(Context.USER_SERVICE);
             int maxRunningUsers = res.getInteger(
                     com.android.internal.R.integer.config_multiuserMaxRunningUsers);
-            mCarUserService = new CarUserService(serviceContext, mUserManagerHelper, userManager,
-                    ActivityManager.getService(), maxRunningUsers);
+            mCarUserService = new CarUserService(serviceContext, mHal.getUserHal(),
+                    mUserManagerHelper, userManager, ActivityManager.getService(), maxRunningUsers);
         }
         mCarOccupantZoneService = new CarOccupantZoneService(serviceContext);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
