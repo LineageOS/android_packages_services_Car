@@ -53,6 +53,7 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
 
 LOCAL_JAVA_LIBRARIES := \
     telephony-common \
+    android.car.settings \
     ims-common
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
