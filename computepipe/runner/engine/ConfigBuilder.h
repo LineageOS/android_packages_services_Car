@@ -64,10 +64,10 @@ class ConfigBuilder {
     ConfigBuilder& reset();
 
   private:
-    int mDisplayStream;
-    int mInputConfigId;
-    int mOffloadId;
-    int mTerminationId;
+    int mDisplayStream = ClientConfig::kInvalidId;
+    int mInputConfigId = ClientConfig::kInvalidId;
+    int mOffloadId = ClientConfig::kInvalidId;
+    int mTerminationId = ClientConfig::kInvalidId;
     bool mConfigHasDisplayStream = false;
     std::map<int, int> mOutputConfig;
     std::string mOptionalConfig;
