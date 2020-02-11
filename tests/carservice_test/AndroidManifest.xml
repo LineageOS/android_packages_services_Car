@@ -63,6 +63,7 @@
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityThatFinishesImmediately"/>
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$BlockingActivity"
                   android:taskAffinity="com.android.car.carservicetest.block"/>
+        <activity android:name="com.android.car.CarUxRestrictionsManagerServiceTest$ActivityViewTestActivity"/>
 
         <receiver android:name="com.android.car.CarStorageMonitoringBroadcastReceiver"
             android:exported="true"
