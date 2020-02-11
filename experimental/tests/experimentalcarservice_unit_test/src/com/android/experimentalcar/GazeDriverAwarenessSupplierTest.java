@@ -16,9 +16,6 @@
 
 package com.android.experimentalcar;
 
-import static org.mockito.AdditionalMatchers.geq;
-import static org.mockito.AdditionalMatchers.leq;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,6 +35,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class GazeDriverAwarenessSupplierTest {
 
+    private static final long START_TIME_MILLIS = 1234L;
     private static final long FRAME_TIME_MILLIS = 1000L;
 
     private Context mSpyContext;
@@ -45,11 +43,11 @@ public class GazeDriverAwarenessSupplierTest {
     private float mInitialValue;
     private float mGrowthRate;
     private float mDecayRate;
+    private FakeTimeSource mTimeSource;
 
     @Before
     public void setUp() throws Exception {
         mSpyContext = spy(InstrumentationRegistry.getInstrumentation().getTargetContext());
-        mGazeSupplier = spy(new GazeDriverAwarenessSupplier(mSpyContext));
 
         mInitialValue =
                 mSpyContext
@@ -59,6 +57,9 @@ public class GazeDriverAwarenessSupplierTest {
                 mSpyContext.getResources().getFloat(R.fraction.driverAwarenessGazeModelGrowthRate);
         mDecayRate =
                 mSpyContext.getResources().getFloat(R.fraction.driverAwarenessGazeModelDecayRate);
+
+        mTimeSource = new FakeTimeSource(START_TIME_MILLIS);
+        mGazeSupplier = spy(new GazeDriverAwarenessSupplier(mSpyContext, mTimeSource));
     }
 
     @Test
@@ -66,7 +67,8 @@ public class GazeDriverAwarenessSupplierTest {
         // Supplier should return an initial callback after onReady().
         mGazeSupplier.onReady();
 
-        verify(mGazeSupplier).emitAwarenessEvent(new DriverAwarenessEvent(any(), mInitialValue));
+        verify(mGazeSupplier)
+                .emitAwarenessEvent(new DriverAwarenessEvent(START_TIME_MILLIS, mInitialValue));
     }
 
     @Test
@@ -75,10 +77,11 @@ public class GazeDriverAwarenessSupplierTest {
         // attention supplier.
         mGazeSupplier.onReady();
 
-        mGazeSupplier.processDetectionEvent(buildEmptyDetection(0));
+        mGazeSupplier.processDetectionEvent(buildEmptyDetection(START_TIME_MILLIS));
 
         // Should have exactly one call from the initial onReady(), but no further events.
-        verify(mGazeSupplier, times(1)).emitAwarenessEvent(new DriverAwarenessEvent(any(), any()));
+        verify(mGazeSupplier, times(1))
+                .emitAwarenessEvent(new DriverAwarenessEvent(START_TIME_MILLIS, mInitialValue));
     }
 
     @Test
@@ -86,15 +89,23 @@ public class GazeDriverAwarenessSupplierTest {
         // Attention value should never exceed '1' no matter how long the driver looks on-road.
         mGazeSupplier.onReady();
 
-        long timestamp = 0;
+        // Should have initial callback from onReady().
+        verify(mGazeSupplier)
+                .emitAwarenessEvent(new DriverAwarenessEvent(START_TIME_MILLIS, mInitialValue));
+
+        long timestamp = START_TIME_MILLIS + FRAME_TIME_MILLIS;
+        float attention = mInitialValue;
 
         for (int i = 0; i < 100; i++) {
             OccupantAwarenessDetection detection =
                     buildGazeDetection(timestamp, GazeDetection.VEHICLE_REGION_FORWARD_ROADWAY);
             mGazeSupplier.processDetectionEvent(detection);
 
-            verify(mGazeSupplier).emitAwarenessEvent(new DriverAwarenessEvent(any(), leq(1)));
+            verify(mGazeSupplier)
+                    .emitAwarenessEvent(new DriverAwarenessEvent(timestamp, attention));
 
+            // Increase attention, but not past 1.
+            attention = Math.min(attention + mGrowthRate, 1.0f);
             timestamp += FRAME_TIME_MILLIS;
         }
     }
@@ -104,15 +115,23 @@ public class GazeDriverAwarenessSupplierTest {
         // Attention value should never fall below '0' no matter how long the driver looks off-road.
         mGazeSupplier.onReady();
 
-        long timestamp = 0;
+        // Should have initial callback from onReady().
+        verify(mGazeSupplier)
+                .emitAwarenessEvent(new DriverAwarenessEvent(START_TIME_MILLIS, mInitialValue));
+
+        long timestamp = START_TIME_MILLIS + FRAME_TIME_MILLIS;
+        float attention = mInitialValue;
 
         for (int i = 0; i < 100; i++) {
             OccupantAwarenessDetection detection =
                     buildGazeDetection(timestamp, GazeDetection.VEHICLE_REGION_HEAD_UNIT_DISPLAY);
             mGazeSupplier.processDetectionEvent(detection);
 
-            verify(mGazeSupplier).emitAwarenessEvent(new DriverAwarenessEvent(any(), geq(0)));
+            verify(mGazeSupplier)
+                    .emitAwarenessEvent(new DriverAwarenessEvent(timestamp, attention));
 
+            // Decrement the attention, but not past 0.
+            attention = Math.max(attention - mDecayRate, 0);
             timestamp += FRAME_TIME_MILLIS;
         }
     }

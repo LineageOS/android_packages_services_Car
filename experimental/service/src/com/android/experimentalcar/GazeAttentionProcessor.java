@@ -81,8 +81,8 @@ class GazeAttentionProcessor {
         // Save current timestamp for next pass.
         mLastTimestamp = timestamp;
 
-        logd(String.format(
-                "Attention [%f]->[%f]. Time=%d", startingAttention, mAttention, dtSeconds));
+        logd(String.format("updateAttention(): Time=%1.2f. Attention [%f]->[%f]. ",
+                dtSeconds, startingAttention, mAttention));
 
         return mAttention;
     }

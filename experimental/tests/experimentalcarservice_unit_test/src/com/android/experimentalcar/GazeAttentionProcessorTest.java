@@ -31,10 +31,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class GazeAttentionProcessorTest {
 
-    private static final long FRAME_TIME_MILLIS = 1000;
+    private static final long FRAME_TIME_MILLIS = 1000; // Milliseconds
     private static final float INITIAL_VALUE = 1.0f;
-    private static final float GROWTH_RATE = 0.5f;
-    private static final float DECAY_RATE = 0.4f;
+    private static final float GROWTH_RATE = 0.4f;
+    private static final float DECAY_RATE = 0.6f;
 
     private GazeAttentionProcessor mAttentionProcessor;
 
