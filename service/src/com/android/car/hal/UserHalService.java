@@ -325,8 +325,12 @@ public final class UserHalService extends HalServiceBase {
     public void dump(PrintWriter writer) {
         writer.printf("*User HAL*\n");
         synchronized (mLock) {
-            writer.printf("mNextRequestId: %d\n", mNextRequestId);
-            writer.printf("mPendingCallbacks: %d\n", mPendingCallbacks);
+            writer.printf("next request id: %d\n", mNextRequestId);
+            if (mPendingCallbacks.size() == 0) {
+                writer.println("no pending callbacks");
+            } else {
+                writer.printf("pending callbacks: %s\n", mPendingCallbacks);
+            }
         }
     }
 }

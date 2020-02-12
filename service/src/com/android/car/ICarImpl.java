@@ -617,19 +617,8 @@ public class ICarImpl extends ICar.Stub {
 
         if (args == null || args.length == 0 || (args.length > 0 && "-a".equals(args[0]))) {
             writer.println("*Dump car service*");
-            writer.println("*Dump all services*");
-
             dumpAllServices(writer);
-
-            writer.println("*Dump Vehicle HAL*");
-            writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
-            try {
-                // TODO dump all feature flags by creating a dumpable interface
-                mHal.dump(writer);
-            } catch (Exception e) {
-                writer.println("Failed dumping: " + mHal.getClass().getName());
-                e.printStackTrace(writer);
-            }
+            dumpAllHals(writer);
         } else if ("--list".equals(args[0])) {
             dumpListOfServices(writer);
             return;
@@ -649,11 +638,62 @@ public class ICarImpl extends ICar.Stub {
             mCarStatsService.dump(fd, writer, Arrays.copyOfRange(args, 1, args.length));
         } else if ("--vms-hal".equals(args[0])) {
             mHal.getVmsHal().dumpMetrics(fd);
+        } else if ("--hal".equals(args[0])) {
+            if (args.length == 1) {
+                dumpAllHals(writer);
+                return;
+            }
+            int length = args.length - 1;
+            String[] halNames = new String[length];
+            System.arraycopy(args, 1, halNames, 0, length);
+            mHal.dumpSpecificHals(writer, halNames);
+
+        } else if ("--list-hals".equals(args[0])) {
+            mHal.dumpListHals(writer);
+            return;
+        } else if ("--help".equals(args[0])) {
+            showDumpHelp(writer);
         } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
             execShellCmd(args, writer);
         } else {
             writer.println("Commands not supported in " + Build.TYPE);
         }
+    }
+
+    private void dumpAllHals(PrintWriter writer) {
+        writer.println("*Dump Vehicle HAL*");
+        writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
+        try {
+            // TODO dump all feature flags by creating a dumpable interface
+            mHal.dump(writer);
+        } catch (Exception e) {
+            writer.println("Failed dumping: " + mHal.getClass().getName());
+            e.printStackTrace(writer);
+        }
+    }
+
+    private void showDumpHelp(PrintWriter writer) {
+        writer.println("Car service dump usage:");
+        writer.println("[NO ARG]");
+        writer.println("\t  dumps everything (all services and HALs)");
+        writer.println("--help");
+        writer.println("\t  shows this help");
+        writer.println("--list");
+        writer.println("\t  lists the name of all services");
+        writer.println("--list");
+        writer.println("\t  lists the name of all HAls");
+        writer.println("--services <SVC1> [SVC2] [SVCN]");
+        writer.println("\t  dumps just the specific services, where SVC is just the service class");
+        writer.println("\t  name (like CarUserService)");
+        writer.println("--vms-hal");
+        writer.println("\t  dumps the VMS HAL metrics");
+        writer.println("--hal [HAL1] [HAL2] [HALN]");
+        writer.println("\t  dumps just the specified HALs (or all of them if none specified),");
+        writer.println("\t  where HAL is just the class name (like UserHalService)");
+        writer.println("-h");
+        writer.println("\t  shows commands usage (NOTE: commands are not available on USER builds");
+        writer.println("[ANYTHING ELSE]");
+        writer.println("\t  runs the given command (use --h to see the available commands)");
     }
 
     @Override
@@ -670,6 +710,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     private void dumpAllServices(PrintWriter writer) {
+        writer.println("*Dump all services*");
         for (CarServiceBase service : mAllServices) {
             dumpService(service, writer);
         }

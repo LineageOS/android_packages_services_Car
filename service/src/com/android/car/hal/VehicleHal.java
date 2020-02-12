@@ -55,7 +55,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Abstraction for vehicle HAL. This class handles interface with native HAL and do basic parsing
@@ -492,6 +494,31 @@ public class VehicleHal extends IVehicleCallback.Stub {
             int propId = mPropertyHandlers.keyAt(i);
             HalServiceBase service = mPropertyHandlers.valueAt(i);
             writer.println(String.format("Prop: 0x%08X, service: %s", propId, service));
+        }
+    }
+
+    /**
+     * Dumps the list of HALs.
+     */
+    public void dumpListHals(PrintWriter writer) {
+        for (HalServiceBase service: mAllServices) {
+            writer.println(service.getClass().getName());
+        }
+    }
+
+    /**
+     * Dumps the given HALs.
+     */
+    public void dumpSpecificHals(PrintWriter writer, String... halNames) {
+        Map<String, HalServiceBase> byName = mAllServices.stream()
+                .collect(Collectors.toMap(s -> s.getClass().getSimpleName(), s -> s));
+        for (String halName : halNames) {
+            HalServiceBase service = byName.get(halName);
+            if (service == null) {
+                writer.printf("No HAL named %s. Valid options are: %s\n", halName, byName.keySet());
+                continue;
+            }
+            service.dump(writer);
         }
     }
 
