@@ -66,6 +66,9 @@ ConfigBuilder& ConfigBuilder::reset() {
     mTerminationId = ClientConfig::kInvalidId;
     mOffloadId = ClientConfig::kInvalidId;
     mOutputConfig.clear();
+    if (mDisplayStream != ClientConfig::kInvalidId) {
+        mOutputConfig.emplace(mDisplayStream, 1);
+    }
     mConfigHasDisplayStream = false;
     return *this;
 }
