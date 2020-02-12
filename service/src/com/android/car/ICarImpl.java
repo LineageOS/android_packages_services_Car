@@ -32,6 +32,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.os.Binder;
 import android.os.Build;
@@ -54,6 +56,9 @@ import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.InputHalService;
+import com.android.car.hal.UserHalHelper;
+import com.android.car.hal.UserHalService;
+import com.android.car.hal.UserHalService.HalCallback;
 import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.stats.CarStatsService;
@@ -73,6 +78,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class ICarImpl extends ICar.Stub {
 
@@ -744,8 +751,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_ENABLE_FEATURE = "enable-feature";
         private static final String COMMAND_DISABLE_FEATURE = "disable-feature";
         private static final String COMMAND_INJECT_KEY = "inject-key";
-
-        // TODO(b/146207078): add a "get-initial-user-info" command
+        private static final String COMMAND_GET_INITIAL_USER_INFO = "get-initial-user-info";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -837,6 +843,12 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  down_delay_ms: delay from down to up key event. If not specified,");
             pw.println("\t                 it will be 0");
             pw.println("\t  key_code: int key code defined in android KeyEvent");
+            pw.printf("\t%s <REQ_TYPE> [--timeout TIMEOUT_MS]\n", COMMAND_GET_INITIAL_USER_INFO);
+            pw.println("\t  Calls the Vehicle HAL to get the initial boot info, passing the given");
+            pw.println("\t  REQ_TYPE (which could be either FIRST_BOOT, FIRST_BOOT_AFTER_OTA, ");
+            pw.println("\t  COLD_BOOT, RESUME, or any numeric value that would be passed 'as-is')");
+            pw.println("\t  and an optional TIMEOUT_MS to wait for the HAL response (if not set,");
+            pw.println("\t  it will use a  default value).");
         }
 
         private int dumpInvalidArguments(PrintWriter pw) {
@@ -998,6 +1010,9 @@ public class ICarImpl extends ICar.Stub {
                     }
                     handleInjectKey(args, writer);
                     break;
+                case COMMAND_GET_INITIAL_USER_INFO:
+                    handleGetInitialUserInfo(args, writer);
+                    break;
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
                     dumpHelp(writer);
@@ -1144,6 +1159,78 @@ public class ICarImpl extends ICar.Stub {
             KeyEvent keyUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
             mCarInputService.onKeyEvent(keyUp, display);
             writer.println("Succeeded");
+        }
+
+        private void handleGetInitialUserInfo(String[] args, PrintWriter writer) {
+            if (args.length < 2) {
+                writer.println("Insufficient number of args");
+                return;
+            }
+
+            // Gets the request type
+            String typeArg = args[1];
+            int requestType = UserHalHelper.parseInitialUserInfoRequestType(typeArg);
+
+            int timeout = 1_000;
+            for (int i = 2; i < args.length; i++) {
+                String arg = args[i];
+                switch (arg) {
+                    case "--timeout":
+                        timeout = Integer.parseInt(args[++i]);
+                        break;
+                    default:
+                        writer.println("Invalid option at index " + i + ": " + arg);
+                        return;
+
+                }
+            }
+
+            Log.d(TAG, "handleGetInitialUserInfo(): type=" + requestType + " (" + typeArg
+                    + "), timeout=" + timeout);
+
+            UserHalService userHal = mHal.getUserHal();
+            // TODO(b/146207078): use UserHalHelper to populate it with current users
+            UsersInfo usersInfo = new UsersInfo();
+            CountDownLatch latch = new CountDownLatch(1);
+
+            userHal.getInitialUserInfo(requestType, timeout, usersInfo, (status, resp) -> {
+                try {
+                    Log.d(TAG, "GetUserInfoResponse: status=" + status + ", resp=" + resp);
+                    writer.printf("Status: %s\n", UserHalHelper.halCallbackStatusToString(status));
+                    if (status != HalCallback.STATUS_OK) {
+                        return;
+                    }
+                    writer.printf("Request id: %d\n", resp.requestId);
+                    writer.printf("Action: ");
+                    switch (resp.action) {
+                        case InitialUserInfoResponseAction.DEFAULT:
+                            writer.println("default");
+                            break;
+                        case InitialUserInfoResponseAction.SWITCH:
+                            writer.printf("switch to user %d\n", resp.userToSwitchOrCreate.userId);
+                            break;
+                        case InitialUserInfoResponseAction.CREATE:
+                            writer.printf("create user: name=%s, flags=%d\n", resp.userNameToCreate,
+                                    resp.userToSwitchOrCreate.flags);
+                            break;
+                        default:
+                            writer.printf("unknown (%d)\n", resp.action);
+                            break;
+                    }
+                } finally {
+                    latch.countDown();
+                }
+            });
+
+            try {
+                if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
+                    writer.printf("HAL didn't respond in %dms\n", timeout);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                writer.println("Interrupted waiting for HAL");
+            }
+            return;
         }
 
         private void forceDayNightMode(String arg, PrintWriter writer) {

@@ -39,7 +39,6 @@ import android.util.SparseArray;
 import com.android.car.CarLog;
 import com.android.car.hal.UserHalService.HalCallback.HalCallbackStatus;
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
@@ -49,7 +48,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-
 
 /**
  * Service used to integrate the OEM's custom user management with Android's.
@@ -178,22 +176,6 @@ public final class UserHalService extends HalServiceBase {
          * @param response HAL response (or {@code null} in case of error).
          */
         void onResponse(@HalCallbackStatus int status, @Nullable R response);
-    }
-
-    @VisibleForTesting
-    static String halCallbackStatusToString(@HalCallbackStatus int status) {
-        switch (status) {
-            case HalCallback.STATUS_OK:
-                return "OK";
-            case HalCallback.STATUS_HAL_SET_TIMEOUT:
-                return "STATUS_HAL_SET_TIMEOUT";
-            case HalCallback.STATUS_HAL_RESPONSE_TIMEOUT:
-                return "STATUS_HAL_RESPONSE_TIMEOUT";
-            case HalCallback.STATUS_WRONG_HAL_RESPONSE:
-                return "STATUS_WRONG_HAL_RESPONSE";
-            default:
-                return "UNKNOWN-" + status;
-        }
     }
 
     /**
