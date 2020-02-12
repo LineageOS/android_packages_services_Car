@@ -15,6 +15,10 @@
  */
 package com.google.android.car.bugreport;
 
+import static android.car.CarBugreportManager.CarBugreportManagerCallback.CAR_BUGREPORT_DUMPSTATE_CONNECTION_FAILED;
+import static android.car.CarBugreportManager.CarBugreportManagerCallback.CAR_BUGREPORT_DUMPSTATE_FAILED;
+import static android.car.CarBugreportManager.CarBugreportManagerCallback.CAR_BUGREPORT_SERVICE_NOT_AVAILABLE;
+
 import static com.google.android.car.bugreport.PackageUtils.getPackageVersion;
 
 import android.annotation.FloatRange;
@@ -89,6 +93,9 @@ public class BugReportService extends Service {
     // this, the best option is probably to wait for onDetach events from view tree.
     private static final int ACTIVITY_FINISH_DELAY_MILLIS = 1000;
 
+    /** Stop the service only after some delay, to allow toasts to show on the screen. */
+    private static final int STOP_SERVICE_DELAY_MILLIS = 1000;
+
     /**
      * Wait a short time before showing "bugreport started" toast message, because the service
      * will take a screenshot of the screen.
@@ -124,6 +131,7 @@ public class BugReportService extends Service {
     /** Binder given to clients. */
     private final IBinder mBinder = new ServiceBinder();
 
+    /** True if {@link BugReportService} is already collecting bugreport, including zipping. */
     private final AtomicBoolean mIsCollectingBugReport = new AtomicBoolean(false);
     private final AtomicDouble mBugReportProgress = new AtomicDouble(0);
 
@@ -143,7 +151,7 @@ public class BugReportService extends Service {
      * finishes. We need to clear it otherwise when bugreport fails, it will show "bugreport start"
      * toast, which will confuse users.
      */
-    private Handler mHandlerToast;
+    private Handler mHandlerStartedToast;
 
     /** A listener that's notified when bugreport progress changes. */
     interface BugReportProgressListener {
@@ -196,16 +204,9 @@ public class BugReportService extends Service {
                 NotificationManager.IMPORTANCE_HIGH));
         mSingleThreadExecutor = Executors.newSingleThreadScheduledExecutor();
         mHandler = new BugReportHandler();
-        mHandlerToast = new Handler();
+        mHandlerStartedToast = new Handler();
         mConfig = new Config();
         mConfig.start();
-        // Synchronously connect to the car service.
-        mCar = Car.createCar(this);
-        try {
-            mBugreportManager = (CarBugreportManager) mCar.getCarManager(Car.CAR_BUGREPORT_SERVICE);
-        } catch (CarNotConnectedException | NoClassDefFoundError e) {
-            throw new IllegalStateException("Failed to get CarBugreportManager.", e);
-        }
     }
 
     @Override
@@ -213,7 +214,7 @@ public class BugReportService extends Service {
         if (DEBUG) {
             Log.d(TAG, "Service destroyed");
         }
-        mCar.disconnect();
+        disconnectFromCarService();
     }
 
     @Override
@@ -243,13 +244,31 @@ public class BugReportService extends Service {
         collectBugReport();
 
         // Show a short lived "bugreport started" toast message after a short delay.
-        mHandlerToast.postDelayed(() -> {
+        mHandlerStartedToast.postDelayed(() -> {
             Toast.makeText(this,
                     getText(R.string.toast_bug_report_started), Toast.LENGTH_LONG).show();
         }, BUGREPORT_STARTED_TOAST_DELAY_MILLIS);
 
         // If the service process gets killed due to heavy memory pressure, do not restart.
         return START_NOT_STICKY;
+    }
+
+    private void onCarLifecycleChanged(Car car, boolean ready) {
+        // not ready - car service is crashed or is restarting.
+        if (!ready) {
+            mBugreportManager = null;
+            mCar = null;
+
+            // NOTE: dumpstate still might be running, but we can't kill it or reconnect to it
+            //       so we ignore it.
+            handleBugReportManagerError(CAR_BUGREPORT_SERVICE_NOT_AVAILABLE);
+            return;
+        }
+        try {
+            mBugreportManager = (CarBugreportManager) car.getCarManager(Car.CAR_BUGREPORT_SERVICE);
+        } catch (CarNotConnectedException | NoClassDefFoundError e) {
+            throw new IllegalStateException("Failed to get CarBugreportManager.", e);
+        }
     }
 
     /** Shows an updated progress notification. */
@@ -306,7 +325,26 @@ public class BugReportService extends Service {
         mHandler.post(() -> Toast.makeText(this, getText(resId), Toast.LENGTH_LONG).show());
     }
 
+    private void disconnectFromCarService() {
+        if (mCar != null) {
+            mCar.disconnect();
+            mCar = null;
+        }
+        mBugreportManager = null;
+    }
+
+    private void connectToCarServiceSync() {
+        if (mCar == null || !(mCar.isConnected() || mCar.isConnecting())) {
+            mCar = Car.createCar(this, /* handler= */ null,
+                    Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, this::onCarLifecycleChanged);
+        }
+    }
+
     private void collectBugReport() {
+        // Connect to the car service before collecting bugreport, because when car service crashes,
+        // BugReportService doesn't automatically reconnect to it.
+        connectToCarServiceSync();
+
         if (Build.IS_USERDEBUG || Build.IS_ENG) {
             mSingleThreadExecutor.schedule(
                     this::grabBtSnoopLog, ACTIVITY_FINISH_DELAY_MILLIS, TimeUnit.MILLISECONDS);
@@ -348,6 +386,8 @@ public class BugReportService extends Service {
             BugStorageUtils.setBugReportStatus(this, mMetaBugReport, Status.STATUS_WRITE_FAILED,
                     MESSAGE_FAILURE_DUMPSTATE);
             showToast(R.string.toast_status_dump_state_failed);
+            disconnectFromCarService();
+            mIsCollectingBugReport.set(false);
         }
     }
 
@@ -364,22 +404,10 @@ public class BugReportService extends Service {
         }
         mCallback = new CarBugreportManager.CarBugreportManagerCallback() {
             @Override
-            public void onError(int errorCode) {
+            public void onError(@CarBugreportErrorCode int errorCode) {
                 Log.e(TAG, "CarBugreportManager failed: " + errorCode);
-                // We let the UI know that bug reporting is finished, because the next step is to
-                // zip everything and upload.
-                mBugReportProgress.set(MAX_PROGRESS_VALUE);
-                sendProgressEventToHandler(MAX_PROGRESS_VALUE);
-                showToast(R.string.toast_status_failed);
-                BugStorageUtils.setBugReportStatus(
-                        BugReportService.this, mMetaBugReport,
-                        Status.STATUS_WRITE_FAILED, "CarBugreportManager failed: " + errorCode);
-                mIsCollectingBugReport.set(false);
-                mHandler.post(() -> {
-                    mNotificationManager.cancel(BUGREPORT_IN_PROGRESS_NOTIF_ID);
-                    stopForeground(true);
-                });
-                mHandlerToast.removeCallbacksAndMessages(null);
+                disconnectFromCarService();
+                handleBugReportManagerError(errorCode);
             }
 
             @Override
@@ -391,12 +419,56 @@ public class BugReportService extends Service {
             @Override
             public void onFinished() {
                 Log.d(TAG, "CarBugreportManager finished");
+                disconnectFromCarService();
                 mBugReportProgress.set(MAX_PROGRESS_VALUE);
                 sendProgressEventToHandler(MAX_PROGRESS_VALUE);
                 mSingleThreadExecutor.submit(BugReportService.this::zipDirectoryAndUpdateStatus);
             }
         };
+        if (mBugreportManager == null) {
+            mHandler.post(() -> Toast.makeText(this,
+                    "Car service is not ready", Toast.LENGTH_LONG).show());
+            Log.e(TAG, "CarBugReportManager is not ready");
+            return;
+        }
         mBugreportManager.requestBugreport(outFd, extraOutFd, mCallback);
+    }
+
+    private void handleBugReportManagerError(
+            @CarBugreportManager.CarBugreportManagerCallback.CarBugreportErrorCode int errorCode) {
+        if (mMetaBugReport == null) {
+            Log.w(TAG, "No bugreport is running");
+            mIsCollectingBugReport.set(false);
+            return;
+        }
+        // We let the UI know that bug reporting is finished, because the next step is to
+        // zip everything and upload.
+        mBugReportProgress.set(MAX_PROGRESS_VALUE);
+        sendProgressEventToHandler(MAX_PROGRESS_VALUE);
+        showToast(R.string.toast_status_failed);
+        BugStorageUtils.setBugReportStatus(
+                BugReportService.this, mMetaBugReport,
+                Status.STATUS_WRITE_FAILED, getBugReportFailureStatusMessage(errorCode));
+        mHandler.postDelayed(() -> {
+            mNotificationManager.cancel(BUGREPORT_IN_PROGRESS_NOTIF_ID);
+            stopForeground(true);
+        }, STOP_SERVICE_DELAY_MILLIS);
+        mHandlerStartedToast.removeCallbacksAndMessages(null);
+        mMetaBugReport = null;
+        mIsCollectingBugReport.set(false);
+    }
+
+    private static String getBugReportFailureStatusMessage(
+            @CarBugreportManager.CarBugreportManagerCallback.CarBugreportErrorCode int errorCode) {
+        switch (errorCode) {
+            case CAR_BUGREPORT_DUMPSTATE_CONNECTION_FAILED:
+            case CAR_BUGREPORT_DUMPSTATE_FAILED:
+                return "Failed to connect to dumpstate. Retry again after a minute.";
+            case CAR_BUGREPORT_SERVICE_NOT_AVAILABLE:
+                return "Car service is not available. Retry again.";
+            default:
+                return "Car service bugreport collection failed: " + errorCode;
+        }
     }
 
     /**
@@ -440,7 +512,6 @@ public class BugReportService extends Service {
             File bugReportTempDir = FileUtils.createTempDir(this, mMetaBugReport.getTimestamp());
             zipDirectoryToOutputStream(bugReportTempDir,
                     BugStorageUtils.openBugReportFileToWrite(this, mMetaBugReport));
-            mIsCollectingBugReport.set(false);
         } catch (IOException e) {
             Log.e(TAG, "Failed to zip files", e);
             BugStorageUtils.setBugReportStatus(this, mMetaBugReport, Status.STATUS_WRITE_FAILED,
@@ -465,7 +536,9 @@ public class BugReportService extends Service {
             mNotificationManager.cancel(BUGREPORT_IN_PROGRESS_NOTIF_ID);
             stopForeground(true);
         });
-        mHandlerToast.removeCallbacksAndMessages(null);
+        mHandlerStartedToast.removeCallbacksAndMessages(null);
+        mMetaBugReport = null;
+        mIsCollectingBugReport.set(false);
     }
 
     private void playNotificationSound() {

@@ -137,26 +137,6 @@ public class BugReportActivity extends Activity {
         }
     };
 
-    private final ServiceConnection mCarServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            try {
-                mDrivingStateManager = (CarDrivingStateManager) mCar.getCarManager(
-                        Car.CAR_DRIVING_STATE_SERVICE);
-                mDrivingStateManager.registerListener(
-                        BugReportActivity.this::onCarDrivingStateChanged);
-                // Call onCarDrivingStateChanged(), because it's not called when Car is connected.
-                onCarDrivingStateChanged(mDrivingStateManager.getCurrentCarDrivingState());
-            } catch (CarNotConnectedException e) {
-                Log.w(TAG, "Failed to get CarDrivingStateManager.", e);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-        }
-    };
-
     /**
      * Builds an intent that starts {@link BugReportActivity} to add audio message to the existing
      * bug report.
@@ -227,6 +207,10 @@ public class BugReportActivity extends Activity {
     }
 
     private void onCarDrivingStateChanged(CarDrivingStateEvent event) {
+        if (mShowBugReportsButton == null) {
+            Log.w(TAG, "Cannot handle driving state change, UI is not ready");
+            return;
+        }
         // When adding audio message to the existing bugreport, do not show "Show Bug Reports"
         // button, users either should explicitly Submit or Cancel.
         if (mAudioRecordingStarted && !mIsNewBugReport) {
@@ -260,8 +244,8 @@ public class BugReportActivity extends Activity {
         // We need to minimize system state change when performing SILENT bug report.
         mConfig = new Config();
         mConfig.start();
-        mCar = Car.createCar(this, mCarServiceConnection);
-        mCar.connect();
+        mCar = Car.createCar(this, /* handler= */ null,
+                Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT, this::onCarLifecycleChanged);
 
         mInProgressTitleText = findViewById(R.id.in_progress_title_text);
         mProgressBar = findViewById(R.id.progress_bar);
@@ -284,6 +268,27 @@ public class BugReportActivity extends Activity {
         } else {
             mSubmitButton.setText(mConfig.getAutoUpload()
                     ? R.string.bugreport_dialog_upload : R.string.bugreport_dialog_save);
+        }
+    }
+
+    private void onCarLifecycleChanged(Car car, boolean ready) {
+        if (!ready) {
+            mDrivingStateManager = null;
+            mCar = null;
+            Log.d(TAG, "Car service is not ready, ignoring");
+            // If car service is not ready for this activity, just ignore it - as it's only
+            // used to control UX restrictions.
+            return;
+        }
+        try {
+            mDrivingStateManager = (CarDrivingStateManager) car.getCarManager(
+                    Car.CAR_DRIVING_STATE_SERVICE);
+            mDrivingStateManager.registerListener(
+                    BugReportActivity.this::onCarDrivingStateChanged);
+            // Call onCarDrivingStateChanged(), because it's not called when Car is connected.
+            onCarDrivingStateChanged(mDrivingStateManager.getCurrentCarDrivingState());
+        } catch (CarNotConnectedException e) {
+            Log.w(TAG, "Failed to get CarDrivingStateManager", e);
         }
     }
 
