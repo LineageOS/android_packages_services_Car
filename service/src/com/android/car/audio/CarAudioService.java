@@ -15,11 +15,6 @@
  */
 package com.android.car.audio;
 
-import static android.media.AudioAttributes.USAGE_ANNOUNCEMENT;
-import static android.media.AudioAttributes.USAGE_EMERGENCY;
-import static android.media.AudioAttributes.USAGE_SAFETY;
-import static android.media.AudioAttributes.USAGE_VEHICLE_STATUS;
-
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
@@ -36,6 +31,7 @@ import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeSystemUsage;
+import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
@@ -62,6 +58,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.R;
+import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.car.user.CarUserService;
 import com.android.internal.util.Preconditions;
 
@@ -94,8 +91,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     // Search for "DUCK_VSHAPE" in PLaybackActivityMonitor.java to see where this happens.
     private static boolean sUseCarAudioFocus = true;
 
-    // Key to persist master mute state in system settings
-    private static final String VOLUME_SETTINGS_KEY_MASTER_MUTE = "android.car.MASTER_MUTE";
+    static final @AttributeUsage int DEFAULT_AUDIO_USAGE = AudioAttributes.USAGE_MEDIA;
+    static final @AudioContext int DEFAULT_AUDIO_CONTEXT = CarAudioContext.getContextForUsage(
+            CarAudioService.DEFAULT_AUDIO_USAGE);
 
     // CarAudioService reads configuration from the following paths respectively.
     // If the first one is found, all others are ignored.
@@ -106,10 +104,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     };
 
     private static final @AttributeSystemUsage int[] SYSTEM_USAGES = new int[] {
-            USAGE_EMERGENCY,
-            USAGE_SAFETY,
-            USAGE_VEHICLE_STATUS,
-            USAGE_ANNOUNCEMENT
+            AudioAttributes.USAGE_CALL_ASSISTANT,
+            AudioAttributes.USAGE_EMERGENCY,
+            AudioAttributes.USAGE_SAFETY,
+            AudioAttributes.USAGE_VEHICLE_STATUS,
+            AudioAttributes.USAGE_ANNOUNCEMENT
     };
 
     private final Object mImplLock = new Object();
@@ -740,7 +739,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Set<Integer> contexts =
                     Arrays.stream(group.getContexts()).boxed().collect(Collectors.toSet());
             final List<Integer> usages = new ArrayList<>();
-            for (@CarAudioContext.AudioContext int context : contexts) {
+            for (@AudioContext int context : contexts) {
                 int[] usagesForContext = CarAudioContext.getUsagesForContext(context);
                 for (@AudioAttributes.AttributeUsage int usage : usagesForContext) {
                     usages.add(usage);
@@ -1016,10 +1015,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     .collect(Collectors.toList());
             if (!playbacks.isEmpty()) {
                 // Get audio usage from active playbacks if there is any, last one if multiple
-                return playbacks.get(playbacks.size() - 1).getAudioAttributes().getUsage();
+                return playbacks.get(playbacks.size() - 1).getAudioAttributes().getSystemUsage();
             } else {
                 // TODO(b/72695246): Otherwise, get audio usage from foreground activity/window
-                return CarAudioDynamicRouting.DEFAULT_AUDIO_USAGE;
+                return DEFAULT_AUDIO_USAGE;
             }
         }
     }

@@ -25,6 +25,7 @@ import android.util.SparseIntArray;
 import android.util.Xml;
 import android.view.DisplayAddress;
 
+import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.util.Preconditions;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -33,6 +34,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,8 +48,6 @@ import java.util.stream.Collectors;
  * A helper class loads all audio zones from the configuration XML file.
  */
 /* package */ class CarAudioZonesHelper {
-    private static final int INVALID_ZONE_ID = -1;
-
     private static final String NAMESPACE = null;
     private static final String TAG_ROOT = "carAudioConfiguration";
     private static final String TAG_AUDIO_ZONES = "zones";
@@ -77,7 +77,7 @@ import java.util.stream.Collectors;
     private static final Map<String, Integer> CONTEXT_NAME_MAP;
 
     static {
-        CONTEXT_NAME_MAP = new HashMap<>(8);
+        CONTEXT_NAME_MAP = new HashMap<>(CarAudioContext.CONTEXTS.length);
         CONTEXT_NAME_MAP.put("music", CarAudioContext.MUSIC);
         CONTEXT_NAME_MAP.put("navigation", CarAudioContext.NAVIGATION);
         CONTEXT_NAME_MAP.put("voice_command", CarAudioContext.VOICE_COMMAND);
@@ -86,10 +86,47 @@ import java.util.stream.Collectors;
         CONTEXT_NAME_MAP.put("alarm", CarAudioContext.ALARM);
         CONTEXT_NAME_MAP.put("notification", CarAudioContext.NOTIFICATION);
         CONTEXT_NAME_MAP.put("system_sound", CarAudioContext.SYSTEM_SOUND);
+        CONTEXT_NAME_MAP.put("emergency", CarAudioContext.EMERGENCY);
+        CONTEXT_NAME_MAP.put("safety", CarAudioContext.SAFETY);
+        CONTEXT_NAME_MAP.put("vehicle_status", CarAudioContext.VEHICLE_STATUS);
+        CONTEXT_NAME_MAP.put("announcement", CarAudioContext.ANNOUNCEMENT);
 
         SUPPORTED_VERSIONS = new SparseIntArray(2);
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_1, SUPPORTED_VERSION_1);
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_2, SUPPORTED_VERSION_2);
+    }
+
+    // Same contexts as defined in android.hardware.automotive.audiocontrol.V1_0.ContextNumber
+    static final int[] LEGACY_CONTEXTS = new int[]{
+            CarAudioContext.MUSIC,
+            CarAudioContext.NAVIGATION,
+            CarAudioContext.VOICE_COMMAND,
+            CarAudioContext.CALL_RING,
+            CarAudioContext.CALL,
+            CarAudioContext.ALARM,
+            CarAudioContext.NOTIFICATION,
+            CarAudioContext.SYSTEM_SOUND
+    };
+
+    private static boolean isLegacyContext(@AudioContext int audioContext) {
+        return Arrays.binarySearch(LEGACY_CONTEXTS, audioContext) >= 0;
+    }
+
+    private static final List<Integer> NON_LEGACY_CONTEXTS = new ArrayList<>(
+            CarAudioContext.CONTEXTS.length - LEGACY_CONTEXTS.length);
+
+    static {
+        for (@AudioContext int audioContext : CarAudioContext.CONTEXTS) {
+            if (!isLegacyContext(audioContext)) {
+                NON_LEGACY_CONTEXTS.add(audioContext);
+            }
+        }
+    }
+
+    static void bindNonLegacyContexts(CarVolumeGroup group, CarAudioDeviceInfo info) {
+        for (@AudioContext int audioContext : NON_LEGACY_CONTEXTS) {
+            group.bind(audioContext, info);
+        }
     }
 
     private final Context mContext;
@@ -232,7 +269,7 @@ import java.util.stream.Collectors;
 
     private int getZoneId(boolean isPrimary, XmlPullParser parser) {
         String audioZoneIdString = parser.getAttributeValue(NAMESPACE, ATTR_ZONE_ID);
-        if (mCurrentVersion == SUPPORTED_VERSION_1) {
+        if (isVersionOne()) {
             Preconditions.checkArgument(audioZoneIdString == null,
                     "Invalid audio attribute %s"
                             + ", Please update car audio configurations file "
@@ -263,7 +300,7 @@ import java.util.stream.Collectors;
 
     private void parseOccupantZoneId(int audioZoneId, XmlPullParser parser) {
         String occupantZoneIdString = parser.getAttributeValue(NAMESPACE, ATTR_OCCUPANT_ZONE_ID);
-        if (mCurrentVersion == SUPPORTED_VERSION_1) {
+        if (isVersionOne()) {
             Preconditions.checkArgument(occupantZoneIdString == null,
                     "Invalid audio attribute %s"
                             + ", Please update car audio configurations file "
@@ -290,7 +327,7 @@ import java.util.stream.Collectors;
 
     private void parseInputAudioDevices(XmlPullParser parser, CarAudioZone zone)
             throws IOException, XmlPullParserException {
-        if (mCurrentVersion == SUPPORTED_VERSION_1) {
+        if (isVersionOne()) {
             throw new IllegalStateException(
                     TAG_INPUT_DEVICES + " are not supported in car_audio_configuration.xml version "
                             + SUPPORTED_VERSION_1);
@@ -416,13 +453,24 @@ import java.util.stream.Collectors;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_CONTEXT.equals(parser.getName())) {
-                int audioContext = parseCarAudioContext(
+                @AudioContext int carAudioContext = parseCarAudioContext(
                         parser.getAttributeValue(NAMESPACE, ATTR_CONTEXT_NAME));
-                group.bind(audioContext, mAddressToCarAudioDeviceInfo.get(address));
+                validateCarAudioContextSupport(carAudioContext);
+                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+                group.bind(carAudioContext, info);
+
+                // If V1, default new contexts to same device as DEFAULT_AUDIO_USAGE
+                if (isVersionOne() && carAudioContext == CarAudioService.DEFAULT_AUDIO_CONTEXT) {
+                    bindNonLegacyContexts(group, info);
+                }
             }
             // Always skip to upper level since we're at the lowest.
             skip(parser);
         }
+    }
+
+    private boolean isVersionOne() {
+        return mCurrentVersion == SUPPORTED_VERSION_1;
     }
 
     private void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
@@ -442,8 +490,17 @@ import java.util.stream.Collectors;
         }
     }
 
-    private int parseCarAudioContext(String context) {
+    private static @AudioContext int parseCarAudioContext(String context) {
         return CONTEXT_NAME_MAP.getOrDefault(context.toLowerCase(), CarAudioContext.INVALID);
+    }
+
+    private void validateCarAudioContextSupport(@AudioContext int audioContext) {
+        if (isVersionOne() && NON_LEGACY_CONTEXTS.contains(audioContext)) {
+            throw new IllegalArgumentException(String.format(
+                    "Non-legacy audio contexts such as %s are not supported in "
+                            + "car_audio_configuration.xml version %d",
+                    CarAudioContext.toString(audioContext), SUPPORTED_VERSION_1));
+        }
     }
 
     private int getNextSecondaryZoneId() {
