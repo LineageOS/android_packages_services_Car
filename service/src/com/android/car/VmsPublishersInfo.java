@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import android.annotation.Nullable;
 import android.util.ArrayMap;
 
 import com.android.internal.annotations.GuardedBy;
@@ -88,8 +89,21 @@ public class VmsPublishersInfo {
      */
     public byte[] getPublisherInfo(int publisherId) {
         synchronized (mLock) {
+            byte[] result = getPublisherInfoOrNull(publisherId);
+            return result != null ? result : EMPTY_RESPONSE;
+        }
+    }
+
+    /**
+     * Returns the publisher info associated with the given publisher ID.
+     * @param publisherId Publisher ID to query.
+     * @return Publisher info associated with the ID, or null if publisher ID is unknown.
+     */
+    @Nullable
+    public byte[] getPublisherInfoOrNull(int publisherId) {
+        synchronized (mLock) {
             return publisherId < 1 || publisherId > mPublishersInfo.size()
-                    ? EMPTY_RESPONSE
+                    ? null
                     : mPublishersInfo.get(publisherId - 1).getInfo();
         }
     }

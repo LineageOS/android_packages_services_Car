@@ -68,6 +68,13 @@ public final class VmsLayersOffering implements Parcelable {
         return mPublisherId;
     }
 
+    /**
+     * @hide
+     */
+    public int getProviderId() {
+        return mPublisherId;
+    }
+
     public static final Parcelable.Creator<VmsLayersOffering> CREATOR = new
             Parcelable.Creator<VmsLayersOffering>() {
                 public VmsLayersOffering createFromParcel(Parcel in) {
