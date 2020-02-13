@@ -45,6 +45,8 @@ CallbackInterface: android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgen
     Callbacks must be abstract class instead of interface to enable extension in future API levels: CarTrustAgentBleCallback
 CallbackInterface: android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback:
     Callbacks must be abstract class instead of interface to enable extension in future API levels: CarTrustAgentEnrollmentCallback
+CallbackInterface: android.car.vms.VmsClientManager.VmsClientCallback:
+    Callbacks must be abstract class instead of interface to enable extension in future API levels: VmsClientCallback
 CallbackInterface: android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback:
     Callbacks must be abstract class instead of interface to enable extension in future API levels: VmsSubscriberClientCallback
 
@@ -125,6 +127,8 @@ HiddenSuperclass: android.car.trust.CarTrustAgentEnrollmentManager:
     Public class android.car.trust.CarTrustAgentEnrollmentManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.user.CarUserManager:
     Public class android.car.user.CarUserManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.vms.VmsClientManager:
+    Public class android.car.vms.VmsClientManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.vms.VmsSubscriberManager:
     Public class android.car.vms.VmsSubscriberManager stripped of unavailable superclass android.car.CarManagerBase
 

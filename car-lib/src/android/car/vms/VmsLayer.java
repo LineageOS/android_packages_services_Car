@@ -49,8 +49,6 @@ public final class VmsLayer implements Parcelable {
 
     /**
      * Type of packet published on the layer
-     *
-     * @hide
      */
     private int mChannel;
 
@@ -61,7 +59,10 @@ public final class VmsLayer implements Parcelable {
 
     /**
      * Type of packet published on the layer
+     *
+     * @deprecated Use {@link #getChannel()} instead
      */
+    @Deprecated
     public int getSubtype() {
         return mChannel;
     }
@@ -113,8 +114,6 @@ public final class VmsLayer implements Parcelable {
 
     /**
      * Type of packet published on the layer
-     *
-     * @hide
      */
     @DataClass.Generated.Member
     public int getChannel() {
@@ -221,10 +220,10 @@ public final class VmsLayer implements Parcelable {
     };
 
     @DataClass.Generated(
-            time = 1582061053046L,
+            time = 1582065881190L,
             codegenVersion = "1.0.14",
             sourceFile = "packages/services/Car/car-lib/src/android/car/vms/VmsLayer.java",
-            inputSignatures = "private  int mType\nprivate  int mChannel\nprivate  int mVersion\npublic  int getSubtype()\nclass VmsLayer extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genAidl=true, genEqualsHashCode=true, genToString=true)")
+            inputSignatures = "private  int mType\nprivate  int mChannel\nprivate  int mVersion\npublic @java.lang.Deprecated int getSubtype()\nclass VmsLayer extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genAidl=true, genEqualsHashCode=true, genToString=true)")
     @Deprecated
     private void __metadata() {}
 

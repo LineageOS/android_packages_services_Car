@@ -34,8 +34,11 @@ import java.util.Set;
  *
  * A layer will not be advertised to subscribers unless all of its dependencies are met.
  *
+ * @deprecated Use {@link VmsClient#setProviderOfferings(int, Set)} instead
+ *
  * @hide
  */
+@Deprecated
 @SystemApi
 @DataClass(genAidl = true, genEqualsHashCode = true, genToString = true)
 public final class VmsLayersOffering implements Parcelable {
@@ -201,7 +204,7 @@ public final class VmsLayersOffering implements Parcelable {
     };
 
     @DataClass.Generated(
-            time = 1582064831855L,
+            time = 1582065871728L,
             codegenVersion = "1.0.14",
             sourceFile = "packages/services/Car/car-lib/src/android/car/vms/VmsLayersOffering.java",
             inputSignatures = "private @android.annotation.NonNull java.util.Set<android.car.vms.VmsLayerDependency> mDependencies\nprivate final  int mPublisherId\nprivate  void onConstructed()\nprivate  void parcelDependencies(android.os.Parcel,int)\nprivate @java.lang.SuppressWarnings(\"unchecked\") java.util.Set<android.car.vms.VmsLayerDependency> unparcelDependencies(android.os.Parcel)\nclass VmsLayersOffering extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genAidl=true, genEqualsHashCode=true, genToString=true)")

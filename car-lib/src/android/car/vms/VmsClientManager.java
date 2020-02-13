@@ -19,6 +19,7 @@ package android.car.vms;
 import android.annotation.CallbackExecutor;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.RequiredFeature;
@@ -38,14 +39,13 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @RequiredFeature(Car.VEHICLE_MAP_SERVICE)
+@SystemApi
 public class VmsClientManager extends CarManagerBase {
     private static final boolean DBG = false;
     private static final String TAG = VmsClientManager.class.getSimpleName();
 
     /**
      * Callback interface for Vehicle Map Service clients.
-     *
-     * @hide
      */
     public interface VmsClientCallback {
         /**
@@ -53,21 +53,21 @@ public class VmsClientManager extends CarManagerBase {
          *
          * @param client API client
          */
-        void onClientConnected(VmsClient client);
+        void onClientConnected(@NonNull VmsClient client);
 
         /**
          * Invoked when the availability of data layers has changed.
          *
          * @param availableLayers Current layer availability
          */
-        void onLayerAvailabilityChanged(VmsAvailableLayers availableLayers);
+        void onLayerAvailabilityChanged(@NonNull VmsAvailableLayers availableLayers);
 
         /**
          * Invoked when any subscriptions to data layers have changed.
          *
          * @param subscriptionState Current subscription state
          */
-        void onSubscriptionStateChanged(VmsSubscriptionState subscriptionState);
+        void onSubscriptionStateChanged(@NonNull VmsSubscriptionState subscriptionState);
 
         /**
          * Invoked whenever a packet is received for this client's subscriptions.
@@ -76,7 +76,7 @@ public class VmsClientManager extends CarManagerBase {
          * @param layer       Packet layer
          * @param packet      Packet data
          */
-        void onPacketReceived(int providerId, VmsLayer layer, byte[] packet);
+        void onPacketReceived(int providerId, @NonNull VmsLayer layer, @NonNull byte[] packet);
     }
 
     private final IVmsBrokerService mBrokerService;
@@ -85,6 +85,9 @@ public class VmsClientManager extends CarManagerBase {
     @GuardedBy("mLock")
     private final Map<VmsClientCallback, VmsClient> mClients = new ArrayMap<>();
 
+    /**
+     * @hide
+     */
     public VmsClientManager(Car car, IBinder service) {
         super(car);
         mBrokerService = IVmsBrokerService.Stub.asInterface(service);
@@ -161,6 +164,9 @@ public class VmsClientManager extends CarManagerBase {
         }
     }
 
+    /**
+     * @hide
+     */
     @Override
     protected void onCarDisconnected() {
         synchronized (mLock) {

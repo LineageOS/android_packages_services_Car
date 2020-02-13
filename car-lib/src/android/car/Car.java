@@ -252,14 +252,22 @@ public final class Car {
     public static final String BLUETOOTH_SERVICE = "car_bluetooth";
 
     /**
-     * @hide
-     */
-    public static final String VEHICLE_MAP_SERVICE = "vehicle_map_service";
-
-    /**
+     * Service name for {@link VmsClientManager}
+     *
      * @hide
      */
     @OptionalFeature
+    @SystemApi
+    public static final String VEHICLE_MAP_SERVICE = "vehicle_map_service";
+
+    /**
+     * Service name for {@link VmsSubscriberManager}
+     *
+     * @deprecated {@link VmsSubscriberManager} is deprecated. Use {@link VmsClientManager} instead.
+     * @hide
+     */
+    @OptionalFeature
+    @Deprecated
     @SystemApi
     public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
 

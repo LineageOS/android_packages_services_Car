@@ -52,9 +52,11 @@ import java.util.Objects;
  *
  * Publishers must also register a publisher ID by calling {@link #getPublisherId(byte[])}.
  *
+ * @deprecated Use {@link VmsClientManager} instead
  * @hide
  */
 @RequiredFeature(Car.VMS_SUBSCRIBER_SERVICE)
+@Deprecated
 @SystemApi
 public abstract class VmsPublisherClientService extends Service {
     private static final boolean DBG = false;

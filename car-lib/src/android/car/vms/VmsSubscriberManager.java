@@ -39,9 +39,11 @@ import java.util.concurrent.Executor;
  * Supports a single client callback that can subscribe and unsubscribe to different data layers.
  * {@link #setVmsSubscriberClientCallback} must be called before any subscription operations.
  *
+ * @deprecated Use {@link VmsClientManager} instead
  * @hide
  */
 @RequiredFeature(Car.VMS_SUBSCRIBER_SERVICE)
+@Deprecated
 @SystemApi
 public final class VmsSubscriberManager extends CarManagerBase {
     private static final String TAG = "VmsSubscriberManager";

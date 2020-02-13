@@ -22,8 +22,10 @@ import org.json.JSONObject;
  *   VmsOperationRecorder.get().subscribe(layer);
  * }</pre>
  *
+ * @deprecated VmsOperationRecorder is no longer used by VMS and will produce no output
  * @hide
  */
+@Deprecated
 @SystemApi
 public final class VmsOperationRecorder {
     private static final String TAG = "VmsOperationRecorder";

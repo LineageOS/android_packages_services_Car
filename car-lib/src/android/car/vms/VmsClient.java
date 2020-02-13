@@ -19,6 +19,7 @@ package android.car.vms;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.vms.VmsClientManager.VmsClientCallback;
 import android.os.Binder;
@@ -44,6 +45,7 @@ import java.util.function.Consumer;
  *
  * @hide
  */
+@SystemApi
 public final class VmsClient {
     private static final boolean DBG = false;
     private static final String TAG = VmsClient.class.getSimpleName();
