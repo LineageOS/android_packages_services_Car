@@ -106,7 +106,7 @@ TEST_F(PipeQueryTest, GetGraphListTest) {
     addFakeRunner("dummy2", dummy2);
 
     std::vector<std::string>* outNames = new std::vector<std::string>();
-    std::unique_ptr<PipeQuery> qIface = std::make_unique<PipeQuery>(mRegistry);
+    std::shared_ptr<PipeQuery> qIface = ndk::SharedRefBase::make<PipeQuery>(mRegistry);
     ASSERT_TRUE(qIface->getGraphList(outNames).isOk());
 
     ASSERT_NE(outNames->size(), 0);
@@ -121,7 +121,7 @@ TEST_F(PipeQueryTest, GetRunnerTest) {
     std::shared_ptr<IPipeRunner> dummy1 = ndk::SharedRefBase::make<FakeRunner>();
     addFakeRunner("dummy1", dummy1);
 
-    std::unique_ptr<PipeQuery> qIface = std::make_unique<PipeQuery>(mRegistry);
+    std::shared_ptr<PipeQuery> qIface = ndk::SharedRefBase::make<PipeQuery>(mRegistry);
     std::shared_ptr<IClientInfo> info = ndk::SharedRefBase::make<FakeClientInfo>();
     std::shared_ptr<IPipeRunner> runner;
     ASSERT_TRUE(qIface->getPipeRunner("dummy1", info, &runner).isOk());
