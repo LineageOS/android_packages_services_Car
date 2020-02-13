@@ -60,6 +60,13 @@ public final class VmsAssociatedLayer implements Parcelable {
         return mPublisherIds;
     }
 
+    /**
+     * @hide
+     */
+    public Set<Integer> getProviderIds() {
+        return mPublisherIds;
+    }
+
     @Override
     public String toString() {
         return "VmsAssociatedLayer{ VmsLayer: " + mLayer + ", Publishers: " + mPublisherIds + "}";
