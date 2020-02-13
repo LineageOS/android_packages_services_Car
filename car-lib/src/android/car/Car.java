@@ -63,6 +63,7 @@ import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.TransactionTooLargeException;
@@ -1538,12 +1539,19 @@ public final class Car {
             return;
         } else if (mContext instanceof Service) {
             Service service = (Service) mContext;
-            throw new IllegalStateException("Car service has crashed, client not handle it:"
-                    + service.getPackageName() + "," + service.getClass().getSimpleName(),
-                    mConstructionStack);
+            killClient(service.getPackageName() + "," + service.getClass().getSimpleName());
+        } else {
+            killClient(/* clientInfo= */ null);
         }
-        throw new IllegalStateException("Car service crashed, client not handling it.",
+    }
+
+    private void killClient(@Nullable String clientInfo) {
+        Log.w(TAG_CAR, "**Car service has crashed. Client(" + clientInfo + ") is not handling it."
+                        + " Client should use Car.createCar(..., CarServiceLifecycleListener, .."
+                        + ".) to handle it properly. Check pritned callstack to check where other "
+                        + "version of Car.createCar() was called. Killing the client process**",
                 mConstructionStack);
+        Process.killProcess(Process.myPid());
     }
 
     /** @hide */
