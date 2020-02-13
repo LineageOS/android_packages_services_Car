@@ -195,7 +195,9 @@ Status AidlClientImpl::dispatchPacketToClient(int32_t streamId,
 }
 
 Status AidlClientImpl::stateUpdateNotification(const GraphState newState) {
-    (void)mClientStateChangeCallback->handleState(ToAidlState(newState));
+    if (mClientStateChangeCallback) {
+        (void)mClientStateChangeCallback->handleState(ToAidlState(newState));
+    }
     return Status::SUCCESS;
 }
 
