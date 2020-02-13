@@ -16,6 +16,9 @@
 
 #define LOG_TAG "carwatchdogd"
 
+#include "ServiceManager.h"
+
+#include <android-base/result.h>
 #include <binder/IPCThreadState.h>
 #include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
@@ -23,26 +26,19 @@
 #include <signal.h>
 #include <utils/Looper.h>
 
-#include "WatchdogProcessService.h"
-
-using android::defaultServiceManager;
 using android::IPCThreadState;
 using android::Looper;
 using android::ProcessState;
 using android::sp;
-using android::String16;
-using android::automotive::watchdog::WatchdogProcessService;
-using android::binder::Status;
+using android::automotive::watchdog::ServiceManager;
+using android::automotive::watchdog::ServiceType;
+using android::base::Result;
 
 namespace {
 
-sp<WatchdogProcessService> gWatchdogProcessService = nullptr;
-
 void sigHandler(int sig) {
     IPCThreadState::self()->stopProcess();
-    if (gWatchdogProcessService != nullptr) {
-        gWatchdogProcessService->terminate();
-    }
+    // TODO(ericjeong): Give services a chance to handle SIGTERM.
     ALOGW("car watchdog server terminated on receiving signal %d.", sig);
     exit(1);
 }
@@ -70,18 +66,16 @@ int main(int /*argc*/, char** /*argv*/) {
     ps->giveThreadPoolName();
     IPCThreadState::self()->disableBackgroundScheduling(true);
 
-    // Create the service
-    sp<WatchdogProcessService> service = new WatchdogProcessService(looper);
-    Status status = Status::fromStatusT(
-            defaultServiceManager()
-                    ->addService(String16("android.automotive.watchdog.ICarWatchdog/default"),
-                                 service));
-    if (!status.isOk()) {
-        ALOGE("Failed to add carwatchdog as service: %s", status.exceptionMessage().c_str());
-        return status.exceptionCode();
+    // Start the services
+    ServiceType supportedServices[] = {ServiceType::PROCESS_ANR_MONITOR};
+    for (const auto type : supportedServices) {
+        auto result = ServiceManager::startService(type, looper);
+        if (!result.ok()) {
+            ALOGE("%s", result.error().message().c_str());
+            exit(result.error().code());
+        }
     }
 
-    gWatchdogProcessService = service;
     registerSigHandler();
 
     // Loop forever -- the health check runs on this thread in a handler, and the binder calls
