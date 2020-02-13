@@ -17,6 +17,7 @@
 package android.car;
 
 import android.content.pm.UserInfo;
+import com.android.internal.os.IResultReceiver;
 
 /** @hide */
 interface ICarUserService {
@@ -27,4 +28,6 @@ interface ICarUserService {
     List<UserInfo> getPassengers(int driverId);
     boolean startPassenger(int passengerId, int zoneId);
     boolean stopPassenger(int passengerId);
+    oneway void setLifecycleListenerForUid(in IResultReceiver listener);
+    oneway void resetLifecycleListenerForUid();
 }
