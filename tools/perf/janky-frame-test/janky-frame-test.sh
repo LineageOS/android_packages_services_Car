@@ -13,42 +13,53 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# Analyze dumpsys output and show the janky frame count.
 
-NON_MAP_ACTIVITY=com.android.car.carlauncher/.AppGridActivity
-MAP_PACKAGE=com.google.android.apps.maps
-MAP_ACTIVITY=${MAP_PACKAGE}/com.google.android.maps.MapsActivity
+readonly NON_MAP_ACTIVITY=com.android.car.carlauncher/.AppGridActivity
+readonly MAP_PACKAGE=com.google.android.apps.maps
+readonly MAP_ACTIVITY=${MAP_PACKAGE}/com.google.android.maps.MapsActivity
+readonly CAR_ACTIVITY=com.android.car.carlauncher/.CarLauncher
 
-# Function retrievie_frame returns two frame counts as space-separated string.
-# The first one is total frame count and the second one is janky frame count.
-function retrieve_frame()
-{
-  local START_PATTERN="Graphics info for pid ([0-9]+)"
-  local PATTERN_FOUND=false
-  local TOTAL_FRAME_PATTERN="Total frames rendered: ([0-9]+)"
-  local JANKY_FRAME_PATTERN="Janky frames: ([0-9]+)"
-  local TOTAL_FRAME=0
-  local JANKY_FRAME=0
+####################################################
+# Analyze dumpsys and returns total/janky frame counts.
+# Globals:
+#   None
+# Arguments:
+#   PID of map activity of interest
+# Returns:
+#   Total and janky frame count in space-saparated string
+####################################################
+function retrieve_frame() {
+  local start_pattern="Graphics info for pid ([0-9]+)"
+  local start_pattern_found=false
+  local total_frame_pattern="Total frames rendered: ([0-9]+)"
+  local janky_frame_pattern="Janky frames: ([0-9]+)"
+  local total_frame=0
+  local janky_frame=0
 
-  while IFS= read -r LINE
-  do
-    if [[ ${LINE} =~ ${START_PATTERN} ]]; then
-      if [ ${BASH_REMATCH[1]} = $1 ]; then
-        PATTERN_FOUND=true
+  while IFS= read -r line; do
+    # Maps runs under two different users (u0 and u10).
+    # To get information about the map under the user of interest,
+    # the PID is extracted and compared.
+    if [[ ${line} =~ ${start_pattern} ]]; then
+      if [ ${BASH_REMATCH[1]} = "$1" ]; then
+        start_pattern_found=true
       else
-        PATTERN_FOUND=false
+        start_pattern_found=false
       fi
     fi
-    if [ ${PATTERN_FOUND} = "true" ]; then
-      if [[ ${LINE} =~ ${TOTAL_FRAME_PATTERN} ]]; then
-        TOTAL_FRAME=${BASH_REMATCH[1]}
+    if [[ ${start_pattern_found} = "true" ]]; then
+      if [[ ${line} =~ ${total_frame_pattern} ]]; then
+        total_frame=${BASH_REMATCH[1]}
       fi
-      if [[ ${LINE} =~ ${JANKY_FRAME_PATTERN} ]]; then
-        JANKY_FRAME=${BASH_REMATCH[1]}
+      if [[ ${line} =~ ${janky_frame_pattern} ]]; then
+        janky_frame=${BASH_REMATCH[1]}
       fi
     fi
   done < <(adb shell dumpsys gfxinfo ${MAP_PACKAGE})
 
-  echo "${TOTAL_FRAME} ${JANKY_FRAME}"
+  echo "${total_frame} ${janky_frame}"
 }
 
 echo "Testing...."
@@ -56,22 +67,30 @@ echo "Testing...."
 # Launch full-screen map.
 # Starting full-screen map directly doesn't work due to some reasons.
 # We need to kill the map when no map is shown and re-start map activity.
-adb shell am start -n ${NON_MAP_ACTIVITY} >& /dev/null
-adb shell am force-stop ${MAP_PACKAGE} >& /dev/null
-adb shell am start -n ${MAP_ACTIVITY} >& /dev/null
+adb shell am start -n ${NON_MAP_ACTIVITY} &> /dev/null
+# Wait until non-map activity is fully started.
+sleep 2
+adb shell am force-stop ${MAP_PACKAGE} &> /dev/null
+adb shell am start -n ${MAP_ACTIVITY} &> /dev/null
+# Wait until map activity is fully started.
 sleep 7
 
 # Get PID of map under user 10.
-PS_INFO=($(adb shell ps -ef | fgrep ${MAP_PACKAGE} | fgrep u10))
-MAP_PID=${PS_INFO[1]}
+readonly PS_INFO=($(adb shell ps -ef | fgrep ${MAP_PACKAGE} | fgrep u10))
+readonly MAP_PID=${PS_INFO[1]}
+
+if [[ -z ${MAP_PID} ]]; then
+  echo "Map is not found. Test terminates."
+  exit 1
+fi
 
 RET_VAL=($(retrieve_frame ${MAP_PID}))
-OLD_TOTAL_FRAME=${RET_VAL[0]}
-OLD_JANKY_FRAME=${RET_VAL[1]}
+readonly OLD_TOTAL_FRAME=${RET_VAL[0]}
+readonly OLD_JANKY_FRAME=${RET_VAL[1]}
 
 # Get screen size.
-SIZE_PATTERN="Physical size: ([0-9]+)x([0-9]+)"
-WM_SIZE=$(adb shell wm size)
+readonly SIZE_PATTERN="Physical size: ([0-9]+)x([0-9]+)"
+readonly WM_SIZE=$(adb shell wm size)
 if [[ ${WM_SIZE} =~ ${SIZE_PATTERN} ]]; then
   SCREEN_WIDTH=${BASH_REMATCH[1]}
   SCREEN_HEIGHT=${BASH_REMATCH[2]}
@@ -80,39 +99,42 @@ else
   exit 1
 fi
 
-LEFT_POS=$(awk -v width=${SCREEN_WIDTH} 'BEGIN {printf "%d", width * 0.2}')
-RIGHT_POS=$(awk -v width=${SCREEN_WIDTH} 'BEGIN {printf "%d", width * 0.8}')
-VERTICAL_MID_POS=$(awk -v height=${SCREEN_HEIGHT} 'BEGIN {printf "%d", height * 0.5}')
-SWIPE_DURATION=100
+readonly LEFT_POS=$(awk -v width=${SCREEN_WIDTH} 'BEGIN {printf "%d", width * 0.2}')
+readonly RIGHT_POS=$(awk -v width=${SCREEN_WIDTH} 'BEGIN {printf "%d", width * 0.8}')
+readonly VERTICAL_MID_POS=$(awk -v height=${SCREEN_HEIGHT} 'BEGIN {printf "%d", height * 0.5}')
+readonly SWIPE_DURATION=100
 
 # Send input signal to scroll map.
 COUNTER=0
-while [ $COUNTER -lt 10 ]; do
+while [[ $COUNTER -lt 10 ]]; do
   adb shell input swipe ${LEFT_POS} ${VERTICAL_MID_POS} ${RIGHT_POS} ${VERTICAL_MID_POS} ${SWIPE_DURATION}
   sleep 0.5
-  let COUNTER=COUNTER+1
+  ((COUNTER++))
 done
 
 COUNTER=0
-while [ $COUNTER -lt 10 ]; do
+while [[ $COUNTER -lt 10 ]]; do
   adb shell input swipe ${RIGHT_POS} ${VERTICAL_MID_POS} ${LEFT_POS} ${VERTICAL_MID_POS} ${SWIPE_DURATION}
   sleep 0.5
-  let COUNTER=COUNTER+1
+  ((COUNTER++))
 done
 
 # Make sure that map drawing is finished.
 sleep 3
 
 RET_VAL=($(retrieve_frame ${MAP_PID}))
-CUR_TOTAL_FRAME=${RET_VAL[0]}
-CUR_JANKY_FRAME=${RET_VAL[1]}
+readonly CUR_TOTAL_FRAME=${RET_VAL[0]}
+readonly CUR_JANKY_FRAME=${RET_VAL[1]}
 
-if [ ${CUR_TOTAL_FRAME} = ${OLD_TOTAL_FRAME} ]; then
+if [[ ${CUR_TOTAL_FRAME} = ${OLD_TOTAL_FRAME} ]]; then
   echo "Map has not been updated. Test failed."
   exit 1
 fi
 
-TOTAL_COUNT=$(expr ${CUR_TOTAL_FRAME} - ${OLD_TOTAL_FRAME})
-JANKY_COUNT=$(expr ${CUR_JANKY_FRAME} - ${OLD_JANKY_FRAME})
+readonly TOTAL_COUNT=$((CUR_TOTAL_FRAME - OLD_TOTAL_FRAME))
+readonly JANKY_COUNT=$((CUR_JANKY_FRAME - OLD_JANKY_FRAME))
 
 echo "Janky frame count: ${JANKY_COUNT} out of ${TOTAL_COUNT}"
+
+# Let car launcher take the screen.
+adb shell am start -n ${CAR_ACTIVITY} &> /dev/null
