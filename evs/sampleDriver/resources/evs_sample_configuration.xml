@@ -55,13 +55,13 @@
                     name='LOGICAL_MULTI_CAMERA_PHYSICAL_IDS'
                     type='byte[]'
                     size='2'
-                    value='/dev/video1,/dev/video2'
+                    value='/dev/video3,/dev/video4'
                 />
             </characteristics>
         </group>
 
         <!-- camera device starts -->
-        <device id='/dev/video1' position='rear'>
+        <device id='/dev/video3' position='rear'>
             <caps>
                 <!-- list of supported controls -->
                 <supported_controls>
@@ -129,7 +129,7 @@
                 />
             </characteristics>
         </device>
-        <device id='/dev/video2' position='front'>
+        <device id='/dev/video4' position='front'>
             <caps>
                 <!-- list of supported controls -->
                 <supported_controls>

@@ -15,7 +15,7 @@
   },
   "cameras" : [
     {
-      "cameraId" : "/dev/video1",
+      "cameraId" : "/dev/video3",
       "function" : "reverse, park",
       "x" : 0.0,
       "y" : -40.0,
