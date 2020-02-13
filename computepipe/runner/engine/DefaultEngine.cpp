@@ -130,7 +130,8 @@ Status DefaultEngine::processClientCommand(const proto::ControlCommand& command)
         return Status::SUCCESS;
     }
     if (command.has_death_notification()) {
-        mErrorQueue.push(ComponentError("ClientInterface", "Client death", mCurrentPhase, false));
+        mCurrentPhaseError = std::make_unique<ComponentError>(
+                "ClientInterface", "Client death", mCurrentPhase, false);
         mWakeLooper.notify_all();
         return Status::SUCCESS;
     }
