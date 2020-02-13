@@ -410,8 +410,8 @@ public final class UserHalServiceTest {
         if (actualStatus == expectedStatus) return;
 
         fail("Wrong callback status; expected "
-                + UserHalService.halCallbackStatusToString(expectedStatus) + ", got "
-                + UserHalService.halCallbackStatusToString(actualStatus));
+                + UserHalHelper.halCallbackStatusToString(expectedStatus) + ", got "
+                + UserHalHelper.halCallbackStatusToString(actualStatus));
     }
 
     private final class GenericHalCallback<R> implements HalCallback<R> {
