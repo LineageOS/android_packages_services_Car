@@ -15,13 +15,10 @@
  */
 package com.android.car;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.spyOn;
-
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import android.annotation.NonNull;
@@ -30,6 +27,7 @@ import android.car.test.CarTestManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
@@ -108,6 +106,8 @@ public class MockedCarTestBase {
     private static final IBinder mCarServiceToken = new Binder();
     private static boolean mRealCarServiceReleased = false;
 
+    private MockedCarTestContext mMockedCarTestContext;
+
     protected synchronized MockedVehicleHal createMockedVehicleHal() {
         return new MockedVehicleHal();
     }
@@ -146,8 +146,16 @@ public class MockedCarTestBase {
                 new String[0]);
     }
 
-    protected Context getContext() {
-        return InstrumentationRegistry.getInstrumentation().getTargetContext();
+    protected synchronized Context getContext() {
+        if (mMockedCarTestContext == null) {
+            mMockedCarTestContext = createMockedCarTestContext(
+                    InstrumentationRegistry.getInstrumentation().getTargetContext());
+        }
+        return mMockedCarTestContext;
+    }
+
+    protected MockedCarTestContext createMockedCarTestContext(Context context) {
+        return new MockedCarTestContext(context);
     }
 
     protected Context getTestContext() {
@@ -186,11 +194,8 @@ public class MockedCarTestBase {
         mFakeSystemInterface = getSystemInterfaceBuilder().build();
         configureFakeSystemInterface();
 
-        Context context = getCarServiceContext();
-        spyOn(context);
-        mResources = new MockResources(context.getResources());
-        configureResourceOverrides(mResources);
-        doReturn(mResources).when(context).getResources();
+        mMockedCarTestContext = (MockedCarTestContext) getContext();
+        configureResourceOverrides((MockResources) mMockedCarTestContext.getResources());
 
         doAnswer((invocation) -> {
             CarUserService.UserCallback callback = invocation.getArgument(0);
@@ -210,12 +215,12 @@ public class MockedCarTestBase {
         // This prevents one test failure in tearDown from triggering assertion failure for single
         // CarLocalServices service.
         CarLocalServices.removeAllServices();
-        mCarImpl = new ICarImpl(context, mMockedVehicleHal, mFakeSystemInterface,
+        mCarImpl = new ICarImpl(mMockedCarTestContext, mMockedVehicleHal, mFakeSystemInterface,
                 /* errorNotifier= */ null , "MockedCar", mCarUserService);
 
         spyOnInitMockedHal();
         initMockedHal(mCarImpl, false /* no need to release */);
-        mCar = new Car(context, mCarImpl, null /* handler */);
+        mCar = new Car(mMockedCarTestContext, mCarImpl, null /* handler */);
     }
 
     @After
@@ -241,10 +246,6 @@ public class MockedCarTestBase {
 
     public VmsClientManager getVmsClientManager() {
         return (VmsClientManager) mCarImpl.getCarInternalService(ICarImpl.INTERNAL_VMS_MANAGER);
-    }
-
-    protected Context getCarServiceContext() {
-        return getContext();
     }
 
     protected synchronized void reinitializeMockedHal() throws Exception {
@@ -401,6 +402,29 @@ public class MockedCarTestBase {
                     Log.w(TAG, "could not remove temporary directory", e);
                 }
             }
+        }
+    }
+
+    /**
+     * Special version of {@link ContextWrapper} that overrides {@method getResources} by returning
+     * a {@link MockResources}, so tests are free to set resources. This class represents an
+     * alternative of using Mockito spy (see b/148240178).
+     *
+     * Tests may specialize this class. If they decide so, then they are required to override
+     * {@method newMockedCarContext} to provide their own context.
+     */
+    protected static class MockedCarTestContext extends ContextWrapper {
+
+        private final Resources mMockedResources;
+
+        MockedCarTestContext(Context base) {
+            super(base);
+            mMockedResources = new MockResources(base.getResources());
+        }
+
+        @Override
+        public Resources getResources() {
+            return mMockedResources;
         }
     }
 

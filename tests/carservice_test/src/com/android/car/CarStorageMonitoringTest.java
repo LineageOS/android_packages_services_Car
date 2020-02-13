@@ -21,10 +21,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doNothing;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.car.Car;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.storagemonitoring.IoStats;
@@ -33,6 +33,7 @@ import android.car.storagemonitoring.LifetimeWriteInfo;
 import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
+import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.util.JsonWriter;
@@ -58,7 +59,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -308,8 +308,10 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
     private CarStorageMonitoringManager mCarStorageMonitoringManager;
 
-    private ArgumentCaptor<Intent> mBroadcastIntentArg = ArgumentCaptor.forClass(Intent.class);
-    private ArgumentCaptor<String> mBroadcastStringArg = ArgumentCaptor.forClass(String.class);
+    @Override
+    protected MockedCarTestContext createMockedCarTestContext(Context context) {
+        return new CarStorageMonitoringTestContext(context);
+    }
 
     @Override
     protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
@@ -382,10 +384,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        doNothing().when(getCarServiceContext()).sendBroadcast(mBroadcastIntentArg.capture(),
-                mBroadcastStringArg.capture());
         mMockSystemStateInterface.executeBootCompletedActions();
-
         mCarStorageMonitoringManager =
             (CarStorageMonitoringManager) getCar().getCarManager(Car.STORAGE_MONITORING_SERVICE);
     }
@@ -656,7 +655,9 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         mMockStorageMonitoringInterface.addIoStatsRecord(record);
         mMockTimeInterface.setUptime(500).tick();
 
-        assertBroadcastArgs(mBroadcastIntentArg.getValue(), mBroadcastStringArg.getValue());
+        CarStorageMonitoringTestContext context = (CarStorageMonitoringTestContext) getContext();
+        assertBroadcastArgs(context.getLastBroadcastedIntent(),
+                context.getLastBroadcastedString());
     }
 
     @Test
@@ -678,7 +679,9 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         mMockStorageMonitoringInterface.addIoStatsRecord(record);
         mMockTimeInterface.setUptime(500).tick();
 
-        assertBroadcastArgs(mBroadcastIntentArg.getValue(), mBroadcastStringArg.getValue());
+        CarStorageMonitoringTestContext context = (CarStorageMonitoringTestContext) getContext();
+        assertBroadcastArgs(context.getLastBroadcastedIntent(),
+                context.getLastBroadcastedString());
     }
 
     @Test
@@ -771,6 +774,35 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
             }
         }
 
+    }
+
+    /**
+     * Special version of {@link MockedCarTestContext} that stores the last arguments used when
+     * invoking {@method sendBroadcast(Intent, String)} to be retrieved later by the test.
+     */
+    private class CarStorageMonitoringTestContext extends MockedCarTestContext {
+        private Intent mLastBroadcastedIntent;
+        private String mLastBroadcastedString;
+
+        CarStorageMonitoringTestContext(Context base) {
+            super(base);
+        }
+
+        @Override
+        public void sendBroadcast(@RequiresPermission Intent intent,
+                @Nullable String receiverPermission) {
+            mLastBroadcastedIntent = intent;
+            mLastBroadcastedString = receiverPermission;
+            super.sendBroadcast(intent, receiverPermission);
+        }
+
+        Intent getLastBroadcastedIntent() {
+            return mLastBroadcastedIntent;
+        }
+
+        String getLastBroadcastedString() {
+            return mLastBroadcastedString;
+        }
     }
 
     static final class MockStorageMonitoringInterface implements StorageMonitoringInterface,
