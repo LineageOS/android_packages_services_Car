@@ -91,7 +91,7 @@ Result<std::unordered_map<uint32_t, UidIoUsage>> UidIoStats::collect() {
 
     Mutex::Autolock lock(mMutex);
     const auto& uidIoStats = getUidIoStatsLocked();
-    if (!uidIoStats || uidIoStats->empty()) {
+    if (!uidIoStats.ok() || uidIoStats->empty()) {
         return Error() << "Failed to get UID IO stats: " << uidIoStats.error();
     }
 
