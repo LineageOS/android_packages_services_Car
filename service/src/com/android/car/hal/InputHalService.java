@@ -121,7 +121,7 @@ public class InputHalService extends HalServiceBase {
     }
 
     @Override
-    public void handleHalEvents(List<VehiclePropValue> values) {
+    public void onHalEvents(List<VehiclePropValue> values) {
         InputListener listener;
         synchronized (this) {
             listener = mListener;

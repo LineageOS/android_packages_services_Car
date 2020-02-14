@@ -1216,6 +1216,30 @@ package android.car.trust {
 
 }
 
+package android.car.user {
+
+  public final class CarUserManager {
+    method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void addListener(@NonNull android.car.user.CarUserManager.UserLifecycleListener);
+    method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void removeListener(@NonNull android.car.user.CarUserManager.UserLifecycleListener);
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_STARTING = 1; // 0x1
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 5; // 0x5
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 4; // 0x4
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_SWITCHING = 2; // 0x2
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED = 3; // 0x3
+  }
+
+  public final class CarUserManager.UserLifecycleEvent {
+    method public int getEventType();
+    method @Nullable public android.os.UserHandle getPreviousUserHandle();
+    method @NonNull public android.os.UserHandle getUserHandle();
+  }
+
+  public static interface CarUserManager.UserLifecycleListener {
+    method public void onEvent(@NonNull android.car.user.CarUserManager.UserLifecycleEvent);
+  }
+
+}
+
 package android.car.vms {
 
   public final class VmsAssociatedLayer implements android.os.Parcelable {

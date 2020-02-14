@@ -25,6 +25,7 @@ import android.annotation.RequiresPermission;
 import android.annotation.SdkConstant;
 import android.annotation.SdkConstant.SdkConstantType;
 import android.annotation.SystemApi;
+import android.annotation.TestApi;
 import android.app.Activity;
 import android.app.Service;
 import android.car.annotation.MandatoryFeature;
@@ -134,6 +135,7 @@ public final class Car {
      */
     @MandatoryFeature
     @SystemApi
+    @TestApi
     public static final String CAR_USER_SERVICE = "car_user_service";
 
     /**

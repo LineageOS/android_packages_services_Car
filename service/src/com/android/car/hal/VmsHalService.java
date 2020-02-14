@@ -378,7 +378,7 @@ public class VmsHalService extends HalServiceBase {
      * hardware/interfaces/automotive/vehicle/2.0/types.hal
      */
     @Override
-    public void handleHalEvents(List<VehiclePropValue> values) {
+    public void onHalEvents(List<VehiclePropValue> values) {
         if (DBG) Log.d(TAG, "Handling a VMS property change");
         for (VehiclePropValue v : values) {
             ArrayList<Integer> vec = v.value.int32Values;

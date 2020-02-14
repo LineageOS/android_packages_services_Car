@@ -20,6 +20,7 @@ package com.android.car.hal;
 import android.annotation.Nullable;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.util.Log;
 
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -32,6 +33,9 @@ import java.util.List;
  * and will translate HAL data into car api specific format.
  */
 public abstract class HalServiceBase {
+
+    private static final String MY_TAG = HalServiceBase.class.getSimpleName();
+
     /** For dispatching events. Kept here to avoid alloc every time */
     private final LinkedList<VehiclePropValue> mDispatchList = new LinkedList<VehiclePropValue>();
 
@@ -48,13 +52,8 @@ public abstract class HalServiceBase {
     public abstract void release();
 
     /**
-     * return supported properties among all properties.
-     * @return null if no properties are supported
-     */
-    /**
-     * Take supported properties from given allProperties and return List of supported properties.
-     * @param allProperties
-     * @return null if no properties are supported.
+     * Takes the supported properties from given {@code allProperties} and return List of supported
+     * properties (or {@code null} are supported.
      */
     @Nullable
     public Collection<VehiclePropConfig> takeSupportedProperties(
@@ -62,9 +61,18 @@ public abstract class HalServiceBase {
         return null;
     }
 
-    public abstract void handleHalEvents(List<VehiclePropValue> values);
+    /**
+     * Handles property changes from HAL.
+     */
+    public abstract void onHalEvents(List<VehiclePropValue> values);
 
-    public void handlePropertySetError(int property, int area) {}
+    /**
+     * Handles errors when setting properties.
+     */
+    public void onPropertySetError(int property, int area) {
+        Log.d(MY_TAG, getClass().getSimpleName() + ".onPropertySetError(): property=" + property
+                + ", area=" + area);
+    }
 
     public abstract void dump(PrintWriter writer);
 

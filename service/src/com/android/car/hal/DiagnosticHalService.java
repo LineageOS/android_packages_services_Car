@@ -396,7 +396,7 @@ public class DiagnosticHalService extends  HalServiceBase{
     private final LinkedList<CarDiagnosticEvent> mEventsToDispatch = new LinkedList<>();
 
     @Override
-    public void handleHalEvents(List<VehiclePropValue> values) {
+    public void onHalEvents(List<VehiclePropValue> values) {
         for (VehiclePropValue value : values) {
             CarDiagnosticEvent event = createCarDiagnosticEvent(value);
             if (event != null) {

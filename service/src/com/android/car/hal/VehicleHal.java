@@ -450,7 +450,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
             }
         }
         for (HalServiceBase s : mServicesToDispatch) {
-            s.handleHalEvents(s.getDispatchList());
+            s.onHalEvents(s.getDispatchList());
             s.getDispatchList().clear();
         }
         mServicesToDispatch.clear();
@@ -468,7 +468,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         if (propId != VehicleProperty.INVALID) {
             HalServiceBase service = mPropertyHandlers.get(propId);
             if (service != null) {
-                service.handlePropertySetError(propId, areaId);
+                service.onPropertySetError(propId, areaId);
             }
         }
     }

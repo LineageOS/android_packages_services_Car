@@ -353,7 +353,7 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     @Override
-    public void handleHalEvents(List<VehiclePropValue> values) {
+    public void onHalEvents(List<VehiclePropValue> values) {
         PropertyHalListener listener;
         synchronized (mLock) {
             listener = mListener;
@@ -390,7 +390,7 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     @Override
-    public void handlePropertySetError(int property, int area) {
+    public void onPropertySetError(int property, int area) {
         PropertyHalListener listener;
         synchronized (mLock) {
             listener = mListener;
