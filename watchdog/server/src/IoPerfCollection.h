@@ -31,6 +31,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "ProcStat.h"
 #include "UidIoStats.h"
 
 namespace android {
@@ -69,9 +70,11 @@ std::string toString(const UidIoPerfData& perfData);
 struct SystemIoPerfData {
     uint64_t cpuIoWaitTime = 0;
     double cpuIoWaitPercent = 0.0;
-    uint64_t ioBlockedProcessesCnt = 0;
-    uint64_t ioBlockedProcessesPercent = 0;
+    uint32_t ioBlockedProcessesCnt = 0;
+    double ioBlockedProcessesPercent = 0;
 };
+
+std::string toString(const SystemIoPerfData& perfData);
 
 // Performance data collected from the `/proc/[pid]/stat` and `/proc/[pid]/task/[tid]/stat` files.
 struct ProcessIoPerfData {
@@ -121,7 +124,7 @@ static inline std::string toEventString(CollectionEvent event) {
 // service. It exposes APIs that the CarWatchDog main thread and binder service can call to start
 // a collection, update the collection type, and generate collection dumps.
 class IoPerfCollection {
-  public:
+public:
     IoPerfCollection()
         : mTopNStatsPerCategory(kTopNStatsPerCategory),
           mBoottimeRecords({}),
@@ -158,17 +161,17 @@ class IoPerfCollection {
     // collection running or when a dump couldn't be generated from the custom collection.
     status_t endCustomCollection(int fd);
 
-  private:
+private:
     // Only used by tests.
-    explicit IoPerfCollection(std::string uidIoStatsPath)
-        : mTopNStatsPerCategory(kTopNStatsPerCategory),
+    explicit IoPerfCollection(std::string uidIoStatsPath, std::string procStatPath) :
+          mTopNStatsPerCategory(kTopNStatsPerCategory),
           mBoottimeRecords({}),
           mPeriodicRecords({}),
           mCustomRecords({}),
           mCurrCollectionEvent(CollectionEvent::NONE),
           mUidToPackageNameMapping({}),
-          mUidIoStats(uidIoStatsPath) {
-    }
+          mUidIoStats(uidIoStatsPath),
+          mProcStat(procStatPath) {}
 
     // Collects/stores the performance data for the current collection event.
     android::base::Result<void> collect();
@@ -181,11 +184,12 @@ class IoPerfCollection {
 
     // Collects performance data from the `/proc/[pid]/stat` and
     // `/proc/[pid]/task/[tid]/stat` files.
-    android::base::Result<void> collectProcessIoPerfDataLocked(ProcessIoPerfData* processIoPerfData);
+    android::base::Result<void> collectProcessIoPerfDataLocked(
+            ProcessIoPerfData* processIoPerfData);
 
     // Updates the |mUidToPackageNameMapping| for the given |uids|.
     android::base::Result<void> updateUidToPackageNameMapping(
-        const std::unordered_set<uint32_t>& uids);
+            const std::unordered_set<uint32_t>& uids);
 
     // Retrieves package manager from the default service manager.
     android::base::Result<void> retrievePackageManager();
@@ -198,12 +202,12 @@ class IoPerfCollection {
     // Cache of the performance records collected during boot-time collection.
     std::vector<IoPerfRecord> mBoottimeRecords GUARDED_BY(mMutex);
 
-    // Cache of the performance records collected during periodic collection. Size of this cache is
-    // limited by |kPeriodicCollectionBufferSize|.
+    // Cache of the performance records collected during periodic collection. Size of this cache
+    // is limited by |kPeriodicCollectionBufferSize|.
     std::vector<IoPerfRecord> mPeriodicRecords GUARDED_BY(mMutex);
 
-    // Cache of the performance records collected during custom collection. This cache is cleared at
-    // the end of every custom collection.
+    // Cache of the performance records collected during custom collection. This cache is cleared
+    // at the end of every custom collection.
     std::vector<IoPerfRecord> mCustomRecords GUARDED_BY(mMutex);
 
     // Tracks the current collection event. Updated on |start|, |onBootComplete|,
@@ -216,12 +220,16 @@ class IoPerfCollection {
     // Collector/parser for `/proc/uid_io/stats`.
     UidIoStats mUidIoStats GUARDED_BY(mMutex);
 
+    // Collector/parser for `/proc/stat`.
+    ProcStat mProcStat GUARDED_BY(mMutex);
+
     // To get the package names from app uids.
     android::sp<android::content::pm::IPackageManagerNative> mPackageManager GUARDED_BY(mMutex);
 
     FRIEND_TEST(IoPerfCollectionTest, TestValidUidIoStatFile);
     FRIEND_TEST(IoPerfCollectionTest, TestUidIOStatsLessThanTopNStatsLimit);
     FRIEND_TEST(IoPerfCollectionTest, TestProcUidIoStatsContentsFromDevice);
+    FRIEND_TEST(IoPerfCollectionTest, TestValidProcStatFile);
 };
 
 }  // namespace watchdog

@@ -15,7 +15,6 @@
  */
 
 #define LOG_TAG "carwatchdogd"
-#define DEBUG false
 
 #include "IoPerfCollection.h"
 
@@ -84,6 +83,15 @@ std::string toString(const UidIoPerfData& data) {
     return buffer;
 }
 
+std::string toString(const SystemIoPerfData& data) {
+    std::string buffer;
+    StringAppendF(&buffer, "CPU I/O wait time/percent: %" PRIu64 " / %.2f%%\n", data.cpuIoWaitTime,
+                  data.cpuIoWaitPercent);
+    StringAppendF(&buffer, "Number of I/O blocked processes/percent: %" PRIu32 " / %.2f%%\n",
+                  data.ioBlockedProcessesCnt, data.ioBlockedProcessesPercent);
+    return buffer;
+}
+
 Result<void> IoPerfCollection::start() {
     Mutex::Autolock lock(mMutex);
     if (mCurrCollectionEvent != CollectionEvent::NONE) {
@@ -112,7 +120,7 @@ status_t IoPerfCollection::dump(int /*fd*/) {
 
     // TODO(b/148486340): Implement this method.
 
-    // TODO: Report when uidIoStats.enabled() returns false.
+    // TODO: Report when any of the proc collectors' enabled() method returns false.
 
     return INVALID_OPERATION;
 }
@@ -142,7 +150,7 @@ status_t IoPerfCollection::endCustomCollection(int /*fd*/) {
 
     // TODO(b/148486340): Implement this method.
 
-    // TODO: Report when uidIoStats.enabled() returns false.
+    // TODO: Report when any of the proc collectors' enabled() method returns false.
 
     return INVALID_OPERATION;
 }
@@ -276,9 +284,25 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
     return {};
 }
 
-Result<void> IoPerfCollection::collectSystemIoPerfDataLocked(SystemIoPerfData* /*systemIoPerfData*/) {
-    // TODO(b/148486340): Implement this method.
-    return Error() << "Unimplemented method";
+Result<void> IoPerfCollection::collectSystemIoPerfDataLocked(SystemIoPerfData* systemIoPerfData) {
+    if (!mProcStat.enabled()) {
+        // Don't return an error to avoid log spamming on every collection. Instead, report this
+        // once in the generated dump.
+        return {};
+    }
+
+    const Result<ProcStatInfo>& procStatInfo = mProcStat.collect();
+    if (!procStatInfo) {
+        return Error() << "Failed to collect proc stats: " << procStatInfo.error();
+    }
+
+    systemIoPerfData->cpuIoWaitTime = procStatInfo->cpuStats.ioWaitTime;
+    systemIoPerfData->cpuIoWaitPercent =
+            percentage(procStatInfo->cpuStats.ioWaitTime, procStatInfo->totalCpuTime());
+    systemIoPerfData->ioBlockedProcessesCnt = procStatInfo->ioBlockedProcessesCnt;
+    systemIoPerfData->ioBlockedProcessesPercent =
+            percentage(procStatInfo->ioBlockedProcessesCnt, procStatInfo->totalProcessesCnt());
+    return {};
 }
 
 Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(

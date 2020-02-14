@@ -48,6 +48,13 @@ bool isEqual(const UidIoPerfData& lhs, const UidIoPerfData& rhs) {
                           return isEqual;
                       });
 }
+
+bool isEqual(const SystemIoPerfData& lhs, const SystemIoPerfData& rhs) {
+    return lhs.cpuIoWaitTime == rhs.cpuIoWaitTime && lhs.cpuIoWaitPercent == rhs.cpuIoWaitPercent &&
+            lhs.ioBlockedProcessesCnt == rhs.ioBlockedProcessesCnt &&
+            lhs.ioBlockedProcessesPercent == rhs.ioBlockedProcessesPercent;
+}
+
 }  // namespace
 
 TEST(IoPerfCollectionTest, TestValidUidIoStatFile) {
@@ -101,7 +108,7 @@ TEST(IoPerfCollectionTest, TestValidUidIoStatFile) {
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(firstSnapshot, tf.path));
 
-    IoPerfCollection collector(tf.path);
+    IoPerfCollection collector(tf.path, "");
     collector.mTopNStatsPerCategory = 2;
     ASSERT_TRUE(collector.mUidIoStats.enabled()) << "Temporary file is inaccessible";
 
@@ -195,7 +202,7 @@ TEST(IoPerfCollectionTest, TestUidIOStatsLessThanTopNStatsLimit) {
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
-    IoPerfCollection collector(tf.path);
+    IoPerfCollection collector(tf.path, "");
     collector.mTopNStatsPerCategory = 10;
     ASSERT_TRUE(collector.mUidIoStats.enabled()) << "Temporary file is inaccessible";
 
@@ -233,6 +240,76 @@ TEST(IoPerfCollectionTest, TestProcUidIoStatsContentsFromDevice) {
     }
     EXPECT_GT(numMappedAppUid, 0);
     EXPECT_GT(numMappedSysUid, 0);*/
+}
+
+TEST(IoPerfCollectionTest, TestValidProcStatFile) {
+    constexpr char firstSnapshot[] =
+            "cpu  6200 5700 1700 3100 1100 5200 3900 0 0 0\n"
+            "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
+            "cpu1 1900 2380 510 760 51 370 1500 0 0 0\n"
+            "cpu2 900 400 400 1000 600 400 160 0 0 0\n"
+            "cpu3 1000 20 190 650 109 130 140 0 0 0\n"
+            "intr 694351583 0 0 0 297062868 0 5922464 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "
+            "0 0\n"
+            // Skipped most of the intr line as it is not important for testing the ProcStat parsing
+            // logic.
+            "ctxt 579020168\n"
+            "btime 1579718450\n"
+            "processes 113804\n"
+            "procs_running 17\n"
+            "procs_blocked 5\n"
+            "softirq 33275060 934664 11958403 5111 516325 200333 0 341482 10651335 0 8667407\n";
+    struct SystemIoPerfData expectedSystemIoPerfData = {
+            .cpuIoWaitTime = 1100,
+            .cpuIoWaitPercent = (1100.0 / 26900.0) * 100,
+            .ioBlockedProcessesCnt = 5,
+            .ioBlockedProcessesPercent = (5.0 / 22.0) * 100,
+    };
+
+    TemporaryFile tf;
+    ASSERT_NE(tf.fd, -1);
+    ASSERT_TRUE(WriteStringToFile(firstSnapshot, tf.path));
+
+    IoPerfCollection collector("", tf.path);
+    ASSERT_TRUE(collector.mProcStat.enabled()) << "Temporary file is inaccessible";
+
+    struct SystemIoPerfData actualSystemIoPerfData = {};
+    auto ret = collector.collectSystemIoPerfDataLocked(&actualSystemIoPerfData);
+    ASSERT_TRUE(ret) << "Failed to collect first snapshot: " << ret.error();
+    EXPECT_TRUE(isEqual(expectedSystemIoPerfData, actualSystemIoPerfData))
+            << "First snapshot doesn't match.\nExpected:\n"
+            << toString(expectedSystemIoPerfData) << "\nActual:\n"
+            << toString(actualSystemIoPerfData);
+
+    constexpr char secondSnapshot[] =
+            "cpu  16200 8700 2000 4100 2200 6200 5900 0 0 0\n"
+            "cpu0 4400 3400 700 890 800 4500 3100 0 0 0\n"
+            "cpu1 5900 3380 610 960 100 670 2000 0 0 0\n"
+            "cpu2 2900 1000 450 1400 800 600 460 0 0 0\n"
+            "cpu3 3000 920 240 850 500 430 340 0 0 0\n"
+            "intr 694351583 0 0 0 297062868 0 5922464 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "
+            "0 0\n"
+            "ctxt 579020168\n"
+            "btime 1579718450\n"
+            "processes 113804\n"
+            "procs_running 10\n"
+            "procs_blocked 2\n"
+            "softirq 33275060 934664 11958403 5111 516325 200333 0 341482 10651335 0 8667407\n";
+    expectedSystemIoPerfData = {
+            .cpuIoWaitTime = 1100,
+            .cpuIoWaitPercent = (1100.0 / 18400.0) * 100,
+            .ioBlockedProcessesCnt = 2,
+            .ioBlockedProcessesPercent = (2.0 / 12.0) * 100,
+    };
+
+    ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
+    actualSystemIoPerfData = {};
+    ret = collector.collectSystemIoPerfDataLocked(&actualSystemIoPerfData);
+    ASSERT_TRUE(ret) << "Failed to collect second snapshot: " << ret.error();
+    EXPECT_TRUE(isEqual(expectedSystemIoPerfData, actualSystemIoPerfData))
+            << "Second snapshot doesn't match.\nExpected:\n"
+            << toString(expectedSystemIoPerfData) << "\nActual:\n"
+            << toString(actualSystemIoPerfData);
 }
 
 }  // namespace watchdog
