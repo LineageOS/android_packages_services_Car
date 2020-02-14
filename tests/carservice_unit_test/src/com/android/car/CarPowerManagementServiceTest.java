@@ -203,7 +203,7 @@ public class CarPowerManagementServiceTest {
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
                 mSystemInterface, mCarUserManagerHelper, mUserManager);
         mService.init();
-        CarPowerManagementService.setShutdownPrepareTimeout(0);
+        mService.setShutdownTimersForTest(0, 0);
         mPowerHal.setSignalListener(mPowerSignalListener);
         if (mWakeupTime > 0) {
             registerListenerToService();
@@ -617,7 +617,6 @@ public class CarPowerManagementServiceTest {
     @Test
     public void testUserSwitchingOnResume_disabledByOEM_guestCreationFailed() throws Exception {
         disableUserSwitchingDuringResume();
-        initTest();
         initTest();
         setUserInfo(10, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
         setInitialUser(10);
