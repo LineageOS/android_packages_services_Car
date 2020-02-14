@@ -1333,10 +1333,12 @@ public class ICarImpl extends ICar.Stub {
         private void forceGarageMode(String arg, PrintWriter writer) {
             switch (arg) {
                 case PARAM_ON_MODE:
+                    mSystemInterface.setDisplayState(false);
                     mGarageModeService.forceStartGarageMode();
                     writer.println("Garage mode: " + mGarageModeService.isGarageModeActive());
                     break;
                 case PARAM_OFF_MODE:
+                    mSystemInterface.setDisplayState(true);
                     mGarageModeService.stopAndResetGarageMode();
                     writer.println("Garage mode: " + mGarageModeService.isGarageModeActive());
                     break;
