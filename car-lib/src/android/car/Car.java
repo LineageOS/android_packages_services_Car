@@ -24,6 +24,7 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SdkConstant;
 import android.annotation.SdkConstant.SdkConstantType;
+import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.app.Activity;
@@ -96,6 +97,41 @@ public final class Car {
      * @hide
      */
     public static final String CAR_SERVICE_BINDER_SERVICE_NAME = "car_service";
+
+    /**
+     * This represents AndroidManifest meta-data to tell that {@code Activity} is optimized for
+     * driving distraction.
+     *
+     * <p>Activities without this meta-data can be blocked while car is in moving / driving state.
+     *
+     * <p>Note that having this flag does not guarantee that the {@code Activity} will be always
+     * allowed for all driving states.
+     *
+     * <p>For this meta-data, android:value can be {@code true} (=optimized) or {@code false}.
+     *
+     * <p>Example usage:
+     * <xml><meta-data android:name="distractionOptimized" android:value="true"/></xml>
+     */
+    @SuppressLint("IntentName")
+    public static final String META_DATA_DISTRACTION_OPTIMIZED = "distractionOptimized";
+
+    /**
+     * This represents AndroidManifest meta-data to tell that {@code Application} requires specific
+     * car features to work.
+     *
+     * <p>Apps like launcher or installer app can use this information to filter out apps
+     * not usable in a specific car. This meta-data is not necessary for mandatory features.
+     *
+     * <p>For this meta-data, android:value should contain the feature name string defined by
+     * (@link android.car.annotation.OptionalFeature} or
+     * {@link android.car.annotation.ExperimentalFeature} annotations.
+     *
+     * <p>Example usage:
+     * <xml><meta-data android:name="requires-car-feature" android:value="diagnostic"/></xml>
+     */
+    @SuppressLint("IntentName")
+    public static final String META_DATA_REQUIRES_CAR_FEATURE = "requires-car-feature";
+
     /**
      * Service name for {@link CarSensorManager}, to be used in {@link #getCarManager(String)}.
      *
