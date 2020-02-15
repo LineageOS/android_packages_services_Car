@@ -112,7 +112,7 @@ public class OccupantAwarenessService
 
     @Override
     public void init() {
-        logd("Initialing service");
+        logd("Initializing service");
         connectToHalServiceIfNotConnected();
     }
 
@@ -197,6 +197,8 @@ public class OccupantAwarenessService
 
     /** Sends a message via the HAL to stop the detection graph. */
     private void stopDetectionGraph() {
+        logd("Attempting to stop detection graph.");
+
         // Grab a copy of 'mOasHal' to avoid sitting on the lock longer than is necessary.
         IOccupantAwareness hal;
         synchronized (mLock) {

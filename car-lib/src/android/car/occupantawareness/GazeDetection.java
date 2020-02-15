@@ -162,15 +162,17 @@ public final class GazeDetection implements Parcelable {
 
     @Override
     public String toString() {
-        return String.format(
-                "%d, [%s], [%s], [%s], [%s], %d, %d",
-                confidenceLevel,
-                leftEyePosition.toString(),
-                rightEyePosition.toString(),
-                headAngleUnitVector.toString(),
-                gazeAngleUnitVector.toString(),
-                gazeTarget,
-                durationOnTargetMillis);
+        return "GazeDetection{"
+                + "confidenceLevel=" + confidenceLevel
+                + ", leftEyePosition=" + (leftEyePosition == null ? "(null)" : leftEyePosition)
+                + ", rightEyePosition=" + (rightEyePosition == null ? "(null)" : rightEyePosition)
+                + ", headAngleUnitVector="
+                + (headAngleUnitVector == null ? "(null)" : headAngleUnitVector)
+                + ", gazeAngleUnitVector="
+                + (gazeAngleUnitVector == null ? "(null)" : gazeAngleUnitVector)
+                + ", gazeTarget=" + gazeTarget
+                + ", durationOnTargetMillis=" + durationOnTargetMillis
+                + "}";
     }
 
     public static final @NonNull Parcelable.Creator<GazeDetection> CREATOR =

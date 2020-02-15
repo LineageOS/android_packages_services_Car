@@ -195,9 +195,16 @@ public final class OccupantAwarenessDetection implements Parcelable {
 
     @Override
     public String toString() {
-        return String.format(
-                "%d, %d, %s, [%s], [%s]",
-                role, timestampMillis, isPresent, gazeDetection, driverMonitoringDetection);
+        return "OccupantAwarenessDetection{"
+                + "role="  + role
+                + ", timestampMillis=" + timestampMillis
+                + ", isPresent=" + isPresent
+                + ", gazeDetection="
+                + (gazeDetection == null ? "(null)" : gazeDetection.toString())
+                + ", driverMonitoringDetection="
+                + (driverMonitoringDetection == null
+                        ? "(null)" : driverMonitoringDetection.toString())
+                + "}";
     }
 
     public static final @NonNull Parcelable.Creator<OccupantAwarenessDetection> CREATOR =
