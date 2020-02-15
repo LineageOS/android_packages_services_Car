@@ -1,0 +1,9 @@
+# Car watchdog server
+typeattribute carwatchdogd coredomain;
+
+type carwatchdogd_exec, exec_type, file_type, system_file_type;
+
+init_daemon_domain(carwatchdogd)
+add_service(carwatchdogd, carwatchdogd_service)
+binder_use(carwatchdogd)
+binder_service(carwatchdogd)

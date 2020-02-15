@@ -1,0 +1,5 @@
+# Car watchdog server
+type carwatchdogd, domain;
+
+binder_call(carwatchdogd, carwatchdogclient_domain)
+binder_call(carwatchdogclient_domain, carwatchdogd)

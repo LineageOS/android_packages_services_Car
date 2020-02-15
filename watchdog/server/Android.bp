@@ -46,6 +46,7 @@ cc_library {
     srcs: [
         "src/IoPerfCollection.cpp",
         "src/UidIoStats.cpp",
+        "src/ProcStat.cpp"
     ],
     static_libs: [
         "libgtest_prod",
@@ -65,10 +66,48 @@ cc_test {
     srcs: [
         "tests/IoPerfCollectionTest.cpp",
         "tests/UidIoStatsTest.cpp",
+        "tests/ProcStatTest.cpp",
     ],
     static_libs: [
         "libgmock",
         "libgtest",
         "libwatchdog_ioperfcollection",
+    ],
+}
+
+cc_defaults {
+    name: "libwatchdog_process_service_defaults",
+    shared_libs: [
+        "carwatchdog_aidl_interface-cpp",
+        "libbase",
+        "libbinder",
+        "liblog",
+        "libutils",
+    ],
+}
+
+cc_library {
+    name: "libwatchdog_process_service",
+    defaults: [
+        "carwatchdogd_defaults",
+        "libwatchdog_process_service_defaults"
+    ],
+    srcs: [
+        "src/WatchdogProcessService.cpp",
+    ],
+}
+
+cc_binary {
+    name: "carwatchdogd",
+    defaults: [
+        "carwatchdogd_defaults",
+        "libwatchdog_process_service_defaults",
+    ],
+    srcs: [
+        "src/main.cpp",
+    ],
+    init_rc: ["carwatchdogd.rc"],
+    shared_libs: [
+    	"libwatchdog_process_service",
     ],
 }

@@ -82,3 +82,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_COPY_FILES += \
     packages/services/Car/car_product/init/init.bootstat.rc:system/etc/init/init.bootstat.car.rc \
     packages/services/Car/car_product/init/init.car.rc:system/etc/init/init.car.rc
+
+# Enable car watchdog
+include packages/services/Car/watchdog/product/carwatchdog.mk

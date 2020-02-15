@@ -21,6 +21,7 @@ import static android.Manifest.permission.INTERACT_ACROSS_USERS_FULL;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Process.myUid;
 
+import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -38,7 +39,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.util.ArraySet;
+import android.util.ArrayMap;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
@@ -50,6 +51,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * API to manage users related to car.
@@ -138,7 +140,7 @@ public final class CarUserManager extends CarManagerBase {
 
     @Nullable
     @GuardedBy("mLock")
-    private ArraySet<UserLifecycleListener> mListeners;
+    private ArrayMap<UserLifecycleListener, Executor> mListeners;
 
     @Nullable
     @GuardedBy("mLock")
@@ -291,10 +293,12 @@ public final class CarUserManager extends CarManagerBase {
     @SystemApi
     @TestApi
     @RequiresPermission(anyOf = {INTERACT_ACROSS_USERS, INTERACT_ACROSS_USERS_FULL})
-    public void addListener(@NonNull UserLifecycleListener listener) {
+    public void addListener(@NonNull @CallbackExecutor Executor executor,
+            @NonNull UserLifecycleListener listener) {
         checkInteractAcrossUsersPermission();
 
         // TODO(b/144120654): add unit tests to validate input
+        // - executor cannot be null
         // - listener cannot be null
         // - listener must not be added before
 
@@ -312,10 +316,10 @@ public final class CarUserManager extends CarManagerBase {
             }
 
             if (mListeners == null) {
-                mListeners = new ArraySet<>(1); // Most likely app will have just one listener
+                mListeners = new ArrayMap<>(1); // Most likely app will have just one listener
             }
             if (DBG) Log.d(TAG, "Adding listener: " + listener);
-            mListeners.add(listener);
+            mListeners.put(listener, executor);
         }
     }
 
@@ -395,7 +399,7 @@ public final class CarUserManager extends CarManagerBase {
             UserHandle fromHandle = resultData.getParcelable(BUNDLE_PARAM_PREVIOUS_USER_HANDLE);
             int eventType = resultData.getInt(BUNDLE_PARAM_ACTION);
             UserLifecycleEvent event = new UserLifecycleEvent(eventType, fromHandle, toHandle);
-            ArraySet<UserLifecycleListener> listeners;
+            ArrayMap<UserLifecycleListener, Executor> listeners;
             synchronized (mLock) {
                 listeners = mListeners;
             }
@@ -404,9 +408,10 @@ public final class CarUserManager extends CarManagerBase {
                 return;
             }
             for (int i = 0; i < listeners.size(); i++) {
-                UserLifecycleListener listener = listeners.valueAt(i);
+                UserLifecycleListener listener = listeners.keyAt(i);
+                Executor executor = listeners.valueAt(i);
                 if (DBG) Log.d(TAG, "Calling listener " + listener + " for event " + event);
-                listener.onEvent(event);
+                executor.execute(() -> listener.onEvent(event));
             }
         }
     }

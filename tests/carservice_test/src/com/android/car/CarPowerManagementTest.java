@@ -31,7 +31,6 @@ import android.os.SystemClock;
 
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.systeminterface.DisplayInterface;
@@ -52,6 +51,9 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarPowerManagementTest extends MockedCarTestBase {
+
+    private static final int STATE_POLLING_INTERVAL_MS = 1; // Milliseconds
+    private static final int TEST_SHUTDOWN_TIMEOUT_MS = 10 * STATE_POLLING_INTERVAL_MS;
 
     private final PowerStatePropertyHandler mPowerStateHandler = new PowerStatePropertyHandler();
     private final MockDisplayInterface mMockDisplayInterface = new MockDisplayInterface();
@@ -140,7 +142,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
      **********************************************************************************************/
     @Test
     @UiThreadTest
-    public void testInivalidTransitionsFromWaitForVhal() throws Exception {
+    public void testInvalidTransitionsFromWaitForVhal() throws Exception {
         assertWaitForVhal();
         mPowerStateHandler.sendStateAndExpectNoResponse(VehicleApPowerStateReq.CANCEL_SHUTDOWN, 0);
         mPowerStateHandler.sendStateAndExpectNoResponse(VehicleApPowerStateReq.FINISHED, 0);
@@ -161,11 +163,8 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
     @Test
     @UiThreadTest
-    @FlakyTest
     public void testInvalidTransitionsFromPrepareShutdown() throws Exception {
         assertWaitForVhal();
-        // Increase the timeout to handle all the test cases here
-        CarPowerManagementService.setShutdownPrepareTimeout(15 * 1000);
         // Transition to SHUTDOWN_PREPARE first
         mPowerStateHandler.sendStateAndCheckResponse(
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
@@ -187,7 +186,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
     @Test
     @UiThreadTest
-    @FlakyTest
     public void testInvalidTransitionsFromWaitForFinish() throws Exception {
         assertWaitForVhal();
         mPowerStateHandler.sendStateAndCheckResponse(
@@ -211,7 +209,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
     @Test
     @UiThreadTest
-    @FlakyTest
     public void testInvalidTransitionsFromWaitForFinish2() throws Exception {
         assertWaitForVhal();
         mPowerStateHandler.sendStateAndCheckResponse(
@@ -313,7 +310,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         int[] first = setEvents.getFirst();
         assertEquals(VehicleApPowerStateReport.WAIT_FOR_VHAL, first[0]);
         assertEquals(0, first[1]);
-        CarPowerManagementService.setShutdownPrepareTimeout(0);
     }
 
     private final class MockDisplayInterface implements DisplayInterface {
@@ -340,7 +336,12 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         }
 
         @Override
-        public void startDisplayStateMonitoring(CarPowerManagementService service) {}
+        public void startDisplayStateMonitoring(CarPowerManagementService service) {
+            // To reduce test duration, decrease the polling interval and the
+            // time to wait for a shutdown
+            service.setShutdownTimersForTest(STATE_POLLING_INTERVAL_MS,
+                    TEST_SHUTDOWN_TIMEOUT_MS);
+        }
 
         @Override
         public void stopDisplayStateMonitoring() {}
@@ -416,6 +417,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                     if (found) {
                         LinkedList<int[]> res = mSetStates;
                         mSetStates = new LinkedList<>();
+                        mSetWaitSemaphore.drainPermits();
                         return res;
                     }
                 }
@@ -435,7 +437,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         private void sendStateAndExpectNoResponse(int state, int param) throws Exception {
             sendPowerState(state, param);
             // Wait to see if a state transition occurs
-            if (!mSetWaitSemaphore.tryAcquire(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+            if (!mSetWaitSemaphore.tryAcquire(TEST_SHUTDOWN_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
                 // No state transition, this is a success!
                 return;
             }
@@ -446,6 +448,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 }
                 // Reset the collected states
                 mSetStates = new LinkedList<>();
+                mSetWaitSemaphore.drainPermits();
             }
         }
 

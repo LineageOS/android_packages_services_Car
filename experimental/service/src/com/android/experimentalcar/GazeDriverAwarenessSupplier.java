@@ -61,16 +61,15 @@ public class GazeDriverAwarenessSupplier extends DriverAwarenessSupplierService 
     private final GazeAttentionProcessor mProcessor;
 
     public GazeDriverAwarenessSupplier(Context context) {
-        mContext = context;
-        mTimeSource = new SystemTimeSource();
-        mConfiguration = loadConfiguration();
-        mProcessor = new GazeAttentionProcessor(mConfiguration);
+        this(context, new SystemTimeSource());
     }
 
     @VisibleForTesting
-    private GazeDriverAwarenessSupplier(Context context, OccupantAwarenessManager oasManager) {
-        this(context);
-        mOasManager = oasManager;
+    GazeDriverAwarenessSupplier(Context context, ITimeSource timeSource) {
+        mContext = context;
+        mTimeSource = timeSource;
+        mConfiguration = loadConfiguration();
+        mProcessor = new GazeAttentionProcessor(mConfiguration);
     }
 
     /**
@@ -113,7 +112,7 @@ public class GazeDriverAwarenessSupplier extends DriverAwarenessSupplierService 
 
         // Send an initial value once the provider is ready, as required by {link
         // IDriverAwarenessSupplierCallback}.
-        onDriverAwarenessUpdated(
+        emitAwarenessEvent(
                 new DriverAwarenessEvent(
                         mTimeSource.elapsedRealtime(), mConfiguration.initialValue));
     }

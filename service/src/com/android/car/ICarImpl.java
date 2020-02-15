@@ -645,19 +645,8 @@ public class ICarImpl extends ICar.Stub {
 
         if (args == null || args.length == 0 || (args.length > 0 && "-a".equals(args[0]))) {
             writer.println("*Dump car service*");
-            writer.println("*Dump all services*");
-
             dumpAllServices(writer);
-
-            writer.println("*Dump Vehicle HAL*");
-            writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
-            try {
-                // TODO dump all feature flags by creating a dumpable interface
-                mHal.dump(writer);
-            } catch (Exception e) {
-                writer.println("Failed dumping: " + mHal.getClass().getName());
-                e.printStackTrace(writer);
-            }
+            dumpAllHals(writer);
         } else if ("--list".equals(args[0])) {
             dumpListOfServices(writer);
             return;
@@ -677,11 +666,62 @@ public class ICarImpl extends ICar.Stub {
             mCarStatsService.dump(fd, writer, Arrays.copyOfRange(args, 1, args.length));
         } else if ("--vms-hal".equals(args[0])) {
             mHal.getVmsHal().dumpMetrics(fd);
+        } else if ("--hal".equals(args[0])) {
+            if (args.length == 1) {
+                dumpAllHals(writer);
+                return;
+            }
+            int length = args.length - 1;
+            String[] halNames = new String[length];
+            System.arraycopy(args, 1, halNames, 0, length);
+            mHal.dumpSpecificHals(writer, halNames);
+
+        } else if ("--list-hals".equals(args[0])) {
+            mHal.dumpListHals(writer);
+            return;
+        } else if ("--help".equals(args[0])) {
+            showDumpHelp(writer);
         } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
             execShellCmd(args, writer);
         } else {
             writer.println("Commands not supported in " + Build.TYPE);
         }
+    }
+
+    private void dumpAllHals(PrintWriter writer) {
+        writer.println("*Dump Vehicle HAL*");
+        writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
+        try {
+            // TODO dump all feature flags by creating a dumpable interface
+            mHal.dump(writer);
+        } catch (Exception e) {
+            writer.println("Failed dumping: " + mHal.getClass().getName());
+            e.printStackTrace(writer);
+        }
+    }
+
+    private void showDumpHelp(PrintWriter writer) {
+        writer.println("Car service dump usage:");
+        writer.println("[NO ARG]");
+        writer.println("\t  dumps everything (all services and HALs)");
+        writer.println("--help");
+        writer.println("\t  shows this help");
+        writer.println("--list");
+        writer.println("\t  lists the name of all services");
+        writer.println("--list");
+        writer.println("\t  lists the name of all HAls");
+        writer.println("--services <SVC1> [SVC2] [SVCN]");
+        writer.println("\t  dumps just the specific services, where SVC is just the service class");
+        writer.println("\t  name (like CarUserService)");
+        writer.println("--vms-hal");
+        writer.println("\t  dumps the VMS HAL metrics");
+        writer.println("--hal [HAL1] [HAL2] [HALN]");
+        writer.println("\t  dumps just the specified HALs (or all of them if none specified),");
+        writer.println("\t  where HAL is just the class name (like UserHalService)");
+        writer.println("-h");
+        writer.println("\t  shows commands usage (NOTE: commands are not available on USER builds");
+        writer.println("[ANYTHING ELSE]");
+        writer.println("\t  runs the given command (use --h to see the available commands)");
     }
 
     @Override
@@ -698,6 +738,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     private void dumpAllServices(PrintWriter writer) {
+        writer.println("*Dump all services*");
         for (CarServiceBase service : mAllServices) {
             dumpService(service, writer);
         }
@@ -781,6 +822,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String PARAM_ON_MODE = "on";
         private static final String PARAM_OFF_MODE = "off";
         private static final String PARAM_QUERY_MODE = "query";
+        private static final String PARAM_REBOOT = "reboot";
 
         private static final int RESULT_OK = 0;
         private static final int RESULT_ERROR = -1; // Arbitrary value, any non-0 is fine
@@ -823,8 +865,9 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  Inject an error event from VHAL for testing.");
             pw.println("\tenable-uxr true|false");
             pw.println("\t  Enable/Disable UX restrictions and App blocking.");
-            pw.println("\tgarage-mode [on|off|query]");
-            pw.println("\t  Force into garage mode or check status.");
+            pw.println("\tgarage-mode [on|off|query|reboot]");
+            pw.println("\t  Force into or out of garage mode, or check status.");
+            pw.println("\t  With 'reboot', enter garage mode, then reboot when it completes.");
             pw.println("\tget-do-activities pkgname");
             pw.println("\t  Get Distraction Optimized activities in given package.");
             pw.println("\tget-carpropertyconfig [propertyId]");
@@ -846,7 +889,7 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t--metrics");
             pw.println("\t  When used with dumpsys, only metrics will be in the dumpsys output.");
             pw.println("\tset-zoneid-for-uid [zoneid] [uid]");
-            pw.println("\t Maps the audio zoneid to uid.");
+            pw.println("\t  Maps the audio zoneid to uid.");
             pw.println("\tstart-fixed-activity displayId packageName activityName");
             pw.println("\t  Start an Activity the specified display as fixed mode");
             pw.println("\tstop-fixed-mode displayId");
@@ -981,7 +1024,7 @@ public class ICarImpl extends ICar.Stub {
                     writer.println("Resume: Simulating resuming from Deep Sleep");
                     break;
                 case COMMAND_SUSPEND:
-                    mCarPowerManagementService.forceSimulatedSuspend();
+                    mCarPowerManagementService.forceSuspendAndMaybeReboot(false);
                     writer.println("Resume: Simulating powering down to Deep Sleep");
                     break;
                 case COMMAND_ENABLE_TRUSTED_DEVICE:
@@ -1290,19 +1333,25 @@ public class ICarImpl extends ICar.Stub {
         private void forceGarageMode(String arg, PrintWriter writer) {
             switch (arg) {
                 case PARAM_ON_MODE:
+                    mSystemInterface.setDisplayState(false);
                     mGarageModeService.forceStartGarageMode();
                     writer.println("Garage mode: " + mGarageModeService.isGarageModeActive());
                     break;
                 case PARAM_OFF_MODE:
+                    mSystemInterface.setDisplayState(true);
                     mGarageModeService.stopAndResetGarageMode();
                     writer.println("Garage mode: " + mGarageModeService.isGarageModeActive());
                     break;
                 case PARAM_QUERY_MODE:
                     mGarageModeService.dump(writer);
                     break;
+                case PARAM_REBOOT:
+                    mCarPowerManagementService.forceSuspendAndMaybeReboot(true);
+                    writer.println("Entering Garage Mode. Will reboot when it completes.");
+                    break;
                 default:
                     writer.println("Unknown value. Valid argument: " + PARAM_ON_MODE + "|"
-                            + PARAM_OFF_MODE + "|" + PARAM_QUERY_MODE);
+                            + PARAM_OFF_MODE + "|" + PARAM_QUERY_MODE + "|" + PARAM_REBOOT);
             }
         }
 
