@@ -51,6 +51,7 @@ class WatchdogProcessService : public BnCarWatchdog, public IBinder::DeathRecipi
     binder::Status notifyUserStateChange(int32_t userId, UserState state) override;
 
     void doHealthCheck(int what);
+    void terminate();
 
   private:
     enum ClientType {
