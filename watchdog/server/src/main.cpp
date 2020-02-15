@@ -72,8 +72,10 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Create the service
     sp<WatchdogProcessService> service = new WatchdogProcessService(looper);
-    Status status = Status::fromStatusT(defaultServiceManager()->addService(
-        String16("android.automotive.watchdog.ICarWatchdog/default"), service));
+    Status status = Status::fromStatusT(
+            defaultServiceManager()
+                    ->addService(String16("android.automotive.watchdog.ICarWatchdog/default"),
+                                 service));
     if (!status.isOk()) {
         ALOGE("Failed to add carwatchdog as service: %s", status.exceptionMessage().c_str());
         return status.exceptionCode();
@@ -85,7 +87,7 @@ int main(int /*argc*/, char** /*argv*/) {
     // Loop forever -- the health check runs on this thread in a handler, and the binder calls
     // remain responsive in their pool of threads.
     while (true) {
-        looper->pollAll(/*timeoutMillis=*/ -1);
+        looper->pollAll(/*timeoutMillis=*/-1);
     }
     ALOGW("Car watchdog server escaped from its loop.");
 
