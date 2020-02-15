@@ -113,7 +113,7 @@ package android.car {
     field public static final int OCCUPANT_TYPE_DRIVER = 0; // 0x0
     field public static final int OCCUPANT_TYPE_FRONT_PASSENGER = 1; // 0x1
     field public static final int OCCUPANT_TYPE_REAR_PASSENGER = 2; // 0x2
-    field public static final int ZONE_CONFIG_CHANGE_FLAG_AUDIO = 3; // 0x3
+    field public static final int ZONE_CONFIG_CHANGE_FLAG_AUDIO = 4; // 0x4
     field public static final int ZONE_CONFIG_CHANGE_FLAG_DISPLAY = 1; // 0x1
     field public static final int ZONE_CONFIG_CHANGE_FLAG_USER = 2; // 0x2
   }
