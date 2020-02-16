@@ -211,7 +211,7 @@ void EvsEnumerator::enumerateDisplays() {
         [](const auto& displayIds) {
             for (const auto& id : displayIds) {
                 const auto port = id & 0xF;
-                ALOGI("Display 0x%lX is detected on the port %ld", id, port);
+                ALOGI("Display 0x%lX is detected on the port %ld", (unsigned long)id, (long)port);
                 sDisplayPortList.insert_or_assign(port, id);
             }
         }
