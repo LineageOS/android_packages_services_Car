@@ -20,7 +20,7 @@
 #include <android/hardware/automotive/evs/1.1/types.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
-#include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
+#include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
 #include <android/hardware/camera/device/3.2/ICameraDevice.h>
 #include <ui/GraphicBuffer.h>
 
@@ -34,7 +34,8 @@ using ::android::hardware::hidl_string;
 using ::android::hardware::camera::device::V3_2::Stream;
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using ::android::hardware::automotive::evs::V1_0::CameraDesc;
-using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
+using IEvsDisplay_1_0      = ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
+using IEvsDisplay_1_1      = ::android::hardware::automotive::evs::V1_1::IEvsDisplay;
 using BufferDesc_1_0       = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 using BufferDesc_1_1       = ::android::hardware::automotive::evs::V1_1::BufferDesc;
 using IEvsCameraStream_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsCameraStream;
@@ -71,7 +72,7 @@ public:
     Return<EvsResult> resumeVideoStream() override;
     Return<EvsResult> doneWithFrame_1_1(const hidl_vec<BufferDesc_1_1>& buffer) override;
     Return<EvsResult> setMaster() override;
-    Return<EvsResult> forceMaster(const sp<IEvsDisplay>&) override;
+    Return<EvsResult> forceMaster(const sp<IEvsDisplay_1_0>&) override;
     Return<EvsResult> unsetMaster() override;
     Return<void>      getParameterList(getParameterList_cb _hidl_cb) override;
     Return<void>      getIntParameterRange(CameraParam id,

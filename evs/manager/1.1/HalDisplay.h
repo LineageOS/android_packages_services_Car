@@ -18,16 +18,17 @@
 #define ANDROID_AUTOMOTIVE_EVS_V1_1_DISPLAYPROXY_H
 
 #include <android/hardware/automotive/evs/1.1/types.h>
-#include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
+#include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
 
 using namespace ::android::hardware::automotive::evs::V1_1;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
 using ::android::hardware::hidl_handle;
-using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 using EvsDisplayState = ::android::hardware::automotive::evs::V1_0::DisplayState;
+using IEvsDisplay_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
+using IEvsDisplay_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsDisplay;
 
 namespace android {
 namespace automotive {
@@ -39,13 +40,13 @@ namespace implementation {
 // returns because of b/129284474 and represents an EVS display to the client
 // application.  With a proper bug fix, we may remove this class and update the
 // manager directly to use the IEvsDisplay object the driver provides.
-class HalDisplay : public IEvsDisplay {
+class HalDisplay : public IEvsDisplay_1_1 {
 public:
-    explicit HalDisplay(sp<IEvsDisplay>& display);
+    explicit HalDisplay(sp<IEvsDisplay_1_0> display);
     virtual ~HalDisplay() override;
 
     inline void         shutdown();
-    sp<IEvsDisplay>     getHwDisplay();
+    sp<IEvsDisplay_1_0> getHwDisplay();
 
     // Methods from ::android::hardware::automotive::evs::V1_0::IEvsDisplay follow.
     Return<void>            getDisplayInfo(getDisplayInfo_cb _hidl_cb)  override;
@@ -54,8 +55,11 @@ public:
     Return<void>            getTargetBuffer(getTargetBuffer_cb _hidl_cb)  override;
     Return<EvsResult>       returnTargetBufferForDisplay(const BufferDesc_1_0& buffer)  override;
 
+    // Methods from ::android::hardware::automotive::evs::V1_1::IEvsDisplay follow.
+    Return<void>            getDisplayInfo_1_1(getDisplayInfo_1_1_cb _info_cb) override;
+
 private:
-    sp<IEvsDisplay>      mHwDisplay;     // The low level display interface that backs this proxy
+    sp<IEvsDisplay_1_0>     mHwDisplay; // The low level display interface that backs this proxy
 };
 
 } // namespace implementation

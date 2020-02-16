@@ -187,37 +187,36 @@ static GLuint buildShaderProgram(const char* vtxSrc, const char* pxlSrc) {
 
 
 // Main entry point
-bool GlWrapper::initialize() {
+bool GlWrapper::initialize(sp<IAutomotiveDisplayProxyService> pWindowProxy,
+                           uint64_t displayId) {
     ALOGD("%s", __FUNCTION__);
 
-    mAutomotiveDisplayProxyService = IAutomotiveDisplayProxyService::getService("default");
-    if (mAutomotiveDisplayProxyService == nullptr) {
+    if (pWindowProxy == nullptr) {
         ALOGE("Could not get IAutomotiveDisplayProxyService.");
         return false;
     }
 
-    mGfxBufferProducer = mAutomotiveDisplayProxyService->getIGraphicBufferProducer();
+    // We will use the first display in the list as the primary.
+    pWindowProxy->getDisplayInfo(displayId, [this](auto dpyConfig, auto dpyState) {
+        DisplayConfig *pConfig = (DisplayConfig*)dpyConfig.data();
+        mWidth = pConfig->resolution.getWidth();
+        mHeight = pConfig->resolution.getHeight();
+
+        ui::DisplayState* pState = (ui::DisplayState*)dpyState.data();
+        if (pState->orientation != ui::ROTATION_0 &&
+            pState->orientation != ui::ROTATION_180) {
+            // rotate
+            std::swap(mWidth, mHeight);
+        }
+
+        ALOGD("Display resolution is %d x %d", mWidth, mHeight);
+    });
+
+    mGfxBufferProducer = pWindowProxy->getIGraphicBufferProducer(displayId);
     if (mGfxBufferProducer == nullptr) {
         ALOGE("Failed to get IGraphicBufferProducer from IAutomotiveDisplayProxyService.");
         return false;
     }
-
-    mAutomotiveDisplayProxyService->getDisplayInfo(
-        [this](auto dpyCfg, auto dpyState) {
-            DisplayConfig *pCfg = (DisplayConfig*)dpyCfg.data();
-            mWidth = pCfg->resolution.getWidth();
-            mHeight = pCfg->resolution.getHeight();
-
-            android::ui::DisplayState *pState = (android::ui::DisplayState*)dpyState.data();
-            if ((pState->orientation != ui::ROTATION_0) &&
-                (pState->orientation != ui::ROTATION_180)) {
-                // rotate
-                std::swap(mWidth, mHeight);
-            }
-
-            ALOGD("Display resolution is %d x %d", mWidth, mHeight);
-        }
-    );
 
     mSurfaceHolder = getSurfaceFromHGBP(mGfxBufferProducer);
     if (mSurfaceHolder == nullptr) {
@@ -336,18 +335,18 @@ void GlWrapper::shutdown() {
 }
 
 
-void GlWrapper::showWindow() {
-    if (mAutomotiveDisplayProxyService != nullptr) {
-        mAutomotiveDisplayProxyService->showWindow();
+void GlWrapper::showWindow(sp<IAutomotiveDisplayProxyService>& pWindowProxy, uint64_t id) {
+    if (pWindowProxy != nullptr) {
+        pWindowProxy->showWindow(id);
     } else {
         ALOGE("IAutomotiveDisplayProxyService is not available.");
     }
 }
 
 
-void GlWrapper::hideWindow() {
-    if (mAutomotiveDisplayProxyService != nullptr) {
-        mAutomotiveDisplayProxyService->hideWindow();
+void GlWrapper::hideWindow(sp<IAutomotiveDisplayProxyService>& pWindowProxy, uint64_t id) {
+    if (pWindowProxy != nullptr) {
+        pWindowProxy->hideWindow(id);
     } else {
         ALOGE("IAutomotiveDisplayProxyService is not available.");
     }

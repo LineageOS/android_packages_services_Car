@@ -32,6 +32,13 @@ public:
         float vfov  = 0;    // radians
     };
 
+    struct DisplayInfo {
+        uint8_t port = 0;           // Display port number to use
+        std::string function = "";  // The expected use for this display.
+        float frontRangeInCarSpace; // How far the display extends in front of the car
+        float rearRangeInCarSpace;  // How far the display extends behind the car
+    };
+
     bool initialize(const char* configFileName);
 
     // World space dimensions of the car
@@ -48,11 +55,11 @@ public:
     // Where are the edges of the top down display in car space?
     float getDisplayTopLocation() const {
         // From the rear axel (origin) to the front bumper, and then beyond by the front range
-        return mWheelBase + mFrontExtent + mFrontRangeInCarSpace;
+        return mWheelBase + mFrontExtent + mDisplays[mActiveDisplayId].frontRangeInCarSpace;
     };
     float getDisplayBottomLocation() const {
         // From the rear axel (origin) to the back bumper, and then beyond by the back range
-        return -mRearExtent - mRearRangeInCarSpace;
+        return -mRearExtent - mDisplays[mActiveDisplayId].rearRangeInCarSpace;
     };
     float getDisplayRightLocation(float aspectRatio) const   {
         // Given the display aspect ratio (width over height), how far can we see to the right?
@@ -69,9 +76,27 @@ public:
 
     const std::vector<CameraInfo>& getCameras() const   { return mCameras; };
 
+    bool  setActiveDisplayId(int displayId) {
+        if (displayId < 0 or displayId > mDisplays.size()) {
+            printf("Display %d is invalid.  Current active display is display %d.",
+                   displayId, mActiveDisplayId);
+            return false;
+        }
+
+        mActiveDisplayId = displayId;
+
+        return true;
+    }
+    const std::vector<DisplayInfo>& getDisplays() const { return mDisplays; };
+    const DisplayInfo& getActiveDisplay() const { return mDisplays[mActiveDisplayId]; };
+
 private:
     // Camera information
     std::vector<CameraInfo> mCameras;
+
+    // Display information
+    std::vector<DisplayInfo> mDisplays;
+    int mActiveDisplayId;
 
     // Car body information (assumes front wheel steering and origin at center of rear axel)
     // Note that units aren't specified and don't matter as long as all length units are consistent
@@ -81,10 +106,6 @@ private:
     float mWheelBase;
     float mFrontExtent;
     float mRearExtent;
-
-    // Display information
-    float    mFrontRangeInCarSpace;     // How far the display extends in front of the car
-    float    mRearRangeInCarSpace;      // How far the display extends behind the car
 
     // Top view car image information
     float mCarGraphicFrontPixel;    // How many pixels from the top of the image does the car start
