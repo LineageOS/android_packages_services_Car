@@ -120,7 +120,12 @@ public final class SystemStatusEvent implements Parcelable {
 
     @Override
     public String toString() {
-        return String.format("%d, %d", systemStatus, detectionType);
+        return "SystemStatusEvent{"
+                + "systemStatus="
+                + systemStatus
+                + ", detectionType="
+                + detectionType
+                + "}";
     }
 
     public static final @NonNull Parcelable.Creator<SystemStatusEvent> CREATOR =

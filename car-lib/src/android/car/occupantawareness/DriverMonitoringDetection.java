@@ -67,7 +67,13 @@ public final class DriverMonitoringDetection implements Parcelable {
 
     @Override
     public String toString() {
-        return String.format("%d %s %d", confidenceLevel, isLookingOnRoad, gazeDurationMillis);
+        return "DriverMonitoringDetection{"
+                + "confidenceLevel="
+                + confidenceLevel
+                + ", isLookingOnRoad="
+                + isLookingOnRoad
+                + ", gazeDurationMillis="
+                + gazeDurationMillis;
     }
 
     @Override
