@@ -81,6 +81,10 @@ public:
                                       setIntParameter_cb _hidl_cb) override;
     Return<void>      getIntParameter(CameraParam id,
                                       getIntParameter_cb _hidl_cb) override;
+    Return<EvsResult> setExtendedInfo_1_1(uint32_t opaqueIdentifier,
+                                          const hidl_vec<uint8_t>& opaqueValue) override;
+    Return<void>      getExtendedInfo_1_1(uint32_t opaqueIdentifier,
+                                          getExtendedInfo_1_1_cb _hidl_cb) override;
 
     static sp<EvsV4lCamera> Create(const char *deviceName);
     static sp<EvsV4lCamera> Create(const char *deviceName,
@@ -141,6 +145,9 @@ private:
 
     // Static camera module information
     unique_ptr<ConfigManager::CameraInfo> &mCameraInfo;
+
+    // Extended information
+    std::unordered_map<uint32_t, std::vector<uint8_t>> mExtInfo;
 };
 
 } // namespace implementation

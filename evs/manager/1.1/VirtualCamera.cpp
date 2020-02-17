@@ -782,6 +782,52 @@ Return<void> VirtualCamera::getIntParameter(CameraParam id,
 }
 
 
+Return<EvsResult> VirtualCamera::setExtendedInfo_1_1(uint32_t opaqueIdentifier,
+                                                     const hidl_vec<uint8_t>& opaqueValue) {
+    hardware::hidl_vec<int32_t> values;
+    if (mHalCamera.size() > 1) {
+        ALOGW("Logical camera device does not support %s.", __FUNCTION__);
+        return EvsResult::INVALID_ARG;
+    }
+
+    auto pHwCamera = mHalCamera.begin()->second.promote();
+    if (pHwCamera == nullptr) {
+        ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
+        return EvsResult::INVALID_ARG;
+    } else {
+        auto hwCamera = IEvsCamera_1_1::castFrom(pHwCamera->getHwCamera()).withDefault(nullptr);
+        if (hwCamera != nullptr) {
+            return hwCamera->setExtendedInfo_1_1(opaqueIdentifier, opaqueValue);
+        } else {
+            ALOGE("Underlying hardware camera does not implement v1.1 interfaces.");
+            return EvsResult::INVALID_ARG;
+        }
+    }
+}
+
+
+Return<void> VirtualCamera::getExtendedInfo_1_1(uint32_t opaqueIdentifier,
+                                                getExtendedInfo_1_1_cb _hidl_cb) {
+    hardware::hidl_vec<uint8_t> values;
+    EvsResult status = EvsResult::INVALID_ARG;
+    auto pHwCamera = mHalCamera.begin()->second.promote();
+    if (pHwCamera == nullptr) {
+        ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
+        _hidl_cb(status, values);
+    } else {
+        auto hwCamera = IEvsCamera_1_1::castFrom(pHwCamera->getHwCamera()).withDefault(nullptr);
+        if (hwCamera != nullptr) {
+            hwCamera->getExtendedInfo_1_1(opaqueIdentifier, _hidl_cb);
+        } else {
+            ALOGE("Underlying hardware camera does not implement v1.1 interfaces.");
+            _hidl_cb(status, values);
+        }
+    }
+
+    return Void();
+}
+
+
 } // namespace implementation
 } // namespace V1_1
 } // namespace evs

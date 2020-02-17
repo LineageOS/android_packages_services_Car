@@ -34,6 +34,7 @@ using ::android::hardware::Return;
 using ::android::hardware::Void;
 using ::android::hardware::hidl_handle;
 using ::android::hardware::hidl_string;
+using ::android::hardware::hidl_vec;
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
 using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
@@ -100,6 +101,10 @@ public:
                                       setIntParameter_cb _hidl_cb) override;
     Return<void>      getIntParameter(CameraParam id,
                                       getIntParameter_cb _hidl_cb) override;
+    Return<EvsResult> setExtendedInfo_1_1(uint32_t opaqueIdentifier,
+                                          const hidl_vec<uint8_t>& opaqueValue) override;
+    Return<void>      getExtendedInfo_1_1(uint32_t opaqueIdentifier,
+                                          getExtendedInfo_1_1_cb _hidl_cb) override;
 
 
 
