@@ -20,6 +20,8 @@
 #include <ui/GraphicBufferMapper.h>
 #include <utils/SystemClock.h>
 
+using ::android::frameworks::automotive::display::V1_0::HwDisplayConfig;
+using ::android::frameworks::automotive::display::V1_0::HwDisplayState;
 
 namespace android {
 namespace hardware {
@@ -31,6 +33,13 @@ namespace implementation {
 static bool sDebugFirstFrameDisplayed = false;
 
 EvsGlDisplay::EvsGlDisplay() {
+    EvsGlDisplay(nullptr, 0);
+}
+
+
+EvsGlDisplay::EvsGlDisplay(sp<IAutomotiveDisplayProxyService> pDisplayProxy, uint64_t displayId)
+    : mDisplayProxy(pDisplayProxy),
+      mDisplayId(displayId) {
     ALOGD("EvsGlDisplay instantiated");
 
     // Set up our self description
@@ -115,10 +124,10 @@ Return<EvsResult> EvsGlDisplay::setDisplayState(EvsDisplayState state) {
 
     switch (state) {
     case EvsDisplayState::NOT_VISIBLE:
-        mGlWrapper.hideWindow();
+        mGlWrapper.hideWindow(mDisplayProxy, mDisplayId);
         break;
     case EvsDisplayState::VISIBLE:
-        mGlWrapper.showWindow();
+        mGlWrapper.showWindow(mDisplayProxy, mDisplayId);
         break;
     default:
         break;
@@ -169,7 +178,7 @@ Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
         // NOTE:  This will cause the display to become "VISIBLE" before a frame is actually
         // returned, which is contrary to the spec and will likely result in a black frame being
         // (briefly) shown.
-        if (!mGlWrapper.initialize()) {
+        if (!mGlWrapper.initialize(mDisplayProxy, mDisplayId)) {
             // Report the failure
             ALOGE("Failed to initialize GL display");
             BufferDesc_1_0 nullBuff = {};
@@ -270,7 +279,7 @@ Return<EvsResult> EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc_1_
     // If we were waiting for a new frame, this is it!
     if (mRequestedState == EvsDisplayState::VISIBLE_ON_NEXT_FRAME) {
         mRequestedState = EvsDisplayState::VISIBLE;
-        mGlWrapper.showWindow();
+        mGlWrapper.showWindow(mDisplayProxy, mDisplayId);
     }
 
     // Validate we're in an expected state
@@ -296,6 +305,19 @@ Return<EvsResult> EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc_1_
 
     return EvsResult::OK;
 }
+
+
+Return<void> EvsGlDisplay::getDisplayInfo_1_1(getDisplayInfo_1_1_cb _info_cb) {
+    if (mDisplayProxy != nullptr) {
+        return mDisplayProxy->getDisplayInfo(mDisplayId, _info_cb);
+    } else {
+        HwDisplayConfig nullConfig;
+        HwDisplayState  nullState;
+        _info_cb(nullConfig, nullState);
+        return Void();
+    }
+}
+
 
 } // namespace implementation
 } // namespace V1_1

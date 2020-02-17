@@ -25,7 +25,7 @@
 #include "VirtualCamera.h"
 
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
-#include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
+#include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
 #include <android/hardware/camera/device/3.2/ICameraDevice.h>
 #include <system/camera_metadata.h>
 
@@ -44,8 +44,9 @@ using IEvsCamera_1_0     = ::android::hardware::automotive::evs::V1_0::IEvsCamer
 using IEvsCamera_1_1     = ::android::hardware::automotive::evs::V1_1::IEvsCamera;
 using IEvsEnumerator_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsEnumerator;
 using IEvsEnumerator_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsEnumerator;
+using IEvsDisplay_1_0    = ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
+using IEvsDisplay_1_1    = ::android::hardware::automotive::evs::V1_1::IEvsDisplay;
 using EvsDisplayState    = ::android::hardware::automotive::evs::V1_0::DisplayState;
-using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
 
 class Enumerator : public IEvsEnumerator {
 public:
@@ -53,8 +54,8 @@ public:
     Return<void>                getCameraList(getCameraList_cb _hidl_cb)  override;
     Return<sp<IEvsCamera_1_0>>  openCamera(const hidl_string& cameraId)  override;
     Return<void>                closeCamera(const ::android::sp<IEvsCamera_1_0>& virtualCamera)  override;
-    Return<sp<IEvsDisplay>>     openDisplay()  override;
-    Return<void>                closeDisplay(const ::android::sp<IEvsDisplay>& display)  override;
+    Return<sp<IEvsDisplay_1_0>> openDisplay()  override;
+    Return<void>                closeDisplay(const ::android::sp<IEvsDisplay_1_0>& display)  override;
     Return<EvsDisplayState>     getDisplayState()  override;
 
     // Methods from ::android::hardware::automotive::evs::V1_1::IEvsEnumerator follow.
@@ -62,6 +63,8 @@ public:
     Return<sp<IEvsCamera_1_1>>  openCamera_1_1(const hidl_string& cameraId,
                                                const Stream& streamCfg) override;
     Return<bool>                isHardware() override { return false; }
+    Return<void>                getDisplayIdList(getDisplayIdList_cb _list_cb) override;
+    Return<sp<IEvsDisplay_1_1>> openDisplay_1_1(uint8_t id) override;
 
     // Implementation details
     bool init(const char* hardwareServiceName);
@@ -72,7 +75,7 @@ private:
     std::unordered_set<std::string> getPhysicalCameraIds(const std::string& id);
 
     sp<IEvsEnumerator_1_1>            mHwEnumerator;  // Hardware enumerator
-    wp<IEvsDisplay>                   mActiveDisplay; // Display proxy object warpping hw display
+    wp<IEvsDisplay_1_0>               mActiveDisplay; // Display proxy object warpping hw display
 
     // List of active camera proxy objects that wrap hw cameras
     std::unordered_map<std::string,

@@ -106,7 +106,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private int mCurrentPlaybackState;
 
     private boolean mPendingInit;
-    private int mCurrentUser;
 
     private final RemoteCallbackList<ICarMediaSourceListener> mMediaSourceListeners =
             new RemoteCallbackList();
@@ -161,7 +160,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
                 Log.d(CarLog.TAG_MEDIA, "Switched to user " + userId);
             }
-            maybeInitUser();
+            maybeInitUser(userId);
         }
 
         @Override
@@ -191,27 +190,27 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mPlayOnMediaSourceChangedConfig =
                 mContext.getResources().getInteger(R.integer.config_mediaSourceChangedAutoplay);
         mPlayOnBootConfig = mContext.getResources().getInteger(R.integer.config_mediaBootAutoplay);
-        mCurrentUser = ActivityManager.getCurrentUser();
     }
 
     @Override
     // This method is called from ICarImpl after CarMediaService is created.
     public void init() {
-        maybeInitUser();
+        int currentUser = ActivityManager.getCurrentUser();
+        maybeInitUser(currentUser);
     }
 
-    private void maybeInitUser() {
-        if (mCurrentUser == 0) {
+    private void maybeInitUser(int userId) {
+        if (userId == UserHandle.USER_SYSTEM) {
             return;
         }
-        if (mUserManager.isUserUnlocked(mCurrentUser)) {
-            initUser();
+        if (mUserManager.isUserUnlocked(userId)) {
+            initUser(userId);
         } else {
             mPendingInit = true;
         }
     }
 
-    private void initUser() {
+    private void initUser(int userId) {
         // SharedPreferences are shared among different users thus only need initialized once. And
         // they should be initialized after user 0 is unlocked because SharedPreferences in
         // credential encrypted storage are not available until after user 0 is unlocked.
@@ -224,7 +223,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         if (mIsPackageUpdateReceiverRegistered) {
             mContext.unregisterReceiver(mPackageUpdateReceiver);
         }
-        UserHandle currentUser = new UserHandle(mCurrentUser);
+        UserHandle currentUser = new UserHandle(userId);
         mContext.registerReceiverAsUser(mPackageUpdateReceiver, currentUser,
                 mPackageUpdateFilter, null, null);
         mIsPackageUpdateReceiverRegistered = true;
@@ -271,7 +270,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     }
 
     private boolean isCurrentUserEphemeral() {
-        return mUserManager.getUserInfo(mCurrentUser).isEphemeral();
+        return mUserManager.getUserInfo(ActivityManager.getCurrentUser()).isEphemeral();
     }
 
     @Override
@@ -355,13 +354,13 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 if (!unlocked) {
                     return;
                 }
-                // No need to handle user0, non current foreground user.
+                // No need to handle system user, non current foreground user.
                 if (userHandle == UserHandle.USER_SYSTEM
                         || userHandle != ActivityManager.getCurrentUser()) {
                     return;
                 }
                 if (mPendingInit) {
-                    initUser();
+                    initUser(userHandle);
                     mPendingInit = false;
                 }
             }
@@ -549,7 +548,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         notifyListeners();
 
         startMediaConnectorService(shouldStartPlayback(mPlayOnMediaSourceChangedConfig),
-                new UserHandle(mCurrentUser));
+                new UserHandle(ActivityManager.getCurrentUser()));
         // Reset current playback state for the new source, in the case that the app is in an error
         // state (e.g. not signed in). This state will be updated from the app callback registered
         // below, to make sure mCurrentPlaybackState reflects the current source only.
@@ -680,7 +679,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             return;
         }
         String componentName = component.flattenToString();
-        String key = SOURCE_KEY + mCurrentUser;
+        String key = SOURCE_KEY + ActivityManager.getCurrentUser();
         String serialized = mSharedPrefs.getString(key, null);
         if (serialized == null) {
             mSharedPrefs.edit().putString(key, componentName).apply();
@@ -694,7 +693,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
     private ComponentName getLastMediaSource() {
         if (sharedPrefsInitialized()) {
-            String key = SOURCE_KEY + mCurrentUser;
+            String key = SOURCE_KEY + ActivityManager.getCurrentUser();
             String serialized = mSharedPrefs.getString(key, null);
             if (!TextUtils.isEmpty(serialized)) {
                 for (String name : getComponentNameList(serialized)) {
@@ -740,7 +739,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
      * Builds a string key for saving the playback state for a specific media source (and user)
      */
     private String getPlaybackStateKey() {
-        return PLAYBACK_STATE_KEY + mCurrentUser
+        return PLAYBACK_STATE_KEY + ActivityManager.getCurrentUser()
                 + (mPrimaryMediaComponent == null ? "" : mPrimaryMediaComponent.flattenToString());
     }
 

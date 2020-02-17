@@ -334,7 +334,7 @@ Return<EvsResult> EvsV4lCamera::setMaster() {
 }
 
 
-Return<EvsResult> EvsV4lCamera::forceMaster(const sp<IEvsDisplay>&) {
+Return<EvsResult> EvsV4lCamera::forceMaster(const sp<IEvsDisplay_1_0>&) {
     /* Because EVS HW module reference implementation expects a single client at
      * a time, this returns a success code always.
      */

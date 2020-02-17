@@ -87,13 +87,22 @@ bool ConfigManager::initialize(const char* configFileName)
     // Read display layout information
     //
     {
-        Json::Value displayNode = rootNode["display"];
-        if (!displayNode.isObject()) {
-            printf("Invalid configuration format -- we expect a display description\n");
+        Json::Value displayArray = rootNode["displays"];
+        if (!displayArray.isArray()) {
+            printf("Invalid configuration format -- we expect an array of displays\n");
             return false;
         }
-        complete &= readChildNodeAsFloat("display", displayNode, "frontRange", &mFrontRangeInCarSpace);
-        complete &= readChildNodeAsFloat("display", displayNode, "rearRange",  &mRearRangeInCarSpace);
+
+        mDisplays.reserve(displayArray.size());
+        for (auto&& node : displayArray) {
+            DisplayInfo info;
+            info.port = node.get("displayPort", 0).asUInt();
+            info.function = node.get("function", "").asCString();
+            info.frontRangeInCarSpace = node.get("frontRange", -1).asFloat();
+            info.rearRangeInCarSpace = node.get("rearRange", -1).asFloat();
+
+            mDisplays.emplace_back(info);
+        }
     }
 
 

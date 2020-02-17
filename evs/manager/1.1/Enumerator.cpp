@@ -333,7 +333,7 @@ Return<void> Enumerator::getCameraList_1_1(getCameraList_1_1_cb list_cb)  {
 }
 
 
-Return<sp<IEvsDisplay>> Enumerator::openDisplay() {
+Return<sp<IEvsDisplay_1_0>> Enumerator::openDisplay() {
     ALOGD("openDisplay");
 
     if (!checkPermission()) {
@@ -346,7 +346,7 @@ Return<sp<IEvsDisplay>> Enumerator::openDisplay() {
     // create/destroy order and provides a cleaner restart sequence if the previous owner
     // is non-responsive for some reason.
     // Request exclusive access to the EVS display
-    sp<IEvsDisplay> pActiveDisplay = mHwEnumerator->openDisplay();
+    sp<IEvsDisplay_1_0> pActiveDisplay = mHwEnumerator->openDisplay();
     if (pActiveDisplay == nullptr) {
         ALOGE("EVS Display unavailable");
 
@@ -358,17 +358,17 @@ Return<sp<IEvsDisplay>> Enumerator::openDisplay() {
     // TODO: Because of b/129284474, an additional class, HalDisplay, has been defined and
     // wraps the IEvsDisplay object the driver returns.  We may want to remove this
     // additional class when it is fixed properly.
-    sp<IEvsDisplay> pHalDisplay = new HalDisplay(pActiveDisplay);
+    sp<IEvsDisplay_1_0> pHalDisplay = new HalDisplay(pActiveDisplay);
     mActiveDisplay = pHalDisplay;
 
     return pHalDisplay;
 }
 
 
-Return<void> Enumerator::closeDisplay(const ::android::sp<IEvsDisplay>& display) {
+Return<void> Enumerator::closeDisplay(const ::android::sp<IEvsDisplay_1_0>& display) {
     ALOGD("closeDisplay");
 
-    sp<IEvsDisplay> pActiveDisplay = mActiveDisplay.promote();
+    sp<IEvsDisplay_1_0> pActiveDisplay = mActiveDisplay.promote();
 
     // Drop the active display
     if (display.get() != pActiveDisplay.get()) {
@@ -391,7 +391,7 @@ Return<EvsDisplayState> Enumerator::getDisplayState()  {
     }
 
     // Do we have a display object we think should be active?
-    sp<IEvsDisplay> pActiveDisplay = mActiveDisplay.promote();
+    sp<IEvsDisplay_1_0> pActiveDisplay = mActiveDisplay.promote();
     if (pActiveDisplay != nullptr) {
         // Pass this request through to the hardware layer
         return pActiveDisplay->getDisplayState();
@@ -400,6 +400,43 @@ Return<EvsDisplayState> Enumerator::getDisplayState()  {
         mActiveDisplay = nullptr;
         return EvsDisplayState::NOT_OPEN;
     }
+}
+
+
+Return<sp<IEvsDisplay_1_1>> Enumerator::openDisplay_1_1(uint8_t id) {
+    ALOGD("%s", __FUNCTION__);
+
+    if (!checkPermission()) {
+        return nullptr;
+    }
+
+    // We simply keep track of the most recently opened display instance.
+    // In the underlying layers we expect that a new open will cause the previous
+    // object to be destroyed.  This avoids any race conditions associated with
+    // create/destroy order and provides a cleaner restart sequence if the previous owner
+    // is non-responsive for some reason.
+    // Request exclusive access to the EVS display
+    sp<IEvsDisplay_1_1> pActiveDisplay = mHwEnumerator->openDisplay_1_1(id);
+    if (pActiveDisplay == nullptr) {
+        ALOGE("EVS Display unavailable");
+
+        return nullptr;
+    }
+
+    // Remember (via weak pointer) who we think the most recently opened display is so that
+    // we can proxy state requests from other callers to it.
+    // TODO: Because of b/129284474, an additional class, HalDisplay, has been defined and
+    // wraps the IEvsDisplay object the driver returns.  We may want to remove this
+    // additional class when it is fixed properly.
+    sp<IEvsDisplay_1_1> pHalDisplay = new HalDisplay(pActiveDisplay);
+    mActiveDisplay = pHalDisplay;
+
+    return pHalDisplay;
+}
+
+
+Return<void> Enumerator::getDisplayIdList(getDisplayIdList_cb _list_cb)  {
+    return mHwEnumerator->getDisplayIdList(_list_cb);
 }
 
 

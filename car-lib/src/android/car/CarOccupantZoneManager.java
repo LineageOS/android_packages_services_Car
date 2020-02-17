@@ -230,7 +230,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
     /** Zone config change caused by audio zone change.
      * Assigned audio zone for passenger zones have changed.
      **/
-    public static final int ZONE_CONFIG_CHANGE_FLAG_AUDIO = 0x3;
+    public static final int ZONE_CONFIG_CHANGE_FLAG_AUDIO = 0x4;
 
     /** @hide */
     @IntDef(flag = true, prefix = { "ZONE_CONFIG_CHANGE_FLAG_" }, value = {
