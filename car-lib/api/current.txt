@@ -27,6 +27,8 @@ package android.car {
     field public static final long CAR_WAIT_TIMEOUT_WAIT_FOREVER = -1L; // 0xffffffffffffffffL
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
     field public static final String INFO_SERVICE = "info";
+    field public static final String META_DATA_DISTRACTION_OPTIMIZED = "distractionOptimized";
+    field public static final String META_DATA_REQUIRES_CAR_FEATURE = "requires-car-feature";
     field public static final String PACKAGE_SERVICE = "package";
     field public static final String PERMISSION_CAR_CONTROL_AUDIO_SETTINGS = "android.car.permission.CAR_CONTROL_AUDIO_SETTINGS";
     field public static final String PERMISSION_CAR_CONTROL_AUDIO_VOLUME = "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
