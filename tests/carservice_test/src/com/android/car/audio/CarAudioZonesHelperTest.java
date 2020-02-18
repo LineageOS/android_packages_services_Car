@@ -29,7 +29,7 @@ import static org.testng.Assert.expectThrows;
 
 import android.car.media.CarAudioManager;
 import android.content.Context;
-import android.media.AudioDevice;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.util.SparseIntArray;
 import android.view.DisplayAddress;
@@ -365,7 +365,7 @@ public class CarAudioZonesHelperTest {
             CarAudioZone[] zones = cazh.loadAudioZones();
 
             CarAudioZone primaryZone = zones[0];
-            List<AudioDevice> primaryZoneInputDevices =
+            List<AudioDeviceAttributes> primaryZoneInputDevices =
                     primaryZone.getInputAudioDevices();
             assertThat(primaryZoneInputDevices).hasSize(2);
 
@@ -376,7 +376,7 @@ public class CarAudioZonesHelperTest {
                     PRIMARY_ZONE_MICROPHONE_ADDRESS).inOrder();
 
             CarAudioZone secondaryZone = zones[1];
-            List<AudioDevice> secondaryZoneInputDevices =
+            List<AudioDeviceAttributes> secondaryZoneInputDevices =
                     secondaryZone.getInputAudioDevices();
             List<String> secondaryZoneInputAddresses =
                     secondaryZoneInputDevices.stream().map(a ->a.getAddress()).collect(

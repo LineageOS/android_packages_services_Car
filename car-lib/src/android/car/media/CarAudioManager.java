@@ -24,7 +24,7 @@ import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.media.AudioAttributes;
-import android.media.AudioDevice;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.AudioManager.AudioDeviceRole;
@@ -665,12 +665,12 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     private List<AudioDeviceInfo> convertInputDevicesToDeviceInfos(
-            List<AudioDevice> devices, @AudioDeviceRole int flag) {
+            List<AudioDeviceAttributes> devices, @AudioDeviceRole int flag) {
         int addressesSize = devices.size();
         Set<String> deviceAddressMap = new HashSet<>(addressesSize);
         for (int i = 0; i < addressesSize; ++i) {
-            AudioDevice deviceAddress = devices.get(i);
-            deviceAddressMap.add(deviceAddress.getAddress());
+            AudioDeviceAttributes device = devices.get(i);
+            deviceAddressMap.add(device.getAddress());
         }
         List<AudioDeviceInfo> deviceInfoList = new ArrayList<>(devices.size());
         AudioDeviceInfo[] inputDevices = mAudioManager.getDevices(flag);

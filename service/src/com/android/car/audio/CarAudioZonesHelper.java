@@ -18,7 +18,7 @@ package com.android.car.audio;
 import android.annotation.NonNull;
 import android.car.media.CarAudioManager;
 import android.content.Context;
-import android.media.AudioDevice;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
@@ -306,7 +306,7 @@ import java.util.stream.Collectors;
                         "%s %s of %s does not exist, add input device to"
                                 + " audio_policy_configuration.xml.",
                         ATTR_DEVICE_ADDRESS, audioDeviceAddress, TAG_INPUT_DEVICE);
-                zone.addInputAudioDevice(new AudioDevice(info));
+                zone.addInputAudioDevice(new AudioDeviceAttributes(info));
             }
             skip(parser);
         }

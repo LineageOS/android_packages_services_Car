@@ -36,7 +36,7 @@ import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeSystemUsage;
-import android.media.AudioDevice;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioFocusInfo;
@@ -1027,7 +1027,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     /**
      * Gets the input devices for zone zoneId
      */
-    public @NonNull List<AudioDevice> getInputDevicesForZoneId(int zoneId) {
+    public @NonNull List<AudioDeviceAttributes> getInputDevicesForZoneId(int zoneId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         Preconditions.checkArgumentInRange(zoneId, 0, mCarAudioZones.length - 1,
                 "zoneId out of range: " + zoneId);
