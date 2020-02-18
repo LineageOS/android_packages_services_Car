@@ -20,10 +20,10 @@ import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.ArraySet;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -45,7 +45,7 @@ import java.util.Set;
 public final class VmsAvailableLayers implements Parcelable {
 
     // A sequence number.
-    private final int mSeq;
+    private final int mSequenceNumber;
 
     // The list of AssociatedLayers
     private final Set<VmsAssociatedLayer> mAssociatedLayers;
@@ -57,7 +57,15 @@ public final class VmsAvailableLayers implements Parcelable {
      * @param sequence         sequence number of the availability state
      */
     public VmsAvailableLayers(@NonNull Set<VmsAssociatedLayer> associatedLayers, int sequence) {
-        mSeq = sequence;
+        this(sequence, associatedLayers);
+    }
+
+    /**
+     * @hide
+     */
+    public VmsAvailableLayers(int sequenceNumber,
+            @NonNull Set<VmsAssociatedLayer> associatedLayers) {
+        mSequenceNumber = sequenceNumber;
         mAssociatedLayers = Collections.unmodifiableSet(associatedLayers);
     }
 
@@ -65,7 +73,14 @@ public final class VmsAvailableLayers implements Parcelable {
      * @return sequence number of the availability state
      */
     public int getSequence() {
-        return mSeq;
+        return mSequenceNumber;
+    }
+
+    /**
+     * @hide
+     */
+    public int getSequenceNumber() {
+        return mSequenceNumber;
     }
 
     /**
@@ -79,7 +94,7 @@ public final class VmsAvailableLayers implements Parcelable {
     @Override
     public String toString() {
         return "VmsAvailableLayers{ seq: " +
-                mSeq +
+                mSequenceNumber +
                 ", AssociatedLayers: " +
                 mAssociatedLayers +
                 "}";
@@ -100,8 +115,8 @@ public final class VmsAvailableLayers implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeInt(mSeq);
-        out.writeParcelableList(new ArrayList(mAssociatedLayers), flags);
+        out.writeInt(mSequenceNumber);
+        out.writeParcelableList(new ArrayList<>(mAssociatedLayers), flags);
     }
 
     @Override
@@ -111,7 +126,7 @@ public final class VmsAvailableLayers implements Parcelable {
         }
         VmsAvailableLayers p = (VmsAvailableLayers) o;
         return Objects.equals(p.mAssociatedLayers, mAssociatedLayers) &&
-                p.mSeq == mSeq;
+                p.mSequenceNumber == mSequenceNumber;
     }
 
     @Override
@@ -120,10 +135,10 @@ public final class VmsAvailableLayers implements Parcelable {
     }
 
     private VmsAvailableLayers(Parcel in) {
-        mSeq = in.readInt();
+        mSequenceNumber = in.readInt();
 
         List<VmsAssociatedLayer> associatedLayers = new ArrayList<>();
         in.readParcelableList(associatedLayers, VmsAssociatedLayer.class.getClassLoader());
-        mAssociatedLayers = Collections.unmodifiableSet(new HashSet(associatedLayers));
+        mAssociatedLayers = Collections.unmodifiableSet(new ArraySet<>(associatedLayers));
     }
 }
