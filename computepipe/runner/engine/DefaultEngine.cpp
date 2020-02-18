@@ -306,6 +306,7 @@ void DefaultEngine::broadcastAbortRun(const std::vector<int>& streamIds,
             (void)mGraph->handleExecutionPhase(runEvent);
         }
     }
+    (void)mClient->handleExecutionPhase(runEvent);
 }
 
 Status DefaultEngine::broadcastStopWithFlush() {
