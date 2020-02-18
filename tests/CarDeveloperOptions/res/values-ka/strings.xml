@@ -4277,10 +4277,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"ის შეანელებს ამ ტელეფონს"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"სრული GNSS გაზომვის განხორციელების იძულება"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"ყველა GNSS კონსტელაციისა და სიხშირის აღრიცხვა, დატვირთვის კოეფიციენტის გარეშე"</string>
-    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
-    <skip />
-    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
-    <skip />
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"მომხმარებლის გადამრთველის შეცდომების გამართვა"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"დეტალური ინფორმაციის ჩვენება მომხმარებლის გადართვის პროცესში"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"აქტივობის ფონურ რეჟიმში დაწყების დაშვება"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"დაუშვებს აქტივობის ფონურ რეჟიმში დაწყებას"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"ავარიულად გათიშვის დიალოგური ფანჯრის ყოველთვის ჩვენება"</string>

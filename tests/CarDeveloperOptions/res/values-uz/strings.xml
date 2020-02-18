@@ -3318,7 +3318,7 @@
     <string name="asst_capabilities_actions_replies_title" msgid="3929395108744251338">"Tezkor amallar va javoblar"</string>
     <string name="asst_capabilities_actions_replies_summary" msgid="5647029698181357902">"Bildirishnomalarga kontekstga oid amallar va tezkor javoblarni avtomatik kiritish"</string>
     <string name="hide_silent_icons_title" msgid="1070905516921542662">"Tovushsiz bildirishnomalar holatiga oid belgilarni berkitish"</string>
-    <string name="hide_silent_icons_summary" msgid="2624346914488256888">"Holat qatorida tovushsiz bildirishnomalar belgilarini berkitish"</string>
+    <string name="hide_silent_icons_summary" msgid="2624346914488256888">"Holat qatorida sokin bildirishnomalar belgilarini berkitish"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"Bildirishnoma belgisi"</string>
     <string name="notification_bubbles_title" msgid="9196562435741861317">"Pufakchalar"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Erkin yorliqlar yordamida ilova kontentini istalgan sahifadan tezkor ochish"</string>
@@ -4297,10 +4297,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Bunda telefon sekinlashi mumkin"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Butun GNSS statistikasini yuklash"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Siklsiz barcha GNSS sxema va davriyliklarini kuzatish"</string>
-    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
-    <skip />
-    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
-    <skip />
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Foydalanuvchi almashinuvi tafsilotlari"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Foydalanuvchi almashinuvi tafsilotlarini chiqarish"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Orqa fonda ishga tushirishga ruxsat berish"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Barcha harakatlarni orqa fonda ishga tushirishga ruxsat berish"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Buzilish oynasi doim ko‘rsatilsin"</string>

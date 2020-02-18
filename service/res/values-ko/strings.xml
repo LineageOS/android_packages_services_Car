@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX 제한사항 설정"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP 모드의 USB 기기와 통신"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP 모드의 기기와 통신하도록 앱을 허용하세요."</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness System 읽기 액세스"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness System의 상태 및 감지 데이터를 읽는 것을 허용합니다."</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System 그래프 제어"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System 감지 그래프의 시작 및 중지를 제어하는 것을 허용합니다."</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"차량 입력 서비스"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"입력 이벤트 처리"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 버스 실패"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"차량의 상세한 엔진 정보에 액세스합니다."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"차량 주유구 캡 및 충전 포트 액세스"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"차량의 주유구 캡 및 충전 포트에 액세스합니다."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"차량 주유구 캡 및 충전 포트 액세스 제어"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"차량 주유구 캡 및 충전 포트 액세스를 제어합니다."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"차량 ID 읽기"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"차량 ID에 액세스합니다."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"차량 도어 제어"</string>

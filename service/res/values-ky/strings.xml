@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"КТ чектөөлөрүн конфигурациялоо"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"USB түзмөгү менен AOAP режиминде байланышуу"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Колдономого түзмөк менен AOAP режиминде байланышууга мүмкүнчүлүк берет"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Тургундарды көзөмөлдөө тутумунун абалын окууга мүмкүнчүлүк алуу"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Тургундарды көзөмөлдөө тутумундагы статусту окуп, маалыматты аныктоого мүмкүнчүлүк берет"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Тургундарды көзөмөлдөө тутумунун диаграммасы"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Тургундарды көзөмөлдөө тутумун аныктоо диаграммасын иштетүүнү жана токтотууну көзөмөлдөөгө мүмкүнчүлүк берет"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Унаанын киргизүү кызматы"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Киргизүү аракеттерин башкаруу"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN иштебей калды"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Унааңыздын кыймылдаткычы тууралуу толук маалыматты көрүү."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"унаанын май куюучу тешигине жана кубаттоо оюкчасына мүмкүнчүлүк алуу"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Унаанын май куюучу тешигине жана кубаттоо оюкчасына мүмкүнчүлүк алуу."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"унаанын май куюучу тешигин жана кубаттоо оюкчасын көзөмөлдөө"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Унаанын май куюучу тешигин жана кубаттоо оюкчасын көзөмөлдөө."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"унаанын идентификаторун көрүү"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Унаанын идентификаторун көрүү."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"унаанын эшиктерин көзөмөлдөө"</string>

@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"配置用户体验限制条件"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"在 AOAP 模式下与 USB 设备通信"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"允许应用在 AOAP 模式下与设备通信"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness System 读取权限"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"允许读取 Occupant Awareness System 的状态和检测数据"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"控制 Occupant Awareness System 图表"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"允许控制 Occupant Awareness System 检测图表的启动和停止"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"汽车输入服务"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"处理输入事件"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 总线故障"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"访问汽车的详细引擎信息。"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"访问汽车的油箱盖和充电端口信息"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"访问汽车的油箱盖和充电端口信息。"</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"控制汽车的油箱盖和充电端口"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"控制汽车的油箱盖和充电端口。"</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"读取汽车的识别信息"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"访问汽车的标识信息。"</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"控制车门"</string>

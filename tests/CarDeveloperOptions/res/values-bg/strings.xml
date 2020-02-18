@@ -4277,10 +4277,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Тя ще забави телефона ви"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Налагане на пълно проследяване на измерванията с GNSS"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Проследяване на всички констелации и честоти на GNSS без използване на коефициент на запълване"</string>
-    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
-    <skip />
-    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
-    <skip />
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Отстраняване на грешки при превключването на потребителя"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Показване на подробна информация по време на превключването на потребителя"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Разрешаване на стартирания на активност на заден план"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Разрешава всички стартирания на активност на заден план"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Диалоговият прозорец за сривове да се показва винаги"</string>

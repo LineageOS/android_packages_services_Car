@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="car_permission_label" msgid="741004755205554376">"Accesso alle informazioni dell\'auto"</string>
+    <string name="car_permission_label" msgid="741004755205554376">"accesso ai dati dell\'auto"</string>
     <string name="car_permission_desc" msgid="162499818870052725">"Consente di accedere alle informazioni dell\'automobile."</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"Accesso alla videocamera dell\'automobile"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Consente di accedere alle videocamere dell\'automobile."</string>
@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Consente di configurare le limitazioni dell\'esperienza utente."</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Comunicazione con dispositivo USB in modalità AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Consente a un\'app di comunicare con un dispositivo in modalità AOAP"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Accesso in lettura all\'Occupant Awareness System"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Consente di leggere lo stato e i dati di rilevamento dell\'Occupant Awareness System."</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Controllo del grafico dell\'Occupant Awareness System"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Consente di controllare l\'avvio e l\'interruzione del grafico di rilevamento dell\'Occupant Awareness System."</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Servizio di input dell\'auto"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Consente di gestire gli eventi di input."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Comunicazione tramite bus CAN non riuscita"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Consente di accedere a informazioni dettagliate sul motore dell\'automobile."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"Accesso al coperchio del serbatoio e allo sportello di ricarica dell\'automobile"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Consente di accedere al coperchio del serbatoio e allo sportello di ricarica dell\'automobile."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"Controllo del coperchio del serbatoio e dello sportello di ricarica dell\'automobile"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Consente di controllare il coperchio del serbatoio e lo sportello di ricarica dell\'automobile."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"Lettura dell\'identificazione dell\'automobile"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Consente di accedere all\'identificazione dell\'automobile."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"Controllo delle portiere dell\'automobile"</string>

@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"ضبط قيود تجربة المُستخدِم"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"التواصل مع جهاز USB في وضع AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"يتيح للتطبيق التواصل مع جهاز في وضع AOAP."</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"الوصول لقراءة Occupant Awareness System"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"السماح بقراءة حالة Occupant Awareness System وبيانات التعرف عليه"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"التحكّم في الرسم البياني لنظام Occupant Awareness System"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"السماح بالتحكّم في بدء وإيقاف الرسم البياني للتعرف على Occupant Awareness System"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"خدمة إدخال السيارة"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"التعامل مع أحداث الإدخال"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"حدث خطأ في موصّل CAN"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"يمكنك الحصول على معلومات تفصيلية عن محرّك السيارة."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"الحصول على معلومات عن .باب خزان الوقود ومنفذ الشحن"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"يمكنك الحصول على معلومات عن باب خزان الوقود ومنفذ الشحن."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"التحكّم في باب خزان الوقود ومنفذ الشحن في السيارة"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"التحكّم في باب خزان الوقود ومنفذ الشحن"</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"قراءة معلومات عن تحديد هوية السيارة"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"يمكنك الحصول على معلومات عن تحديد هوية السيارة."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"التحكم في أبواب السيارة"</string>

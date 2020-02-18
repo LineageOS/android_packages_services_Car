@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Սահմանափակել գործառույթների օգտագործումը"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Հաղորդակցվել USB սարքի հետ AOAP ռեժիմում"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Հավելվածին թույլ է տալիս հաղորդակցվել սարքի հետ AOAP ռեժիմում"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Ուղևորի ներկայության որոշման համակարգի կարգավիճակի ընթերցման թույլտվություն"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Թույլ է տալիս կարդալ ուղևորի ներկայության որոշման համակարգի կարգավիճակը և տվյալները"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Կառավարել ուղևորի ներկայության որոշման համակարգի տրամագիրը"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Թույլ է տալիս կառավարել ուղևորի ներկայության որոշման համակարգի աշխատանքի տրամագրի գործարկումը և դադարեցումը"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Ներածման ծառայություն"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Մշակել ներածման իրադարձությունները"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN անվադողի սխալ"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Օգտագործել շարժիչի մանրամասն տվյալները։"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"օգտագործել մեքենայի վառելիքի բաքի կափարիչի և լիցքավորման վարդակի տվյալները"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Օգտագործել մեքենայի վառելիքի բաքի կափարիչի և լիցքավորման վարդակի տվյալները։"</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"Կառավարել մեքենայի վառելիքի բաքի կափարիչի և լիցքավորման վարդակի տվյալները"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Կառավարել մեքենայի վառելիքի բաքի կափարիչի և լիցքավորման վարդակի տվյալները։"</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"կարդալ մեքենայի նույնականացման տվյալները"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Օգտագործել մեքենայի նույնականացման տվյալները։"</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"կառավարել մեքենայի դռները"</string>

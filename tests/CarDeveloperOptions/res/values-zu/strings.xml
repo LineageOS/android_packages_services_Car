@@ -4278,10 +4278,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Izokwehlisa le foni"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Phoqa izikali ezigcwele ze-GNSS"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Landelela onke ama-constellation nezimvamisa ngomjikelezo ongenawo umsebenzi"</string>
-    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
-    <skip />
-    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
-    <skip />
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Susa iphutha lokushintsha umsebenzisi"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Bonisa ukwaziswa okuningiliziwe phakathi nokushintsha umsebenzisi"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Vumela ukuqala komsebenzi ongemuva"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Ivumela konke ukuqala komsebenzi ongemuva"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Njalo bonisa ibhokisi lokusaphazeka"</string>

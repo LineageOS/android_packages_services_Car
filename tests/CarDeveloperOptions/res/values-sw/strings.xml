@@ -4278,10 +4278,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Kitapunguza kasi ya simu yako"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Lazimisha vipimo vya GNSS kamili"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Fuatilia mikusanyiko na mawimbi yote yasiyo na utendakazi wa GNSS"</string>
-    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
-    <skip />
-    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
-    <skip />
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Tatua ubadilishaji wa mtumiaji"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Onyesha maelezo ya kina wakati wa kubadilisha mtumiaji"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Iruhusu kuanza shughuli chinichini"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Huruhusu kuanza shughuli zote chinichini"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Onyesha kidirisha cha programu kuacha kufanya kazi kila wakati"</string>
