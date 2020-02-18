@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UXৰ সীমাবদ্ধতা কনফিগাৰ কৰক"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP ম’ডত থকা ইউএছবি ডিভাইচৰ লগত যোগাযোগ কৰিব পাৰে"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"কোনো এপক AOAP ম’ডত থকা ডিভাইচৰ লগত যোগাযোগ কৰাৰ অনুমতি দিয়ে"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness System পঢ়াৰ এক্সেছ"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness Systemৰ স্থিতি পঢ়া আৰু ডেটা চিনাক্ত কৰাৰ অনুমতি দিয়ে"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness Systemৰ লেখ নিয়ন্ত্ৰণ কৰক"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System চিনাক্তকৰণৰ লেখৰ আৰম্ভ কৰা আৰু বন্ধ কৰা কার্য নিয়ন্ত্ৰণ কৰাটোৰ অনুমতি দিয়ে"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"গাড়ীৰ ইনপুট সেৱা"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ইনপুট ইভেণ্ট নিয়ন্ত্ৰণ কৰিব"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN বাছ বিফল হৈছে"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"আপোনাৰ গাড়ীৰ ইঞ্জিনৰ সবিশেষ তথ্য এক্সেছ কৰিব।"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"গাড়ীৰ ইন্ধনৰ দৰ্জা আৰু চাৰ্জ প’ৰ্ট এক্সেছ কৰিব"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"গাড়ীৰ ইন্ধনৰ দৰ্জা আৰু চাৰ্জ প’ৰ্ট এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"গাড়ীৰ ইন্ধনৰ দৰ্জা আৰু চাৰ্জ প’ৰ্ট নিয়ন্ত্ৰণ কৰা"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"গাড়ীৰ ইন্ধনৰ দৰ্জা আৰু চাৰ্জ প’ৰ্ট নিয়ন্ত্ৰণ কৰা।"</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"গাড়ী চিনাক্তকৰণৰ তথ্য পঢ়িব"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"গাড়ী চিনাক্তকৰণৰ তথ্য এক্সেছ কৰিব।"</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"গাড়ীৰ দৰ্জা নিয়ন্ত্ৰণ কৰিব"</string>

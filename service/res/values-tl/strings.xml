@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"I-configure ang Mga Paghihigpit sa UX"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Makipag-ugnayan sa pamamagitan ng USB device sa AOAP mode"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Binibigyang-daan ang isang app na makipag-ugnayan sa isang device sa AOAP mode"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Access sa Pagbasa sa Occupant Awareness System"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Pinapayagan ang pagbasa sa status at data ng pag-detect para sa Occupant Awareness System"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Kontrolin ang Graph ng Occupant Awareness System"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Pinapayagan ang pagkontrol sa pagsimula at paghinto sa detection graph ng Occupant Awareness System"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Serbisyo sa Input ng Sasakyan"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Pangasiwaan ang mga event ng input"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Hindi gumana ang CAN bus"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"I-access ang detalyadong impormasyon sa makina ng iyong sasakyan."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"i-access ang takip ng gasolina at charge port ng sasakyan"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"I-access ang takip ng gasolina at charge port ng sasakyan."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"kontrolin ang takip ng gasolina at charge port ng sasakyan"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Kontrolin ang takip ng gasolina at charge port ng sasakyan."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"basahin ang pagkakakilanlan ng sasakyan"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"I-access ang pagkakakilanlan ng sasakyan."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"kontrolin ang mga pintuan ng sasakyan"</string>

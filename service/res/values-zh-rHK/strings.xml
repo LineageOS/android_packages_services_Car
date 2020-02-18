@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"設定使用者體驗限制"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"與啟用 AOAP 模式的 USB 裝置通訊"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"允許應用程式與啟用 AOAP 模式的裝置通訊"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness System 的讀取權限"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"允許讀取 Occupant Awareness System 的狀態和偵測數據"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"控制 Occupant Awareness System 圖表"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"允許控制何時開始和停止 Occupant Awareness System 的偵測圖表"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"汽車輸入服務"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"處理輸入活動"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"控制器區域網路操作失敗"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"存取汽車引擎詳情。"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"存取汽車油箱蓋及充電埠"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"存取汽車油箱蓋及充電埠。"</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"控制汽車油箱蓋及充電埠"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"控制汽車油箱蓋及充電埠。"</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"讀取汽車識別資訊"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"存取汽車識別資訊。"</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"控制車門"</string>

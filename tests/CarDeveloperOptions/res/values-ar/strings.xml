@@ -78,8 +78,8 @@
     <string name="radioInfo_display_asu" msgid="3971624665121408962">"asu"</string>
     <string name="radioInfo_lac" msgid="808364938769458312">"LAC"</string>
     <string name="radioInfo_cid" msgid="9063028533037488663">"CID"</string>
-    <string name="sdcard_unmount" product="nosdcard" msgid="4814645994330822610">"إلغاء تركيب وحدة تخزين USB"</string>
-    <string name="sdcard_unmount" product="default" msgid="1853537922358462235">"إلغاء تحميل بطاقة SD"</string>
+    <string name="sdcard_unmount" product="nosdcard" msgid="4814645994330822610">"إلغاء تثبيت وحدة تخزين USB"</string>
+    <string name="sdcard_unmount" product="default" msgid="1853537922358462235">"إلغاء تثبيت بطاقة SD"</string>
     <string name="sdcard_format" product="nosdcard" msgid="4403736378743828292">"محو وحدة تخزين USB"</string>
     <string name="sdcard_format" product="default" msgid="4831611387627849108">"محو بطاقة SD"</string>
     <string name="preview_pager_content_description" msgid="5731599395893090038">"معاينة"</string>
@@ -134,7 +134,7 @@
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"الملفات التي تم استلامها"</string>
     <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"الملفات المستلَمة عبر البلوتوث"</string>
     <string name="device_picker" msgid="8345264486071697705">"اختيار جهاز البلوتوث"</string>
-    <string name="bluetooth_ask_enablement" msgid="8716802066127746062">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> تشغيل البلوتوث"</string>
+    <string name="bluetooth_ask_enablement" msgid="8716802066127746062">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> تفعيل البلوتوث"</string>
     <string name="bluetooth_ask_disablement" msgid="7125319551097350783">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> إيقاف البلوتوث"</string>
     <string name="bluetooth_ask_enablement_no_name" msgid="6105893027185475233">"يريد أحد التطبيقات تشغيل بلوتوث"</string>
     <string name="bluetooth_ask_disablement_no_name" msgid="8648888502291681310">"يريد أحد التطبيقات إيقاف البلوتوث"</string>
@@ -146,16 +146,16 @@
     <string name="bluetooth_ask_lasting_discovery" product="default" msgid="7796723473397303412">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> جعل هاتفك مرئيًا لأجهزة بلوتوث الأخرى. يمكنك تغيير هذا لاحقًا في إعدادات بلوتوث."</string>
     <string name="bluetooth_ask_lasting_discovery_no_name" product="tablet" msgid="5961921359655434504">"يريد أحد التطبيقات جعل جهازك اللوحي مرئيًا لأجهزة بلوتوث الأخرى. يمكنك تغيير هذا لاحقًا في إعدادات بلوتوث."</string>
     <string name="bluetooth_ask_lasting_discovery_no_name" product="default" msgid="3585910858758443872">"يريد أحد التطبيقات جعل هاتفك مرئيًا لأجهزة بلوتوث الأخرى. يمكنك تغيير هذا لاحقًا في إعدادات بلوتوث."</string>
-    <string name="bluetooth_ask_enablement_and_discovery" product="tablet" msgid="5676466923424941153">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> تشغيل البلوتوث وجعل جهازك اللوحي مرئيًا للأجهزة الأخرى لمدة <xliff:g id="TIMEOUT">%2$d</xliff:g> من الثواني."</string>
-    <string name="bluetooth_ask_enablement_and_discovery" product="default" msgid="507088376226791063">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> تشغيل البلوتوث وجعل هاتفك مرئيًا للأجهزة الأخرى لمدة <xliff:g id="TIMEOUT">%2$d</xliff:g> من الثواني."</string>
-    <string name="bluetooth_ask_enablement_and_discovery_no_name" product="tablet" msgid="1164681893121736219">"يريد أحد التطبيقات تشغيل البلوتوث وجعل جهازك اللوحي مرئيًا للأجهزة الأخرى لمدة <xliff:g id="TIMEOUT">%1$d</xliff:g> من الثواني."</string>
-    <string name="bluetooth_ask_enablement_and_discovery_no_name" product="default" msgid="2542247690119921188">"يريد أحد التطبيقات تشغيل البلوتوث وجعل هاتفك مرئيًا للأجهزة الأخرى لمدة <xliff:g id="TIMEOUT">%1$d</xliff:g> من الثواني."</string>
-    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="tablet" msgid="7118362102769177771">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> تشغيل البلوتوث وجعل جهازك اللوحي مرئيًا للأجهزة الأخرى. يمكنك تغيير هذا لاحقًا في إعدادات بلوتوث."</string>
-    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="default" msgid="2577488464813970727">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> تشغيل البلوتوث وجعل هاتفك مرئيًا للأجهزة الأخرى. يمكنك تغيير هذا لاحقًا في إعدادات بلوتوث."</string>
-    <string name="bluetooth_ask_enablement_and_lasting_discovery_no_name" product="tablet" msgid="7083038132794842691">"يريد أحد التطبيقات تشغيل البلوتوث وجعل جهازك اللوحي مرئيًا للأجهزة الأخرى. يمكنك تغيير هذا لاحقًا في إعدادات بلوتوث."</string>
-    <string name="bluetooth_ask_enablement_and_lasting_discovery_no_name" product="default" msgid="3541668604020109525">"يريد أحد التطبيقات تشغيل البلوتوث وجعل هاتفك مرئيًا للأجهزة الأخرى. يمكنك تغيير هذا لاحقًا في إعدادات بلوتوث."</string>
-    <string name="bluetooth_turning_on" msgid="6935183036449748493">"جارٍ تشغيل البلوتوث..."</string>
-    <string name="bluetooth_turning_off" msgid="9214026723789756620">"جارٍ إيقاف تشغيل البلوتوث..."</string>
+    <string name="bluetooth_ask_enablement_and_discovery" product="tablet" msgid="5676466923424941153">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> تفعيل البلوتوث وجعل جهازك اللوحي مرئيًا للأجهزة الأخرى لمدة <xliff:g id="TIMEOUT">%2$d</xliff:g> من الثواني."</string>
+    <string name="bluetooth_ask_enablement_and_discovery" product="default" msgid="507088376226791063">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> تفعيل البلوتوث وجعل هاتفك مرئيًا للأجهزة الأخرى لمدة <xliff:g id="TIMEOUT">%2$d</xliff:g> من الثواني."</string>
+    <string name="bluetooth_ask_enablement_and_discovery_no_name" product="tablet" msgid="1164681893121736219">"يريد أحد التطبيقات تفعيل البلوتوث وجعل جهازك اللوحي مرئيًا للأجهزة الأخرى لمدة <xliff:g id="TIMEOUT">%1$d</xliff:g> من الثواني."</string>
+    <string name="bluetooth_ask_enablement_and_discovery_no_name" product="default" msgid="2542247690119921188">"يريد أحد التطبيقات تفعيل البلوتوث وجعل هاتفك مرئيًا للأجهزة الأخرى لمدة <xliff:g id="TIMEOUT">%1$d</xliff:g> من الثواني."</string>
+    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="tablet" msgid="7118362102769177771">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> تفعيل البلوتوث وجعل جهازك اللوحي مرئيًا للأجهزة الأخرى. يمكنك تغيير هذا لاحقًا في إعدادات بلوتوث."</string>
+    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="default" msgid="2577488464813970727">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> تفعيل البلوتوث وجعل هاتفك مرئيًا للأجهزة الأخرى. يمكنك تغيير هذا لاحقًا في إعدادات بلوتوث."</string>
+    <string name="bluetooth_ask_enablement_and_lasting_discovery_no_name" product="tablet" msgid="7083038132794842691">"يريد أحد التطبيقات تفعيل البلوتوث وجعل جهازك اللوحي مرئيًا للأجهزة الأخرى. يمكنك تغيير هذا لاحقًا في إعدادات بلوتوث."</string>
+    <string name="bluetooth_ask_enablement_and_lasting_discovery_no_name" product="default" msgid="3541668604020109525">"يريد أحد التطبيقات تفعيل البلوتوث وجعل هاتفك مرئيًا للأجهزة الأخرى. يمكنك تغيير هذا لاحقًا في إعدادات بلوتوث."</string>
+    <string name="bluetooth_turning_on" msgid="6935183036449748493">"جارٍ تفعيل البلوتوث..."</string>
+    <string name="bluetooth_turning_off" msgid="9214026723789756620">"جارٍ إيقاف تفعيل البلوتوث..."</string>
     <string name="bluetooth_connection_permission_request" msgid="2382506002340643398">"طلب اتصال بلوتوث"</string>
     <string name="bluetooth_connection_notif_message" msgid="6824654400460127108">"انقر للاتصال بـ \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\"."</string>
     <string name="bluetooth_connection_dialog_text" msgid="5454660775522235951">"هل تريد الاتصال بـ \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\"؟"</string>
@@ -218,7 +218,7 @@
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"معدّل نقل بيانات UL (كيلوبت في الثانية):"</string>
     <string name="radio_info_signal_location_label" msgid="6788144906873498013">"معلومات الموقع الخلوية (تم الإيقاف):"</string>
     <string name="radio_info_phy_chan_config" msgid="1184401689381480522">"تهيئة قناة LTE Physical:"</string>
-    <string name="radio_info_cell_info_refresh_rate" msgid="3557422342215875913">"معدل تحديث المعلومات الخلوية:"</string>
+    <string name="radio_info_cell_info_refresh_rate" msgid="3557422342215875913">"معدل إعادة تحميل المعلومات الخلوية:"</string>
     <string name="radio_info_cellinfo_label" msgid="632796561627452215">"جميع معلومات القياس الخلوية:"</string>
     <string name="radio_info_gprs_service_label" msgid="7926626443442993242">"خدمة البيانات:"</string>
     <string name="radio_info_roaming_label" msgid="3131949337031835485">"تجوال:"</string>
@@ -243,7 +243,7 @@
     <string name="ping_test_label" msgid="4759194831308897624">"تشغيل اختبار Ping"</string>
     <string name="radio_info_smsc_label" msgid="4561160340649588034">"SMSC:"</string>
     <string name="radio_info_smsc_update_label" msgid="3992739670219389246">"تحديث"</string>
-    <string name="radio_info_smsc_refresh_label" msgid="5343925292858337909">"تحديث"</string>
+    <string name="radio_info_smsc_refresh_label" msgid="5343925292858337909">"إعادة تحميل"</string>
     <string name="radio_info_toggle_dns_check_label" msgid="3058615074503857400">"تبديل فحص نظام أسماء النطاقات"</string>
     <string name="oem_radio_info_label" msgid="8679815523111164378">"المعلومات/الإعدادات الخاصة بـ OEM"</string>
     <string name="band_mode_title" msgid="8180320100446559884">"تحديد وضع النطاق اللاسلكي"</string>
@@ -466,9 +466,9 @@
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"هل تريد تخطّي بصمة الإصبع؟"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"لا يستغرق إعداد بصمة الإصبع أكثر من دقيقة أو دقيقتين. وعند تخطّي ذلك، يمكنك إضافة بصمة إصبع لاحقًا من الإعدادات."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"هل تريد تخطّي قفل الشاشة؟"</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"لن يتم تشغيل ميزات حماية الجهاز. ولن تتمكن من منع الآخرين من استخدام هذا الجهاز اللوحي في حالة فقدانه أو سرقته أو إعادة ضبطه."</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"لن يتم تشغيل ميزات حماية الجهاز. ولن تتمكن من منع الآخرين من استخدام هذا الجهاز في حالة فقدانه أو سرقته أو إعادة ضبطه."</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="default" msgid="8395540117461339748">"لن يتم تشغيل ميزات حماية الجهاز. ولن تتمكن من منع الآخرين من استخدام هذا الهاتف في حالة فقدانه أو سرقته أو إعادة ضبطه."</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"لن يتم تفعيل ميزات حماية الجهاز. ولن تتمكن من منع الآخرين من استخدام هذا الجهاز اللوحي في حالة فقدانه أو سرقته أو إعادة ضبطه."</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"لن يتم تفعيل ميزات حماية الجهاز. ولن تتمكن من منع الآخرين من استخدام هذا الجهاز في حالة فقدانه أو سرقته أو إعادة ضبطه."</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="default" msgid="8395540117461339748">"لن يتم تفعيل ميزات حماية الجهاز. ولن تتمكن من منع الآخرين من استخدام هذا الهاتف في حالة فقدانه أو سرقته أو إعادة ضبطه."</string>
     <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"لن يتم تفعيل ميزات حماية الجهاز. ولن تتمكن من منع الآخرين من استخدام هذا الجهاز اللوحي في حالة فقدانه أو سرقته."</string>
     <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"لن يتم تفعيل ميزات حماية الجهاز. ولن تتمكن من منع الآخرين من استخدام هذا الجهاز في حالة فقدانه أو سرقته."</string>
     <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"لن يتم تفعيل ميزات حماية الجهاز. ولن تتمكن من منع الآخرين من استخدام هذا الهاتف في حالة فقدانه أو سرقته."</string>
@@ -794,7 +794,7 @@
       <item quantity="one">خدمة واحدة ناشطة لمنح الثقة</item>
     </plurals>
     <string name="bluetooth_quick_toggle_title" msgid="7410319268406112792">"بلوتوث"</string>
-    <string name="bluetooth_quick_toggle_summary" msgid="3951769568065428093">"تشغيل البلوتوث"</string>
+    <string name="bluetooth_quick_toggle_summary" msgid="3951769568065428093">"تفعيل البلوتوث"</string>
     <string name="bluetooth_settings" msgid="5228032727293770389">"بلوتوث"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"بلوتوث"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"إدارة الاتصالات، تعيين اسم الجهاز وقابلية الاكتشاف"</string>
@@ -813,7 +813,7 @@
     <string name="bluetooth_error_title" msgid="5718761586633101960"></string>
     <string name="bluetooth_connecting_error_message" msgid="8473359363469518478">"تعذر الاتصال بـ <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_preference_scan_title" msgid="457781003962324807">"البحث عن أجهزة"</string>
-    <string name="bluetooth_search_for_devices" msgid="6796307228261078451">"تحديث"</string>
+    <string name="bluetooth_search_for_devices" msgid="6796307228261078451">"إعادة تحميل"</string>
     <string name="bluetooth_searching_for_devices" msgid="7820814625522702494">"جارٍ البحث…"</string>
     <string name="bluetooth_preference_device_settings" msgid="4247085616427015908">"إعدادات الجهاز"</string>
     <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"الجهاز المقترن"</string>
@@ -834,8 +834,8 @@
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"الخيارات…"</string>
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"إعدادات متقدمة"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"إعدادات بلوتوث المتقدمة"</string>
-    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"عند تشغيل البلوتوث، يمكن للجهاز التواصل مع أجهزة البلوتوث الأخرى القريبة."</string>
-    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"عند تشغيل البلوتوث، يمكن للجهاز التواصل مع أجهزة البلوتوث الأخرى القريبة.\n\nولتحسين تجربة استخدام الجهاز، يمكن للتطبيقات والخدمات أيضًا البحث عن الأجهزة القريبة في أي وقت، حتى عند إيقاف البلوتوث. ويمكن استخدام هذا الإجراء لتحسين الميزات والخدمات المستندة إلى الموقع الجغرافي مثلاً. وبإمكانك تغيير هذا الإعداد في "<annotation id="link">"إعدادات البحث"</annotation>"."</string>
+    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"عند تفعيل البلوتوث، يمكن للجهاز التواصل مع أجهزة البلوتوث الأخرى القريبة."</string>
+    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"عند تفعيل البلوتوث، يمكن للجهاز التواصل مع أجهزة البلوتوث الأخرى القريبة.\n\nولتحسين تجربة استخدام الجهاز، يمكن للتطبيقات والخدمات أيضًا البحث عن الأجهزة القريبة في أي وقت، حتى عند إيقاف البلوتوث. ويمكن استخدام هذا الإجراء لتحسين الميزات والخدمات المستندة إلى الموقع الجغرافي مثلاً. وبإمكانك تغيير هذا الإعداد في "<annotation id="link">"إعدادات البحث"</annotation>"."</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"لتحسين دقة الموقع، سيظل بإمكان تطبيقات وخدمات النظام اكتشاف أجهزة بلوتوث. ويمكنك تغيير ذلك من خلال <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>إعدادات البحث<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"تعذر الاتصال. يُرجى إعادة المحاولة."</string>
     <string name="device_details_title" msgid="726517818032923222">"تفاصيل الجهاز"</string>
@@ -847,7 +847,7 @@
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"إلغاء إقران الجهاز"</string>
     <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"الاتصال بـ…"</string>
     <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"سيتم إلغاء توصيل <xliff:g id="DEVICE_NAME">%1$s</xliff:g> من صوت الوسائط."</string>
-    <string name="bluetooth_disconnect_headset_profile" msgid="8384028101155317339">"سيتم إلغاء توصيل <xliff:g id="DEVICE_NAME">%1$s</xliff:g> من صوت السماعة بدون لمس الجهاز."</string>
+    <string name="bluetooth_disconnect_headset_profile" msgid="8384028101155317339">"سيتم إلغاء توصيل <xliff:g id="DEVICE_NAME">%1$s</xliff:g> من صوت السماعة بدون تلامس الأجهزة."</string>
     <string name="bluetooth_disconnect_hid_profile" msgid="6964226087090465662">"سيتم إلغاء توصيل <xliff:g id="DEVICE_NAME">%1$s</xliff:g> من جهاز الإرسال."</string>
     <string name="bluetooth_disconnect_pan_user_profile" msgid="5523689915196343097">"سيتم قطع الدخول إلى الإنترنت عبر <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_pan_nap_profile" product="tablet" msgid="8145126793699232403">"سيتم قطع اتصال <xliff:g id="DEVICE_NAME">%1$s</xliff:g> من مشاركة اتصال الإنترنت على هذا الجهاز اللوحي."</string>
@@ -885,7 +885,7 @@
     <string name="wifi_tap_to_sign_in" msgid="1075925570550560453">"انقر هنا لتسجيل الدخول إلى الشبكة."</string>
     <string name="tx_link_speed" msgid="4557508597788146162">"<xliff:g id="TRANSMIT_LINK_SPEED">%1$d</xliff:g> ميغابت في الثانية"</string>
     <string name="rx_link_speed" msgid="3735337600274627581">"<xliff:g id="RECEIVE_LINK_SPEED">%1$d</xliff:g> ميغابت في الثانية"</string>
-    <string name="wifi_ask_enable" msgid="925862998663619616">"يريد <xliff:g id="REQUESTER">%s</xliff:g> تشغيل Wi-Fi"</string>
+    <string name="wifi_ask_enable" msgid="925862998663619616">"يريد <xliff:g id="REQUESTER">%s</xliff:g> تفعيل Wi-Fi"</string>
     <string name="wifi_ask_disable" msgid="2146839060110412974">"يريد <xliff:g id="REQUESTER">%s</xliff:g> إيقاف Wi-Fi"</string>
     <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"تحقُّق من رمز بايت لتطبيقات يمكن تصحيحها"</string>
     <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"تمكين ART من التحقُّق من رمز البايت للتطبيقات القابلة للتصحيح"</string>
@@ -903,14 +903,14 @@
     <string name="android_beam_label" msgid="5340299879556025708">"شعاع Android"</string>
     <string name="android_beam_explained" msgid="4501176353247859329">"عند تفعيل هذه الميزة، يمكنك إرسال محتوى التطبيق إلى جهاز به اتصال NFC عن طريق الإمساك بالجهازين بالقرب من بعضهما. ويمكنك على سبيل المثال إرسال صفحات ويب وفيديوهات YouTube وجهات اتصال وغيرها.\n\nما عليك سوى تقريب الجهازين لبعضهما بعضًا (من الخلف عادةً) والنقر على الشاشة وسيحدّد التطبيق ما يتم إرساله."</string>
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi‑Fi"</string>
-    <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"تشغيل شبكة Wi-Fi"</string>
+    <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"تفعيل شبكة Wi-Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi‑Fi"</string>
     <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"استخدام Wi-Fi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"إعدادات Wi-Fi"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi‑Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"إعداد وإدارة نقاط الدخول اللاسلكية"</string>
     <string name="wifi_select_network" msgid="2541598480767312831">"تحديد Wi-Fi"</string>
-    <string name="wifi_starting" msgid="1299466156783469023">"جارٍ تشغيل Wi-Fi..."</string>
+    <string name="wifi_starting" msgid="1299466156783469023">"جارٍ تفعيل Wi-Fi..."</string>
     <string name="wifi_stopping" msgid="413711069039939520">"إيقاف Wi-Fi…"</string>
     <string name="wifi_error" msgid="5605801874484465557">"خطأ"</string>
     <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"لا يتوفر التردد ٥ غيغاهرتز في هذا البلد"</string>
@@ -938,14 +938,14 @@
     <string name="wifi_setting_sleep_policy_error" msgid="9029652631829560733">"حدثت مشكلة أثناء تغيير الإعدادات"</string>
     <string name="wifi_suspend_efficiency_title" msgid="5292408676086580527">"تحسين الفعالية"</string>
     <string name="wifi_suspend_optimizations" msgid="8826033336622472222">"تحسين Wi-Fi"</string>
-    <string name="wifi_suspend_optimizations_summary" msgid="2375789014394339008">"تقليل استخدام البطارية إلى الحد الأدنى عند تشغيل Wi-Fi"</string>
+    <string name="wifi_suspend_optimizations_summary" msgid="2375789014394339008">"تقليل استخدام البطارية إلى الحد الأدنى عند تفعيل Wi-Fi"</string>
     <string name="wifi_limit_optimizations_summary" msgid="1192849485764156570">"تقييد طاقة البطارية لاتصال Wi‑Fi"</string>
     <string name="wifi_switch_away_when_unvalidated" msgid="2418577764071293971">"التبديل إلى بيانات الجوّال في حالة انقطاع اتصال شبكة Wi‑Fi بالإنترنت."</string>
     <string name="wifi_cellular_data_fallback_title" msgid="5067241930716252665">"التبديل إلى بيانات الجوال تلقائيًا"</string>
     <string name="wifi_cellular_data_fallback_summary" msgid="2721467405851519769">"يمكنك استخدام بيانات شبكة الجوّال إذا تعذّر الدخول إلى الإنترنت عبر شبكة Wi‑Fi، وقد يتم فرض رسوم على استخدام البيانات."</string>
     <string name="wifi_add_network" msgid="4094957940791876640">"إضافة شبكة"</string>
     <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"إعدادات Wi-Fi"</string>
-    <string name="wifi_configure_settings_preference_summary_wakeup_on" msgid="5714892572614655675">"ستتم إعادة تشغيل شبكة Wi‑Fi تلقائيًا"</string>
+    <string name="wifi_configure_settings_preference_summary_wakeup_on" msgid="5714892572614655675">"ستتم إعادة تفعيل شبكة Wi‑Fi تلقائيًا"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"لن تتم إعادة تشغيل اتّصال Wi‑Fi تلقائيًا"</string>
     <string name="wifi_access_points" msgid="1647976498906871869">"شبكات Wi-Fi"</string>
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"مزيد من الخيارات"</string>
@@ -957,7 +957,7 @@
     <string name="wifi_menu_remember" msgid="717257200269700641">"تذكر الشبكة"</string>
     <string name="wifi_menu_forget" msgid="7561140554450163075">"حذف الشبكة"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"تعديل الشبكة"</string>
-    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"لمعرفة الشبكات المتاحة، يُرجى تشغيل Wi-Fi."</string>
+    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"لمعرفة الشبكات المتاحة، يُرجى تفعيل Wi-Fi."</string>
     <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"جارٍ البحث عن شبكات Wi-Fi..."</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"ليس لديك إذن لتغيير شبكة Wi‑Fi."</string>
     <string name="wifi_more" msgid="3538241640407382185">"المزيد"</string>
@@ -1049,7 +1049,7 @@
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (WPS متاح)"</string>
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"شبكة Wi‑Fi لمشغِّل شبكة الجوّال"</string>
     <string name="wifi_carrier_content" msgid="3467402515071949783">"الاتصال عبر <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"لتحسين مستوى دقة تحديد الموقع ولأغراض أخرى، يحتاج <xliff:g id="APP_NAME">%1$s</xliff:g> إلى تشغيل البحث عن الشبكات، حتى مع إيقاف Wi-Fi.\n\nهل تريد السماح بذلك لجميع التطبيقات التي تحتاج إلى فحص؟"</string>
+    <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"لتحسين مستوى دقة تحديد الموقع ولأغراض أخرى، يحتاج <xliff:g id="APP_NAME">%1$s</xliff:g> إلى تفعيل البحث عن الشبكات، حتى مع إيقاف Wi-Fi.\n\nهل تريد السماح بذلك لجميع التطبيقات التي تحتاج إلى فحص؟"</string>
     <string name="wifi_scan_always_turnoff_message" msgid="556993843641750002">"لإيقاف هذا، يمكنك الانتقال إلى \"متقدم\" في القائمة الكاملة."</string>
     <string name="wifi_scan_always_confirm_allow" msgid="8857664849515496237">"سماح"</string>
     <string name="wifi_scan_always_confirm_deny" msgid="6190909841125369403">"رفض"</string>
@@ -1136,7 +1136,7 @@
     <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"يشارك التطبيق المحتوى. لمشاركة اتصال الإنترنت، يجب إيقاف نقطة الاتصال، ثم تشغيلها."</string>
     <string name="wifi_hotspot_no_password_subtext" msgid="5400500962974373706">"لم يتم تعيين كلمة مرور"</string>
     <string name="wifi_hotspot_name_title" msgid="6572202165400226127">"اسم نقطة الاتصال"</string>
-    <string name="wifi_hotspot_name_summary_connecting" msgid="5176787959408511889">"جارٍ تشغيل <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>..."</string>
+    <string name="wifi_hotspot_name_summary_connecting" msgid="5176787959408511889">"جارٍ تفعيل <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>..."</string>
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"يمكن توصيل الأجهزة الأخرى بشبكة <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>"</string>
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"كلمة مرور نقطة الاتصال"</string>
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"نطاق نقطة الوصول"</string>
@@ -1144,7 +1144,7 @@
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"يمكن للتطبيقات إنشاء نقطة اتصال لمشاركة المحتوى مع الأجهزة المجاورة."</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"إيقاف نقطة الاتصال تلقائيًا"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"سيتم إيقاف نقطة اتصال Wi‑Fi في حال عدم اتصال أي أجهزة."</string>
-    <string name="wifi_tether_starting" msgid="7676952148471297900">"جارٍ تشغيل نقطة الاتصال…"</string>
+    <string name="wifi_tether_starting" msgid="7676952148471297900">"جارٍ تفعيل نقطة الاتصال…"</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"جارٍ إيقاف نقطة الاتصال…"</string>
     <string name="wifi_tether_enabled_subtext" msgid="7534760116478734006">"<xliff:g id="NETWORK_SSID">%1$s</xliff:g> نشطة"</string>
     <string name="wifi_tether_failed_subtext" msgid="3501001612207106">"خطأ في نقطة اتصال Wi-Fi المحمولة"</string>
@@ -1272,7 +1272,7 @@
     <string name="auto_brightness_subtitle" msgid="8516999348793100665">"مستوى السطوع المفضل بالنسبة لك"</string>
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"عدم ضبط السطوع بحسب الإضاءة المتاحة"</string>
     <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"زيادة استخدام البطارية"</string>
-    <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"يمكنك تحسين مستوى السطوع حسب الإضاءة. وعند تشغيل هذه الميزة، سيظل بإمكانك ضبط السطوع مؤقتًا."</string>
+    <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"يمكنك تحسين مستوى السطوع حسب الإضاءة. وعند تفعيل هذه الميزة، سيظل بإمكانك ضبط السطوع مؤقتًا."</string>
     <string name="auto_brightness_description" msgid="8209140379089535411">"سيتم ضبط سطوع الشاشة تلقائيًا حسب البيئة المحيطة والأنشطة. ويمكنك تحريك شريط التمرير يدويًا لضبط السطوع التكيُّفي حسبما تفضّل."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"موازنة اللون الأبيض للشاشة"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Screen aware"</string>
@@ -1403,8 +1403,8 @@
     <string name="storage_settings_for_app" msgid="3028887232073069965">"التخزين وذاكرة التخزين المؤقت"</string>
     <string name="storage_usb_settings" msgid="4470138799276333403">"التخزين"</string>
     <string name="storage_settings_title" msgid="7348362600789024415">"إعدادات وحدة التخزين"</string>
-    <string name="storage_settings_summary" product="nosdcard" msgid="600267641559698394">"إلغاء تركيب وحدة تخزين USB، وعرض مساحة التخزين المتاحة"</string>
-    <string name="storage_settings_summary" product="default" msgid="6233147555590816245">"إلغاء تحميل بطاقة SD، عرض مساحة التخزين المتاحة"</string>
+    <string name="storage_settings_summary" product="nosdcard" msgid="600267641559698394">"إلغاء تثبيت وحدة تخزين USB، وعرض مساحة التخزين المتاحة"</string>
+    <string name="storage_settings_summary" product="default" msgid="6233147555590816245">"إلغاء تثبيت بطاقة SD، عرض مساحة التخزين المتاحة"</string>
     <string name="imei_multi_sim" msgid="6462221220123699987">"IMEI (المنفذ %1$d لشريحة SIM)"</string>
     <string name="status_number" product="tablet" msgid="1594311542611046121">"MDN (رقم دليل الجوال)"</string>
     <string name="status_number" product="default" msgid="6404365757066475145">"رقم الهاتف"</string>
@@ -1445,16 +1445,16 @@
     <string name="memory_calculating_size" msgid="8407591625479256510">"جارٍ الحساب..."</string>
     <string name="memory_apps_usage" msgid="1886814780760368266">"التطبيقات وبيانات التطبيقات"</string>
     <string name="memory_media_usage" msgid="2744652206722240527">"الوسائط"</string>
-    <string name="memory_downloads_usage" msgid="7039979723012065168">"التنزيلات"</string>
+    <string name="memory_downloads_usage" msgid="7039979723012065168">"المحتوى الذي تم تنزيله"</string>
     <string name="memory_dcim_usage" msgid="599009211606524732">"صور وفيديوهات"</string>
     <string name="memory_music_usage" msgid="809605300042546279">"ملفات صوتية (موسيقى ونغمات رنين ووسائط، إلخ.)"</string>
     <string name="memory_media_misc_usage" msgid="6258827529046910705">"ملفات أخرى"</string>
     <string name="memory_media_cache_usage" msgid="1307620682751377717">"البيانات المؤقتة"</string>
-    <string name="sd_eject" product="nosdcard" msgid="3016608823130472449">"إلغاء تركيب وحدة التخزين المشتركة"</string>
-    <string name="sd_eject" product="default" msgid="4943338855474925396">"إلغاء تحميل بطاقة SD"</string>
-    <string name="sd_eject_summary" product="nosdcard" msgid="8571017212318899178">"إلغاء تركيب وحدة تخزين USB الداخلية"</string>
-    <string name="sd_eject_summary" product="default" msgid="6862319750744376533">"إلغاء تركيب بطاقة SD كي تتمكن من إزالتها بشكل آمن"</string>
-    <string name="sd_insert_summary" product="nosdcard" msgid="6192416378231939330">"إدراج وحدة تخزين USB للتركيب"</string>
+    <string name="sd_eject" product="nosdcard" msgid="3016608823130472449">"إلغاء تثبيت وحدة التخزين المشتركة"</string>
+    <string name="sd_eject" product="default" msgid="4943338855474925396">"إلغاء تثبيت بطاقة SD"</string>
+    <string name="sd_eject_summary" product="nosdcard" msgid="8571017212318899178">"إلغاء تثبيت وحدة تخزين USB الداخلية"</string>
+    <string name="sd_eject_summary" product="default" msgid="6862319750744376533">"إلغاء تثبيت بطاقة SD كي تتمكن من إزالتها بشكل آمن"</string>
+    <string name="sd_insert_summary" product="nosdcard" msgid="6192416378231939330">"إدراج وحدة تخزين USB للتثبيت"</string>
     <string name="sd_insert_summary" product="default" msgid="2977039502204165858">"إدراج بطاقة SD للتحميل"</string>
     <string name="sd_mount" product="nosdcard" msgid="5935852779173473289">"تثبيت وحدة تخزين USB"</string>
     <string name="sd_mount" product="default" msgid="2909681528683834308">"تثبيت بطاقة SD"</string>
@@ -1468,17 +1468,17 @@
     <string name="memory_clear_cache_message" msgid="6723120398411410031">"يؤدي ذلك إلى محو البيانات المؤقتة لكل التطبيقات."</string>
     <string name="mtp_ptp_mode_summary" msgid="6074099855478444183">"وظيفة MTP أو PTP نشطة"</string>
     <string name="dlg_confirm_unmount_title" product="nosdcard" msgid="3843209947310774105">"إلغاء تثبيت وحدة تخزين USB؟"</string>
-    <string name="dlg_confirm_unmount_title" product="default" msgid="4400426555375434431">"هل تريد إلغاء تحميل بطاقة SD؟"</string>
+    <string name="dlg_confirm_unmount_title" product="default" msgid="4400426555375434431">"هل تريد إلغاء تثبيت بطاقة SD؟"</string>
     <string name="dlg_confirm_unmount_text" product="nosdcard" msgid="1423648405874813948">"في حالة إلغاء تثبيت وحدة تخزين USB، ستتوقف بعض التطبيقات التي تستخدمها وربما لا يتم توفيرها حتى يتم إعادة تثبيت وحدة تخزين USB."</string>
-    <string name="dlg_confirm_unmount_text" product="default" msgid="4099391737780732622">"في حالة إلغاء تحميل بطاقة SD، ستتوقف بعض التطبيقات التي تستخدمها وربما لا تتوفر حتى يتم إعادة تحميل بطاقة SD."</string>
+    <string name="dlg_confirm_unmount_text" product="default" msgid="4099391737780732622">"في حالة إلغاء تثبيت بطاقة SD، ستتوقف بعض التطبيقات التي تستخدمها وربما لا تتوفر حتى يتم إعادة تثبيت بطاقة SD."</string>
     <string name="dlg_error_unmount_title" product="nosdcard" msgid="3132640848329117857"></string>
     <string name="dlg_error_unmount_title" product="default" msgid="3132640848329117857"></string>
     <string name="dlg_error_unmount_text" product="nosdcard" msgid="4710773826053117136">"تعذر إلغاء تثبيت وحدة تخزين USB. أعد المحاولة لاحقًا."</string>
-    <string name="dlg_error_unmount_text" product="default" msgid="8243603872321575219">"تعذر إلغاء تحميل بطاقة SD. أعد المحاولة لاحقًا."</string>
-    <string name="unmount_inform_text" product="nosdcard" msgid="2460118115494815052">"سيتم إلغاء تركيب وحدة تخزين USB."</string>
-    <string name="unmount_inform_text" product="default" msgid="6467461731634304997">"سيتم إلغاء تركيب بطاقة SD."</string>
-    <string name="sd_ejecting_title" msgid="595074246815112145">"إلغاء التحميل"</string>
-    <string name="sd_ejecting_summary" msgid="5708943172014003213">"إلغاء التحميل قيد التقدم"</string>
+    <string name="dlg_error_unmount_text" product="default" msgid="8243603872321575219">"تعذر إلغاء تثبيت بطاقة SD. أعد المحاولة لاحقًا."</string>
+    <string name="unmount_inform_text" product="nosdcard" msgid="2460118115494815052">"سيتم إلغاء تثبيت وحدة تخزين USB."</string>
+    <string name="unmount_inform_text" product="default" msgid="6467461731634304997">"سيتم إلغاء تثبيت بطاقة SD."</string>
+    <string name="sd_ejecting_title" msgid="595074246815112145">"إلغاء التثبيت"</string>
+    <string name="sd_ejecting_summary" msgid="5708943172014003213">"إلغاء التثبيت قيد التقدم"</string>
     <string name="storage_low_title" msgid="6957178208426099592">"مساحة التخزين منخفضة"</string>
     <string name="storage_low_summary" msgid="4475275204869514141">"قد لا تعمل بعض ميزات النظام، مثل المزامنة بشكل صحيح. حاول تفريغ مساحة من خلال حذف عناصر أو إلغاء تثبيتها، مثل التطبيقات أو محتوى الوسائط."</string>
     <string name="storage_menu_rename" msgid="3731682449294417745">"إعادة تسمية"</string>
@@ -1692,7 +1692,7 @@
     <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"تم تفعيل نقطة الاتصال وإعداد التوصيل"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"تم تفعيل نقطة الاتصال"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"تم تفعيل إعداد التوصيل"</string>
-    <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"يتعذر توصيل نقاط الاتصال المحمولة أو استخدامها أثناء تشغيل توفير البيانات"</string>
+    <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"يتعذر توصيل نقاط الاتصال المحمولة أو استخدامها أثناء تفعيل توفير البيانات"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"التوصيل عبر USB"</string>
     <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"مشاركة اتصال الإنترنت على الهاتف عبر USB"</string>
@@ -2141,7 +2141,7 @@
     <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"انقر ٣ مرات للتكبير."</string>
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"انقر على أحد الأزرار للتكبير"</string>
     <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"للتكبير أو التصغير"</b>"، انقر على الشاشة 3 مرات بسرعة.\n"<ul><li>"اسحب بإصبعين أو أكثر للتمرير"</li>\n<li>"اضغط بإصبعين أو أكثر على الشاشة لضبط التكبير/التصغير"</li></ul>\n\n<b>"للتكبير أو التصغير مؤقتًا"</b>"، انقر على الشاشة 3 مرات بسرعة واستمر بالضغط بإصبعك بعد النقرة الثالثة.\n"<ul><li>"اسحب للتنقل على الشاشة"</li>\n<li>"ارفع إصبعك للتصغير"</li></ul>\n\n"لا يمكنك استخدام التكبير عند استخدام لوحة المفاتيح وشريط التنقل."</string>
-    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"عند تشغيل ميزة التكبير، استخدم زر إمكانية الوصول في أسفل الشاشة للتكبير بسرعة.\n\n"<b>"للتكبير أو التصغير"</b>"، انقر على زر إمكانية الوصول، ثم انقر في أي مكان على الشاشة.\n"<ul><li>"اسحب بإصبعين أو أكثر للتمرير"</li>\n<li>"اضغط بإصبعين أو أكثر على الشاشة لضبط التكبير/التصغير"</li></ul>\n\n<b>"للتكبير أو التصغير مؤقتًا"</b>"، انقر على زر إمكانية الوصول، ثم المس أي موضع على الشاشة مع الاستمرار.\n"<ul><li>"اسحب للتنقل على الشاشة"</li>\n<li>"ارفع إصبعك للتصغير"</li></ul>\n\n"لا يمكنك استخدام التكبير عند استخدام لوحة المفاتيح وشريط التنقل."</string>
+    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"عند تفعيل ميزة التكبير، استخدم زر إمكانية الوصول في أسفل الشاشة للتكبير بسرعة.\n\n"<b>"للتكبير أو التصغير"</b>"، انقر على زر إمكانية الوصول، ثم انقر في أي مكان على الشاشة.\n"<ul><li>"اسحب بإصبعين أو أكثر للتمرير"</li>\n<li>"اضغط بإصبعين أو أكثر على الشاشة لضبط التكبير/التصغير"</li></ul>\n\n<b>"للتكبير أو التصغير مؤقتًا"</b>"، انقر على زر إمكانية الوصول، ثم المس أي موضع على الشاشة مع الاستمرار.\n"<ul><li>"اسحب للتنقل على الشاشة"</li>\n<li>"ارفع إصبعك للتصغير"</li></ul>\n\n"لا يمكنك استخدام التكبير عند استخدام لوحة المفاتيح وشريط التنقل."</string>
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"تم تعيين زر إمكانية الوصول لخدمة <xliff:g id="SERVICE">%1$s</xliff:g>. لاستخدام التكبير، المس زر إمكانية الوصول مع الاستمرار ثم اختر التكبير."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"مفتاح الاختصار لمستوى الصوت"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"خدمة الاختصار"</string>
@@ -2353,7 +2353,7 @@
     <string name="background_activity_summary_whitelisted" msgid="4713321059375873828">"يتعذر تقييد استخدام الخلفية."</string>
     <string name="background_activity_warning_dialog_title" msgid="2170790412855899678">"هل تريد وضع حد لنشاط التطبيق في الخلفية؟"</string>
     <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"قد يتأثر أداء أحد التطبيقات سلبًا في حالة وضع حد لنشاطه في الخلفية"</string>
-    <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"نظرًا لعدم تعيين هذا التطبيق للعمل على تحسين البطارية، فلا يمكنك تقييده.\n\nلتقييد التطبيق، شغِّل ميزة تحسين البطارية أولاً."</string>
+    <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"نظرًا لعدم تعيين هذا التطبيق للعمل على تحسين البطارية، فلا يمكنك تقييده.\n\nلتقييد التطبيق، فعِّل ميزة تحسين البطارية أولاً."</string>
     <string name="device_screen_usage" msgid="4470485475363132750">"استخدام الشاشة منذ اكتمال الشحن"</string>
     <string name="power_usage_list_summary" msgid="4314438658308211057">"استخدام البطارية فور اكتمال الشحن"</string>
     <string name="screen_usage_summary" msgid="263396144684078341">"مقدار وقت تشغيل الشاشة منذ الشحن الكامل"</string>
@@ -2363,9 +2363,9 @@
     <string name="battery_stats_on_battery" msgid="2644055304085279716">"<xliff:g id="TIME">%1$s</xliff:g> على البطارية"</string>
     <string name="battery_stats_duration" msgid="4867858933068728005">"<xliff:g id="TIME">%1$s</xliff:g> منذ عدم التوصيل"</string>
     <string name="battery_stats_charging_label" msgid="3156586822576998231">"جارٍ الشحن"</string>
-    <string name="battery_stats_screen_on_label" msgid="1223495366609581497">"الشاشة قيد التشغيل"</string>
+    <string name="battery_stats_screen_on_label" msgid="1223495366609581497">"الشاشة قيد التفعيل"</string>
     <string name="battery_stats_gps_on_label" msgid="3944533098574423359">"GPS (نظام تحديد المواقع العالمي) على"</string>
-    <string name="battery_stats_camera_on_label" msgid="557892808497848886">"تشغيل الكاميرا"</string>
+    <string name="battery_stats_camera_on_label" msgid="557892808497848886">"تفعيل الكاميرا"</string>
     <string name="battery_stats_flashlight_on_label" msgid="162279812156241905">"تشغيل ضوء الفلاش"</string>
     <string name="battery_stats_wifi_running_label" msgid="3223557320252465826">"Wi‑Fi"</string>
     <string name="battery_stats_wake_lock_label" msgid="670884103452713535">"في الوضع النشط"</string>
@@ -2373,8 +2373,8 @@
     <!-- no translation found for battery_stats_last_duration (8190573267292309839) -->
     <skip />
     <string name="awake" msgid="8956720170442161285">"وقت الوضع النشط للجهاز"</string>
-    <string name="wifi_on_time" msgid="2487820618265936068">"وقت تشغيل Wi-Fi"</string>
-    <string name="bluetooth_on_time" msgid="6400569492287292639">"وقت تشغيل Wi-Fi"</string>
+    <string name="wifi_on_time" msgid="2487820618265936068">"وقت تفعيل Wi-Fi"</string>
+    <string name="bluetooth_on_time" msgid="6400569492287292639">"وقت تفعيل Wi-Fi"</string>
     <string name="advanced_battery_title" msgid="5026866913848464170">"استخدام البطارية"</string>
     <string name="history_details_title" msgid="8608193822257799936">"تفاصيل السجل"</string>
     <string name="battery_details_title" msgid="5358230551490703067">"استخدام البطارية"</string>
@@ -2584,12 +2584,12 @@
     <string name="menu_stats_unplugged" msgid="774132771877485277">"<xliff:g id="UNPLUGGED">%1$s</xliff:g> منذ عدم التوصيل"</string>
     <string name="menu_stats_last_unplugged" msgid="197591229866380225">"أثناء آخر فترة من عدم التوصيل بـ <xliff:g id="UNPLUGGED">%1$s</xliff:g>"</string>
     <string name="menu_stats_total" msgid="2270006562448894071">"إجمالي الاستخدام"</string>
-    <string name="menu_stats_refresh" msgid="9017362786647223203">"تحديث"</string>
+    <string name="menu_stats_refresh" msgid="9017362786647223203">"إعادة تحميل"</string>
     <string name="process_kernel_label" msgid="4175060316414593760">"نظام التشغيل Android"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"خادم الوسائط"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"تحسين التطبيقات"</string>
     <string name="battery_saver" msgid="3989710213758938398">"توفير شحن البطارية"</string>
-    <string name="battery_saver_auto_title" msgid="4158659069641849952">"تشغيل الميزة تلقائيًا"</string>
+    <string name="battery_saver_auto_title" msgid="4158659069641849952">"تفعيل الميزة تلقائيًا"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"بلا جدول زمني"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"مستند إلى روتين الشحن"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"مستند إلى النسبة المئوية"</string>
@@ -2650,7 +2650,7 @@
     <string name="voice_service_preference_section_title" msgid="2984112696100778038">"خدمات الإدخال الصوتي"</string>
     <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"كلمات مهمة وتفاعل كامل"</string>
     <string name="voice_recognizer_preference_summary" msgid="3681161319745912594">"تحويل النص إلى كلام ببساطة"</string>
-    <string name="voice_interaction_security_warning" msgid="4986261746316889768">"سيكون بمقدور خدمة الإدخال الصوتي هذه أداء مراقبة صوتية دائمة، علاوة على التحكم في التطبيقات الممكن بها ميزة الصوت نيابة عنك. وتتبع هذه الخدمة تطبيق <xliff:g id="VOICE_INPUT_SERVICE_APP_NAME">%s</xliff:g>. هل ترغب في تفعيل استخدام هذه الخدمة؟"</string>
+    <string name="voice_interaction_security_warning" msgid="4986261746316889768">"سيكون بمقدور خدمة الإدخال الصوتي هذه أداء مراقبة صوتية دائمة، علاوة على التحكم في التطبيقات المُفعّلة بها ميزة الصوت نيابة عنك. وتتبع هذه الخدمة تطبيق <xliff:g id="VOICE_INPUT_SERVICE_APP_NAME">%s</xliff:g>. هل ترغب في تفعيل استخدام هذه الخدمة؟"</string>
     <string name="tts_engine_preference_title" msgid="1183116842356275061">"المحرّك المفضّل"</string>
     <string name="tts_engine_settings_title" msgid="4079757915136562358">"إعدادات المحرك"</string>
     <string name="tts_sliders_title" msgid="1927481069989092278">"معدل سرعة الكلام وطبقة الصوت"</string>
@@ -2749,7 +2749,7 @@
     <string name="background_data_dialog_title" msgid="8306650658158895976">"إيقاف بيانات الخلفية؟"</string>
     <string name="background_data_dialog_message" msgid="8126774244911656527">"يؤدي إيقاف بيانات الخلفية إلى إطالة عمر البطارية وتقليل استخدام البيانات. قد يكون هناك بعض التطبيقات التي ما زالت تستخدم اتصال بيانات الخلفية."</string>
     <string name="sync_automatically" msgid="5746117156896468099">"مزامنة تلقائية لبيانات"</string>
-    <string name="sync_enabled" msgid="535172627223336983">"المزامنة قيد التشغيل"</string>
+    <string name="sync_enabled" msgid="535172627223336983">"المزامنة قيد التفعيل"</string>
     <string name="sync_disabled" msgid="713721807204805062">"المزامنة متوقفة"</string>
     <string name="sync_error" msgid="988155155932442765">"خطأ في المزامنة"</string>
     <string name="last_synced" msgid="4511434057768999129">"تاريخ آخر مزامنة: <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
@@ -2820,7 +2820,7 @@
     <string name="data_usage_label_foreground" msgid="2471091128648754601">"المقدمة"</string>
     <string name="data_usage_label_background" msgid="1618794447370396845">"الخلفية"</string>
     <string name="data_usage_app_restricted" msgid="7569077654579299326">"مقيَّد"</string>
-    <string name="data_usage_disable_mobile" msgid="4125335076749119451">"هل تريد إيقاف تشغيل بيانات الجوّال؟"</string>
+    <string name="data_usage_disable_mobile" msgid="4125335076749119451">"هل تريد إيقاف تفعيل بيانات الجوّال؟"</string>
     <string name="data_usage_disable_mobile_limit" msgid="1937796699758613667">"تعيين حد لبيانات الجوال"</string>
     <string name="data_usage_disable_4g_limit" msgid="7131367986548147266">"تعيين حد بيانات لـ 4G"</string>
     <string name="data_usage_disable_3g_limit" msgid="6746819313032692220">"تعيين حد لبيانات 2G-3G"</string>
@@ -2871,10 +2871,10 @@
     <string name="data_usage_total_during_range_mobile" product="tablet" msgid="366118962920532455">"<xliff:g id="RANGE">%2$s</xliff:g>: تم استخدام <xliff:g id="TOTAL">%1$s</xliff:g> تقريبًا، وفقًا لحساب الجهاز اللوحي. قد يختلف حساب استخدام البيانات لدى مشغل شبكة الجوال."</string>
     <string name="data_usage_total_during_range_mobile" product="default" msgid="3504412681869806383">"<xliff:g id="RANGE">%2$s</xliff:g>: تم استخدام <xliff:g id="TOTAL">%1$s</xliff:g> تقريبًا، وفقًا لحساب الهاتف. قد يختلف حساب استخدام البيانات لدى مشغل شبكة الجوال."</string>
     <string name="data_usage_metered_title" msgid="6827619643999794429">"قيود الشبكات"</string>
-    <string name="data_usage_metered_body" msgid="1342905101297753439">"يتم التعامل مع الشبكات الخاضعة للقياس مثل التعامل مع شبكات الجوّال عند تقييد بيانات الخلفية. وقد يردك تحذير من التطبيقات قبل استخدام هذه الشبكات مع التنزيلات الكبيرة."</string>
+    <string name="data_usage_metered_body" msgid="1342905101297753439">"يتم التعامل مع الشبكات الخاضعة للقياس مثل التعامل مع شبكات الجوّال عند تقييد بيانات الخلفية. وقد يردك تحذير من التطبيقات قبل استخدام هذه الشبكات لتنزيل المحتوى الكبير الحجم."</string>
     <string name="data_usage_metered_mobile" msgid="3675591449158207593">"شبكات الجوال"</string>
     <string name="data_usage_metered_wifi" msgid="2955256408132426720">"شبكات Wi-Fi الخاضعة للقياس"</string>
-    <string name="data_usage_metered_wifi_disabled" msgid="5771083253782103415">"لاختيار شبكات خاضعة للقياس، يُرجى تشغيل Wi-Fi."</string>
+    <string name="data_usage_metered_wifi_disabled" msgid="5771083253782103415">"لاختيار شبكات خاضعة للقياس، يُرجى تفعيل Wi-Fi."</string>
     <string name="data_usage_metered_auto" msgid="7924116401382629319">"تلقائي"</string>
     <string name="data_usage_metered_yes" msgid="7333744880035386073">"تفرض تكلفة استخدام"</string>
     <string name="data_usage_metered_no" msgid="1961524615778610008">"بدون قياس"</string>
@@ -3233,7 +3233,7 @@
     <string name="keywords_storage" msgid="7704519289838065803">"مسافة، قرص، محرك أقراص ثابتة، استخدام جهاز"</string>
     <string name="keywords_battery" msgid="3860198379310375112">"استخدام الطاقة، شحن"</string>
     <string name="keywords_spell_checker" msgid="6032411442958278879">"تهجئة، قاموس، تدقيق إملائي، تصحيح تلقائي"</string>
-    <string name="keywords_voice_input" msgid="569012518085308407">"أداة تعرف، إدخال، تحدث، قول، لغة، بدون لمس الجهاز، تعرف، بدون لمس الجهاز، كلمة، مسيئة، صوت، سجل، سماعة رأس بلوتوث"</string>
+    <string name="keywords_voice_input" msgid="569012518085308407">"أداة تعرف، إدخال، تحدث، قول، لغة، بدون تلامس الأجهزة، تعرف، بدون تلامس الأجهزة، كلمة، مسيئة، صوت، سجل، سماعة رأس بلوتوث"</string>
     <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"تقييم، لغة، تلقائي، يتحدث، تحدث، تحويل نص إلى كلام، إمكانية الوصول، قارئ شاشة، مكفوف"</string>
     <string name="keywords_date_and_time" msgid="4434079919474174978">"ساعة، عسكرية"</string>
     <string name="keywords_network_reset" msgid="2064330046866583215">"إعادة ضبط، استرداد، المصنع"</string>
@@ -3246,7 +3246,7 @@
     <string name="keywords_accounts" msgid="5908945725229306088">"الحساب"</string>
     <string name="keywords_users" msgid="5880705776023155640">"تقييد، يقيد، مقيد"</string>
     <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"تصحيح نص، تصحيح، صوت، اهتزاز، تلقائي، لغة، إيماءة، اقتراح، يقترح، مظهر، مسيء، كلمة، نوع، رمز تعبيري، دولي"</string>
-    <string name="keywords_reset_apps" msgid="2645701455052020435">"إعادة ضبط، تفضيلات، تلقائي"</string>
+    <string name="keywords_reset_apps" msgid="2645701455052020435">"إعادة ضبط، إعدادات مفضّلة، تلقائي"</string>
     <string name="keywords_all_apps" msgid="846444448435698930">"تطبيقات، تنزيل، التطبيقات، نظام"</string>
     <string name="keywords_app_permissions" msgid="8539841019997048500">"تطبيقات، أذونات، أمان"</string>
     <string name="keywords_default_apps" msgid="7435952699323965532">"تطبيقات، تلقائي"</string>
@@ -3749,7 +3749,7 @@
     </plurals>
     <string name="zen_mode_summary_alarms_only_by_time" msgid="2462898862757904560">"التغيير إلى التنبيهات فقط حتى <xliff:g id="FORMATTEDTIME">%1$s</xliff:g>"</string>
     <string name="zen_mode_summary_always" msgid="2703276042913200837">"تغيير إلى المقاطعة دائمًا"</string>
-    <string name="zen_mode_screen_on" msgid="7098470659072167219">"عندما تكون الشاشة قيد التشغيل"</string>
+    <string name="zen_mode_screen_on" msgid="7098470659072167219">"عندما تكون الشاشة قيد التفعيل"</string>
     <string name="zen_mode_screen_on_summary" msgid="8275416649295357524">"السماح للإشعارات التي تم كتم صوتها بواسطة وضع \"الرجاء عدم الإزعاج\" بالظهور بسرعة على الشاشة وعرض رمز شريط الحالة"</string>
     <string name="zen_mode_screen_off" msgid="84211490206459038">"عندما تكون الشاشة متوقفة"</string>
     <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"السماح للإشعارات التي يتجاهلها وضع \"الرجاء عدم الإزعاج\" بتشغيل الشاشة وإحداث وميض ضوئي"</string>
@@ -3906,7 +3906,7 @@
     <string name="apps_storage" msgid="5658466038269046038">"مساحة تخزين التطبيقات"</string>
     <string name="usage_access" msgid="2023443456361489516">"الوصول إلى بيانات الاستخدام"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"السماح بالدخول إلى الاستخدام"</string>
-    <string name="app_usage_preference" msgid="5691545073101551727">"تفضيلات استخدام التطبيقات"</string>
+    <string name="app_usage_preference" msgid="5691545073101551727">"الإعدادات المفضّلة لاستخدام التطبيقات"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"وقت الشاشة"</string>
     <string name="usage_access_description" msgid="2178083292760305207">"عند السماح بالوصول إلى بيانات الاستخدام، سيتمكّن التطبيق من تتبع التطبيقات الأخرى التي تستخدمها ومدى تكرار استخدامها وكذلم تتبّع مشغّل شبكة الجوال وإعدادات اللغة بالإضافة إلى تفاصيل أخرى."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"الذاكرة"</string>
@@ -4025,8 +4025,8 @@
     <string name="memory_maximum_usage" msgid="4734981118293469479">"الاستخدام الأقصى"</string>
     <string name="no_data_usage" msgid="903383745620135746">"لم يتم استخدام أي بيانات"</string>
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"هل تسمح بوصول \"<xliff:g id="APP">%1$s</xliff:g>\" إلى إعداد \"عدم الإزعاج\"؟"</string>
-    <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"سيكون التطبيق قادرًا على تشغيل/إيقاف ميزة \"عدم الإزعاج\" وإجراء تغييرات على الإعدادات ذات الصلة."</string>
-    <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"يجب أن يظل قيد التشغيل نظرًا لأن الوصول إلى الإشعارات قيد التشغيل"</string>
+    <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"سيكون التطبيق قادرًا على تفعيل/إيقاف ميزة \"عدم الإزعاج\" وإجراء تغييرات على الإعدادات ذات الصلة."</string>
+    <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"يجب أن يظل قيد التفعيل نظرًا لأن الوصول إلى الإشعارات قيد التفعيل"</string>
     <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"هل تريد إبطال إمكانية وصول تطبيق <xliff:g id="APP">%1$s</xliff:g> إلى قواعد \"عدم الإزعاج\"؟"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"ستتم إزالة كل قواعد \"عدم الإزعاج\" التي أنشأها هذا التطبيق."</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"عدم تحسين"</string>
@@ -4130,7 +4130,7 @@
     <string name="condition_expand_show" msgid="4118818022763913777">"إظهار"</string>
     <string name="condition_expand_hide" msgid="1112721783024332643">"إخفاء"</string>
     <string name="condition_hotspot_title" msgid="4143299802283098506">"نقطة الاتصال مفعّلة"</string>
-    <string name="condition_airplane_title" msgid="8484582712516148433">"وضع الطائرة قيد التشغيل"</string>
+    <string name="condition_airplane_title" msgid="8484582712516148433">"وضع الطائرة قيد التفعيل"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"الشبكات غير متوفرة"</string>
     <string name="condition_zen_title" msgid="2128184708916052585">"تمّ تفعيل \"الرجاء عدم الإزعاج\""</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"تم كتم صوت الهاتف."</string>
@@ -4219,7 +4219,7 @@
     <string name="data_usage_other_apps" msgid="7002491980141402084">"التطبيقات الأخرى المضمّنة في الاستخدام"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
       <item quantity="zero">هناك <xliff:g id="COUNT">%1$d</xliff:g> تطبيق مسموح له باستخدام البيانات بدون قيود عند تفعيل ميزة \"توفير البيانات\"</item>
-      <item quantity="two">هناك تطبيقان (<xliff:g id="COUNT">%1$d</xliff:g>) مسموح لهما باستخدام البيانات بدون قيود عند تشغيل توفير البيانات</item>
+      <item quantity="two">هناك تطبيقان (<xliff:g id="COUNT">%1$d</xliff:g>) مسموح لهما باستخدام البيانات بدون قيود عند تفعيل توفير البيانات</item>
       <item quantity="few">هناك <xliff:g id="COUNT">%1$d</xliff:g> تطبيقات مسموح لها باستخدام البيانات بدون قيود عند تفعيل ميزة \"توفير البيانات\"</item>
       <item quantity="many">هناك <xliff:g id="COUNT">%1$d</xliff:g> تطبيقًا مسموح لها باستخدام البيانات بدون قيود عند تفعيل ميزة \"توفير البيانات\"</item>
       <item quantity="other">هناك <xliff:g id="COUNT">%1$d</xliff:g> تطبيق مسموح له باستخدام البيانات بدون قيود عند تفعيل ميزة \"توفير البيانات\"</item>
@@ -4250,7 +4250,7 @@
     <string name="data_saver_title" msgid="7903308134514179256">"توفير البيانات"</string>
     <string name="unrestricted_data_saver" msgid="9139401849550738720">"الاستخدام غير المقيّد للبيانات"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"تم إيقاف بيانات الخلفية."</string>
-    <string name="data_saver_on" msgid="7281809065420480881">"قيد التشغيل"</string>
+    <string name="data_saver_on" msgid="7281809065420480881">"قيد التفعيل"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"غير مفعّل"</string>
     <string name="data_saver_switch_title" msgid="8244008132112735207">"استخدام أداة توفير البيانات"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"الاستخدام غير المقيَّد للبيانات"</string>
@@ -4483,7 +4483,7 @@
     <string name="enterprise_privacy_input_method_name" msgid="439610095825218563">"تعيين على <xliff:g id="APP_LABEL">%s</xliff:g>"</string>
     <string name="enterprise_privacy_always_on_vpn_device" msgid="2022700916516458213">"تم تشغيل إعداد \"شبكة افتراضية خاصة (VPN) دائمة التشغيل\""</string>
     <string name="enterprise_privacy_always_on_vpn_personal" msgid="5644065780843002044">"تم تشغيل إعداد \"شبكة افتراضية خاصة (VPN) دائمة التشغيل\" في الملف الشخصي"</string>
-    <string name="enterprise_privacy_always_on_vpn_work" msgid="6443089897985373564">"تم تشغيل \"شبكة افتراضية خاصة (VPN) دائمة التشغيل\" في الملف الشخصي للعمل"</string>
+    <string name="enterprise_privacy_always_on_vpn_work" msgid="6443089897985373564">"تم تفعيل \"شبكة افتراضية خاصة (VPN) دائمة التشغيل\" في الملف الشخصي للعمل"</string>
     <string name="enterprise_privacy_global_http_proxy" msgid="3862135895716080830">"تم تعيين الخادم الوكيل HTTP العام"</string>
     <string name="enterprise_privacy_ca_certs_device" msgid="7715658848470643878">"بيانات الاعتماد الموثوقة"</string>
     <string name="enterprise_privacy_ca_certs_personal" msgid="1356447417193483802">"بيانات اعتماد موثوقة في ملفك الشخصي"</string>
@@ -4585,10 +4585,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"ستؤدي إلى إبطاء هذا الهاتف."</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"فرض كامل لقياسات GNSS"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"تتبّع جميع مجموعات وفترات تكرار GNSS التي لا تحتوي على دورات عمل"</string>
-    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
-    <skip />
-    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
-    <skip />
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"تصحيح أخطاء تبديل المستخدم"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"إظهار التفاصيل أثناء تبديل المستخدم"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"السماح ببدء الأنشطة في الخلفية"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"السماح ببدء جميع الأنشطة في الخلفية"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"عرض مربع حوار الأعطال دائمًا"</string>

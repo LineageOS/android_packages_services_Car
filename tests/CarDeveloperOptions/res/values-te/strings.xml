@@ -4279,10 +4279,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"దీని వలన ఈ ఫోన్ పనితీరు నెమ్మదిస్తుంది"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"శక్తివంతమైన GNSS కొలతలు"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"డ్యూటీ సైక్లింగ్ లేకుండా అన్ని GNSS నక్షత్రరాశులను మరియు ఫ్రీక్వెన్సీలను ట్రాక్ చేయండి"</string>
-    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
-    <skip />
-    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
-    <skip />
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"యూజర్‌ను మార్చేటప్పుడు డీబగ్ చేయి"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"యూజర్‌ను మార్చేటప్పుడు వివరణాత్మక సమాచారాన్ని చూపించు"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"బ్యాక్‌గ్రౌండ్ కార్యకలాపం మొదలవ్వడానికి అనుమతి ఇవ్వు"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"మొత్తం బ్యాక్‌గ్రౌండ్ కార్యకలాపం మొదలవ్వడానికి అనుమతిస్తుంది"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"ఎల్లప్పుడూ క్రాష్ డైలాగ్‌ని చూపు"</string>

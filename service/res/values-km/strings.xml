@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"កំណត់រចនាសម្ព័ន្ធ​ការរឹតបន្តឹង UX"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"ទាក់ទងជាមួយ​ឧបករណ៍ USB តាមរយៈមុខងារ AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"អនុញ្ញាតឱ្យ​កម្មវិធី​ទាក់ទង​ជាមួយឧបករណ៍តាមរយៈមុខងារ AOAP"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"សិទ្ធិ​ចូលអាន​ប្រព័ន្ធ​នៃ​ការយល់ដឹង​អំពី​អ្នកជិះ​ក្នុងរថយន្ត"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"អនុញ្ញាត​ការអាន​ស្ថានភាព និង​ទិន្នន័យ​អំពី​ការចាប់​ប្រព័ន្ធ​នៃ​ការយល់ដឹង​អំពី​អ្នកជិះ​ក្នុងរថយន្ត"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"គ្រប់គ្រង​ក្រាហ្វ​អំពី​ប្រព័ន្ធ​នៃ​ការយល់ដឹង​អំពី​អ្នកជិះ​ក្នុងរថយន្ត"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"អនុញ្ញាត​ការគ្រប់គ្រង​ការចាប់ផ្ដើម និង​ការបញ្ឈប់​ក្រាហ្វ​អំពីការចាប់​ប្រព័ន្ធ​នៃ​ការយល់ដឹង​អំពី​អ្នកជិះ​ក្នុងរថយន្ត"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"សេវាកម្ម​បញ្ចូលរបស់​រថយន្ត"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"គ្រប់គ្រង​ព្រឹត្តិការណ៍​បញ្ចូល"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"មិនអាច​ដំណើរការ CAN bus បានទេ"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"ចូលប្រើ​ព័ត៌មាន​លម្អិត​អំពីម៉ាស៊ីនរថយន្តរបស់អ្នក។"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"ចូលប្រើ​គម្របសាំង និងរន្ធសាក​អាគុយរថយន្ត។"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"ចូលប្រើ​គម្របសាំង និងរន្ធសាក​អាគុយរថយន្ត។"</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"គ្រប់គ្រង​គម្រប​សាំង និង​រន្ធ​សាក​អាគុយ​រថយន្ត"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"គ្រប់គ្រង​គម្របសាំង និង​រន្ធ​សាក​អាគុយ​រថយន្ត​។"</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"អាន​អត្តសញ្ញាណរថយន្ត"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"ចូលប្រើ​អត្តសញ្ញាណរថយន្ត។"</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"គ្រប់គ្រង​ទ្វាររថយន្ត"</string>

@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"የUX ገደቦችን ያዋቅሩ"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"ከዩኤስቢ መሣሪያ ጋር በ AOAP ሁነታ ውስጥ መልዕክት ይለዋወጡ"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"አንድ መተግበሪያ ከመሣሪያ ጋር በ AOAP ሁነታ ውስጥ መልዕክት እንዲለዋወጥ ይፈቅዳል"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"የተሳፋሪ ማስገንዘቢያ ሥርዓት የንባብ መዳረሻ"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"የተሳፋሪ ማስገንዘቢያ ሥርዓት ሁኔታን እና ፈልጎ ማግኛን ውሂብ ማንበብን ያስችላል"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"የተሳፋሪ ማስገንዘቢያ ሥርዓት ፈልጎ ማወቂያ ግራፍን ይቆጣጠሩ"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"የተሳፋሪ ማስገንዘቢያ ሥርዓት ፈልጎ ማወቂያ ግራፍ ማስጀመርን እና ማስቆምን መቆጣጠርን ያስችላል"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"የመኪና ግቤት አገልግሎት"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"የግቤት ክስተቶችን ያስተናግዱ"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN አውቶብስ አልተሳካም"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"የእርስዎን መኪና በዝርዝር የቀረበ የሞተር መረጃ ይድረሱበት።"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"የመኪናውን የነዳጅ በር እና የኃይል መሙያ በር ድረስበት"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"የመኪና ነዳጅን በር እና የኃይል መሙያ ወደብ ይድረሱባቸው።"</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"የመኪናውን የነዳጅ በር እና የኃይል መሙያ በር መድረስ"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"የመኪናውን የነዳጅ በር እና የኃይል መሙያ በር መድረስ።"</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"የመኪናውን መለያ መታወቂያ አንብብ"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"የመኪና ለይቶ ማወቂያን ይድረሱበት።"</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"የመኪና በሮችን ተቆጣጠር"</string>

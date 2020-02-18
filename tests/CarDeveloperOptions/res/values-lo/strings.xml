@@ -4277,10 +4277,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"ມັນຈະເຮັດໃຫ້ໂທລະສັບໜ່ວຍນີ້ຊ້າລົງ"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"ບັງຄັບການກວດສອບ GNSS ເຕັມຮູບແບບ"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"ຕິດຕາມກຸ່ມ ແລະ ຄວາມຖີ່ GNSS ທັງໝົດໂດຍບໍ່ມີຮອບຕາມພັນທະ"</string>
-    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
-    <skip />
-    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
-    <skip />
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"ດີບັກບັນຫາການປ່ຽນຜູ້ໃຊ້"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"ສະແດງຂໍ້ມູນລະອຽດໃນລະຫວ່າງການປ່ຽນຜູ້ໃຊ້"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"ອະນຸຍາດໃຫ້ການເຄື່ອນໄຫວໃນພື້ນຫຼັງເລີ່ມຕົ້ນ"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"ອະນຸຍາດໃຫ້ການເຄື່ອນໄຫວໃນພື້ນຫຼັງທັງໝົດເລີ່ມຕົ້ນ"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"ສະແດງກ່ອງຂໍ້ຄວາມການເຮັດວຽກລົ້ມເຫລວທຸກເທື່ອ"</string>

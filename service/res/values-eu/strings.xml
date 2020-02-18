@@ -60,18 +60,14 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Abiarazi aplikazioak instrumentu lukuan"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Instrumentu lukuaren errendatzea"</string>
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Jaso instrumentu lukuaren datuak"</string>
-    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Erabiltzaileen esperientziaren murriztapenen konfigurazioa"</string>
-    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Konfiguratu erabiltzaileen esperientziaren murriztapenak"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Erabiltzeko moduaren murriztapenen konfigurazioa"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Konfiguratu erabiltzeko moduaren murriztapenak"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Komunikatu AOAP moduan USB bidezko gailuekin"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Gailuekin AOAP moduan komunikatzeko baimena ematen dio aplikazioari."</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Bidaiariak hautemateko sistema irakurtzeko sarbidea"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Bidaiariak hautemateko sistemaren egoerei eta detekzioei buruzko datuak irakurtzeko aukera ematen du"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Kontrolatu Bidaiariak hautemateko sistemaren grafikoa"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Bidaiariak hautemateko sistemaren detekzioen grafikoa noiz hasi eta noiz bukatu kontrolatzeko aukera ematen du"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Autoaren sarrerako zerbitzua"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Kudeatu sarrerako gertaerak"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN autobusak huts egin du"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Atzitu autoaren motorrari buruzko informazio xehatua."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"atzitu autoaren erregai-deposituaren ataka eta korrontera konektatzeko ataka"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Atzitu autoaren erregai-deposituaren ataka eta korrontera konektatzeko ataka."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"kontrolatu autoaren erregai-deposituaren ataka eta korrontera konektatzeko ataka"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Kontrolatu autoaren erregai-deposituaren ataka eta korrontera konektatzeko ataka."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"irakurri autoaren identifikazioa"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Atzitu autoaren identifikazioa."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"kontrolatu autoaren ateak"</string>

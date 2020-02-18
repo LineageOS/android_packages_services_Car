@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Configurer les restrictions relatives à l\'expérience utilisateur"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Communiquer avec les appareils USB en mode AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Permet à une application de communiquer avec un appareil en mode AOAP"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Accès en lecture au système de détection des occupants"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Permet de lire les données liées à l\'état et à la détection du système de détection des occupants"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Contrôler le graphique du système de détection des occupants"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Permet de contrôler le démarrage et l\'arrêt du graphique de détection du système de détection des occupants"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Service d\'entrée de la voiture"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Gérer les événements d\'entrée"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Défaillance du bus de données CAN"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Accéder aux renseignements détaillés sur le moteur de votre voiture."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"accéder à la porte du réservoir de carburant et au port de recharge de la voiture"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Accéder à la porte du réservoir de carburant et au port de recharge de la voiture."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"contrôler la porte du réservoir de carburant et le port de recharge du véhicule"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Contrôler la porte du réservoir de carburant et le port de recharge du véhicule."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"lire l\'identification de la voiture"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Accéder à l\'identification de la voiture."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"contrôler les portières de la voiture"</string>

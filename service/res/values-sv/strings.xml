@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Konfigurera användningsbegränsningar"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Kommunicera med en USB-enhet i AOAP-läge"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Tillåt att en app kommunicerar med en enhet i AOAP-läge"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Läsbehörighet för Occupant Awareness System"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Tillåter läsning av status och detektionsdata för Occupant Awareness System"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Styra diagrammet för Occupant Awareness System"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Tillåter styrning av start och stopp av detektionsdiagrammet för Occupant Awareness System"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Indatatjänst för bilen"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Hantera indatahändelser"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Fel i CAN-bussen"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Åtkomst till detaljerad information om bilens motor."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"åtkomst till bilens tanklucka och laddningsport"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Åtkomst till bilens tanklucka och laddningsport."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"styra bilens tanklucka och laddningsport"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Styra bilens tanklucka och laddningsport."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"läsa av bilens id-information"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Åtkomst till bilens id-information."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"styra bilens dörrar och luckor"</string>

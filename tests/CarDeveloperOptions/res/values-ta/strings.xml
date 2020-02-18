@@ -212,7 +212,7 @@
     <string name="proxy_url_title" msgid="882042361706435904">"PAC URL: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"DL இணைய வேகம் (kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"UL இணைய வேகம் (kbps):"</string>
-    <string name="radio_info_signal_location_label" msgid="6788144906873498013">"மொபைலின் இருப்பிடத் தகவல் (தடுக்கப்பட்டது):"</string>
+    <string name="radio_info_signal_location_label" msgid="6788144906873498013">"மொபைலின் இருப்பிடத் தகவல் (நிறுத்தப்பட்டது):"</string>
     <string name="radio_info_phy_chan_config" msgid="1184401689381480522">"LTE ஃபிசிக்கல் சேனல் உள்ளமைவு:"</string>
     <string name="radio_info_cell_info_refresh_rate" msgid="3557422342215875913">"மொபைல் தகவலின் புதுப்பிப்பு விகிதம்:"</string>
     <string name="radio_info_cellinfo_label" msgid="632796561627452215">"அனைத்து மொபைல் அளவீட்டுத் தகவல்:"</string>
@@ -1241,7 +1241,7 @@
     <string name="wallpaper_settings_summary_default" msgid="2626880032742784599">"இயல்பு"</string>
     <string name="wallpaper_settings_summary_custom" msgid="8950504698015331202">"தனிப்பயன்"</string>
     <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"வால்பேப்பரை மாற்று"</string>
-    <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"திரையைத் தனிப்பயனாக்கு"</string>
+    <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"திரையைப் பிரத்தியேகமாக்கு"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"வால்பேப்பர் தேர்வு"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"ஸ்கிரீன் சேவர்"</string>
     <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"சார்ஜ் ஆகும் போது அல்லது சாதனத்தில் இணைந்திருக்கும்போது"</string>
@@ -2895,9 +2895,9 @@
     <string name="user_adding_new_user" msgid="381717945749193417">"புதிய பயனரைச் சேர்க்கிறது…"</string>
     <string name="user_delete_user_description" msgid="3627684990761268859">"பயனரை நீக்கு"</string>
     <string name="user_delete_button" msgid="6747802570634772774">"நீக்கு"</string>
-    <string name="user_guest" msgid="6226240869459683235">"வேறொருவர்"</string>
-    <string name="user_exit_guest_title" msgid="7279886200373071797">"அழைக்கப்பட்டவரை அகற்று"</string>
-    <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"அழைக்கப்பட்டவரை அகற்றவா?"</string>
+    <string name="user_guest" msgid="6226240869459683235">"கெஸ்ட்"</string>
+    <string name="user_exit_guest_title" msgid="7279886200373071797">"கெஸ்ட்டை அகற்று"</string>
+    <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"கெஸ்ட்டை அகற்றவா?"</string>
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"இந்த அமர்வின் எல்லா பயன்பாடுகளும், தரவும் நீக்கப்படும்."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"அகற்று"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"ஃபோன் அழைப்புகளை இயக்கு"</string>
@@ -3063,7 +3063,7 @@
     <string name="keywords_display" msgid="355147521915213375">"திரை, டச்ஸ்கிரீன்"</string>
     <string name="keywords_display_brightness_level" msgid="7649410848561920512">"ஒளிமங்கல் திரை, டச்ஸ்கிரீன், பேட்டரி, பிரகாசம்"</string>
     <string name="keywords_display_night_display" msgid="3647370193110044967">"ஒளிமங்கல் திரை, இரவு, மென்னிறம், இரவு ஷிஃப்ட், ஒளிர்வு, திரை வண்ணம், நிறம், வண்ணம்"</string>
-    <string name="keywords_display_wallpaper" msgid="1202089324795933197">"பின்னணி, தனிப்படுத்து, தனிப்பயனாக்கு திரை"</string>
+    <string name="keywords_display_wallpaper" msgid="1202089324795933197">"பின்னணி, தனிப்படுத்து, பிரத்தியேகமாக்கு திரை"</string>
     <string name="keywords_display_font_size" msgid="1496431330244040196">"உரை அளவு"</string>
     <string name="keywords_display_cast_screen" msgid="5744566533025100355">"திரையில் காட்டு, அலைபரப்பு, திரையை மிரரிங் செய், திரையைக் காட்டு, திரையைப் பகிர், திரைப் பகிர்தல், மிரரிங், திரையை அலைபரப்பு, திரை அலைபரப்புதல்"</string>
     <string name="keywords_storage" msgid="7704519289838065803">"இடம், டிஸ்க், வட்டு இயக்ககம், சாதனப் பயன்பாடு"</string>
@@ -4028,7 +4028,7 @@
     <string name="notification_log_details_actions" msgid="4096917954653586430">"செயல்கள்"</string>
     <string name="notification_log_details_title" msgid="1673066058045472579">"தலைப்பு"</string>
     <string name="notification_log_details_remoteinput" msgid="739338559646354829">"ரிமோட் இன்புட்கள்"</string>
-    <string name="notification_log_details_content_view" msgid="6690611908715230584">"தனிப்பயன் காட்சி"</string>
+    <string name="notification_log_details_content_view" msgid="6690611908715230584">"பிரத்தியேகக் காட்சி"</string>
     <string name="notification_log_details_extras" msgid="3202948662169885771">"மற்றவை"</string>
     <string name="notification_log_details_icon" msgid="8464763276104577811">"ஐகான்"</string>
     <string name="notification_log_details_parcel" msgid="4024970850647594029">"பார்சல் அளவு"</string>
@@ -4277,10 +4277,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"இது உங்கள் மொபைலைத் தாமதப்படுத்தும்"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"முழுமையான GNSS அளவீடுகளை அமலாக்கு"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"பணி சுழற்சியை முடக்கி, GNSS வழிசெலுத்துதல்கள் மற்றும் அதிர்வெண்கள் அனைத்தையும் கண்காணித்தல்."</string>
-    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
-    <skip />
-    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
-    <skip />
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"பயனர் மாற்றத்தைப் பிழைதிருத்துதல்"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"பயனரை மாற்றும்போது விரிவான விவரங்களைக் காட்டும்"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"பின்னணிச் செயல்பாடு தொடங்க அனுமதி"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"அனைத்துப் பின்னணிச் செயல்பாடுகளையும் தொடங்க அனுமதிக்கும்"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"சிதைவு அறிவிப்பை எப்போதும் காட்டு"</string>

@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX सम्बन्धी प्रतिबन्धहरू कन्फिगर गर्नुहोस्‌"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP मोडमा USB यन्त्रसँग सञ्चार गर्नुहोस्"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP मोडमा अनुप्रयोगलाई कुनै यन्त्रसँग सञ्चार गर्न दिन्छ"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness System रिड गर्ने पहुँच"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness System को स्थिति र पत्ता लगाउनेसम्बन्धी डेटा रिड गर्न दिन्छ"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System सम्बन्धी ग्राफको नियन्त्रण गर्नुहोस्"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System पत्ता लगाउनेसम्बन्धी ग्राफको सुरु र समाप्त हुने कार्य नियन्त्रण गर्न अनुमति दिनुहोस्"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"कारको इनपुट सेवा"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"इनपुट गरिएका कार्यक्रमहरू व्यवस्थापन गर्ने"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus असफल भयो"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"तपाईंको कारको इन्जिनको विस्तृत जानकारीमाथि पहुँच राख्ने।"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"कारको इन्धन हाल्ने ट्याङ्कीको बिर्को तथा चार्ज गर्ने पोर्टमाथि पहुँच राख्ने"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"कारको इन्धन हाल्ने ट्याङ्कीको बिर्को तथा चार्ज गर्ने पोर्टमाथि पहुँच राख्ने।"</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"कारको इन्धन हाल्ने ट्याङ्कीको बिर्को तथा चार्ज गर्ने पोर्टमाथि नियन्त्रण राख्नुहोस्"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"कारको इन्धन हाल्ने ट्याङ्कीको बिर्को तथा चार्ज गर्ने पोर्ट नियन्त्रण गर्नुहोस्।"</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"कारको पहिचानसम्बन्धी जानकारी पढ्ने"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"कारको पहिचानसम्बन्धी जानकारीमाथि पहुँच राख्ने।"</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"कारका ढोकाहरू नियन्त्रण गर्ने"</string>

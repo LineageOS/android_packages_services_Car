@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX निर्बंध कॉन्फिगर करा"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"USB डिव्हाइसशी AOAP मोडमध्ये कनेक्ट करा"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"अ‍ॅपला डिव्हाइसशी AOAP मोडमध्ये कनेक्ट करण्याची अनुमती देते"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"ऑक्युपंट अवेअरनेस सिस्टम वाचन अ‍ॅक्सेस"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"ऑक्युपंट अवेअरनेस सिस्टम यासाठी वाचन स्थिती आणि डिटेक्‍शन डेटाला अनुमती देते"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"ऑक्युपंट अवेअरनेस सिस्टम आलेख नियंत्रित करा"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"ऑक्युपंट अवेअरनेस सिस्टम डिटेक्शन आलेख सुरू करणे आणि थांबवणे नियंत्रित करण्यासाठी अनुमती देते"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"कार इनपुट सेवा"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"इनपुट इव्हेंट हाताळा"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN बस अयशस्वी"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"तुमच्या कारच्या इंजिनची तपशीलवार माहिती अ‍ॅक्सेस करा."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"कारचा इंधन भरण्याचा दरवाजा आणि चार्ज पोर्ट अ‍ॅक्सेस करा"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"कारचा इंधन भरण्याचा दरवाजा आणि चार्ज पोर्ट अ‍ॅक्सेस करा."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"कारचा इंधन भरण्याचा दरवाजा आणि चार्ज पोर्ट नियंत्रित करा"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"कारचा इंधन भरण्याचा दरवाजा आणि चार्ज पोर्ट नियंत्रित करा"</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"कारची ओळख वाचा"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"कारची ओळख अ‍ॅक्सेस करा."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"कारचे दरवाजे नियंत्रित करा"</string>

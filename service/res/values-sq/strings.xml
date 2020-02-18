@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Konfiguro kufizimet për eksperiencën e përdoruesit"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Komuniko me pajisjen USB në modalitetin AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Lejon që një aplikacion të komunikojë me një pajisje në modalitetin AOAP"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Qasja për leximin e Occupant Awareness System"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Lejon leximin e të dhënave për statusin dhe zbulimin për Occupant Awareness System"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Kontrollo Occupant Awareness System Graph"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Lejon kontrollin e nisjes dhe ndalimit të grafikut të zbulimit të Occupant Awareness System"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Shërbimi i hyrjes së makinës"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Menaxho ngjarjet e hyrjes"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Kanali i komunikimit CAN dështoi"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Qasu tek informacionet e detajuara të motorit të makinës."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"qasu te porta e karburantit të makinës dhe te porta e karikimit"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Qasu te porta e karburantit të makinës dhe te porta e karikimit."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"kontrollo kapakun e karburantit të makinës dhe portën e karikimit"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Kontrollo kapakun e karburantit të makinës dhe portën e karikimit."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"lexo identifikimin e makinës"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Qasu tek identifikimi i makinës."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"kontrollo dyert e makinës"</string>

@@ -1071,7 +1071,7 @@
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"使用熱點為其他裝置建立 Wi-Fi 網絡。熱點會使用流動數據連線提供互聯網服務。可能需要支付額外流動數據費用。"</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"應用程式可以建立熱點，與附近的裝置分享內容。"</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"自動關閉熱點"</string>
-    <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"如果未連接任何裝置，Wi‑Fi 熱點將會關閉"</string>
+    <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"當沒有連接任何裝置時，Wi‑Fi 熱點就會關閉"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"正在開啟熱點…"</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"正在關閉熱點…"</string>
     <string name="wifi_tether_enabled_subtext" msgid="7534760116478734006">"<xliff:g id="NETWORK_SSID">%1$s</xliff:g> 使用中"</string>
@@ -1661,9 +1661,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"低耗電量"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wi‑Fi 和藍牙掃瞄"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Wi-Fi 掃瞄"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"允許應用程式和服務隨時掃瞄 Wi-Fi 網絡 (即使 Wi-Fi 已關閉)。此操作可用來改善適地性功能和服務。"</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"允許應用程式和服務隨時掃瞄 Wi-Fi 網絡 (即使 Wi-Fi 已關閉)。用途包括改善適地性功能和服務。"</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"藍牙掃瞄"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"允許應用程式和服務隨時掃瞄附近的裝置 (即使藍牙功能已關閉)。此操作可用來改善適地性功能和服務。"</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"允許應用程式和服務隨時掃瞄附近的裝置 (即使藍牙功能已關閉)。用途包括改善適地性功能和服務。"</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"工作用定位服務"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi-Fi 和流動網絡位置"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"允許應用程式使用 Google 的定位服務，藉此更快確定您的約略位置。系統會收集匿名的位置資料傳送給 Google。"</string>
@@ -3388,7 +3388,7 @@
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"pip 畫中畫"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"畫中畫"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"允許畫中畫"</string>
-    <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"允許此應用程式在開啟時或您離開後 (例如繼續觀看影片) 建立畫中畫視窗。該視窗會在您目前使用的其他應用程式上層顯示。"</string>
+    <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"當您離開正運作中的應用程式時，允許該應用程式建立畫中畫視窗 (例如方便您繼續觀看影片)。該視窗會顯示在您目前使用的其他應用程式上層。"</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"「請勿騷擾」權限"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"允許請勿騷擾權限"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"沒有已安裝的應用程式要求存取「請勿騷擾」。"</string>
@@ -3644,7 +3644,7 @@
     <string name="advanced_apps" msgid="6643869089344883537">"進階"</string>
     <string name="configure_apps" msgid="4066683118857400943">"設定應用程式"</string>
     <string name="unknown_app" msgid="2312052973570376877">"不明應用程式"</string>
-    <string name="app_permissions" msgid="3215958256821756086">"權限管理員"</string>
+    <string name="app_permissions" msgid="3215958256821756086">"權限管理工具"</string>
     <string name="app_permissions_summary" msgid="8785798165776061594">"使用<xliff:g id="APPS">%1$s</xliff:g>的應用程式"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"輕按以喚醒"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"在螢幕上任何地方連按兩下即可喚醒裝置"</string>
@@ -3677,7 +3677,7 @@
     <string name="system_app" msgid="4111402206594443265">"(系統)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(系統預設)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"應用程式儲存空間"</string>
-    <string name="usage_access" msgid="2023443456361489516">"使用情況存取權"</string>
+    <string name="usage_access" msgid="2023443456361489516">"使用紀錄存取權"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"允許使用記錄存取權"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"應用程式使用喜好"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"裝置使用時間"</string>
@@ -4278,10 +4278,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"此功能會減慢這部手機的運作速度"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"強制啟用完整的 GNSS 測量資料"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"在停用工作週期的情況下追蹤所有 GNSS 星座圖和頻率"</string>
-    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
-    <skip />
-    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
-    <skip />
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"切換使用者時顯示偵錯資訊"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"切換使用者時顯示詳細偵錯資訊"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"允許啟動背景活動"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"允許啟動所有背景活動"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"一律顯示當機對話框"</string>
