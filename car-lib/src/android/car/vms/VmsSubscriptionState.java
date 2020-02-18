@@ -44,18 +44,18 @@ import java.util.Set;
 public final class VmsSubscriptionState implements Parcelable {
     private final int mSequenceNumber;
     private final Set<VmsLayer> mLayers;
-    private final Set<VmsAssociatedLayer> mSubscribedLayersFromPublishers;
+    private final Set<VmsAssociatedLayer> mAssociatedLayers;
 
     /**
      * Constructs a summary of the state of the current subscriptions for publishers to consume
      * and adjust which layers that the are publishing.
      */
     public VmsSubscriptionState(int sequenceNumber,
-            @NonNull Set<VmsLayer> subscribedLayers,
-            @NonNull Set<VmsAssociatedLayer> layersFromPublishers) {
+            @NonNull Set<VmsLayer> layers,
+            @NonNull Set<VmsAssociatedLayer> associatedLayers) {
         mSequenceNumber = sequenceNumber;
-        mLayers = Collections.unmodifiableSet(subscribedLayers);
-        mSubscribedLayersFromPublishers = Collections.unmodifiableSet(layersFromPublishers);
+        mLayers = Collections.unmodifiableSet(layers);
+        mAssociatedLayers = Collections.unmodifiableSet(associatedLayers);
     }
 
     /**
@@ -78,7 +78,7 @@ public final class VmsSubscriptionState implements Parcelable {
      */
     @NonNull
     public Set<VmsAssociatedLayer> getAssociatedLayers() {
-        return mSubscribedLayersFromPublishers;
+        return mAssociatedLayers;
     }
 
     @Override
@@ -91,7 +91,7 @@ public final class VmsSubscriptionState implements Parcelable {
         }
         sb.append("}");
         sb.append("; associatedLayers={");
-        for (VmsAssociatedLayer layer : mSubscribedLayersFromPublishers) {
+        for (VmsAssociatedLayer layer : mAssociatedLayers) {
             sb.append(layer).append(",");
         }
         sb.append("}");
@@ -112,8 +112,8 @@ public final class VmsSubscriptionState implements Parcelable {
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(mSequenceNumber);
-        out.writeParcelableList(new ArrayList(mLayers), flags);
-        out.writeParcelableList(new ArrayList(mSubscribedLayersFromPublishers), flags);
+        out.writeParcelableList(new ArrayList<>(mLayers), flags);
+        out.writeParcelableList(new ArrayList<>(mAssociatedLayers), flags);
     }
 
     @Override
@@ -124,12 +124,12 @@ public final class VmsSubscriptionState implements Parcelable {
         VmsSubscriptionState p = (VmsSubscriptionState) o;
         return Objects.equals(p.mSequenceNumber, mSequenceNumber) &&
                 p.mLayers.equals(mLayers) &&
-                p.mSubscribedLayersFromPublishers.equals(mSubscribedLayersFromPublishers);
+                p.mAssociatedLayers.equals(mAssociatedLayers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mSequenceNumber, mLayers, mSubscribedLayersFromPublishers);
+        return Objects.hash(mSequenceNumber, mLayers, mAssociatedLayers);
     }
 
     @Override
@@ -146,7 +146,7 @@ public final class VmsSubscriptionState implements Parcelable {
 
         List<VmsAssociatedLayer> associatedLayers = new ArrayList<>();
         in.readParcelableList(associatedLayers, VmsAssociatedLayer.class.getClassLoader());
-        mSubscribedLayersFromPublishers =
+        mAssociatedLayers =
                 Collections.unmodifiableSet(new HashSet(associatedLayers));
     }
 }

@@ -80,7 +80,7 @@ public class VmsBrokerServiceTest {
             new VmsProviderInfo(new byte[]{5, 4, 3, 2, 1});
 
     private static final VmsAvailableLayers DEFAULT_AVAILABLE_LAYERS =
-            new VmsAvailableLayers(emptySet(), 0);
+            new VmsAvailableLayers(0, emptySet());
     private static final VmsSubscriptionState DEFAULT_SUBSCRIPTION_STATE =
             new VmsSubscriptionState(0, emptySet(), emptySet());
 
@@ -188,10 +188,10 @@ public class VmsBrokerServiceTest {
         VmsRegistrationInfo registrationInfo =
                 mBrokerService.registerClient(mClientToken2, mClientCallback2);
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1,
-                        asSet(providerId))),
-                1);
+                        asSet(providerId)))
+        );
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(1,
                 asSet(LAYER1),
                 asSet(new VmsAssociatedLayer(LAYER2, asSet(12345)))
@@ -1212,9 +1212,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER1)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1231,9 +1231,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER1)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1252,9 +1252,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER1)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1274,9 +1274,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER1)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1291,10 +1291,10 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                1);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1311,10 +1311,10 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId2))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1333,10 +1333,10 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId2))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1357,10 +1357,10 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1377,9 +1377,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1399,10 +1399,10 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(3, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId2))),
-                3);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1424,10 +1424,10 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(3, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId2))),
-                3);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1451,10 +1451,10 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1469,7 +1469,7 @@ public class VmsBrokerServiceTest {
         ));
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList());
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1487,9 +1487,9 @@ public class VmsBrokerServiceTest {
         ));
         mBrokerService.setProviderOfferings(mClientToken1, providerId2, asList());
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                3);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(3, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1509,9 +1509,9 @@ public class VmsBrokerServiceTest {
         ));
         mBrokerService.setProviderOfferings(mClientToken2, providerId2, asList());
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                3);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(3, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1533,9 +1533,9 @@ public class VmsBrokerServiceTest {
         ));
         mBrokerService.setProviderOfferings(mClientToken2, providerId, asList());
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1554,10 +1554,10 @@ public class VmsBrokerServiceTest {
         ));
         mBrokerService.unregisterClient(mClientToken1);
 
-        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
-        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
+        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers1);
         verifyLayerAvailability(mClientCallback2, expectedLayers2);
     }
@@ -1580,10 +1580,10 @@ public class VmsBrokerServiceTest {
         ));
         mBrokerService.unregisterClient(mClientToken1);
 
-        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2))),
-                2);
-        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(emptySet(), 3);
+        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
+        );
+        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(3, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers1);
         verifyLayerAvailability(mClientCallback2, expectedLayers2);
     }
@@ -1605,12 +1605,12 @@ public class VmsBrokerServiceTest {
         ));
         mBrokerService.unregisterClient(mClientToken1);
 
-        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2))),
-                2);
-        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId2))),
-                3);
+        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
+        );
+        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(3, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers1);
         verifyLayerAvailability(mClientCallback2, expectedLayers2);
     }
@@ -1632,12 +1632,12 @@ public class VmsBrokerServiceTest {
         ));
         disconnectClient(mClientCallback1);
 
-        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
-        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
+        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
+        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers1);
         verifyLayerAvailability(mClientCallback2, expectedLayers2);
     }
@@ -1656,10 +1656,10 @@ public class VmsBrokerServiceTest {
         ));
         disconnectClient(mClientCallback1);
 
-        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
-        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
+        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers1);
         verifyLayerAvailability(mClientCallback2, expectedLayers2);
     }
@@ -1682,10 +1682,10 @@ public class VmsBrokerServiceTest {
         ));
         disconnectClient(mClientCallback1);
 
-        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2))),
-                2);
-        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(emptySet(), 3);
+        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
+        );
+        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(3, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers1);
         verifyLayerAvailability(mClientCallback2, expectedLayers2);
     }
@@ -1707,12 +1707,12 @@ public class VmsBrokerServiceTest {
         ));
         disconnectClient(mClientCallback1);
 
-        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2))),
-                2);
-        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId2))),
-                3);
+        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
+        );
+        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(3, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers1);
         verifyLayerAvailability(mClientCallback2, expectedLayers2);
     }
@@ -1734,12 +1734,12 @@ public class VmsBrokerServiceTest {
         ));
         disconnectClient(mClientCallback1);
 
-        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
-        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
+        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
+        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers1);
         verifyLayerAvailability(mClientCallback2, expectedLayers2);
     }
@@ -1754,10 +1754,10 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                1);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1774,10 +1774,10 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId2))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1796,10 +1796,10 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId2))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1820,10 +1820,10 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1840,11 +1840,11 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                1);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1863,11 +1863,11 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId2))),
-                2);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1888,11 +1888,11 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId2))),
-                2);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1914,11 +1914,11 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1935,11 +1935,11 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                1);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1958,11 +1958,11 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId2)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1983,11 +1983,11 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId2)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -2009,11 +2009,11 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2027,7 +2027,7 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2044,7 +2044,7 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2063,7 +2063,7 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -2084,7 +2084,7 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -2101,9 +2101,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2122,9 +2122,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2145,9 +2145,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -2169,9 +2169,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -2188,7 +2188,7 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2207,7 +2207,7 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2228,7 +2228,7 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -2250,7 +2250,7 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -2264,7 +2264,7 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER1, asSet(LAYER2))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2279,9 +2279,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2299,9 +2299,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER3, asSet(providerId2))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER3, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2321,9 +2321,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER3, asSet(providerId2))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER3, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -2344,9 +2344,9 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -2362,7 +2362,7 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2380,7 +2380,7 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2400,7 +2400,7 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -2421,33 +2421,33 @@ public class VmsBrokerServiceTest {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
 
     @Test
-    public void testPublish_UnknownClient() {
+    public void testPublishPacket_UnknownClient() {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         assertThrows(
                 IllegalStateException.class,
-                () -> mBrokerService.publish(new Binder(), providerId, LAYER1, PAYLOAD));
+                () -> mBrokerService.publishPacket(new Binder(), providerId, LAYER1, PAYLOAD));
     }
 
     @Test
-    public void testPublish_UnknownOffering() {
+    public void testPublishPacket_UnknownOffering() {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD));
+                () -> mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD));
     }
 
     @Test
-    public void testPublish_NoSubscribers() throws Exception {
+    public void testPublishPacket_NoSubscribers() throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2455,16 +2455,16 @@ public class VmsBrokerServiceTest {
         ));
         mBrokerService.registerClient(mClientToken2, mClientCallback2);
 
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mNoSubscribersLog).logPacketDropped(LAYER1, PAYLOAD.length);
-        verifyNoMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_MonitorSubscriber_Enabled() throws Exception {
+    public void testPublishPacket_MonitorSubscriber_Enabled() throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
@@ -2474,16 +2474,16 @@ public class VmsBrokerServiceTest {
         mBrokerService.registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setMonitoringEnabled(mClientToken1, true);
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mClientLog1).logPacketReceived(LAYER1, PAYLOAD.length);
-        verifyMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_MonitorSubscriber_EnabledAndDisabled() throws Exception {
+    public void testPublishPacket_MonitorSubscriber_EnabledAndDisabled() throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
@@ -2494,16 +2494,16 @@ public class VmsBrokerServiceTest {
 
         mBrokerService.setMonitoringEnabled(mClientToken1, true);
         mBrokerService.setMonitoringEnabled(mClientToken1, false);
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mNoSubscribersLog).logPacketDropped(LAYER1, PAYLOAD.length);
-        verifyNoMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_LayerSubscriber() throws Exception {
+    public void testPublishPacket_LayerSubscriber() throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
@@ -2515,16 +2515,16 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
         ));
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mClientLog1).logPacketReceived(LAYER1, PAYLOAD.length);
-        verifyMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_LayerSubscriber_Unsubscribe() throws Exception {
+    public void testPublishPacket_LayerSubscriber_Unsubscribe() throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
@@ -2537,16 +2537,16 @@ public class VmsBrokerServiceTest {
                 new VmsAssociatedLayer(LAYER1, emptySet())
         ));
         mBrokerService.setSubscriptions(mClientToken1, asList());
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mNoSubscribersLog).logPacketDropped(LAYER1, PAYLOAD.length);
-        verifyNoMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_LayerSubscriber_DifferentLayer() throws Exception {
+    public void testPublishPacket_LayerSubscriber_DifferentLayer() throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
@@ -2558,16 +2558,16 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER2, emptySet())
         ));
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mNoSubscribersLog).logPacketDropped(LAYER1, PAYLOAD.length);
-        verifyNoMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_MultipleLayerSubscribers() throws Exception {
+    public void testPublishPacket_MultipleLayerSubscribers() throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
@@ -2582,16 +2582,16 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
         ));
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mClientLog1, times(2)).logPacketReceived(LAYER1, PAYLOAD.length);
-        verifyMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
     }
 
     @Test
-    public void testPublish_MultipleLayerSubscribers_DifferentProcesses() throws Exception {
+    public void testPublishPacket_MultipleLayerSubscribers_DifferentProcesses() throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
@@ -2607,17 +2607,17 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
         ));
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mClientLog1).logPacketReceived(LAYER1, PAYLOAD.length);
         verify(mClientLog2).logPacketReceived(LAYER1, PAYLOAD.length);
-        verifyMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
     }
 
     @Test
-    public void testPublish_LayerAndProviderSubscriber() throws Exception {
+    public void testPublishPacket_LayerAndProviderSubscriber() throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
@@ -2629,16 +2629,16 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId))
         ));
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mClientLog1).logPacketReceived(LAYER1, PAYLOAD.length);
-        verifyMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_LayerAndProviderSubscriber_Unsubscribe() throws Exception {
+    public void testPublishPacket_LayerAndProviderSubscriber_Unsubscribe() throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
@@ -2651,16 +2651,16 @@ public class VmsBrokerServiceTest {
                 new VmsAssociatedLayer(LAYER1, asSet(providerId))
         ));
         mBrokerService.setSubscriptions(mClientToken1, asList());
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mNoSubscribersLog).logPacketDropped(LAYER1, PAYLOAD.length);
-        verifyNoMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_LayerAndProviderSubscriber_DifferentProvider() throws Exception {
+    public void testPublishPacket_LayerAndProviderSubscriber_DifferentProvider() throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
@@ -2673,16 +2673,16 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId2))
         ));
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mNoSubscribersLog).logPacketDropped(LAYER1, PAYLOAD.length);
-        verifyNoMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_MultipleLayerAndProviderSubscribers() throws Exception {
+    public void testPublishPacket_MultipleLayerAndProviderSubscribers() throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
@@ -2697,16 +2697,16 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId))
         ));
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mClientLog1, times(2)).logPacketReceived(LAYER1, PAYLOAD.length);
-        verifyMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
     }
 
     @Test
-    public void testPublish_MultipleLayerAndProviderSubscribers_DifferentProcesses()
+    public void testPublishPacket_MultipleLayerAndProviderSubscribers_DifferentProcesses()
             throws Exception {
         mBrokerService.registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
@@ -2723,13 +2723,13 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId))
         ));
-        mBrokerService.publish(mClientToken1, providerId, LAYER1, PAYLOAD);
+        mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
         verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
         verify(mClientLog1).logPacketReceived(LAYER1, PAYLOAD.length);
         verify(mClientLog2).logPacketReceived(LAYER1, PAYLOAD.length);
-        verifyMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
     }
 
     private static void disconnectClient(IVmsClientCallback callback) throws Exception {
@@ -2744,7 +2744,7 @@ public class VmsBrokerServiceTest {
             VmsAvailableLayers availableLayers) throws RemoteException {
         ArgumentCaptor<VmsAvailableLayers> availableLayersCaptor =
                 ArgumentCaptor.forClass(VmsAvailableLayers.class);
-        verify(callback, times(availableLayers.getSequence()))
+        verify(callback, times(availableLayers.getSequenceNumber()))
                 .onLayerAvailabilityChanged(availableLayersCaptor.capture());
         assertThat(availableLayersCaptor.getValue()).isEqualTo(availableLayers);
     }
@@ -2759,16 +2759,16 @@ public class VmsBrokerServiceTest {
         assertThat(subscriptionStateCaptor.getValue()).isEqualTo(subscriptionState);
     }
 
-    private static void verifyNoMessageReceived(
+    private static void verifyNoPacketsReceived(
             IVmsClientCallback callback,
-            int providerId, VmsLayer layer, byte[] payload) throws RemoteException {
-        verify(callback, never()).onMessageReceived(providerId, layer, payload);
+            int providerId, VmsLayer layer) throws RemoteException {
+        verify(callback, never()).onPacketReceived(eq(providerId), eq(layer), any());
     }
 
-    private static void verifyMessageReceived(
+    private static void verifyPacketReceived(
             IVmsClientCallback callback,
             int providerId, VmsLayer layer, byte[] payload) throws RemoteException {
-        verify(callback).onMessageReceived(providerId, layer, payload);
+        verify(callback).onPacketReceived(providerId, layer, payload);
     }
 
     private static <T> Set<T> asSet(T... values) {

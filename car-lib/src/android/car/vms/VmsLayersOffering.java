@@ -20,10 +20,10 @@ import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.ArraySet;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -39,15 +39,15 @@ import java.util.Set;
  */
 @SystemApi
 public final class VmsLayersOffering implements Parcelable {
-
     private final Set<VmsLayerDependency> mDependencies;
 
     private final int mPublisherId;
 
     /**
+     * Constructs a VmsLayersOffering.
      *
-     * @param dependencies
-     * @param publisherId
+     * @param publisherId ID of the publisher making the offering
+     * @param dependencies set of layers and dependencies in the offering
      */
     public VmsLayersOffering(@NonNull Set<VmsLayerDependency> dependencies, int publisherId) {
         mDependencies = Collections.unmodifiableSet(dependencies);
@@ -65,13 +65,6 @@ public final class VmsLayersOffering implements Parcelable {
      * @return ID of the publisher making the offering
      */
     public int getPublisherId() {
-        return mPublisherId;
-    }
-
-    /**
-     * @hide
-     */
-    public int getProviderId() {
         return mPublisherId;
     }
 
@@ -124,7 +117,7 @@ public final class VmsLayersOffering implements Parcelable {
     private VmsLayersOffering(Parcel in) {
         List<VmsLayerDependency> dependencies = new ArrayList<>();
         in.readParcelableList(dependencies, VmsLayerDependency.class.getClassLoader());
-        mDependencies = Collections.unmodifiableSet(new HashSet<>(dependencies));
+        mDependencies = Collections.unmodifiableSet(new ArraySet<>(dependencies));
         mPublisherId = in.readInt();
     }
 }

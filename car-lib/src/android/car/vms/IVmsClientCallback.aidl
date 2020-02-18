@@ -32,8 +32,8 @@ oneway interface IVmsClientCallback {
     void onSubscriptionStateChanged(
         in VmsSubscriptionState subscriptionState) = 1;
 
-    void onMessageReceived(
+    void onPacketReceived(
         int providerId,
         in VmsLayer layer,
-        in byte[] message) = 2;
+        in byte[] packet) = 2;
 }

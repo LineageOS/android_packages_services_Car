@@ -42,7 +42,7 @@ import java.util.Objects;
 @SystemApi
 public final class VmsLayer implements Parcelable {
     private int mType;
-    private int mSubtype;
+    private int mChannel;
     private int mVersion;
 
     /**
@@ -54,7 +54,7 @@ public final class VmsLayer implements Parcelable {
      */
     public VmsLayer(int type, int subtype, int version) {
         mType = type;
-        mSubtype = subtype;
+        mChannel = subtype;
         mVersion = version;
     }
 
@@ -69,7 +69,14 @@ public final class VmsLayer implements Parcelable {
      * @return type of packet published on the layer
      */
     public int getSubtype() {
-        return mSubtype;
+        return mChannel;
+    }
+
+    /**
+     * @hide
+     */
+    public int getChannel() {
+        return mChannel;
     }
 
     /**
@@ -86,18 +93,18 @@ public final class VmsLayer implements Parcelable {
         }
         VmsLayer p = (VmsLayer) o;
         return Objects.equals(p.mType, mType)
-                && Objects.equals(p.mSubtype, mSubtype)
+                && Objects.equals(p.mChannel, mChannel)
                 && Objects.equals(p.mVersion, mVersion);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mType, mSubtype, mVersion);
+        return Objects.hash(mType, mChannel, mVersion);
     }
 
     @Override
     public String toString() {
-        return "VmsLayer{ Type: " + mType + ", Sub type: " + mSubtype + ", Version: " + mVersion
+        return "VmsLayer{ Type: " + mType + ", Sub type: " + mChannel + ", Version: " + mVersion
                 + "}";
     }
 
@@ -115,7 +122,7 @@ public final class VmsLayer implements Parcelable {
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(mType);
-        out.writeInt(mSubtype);
+        out.writeInt(mChannel);
         out.writeInt(mVersion);
     }
 
@@ -130,7 +137,7 @@ public final class VmsLayer implements Parcelable {
 
     private void readFromParcel(Parcel in) {
         mType = in.readInt();
-        mSubtype = in.readInt();
+        mChannel = in.readInt();
         mVersion = in.readInt();
     }
 }
