@@ -2329,7 +2329,7 @@
     <string name="restricted_app_time_summary" msgid="5205881852523135226">"Blev begrænset <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"Disse apps har brugt batteri i baggrunden. Begrænsede apps fungerer muligvis ikke korrekt, og notifikationer kan være forsinkede."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Brug batteriadministration"</string>
-    <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Registrer, nå apps dræner batteriet"</string>
+    <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Registrer, når apps dræner batteriet"</string>
     <string name="battery_manager_on" msgid="5626982529932239656">"Til/Registrerer, når apps dræner batteriet"</string>
     <string name="battery_manager_off" msgid="9114027524232450371">"Fra"</string>
     <plurals name="battery_manager_app_restricted" formatted="false" msgid="6721813588142691216">
@@ -2413,7 +2413,7 @@
     <string name="battery_sugg_apps_settings" msgid="20465932930350295">"Denne app har muligvis indstillinger, der kan reducere batteriforbruget"</string>
     <string name="battery_desc_users" msgid="3736510265433457165">"Brugerens batteriforbrug"</string>
     <string name="battery_desc_unaccounted" msgid="1713437127406964501">"Strømforbrug, diverse"</string>
-    <string name="battery_msg_unaccounted" msgid="5888813672440667255">"Batteriforbrug er en tilnærmet beregning af strømforbruget og omfatter ikke alle årsager til afladning af batteriet. \"Diverse\" er forskellen mellem den tilnærmede beregning af strømforbruget og det faktiske forbrug, der er registreret for batteriet."</string>
+    <string name="battery_msg_unaccounted" msgid="5888813672440667255">"Batteriforbrug er en tilnærmet beregning af strømforbruget og omfatter ikke alle årsager til, at batteriet drænes. \"Diverse\" er forskellen mellem den tilnærmede beregning af strømforbruget og det faktiske forbrug, der er registreret for batteriet."</string>
     <string name="battery_desc_overcounted" msgid="1161323884612252420">"Overvurderet strømforbrug"</string>
     <string name="mah" msgid="4464040534945398122">"<xliff:g id="NUMBER">%d</xliff:g> mAh"</string>
     <string name="battery_used_for" msgid="5550036547864960627">"Har været aktiv i <xliff:g id="TIME">^1</xliff:g>"</string>
@@ -3705,7 +3705,7 @@
     <string name="high_power_on" msgid="3573501822510580334">"Ikke-optimeret"</string>
     <string name="high_power_off" msgid="5906679734326490426">"Optimerer batteriforbruget"</string>
     <string name="high_power_system" msgid="739584574711292753">"Batterioptimering er ikke tilgængelig"</string>
-    <string name="high_power_desc" msgid="333756885680362741">"Undlad at anvende batterioptimering. Batteriet aflades muligvis hurtigere."</string>
+    <string name="high_power_desc" msgid="333756885680362741">"Undlad at anvende batterioptimering. Dette kan dræne batteriet hurtigere."</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"Vil du give appen tilladelse til altid at køre i baggrunden?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"Hvis du giver <xliff:g id="APP_NAME">%1$s</xliff:g> tilladelse til altid at køre i baggrunden, kan det reducere batteritiden. \n\nDu kan ændre dette senere under Indstillinger &gt; Apps og notifikationer."</string>
     <string name="battery_summary" msgid="4345690800899981339">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> brugt siden sidste fulde opladning"</string>
@@ -3788,7 +3788,7 @@
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"Alle Forstyr ikke-regler, der er oprettet af denne app, fjernes."</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"Undlad at optimere"</string>
     <string name="ignore_optimizations_off" msgid="4372289432580282870">"Optimer"</string>
-    <string name="ignore_optimizations_on_desc" msgid="2904484569799521559">"Kan medføre, at batteriet aflades hurtigere. Appen forhindres ikke længere i at bruge batteri i baggrunden."</string>
+    <string name="ignore_optimizations_on_desc" msgid="2904484569799521559">"Dette kan dræne batteriet hurtigere. Appen forhindres ikke længere i at bruge batteri i baggrunden."</string>
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"Anbefales for længere batteritid"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"Vil du tillade, at <xliff:g id="APP">%s</xliff:g> ignorerer batterioptimeringer?"</string>
     <string name="app_list_preference_none" msgid="7100409177446935028">"Ingen"</string>
@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Den gør din telefon langsommere"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Gennemtving fuld GNSS-måling"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Registrer alle GNSS-konstellationer og -frekvenser uden opgavegennemløb"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Fejlret ved brugerskift"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Se detaljerede oplysninger under brugerskift"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Tillad opstart af aktiviteter i baggrunden"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Tillader alle opstarter af aktiviteter i baggrunden"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Vis altid dialogboks med nedbrud"</string>

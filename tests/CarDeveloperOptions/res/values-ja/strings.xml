@@ -921,7 +921,7 @@
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"匿名ID"</string>
     <string name="wifi_password" msgid="6942983531275177771">"パスワード"</string>
     <string name="wifi_show_password" msgid="7878398590772942202">"パスワードを表示する"</string>
-    <string name="wifi_ap_band_config" msgid="6565016368079288433">"AP帯域幅を選択"</string>
+    <string name="wifi_ap_band_config" msgid="6565016368079288433">"AP周波数帯を選択"</string>
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"自動"</string>
     <string name="wifi_ap_choose_2G" msgid="43198403259714736">"2.4 GHz 帯"</string>
     <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"5.0 GHz 帯"</string>
@@ -1064,7 +1064,7 @@
     <string name="wifi_hotspot_name_summary_connecting" msgid="5176787959408511889">"<xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g> を ON にしています..."</string>
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"他のデバイスが <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g> に接続できます"</string>
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"アクセス ポイントのパスワード"</string>
-    <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"AP 帯域幅"</string>
+    <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"AP 周波数帯"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"アクセス ポイントを使って他のデバイスとの Wi‑Fi ネットワークを作成します。アクセス ポイントはモバイルデータ通信によるインターネット接続を提供します。モバイルデータ通信料が追加で発生する可能性があります。"</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"アプリを使ってアクセス ポイントを作成し、コンテンツを近くのデバイスと共有できます。"</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"アクセス ポイントを自動的にオフにする"</string>
@@ -2486,8 +2486,8 @@
     <string name="menu_duration_6h" msgid="6169009210638008417">"6時間"</string>
     <string name="menu_duration_12h" msgid="1435242738163843797">"12時間"</string>
     <string name="menu_duration_1d" msgid="6476370834372352174">"1日"</string>
-    <string name="menu_show_system" msgid="6315865548558708248">"システムを表示"</string>
-    <string name="menu_hide_system" msgid="8457027118873733782">"システムを表示しない"</string>
+    <string name="menu_show_system" msgid="6315865548558708248">"システムアプリを表示"</string>
+    <string name="menu_hide_system" msgid="8457027118873733782">"システムアプリを表示しない"</string>
     <string name="menu_show_percentage" msgid="6983272380729890884">"割合を表示"</string>
     <string name="menu_use_uss" msgid="3765054705208926803">"Ussを使用"</string>
     <string name="menu_proc_stats_type" msgid="2680179749566186247">"統計タイプ"</string>
@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"このスマートフォンの動作が遅くなります"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"GNSS 計測の完全な実行"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"デューティ サイクリングを無効にした状態で、すべての GNSS コンステレーションと頻度をトラッキングします"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"ユーザー切り替え時のデバッグ情報"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"ユーザー切り替え中の詳細情報の表示"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"バックグラウンド アクティビティの開始を許可"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"すべてのバックグラウンド アクティビティの開始を許可する"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"クラッシュ ダイアログを常に表示"</string>

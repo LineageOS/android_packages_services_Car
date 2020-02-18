@@ -1656,7 +1656,7 @@
     <string name="location_high_battery_use" msgid="7177199869979522663">"Høy batteribruk"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Lav batteribruk"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Søking etter Wi‑Fi og Bluetooth"</string>
-    <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Wi‑Fi-søking"</string>
+    <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Wi‑Fi-skanning"</string>
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"La apper og tjenester søke etter Wi-Fi-nettverk når som helst, selv når Wi-Fi er slått av. Dette kan for eksempel brukes til å forbedre posisjonsbaserte funksjoner og tjenester."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth-søking"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"La apper og tjenester søke etter enheter i nærheten når som helst, selv når Bluetooth er slått av. Dette kan for eksempel brukes til å forbedre posisjonsbaserte funksjoner og tjenester."</string>
@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Den senker hastigheten til telefonen"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Tving fullstendige GNSS-målinger"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Spor alle GNSS-konstellasjoner og -frekvenser uten syklus for oppgaver"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Feilsøk bytte av bruker"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Vis detaljert informasjon under bytte av bruker"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Tillat start av bakgrunnsaktivitet"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Tillater all start av bakgrunnsaktivitet"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Vis alltid krasjdialogboksen"</string>

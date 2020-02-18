@@ -3585,9 +3585,9 @@
     <string name="slot_number" msgid="785422579177068698">"(Отвор<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
     <string name="launch_by_default" msgid="6106985160202769725">"Отвори стандардно"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"За отворање линкови"</string>
-    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Отвори поддржани врски"</string>
+    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Отворај поддржани линкови"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Отвори без прашање"</string>
-    <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Поддржани врски"</string>
+    <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Поддржани линкови"</string>
     <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"Останати стандарди"</string>
     <string name="storage_summary_format" msgid="2166430500147022935">"<xliff:g id="SIZE">%1$s</xliff:g> употребени во <xliff:g id="STORAGE_TYPE">%2$s</xliff:g>"</string>
     <string name="storage_type_internal" msgid="4434212376539293892">"Внатрешен капацитет"</string>
@@ -3645,7 +3645,7 @@
     <string name="tap_to_wake" msgid="1902991239401652323">"Допрете за будење"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Допрете двапати каде било на екранот за да го разбудите уредот"</string>
     <string name="domain_urls_title" msgid="7939209950373945367">"За отворање линкови"</string>
-    <string name="domain_urls_summary_none" msgid="5401203416941265109">"Не отворај поддржани врски"</string>
+    <string name="domain_urls_summary_none" msgid="5401203416941265109">"Не отворај поддржани линкови"</string>
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"Отвори <xliff:g id="DOMAIN">%s</xliff:g>"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"Отворете <xliff:g id="DOMAIN">%s</xliff:g> и други URL-адреси"</string>
     <string name="domain_urls_apps_summary_off" msgid="1110203970617922543">"Ниедна апликација не отвора поддржани линкови"</string>
@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Ќе го забави телефонот"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Присилување целосни мерења со GNSS"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Следете ги сите констелации и фреквенции со GNSS без работен циклус"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Отстрани грешка при префрлањето корисници"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Прикажувај детални информации при префрлањето корисници"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Дозволи стартувања на активноста во заднина"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Ги дозволува сите стартувања на активноста во заднина"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Секогаш прикажувај дијалог на пад"</string>

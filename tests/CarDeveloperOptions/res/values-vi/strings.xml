@@ -2517,7 +2517,7 @@
     <string name="tts_reset" msgid="8864073594540705579">"Đặt lại"</string>
     <string name="tts_play" msgid="9023430029380675514">"Phát"</string>
     <string name="vpn_settings_title" msgid="7008219502396889192">"VPN"</string>
-    <string name="credentials_title" msgid="7119207354982673965">"Lưu thông tin xác thực"</string>
+    <string name="credentials_title" msgid="7119207354982673965">"Bộ nhớ chứa thông tin xác thực"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"Cài đặt từ bộ nhớ"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"Cài đặt từ thẻ SD"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"Cài đặt chứng chỉ từ bộ nhớ"</string>
@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Tính năng này sẽ làm giảm tốc độ điện thoại"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Thực thi số đo GNSS đầy đủ"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Theo dõi tất cả chòm sao và tần suất GNSS mà không có chu kỳ làm việc"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Phân tích lượt chuyển đổi người dùng"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Hiển thị thông tin chi tiết trong khi chuyển đổi người dùng"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Cho phép các lượt bắt đầu hoạt động trong nền"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Cho phép tất cả các lượt bắt đầu hoạt động trong nền"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Luôn hiển thị hộp thoại sự cố"</string>

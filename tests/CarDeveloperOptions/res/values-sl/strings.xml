@@ -4426,6 +4426,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Upočasnila bo delovanje tega telefona"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Vsili popolne meritve GNSS"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Spremljaj vse razmestitve in frekvence GNSS brez ciklov"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Stikalo uporabnika za odpravljanje napak"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Prikaz podrobnih podatkov, ko uporabnik preklopi stikalo"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Dovoli začetek dejavnosti v ozadju"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Dovoli začetek vseh dejavnosti v ozadju"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Vedno pokaži pogovorno okno zrušitve"</string>

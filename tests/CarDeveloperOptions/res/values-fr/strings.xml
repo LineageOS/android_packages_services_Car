@@ -3129,7 +3129,7 @@
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"Sonnerie en mode vibreur"</string>
     <string name="sound_settings_summary_silent" msgid="899823817462768876">"Sonnerie en mode silencieux"</string>
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"Volume de sonnerie à 80 %"</string>
-    <string name="media_volume_option_title" msgid="3553411883305505682">"Volume des contenus multimédias"</string>
+    <string name="media_volume_option_title" msgid="3553411883305505682">"Volume multimédia"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Volume de diffusion"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"Volume d\'appel"</string>
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"Volume de l\'alarme"</string>
@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Elle ralentit le téléphone"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Forcer les mesures GNSS complètes"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Effectuer le suivi de toutes les fréquences et constellations GNSS sans rapport cyclique"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Voir plus d\'informations sur le changement d\'utilisateur"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Afficher des informations détaillées pendant le changement d\'utilisateur"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Autoriser le démarrage des activités en arrière-plan"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Autoriser le démarrage de toutes les activités en arrière-plan"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Toujours afficher une boîte de dialogue en cas de plantage"</string>

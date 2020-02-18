@@ -4136,7 +4136,7 @@
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"Consulta tus notificaciones rápidamente"</string>
     <string name="gesture_setting_on" msgid="7573680730101327866">"Activado"</string>
     <string name="gesture_setting_off" msgid="2540159841716890511">"Desactivado"</string>
-    <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="7233244080078311793">"El cargador de inicio está desbloqueado"</string>
+    <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="7233244080078311793">"El bootloader está desbloqueado"</string>
     <string name="oem_unlock_enable_disabled_summary_connectivity" msgid="262986780389836168">"Primero debes conectarte a Internet"</string>
     <string name="oem_unlock_enable_disabled_summary_connectivity_or_locked" msgid="3331374502670483142">"Conéctate a Internet o comunícate con tu proveedor"</string>
     <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5223278198179877704">"No disponible en dispositivos bloqueados por el proveedor"</string>
@@ -4272,6 +4272,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Esta función ralentizará el teléfono"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Forzar dimensiones GNSS completas"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Seguir todas las frecuencias y constelaciones de GNSS sin ciclo de funciones"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Depurar cambio de usuario"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Mostrar información detallada durante el cambio de usuario"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Permitir inicio de actividades en segundo plano"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Permite que se inicien todas las actividades en segundo plano"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Mostrar siempre el cuadro de diálogo de bloqueos"</string>

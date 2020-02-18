@@ -4126,7 +4126,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Pak je telefoon op om de tijd, meldingen en andere informatie te bekijken."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Pak je tablet op om de tijd, meldingen en andere informatie te bekijken."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Pak je apparaat op om de tijd, meldingen en andere informatie te bekijken."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tik om telefoon te controleren"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tikken om telefoon te checken"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Tik om tablet te controleren"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Tik om apparaat te controleren"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Tik op je scherm om de tijd, meldingen en andere informatie te bekijken."</string>
@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"De functie vertraagt deze telefoon"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Volledige GNSS-metingen afdwingen"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Alle GNSS-constellaties en -frequenties bijhouden zonder duty cycling"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Fouten bij schakelen tussen gebruikers oplossen"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Gedetailleerde informatie weergeven tijdens schakelen tussen gebruikers"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Starts van activiteit op de achtergrond toestaan"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Hiermee worden alle starts van activiteit op de achtergrond toegestaan"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Altijd een crashvenster weergeven"</string>

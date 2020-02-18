@@ -3640,7 +3640,7 @@
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Otvori bez pitanja"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Podržani linkovi"</string>
     <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"Ostale zadane vrijednosti"</string>
-    <string name="storage_summary_format" msgid="2166430500147022935">"<xliff:g id="SIZE">%1$s</xliff:g> se koristi u memoriji <xliff:g id="STORAGE_TYPE">%2$s</xliff:g>"</string>
+    <string name="storage_summary_format" msgid="2166430500147022935">"<xliff:g id="STORAGE_TYPE">%2$s</xliff:g>: iskorišteno <xliff:g id="SIZE">%1$s</xliff:g>"</string>
     <string name="storage_type_internal" msgid="4434212376539293892">"Unutrašnja pohrana"</string>
     <string name="storage_type_external" msgid="8827468573685648108">"Vanjska pohrana"</string>
     <string name="data_summary_format" msgid="5022135392347814271">"Iskorišt.: <xliff:g id="SIZE">%1$s</xliff:g> od <xliff:g id="DATE">%2$s</xliff:g>"</string>
@@ -4350,6 +4350,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Ona će usporiti ovaj telefon"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Prisilno omogući potpuno GNSS mjerenje"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Praćenje svih konstelacija i frekvencija GNSS-a bez ciklusa rada"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Otklanjanje grešaka prilikom prebacivanja između korisnika"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Prikaz detaljnih informacija prilikom prebacivanja između korisnika"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Dozvoli pokretanja aktivnosti u pozadini"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Dozvoljava sva pokretanja aktivnosti u pozadini"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Uvijek prikaži dijaloški okvir za pad aplikacije"</string>

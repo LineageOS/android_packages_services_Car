@@ -958,7 +958,7 @@
     <string name="wifi_dpp_sharing_wifi_with_this_device" msgid="2540529164687476827">"Gailu honekin wifi-konexioa partekatzen…"</string>
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"Konektatzen…"</string>
     <string name="wifi_dpp_share_hotspot" msgid="847987212473038179">"Partekatu sare publikoa"</string>
-    <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Egiaztatu zu zarela"</string>
+    <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Egiaztatu zeu zarela"</string>
     <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"Wifi-sarearen pasahitza: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Sare publikoaren pasahitza: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_add_device" msgid="1347056725253936358">"Gehitu gailu bat"</string>
@@ -1793,7 +1793,7 @@
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"Gailuak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartu egingo duzu haiek erabiltzeagatik gailuari agian gertatuko zaizkion kalteen edo datu-galeren erantzulea zeu izango zarela."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Ezarpen aurreratuak"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Gaitu ezarpenen aukera gehiago"</string>
-    <string name="application_info_label" msgid="3886253474964599105">"Aplikazioen informazioa"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"Aplikazioaren informazioa"</string>
     <string name="storage_label" msgid="1109537840103290384">"Memoria"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"Ireki modu lehenetsian"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Balio lehenetsiak"</string>
@@ -2047,14 +2047,14 @@
     <string name="select_to_speak_summary" msgid="7514180457557735421">"Sakatu pantailako elementuak eta zer diren entzungo duzu"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Azpitituluak"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Lupa"</string>
-    <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Lupa aplikatzeko, sakatu hiru aldiz"</string>
-    <string name="accessibility_screen_magnification_navbar_title" msgid="400655612610761242">"Lupa aplikatzeko, erabili botoia"</string>
-    <string name="accessibility_screen_magnification_state_navbar_gesture" msgid="1863831350878995600">"Lupa aplikatzeko, erabili botoia eta sakatu hiru aldiz"</string>
+    <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Handitzeko, sakatu hiru aldiz"</string>
+    <string name="accessibility_screen_magnification_navbar_title" msgid="400655612610761242">"Pantaila handitzeko, erabili botoia"</string>
+    <string name="accessibility_screen_magnification_state_navbar_gesture" msgid="1863831350878995600">"Handitzeko, erabili botoia eta sakatu hiru aldiz"</string>
     <string name="accessibility_preference_magnification_summary" msgid="753307741814376312">"Handitu pantaila"</string>
     <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"Zooma aplikatzeko, sakatu hirutan"</string>
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"Zooma aplikatzeko, sakatu botoi bat"</string>
     <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"Zooma aplikatzeko"</b>", sakatu pantaila bizkor hiru aldiz.\n"<ul><li>"Gora edo behera egiteko, arrastatu gutxienez bi hatz."</li>\n<li>"Zooma doitzeko, atximurkatu pantaila gutxienez bi hatzekin."</li></ul>\n\n<b>"Zooma une batez bakarrik aplikatzeko"</b>", sakatu pantaila bizkor hiru aldiz eta, hirugarren aldian, utzi hatza pantailan jarrita.\n"<ul><li>"Pantailan mugitzeko, arrastatu hatza."</li>\n<li>"Zooma aplikatzeari uzteko, altxatu hatza."</li></ul>\n\n"Zooma ezin da aplikatu ez teklatuan ez nabigazio-barran."</string>
-    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Lupa aktibatuta dagoenean, sakatu pantailaren behealdeko Erabilerraztasuna botoia lupa zuzenean aplikatzeko.\n\n"<b>"Zooma aplikatzeko"</b>", sakatu Erabilerraztasuna botoia eta sakatu pantailako edozein toki.\n"<ul><li>"Gora edo behera egiteko, arrastatu gutxienez bi hatz."</li>\n<li>"Zooma doitzeko, atximurkatu pantaila gutxienez bi hatzekin."</li></ul>\n\n<b>"Zooma une batez bakarrik aplikatzeko"</b>", sakatu Erabilerraztasuna botoia eta eduki sakatuta pantailako puntu bat.\n"<ul><li>"Pantailan mugitzeko, arrastatu hatza."</li>\n<li>"Zooma aplikatzeari uzteko, altxatu hatza."</li></ul>\n\n"Zooma ezin da aplikatu ez teklatuan ez nabigazio-barran."</string>
+    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Lupa aktibatuta dagoenean, sakatu pantailaren behealdeko Erabilerraztasuna botoia pantaila azkar handitzeko.\n\n"<b>"Zooma aplikatzeko"</b>", sakatu Erabilerraztasuna botoia eta sakatu pantailako edozein toki.\n"<ul><li>"Gora edo behera egiteko, arrastatu gutxienez bi hatz."</li>\n<li>"Zooma doitzeko, atximurkatu pantaila gutxienez bi hatzekin."</li></ul>\n\n<b>"Zooma une batez bakarrik aplikatzeko"</b>", sakatu Erabilerraztasuna botoia eta eduki sakatuta pantailako puntu bat.\n"<ul><li>"Pantailan mugitzeko, arrastatu hatza."</li>\n<li>"Zooma aplikatzeari uzteko, altxatu hatza."</li></ul>\n\n"Zooma ezin da aplikatu ez teklatuan ez nabigazio-barran."</string>
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Erabilerraztasuna botoia labur sakatuta \"<xliff:g id="SERVICE">%1$s</xliff:g>\" aukera aktibatzen da. Lupa aplikatzeko, eduki sakatuta Erabilerraztasuna botoia eta, ondoren, hautatu lupa."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Bolumen-teklen lasterbidea"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Lasterbideari esleitutako zerbitzua"</string>
@@ -2547,7 +2547,7 @@
     <string name="backup_section_title" msgid="8177209731777904656">"Babeskopiak eta leheneratzea"</string>
     <string name="personal_data_section_title" msgid="9161854418510071558">"Datu pertsonalak"</string>
     <string name="backup_data_title" msgid="4461508563849583624">"Egin nire datuen babeskopia"</string>
-    <string name="backup_data_summary" msgid="555459891017933746">"Egin datuen, Wi-Fi pasahitzen eta beste ezarpenen babeskopia Google zerbitzarietan."</string>
+    <string name="backup_data_summary" msgid="555459891017933746">"Egin datuen, wifi-sareen pasahitzen eta beste ezarpenen babeskopia Google-ren zerbitzarietan."</string>
     <string name="backup_configure_account_title" msgid="1534734650559070294">"Babesk. gordetzeko kontua"</string>
     <string name="backup_data_management_title" msgid="6299288795610243508">"Kudeatu babeskopiak gordetzeko kontua"</string>
     <string name="include_app_data_title" msgid="6117211611131913293">"Sartu aplikazioetako datuak"</string>
@@ -2556,7 +2556,7 @@
     <string name="backup_inactive_title" msgid="5513496915638307750">"Babeskopia-zerbitzua ez dago aktibo"</string>
     <string name="backup_configure_account_default_summary" msgid="5718298066335006412">"Ez dago babeskopiak gordetzen dituen aplikaziorik"</string>
     <string name="backup_erase_dialog_title" msgid="8178424339104463014"></string>
-    <string name="backup_erase_dialog_message" msgid="8767843355330070902">"Wi-Fi pasahitzen, laster-marken, bestelako ezarpenen eta aplikazioetako datuen babeskopiak egiteari utzi eta Google zerbitzarietako kopia guztiak ezabatu nahi dituzu?"</string>
+    <string name="backup_erase_dialog_message" msgid="8767843355330070902">"Wifi-sareen pasahitzen, laster-marken, bestelako ezarpenen eta aplikazioetako datuen babeskopiak egiteari utzi eta Google-ren zerbitzarietako kopia guztiak ezabatu nahi dituzu?"</string>
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"Gailuko datuen (adibidez, Wi-Fi pasahitzak eta deien historia) eta aplikazioetako datuen (besteak beste, ezarpenak eta aplikazioek gordetako fitxategiak) babeskopiak egiteari utzi nahi diozu eta urruneko zerbitzarietako kopia guztiak ezabatu nahi dituzu?"</string>
     <string name="fullbackup_data_summary" msgid="406274198094268556">"Egin babeskopiak automatikoki urrunetik, bai gailuetako datuenak (esaterako, Wi-Fi sareetako pasahitzak eta deien historia), bai aplikazioetako datuenak (esaterako, ezarpenak eta aplikazioek gordetako fitxategiak).\n\nBabeskopiak automatikoki egiteko aukera aktibatzean, gailuko eta aplikazioetako datuak urrunetik gordetzen dira aldizka. Aplikazioetako datuak aplikazioek gordetako edozein datu izan daitezke (garatzailearen ezarpenen arabera), eta kontuzkoak izan litezkeen datuak ere sar daitezke (adibidez, kontaktuak, mezuak eta argazkiak)."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Gailua administratzeko aplikazioaren ezarpenak"</string>
@@ -2647,7 +2647,7 @@
     <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Datu-konexioa eta wifi-konexioa"</string>
     <string name="data_usage_accounting" msgid="4681642832010140640">"Beharbada operadoreak zenbatzen duen datu kopurua eta gailuak zenbatzen duena ez datoz bat."</string>
     <string name="data_usage_app" msgid="4995297799363021198">"Aplikazioen erabilera"</string>
-    <string name="data_usage_app_info_label" msgid="5358288895158910477">"APLIKAZIOEN INFORMAZIOA"</string>
+    <string name="data_usage_app_info_label" msgid="5358288895158910477">"APLIKAZIOARI BURUZKO INFORMAZIOA"</string>
     <string name="data_usage_cellular_data" msgid="3509117353455285808">"Datu-konexioa"</string>
     <string name="data_usage_data_limit" msgid="4070740691087063670">"Ezarri datuen muga"</string>
     <string name="data_usage_cycle" msgid="1877235461828192940">"Datuen erabilera-zikloa"</string>
@@ -3585,9 +3585,9 @@
     <string name="slot_number" msgid="785422579177068698">"(<xliff:g id="SLOT_NUM">%1$d</xliff:g>. zirrikitua)"</string>
     <string name="launch_by_default" msgid="6106985160202769725">"Ireki modu lehenetsian"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Irekiko diren estekak"</string>
-    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Ireki onartzen diren estekak"</string>
+    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Ireki esteka bateragarriak"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Ireki galdetu gabe"</string>
-    <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Onartzen diren estekak"</string>
+    <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Esteka bateragarriak"</string>
     <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"Beste aplikazio lehenetsi batzuk"</string>
     <string name="storage_summary_format" msgid="2166430500147022935">"<xliff:g id="SIZE">%1$s</xliff:g> erabilita (<xliff:g id="STORAGE_TYPE">%2$s</xliff:g>)"</string>
     <string name="storage_type_internal" msgid="4434212376539293892">"Barneko memoria"</string>
@@ -3645,7 +3645,7 @@
     <string name="tap_to_wake" msgid="1902991239401652323">"Sakatu aktibatzeko"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Sakatu birritan pantailako edozein puntu gailua aktibatzeko"</string>
     <string name="domain_urls_title" msgid="7939209950373945367">"Irekiko diren estekak"</string>
-    <string name="domain_urls_summary_none" msgid="5401203416941265109">"Ez ireki onartzen diren estekak"</string>
+    <string name="domain_urls_summary_none" msgid="5401203416941265109">"Ez ireki esteka bateragarriak"</string>
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"Ireki <xliff:g id="DOMAIN">%s</xliff:g>"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"Ireki <xliff:g id="DOMAIN">%s</xliff:g> eta beste URL batzuk"</string>
     <string name="domain_urls_apps_summary_off" msgid="1110203970617922543">"Ez dago esteka bateragarriak ireki ditzakeen aplikaziorik"</string>
@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Telefonoa moteldu egingo da"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Behartu GNSS neurketa osoak gauzatzera"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Egin GNSS konstelazio eta maiztasun guztien jarraipena, eginbeharren ziklorik gabe"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Araztu erabiltzailea aldatzeko aukera"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Erakutsi informazio xehatua erabiltzailea aldatzerakoan"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Baimendu atzeko planoko jarduerak abiaraztea"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Baimendu atzeko planoko jardueren abiarazte guztiak"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Erakutsi beti hutsegiteen leihoak"</string>

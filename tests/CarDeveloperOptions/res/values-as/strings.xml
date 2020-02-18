@@ -4273,6 +4273,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"ইয়ে এই ফ’নটো মন্থৰ কৰিব"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"সম্পূৰ্ণ জিএনএছএছ পৰিমাপ প্ৰয়োগ কৰক"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"কোনো উপযোগীতা অনুপাতৰ সহায় নোলোৱাকৈ GNSS কনষ্টেলেশ্বন আৰু ফ্ৰিকুৱেন্সী নিৰীক্ষণ কৰক"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"ব্যৱহাৰকাৰী সলনি কৰাৰ সম্পর্কে সবিশেষ তথ্য দেখুৱাওক"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"ব্যৱহাৰকাৰী সলনি কৰাৰ সময়ত সবিশেষ তথ্য দেখুৱাওক"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"নেপথ্যৰ কাৰ্যকলাপ আৰম্ভ কৰাত অনুমতি দিয়ে"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"সকলো নেপথ্যৰ কাৰ্যকলাপ আৰম্ভ কৰাত অনুমতি দিয়ে"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"সদায় ক্ৰেশ্ব ডায়ল\'গ দেখুৱাওক"</string>

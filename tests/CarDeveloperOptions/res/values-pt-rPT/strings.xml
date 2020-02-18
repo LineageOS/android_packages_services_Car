@@ -1657,9 +1657,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"Utilização de bateria baixa"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Procura de Wi‑Fi e Bluetooth"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Procura de Wi‑Fi"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Permita que as aplicações e os serviços procurem redes Wi‑Fi em qualquer altura, mesmo quando o Wi-Fi estiver desativado. Isto pode ser utilizado, por exemplo, para melhorar as funcionalidades e os serviços baseados na localização."</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Permitir que as aplicações e os serviços procurem redes Wi‑Fi em qualquer altura, mesmo quando o Wi-Fi estiver desativado. Isto pode ser utilizado, por exemplo, para melhorar as funcionalidades e os serviços baseados na localização."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Procurar por Bluetooth"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Permita que as aplicações e os serviços procurem dispositivos próximos em qualquer altura, mesmo quando o Bluetooth estiver desativado. Isto pode ser utilizado, por exemplo, para melhorar as funcionalidades e os serviços baseados na localização."</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Permitir que as aplicações e os serviços procurem dispositivos próximos em qualquer altura, mesmo quando o Bluetooth estiver desativado. Isto pode ser utilizado, por exemplo, para melhorar as funcionalidades e os serviços baseados na localização."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"Serviços de localização para o trabalho"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi-Fi e localização de rede de telemóvel"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"Permitir que app usem o serv. localiz. Google p/ calcular mais rapida/ a sua localização. Dados localização recolhidos e enviados à Google."</string>
@@ -1787,7 +1787,7 @@
     <string name="install_applications" msgid="7745902974984889179">"Fontes desconhecidas"</string>
     <string name="install_applications_title" msgid="8164828577588659496">"Permit. todas as fontes app"</string>
     <string name="recent_app_category_title" msgid="7688788038277126727">"Aplicações abertas recentemente"</string>
-    <string name="see_all_apps_title" msgid="6435061912110347474">"Ver as <xliff:g id="COUNT">%1$d</xliff:g> aplicações"</string>
+    <string name="see_all_apps_title" msgid="6435061912110347474">"Ver as <xliff:g id="COUNT">%1$d</xliff:g> apps"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"O seu tablet e os dados pessoais são mais vulneráveis a ataques de aplicações desconhecidas. Ao instalar aplicações desta fonte, aceita ser responsável por quaisquer danos no tablet ou perdas de dados que possam resultar da utilização do mesmo."</string>
     <string name="install_all_warning" product="default" msgid="7445839116997296358">"O seu telemóvel e os dados pessoais são mais vulneráveis a ataques de aplicações desconhecidas. Ao instalar aplicações desta fonte, aceita ser responsável por quaisquer danos no telemóvel ou perdas de dados que possam resultar da utilização do mesmo."</string>
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"O dispositivo e os dados pessoais são mais vulneráveis a ataques de aplicações desconhecidas. Ao instalar aplicações desta fonte, aceita ser responsável por quaisquer danos no dispositivo ou perdas de dados que possam resultar da utilização do mesmo."</string>
@@ -1839,7 +1839,7 @@
     <string name="default_emergency_app" msgid="286530070173495823">"Aplicação de emergência"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"Repor preferências de aplicações"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Repor preferências de aplicações?"</string>
-    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Procede à reposição de todas as preferências de:\n\n "<li>"Aplicações desativadas"</li>\n" "<li>"Notificações de aplicações desativadas"</li>\n" "<li>"Aplicações predefinidas para ações"</li>\n" "<li>"Restrições de dados em segundo plano para aplicações"</li>\n" "<li>"Todas as restrições de permissão"</li>\n\n" Não irá perder quaisquer dados das aplicações."</string>
+    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Procede à reposição de todas as preferências de:\n\n "<li>"Apps desativadas"</li>\n" "<li>"Notificações de apps desativadas"</li>\n" "<li>"Apps predefinidas para ações"</li>\n" "<li>"Restrições de dados em segundo plano para apps"</li>\n" "<li>"Todas as restrições de permissão"</li>\n\n" Não irá perder quaisquer dados das apps."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Repor aplicações"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"Gerir espaço"</string>
     <string name="filter" msgid="2426943916212457962">"Filtrar"</string>
@@ -2523,7 +2523,7 @@
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"Instalar certificados a partir do armazenamento"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"Instalar certificados a partir do cartão SD"</string>
     <string name="credentials_reset" msgid="355080737664731678">"Limpar credenciais"</string>
-    <string name="credentials_reset_summary" msgid="7622528359699428555">"Remover todos os certificados"</string>
+    <string name="credentials_reset_summary" msgid="7622528359699428555">"Permite remover todos os certificados"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"Credenciais fidedignas"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"Mostrar certificados da AC fidedignos"</string>
     <string name="user_credentials" msgid="8365731467650306757">"Credenciais de utilizador"</string>
@@ -2921,7 +2921,7 @@
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Num terminal Tocar e pagar, pagar com:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagar num terminal"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configure uma aplicação de pagamento. Em seguida, basta aproximar a parte de trás do telemóvel a um terminal com o símbolo de pagamento sem contacto."</string>
-    <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Compreendi"</string>
+    <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"OK"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Mais..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Definir como preferência?"</string>
     <string name="nfc_payment_set_default" msgid="1186837502664412132">"Pretende utilizar sempre <xliff:g id="APP">%1$s</xliff:g> com a funcionalidade Tocar e pagar?"</string>
@@ -3035,7 +3035,7 @@
     <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"Bluetooth, modo de condução"</string>
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"Bluetooth, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"Bluetooth"</string>
-    <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"Aplicações e notificações"</string>
+    <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"Apps e notificações"</string>
     <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistente, aplicações recentes, aplicações predefinidas"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"O acesso às notificações não está disponível para aplicações no perfil de trabalho."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"Contas"</string>
@@ -3263,7 +3263,7 @@
     <string name="zen_sound_three_allowed" msgid="8374564453060696012">"Desativado, mas permitir <xliff:g id="SOUND_TYPE_0">%1$s</xliff:g>, <xliff:g id="SOUND_TYPE_1">%2$s</xliff:g> e <xliff:g id="SOUND_TYPE_2">%3$s</xliff:g>."</string>
     <string name="zen_custom_settings_dialog_title" msgid="908049494676219236">"Definições personalizadas"</string>
     <string name="zen_custom_settings_dialog_review_schedule" msgid="2247761749333893513">"Rever horário"</string>
-    <string name="zen_custom_settings_dialog_ok" msgid="3572754922025853427">"Compreendi"</string>
+    <string name="zen_custom_settings_dialog_ok" msgid="3572754922025853427">"OK"</string>
     <string name="zen_custom_settings_notifications_header" msgid="7469592764589354302">"Notificações"</string>
     <string name="zen_custom_settings_duration_header" msgid="1806465684026300942">"Duração"</string>
     <string name="zen_msg_event_reminder_title" msgid="8685224436389816905">"Mensagens, eventos e lembretes"</string>
@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Vai tornar este telemóvel mais lento."</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Forçar medições de GNSS completas"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Monitorizar todas as constelações e frequências de GNSS sem ciclos"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Depurar mudança de utilizador"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Mostrar informações detalhadas durante a mudança de utilizador"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Permitir inícios da atividade em segundo plano"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Permite os inícios de toda a atividade em segundo plano."</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Mostrar sempre a caixa de diálogo de falhas"</string>
