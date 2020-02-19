@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"එය මෙම දුරකථනය මන්දගාමී කරනු ඇත"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"සම්පූර්ණ GNSS මිනුම් බලාත්මක කරන්න"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"කාර්ය චක්‍රය රහිත සියලු GNSS සබැඳි තාරකා ගෝල සහ සංඛ්‍යාත"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"පරිශීලක ස්විචය නිදොස් කරන්න"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"පරිශීලක ස්විචය අතරතුර විස්තරාත්මක තොරතුරු පෙන්වන්න"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"පසුබිම් ක්‍රියාකාරකම් පටන් ගැනීමට ඉඩ දෙන්න"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"පසුබිම් ක්‍රියාකාරකම් සියල්ල පටන් ගැනීමට ඉඩ දෙන්න"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"බිඳ වැටීම් සංවාදය සැම විට පෙන්වන්න"</string>

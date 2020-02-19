@@ -4152,9 +4152,9 @@
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"Il tuo spazio di archiviazione è ora gestito dalla Gestione memoria"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"Account di <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"Configurazione"</string>
-    <string name="auto_sync_account_title" msgid="2394463123733529506">"Sincronizza i dati automaticamente"</string>
-    <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"Sincronizza i dati personali automaticamente"</string>
-    <string name="auto_sync_work_account_title" msgid="2403222633447522376">"Sincronizza i dati di lavoro automaticamente"</string>
+    <string name="auto_sync_account_title" msgid="2394463123733529506">"Sincronizza dati automaticamente"</string>
+    <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"Sincronizza dati personali automaticamente"</string>
+    <string name="auto_sync_work_account_title" msgid="2403222633447522376">"Sincronizza dati di lavoro automaticamente"</string>
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"Consenti aggiornamento automatico dei dati delle app"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"Sincronizzazione account"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"Sincronizzazione attiva per <xliff:g id="ID_1">%1$d</xliff:g> elementi su <xliff:g id="ID_2">%2$d</xliff:g>"</string>
@@ -4238,7 +4238,7 @@
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"utilizzati di <xliff:g id="TOTAL">%1$s</xliff:g>"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"usato"</string>
-    <string name="clear_instant_app_data" msgid="3673669086522890405">"Cancella dati dall\'app"</string>
+    <string name="clear_instant_app_data" msgid="3673669086522890405">"Cancella app"</string>
     <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"Vuoi rimuovere questa app istantanea?"</string>
     <string name="launch_instant_app" msgid="5251693061228352333">"Apri"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"Giochi"</string>
@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Rallenta il telefono"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Forza esecuzione completa delle misurazioni GNSS"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Monitora tutte le costellazioni e le frequenze GNSS senza ciclo di lavoro utile"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Esegui il debug del cambio utente"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Mostra informazioni dettagliate durante il cambio utente"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Consenti l\'avvio dell\'attività in background"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Consente l\'avvio di tutte le attività in background"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Mostra sempre finestra di dialogo di arresti anomali"</string>

@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"មុខងារនេះ​នឹង​ធ្វើឱ្យ​ទូរសព្ទ​នេះ​ដំណើរការយឺត"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"ជំរុញការវាស់ GNSS ពេញលេញ"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"តាមដានក្រុមរូបថត និងហ្រេ្វកង់ GNSS ទាំងអស់​ដែល​គ្មាន​ការបែង​ចែក​រយៈពេល​ដំណើរការ"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"ជួសជុល​ការប្ដូរអ្នក​ប្រើប្រាស់"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"បង្ហាញព័ត៌មាន​លម្អិត អំឡុងពេល​ប្ដូរអ្នកប្រើប្រាស់"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"អនុញ្ញាតឱ្យ​សកម្មភាពនៅ​ផ្ទៃខាងក្រោយ​ចាប់ផ្តើម"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"អនុញ្ញាតឱ្យ​សកម្មភាព​នៅផ្ទៃខាងក្រោយ​ទាំងអស់​ចាប់ផ្តើម"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"បង្ហាញ​ប្រអប់បញ្ចូល​នៃ​ការ​គាំង​ជានិច្ច"</string>

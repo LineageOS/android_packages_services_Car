@@ -3628,7 +3628,7 @@
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"ಯಾವುದೇ ಅನುಮತಿಗಳನ್ನು ವಿನಂತಿಸಿಲ್ಲ"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"ಎಲ್ಲಾ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"ಸ್ಥಾಪಿಸಲಾದ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು"</string>
-    <string name="filter_instant_apps" msgid="8087483282854072366">"ತತ್‌ಕ್ಷಣ ಆಪ್‌ಗಳು"</string>
+    <string name="filter_instant_apps" msgid="8087483282854072366">"ಇನ್‌ಸ್ಟಂಟ್ ಆ್ಯಪ್‌ಗಳು"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"ವೈಯಕ್ತಿಕ"</string>
     <string name="filter_work_apps" msgid="4202483998339465542">"ಕೆಲಸ"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"ಅಪ್ಲಿಕೇಶನ್‌ಗಳು: ಎಲ್ಲ"</string>
@@ -4274,6 +4274,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"ಇದರಿಂದ, ಫೋನ್‌ನ ಕಾರ್ಯಾಚರಣೆ ನಿಧಾನವಾಗುತ್ತದೆ"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"ಫೋರ್ಸ್‌ ಫುಲ್ GNSS ಅಳತೆಗಳು"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"ಯಾವುದೇ ಡ್ಯೂಟಿ ಸೈಕ್ಲಿಂಗ್ ಇಲ್ಲದೆ ಎಲ್ಲಾ GNSS ಕಾನ್ಸ್ಟಲೇಶನ್‌ಗಳು ಮತ್ತು ಆವರ್ತನೆಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ"</string>
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"ಡೀಬಗ್ ಬಳಕೆದಾರರ ಸ್ವಿಚ್"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"ಬಳಕೆದಾರರನ್ನು ಬದಲಾಯಿಸುವಾಗ ವಿವರವಾದ ಮಾಹಿತಿಯನ್ನು ಪ್ರದರ್ಶಿಸುತ್ತದೆ"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"ಹಿನ್ನೆಲೆ ಚಟುವಟಿಕೆ ಪ್ರಾರಂಭಗಳನ್ನು ಅನುಮತಿಸಿ"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"ಎಲ್ಲಾ ಹಿನ್ನೆಲೆ ಚಟುವಟಿಕೆ ಪ್ರಾರಂಭಿಸುವಿಕೆಗಳನ್ನು ಅನುಮತಿಸುತ್ತದೆ"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"ಯಾವಾಗಲೂ ಕ್ರ್ಯಾಶ್ ಸಂವಾದವನ್ನು ತೋರಿಸಿ"</string>
