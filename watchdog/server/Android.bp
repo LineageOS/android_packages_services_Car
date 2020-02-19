@@ -105,6 +105,7 @@ cc_binary {
     ],
     srcs: [
         "src/main.cpp",
+        "src/ServiceManager.cpp",
     ],
     init_rc: ["carwatchdogd.rc"],
     shared_libs: [

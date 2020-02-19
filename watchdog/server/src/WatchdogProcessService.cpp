@@ -28,7 +28,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using namespace std::chrono_literals;
+using std::literals::chrono_literals::operator""s;
 using android::base::Error;
 using android::base::Result;
 using android::base::StringPrintf;
