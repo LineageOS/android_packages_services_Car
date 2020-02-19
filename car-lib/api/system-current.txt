@@ -1247,8 +1247,8 @@ package android.car.vms {
     method public int describeContents();
     method @NonNull public java.util.Set<java.lang.Integer> getPublisherIds();
     method @NonNull public android.car.vms.VmsLayer getVmsLayer();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsAssociatedLayer> CREATOR;
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsAssociatedLayer> CREATOR;
   }
 
   public final class VmsAvailableLayers implements android.os.Parcelable {
@@ -1256,8 +1256,8 @@ package android.car.vms {
     method public int describeContents();
     method @NonNull public java.util.Set<android.car.vms.VmsAssociatedLayer> getAssociatedLayers();
     method public int getSequence();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsAvailableLayers> CREATOR;
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsAvailableLayers> CREATOR;
   }
 
   public final class VmsLayer implements android.os.Parcelable {
@@ -1266,27 +1266,27 @@ package android.car.vms {
     method public int getSubtype();
     method public int getType();
     method public int getVersion();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsLayer> CREATOR;
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsLayer> CREATOR;
   }
 
   public final class VmsLayerDependency implements android.os.Parcelable {
-    ctor public VmsLayerDependency(@NonNull android.car.vms.VmsLayer, @NonNull java.util.Set<android.car.vms.VmsLayer>);
     ctor public VmsLayerDependency(@NonNull android.car.vms.VmsLayer);
+    ctor public VmsLayerDependency(@NonNull android.car.vms.VmsLayer, @NonNull java.util.Set<android.car.vms.VmsLayer>);
     method public int describeContents();
     method @NonNull public java.util.Set<android.car.vms.VmsLayer> getDependencies();
     method @NonNull public android.car.vms.VmsLayer getLayer();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsLayerDependency> CREATOR;
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsLayerDependency> CREATOR;
   }
 
   public final class VmsLayersOffering implements android.os.Parcelable {
     ctor public VmsLayersOffering(@NonNull java.util.Set<android.car.vms.VmsLayerDependency>, int);
     method public int describeContents();
-    method public java.util.Set<android.car.vms.VmsLayerDependency> getDependencies();
+    method @NonNull public java.util.Set<android.car.vms.VmsLayerDependency> getDependencies();
     method public int getPublisherId();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsLayersOffering> CREATOR;
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsLayersOffering> CREATOR;
   }
 
   public final class VmsOperationRecorder {
@@ -1344,8 +1344,8 @@ package android.car.vms {
     method @NonNull public java.util.Set<android.car.vms.VmsAssociatedLayer> getAssociatedLayers();
     method @NonNull public java.util.Set<android.car.vms.VmsLayer> getLayers();
     method public int getSequenceNumber();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsSubscriptionState> CREATOR;
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsSubscriptionState> CREATOR;
   }
 
 }
