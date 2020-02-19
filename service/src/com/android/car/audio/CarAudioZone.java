@@ -16,7 +16,7 @@
 package com.android.car.audio;
 
 import android.car.media.CarAudioManager;
-import android.media.AudioDevice;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.util.Log;
 import android.view.DisplayAddress;
@@ -46,7 +46,7 @@ import java.util.Set;
     private final String mName;
     private final List<CarVolumeGroup> mVolumeGroups;
     private final List<DisplayAddress.Physical> mPhysicalDisplayAddresses;
-    private List<AudioDevice> mInputAudioDevice;
+    private List<AudioDeviceAttributes> mInputAudioDevice;
 
     CarAudioZone(int id, String name) {
         mId = id;
@@ -185,7 +185,7 @@ import java.util.Set;
 
         writer.printf("%sInput Audio Device Addresses\n", internalIndent);
         String devicesIndent = internalIndent + "\t";
-        for (AudioDevice audioDevice : mInputAudioDevice) {
+        for (AudioDeviceAttributes audioDevice : mInputAudioDevice) {
             writer.printf("%sDevice Address(%s)\n", devicesIndent,
                     audioDevice.getAddress());
         }
@@ -217,11 +217,11 @@ import java.util.Set;
         }
     }
 
-    void addInputAudioDevice(AudioDevice device) {
+    void addInputAudioDevice(AudioDeviceAttributes device) {
         mInputAudioDevice.add(device);
     }
 
-    List<AudioDevice> getInputAudioDevices() {
+    List<AudioDeviceAttributes> getInputAudioDevices() {
         return mInputAudioDevice;
     }
 }
