@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.ActivityManager.StackInfo;
+import android.app.PendingIntent;
 import android.car.Car;
 import android.car.content.pm.AppBlockingPackageInfo;
 import android.car.content.pm.CarAppBlockingPolicy;
@@ -276,6 +277,15 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
             return isActivityInWhitelistsLocked(packageName, className);
         }
+    }
+
+    @Override
+    public boolean isPendingIntentDistractionOptimized(PendingIntent pendingIntent) {
+        ResolveInfo info = mPackageManager.resolveActivity(
+                pendingIntent.getIntent(), PackageManager.MATCH_DEFAULT_ONLY);
+        if (info == null) return false;
+        ActivityInfo activityInfo = info.activityInfo;
+        return isActivityDistractionOptimized(activityInfo.packageName, activityInfo.name);
     }
 
     @Override
