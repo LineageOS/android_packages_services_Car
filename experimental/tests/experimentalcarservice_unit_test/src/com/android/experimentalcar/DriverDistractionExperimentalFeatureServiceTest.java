@@ -21,6 +21,7 @@ import static com.android.experimentalcar.DriverDistractionExperimentalFeatureSe
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.Car;
+import android.car.VehiclePropertyIds;
 import android.car.experimental.CarDriverDistractionManager;
 import android.car.experimental.DriverAwarenessEvent;
 import android.car.experimental.DriverAwarenessSupplierConfig;
@@ -28,6 +29,7 @@ import android.car.experimental.DriverAwarenessSupplierService;
 import android.car.experimental.DriverDistractionChangeEvent;
 import android.car.experimental.IDriverAwarenessSupplier;
 import android.car.experimental.IDriverAwarenessSupplierCallback;
+import android.car.hardware.CarPropertyValue;
 import android.content.Context;
 import android.os.Looper;
 import android.os.RemoteException;
@@ -165,6 +167,7 @@ public class DriverDistractionExperimentalFeatureServiceTest {
     @Test
     public void testPreferredAwarenessEvent_becomesStale_fallsBackToFallbackEvent()
             throws Exception {
+        setVehicleMoving();
         mService.setDriverAwarenessSuppliers(Arrays.asList(
                 new Pair<>(mFallbackSupplier, mFallbackConfig),
                 new Pair<>(mPreferredSupplier, mPreferredSupplierConfig)));
@@ -209,6 +212,7 @@ public class DriverDistractionExperimentalFeatureServiceTest {
 
     @Test
     public void testGetLastDistractionEvent_afterEventEmit_returnsLastEvent() throws Exception {
+        setVehicleMoving();
         mService.setDriverAwarenessSuppliers(Arrays.asList(
                 new Pair<>(mFallbackSupplier, mFallbackConfig)));
 
@@ -266,6 +270,7 @@ public class DriverDistractionExperimentalFeatureServiceTest {
 
     @Test
     public void testManagerRegister_receivesChangeEvents() throws Exception {
+        setVehicleMoving();
         long eventWaitTimeMs = 300;
 
         mService.setDriverAwarenessSuppliers(Arrays.asList(
@@ -314,6 +319,91 @@ public class DriverDistractionExperimentalFeatureServiceTest {
     @Test
     public void testManagerUnregister_beforeRegister_doesNothing() throws Exception {
         mManager.removeDriverDistractionChangeListener(mChangeListener);
+    }
+
+    @Test
+    public void testDistractionEvent_noSpeedEventsReceived_awarenessPercentageRemainsFull()
+            throws Exception {
+        mService.setDriverAwarenessSuppliers(Arrays.asList(
+                new Pair<>(mFallbackSupplier, mFallbackConfig)));
+
+        float firstAwarenessValue = 0.7f;
+        mTimeSource.setElapsedRealtime(INITIAL_TIME + 1);
+        emitEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(), firstAwarenessValue);
+
+        // No new distraction event since required awareness is 0 until a speed change occurs
+        assertThat(mService.getLastDistractionEvent()).isEqualTo(
+                new DriverDistractionChangeEvent.Builder()
+                        .setElapsedRealtimeTimestamp(INITIAL_TIME)
+                        .setAwarenessPercentage(1.0f)
+                        .build());
+    }
+
+    @Test
+    public void testRequiredAwareness_multipleSpeedChanges_emitsSingleEvent()
+            throws Exception {
+        setVehicleStopped();
+        mService.setDriverAwarenessSuppliers(Arrays.asList(
+                new Pair<>(mFallbackSupplier, mFallbackConfig)));
+
+        float firstAwarenessValue = 0.7f;
+        mTimeSource.setElapsedRealtime(INITIAL_TIME + 1);
+        emitEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(), firstAwarenessValue);
+        mService.handleSpeedEventLocked(
+                new CarPropertyValue<>(VehiclePropertyIds.PERF_VEHICLE_SPEED, 0, 30.0f));
+
+        // Receive the first speed change event
+        assertThat(mService.getLastDistractionEvent()).isEqualTo(
+                new DriverDistractionChangeEvent.Builder()
+                        .setElapsedRealtimeTimestamp(INITIAL_TIME + 1)
+                        .setAwarenessPercentage(0.7f)
+                        .build());
+
+        mTimeSource.setElapsedRealtime(INITIAL_TIME + 2);
+        mService.handleSpeedEventLocked(
+                new CarPropertyValue<>(VehiclePropertyIds.PERF_VEHICLE_SPEED, 0, 20.0f));
+        mTimeSource.setElapsedRealtime(INITIAL_TIME + 3);
+        mService.handleSpeedEventLocked(
+                new CarPropertyValue<>(VehiclePropertyIds.PERF_VEHICLE_SPEED, 0, 40.0f));
+
+        // Speed changes when already in a moving state don't trigger a new distraction event
+        assertThat(mService.getLastDistractionEvent()).isEqualTo(
+                new DriverDistractionChangeEvent.Builder()
+                        .setElapsedRealtimeTimestamp(INITIAL_TIME + 1)
+                        .setAwarenessPercentage(0.7f)
+                        .build());
+    }
+
+    @Test
+    public void testDistractionEvent_vehicleBecomesStopped_emitsFullAwareness() throws Exception {
+        mService.setDriverAwarenessSuppliers(Arrays.asList(
+                new Pair<>(mFallbackSupplier, mFallbackConfig)));
+
+        setVehicleMoving();
+        float firstAwarenessValue = 0.7f;
+        mTimeSource.setElapsedRealtime(INITIAL_TIME + 1);
+        emitEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(), firstAwarenessValue);
+
+        mTimeSource.setElapsedRealtime(INITIAL_TIME + 2);
+        setVehicleStopped();
+
+        // Awareness percentage is 1.0 since the vehicle is stopped, even though driver awareness
+        // is 0.7
+        assertThat(mService.getLastDistractionEvent()).isEqualTo(
+                new DriverDistractionChangeEvent.Builder()
+                        .setElapsedRealtimeTimestamp(INITIAL_TIME + 2)
+                        .setAwarenessPercentage(1.0f)
+                        .build());
+    }
+
+    private void setVehicleMoving() {
+        mService.handleSpeedEventLocked(
+                new CarPropertyValue<>(VehiclePropertyIds.PERF_VEHICLE_SPEED, 0, 30.0f));
+    }
+
+    private void setVehicleStopped() {
+        mService.handleSpeedEventLocked(
+                new CarPropertyValue<>(VehiclePropertyIds.PERF_VEHICLE_SPEED, 0, 0.0f));
     }
 
     private void resetChangeEventWait() {
