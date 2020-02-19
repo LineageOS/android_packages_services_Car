@@ -72,23 +72,49 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_EV_BATTERY_CAPACITY = 291504390;
     /**
-     * List of connectors this EV may use
+     * List of connectors this vehicle may use
+     *
+     * <p>Applications can query the property value by
+     * {@link android.car.hardware.property.CarPropertyManager#getIntArrayProperty(int, int)}. The
+     * return value is an integer array containing enums in {@link EvConnectorType}
+     *
      * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_EV_CONNECTOR_TYPE = 289472775;
     /**
      * Fuel door location
+     *
+     * <p> Applications can query the property value by
+     * {@link android.car.hardware.property.CarPropertyManager#getIntProperty(int, int)}. The return
+     * value is one of enums in {@link PortLocationType}.
+     *
      * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_FUEL_DOOR_LOCATION = 289407240;
     /**
      * EV port location
+     *
+     * <p> Applications can query the property value by
+     * {@link android.car.hardware.property.CarPropertyManager#getIntProperty(int, int)}. The return
+     * value is one of enums in {@link PortLocationType}.
+     *
      * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_EV_PORT_LOCATION = 289407241;
+    /**
+     * Multiple EV port locations
+     *
+     * <p> Applications can query the property value by
+     * {@link android.car.hardware.property.CarPropertyManager#getIntArrayProperty(int, int)}. The
+     * return value is an integer array containing enums in {@link PortLocationType}.
+     *
+     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    public static final int INFO_MULTI_EV_PORT_LOCATIONS = 289472780;
     /**
      * Driver's seat location
      * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
@@ -928,6 +954,8 @@ public final class VehiclePropertyIds {
                 return "INFO_FUEL_TYPE";
             case INFO_EV_BATTERY_CAPACITY:
                 return "INFO_EV_BATTERY_CAPACITY";
+            case INFO_MULTI_EV_PORT_LOCATIONS:
+                return "INFO_MULTI_EV_PORT_LOCATIONS";
             case INFO_EV_CONNECTOR_TYPE:
                 return "INFO_EV_CONNECTOR_TYPE";
             case INFO_FUEL_DOOR_LOCATION:

@@ -319,6 +319,9 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.INFO_FUEL_DOOR_LOCATION, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
+        mProps.put(VehicleProperty.INFO_MULTI_EV_PORT_LOCATIONS, new Pair<>(
+                    Car.PERMISSION_CAR_INFO,
+                    null));
         mProps.put(VehicleProperty.INFO_EV_PORT_LOCATION, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
