@@ -22,6 +22,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.util.List;
@@ -165,5 +166,26 @@ public final class CarServiceUtils {
             array[i] = list.get(i);
         }
         return array;
+    }
+
+    /**
+     * Returns delta between elapsed time to uptime = {@link SystemClock#elapsedRealtime()} -
+     * {@link SystemClock#uptimeMillis()}. Note that this value will be always >= 0.
+     */
+    public static long getUptimeToElapsedTimeDeltaInMillis() {
+        int retry = 0;
+        int max_retry = 2; // try only up to twice
+        while (true) {
+            long elapsed1 = SystemClock.elapsedRealtime();
+            long uptime = SystemClock.uptimeMillis();
+            long elapsed2 = SystemClock.elapsedRealtime();
+            if (elapsed1 == elapsed2) { // avoid possible 1 ms fluctuation.
+                return elapsed1 - uptime;
+            }
+            retry++;
+            if (retry >= max_retry) {
+                return elapsed1 - uptime;
+            }
+        }
     }
 }

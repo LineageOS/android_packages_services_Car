@@ -529,6 +529,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarUserService;
             case Car.CAR_WATCHDOG_SERVICE:
                 return mCarWatchdogService;
+            case Car.CAR_INPUT_SERVICE:
+                return mCarInputService;
             default:
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {
