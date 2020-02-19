@@ -20,10 +20,10 @@ import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.ArraySet;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -39,7 +39,7 @@ import java.util.Set;
 @SystemApi
 public final class VmsLayerDependency implements Parcelable {
     private final VmsLayer mLayer;
-    private final Set<VmsLayer> mDependency;
+    private final Set<VmsLayer> mDependencies;
 
     /**
      * Constructs a layer with a dependency on other layers.
@@ -49,7 +49,7 @@ public final class VmsLayerDependency implements Parcelable {
      */
     public VmsLayerDependency(@NonNull VmsLayer layer, @NonNull Set<VmsLayer> dependencies) {
         mLayer = Objects.requireNonNull(layer, "layer cannot be null");
-        mDependency = Collections.unmodifiableSet(dependencies);
+        mDependencies = Collections.unmodifiableSet(dependencies);
     }
 
     /**
@@ -74,7 +74,7 @@ public final class VmsLayerDependency implements Parcelable {
      */
     @NonNull
     public Set<VmsLayer> getDependencies() {
-        return mDependency;
+        return mDependencies;
     }
 
     public static final Parcelable.Creator<VmsLayerDependency> CREATOR = new
@@ -90,7 +90,7 @@ public final class VmsLayerDependency implements Parcelable {
 
     @Override
     public String toString() {
-        return "VmsLayerDependency{ Layer: " + mLayer + " Dependency: " + mDependency + "}";
+        return "VmsLayerDependency{ Layer: " + mLayer + " Dependency: " + mDependencies + "}";
     }
 
     @Override
@@ -99,18 +99,18 @@ public final class VmsLayerDependency implements Parcelable {
             return false;
         }
         VmsLayerDependency p = (VmsLayerDependency) o;
-        return Objects.equals(p.mLayer, mLayer) && p.mDependency.equals(mDependency);
+        return Objects.equals(p.mLayer, mLayer) && p.mDependencies.equals(mDependencies);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mLayer, mDependency);
+        return Objects.hash(mLayer, mDependencies);
     }
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeParcelable(mLayer, flags);
-        out.writeParcelableList(new ArrayList<VmsLayer>(mDependency), flags);
+        out.writeParcelableList(new ArrayList<>(mDependencies), flags);
     }
 
     @Override
@@ -122,6 +122,6 @@ public final class VmsLayerDependency implements Parcelable {
         mLayer = in.readParcelable(VmsLayer.class.getClassLoader());
         List<VmsLayer> dependency = new ArrayList<>();
         in.readParcelableList(dependency, VmsLayer.class.getClassLoader());
-        mDependency = Collections.unmodifiableSet(new HashSet<VmsLayer>(dependency));
+        mDependencies = Collections.unmodifiableSet(new ArraySet<>(dependency));
     }
 }

@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX கட்டுப்பாடுகளை உள்ளமைத்தல்"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP பயன்முறையில் USB சாதனத்தை தொடர்புகொள்ளும்"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP பயன்முறையில் சாதனத்துடன் ஆப்ஸைத் தொடர்புகொள்ள அனுமதிக்கிறது"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"உள்ளிருப்போருக்கான விழிப்புணர்வு சிஸ்டத்தின் வாசிக்கும் அணுகல்"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"உள்ளிருப்போருக்கான விழிப்புணர்வு சிஸ்டத்திற்கு வாசிக்கும் நிலையையும் கண்டறிதல் தரவையும் அனுமதிக்கிறது"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"உள்ளிருப்போருக்கான விழிப்புணர்வு சிஸ்டத்தின் வரைபடத்தைக் கட்டுப்படுத்த வேண்டும்"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"உள்ளிருப்போருக்கான விழிப்புணர்வு சிஸ்டத்தின் கண்டறிதல் வரைபடத்தை தொடங்குவதற்கும் நிறுத்துவதற்கும் கட்டுப்படுத்த அனுமதிக்கிறது"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"காருக்கு உற்பத்தியாளர் வழங்கும் சேவை"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"உற்பத்தியாளர் வழங்கும் சேவைகளைக் கையாளுதல்"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus அமைப்பு தோல்வியடைந்தது"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"காரின் இன்ஜின் குறித்த முழுமையான தகவலை அணுக வேண்டும்."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"காரின் எரிபொருள் மூடியையும் சார்ஜ் போர்ட்டையும் அணுக வேண்டும்"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"காரின் எரிபொருள் மூடியையும் சார்ஜ் போர்ட்டையும் அணுக வேண்டும்."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"காரின் எரிபொருள் மூடியையும் சார்ஜ் போர்ட்டையும் கட்டுப்படுத்த வேண்டும்"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"காரின் எரிபொருள் மூடியையும் சார்ஜ் போர்ட்டையும் கட்டுப்படுத்த வேண்டும்."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"காரின் VIN தகவலை அறிய வேண்டும்"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"காரின் VIN தகவலை அணுக வேண்டும்."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"காரின் கதவுகளை நிர்வகிக்க வேண்டும்"</string>

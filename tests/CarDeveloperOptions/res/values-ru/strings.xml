@@ -120,7 +120,7 @@
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"Устройства поблизости могут обнаружить <xliff:g id="DEVICE_NAME">%1$s</xliff:g>, пока открыты настройки Bluetooth."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"Bluetooth-адрес телефона: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"Адрес Bluetooth для планшета: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_footer_mac_message" product="device" msgid="7639919867088358038">"Адрес Bluetooth для устройства: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
+    <string name="bluetooth_footer_mac_message" product="device" msgid="7639919867088358038">"Адрес Bluetooth: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_is_disconnect_question" msgid="6180709281434591654">"Отключить <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
     <string name="bluetooth_broadcasting" msgid="8926408584599563760">"Передача данных"</string>
     <string name="bluetooth_device" msgid="3170974107364990008">"Bluetooth-устройство без названия"</string>
@@ -128,7 +128,7 @@
     <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"Устройства Bluetooth не найдены."</string>
     <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"Запрос подключения Bluetooth"</string>
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"Запрос подключения"</string>
-    <string name="bluetooth_notif_message" msgid="6612367890895077938">"Нажмите, чтобы установить соединение с устройством \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\"."</string>
+    <string name="bluetooth_notif_message" msgid="6612367890895077938">"Нажмите, чтобы подключить устройство \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\"."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"Полученные файлы"</string>
     <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"Файлы, полученные по Bluetooth"</string>
     <string name="device_picker" msgid="8345264486071697705">"Выбрать устройство Bluetooth"</string>
@@ -764,7 +764,7 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"Bluetooth"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Настройка подключений, видимости и имени устройства"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Добавить <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Подключить устройство \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\"?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Код подключения Bluetooth"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Введите код подключения и нажмите клавишу ввода"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN-код содержит буквы или символы"</string>
@@ -805,7 +805,7 @@
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"Чтобы точнее определять местоположение, системные приложения и сервисы продолжат искать находящиеся поблизости Bluetooth-устройства. Вы можете отключить эту функцию в <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>настройках сканирования<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Ошибка подключения. Повторите попытку."</string>
     <string name="device_details_title" msgid="726517818032923222">"Об устройстве"</string>
-    <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Адрес Bluetooth для устройства: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
+    <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Адрес Bluetooth: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Прервать соединение?"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Соединение с устройством \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\" будет прервано."</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Соединение с устройством \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\" будет прервано."</string>
@@ -1619,7 +1619,7 @@
     <string name="reset_network_complete_toast" msgid="128225929536005495">"Сетевые настройки сброшены"</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"Не удалось стереть данные SIM-карт"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Не удалось стереть данные скачанных SIM-карт из-за ошибки.\n\nПерезагрузите устройство и повторите попытку."</string>
-    <string name="master_clear_title" msgid="1560712943955904673">"Удалить все данные (сброс к заводским настройкам)"</string>
+    <string name="master_clear_title" msgid="1560712943955904673">"Стереть данные (к заводским настройкам)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"Удалить все данные"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Будут удалены все данные из "<b>"внутренней памяти"</b>" планшета, в том числе:\n\n"<li>"Ваш аккаунт Google"</li>\n<li>"Настройки/данные системы и приложений"</li>\n<li>"Установленные приложения"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Будут удалены все данные из "<b>"внутренней памяти"</b>" телефона, в том числе:\n\n"<li>"Ваш аккаунт Google"</li>\n<li>"Настройки/данные системы и приложений"</li>\n<li>"Установленные приложения"</li></string>
@@ -2561,8 +2561,8 @@
     <string name="menu_duration_6h" msgid="6169009210638008417">"6 часов"</string>
     <string name="menu_duration_12h" msgid="1435242738163843797">"12 часов"</string>
     <string name="menu_duration_1d" msgid="6476370834372352174">"1 день"</string>
-    <string name="menu_show_system" msgid="6315865548558708248">"Показать системные процессы"</string>
-    <string name="menu_hide_system" msgid="8457027118873733782">"Скрыть системные процессы"</string>
+    <string name="menu_show_system" msgid="6315865548558708248">"Показать сист. процессы"</string>
+    <string name="menu_hide_system" msgid="8457027118873733782">"Скрыть сист. процессы"</string>
     <string name="menu_show_percentage" msgid="6983272380729890884">"Показать в процентах"</string>
     <string name="menu_use_uss" msgid="3765054705208926803">"Использовать USS"</string>
     <string name="menu_proc_stats_type" msgid="2680179749566186247">"Тип статистических данных"</string>
@@ -3132,7 +3132,7 @@
     <string name="keywords_wifi_notify_open_networks" msgid="1031260564121854773">"Уведомления о Wi‑Fi, уведомления о wifi"</string>
     <string name="keywords_auto_brightness" msgid="5007188989783072428">"Автоматическая регулировка яркости"</string>
     <string name="keywords_vibrate_on_touch" msgid="3615173661462446877">"Вибрация, нажатие, клавиатура"</string>
-    <string name="keywords_time_format" msgid="8265826377023617424">"Использовать 24-часовой формат"</string>
+    <string name="keywords_time_format" msgid="8265826377023617424">"24-часовой формат"</string>
     <string name="keywords_storage_files" msgid="1995055540202216399">"Скачивание"</string>
     <string name="keywords_app_default" msgid="1265502485415708667">"Открыть с помощью"</string>
     <string name="keywords_applications_settings" msgid="2078776051110952597">"Приложения"</string>
@@ -4431,10 +4431,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Она замедляет работу телефона."</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Полные измерения GNSS"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Отслеживать все группировки GNSS и частоты без рабочего цикла"</string>
-    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
-    <skip />
-    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
-    <skip />
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Данные отладки при переключении пользователей"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Показывать детализированные данные отладки во время переключения пользователей"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Разрешить запуск компонентов в фоновом режиме"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Разрешен запуск всех компонентов в фоновом режиме"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Всегда показывать сообщение об ошибке"</string>

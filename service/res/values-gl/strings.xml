@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Configurar restricións da experiencia de usuario"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Comunicarse con dispositivos USB no modo AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Permite que unha aplicación se comunique cun dispositivo no modo AOAP"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Acceso de lectura ao sistema de detección de ocupantes"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Permite ler os datos da detección e do estado do sistema de detección de ocupantes"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Controlar o gráfico do sistema de detección de ocupantes"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Permite controlar o inicio e a parada do gráfico de detección do sistema de detección de ocupantes"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Servizo de entrada do coche"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Controlar os eventos de entrada"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Produciuse un erro no bus CAN"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Acceder a información detallada do motor do coche."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"acceder ao depósito de combustible e ao porto de carga do coche"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Acceder ao depósito de combustible e ao porto de carga do coche."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"controlar o depósito de combustible e o porto de carga do coche"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Controlar o depósito de combustible e o porto de carga do coche."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"ler a identificación do coche"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Acceder á identificación do coche."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"controlar as portas do coche"</string>

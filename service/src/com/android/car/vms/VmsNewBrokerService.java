@@ -191,38 +191,41 @@ public class VmsNewBrokerService extends IVmsBrokerService.Stub implements CarSe
     }
 
     @Override
-    public void publish(IBinder clientToken, int publisherId, VmsLayer layer, byte[] message) {
+    public void publishPacket(IBinder clientToken, int providerId, VmsLayer layer, byte[] packet) {
         assertVmsPublisherPermission(mContext);
         VmsClientInfo client = getClient(clientToken);
-        if (!client.hasOffering(publisherId, layer)) {
+        if (!client.hasOffering(providerId, layer)) {
             throw new IllegalArgumentException("Client does not offer " + layer + " as "
-                    + publisherId);
+                    + providerId);
         }
 
-        int payloadLength = message != null ? message.length : 0;
+        int packetLength = packet != null ? packet.length : 0;
         mStatsService.getVmsClientLogger(client.getUid())
-                .logPacketSent(layer, payloadLength);
+                .logPacketSent(layer, packetLength);
 
-        Collection<VmsClientInfo> subscribers = mClientMap.values().stream()
-                .filter(subscriber -> subscriber.isSubscribed(publisherId, layer))
-                .collect(Collectors.toList());
+        Collection<VmsClientInfo> subscribers;
+        synchronized (mLock) {
+            subscribers = mClientMap.values().stream()
+                    .filter(subscriber -> subscriber.isSubscribed(providerId, layer))
+                    .collect(Collectors.toList());
+        }
 
         if (DBG) Log.d(TAG, String.format("Number of subscribers: %d", subscribers.size()));
 
         if (subscribers.isEmpty()) {
             // A negative UID signals that the packet had zero subscribers
-            mStatsService.getVmsClientLogger(-1).logPacketDropped(layer, payloadLength);
+            mStatsService.getVmsClientLogger(-1).logPacketDropped(layer, packetLength);
             return;
         }
 
         for (VmsClientInfo subscriber : subscribers) {
             try {
-                subscriber.getCallback().onMessageReceived(publisherId, layer, message);
+                subscriber.getCallback().onPacketReceived(providerId, layer, packet);
                 mStatsService.getVmsClientLogger(subscriber.getUid())
-                        .logPacketReceived(layer, payloadLength);
+                        .logPacketReceived(layer, packetLength);
             } catch (RemoteException ex) {
                 mStatsService.getVmsClientLogger(subscriber.getUid())
-                        .logPacketDropped(layer, payloadLength);
+                        .logPacketDropped(layer, packetLength);
                 Log.e(TAG, String.format("Unable to publish to listener: %s",
                         subscriber.getPackageName()));
             }
@@ -297,19 +300,19 @@ public class VmsNewBrokerService extends IVmsBrokerService.Stub implements CarSe
             // Fuse subscriptions
             for (VmsClientInfo client : mClientMap.values()) {
                 layerSubscriptions.addAll(client.getLayerSubscriptions());
-                client.getLayerAndProviderSubscriptions().forEach((layer, publisherIds) -> {
-                    Set<Integer> publisherSubscriptions =
+                client.getLayerAndProviderSubscriptions().forEach((layer, providerIds) -> {
+                    Set<Integer> providerSubscriptions =
                             layerAndProviderSubscriptions.computeIfAbsent(
                                     layer,
                                     ignored -> new ArraySet<>());
-                    publisherSubscriptions.addAll(publisherIds);
+                    providerSubscriptions.addAll(providerIds);
                 });
             }
 
-            // Remove global layer subscriptions from publisher-specific subscription state
+            // Remove global layer subscriptions from provider-specific subscription state
             layerSubscriptions.forEach(layerAndProviderSubscriptions::remove);
 
-            // Transform publisher-specific subscriptions into VmsAssociatedLayers
+            // Transform provider-specific subscriptions into VmsAssociatedLayers
             Set<VmsAssociatedLayer> associatedLayers =
                     layerAndProviderSubscriptions.entrySet().stream()
                             .map(entry -> new VmsAssociatedLayer(entry.getKey(), entry.getValue()))

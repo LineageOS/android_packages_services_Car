@@ -20,6 +20,5 @@
     <string name="app_name" msgid="1232190134475133062">"SecondaryHomeApp"</string>
     <string name="app_launcher" msgid="3285007106222765396">"„SecHome“ paleidimo priemonė"</string>
     <string name="launch_fail_msg" msgid="2935729218024647088">"Nepavyko paleisti"</string>
-    <!-- no translation found for clear_all (7403807937179450743) -->
-    <skip />
+    <string name="clear_all" msgid="7403807937179450743">"Išvalyti viską"</string>
 </resources>

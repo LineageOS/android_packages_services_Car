@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX పరిమితులను కాన్ఫిగర్ చెయ్యండి"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP మోడ్‌లో USB పరికరాన్ని కమ్యూనికేట్ చేయండి"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP మోడ్‌లో పరికరంతో కమ్యూనికేట్ చేయడానికి యాప్‌ను అనుమతిస్తుంది"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness Systemను చదవే యాక్సెస్"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness Systemకు చదివే స్థితిని, డేటాను గుర్తించడాన్ని అనుమతిస్తుంది"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System గ్రాఫ్‌ను నియంత్రించు"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness Systemను గుర్తించే గ్రాఫ్‌ను ప్రారంభించడాన్ని, ఆపివేయడాన్ని నియంత్రించడానికి అనుమతిస్తుంది"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"కారు ఇన్‌పుట్ సేవ"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ఇన్‌పుట్ ఈవెంట్‌లను హ్యాండిల్ చేయండి"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN బస్సు విఫలమైంది"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"మీ కారు యొక్క సమగ్ర ఇంజిన్ సమాచారాన్ని యాక్సెస్ చేయగలవు."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"కారు ఇంధన డోర్ మరియు ఛార్జ్ పోర్ట్‌ను యాక్సెస్ చేయగలవు"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"కారు ఇంధన తలుపు మరియు ఛార్జ్ పోర్ట్‌ను యాక్సెస్ చేయగలవు."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"కారు ఇంధన డోర్, ఛార్జ్ పోర్ట్‌ను నియంత్రించు"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"కారు ఇంధన డోర్, ఛార్జ్ పోర్ట్‌ను నియంత్రించు"</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"కారు గుర్తింపును చూడగలవు"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"కారు గుర్తింపును యాక్సెస్ చేయగలవు."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"కారు డోర్‌లను నియంత్రించగలవు"</string>

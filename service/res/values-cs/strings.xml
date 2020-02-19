@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Konfigurace omezení uživatelského prostředí"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Komunikace se zařízením USB v režimu AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Umožňuje aplikaci komunikovat se zařízením v režimu AOAP"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Systému detekce uživatele – přístup ke čtení"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Umožňuje čtení stavu a dat ze systému detekce uživatele"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Systému detekce uživatele – ovládání grafu"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Umožňuje ovládat zahájení a ukončení grafu systému detekce uživatele"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Služba vstupu auta"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Zpracování vstupních událostí"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Sběrnice CAN selhala"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Přístup k podrobným údajům o motoru auta."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"přístup ke vstupu do nádrže a nabíjecímu portu auta"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Přístup ke vstupu do nádrže a nabíjecímu portu auta."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"přístup ke vstupu do nádrže a nabíjecímu portu auta"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Přístup ke vstupu do nádrže a nabíjecímu portu auta."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"čtení identifikace auta"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Přístup k identifikaci auta."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"ovládání dveří auta"</string>

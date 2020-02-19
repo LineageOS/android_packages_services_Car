@@ -60,9 +60,9 @@ interface IVmsBrokerService {
         int providerId,
         in List<VmsLayerDependency> offerings) = 6;
 
-    void publish(
+    void publishPacket(
         in IBinder token,
         int providerId,
         in VmsLayer layer,
-        in byte[] message) = 7;
+        in byte[] packet) = 7;
 }

@@ -18,6 +18,8 @@ package com.android.car.vms;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.testng.Assert.assertThrows;
@@ -64,7 +66,7 @@ public class VmsClientTest extends MockedCarTestBase {
     private static final byte[] PROVIDER_DESC2 = {5, 4, 3, 2, 1};
 
     private static final VmsAvailableLayers DEFAULT_AVAILABLE_LAYERS =
-            new VmsAvailableLayers(emptySet(), 0);
+            new VmsAvailableLayers(0, emptySet());
     private static final VmsSubscriptionState DEFAULT_SUBSCRIPTION_STATE =
             new VmsSubscriptionState(0, emptySet(), emptySet());
 
@@ -113,10 +115,10 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsAssociatedLayer(LAYER2, asSet(12345))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1,
-                        asSet(providerId))),
-                1);
+                        asSet(providerId)))
+        );
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(1,
                 asSet(LAYER1),
                 asSet(new VmsAssociatedLayer(LAYER2, asSet(12345)))
@@ -160,6 +162,27 @@ public class VmsClientTest extends MockedCarTestBase {
         int providerId2 = client.registerProvider(PROVIDER_DESC2);
 
         assertThat(providerId).isNotEqualTo(providerId2);
+    }
+
+    @Test
+    public void testUnregisterProvider() {
+        VmsClient client = connectVmsClient(mClientCallback1);
+        int providerId = client.registerProvider(PROVIDER_DESC1);
+
+        client.setProviderOfferings(providerId, asSet(
+                new VmsLayerDependency(LAYER1)
+        ));
+
+        client.unregisterProvider(providerId);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
+        verifyLayerAvailability(mClientCallback1, expectedLayers);
+    }
+
+    @Test
+    public void testUnregisterProvider_UnknownId() {
+        VmsClient client = connectVmsClient(mClientCallback1);
+
+        client.unregisterProvider(12345);
     }
 
     @Test
@@ -956,9 +979,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER1)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -975,9 +998,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER1)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -996,9 +1019,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER1)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1018,9 +1041,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER1)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1035,10 +1058,10 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                1);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1055,10 +1078,10 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId2))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1077,10 +1100,10 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId2))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1100,10 +1123,10 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1120,9 +1143,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1142,10 +1165,10 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(3, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId2))),
-                3);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1167,10 +1190,10 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(3, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId2))),
-                3);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1193,10 +1216,10 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1211,7 +1234,7 @@ public class VmsClientTest extends MockedCarTestBase {
         ));
         client.setProviderOfferings(providerId, emptySet());
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1229,9 +1252,9 @@ public class VmsClientTest extends MockedCarTestBase {
         ));
         client.setProviderOfferings(providerId2, emptySet());
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                3);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(3, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1251,9 +1274,9 @@ public class VmsClientTest extends MockedCarTestBase {
         ));
         client2.setProviderOfferings(providerId2, emptySet());
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                3);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(3, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1274,9 +1297,9 @@ public class VmsClientTest extends MockedCarTestBase {
         ));
         client2.setProviderOfferings(providerId, emptySet());
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1294,10 +1317,10 @@ public class VmsClientTest extends MockedCarTestBase {
         ));
         mClientManager.unregisterVmsClientCallback(mClientCallback1);
 
-        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
-        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
+        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers1);
         verifyLayerAvailability(mClientCallback2, expectedLayers2);
     }
@@ -1319,10 +1342,10 @@ public class VmsClientTest extends MockedCarTestBase {
         ));
         mClientManager.unregisterVmsClientCallback(mClientCallback1);
 
-        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2))),
-                2);
-        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(emptySet(), 3);
+        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
+        );
+        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(3, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers1);
         verifyLayerAvailability(mClientCallback2, expectedLayers2);
     }
@@ -1343,12 +1366,12 @@ public class VmsClientTest extends MockedCarTestBase {
         ));
         mClientManager.unregisterVmsClientCallback(mClientCallback1);
 
-        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2))),
-                2);
-        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId2))),
-                3);
+        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
+        );
+        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(3, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers1);
         verifyLayerAvailability(mClientCallback2, expectedLayers2);
     }
@@ -1369,12 +1392,12 @@ public class VmsClientTest extends MockedCarTestBase {
         ));
         mClientManager.unregisterVmsClientCallback(mClientCallback1);
 
-        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
-        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER1, asSet(providerId))),
-                1);
+        VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
+        VmsAvailableLayers expectedLayers2 = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers1);
         verifyLayerAvailability(mClientCallback2, expectedLayers2);
     }
@@ -1389,10 +1412,10 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                1);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1409,10 +1432,10 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId2))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1431,10 +1454,10 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId2))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1454,10 +1477,10 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1473,11 +1496,11 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                1);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1495,11 +1518,11 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId2))),
-                2);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1519,11 +1542,11 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId2))),
-                2);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1544,11 +1567,11 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1564,11 +1587,11 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                1);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1586,11 +1609,11 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId2)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1610,11 +1633,11 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId2)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1635,11 +1658,11 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)),
                 new VmsAssociatedLayer(LAYER2, asSet(providerId)),
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                2);
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1653,7 +1676,7 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1670,7 +1693,7 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1689,7 +1712,7 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1709,7 +1732,7 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1725,9 +1748,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1745,9 +1768,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1767,9 +1790,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1790,9 +1813,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1808,7 +1831,7 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3, asSet(LAYER1))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1826,7 +1849,7 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1846,7 +1869,7 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1867,7 +1890,7 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1881,7 +1904,7 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER1, asSet(LAYER2))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1895,9 +1918,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER2, asSet(providerId))),
-                1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER2, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1914,9 +1937,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER3, asSet(providerId2))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER3, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1935,9 +1958,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER3, asSet(providerId2))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER3, asSet(providerId2)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1957,9 +1980,9 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER3)
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(asSet(
-                new VmsAssociatedLayer(LAYER3, asSet(providerId))),
-                2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, asSet(
+                new VmsAssociatedLayer(LAYER3, asSet(providerId)))
+        );
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -1974,7 +1997,7 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 1);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -1991,7 +2014,7 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
     }
 
@@ -2010,7 +2033,7 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
@@ -2030,23 +2053,23 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsLayerDependency(LAYER2, asSet(LAYER3))
         ));
 
-        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(emptySet(), 2);
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(2, emptySet());
         verifyLayerAvailability(mClientCallback1, expectedLayers);
         verifyLayerAvailability(mClientCallback2, expectedLayers);
     }
 
     @Test
-    public void testPublish_UnknownOffering() {
+    public void testPublishPacket_UnknownOffering() {
         VmsClient client = connectVmsClient(mClientCallback1);
         int providerId = client.registerProvider(PROVIDER_DESC1);
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> client.publish(providerId, LAYER1, PAYLOAD));
+                () -> client.publishPacket(providerId, LAYER1, PAYLOAD));
     }
 
     @Test
-    public void testPublish_NoSubscribers() {
+    public void testPublishPacket_NoSubscribers() {
         VmsClient client = connectVmsClient(mClientCallback1);
         int providerId = client.registerProvider(PROVIDER_DESC1);
         client.setProviderOfferings(providerId, asSet(
@@ -2054,14 +2077,14 @@ public class VmsClientTest extends MockedCarTestBase {
         ));
         connectVmsClient(mClientCallback2);
 
-        client.publish(providerId, LAYER1, PAYLOAD);
+        client.publishPacket(providerId, LAYER1, PAYLOAD);
 
-        verifyNoMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_MonitorSubscriber_Enabled() {
+    public void testPublishPacket_MonitorSubscriber_Enabled() {
         VmsClient client = connectVmsClient(mClientCallback1);
         int providerId = client.registerProvider(PROVIDER_DESC1);
         client.setProviderOfferings(providerId, asSet(
@@ -2070,14 +2093,14 @@ public class VmsClientTest extends MockedCarTestBase {
         connectVmsClient(mClientCallback2);
 
         client.setMonitoringEnabled(true);
-        client.publish(providerId, LAYER1, PAYLOAD);
+        client.publishPacket(providerId, LAYER1, PAYLOAD);
 
-        verifyMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_MonitorSubscriber_EnabledAndDisabled() {
+    public void testPublishPacket_MonitorSubscriber_EnabledAndDisabled() {
         VmsClient client = connectVmsClient(mClientCallback1);
         int providerId = client.registerProvider(PROVIDER_DESC1);
         client.setProviderOfferings(providerId, asSet(
@@ -2087,14 +2110,14 @@ public class VmsClientTest extends MockedCarTestBase {
 
         client.setMonitoringEnabled(true);
         client.setMonitoringEnabled(false);
-        client.publish(providerId, LAYER1, PAYLOAD);
+        client.publishPacket(providerId, LAYER1, PAYLOAD);
 
-        verifyNoMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_LayerSubscriber() {
+    public void testPublishPacket_LayerSubscriber() {
         VmsClient client = connectVmsClient(mClientCallback1);
         int providerId = client.registerProvider(PROVIDER_DESC1);
         client.setProviderOfferings(providerId, asSet(
@@ -2105,14 +2128,14 @@ public class VmsClientTest extends MockedCarTestBase {
         client.setSubscriptions(asSet(
                 new VmsAssociatedLayer(LAYER1, emptySet())
         ));
-        client.publish(providerId, LAYER1, PAYLOAD);
+        client.publishPacket(providerId, LAYER1, PAYLOAD);
 
-        verifyMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_LayerSubscriber_Unsubscribe() {
+    public void testPublishPacket_LayerSubscriber_Unsubscribe() {
         VmsClient client = connectVmsClient(mClientCallback1);
         int providerId = client.registerProvider(PROVIDER_DESC1);
         client.setProviderOfferings(providerId, asSet(
@@ -2124,14 +2147,14 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsAssociatedLayer(LAYER1, emptySet())
         ));
         client.setSubscriptions(emptySet());
-        client.publish(providerId, LAYER1, PAYLOAD);
+        client.publishPacket(providerId, LAYER1, PAYLOAD);
 
-        verifyNoMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_LayerSubscriber_DifferentLayer() {
+    public void testPublishPacket_LayerSubscriber_DifferentLayer() {
         VmsClient client = connectVmsClient(mClientCallback1);
         int providerId = client.registerProvider(PROVIDER_DESC1);
         client.setProviderOfferings(providerId, asSet(
@@ -2142,14 +2165,14 @@ public class VmsClientTest extends MockedCarTestBase {
         client.setSubscriptions(asSet(
                 new VmsAssociatedLayer(LAYER2, emptySet())
         ));
-        client.publish(providerId, LAYER1, PAYLOAD);
+        client.publishPacket(providerId, LAYER1, PAYLOAD);
 
-        verifyNoMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_MultipleLayerSubscribers() {
+    public void testPublishPacket_MultipleLayerSubscribers() {
         VmsClient client = connectVmsClient(mClientCallback1);
         int providerId = client.registerProvider(PROVIDER_DESC1);
         client.setProviderOfferings(providerId, asSet(
@@ -2163,14 +2186,14 @@ public class VmsClientTest extends MockedCarTestBase {
         client2.setSubscriptions(asSet(
                 new VmsAssociatedLayer(LAYER1, emptySet())
         ));
-        client.publish(providerId, LAYER1, PAYLOAD);
+        client.publishPacket(providerId, LAYER1, PAYLOAD);
 
-        verifyMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
     }
 
     @Test
-    public void testPublish_LayerAndProviderSubscriber() {
+    public void testPublishPacket_LayerAndProviderSubscriber() {
         VmsClient client = connectVmsClient(mClientCallback1);
         int providerId = client.registerProvider(PROVIDER_DESC1);
         client.setProviderOfferings(providerId, asSet(
@@ -2181,14 +2204,14 @@ public class VmsClientTest extends MockedCarTestBase {
         client.setSubscriptions(asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId))
         ));
-        client.publish(providerId, LAYER1, PAYLOAD);
+        client.publishPacket(providerId, LAYER1, PAYLOAD);
 
-        verifyMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_LayerAndProviderSubscriber_Unsubscribe() {
+    public void testPublishPacket_LayerAndProviderSubscriber_Unsubscribe() {
         VmsClient client = connectVmsClient(mClientCallback1);
         int providerId = client.registerProvider(PROVIDER_DESC1);
         client.setProviderOfferings(providerId, asSet(
@@ -2200,14 +2223,14 @@ public class VmsClientTest extends MockedCarTestBase {
                 new VmsAssociatedLayer(LAYER1, asSet(providerId))
         ));
         client.setSubscriptions(emptySet());
-        client.publish(providerId, LAYER1, PAYLOAD);
+        client.publishPacket(providerId, LAYER1, PAYLOAD);
 
-        verifyNoMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_LayerAndProviderSubscriber_DifferentProvider() {
+    public void testPublishPacket_LayerAndProviderSubscriber_DifferentProvider() {
         VmsClient client = connectVmsClient(mClientCallback1);
         int providerId = client.registerProvider(PROVIDER_DESC1);
         int providerId2 = client.registerProvider(PROVIDER_DESC2);
@@ -2219,14 +2242,14 @@ public class VmsClientTest extends MockedCarTestBase {
         client.setSubscriptions(asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId2))
         ));
-        client.publish(providerId, LAYER1, PAYLOAD);
+        client.publishPacket(providerId, LAYER1, PAYLOAD);
 
-        verifyNoMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyNoMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     @Test
-    public void testPublish_MultipleLayerAndProviderSubscribers() {
+    public void testPublishPacket_MultipleLayerAndProviderSubscribers() {
         VmsClient client = connectVmsClient(mClientCallback1);
         int providerId = client.registerProvider(PROVIDER_DESC1);
         client.setProviderOfferings(providerId, asSet(
@@ -2240,10 +2263,10 @@ public class VmsClientTest extends MockedCarTestBase {
         client2.setSubscriptions(asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId))
         ));
-        client.publish(providerId, LAYER1, PAYLOAD);
+        client.publishPacket(providerId, LAYER1, PAYLOAD);
 
-        verifyMessageReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
-        verifyMessageReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
+        verifyPacketReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
     }
 
     private VmsClient connectVmsClient(VmsClientCallback callback) {
@@ -2257,7 +2280,7 @@ public class VmsClientTest extends MockedCarTestBase {
             VmsAvailableLayers availableLayers) {
         ArgumentCaptor<VmsAvailableLayers> availableLayersCaptor =
                 ArgumentCaptor.forClass(VmsAvailableLayers.class);
-        verify(callback, timeout(CALLBACK_TIMEOUT).times(availableLayers.getSequence() + 1))
+        verify(callback, timeout(CALLBACK_TIMEOUT).times(availableLayers.getSequenceNumber() + 1))
                 .onLayerAvailabilityChanged(availableLayersCaptor.capture());
         assertThat(availableLayersCaptor.getValue()).isEqualTo(availableLayers);
     }
@@ -2272,17 +2295,17 @@ public class VmsClientTest extends MockedCarTestBase {
         assertThat(subscriptionStateCaptor.getValue()).isEqualTo(subscriptionState);
     }
 
-    private static void verifyNoMessageReceived(
+    private static void verifyNoPacketsReceived(
             VmsClientCallback callback,
-            int providerId, VmsLayer layer, byte[] payload) {
-        verify(callback, timeout(CALLBACK_TIMEOUT).times(0)).onMessageReceived(providerId, layer,
-                payload);
+            int providerId, VmsLayer layer) {
+        verify(callback, timeout(CALLBACK_TIMEOUT).times(0))
+                .onPacketReceived(eq(providerId), eq(layer), any());
     }
 
-    private static void verifyMessageReceived(
+    private static void verifyPacketReceived(
             VmsClientCallback callback,
             int providerId, VmsLayer layer, byte[] payload) {
-        verify(callback, timeout(CALLBACK_TIMEOUT)).onMessageReceived(providerId, layer, payload);
+        verify(callback, timeout(CALLBACK_TIMEOUT)).onPacketReceived(providerId, layer, payload);
     }
 
     private static <T> Set<T> asSet(T... values) {

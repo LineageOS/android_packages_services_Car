@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Konfigurasikan Sekatan UX"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Berkomunikasi dengan peranti USB dalam mod AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Membenarkan apl berkomunikasi dengan peranti dalam mod AOAP"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Akses Baca Sistem Kesedaran Penumpang"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Membenarkan pembacaan status dan data pengesanan untuk Sistem Kesedaran Penumpang"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Kawal Graf Sistem Kesedaran Penumpang"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Membenarkan pengawalan permulaan dan penamatan graf pengesanan Sistem Kesedaran Penumpang"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Perkhidmatan Input Kereta"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Kendalikan peristiwa input"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Bas CAN gagal"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Akses maklumat terperinci enjin kereta anda."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"akses penutup tangki bahan api dan port pengecasan kereta"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Akses penutup tangki bahan api dan port pengecasan kereta."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"kawal penutup tangki bahan api dan port pengecasan kereta"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Kawal penutup tangki bahan api dan port pengecasan kereta."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"baca pengenalan kereta"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Akses pengenalan kereta."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"kawal pintu kereta"</string>

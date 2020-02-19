@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Kullanıcı Deneyimi Kısıtlamalarını Yapılandırma"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP modunda USB cihazıyla iletişim kur"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Uygulamaların AOAP modunda cihazlarla iletişim kurmasına izin verir"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Yolcu Algılama Sistemi Okuma Erişimi"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Yolcu Algılama Sistemi için durumun ve tespit verilerinin okunmasına izin verir"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Yolcu Algılama Sistemi Grafiğini kontrol et"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Yolcu Algılama Sistemi tespit grafiğinin başlatılmasının ve durdurulmasının kontrol edilmesine izin verir"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Araç Giriş Hizmeti"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Giriş olaylarını işleme"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN veri yolu başarısız"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Aracınızın ayrıntılı motor bilgilerine erişim."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"aracın yakıt kapağına ve şarj bağlantı noktasına erişim"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Aracın yakıt kapağına ve şarj bağlantı noktasına erişim."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"aracın yakıt kapağını ve şarj bağlantı noktasını kontrol et"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Aracın yakıt kapağını ve şarj bağlantı noktasını kontrol edin."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"aracın kimliğini okuma"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Aracın kimliğine erişim."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"aracın kapılarını kontrol etme"</string>

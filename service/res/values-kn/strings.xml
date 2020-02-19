@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"ಯುಎಕ್ಸ್ ನಿರ್ಬಂಧಗಳನ್ನು ಸಂರಚಿಸು"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP ಮೋಡ್‌ನಲ್ಲಿ USB ಸಾಧನದ ಜೊತೆಗೆ ಸಂವಹನ ನಡೆಸಿ"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP ಮೋಡ್‌ನಲ್ಲಿ ಸಾಧನದ ಜೊತೆಗೆ ಸಂವಹನ ನಡೆಸಲು ಆ್ಯಪ್‌ಗೆ ಅನುಮತಿಸುತ್ತದೆ"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness System ರೀಡ್ ಆ್ಯಕ್ಸೆಸ್"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness System ಗಾಗಿ ಓದುವ ಸ್ಥಿತಿ ಮತ್ತು ಪತ್ತೆಹಚ್ಚುವಿಕೆ ಡೇಟಾವನ್ನು ಅನುಮತಿಸುತ್ತದೆ"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System Graph ಅನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System ಪತ್ತೆಹಚ್ಚುವಿಕೆ ಗ್ರಾಫ್‌ನ ಪ್ರಾರಂಭಿಸಲು ಮತ್ತು ನಿಲ್ಲಿಸುವುದನ್ನು ನಿಯಂತ್ರಿಸಲು ನಿಮಗೆ ಅನುಮತಿಸುತ್ತದೆ"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"ಕಾರಿನ ಇನ್‌ಪುಟ್ ಸೇವೆ"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ಊಡಿಕೆ ಘಟನೆಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"ಸಿಎಎನ್ ಬಸ್ ಕೆಟ್ಟಿದೆ"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"ಕಾರಿನ ಇಂಜಿನ್‌ನ ವಿವರಣೆಯ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"ಕಾರಿನ ಇಂಧನ ಪಂಪ್‌ನ ಮುಚ್ಚಳ ಮತ್ತು ಚಾರ್ಜ್ ಪೋರ್ಟ್ ಮಾಹಿತಿ ಪಡೆಯಿರಿ"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"ಕಾರಿನ ಇಂಧನ ಪಂಪ್‌ನ ಮುಚ್ಚಳ ಮತ್ತು ಚಾರ್ಜ್ ಪೋರ್ಟ್ ಅನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"ಕಾರ್‌ನ ಇಂಧನ ಪಂಪ್‌ನ ಮುಚ್ಚಳ ಮತ್ತು ಚಾರ್ಜ್ ಪೋರ್ಟ್ ಅನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"ಕಾರ್‌ನ ಇಂಧನ ಪಂಪ್‌ನ ಮುಚ್ಚಳ ಮತ್ತು ಚಾರ್ಜ್ ಪೋರ್ಟ್ ಅನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"ಕಾರಿನ ಗುರುತನ್ನು ಓದಿ"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"ಕಾರಿನ ಗುರುತನ್ನು ಪಡೆಯಿರಿ."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"ಕಾರಿನ ಬಾಗಿಲುಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>

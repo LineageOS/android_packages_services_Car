@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Configurar les restriccions de l\'experiència d\'usuari"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Comunica amb un dispositiu USB al mode AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Permet que una aplicació es comuniqui amb un dispositiu amb el mode AOAP"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Accés de lectura al Sistema de detecció d\'ocupants"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Permet llegir les dades de detecció i d\'estat del Sistema de detecció d\'ocupants"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Controlar el gràfic del Sistema de detecció d\'ocupants"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Permet controlar l\'inici i la pausa del gràfic de detecció del Sistema de detecció d\'ocupants"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Servei d\'entrada del cotxe"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Gestionar els esdeveniments d\'entrada"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Ha fallat el bus CAN"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Accedeix a la informació detallada sobre el motor del cotxe."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"accedeix a la porta del combustible i al port de càrrega del cotxe"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Accedeix a la porta del combustible i al port de càrrega del cotxe."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"controlar la tapa del dipòsit de combustible i el port de càrrega del cotxe"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Controlar la tapa del dipòsit de combustible i el port de càrrega del cotxe."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"llegeix la identificació del cotxe"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Accedeix a la identificació del cotxe."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"controla les portes del cotxe"</string>

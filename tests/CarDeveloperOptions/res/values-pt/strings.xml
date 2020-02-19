@@ -4277,10 +4277,8 @@
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Isso deixará seu smartphone mais lento"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Forçar medições completas de GNSS"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Rastrear todas as constelações e frequências do GNSS sem nenhum ciclo de trabalho"</string>
-    <!-- no translation found for enable_user_switch_message (8613014373053051092) -->
-    <skip />
-    <!-- no translation found for enable_user_switch_message_summary (3354160264601132060) -->
-    <skip />
+    <string name="enable_user_switch_message" msgid="8613014373053051092">"Depurar troca de usuário"</string>
+    <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Mostrar informações detalhadas durante a troca de usuário"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Permitir início de atividades em segundo plano"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Permitir o início de todas as atividades em segundo plano"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Sempre mostrar a caixa de diálogo de falha"</string>

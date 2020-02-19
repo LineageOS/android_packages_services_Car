@@ -70,13 +70,13 @@ public class VmsClientManager extends CarManagerBase {
         void onSubscriptionStateChanged(VmsSubscriptionState subscriptionState);
 
         /**
-         * Invoked whenever a message is received for this client's subscriptions.
+         * Invoked whenever a packet is received for this client's subscriptions.
          *
-         * @param providerId  Message provider
-         * @param layer       Message layer
-         * @param message     Message payload
+         * @param providerId  Packet provider
+         * @param layer       Packet layer
+         * @param packet      Packet data
          */
-        void onMessageReceived(int providerId, VmsLayer layer, byte[] message);
+        void onPacketReceived(int providerId, VmsLayer layer, byte[] packet);
     }
 
     private final IVmsBrokerService mBrokerService;

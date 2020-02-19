@@ -64,14 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Lungisa imikhawulo ye-UX"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Xhumana nedivayisi ye-USB kumodi ye-AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Ivumela uhlelo lokusebenza ukuthi luxhumane nedivayisi kumodi ye-AOAP"</string>
-    <!-- no translation found for car_permission_label_read_car_occupant_awareness_state (2159193236907855160) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_occupant_awareness_state (8751783483050138428) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_occupant_awareness_system (892555160615735102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_occupant_awareness_system (7351274916809484681) -->
-    <skip />
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Ukufinyelela Ekufundeni Kwesistimu Yokwazisa Yomgibeli"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Ivumela isimo sokufundwa nokutholakala kwedatha Yesistimu Yokwazisa Yomgibeli"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Lawula Igrafu Yesistimu Yokwazisa Yomgibeli"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Ivumela ukulawula ukuqalwa nokumiswa kwegrafu yokutholakala Kwesistimu Yokwazisa Yomgibeli"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Isevisi yokufaka yemoto"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Phatha imicimbi yokungena"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Ibhasi ye-CAN yehlulekile"</string>
@@ -97,6 +93,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Finyelela ulwazi lwenjini olunemininingwane lwemoto yakho."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"iinyelela umnyango kaphethiloli nembobo yokushaja"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Finyelela umnyango kaphethiloli nembobo yokushaja."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"lawula umnyango wesibaseli semoto kanye nembobo yokushaja"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Lawula umnyango wesibaseli semoto kanye nembobo yokushaja."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"funda ubunikazi bemoto"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Finyelela isihlonzi semoto."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"lawula iminyango yemoto"</string>
