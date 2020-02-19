@@ -15,27 +15,45 @@
  */
 package android.car.media;
 
+import android.annotation.IntDef;
+import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.content.ComponentName;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * API for updating and receiving updates to the primary media source in the car.
  * @hide
  */
+@SystemApi
 public final class CarMediaManager extends CarManagerBase {
+
+    public static final int MEDIA_SOURCE_MODE_PLAYBACK = 0;
+    public static final int MEDIA_SOURCE_MODE_BROWSE = 1;
+
+    /** @hide */
+    @IntDef(prefix = { "MEDIA_SOURCE_MODE_" }, value = {
+            MEDIA_SOURCE_MODE_PLAYBACK,
+            MEDIA_SOURCE_MODE_BROWSE
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface MediaSourceMode {}
 
     private final ICarMedia mService;
     private Map<MediaSourceChangedListener, ICarMediaSourceListener> mCallbackMap = new HashMap();
 
     /**
-     * Get an instance of the CarPowerManager.
+     * Get an instance of the CarMediaManager.
      *
      * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
      * @hide
@@ -47,15 +65,13 @@ public final class CarMediaManager extends CarManagerBase {
 
     /**
      * Listener for updates to the primary media source
-     * @hide
      */
     public interface MediaSourceChangedListener {
 
         /**
          * Called when the primary media source is changed
-         * @hide
          */
-        void onMediaSourceChanged(ComponentName componentName);
+        void onMediaSourceChanged(@NonNull ComponentName componentName);
     }
 
     /**
@@ -120,6 +136,49 @@ public final class CarMediaManager extends CarManagerBase {
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
+    }
+    /**
+     * Gets the currently active media source for the provided mode
+     */
+    @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
+    public @NonNull ComponentName getMediaSource(@MediaSourceMode int mode) {
+        // STUB
+        return null;
+    }
+
+    /**
+     * Sets the currently active media source for the provided mode
+     */
+    @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
+    public void setMediaSource(@NonNull ComponentName componentName, @MediaSourceMode int mode) {
+        // STUB
+    }
+
+    /**
+     * Register a callback that receives updates to the active media source.
+     */
+    @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
+    public void addMediaSourceListener(@NonNull MediaSourceChangedListener callback,
+            @MediaSourceMode int mode) {
+        // STUB
+    }
+
+    /**
+     * Unregister a callback that receives updates to the active media source.
+     */
+    @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
+    public void removeMediaSourceListener(@NonNull MediaSourceChangedListener callback,
+            @MediaSourceMode int mode) {
+        // STUB
+    }
+
+    /**
+     * Retrieve a list of media sources, ordered by most recently used.
+     */
+    @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
+    public @NonNull List<ComponentName> getLastMediaSources(@MediaSourceMode int mode) {
+        // STUB
+        return null;
     }
 
     /** @hide */
