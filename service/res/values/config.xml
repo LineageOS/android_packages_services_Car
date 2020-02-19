@@ -285,6 +285,11 @@
     <integer name="config_mediaSourceChangedAutoplay">2</integer>
     <!-- Configuration to enable media center to autoplay on boot -->
     <integer name="config_mediaBootAutoplay">2</integer>
+    <!-- Setting this flag to true allows for browsing a different source than the
+         one that is currently playing audio. By default, there is only one active
+         source in the car, for both playback and browse. -->
+    <bool name="config_mediaSourceIndependentPlayback">false</bool>
+
 
     <!-- Disable switching the user while the system is resuming from Suspend to RAM.
          This default says to prevent changing the user during Resume. -->
