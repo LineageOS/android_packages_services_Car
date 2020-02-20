@@ -69,6 +69,7 @@ import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.car.user.UserMetrics;
 import com.android.car.vms.VmsNewBrokerService;
+import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.ICarServiceHelper;
@@ -127,6 +128,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarBugreportManagerService mCarBugreportManagerService;
     private final CarStatsService mCarStatsService;
     private final CarExperimentalFeatureServiceController mCarExperimentalFeatureServiceController;
+    private final CarWatchdogService mCarWatchdogService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -248,6 +250,7 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarExperimentalFeatureServiceController = null;
         }
+        mCarWatchdogService = new CarWatchdogService(serviceContext);
 
         CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
         CarLocalServices.addService(CarPropertyService.class, mCarPropertyService);
@@ -291,6 +294,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarMediaService);
         allServices.add(mCarLocationService);
         allServices.add(mCarBugreportManagerService);
+        allServices.add(mCarWatchdogService);
         // Always put mCarExperimentalFeatureServiceController in last.
         addServiceIfNonNull(allServices, mCarExperimentalFeatureServiceController);
         mAllServices = allServices.toArray(new CarServiceBase[allServices.size()]);
