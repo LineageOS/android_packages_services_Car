@@ -89,7 +89,7 @@ TEST(ProcStatTest, TestValidStatFile) {
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
 
     const auto& actualFirstDelta = procStat.collect();
-    EXPECT_TRUE(actualFirstDelta) << actualFirstDelta.error();
+    EXPECT_RESULT_OK(actualFirstDelta);
     EXPECT_EQ(expectedFirstDelta, *actualFirstDelta)
             << "First snapshot doesnt't match.\nExpected:\n"
             << toString(expectedFirstDelta) << "\nActual:\n"
@@ -127,7 +127,7 @@ TEST(ProcStatTest, TestValidStatFile) {
 
     ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
     const auto& actualSecondDelta = procStat.collect();
-    EXPECT_TRUE(actualSecondDelta) << actualSecondDelta.error();
+    EXPECT_RESULT_OK(actualSecondDelta);
     EXPECT_EQ(expectedSecondDelta, *actualSecondDelta)
             << "Second snapshot doesnt't match.\nExpected:\n"
             << toString(expectedSecondDelta) << "\nActual:\n"
@@ -155,7 +155,7 @@ TEST(ProcStatTest, TestErrorOnCorruptedStatFile) {
 
     ProcStat procStat(tf.path);
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(procStat.collect()) << "No error returned for corrupted file";
+    EXPECT_FALSE(procStat.collect().ok()) << "No error returned for corrupted file";
 }
 
 TEST(ProcStatTest, TestErrorOnMissingCpuLine) {
@@ -178,7 +178,7 @@ TEST(ProcStatTest, TestErrorOnMissingCpuLine) {
 
     ProcStat procStat(tf.path);
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(procStat.collect()) << "No error returned due to missing cpu line";
+    EXPECT_FALSE(procStat.collect().ok()) << "No error returned due to missing cpu line";
 }
 
 TEST(ProcStatTest, TestErrorOnMissingProcsRunningLine) {
@@ -201,7 +201,7 @@ TEST(ProcStatTest, TestErrorOnMissingProcsRunningLine) {
 
     ProcStat procStat(tf.path);
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(procStat.collect()) << "No error returned due to missing procs_running line";
+    EXPECT_FALSE(procStat.collect().ok()) << "No error returned due to missing procs_running line";
 }
 
 TEST(ProcStatTest, TestErrorOnMissingProcsBlockedLine) {
@@ -224,7 +224,7 @@ TEST(ProcStatTest, TestErrorOnMissingProcsBlockedLine) {
 
     ProcStat procStat(tf.path);
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(procStat.collect()) << "No error returned due to missing procs_blocked line";
+    EXPECT_FALSE(procStat.collect().ok()) << "No error returned due to missing procs_blocked line";
 }
 
 TEST(ProcStatTest, TestErrorOnUnknownProcsLine) {
@@ -249,7 +249,7 @@ TEST(ProcStatTest, TestErrorOnUnknownProcsLine) {
 
     ProcStat procStat(tf.path);
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(procStat.collect()) << "No error returned due to unknown procs line";
+    EXPECT_FALSE(procStat.collect().ok()) << "No error returned due to unknown procs line";
 }
 
 TEST(ProcStatTest, TestProcStatContentsFromDevice) {
@@ -257,7 +257,7 @@ TEST(ProcStatTest, TestProcStatContentsFromDevice) {
     ASSERT_TRUE(procStat.enabled()) << kProcStatPath << " file is inaccessible";
 
     const auto& info = procStat.collect();
-    ASSERT_TRUE(info) << "Failed to collect perf stat: " << info.error();
+    ASSERT_RESULT_OK(info);
 
     // The below checks should pass because the /proc/stats file should have the CPU time spent
     // since bootup and there should be at least one running process.

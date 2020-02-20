@@ -464,6 +464,8 @@ Status DefaultEngine::forwardOutputDataToClient(int streamId,
         // TODO: dispatch to display
         if (mConfigBuilder.clientConfigEnablesDisplayStream()) {
             return mClient->dispatchPacketToClient(streamId, dataHandle);
+        } else {
+            return Status::SUCCESS;
         }
     }
     return mClient->dispatchPacketToClient(streamId, dataHandle);

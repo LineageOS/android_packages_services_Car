@@ -17,7 +17,10 @@
 package com.android.experimentalcar;
 
 import android.annotation.FloatRange;
+import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.Car;
+import android.car.VehiclePropertyIds;
 import android.car.experimental.DriverAwarenessEvent;
 import android.car.experimental.DriverAwarenessSupplierConfig;
 import android.car.experimental.DriverAwarenessSupplierService;
@@ -27,6 +30,9 @@ import android.car.experimental.IDriverAwarenessSupplier;
 import android.car.experimental.IDriverAwarenessSupplierCallback;
 import android.car.experimental.IDriverDistractionChangeListener;
 import android.car.experimental.IDriverDistractionManager;
+import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.CarPropertyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -69,8 +75,10 @@ public final class DriverDistractionExperimentalFeatureService extends
     private static final String TAG = "CAR.DriverDistractionService";
 
     private static final float DEFAULT_AWARENESS_VALUE_FOR_LOG = 1.0f;
-    private static final float DEFAULT_REQUIRED_AWARENESS = 1.0f;
-    private static final int MAX_DRIVER_AWARENESS_EVENT_LOG_COUNT = 50;
+    private static final float MOVING_REQUIRED_AWARENESS = 1.0f;
+    private static final float STATIONARY_REQUIRED_AWARENESS = 0.0f;
+    private static final int MAX_EVENT_LOG_COUNT = 50;
+    private static final int PROPERTY_UPDATE_RATE_HZ = 5;
     @VisibleForTesting
     static final float DEFAULT_AWARENESS_PERCENTAGE = 1.0f;
 
@@ -80,8 +88,7 @@ public final class DriverDistractionExperimentalFeatureService extends
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
-    private final ArrayDeque<Utils.TransitionLog> mDriverAwarenessTransitionLogs =
-            new ArrayDeque<>();
+    private final ArrayDeque<Utils.TransitionLog> mTransitionLogs = new ArrayDeque<>();
 
     /**
      * All the active service connections.
@@ -170,10 +177,15 @@ public final class DriverDistractionExperimentalFeatureService extends
      * The required driver awareness based on the current driving environment, where 1.0 means that
      * full awareness is required and 0.0 means than no awareness is required.
      */
-    // TODO(b/148229726) update required awareness based on drive state
     @FloatRange(from = 0.0f, to = 1.0f)
     @GuardedBy("mLock")
-    private float mRequiredAwareness = DEFAULT_REQUIRED_AWARENESS;
+    private float mRequiredAwareness = STATIONARY_REQUIRED_AWARENESS;
+
+    @GuardedBy("mLock")
+    private Car mCar;
+
+    @GuardedBy("mLock")
+    private CarPropertyManager mPropertyManager;
 
     private final Context mContext;
     private final ITimeSource mTimeSource;
@@ -221,6 +233,23 @@ public final class DriverDistractionExperimentalFeatureService extends
             int priority = i + 1;
             bindDriverAwarenessSupplierService(externalComponent, priority);
         }
+
+        synchronized (mLock) {
+            mCar = Car.createCar(mContext);
+            if (mCar != null) {
+                mPropertyManager = (CarPropertyManager) mCar.getCarManager(Car.PROPERTY_SERVICE);
+            } else {
+                Log.e(TAG, "Unable to connect to car in init");
+            }
+        }
+
+        if (mPropertyManager != null) {
+            mPropertyManager.registerCallback(mSpeedPropertyEventCallback,
+                    VehiclePropertyIds.PERF_VEHICLE_SPEED,
+                    PROPERTY_UPDATE_RATE_HZ);
+        } else {
+            Log.e(TAG, "Unable to get car property service.");
+        }
     }
 
     @Override
@@ -230,6 +259,12 @@ public final class DriverDistractionExperimentalFeatureService extends
         synchronized (mLock) {
             for (ServiceConnection serviceConnection : mServiceConnections) {
                 mContext.unbindService(serviceConnection);
+            }
+            if (mPropertyManager != null) {
+                mPropertyManager.unregisterCallback(mSpeedPropertyEventCallback);
+            }
+            if (mCar != null) {
+                mCar.disconnect();
             }
         }
     }
@@ -251,11 +286,19 @@ public final class DriverDistractionExperimentalFeatureService extends
                     : mCurrentDriverAwareness.mAwarenessEvent.getAwarenessValue()));
             writer.println("  Supplier: " + (mCurrentDriverAwareness == null ? "unknown"
                     : mCurrentDriverAwareness.mSupplier.getClass().getSimpleName()));
-            writer.println("  Timestamp (since boot): "
+            writer.println("  Timestamp (ms since boot): "
                     + (mCurrentDriverAwareness == null ? "unknown"
                     : mCurrentDriverAwareness.mAwarenessEvent.getTimeStamp()));
-            writer.println("Driver Awareness change log:");
-            for (Utils.TransitionLog log : mDriverAwarenessTransitionLogs) {
+            writer.println("Current Required Awareness: " + mRequiredAwareness);
+            writer.println("Last Distraction Event:");
+            writer.println("  Value: "
+                    + (mCurrentDistractionEvent == null ? "unknown"
+                    : mCurrentDistractionEvent.getAwarenessPercentage()));
+            writer.println("  Timestamp (ms since boot): "
+                    + (mCurrentDistractionEvent == null ? "unknown"
+                    : mCurrentDistractionEvent.getElapsedRealtimeTimestamp()));
+            writer.println("Change log:");
+            for (Utils.TransitionLog log : mTransitionLogs) {
                 writer.println(log);
             }
         }
@@ -332,9 +375,10 @@ public final class DriverDistractionExperimentalFeatureService extends
         if (oldAwarenessValue != mCurrentDriverAwareness.mAwarenessEvent.getAwarenessValue()) {
             logd("Driver awareness updated: "
                     + mCurrentDriverAwareness.mAwarenessEvent.getAwarenessValue());
-            addDriverAwarenessTransitionLogLocked(oldAwarenessValue,
+            addTransitionLogLocked(oldAwarenessValue,
                     awarenessEventWrapper.mAwarenessEvent.getAwarenessValue(),
-                    awarenessEventWrapper.mSupplier.getClass().getSimpleName());
+                    "Driver awareness updated by "
+                            + awarenessEventWrapper.mSupplier.getClass().getSimpleName());
         }
 
         updateCurrentDistractionEventLocked();
@@ -365,8 +409,54 @@ public final class DriverDistractionExperimentalFeatureService extends
         mPrioritizedDriverAwarenessSuppliers.sort(mPrioritizedSuppliersComparator);
     }
 
+    /**
+     * {@link CarPropertyEvent} listener registered with the {@link CarPropertyManager} for getting
+     * speed change notifications.
+     */
+    private final CarPropertyManager.CarPropertyEventCallback mSpeedPropertyEventCallback =
+            new CarPropertyManager.CarPropertyEventCallback() {
+                @Override
+                public void onChangeEvent(CarPropertyValue value) {
+                    synchronized (mLock) {
+                        handleSpeedEventLocked(value);
+                    }
+                }
+
+                @Override
+                public void onErrorEvent(int propId, int zone) {
+                    Log.e(TAG, "Error in callback for vehicle speed");
+                }
+            };
+
+
+    @VisibleForTesting
+    @GuardedBy("mLock")
+    void handleSpeedEventLocked(@NonNull CarPropertyValue value) {
+        if (value.getPropertyId() != VehiclePropertyIds.PERF_VEHICLE_SPEED) {
+            Log.e(TAG, "Unexpected property id: " + value.getPropertyId());
+            return;
+        }
+
+        float oldValue = mRequiredAwareness;
+        if ((Float) value.getValue() > 0) {
+            mRequiredAwareness = MOVING_REQUIRED_AWARENESS;
+        } else {
+            mRequiredAwareness = STATIONARY_REQUIRED_AWARENESS;
+        }
+
+        if (Float.compare(oldValue, mRequiredAwareness) != 0) {
+            logd("Required awareness updated: " + mRequiredAwareness);
+            addTransitionLogLocked(oldValue, mRequiredAwareness, "Required awareness");
+            updateCurrentDistractionEventLocked();
+        }
+    }
+
     @GuardedBy("mLock")
     private void updateCurrentDistractionEventLocked() {
+        if (mCurrentDriverAwareness == null) {
+            logd("Driver awareness level is not yet known");
+            return;
+        }
         float awarenessPercentage;
         if (mRequiredAwareness == 0) {
             // avoid divide by 0 error - awareness percentage should be 100% when required
@@ -384,6 +474,9 @@ public final class DriverDistractionExperimentalFeatureService extends
             return;
         }
 
+        addTransitionLogLocked(mCurrentDistractionEvent.getAwarenessPercentage(),
+                awarenessPercentage, "Awareness percentage");
+
         mCurrentDistractionEvent = new DriverDistractionChangeEvent.Builder()
                 .setElapsedRealtimeTimestamp(mTimeSource.elapsedRealtime())
                 .setAwarenessPercentage(awarenessPercentage)
@@ -398,7 +491,7 @@ public final class DriverDistractionExperimentalFeatureService extends
     @GuardedBy("mLock")
     private void dispatchCurrentDistractionEventToClientsLocked(
             DriverDistractionChangeEvent changeEvent) {
-        logd("dispatching to clients");
+        logd("Dispatching event to clients: " + changeEvent);
         int numClients = mDistractionClients.beginBroadcast();
         for (int i = 0; i < numClients; i++) {
             IDriverDistractionChangeListener callback = mDistractionClients.getBroadcastItem(i);
@@ -508,23 +601,21 @@ public final class DriverDistractionExperimentalFeatureService extends
     }
 
     /**
-     * Add the driver awareness state change to the transition log.
+     * Add the state change to the transition log.
      *
-     * @param oldValue     the old driver awareness value
-     * @param newValue     the new driver awareness value
-     * @param supplierName the name of the supplier that is responsible for the new value
+     * @param oldValue the old value
+     * @param newValue the new value
+     * @param extra    name of the value being changed
      */
     @GuardedBy("mLock")
-    private void addDriverAwarenessTransitionLogLocked(float oldValue, float newValue,
-            String supplierName) {
-        if (mDriverAwarenessTransitionLogs.size() >= MAX_DRIVER_AWARENESS_EVENT_LOG_COUNT) {
-            mDriverAwarenessTransitionLogs.remove();
+    private void addTransitionLogLocked(float oldValue, float newValue, String extra) {
+        if (mTransitionLogs.size() >= MAX_EVENT_LOG_COUNT) {
+            mTransitionLogs.remove();
         }
 
-        Utils.TransitionLog tLog = new Utils.TransitionLog(TAG, (int) (oldValue * 100),
-                (int) (newValue * 100), System.currentTimeMillis(),
-                "Driver awareness updated by " + supplierName);
-        mDriverAwarenessTransitionLogs.add(tLog);
+        Utils.TransitionLog tLog = new Utils.TransitionLog(TAG, oldValue, newValue,
+                System.currentTimeMillis(), extra);
+        mTransitionLogs.add(tLog);
     }
 
     private static void logd(String message) {

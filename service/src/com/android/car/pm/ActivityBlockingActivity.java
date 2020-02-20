@@ -27,19 +27,14 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import androidx.annotation.Nullable;
 
 import com.android.car.CarLog;
 import com.android.car.R;
@@ -55,26 +50,35 @@ public class ActivityBlockingActivity extends Activity {
     private Car mCar;
     private CarUxRestrictionsManager mUxRManager;
 
-    private TextView mBlockedAppName;
-    private ImageView mBlockedAppIcon;
-    private TextView mBlockingText;
-    private TextView mExitButtonMessage;
     private Button mExitButton;
+    private Button mToggleDebug;
 
     private int mBlockedTaskId;
+
+    private final View.OnClickListener mOnExitButtonClickedListener =
+            v -> {
+                if (isExitOptionCloseApplication()) {
+                    handleCloseApplication();
+                } else {
+                    handleRestartingTask();
+                }
+            };
+
+    private final ViewTreeObserver.OnGlobalLayoutListener mOnGlobalLayoutListener =
+            new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    mToggleDebug.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    updateButtonWidths();
+                }
+            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blocking);
 
-        mBlockingText = findViewById(R.id.blocking_text);
-        mBlockedAppName = findViewById(R.id.blocked_app_name);
-        mBlockedAppIcon = findViewById(R.id.blocked_app_icon);
         mExitButton = findViewById(R.id.exit_button);
-        mExitButtonMessage = findViewById(R.id.exit_button_message);
-
-        mBlockingText.setText(getString(R.string.activity_blocked_text));
 
         // Listen to the CarUxRestrictions so this blocking activity can be dismissed when the
         // restrictions are lifted.
@@ -111,31 +115,34 @@ public class ActivityBlockingActivity extends Activity {
             if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
                 Log.d(CarLog.TAG_AM, "Blocking activity " + blockedActivity);
             }
-            // Show application icon and name of blocked activity.
-            Drawable appIcon = findApplicationIcon(blockedActivity);
-            if (appIcon != null) {
-                mBlockedAppIcon.setImageDrawable(appIcon);
-            } else {
-                mBlockedAppIcon.setVisibility(View.GONE);
-            }
-            mBlockedAppName.setText(findHumanReadableLabel(blockedActivity));
         }
 
-        boolean isRootDO = getIntent().getBooleanExtra(
-                BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO, false);
-
-        // Display a button to restart task if root task is DO.
-        boolean showButton = mBlockedTaskId != INVALID_TASK_ID && isRootDO;
-        mExitButton.setVisibility(showButton ? View.VISIBLE : View.GONE);
-        mExitButton.setOnClickListener(v -> handleRestartingTask());
-        mExitButtonMessage.setVisibility(showButton ? View.VISIBLE : View.GONE);
-        mExitButtonMessage.setText(
-                getString(R.string.exit_button_message, getString(R.string.exit_button)));
+        displayExitButton();
 
         // Show more debug info for non-user build.
         if (Build.IS_ENG || Build.IS_USERDEBUG) {
             displayDebugInfo();
         }
+    }
+
+    private void displayExitButton() {
+        String exitButtonText = getExitButtonText();
+
+        mExitButton.setText(exitButtonText);
+        mExitButton.setOnClickListener(mOnExitButtonClickedListener);
+    }
+
+    // If the root activity is DO, the user will have the option to go back to that activity,
+    // otherwise, the user will have the option to close the blocked application
+    private boolean isExitOptionCloseApplication() {
+        boolean isRootDO = getIntent().getBooleanExtra(
+                BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO, false);
+        return mBlockedTaskId == INVALID_TASK_ID || !isRootDO;
+    }
+
+    private String getExitButtonText() {
+        return isExitOptionCloseApplication() ? getString(R.string.exit_button_close_application)
+                : getString(R.string.exit_button_go_back);
     }
 
     private void displayDebugInfo() {
@@ -148,12 +155,29 @@ public class ActivityBlockingActivity extends Activity {
 
         // We still want to ensure driving safety for non-user build;
         // toggle visibility of debug info with this button.
-        Button toggleDebug = findViewById(R.id.toggle_debug_info);
-        toggleDebug.setVisibility(View.VISIBLE);
-        toggleDebug.setOnClickListener(v -> {
+        mToggleDebug = findViewById(R.id.toggle_debug_info);
+        mToggleDebug.setVisibility(View.VISIBLE);
+        mToggleDebug.setOnClickListener(v -> {
             boolean isDebugVisible = debugInfo.getVisibility() == View.VISIBLE;
             debugInfo.setVisibility(isDebugVisible ? View.GONE : View.VISIBLE);
         });
+
+        mToggleDebug.getViewTreeObserver().addOnGlobalLayoutListener(mOnGlobalLayoutListener);
+    }
+
+    // When the Debug button is visible, we set both of the visible buttons to have the width
+    // of whichever button is wider
+    private void updateButtonWidths() {
+        Button debugButton = findViewById(R.id.toggle_debug_info);
+
+        int exitButtonWidth = mExitButton.getWidth();
+        int debugButtonWidth = debugButton.getWidth();
+
+        if (exitButtonWidth > debugButtonWidth) {
+            debugButton.setWidth(exitButtonWidth);
+        } else {
+            mExitButton.setWidth(debugButtonWidth);
+        }
     }
 
     private String getDebugInfo(String blockedActivity, String rootActivity) {
@@ -197,6 +221,8 @@ public class ActivityBlockingActivity extends Activity {
         super.onDestroy();
         mCar.disconnect();
         mUxRManager.unregisterListener();
+        mToggleDebug.getViewTreeObserver().removeOnGlobalLayoutListener(mOnGlobalLayoutListener);
+        mCar.disconnect();
     }
 
     // If no distraction optimization is required in the new restrictions, then dismiss the
@@ -210,48 +236,16 @@ public class ActivityBlockingActivity extends Activity {
         }
     }
 
-    // Finds the icon of the application (package) the component belongs to.
-    @Nullable
-    private Drawable findApplicationIcon(String flattenComponentName) {
-        ComponentName componentName = ComponentName.unflattenFromString(flattenComponentName);
-        try {
-            return getPackageManager().getApplicationIcon(componentName.getPackageName());
-        } catch (PackageManager.NameNotFoundException e) {
-            if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                Log.i(CarLog.TAG_AM, "Could not find package for component name "
-                        + componentName.toString());
-            }
+    private void handleCloseApplication() {
+        if (isFinishing()) {
+            return;
         }
-        return null;
-    }
 
-    /**
-     * Returns a human-readable string for {@code flattenComponentName}.
-     *
-     * <p>It first attempts to return the application label for this activity. If that fails,
-     * it will return the last part in the activity name.
-     */
-    private String findHumanReadableLabel(String flattenComponentName) {
-        ComponentName componentName = ComponentName.unflattenFromString(flattenComponentName);
-        String label = null;
-        // Attempt to find application label.
-        try {
-            ApplicationInfo applicationInfo = getPackageManager().getApplicationInfo(
-                    componentName.getPackageName(), 0);
-            CharSequence appLabel = getPackageManager().getApplicationLabel(applicationInfo);
-            if (appLabel != null) {
-                label = appLabel.toString();
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                Log.i(CarLog.TAG_AM, "Could not find package for component name "
-                        + componentName.toString());
-            }
-        }
-        if (TextUtils.isEmpty(label)) {
-            label = componentName.getClass().getSimpleName();
-        }
-        return label;
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startMain);
+        finish();
     }
 
     private void handleRestartingTask() {

@@ -114,7 +114,7 @@ TEST(IoPerfCollectionTest, TestValidUidIoStatFile) {
 
     struct UidIoPerfData actualUidIoPerfData = {};
     auto ret = collector.collectUidIoPerfDataLocked(&actualUidIoPerfData);
-    ASSERT_TRUE(ret) << "Failed to collect first snapshot: " << ret.error();
+    ASSERT_RESULT_OK(ret);
     EXPECT_TRUE(isEqual(expectedUidIoPerfData, actualUidIoPerfData))
         << "First snapshot doesn't match.\nExpected:\n"
         << toString(expectedUidIoPerfData) << "\nActual:\n"
@@ -166,7 +166,7 @@ TEST(IoPerfCollectionTest, TestValidUidIoStatFile) {
     ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
     actualUidIoPerfData = {};
     ret = collector.collectUidIoPerfDataLocked(&actualUidIoPerfData);
-    ASSERT_TRUE(ret) << "Failed to collect second snapshot: " << ret.error();
+    ASSERT_RESULT_OK(ret);
     EXPECT_TRUE(isEqual(expectedUidIoPerfData, actualUidIoPerfData))
         << "Second snapshot doesn't match.\nExpected:\n"
         << toString(expectedUidIoPerfData) << "\nActual:\n"
@@ -208,7 +208,7 @@ TEST(IoPerfCollectionTest, TestUidIOStatsLessThanTopNStatsLimit) {
 
     struct UidIoPerfData actualUidIoPerfData = {};
     const auto& ret = collector.collectUidIoPerfDataLocked(&actualUidIoPerfData);
-    ASSERT_TRUE(ret) << "Failed to collect uid I/O stats: " << ret.error();
+    ASSERT_RESULT_OK(ret);
     EXPECT_TRUE(isEqual(expectedUidIoPerfData, actualUidIoPerfData))
         << "Collected data doesn't match.\nExpected:\n"
         << toString(expectedUidIoPerfData) << "\nActual:\n"
@@ -223,7 +223,7 @@ TEST(IoPerfCollectionTest, TestProcUidIoStatsContentsFromDevice) {
 
     struct UidIoPerfData perfData = {};
     const auto& ret = collector.collectUidIoPerfDataLocked(&perfData);
-    ASSERT_TRUE(ret) << "Failed to collect uid I/O stats: " << ret.error();
+    ASSERT_RESULT_OK(ret);
     // The below check should pass because the /proc/uid_io/stats file should have at least
     // |mTopNStatsPerCategory| entries since bootup.
     EXPECT_EQ(perfData.topNReads.size(), collector.mTopNStatsPerCategory);
@@ -275,7 +275,7 @@ TEST(IoPerfCollectionTest, TestValidProcStatFile) {
 
     struct SystemIoPerfData actualSystemIoPerfData = {};
     auto ret = collector.collectSystemIoPerfDataLocked(&actualSystemIoPerfData);
-    ASSERT_TRUE(ret) << "Failed to collect first snapshot: " << ret.error();
+    ASSERT_RESULT_OK(ret);
     EXPECT_TRUE(isEqual(expectedSystemIoPerfData, actualSystemIoPerfData))
             << "First snapshot doesn't match.\nExpected:\n"
             << toString(expectedSystemIoPerfData) << "\nActual:\n"
@@ -305,7 +305,7 @@ TEST(IoPerfCollectionTest, TestValidProcStatFile) {
     ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
     actualSystemIoPerfData = {};
     ret = collector.collectSystemIoPerfDataLocked(&actualSystemIoPerfData);
-    ASSERT_TRUE(ret) << "Failed to collect second snapshot: " << ret.error();
+    ASSERT_RESULT_OK(ret);
     EXPECT_TRUE(isEqual(expectedSystemIoPerfData, actualSystemIoPerfData))
             << "Second snapshot doesn't match.\nExpected:\n"
             << toString(expectedSystemIoPerfData) << "\nActual:\n"
