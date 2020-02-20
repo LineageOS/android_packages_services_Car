@@ -60,7 +60,7 @@ import java.util.concurrent.Executors;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class VmsClientTest extends MockedCarTestBase {
-    private static final long CALLBACK_TIMEOUT = 200;
+    private static final long CALLBACK_TIMEOUT = 1000;
 
     private static final byte[] PROVIDER_DESC1 = {1, 2, 3, 4, 5};
     private static final byte[] PROVIDER_DESC2 = {5, 4, 3, 2, 1};
