@@ -250,4 +250,8 @@
     <!-- Class name of the custom country detector to be used. Override the default value in the
          device specific config file.  -->
     <string name="config_customCountryDetector" translatable="false">com.android.server.location.ComprehensiveCountryDetector</string>
+
+    <!-- Controls the use of bluetooth voice recognition when long pressing the voice assist
+         button. -->
+    <bool name="enableLongPressBluetoothVoiceRecognition" translatable="false">true</bool>
 </resources>
