@@ -847,6 +847,20 @@ package android.car.media {
     field public static final android.os.Parcelable.Creator<android.car.media.CarAudioPatchHandle> CREATOR;
   }
 
+  public final class CarMediaManager {
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void addMediaSourceListener(@NonNull android.car.media.CarMediaManager.MediaSourceChangedListener, int);
+    method @NonNull @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public java.util.List<android.content.ComponentName> getLastMediaSources(int);
+    method @NonNull @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public android.content.ComponentName getMediaSource(int);
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void removeMediaSourceListener(@NonNull android.car.media.CarMediaManager.MediaSourceChangedListener, int);
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void setMediaSource(@NonNull android.content.ComponentName, int);
+    field public static final int MEDIA_SOURCE_MODE_BROWSE = 1; // 0x1
+    field public static final int MEDIA_SOURCE_MODE_PLAYBACK = 0; // 0x0
+  }
+
+  public static interface CarMediaManager.MediaSourceChangedListener {
+    method public void onMediaSourceChanged(@NonNull android.content.ComponentName);
+  }
+
 }
 
 package android.car.navigation {
