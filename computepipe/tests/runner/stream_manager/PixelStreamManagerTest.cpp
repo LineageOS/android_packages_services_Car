@@ -22,6 +22,7 @@
 #include "InputFrame.h"
 #include "MockEngine.h"
 #include "OutputConfig.pb.h"
+#include "PixelFormatUtils.h"
 #include "PixelStreamManager.h"
 #include "RunnerComponent.h"
 #include "StreamEngineInterface.h"
@@ -41,10 +42,6 @@ namespace automotive {
 namespace computepipe {
 namespace runner {
 namespace stream_manager {
-
-AHardwareBuffer_Format PixelFormatToHardwareBufferFormat(PixelFormat pixelFormat);
-int numBytesPerPixel(PixelFormat pixelFormat);
-
 namespace {
 
 MATCHER_P(ContainsDataFromFrame, data, "") {
@@ -80,7 +77,7 @@ MATCHER_P(ContainsDataFromFrame, data, "") {
     }
 
     bool dataMatched = true;
-    int bytesPerPixel = numBytesPerPixel(info.format);
+    int bytesPerPixel = numBytesPerPixel(expectedFormat);
     for (int y = 0; y < info.height; y++) {
         uint8_t* mappedRow = (uint8_t*)mappedBuffer + y * desc.stride * bytesPerPixel;
         if (memcmp(mappedRow, dataPtr + y * info.stride,

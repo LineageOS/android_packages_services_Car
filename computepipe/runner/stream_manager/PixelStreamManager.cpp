@@ -20,39 +20,13 @@
 #include <mutex>
 #include <thread>
 
+#include "PixelFormatUtils.h"
+
 namespace android {
 namespace automotive {
 namespace computepipe {
 namespace runner {
 namespace stream_manager {
-
-AHardwareBuffer_Format PixelFormatToHardwareBufferFormat(PixelFormat pixelFormat) {
-    switch (pixelFormat) {
-        case PixelFormat::RGBA:
-            return AHardwareBuffer_Format::AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
-        case PixelFormat::RGB:
-            return AHardwareBuffer_Format::AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM;
-        case PixelFormat::GRAY:
-            return AHardwareBuffer_Format::AHARDWAREBUFFER_FORMAT_S8_UINT;  // TODO: Check if this works
-        default:
-            CHECK(false) << "Unrecognized pixel format seen";
-    }
-    return AHardwareBuffer_Format::AHARDWAREBUFFER_FORMAT_BLOB;
-}
-
-int numBytesPerPixel(PixelFormat pixelFormat) {
-    switch (pixelFormat) {
-        case PixelFormat::RGBA:
-            return 4;
-        case PixelFormat::RGB:
-            return 3;
-        case PixelFormat::GRAY:
-            return 1;
-        default:
-            CHECK(false) << "Unrecognized pixel format seen";
-    }
-    return 1;
-}
 
 PixelMemHandle::PixelMemHandle(int bufferId, int streamId, int additionalUsageFlags)
     : mBufferId(bufferId),
@@ -132,7 +106,7 @@ Status PixelMemHandle::setFrameData(uint64_t timestamp, const InputFrame& inputF
     }
 
     // Copies the input frame data.
-    int bytesPerPixel = numBytesPerPixel(frameInfo.format);
+    int bytesPerPixel = numBytesPerPixel(static_cast<AHardwareBuffer_Format>(mDesc.format));
     // The stride for hardware buffer is specified in pixels while the stride
     // for InputFrame data structure is specified in bytes.
     if (mDesc.stride * bytesPerPixel == frameInfo.stride) {
