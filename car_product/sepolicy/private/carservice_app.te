@@ -38,6 +38,7 @@ allow carservice_app {
     statsmanager_service
     surfaceflinger_service
     telecom_service
+    thermal_service
     uimode_service
     voiceinteraction_service
     wifi_service
