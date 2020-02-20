@@ -22,6 +22,7 @@ import static android.content.pm.UserInfo.FLAG_GUEST;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -29,6 +30,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -46,18 +49,28 @@ import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.util.SparseArray;
 
+import androidx.annotation.Nullable;
 import androidx.test.InstrumentationRegistry;
 
 import com.android.car.hal.UserHalService;
+import com.android.car.hal.UserHalService.HalCallback;
 import com.android.internal.R;
+import com.android.internal.os.IResultReceiver;
+import com.android.internal.util.Preconditions;
 
 import org.junit.After;
 import org.junit.Before;
@@ -73,6 +86,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /**
  * This class contains unit tests for the {@link CarUserService}.
  *
@@ -87,6 +103,8 @@ import java.util.Set;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CarUserServiceTest {
+
+    private static final String TAG = CarUserServiceTest.class.getSimpleName();
     private static final int NO_USER_INFO_FLAGS = 0;
 
     @Mock private Context mMockContext;
@@ -103,6 +121,24 @@ public class CarUserServiceTest {
     private CarUserService mCarUserService;
     private boolean mUser0TaskExecuted;
     private FakeCarOccupantZoneService mFakeCarOccupantZoneService;
+
+    private final int mGetUserInfoRequestType = InitialUserInfoRequestType.COLD_BOOT;
+    private final int mAsyncCallTimeoutMs = 100;
+    private final BlockingResultReceiver mReceiver =
+            new BlockingResultReceiver(mAsyncCallTimeoutMs);
+    private final InitialUserInfoResponse mGetUserInfoResponse = new InitialUserInfoResponse();
+
+    private final @NonNull UserInfo mSystemUser = UserInfoBuilder.newSystemUserInfo();
+    private final @NonNull UserInfo mAdminUser = new UserInfoBuilder(10)
+            .setAdmin(true)
+            .build();
+    private final @NonNull UserInfo mGuestUser = new UserInfoBuilder(11)
+            .setGuest(true)
+            .setEphemeral(true)
+            .build();
+    private final UserInfo[] mExistingUsers = new UserInfo[] {
+            mSystemUser, mAdminUser, mGuestUser
+    };
 
     /**
      * Initialize all of the objects with the @Mock annotation.
@@ -542,6 +578,146 @@ public class CarUserServiceTest {
         }
     }
 
+    @Test
+    public void testGetUserInfo_defaultResponse() throws Exception {
+        int currentUserId = mAdminUser.id;
+
+        mGetUserInfoResponse.action = InitialUserInfoResponseAction.DEFAULT;
+        mockGetInitialInfo(currentUserId, mGetUserInfoResponse);
+
+        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs,
+                mExistingUsers, currentUserId, mReceiver);
+
+        assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_OK);
+        assertThat(mReceiver.getResultData()).isNull();
+    }
+
+    @Test
+    public void testGetUserInfo_switchUserResponse() throws Exception {
+        int currentUserId = mAdminUser.id;
+        int switchUserId = mGuestUser.id;
+
+        mGetUserInfoResponse.action = InitialUserInfoResponseAction.SWITCH;
+        mGetUserInfoResponse.userToSwitchOrCreate.userId = switchUserId;
+        mockGetInitialInfo(currentUserId, mGetUserInfoResponse);
+
+        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs,
+                mExistingUsers, currentUserId, mReceiver);
+
+        assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_OK);
+        Bundle resultData = mReceiver.getResultData();
+        assertThat(resultData).isNotNull();
+        assertUserId(resultData, switchUserId);
+        assertNoUserFlags(resultData);
+        assertNoUserName(resultData);
+    }
+
+    @Test
+    public void testGetUserInfo_createUserResponse() throws Exception {
+        int currentUserId = mAdminUser.id;
+        int newUserFlags = 42;
+        String newUserName = "TheDude";
+
+        mGetUserInfoResponse.action = InitialUserInfoResponseAction.CREATE;
+        mGetUserInfoResponse.userToSwitchOrCreate.flags = newUserFlags;
+        mGetUserInfoResponse.userNameToCreate = newUserName;
+        mockGetInitialInfo(currentUserId, mGetUserInfoResponse);
+
+        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs,
+                mExistingUsers, currentUserId, mReceiver);
+
+        assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_OK);
+        Bundle resultData = mReceiver.getResultData();
+        assertThat(resultData).isNotNull();
+        assertNoUserId(resultData);
+        assertUserFlags(resultData, newUserFlags);
+        assertUserName(resultData, newUserName);
+    }
+
+    private void mockGetInitialInfo(@UserIdInt int currentUserId,
+            @NonNull InitialUserInfoResponse response) {
+        UsersInfo usersInfo = newUsersInfo(currentUserId);
+        doAnswer((invocation) -> {
+            Log.d(TAG, "Answering " + invocation + " with " + response);
+            @SuppressWarnings("unchecked")
+            HalCallback<InitialUserInfoResponse> callback =
+                    (HalCallback<InitialUserInfoResponse>) invocation.getArguments()[3];
+            callback.onResponse(HalCallback.STATUS_OK, response);
+            return null;
+        }).when(mUserHal).getInitialUserInfo(eq(mGetUserInfoRequestType), eq(mAsyncCallTimeoutMs),
+                eq(usersInfo), notNull());
+    }
+
+    @NonNull
+    private UsersInfo newUsersInfo(@UserIdInt int currentUserId) {
+        UsersInfo infos = new UsersInfo();
+        infos.numberUsers = mExistingUsers.length;
+        boolean foundCurrentUser = false;
+        for (UserInfo info : mExistingUsers) {
+            android.hardware.automotive.vehicle.V2_0.UserInfo existingUser =
+                    new android.hardware.automotive.vehicle.V2_0.UserInfo();
+            int flags = UserFlags.NONE;
+            if (info.id == UserHandle.USER_SYSTEM) {
+                flags |= UserFlags.SYSTEM;
+            }
+            if (info.isAdmin()) {
+                flags |= UserFlags.ADMIN;
+            }
+            if (info.isGuest()) {
+                flags |= UserFlags.GUEST;
+            }
+            if (info.isEphemeral()) {
+                flags |= UserFlags.EPHEMERAL;
+            }
+            existingUser.userId = info.id;
+            existingUser.flags = flags;
+            if (info.id == currentUserId) {
+                foundCurrentUser = true;
+                infos.currentUser.userId = info.id;
+                infos.currentUser.flags = flags;
+            }
+            infos.existingUsers.add(existingUser);
+        }
+        Preconditions.checkArgument(foundCurrentUser,
+                "no user with id " + currentUserId + " on " + mExistingUsers);
+        return infos;
+    }
+
+    private void assertUserId(@NonNull Bundle resultData, int expectedUserId) {
+        int actualUserId = resultData.getInt(CarUserService.BUNDLE_USER_ID);
+        assertWithMessage("wrong user id on bundle extra %s", CarUserService.BUNDLE_USER_ID)
+                .that(actualUserId).isEqualTo(expectedUserId);
+    }
+
+    private void assertNoUserId(@NonNull Bundle resultData) {
+        assertNoExtra(resultData, CarUserService.BUNDLE_USER_ID);
+    }
+
+    private void assertUserFlags(@NonNull Bundle resultData, int expectedUserFlags) {
+        int actualUserFlags = resultData.getInt(CarUserService.BUNDLE_USER_FLAGS);
+        assertWithMessage("wrong user flags on bundle extra %s", CarUserService.BUNDLE_USER_FLAGS)
+                .that(actualUserFlags).isEqualTo(expectedUserFlags);
+    }
+
+    private void assertNoUserFlags(@NonNull Bundle resultData) {
+        assertNoExtra(resultData, CarUserService.BUNDLE_USER_FLAGS);
+    }
+
+    private void assertUserName(@NonNull Bundle resultData, @NonNull String expectedName) {
+        String actualName = resultData.getString(CarUserService.BUNDLE_USER_NAME);
+        assertWithMessage("wrong user name on bundle extra %s",
+                CarUserService.BUNDLE_USER_FLAGS).that(actualName).isEqualTo(expectedName);
+    }
+
+    private void assertNoUserName(@NonNull Bundle resultData) {
+        assertNoExtra(resultData, CarUserService.BUNDLE_USER_NAME);
+    }
+
+    private void assertNoExtra(@NonNull Bundle resultData, @NonNull String extra) {
+        Object value = resultData.get(extra);
+        assertWithMessage("should not have extra %s", extra).that(value).isNull();
+    }
+
     static final class FakeCarOccupantZoneService {
         private final SparseArray<Integer> mZoneUserMap = new SparseArray<Integer>();
         private final CarUserService.ZoneUserBindingHelper mZoneUserBindigHelper =
@@ -585,11 +761,6 @@ public class CarUserServiceTest {
     }
 
 
-    private void putSettingsInt(String key, int value) {
-        Settings.Global.putInt(InstrumentationRegistry.getTargetContext().getContentResolver(),
-                key, value);
-    }
-
     // TODO(b/148403316): Refactor to use common fake settings provider
     private void mockSettingsGlobal() {
         when(Settings.Global.putInt(any(), eq(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET),
@@ -603,9 +774,160 @@ public class CarUserServiceTest {
         );
     }
 
+    private void putSettingsInt(String key, int value) {
+        Settings.Global.putInt(InstrumentationRegistry.getTargetContext().getContentResolver(),
+                key, value);
+    }
+
     private int getSettingsInt(String key) {
         return Settings.Global.getInt(
                 InstrumentationRegistry.getTargetContext().getContentResolver(),
                 key, /* default= */ 0);
+    }
+
+    // TODO(b/149099817): move stuff below to common code
+
+    /**
+     * Builder for {@link UserInfo} objects.
+     *
+     */
+    public static final class UserInfoBuilder {
+
+        @UserIdInt
+        private final int mUserId;
+
+        @Nullable
+        private String mName;
+
+        private boolean mGuest;
+        private boolean mEphemeral;
+        private boolean mAdmin;
+
+        /**
+         * Default constructor.
+         */
+        public UserInfoBuilder(@UserIdInt int userId) {
+            mUserId = userId;
+        }
+
+        /**
+         * Sets the user name.
+         */
+        @NonNull
+        public UserInfoBuilder setName(@Nullable String name) {
+            mName = name;
+            return this;
+        }
+
+        /**
+         * Sets whether the user is a guest.
+         */
+        @NonNull
+        public UserInfoBuilder setGuest(boolean guest) {
+            mGuest = guest;
+            return this;
+        }
+
+        /**
+         * Sets whether the user is ephemeral.
+         */
+        @NonNull
+        public UserInfoBuilder setEphemeral(boolean ephemeral) {
+            mEphemeral = ephemeral;
+            return this;
+        }
+
+        /**
+         * Sets whether the user is an admin.
+         */
+        @NonNull
+        public UserInfoBuilder setAdmin(boolean admin) {
+            mAdmin = admin;
+            return this;
+        }
+
+        /**
+         * Creates a new {@link UserInfo}.
+         */
+        @NonNull
+        public UserInfo build() {
+            int flags = 0;
+            if (mEphemeral) {
+                flags |= UserInfo.FLAG_EPHEMERAL;
+            }
+            if (mAdmin) {
+                flags |= UserInfo.FLAG_ADMIN;
+            }
+            UserInfo info = new UserInfo(mUserId, mName, flags);
+            if (mGuest) {
+                info.userType = UserManager.USER_TYPE_FULL_GUEST;
+            }
+            return info;
+        }
+
+        /**
+         * Creates a new {@link UserInfo} for a system user.
+         */
+        @NonNull
+        public static UserInfo newSystemUserInfo() {
+            UserInfo info = new UserInfo();
+            info.id = UserHandle.USER_SYSTEM;
+            return info;
+        }
+    }
+
+    /**
+     * Implementation of {@link IResultReceiver} that blocks waiting for the result.
+     */
+    public static final class BlockingResultReceiver extends IResultReceiver.Stub {
+
+        private final CountDownLatch mLatch = new CountDownLatch(1);
+        private final long mTimeoutMs;
+
+        private int mResultCode;
+        @Nullable private Bundle mResultData;
+
+        /**
+         * Default constructor.
+         *
+         * @param timeoutMs how long to wait for before failing.
+         */
+        public BlockingResultReceiver(long timeoutMs) {
+            mTimeoutMs = timeoutMs;
+        }
+
+        @Override
+        public void send(int resultCode, Bundle resultData) {
+            Log.d(TAG, "send() received: code=" + resultCode + ", data=" + resultData + ", count="
+                    + mLatch.getCount());
+            Preconditions.checkState(mLatch.getCount() == 1,
+                    "send() already called (code=" + mResultCode + ", data=" + mResultData);
+            mResultCode = resultCode;
+            mResultData = resultData;
+            mLatch.countDown();
+        }
+
+        private void assertCalled() throws InterruptedException {
+            boolean called = mLatch.await(mTimeoutMs, TimeUnit.MILLISECONDS);
+            Log.d(TAG, "assertCalled(): " + called);
+            assertWithMessage("receiver not called in %sms", mTimeoutMs).that(called).isTrue();
+        }
+
+        /**
+         * Gets the {@code resultCode} or fails if it times out before {@code send()} is called.
+         */
+        public int getResultCode() throws InterruptedException {
+            assertCalled();
+            return mResultCode;
+        }
+
+        /**
+         * Gets the {@code resultData} or fails if it times out before {@code send()} is called.
+         */
+        @Nullable
+        public Bundle getResultData() throws InterruptedException {
+            assertCalled();
+            return mResultData;
+        }
     }
 }
