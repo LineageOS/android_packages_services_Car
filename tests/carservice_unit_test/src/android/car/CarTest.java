@@ -73,6 +73,11 @@ public class CarTest {
         }
 
         @Override
+        public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
+                int toUserId) {
+        }
+
+        @Override
         public void setUserLockStatus(int userHandle, int unlocked) {
         }
 

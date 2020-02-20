@@ -138,7 +138,7 @@ public final class CarUserManager extends CarManagerBase {
             USER_LIFECYCLE_EVENT_TYPE_STOPPED,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @interface UserLifecycleEventType{}
+    public @interface UserLifecycleEventType{}
 
     /** @hide */
     public static final String BUNDLE_PARAM_ACTION = "action";

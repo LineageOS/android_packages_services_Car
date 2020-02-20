@@ -163,6 +163,12 @@ public class FakeCar {
         }
 
         @Override
+        public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
+                int toUserId) {
+            // Nothing to do yet.
+        }
+
+        @Override
         public void setUserLockStatus(int userHandle, int unlocked) throws RemoteException {
             // Nothing to do yet.
         }

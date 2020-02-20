@@ -25,6 +25,7 @@ import android.car.Car;
 import android.car.CarFeatures;
 import android.car.ICar;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
+import android.car.user.CarUserManager;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -66,6 +67,7 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.car.trust.CarTrustedDeviceService;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
+import com.android.car.user.UserMetrics;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
 import com.android.car.vms.VmsNewBrokerService;
@@ -148,6 +150,8 @@ public class ICarImpl extends ICar.Stub {
     private ICarServiceHelper mICarServiceHelper;
 
     private final String mVehicleInterfaceName;
+
+    private final UserMetrics mUserMetrics = new UserMetrics();
 
     public ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
             CanBusErrorNotifier errorNotifier, String vehicleInterfaceName) {
@@ -372,6 +376,17 @@ public class ICarImpl extends ICar.Stub {
 
         Log.i(TAG, "Foreground user switched to " + userId);
         mCarUserService.onSwitchUser(userId);
+    }
+
+    // TODO(b/146207078): this method is currently used just for metrics logging purposes, but we
+    // should fold the other too (onSwitchUser() and setUserLockStatus()) onto it.
+    @Override
+    public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
+            int toUserId) {
+        assertCallingFromSystemProcess();
+        Log.i(TAG, "onUserLifecycleEvent(" + CarUserManager.lifecycleEventTypeToString(eventType)
+                + ", " + toUserId);
+        mUserMetrics.onEvent(eventType, timestampMs, fromUserId, toUserId);
     }
 
     @Override
@@ -647,6 +662,7 @@ public class ICarImpl extends ICar.Stub {
             writer.println("*Dump car service*");
             dumpAllServices(writer);
             dumpAllHals(writer);
+            mUserMetrics.dump(writer);
         } else if ("--list".equals(args[0])) {
             dumpListOfServices(writer);
             return;
@@ -679,6 +695,8 @@ public class ICarImpl extends ICar.Stub {
         } else if ("--list-hals".equals(args[0])) {
             mHal.dumpListHals(writer);
             return;
+        } else if ("--user-metrics".equals(args[0])) {
+            mUserMetrics.dump(writer);
         } else if ("--help".equals(args[0])) {
             showDumpHelp(writer);
         } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
@@ -718,6 +736,8 @@ public class ICarImpl extends ICar.Stub {
         writer.println("--hal [HAL1] [HAL2] [HALN]");
         writer.println("\t  dumps just the specified HALs (or all of them if none specified),");
         writer.println("\t  where HAL is just the class name (like UserHalService)");
+        writer.println("--user-metrics");
+        writer.println("\t  dumps user switching and stopping metrics ");
         writer.println("-h");
         writer.println("\t  shows commands usage (NOTE: commands are not available on USER builds");
         writer.println("[ANYTHING ELSE]");
