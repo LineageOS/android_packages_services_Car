@@ -255,10 +255,8 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *         target Activity is in normal state and client should retry when it fails. Once it is
      *         successfully launched, car service will guarantee that it is running across crash or
      *         other events.
-     *
-     * @hide
      */
-    protected boolean startFixedActivityModeForDisplayAndUser(@NonNull Intent intent,
+    public boolean startFixedActivityModeForDisplayAndUser(@NonNull Intent intent,
             @NonNull ActivityOptions options, @UserIdInt int userId) {
         IInstrumentClusterHelper helper = getClusterHelper();
         if (helper == null) {
@@ -278,10 +276,8 @@ public abstract class InstrumentClusterRenderingService extends Service {
     /**
      * Stop fixed mode for top Activity in the display. Crashing or launching other Activity
      * will not re-launch the top Activity any more.
-     *
-     * @hide
      */
-    protected void stopFixedActivityMode(int displayId) {
+    public void stopFixedActivityMode(int displayId) {
         IInstrumentClusterHelper helper = getClusterHelper();
         if (helper == null) {
             return;

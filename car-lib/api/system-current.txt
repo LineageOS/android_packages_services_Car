@@ -238,7 +238,9 @@ package android.car.cluster.renderer {
     method @MainThread public void onKeyEvent(@NonNull android.view.KeyEvent);
     method @MainThread public void onNavigationComponentLaunched();
     method @MainThread public void onNavigationComponentReleased();
+    method public boolean startFixedActivityModeForDisplayAndUser(@NonNull android.content.Intent, @NonNull android.app.ActivityOptions, int);
     method protected boolean startNavigationActivity(@NonNull android.content.ComponentName);
+    method public void stopFixedActivityMode(int);
   }
 
   @UiThread public abstract class NavigationRenderer {
