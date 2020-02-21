@@ -26,6 +26,7 @@ import android.annotation.Nullable;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -112,7 +113,9 @@ public class PropertyHalService extends HalServiceBase {
          * @param property
          * @param area
          */
-        void onPropertySetError(int property, int area);
+        void onPropertySetError(int property, int area,
+                @CarPropertyManager.CarSetPropertyErrorCode int errorCode);
+
     }
 
     public PropertyHalService(VehicleHal vehicleHal) {
@@ -390,13 +393,14 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     @Override
-    public void onPropertySetError(int property, int area) {
+    public void onPropertySetError(int property, int area,
+            @CarPropertyManager.CarSetPropertyErrorCode int errorCode) {
         PropertyHalListener listener;
         synchronized (mLock) {
             listener = mListener;
         }
         if (listener != null) {
-            listener.onPropertySetError(property, area);
+            listener.onPropertySetError(property, area, errorCode);
         }
     }
 

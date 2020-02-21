@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.VehicleAreaType;
+import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
@@ -26,6 +27,7 @@ import android.hardware.automotive.vehicle.V2_0.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -80,6 +82,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     private static final int PASSENGER_SIDE_AREA_ID = VehicleAreaSeat.ROW_1_RIGHT
                                                     | VehicleAreaSeat.ROW_2_CENTER
                                                     | VehicleAreaSeat.ROW_2_RIGHT;
+    private static final float INIT_TEMP_VALUE = 16f;
+    private static final float CHANGED_TEMP_VALUE = 20f;
 
     private CarPropertyManager mManager;
 
@@ -93,7 +97,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     @Test
     public void testMixedPropertyConfigs() {
         List<CarPropertyConfig> configs = mManager.getPropertyList();
-        Assert.assertEquals(2, configs.size());
+        Assert.assertEquals(3, configs.size());
 
         for (CarPropertyConfig cfg : configs) {
             switch (cfg.getPropertyId()) {
@@ -104,6 +108,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 case CUSTOM_GLOBAL_MIXED_PROP_ID_2:
                     Assert.assertArrayEquals(CONFIG_ARRAY_2.toArray(),
                             cfg.getConfigArray().toArray());
+                    break;
+                case VehiclePropertyIds.HVAC_TEMPERATURE_SET:
                     break;
                 default:
                     Assert.fail("Unexpected CarPropertyConfig: " + cfg.toString());
@@ -163,12 +169,67 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         }
     }
 
+    @Test
+    public void testNotReceiveOnErrorEvent() {
+        TestCallback callback = new TestCallback();
+        mManager.registerCallback(callback, VehiclePropertyIds.HVAC_TEMPERATURE_SET,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+        injectErrorEvent(VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
+        // app never change the value of HVAC_TEMPERATURE_SET, it won't get an error code.
+        SystemClock.sleep(SHORT_WAIT_TIMEOUT_MS);
+        Assert.assertFalse(callback.mReceivedErrorEventWithErrorCode);
+        Assert.assertFalse(callback.mReceivedErrorEventWithOutErrorCode);
+    }
+
+    @Test
+    public void testReceiveOnErrorEvent() {
+        TestCallback callback = new TestCallback();
+        mManager.registerCallback(callback, VehiclePropertyIds.HVAC_TEMPERATURE_SET,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+        mManager.setFloatProperty(
+                VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID,
+                CHANGED_TEMP_VALUE);
+        injectErrorEvent(VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
+        SystemClock.sleep(SHORT_WAIT_TIMEOUT_MS);
+        Assert.assertTrue(callback.mReceivedErrorEventWithErrorCode);
+        Assert.assertEquals(CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN,
+                callback.mErrorCode);
+        Assert.assertFalse(callback.mReceivedErrorEventWithOutErrorCode);
+    }
+
+    @Test
+    public void testNotReceiveOnErrorEventAfterUnregister() {
+        TestCallback callback1 = new TestCallback();
+        TestCallback callback2 = new TestCallback();
+        mManager.registerCallback(callback1, VehiclePropertyIds.HVAC_TEMPERATURE_SET,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+        mManager.registerCallback(callback2, VehiclePropertyIds.HVAC_TEMPERATURE_SET,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+        mManager.setFloatProperty(
+                VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID,
+                CHANGED_TEMP_VALUE);
+        mManager.unregisterCallback(callback1, VehiclePropertyIds.HVAC_TEMPERATURE_SET);
+        injectErrorEvent(VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
+        SystemClock.sleep(SHORT_WAIT_TIMEOUT_MS);
+        Assert.assertFalse(callback1.mReceivedErrorEventWithErrorCode);
+        Assert.assertFalse(callback1.mReceivedErrorEventWithOutErrorCode);
+    }
+
     @Override
     protected synchronized void configureMockedHal() {
         PropertyHandler handler = new PropertyHandler();
         addProperty(CUSTOM_GLOBAL_MIXED_PROP_ID_1, handler).setConfigArray(CONFIG_ARRAY_1)
                 .addAreaConfig(DRIVER_SIDE_AREA_ID).addAreaConfig(PASSENGER_SIDE_AREA_ID);
         addProperty(CUSTOM_GLOBAL_MIXED_PROP_ID_2, handler).setConfigArray(CONFIG_ARRAY_2);
+
+        VehiclePropValue tempValue = new VehiclePropValue();
+        tempValue.value.floatValues.add(INIT_TEMP_VALUE);
+        tempValue.prop = VehiclePropertyIds.HVAC_TEMPERATURE_SET;
+        addProperty(VehiclePropertyIds.HVAC_TEMPERATURE_SET, tempValue)
+                .addAreaConfig(DRIVER_SIDE_AREA_ID).addAreaConfig(PASSENGER_SIDE_AREA_ID);
     }
 
     private class PropertyHandler implements VehicleHalPropertyHandler {
@@ -193,6 +254,32 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         @Override
         public synchronized void onPropertyUnsubscribe(int property) {
             Log.d(TAG, "onPropertyUnSubscribe property " + property);
+        }
+    }
+
+    private static class TestCallback implements CarPropertyManager.CarPropertyEventCallback {
+
+        private static final String CALLBACK_TAG = "ErrorEventTest";
+        private boolean mReceivedErrorEventWithErrorCode = false;
+        private boolean mReceivedErrorEventWithOutErrorCode = false;
+        private int mErrorCode;
+        @Override
+        public void onChangeEvent(CarPropertyValue value) {
+            Log.d(CALLBACK_TAG, "onChangeEvent: " + value);
+        }
+
+        @Override
+        public void onErrorEvent(int propId, int zone) {
+            mReceivedErrorEventWithOutErrorCode = true;
+            Log.d(CALLBACK_TAG, "onErrorEvent, propId: " + propId + " zone: " + zone);
+        }
+
+        @Override
+        public void onErrorEvent(int propId, int areaId, int errorCode) {
+            mReceivedErrorEventWithErrorCode = true;
+            mErrorCode = errorCode;
+            Log.d(CALLBACK_TAG, "onErrorEvent, propId: " + propId + " areaId: " + areaId
+                    + "errorCode: " + errorCode);
         }
     }
 }
