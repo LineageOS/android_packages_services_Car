@@ -106,6 +106,7 @@ private:
     // Updated by tests to point to a different location when needed.
     std::string mPath;
 
+    FRIEND_TEST(IoPerfCollectionTest, TestValidProcPidContents);
     FRIEND_TEST(ProcPidStatTest, TestValidStatFiles);
     FRIEND_TEST(ProcPidStatTest, TestHandlesProcessTerminationBetweenScanningAndParsing);
     FRIEND_TEST(ProcPidStatTest, TestHandlesPidTidReuse);
