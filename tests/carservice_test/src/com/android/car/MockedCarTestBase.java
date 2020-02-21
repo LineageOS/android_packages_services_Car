@@ -240,6 +240,10 @@ public class MockedCarTestBase {
         return (CarPropertyService) mCarImpl.getCarService(Car.PROPERTY_SERVICE);
     }
 
+    public void injectErrorEvent(int propId, int areaId, int errorCode) {
+        mMockedVehicleHal.injectError(errorCode, propId, areaId);
+    }
+
     public CarPackageManagerService getPackageManagerService() {
         return (CarPackageManagerService) mCarImpl.getCarService(Car.PACKAGE_SERVICE);
     }
