@@ -110,8 +110,9 @@ Status AidlClientImpl::DispatchSemanticData(int32_t streamId,
     if (status != SUCCESS) {
         return status;
     }
-    desc.data = std::vector(reinterpret_cast<const signed char*>(packetHandle->getData()),
-        reinterpret_cast<const signed char*>(packetHandle->getData() + packetHandle->getSize()));
+    desc.data = std::vector(reinterpret_cast<const uint8_t*>(packetHandle->getData()),
+                            reinterpret_cast<const uint8_t*>(packetHandle->getData() +
+                                                             packetHandle->getSize()));
     desc.size = packetHandle->getSize();
     if (static_cast<int32_t>(desc.data.size()) != desc.size) {
         LOG(ERROR) << "mismatch in char data size and reported size";
