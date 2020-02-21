@@ -1402,7 +1402,7 @@ package android.car.watchdog {
     field public static final int TIMEOUT_NORMAL = 2; // 0x2
   }
 
-  public abstract class CarWatchdogManager.CarWatchdogClientCallback {
+  public abstract static class CarWatchdogManager.CarWatchdogClientCallback {
     ctor public CarWatchdogManager.CarWatchdogClientCallback();
     method public boolean onCheckHealthStatus(int, int);
     method public void onPrepareProcessTermination();

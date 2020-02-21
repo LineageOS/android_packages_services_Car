@@ -83,7 +83,7 @@ public final class CarWatchdogManager extends CarManagerBase {
      * <p>Before car watchdog server kills the client, it calls onPrepareProcessKill to allow them
      * to prepare the termination. They will be killed in 1 second.
      */
-    public abstract class CarWatchdogClientCallback {
+    public abstract static class CarWatchdogClientCallback {
         /**
          * Car watchdog server pings the client to check if it is alive.
          *
