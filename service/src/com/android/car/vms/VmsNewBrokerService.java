@@ -113,7 +113,8 @@ public class VmsNewBrokerService extends IVmsBrokerService.Stub implements CarSe
     }
 
     @Override
-    public VmsRegistrationInfo registerClient(IBinder clientToken, IVmsClientCallback callback) {
+    public VmsRegistrationInfo registerClient(IBinder clientToken, IVmsClientCallback callback,
+            boolean legacyClient) {
         assertAnyVmsPermission(mContext);
         int clientUid = mGetCallingUid.getAsInt();
         String clientPackage = mPackageManager.getNameForUid(clientUid);
@@ -127,7 +128,8 @@ public class VmsNewBrokerService extends IVmsBrokerService.Stub implements CarSe
                 callback.asBinder().linkToDeath(
                         () -> unregisterClient(clientToken,
                                 VmsClientLogger.ConnectionState.DISCONNECTED), 0);
-                mClientMap.put(clientToken, new VmsClientInfo(clientUid, clientPackage, callback));
+                mClientMap.put(clientToken, new VmsClientInfo(clientUid, clientPackage, callback,
+                        legacyClient));
             } catch (RemoteException e) {
                 Log.w(TAG, "Client process is already dead", e);
                 mStatsService.getVmsClientLogger(clientUid)
@@ -181,7 +183,7 @@ public class VmsNewBrokerService extends IVmsBrokerService.Stub implements CarSe
             List<VmsLayerDependency> offerings) {
         assertVmsPublisherPermission(mContext);
         VmsClientInfo client = getClient(clientToken);
-        if (!client.hasProviderId(providerId)) {
+        if (!client.hasProviderId(providerId) && !client.isLegacyClient()) {
             throw new IllegalArgumentException("Client not registered to offer layers as "
                     + providerId);
         }
@@ -194,7 +196,7 @@ public class VmsNewBrokerService extends IVmsBrokerService.Stub implements CarSe
     public void publishPacket(IBinder clientToken, int providerId, VmsLayer layer, byte[] packet) {
         assertVmsPublisherPermission(mContext);
         VmsClientInfo client = getClient(clientToken);
-        if (!client.hasOffering(providerId, layer)) {
+        if (!client.hasOffering(providerId, layer) && !client.isLegacyClient()) {
             throw new IllegalArgumentException("Client does not offer " + layer + " as "
                     + providerId);
         }

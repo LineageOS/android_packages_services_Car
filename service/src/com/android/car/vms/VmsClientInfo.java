@@ -42,6 +42,7 @@ final class VmsClientInfo {
     private final int mUid;
     private final String mPackageName;
     private final IVmsClientCallback mCallback;
+    private final boolean mLegacyClient;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -57,10 +58,11 @@ final class VmsClientInfo {
     @GuardedBy("mLock")
     private boolean mMonitoringEnabled;
 
-    VmsClientInfo(int uid, String packageName, IVmsClientCallback callback) {
+    VmsClientInfo(int uid, String packageName, IVmsClientCallback callback, boolean legacyClient) {
         mUid = uid;
         mPackageName = packageName;
         mCallback = callback;
+        mLegacyClient = legacyClient;
     }
 
     int getUid() {
@@ -164,6 +166,10 @@ final class VmsClientInfo {
                     || mLayerAndProviderSubscriptions.getOrDefault(layer, Collections.emptySet())
                             .contains(providerId);
         }
+    }
+
+    boolean isLegacyClient() {
+        return mLegacyClient;
     }
 
     private static <K, V> Map<K, Set<V>> deepCopy(Map<K, Set<V>> original) {

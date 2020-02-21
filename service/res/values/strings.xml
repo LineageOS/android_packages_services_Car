@@ -125,7 +125,7 @@
         box and restart the car</string>
 
     <!-- Blocking activity: Message to show to user when a feature of current application is not allowed. [CHAR LIMIT=120] -->
-    <string name="activity_blocked_text">Not available while driving</string>
+    <string name="activity_blocked_text">You can\u2019t use this feature while driving</string>
     <!-- Blocking activity: Message to accompany the exit_button that restarts the blocked app. [CHAR LIMIT=120] -->
     <string name="exit_button_message">To start over with safe app features, select <xliff:g id="exit_button" example="Back">%s</xliff:g>.</string>
     <!-- Blocking activity: Text for button that restarts the current blocked application. [CHAR LIMIT=15] -->

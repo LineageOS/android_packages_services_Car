@@ -66,8 +66,9 @@ package android.car {
     field public static final String PROJECTION_SERVICE = "projection";
     field public static final String STORAGE_MONITORING_SERVICE = "storage_monitoring";
     field public static final String TEST_SERVICE = "car-service-test";
+    field public static final String VEHICLE_MAP_SERVICE = "vehicle_map_service";
     field @Deprecated public static final String VENDOR_EXTENSION_SERVICE = "vendor_extension";
-    field public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
+    field @Deprecated public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
   }
 
   public class CarOccupantZoneManager {
@@ -237,7 +238,9 @@ package android.car.cluster.renderer {
     method @MainThread public void onKeyEvent(@NonNull android.view.KeyEvent);
     method @MainThread public void onNavigationComponentLaunched();
     method @MainThread public void onNavigationComponentReleased();
+    method public boolean startFixedActivityModeForDisplayAndUser(@NonNull android.content.Intent, @NonNull android.app.ActivityOptions, int);
     method protected boolean startNavigationActivity(@NonNull android.content.ComponentName);
+    method public void stopFixedActivityMode(int);
   }
 
   @UiThread public abstract class NavigationRenderer {
@@ -846,6 +849,20 @@ package android.car.media {
     field public static final android.os.Parcelable.Creator<android.car.media.CarAudioPatchHandle> CREATOR;
   }
 
+  public final class CarMediaManager {
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void addMediaSourceListener(@NonNull android.car.media.CarMediaManager.MediaSourceChangedListener, int);
+    method @NonNull @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public java.util.List<android.content.ComponentName> getLastMediaSources(int);
+    method @NonNull @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public android.content.ComponentName getMediaSource(int);
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void removeMediaSourceListener(@NonNull android.car.media.CarMediaManager.MediaSourceChangedListener, int);
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void setMediaSource(@NonNull android.content.ComponentName, int);
+    field public static final int MEDIA_SOURCE_MODE_BROWSE = 1; // 0x1
+    field public static final int MEDIA_SOURCE_MODE_PLAYBACK = 0; // 0x0
+  }
+
+  public static interface CarMediaManager.MediaSourceChangedListener {
+    method public void onMediaSourceChanged(@NonNull android.content.ComponentName);
+  }
+
 }
 
 package android.car.navigation {
@@ -1222,10 +1239,11 @@ package android.car.user {
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void addListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.CarUserManager.UserLifecycleListener);
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void removeListener(@NonNull android.car.user.CarUserManager.UserLifecycleListener);
     field public static final int USER_LIFECYCLE_EVENT_TYPE_STARTING = 1; // 0x1
-    field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 5; // 0x5
-    field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 4; // 0x4
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 6; // 0x6
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 5; // 0x5
     field public static final int USER_LIFECYCLE_EVENT_TYPE_SWITCHING = 2; // 0x2
-    field public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED = 3; // 0x3
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED = 4; // 0x4
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKING = 3; // 0x3
   }
 
   public final class CarUserManager.UserLifecycleEvent {
@@ -1245,97 +1263,126 @@ package android.car.vms {
   public final class VmsAssociatedLayer implements android.os.Parcelable {
     ctor public VmsAssociatedLayer(@NonNull android.car.vms.VmsLayer, @NonNull java.util.Set<java.lang.Integer>);
     method public int describeContents();
-    method @NonNull public java.util.Set<java.lang.Integer> getPublisherIds();
+    method @NonNull public java.util.Set<java.lang.Integer> getProviderIds();
+    method @Deprecated @NonNull public java.util.Set<java.lang.Integer> getPublisherIds();
     method @NonNull public android.car.vms.VmsLayer getVmsLayer();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsAssociatedLayer> CREATOR;
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsAssociatedLayer> CREATOR;
   }
 
   public final class VmsAvailableLayers implements android.os.Parcelable {
-    ctor public VmsAvailableLayers(@NonNull java.util.Set<android.car.vms.VmsAssociatedLayer>, int);
+    ctor @Deprecated public VmsAvailableLayers(@NonNull java.util.Set<android.car.vms.VmsAssociatedLayer>, int);
+    ctor public VmsAvailableLayers(int, @NonNull java.util.Set<android.car.vms.VmsAssociatedLayer>);
     method public int describeContents();
     method @NonNull public java.util.Set<android.car.vms.VmsAssociatedLayer> getAssociatedLayers();
-    method public int getSequence();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsAvailableLayers> CREATOR;
+    method @Deprecated public int getSequence();
+    method public int getSequenceNumber();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsAvailableLayers> CREATOR;
+  }
+
+  public final class VmsClient {
+    method @NonNull @RequiresPermission(anyOf={android.car.Car.PERMISSION_VMS_PUBLISHER, android.car.Car.PERMISSION_VMS_SUBSCRIBER}) public android.car.vms.VmsAvailableLayers getAvailableLayers();
+    method @Nullable @RequiresPermission(anyOf={android.car.Car.PERMISSION_VMS_PUBLISHER, android.car.Car.PERMISSION_VMS_SUBSCRIBER}) public byte[] getProviderDescription(int);
+    method @NonNull @RequiresPermission(anyOf={android.car.Car.PERMISSION_VMS_PUBLISHER, android.car.Car.PERMISSION_VMS_SUBSCRIBER}) public android.car.vms.VmsSubscriptionState getSubscriptionState();
+    method @RequiresPermission(android.car.Car.PERMISSION_VMS_SUBSCRIBER) public boolean isMonitoringEnabled();
+    method @RequiresPermission(android.car.Car.PERMISSION_VMS_PUBLISHER) public void publishPacket(int, @NonNull android.car.vms.VmsLayer, @NonNull byte[]);
+    method @RequiresPermission(android.car.Car.PERMISSION_VMS_PUBLISHER) public int registerProvider(@NonNull byte[]);
+    method @RequiresPermission(android.car.Car.PERMISSION_VMS_SUBSCRIBER) public void setMonitoringEnabled(boolean);
+    method @RequiresPermission(android.car.Car.PERMISSION_VMS_PUBLISHER) public void setProviderOfferings(int, @NonNull java.util.Set<android.car.vms.VmsLayerDependency>);
+    method @RequiresPermission(android.car.Car.PERMISSION_VMS_SUBSCRIBER) public void setSubscriptions(@NonNull java.util.Set<android.car.vms.VmsAssociatedLayer>);
+    method @RequiresPermission(android.car.Car.PERMISSION_VMS_PUBLISHER) public void unregisterProvider(int);
+  }
+
+  public class VmsClientManager {
+    method @RequiresPermission(anyOf={android.car.Car.PERMISSION_VMS_PUBLISHER, android.car.Car.PERMISSION_VMS_SUBSCRIBER}) public void registerVmsClientCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.vms.VmsClientManager.VmsClientCallback);
+    method @RequiresPermission(anyOf={android.car.Car.PERMISSION_VMS_PUBLISHER, android.car.Car.PERMISSION_VMS_SUBSCRIBER}) public void unregisterVmsClientCallback(@NonNull android.car.vms.VmsClientManager.VmsClientCallback);
+  }
+
+  public static interface VmsClientManager.VmsClientCallback {
+    method public void onClientConnected(@NonNull android.car.vms.VmsClient);
+    method public void onLayerAvailabilityChanged(@NonNull android.car.vms.VmsAvailableLayers);
+    method public void onPacketReceived(int, @NonNull android.car.vms.VmsLayer, @NonNull byte[]);
+    method public void onSubscriptionStateChanged(@NonNull android.car.vms.VmsSubscriptionState);
   }
 
   public final class VmsLayer implements android.os.Parcelable {
     ctor public VmsLayer(int, int, int);
     method public int describeContents();
-    method public int getSubtype();
+    method public int getChannel();
+    method @Deprecated public int getSubtype();
     method public int getType();
     method public int getVersion();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsLayer> CREATOR;
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsLayer> CREATOR;
   }
 
   public final class VmsLayerDependency implements android.os.Parcelable {
-    ctor public VmsLayerDependency(@NonNull android.car.vms.VmsLayer, @NonNull java.util.Set<android.car.vms.VmsLayer>);
     ctor public VmsLayerDependency(@NonNull android.car.vms.VmsLayer);
+    ctor public VmsLayerDependency(@NonNull android.car.vms.VmsLayer, @NonNull java.util.Set<android.car.vms.VmsLayer>);
     method public int describeContents();
     method @NonNull public java.util.Set<android.car.vms.VmsLayer> getDependencies();
     method @NonNull public android.car.vms.VmsLayer getLayer();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsLayerDependency> CREATOR;
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsLayerDependency> CREATOR;
   }
 
-  public final class VmsLayersOffering implements android.os.Parcelable {
-    ctor public VmsLayersOffering(@NonNull java.util.Set<android.car.vms.VmsLayerDependency>, int);
-    method public int describeContents();
-    method public java.util.Set<android.car.vms.VmsLayerDependency> getDependencies();
-    method public int getPublisherId();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsLayersOffering> CREATOR;
+  @Deprecated public final class VmsLayersOffering implements android.os.Parcelable {
+    ctor @Deprecated public VmsLayersOffering(@NonNull java.util.Set<android.car.vms.VmsLayerDependency>, int);
+    method @Deprecated public int describeContents();
+    method @Deprecated @NonNull public java.util.Set<android.car.vms.VmsLayerDependency> getDependencies();
+    method @Deprecated public int getPublisherId();
+    method @Deprecated public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @Deprecated @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsLayersOffering> CREATOR;
   }
 
-  public final class VmsOperationRecorder {
-    method public void addHalSubscription(int, android.car.vms.VmsLayer);
-    method public void addPromiscuousSubscription(int);
-    method public void addSubscription(int, android.car.vms.VmsLayer);
-    method public static android.car.vms.VmsOperationRecorder get();
-    method public void getPublisherId(int);
-    method public void removeHalSubscription(int, android.car.vms.VmsLayer);
-    method public void removePromiscuousSubscription(int);
-    method public void removeSubscription(int, android.car.vms.VmsLayer);
-    method public void setHalPublisherLayersOffering(android.car.vms.VmsLayersOffering);
-    method public void setLayersOffering(android.car.vms.VmsLayersOffering);
-    method public void setPublisherLayersOffering(android.car.vms.VmsLayersOffering);
-    method public void startMonitoring();
-    method public void stopMonitoring();
-    method public void subscribe(android.car.vms.VmsLayer);
-    method public void subscribe(android.car.vms.VmsLayer, int);
-    method public void unsubscribe(android.car.vms.VmsLayer);
-    method public void unsubscribe(android.car.vms.VmsLayer, int);
+  @Deprecated public final class VmsOperationRecorder {
+    method @Deprecated public void addHalSubscription(int, android.car.vms.VmsLayer);
+    method @Deprecated public void addPromiscuousSubscription(int);
+    method @Deprecated public void addSubscription(int, android.car.vms.VmsLayer);
+    method @Deprecated public static android.car.vms.VmsOperationRecorder get();
+    method @Deprecated public void getPublisherId(int);
+    method @Deprecated public void removeHalSubscription(int, android.car.vms.VmsLayer);
+    method @Deprecated public void removePromiscuousSubscription(int);
+    method @Deprecated public void removeSubscription(int, android.car.vms.VmsLayer);
+    method @Deprecated public void setHalPublisherLayersOffering(android.car.vms.VmsLayersOffering);
+    method @Deprecated public void setLayersOffering(android.car.vms.VmsLayersOffering);
+    method @Deprecated public void setPublisherLayersOffering(android.car.vms.VmsLayersOffering);
+    method @Deprecated public void startMonitoring();
+    method @Deprecated public void stopMonitoring();
+    method @Deprecated public void subscribe(android.car.vms.VmsLayer);
+    method @Deprecated public void subscribe(android.car.vms.VmsLayer, int);
+    method @Deprecated public void unsubscribe(android.car.vms.VmsLayer);
+    method @Deprecated public void unsubscribe(android.car.vms.VmsLayer, int);
   }
 
-  public abstract class VmsPublisherClientService extends android.app.Service {
-    ctor public VmsPublisherClientService();
-    method public final int getPublisherId(byte[]);
-    method public final android.car.vms.VmsSubscriptionState getSubscriptions();
-    method public android.os.IBinder onBind(android.content.Intent);
-    method protected abstract void onVmsPublisherServiceReady();
-    method public abstract void onVmsSubscriptionChange(@NonNull android.car.vms.VmsSubscriptionState);
-    method public final void publish(@NonNull android.car.vms.VmsLayer, int, byte[]);
-    method public final void setLayersOffering(@NonNull android.car.vms.VmsLayersOffering);
+  @Deprecated public abstract class VmsPublisherClientService extends android.app.Service {
+    ctor @Deprecated public VmsPublisherClientService();
+    method @Deprecated public final int getPublisherId(byte[]);
+    method @Deprecated public final android.car.vms.VmsSubscriptionState getSubscriptions();
+    method @Deprecated public android.os.IBinder onBind(android.content.Intent);
+    method @Deprecated protected abstract void onVmsPublisherServiceReady();
+    method @Deprecated public abstract void onVmsSubscriptionChange(@NonNull android.car.vms.VmsSubscriptionState);
+    method @Deprecated public final void publish(@NonNull android.car.vms.VmsLayer, int, byte[]);
+    method @Deprecated public final void setLayersOffering(@NonNull android.car.vms.VmsLayersOffering);
   }
 
-  public final class VmsSubscriberManager {
-    method public void clearVmsSubscriberClientCallback();
-    method @NonNull public android.car.vms.VmsAvailableLayers getAvailableLayers();
-    method @NonNull public byte[] getPublisherInfo(int);
-    method public void setVmsSubscriberClientCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback);
-    method public void startMonitoring();
-    method public void stopMonitoring();
-    method public void subscribe(@NonNull android.car.vms.VmsLayer);
-    method public void subscribe(@NonNull android.car.vms.VmsLayer, int);
-    method public void unsubscribe(@NonNull android.car.vms.VmsLayer);
-    method public void unsubscribe(@NonNull android.car.vms.VmsLayer, int);
+  @Deprecated public final class VmsSubscriberManager {
+    method @Deprecated public void clearVmsSubscriberClientCallback();
+    method @Deprecated @NonNull public android.car.vms.VmsAvailableLayers getAvailableLayers();
+    method @Deprecated @NonNull public byte[] getPublisherInfo(int);
+    method @Deprecated public void setVmsSubscriberClientCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback);
+    method @Deprecated public void startMonitoring();
+    method @Deprecated public void stopMonitoring();
+    method @Deprecated public void subscribe(@NonNull android.car.vms.VmsLayer);
+    method @Deprecated public void subscribe(@NonNull android.car.vms.VmsLayer, int);
+    method @Deprecated public void unsubscribe(@NonNull android.car.vms.VmsLayer);
+    method @Deprecated public void unsubscribe(@NonNull android.car.vms.VmsLayer, int);
   }
 
-  public static interface VmsSubscriberManager.VmsSubscriberClientCallback {
-    method public void onLayersAvailabilityChanged(@NonNull android.car.vms.VmsAvailableLayers);
-    method public void onVmsMessageReceived(@NonNull android.car.vms.VmsLayer, byte[]);
+  @Deprecated public static interface VmsSubscriberManager.VmsSubscriberClientCallback {
+    method @Deprecated public void onLayersAvailabilityChanged(@NonNull android.car.vms.VmsAvailableLayers);
+    method @Deprecated public void onVmsMessageReceived(@NonNull android.car.vms.VmsLayer, byte[]);
   }
 
   public final class VmsSubscriptionState implements android.os.Parcelable {
@@ -1344,8 +1391,8 @@ package android.car.vms {
     method @NonNull public java.util.Set<android.car.vms.VmsAssociatedLayer> getAssociatedLayers();
     method @NonNull public java.util.Set<android.car.vms.VmsLayer> getLayers();
     method public int getSequenceNumber();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsSubscriptionState> CREATOR;
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsSubscriptionState> CREATOR;
   }
 
 }

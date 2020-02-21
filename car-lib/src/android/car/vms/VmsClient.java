@@ -19,6 +19,7 @@ package android.car.vms;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.vms.VmsClientManager.VmsClientCallback;
 import android.os.Binder;
@@ -44,6 +45,7 @@ import java.util.function.Consumer;
  *
  * @hide
  */
+@SystemApi
 public final class VmsClient {
     private static final boolean DBG = false;
     private static final String TAG = VmsClient.class.getSimpleName();
@@ -56,6 +58,7 @@ public final class VmsClient {
     private final IVmsBrokerService mService;
     private final Executor mExecutor;
     private final VmsClientCallback mCallback;
+    private final boolean mLegacyClient;
     private final Consumer<RemoteException> mExceptionHandler;
     private final IBinder mClientToken;
 
@@ -67,11 +70,15 @@ public final class VmsClient {
     @GuardedBy("mLock")
     private boolean mMonitoringEnabled;
 
-    VmsClient(IVmsBrokerService service, Executor executor, VmsClientCallback callback,
-            Consumer<RemoteException> exceptionHandler) {
+    /**
+     * @hide
+     */
+    public VmsClient(IVmsBrokerService service, Executor executor, VmsClientCallback callback,
+            boolean legacyClient, Consumer<RemoteException> exceptionHandler) {
         mService = service;
         mExecutor = executor;
         mCallback = callback;
+        mLegacyClient = legacyClient;
         mExceptionHandler = exceptionHandler;
         mClientToken = new Binder();
     }
@@ -253,10 +260,12 @@ public final class VmsClient {
 
     /**
      * Registers this client with the Vehicle Map Service.
+     *
+     * @hide
      */
-    void register() throws RemoteException {
+    public void register() throws RemoteException {
         VmsRegistrationInfo registrationInfo = mService.registerClient(mClientToken,
-                new IVmsClientCallbackImpl(this));
+                new IVmsClientCallbackImpl(this), mLegacyClient);
         synchronized (mLock) {
             mAvailableLayers = registrationInfo.getAvailableLayers();
             mSubscriptionState = registrationInfo.getSubscriptionState();
@@ -265,8 +274,10 @@ public final class VmsClient {
 
     /**
      * Unregisters this client from the Vehicle Map Service.
+     *
+     * @hide
      */
-    void unregister() throws RemoteException {
+    public void unregister() throws RemoteException {
         mService.unregisterClient(mClientToken);
     }
 

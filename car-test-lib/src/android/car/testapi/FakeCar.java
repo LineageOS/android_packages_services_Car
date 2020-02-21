@@ -27,7 +27,6 @@ import android.car.hardware.power.ICarPower;
 import android.car.media.ICarAudio;
 import android.car.settings.ICarConfigurationManager;
 import android.car.storagemonitoring.ICarStorageMonitoring;
-import android.car.vms.IVmsSubscriberService;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -136,7 +135,6 @@ public class FakeCar {
         @Mock ICarDiagnostic.Stub mCarDiagnostic;
         @Mock ICarPower.Stub mCarPower;
         @Mock IInstrumentClusterManagerService.Stub mClusterService;
-        @Mock IVmsSubscriberService.Stub mVmsSubscriberService;
         @Mock ICarBluetooth.Stub mCarBluetooth;
         @Mock ICarStorageMonitoring.Stub mCarStorageMonitoring;
         @Mock ICarDrivingState.Stub mCarDrivingState;
@@ -159,6 +157,12 @@ public class FakeCar {
 
         @Override
         public void setCarServiceHelper(IBinder helper) throws RemoteException {
+            // Nothing to do yet.
+        }
+
+        @Override
+        public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
+                int toUserId) {
             // Nothing to do yet.
         }
 
@@ -198,8 +202,6 @@ public class FakeCar {
                     return mClusterService;
                 case Car.PROJECTION_SERVICE:
                     return mCarProjection;
-                case Car.VMS_SUBSCRIBER_SERVICE:
-                    return mVmsSubscriberService;
                 case Car.BLUETOOTH_SERVICE:
                     return mCarBluetooth;
                 case Car.STORAGE_MONITORING_SERVICE:

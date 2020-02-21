@@ -423,13 +423,36 @@ public class VmsSubscriberManagerTest extends MockedVmsTestBase {
         assertEquals(1, sequenceNumber);
         assertEquals(1, numberLayers);
 
+        int[] offeringMessage2 = {
+                VmsMessageType.OFFERING, // MessageType
+                PUBLISHER_ID,
+                2, // Number of offered layers
+
+                SUBSCRIPTION_LAYER_ID,
+                MOCK_PUBLISHER_LAYER_SUBTYPE,
+                SUBSCRIPTION_LAYER_VERSION,
+                0, // number of dependencies for layer
+
+                SUBSCRIPTION_DEPENDANT_LAYER_ID_1,
+                MOCK_PUBLISHER_LAYER_SUBTYPE,
+                SUBSCRIPTION_DEPENDANT_LAYER_VERSION_1,
+                1, // number of dependencies for layer
+                SUBSCRIPTION_LAYER_ID,
+                MOCK_PUBLISHER_LAYER_SUBTYPE,
+                SUBSCRIPTION_LAYER_VERSION,
+        };
+
+
         // Inject second offer.
-        getMockHalClient().sendMessage(offeringMessage);
+        getMockHalClient().sendMessage(offeringMessage2);
 
         // Verify applications API.
         availableLayers = getMockSubscriberClient().receiveLayerAvailability();
         assertEquals(
-                Collections.singleton(SUBSCRIPTION_ASSOCIATED_LAYER),
+                new HashSet<>(Arrays.asList(
+                        SUBSCRIPTION_ASSOCIATED_LAYER,
+                        SUBSCRIPTION_DEPENDANT_ASSOCIATED_LAYER_1
+                )),
                 availableLayers.getAssociatedLayers());
         assertEquals(2, availableLayers.getSequence());
 
@@ -442,7 +465,7 @@ public class VmsSubscriberManagerTest extends MockedVmsTestBase {
 
         assertEquals(messageType, VmsMessageType.AVAILABILITY_CHANGE);
         assertEquals(2, sequenceNumber);
-        assertEquals(1, numberLayers);
+        assertEquals(2, numberLayers);
 
     }
 

@@ -142,7 +142,17 @@ public class VmsBrokerServiceTest {
     @Test
     public void testRegister() {
         VmsRegistrationInfo registrationInfo =
-                mBrokerService.registerClient(mClientToken1, mClientCallback1);
+                mBrokerService.registerClient(mClientToken1, mClientCallback1, false);
+
+        verify(mClientLog1).logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
+        assertThat(registrationInfo.getAvailableLayers()).isEqualTo(DEFAULT_AVAILABLE_LAYERS);
+        assertThat(registrationInfo.getSubscriptionState()).isEqualTo(DEFAULT_SUBSCRIPTION_STATE);
+    }
+
+    @Test
+    public void testRegister_LegacyClient() {
+        VmsRegistrationInfo registrationInfo =
+                mBrokerService.registerClient(mClientToken1, mClientCallback1, true);
 
         verify(mClientLog1).logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
         assertThat(registrationInfo.getAvailableLayers()).isEqualTo(DEFAULT_AVAILABLE_LAYERS);
@@ -152,9 +162,9 @@ public class VmsBrokerServiceTest {
     @Test
     public void testRegister_TwoClients_OneProcess() {
         VmsRegistrationInfo registrationInfo =
-                mBrokerService.registerClient(mClientToken1, mClientCallback1);
+                mBrokerService.registerClient(mClientToken1, mClientCallback1, false);
         VmsRegistrationInfo registrationInfo2 =
-                mBrokerService.registerClient(mClientToken2, mClientCallback2);
+                mBrokerService.registerClient(mClientToken2, mClientCallback2, false);
 
         verify(mClientLog1, times(2))
                 .logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
@@ -164,10 +174,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testRegister_TwoClients_TwoProcesses() {
         VmsRegistrationInfo registrationInfo =
-                mBrokerService.registerClient(mClientToken1, mClientCallback1);
+                mBrokerService.registerClient(mClientToken1, mClientCallback1, false);
         mCallingAppUid = TEST_APP_UID2;
         VmsRegistrationInfo registrationInfo2 =
-                mBrokerService.registerClient(mClientToken2, mClientCallback2);
+                mBrokerService.registerClient(mClientToken2, mClientCallback2, false);
 
         verify(mClientLog1).logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
         verify(mClientLog2).logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
@@ -176,7 +186,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testRegister_ReceivesCurrentLayerAvailabilityAndSubscriptions() {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)));
@@ -186,7 +196,7 @@ public class VmsBrokerServiceTest {
         ));
 
         VmsRegistrationInfo registrationInfo =
-                mBrokerService.registerClient(mClientToken2, mClientCallback2);
+                mBrokerService.registerClient(mClientToken2, mClientCallback2, false);
 
         VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1,
@@ -210,7 +220,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testRegisterProvider_SameIdForSameInfo() {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
@@ -220,8 +230,8 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testRegisterProvider_SameIdForSameInfo_MultipleClients() {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
@@ -231,7 +241,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testRegisterProvider_DifferentIdForDifferentInfo() {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
@@ -241,7 +251,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testGetProviderInfo_UnknownClient() {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         assertThrows(
@@ -251,14 +261,14 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testGetProviderInfo_UnknownId() {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         assertThat(mBrokerService.getProviderInfo(mClientToken1, 12345).getDescription()).isNull();
     }
 
     @Test
     public void testGetProviderInfo_RegisteredProvider() {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
@@ -275,7 +285,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -289,8 +299,8 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -308,7 +318,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_OverwriteSubscription() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -325,8 +335,8 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_OverwriteSubscription_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -347,7 +357,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_RemoveSubscription() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -362,8 +372,8 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_RemoveSubscription_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -383,8 +393,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_RemoveSubscription_MultipleClients_SameLayer()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -404,8 +414,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_RemoveSubscription_OnUnregister_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -424,8 +434,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_RemoveSubscription_OnUnregister_MultipleClients_SameLayer()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -444,8 +454,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_RemoveSubscription_OnDisconnect_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -464,8 +474,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_RemoveSubscription_OnDisconnect_MultipleClients_SameLayer()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -484,7 +494,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_MultipleLayers() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet()),
@@ -499,8 +509,8 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_MultipleLayers_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -519,7 +529,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_LayerAndProvider() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -533,8 +543,8 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_LayerAndProvider_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -552,7 +562,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_LayerAndProvider_OverwriteSubscription() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -570,8 +580,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerAndProvider_OverwriteSubscription_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -595,8 +605,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerAndProvider_OverwriteSubscription_MultipleClients_SameLayer()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -618,8 +628,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerAndProvider_OverwriteSubscription_MultipleClients_SameLayerAndProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -640,7 +650,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_LayerAndProvider_RemoveSubscription() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -656,8 +666,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerAndProvider_RemoveSubscription_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -677,8 +687,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerAndProvider_RemoveSubscription_MultipleClients_SameLayer()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -698,8 +708,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerAndProvider_RemoveSubscription_MultipleClients_SameLayerAndProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -719,8 +729,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerAndProvider_RemoveSubscription_OnUnregister_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -739,8 +749,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerAndProvider_RemoveSubscription_OnUnregister_MultipleClients_SameLayer()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -759,8 +769,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerAndProvider_RemoveSubscription_OnUnregister_MultipleClients_SameLayerAndProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -779,8 +789,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerAndProvider_RemoveSubscription_OnDisconnect_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -799,8 +809,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerAndProvider_RemoveSubscription_OnDisconnect_MultipleClients_SameLayer()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -819,8 +829,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerAndProvider_RemoveSubscription_OnDisconnect_MultipleClients_SameLayerAndProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -838,7 +848,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_LayerAndMultipleProviders() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345, 54321))
@@ -852,8 +862,8 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_LayerAndMultipleProviders_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -871,7 +881,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_MultipleLayersAndProvider() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet()),
@@ -886,8 +896,8 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_MultipleLayersAndProvider_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet()),
@@ -908,7 +918,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_MultipleLayersAndProvider_OverwriteSubscription()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet()),
@@ -928,8 +938,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_MultipleLayersAndProvider_OverwriteSubscription_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet()),
@@ -954,7 +964,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_MultipleLayersAndProvider_RemoveSubscription()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet()),
@@ -971,8 +981,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_MultipleLayersAndProvider_RemoveSubscription_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet()),
@@ -994,8 +1004,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_MultipleLayersAndProvider_RemoveSubscription_OnUnregister_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet()),
@@ -1016,8 +1026,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_MultipleLayersAndProvider_RemoveSubscription_OnDisconnect_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet()),
@@ -1037,7 +1047,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_MultipleLayersAndMultipleProviders() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(54321)),
@@ -1055,8 +1065,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_MultipleLayersAndMultipleProviders_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(54321))
@@ -1075,7 +1085,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetSubscriptions_LayerOnlySupersedesLayerAndProvider() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet()),
@@ -1091,8 +1101,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerOnlySupersedesLayerAndProvider_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -1111,7 +1121,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerOnlySupersedesLayerAndProvider_RemoveLayerSubscription()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet()),
@@ -1130,8 +1140,8 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetSubscriptions_LayerOnlySupersedesLayerAndProvider_RemoveLayerSubscription_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
@@ -1157,7 +1167,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetMonitoringEnabled_Enable_NoSubscriptionChange() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setMonitoringEnabled(mClientToken1, true);
 
@@ -1166,7 +1176,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetMonitoringEnabled_Disable_NoSubscriptionChange() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         mBrokerService.setMonitoringEnabled(mClientToken1, false);
 
@@ -1175,7 +1185,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_UnknownClient() {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         assertThrows(
@@ -1185,7 +1195,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_UnknownProviderId() {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -1193,10 +1203,24 @@ public class VmsBrokerServiceTest {
     }
 
     @Test
+    public void testSetProviderOfferings_UnknownProviderId_LegacyClient() throws Exception {
+        mBrokerService.registerClient(mClientToken1, mClientCallback1, true);
+
+        mBrokerService.setProviderOfferings(mClientToken1, 12345, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(12345)))
+        );
+        verifyLayerAvailability(mClientCallback1, expectedLayers);
+    }
+
+    @Test
     public void testSetProviderOfferings_OtherClientsProviderId() {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -1204,8 +1228,24 @@ public class VmsBrokerServiceTest {
     }
 
     @Test
+    public void testSetProviderOfferings_OtherClientsProviderId_LegacyClient() throws Exception {
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+        mBrokerService.registerClient(mClientToken2, mClientCallback2, true);
+
+        mBrokerService.setProviderOfferings(mClientToken2, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+
+        VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId)))
+        );
+        verifyLayerAvailability(mClientCallback1, expectedLayers);
+    }
+
+    @Test
     public void testSetProviderOfferings_SingleProvider() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1220,7 +1260,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_MultipleProviders() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
@@ -1239,10 +1279,10 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1261,10 +1301,10 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_MultipleClients_SingleProvider() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1283,7 +1323,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_MultipleLayers_SingleProvider() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1300,7 +1340,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_MultipleLayers_MultipleProviders() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
@@ -1320,10 +1360,10 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_MultipleLayers_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1344,10 +1384,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_MultipleLayers_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1367,7 +1407,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_OverwriteOffering_SingleProvider() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1385,7 +1425,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_OverwriteOffering_MultipleProviders() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
@@ -1408,10 +1448,10 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_OverwriteOffering_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1435,10 +1475,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_OverwriteOffering_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1461,7 +1501,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_RemoveOfferings_SingleProvider() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1475,7 +1515,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_RemoveOfferings_MultipleProviders() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
@@ -1495,10 +1535,10 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_RemoveOfferings_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1519,10 +1559,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_RemoveOfferings_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1543,11 +1583,11 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_RemoveOfferings_OnUnregister_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         // Register second client to verify layer availability after first client disconnects
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
@@ -1565,12 +1605,12 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_RemoveOfferings_OnUnregister_MultipleProviders()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
         // Register second client to verify layer availability after first client disconnects
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
@@ -1591,10 +1631,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_RemoveOfferings_OnUnregister_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1618,10 +1658,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_RemoveOfferings_OnUnregister_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1645,11 +1685,11 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_RemoveOfferings_OnDisconnect_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         // Register second client to verify layer availability after first client disconnects
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
@@ -1667,12 +1707,12 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_RemoveOfferings_OnDisconnect_MultipleProviders()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
         // Register second client to verify layer availability after first client disconnects
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
@@ -1693,10 +1733,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_RemoveOfferings_OnDisconnect_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1720,10 +1760,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_RemoveOfferings_OnDisconnect_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1746,7 +1786,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_DependencyMet_SingleProvider() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1763,7 +1803,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_DependencyMet_MultipleProviders() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
@@ -1783,10 +1823,10 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_DependencyMet_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1807,10 +1847,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyMet_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1831,7 +1871,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyMet_MultipleDependencies_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1851,7 +1891,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyMet_MultipleDependencies_MultipleProviders()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
@@ -1874,10 +1914,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyMet_MultipleDependencies_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1900,10 +1940,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyMet_MultipleDependencies_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1926,7 +1966,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyMet_ChainedDependencies_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1946,7 +1986,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyMet_ChainedDependencies_MultipleProviders()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
@@ -1969,10 +2009,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyMet_ChainedDependencies_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -1995,10 +2035,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyMet_ChainedDependencies_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2019,7 +2059,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_DependencyCircular_SingleProvider() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2033,7 +2073,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_DependencyCircular_MultipleProviders() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
@@ -2050,10 +2090,10 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_DependencyCircular_MultipleClients() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2071,10 +2111,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyCircular_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2092,7 +2132,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyCircular_MultipleDependencies_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2110,7 +2150,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyCircular_MultipleDependencies_MultipleProviders()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
@@ -2131,10 +2171,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyCircular_MultipleDependencies_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2155,10 +2195,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyCircular_MultipleDependencies_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2179,7 +2219,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyCircular_ChainedDependencies_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2195,7 +2235,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyCircular_ChainedDependencies_MultipleProviders()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
@@ -2214,10 +2254,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyCircular_ChainedDependencies_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2236,10 +2276,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyCircular_ChainedDependencies_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2257,7 +2297,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_DependencyUnmet_SingleProvider() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2271,7 +2311,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyUnmet_MultipleDependencies_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2288,7 +2328,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyUnmet_MultipleDependencies_MultipleProviders()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
@@ -2308,10 +2348,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyUnmet_MultipleDependencies_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2331,10 +2371,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyUnmet_MultipleDependencies_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2354,7 +2394,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyUnmet_ChainedDependencies_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2369,7 +2409,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyUnmet_ChainedDependencies_MultipleProviders()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
@@ -2387,10 +2427,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyUnmet_ChainedDependencies_MultipleClients()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         int providerId2 = mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2408,10 +2448,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testSetProviderOfferings_DependencyUnmet_ChainedDependencies_MultipleClients_SingleProvider()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
         mBrokerService.registerProvider(mClientToken2, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
@@ -2428,7 +2468,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_UnknownClient() {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         assertThrows(
@@ -2438,7 +2478,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_UnknownOffering() {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         assertThrows(
@@ -2447,13 +2487,28 @@ public class VmsBrokerServiceTest {
     }
 
     @Test
+    public void testPublishPacket_UnknownOffering_LegacyClient() throws Exception {
+        mBrokerService.registerClient(mClientToken1, mClientCallback1, true);
+
+        mBrokerService.setSubscriptions(mClientToken1, asList(
+                new VmsAssociatedLayer(LAYER1, emptySet())
+        ));
+        mBrokerService.publishPacket(mClientToken1, 12345, LAYER1, PAYLOAD);
+
+        verify(mClientLog1).logPacketSent(LAYER1, PAYLOAD.length);
+        verify(mClientLog1).logPacketReceived(LAYER1, PAYLOAD.length);
+        verifyPacketReceived(mClientCallback1, 12345, LAYER1, PAYLOAD);
+    }
+
+
+    @Test
     public void testPublishPacket_NoSubscribers() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
 
@@ -2465,13 +2520,13 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_MonitorSubscriber_Enabled() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setMonitoringEnabled(mClientToken1, true);
         mBrokerService.publishPacket(mClientToken1, providerId, LAYER1, PAYLOAD);
@@ -2484,13 +2539,13 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_MonitorSubscriber_EnabledAndDisabled() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setMonitoringEnabled(mClientToken1, true);
         mBrokerService.setMonitoringEnabled(mClientToken1, false);
@@ -2504,13 +2559,13 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_LayerSubscriber() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -2525,13 +2580,13 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_LayerSubscriber_Unsubscribe() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -2547,13 +2602,13 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_LayerSubscriber_DifferentLayer() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER2, emptySet())
@@ -2568,13 +2623,13 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_MultipleLayerSubscribers() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -2592,14 +2647,14 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_MultipleLayerSubscribers_DifferentProcesses() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
         mCallingAppUid = TEST_APP_UID2;
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -2618,13 +2673,13 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_LayerAndProviderSubscriber() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId))
@@ -2639,13 +2694,13 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_LayerAndProviderSubscriber_Unsubscribe() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId))
@@ -2661,14 +2716,14 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_LayerAndProviderSubscriber_DifferentProvider() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
         int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId2))
@@ -2683,13 +2738,13 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_MultipleLayerAndProviderSubscribers() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId))
@@ -2708,14 +2763,14 @@ public class VmsBrokerServiceTest {
     @Test
     public void testPublishPacket_MultipleLayerAndProviderSubscribers_DifferentProcesses()
             throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1);
+        registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
 
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
         mCallingAppUid = TEST_APP_UID2;
-        mBrokerService.registerClient(mClientToken2, mClientCallback2);
+        registerClient(mClientToken2, mClientCallback2);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId))
@@ -2730,6 +2785,10 @@ public class VmsBrokerServiceTest {
         verify(mClientLog2).logPacketReceived(LAYER1, PAYLOAD.length);
         verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
         verifyPacketReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+    }
+
+    private void registerClient(IBinder token, IVmsClientCallback callback) {
+        mBrokerService.registerClient(token, callback, false);
     }
 
     private static void disconnectClient(IVmsClientCallback callback) throws Exception {

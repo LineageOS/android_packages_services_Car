@@ -44,18 +44,6 @@
                 <action android:name="android.car.content.pm.CarAppBlockingPolicyService"/>
             </intent-filter>
         </service>
-        <service android:name="com.android.car.MockedVmsTestBase$MockPublisherClient"
-             android:exported="true"
-             android:permission="android.car.permission.BIND_VMS_CLIENT"/>
-
-        <service android:name="com.android.car.VmsPublisherClientPermissionTest$PublisherClientExpectedPermission"
-                 android:exported="true"
-                 android:permission="android.car.permission.BIND_VMS_CLIENT"/>
-        <service android:name="com.android.car.VmsPublisherClientPermissionTest$PublisherClientWrongPermission"
-                 android:exported="true"
-                 android:permission="android.car.permission.VMS_PUBLISHER"/>
-        <service android:name="com.android.car.VmsPublisherClientPermissionTest$PublisherClientMissingPermission"
-                 android:exported="true"/>
 
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityA"/>
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityB"/>

@@ -25,6 +25,7 @@ import android.car.Car;
 import android.car.CarFeatures;
 import android.car.ICar;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
+import android.car.user.CarUserManager;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -66,9 +67,9 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.car.trust.CarTrustedDeviceService;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
-import com.android.car.vms.VmsBrokerService;
-import com.android.car.vms.VmsClientManager;
+import com.android.car.user.UserMetrics;
 import com.android.car.vms.VmsNewBrokerService;
+import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.ICarServiceHelper;
@@ -87,7 +88,6 @@ public class ICarImpl extends ICar.Stub {
     public static final String INTERNAL_INPUT_SERVICE = "internal_input";
     public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
             "system_activity_monitoring";
-    public static final String INTERNAL_VMS_MANAGER = "vms_manager";
 
     private final Context mContext;
     private final VehicleHal mHal;
@@ -125,13 +125,10 @@ public class ICarImpl extends ICar.Stub {
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final CarUserNoticeService mCarUserNoticeService;
     private final VmsNewBrokerService mVmsBrokerService;
-    private final VmsClientManager mVmsClientManager;
-    private final VmsBrokerService mVmsLegacyBrokerService;
-    private final VmsSubscriberService mVmsSubscriberService;
-    private final VmsPublisherService mVmsPublisherService;
     private final CarBugreportManagerService mCarBugreportManagerService;
     private final CarStatsService mCarStatsService;
     private final CarExperimentalFeatureServiceController mCarExperimentalFeatureServiceController;
+    private final CarWatchdogService mCarWatchdogService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -148,6 +145,8 @@ public class ICarImpl extends ICar.Stub {
     private ICarServiceHelper mICarServiceHelper;
 
     private final String mVehicleInterfaceName;
+
+    private final UserMetrics mUserMetrics = new UserMetrics();
 
     public ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
             CanBusErrorNotifier errorNotifier, String vehicleInterfaceName) {
@@ -221,26 +220,11 @@ public class ICarImpl extends ICar.Stub {
                 serviceContext, mCarAudioService, this);
         mCarStatsService = new CarStatsService(serviceContext);
         mCarStatsService.init();
-        if (mFeatureController.isFeatureEnabled(Car.VEHICLE_MAP_SERVICE)) {
+        if (mFeatureController.isFeatureEnabled(Car.VEHICLE_MAP_SERVICE)
+                || mFeatureController.isFeatureEnabled(Car.VMS_SUBSCRIBER_SERVICE)) {
             mVmsBrokerService = new VmsNewBrokerService(mContext, mCarStatsService);
         } else {
             mVmsBrokerService = null;
-        }
-        if (mFeatureController.isFeatureEnabled(Car.VMS_SUBSCRIBER_SERVICE)) {
-            mVmsLegacyBrokerService = new VmsBrokerService();
-            mVmsClientManager = new VmsClientManager(
-                    // CarStatsService needs to be passed to the constructor due to HAL init order
-                    serviceContext, mCarStatsService, mCarUserService, mVmsLegacyBrokerService,
-                    mHal.getVmsHal());
-            mVmsSubscriberService = new VmsSubscriberService(
-                    serviceContext, mVmsLegacyBrokerService, mVmsClientManager, mHal.getVmsHal());
-            mVmsPublisherService = new VmsPublisherService(
-                    serviceContext, mCarStatsService, mVmsLegacyBrokerService, mVmsClientManager);
-        } else {
-            mVmsLegacyBrokerService = null;
-            mVmsClientManager = null;
-            mVmsSubscriberService = null;
-            mVmsPublisherService = null;
         }
         if (mFeatureController.isFeatureEnabled(Car.DIAGNOSTIC_SERVICE)) {
             mCarDiagnosticService = new CarDiagnosticService(serviceContext,
@@ -266,6 +250,7 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarExperimentalFeatureServiceController = null;
         }
+        mCarWatchdogService = new CarWatchdogService(serviceContext);
 
         CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
         CarLocalServices.addService(CarPropertyService.class, mCarPropertyService);
@@ -275,6 +260,7 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(CarDrivingStateService.class, mCarDrivingStateService);
         CarLocalServices.addService(PerUserCarServiceHelper.class, mPerUserCarServiceHelper);
         CarLocalServices.addService(FixedActivityService.class, mFixedActivityService);
+        CarLocalServices.addService(VmsNewBrokerService.class, mVmsBrokerService);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
@@ -304,13 +290,11 @@ public class ICarImpl extends ICar.Stub {
         addServiceIfNonNull(allServices, mCarStorageMonitoringService);
         allServices.add(mCarConfigurationService);
         addServiceIfNonNull(allServices, mVmsBrokerService);
-        addServiceIfNonNull(allServices, mVmsClientManager);
-        addServiceIfNonNull(allServices, mVmsSubscriberService);
-        addServiceIfNonNull(allServices, mVmsPublisherService);
         allServices.add(mCarTrustedDeviceService);
         allServices.add(mCarMediaService);
         allServices.add(mCarLocationService);
         allServices.add(mCarBugreportManagerService);
+        allServices.add(mCarWatchdogService);
         // Always put mCarExperimentalFeatureServiceController in last.
         addServiceIfNonNull(allServices, mCarExperimentalFeatureServiceController);
         mAllServices = allServices.toArray(new CarServiceBase[allServices.size()]);
@@ -372,6 +356,17 @@ public class ICarImpl extends ICar.Stub {
 
         Log.i(TAG, "Foreground user switched to " + userId);
         mCarUserService.onSwitchUser(userId);
+    }
+
+    // TODO(b/146207078): this method is currently used just for metrics logging purposes, but we
+    // should fold the other too (onSwitchUser() and setUserLockStatus()) onto it.
+    @Override
+    public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
+            int toUserId) {
+        assertCallingFromSystemProcess();
+        Log.i(TAG, "onUserLifecycleEvent(" + CarUserManager.lifecycleEventTypeToString(eventType)
+                + ", " + toUserId);
+        mUserMetrics.onEvent(eventType, timestampMs, fromUserId, toUserId);
     }
 
     @Override
@@ -478,7 +473,7 @@ public class ICarImpl extends ICar.Stub {
                 return mVmsBrokerService;
             case Car.VMS_SUBSCRIBER_SERVICE:
                 assertVmsSubscriberPermission(mContext);
-                return mVmsSubscriberService;
+                return mVmsBrokerService;
             case Car.TEST_SERVICE: {
                 assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
                 synchronized (this) {
@@ -537,9 +532,6 @@ public class ICarImpl extends ICar.Stub {
                 return mCarInputService;
             case INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE:
                 return mSystemActivityMonitoringService;
-            // TODO(b/144027497): temporary until tests are refactored to not use it
-            case INTERNAL_VMS_MANAGER:
-                return mVmsClientManager;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarInternalService for unknown service:" +
                         serviceName);
@@ -647,6 +639,7 @@ public class ICarImpl extends ICar.Stub {
             writer.println("*Dump car service*");
             dumpAllServices(writer);
             dumpAllHals(writer);
+            mUserMetrics.dump(writer);
         } else if ("--list".equals(args[0])) {
             dumpListOfServices(writer);
             return;
@@ -679,6 +672,8 @@ public class ICarImpl extends ICar.Stub {
         } else if ("--list-hals".equals(args[0])) {
             mHal.dumpListHals(writer);
             return;
+        } else if ("--user-metrics".equals(args[0])) {
+            mUserMetrics.dump(writer);
         } else if ("--help".equals(args[0])) {
             showDumpHelp(writer);
         } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
@@ -718,6 +713,8 @@ public class ICarImpl extends ICar.Stub {
         writer.println("--hal [HAL1] [HAL2] [HALN]");
         writer.println("\t  dumps just the specified HALs (or all of them if none specified),");
         writer.println("\t  where HAL is just the class name (like UserHalService)");
+        writer.println("--user-metrics");
+        writer.println("\t  dumps user switching and stopping metrics ");
         writer.println("-h");
         writer.println("\t  shows commands usage (NOTE: commands are not available on USER builds");
         writer.println("[ANYTHING ELSE]");

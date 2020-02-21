@@ -33,6 +33,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Resources;
 import android.hardware.input.InputManager;
 import android.net.Uri;
 import android.os.Binder;
@@ -536,9 +537,14 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         return false;
     }
 
+    private boolean isBluetoothVoiceRecognitionEnabled() {
+        Resources res = mContext.getResources();
+        return res.getBoolean(R.bool.enableLongPressBluetoothVoiceRecognition);
+    }
+
     private boolean launchBluetoothVoiceRecognition() {
         synchronized (mLock) {
-            if (mBluetoothHeadsetClient == null) {
+            if (mBluetoothHeadsetClient == null || !isBluetoothVoiceRecognitionEnabled()) {
                 return false;
             }
             // getConnectedDevices() does not make any guarantees about the order of the returned

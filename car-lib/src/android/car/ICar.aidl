@@ -28,13 +28,27 @@ interface ICar {
      * This should be the 1st method. Do not change the order.
      */
     oneway void setCarServiceHelper(in IBinder helper) = 0;
+
+    /**
+     * Notify of user lifecycle events.
+     *
+     * @param eventType - type as defined by CarUserManager.UserLifecycleEventType
+     * @param timestampMs - when the event happened
+     * @param fromUserId - user id of previous user when type is SWITCHING (or UserHandle.USER_NULL)
+     * @param toUserId - user id of new user.
+     *
+     * This should be the 2nd method. Do not change the order.
+     */
+    oneway void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
+            int toUserId) = 1;
+
     /**
      * Notify lock / unlock of user id to car service.
      * unlocked: 1 if unlocked 0 otherwise.
      *
-     * This should be the 2nd method. Do not change the order.
+     * This should be the 3rd method. Do not change the order.
      */
-    oneway void setUserLockStatus(in int userId, in int unlocked) = 1;
+    oneway void setUserLockStatus(in int userId, in int unlocked) = 2;
 
     /**
      * Notify of user switching.  This is called only for foreground users when the user is starting
@@ -42,21 +56,23 @@ interface ICar {
      *
      * @param userId - user id of new user.
      *
-     * This should be the 3rd method. Do not change the order.
+     * This should be the 4th method. Do not change the order.
      */
-    oneway void onSwitchUser(in int userId) = 2;
+    oneway void onSwitchUser(in int userId) = 3;
 
-    IBinder getCarService(in String serviceName) = 3;
-    int getCarConnectionType() = 4;
-    boolean isFeatureEnabled(in String featureName) = 5;
-    int enableFeature(in String featureName) = 6;
-    int disableFeature(in String featureName) = 7;
-    List<String> getAllEnabledFeatures() = 8;
-    List<String> getAllPendingDisabledFeatures() = 9;
-    List<String> getAllPendingEnabledFeatures() = 10;
+
+    // Methods below start on 11 to make it easier to add more oneway methods above
+    IBinder getCarService(in String serviceName) = 11;
+    int getCarConnectionType() = 12;
+    boolean isFeatureEnabled(in String featureName) = 13;
+    int enableFeature(in String featureName) = 14;
+    int disableFeature(in String featureName) = 15;
+    List<String> getAllEnabledFeatures() = 16;
+    List<String> getAllPendingDisabledFeatures() = 17;
+    List<String> getAllPendingEnabledFeatures() = 18;
     /**
      * Get class name for experimental feature. Class should have constructor taking (Car, IBinder)
      * and should inherit CarManagerBase.
      */
-    String getCarManagerClassForFeature(in String featureName) = 11;
+    String getCarManagerClassForFeature(in String featureName) = 19;
 }

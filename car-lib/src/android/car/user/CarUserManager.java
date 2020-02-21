@@ -93,13 +93,22 @@ public final class CarUserManager extends CarManagerBase {
     public static final int USER_LIFECYCLE_EVENT_TYPE_SWITCHING = 2;
 
     /**
+     * {@link UserLifecycleEvent} called whe the user is unlocking.
+     *
+     * @hide
+     */
+    @SystemApi
+    @TestApi
+    public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKING = 3;
+
+    /**
      * {@link UserLifecycleEvent} called after the user was unlocked.
      *
      * @hide
      */
     @SystemApi
     @TestApi
-    public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED = 3;
+    public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED = 4;
 
     /**
      * {@link UserLifecycleEvent} called when the user is stopping.
@@ -108,7 +117,7 @@ public final class CarUserManager extends CarManagerBase {
      */
     @SystemApi
     @TestApi
-    public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 4;
+    public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 5;
 
     /**
      * {@link UserLifecycleEvent} called after the user stoppped.
@@ -117,18 +126,19 @@ public final class CarUserManager extends CarManagerBase {
      */
     @SystemApi
     @TestApi
-    public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 5;
+    public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 6;
 
     /** @hide */
     @IntDef(prefix = { "USER_LIFECYCLE_EVENT_TYPE_" }, value = {
             USER_LIFECYCLE_EVENT_TYPE_STARTING,
             USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
+            USER_LIFECYCLE_EVENT_TYPE_UNLOCKING,
             USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
             USER_LIFECYCLE_EVENT_TYPE_STOPPING,
             USER_LIFECYCLE_EVENT_TYPE_STOPPED,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @interface UserLifecycleEventType{}
+    public @interface UserLifecycleEventType{}
 
     /** @hide */
     public static final String BUNDLE_PARAM_ACTION = "action";
@@ -432,6 +442,8 @@ public final class CarUserManager extends CarManagerBase {
                 return "STARTING";
             case USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
                 return "SWITCHING";
+            case USER_LIFECYCLE_EVENT_TYPE_UNLOCKING:
+                return "UNLOCKING";
             case USER_LIFECYCLE_EVENT_TYPE_UNLOCKED:
                 return "UNLOCKED";
             case USER_LIFECYCLE_EVENT_TYPE_STOPPING:
@@ -486,6 +498,7 @@ public final class CarUserManager extends CarManagerBase {
          *
          * @return either {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STARTING},
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_SWITCHING},
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKING},
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKED},
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPING}, or
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPED}.
