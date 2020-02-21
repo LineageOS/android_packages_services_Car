@@ -626,6 +626,29 @@ EvsEnumerator::CameraRecord* EvsEnumerator::findCameraById(const std::string& ca
 }
 
 
+// TODO(b/149874793): Add implementation for EVS Manager and Sample driver
+Return<void> EvsEnumerator::getUltrasonicsArrayList(getUltrasonicsArrayList_cb _hidl_cb) {
+    hidl_vec<UltrasonicsArrayDesc> ultrasonicsArrayDesc;
+    _hidl_cb(ultrasonicsArrayDesc);
+    return Void();
+}
+
+
+// TODO(b/149874793): Add implementation for EVS Manager and Sample driver
+Return<sp<IEvsUltrasonicsArray>> EvsEnumerator::openUltrasonicsArray(
+        const hidl_string& ultrasonicsArrayId) {
+    (void)ultrasonicsArrayId;
+    return sp<IEvsUltrasonicsArray>();
+}
+
+
+// TODO(b/149874793): Add implementation for EVS Manager and Sample driver
+Return<void> EvsEnumerator::closeUltrasonicsArray(
+        const ::android::sp<IEvsUltrasonicsArray>& evsUltrasonicsArray)  {
+    (void)evsUltrasonicsArray;
+    return Void();
+}
+
 } // namespace implementation
 } // namespace V1_1
 } // namespace evs
