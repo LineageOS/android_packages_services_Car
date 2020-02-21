@@ -261,6 +261,7 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(PerUserCarServiceHelper.class, mPerUserCarServiceHelper);
         CarLocalServices.addService(FixedActivityService.class, mFixedActivityService);
         CarLocalServices.addService(VmsNewBrokerService.class, mVmsBrokerService);
+        CarLocalServices.addService(CarOccupantZoneService.class, mCarOccupantZoneService);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();

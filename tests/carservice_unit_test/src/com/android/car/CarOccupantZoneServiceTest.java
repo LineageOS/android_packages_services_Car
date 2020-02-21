@@ -24,17 +24,20 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
+import static org.testng.Assert.expectThrows;
 
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.VehicleAreaSeat;
+import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
 import android.os.Looper;
 import android.os.UserHandle;
+import android.util.SparseIntArray;
 import android.view.Display;
 import android.view.DisplayAddress;
 
@@ -103,6 +106,13 @@ public class CarOccupantZoneServiceTest {
             "occupantZoneId=2,occupantType=REAR_PASSENGER,seatRow=2,seatSide=left",
             "occupantZoneId=3,occupantType=REAR_PASSENGER,seatRow=2,seatSide=right"
     };
+
+    private static final int PRIMARY_AUDIO_ZONE_ID = 0;
+    private static final int PRIMARY_AUDIO_ZONE_ID_OCCUPANT = 0;
+    private static final int SECONDARY_AUDIO_ZONE_ID = 1;
+    private static final int SECONDARY_AUDIO_ZONE_ID_OCCUPANT = 3;
+    private static final int UNMAPPED_AUDIO_ZONE_ID_OCCUPANT = 2;
+    private static final int INVALID_AUDIO_ZONE_ID_OCCUPANT = 100;
 
     // LHD : Left Hand Drive
     private final OccupantZoneInfo mZoneDriverLHD = new OccupantZoneInfo(0,
@@ -223,6 +233,13 @@ public class CarOccupantZoneServiceTest {
         assertThat(mZoneRearRight).isEqualTo(configs.get(3));
     }
 
+    @Test
+    public void testDefaultAudioZoneConfig() {
+        mService.init();
+        SparseIntArray audioConfigs = mService.getAudioConfigs();
+        assertThat(audioConfigs.size()).isEqualTo(0);
+    }
+
     /** RHD: Right Hand Drive */
     @Test
     public void testDefaultOccupantConfigForRHD() {
@@ -280,6 +297,84 @@ public class CarOccupantZoneServiceTest {
         for (int i = 0; i < displays.length; i++) {
             assertDisplayInfoIncluded(c.displayInfos, displays[i], displayTypes[i]);
         }
+    }
+
+    @Test
+    public void testSetAudioConfigMapping() {
+        mService.init();
+
+        SparseIntArray audioZoneIdToOccupantZoneMapping =
+                getDefaultAudioZoneToOccupantZoneMapping();
+
+        mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
+
+        assertThat(mService.getAudioZoneIdForOccupant(PRIMARY_AUDIO_ZONE_ID_OCCUPANT))
+                .isEqualTo(PRIMARY_AUDIO_ZONE_ID);
+
+        assertThat(mService.getAudioZoneIdForOccupant(SECONDARY_AUDIO_ZONE_ID_OCCUPANT))
+                .isEqualTo(SECONDARY_AUDIO_ZONE_ID);
+    }
+
+    private SparseIntArray getDefaultAudioZoneToOccupantZoneMapping() {
+        SparseIntArray audioZoneIdToOccupantZoneMapping = new SparseIntArray(2);
+        audioZoneIdToOccupantZoneMapping.put(PRIMARY_AUDIO_ZONE_ID,
+                PRIMARY_AUDIO_ZONE_ID_OCCUPANT);
+        audioZoneIdToOccupantZoneMapping.put(SECONDARY_AUDIO_ZONE_ID,
+                SECONDARY_AUDIO_ZONE_ID_OCCUPANT);
+        return audioZoneIdToOccupantZoneMapping;
+    }
+
+    @Test
+    public void testOccupantZoneConfigInfoForAudio() {
+        mService.init();
+        SparseIntArray audioZoneIdToOccupantZoneMapping =
+                getDefaultAudioZoneToOccupantZoneMapping();
+
+        HashMap<Integer, CarOccupantZoneManager.OccupantZoneInfo> occupantZoneConfigs =
+                mService.getOccupantsConfig();
+
+        mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
+
+        CarOccupantZoneManager.OccupantZoneInfo primaryOccupantInfo =
+                mService.getOccupantForAudioZoneId(PRIMARY_AUDIO_ZONE_ID);
+        assertThat(primaryOccupantInfo).isEqualTo(
+                occupantZoneConfigs.get(PRIMARY_AUDIO_ZONE_ID_OCCUPANT));
+
+        CarOccupantZoneManager.OccupantZoneInfo secondaryOccupantInfo =
+                mService.getOccupantForAudioZoneId(SECONDARY_AUDIO_ZONE_ID);
+        assertThat(secondaryOccupantInfo).isEqualTo(
+                occupantZoneConfigs.get(SECONDARY_AUDIO_ZONE_ID_OCCUPANT));
+
+        CarOccupantZoneManager.OccupantZoneInfo nullOccupantInfo =
+                mService.getOccupantForAudioZoneId(UNMAPPED_AUDIO_ZONE_ID_OCCUPANT);
+        assertThat(nullOccupantInfo).isNull();
+    }
+
+    @Test
+    public void testMissingAudioConfigMapping() {
+        mService.init();
+        SparseIntArray audioZoneIdToOccupantZoneMapping =
+                getDefaultAudioZoneToOccupantZoneMapping();
+
+        mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
+
+        assertThat(mService.getAudioZoneIdForOccupant(UNMAPPED_AUDIO_ZONE_ID_OCCUPANT))
+                .isEqualTo(CarAudioManager.INVALID_AUDIO_ZONE);
+    }
+
+    @Test
+    public void testSetInvalidAudioConfigMapping() {
+        mService.init();
+        SparseIntArray audioZoneIdToOccupantZoneMapping = new SparseIntArray(2);
+        audioZoneIdToOccupantZoneMapping.put(PRIMARY_AUDIO_ZONE_ID,
+                PRIMARY_AUDIO_ZONE_ID_OCCUPANT);
+        audioZoneIdToOccupantZoneMapping.put(SECONDARY_AUDIO_ZONE_ID,
+                INVALID_AUDIO_ZONE_ID_OCCUPANT);
+        IllegalArgumentException thrown =
+                expectThrows(IllegalArgumentException.class,
+                        () -> mService.setAudioZoneIdsForOccupantZoneIds(
+                                audioZoneIdToOccupantZoneMapping));
+        thrown.getMessage().contains("does not exist");
     }
 
     @Test
@@ -605,5 +700,30 @@ public class CarOccupantZoneServiceTest {
         mManager.unregisterOccupantZoneConfigChangeListener(mChangeListener);
         mService.mUserCallback.onSwitchUser(0);
         assertThat(waitForConfigChangeEventAndAssertFlag(eventWaitTimeMs, 0)).isFalse();
+    }
+
+    @Test
+    public void testManagerRegisterUnregisterForAudioConfigs() {
+        mService.init();
+
+        long eventWaitTimeMs = 300;
+
+        mManager.registerOccupantZoneConfigChangeListener(mChangeListener);
+
+        resetConfigChangeEventWait();
+
+        SparseIntArray audioZoneIdToOccupantZoneMapping =
+                getDefaultAudioZoneToOccupantZoneMapping();
+
+        mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
+
+        assertThat(waitForConfigChangeEventAndAssertFlag(eventWaitTimeMs,
+                CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_AUDIO)).isTrue();
+
+        resetConfigChangeEventWait();
+        mManager.unregisterOccupantZoneConfigChangeListener(mChangeListener);
+        mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
+        assertThat(waitForConfigChangeEventAndAssertFlag(eventWaitTimeMs,
+                CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_AUDIO)).isFalse();
     }
 }

@@ -55,11 +55,13 @@ import android.os.RemoteException;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.DisplayAddress;
 import android.view.KeyEvent;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
+import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.car.user.CarUserService;
@@ -122,6 +124,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final CarVolumeSettings mCarVolumeSettings;
 
     private final CarUserService.UserCallback  mReceiver = new CarAudioServiceUserCallback();
+
+    private CarOccupantZoneService mOccupantZoneService;
 
     private final AudioPolicy.AudioPolicyVolumeCallback mAudioPolicyVolumeCallback =
             new AudioPolicy.AudioPolicyVolumeCallback() {
@@ -192,6 +196,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private AudioPolicy mAudioPolicy;
     private CarZonesAudioFocus mFocusHandler;
     private String mCarAudioConfigurationPath;
+    private SparseIntArray mAudioZoneIdToOccupantZoneIdMapping;
     private CarAudioZone[] mCarAudioZones;
     private final CarVolumeCallbackHandler mCarVolumeCallbackHandler;
 
@@ -219,6 +224,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void init() {
         synchronized (mImplLock) {
             CarLocalServices.getService(CarUserService.class).addUserCallback(mReceiver);
+            mOccupantZoneService = CarLocalServices.getService(CarOccupantZoneService.class);
             if (mUseDynamicRouting) {
                 setupDynamicRouting();
             } else {
@@ -423,6 +429,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         try (InputStream inputStream = new FileInputStream(mCarAudioConfigurationPath)) {
             CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mContext, inputStream,
                     carAudioDeviceInfos, inputDevices);
+            mAudioZoneIdToOccupantZoneIdMapping =
+                    zonesHelper.getCarAudioZoneIdToOccupantZoneIdMapping();
             return zonesHelper.loadAudioZones();
         } catch (IOException | XmlPullParserException e) {
             throw new RuntimeException("Failed to parse audio zone configuration", e);
@@ -495,6 +503,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         if (r != AudioManager.SUCCESS) {
             throw new RuntimeException("registerAudioPolicy failed " + r);
         }
+
+        setupOccupantZoneInfo();
+    }
+
+    private void setupOccupantZoneInfo() {
+        mOccupantZoneService.setAudioZoneIdsForOccupantZoneIds(mAudioZoneIdToOccupantZoneIdMapping);
     }
 
     /**
