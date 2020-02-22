@@ -66,9 +66,12 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Киргизүү аракеттерин башкаруу"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN иштебей калды"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN жооп бербей жатат. Башкы шайман блогун сууруп, кайра сайгандан кийин унааны кайра жүргүзүңүз"</string>
-    <string name="activity_blocked_text" msgid="5342114426610711378">"Коопсуздугуңузду коргоо максатында, бул иш-аракетти унаа айдап баратканда аткарууга болбойт.\nТоктоп туруп, улантыңыз."</string>
+    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
+    <skip />
     <string name="exit_button_message" msgid="8554690915924055685">"Колдонмонун коопсуз функцияларын иштетүү үчүн <xliff:g id="EXIT_BUTTON">%s</xliff:g> баскычын басыңыз."</string>
     <string name="exit_button" msgid="5829638404777671253">"Артка"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"Колдонмону жабуу"</string>
+    <string name="exit_button_go_back" msgid="3469083862100560326">"Артка"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"мүчүлүштүктөрдү аныктоо дайындарын окуу"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Унаадагы мүчүлүштүктөрдү аныктоо дайындарын окуу."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"мүчүлүштүктөрдү аныктоо дайындарын тазалоо"</string>

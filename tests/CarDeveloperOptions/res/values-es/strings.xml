@@ -324,7 +324,7 @@
     <string name="date_and_time_settings_title_setup_wizard" msgid="1573030770187844365">"Establecer fecha y hora"</string>
     <string name="date_and_time_settings_summary" msgid="4617979434474713417">"Establecer fecha, hora, zona horaria y formatos"</string>
     <string name="date_time_auto" msgid="2679132152303750218">"Usar hora de la red"</string>
-    <string name="zone_auto_title" msgid="5500880975376882488">"Usar zona horaria proporcionada por la red"</string>
+    <string name="zone_auto_title" msgid="5500880975376882488">"Usar la zona horaria proporcionada por la red"</string>
     <string name="date_time_24hour_auto" msgid="7499659679134962547">"Usar la configuración regional predeterminada"</string>
     <string name="date_time_24hour_title" msgid="6209923858891621283">"Formato de 24 horas"</string>
     <string name="date_time_24hour" msgid="1265706705061608742">"Usar formato de 24 horas"</string>
@@ -1067,7 +1067,7 @@
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Banda del punto de acceso"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Utiliza un punto de acceso para crear una red Wi‑Fi que puedan usar otros dispositivos. Los puntos de acceso permiten acceder a Internet con una conexión de datos móviles. Es posible que se apliquen cargos adicionales por el uso de datos."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Las aplicaciones pueden crear un punto de acceso para compartir contenido con dispositivos cercanos."</string>
-    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Desactivar el punto de acceso automáticamente"</string>
+    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Desactivar punto de acceso automáticamente"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"El punto de acceso Wi‑Fi se desactivará si no hay dispositivos conectados"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"Activando zona Wi-Fi…"</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"Desactivando zona Wi-Fi…"</string>
@@ -1125,7 +1125,7 @@
     <string name="notification_volume_title" msgid="6022562909288085275">"Notificación"</string>
     <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"Utilizar volumen de llamada entrante para notificaciones"</string>
     <string name="home_work_profile_not_supported" msgid="6137073723297076818">"No admite perfiles de trabajo"</string>
-    <string name="notification_sound_dialog_title" msgid="6653341809710423276">"Sonido notif. predet."</string>
+    <string name="notification_sound_dialog_title" msgid="6653341809710423276">"Sonido de notificación predeterminado"</string>
     <string name="media_volume_title" msgid="1030438549497800914">"Multimedia"</string>
     <string name="media_volume_summary" msgid="3142433516297061652">"Establecer volumen para música y vídeos"</string>
     <string name="alarm_volume_title" msgid="8902277801531496243">"Alarma"</string>
@@ -2486,8 +2486,8 @@
     <string name="menu_duration_6h" msgid="6169009210638008417">"6 horas"</string>
     <string name="menu_duration_12h" msgid="1435242738163843797">"12 horas"</string>
     <string name="menu_duration_1d" msgid="6476370834372352174">"1 día"</string>
-    <string name="menu_show_system" msgid="6315865548558708248">"Mostrar aplicaciones del sistema"</string>
-    <string name="menu_hide_system" msgid="8457027118873733782">"Ocultar aplicaciones del sistema"</string>
+    <string name="menu_show_system" msgid="6315865548558708248">"Mostrar sistema"</string>
+    <string name="menu_hide_system" msgid="8457027118873733782">"Ocultar sistema"</string>
     <string name="menu_show_percentage" msgid="6983272380729890884">"Mostrar porcentajes"</string>
     <string name="menu_use_uss" msgid="3765054705208926803">"Usar USS"</string>
     <string name="menu_proc_stats_type" msgid="2680179749566186247">"Tipo de estadísticas"</string>
@@ -3132,7 +3132,7 @@
     <string name="media_volume_option_title" msgid="3553411883305505682">"Volumen de multimedia"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Volumen de envío"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"Volumen de llamada"</string>
-    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Volumen de la alarma"</string>
+    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Volumen de alarma"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Volumen del tono"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Volumen de notificaciones"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Tono del teléfono"</string>

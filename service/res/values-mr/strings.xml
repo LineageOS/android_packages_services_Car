@@ -66,9 +66,12 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"इनपुट इव्हेंट हाताळा"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN बस अयशस्वी"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN बस प्रतिसाद देत नाही. हेडयुनिट बॉक्स अनप्लग करून पुन्हा प्लग करा आणि कार रीस्टार्ट करा"</string>
-    <string name="activity_blocked_text" msgid="5342114426610711378">"तुमच्या सुरक्षेसाठी, ड्रायव्हिंग करत असताना ही अ‍ॅक्टिव्हिटी उपलब्ध नाही.\nसुरू ठेवण्यासाठी, पार्क करेपर्यंत वाट पहा."</string>
+    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
+    <skip />
     <string name="exit_button_message" msgid="8554690915924055685">"सुरक्षित अ‍ॅप वैशिष्ट्यांसोबत पुन्हा सुरुवात करण्यासाठी, <xliff:g id="EXIT_BUTTON">%s</xliff:g> निवडा."</string>
     <string name="exit_button" msgid="5829638404777671253">"मागे जा"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"अ‍ॅप बंद करा"</string>
+    <string name="exit_button_go_back" msgid="3469083862100560326">"मागे जा"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"निदान डेटा वाचा"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"कारचा निदान डेटा वाचा."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"निदान डेटा साफ करा"</string>
