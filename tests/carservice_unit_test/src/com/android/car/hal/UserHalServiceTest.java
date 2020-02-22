@@ -79,7 +79,7 @@ public final class UserHalServiceTest {
      * Timeout for {@link GenericHalCallback#assertCalled()} for tests where the HAL is not supposed
      * to return anything - it's a slightly longer to make sure the test doesn't fail prematurely.
      */
-    private static final int INITIAL_USER_CALLBACK_TIMEOUT_TIMEOUT = INITIAL_USER_TIMEOUT_MS + 500;
+    private static final int INITIAL_USER_CALLBACK_TIMEOUT_TIMEOUT = INITIAL_USER_TIMEOUT_MS + 2000;
 
     // Used when crafting a reqquest property - the real value will be set by the mock.
     private static final int REQUEST_ID_PLACE_HOLDER = 42;
