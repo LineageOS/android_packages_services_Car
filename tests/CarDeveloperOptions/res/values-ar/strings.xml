@@ -136,7 +136,7 @@
     <string name="device_picker" msgid="8345264486071697705">"اختيار جهاز البلوتوث"</string>
     <string name="bluetooth_ask_enablement" msgid="8716802066127746062">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> تفعيل البلوتوث"</string>
     <string name="bluetooth_ask_disablement" msgid="7125319551097350783">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> إيقاف البلوتوث"</string>
-    <string name="bluetooth_ask_enablement_no_name" msgid="6105893027185475233">"يريد أحد التطبيقات تشغيل بلوتوث"</string>
+    <string name="bluetooth_ask_enablement_no_name" msgid="6105893027185475233">"يريد أحد التطبيقات تفعيل بلوتوث"</string>
     <string name="bluetooth_ask_disablement_no_name" msgid="8648888502291681310">"يريد أحد التطبيقات إيقاف البلوتوث"</string>
     <string name="bluetooth_ask_discovery" product="tablet" msgid="6871595755186170115">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> أن يكون جهازك اللوحي مرئيًا لأجهزة بلوتوث الأخرى لمدة <xliff:g id="TIMEOUT">%2$d</xliff:g> من الثواني."</string>
     <string name="bluetooth_ask_discovery" product="default" msgid="3388041479101348095">"يريد <xliff:g id="APP_NAME">%1$s</xliff:g> أن يكون هاتفك مرئيًا لأجهزة بلوتوث الأخرى لمدة <xliff:g id="TIMEOUT">%2$d</xliff:g> من الثواني."</string>
@@ -183,7 +183,7 @@
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"أجهزة الاتصال المتاحة"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"الأجهزة المتصلة حاليًا"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"الأجهزة المحفوظة"</string>
-    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"سيتم تشغيل بلوتوث للإقران"</string>
+    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"سيتم تفعيل بلوتوث للإقران"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"إعدادات الاتصال المفضّلة"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"الأجهزة المتصلة سابقًا"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"الأجهزة المتصلة سابقًا"</string>
@@ -892,7 +892,7 @@
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"الاتصالات قصيرة المدى (NFC)"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"السماح بتبادل البيانات عندما يلمس الجهاز اللوحي جهازًا آخر"</string>
     <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"السماح بتبادل البيانات عندما يلمس الهاتف جهازًا آخر"</string>
-    <string name="nfc_disclaimer_title" msgid="4860231267351602970">"تشغيل NFC"</string>
+    <string name="nfc_disclaimer_title" msgid="4860231267351602970">"تفعيل NFC"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"يتم من خلال تقنية الاتصال بالحقل القريب (NFC) تبادل البيانات بين هذا الجهاز والأجهزة أو الأهداف المجاورة الأخرى، مثل محطات الدفع وبرامج قراءة الوصول والعلامات أو الإعلانات التفاعلية."</string>
     <string name="nfc_secure_settings_title" msgid="5153751163174916581">"تأمين الاتصال بالحقل القريب (NFC)"</string>
     <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"السماح باستخدام \"الدفع والتقل عبر تقنية NFC\" فقط عندما تكون الشاشة مفتوحة"</string>
@@ -2604,7 +2604,7 @@
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"تفعيل"</string>
     <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"استخدام الوضع \"توفير شحن البطارية\""</string>
-    <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"التشغيل تلقائيًا"</string>
+    <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"التفعيل تلقائيًا"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"أبدًا"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"البطارية عند مستوى <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_percentage" msgid="7782252476471033843">"نسبة شحن البطارية"</string>
@@ -2924,7 +2924,7 @@
     <string name="vpn_replace_always_on_vpn_enable_message" msgid="4149931501300203205">"سيتم استبدال شبكتك الافتراضية الخاصة (VPN) الحالية ولن تتمكن من الاتصال بالإنترنت إلا بعد أن ينجح اتصال الشبكة الافتراضية الخاصة (VPN)"</string>
     <string name="vpn_replace_always_on_vpn_disable_message" msgid="4924947523200883088">"أنت متصل حاليًا بشبكة افتراضية خاصة (VPN) مضبوطة على وضع التشغيل الدائم. وإذا اتصلت بشبكة افتراضية خاصة أخرى، فسيتم استبدال شبكتك الافتراضية الخاصة الحالية، كما سيتم إيقاف وضع التشغيل الدائم."</string>
     <string name="vpn_replace_vpn_message" msgid="8009433728523145393">"أنت متصل حاليًا بشبكة افتراضية خاصة (VPN). وإذا اتصلت بشبكة افتراضية خاصة أخرى، فسيتم استبدال شبكتك الافتراضية الخاصة الحالية."</string>
-    <string name="vpn_turn_on" msgid="2334736319093953055">"تشغيل"</string>
+    <string name="vpn_turn_on" msgid="2334736319093953055">"تفعيل"</string>
     <string name="vpn_cant_connect_title" msgid="5803347131129293771">"يتعذر الاتصال بـ <xliff:g id="VPN_NAME">%1$s</xliff:g>"</string>
     <string name="vpn_cant_connect_message" msgid="7729125036551401236">"لا يتوافق هذا التطبيق مع الشبكة الافتراضية الخاصة (VPN) التي يتم تشغيلها دائمًا"</string>
     <string name="vpn_title" msgid="7801918186865029203">"الشبكات الافتراضية الخاصة"</string>
@@ -3335,7 +3335,7 @@
       <item quantity="one">تم تفعيل قاعدة واحدة.</item>
     </plurals>
     <string name="zen_mode_settings_title" msgid="3425263414594779244">"وضع \"عدم الإزعاج\""</string>
-    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"تشغيل وضع \"الرجاء عدم الإزعاج\""</string>
+    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"تفعيل وضع \"الرجاء عدم الإزعاج\""</string>
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"الاستثناءات"</string>
     <string name="zen_mode_duration_settings_title" msgid="5522668871014735728">"المدة التلقائية"</string>
     <string name="zen_mode_behavior_allow_title" msgid="2440627647424280842">"السماح بالأصوات والاهتزازات من"</string>
@@ -3395,7 +3395,7 @@
     <string name="zen_mode_no_exceptions" msgid="3099578343994492857">"بدون"</string>
     <string name="zen_mode_other_options" msgid="7216192179063769057">"خيارات أخرى"</string>
     <string name="zen_mode_add" msgid="2533484377786927366">"إضافة"</string>
-    <string name="zen_mode_enable_dialog_turn_on" msgid="6396050543542026184">"تشغيل"</string>
+    <string name="zen_mode_enable_dialog_turn_on" msgid="6396050543542026184">"تفعيل"</string>
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"التفعيل الآن"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"الإيقاف الآن"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"وضع \"الرجاء عدم الإزعاج\" مفعَّل حتى <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
@@ -3640,9 +3640,9 @@
     <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"لا يمكن تغيير هذه الإعدادات الآن. لقد اختار أحد التطبيقات تفعيل وضع \"الرجاء عدم الإزعاج\" تلقائيًا مع سلوك مخصّص."</string>
     <string name="zen_mode_qs_set_behavior" msgid="788646569296973998">"لا يمكن تغيير هذه الإعدادات الآن. تم تفعيل وضع \"الرجاء عدم الإزعاج\" يدويًا مع سلوك مخصّص."</string>
     <string name="zen_schedule_rule_type_name" msgid="4516851728113801329">"وقت"</string>
-    <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"تم ضبط القاعدة التلقائية على تشغيل وضع \"عدم الإزعاج\" أثناء أوقات محددة"</string>
+    <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"تم ضبط القاعدة التلقائية على تفعيل وضع \"عدم الإزعاج\" أثناء أوقات محددة"</string>
     <string name="zen_event_rule_type_name" msgid="7467729997336583342">"حدث"</string>
-    <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"تم ضبط القاعدة التلقائية على تشغيل وضع \"عدم الإزعاج\" أثناء أحداث محددة"</string>
+    <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"تم ضبط القاعدة التلقائية على تفعيل وضع \"عدم الإزعاج\" أثناء أحداث محددة"</string>
     <string name="zen_mode_event_rule_calendar" msgid="6088077103908487442">"أثناء الأحداث لـ"</string>
     <string name="zen_mode_event_rule_summary_calendar_template" msgid="4027207992040792657">"أثناء الأحداث للتقويم <xliff:g id="CALENDAR">%1$s</xliff:g>"</string>
     <string name="zen_mode_event_rule_summary_any_calendar" msgid="7590085295784895885">"أي تقويم"</string>
@@ -3723,7 +3723,7 @@
     <string name="zen_mode_calls_summary_two" msgid="9017678770532673578">"السماح بالمكالمات من <xliff:g id="CALLER_TYPE">%1$s</xliff:g> و<xliff:g id="CALLERT_TPYE">%2$s</xliff:g>"</string>
     <string name="zen_mode_repeat_callers_summary" msgid="1752513516040525545">"في حال اتصال الشخص نفسه للمرة الثانية في غضون <xliff:g id="MINUTES">%d</xliff:g> دقيقة"</string>
     <string name="zen_mode_behavior_summary_custom" msgid="3909532602640130841">"مخصص"</string>
-    <string name="zen_mode_when" msgid="7835420687948416255">"تشغيل تلقائي"</string>
+    <string name="zen_mode_when" msgid="7835420687948416255">"تفعيل تلقائي"</string>
     <string name="zen_mode_when_never" msgid="4506296396609224524">"مطلقًا"</string>
     <string name="zen_mode_when_every_night" msgid="3942151668791426194">"كل ليلة"</string>
     <string name="zen_mode_when_weeknights" msgid="2412709309122408474">"ليالي الأسبوع"</string>
@@ -4126,7 +4126,7 @@
     <string name="admin_profile_owner_user_message" msgid="2991249382056855531">"يمكن للمشرف مراقبة التطبيقات والبيانات المرتبطة بهذا المستخدم وإدارتها، بما في ذلك الإعدادات والأذونات والدخول إلى المؤسسة ونشاط الشبكة ومعلومات موقع الجهاز."</string>
     <string name="admin_device_owner_message" msgid="1823477572459610869">"يمكن للمشرف مراقبة التطبيقات والبيانات المرتبطة بهذا الجهاز وإدارتها، بما في ذلك الإعدادات والأذونات والدخول إلى المؤسسة ونشاط الشبكة ومعلومات موقع الجهاز."</string>
     <string name="condition_turn_off" msgid="4395150881365143558">"إيقاف"</string>
-    <string name="condition_turn_on" msgid="1699088245481841159">"تشغيل"</string>
+    <string name="condition_turn_on" msgid="1699088245481841159">"تفعيل"</string>
     <string name="condition_expand_show" msgid="4118818022763913777">"إظهار"</string>
     <string name="condition_expand_hide" msgid="1112721783024332643">"إخفاء"</string>
     <string name="condition_hotspot_title" msgid="4143299802283098506">"نقطة الاتصال مفعّلة"</string>
@@ -4135,7 +4135,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"تمّ تفعيل \"الرجاء عدم الإزعاج\""</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"تم كتم صوت الهاتف."</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"مع بعض الاستثناءات"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"تم تشغيل وضع توفير شحن البطارية"</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"تم تفعيل وضع توفير شحن البطارية"</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"تم تقييد الميزات."</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"تم إيقاف بيانات الجوّال"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"يتوفّر الإنترنت من خلال Wi‑Fi فقط."</string>

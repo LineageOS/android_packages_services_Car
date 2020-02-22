@@ -72,9 +72,12 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ఇన్‌పుట్ ఈవెంట్‌లను హ్యాండిల్ చేయండి"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN బస్సు విఫలమైంది"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN బస్సు స్పందించలేదు. హెడ్ యూనిట్ బాక్స్‌‍‌ని ప్లగ్ మరియు అన్‌ప్లగ్ చేసి కారుని పునఃప్రారంభించుము"</string>
-    <string name="activity_blocked_text" msgid="5342114426610711378">"మీ భద్రత విషయమై, ఈ కార్యాచరణ మీరు డ్రైవింగ్‌లో ఉన్నప్పుడు అందుబాటులో లేదు.\n కొనసాగించడానికి, మీరు పార్క్ చేయబడేవరకు వేచి ఉండండి."</string>
+    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
+    <skip />
     <string name="exit_button_message" msgid="8554690915924055685">"సురక్షిత యాప్ లక్షణాలతో ప్రారంభించడానికి, <xliff:g id="EXIT_BUTTON">%s</xliff:g>ని ఎంచుకోండి."</string>
     <string name="exit_button" msgid="5829638404777671253">"వెనుకకు"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"యాప్‌ను మూసివేయండి"</string>
+    <string name="exit_button_go_back" msgid="3469083862100560326">"వెనుకకు"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"సమస్య విశ్లేషణ డేటాను తెలుసుకోగలవు"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"కారు నుండి విశ్లేషణ డేటాను తెలుసుకోగలవు."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"సమస్య విశ్లేషణ డేటాను క్లియర్ చేయగలవు"</string>

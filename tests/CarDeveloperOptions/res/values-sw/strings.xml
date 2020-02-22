@@ -574,7 +574,7 @@
     <string name="unlock_set_unlock_pin_summary" msgid="8076921768675948228">"Wastani hadi usalama wa juu"</string>
     <string name="unlock_set_unlock_password_title" msgid="2092949379238466560">"Nenosiri"</string>
     <string name="unlock_set_unlock_password_summary" msgid="7042787631866059147">"Usalama wa juu"</string>
-    <string name="unlock_set_do_later_title" msgid="2939110070503695956">"Siyo sasa"</string>
+    <string name="unlock_set_do_later_title" msgid="2939110070503695956">"Si sasa"</string>
     <string name="current_screen_lock" msgid="398328543694154510">"Mbinu inayotumika kufunga skrini"</string>
     <string name="fingerprint_unlock_set_unlock_pattern" msgid="132337696546315927">"Alama ya kidole + Mchoro"</string>
     <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"Alama ya kidole + PIN"</string>
@@ -2874,7 +2874,7 @@
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"Hakikisha kuwa mtu huyu anaweza kuchukua kifaa na kuweka mapendeleo yake"</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"Ungependa kuweka wasifu sasa?"</string>
     <string name="user_setup_button_setup_now" msgid="4941459406266856176">"Mwongeze sasa"</string>
-    <string name="user_setup_button_setup_later" msgid="6596031428556518752">"Siyo sasa"</string>
+    <string name="user_setup_button_setup_later" msgid="6596031428556518752">"Si sasa"</string>
     <string name="user_cannot_manage_message" product="tablet" msgid="7108992906553210763">"Mmiliki wa kompyuta kibao pekee ndiye anayeweza kudhibiti watumiaji."</string>
     <string name="user_cannot_manage_message" product="default" msgid="915260531390608092">"Mmiliki wa simu pekee ndiye anayeweza kudhibiti watumiaji."</string>
     <string name="user_cannot_add_accounts_message" msgid="5993561303748749097">"Wasifu zilizodhibitiwa haziwezi kuongeza akaunti"</string>

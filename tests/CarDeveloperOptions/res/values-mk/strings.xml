@@ -1690,7 +1690,7 @@
     <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Упатство за безбедност и регулатива"</string>
     <string name="copyright_title" msgid="3847703367689932190">"Авторски права"</string>
     <string name="license_title" msgid="7582145947873528540">"Лиценца"</string>
-    <string name="terms_title" msgid="1804549588198223771">"Правила и услови"</string>
+    <string name="terms_title" msgid="1804549588198223771">"Одредби и услови"</string>
     <string name="webview_license_title" msgid="8244960025549725051">"Системска лиценца за WebView"</string>
     <string name="wallpaper_attributions" msgid="2941987966332943253">"Тапети"</string>
     <string name="wallpaper_attributions_values" msgid="4461979853894606323">"Извор на сателитски снимки:\n©2014 CNES/Astrium, DigitalGlobe, Bluesky"</string>
