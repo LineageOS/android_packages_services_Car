@@ -93,14 +93,14 @@
     <string name="sdcard_setting" product="nosdcard" msgid="1533784309105748696">"USB bidezko memoria"</string>
     <string name="sdcard_setting" product="default" msgid="8398782065765523178">"SD txartela"</string>
     <string name="bluetooth" msgid="1564520421786841227">"Bluetooth-a"</string>
-    <string name="bluetooth_is_discoverable" msgid="6748888489356326898">"Inguruko Bluetooth gailu guztietarako ikusgai (<xliff:g id="DISCOVERABLE_TIME_PERIOD">%1$s</xliff:g>)"</string>
-    <string name="bluetooth_is_discoverable_always" msgid="6835934878803488274">"Inguruko Bluetooth gailu guztietarako ikusgai"</string>
-    <string name="bluetooth_not_visible_to_other_devices" msgid="9134284066024557293">"Ez da beste Bluetooth gailuetarako ikusgai"</string>
+    <string name="bluetooth_is_discoverable" msgid="6748888489356326898">"Inguruko Bluetooth bidezko gailuetarako ikusgai (<xliff:g id="DISCOVERABLE_TIME_PERIOD">%1$s</xliff:g>)"</string>
+    <string name="bluetooth_is_discoverable_always" msgid="6835934878803488274">"Inguruko Bluetooth bidezko gailuetarako ikusgai"</string>
+    <string name="bluetooth_not_visible_to_other_devices" msgid="9134284066024557293">"Bluetooth bidezko beste gailuetarako ikusgaitz"</string>
     <string name="bluetooth_only_visible_to_paired_devices" msgid="3830247336229883519">"Bikotetutako gailuetarako soilik ikusgai"</string>
     <string name="bluetooth_visibility_timeout" msgid="4804679276398564496">"Ikusgaitasunaren denbora-muga gainditu da"</string>
     <string name="bluetooth_lock_voice_dialing" msgid="1600385868298081015">"Blokeatu ahots bidezko markatzea"</string>
     <string name="bluetooth_lock_voice_dialing_summary" msgid="5005776616112427980">"Galarazi Bluetooth telefonoa erabiltzea pantaila blokeatuta dagoenean"</string>
-    <string name="bluetooth_devices" msgid="4143880830505625666">"Bluetooth gailuak"</string>
+    <string name="bluetooth_devices" msgid="4143880830505625666">"Bluetooth bidezko gailuak"</string>
     <string name="bluetooth_device_name" msgid="3682016026866302981">"Gailuaren izena"</string>
     <string name="bluetooth_device_details" msgid="2500840679106321361">"Gailuaren ezarpenak"</string>
     <string name="bluetooth_profile_details" msgid="1785505059738682493">"Profilaren ezarpenak"</string>
@@ -123,7 +123,7 @@
     <string name="bluetooth_broadcasting" msgid="8926408584599563760">"Igorpena"</string>
     <string name="bluetooth_device" msgid="3170974107364990008">"Izenik gabeko Bluetooth bidezko gailua"</string>
     <string name="progress_scanning" msgid="633923400401041181">"Bilatzen"</string>
-    <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"Ez da Bluetooth gailurik aurkitu inguruan."</string>
+    <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"Bluetooth bidezko gailurik ez inguruan."</string>
     <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"Bluetooth bidez parekatzeko eskaera"</string>
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"Bikotetzeko eskaera"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> gailuarekin parekatzeko, sakatu hau."</string>
@@ -134,14 +134,14 @@
     <string name="bluetooth_ask_disablement" msgid="7125319551097350783">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak Bluetooth konexioa desaktibatu nahi du"</string>
     <string name="bluetooth_ask_enablement_no_name" msgid="6105893027185475233">"Aplikazio batek Bluetooth konexioa aktibatu nahi du"</string>
     <string name="bluetooth_ask_disablement_no_name" msgid="8648888502291681310">"Aplikazio batek Bluetooth konexioa desaktibatu nahi du"</string>
-    <string name="bluetooth_ask_discovery" product="tablet" msgid="6871595755186170115">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak tableta beste Bluetooth gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%2$d</xliff:g> segundoz."</string>
-    <string name="bluetooth_ask_discovery" product="default" msgid="3388041479101348095">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak telefonoa beste Bluetooth gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%2$d</xliff:g> segundoz."</string>
-    <string name="bluetooth_ask_discovery_no_name" product="tablet" msgid="1472358802231150345">"Aplikazio batek tableta beste Bluetooth gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%1$d</xliff:g> segundoz."</string>
-    <string name="bluetooth_ask_discovery_no_name" product="default" msgid="6195796094297507404">"Aplikazio batek telefonoa beste Bluetooth gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%1$d</xliff:g> segundoz."</string>
-    <string name="bluetooth_ask_lasting_discovery" product="tablet" msgid="2702942027812132427">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak tableta beste Bluetooth gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth ezarpenetan alda dezakezu hori geroago."</string>
-    <string name="bluetooth_ask_lasting_discovery" product="default" msgid="7796723473397303412">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak telefonoa beste Bluetooth gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth ezarpenetan alda dezakezu hori geroago."</string>
-    <string name="bluetooth_ask_lasting_discovery_no_name" product="tablet" msgid="5961921359655434504">"Aplikazio batek tableta beste Bluetooth gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth ezarpenetan alda dezakezu hori geroago."</string>
-    <string name="bluetooth_ask_lasting_discovery_no_name" product="default" msgid="3585910858758443872">"Aplikazio batek telefonoa beste Bluetooth gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth ezarpenetan alda dezakezu hori geroago."</string>
+    <string name="bluetooth_ask_discovery" product="tablet" msgid="6871595755186170115">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak tableta Bluetooth bidezko beste gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%2$d</xliff:g> segundoz."</string>
+    <string name="bluetooth_ask_discovery" product="default" msgid="3388041479101348095">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak telefonoa Bluetooth bidezko beste gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%2$d</xliff:g> segundoz."</string>
+    <string name="bluetooth_ask_discovery_no_name" product="tablet" msgid="1472358802231150345">"Aplikazio batek tableta Bluetooth bidezko beste gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%1$d</xliff:g> segundoz."</string>
+    <string name="bluetooth_ask_discovery_no_name" product="default" msgid="6195796094297507404">"Aplikazio batek telefonoa Bluetooth bidezko beste gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%1$d</xliff:g> segundoz."</string>
+    <string name="bluetooth_ask_lasting_discovery" product="tablet" msgid="2702942027812132427">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak tableta beste Bluetooth bidezko gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth-aren ezarpenetan alda dezakezu hori geroago."</string>
+    <string name="bluetooth_ask_lasting_discovery" product="default" msgid="7796723473397303412">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak telefonoa beste Bluetooth bidezko gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth-aren ezarpenetan alda dezakezu hori geroago."</string>
+    <string name="bluetooth_ask_lasting_discovery_no_name" product="tablet" msgid="5961921359655434504">"Aplikazio batek tableta beste Bluetooth bidezko gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth-aren ezarpenetan alda dezakezu hori geroago."</string>
+    <string name="bluetooth_ask_lasting_discovery_no_name" product="default" msgid="3585910858758443872">"Aplikazio batek telefonoa beste Bluetooth bidezko gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth-aren ezarpenetan alda dezakezu hori geroago."</string>
     <string name="bluetooth_ask_enablement_and_discovery" product="tablet" msgid="5676466923424941153">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak Bluetooth konexioa aktibatu eta tableta beste gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%2$d</xliff:g> segundoz."</string>
     <string name="bluetooth_ask_enablement_and_discovery" product="default" msgid="507088376226791063">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak Bluetooth konexioa aktibatu eta telefonoa beste gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%2$d</xliff:g> segundoz."</string>
     <string name="bluetooth_ask_enablement_and_discovery_no_name" product="tablet" msgid="1164681893121736219">"Aplikazio batek Bluetooth konexioa aktibatu eta tableta beste gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%1$d</xliff:g> segundoz."</string>
@@ -167,9 +167,9 @@
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Aktibatu Bluetooth konexioa beste gailu batzuetara konektatzeko."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Zure gailuak"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Parekatu gailu batekin"</string>
-    <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Baimendu tabletari inguruko Bluetooth gailuekin komunikatzea"</string>
-    <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"Baimendu gailuari inguruko Bluetooth gailuekin komunikatzea"</string>
-    <string name="bluetooth_pref_summary" product="default" msgid="863659221858781186">"Baimendu telefonoari inguruko Bluetooth gailuekin komunikatzea"</string>
+    <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Baimendu tabletari inguruko Bluetooth bidezko gailuekin komunikatzea"</string>
+    <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"Eman gailuari inguruko Bluetooth bidezko gailuekin komunikatzeko baimena"</string>
+    <string name="bluetooth_pref_summary" product="default" msgid="863659221858781186">"Baimendu telefonoari inguruko Bluetooth bidezko gailuekin komunikatzea"</string>
     <string name="bluetooth_disable_a2dp_hw_offload" msgid="293429878480958234">"Desgaitu Bluetooth A2DP hardwarea deskargatzeko aukera"</string>
     <string name="bluetooth_disable_a2dp_hw_offload_dialog_title" msgid="7362106962085861626">"Gailua berrabiarazi?"</string>
     <string name="bluetooth_disable_a2dp_hw_offload_dialog_message" msgid="4837282201316413412">"Ezarpen hau aldatzeko, gailua berrabiarazi egin behar duzu."</string>
@@ -763,9 +763,9 @@
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"Aukerak…"</string>
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Aurreratuak"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Bluetooth ezarpen aurreratuak"</string>
-    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Bluetooth aktibatuta badago, inguruko Bluetooth gailuekin komunika daiteke gailua."</string>
-    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Bluetooth konexioa aktibatuta dagoenean, inguruko Bluetooth gailuekin komunika daiteke gailua.\n\nGailuaren erabilera hobetzeko, aplikazioek eta zerbitzuek wifi-sareak bilatzen jarraituko dute, baita wifi-konexioa desaktibatuta dagoenean ere. Besteak beste, kokapenean oinarritutako eginbideak eta zerbitzuak hobetzeko erabil daiteke. Aukera hori aldatzeko, joan "<annotation id="link">"gailuak bilatzeko ezarpenetara"</annotation>"."</string>
-    <string name="ble_scan_notify_text" msgid="6290170236546386932">"Kokapenaren zehaztasuna hobetzeko, sistemaren aplikazioek eta zerbitzuek Bluetooth gailuak hautematen jarraituko dute. Hori aldatzeko, zoaz <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>gailuak bilatzeko ezarpenetara<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Bluetooth-a aktibatuta badago, inguruko Bluetooth bidezko gailuekin komunika daiteke gailua."</string>
+    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Bluetooth-a aktibatuta badago, inguruko Bluetooth bidezko gailuekin komunika daiteke gailua.\n\nGailuaren erabilera hobetzeko, aplikazioek eta zerbitzuek wifi-sareak bilatzen jarraituko dute, baita wifi-konexioa desaktibatuta dagoenean ere. Besteak beste, kokapenean oinarritutako eginbideak eta zerbitzuak hobetzeko erabil daiteke. Aukera hori aldatzeko, joan "<annotation id="link">"gailuak bilatzeko ezarpenetara"</annotation>"."</string>
+    <string name="ble_scan_notify_text" msgid="6290170236546386932">"Kokapenaren zehaztasuna hobetzeko, sistemaren aplikazioek eta zerbitzuek Bluetooth bidezko gailuak hautematen jarraituko dute. Hori aldatzeko, zoaz <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>gailuak bilatzeko ezarpenetara<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Ezin izan da konektatu. Saiatu berriro."</string>
     <string name="device_details_title" msgid="726517818032923222">"Gailuaren xehetasunak"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Gailuaren Bluetooth helbidea: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
@@ -3302,7 +3302,7 @@
     <string name="hide_silent_icons_summary" msgid="2624346914488256888">"Ezkutatu jakinarazpen isilen ikonoak egoera-barran"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"Baimendu jakinarazpen-biribiltxoak"</string>
     <string name="notification_bubbles_title" msgid="9196562435741861317">"Burbuilak"</string>
-    <string name="notification_bubbles_summary" msgid="4624512775901949578">"Atzitu bizkor aplikazioetako edukia lasterbide flotagarriak erabilita"</string>
+    <string name="notification_bubbles_summary" msgid="4624512775901949578">"Atzitu bizkor aplikazioetako edukia lasterbide gainerakorrak erabilita"</string>
     <string name="bubbles_feature_education" msgid="8979109826818881018">"Jakinarazpen batzuk eta bestelako edukia burbuila gisa ager daitezke pantailan. Burbuilak irekitzeko, saka itzazu. Baztertzeko, ordea, arrasta itzazu pantailan behera."</string>
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Burbuilak"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"Baimendu <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioari jakinarazpen batzuk burbuila gisa erakustea"</string>
@@ -4328,7 +4328,7 @@
     <string name="prevent_ringing_option_mute_summary" msgid="3509459199090688328">"Aktibatuta (audioa desaktibatuta)"</string>
     <string name="prevent_ringing_option_none_summary" msgid="5152618221093037451">"Desaktibatuta"</string>
     <string name="pref_title_network_details" msgid="3971074015034595956">"Sarearen xehetasunak"</string>
-    <string name="about_phone_device_name_warning" msgid="9088572775969880106">"Mugikorreko aplikazioek gailuaren izena ikus dezakete. Halaber, jendeak ere ikus dezake Bluetooth gailuetara konektatzean edo Wi-Fi sare publiko bat konfiguratzean."</string>
+    <string name="about_phone_device_name_warning" msgid="9088572775969880106">"Mugikorreko aplikazioek gailuaren izena ikus dezakete. Halaber, jendeak ere ikus dezake Bluetooth bidezko gailuetara konektatzean edo wifi-sare publiko bat konfiguratzean."</string>
     <string name="devices_title" msgid="4768432575951993648">"Gailuak"</string>
     <string name="homepage_all_settings" msgid="3201220879559136116">"Ezarpen guztiak"</string>
     <string name="homepage_personal_settings" msgid="7472638597249114564">"Iradokizunak"</string>
@@ -4453,7 +4453,7 @@
       <item quantity="other"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> gailu daude konektatuta</item>
       <item quantity="one"><xliff:g id="NUMBER_DEVICE_COUNT_0">%1$d</xliff:g> gailu dago konektatuta</item>
     </plurals>
-    <string name="no_bluetooth_devices" msgid="4338224958734305244">"Ez dago Bluetooth gailurik"</string>
+    <string name="no_bluetooth_devices" msgid="4338224958734305244">"Ez dago Bluetooth bidezko gailurik"</string>
     <string name="bluetooth_left_name" msgid="4393660998014637355">"Ezkerrekoa"</string>
     <string name="bluetooth_right_name" msgid="8356091262762973801">"Eskuinekoa"</string>
     <string name="bluetooth_middle_name" msgid="1489185200445352103">"Zorroa"</string>
