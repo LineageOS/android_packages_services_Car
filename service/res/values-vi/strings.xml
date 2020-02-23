@@ -72,9 +72,12 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Xử lý sự kiện nhập"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Đường dẫn chính CAN không hoạt động"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Đường dẫn chính CAN không phản hồi. Rút rồi cắm lại hộp bộ đầu và khởi động lại ô tô"</string>
-    <string name="activity_blocked_text" msgid="5342114426610711378">"Vì lý do an toàn, bạn không sử dụng được hoạt động này trong khi lái xe.\nHãy đợi cho tới khi bạn đỗ xe để tiếp tục."</string>
+    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
+    <skip />
     <string name="exit_button_message" msgid="8554690915924055685">"Để bắt đầu lại với các tính năng an toàn của ứng dụng, hãy chọn <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Quay lại"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"Tắt ứng dụng"</string>
+    <string name="exit_button_go_back" msgid="3469083862100560326">"Quay lại"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"đọc dữ liệu chẩn đoán"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Đọc dữ liệu chẩn đoán từ ô tô."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"xóa dữ liệu chẩn đoán"</string>

@@ -72,9 +72,12 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"इनपुट गरिएका कार्यक्रमहरू व्यवस्थापन गर्ने"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus असफल भयो"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ले प्रतिक्रिया जनाएन। हेडयुनिट बाकसलाई प्लगबाट निकालेर फेरि प्लगमा घुसाउनुहोस् र कार पुनःसुरु गर्नुहोस्‌"</string>
-    <string name="activity_blocked_text" msgid="5342114426610711378">"तपाईंको सुरक्षाका लागि, तपाईंले सवारी साधन चलाइरहेका बेलामा यो क्रियाकलाप उपलब्ध हुँदैन।\nजारी राख्न, पार्क नगरुन्जेल पर्खनुहोस्‌।"</string>
+    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
+    <skip />
     <string name="exit_button_message" msgid="8554690915924055685">"अनुप्रयोगका सुरक्षित सुविधाहरूको प्रयोग गरी फेरि सुरु गर्न <xliff:g id="EXIT_BUTTON">%s</xliff:g> चयन गर्नुहोस्‌।"</string>
     <string name="exit_button" msgid="5829638404777671253">"पछाडि"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"अनुप्रयोग बन्द गर्नुहोस्"</string>
+    <string name="exit_button_go_back" msgid="3469083862100560326">"पछाडि"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"निदानसम्बन्धी डेटा पढ्ने"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"कारको निदानसम्बन्धी डेटा पढ्ने।"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"निदानसम्बन्धी डेटा हटाउने"</string>
