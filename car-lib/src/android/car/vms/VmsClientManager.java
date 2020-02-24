@@ -41,7 +41,7 @@ import java.util.concurrent.Executor;
  */
 @RequiredFeature(Car.VEHICLE_MAP_SERVICE)
 @SystemApi
-public class VmsClientManager extends CarManagerBase {
+public final class VmsClientManager extends CarManagerBase {
     private static final boolean DBG = false;
     private static final String TAG = VmsClientManager.class.getSimpleName();
 
