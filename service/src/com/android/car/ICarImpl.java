@@ -366,6 +366,11 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Override
+    public void onFirstUserUnlocked(int userId, long timestampMs, long duration) {
+        mUserMetrics.logFirstUnlockedUser(userId, timestampMs, duration);
+    }
+
+    @Override
     public boolean isFeatureEnabled(String featureName) {
         return mFeatureController.isFeatureEnabled(featureName);
     }
@@ -670,6 +675,8 @@ public class ICarImpl extends ICar.Stub {
             return;
         } else if ("--user-metrics".equals(args[0])) {
             mUserMetrics.dump(writer);
+        } else if ("--first-user-metrics".equals(args[0])) {
+            mUserMetrics.dumpFirstUserUnlockDuration(writer);
         } else if ("--help".equals(args[0])) {
             showDumpHelp(writer);
         } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
@@ -711,6 +718,9 @@ public class ICarImpl extends ICar.Stub {
         writer.println("\t  where HAL is just the class name (like UserHalService)");
         writer.println("--user-metrics");
         writer.println("\t  dumps user switching and stopping metrics ");
+        writer.println("--first-user-metrics");
+        writer.println("\t  dumps how long it took to unlock first user since Android started\n");
+        writer.println("\t  (or -1 if not unlocked)");
         writer.println("-h");
         writer.println("\t  shows commands usage (NOTE: commands are not available on USER builds");
         writer.println("[ANYTHING ELSE]");
