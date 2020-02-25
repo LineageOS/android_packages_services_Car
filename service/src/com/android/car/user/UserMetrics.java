@@ -21,6 +21,7 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING;
 import static android.car.user.CarUserManager.lifecycleEventTypeToString;
 
 import android.annotation.NonNull;
@@ -90,6 +91,9 @@ public final class UserMetrics {
                 case USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
                     onUserSwitchingEventLocked(timestampMs, fromUserId, toUserId);
                     return;
+                case USER_LIFECYCLE_EVENT_TYPE_UNLOCKING:
+                    onUserUnlockingEventUnlocked(timestampMs, toUserId);
+                    return;
                 case USER_LIFECYCLE_EVENT_TYPE_UNLOCKED:
                     onUserUnlockedEventUnlocked(timestampMs, toUserId);
                     return;
@@ -128,11 +132,18 @@ public final class UserMetrics {
         metrics.switchTime = timestampMs;
     }
 
+    private void onUserUnlockingEventUnlocked(long timestampMs, @UserIdInt int userId) {
+        UserStartingMetric metrics = getExistingMetricsLocked(mUserStartingMetrics, userId);
+        if (metrics == null) return;
+
+        metrics.unlockingTime = timestampMs;
+    }
+
     private void onUserUnlockedEventUnlocked(long timestampMs, @UserIdInt int userId) {
         UserStartingMetric metrics = getExistingMetricsLocked(mUserStartingMetrics, userId);
         if (metrics == null) return;
 
-        metrics.unlockTime = timestampMs;
+        metrics.unlockedTime = timestampMs;
 
         finishUserStartingLocked(metrics);
     }
@@ -248,7 +259,8 @@ public final class UserMetrics {
     private final class UserStartingMetric extends BaseUserMetric {
         public final long startTime;
         public long switchTime;
-        public long unlockTime;
+        public long unlockingTime;
+        public long unlockedTime;
         public @UserIdInt int switchFromUserId;
 
         UserStartingMetric(@UserIdInt int userId, long startTime) {
@@ -271,9 +283,14 @@ public final class UserMetrics {
                 TimeUtils.formatDuration(delta, pw);
             }
 
-            if (unlockTime > 0) {
-                long delta = unlockTime - startTime;
-                pw.print(" unlock=");
+            if (unlockingTime > 0) {
+                long delta = unlockingTime - startTime;
+                pw.print(" unlocking=");
+                TimeUtils.formatDuration(delta, pw);
+            }
+            if (unlockedTime > 0) {
+                long delta = unlockedTime - startTime;
+                pw.print(" unlocked=");
                 TimeUtils.formatDuration(delta, pw);
             }
         }
