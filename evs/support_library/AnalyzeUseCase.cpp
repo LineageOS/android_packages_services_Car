@@ -39,7 +39,7 @@ bool AnalyzeUseCase::initialize() {
     // logic into ResourceManager, for both display and analyze use case.
 
     ConfigManager config;
-    if (!config.initialize("/system/etc/automotive/evs/config.json")) {
+    if (!config.initialize("/system/etc/automotive/evs_support_lib/camera_config.json")) {
         ALOGE("Missing or improper configuration for the EVS application.  Exiting.");
         return false;
     }
