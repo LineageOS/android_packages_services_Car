@@ -92,10 +92,10 @@ public final class UserMetrics {
                     onUserSwitchingEventLocked(timestampMs, fromUserId, toUserId);
                     return;
                 case USER_LIFECYCLE_EVENT_TYPE_UNLOCKING:
-                    onUserUnlockingEventUnlocked(timestampMs, toUserId);
+                    onUserUnlockingEventLocked(timestampMs, toUserId);
                     return;
                 case USER_LIFECYCLE_EVENT_TYPE_UNLOCKED:
-                    onUserUnlockedEventUnlocked(timestampMs, toUserId);
+                    onUserUnlockedEventLocked(timestampMs, toUserId);
                     return;
                 case USER_LIFECYCLE_EVENT_TYPE_STOPPING:
                     onUserStoppingEventLocked(timestampMs, toUserId);
@@ -132,14 +132,14 @@ public final class UserMetrics {
         metrics.switchTime = timestampMs;
     }
 
-    private void onUserUnlockingEventUnlocked(long timestampMs, @UserIdInt int userId) {
+    private void onUserUnlockingEventLocked(long timestampMs, @UserIdInt int userId) {
         UserStartingMetric metrics = getExistingMetricsLocked(mUserStartingMetrics, userId);
         if (metrics == null) return;
 
         metrics.unlockingTime = timestampMs;
     }
 
-    private void onUserUnlockedEventUnlocked(long timestampMs, @UserIdInt int userId) {
+    private void onUserUnlockedEventLocked(long timestampMs, @UserIdInt int userId) {
         UserStartingMetric metrics = getExistingMetricsLocked(mUserStartingMetrics, userId);
         if (metrics == null) return;
 
