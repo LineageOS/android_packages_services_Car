@@ -136,9 +136,8 @@ public class CarUserServiceTest {
             .setGuest(true)
             .setEphemeral(true)
             .build();
-    private final UserInfo[] mExistingUsers = new UserInfo[] {
-            mSystemUser, mAdminUser, mGuestUser
-    };
+    private final List<UserInfo> mExistingUsers = Arrays.asList(mSystemUser, mAdminUser,
+            mGuestUser);
 
     /**
      * Initialize all of the objects with the @Mock annotation.
@@ -580,13 +579,12 @@ public class CarUserServiceTest {
 
     @Test
     public void testGetUserInfo_defaultResponse() throws Exception {
-        int currentUserId = mAdminUser.id;
+        mockCurrentUsers(mAdminUser);
 
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.DEFAULT;
-        mockGetInitialInfo(currentUserId, mGetUserInfoResponse);
+        mockGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
 
-        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs,
-                mExistingUsers, currentUserId, mReceiver);
+        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, mReceiver);
 
         assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_OK);
         assertThat(mReceiver.getResultData()).isNull();
@@ -594,44 +592,54 @@ public class CarUserServiceTest {
 
     @Test
     public void testGetUserInfo_switchUserResponse() throws Exception {
-        int currentUserId = mAdminUser.id;
         int switchUserId = mGuestUser.id;
+        mockCurrentUsers(mAdminUser);
 
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.SWITCH;
         mGetUserInfoResponse.userToSwitchOrCreate.userId = switchUserId;
-        mockGetInitialInfo(currentUserId, mGetUserInfoResponse);
+        mockGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
 
-        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs,
-                mExistingUsers, currentUserId, mReceiver);
+        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, mReceiver);
 
         assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_OK);
         Bundle resultData = mReceiver.getResultData();
         assertThat(resultData).isNotNull();
+        assertInitialInfoAction(resultData, mGetUserInfoResponse.action);
         assertUserId(resultData, switchUserId);
         assertNoUserFlags(resultData);
         assertNoUserName(resultData);
     }
 
+
     @Test
     public void testGetUserInfo_createUserResponse() throws Exception {
-        int currentUserId = mAdminUser.id;
         int newUserFlags = 42;
         String newUserName = "TheDude";
+
+        mockCurrentUsers(mAdminUser);
 
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.CREATE;
         mGetUserInfoResponse.userToSwitchOrCreate.flags = newUserFlags;
         mGetUserInfoResponse.userNameToCreate = newUserName;
-        mockGetInitialInfo(currentUserId, mGetUserInfoResponse);
+        mockGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
 
-        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs,
-                mExistingUsers, currentUserId, mReceiver);
+        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, mReceiver);
 
         assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_OK);
         Bundle resultData = mReceiver.getResultData();
         assertThat(resultData).isNotNull();
+        assertInitialInfoAction(resultData, mGetUserInfoResponse.action);
         assertNoUserId(resultData);
         assertUserFlags(resultData, newUserFlags);
         assertUserName(resultData, newUserName);
+    }
+
+    /**
+     * Mock calls that generate a {@code UsersInfo}.
+     */
+    private void mockCurrentUsers(@NonNull UserInfo user) throws Exception {
+        when(mMockedIActivityManager.getCurrentUser()).thenReturn(user);
+        when(mMockedUserManager.getUsers()).thenReturn(mExistingUsers);
     }
 
     private void mockGetInitialInfo(@UserIdInt int currentUserId,
@@ -651,7 +659,7 @@ public class CarUserServiceTest {
     @NonNull
     private UsersInfo newUsersInfo(@UserIdInt int currentUserId) {
         UsersInfo infos = new UsersInfo();
-        infos.numberUsers = mExistingUsers.length;
+        infos.numberUsers = mExistingUsers.size();
         boolean foundCurrentUser = false;
         for (UserInfo info : mExistingUsers) {
             android.hardware.automotive.vehicle.V2_0.UserInfo existingUser =
@@ -716,6 +724,13 @@ public class CarUserServiceTest {
     private void assertNoExtra(@NonNull Bundle resultData, @NonNull String extra) {
         Object value = resultData.get(extra);
         assertWithMessage("should not have extra %s", extra).that(value).isNull();
+    }
+
+    private void assertInitialInfoAction(@NonNull Bundle resultData, int expectedAction) {
+        int actualAction = resultData.getInt(CarUserService.BUNDLE_INITIAL_INFO_ACTION);
+        assertWithMessage("wrong request type on bundle extra %s",
+                CarUserService.BUNDLE_INITIAL_INFO_ACTION).that(actualAction)
+            .isEqualTo(expectedAction);
     }
 
     static final class FakeCarOccupantZoneService {
