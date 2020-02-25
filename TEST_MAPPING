@@ -1,0 +1,7 @@
+{
+  "auto-service-experimental-code-presubmit": [
+    {
+      "name": "ExperimentalCarServiceTests"
+    }
+  ]
+}

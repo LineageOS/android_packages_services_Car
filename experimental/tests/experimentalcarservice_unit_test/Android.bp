@@ -45,4 +45,6 @@ android_test {
     ],
 
     instrumentation_for: "ExperimentalCarService",
+
+    test_suites: ["general-tests"]
 }
