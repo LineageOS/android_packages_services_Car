@@ -30,6 +30,5 @@ interface ICarUserService {
     boolean stopPassenger(int passengerId);
     oneway void setLifecycleListenerForUid(in IResultReceiver listener);
     oneway void resetLifecycleListenerForUid();
-    oneway void getInitialUserInfo(int requestType, int timeoutMs, in UserInfo[] existingUsers,
-        int currentUserId, in IResultReceiver receiver);
+    oneway void getInitialUserInfo(int requestType, int timeoutMs, in IResultReceiver receiver);
 }
