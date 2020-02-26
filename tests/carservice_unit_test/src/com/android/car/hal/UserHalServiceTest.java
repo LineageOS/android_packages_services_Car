@@ -99,6 +99,8 @@ public final class UserHalServiceTest {
     @Before
     public void setFixtures() {
         mUserHalService = new UserHalService(mVehicleHal);
+        mUserHalService
+                .takeSupportedProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO)));
 
         mUser0.userId = 0;
         mUser0.flags = 100;
@@ -114,24 +116,32 @@ public final class UserHalServiceTest {
 
     @Test
     public void testTakeSupportedProperties_unsupportedOnly() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+
         List<VehiclePropConfig> input = Arrays.asList(newConfig(CURRENT_GEAR));
-        Collection<VehiclePropConfig> output = mUserHalService.takeSupportedProperties(input);
+        Collection<VehiclePropConfig> output = myHalService.takeSupportedProperties(input);
+        assertThat(myHalService.isSupported()).isFalse();
         assertThat(output).isNull();
     }
 
     @Test
     public void testTakeSupportedPropertiesAndInit() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+
         VehiclePropConfig unsupportedConfig = newConfig(CURRENT_GEAR);
         VehiclePropConfig userInfoConfig = newSubscribableConfig(INITIAL_USER_INFO);
         List<VehiclePropConfig> input = Arrays.asList(unsupportedConfig, userInfoConfig);
-        Collection<VehiclePropConfig> output = mUserHalService.takeSupportedProperties(input);
+        Collection<VehiclePropConfig> output = myHalService.takeSupportedProperties(input);
+        assertThat(mUserHalService.isSupported()).isTrue();
         assertThat(output).containsExactly(userInfoConfig);
 
         // Ideally there should be 2 test methods (one for takeSupportedProperties() and one for
         // init()), but on "real life" VehicleHal calls these 2 methods in sequence, and the latter
         // depends on the properties set by the former, so it's ok to test both here...
-        mUserHalService.init();
-        verify(mVehicleHal).subscribeProperty(mUserHalService, INITIAL_USER_INFO);
+        myHalService.init();
+        verify(mVehicleHal).subscribeProperty(myHalService, INITIAL_USER_INFO);
     }
 
     @Test
