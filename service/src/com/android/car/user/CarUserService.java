@@ -35,7 +35,6 @@ import android.content.Context;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
-import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.location.LocationManager;
 import android.os.Binder;
@@ -51,11 +50,11 @@ import android.util.TimingsTraceLog;
 
 import com.android.car.CarServiceBase;
 import com.android.car.R;
+import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.os.IResultReceiver;
-import com.android.internal.util.Preconditions;
 import com.android.internal.util.UserIcons;
 
 import java.io.PrintWriter;
@@ -78,12 +77,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public final class CarUserService extends ICarUserService.Stub implements CarServiceBase {
 
-    /** Extra used to represent a user id in a {@link IResultReceiver} response. */
+    /** {@code int} extra used to represent a user id in a {@link IResultReceiver} response. */
     public static final String BUNDLE_USER_ID = "user.id";
-    /** Extra used to represent user flags in a {@link IResultReceiver} response. */
+    /** {@code int} extra used to represent user flags in a {@link IResultReceiver} response. */
     public static final String BUNDLE_USER_FLAGS = "user.flags";
-    /** Extra used to represent a user name in a {@link IResultReceiver} response. */
+    /** {@code String} extra used to represent a user name in a {@link IResultReceiver} response. */
     public static final String BUNDLE_USER_NAME = "user.name";
+    /** {@code int} extra used to represent the info action {@link IResultReceiver} response. */
+    public static final String BUNDLE_INITIAL_INFO_ACTION = "initial_info.action";
 
     private final Context mContext;
     private final CarUserManagerHelper mCarUserManagerHelper;
@@ -478,44 +479,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     @Override
     public void getInitialUserInfo(int requestType, int timeoutMs,
-            @NonNull UserInfo[] existingUsers, @UserIdInt int currentUserId,
             @NonNull IResultReceiver receiver) {
-
-        // TODO(b/144120654): use helper to generate USerInfo
-        UsersInfo usersInfo = new UsersInfo();
-        usersInfo.numberUsers = existingUsers.length;
-        boolean foundCurrentUser = false;
-        for (int i = 0; i < existingUsers.length; i++) {
-            UserInfo user = existingUsers[i];
-            android.hardware.automotive.vehicle.V2_0.UserInfo halUser =
-                    new android.hardware.automotive.vehicle.V2_0.UserInfo();
-            halUser.userId = user.id;
-            int flags = UserFlags.NONE;
-            if (user.id == UserHandle.USER_SYSTEM) {
-                flags |= UserFlags.SYSTEM;
-            }
-            if (user.isAdmin()) {
-                flags |= UserFlags.ADMIN;
-            }
-            if (user.isGuest()) {
-                flags |= UserFlags.GUEST;
-            }
-            if (user.isEphemeral()) {
-                flags |= UserFlags.EPHEMERAL;
-            }
-            halUser.flags = flags;
-            usersInfo.existingUsers.add(halUser);
-            if (user.id == currentUserId) {
-                // TODO(b/144120654): unit test for when it isn't there (on helper method), or
-                // change signature so the currentUser argument is a UserInfo)
-                foundCurrentUser = true;
-                usersInfo.currentUser.userId = currentUserId;
-                usersInfo.currentUser.flags = flags;
-            }
-        }
-        Preconditions.checkArgument(foundCurrentUser,
-                "no user with id " + currentUserId + " on " + existingUsers);
-
+        UsersInfo usersInfo = getUsersInfo();
         mHal.getInitialUserInfo(requestType, timeoutMs, usersInfo, (status, resp) -> {
             try {
                 Bundle resultData = null;
@@ -523,10 +488,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     switch (resp.action) {
                         case InitialUserInfoResponseAction.SWITCH:
                             resultData = new Bundle();
+                            resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
                             resultData.putInt(BUNDLE_USER_ID, resp.userToSwitchOrCreate.userId);
                             break;
                         case InitialUserInfoResponseAction.CREATE:
                             resultData = new Bundle();
+                            resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
                             resultData.putInt(BUNDLE_USER_FLAGS, resp.userToSwitchOrCreate.flags);
                             resultData.putString(BUNDLE_USER_NAME, resp.userNameToCreate);
                             break;
@@ -543,6 +510,35 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 Log.w(TAG_USER, "Could not send result back to receiver", e);
             }
         });
+    }
+
+    // TODO(b/144120654): use helper to generate UsersInfo
+    private UsersInfo getUsersInfo() {
+        UserInfo currentUser;
+        try {
+            currentUser = mAm.getCurrentUser();
+        } catch (RemoteException e) {
+            // shouldn't happen
+            throw new IllegalStateException("Could not get current user: ", e);
+        }
+        List<UserInfo> existingUsers = mUserManager.getUsers();
+        int size = existingUsers.size();
+
+        UsersInfo usersInfo = new UsersInfo();
+        usersInfo.numberUsers = size;
+        usersInfo.currentUser.userId = currentUser.id;
+        usersInfo.currentUser.flags = UserHalHelper.convertFlags(currentUser);
+
+        for (int i = 0; i < size; i++) {
+            UserInfo androidUser = existingUsers.get(i);
+            android.hardware.automotive.vehicle.V2_0.UserInfo halUser =
+                    new android.hardware.automotive.vehicle.V2_0.UserInfo();
+            halUser.userId = androidUser.id;
+            halUser.flags = UserHalHelper.convertFlags(androidUser);
+            usersInfo.existingUsers.add(halUser);
+        }
+
+        return usersInfo;
     }
 
     /** Returns whether the given user is a system user. */
