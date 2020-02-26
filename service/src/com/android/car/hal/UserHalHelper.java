@@ -16,7 +16,10 @@
 package com.android.car.hal;
 
 import android.annotation.NonNull;
+import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
+import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.os.UserHandle;
 
 import com.android.car.hal.UserHalService.HalCallback;
 import com.android.car.hal.UserHalService.HalCallback.HalCallbackStatus;
@@ -69,6 +72,28 @@ public final class UserHalHelper {
                     throw new IllegalArgumentException("invalid type: " + type);
                 }
         }
+    }
+
+    /**
+     * Converts Android user flags to HALs.
+     */
+    public static int convertFlags(@NonNull UserInfo user) {
+        // TODO(b/146207078): add unit test
+        int flags = UserFlags.NONE;
+        if (user.id == UserHandle.USER_SYSTEM) {
+            flags |= UserFlags.SYSTEM;
+        }
+        if (user.isAdmin()) {
+            flags |= UserFlags.ADMIN;
+        }
+        if (user.isGuest()) {
+            flags |= UserFlags.GUEST;
+        }
+        if (user.isEphemeral()) {
+            flags |= UserFlags.EPHEMERAL;
+        }
+
+        return flags;
     }
 
     private UserHalHelper() {
