@@ -1294,7 +1294,7 @@ package android.car.vms {
     method @RequiresPermission(android.car.Car.PERMISSION_VMS_PUBLISHER) public void unregisterProvider(int);
   }
 
-  public class VmsClientManager {
+  public final class VmsClientManager {
     method @RequiresPermission(anyOf={android.car.Car.PERMISSION_VMS_PUBLISHER, android.car.Car.PERMISSION_VMS_SUBSCRIBER}) public void registerVmsClientCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.vms.VmsClientManager.VmsClientCallback);
     method @RequiresPermission(anyOf={android.car.Car.PERMISSION_VMS_PUBLISHER, android.car.Car.PERMISSION_VMS_SUBSCRIBER}) public void unregisterVmsClientCallback(@NonNull android.car.vms.VmsClientManager.VmsClientCallback);
   }
