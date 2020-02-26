@@ -84,9 +84,9 @@ public class TouchDriverAwarenessSupplier extends IDriverAwarenessSupplier.Stub 
     private InputEventReceiver mInputEventReceiver;
 
     TouchDriverAwarenessSupplier(Context context,
-            IDriverAwarenessSupplierCallback driverAwarenessSupplierCallback) {
+            IDriverAwarenessSupplierCallback driverAwarenessSupplierCallback, Looper looper) {
         this(context, driverAwarenessSupplierCallback, Executors.newScheduledThreadPool(1),
-                Looper.myLooper(), new SystemTimeSource());
+                looper, new SystemTimeSource());
     }
 
     @VisibleForTesting
