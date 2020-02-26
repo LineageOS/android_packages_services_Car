@@ -21,6 +21,8 @@ import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_
 import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.IActivityManager;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
 import android.car.drivingstate.CarUxRestrictions;
@@ -29,6 +31,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -38,6 +41,8 @@ import android.widget.TextView;
 
 import com.android.car.CarLog;
 import com.android.car.R;
+
+import java.util.List;
 
 /**
  * Default activity that will be launched when the current foreground activity is not allowed.
@@ -49,11 +54,13 @@ public class ActivityBlockingActivity extends Activity {
 
     private Car mCar;
     private CarUxRestrictionsManager mUxRManager;
+    private CarPackageManager mCarPackageManager;
 
     private Button mExitButton;
     private Button mToggleDebug;
 
     private int mBlockedTaskId;
+    private IActivityManager mAm;
 
     private final View.OnClickListener mOnExitButtonClickedListener =
             v -> {
@@ -79,6 +86,7 @@ public class ActivityBlockingActivity extends Activity {
         setContentView(R.layout.activity_blocking);
 
         mExitButton = findViewById(R.id.exit_button);
+        mAm = ActivityManager.getService();
 
         // Listen to the CarUxRestrictions so this blocking activity can be dismissed when the
         // restrictions are lifted.
@@ -89,6 +97,8 @@ public class ActivityBlockingActivity extends Activity {
                     if (!ready) {
                         return;
                     }
+                    mCarPackageManager = (CarPackageManager) car.getCarManager(
+                            Car.PACKAGE_SERVICE);
                     mUxRManager = (CarUxRestrictionsManager) car.getCarManager(
                             Car.CAR_UX_RESTRICTION_SERVICE);
                     // This activity would have been launched only in a restricted state.
@@ -112,6 +122,12 @@ public class ActivityBlockingActivity extends Activity {
         String blockedActivity = getIntent().getStringExtra(
                 BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME);
         if (!TextUtils.isEmpty(blockedActivity)) {
+            if (isTopActivityBehindAbaDistractionOptimized()) {
+                Log.e(CarLog.TAG_AM, "Top activity is already DO, so finishing");
+                finish();
+                return;
+            }
+
             if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
                 Log.d(CarLog.TAG_AM, "Blocking activity " + blockedActivity);
             }
@@ -143,6 +159,58 @@ public class ActivityBlockingActivity extends Activity {
     private String getExitButtonText() {
         return isExitOptionCloseApplication() ? getString(R.string.exit_button_close_application)
                 : getString(R.string.exit_button_go_back);
+    }
+
+    /**
+     * It is possible that the stack info has changed between when the intent to launch this
+     * activity was initiated and when this activity is started. Check whether the activity behind
+     * the ABA is distraction optimized.
+     */
+    private boolean isTopActivityBehindAbaDistractionOptimized() {
+        List<ActivityManager.StackInfo> stackInfos;
+        try {
+            stackInfos = mAm.getAllStackInfos();
+        } catch (RemoteException e) {
+            Log.e(CarLog.TAG_AM, "Unable to get stack info from ActivityManager");
+            // assume that the state is still correct, the activity behind is not DO
+            return false;
+        }
+
+        ActivityManager.StackInfo topStackBehindAba = null;
+        for (ActivityManager.StackInfo stackInfo : stackInfos) {
+            if (stackInfo.displayId != getDisplayId()) {
+                // ignore stacks on other displays
+                continue;
+            }
+
+            if (getComponentName().equals(stackInfo.topActivity)) {
+                // ignore stack with the blocking activity
+                continue;
+            }
+
+            if (topStackBehindAba == null || topStackBehindAba.position < stackInfo.position) {
+                topStackBehindAba = stackInfo;
+            }
+        }
+
+        if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
+            Log.d(CarLog.TAG_AM, String.format("Top stack behind ABA is: %s", topStackBehindAba));
+        }
+
+        if (topStackBehindAba != null && topStackBehindAba.topActivity != null) {
+            boolean isDo = mCarPackageManager.isActivityDistractionOptimized(
+                    topStackBehindAba.topActivity.getPackageName(),
+                    topStackBehindAba.topActivity.getClassName());
+            if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
+                Log.d(CarLog.TAG_AM,
+                        String.format("Top activity (%s) is DO: %s", topStackBehindAba.topActivity,
+                                isDo));
+            }
+            return isDo;
+        }
+
+        // unknown top stack / activity, default to considering it non-DO
+        return false;
     }
 
     private void displayDebugInfo() {
@@ -258,9 +326,7 @@ public class ActivityBlockingActivity extends Activity {
             if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
                 Log.i(CarLog.TAG_AM, "Restarting task " + mBlockedTaskId);
             }
-            CarPackageManager carPm = (CarPackageManager)
-                    mCar.getCarManager(Car.PACKAGE_SERVICE);
-            carPm.restartTask(mBlockedTaskId);
+            mCarPackageManager.restartTask(mBlockedTaskId);
             finish();
         }
     }
