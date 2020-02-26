@@ -52,6 +52,13 @@
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$BlockingActivity"
                   android:taskAffinity="com.android.car.carservicetest.block"/>
         <activity android:name="com.android.car.CarUxRestrictionsManagerServiceTest$ActivityViewTestActivity"/>
+        <activity android:name="com.android.car.pm.ActivityBlockingActivityTest$NonDoNoHistoryActivity"
+                  android:noHistory="true"/>
+        <activity android:name="com.android.car.pm.ActivityBlockingActivityTest$NonDoActivity"/>
+        <activity android:name="com.android.car.pm.ActivityBlockingActivityTest$DoActivity"
+            android:label="DoActivity">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
 
         <receiver android:name="com.android.car.CarStorageMonitoringBroadcastReceiver"
             android:exported="true"

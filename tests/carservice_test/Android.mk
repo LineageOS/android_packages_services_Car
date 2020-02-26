@@ -51,7 +51,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     mockito-target-extended \
     testng \
     truth-prebuilt \
-    vehicle-hal-support-lib-for-test
+    vehicle-hal-support-lib-for-test \
+    compatibility-device-util-axt
 
 
 LOCAL_JAVA_LIBRARIES := \
