@@ -36,6 +36,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertThrows;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
@@ -575,6 +576,12 @@ public class CarUserServiceTest {
             }
             assertEquals(0, expected.size());
         }
+    }
+
+    @Test
+    public void testGetUserInfo_nullReceiver() throws Exception {
+        assertThrows(NullPointerException.class, () -> mCarUserService
+                .getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, null));
     }
 
     @Test
