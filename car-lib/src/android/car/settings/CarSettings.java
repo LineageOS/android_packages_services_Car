@@ -19,9 +19,15 @@ package android.car.settings;
 import android.annotation.SystemApi;
 
 /**
- * System level car related settings.
+ * System-level, car-related settings.
+ *
+ * @hide
  */
 public class CarSettings {
+
+    private CarSettings() {
+        throw new UnsupportedOperationException("this class only provide constants");
+    }
 
     /**
      * Global car settings, containing preferences that always apply identically
@@ -29,31 +35,16 @@ public class CarSettings {
      * like the "Secure" settings, these are for preferences that the user must
      * explicitly modify through the system UI or specialized APIs for those values.
      *
-     * To read/write the global car settings, use {@link android.provider.Settings.Global}
+     * <p>To read/write the global car settings, use {@link android.provider.Settings.Global}
      * with the keys defined here.
+     *
+     * @hide
      */
     public static final class Global {
-        /**
-         * DEPRECATED. Will be removed in Q. Key for when to wake up to run garage mode.
-         * @deprecated not used by GarageMode anymore. Will be removed in Q.
-         */
-        @Deprecated
-        public static final String KEY_GARAGE_MODE_WAKE_UP_TIME =
-                "android.car.GARAGE_MODE_WAKE_UP_TIME";
-        /**
-         * DEPRECATED. Will be removed in Q. Key for whether garage mode is enabled.
-         * @deprecated not used by GarageMode anymore. Will be removed in Q.
-         */
-        @Deprecated
-        public static final String KEY_GARAGE_MODE_ENABLED = "android.car.GARAGE_MODE_ENABLED";
 
-        /**
-         * DEPRECATED. Will be removed in Q. Key for garage mode maintenance window.
-         * @deprecated not used by GarageMode anymore. Will be removed in Q.
-         */
-        @Deprecated
-        public static final String KEY_GARAGE_MODE_MAINTENANCE_WINDOW =
-                "android.car.GARAGE_MODE_MAINTENANCE_WINDOW";
+        private Global() {
+            throw new UnsupportedOperationException("this class only provide constants");
+        }
 
         /**
          * Whether default restrictions for users have been set.
@@ -101,7 +92,10 @@ public class CarSettings {
      */
     @SystemApi
     public static final class Secure {
-        private Secure() {}
+
+        private Secure() {
+            throw new UnsupportedOperationException("this class only provide constants");
+        }
 
         /**
          * Key to indicate whether audio focus requests for
