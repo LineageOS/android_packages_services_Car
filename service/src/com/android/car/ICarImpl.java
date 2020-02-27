@@ -253,6 +253,7 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(CarPropertyService.class, mCarPropertyService);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
         CarLocalServices.addService(CarTrustedDeviceService.class, mCarTrustedDeviceService);
+        CarLocalServices.addService(CarUserNoticeService.class, mCarUserNoticeService);
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
         CarLocalServices.addService(CarDrivingStateService.class, mCarDrivingStateService);
         CarLocalServices.addService(PerUserCarServiceHelper.class, mPerUserCarServiceHelper);
