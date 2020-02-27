@@ -19,13 +19,11 @@ package android.car;
 /** @hide */
 interface ICar {
     // All oneway methods are called from system server and should be placed in top positions.
-    // Do not change the order of oneway methods as system server make binder call based on this
-    // order.
+    // Do not change the number of oneway methods as system server make binder call based on this
+    // order - if you change them, you need to change the constants on CarServiceHelperService.
 
     /**
      * IBinder is ICarServiceHelper but passed as IBinder due to aidl hidden.
-     *
-     * This should be the 1st method. Do not change the order.
      */
     oneway void setCarServiceHelper(in IBinder helper) = 0;
 
@@ -36,29 +34,36 @@ interface ICar {
      * @param timestampMs - when the event happened
      * @param fromUserId - user id of previous user when type is SWITCHING (or UserHandle.USER_NULL)
      * @param toUserId - user id of new user.
-     *
-     * This should be the 2nd method. Do not change the order.
      */
     oneway void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
             int toUserId) = 1;
 
     /**
+     * Notify when first user was unlocked, for metrics (and lifecycle) purposes.
+     *
+     * @param userId - id of first non-system user locked
+     * @param timestampMs - when the user was unlocked
+     * @param duration - how long it took to unlock (from SystemServer start)
+     */
+    oneway void onFirstUserUnlocked(int userId, long timestampMs, long duration) = 2;
+
+
+    // TODO(b/145689885): 2 method below are deprecated (onUserLifecycleEvent covers then) so
+    // they're have higher codes to make it easier to add other
+
+    /**
      * Notify lock / unlock of user id to car service.
      * unlocked: 1 if unlocked 0 otherwise.
-     *
-     * This should be the 3rd method. Do not change the order.
      */
-    oneway void setUserLockStatus(in int userId, in int unlocked) = 2;
+    oneway void setUserLockStatus(in int userId, in int unlocked) = 9;
 
     /**
      * Notify of user switching.  This is called only for foreground users when the user is starting
      * to boot.
      *
      * @param userId - user id of new user.
-     *
-     * This should be the 4th method. Do not change the order.
      */
-    oneway void onSwitchUser(in int userId) = 3;
+    oneway void onSwitchUser(in int userId) = 10;
 
 
     // Methods below start on 11 to make it easier to add more oneway methods above

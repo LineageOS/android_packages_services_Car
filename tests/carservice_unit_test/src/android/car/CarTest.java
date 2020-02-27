@@ -78,6 +78,10 @@ public class CarTest {
         }
 
         @Override
+        public void onFirstUserUnlocked(int userId, long timestampMs, long duration) {
+        }
+
+        @Override
         public void setUserLockStatus(int userHandle, int unlocked) {
         }
 
