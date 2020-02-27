@@ -22,6 +22,7 @@ package android.car {
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_TRUST_AGENT_ENROLLMENT_SERVICE = "trust_enroll";
     field public static final String CAR_USER_SERVICE = "car_user_service";
+    field public static final String CAR_WATCHDOG_SERVICE = "car_watchdog";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
     field public static final int FEATURE_REQUEST_ALREADY_IN_THE_STATE = 1; // 0x1
     field public static final int FEATURE_REQUEST_MANDATORY = 2; // 0x2
@@ -59,6 +60,7 @@ package android.car {
     field public static final String PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS = "android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS";
     field public static final String PERMISSION_STORAGE_MONITORING = "android.car.permission.STORAGE_MONITORING";
     field public static final String PERMISSION_TIRES = "android.car.permission.CAR_TIRES";
+    field public static final String PERMISSION_USE_CAR_WATCHDOG = "android.car.permission.USE_CAR_WATCHDOG";
     field public static final String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
     field public static final String PERMISSION_VMS_PUBLISHER = "android.car.permission.VMS_PUBLISHER";
     field public static final String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
@@ -1385,6 +1387,25 @@ package android.car.vms {
     method public int getSequenceNumber();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsSubscriptionState> CREATOR;
+  }
+
+}
+
+package android.car.watchdog {
+
+  public final class CarWatchdogManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_WATCHDOG) public void registerClient(@NonNull java.util.concurrent.Executor, @NonNull android.car.watchdog.CarWatchdogManager.CarWatchdogClientCallback, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_WATCHDOG) public void tellClientAlive(@NonNull android.car.watchdog.CarWatchdogManager.CarWatchdogClientCallback, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_WATCHDOG) public void unregisterClient(@NonNull android.car.watchdog.CarWatchdogManager.CarWatchdogClientCallback);
+    field public static final int TIMEOUT_CRITICAL = 0; // 0x0
+    field public static final int TIMEOUT_MODERATE = 1; // 0x1
+    field public static final int TIMEOUT_NORMAL = 2; // 0x2
+  }
+
+  public abstract class CarWatchdogManager.CarWatchdogClientCallback {
+    ctor public CarWatchdogManager.CarWatchdogClientCallback();
+    method public boolean onCheckHealthStatus(int, int);
+    method public void onPrepareProcessTermination();
   }
 
 }
