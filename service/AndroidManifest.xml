@@ -546,5 +546,11 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        <activity android:name="com.android.car.am.ContinuousBlankActivity"
+                  android:excludeFromRecents="true"
+                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                  android:exported="false"
+                  android:launchMode="singleTask">
+        </activity>
     </application>
 </manifest>
