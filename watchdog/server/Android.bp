@@ -45,8 +45,9 @@ cc_library {
     ],
     srcs: [
         "src/IoPerfCollection.cpp",
+        "src/ProcPidStat.cpp",
+        "src/ProcStat.cpp",
         "src/UidIoStats.cpp",
-        "src/ProcStat.cpp"
     ],
     static_libs: [
         "libgtest_prod",
@@ -66,6 +67,7 @@ cc_test {
     srcs: [
         "tests/IoPerfCollectionTest.cpp",
         "tests/UidIoStatsTest.cpp",
+        "tests/ProcPidStatTest.cpp",
         "tests/ProcStatTest.cpp",
     ],
     static_libs: [
