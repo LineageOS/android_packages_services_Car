@@ -104,6 +104,10 @@ public final class CarUserNoticeService implements CarServiceBase {
     @GuardedBy("mLock")
     private IUserNoticeUI mUiService;
 
+    @GuardedBy("mLock")
+    @UserIdInt
+    private int mIgnoreUserId = UserHandle.USER_NULL;
+
     private final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
         @Override
         public void onUserLockChanged(@UserIdInt int userId, boolean unlocked) {
@@ -224,6 +228,12 @@ public final class CarUserNoticeService implements CarServiceBase {
         mServiceIntent.setComponent(ComponentName.unflattenFromString(componentName));
     }
 
+    public void ignoreUserNotice(int userId) {
+        synchronized (mLock) {
+            mIgnoreUserId = userId;
+        }
+    }
+
     private boolean checkKeyguardLockedWithPolling() {
         mMainHandler.removeCallbacks(mKeyguardPollingRunnable);
         IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
@@ -284,6 +294,11 @@ public final class CarUserNoticeService implements CarServiceBase {
                 return;
             }
             userId = mUserId;
+            if (mIgnoreUserId == userId) {
+                return;
+            } else {
+                mIgnoreUserId = UserHandle.USER_NULL;
+            }
         }
         if (userId == UserHandle.USER_NULL) {
             return;
@@ -401,7 +416,8 @@ public final class CarUserNoticeService implements CarServiceBase {
                     + ", mUiShown:" + mUiShown
                     + ", mServiceBound:" + mServiceBound
                     + ", mKeyguardPollingCounter:" + mKeyguardPollingCounter
-                    + " Setting enabled:" + isNoticeScreenEnabledInSetting(mUserId));
+                    + ", Setting enabled:" + isNoticeScreenEnabledInSetting(mUserId)
+                    + ", Ignore User: " + mIgnoreUserId);
         }
     }
 }
