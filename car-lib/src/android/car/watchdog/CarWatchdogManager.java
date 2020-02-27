@@ -16,60 +16,79 @@
 
 package android.car.watchdog;
 
+import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.automotive.watchdog.ICarWatchdogClient;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.os.IBinder;
+import android.os.RemoteException;
+import android.util.Log;
+
+import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.Executor;
 
 /**
  * Provides APIs and interfaces for client health checking.
  *
  * @hide
  */
-// TODO(b/147845170): change to SystemApi after API review.
+@SystemApi
 public final class CarWatchdogManager extends CarManagerBase {
 
     private static final String TAG = CarWatchdogManager.class.getSimpleName();
 
     /** Timeout for services which should be responsive. The length is 3,000 milliseconds. */
-    public static final int TIMEOUT_LENGTH_CRITICAL = 3000;
+    public static final int TIMEOUT_CRITICAL = 0;
 
     /** Timeout for services which are relatively responsive. The length is 5,000 milliseconds. */
-    public static final int TIMEOUT_LENGTH_MODERATE = 5000;
+    public static final int TIMEOUT_MODERATE = 1;
 
     /** Timeout for all other services. The length is 10,000 milliseconds. */
-    public static final int TIMEOUT_LENGTH_NORMAL = 10000;
+    public static final int TIMEOUT_NORMAL = 2;
 
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef(prefix = "TIMEOUT_LENGTH_", value = {
-            TIMEOUT_LENGTH_CRITICAL,
-            TIMEOUT_LENGTH_MODERATE,
-            TIMEOUT_LENGTH_NORMAL,
+    @IntDef(prefix = "TIMEOUT_", value = {
+            TIMEOUT_CRITICAL,
+            TIMEOUT_MODERATE,
+            TIMEOUT_NORMAL,
     })
     @Target({ElementType.TYPE_USE})
     public @interface TimeoutLengthEnum {}
 
     private final ICarWatchdogService mService;
+    private final ICarWatchdogClientImpl mClientImpl;
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private CarWatchdogClientCallback mRegisteredClient;
+    @GuardedBy("mLock")
+    private Executor mCallbackExecutor;
 
     /**
      * CarWatchdogClientCallback is implemented by the clients which want to be health-checked by
-     * car watchdog server. Every time onHealthCheckRequested is called, they are expected to
+     * car watchdog server. Every time onCheckHealthStatus is called, they are expected to
      * respond by calling {@link CarWatchdogManager.tellClientAlive} within timeout. If they don't
      * respond, car watchdog server reports the current state and kills them.
+     *
+     * <p>Before car watchdog server kills the client, it calls onPrepareProcessKill to allow them
+     * to prepare the termination. They will be killed in 1 second.
      */
     public abstract class CarWatchdogClientCallback {
         /**
          * Car watchdog server pings the client to check if it is alive.
+         *
+         * <p>The callback method is called at the Executor which is specifed in {@link
+         * #registerClient}.
          *
          * @param sessionId Unique id to distinguish each health checking.
          * @param timeout Time duration within which the client should respond.
@@ -79,44 +98,84 @@ public final class CarWatchdogManager extends CarManagerBase {
          *         the client should call {@link CarWatchdogManager.tellClientAlive} later to tell
          *         that it is alive.
          */
-        public boolean onHealthCheckRequested(int sessionId, @TimeoutLengthEnum int timeout) {
+        public boolean onCheckHealthStatus(int sessionId, @TimeoutLengthEnum int timeout) {
             return false;
         }
+
+        /**
+         * Car watchdog server notifies the client that it will be terminated in 1 second.
+         *
+         * <p>The callback method is called at the Executor which is specifed in {@link
+         * #registerClient}.
+         */
+        // TODO(b/150006093): After adding a callback to ICarWatchdogClient, subsequent
+        // implementation should be done in CarWatchdogService and CarWatchdogManager.
+        public void onPrepareProcessTermination() {}
     }
 
     /** @hide */
     public CarWatchdogManager(Car car, IBinder service) {
         super(car);
         mService = ICarWatchdogService.Stub.asInterface(service);
+        mClientImpl = new ICarWatchdogClientImpl(this);
     }
 
     /**
      * Registers the car watchdog clients to {@link CarWatchdogManager}.
      *
+     * <p>It is allowed to register a client from any thread, but only one client can be
+     * registered. If two or more clients are needed, create a new {@link Car} and register a client
+     * to it.
+     *
      * @param client Watchdog client implementing {@link CarWatchdogClientCallback} interface.
      * @param timeout The time duration within which the client desires to respond. The actual
      *        timeout is decided by watchdog server.
-     *
-     * @hide
+     * @throws IllegalStateException if at least one client is already registered.
      */
-    // TODO(b/147845170): change to SystemApi after API review.
     @RequiresPermission(Car.PERMISSION_USE_CAR_WATCHDOG)
-    public void registerClient(@NonNull CarWatchdogClientCallback client,
-            @TimeoutLengthEnum int timeout) {
-        // TODO(b/145556670): implement body.
+    public void registerClient(@NonNull @CallbackExecutor Executor executor,
+            @NonNull CarWatchdogClientCallback client, @TimeoutLengthEnum int timeout) {
+        synchronized (mLock) {
+            if (mRegisteredClient == client) {
+                return;
+            }
+            if (mRegisteredClient != null) {
+                throw new IllegalStateException(
+                        "Cannot register the client. Only one client can be registered.");
+            }
+            mRegisteredClient = client;
+            mCallbackExecutor = executor;
+        }
+        try {
+            mService.registerClient(mClientImpl, timeout);
+        } catch (RemoteException e) {
+            synchronized (mLock) {
+                mRegisteredClient = null;
+            }
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /**
      * Unregisters the car watchdog client from {@link CarWatchdogManager}.
      *
      * @param client Watchdog client implementing {@link CarWatchdogClientCallback} interface.
-     *
-     * @hide
      */
-    // TODO(b/147845170): change to SystemApi after API review.
     @RequiresPermission(Car.PERMISSION_USE_CAR_WATCHDOG)
     public void unregisterClient(@NonNull CarWatchdogClientCallback client) {
-        // TODO(b/145556670): implement body.
+        synchronized (mLock) {
+            if (mRegisteredClient != client) {
+                Log.w(TAG, "Cannot unregister the client. It has not been registered.");
+                return;
+            }
+            mRegisteredClient = null;
+            mCallbackExecutor = null;
+        }
+        try {
+            mService.unregisterClient(mClientImpl);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /**
@@ -124,13 +183,23 @@ public final class CarWatchdogManager extends CarManagerBase {
      *
      * @param client Watchdog client implementing {@link CarWatchdogClientCallback} interface.
      * @param sessionId Session id given by {@link CarWatchdogManager}.
-     *
-     * @hide
+     * @throws IllegalStateException if {@code client} is not registered.
      */
-    // TODO(b/147845170): change to SystemApi after API review.
     @RequiresPermission(Car.PERMISSION_USE_CAR_WATCHDOG)
     public void tellClientAlive(@NonNull CarWatchdogClientCallback client, int sessionId) {
-        // TODO(b/145556670): implement body.
+        // TODO(ericjeong): Need to check if main thread is active regardless of how many clients
+        // are registered.
+        synchronized (mLock) {
+            if (mRegisteredClient != client) {
+                throw new IllegalStateException(
+                        "Cannot report client status. The client has not been registered.");
+            }
+        }
+        try {
+            mService.tellClientAlive(mClientImpl, sessionId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /** @hide */
@@ -139,6 +208,21 @@ public final class CarWatchdogManager extends CarManagerBase {
         // nothing to do
     }
 
+    private void checkClientStatus(int sessionId, int timeout) {
+        CarWatchdogClientCallback client;
+        Executor executor;
+        synchronized (mLock) {
+            if (mRegisteredClient == null) {
+                Log.w(TAG, "Cannot check client status. The client has not been registered.");
+                return;
+            }
+            client = mRegisteredClient;
+            executor = mCallbackExecutor;
+        }
+        executor.execute(() -> client.onCheckHealthStatus(sessionId, timeout));
+    }
+
+    /** @hide */
     private static final class ICarWatchdogClientImpl extends ICarWatchdogClient.Stub {
         private final WeakReference<CarWatchdogManager> mManager;
 
@@ -148,7 +232,10 @@ public final class CarWatchdogManager extends CarManagerBase {
 
         @Override
         public void checkIfAlive(int sessionId, int timeout) {
-            // TODO(b/145556670): implement body.
+            CarWatchdogManager manager = mManager.get();
+            if (manager != null) {
+                manager.checkClientStatus(sessionId, timeout);
+            }
         }
     }
 }
