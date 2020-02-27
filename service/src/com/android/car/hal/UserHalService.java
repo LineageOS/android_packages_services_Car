@@ -17,6 +17,8 @@ package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
 
+import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
+
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -68,10 +70,10 @@ public final class UserHalService extends HalServiceBase {
     @Nullable
     private SparseArray<VehiclePropConfig> mProperties;
 
-    // NOTE: handler is currently only used to check if HAL times out replying to requests, by
-    // posting messages whose id is the request id. If it needs to be used for more messages, we'll
-    // need to change the mechanism (i.e., rename to mHandler and use msg.what)
-    private final Handler mTimeoutHandler = new Handler(Looper.getMainLooper());
+    // This handler handles 2 types of messages:
+    // - "Anonymous" messages (what=0) containing runnables.
+    // - "Identifiable" messages used to check for timeouts (whose 'what' is the request id).
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     /**
      * Value used on the next request.
@@ -116,7 +118,8 @@ public final class UserHalService extends HalServiceBase {
             VehiclePropValue value = values.get(i);
             switch (value.prop) {
                 case INITIAL_USER_INFO:
-                    mTimeoutHandler.post(() -> handleOnInitialUserInfoResponse(value));
+                    mHandler.sendMessage(obtainMessage(
+                            UserHalService::handleOnInitialUserInfoResponse, this, value));
                     break;
                 default:
                     Slog.w(TAG, "received unsupported event from HAL: " + value);
@@ -244,7 +247,9 @@ public final class UserHalService extends HalServiceBase {
             mPendingCallbacks.put(requestId, new Pair<>(InitialUserInfoResponse.class, callback));
         }
 
-        mTimeoutHandler.postDelayed(() -> handleCheckIfRequestTimedOut(requestId), timeoutMs);
+        mHandler.sendMessageDelayed(obtainMessage(
+                UserHalService::handleCheckIfRequestTimedOut, this, requestId).setWhat(requestId),
+                timeoutMs);
         try {
             if (DBG) Log.d(TAG, "Calling hal.set(): " + propRequest);
             mHal.set(propRequest);
@@ -259,7 +264,7 @@ public final class UserHalService extends HalServiceBase {
      */
     private void handleRemovePendingRequest(int requestId) {
         if (DBG) Log.d(TAG, "Removing pending request #" + requestId);
-        mTimeoutHandler.removeMessages(requestId);
+        mHandler.removeMessages(requestId);
         mPendingCallbacks.remove(requestId);
     }
 
