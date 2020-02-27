@@ -167,6 +167,11 @@ public class FakeCar {
         }
 
         @Override
+        public void onFirstUserUnlocked(int userId, long timestampMs, long duration) {
+            // Nothing to do yet.
+        }
+
+        @Override
         public void setUserLockStatus(int userHandle, int unlocked) throws RemoteException {
             // Nothing to do yet.
         }
