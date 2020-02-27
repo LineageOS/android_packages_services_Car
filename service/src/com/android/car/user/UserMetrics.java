@@ -31,6 +31,7 @@ import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.util.LocalLog;
 import android.util.Slog;
 import android.util.SparseArray;
+import android.util.SparseLongArray;
 import android.util.TimeUtils;
 
 import com.android.internal.annotations.GuardedBy;
@@ -78,6 +79,9 @@ public final class UserMetrics {
     @GuardedBy("mLock")
     private final LocalLog mUserStoppedLogs = new LocalLog(LOG_SIZE);
 
+    @GuardedBy("mLock")
+    private final SparseLongArray mFirstUserUnlockDuration = new SparseLongArray(1);
+
     /**
      * Logs a user lifecycle event.
      */
@@ -106,6 +110,16 @@ public final class UserMetrics {
                 default:
                     Slog.w(TAG, "Invalid event: " + lifecycleEventTypeToString(eventType));
             }
+        }
+    }
+
+    /**
+     * Logs when the first user was unlocked.
+     */
+    public void logFirstUnlockedUser(int userId, long timestampMs, long duration) {
+        synchronized (mLock) {
+            mFirstUserUnlockDuration.put(userId, duration);
+            onUserUnlockedEventLocked(timestampMs, userId);
         }
     }
 
@@ -209,6 +223,14 @@ public final class UserMetrics {
         pw.println("* User Metrics *");
         synchronized (mLock) {
 
+            if (mFirstUserUnlockDuration.size() == 0) {
+                pw.println("First user not unlocked yet");
+            } else {
+                pw.printf("First user (%d) unlocked in ", mFirstUserUnlockDuration.keyAt(0));
+                TimeUtils.formatDuration(mFirstUserUnlockDuration.valueAt(0), pw);
+                pw.println();
+            }
+
             dump(pw, "starting", mUserStartingMetrics);
             dump(pw, "stopping", mUserStoppingMetrics);
 
@@ -217,6 +239,19 @@ public final class UserMetrics {
 
             pw.printf("Last %d stopped users\n", LOG_SIZE);
             mUserStoppedLogs.dump("  ", pw);
+        }
+    }
+
+    /**
+     * Dumps only how long it took to unlock the first user (or {@code -1} if not available).
+     */
+    public void dumpFirstUserUnlockDuration(@NonNull PrintWriter pw) {
+        synchronized (mLock) {
+            if (mFirstUserUnlockDuration.size() == 0) {
+                pw.println(-1);
+                return;
+            }
+            pw.println(mFirstUserUnlockDuration.valueAt(0));
         }
     }
 
