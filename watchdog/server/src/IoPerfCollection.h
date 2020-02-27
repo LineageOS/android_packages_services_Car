@@ -125,15 +125,15 @@ static inline std::string toEventString(CollectionEvent event) {
 // a collection, update the collection type, and generate collection dumps.
 class IoPerfCollection {
 public:
-    IoPerfCollection()
-        : mTopNStatsPerCategory(kTopNStatsPerCategory),
+    IoPerfCollection() :
+          mTopNStatsPerCategory(kTopNStatsPerCategory),
           mBoottimeRecords({}),
           mPeriodicRecords({}),
           mCustomRecords({}),
           mCurrCollectionEvent(CollectionEvent::NONE),
           mUidToPackageNameMapping({}),
-          mUidIoStats() {
-    }
+          mUidIoStats(),
+          mProcStat() {}
 
     // Starts the boot-time collection on a separate thread and returns immediately. Must be called
     // only once. Otherwise, returns an error.
