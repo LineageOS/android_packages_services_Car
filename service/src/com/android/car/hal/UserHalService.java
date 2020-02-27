@@ -22,6 +22,7 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.hardware.property.CarPropertyManager;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -128,7 +129,8 @@ public final class UserHalService extends HalServiceBase {
     }
 
     @Override
-    public void onPropertySetError(int property, int area) {
+    public void onPropertySetError(int property, int area,
+            @CarPropertyManager.CarSetPropertyErrorCode int errorCode) {
         if (DBG)Log.d(TAG, "handlePropertySetError(" + property + "/" + area + ")");
     }
 

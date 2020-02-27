@@ -132,7 +132,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
                 errorLatch.countDown();
             }
         });
-
+        mCarCabinManager.setBooleanProperty(PROP, AREA, true);
         getMockedVehicleHal().injectError(ERR_CODE, PROP, AREA);
         assertTrue(errorLatch.await(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(PROP, propertyIdReceived.value);

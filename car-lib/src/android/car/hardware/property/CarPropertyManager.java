@@ -19,6 +19,7 @@ package android.car.hardware.property;
 import static java.lang.Integer.toHexString;
 
 import android.annotation.FloatRange;
+import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
@@ -36,6 +37,8 @@ import android.util.SparseArray;
 import com.android.car.internal.CarRatedFloatListeners;
 import com.android.car.internal.SingleMessageHandler;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,11 +77,35 @@ public class CarPropertyManager extends CarManagerBase {
         void onChangeEvent(CarPropertyValue value);
 
         /**
-         * Called when an error is detected with a property
+         * Called when an error is detected when setting a property.
+         *
          * @param propId Property ID which is detected an error.
          * @param zone Zone which is detected an error.
+         *
+         * @see CarPropertyEventCallback#onErrorEvent(int, int, int)
          */
         void onErrorEvent(int propId, int zone);
+
+        /**
+         * Called when an error is detected when setting a property.
+         *
+         * <p>Clients which changed the property value in the areaId most recently will receive
+         * this callback. If multiple clients set a property for the same area id simultaneously,
+         * which one takes precedence is undefined. Typically, the last set operation
+         * (in the order that they are issued to car's ECU) overrides the previous set operations.
+         * The delivered error reflects the error happened in the last set operation.
+         *
+         * @param propId Property ID which is detected an error.
+         * @param areaId AreaId which is detected an error.
+         * @param errorCode Error code is raised in the car.
+         */
+        default void onErrorEvent(int propId, int areaId, @CarSetPropertyErrorCode int errorCode) {
+            if (DBG) {
+                Log.d(TAG, "onErrorEvent propertyId: 0x" + toHexString(propId) + " areaId:0x"
+                        + toHexString(areaId) + " ErrorCode: " + errorCode);
+            }
+            onErrorEvent(propId, areaId);
+        }
     }
 
     /** Read ON_CHANGE sensors */
@@ -91,6 +118,44 @@ public class CarPropertyManager extends CarManagerBase {
     public static final float SENSOR_RATE_FAST = 10f;
     /** Read sensors at the rate of 100 hertz */
     public static final float SENSOR_RATE_FASTEST = 100f;
+
+
+
+    /**
+     * Status to indicate that set operation failed. Try it again.
+     */
+    public static final int CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN = 1;
+
+    /**
+     * Status to indicate that set operation failed because of an invalid argument.
+     */
+    public static final int CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG = 2;
+
+    /**
+     * Status to indicate that set operation failed because the property is not available.
+     */
+    public static final int CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE = 3;
+
+    /**
+     * Status to indicate that set operation failed because car denied access to the property.
+     */
+    public static final int CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED = 4;
+
+    /**
+     * Status to indicate that set operation failed because of an general error in cars.
+     */
+    public static final int CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN = 5;
+
+    /** @hide */
+    @IntDef(prefix = {"CAR_SET_PROPERTY_ERROR_CODE_"}, value = {
+            CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN,
+            CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG,
+            CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE,
+            CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED,
+            CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CarSetPropertyErrorCode {}
 
     /**
      * Get an instance of the CarPropertyManager.
@@ -532,6 +597,11 @@ public class CarPropertyManager extends CarManagerBase {
 
     /**
      * Set value of car property by areaId.
+     *
+     * <p>If multiple clients set a property for the same area id simultaneously, which one takes
+     * precedence is undefined. Typically, the last set operation (in the order that they are issued
+     * to the car's ECU) overrides the previous set operations.
+     *
      * @param clazz The class object for the CarPropertyValue
      * @param propId Property ID
      * @param areaId areaId
@@ -554,7 +624,11 @@ public class CarPropertyManager extends CarManagerBase {
                     + ", areaId: 0x" + toHexString(areaId) + ", class: " + clazz + ", val: " + val);
         }
         try {
-            mService.setProperty(new CarPropertyValue<>(propId, areaId, val));
+            if (mCarPropertyEventToService == null) {
+                mCarPropertyEventToService = new CarPropertyEventListenerToService(this);
+            }
+            mService.setProperty(new CarPropertyValue<>(propId, areaId, val),
+                    mCarPropertyEventToService);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         } catch (ServiceSpecificException e) {
@@ -652,9 +726,13 @@ public class CarPropertyManager extends CarManagerBase {
                         Log.d(TAG, new StringBuilder().append("onErrorEvent for ")
                                         .append("property: ").append(value.getPropertyId())
                                         .append(" areaId: ").append(value.getAreaId())
+                                        .append(" errorCode: ").append(event.getErrorCode())
                                         .toString());
                     }
-                    listener.onErrorEvent(value.getPropertyId(), value.getAreaId());
+
+                    listener.onErrorEvent(value.getPropertyId(), value.getAreaId(),
+                            event.getErrorCode());
+
                 }
             });
         }
