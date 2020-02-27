@@ -67,11 +67,11 @@ public abstract class HalServiceBase {
     public abstract void onHalEvents(List<VehiclePropValue> values);
 
     /**
-     * Handles errors when setting properties.
+     * Handles errors and pass error codes  when setting properties.
      */
-    public void onPropertySetError(int property, int area) {
+    public void onPropertySetError(int property, int area, int errorCode) {
         Log.d(MY_TAG, getClass().getSimpleName() + ".onPropertySetError(): property=" + property
-                + ", area=" + area);
+                + ", area=" + area + " , errorCode = " + errorCode);
     }
 
     public abstract void dump(PrintWriter writer);
