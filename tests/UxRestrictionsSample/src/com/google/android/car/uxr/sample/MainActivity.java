@@ -19,7 +19,6 @@ import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_IDLING
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
 import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
-import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_PASSENGER;
 
 import android.app.AlertDialog;
 import android.car.Car;
@@ -50,6 +49,7 @@ public class MainActivity extends AppCompatActivity
     public static final String TAG = "UxRDemo";
 
     private static final String DIALOG_FRAGMENT_TAG = "dialog_fragment_tag";
+    private static final String UX_RESTRICTION_MODE_PASSENGER = "passenger";
 
     private Car mCar;
     private CarDrivingStateManager mCarDrivingStateManager;
@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-        int mode = mCarUxRestrictionsManager.getRestrictionMode();
+        String mode = mCarUxRestrictionsManager.getRestrictionMode();
         switch (mode) {
             case UX_RESTRICTION_MODE_BASELINE:
                 mCarUxRestrictionsManager.setRestrictionMode(UX_RESTRICTION_MODE_PASSENGER);
@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity
                                 .setRestrictions(baseline))
                 .setUxRestrictions(DRIVING_STATE_MOVING,
                         new DrivingStateRestrictions()
-                                .setMode(CarUxRestrictionsManager.UX_RESTRICTION_MODE_PASSENGER)
+                                .setMode(UX_RESTRICTION_MODE_PASSENGER)
                                 .setDistractionOptimizationRequired(passenger != 0)
                                 .setRestrictions(passenger))
                 .setUxRestrictions(DRIVING_STATE_IDLING,
@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity
                                 .setRestrictions(baseline))
                 .setUxRestrictions(DRIVING_STATE_IDLING,
                         new DrivingStateRestrictions()
-                                .setMode(CarUxRestrictionsManager.UX_RESTRICTION_MODE_PASSENGER)
+                                .setMode(UX_RESTRICTION_MODE_PASSENGER)
                                 .setDistractionOptimizationRequired(passenger != 0)
                                 .setRestrictions(passenger))
                 .build();
