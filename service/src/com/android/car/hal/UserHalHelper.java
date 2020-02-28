@@ -37,11 +37,13 @@ public final class UserHalHelper {
             case HalCallback.STATUS_OK:
                 return "OK";
             case HalCallback.STATUS_HAL_SET_TIMEOUT:
-                return "STATUS_HAL_SET_TIMEOUT";
+                return "HAL_SET_TIMEOUT";
             case HalCallback.STATUS_HAL_RESPONSE_TIMEOUT:
-                return "STATUS_HAL_RESPONSE_TIMEOUT";
+                return "HAL_RESPONSE_TIMEOUT";
             case HalCallback.STATUS_WRONG_HAL_RESPONSE:
-                return "STATUS_WRONG_HAL_RESPONSE";
+                return "WRONG_HAL_RESPONSE";
+            case HalCallback.STATUS_CONCURRENT_OPERATION:
+                return "CONCURRENT_OPERATION";
             default:
                 return "UNKNOWN-" + status;
         }
