@@ -617,18 +617,18 @@ package android.car.media {
 
 package android.car.settings {
 
-  public class CarConfigurationManager {
-    method public android.car.settings.SpeedBumpConfiguration getSpeedBumpConfiguration();
+  @Deprecated public class CarConfigurationManager {
+    method @Deprecated public android.car.settings.SpeedBumpConfiguration getSpeedBumpConfiguration();
   }
 
-  public final class SpeedBumpConfiguration implements android.os.Parcelable {
-    ctor public SpeedBumpConfiguration(double, double, long);
-    method public int describeContents();
-    method public double getAcquiredPermitsPerSecond();
-    method public double getMaxPermitPool();
-    method public long getPermitFillDelay();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.settings.SpeedBumpConfiguration> CREATOR;
+  @Deprecated public final class SpeedBumpConfiguration implements android.os.Parcelable {
+    ctor @Deprecated public SpeedBumpConfiguration(double, double, long);
+    method @Deprecated public int describeContents();
+    method @Deprecated public double getAcquiredPermitsPerSecond();
+    method @Deprecated public double getMaxPermitPool();
+    method @Deprecated public long getPermitFillDelay();
+    method @Deprecated public void writeToParcel(android.os.Parcel, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<android.car.settings.SpeedBumpConfiguration> CREATOR;
   }
 
 }
