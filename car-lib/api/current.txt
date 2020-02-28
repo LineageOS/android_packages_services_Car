@@ -571,6 +571,11 @@ package android.car.hardware.property {
     method public <E> void setProperty(@NonNull Class<E>, int, int, @NonNull E);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
+    field public static final int CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED = 4; // 0x4
+    field public static final int CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG = 2; // 0x2
+    field public static final int CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE = 3; // 0x3
+    field public static final int CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN = 1; // 0x1
+    field public static final int CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN = 5; // 0x5
     field public static final float SENSOR_RATE_FAST = 10.0f;
     field public static final float SENSOR_RATE_FASTEST = 100.0f;
     field public static final float SENSOR_RATE_NORMAL = 1.0f;
@@ -581,6 +586,7 @@ package android.car.hardware.property {
   public static interface CarPropertyManager.CarPropertyEventCallback {
     method public void onChangeEvent(android.car.hardware.CarPropertyValue);
     method public void onErrorEvent(int, int);
+    method public default void onErrorEvent(int, int, int);
   }
 
   public class PropertyAccessDeniedSecurityException extends java.lang.SecurityException {
@@ -613,17 +619,6 @@ package android.car.settings {
 
   public class CarConfigurationManager {
     method public android.car.settings.SpeedBumpConfiguration getSpeedBumpConfiguration();
-  }
-
-  public class CarSettings {
-    ctor public CarSettings();
-  }
-
-  public static final class CarSettings.Global {
-    ctor public CarSettings.Global();
-    field @Deprecated public static final String KEY_GARAGE_MODE_ENABLED = "android.car.GARAGE_MODE_ENABLED";
-    field @Deprecated public static final String KEY_GARAGE_MODE_MAINTENANCE_WINDOW = "android.car.GARAGE_MODE_MAINTENANCE_WINDOW";
-    field @Deprecated public static final String KEY_GARAGE_MODE_WAKE_UP_TIME = "android.car.GARAGE_MODE_WAKE_UP_TIME";
   }
 
   public final class SpeedBumpConfiguration implements android.os.Parcelable {

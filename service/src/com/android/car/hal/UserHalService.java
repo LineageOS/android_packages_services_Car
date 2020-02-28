@@ -17,9 +17,12 @@ package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
 
+import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
+
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.hardware.property.CarPropertyManager;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -37,7 +40,6 @@ import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
-import com.android.car.hal.UserHalService.HalCallback.HalCallbackStatus;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -54,6 +56,8 @@ import java.util.Objects;
  */
 public final class UserHalService extends HalServiceBase {
 
+    private static final String UNSUPPORTED_MSG = "Vehicle HAL does not support user management";
+
     private static final String TAG = CarLog.TAG_USER;
 
     // TODO(b/146207078): STOPSHIP - change to false before R is launched
@@ -64,12 +68,13 @@ public final class UserHalService extends HalServiceBase {
     private final VehicleHal mHal;
 
     @GuardedBy("mLock")
-    private final SparseArray<VehiclePropConfig> mProperties = new SparseArray<>(1);
+    @Nullable
+    private SparseArray<VehiclePropConfig> mProperties;
 
-    // NOTE: handler is currently only used to check if HAL times out replying to requests, by
-    // posting messages whose id is the request id. If it needs to be used for more messages, we'll
-    // need to change the mechanism (i.e., rename to mHandler and use msg.what)
-    private final Handler mTimeoutHandler = new Handler(Looper.getMainLooper());
+    // This handler handles 2 types of messages:
+    // - "Anonymous" messages (what=0) containing runnables.
+    // - "Identifiable" messages used to check for timeouts (whose 'what' is the request id).
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     /**
      * Value used on the next request.
@@ -114,7 +119,8 @@ public final class UserHalService extends HalServiceBase {
             VehiclePropValue value = values.get(i);
             switch (value.prop) {
                 case INITIAL_USER_INFO:
-                    mTimeoutHandler.post(() -> handleOnInitialUserInfoResponse(value));
+                    mHandler.sendMessage(obtainMessage(
+                            UserHalService::handleOnInitialUserInfoResponse, this, value));
                     break;
                 default:
                     Slog.w(TAG, "received unsupported event from HAL: " + value);
@@ -123,7 +129,8 @@ public final class UserHalService extends HalServiceBase {
     }
 
     @Override
-    public void onPropertySetError(int property, int area) {
+    public void onPropertySetError(int property, int area,
+            @CarPropertyManager.CarSetPropertyErrorCode int errorCode) {
         if (DBG)Log.d(TAG, "handlePropertySetError(" + property + "/" + area + ")");
     }
 
@@ -131,19 +138,28 @@ public final class UserHalService extends HalServiceBase {
     @Nullable
     public Collection<VehiclePropConfig> takeSupportedProperties(
             Collection<VehiclePropConfig> allProperties) {
-        ArrayList<VehiclePropConfig> supported = new ArrayList<>();
-        synchronized (mLock) {
-            for (VehiclePropConfig config : allProperties) {
-                switch (config.prop) {
-                    case INITIAL_USER_INFO:
-                        supported.add(config);
-                        mProperties.put(config.prop, config);
-                        break;
-                }
-
+        boolean supported = false;
+        // TODO(b/146207078): increase capacity once it supports more
+        SparseArray<VehiclePropConfig> properties = new SparseArray<>(1);
+        ArrayList<VehiclePropConfig> taken = new ArrayList<>();
+        for (VehiclePropConfig config : allProperties) {
+            switch (config.prop) {
+                case INITIAL_USER_INFO:
+                    supported = true;
+                    taken.add(config);
+                    properties.put(config.prop, config);
+                    break;
             }
+
         }
-        return supported.isEmpty() ? null : supported;
+        if (!supported) {
+            Log.w(TAG, UNSUPPORTED_MSG);
+            return null;
+        }
+        synchronized (mLock) {
+            mProperties = properties;
+        }
+        return taken;
     }
 
     /**
@@ -179,6 +195,19 @@ public final class UserHalService extends HalServiceBase {
     }
 
     /**
+     * Checks if the Vehicle HAL supports user management.
+     */
+    public boolean isSupported() {
+        synchronized (mLock) {
+            return mProperties != null;
+        }
+    }
+
+    private void checkSupportedLocked() {
+        Preconditions.checkState(isSupported(), UNSUPPORTED_MSG);
+    }
+
+    /**
      * Calls HAL to asynchronously get info about the initial user.
      *
      * @param requestType type of request (as defined by
@@ -186,6 +215,9 @@ public final class UserHalService extends HalServiceBase {
      * @param timeoutMs how long to wait (in ms) for the property change event.
      * @param usersInfo current state of Android users.
      * @param callback callback to handle the response.
+     *
+     * @throws IllegalStateException if the HAL does not support user management (callers should
+     * call {@link #isSupported()} first to avoid this exception).
      */
     public void getInitialUserInfo(int requestType, int timeoutMs, @NonNull UsersInfo usersInfo,
             @NonNull HalCallback<InitialUserInfoResponse> callback) {
@@ -199,6 +231,7 @@ public final class UserHalService extends HalServiceBase {
         propRequest.prop = INITIAL_USER_INFO;
         int requestId;
         synchronized (mLock) {
+            checkSupportedLocked();
             requestId = mNextRequestId++;
             // TODO(b/146207078): use helper method to convert request to prop value
             propRequest.value.int32Values.add(requestId);
@@ -216,7 +249,9 @@ public final class UserHalService extends HalServiceBase {
             mPendingCallbacks.put(requestId, new Pair<>(InitialUserInfoResponse.class, callback));
         }
 
-        mTimeoutHandler.postDelayed(() -> handleCheckIfRequestTimedOut(requestId), timeoutMs);
+        mHandler.sendMessageDelayed(obtainMessage(
+                UserHalService::handleCheckIfRequestTimedOut, this, requestId).setWhat(requestId),
+                timeoutMs);
         try {
             if (DBG) Log.d(TAG, "Calling hal.set(): " + propRequest);
             mHal.set(propRequest);
@@ -231,7 +266,7 @@ public final class UserHalService extends HalServiceBase {
      */
     private void handleRemovePendingRequest(int requestId) {
         if (DBG) Log.d(TAG, "Removing pending request #" + requestId);
-        mTimeoutHandler.removeMessages(requestId);
+        mHandler.removeMessages(requestId);
         mPendingCallbacks.remove(requestId);
     }
 
@@ -307,6 +342,16 @@ public final class UserHalService extends HalServiceBase {
     public void dump(PrintWriter writer) {
         writer.printf("*User HAL*\n");
         synchronized (mLock) {
+            if (!isSupported()) {
+                writer.println(UNSUPPORTED_MSG);
+                return;
+            }
+            int numberProperties = mProperties.size();
+            String indent = "  ";
+            writer.printf("%d supported properties\n", numberProperties);
+            for (int i = 0; i < numberProperties; i++) {
+                writer.printf("%s%s\n", indent, mProperties.valueAt(i));
+            }
             writer.printf("next request id: %d\n", mNextRequestId);
             if (mPendingCallbacks.size() == 0) {
                 writer.println("no pending callbacks");

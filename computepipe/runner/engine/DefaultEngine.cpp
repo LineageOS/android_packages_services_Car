@@ -243,7 +243,6 @@ Status DefaultEngine::broadcastStartRun() {
     std::vector<int> successfulStreams;
     std::vector<int> successfulInputs;
     for (auto& it : mStreamManagers) {
-        LOG(INFO) << "Engine::sending start run to stream manager " << it.first << " failed";
         if (it.second->handleExecutionPhase(runEvent) != Status::SUCCESS) {
             LOG(ERROR) << "Engine::failure to enter run phase for stream " << it.first;
             broadcastAbortRun(successfulStreams, successfulInputs);

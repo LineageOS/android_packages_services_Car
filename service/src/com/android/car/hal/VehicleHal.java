@@ -23,6 +23,7 @@ import static com.android.car.CarServiceUtils.toIntArray;
 import static java.lang.Integer.toHexString;
 
 import android.annotation.CheckResult;
+import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
@@ -464,13 +465,14 @@ public class VehicleHal extends IVehicleCallback.Stub {
     }
 
     @Override
-    public void onPropertySetError(int errorCode, int propId, int areaId) {
+    public void onPropertySetError(@CarPropertyManager.CarSetPropertyErrorCode int errorCode,
+            int propId, int areaId) {
         Log.e(CarLog.TAG_HAL, String.format("onPropertySetError, errorCode: %d, prop: 0x%x, "
                 + "area: 0x%x", errorCode, propId, areaId));
         if (propId != VehicleProperty.INVALID) {
             HalServiceBase service = mPropertyHandlers.get(propId);
             if (service != null) {
-                service.onPropertySetError(propId, areaId);
+                service.onPropertySetError(propId, areaId, errorCode);
             }
         }
     }
