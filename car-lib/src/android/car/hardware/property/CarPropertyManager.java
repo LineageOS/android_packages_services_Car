@@ -694,11 +694,11 @@ public class CarPropertyManager extends CarManagerBase {
         void onPropertyChanged(final CarPropertyEvent event) {
             // throw away old sensor data as oneway binder call can change order.
             long updateTime = event.getCarPropertyValue().getTimestamp();
-            if (updateTime < mLastUpdateTime) {
+            int areaId = event.getCarPropertyValue().getAreaId();
+            if (!needUpdateForAreaId(areaId, updateTime)) {
                 Log.w(TAG, "dropping old property data");
                 return;
             }
-            mLastUpdateTime = updateTime;
             List<CarPropertyEventCallback> listeners;
             synchronized (mActivePropertyListener) {
                 listeners = new ArrayList<>(getListeners());
@@ -706,7 +706,7 @@ public class CarPropertyManager extends CarManagerBase {
             listeners.forEach(new Consumer<CarPropertyEventCallback>() {
                 @Override
                 public void accept(CarPropertyEventCallback listener) {
-                    if (needUpdate(listener, updateTime)) {
+                    if (needUpdateForSelectedListener(listener, updateTime)) {
                         listener.onChangeEvent(event.getCarPropertyValue());
                     }
                 }
