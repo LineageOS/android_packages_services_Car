@@ -196,6 +196,26 @@ public final class UserHalServiceTest {
     }
 
     @Test
+    public void testGetUserInfo_secondCallFailWhilePending() throws Exception {
+        GenericHalCallback<InitialUserInfoResponse> callback1 = new GenericHalCallback<>(
+                INITIAL_USER_CALLBACK_TIMEOUT_TIMEOUT);
+        GenericHalCallback<InitialUserInfoResponse> callback2 = new GenericHalCallback<>(
+                INITIAL_USER_CALLBACK_TIMEOUT_TIMEOUT);
+        mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS, mUsersInfo,
+                callback1);
+        mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS, mUsersInfo,
+                callback2);
+
+        callback1.assertCalled();
+        assertCallbackStatus(callback1, HalCallback.STATUS_HAL_RESPONSE_TIMEOUT);
+        assertThat(callback1.response).isNull();
+
+        callback2.assertCalled();
+        assertCallbackStatus(callback2, HalCallback.STATUS_CONCURRENT_OPERATION);
+        assertThat(callback1.response).isNull();
+    }
+
+    @Test
     public void testGetUserInfo_halReplyWithWrongRequestId() throws Exception {
         // TODO(b/146207078): use helper method to convert prop value to proper req
         VehiclePropValue propResponse = new VehiclePropValue();
