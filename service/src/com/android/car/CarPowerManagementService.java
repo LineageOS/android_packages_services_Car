@@ -23,7 +23,9 @@ import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPower;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.userlib.CarUserManagerHelper;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
@@ -42,9 +44,11 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 
+import com.android.car.am.ContinuousBlankActivity;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.user.CarUserNoticeService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -356,7 +360,33 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
+    private void updateCarUserNoticeServiceIfNecessary() {
+        try {
+            int currentUserId = ActivityManager.getCurrentUser();
+            UserInfo currentUserInfo = mUserManager.getUserInfo(currentUserId);
+            CarUserNoticeService carUserNoticeService =
+                    CarLocalServices.getService(CarUserNoticeService.class);
+            if (currentUserInfo != null && currentUserInfo.isGuest()
+                    && carUserNoticeService != null) {
+                Log.i(CarLog.TAG_POWER,
+                        "Car user notice service will ignore all messages before user switch.");
+                Intent intent = new Intent();
+                intent.setComponent(new ComponentName(mContext.getPackageName(),
+                        ContinuousBlankActivity.class.getName()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivityAsUser(intent, UserHandle.CURRENT);
+                carUserNoticeService.ignoreUserNotice(currentUserId);
+            }
+        } catch (Exception e) {
+            Log.w(CarLog.TAG_POWER, "Cannot ignore user notice for current user", e);
+        }
+    }
+
     private void handleOn() {
+        // If current user is a Guest User, we want to inform CarUserNoticeService not to show
+        // notice for current user, and show user notice only for the target user.
+        updateCarUserNoticeServiceIfNecessary();
+
         // Some OEMs have their own user-switching logic, which may not be coordinated with this
         // code. To avoid contention, we don't switch users when we coming alive. The OEM's code
         // should do the switch.
