@@ -353,7 +353,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
         // Trigger restrictions by entering driving state
         mService.init();
-        mService.handleDrivingStateEvent(
+        mService.handleDrivingStateEventLocked(
                 new CarDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_MOVING,
                         SystemClock.elapsedRealtime()));
 
@@ -413,7 +413,7 @@ public class CarUxRestrictionsManagerServiceTest {
         // A CarActivityView would report this itself, but we fake the report here
         mService.reportVirtualDisplayToPhysicalDisplay(mRemoteCallback, virtualDisplayId,
                 physicalPortForSecondDisplay);
-        mService.handleDrivingStateEvent(
+        mService.handleDrivingStateEventLocked(
                 new CarDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_MOVING,
                         SystemClock.elapsedRealtime()));
 
