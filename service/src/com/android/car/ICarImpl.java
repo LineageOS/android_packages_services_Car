@@ -72,6 +72,7 @@ import com.android.car.vms.VmsNewBrokerService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.ICarServiceHelper;
+import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.ArrayUtils;
 
 import java.io.FileDescriptor;
@@ -363,13 +364,19 @@ public class ICarImpl extends ICar.Stub {
             int toUserId) {
         assertCallingFromSystemProcess();
         Log.i(TAG, "onUserLifecycleEvent(" + CarUserManager.lifecycleEventTypeToString(eventType)
-                + ", " + toUserId);
+                + ", " + toUserId + ")");
         mUserMetrics.onEvent(eventType, timestampMs, fromUserId, toUserId);
     }
 
     @Override
     public void onFirstUserUnlocked(int userId, long timestampMs, long duration) {
         mUserMetrics.logFirstUnlockedUser(userId, timestampMs, duration);
+    }
+
+    @Override
+    public void getInitialUserInfo(int requestType, int timeoutMs, IBinder binder) {
+        IResultReceiver receiver = IResultReceiver.Stub.asInterface(binder);
+        mCarUserService.getInitialUserInfo(requestType, timeoutMs, receiver);
     }
 
     @Override
