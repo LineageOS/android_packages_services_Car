@@ -328,8 +328,10 @@ Return<sp<IEvsDisplay_1_0>> EvsEnumerator::openDisplay() {
         closeDisplay(pActiveDisplay);
     }
 
-    // Create a new display interface and return it
-    pActiveDisplay = new EvsGlDisplay();
+    // Create a new display interface and return it.  Please note that this
+    // implementation uses whichever display unordered_map::begin() returns.
+    pActiveDisplay = new EvsGlDisplay(sDisplayProxy,
+                                      sDisplayPortList.begin()->second);
     sActiveDisplay = pActiveDisplay;
 
     ALOGD("Returning new EvsGlDisplay object %p", pActiveDisplay.get());
