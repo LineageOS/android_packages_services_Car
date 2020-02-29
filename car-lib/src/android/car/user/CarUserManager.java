@@ -400,6 +400,7 @@ public final class CarUserManager extends CarManagerBase {
      * {@code IResultReceiver} used to receive lifecycle events and dispatch to the proper listener.
      */
     private class LifecycleResultReceiver extends IResultReceiver.Stub {
+        @Override
         public void send(int resultCode, Bundle resultData) {
             if (resultData == null) {
                 Log.w(TAG, "Received result (" + resultCode + ") without data");
