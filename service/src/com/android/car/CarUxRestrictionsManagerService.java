@@ -120,9 +120,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     private static final String JSON_NAME_SCHEMA_VERSION = "schema_version";
     private static final String JSON_NAME_RESTRICTIONS = "restrictions";
+    private static final byte DEFAULT_PORT = 0;
 
-    @VisibleForTesting
-    static final byte DEFAULT_PORT = 0;
     @VisibleForTesting
     static final String CONFIG_FILENAME_PRODUCTION = "ux_restrictions_prod_config.json";
     @VisibleForTesting
@@ -167,7 +166,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     @Override
     public synchronized void init() {
-        mDefaultDisplayPhysicalPort = getDefaultDisplayPhysicalPort();
+        mDefaultDisplayPhysicalPort = getDefaultDisplayPhysicalPort(mDisplayManager);
 
         initPhysicalPort();
 
@@ -897,12 +896,13 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         mCurrentUxRestrictions = newUxRestrictions;
     }
 
-    private byte getDefaultDisplayPhysicalPort() {
-        Display defaultDisplay = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
+    @VisibleForTesting
+    static byte getDefaultDisplayPhysicalPort(DisplayManager displayManager) {
+        Display defaultDisplay = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
         DisplayAddress.Physical address = (DisplayAddress.Physical) defaultDisplay.getAddress();
 
         if (address == null) {
-            Log.w(TAG, "Default display does not have physical display port.");
+            Log.e(TAG, "Default display does not have physical display port. Using 0 as port.");
             return DEFAULT_PORT;
         }
         return address.getPort();
