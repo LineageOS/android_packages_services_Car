@@ -38,8 +38,8 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
+import android.util.SparseIntArray;
 
-import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -50,6 +50,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Service used to integrate the OEM's custom user management with Android's.
@@ -58,10 +60,19 @@ public final class UserHalService extends HalServiceBase {
 
     private static final String UNSUPPORTED_MSG = "Vehicle HAL does not support user management";
 
-    private static final String TAG = CarLog.TAG_USER;
+    private static final String TAG = UserHalService.class.getSimpleName();
 
     // TODO(b/146207078): STOPSHIP - change to false before R is launched
     private static final boolean DBG = true;
+
+    private static final int REQUEST_TYPE_GET_INITIAL_INFO = 1;
+
+    /** @hide */
+    @IntDef(prefix = { "REQUEST_TYPE_" }, value = {
+            REQUEST_TYPE_GET_INITIAL_INFO
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @interface RequestType{}
 
     private final Object mLock = new Object();
 
@@ -83,10 +94,16 @@ public final class UserHalService extends HalServiceBase {
     private int mNextRequestId = 1;
 
     /**
-     * Map of callback by request id.
+     * Map of callbacks by request id.
      */
     @GuardedBy("mHandler")
     private SparseArray<Pair<Class<?>, HalCallback<?>>> mPendingCallbacks = new SparseArray<>();
+
+    /**
+     * Map of request ids by {@link RequestType}.
+     */
+    @GuardedBy("mLock")
+    private SparseIntArray mPendingRequests = new SparseIntArray();
 
     public UserHalService(VehicleHal hal) {
         mHal = hal;
@@ -173,13 +190,15 @@ public final class UserHalService extends HalServiceBase {
         int STATUS_HAL_SET_TIMEOUT = 2;
         int STATUS_HAL_RESPONSE_TIMEOUT = 3;
         int STATUS_WRONG_HAL_RESPONSE = 4;
+        int STATUS_CONCURRENT_OPERATION = 5;
 
         /** @hide */
         @IntDef(prefix = { "STATUS_" }, value = {
                 STATUS_OK,
                 STATUS_HAL_SET_TIMEOUT,
                 STATUS_HAL_RESPONSE_TIMEOUT,
-                STATUS_WRONG_HAL_RESPONSE
+                STATUS_WRONG_HAL_RESPONSE,
+                STATUS_CONCURRENT_OPERATION
         })
         @Retention(RetentionPolicy.SOURCE)
         @interface HalCallbackStatus{}
@@ -203,6 +222,7 @@ public final class UserHalService extends HalServiceBase {
         }
     }
 
+    @GuardedBy("mLock")
     private void checkSupportedLocked() {
         Preconditions.checkState(isSupported(), UNSUPPORTED_MSG);
     }
@@ -221,6 +241,7 @@ public final class UserHalService extends HalServiceBase {
      */
     public void getInitialUserInfo(int requestType, int timeoutMs, @NonNull UsersInfo usersInfo,
             @NonNull HalCallback<InitialUserInfoResponse> callback) {
+        if (DBG) Log.d(TAG, "getInitialInfo(" + requestType + ")");
         Preconditions.checkArgumentPositive(timeoutMs, "timeout must be positive");
         Objects.requireNonNull(usersInfo);
         // TODO(b/146207078): use helper method to convert request to prop value and check usersInfo
@@ -232,7 +253,8 @@ public final class UserHalService extends HalServiceBase {
         int requestId;
         synchronized (mLock) {
             checkSupportedLocked();
-            requestId = mNextRequestId++;
+            if (hasPendingRequestLocked(REQUEST_TYPE_GET_INITIAL_INFO, callback)) return;
+            requestId = addPendingRequestLocked(REQUEST_TYPE_GET_INITIAL_INFO);
             // TODO(b/146207078): use helper method to convert request to prop value
             propRequest.value.int32Values.add(requestId);
             propRequest.value.int32Values.add(requestType);
@@ -245,9 +267,10 @@ public final class UserHalService extends HalServiceBase {
                 propRequest.value.int32Values.add(userInfo.flags);
             }
             setTimestamp(propRequest);
-            if (DBG) Log.d(TAG, "adding pending callback for request " + requestId);
-            mPendingCallbacks.put(requestId, new Pair<>(InitialUserInfoResponse.class, callback));
         }
+        mHandler.sendMessage(obtainMessage(
+                UserHalService::handleAddPendingRequest, this, requestId,
+                InitialUserInfoResponse.class, callback));
 
         mHandler.sendMessageDelayed(obtainMessage(
                 UserHalService::handleCheckIfRequestTimedOut, this, requestId).setWhat(requestId),
@@ -259,6 +282,42 @@ public final class UserHalService extends HalServiceBase {
             Log.w(TAG, "Failed to set INITIAL_USER_INFO", e);
             callback.onResponse(HalCallback.STATUS_HAL_SET_TIMEOUT, null);
         }
+    }
+
+    private void handleAddPendingRequest(int requestId, @NonNull Class<?> responseClass,
+            @NonNull HalCallback<?> callback) {
+        if (DBG) {
+            Log.d(TAG, "adding pending callback (of type " + responseClass.getName()
+                    + ") for request " + requestId);
+        }
+        mPendingCallbacks.put(requestId, new Pair<>(responseClass, callback));
+    }
+
+    /**
+     * Checks if there is a pending request of type {@code requestType}, calling {@code callback}
+     * with {@link HalCallback#STATUS_CONCURRENT_OPERATION} when there is.
+     */
+    private boolean hasPendingRequestLocked(@RequestType int requestType,
+            @NonNull HalCallback<?> callback) {
+        int index = mPendingRequests.indexOfKey(requestType);
+        if (index < 0) return false;
+
+        int requestId = mPendingRequests.valueAt(index);
+        Log.w(TAG, "Already have pending request of type " + requestTypeToString(requestType)
+                + ": id=" + requestId);
+
+        callback.onResponse(HalCallback.STATUS_CONCURRENT_OPERATION, null);
+        return true;
+    }
+
+    /**
+     * Adds a new pending request to the queue, returning its request id.
+     */
+    @GuardedBy("mLock")
+    private int addPendingRequestLocked(@RequestType int requestType) {
+        int requestId = mNextRequestId++;
+        mPendingRequests.put(requestType, requestId);
+        return requestId;
     }
 
     /**
@@ -334,7 +393,7 @@ public final class UserHalService extends HalServiceBase {
         return callback;
     }
 
-    private void setTimestamp(VehiclePropValue propRequest) {
+    private void setTimestamp(@NonNull VehiclePropValue propRequest) {
         propRequest.timestamp = SystemClock.elapsedRealtime();
     }
 
@@ -353,11 +412,50 @@ public final class UserHalService extends HalServiceBase {
                 writer.printf("%s%s\n", indent, mProperties.valueAt(i));
             }
             writer.printf("next request id: %d\n", mNextRequestId);
-            if (mPendingCallbacks.size() == 0) {
-                writer.println("no pending callbacks");
+            int size = mPendingRequests.size();
+            if (size == 0) {
+                writer.println("no pending requests");
             } else {
-                writer.printf("pending callbacks: %s\n", mPendingCallbacks);
+                writer.printf("%d pending requests\n", size);
+                for (int i = 0; i < size; i++) {
+                    String type = requestTypeToString(mPendingRequests.keyAt(i));
+                    int requestId = mPendingRequests.valueAt(i);
+                    writer.printf("%s#%d: %s=req_id(%d)\n", indent, i, type, requestId);
+                }
             }
+        }
+
+        CountDownLatch latch = new CountDownLatch(1);
+        mHandler.sendMessage(obtainMessage(UserHalService::handleDump, this, writer, latch));
+        try {
+            if (!latch.await(500, TimeUnit.SECONDS)) {
+                writer.println("\nTIMED OUT");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            writer.println("\nINTERRUPTED");
+        }
+    }
+
+    /**
+     * Dumps the state that's guarded by {@code mHandler}.
+     */
+    private void handleDump(@NonNull PrintWriter writer, @NonNull CountDownLatch latch) {
+        if (mPendingCallbacks.size() == 0) {
+            writer.println("no pending callbacks");
+        } else {
+            writer.printf("pending callbacks: %s\n", mPendingCallbacks);
+        }
+        latch.countDown();
+    }
+
+    @NonNull
+    private static String requestTypeToString(@RequestType int type) {
+        switch (type) {
+            case REQUEST_TYPE_GET_INITIAL_INFO:
+                return "TYPE_GET_INITIAL_INFO";
+            default:
+                return "UNKNOWN-" + type;
         }
     }
 }
