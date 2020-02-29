@@ -23,3 +23,6 @@ allow hal_evs_driver ion_device:chr_file r_file_perms;
 # Allow the driver to access kobject uevents
 allow hal_evs_driver self:netlink_kobject_uevent_socket create_socket_perms_no_ioctl;
 
+# Allow the driver to use automotive display proxy service
+allow hal_evs_driver automotive_display_service_server:binder call;
+
