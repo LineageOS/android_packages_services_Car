@@ -82,6 +82,10 @@ public class CarTest {
         }
 
         @Override
+        public void getInitialUserInfo(int requestType, int timeoutMs, IBinder binder) {
+        }
+
+        @Override
         public void setUserLockStatus(int userHandle, int unlocked) {
         }
 

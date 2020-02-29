@@ -241,6 +241,7 @@ public final class UserHalService extends HalServiceBase {
      */
     public void getInitialUserInfo(int requestType, int timeoutMs, @NonNull UsersInfo usersInfo,
             @NonNull HalCallback<InitialUserInfoResponse> callback) {
+        if (DBG) Log.d(TAG, "getInitialInfo(" + requestType + ")");
         Preconditions.checkArgumentPositive(timeoutMs, "timeout must be positive");
         Objects.requireNonNull(usersInfo);
         // TODO(b/146207078): use helper method to convert request to prop value and check usersInfo
