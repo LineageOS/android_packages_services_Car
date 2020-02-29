@@ -172,6 +172,11 @@ public class FakeCar {
         }
 
         @Override
+        public void getInitialUserInfo(int requestType, int timeoutMs, IBinder binder) {
+            // Nothing to do yet.
+        }
+
+        @Override
         public void setUserLockStatus(int userHandle, int unlocked) throws RemoteException {
             // Nothing to do yet.
         }

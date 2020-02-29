@@ -480,6 +480,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     public void getInitialUserInfo(int requestType, int timeoutMs,
             @NonNull IResultReceiver receiver) {
+        Objects.requireNonNull(receiver, "receiver cannot be null");
         UsersInfo usersInfo = getUsersInfo();
         mHal.getInitialUserInfo(requestType, timeoutMs, usersInfo, (status, resp) -> {
             try {
