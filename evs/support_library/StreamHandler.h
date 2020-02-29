@@ -19,6 +19,7 @@
 
 #include <queue>
 #include <thread>
+#include <shared_mutex>
 #include <ui/GraphicBuffer.h>
 #include <android/hardware/automotive/evs/1.0/IEvsCameraStream.h>
 #include <android/hardware/automotive/evs/1.0/IEvsCamera.h>
@@ -148,13 +149,14 @@ private:
     int                         mReadyBuffer = -1;  // Index of the newest available buffer
 
     BufferDesc                  mProcessedBuffers[2];
-    BufferDesc                  mAnalyzeBuffer;
+    BufferDesc                  mAnalyzeBuffer GUARDED_BY(mAnalyzerLock);
 
     BaseRenderCallback*         mRenderCallback = nullptr;
 
-    BaseAnalyzeCallback*        mAnalyzeCallback = nullptr;
-    bool                        mAnalyzerRunning = false;
+    BaseAnalyzeCallback*        mAnalyzeCallback GUARDED_BY(mAnalyzerLock);
+    bool                        mAnalyzerRunning GUARDED_BY(mAnalyzerLock);
     std::thread                 mAnalyzeThread;
+    std::shared_mutex           mAnalyzerLock;
 };
 
 }  // namespace support

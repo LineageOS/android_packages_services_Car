@@ -63,4 +63,12 @@ cc_binary {
     include_dirs: [
         "system/core/libsync",
     ],
+
+    product_variables: {
+        debuggable: {
+            cflags: [
+                "-DEVS_ALLOW_AID_ROOT",
+            ]
+        }
+    }
 }
