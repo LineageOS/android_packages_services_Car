@@ -19,8 +19,8 @@ package android.car;
 /** @hide */
 interface ICar {
     // All oneway methods are called from system server and should be placed in top positions.
-    // Do not change the number of oneway methods as system server make binder call based on this
-    // order - if you change them, you need to change the constants on CarServiceHelperService.
+    // Do not change the number of oneway methods as system server make binder calls based on these
+    // numbers - if you change them, you need to change the constants on CarServiceHelperService.
 
     /**
      * IBinder is ICarServiceHelper but passed as IBinder due to aidl hidden.
@@ -47,6 +47,14 @@ interface ICar {
      */
     oneway void onFirstUserUnlocked(int userId, long timestampMs, long duration) = 2;
 
+    /**
+     * Calls User HAL to get the initial user info.
+     *
+     * @param requestType - as defined by InitialUserInfoRequestType.
+     * @param timeoutMs - how long to wait for HAL's response.
+     * @param receiver - a com.android.internal.os.IResultReceiver callback.
+     */
+    oneway void getInitialUserInfo(int requestType, int timeoutMs, in IBinder receiver) = 3;
 
     // TODO(b/145689885): 2 method below are deprecated (onUserLifecycleEvent covers then) so
     // they're have higher codes to make it easier to add other
