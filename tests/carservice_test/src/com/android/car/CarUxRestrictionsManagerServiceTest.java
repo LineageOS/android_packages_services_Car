@@ -27,7 +27,6 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 
 import static com.android.car.CarUxRestrictionsManagerService.CONFIG_FILENAME_PRODUCTION;
 import static com.android.car.CarUxRestrictionsManagerService.CONFIG_FILENAME_STAGED;
-import static com.android.car.CarUxRestrictionsManagerService.DEFAULT_PORT;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -346,7 +345,9 @@ public class CarUxRestrictionsManagerServiceTest {
 
         // Setup restrictions on the default display only
         int defaultPortRestrictions = CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD;
-        CarUxRestrictionsConfiguration defaultPortConfig = createMovingConfig(DEFAULT_PORT,
+        byte defaultPort = CarUxRestrictionsManagerService.getDefaultDisplayPhysicalPort(
+                displayManager);
+        CarUxRestrictionsConfiguration defaultPortConfig = createMovingConfig(defaultPort,
                 defaultPortRestrictions);
         setupMockFile(CONFIG_FILENAME_PRODUCTION, List.of(defaultPortConfig));
 
@@ -381,9 +382,11 @@ public class CarUxRestrictionsManagerServiceTest {
         int displayIdForPhysicalPort1 = 0;
         int displayIdForPhysicalPort2 = 1;
         int virtualDisplayId = 2;
+        int physicalPortForFirstDisplay = 0;
         int physicalPortForSecondDisplay = 11;
         when(mSpyContext.getSystemService(DisplayManager.class)).thenReturn(mDisplayManager);
-        mockDisplay(mDisplayManager, mDisplay0, displayIdForPhysicalPort1, DEFAULT_PORT);
+        mockDisplay(mDisplayManager, mDisplay0, displayIdForPhysicalPort1,
+                physicalPortForFirstDisplay);
         mockDisplay(mDisplayManager, mDisplay1, displayIdForPhysicalPort2,
                 physicalPortForSecondDisplay);
         when(mDisplayManager.getDisplay(virtualDisplayId)).thenReturn(virtualDisplay.getDisplay());
@@ -395,7 +398,8 @@ public class CarUxRestrictionsManagerServiceTest {
 
         // Setup different restrictions for each physical port
         int port2Restrictions = CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD;
-        CarUxRestrictionsConfiguration defaultPortConfig = createMovingConfig(DEFAULT_PORT,
+        CarUxRestrictionsConfiguration defaultPortConfig = createMovingConfig(
+                (byte) physicalPortForFirstDisplay,
                 CarUxRestrictions.UX_RESTRICTIONS_NO_DIALPAD);
         CarUxRestrictionsConfiguration port2Config = createMovingConfig(
                 (byte) physicalPortForSecondDisplay,
