@@ -42,10 +42,15 @@ bool Enumerator::init(const char* hardwareServiceName) {
 
 bool Enumerator::checkPermission() {
     hardware::IPCThreadState *ipc = hardware::IPCThreadState::self();
-    if (AID_AUTOMOTIVE_EVS != ipc->getCallingUid() &&
-        AID_ROOT != ipc->getCallingUid()) {
-
-        ALOGE("EVS access denied?: pid = %d, uid = %d", ipc->getCallingPid(), ipc->getCallingUid());
+    const auto userId = ipc->getCallingUid() / AID_USER_OFFSET;
+    const auto appId = ipc->getCallingUid() % AID_USER_OFFSET;
+#ifdef EVS_ALLOW_AID_ROOT
+    if (AID_AUTOMOTIVE_EVS != appId && AID_ROOT != appId && AID_SYSTEM != appId) {
+#else
+    if (AID_AUTOMOTIVE_EVS != appId && AID_SYSTEM != appId) {
+#endif
+        ALOGE("EVS access denied?: pid = %d, userId = %d, appId = %d",
+              ipc->getCallingPid(), userId, appId);
         return false;
     }
 
