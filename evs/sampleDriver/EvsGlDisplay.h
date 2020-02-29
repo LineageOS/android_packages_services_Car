@@ -53,7 +53,6 @@ public:
     Return<void>            getDisplayInfo_1_1(getDisplayInfo_1_1_cb _info_cb) override;
 
     // Implementation details
-    EvsGlDisplay();
     EvsGlDisplay(sp<IAutomotiveDisplayProxyService> pWindowService, uint64_t displayId);
     virtual ~EvsGlDisplay() override;
 

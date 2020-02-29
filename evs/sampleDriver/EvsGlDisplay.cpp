@@ -32,10 +32,6 @@ namespace implementation {
 
 static bool sDebugFirstFrameDisplayed = false;
 
-EvsGlDisplay::EvsGlDisplay() {
-    EvsGlDisplay(nullptr, 0);
-}
-
 
 EvsGlDisplay::EvsGlDisplay(sp<IAutomotiveDisplayProxyService> pDisplayProxy, uint64_t displayId)
     : mDisplayProxy(pDisplayProxy),
