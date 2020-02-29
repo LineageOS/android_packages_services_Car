@@ -356,7 +356,7 @@ public class ICarImpl extends ICar.Stub {
         mCarUserService.onSwitchUser(userId);
     }
 
-    // TODO(b/146207078): this method is currently used just for metrics logging purposes, but we
+    // TODO(b/145689885): this method is currently used just for metrics logging purposes, but we
     // should fold the other too (onSwitchUser() and setUserLockStatus()) onto it.
     @Override
     public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
@@ -1264,7 +1264,7 @@ public class ICarImpl extends ICar.Stub {
                     + "), timeout=" + timeout);
 
             UserHalService userHal = mHal.getUserHal();
-            // TODO(b/146207078): use UserHalHelper to populate it with current users
+            // TODO(b/150413515): use UserHalHelper to populate it with current users
             UsersInfo usersInfo = new UsersInfo();
             CountDownLatch latch = new CountDownLatch(1);
 
