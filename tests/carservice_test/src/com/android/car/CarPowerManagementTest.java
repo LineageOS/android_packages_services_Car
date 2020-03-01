@@ -44,6 +44,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +54,8 @@ import java.util.concurrent.TimeUnit;
 public class CarPowerManagementTest extends MockedCarTestBase {
 
     private static final int STATE_POLLING_INTERVAL_MS = 1; // Milliseconds
-    private static final int TEST_SHUTDOWN_TIMEOUT_MS = 10 * STATE_POLLING_INTERVAL_MS;
+    private static final int STATE_TRANSITION_MAX_WAIT_MS = 5 * STATE_POLLING_INTERVAL_MS;
+    private static final int TEST_SHUTDOWN_TIMEOUT_MS = 100 * STATE_POLLING_INTERVAL_MS;
 
     private final PowerStatePropertyHandler mPowerStateHandler = new PowerStatePropertyHandler();
     private final MockDisplayInterface mMockDisplayInterface = new MockDisplayInterface();
@@ -400,7 +402,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
             }
         }
 
-        private LinkedList<int[]> waitForStateSetAndGetAll(long timeoutMs, int expectedSet)
+        private LinkedList<int[]> waitForStateSetAndGetAll(long timeoutMs, int expectedState)
                 throws Exception {
             while (true) {
                 if (!mSetWaitSemaphore.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
@@ -409,7 +411,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 synchronized (this) {
                     boolean found = false;
                     for (int[] state : mSetStates) {
-                        if (state[0] == expectedSet) {
+                        if (state[0] == expectedState) {
                             found = true;
                             break;
                         }
@@ -424,10 +426,10 @@ public class CarPowerManagementTest extends MockedCarTestBase {
             }
         }
 
-        private void sendStateAndCheckResponse(int state, int param, int expectedSet)
+        private void sendStateAndCheckResponse(int state, int param, int expectedState)
                 throws Exception {
             sendPowerState(state, param);
-            waitForStateSetAndGetAll(DEFAULT_WAIT_TIMEOUT_MS, expectedSet);
+            waitForStateSetAndGetAll(DEFAULT_WAIT_TIMEOUT_MS, expectedState);
         }
 
         /**
@@ -437,18 +439,28 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         private void sendStateAndExpectNoResponse(int state, int param) throws Exception {
             sendPowerState(state, param);
             // Wait to see if a state transition occurs
-            if (!mSetWaitSemaphore.tryAcquire(TEST_SHUTDOWN_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
-                // No state transition, this is a success!
-                return;
-            }
-            synchronized (this) {
-                int[] newState = mSetStates.pop();
-                if (newState[0] != VehicleApPowerStateReport.SHUTDOWN_POSTPONE) {
-                    fail("Unexpected state change occurred, state=" + newState[0]);
+            long startTime = SystemClock.elapsedRealtime();
+            while (true) {
+                long timeWaitingMs = SystemClock.elapsedRealtime() - startTime;
+                if (timeWaitingMs > STATE_TRANSITION_MAX_WAIT_MS) {
+                    // No meaningful state transition: this is a success!
+                    return;
                 }
-                // Reset the collected states
-                mSetStates = new LinkedList<>();
-                mSetWaitSemaphore.drainPermits();
+                if (!mSetWaitSemaphore.tryAcquire(STATE_TRANSITION_MAX_WAIT_MS,
+                        TimeUnit.MILLISECONDS)) {
+                    // No state transition, this is a success!
+                    return;
+                }
+                synchronized (this) {
+                    while (!mSetStates.isEmpty()) {
+                        int[] newState = mSetStates.pop();
+                        if (newState[0] != VehicleApPowerStateReport.SHUTDOWN_POSTPONE) {
+                            fail("Unexpected state change occurred, state="
+                                    + Arrays.toString(newState));
+                        }
+                    }
+                    mSetWaitSemaphore.drainPermits();
+                }
             }
         }
 
