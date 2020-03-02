@@ -15,9 +15,9 @@
   ~ limitations under the License.
   -->
 
-<carAudioConfiguration version="2">
+<carAudioConfiguration version="1">
     <zones>
-        <zone name="primary zone" isPrimary="true" audioZoneId="primary" occupantZoneId="1">
+        <zone name="primary zone" isPrimary="true">
             <volumeGroups>
                 <group>
                     <device address="bus0_media_out">
@@ -30,10 +30,6 @@
                 <group>
                     <device address="bus1_navigation_out">
                         <context context="navigation"/>
-                        <context context="emergency"/>
-                        <context context="safety"/>
-                        <context context="vehicle_status"/>
-                        <context context="announcement"/>
                     </device>
                 </group>
             </volumeGroups>
@@ -42,7 +38,7 @@
                 <display port="2"/>
             </displays>
         </zone>
-        <zone name="rear seat zone" audioZoneId="2">
+        <zone name="rear seat zone">
             <volumeGroups>
                 <group>
                     <device address="bus100_rear_seat">
@@ -54,10 +50,8 @@
                         <context context="alarm"/>
                         <context context="notification"/>
                         <context context="system_sound"/>
+                        <!-- Non-legacy context in a V1 configuration -->
                         <context context="emergency"/>
-                        <context context="safety"/>
-                        <context context="vehicle_status"/>
-                        <context context="announcement"/>
                     </device>
                 </group>
             </volumeGroups>
