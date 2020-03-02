@@ -27,6 +27,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.hardware.automotive.vehicle.V2_0.RotaryInputType;
 import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -62,6 +63,8 @@ public class InputHalServiceTest {
 
     private static final VehiclePropConfig HW_KEY_INPUT_CONFIG =
             VehiclePropConfigBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT).build();
+    private static final VehiclePropConfig HW_ROTARY_INPUT_CONFIG =
+            VehiclePropConfigBuilder.newBuilder(VehicleProperty.HW_ROTARY_INPUT).build();
     private static final int DISPLAY = 42;
 
     private enum Key { DOWN, UP }
@@ -104,6 +107,38 @@ public class InputHalServiceTest {
 
         assertThat(takenProps).containsExactly(HW_KEY_INPUT_CONFIG);
         assertThat(mInputHalService.isKeyInputSupported()).isTrue();
+        assertThat(mInputHalService.isRotaryInputSupported()).isFalse();
+    }
+
+    @Test
+    public void takesRotaryInputProperty() {
+        Set<VehiclePropConfig> offeredProps = ImmutableSet.of(
+                VehiclePropConfigBuilder.newBuilder(VehicleProperty.ABS_ACTIVE).build(),
+                HW_ROTARY_INPUT_CONFIG,
+                VehiclePropConfigBuilder.newBuilder(VehicleProperty.CURRENT_GEAR).build());
+
+        Collection<VehiclePropConfig> takenProps =
+                mInputHalService.takeSupportedProperties(offeredProps);
+
+        assertThat(takenProps).containsExactly(HW_ROTARY_INPUT_CONFIG);
+        assertThat(mInputHalService.isRotaryInputSupported()).isTrue();
+        assertThat(mInputHalService.isKeyInputSupported()).isFalse();
+    }
+
+    @Test
+    public void takesKeyAndRotaryInputProperty() {
+        Set<VehiclePropConfig> offeredProps = ImmutableSet.of(
+                VehiclePropConfigBuilder.newBuilder(VehicleProperty.ABS_ACTIVE).build(),
+                HW_KEY_INPUT_CONFIG,
+                HW_ROTARY_INPUT_CONFIG,
+                VehiclePropConfigBuilder.newBuilder(VehicleProperty.CURRENT_GEAR).build());
+
+        Collection<VehiclePropConfig> takenProps =
+                mInputHalService.takeSupportedProperties(offeredProps);
+
+        assertThat(takenProps).containsExactly(HW_KEY_INPUT_CONFIG, HW_ROTARY_INPUT_CONFIG);
+        assertThat(mInputHalService.isKeyInputSupported()).isTrue();
+        assertThat(mInputHalService.isRotaryInputSupported()).isTrue();
     }
 
     @Test
@@ -228,6 +263,72 @@ public class InputHalServiceTest {
         assertThat(event.getRepeatCount()).isEqualTo(0);
     }
 
+    @Test
+    public void dispatchesRotaryEvent_singleVolumeUp_toListener() {
+        subscribeListener();
+
+        // KeyEvents get recycled, so we can't just use ArgumentCaptor#getAllValues here.
+        // We need to make a copy of the information we need at the time of the call.
+        List<KeyEvent> events = new ArrayList<>();
+        doAnswer(inv -> {
+            KeyEvent event = inv.getArgument(0);
+            events.add(event.copy());
+            return null;
+        }).when(mInputListener).onKeyEvent(any(), eq(DISPLAY));
+
+        long timestampNanos = 12345678901L;
+        mInputHalService.onHalEvents(ImmutableList.of(
+                makeRotaryPropValue(RotaryInputType.ROTARY_INPUT_TYPE_AUDIO_VOLUME, 1,
+                        timestampNanos, 0)));
+
+        long timestampMillis = timestampNanos / 1000000;
+        KeyEvent downEvent = events.get(0);
+        assertThat(downEvent.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_VOLUME_UP);
+        assertThat(downEvent.getAction()).isEqualTo(KeyEvent.ACTION_DOWN);
+        assertThat(downEvent.getEventTime()).isEqualTo(timestampMillis);
+        KeyEvent upEvent = events.get(1);
+        assertThat(upEvent.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_VOLUME_UP);
+        assertThat(upEvent.getAction()).isEqualTo(KeyEvent.ACTION_UP);
+        assertThat(upEvent.getEventTime()).isEqualTo(timestampMillis);
+
+        events.forEach(KeyEvent::recycle);
+    }
+
+    @Test
+    public void dispatchesRotaryEvent_multipleNavigatePrevious_toListener() {
+        subscribeListener();
+
+        // KeyEvents get recycled, so we can't just use ArgumentCaptor#getAllValues here.
+        // We need to make a copy of the information we need at the time of the call.
+        List<KeyEvent> events = new ArrayList<>();
+        doAnswer(inv -> {
+            KeyEvent event = inv.getArgument(0);
+            events.add(event.copy());
+            return null;
+        }).when(mInputListener).onKeyEvent(any(), eq(DISPLAY));
+
+        long timestampNanos = 12345678901L;
+        int deltaNanos = 876543210;
+        int numberOfDetents = 3;
+        mInputHalService.onHalEvents(ImmutableList.of(
+                makeRotaryPropValue(RotaryInputType.ROTARY_INPUT_TYPE_SYSTEM_NAVIGATION,
+                        -numberOfDetents, timestampNanos, deltaNanos)));
+
+        for (int i = 0; i < numberOfDetents; i++) {
+            long timestampMillis = (timestampNanos + i * (long) deltaNanos) / 1000000;
+            KeyEvent downEvent = events.get(i * 2);
+            assertThat(downEvent.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_NAVIGATE_PREVIOUS);
+            assertThat(downEvent.getAction()).isEqualTo(KeyEvent.ACTION_DOWN);
+            assertThat(downEvent.getEventTime()).isEqualTo(timestampMillis);
+            KeyEvent upEvent = events.get(i * 2 + 1);
+            assertThat(upEvent.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_NAVIGATE_PREVIOUS);
+            assertThat(upEvent.getAction()).isEqualTo(KeyEvent.ACTION_UP);
+            assertThat(upEvent.getEventTime()).isEqualTo(timestampMillis);
+        }
+
+        events.forEach(KeyEvent::recycle);
+    }
+
     private void subscribeListener() {
         mInputHalService.takeSupportedProperties(ImmutableSet.of(HW_KEY_INPUT_CONFIG));
         assertThat(mInputHalService.isKeyInputSupported()).isTrue();
@@ -277,5 +378,19 @@ public class InputHalServiceTest {
         verify(mInputListener, times(indents)).onKeyEvent(captor.capture(), eq(DISPLAY));
         reset(mInputListener);
         return captor.getValue();
+    }
+
+    private VehiclePropValue makeRotaryPropValue(int rotaryInputType, int detents, long timestamp,
+            int delayBetweenDetents) {
+        VehiclePropValue v = new VehiclePropValue();
+        v.prop = VehicleProperty.HW_ROTARY_INPUT;
+        v.value.int32Values.add(rotaryInputType);
+        v.value.int32Values.add(detents);
+        v.value.int32Values.add(DISPLAY);
+        for (int i = 0; i < Math.abs(detents) - 1; i++) {
+            v.value.int32Values.add(delayBetweenDetents);
+        }
+        v.timestamp = timestamp;
+        return v;
     }
 }
