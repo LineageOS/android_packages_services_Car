@@ -30,7 +30,6 @@ interface ICarOccupantZone {
     int getDisplayType(in int displayId);
     int getUserForOccupant(in int occupantZoneId);
     int getOccupantZoneIdForUserId(in int userId);
-    void setAudioZoneIdsForOccupantZoneIds(in int[] audioZoneIds, in int[] occupantZoneIds);
     void registerCallback(in ICarOccupantZoneCallback callback);
     void unregisterCallback(in ICarOccupantZoneCallback callback);
 }
