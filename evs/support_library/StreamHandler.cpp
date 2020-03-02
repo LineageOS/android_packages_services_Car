@@ -228,13 +228,11 @@ void StreamHandler::attachAnalyzeCallback(BaseAnalyzeCallback* callback) {
 void StreamHandler::detachAnalyzeCallback() {
     ALOGD("StreamHandler::detachAnalyzeCallback");
 
-    // Join a running analyzer thread
-    if (mAnalyzeThread.joinable()) {
-        mAnalyzeThread.join();
-    }
-
     {
-        lock_guard<std::shared_mutex> lock(mAnalyzerLock);
+        std::unique_lock<std::shared_mutex> lock(mAnalyzerLock);
+
+        // Wait until current running analyzer ends
+        mAnalyzerSignal.wait(lock, [this] { return !mAnalyzerRunning; });
         mAnalyzeCallback = nullptr;
     }
 }
@@ -463,8 +461,7 @@ bool StreamHandler::copyAndAnalyzeFrame(const BufferDesc& input) {
     inputBuffer->unlock();
 
     mAnalyzerRunning = true;
-
-    mAnalyzeThread = std::thread([this, analyzeFrame]() {
+    std::thread([this, analyzeFrame]() {
         ALOGD("StreamHandler: Analyze Thread starts");
 
         std::shared_lock<std::shared_mutex> lock(mAnalyzerLock);
@@ -473,9 +470,9 @@ bool StreamHandler::copyAndAnalyzeFrame(const BufferDesc& input) {
             android::GraphicBufferMapper::get().unlock(this->mAnalyzeBuffer.memHandle);
         }
         this->mAnalyzerRunning = false;
-
+        mAnalyzerSignal.notify_one();
         ALOGD("StreamHandler: Analyze Thread ends");
-    });
+    }).detach();
 
     return true;
 }
