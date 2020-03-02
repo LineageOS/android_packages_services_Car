@@ -59,7 +59,11 @@ final class FocusInteraction {
                     INTERACTION_REJECT, // CALL
                     INTERACTION_REJECT, // ALARM
                     INTERACTION_REJECT, // NOTIFICATION
-                    INTERACTION_REJECT, // SYSTEM_SOUND
+                    INTERACTION_REJECT, // SYSTEM_SOUND,
+                    INTERACTION_EXCLUSIVE, // EMERGENCY
+                    INTERACTION_EXCLUSIVE, // SAFETY
+                    INTERACTION_REJECT, // VEHICLE_STATUS
+                    INTERACTION_REJECT, // ANNOUNCEMENT
             },
             // Focus holder: MUSIC
             {
@@ -71,7 +75,11 @@ final class FocusInteraction {
                     INTERACTION_EXCLUSIVE, // CALL
                     INTERACTION_EXCLUSIVE, // ALARM
                     INTERACTION_CONCURRENT, // NOTIFICATION
-                    INTERACTION_CONCURRENT,  // SYSTEM_SOUND
+                    INTERACTION_CONCURRENT, // SYSTEM_SOUND
+                    INTERACTION_EXCLUSIVE, // EMERGENCY
+                    INTERACTION_CONCURRENT, // SAFETY
+                    INTERACTION_CONCURRENT, // VEHICLE_STATUS
+                    INTERACTION_EXCLUSIVE, // ANNOUNCEMENT
             },
             // Focus holder: NAVIGATION
             {
@@ -83,7 +91,11 @@ final class FocusInteraction {
                     INTERACTION_EXCLUSIVE, // CALL
                     INTERACTION_CONCURRENT, // ALARM
                     INTERACTION_CONCURRENT, // NOTIFICATION
-                    INTERACTION_CONCURRENT,  // SYSTEM_SOUND
+                    INTERACTION_CONCURRENT, // SYSTEM_SOUND
+                    INTERACTION_EXCLUSIVE, // EMERGENCY
+                    INTERACTION_CONCURRENT, // SAFETY
+                    INTERACTION_CONCURRENT, // VEHICLE_STATUS
+                    INTERACTION_CONCURRENT, // ANNOUNCEMENT
             },
             // Focus holder: VOICE_COMMAND
             {
@@ -96,6 +108,10 @@ final class FocusInteraction {
                     INTERACTION_REJECT, // ALARM
                     INTERACTION_REJECT, // NOTIFICATION
                     INTERACTION_REJECT, // SYSTEM_SOUND
+                    INTERACTION_EXCLUSIVE, // EMERGENCY
+                    INTERACTION_CONCURRENT, // SAFETY
+                    INTERACTION_CONCURRENT, // VEHICLE_STATUS
+                    INTERACTION_REJECT, // ANNOUNCEMENT
             },
             // Focus holder: CALL_RING
             {
@@ -108,6 +124,10 @@ final class FocusInteraction {
                     INTERACTION_REJECT, // ALARM
                     INTERACTION_REJECT, // NOTIFICATION
                     INTERACTION_CONCURRENT, // SYSTEM_SOUND
+                    INTERACTION_EXCLUSIVE, // EMERGENCY
+                    INTERACTION_CONCURRENT, // SAFETY
+                    INTERACTION_CONCURRENT, // VEHICLE_STATUS
+                    INTERACTION_REJECT, // ANNOUNCEMENT
             },
             // Focus holder: CALL
             {
@@ -120,6 +140,10 @@ final class FocusInteraction {
                     INTERACTION_CONCURRENT, // ALARM
                     INTERACTION_CONCURRENT, // NOTIFICATION
                     INTERACTION_REJECT, // SYSTEM_SOUND
+                    INTERACTION_CONCURRENT, // EMERGENCY
+                    INTERACTION_CONCURRENT, // SAFETY
+                    INTERACTION_CONCURRENT, // VEHICLE_STATUS
+                    INTERACTION_REJECT, // ANNOUNCEMENT
             },
             // Focus holder: ALARM
             {
@@ -132,6 +156,10 @@ final class FocusInteraction {
                     INTERACTION_CONCURRENT, // ALARM
                     INTERACTION_CONCURRENT, // NOTIFICATION
                     INTERACTION_CONCURRENT, // SYSTEM_SOUND
+                    INTERACTION_EXCLUSIVE, // EMERGENCY
+                    INTERACTION_CONCURRENT, // SAFETY
+                    INTERACTION_CONCURRENT, // VEHICLE_STATUS
+                    INTERACTION_REJECT, // ANNOUNCEMENT
             },
             // Focus holder: NOTIFICATION
             {
@@ -144,6 +172,10 @@ final class FocusInteraction {
                     INTERACTION_CONCURRENT, // ALARM
                     INTERACTION_CONCURRENT, // NOTIFICATION
                     INTERACTION_CONCURRENT, // SYSTEM_SOUND
+                    INTERACTION_EXCLUSIVE, // EMERGENCY
+                    INTERACTION_CONCURRENT, // SAFETY
+                    INTERACTION_CONCURRENT, // VEHICLE_STATUS
+                    INTERACTION_CONCURRENT, // ANNOUNCEMENT
             },
             // Focus holder: SYSTEM_SOUND
             {
@@ -156,6 +188,74 @@ final class FocusInteraction {
                     INTERACTION_CONCURRENT, // ALARM
                     INTERACTION_CONCURRENT, // NOTIFICATION
                     INTERACTION_CONCURRENT, // SYSTEM_SOUND
+                    INTERACTION_EXCLUSIVE, // EMERGENCY
+                    INTERACTION_CONCURRENT, // SAFETY
+                    INTERACTION_CONCURRENT, // VEHICLE_STATUS
+                    INTERACTION_CONCURRENT, // ANNOUNCEMENT
+            },
+            // Focus holder: EMERGENCY
+            {
+                    INTERACTION_REJECT, // INVALID
+                    INTERACTION_REJECT, // MUSIC
+                    INTERACTION_REJECT, // NAVIGATION
+                    INTERACTION_REJECT, // VOICE_COMMAND
+                    INTERACTION_REJECT, // CALL_RING
+                    INTERACTION_CONCURRENT, // CALL
+                    INTERACTION_REJECT, // ALARM
+                    INTERACTION_REJECT, // NOTIFICATION
+                    INTERACTION_REJECT, // SYSTEM_SOUND
+                    INTERACTION_CONCURRENT, // EMERGENCY
+                    INTERACTION_CONCURRENT, // SAFETY
+                    INTERACTION_REJECT, // VEHICLE_STATUS
+                    INTERACTION_REJECT, // ANNOUNCEMENT
+            },
+            // Focus holder: SAFETY
+            {
+                    INTERACTION_REJECT, // INVALID
+                    INTERACTION_CONCURRENT, // MUSIC
+                    INTERACTION_CONCURRENT, // NAVIGATION
+                    INTERACTION_CONCURRENT, // VOICE_COMMAND
+                    INTERACTION_CONCURRENT, // CALL_RING
+                    INTERACTION_CONCURRENT, // CALL
+                    INTERACTION_CONCURRENT, // ALARM
+                    INTERACTION_CONCURRENT, // NOTIFICATION
+                    INTERACTION_CONCURRENT, // SYSTEM_SOUND
+                    INTERACTION_CONCURRENT, // EMERGENCY
+                    INTERACTION_CONCURRENT, // SAFETY
+                    INTERACTION_CONCURRENT, // VEHICLE_STATUS
+                    INTERACTION_CONCURRENT, // ANNOUNCEMENT
+            },
+            // Focus holder: VEHICLE_STATUS
+            {
+                    INTERACTION_REJECT, // INVALID
+                    INTERACTION_CONCURRENT, // MUSIC
+                    INTERACTION_CONCURRENT, // NAVIGATION
+                    INTERACTION_CONCURRENT, // VOICE_COMMAND
+                    INTERACTION_CONCURRENT, // CALL_RING
+                    INTERACTION_CONCURRENT, // CALL
+                    INTERACTION_CONCURRENT, // ALARM
+                    INTERACTION_CONCURRENT, // NOTIFICATION
+                    INTERACTION_CONCURRENT, // SYSTEM_SOUND
+                    INTERACTION_EXCLUSIVE, // EMERGENCY
+                    INTERACTION_CONCURRENT, // SAFETY
+                    INTERACTION_CONCURRENT, // VEHICLE_STATUS
+                    INTERACTION_CONCURRENT, // ANNOUNCEMENT
+            },
+            // Focus holder: ANNOUNCEMENT
+            {
+                    INTERACTION_REJECT, // INVALID
+                    INTERACTION_EXCLUSIVE, // MUSIC
+                    INTERACTION_CONCURRENT, // NAVIGATION
+                    INTERACTION_EXCLUSIVE, // VOICE_COMMAND
+                    INTERACTION_EXCLUSIVE, // CALL_RING
+                    INTERACTION_EXCLUSIVE, // CALL
+                    INTERACTION_EXCLUSIVE, // ALARM
+                    INTERACTION_CONCURRENT, // NOTIFICATION
+                    INTERACTION_CONCURRENT, // SYSTEM_SOUND
+                    INTERACTION_EXCLUSIVE, // EMERGENCY
+                    INTERACTION_CONCURRENT, // SAFETY
+                    INTERACTION_CONCURRENT, // VEHICLE_STATUS
+                    INTERACTION_EXCLUSIVE, // ANNOUNCEMENT
             },
     };
 

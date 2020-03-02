@@ -50,6 +50,10 @@
                         <context context="alarm"/>
                         <context context="notification"/>
                         <context context="system_sound"/>
+                        <context context="emergency"/>
+                        <context context="safety"/>
+                        <context context="vehicle_status"/>
+                        <context context="announcement"/>
                     </device>
                 </group>
             </volumeGroups>

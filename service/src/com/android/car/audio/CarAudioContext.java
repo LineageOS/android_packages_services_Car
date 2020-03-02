@@ -81,6 +81,22 @@ final class CarAudioContext {
      *     .NOTIFICATION implicitly + 1
      */
     static final int SYSTEM_SOUND = 8;
+    /*
+     * Emergency related sounds such as collision warnings
+     */
+    static final int EMERGENCY = 9;
+    /*
+     * Safety sounds such as obstacle detection when backing up or when changing lanes
+     */
+    static final int SAFETY = 10;
+    /*
+     * Vehicle Status related sounds such as check engine light or seat belt chimes
+     */
+    static final int VEHICLE_STATUS = 11;
+    /*
+     * Announcement such as traffic announcements
+     */
+    static final int ANNOUNCEMENT = 12;
 
     static final int[] CONTEXTS = {
             MUSIC,
@@ -90,8 +106,29 @@ final class CarAudioContext {
             CALL,
             ALARM,
             NOTIFICATION,
-            SYSTEM_SOUND
+            SYSTEM_SOUND,
+            EMERGENCY,
+            SAFETY,
+            VEHICLE_STATUS,
+            ANNOUNCEMENT
     };
+
+    private static final SparseArray<String> CONTEXT_NAMES = new SparseArray<>(CONTEXTS.length + 1);
+    static {
+        CONTEXT_NAMES.append(INVALID, "INVALID");
+        CONTEXT_NAMES.append(MUSIC, "MUSIC");
+        CONTEXT_NAMES.append(NAVIGATION, "NAVIGATION");
+        CONTEXT_NAMES.append(VOICE_COMMAND, "VOICE_COMMAND");
+        CONTEXT_NAMES.append(CALL_RING, "CALL_RING");
+        CONTEXT_NAMES.append(CALL, "CALL");
+        CONTEXT_NAMES.append(ALARM, "ALARM");
+        CONTEXT_NAMES.append(NOTIFICATION, "NOTIFICATION");
+        CONTEXT_NAMES.append(SYSTEM_SOUND, "SYSTEM_SOUND");
+        CONTEXT_NAMES.append(EMERGENCY, "EMERGENCY");
+        CONTEXT_NAMES.append(SAFETY, "SAFETY");
+        CONTEXT_NAMES.append(VEHICLE_STATUS, "VEHICLE_STATUS");
+        CONTEXT_NAMES.append(ANNOUNCEMENT, "ANNOUNCEMENT");
+    }
 
     private static final SparseArray<int[]> CONTEXT_TO_USAGES = new SparseArray<>();
 
@@ -144,6 +181,26 @@ final class CarAudioContext {
                         AudioAttributes.USAGE_ASSISTANCE_SONIFICATION
                 });
 
+        CONTEXT_TO_USAGES.put(EMERGENCY,
+                new int[]{
+                        AudioAttributes.USAGE_EMERGENCY
+                });
+
+        CONTEXT_TO_USAGES.put(SAFETY,
+                new int[]{
+                        AudioAttributes.USAGE_SAFETY
+                });
+
+        CONTEXT_TO_USAGES.put(VEHICLE_STATUS,
+                new int[]{
+                        AudioAttributes.USAGE_VEHICLE_STATUS
+                });
+
+        CONTEXT_TO_USAGES.put(ANNOUNCEMENT,
+                new int[]{
+                        AudioAttributes.USAGE_ANNOUNCEMENT
+                });
+
         CONTEXT_TO_USAGES.put(INVALID,
                 new int[]{
                         AudioAttributes.USAGE_VIRTUAL_SOURCE
@@ -184,28 +241,11 @@ final class CarAudioContext {
     }
 
     static String toString(@AudioContext int audioContext) {
-        switch (audioContext) {
-            case INVALID:
-                return "INVALID";
-            case MUSIC:
-                return "MUSIC";
-            case NAVIGATION:
-                return "NAVIGATION";
-            case VOICE_COMMAND:
-                return "VOICE_COMMAND";
-            case CALL_RING:
-                return "CALL_RING";
-            case CALL:
-                return "CALL";
-            case ALARM:
-                return "ALARM";
-            case NOTIFICATION:
-                return "NOTIFICATION";
-            case SYSTEM_SOUND:
-                return "SYSTEM_SOUND";
-            default:
-                return "0x" + Integer.toHexString(audioContext);
+        String name = CONTEXT_NAMES.get(audioContext);
+        if (name != null) {
+            return name;
         }
+        return "Unsupported Context 0x" + Integer.toHexString(audioContext);
     }
 
     @IntDef({
@@ -218,6 +258,10 @@ final class CarAudioContext {
             ALARM,
             NOTIFICATION,
             SYSTEM_SOUND,
+            EMERGENCY,
+            SAFETY,
+            VEHICLE_STATUS,
+            ANNOUNCEMENT
     })
     @Retention(RetentionPolicy.SOURCE)
     @interface AudioContext {

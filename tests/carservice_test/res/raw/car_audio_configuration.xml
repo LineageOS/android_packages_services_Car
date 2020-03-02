@@ -14,6 +14,10 @@
                 <group>
                     <device address="bus1_navigation_out">
                         <context context="navigation"/>
+                        <context context="emergency"/>
+                        <context context="safety"/>
+                        <context context="vehicle_status"/>
+                        <context context="announcement"/>
                     </device>
                 </group>
             </volumeGroups>
@@ -32,8 +36,12 @@
                         <context context="call_ring"/>
                         <context context="call"/>
                         <context context="alarm"/>
-                        <context context="notification"/>
                         <context context="system_sound"/>
+                        <context context="notification"/>
+                        <context context="emergency"/>
+                        <context context="safety"/>
+                        <context context="vehicle_status"/>
+                        <context context="announcement"/>
                     </device>
                 </group>
             </volumeGroups>
