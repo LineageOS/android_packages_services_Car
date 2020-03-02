@@ -38,12 +38,12 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class CarAudioFocusTest {
     private static final int TEST_TIMING_TOLERANCE_MS = 100;
-    private static final int INTERACTION_REJECT     = 0;    // Focus not granted
-    private static final int INTERACTION_EXCLUSIVE  = 1;    // Focus granted, others loose focus
-    private static final int INTERACTION_CONCURRENT = 2;    // Focus granted, others keep focus
+    private static final int INTERACTION_REJECT = 0;  // Focus not granted
+    private static final int INTERACTION_EXCLUSIVE = 1;  // Focus granted, others loose focus
+    private static final int INTERACTION_CONCURRENT = 2;  // Focus granted, others keep focus
 
     // CarAudioContext.INVALID
-    private static final AudioAttributes ATTR_VIRTUAL_SOURCE = new AudioAttributes.Builder()
+    private static final AudioAttributes ATTR_INVALID = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_VIRTUAL_SOURCE)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build();
@@ -53,22 +53,22 @@ public class CarAudioFocusTest {
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build();
     // CarAudioContext.NAVIGATION
-    private static final AudioAttributes ATTR_DRIVE_DIR = new AudioAttributes.Builder()
+    private static final AudioAttributes ATTR_NAVIGATION = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build();
     // CarAudioContext.VOICE_COMMAND
-    private static final AudioAttributes ATTR_A11Y = new AudioAttributes.Builder()
+    private static final AudioAttributes ATTR_VOICE_COMMAND = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build();
     // CarAudioContext.CALL_RING
-    private static final AudioAttributes ATTR_RINGTONE = new AudioAttributes.Builder()
+    private static final AudioAttributes ATTR_CALL_RING = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build();
     // CarAudioContext.CALL
-    private static final AudioAttributes ATTR_VOICE_COM = new AudioAttributes.Builder()
+    private static final AudioAttributes ATTR_CALL = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build();
@@ -83,8 +83,28 @@ public class CarAudioFocusTest {
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build();
     // CarAudioContext.SYSTEM_SOUND
-    private static final AudioAttributes ATTR_A11Y_NOTIFICATION = new AudioAttributes.Builder()
+    private static final AudioAttributes ATTR_SYSTEM_SOUND = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+            .build();
+    // CarAudioContext.EMERGENCY
+    private static final AudioAttributes ATTR_EMERGENCY = new AudioAttributes.Builder()
+            .setSystemUsage(AudioAttributes.USAGE_EMERGENCY)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build();
+    // CarAudioContext.SAFETY
+    private static final AudioAttributes ATTR_SAFETY = new AudioAttributes.Builder()
+            .setSystemUsage(AudioAttributes.USAGE_SAFETY)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build();
+    // CarAudioContext.VEHICLE_STATUS
+    private static final AudioAttributes ATTR_VEHICLE_STATUS = new AudioAttributes.Builder()
+            .setSystemUsage(AudioAttributes.USAGE_VEHICLE_STATUS)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build();
+    // CarAudioContext.ANNOUNCEMENT
+    private static final AudioAttributes ATTR_ANNOUNCEMENT = new AudioAttributes.Builder()
+            .setSystemUsage(AudioAttributes.USAGE_ANNOUNCEMENT)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build();
 
@@ -104,15 +124,19 @@ public class CarAudioFocusTest {
     @Test
     public void individualAttributeFocusRequest_focusRequestGranted() throws Exception {
         // Make sure each usage is able to request and release audio focus individually
-        requestAndLoseFocusForAttribute(ATTR_VIRTUAL_SOURCE);
+        requestAndLoseFocusForAttribute(ATTR_INVALID);
         requestAndLoseFocusForAttribute(ATTR_MEDIA);
-        requestAndLoseFocusForAttribute(ATTR_DRIVE_DIR);
-        requestAndLoseFocusForAttribute(ATTR_A11Y);
-        requestAndLoseFocusForAttribute(ATTR_RINGTONE);
-        requestAndLoseFocusForAttribute(ATTR_VOICE_COM);
+        requestAndLoseFocusForAttribute(ATTR_NAVIGATION);
+        requestAndLoseFocusForAttribute(ATTR_VOICE_COMMAND);
+        requestAndLoseFocusForAttribute(ATTR_CALL_RING);
+        requestAndLoseFocusForAttribute(ATTR_CALL);
         requestAndLoseFocusForAttribute(ATTR_ALARM);
         requestAndLoseFocusForAttribute(ATTR_NOTIFICATION);
-        requestAndLoseFocusForAttribute(ATTR_A11Y_NOTIFICATION);
+        requestAndLoseFocusForAttribute(ATTR_SYSTEM_SOUND);
+        requestAndLoseFocusForAttribute(ATTR_EMERGENCY);
+        requestAndLoseFocusForAttribute(ATTR_SAFETY);
+        requestAndLoseFocusForAttribute(ATTR_VEHICLE_STATUS);
+        requestAndLoseFocusForAttribute(ATTR_ANNOUNCEMENT);
     }
 
     @Test
@@ -152,12 +176,10 @@ public class CarAudioFocusTest {
 
         // Test exclusive interactions with audio focus transient may duck focus request
         // without pause instead of ducking
-        testExclusiveInteractions(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
-                false);
+        testExclusiveInteractions(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, false);
         // Test exclusive interactions with audio focus transient may duck focus request
         // with pause instead of ducking
-        testExclusiveInteractions(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
-                true);
+        testExclusiveInteractions(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, true);
     }
 
     @RequiresDevice
@@ -168,39 +190,63 @@ public class CarAudioFocusTest {
         // will be rejected
         int interaction = INTERACTION_REJECT;
         int gain = AudioManager.AUDIOFOCUS_GAIN;
-        testInteraction(ATTR_VIRTUAL_SOURCE, ATTR_VIRTUAL_SOURCE, interaction, gain, false);
-        testInteraction(ATTR_VIRTUAL_SOURCE, ATTR_MEDIA, interaction, gain, false);
-        testInteraction(ATTR_VIRTUAL_SOURCE, ATTR_DRIVE_DIR, interaction, gain, false);
-        testInteraction(ATTR_VIRTUAL_SOURCE, ATTR_A11Y, interaction, gain, false);
-        testInteraction(ATTR_VIRTUAL_SOURCE, ATTR_RINGTONE, interaction, gain, false);
-        testInteraction(ATTR_VIRTUAL_SOURCE, ATTR_VOICE_COM, interaction, gain, false);
-        testInteraction(ATTR_VIRTUAL_SOURCE, ATTR_ALARM, interaction, gain, false);
-        testInteraction(ATTR_VIRTUAL_SOURCE, ATTR_NOTIFICATION, interaction, gain, false);
-        testInteraction(ATTR_VIRTUAL_SOURCE, ATTR_A11Y_NOTIFICATION, interaction, gain, false);
+        testInteraction(ATTR_INVALID, ATTR_INVALID, interaction, gain, false);
+        testInteraction(ATTR_INVALID, ATTR_MEDIA, interaction, gain, false);
+        testInteraction(ATTR_INVALID, ATTR_NAVIGATION, interaction, gain, false);
+        testInteraction(ATTR_INVALID, ATTR_VOICE_COMMAND, interaction, gain, false);
+        testInteraction(ATTR_INVALID, ATTR_CALL_RING, interaction, gain, false);
+        testInteraction(ATTR_INVALID, ATTR_CALL, interaction, gain, false);
+        testInteraction(ATTR_INVALID, ATTR_ALARM, interaction, gain, false);
+        testInteraction(ATTR_INVALID, ATTR_NOTIFICATION, interaction, gain, false);
+        testInteraction(ATTR_INVALID, ATTR_SYSTEM_SOUND, interaction, gain, false);
+        testInteraction(ATTR_INVALID, ATTR_VEHICLE_STATUS, interaction, gain, false);
+        testInteraction(ATTR_INVALID, ATTR_ANNOUNCEMENT, interaction, gain, false);
 
-        testInteraction(ATTR_MEDIA, ATTR_VIRTUAL_SOURCE, interaction, gain, false);
+        testInteraction(ATTR_MEDIA, ATTR_INVALID, interaction, gain, false);
 
-        testInteraction(ATTR_DRIVE_DIR, ATTR_VIRTUAL_SOURCE, interaction, gain, false);
+        testInteraction(ATTR_NAVIGATION, ATTR_INVALID, interaction, gain, false);
 
-        testInteraction(ATTR_A11Y, ATTR_VIRTUAL_SOURCE, interaction, gain, false);
-        testInteraction(ATTR_A11Y, ATTR_DRIVE_DIR, interaction, gain, false);
-        testInteraction(ATTR_A11Y, ATTR_NOTIFICATION, interaction, gain, false);
-        testInteraction(ATTR_A11Y, ATTR_A11Y_NOTIFICATION, interaction, gain, false);
+        testInteraction(ATTR_VOICE_COMMAND, ATTR_INVALID, interaction, gain, false);
+        testInteraction(ATTR_VOICE_COMMAND, ATTR_NAVIGATION, interaction, gain, false);
+        testInteraction(ATTR_VOICE_COMMAND, ATTR_NOTIFICATION, interaction, gain, false);
+        testInteraction(ATTR_VOICE_COMMAND, ATTR_SYSTEM_SOUND, interaction, gain, false);
+        testInteraction(ATTR_VOICE_COMMAND, ATTR_ANNOUNCEMENT, interaction, gain, false);
 
-        testInteraction(ATTR_RINGTONE, ATTR_VIRTUAL_SOURCE, interaction, gain, false);
-        testInteraction(ATTR_RINGTONE, ATTR_MEDIA, interaction, gain, false);
-        testInteraction(ATTR_RINGTONE, ATTR_ALARM, interaction, gain, false);
-        testInteraction(ATTR_RINGTONE, ATTR_NOTIFICATION, interaction, gain, false);
+        testInteraction(ATTR_CALL_RING, ATTR_INVALID, interaction, gain, false);
+        testInteraction(ATTR_CALL_RING, ATTR_MEDIA, interaction, gain, false);
+        testInteraction(ATTR_CALL_RING, ATTR_ALARM, interaction, gain, false);
+        testInteraction(ATTR_CALL_RING, ATTR_NOTIFICATION, interaction, gain, false);
+        testInteraction(ATTR_CALL_RING, ATTR_ANNOUNCEMENT, interaction, gain, false);
 
-        testInteraction(ATTR_VOICE_COM, ATTR_VIRTUAL_SOURCE, interaction, gain, false);
-        testInteraction(ATTR_VOICE_COM, ATTR_MEDIA, interaction, gain, false);
-        testInteraction(ATTR_VOICE_COM, ATTR_A11Y, interaction, gain, false);
+        testInteraction(ATTR_CALL, ATTR_INVALID, interaction, gain, false);
+        testInteraction(ATTR_CALL, ATTR_MEDIA, interaction, gain, false);
+        testInteraction(ATTR_CALL, ATTR_VOICE_COMMAND, interaction, gain, false);
+        testInteraction(ATTR_CALL, ATTR_SYSTEM_SOUND, interaction, gain, false);
+        testInteraction(ATTR_CALL, ATTR_ANNOUNCEMENT, interaction, gain, false);
 
-        testInteraction(ATTR_ALARM, ATTR_VIRTUAL_SOURCE, interaction, gain, false);
+        testInteraction(ATTR_ALARM, ATTR_INVALID, interaction, gain, false);
+        testInteraction(ATTR_ALARM, ATTR_ANNOUNCEMENT, interaction, gain, false);
 
-        testInteraction(ATTR_NOTIFICATION, ATTR_VIRTUAL_SOURCE, interaction, gain, false);
+        testInteraction(ATTR_NOTIFICATION, ATTR_INVALID, interaction, gain, false);
 
-        testInteraction(ATTR_A11Y_NOTIFICATION, ATTR_VIRTUAL_SOURCE, interaction, gain, false);
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_INVALID, interaction, gain, false);
+
+        testInteraction(ATTR_EMERGENCY, ATTR_INVALID, interaction, gain, false);
+        testInteraction(ATTR_EMERGENCY, ATTR_MEDIA, interaction, gain, false);
+        testInteraction(ATTR_EMERGENCY, ATTR_NAVIGATION, interaction, gain, false);
+        testInteraction(ATTR_EMERGENCY, ATTR_VOICE_COMMAND, interaction, gain, false);
+        testInteraction(ATTR_EMERGENCY, ATTR_CALL_RING, interaction, gain, false);
+        testInteraction(ATTR_EMERGENCY, ATTR_ALARM, interaction, gain, false);
+        testInteraction(ATTR_EMERGENCY, ATTR_NOTIFICATION, interaction, gain, false);
+        testInteraction(ATTR_EMERGENCY, ATTR_SYSTEM_SOUND, interaction, gain, false);
+        testInteraction(ATTR_EMERGENCY, ATTR_VEHICLE_STATUS, interaction, gain, false);
+        testInteraction(ATTR_EMERGENCY, ATTR_ANNOUNCEMENT, interaction, gain, false);
+
+        testInteraction(ATTR_SAFETY, ATTR_INVALID, interaction, gain, false);
+
+        testInteraction(ATTR_VEHICLE_STATUS, ATTR_INVALID, interaction, gain, false);
+
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_INVALID, interaction, gain, false);
     }
 
     @Test
@@ -248,52 +294,103 @@ public class CarAudioFocusTest {
         // Test paired concurrent interactions i.e. interactions that can
         // potentially gain focus at the same time.
         int interaction = INTERACTION_CONCURRENT;
-        testInteraction(ATTR_MEDIA, ATTR_DRIVE_DIR, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_MEDIA, ATTR_NAVIGATION, interaction, gain, pauseForDucking);
         testInteraction(ATTR_MEDIA, ATTR_NOTIFICATION, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_MEDIA, ATTR_A11Y_NOTIFICATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_MEDIA, ATTR_SYSTEM_SOUND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_MEDIA, ATTR_SAFETY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_MEDIA, ATTR_VEHICLE_STATUS, interaction, gain, pauseForDucking);
 
-        testInteraction(ATTR_DRIVE_DIR, ATTR_MEDIA, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_DRIVE_DIR, ATTR_DRIVE_DIR, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_DRIVE_DIR, ATTR_RINGTONE, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_DRIVE_DIR, ATTR_ALARM, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_DRIVE_DIR, ATTR_NOTIFICATION, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_DRIVE_DIR, ATTR_A11Y_NOTIFICATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NAVIGATION, ATTR_MEDIA, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NAVIGATION, ATTR_NAVIGATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NAVIGATION, ATTR_CALL_RING, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NAVIGATION, ATTR_ALARM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NAVIGATION, ATTR_NOTIFICATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NAVIGATION, ATTR_SYSTEM_SOUND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NAVIGATION, ATTR_SAFETY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NAVIGATION, ATTR_VEHICLE_STATUS, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NAVIGATION, ATTR_ANNOUNCEMENT, interaction, gain, pauseForDucking);
 
-        testInteraction(ATTR_A11Y, ATTR_MEDIA, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_A11Y, ATTR_A11Y, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VOICE_COMMAND, ATTR_MEDIA, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VOICE_COMMAND, ATTR_VOICE_COMMAND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VOICE_COMMAND, ATTR_SAFETY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VOICE_COMMAND, ATTR_VEHICLE_STATUS, interaction, gain,
+                pauseForDucking);
 
-        testInteraction(ATTR_RINGTONE, ATTR_DRIVE_DIR, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_RINGTONE, ATTR_A11Y, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_RINGTONE, ATTR_RINGTONE, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_RINGTONE, ATTR_VOICE_COM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL_RING, ATTR_NAVIGATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL_RING, ATTR_VOICE_COMMAND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL_RING, ATTR_CALL_RING, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL_RING, ATTR_CALL, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL_RING, ATTR_SAFETY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL_RING, ATTR_VEHICLE_STATUS, interaction, gain, pauseForDucking);
 
-        testInteraction(ATTR_VOICE_COM, ATTR_DRIVE_DIR, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_VOICE_COM, ATTR_RINGTONE, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_VOICE_COM, ATTR_VOICE_COM, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_VOICE_COM, ATTR_ALARM, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_VOICE_COM, ATTR_NOTIFICATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL, ATTR_NAVIGATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL, ATTR_CALL_RING, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL, ATTR_CALL, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL, ATTR_ALARM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL, ATTR_NOTIFICATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL, ATTR_SAFETY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL, ATTR_VEHICLE_STATUS, interaction, gain, pauseForDucking);
 
         testInteraction(ATTR_ALARM, ATTR_MEDIA, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_ALARM, ATTR_DRIVE_DIR, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ALARM, ATTR_NAVIGATION, interaction, gain, pauseForDucking);
         testInteraction(ATTR_ALARM, ATTR_ALARM, interaction, gain, pauseForDucking);
         testInteraction(ATTR_ALARM, ATTR_NOTIFICATION, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_ALARM, ATTR_A11Y_NOTIFICATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ALARM, ATTR_SYSTEM_SOUND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ALARM, ATTR_SAFETY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ALARM, ATTR_VEHICLE_STATUS, interaction, gain, pauseForDucking);
 
         testInteraction(ATTR_NOTIFICATION, ATTR_MEDIA, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_NOTIFICATION, ATTR_DRIVE_DIR, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NOTIFICATION, ATTR_NAVIGATION, interaction, gain, pauseForDucking);
         testInteraction(ATTR_NOTIFICATION, ATTR_ALARM, interaction, gain, pauseForDucking);
         testInteraction(ATTR_NOTIFICATION, ATTR_NOTIFICATION, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_NOTIFICATION, ATTR_A11Y_NOTIFICATION, interaction, gain,
-                pauseForDucking);
+        testInteraction(ATTR_NOTIFICATION, ATTR_SYSTEM_SOUND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NOTIFICATION, ATTR_SAFETY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NOTIFICATION, ATTR_VEHICLE_STATUS, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NOTIFICATION, ATTR_ANNOUNCEMENT, interaction, gain, pauseForDucking);
 
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_MEDIA, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_NAVIGATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_ALARM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_NOTIFICATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_SYSTEM_SOUND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_SAFETY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_VEHICLE_STATUS, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_ANNOUNCEMENT, interaction, gain, pauseForDucking);
 
-        testInteraction(ATTR_A11Y_NOTIFICATION, ATTR_MEDIA, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_A11Y_NOTIFICATION, ATTR_DRIVE_DIR, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_A11Y_NOTIFICATION, ATTR_ALARM, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_A11Y_NOTIFICATION, ATTR_NOTIFICATION, interaction, gain,
+        testInteraction(ATTR_EMERGENCY, ATTR_CALL, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_EMERGENCY, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_EMERGENCY, ATTR_SAFETY, interaction, gain, pauseForDucking);
+
+        testInteraction(ATTR_SAFETY, ATTR_MEDIA, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SAFETY, ATTR_NAVIGATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SAFETY, ATTR_CALL_RING, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SAFETY, ATTR_CALL, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SAFETY, ATTR_ALARM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SAFETY, ATTR_NOTIFICATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SAFETY, ATTR_SYSTEM_SOUND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SAFETY, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SAFETY, ATTR_SAFETY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SAFETY, ATTR_VEHICLE_STATUS, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SAFETY, ATTR_ANNOUNCEMENT, interaction, gain, pauseForDucking);
+
+        testInteraction(ATTR_VEHICLE_STATUS, ATTR_MEDIA, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VEHICLE_STATUS, ATTR_NAVIGATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VEHICLE_STATUS, ATTR_CALL_RING, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VEHICLE_STATUS, ATTR_CALL, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VEHICLE_STATUS, ATTR_ALARM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VEHICLE_STATUS, ATTR_NOTIFICATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VEHICLE_STATUS, ATTR_SYSTEM_SOUND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VEHICLE_STATUS, ATTR_SAFETY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VEHICLE_STATUS, ATTR_VEHICLE_STATUS, interaction, gain,
                 pauseForDucking);
-        testInteraction(ATTR_A11Y_NOTIFICATION, ATTR_A11Y_NOTIFICATION, interaction, gain,
-                pauseForDucking);
+        testInteraction(ATTR_VEHICLE_STATUS, ATTR_ANNOUNCEMENT, interaction, gain, pauseForDucking);
+
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_NAVIGATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_NOTIFICATION, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_SYSTEM_SOUND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_SAFETY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_VEHICLE_STATUS, interaction, gain, pauseForDucking);
     }
 
     private void testExclusiveInteractions(int gain, boolean pauseForDucking)
@@ -303,43 +400,69 @@ public class CarAudioFocusTest {
         // another usage. As a result once focus is gained any current focus listener
         // in this interaction will lose focus.
         int interaction = INTERACTION_EXCLUSIVE;
+
+        testInteraction(ATTR_INVALID, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_INVALID, ATTR_SAFETY, interaction, gain, pauseForDucking);
+
         testInteraction(ATTR_MEDIA, ATTR_MEDIA, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_MEDIA, ATTR_A11Y, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_MEDIA, ATTR_RINGTONE, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_MEDIA, ATTR_VOICE_COM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_MEDIA, ATTR_VOICE_COMMAND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_MEDIA, ATTR_CALL_RING, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_MEDIA, ATTR_CALL, interaction, gain, pauseForDucking);
         testInteraction(ATTR_MEDIA, ATTR_ALARM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_MEDIA, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_MEDIA, ATTR_ANNOUNCEMENT, interaction, gain, pauseForDucking);
 
-        testInteraction(ATTR_DRIVE_DIR, ATTR_A11Y, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_DRIVE_DIR, ATTR_VOICE_COM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NAVIGATION, ATTR_VOICE_COMMAND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NAVIGATION, ATTR_CALL, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NAVIGATION, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
 
-        testInteraction(ATTR_A11Y, ATTR_RINGTONE, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_A11Y, ATTR_VOICE_COM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VOICE_COMMAND, ATTR_CALL_RING, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VOICE_COMMAND, ATTR_CALL, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_VOICE_COMMAND, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
 
-        testInteraction(ATTR_ALARM, ATTR_A11Y, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_ALARM, ATTR_RINGTONE, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_ALARM, ATTR_VOICE_COM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_CALL_RING, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
 
-        testInteraction(ATTR_NOTIFICATION, ATTR_A11Y, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_NOTIFICATION, ATTR_RINGTONE, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_NOTIFICATION, ATTR_VOICE_COM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ALARM, ATTR_VOICE_COMMAND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ALARM, ATTR_CALL_RING, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ALARM, ATTR_CALL, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ALARM, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
 
-        testInteraction(ATTR_A11Y_NOTIFICATION, ATTR_A11Y, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_A11Y_NOTIFICATION, ATTR_RINGTONE, interaction, gain, pauseForDucking);
-        testInteraction(ATTR_A11Y_NOTIFICATION, ATTR_VOICE_COM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NOTIFICATION, ATTR_VOICE_COMMAND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NOTIFICATION, ATTR_CALL_RING, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NOTIFICATION, ATTR_CALL, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_NOTIFICATION, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
+
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_VOICE_COMMAND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_CALL_RING, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_CALL, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_SYSTEM_SOUND, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
+
+        testInteraction(ATTR_VEHICLE_STATUS, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
+
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_MEDIA, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_VOICE_COMMAND, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_CALL_RING, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_CALL, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_ALARM, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_EMERGENCY, interaction, gain, pauseForDucking);
+        testInteraction(ATTR_ANNOUNCEMENT, ATTR_ANNOUNCEMENT, interaction, gain, pauseForDucking);
     }
 
 
     /**
      * Test paired usage interactions with gainType and pause instead ducking
-     * @param attributes1 Attributes of the first usage (first focus requester) in the interaction
-     * @param attributes2 Attributes of the second usage (second focus requester) in the interaction
-     * @param interaction type of interaction {@link INTERACTION_REJECT},
-     * {@link INTERACTION_EXCLUSIVE}, {@link INTERACTION_CONCURRENT}
-     * @param gainType Type of gain {@link AudioManager.AUDIOFOCUS_GAIN} ,
-     * {@link CarAudioFocus.AUDIOFOCUS_GAIN_TRANSIENT},
-     * {@link CarAudioFocus.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK}
-     * @param pauseForDucking flag to indicate if the first focus listener should pause
-     *                        instead of ducking
+     *
+     * @param attributes1     Attributes of the first usage (first focus requester) in the
+     *                        interaction
+     * @param attributes2     Attributes of the second usage (second focus requester) in the
+     *                        interaction
+     * @param interaction     type of interaction {@link INTERACTION_REJECT}, {@link
+     *                        INTERACTION_EXCLUSIVE}, {@link INTERACTION_CONCURRENT}
+     * @param gainType        Type of gain {@link AudioManager.AUDIOFOCUS_GAIN} , {@link
+     *                        CarAudioFocus.AUDIOFOCUS_GAIN_TRANSIENT}, {@link
+     *                        CarAudioFocus.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK}
+     * @param pauseForDucking flag to indicate if the first focus listener should pause instead of
+     *                        ducking
      * @throws Exception
      */
     private void testInteraction(AudioAttributes attributes1,
@@ -392,13 +515,12 @@ public class CarAudioFocusTest {
 
         int requestResult = mAudioManager.requestAudioFocus(audioFocusRequest1);
         String message = "Focus gain request failed  for 1st "
-                + AudioAttributes.usageToString(attributes1.getUsage());
+                + AudioAttributes.usageToString(attributes1.getSystemUsage());
         assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
-
 
         requestResult = mAudioManager.requestAudioFocus(audioFocusRequest2);
         message = "Focus gain request failed for 2nd "
-                + AudioAttributes.usageToString(attributes2.getUsage());
+                + AudioAttributes.usageToString(attributes2.getSystemUsage());
         assertEquals(message, secondRequestResultsExpected, requestResult);
 
         // If the results is rejected for second one we only have to clean up first
@@ -406,7 +528,7 @@ public class CarAudioFocusTest {
         if (interaction == INTERACTION_REJECT) {
             requestResult = mAudioManager.abandonAudioFocusRequest(audioFocusRequest1);
             message = "Focus loss request failed for 1st "
-                    + AudioAttributes.usageToString(attributes1.getUsage());
+                    + AudioAttributes.usageToString(attributes1.getSystemUsage());
             assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
         }
 
@@ -415,13 +537,13 @@ public class CarAudioFocusTest {
         if (interaction == INTERACTION_EXCLUSIVE || interaction == INTERACTION_CONCURRENT) {
             Thread.sleep(TEST_TIMING_TOLERANCE_MS);
             message = "Focus change was not dispatched for 1st "
-                    + AudioAttributes.usageToString(ATTR_MEDIA.getUsage());
+                    + AudioAttributes.usageToString(ATTR_MEDIA.getSystemUsage());
             assertEquals(message, expectedLoss,
                     focusChangeListener1.getFocusChangeAndReset());
 
             requestResult = mAudioManager.abandonAudioFocusRequest(audioFocusRequest2);
             message = "Focus loss request failed  for 2nd "
-                    + AudioAttributes.usageToString(ATTR_MEDIA.getUsage());
+                    + AudioAttributes.usageToString(ATTR_MEDIA.getSystemUsage());
             assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
 
             // If the loss was transient then we should have received back on 1st
@@ -434,13 +556,13 @@ public class CarAudioFocusTest {
                         && gainType == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)) {
                     Thread.sleep(TEST_TIMING_TOLERANCE_MS);
                     message = "Focus change was not dispatched for 1st "
-                            + AudioAttributes.usageToString(ATTR_MEDIA.getUsage());
+                            + AudioAttributes.usageToString(ATTR_MEDIA.getSystemUsage());
                     assertEquals(message, AudioManager.AUDIOFOCUS_GAIN,
                             focusChangeListener1.getFocusChangeAndReset());
                 }
                 // For concurrent focus interactions still needs to be released
                 message = "Focus loss request failed  for 1st  "
-                        + AudioAttributes.usageToString(attributes1.getUsage());
+                        + AudioAttributes.usageToString(attributes1.getSystemUsage());
                 requestResult = mAudioManager.abandonAudioFocusRequest(audioFocusRequest1);
                 assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED,
                         requestResult);
@@ -450,10 +572,11 @@ public class CarAudioFocusTest {
 
     /**
      * Verifies usage can request audio focus and release it
+     *
      * @param attribute usage attribute to request focus
      * @throws Exception
      */
-    private void requestAndLoseFocusForAttribute(AudioAttributes attribute)  throws Exception {
+    private void requestAndLoseFocusForAttribute(AudioAttributes attribute) throws Exception {
         final FocusChangeListener focusChangeListener = new FocusChangeListener();
         final AudioFocusRequest audioFocusRequest = new AudioFocusRequest
                 .Builder(AudioManager.AUDIOFOCUS_GAIN)
@@ -465,19 +588,19 @@ public class CarAudioFocusTest {
 
         int requestResult = mAudioManager.requestAudioFocus(audioFocusRequest);
         String message = "Focus gain request failed  for "
-                + AudioAttributes.usageToString(attribute.getUsage());
+                + AudioAttributes.usageToString(attribute.getSystemUsage());
         assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
 
         Thread.sleep(TEST_TIMING_TOLERANCE_MS);
         // Verify no focus changed dispatched
         message = "Focus change was dispatched for "
-                + AudioAttributes.usageToString(attribute.getUsage());
+                + AudioAttributes.usageToString(attribute.getSystemUsage());
         assertEquals(message, AudioManager.AUDIOFOCUS_NONE,
                 focusChangeListener.getFocusChangeAndReset());
 
         requestResult = mAudioManager.abandonAudioFocusRequest(audioFocusRequest);
         message = "Focus loss request failed  for "
-                + AudioAttributes.usageToString(attribute.getUsage());
+                + AudioAttributes.usageToString(attribute.getSystemUsage());
         assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
     }
 
