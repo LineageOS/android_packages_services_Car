@@ -16,6 +16,7 @@
 package com.android.car.audio;
 
 import android.media.AudioAttributes;
+import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioMix;
@@ -31,9 +32,6 @@ import java.util.Arrays;
  * Builds dynamic audio routing in a car from audio zone configuration.
  */
 /* package */ class CarAudioDynamicRouting {
-
-    static final int DEFAULT_AUDIO_USAGE = AudioAttributes.USAGE_MEDIA;
-
     // For legacy stream type based volume control.
     // Values in STREAM_TYPES and STREAM_TYPE_USAGES should be aligned.
     static final int[] STREAM_TYPES = new int[] {
@@ -82,8 +80,8 @@ import java.util.Arrays;
                 hasContext = true;
                 int[] usages = CarAudioContext.getUsagesForContext(carAudioContext);
                 for (int usage : usages) {
-                    mixingRuleBuilder.addRule(
-                            new AudioAttributes.Builder().setUsage(usage).build(),
+                    AudioAttributes attributes = buildAttributesWithUsage(usage);
+                    mixingRuleBuilder.addRule(attributes,
                             AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
                 }
                 if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
@@ -105,5 +103,15 @@ import java.util.Arrays;
                 builder.addMix(audioMix);
             }
         }
+    }
+
+    private AudioAttributes buildAttributesWithUsage(@AttributeUsage int usage) {
+        AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder();
+        if (AudioAttributes.isSystemUsage(usage)) {
+            attributesBuilder.setSystemUsage(usage);
+        } else {
+            attributesBuilder.setUsage(usage);
+        }
+        return attributesBuilder.build();
     }
 }
