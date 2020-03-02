@@ -103,7 +103,7 @@ public class PreferredNetworkModePreferenceController extends TelephonyBasePrefe
         final PersistableBundle carrierConfig = mCarrierConfigManager.getConfigForSubId(mSubId);
         mTelephonyManager = TelephonyManager.from(mContext).createForSubscriptionId(mSubId);
 
-        mIsGlobalCdma = mTelephonyManager.isGlobalModeEnabled()
+        mIsGlobalCdma = mTelephonyManager.isLteCdmaEvdoGsmWcdmaEnabled()
                 && carrierConfig.getBoolean(CarrierConfigManager.KEY_SHOW_CDMA_CHOICES_BOOL);
     }
 
@@ -130,7 +130,7 @@ public class PreferredNetworkModePreferenceController extends TelephonyBasePrefe
             case TelephonyManager.NETWORK_MODE_GSM_UMTS:
                 return R.string.preferred_network_mode_gsm_wcdma_summary;
             case TelephonyManager.NETWORK_MODE_CDMA_EVDO:
-                return mTelephonyManager.isGlobalModeEnabled()
+                return mTelephonyManager.isLteCdmaEvdoGsmWcdmaEnabled()
                         ? R.string.preferred_network_mode_cdma_summary
                         : R.string.preferred_network_mode_cdma_evdo_summary;
             case TelephonyManager.NETWORK_MODE_CDMA_NO_EVDO:
