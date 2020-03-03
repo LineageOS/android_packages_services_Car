@@ -20,6 +20,7 @@ package android.car {
     field @Deprecated public static final String CABIN_SERVICE = "cabin";
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
+    field public static final String CAR_MEDIA_SERVICE = "car_media";
     field public static final String CAR_TRUST_AGENT_ENROLLMENT_SERVICE = "trust_enroll";
     field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
