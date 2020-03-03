@@ -48,7 +48,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * A generic class that manages BLE peripheral operations like start/stop advertising, notifying
  * connects/disconnects and reading/writing values to GATT characteristics.
  *
- * @deprecated Enrolling a trusted device through car service is no longer a supported feature.
+ * @deprecated Enrolling a trusted device through car service is no longer a supported feature and
+ * these APIs will be removed in the next Android release.
  */
 @Deprecated
 public class BlePeripheralManager {
