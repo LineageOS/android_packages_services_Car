@@ -67,7 +67,8 @@ import java.util.List;
  *
  * @hide
  *
- * @deprecated Enrollment of a trusted device is no longer a supported feature.
+ * @deprecated Enrollment of a trusted device is no longer a supported feature and these APIs will
+ * be removed in the next Android release.
  */
 @Deprecated
 @SystemApi
