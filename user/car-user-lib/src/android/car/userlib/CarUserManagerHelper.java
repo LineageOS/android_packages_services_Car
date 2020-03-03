@@ -19,7 +19,6 @@ package android.car.userlib;
 import android.Manifest;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
-import android.annotation.SystemApi;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -69,7 +68,7 @@ public final class CarUserManagerHelper {
      * Additional optional set of restrictions for Non-Admin users. These are the restrictions
      * configurable via Settings.
      */
-    public static final Set<String> OPTIONAL_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
+    private static final Set<String> OPTIONAL_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
             UserManager.DISALLOW_ADD_USER,
             UserManager.DISALLOW_OUTGOING_CALLS,
             UserManager.DISALLOW_SMS,
@@ -137,7 +136,6 @@ public final class CarUserManagerHelper {
      *
      * @return user id of the initial user to boot into on the device.
      */
-    @SystemApi
     public int getInitialUser() {
         List<Integer> allUsers = userInfoListToUserIdList(getAllUsers());
 
@@ -186,23 +184,6 @@ public final class CarUserManagerHelper {
         } else {
             return mUserManager.getUsers(/* excludeDying= */ true);
         }
-    }
-
-    /**
-     * Gets all the users that are non-ephemeral and can be brought to the foreground on the system.
-     *
-     * @return List of {@code UserInfo} for non-ephemeral users that associated with a real person.
-     */
-    private List<UserInfo> getAllPersistentUsers() {
-        List<UserInfo> users = getAllUsers();
-        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
-            UserInfo userInfo = iterator.next();
-            if (userInfo.isEphemeral()) {
-                // Remove user that is ephemeral.
-                iterator.remove();
-            }
-        }
-        return users;
     }
 
     /**
