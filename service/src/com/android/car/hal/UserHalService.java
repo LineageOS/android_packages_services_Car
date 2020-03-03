@@ -34,6 +34,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.sysprop.CarProperties;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Slog;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -399,14 +401,19 @@ public final class UserHalService extends HalServiceBase {
 
     @Override
     public void dump(PrintWriter writer) {
+        String indent = "  ";
         writer.printf("*User HAL*\n");
+
+        writer.printf("Relevant CarProperties\n");
+        dumpSystemProperty(writer, indent, "user_hal_enabled", CarProperties.user_hal_enabled());
+        dumpSystemProperty(writer, indent, "user_hal_timeout", CarProperties.user_hal_timeout());
+
         synchronized (mLock) {
             if (!isSupported()) {
                 writer.println(UNSUPPORTED_MSG);
                 return;
             }
             int numberProperties = mProperties.size();
-            String indent = "  ";
             writer.printf("%d supported properties\n", numberProperties);
             for (int i = 0; i < numberProperties; i++) {
                 writer.printf("%s%s\n", indent, mProperties.valueAt(i));
@@ -435,6 +442,12 @@ public final class UserHalService extends HalServiceBase {
             Thread.currentThread().interrupt();
             writer.println("\nINTERRUPTED");
         }
+    }
+
+    private void dumpSystemProperty(@NonNull PrintWriter writer, @NonNull String indent,
+            @NonNull String name, Optional<?> prop) {
+        String value = prop.isPresent() ? prop.get().toString() : "<NOT SET>";
+        writer.printf("%s%s=%s\n", indent, name, value);
     }
 
     /**
