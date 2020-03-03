@@ -64,7 +64,7 @@ public final class UserHalService extends HalServiceBase {
 
     private static final String TAG = UserHalService.class.getSimpleName();
 
-    // TODO(b/146207078): STOPSHIP - change to false before R is launched
+    // TODO(b/150413515): STOPSHIP - change to false before R is launched
     private static final boolean DBG = true;
 
     private static final int REQUEST_TYPE_GET_INITIAL_INFO = 1;
