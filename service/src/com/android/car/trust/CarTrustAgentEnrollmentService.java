@@ -86,7 +86,8 @@ import java.util.UUID;
  * user on the HU.  This implements the {@link android.car.trust.CarTrustAgentEnrollmentManager}
  * APIs that an app like Car Settings can call to conduct an enrollment.
  *
- * @deprecated Enrollment of a trusted device is no longer a supported feature of car service.
+ * @deprecated Enrollment of a trusted device is no longer a supported feature of car service and
+ * these APIs will be removed in the next Android release.
  */
 @Deprecated
 public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stub implements
