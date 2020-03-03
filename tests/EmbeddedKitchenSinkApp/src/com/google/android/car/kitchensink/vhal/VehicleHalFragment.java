@@ -33,14 +33,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-
 import android.widget.TextView;
+
 import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -69,7 +70,7 @@ public class VehicleHalFragment extends Fragment {
         final IVehicle vehicle;
         try {
             vehicle = Objects.requireNonNull(IVehicle.getService());
-        } catch (NullPointerException | RemoteException e) {
+        } catch (NullPointerException | RemoteException | NoSuchElementException e) {
             Log.e(TAG, "unable to retrieve Vehicle HAL service", e);
             return;
         }
