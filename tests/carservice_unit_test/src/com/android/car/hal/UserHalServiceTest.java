@@ -217,7 +217,7 @@ public final class UserHalServiceTest {
 
     @Test
     public void testGetUserInfo_halReplyWithWrongRequestId() throws Exception {
-        // TODO(b/146207078): use helper method to convert prop value to proper req
+        // TODO(b/150419600): use helper method to convert prop value to proper req
         VehiclePropValue propResponse = new VehiclePropValue();
         propResponse.prop = INITIAL_USER_INFO;
         propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
@@ -237,7 +237,7 @@ public final class UserHalServiceTest {
 
     @Test
     public void testGetUserInfo_halReturnedInvalidAction() throws Exception {
-        // TODO(b/146207078): use helper method to convert prop value to proper req
+        // TODO(b/150419600): use helper method to convert prop value to proper req
         VehiclePropValue propResponse = new VehiclePropValue();
         propResponse.prop = INITIAL_USER_INFO;
         propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
@@ -263,7 +263,7 @@ public final class UserHalServiceTest {
 
     @Test
     public void testGetUserInfo_successDefault() throws Exception {
-        // TODO(b/146207078): use helper method to convert prop value to proper req
+        // TODO(b/150419600): use helper method to convert prop value to proper req
         VehiclePropValue propResponse = new VehiclePropValue();
         propResponse.prop = INITIAL_USER_INFO;
         propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
@@ -295,7 +295,7 @@ public final class UserHalServiceTest {
     @Test
     public void testGetUserInfo_successSwitchUser() throws Exception {
         int userIdToSwitch = 42;
-        // TODO(b/146207078): use helper method to convert prop value to proper req
+        // TODO(b/150419600): use helper method to convert prop value to proper req
         VehiclePropValue propResponse = new VehiclePropValue();
         propResponse.prop = INITIAL_USER_INFO;
         propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
@@ -329,7 +329,7 @@ public final class UserHalServiceTest {
     public void testGetUserInfo_successCreateUser() throws Exception {
         int newUserFlags = 108;
         String newUserName = "Groot";
-        // TODO(b/146207078): use helper method to convert prop value to proper req
+        // TODO(b/150419600): use helper method to convert prop value to proper req
         VehiclePropValue propResponse = new VehiclePropValue();
         propResponse.prop = INITIAL_USER_INFO;
         propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
@@ -369,7 +369,7 @@ public final class UserHalServiceTest {
      * @param initialIndex first index of the info values in the property's {@code int32Values}
      */
     private void assertUsersInfo(VehiclePropValue value, UsersInfo info, int initialIndex) {
-        // TODO(b/146207078): use helper method to convert prop value to proper req to check users
+        // TODO(b/150419600): use helper method to convert prop value to proper req to check users
         ArrayList<Integer> values = value.value.int32Values;
         assertWithMessage("wrong values size").that(values)
                 .hasSize(initialIndex + 3 + info.numberUsers * 2);
