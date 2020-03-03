@@ -27,16 +27,13 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
-import android.car.hardware.property.VehicleHalStatusCode;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
-import android.os.ServiceSpecificException;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
@@ -169,13 +166,8 @@ public class PropertyHalService extends HalServiceBase {
             throw new IllegalArgumentException("Invalid property Id : 0x" + toHexString(mgrPropId));
         }
 
-        VehiclePropValue value = null;
-        try {
-            value = mVehicleHal.get(halPropId, areaId);
-        } catch (PropertyTimeoutException e) {
-            Log.e(CarLog.TAG_PROPERTY, "get, property not ready 0x" + toHexString(halPropId), e);
-        }
-
+        // CarPropertyManager catches and rethrows exception, no need to handle here.
+        VehiclePropValue value = mVehicleHal.get(halPropId, areaId);
         if (isMixedTypeProperty(halPropId)) {
             VehiclePropConfig propConfig;
             synchronized (mLock) {
@@ -245,13 +237,8 @@ public class PropertyHalService extends HalServiceBase {
         } else {
             halProp = toVehiclePropValue(prop, halPropId);
         }
-        try {
-            mVehicleHal.set(halProp);
-        } catch (PropertyTimeoutException e) {
-            // TODO(b/147896616): throw ServiceSpecificException at first place.
-            Log.e(CarLog.TAG_PROPERTY, "set, property not ready 0x" + toHexString(halPropId), e);
-            throw new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN);
-        }
+        // CarPropertyManager catches and rethrows exception, no need to handle here.
+        mVehicleHal.set(halProp);
     }
 
     /**

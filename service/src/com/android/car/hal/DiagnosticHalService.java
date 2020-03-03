@@ -28,6 +28,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.os.ServiceSpecificException;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -299,7 +300,7 @@ public class DiagnosticHalService extends  HalServiceBase{
         }
         try {
             return mVehicleHal.get(propConfig.prop);
-        } catch (PropertyTimeoutException e) {
+        } catch (ServiceSpecificException e) {
             Log.e(CarLog.TAG_DIAGNOSTIC,
                     "property not ready 0x" + toHexString(propConfig.prop), e);
             return null;
@@ -468,8 +469,8 @@ public class DiagnosticHalService extends  HalServiceBase{
         try {
             VehiclePropValue value = mVehicleHal.get(VehicleProperty.OBD2_LIVE_FRAME);
             return createCarDiagnosticEvent(value);
-        } catch (PropertyTimeoutException e) {
-            Log.e(CarLog.TAG_DIAGNOSTIC, "timeout trying to read OBD2_LIVE_FRAME");
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_DIAGNOSTIC, "Failed to read OBD2_LIVE_FRAME.", e);
             return null;
         } catch (IllegalArgumentException e) {
             Log.e(CarLog.TAG_DIAGNOSTIC, "illegal argument trying to read OBD2_LIVE_FRAME", e);
@@ -486,8 +487,8 @@ public class DiagnosticHalService extends  HalServiceBase{
                 timestamps[i] = value.value.int64Values.get(i);
             }
             return timestamps;
-        } catch (PropertyTimeoutException e) {
-            Log.e(CarLog.TAG_DIAGNOSTIC, "timeout trying to read OBD2_FREEZE_FRAME_INFO");
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_DIAGNOSTIC, "Failed to read OBD2_FREEZE_FRAME_INFO.", e);
             return null;
         } catch (IllegalArgumentException e) {
             Log.e(CarLog.TAG_DIAGNOSTIC,
@@ -504,8 +505,8 @@ public class DiagnosticHalService extends  HalServiceBase{
         try {
             VehiclePropValue value = mVehicleHal.get(builder.build());
             return createCarDiagnosticEvent(value);
-        } catch (PropertyTimeoutException e) {
-            Log.e(CarLog.TAG_DIAGNOSTIC, "timeout trying to read OBD2_FREEZE_FRAME");
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_DIAGNOSTIC, "Failed to read OBD2_FREEZE_FRAME.", e);
             return null;
         } catch (IllegalArgumentException e) {
             Log.e(CarLog.TAG_DIAGNOSTIC,
@@ -520,8 +521,8 @@ public class DiagnosticHalService extends  HalServiceBase{
         builder.setInt64Value(timestamps);
         try {
             mVehicleHal.set(builder.build());
-        } catch (PropertyTimeoutException e) {
-            Log.e(CarLog.TAG_DIAGNOSTIC, "timeout trying to write OBD2_FREEZE_FRAME_CLEAR");
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_DIAGNOSTIC, "Failed to write OBD2_FREEZE_FRAME_CLEAR.", e);
         } catch (IllegalArgumentException e) {
             Log.e(CarLog.TAG_DIAGNOSTIC,
                 "illegal argument trying to write OBD2_FREEZE_FRAME_CLEAR", e);
