@@ -499,7 +499,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                             resultData.putString(BUNDLE_USER_NAME, resp.userNameToCreate);
                             break;
                         case InitialUserInfoResponseAction.DEFAULT:
-                            // do nothing
+                            resultData = new Bundle();
+                            resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
                             break;
                         default:
                             // That's ok, it will be the same as DEFAULT...
