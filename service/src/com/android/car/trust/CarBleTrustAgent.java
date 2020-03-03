@@ -49,7 +49,8 @@ import java.util.List;
  * the data it receives from this agent to authorize a user in lieu of the PIN/Pattern/Password
  * credentials.
  *
- * @deprecated Enrolling a trusted device through car service is no longer supported.
+ * @deprecated Enrolling a trusted device through car service is no longer supported and these APIs
+ * will be removed in the next Android release.
  */
 @Deprecated
 public class CarBleTrustAgent extends TrustAgentService {
