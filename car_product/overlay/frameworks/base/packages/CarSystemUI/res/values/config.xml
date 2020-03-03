@@ -115,6 +115,7 @@
         <item>com.android.systemui.SizeCompatModeActivityController</item>
         <item>com.android.systemui.statusbar.notification.InstantAppNotifier</item>
         <item>com.android.systemui.theme.ThemeOverlayController</item>
+        <item>com.android.systemui.voicerecognition.car.ConnectedDeviceVoiceRecognitionNotifier</item>
     </string-array>
 
 </resources>
