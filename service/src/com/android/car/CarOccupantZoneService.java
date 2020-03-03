@@ -39,13 +39,13 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.Display;
 import android.view.DisplayAddress;
 
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -60,6 +60,8 @@ import java.util.Objects;
  */
 public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         implements CarServiceBase {
+
+    private static final int INVALID_OCCUPANT_ZONE_ID = -1;
 
     private final Object mLock = new Object();
     private final Context mContext;
@@ -98,7 +100,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     /** key: audio zone id */
     @GuardedBy("mLock")
-    private final HashMap<Integer, Integer> mAudioZoneConfig = new HashMap<>();
+    private final SparseIntArray mAudioZoneIdToOccupantZoneIdMapping = new SparseIntArray();
 
     @VisibleForTesting
     static class DisplayInfo {
@@ -314,7 +316,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         synchronized (mLock) {
             mOccupantsConfig.clear();
             mDisplayConfigs.clear();
-            mAudioZoneConfig.clear();
+            mAudioZoneIdToOccupantZoneIdMapping.clear();
             mActiveOccupantConfigs.clear();
         }
     }
@@ -340,9 +342,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     /** Return cloned mAudioConfigs for testing */
     @VisibleForTesting
     @NonNull
-    HashMap<Integer, Integer> getAudioConfigs() {
+    SparseIntArray getAudioConfigs() {
         synchronized (mLock) {
-            return (HashMap<Integer, Integer>) mAudioZoneConfig.clone();
+            return mAudioZoneIdToOccupantZoneIdMapping.clone();
         }
     }
 
@@ -369,10 +371,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 writer.println(" port=" + Integer.toHexString(entry.getKey())
                         + " config=" + entry.getValue().toString());
             }
-            writer.println("**mAudioZoneConfigs**");
-            for (Map.Entry<Integer, Integer> entry : mAudioZoneConfig.entrySet()) {
-                writer.println(" audioZoneId=" + Integer.toHexString(entry.getKey())
-                        + " zoneId=" + entry.getValue());
+            writer.println("**mAudioZoneIdToOccupantZoneIdMapping**");
+            for (int index = 0; index < mAudioZoneIdToOccupantZoneIdMapping.size(); index++) {
+                int audioZoneId = mAudioZoneIdToOccupantZoneIdMapping.keyAt(index);
+                writer.println(" audioZoneId=" + Integer.toHexString(audioZoneId)
+                        + " zoneId=" + mAudioZoneIdToOccupantZoneIdMapping.get(audioZoneId));
             }
             writer.println("**mActiveOccupantConfigs**");
             for (Map.Entry<Integer, OccupantConfig> entry : mActiveOccupantConfigs.entrySet()) {
@@ -445,9 +448,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     private int getAudioZoneIdForOccupantLocked(int occupantZoneId) {
-        for (Map.Entry<Integer, Integer> entry : mAudioZoneConfig.entrySet()) {
-            if (occupantZoneId == entry.getValue()) {
-                return entry.getKey();
+        for (int index = 0; index < mAudioZoneIdToOccupantZoneIdMapping.size(); index++) {
+            int audioZoneId = mAudioZoneIdToOccupantZoneIdMapping.keyAt(index);
+            if (occupantZoneId == mAudioZoneIdToOccupantZoneIdMapping.get(audioZoneId)) {
+                return audioZoneId;
             }
         }
         return CarAudioManager.INVALID_AUDIO_ZONE;
@@ -457,8 +461,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     public CarOccupantZoneManager.OccupantZoneInfo getOccupantForAudioZoneId(int audioZoneId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         synchronized (mLock) {
-            Integer occupantZoneId = mAudioZoneConfig.get(audioZoneId);
-            if (occupantZoneId == null) {
+            int occupantZoneId = mAudioZoneIdToOccupantZoneIdMapping.get(audioZoneId,
+                    INVALID_OCCUPANT_ZONE_ID);
+            if (occupantZoneId == INVALID_OCCUPANT_ZONE_ID) {
                 return null;
             }
             // To support headless zones return the occupant configuration.
@@ -521,19 +526,23 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    @Override
-    public void setAudioZoneIdsForOccupantZoneIds(@NonNull int[] audioZoneIds,
-            @NonNull int[] occupantZoneIds) {
-        Objects.requireNonNull(audioZoneIds, "audioZoneIds can not be null");
-        Objects.requireNonNull(audioZoneIds, "occupantZoneIds can not be null");
-        Preconditions.checkArgument(audioZoneIds.length == occupantZoneIds.length,
-                "audioZoneIds and occupantZoneIds must have the same size.");
-        boolean activeConfigChange = false;
+    /**
+     * Sets the mapping for audio zone id to occupant zone id.
+     *
+     * @param audioZoneIdToOccupantZoneMapping map for audio zone id, where key is the audio zone id
+     * and value is the occupant zone id.
+     */
+    public void setAudioZoneIdsForOccupantZoneIds(
+            @NonNull SparseIntArray audioZoneIdToOccupantZoneMapping) {
+        Objects.requireNonNull(audioZoneIdToOccupantZoneMapping,
+                "audioZoneIdToOccupantZoneMapping can not be null");
         synchronized (mLock) {
-            validateOccupantZoneIdsLocked(occupantZoneIds);
-            mAudioZoneConfig.clear();
-            for (int i = 0; i < audioZoneIds.length; i++) {
-                mAudioZoneConfig.put(audioZoneIds[i], occupantZoneIds[i]);
+            validateOccupantZoneIdsLocked(audioZoneIdToOccupantZoneMapping);
+            mAudioZoneIdToOccupantZoneIdMapping.clear();
+            for (int index = 0; index < audioZoneIdToOccupantZoneMapping.size(); index++) {
+                int audioZoneId = audioZoneIdToOccupantZoneMapping.keyAt(index);
+                mAudioZoneIdToOccupantZoneIdMapping.put(audioZoneId,
+                        audioZoneIdToOccupantZoneMapping.get(audioZoneId));
             }
             //If there are any active displays for the zone send change event
             handleAudioZoneChangesLocked();
@@ -541,10 +550,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_AUDIO);
     }
 
-    private void validateOccupantZoneIdsLocked(int[] occupantZoneIds) {
-        for (int i = 0; i < occupantZoneIds.length; i++) {
-            if (!mOccupantsConfig.containsKey(occupantZoneIds[i])) {
-                throw new IllegalArgumentException("occupantZoneId " + occupantZoneIds[i]
+    private void validateOccupantZoneIdsLocked(SparseIntArray audioZoneIdToOccupantZoneMapping) {
+        for (int i = 0; i < audioZoneIdToOccupantZoneMapping.size(); i++) {
+            int occupantZoneId =
+                    audioZoneIdToOccupantZoneMapping.get(audioZoneIdToOccupantZoneMapping.keyAt(i));
+            if (!mOccupantsConfig.containsKey(occupantZoneId)) {
+                throw new IllegalArgumentException("occupantZoneId " + occupantZoneId
                         + " does not exist.");
             }
         }
@@ -813,8 +824,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     private void handleAudioZoneChangesLocked() {
-        for (Map.Entry<Integer, Integer> entry: mAudioZoneConfig.entrySet()) {
-            int occupantZoneId = entry.getValue();
+        for (int index = 0; index < mAudioZoneIdToOccupantZoneIdMapping.size(); index++) {
+            int audioZoneId = mAudioZoneIdToOccupantZoneIdMapping.keyAt(index);
+            int occupantZoneId = mAudioZoneIdToOccupantZoneIdMapping.get(audioZoneId);
             OccupantConfig occupantConfig =
                     mActiveOccupantConfigs.get(occupantZoneId);
             if (occupantConfig == null) {
@@ -822,7 +834,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 continue;
             }
             // Found an active configuration, add audio to it.
-            occupantConfig.audioZoneId = entry.getKey();
+            occupantConfig.audioZoneId = audioZoneId;
         }
     }
 

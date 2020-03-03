@@ -69,7 +69,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     // This has to happen after the construction to avoid a chicken and egg problem when setting up
     // the AudioPolicy which must depend on this object.
     public void setOwningPolicy(AudioPolicy parentPolicy) {
-        mAudioPolicy     = parentPolicy;
+        mAudioPolicy = parentPolicy;
     }
 
 
@@ -117,10 +117,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         final boolean allowDucking =
                 (afi.getGainRequest() == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
 
-
-        // Convert from audio attributes "usage" to HAL level "context"
         final int requestedContext = CarAudioContext.getContextForUsage(
-                afi.getAttributes().getUsage());
+                afi.getAttributes().getSystemUsage());
 
         // If we happen to find entries that this new request should replace, we'll store them here.
         // This happens when a client makes a second AF request on the same listener.
