@@ -18,11 +18,16 @@ package com.android.car.watchdog;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
+
 import android.automotive.watchdog.ICarWatchdog;
 import android.automotive.watchdog.ICarWatchdogClient;
 import android.automotive.watchdog.TimeoutLength;
 import android.content.Context;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
@@ -47,6 +52,7 @@ public class CarWatchdogServiceTest {
     private static final String TAG = CarWatchdogServiceTest.class.getSimpleName();
 
     @Mock private Context mMockContext;
+    @Mock private IBinder mBinder;
 
     private CarWatchdogService mCarWatchdogService;
     private FakeCarWatchdog mFakeCarWatchdog;
@@ -69,6 +75,18 @@ public class CarWatchdogServiceTest {
         mFakeCarWatchdog.waitForMediatorResponse();
         assertThat(mFakeCarWatchdog.getClientCount()).isEqualTo(1);
         assertThat(mFakeCarWatchdog.gotResponse()).isTrue();
+    }
+
+    @Test
+    public void testLinkUnlinkDeathRecipient() {
+        mCarWatchdogService.init();
+        try {
+            verify(mBinder).linkToDeath(any(), anyInt());
+        } catch (RemoteException e) {
+            // Do nothing
+        }
+        mCarWatchdogService.release();
+        verify(mBinder).unlinkToDeath(any(), anyInt());
     }
 
     // FakeCarWatchdog mimics ICarWatchdog daemon in local process.
@@ -95,6 +113,11 @@ public class CarWatchdogServiceTest {
             if (!mClientResponse.await(TEN_SECONDS_IN_MS, TimeUnit.MILLISECONDS)) {
                 Log.w(TAG, "Mediator doesn't respond within timeout(" + TEN_SECONDS_IN_MS + "ms)");
             }
+        }
+
+        @Override
+        public IBinder asBinder() {
+            return mBinder;
         }
 
         @Override
