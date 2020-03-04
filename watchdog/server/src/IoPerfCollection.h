@@ -31,6 +31,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "ProcPidStat.h"
 #include "ProcStat.h"
 #include "UidIoStats.h"
 
@@ -56,12 +57,11 @@ struct UidIoPerfData {
         userid_t userId = 0;
         std::string packageName;
         uint64_t bytes[UID_STATES];
-        double bytesPercent[UID_STATES];
         uint64_t fsync[UID_STATES];
-        double fsyncPercent[UID_STATES];
     };
     std::vector<Stats> topNReads = {};
     std::vector<Stats> topNWrites = {};
+    uint64_t total[METRIC_TYPES][UID_STATES] = {{0}};
 };
 
 std::string toString(const UidIoPerfData& perfData);
@@ -69,9 +69,9 @@ std::string toString(const UidIoPerfData& perfData);
 // Performance data collected from the `/proc/stats` file.
 struct SystemIoPerfData {
     uint64_t cpuIoWaitTime = 0;
-    double cpuIoWaitPercent = 0.0;
+    uint64_t totalCpuTime = 0;
     uint32_t ioBlockedProcessesCnt = 0;
-    double ioBlockedProcessesPercent = 0;
+    uint32_t totalProcessesCnt = 0;
 };
 
 std::string toString(const SystemIoPerfData& perfData);
@@ -82,14 +82,17 @@ struct ProcessIoPerfData {
         userid_t userId = 0;
         std::string packageName;
         uint64_t count = 0;
-        uint64_t percent = 0;
     };
-    std::vector<Stats> topNIoBlockedProcesses = {};
-    std::vector<Stats> topNMajorPageFaults = {};
-    uint64_t totalMajorPageFaults = 0;
-    // Percentage of increase in the major page faults since last collection.
-    double majorPageFaultsIncrease = 0.0;
+    std::vector<Stats> topNIoBlockedUids = {};
+    // Total # of tasks owned by each UID in |topNIoBlockedUids|.
+    std::vector<uint64_t> topNIoBlockedUidsTotalTaskCnt = {};
+    std::vector<Stats> topNMajorFaults = {};
+    uint64_t totalMajorFaults = 0;
+    // Percentage of increase/decrease in the major page faults since last collection.
+    double majorFaultsPercentChange = 0.0;
 };
+
+std::string toString(const ProcessIoPerfData& data);
 
 struct IoPerfRecord {
     int64_t time;  // Collection time.
@@ -133,7 +136,9 @@ public:
           mCurrCollectionEvent(CollectionEvent::NONE),
           mUidToPackageNameMapping({}),
           mUidIoStats(),
-          mProcStat() {}
+          mProcStat(),
+          mProcPidStat(),
+          mLastMajorFaults(0) {}
 
     // Starts the boot-time collection on a separate thread and returns immediately. Must be called
     // only once. Otherwise, returns an error.
@@ -163,7 +168,8 @@ public:
 
 private:
     // Only used by tests.
-    explicit IoPerfCollection(std::string uidIoStatsPath, std::string procStatPath) :
+    explicit IoPerfCollection(std::string uidIoStatsPath = "", std::string procStatPath = "",
+                              std::string procPidStatPath = "") :
           mTopNStatsPerCategory(kTopNStatsPerCategory),
           mBoottimeRecords({}),
           mPeriodicRecords({}),
@@ -171,7 +177,9 @@ private:
           mCurrCollectionEvent(CollectionEvent::NONE),
           mUidToPackageNameMapping({}),
           mUidIoStats(uidIoStatsPath),
-          mProcStat(procStatPath) {}
+          mProcStat(procStatPath),
+          mProcPidStat(procPidStatPath),
+          mLastMajorFaults(0) {}
 
     // Collects/stores the performance data for the current collection event.
     android::base::Result<void> collect();
@@ -223,6 +231,13 @@ private:
     // Collector/parser for `/proc/stat`.
     ProcStat mProcStat GUARDED_BY(mMutex);
 
+    // Collector/parser for `/proc/PID/*` stat files.
+    ProcPidStat mProcPidStat GUARDED_BY(mMutex);
+
+    // Major faults delta from last collection. Useful when calculating the percentage change in
+    // major faults since last collection.
+    uint64_t mLastMajorFaults GUARDED_BY(mMutex);
+
     // To get the package names from app uids.
     android::sp<android::content::pm::IPackageManagerNative> mPackageManager GUARDED_BY(mMutex);
 
@@ -230,6 +245,8 @@ private:
     FRIEND_TEST(IoPerfCollectionTest, TestUidIOStatsLessThanTopNStatsLimit);
     FRIEND_TEST(IoPerfCollectionTest, TestProcUidIoStatsContentsFromDevice);
     FRIEND_TEST(IoPerfCollectionTest, TestValidProcStatFile);
+    FRIEND_TEST(IoPerfCollectionTest, TestValidProcPidContents);
+    FRIEND_TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit);
 };
 
 }  // namespace watchdog
