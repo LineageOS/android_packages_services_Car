@@ -216,7 +216,8 @@ Result<void> IoPerfCollection::start() {
     {
         Mutex::Autolock lock(mMutex);
         if (mCurrCollectionEvent != CollectionEvent::INIT || mCollectionThread.joinable()) {
-            return Error() << "Cannot start I/O performance collection more than once";
+            return Error(INVALID_OPERATION)
+                    << "Cannot start I/O performance collection more than once";
         }
 
         // TODO(b/148489461): Once |kTopNStatsPerCategory|, |kBoottimeCollectionInterval| and
