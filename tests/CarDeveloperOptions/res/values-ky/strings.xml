@@ -598,11 +598,11 @@
     <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Графикалык ачкычсыз түзмөктү коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Графикалык ачкычыңызсыз түзмөгүңүздү коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн өчүрүлөт жана алардын жардамы менен түзмөгүңүздүн кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн өчүрүлөт жана алардын жардамы менен, түзмөгүңүздүн кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"PIN кодсуз түзмөктү коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"PIN кодуңузсуз түзмөктү коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн өчүрүлөт жана алардын жардамы менен түзмөгүңүздүн кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн өчүрүлөт жана алардын жардамы менен, түзмөгүңүздүн кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Сырсөзүңүзсүз түзмөктү коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"Сырсөзүңүзсүз түзмөктү коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
@@ -610,23 +610,23 @@
     <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"Экраныңыздын кулпусусуз түзмөктү коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"Экраныңыздын кулпусусуз түзмөктү коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн өчүрүлөт жана алардын жардамы менен түзмөгүңүздүн кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул түзмөктөн өчүрүлөт жана алардын жардамы менен, түзмөгүңүздүн кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"Графикалык ачкычыңызсыз профилди коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"Графикалык ачкычыңызсыз профилди коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул профилден өчүрүлөт жана алардын жардамы менен профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул профилден өчүрүлөт жана алардын жардамы менен, профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_pin_profile" msgid="7114165651000498040">"PIN кодуңузсуз профилди коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint_profile" msgid="5118210431544156122">"PIN кодуңузсуз профилди коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул профилден өчүрүлөт жана алардын жардамы менен профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул профилден өчүрүлөт жана алардын жардамы менен, профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_password_profile" msgid="3989497526180082037">"Сырсөзүңүзсүз профилди коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint_profile" msgid="8360485354164416198">"Сырсөзүңүзсүз профилди коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул профилден өчүрүлөт жана алардын жардамы менен профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул профилден өчүрүлөт жана алардын жардамы менен, профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_content_unknown_profile" msgid="4066001421137974082">"Экраныңыздын кулпусусуз профилди коргоо функциялары иштебейт."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint_profile" msgid="1201259228331105948">"Экраныңыздын кулпусусуз профилди коргоо функциялары иштебейт.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Сакталган манжа издериңиз да бул профилден өчүрүлөт жана алардын жардамы менен профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
+</xliff:g>Сакталган манжа издериңиз да бул профилден өчүрүлөт жана алардын жардамы менен, профилиңиздин кулпусун ачып, ар кандай нерселерди сатып алып же аккаунтка кире албай каласыз."</string>
     <string name="unlock_disable_frp_warning_ok" msgid="2373890505202766456">"Ооба, өчүрүлсүн"</string>
     <string name="unlock_change_lock_pattern_title" msgid="7622476883851319877">"Кулпн ачуу үлгсн өзгрт"</string>
     <string name="unlock_change_lock_pin_title" msgid="6671224158800812238">"Клпн ачуу PIN кдн өзгр"</string>
@@ -827,7 +827,7 @@
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Дайындар NFC аркылуу өткөрүлөт"</string>
     <string name="android_beam_off_summary" msgid="7365818039159364600">"Өчүк"</string>
-    <string name="nfc_disabled_summary" msgid="2181777971122724361">"NFC өчүк болгондуктан жеткиликсиз"</string>
+    <string name="nfc_disabled_summary" msgid="2181777971122724361">"NFC өчүк болгондуктан, жеткиликсиз"</string>
     <string name="android_beam_label" msgid="5340299879556025708">"Android Beam"</string>
     <string name="android_beam_explained" msgid="4501176353247859329">"Бул мүмкүнчүлүк жандырылганда, түзмөктөрдү бири-бирине тийиштирип, NFC аркылуу веб баракчалар, YouTube видеолору, байланыштар, шилтемелер, сүрөттөр сыяктуу дайындарды биринен экинчисине өткөрө аласыз.\n\nТүзмөктөрдү бири-бирине тийиштирип (арка жактарын), экраныңызды басып коюңуз. Эмне өткөрүлөөрүн колдонмо өзү аныктай алат."</string>
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi‑Fi"</string>
@@ -892,7 +892,7 @@
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Автоматтык тууралоо (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Wi‑Fi издөөнү күйгүзөсүзбү?"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Wi‑Fi тармактарына автоматтык түрдө туташуу үчүн, Wi-Fi издөө функциясын иштетишиңиз керек."</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Бул функция аркылуу Интернет байланышы жок болсо да, колдонмолор менен кызматтар Wi-Fi тармактарын издей алышат. Жайгашкан жерди аныктоо функциясын жана кызматтарды жакшырткыңыз келсе, аны иштетиңиз."</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Бул функция аркылуу Интернет жок болсо да, колдонмолор менен кызматтар Wi-Fi тармактарын издей алышат. Жайгашкан жерди аныктоо функциясын жана кызматтарды жакшырткыңыз келсе, аны иштетиңиз."</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"Күйгүзүү"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"Wi‑Fi\'ды издөө күйгүзүлдү"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"Өркүндөтүлгөн параметрлер"</string>
@@ -1064,7 +1064,7 @@
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"Башка түзмөктөр <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g> тармагына туташа алышат"</string>
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Байланыш түйүнүнүн сырсөзү"</string>
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Wi-Fi жыштыктарынын диапазону"</string>
-    <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Байланыш түйүнү аркылуу Wi‑Fi тармагын түзүңүз. Анын жардамы менен башка түзмөктөр мобилдик Интернетке туташа алышат. Мобилдик Интернет үчүн кошумча акы алынышы мүмкүн."</string>
+    <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Байланыш түйүнү аркылуу Wi‑Fi тармагын түзүңүз. Анын жардамы менен, башка түзмөктөр мобилдик Интернетке туташа алышат. Мобилдик Интернет үчүн кошумча акы алынышы мүмкүн."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Жакын жердеги түзмөктөр менен мазмунду бөлүшүү үчүн колдонмолор байланыш түйүнү болуп бере алышат."</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Байланыш түйүнү автоматтык түрдө өчөт"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"Бир дагы түзмөк туташпаса, Wi‑Fi байланыш түйүнү автоматтык түрдө өчүп калат"</string>

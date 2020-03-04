@@ -66,8 +66,7 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Оролтын арга хэмжээг боловсруулах"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus амжилтгүй болсон"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus хариу өгөхгүй байна. Хөгжим тоглуулагчийн хайрцгийг салгаад, дахин залгаж, машиныг дахин эхлүүлнэ үү"</string>
-    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
-    <skip />
+    <string name="activity_blocked_text" msgid="8088902789540147995">"Та энэ онцлогийг жолоо барьж байхдаа ашиглах боломжгүй"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Аппын аюулгүй онцлогуудтайгаар дахин эхлүүлэхийн тулд <xliff:g id="EXIT_BUTTON">%s</xliff:g>-г сонгоно уу."</string>
     <string name="exit_button" msgid="5829638404777671253">"Буцах"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"Аппыг хаах"</string>

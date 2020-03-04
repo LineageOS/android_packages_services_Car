@@ -1385,7 +1385,7 @@
     <string name="sd_format" product="default" msgid="1346245995138883960">"Ջնջել SD քարտը"</string>
     <string name="sd_format_summary" product="nosdcard" msgid="1179857727779521920">"Ջնջել USB կրիչի բոլոր տվյալները, ինչպիսիք են երաժշտությունը և լուսանկարները"</string>
     <string name="sd_format_summary" product="default" msgid="4284028411908176234">"SD քարտից ջնջում է ողջ տեղեկատվությունը, ինչպիսիք են երաժշտությունն ու լուսանկարները"</string>
-    <string name="memory_clear_cache_title" msgid="4306793268129306684">"Մաքրե՞լ քեշավորված տվյալները:"</string>
+    <string name="memory_clear_cache_title" msgid="4306793268129306684">"Ջնջե՞լ քեշավորված տվյալները:"</string>
     <string name="memory_clear_cache_message" msgid="6723120398411410031">"Սա կմաքրի բոլոր ծրագրերի քեշավորված տվյալները:"</string>
     <string name="mtp_ptp_mode_summary" msgid="6074099855478444183">"MTP կամ PTP գործառույթը ակտիվ է"</string>
     <string name="dlg_confirm_unmount_title" product="nosdcard" msgid="3843209947310774105">"Անջատե՞լ USB կրիչը:"</string>
@@ -4448,7 +4448,7 @@
     <string name="network_connection_timeout_dialog_ok" msgid="5156496438627748361">"Նորից փորձել"</string>
     <string name="network_connection_errorstate_dialog_message" msgid="1599445930536043943">"Սխալ առաջացավ: Հավելվածը չեղարկել է սարք ընտրելու հայտը:"</string>
     <string name="network_connection_connect_successful" msgid="888912275986965748">"Կապը հաստատվեց"</string>
-    <string name="network_connection_request_dialog_showall" msgid="396928496030183071">"Ցուցադրել բոլորը"</string>
+    <string name="network_connection_request_dialog_showall" msgid="396928496030183071">"Ցույց տալ բոլորը"</string>
     <plurals name="show_bluetooth_devices" formatted="false" msgid="7451733907387872891">
       <item quantity="one"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> միացված սարք</item>
       <item quantity="other"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> միացված սարք</item>
