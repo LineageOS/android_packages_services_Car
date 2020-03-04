@@ -31,9 +31,11 @@ LOCAL_JAVA_LIBRARIES += android.car
 LOCAL_PRIVATE_PLATFORM_APIS := true
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
+    androidx.annotation_annotation \
     androidx.lifecycle_lifecycle-livedata \
     androidx.lifecycle_lifecycle-viewmodel \
-    androidx.car_car
+    androidx.fragment_fragment \
+    androidx.recyclerview_recyclerview
 
 include $(BUILD_PACKAGE)
 
