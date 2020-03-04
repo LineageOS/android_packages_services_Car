@@ -66,8 +66,7 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"入力イベントを処理します"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN バスでエラーが発生しました"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN バスが応答しません。ヘッドユニット ボックスのプラグを抜いて接続し直し、車を再始動してください"</string>
-    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
-    <skip />
+    <string name="activity_blocked_text" msgid="8088902789540147995">"運転中はこの機能を利用できません"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"アプリをセーフモードで再起動するには、<xliff:g id="EXIT_BUTTON">%s</xliff:g> を選択します。"</string>
     <string name="exit_button" msgid="5829638404777671253">"戻る"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"アプリを閉じる"</string>

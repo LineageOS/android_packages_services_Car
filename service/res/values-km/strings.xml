@@ -66,8 +66,7 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"គ្រប់គ្រង​ព្រឹត្តិការណ៍​បញ្ចូល"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"មិនអាច​ដំណើរការ CAN bus បានទេ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus មិនឆ្លើយតបទេ។ សូមផ្ដាច់ រួចភ្ជាប់​ប្រអប់​ឧបករណ៍ចាក់តន្ត្រី​ម្តងទៀត បន្ទាប់មក​បញ្ឆេះ​រថយន្ត​ឡើងវិញ"</string>
-    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
-    <skip />
+    <string name="activity_blocked_text" msgid="8088902789540147995">"អ្នកមិនអាចប្រើ​មុខងារនេះ​បានទេ ខណៈពេលកំពុង​បើកបរ"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"ដើម្បី​ចាប់ផ្តើមឡើងវិញ​ដោយប្រើ​មុខងារកម្មវិធី​ដែលមានសុវត្ថិភាព សូមជ្រើសរើស <xliff:g id="EXIT_BUTTON">%s</xliff:g> ។"</string>
     <string name="exit_button" msgid="5829638404777671253">"ថយក្រោយ"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"បិទកម្មវិធី"</string>
