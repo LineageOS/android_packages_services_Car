@@ -67,6 +67,7 @@ cc_test {
     srcs: [
         "tests/IoPerfCollectionTest.cpp",
         "tests/UidIoStatsTest.cpp",
+        "tests/ProcPidDir.cpp",
         "tests/ProcPidStatTest.cpp",
         "tests/ProcStatTest.cpp",
     ],
