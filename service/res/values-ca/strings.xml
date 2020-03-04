@@ -24,8 +24,8 @@
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Accedir a la informació sobre l\'energia del cotxe"</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"ajustar l\'autonomia restant del cotxe"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Ajustar el valor de l\'autonomia restant del cotxe."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"accedeix al sistema HVAC del cotxe"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Accedir al sistema HVAC del cotxe"</string>
+    <string name="car_permission_label_hvac" msgid="1499454192558727843">"accedir al sistema de calefacció, ventilació i aire condicionat del cotxe"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Accedir al sistema de calefacció, ventilació i aire condicionat del cotxe"</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"accedeix a la informació sobre el quilometratge del cotxe"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Accedir a la informació sobre el quilometratge del cotxe"</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"llegeix la velocitat del cotxe"</string>
@@ -135,8 +135,8 @@
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Accedeix a l\'estat de la potència del cotxe."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Registra un dispositiu de confiança"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Permet el registre de dispositius de confiança"</string>
-    <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Controla el mode de prova del cotxe"</string>
-    <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"Controla el mode de prova del cotxe"</string>
+    <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Controla el mode de proves del cotxe"</string>
+    <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"Controla el mode de proves del cotxe"</string>
     <string name="car_permission_label_control_car_features" msgid="3905791560378888286">"Activa o desactiva les funcions del cotxe"</string>
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Activa o desactiva les funcions del cotxe."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"utilitza el temporitzador de vigilància del cotxe"</string>

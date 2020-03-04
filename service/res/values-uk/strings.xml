@@ -72,8 +72,7 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Обробка вхідних подій"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Помилка CAN-шини"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-шина не відповідає. Від’єднайте та знову під’єднайте головний пристрій аудіосистеми й заведіть автомобіль ще раз"</string>
-    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
-    <skip />
+    <string name="activity_blocked_text" msgid="8088902789540147995">"Ця функція недоступна під час руху"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Щоб почати знову з безпечними функціями додатка, натисніть кнопку \"<xliff:g id="EXIT_BUTTON">%s</xliff:g>\"."</string>
     <string name="exit_button" msgid="5829638404777671253">"Назад"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"Закрити додаток"</string>

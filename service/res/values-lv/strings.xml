@@ -72,8 +72,7 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Apstrādāt ievades notikumus."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Radās atteice datu maģistrālē"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Datu maģistrāle nereaģē. Atvienojiet un atkal pievienojiet stereosistēmas paneļa kabeli un atkārtoti iedarbiniet automašīnu"</string>
-    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
-    <skip />
+    <string name="activity_blocked_text" msgid="8088902789540147995">"Jūs nevarat izmantot šo funkciju braukšanas laikā."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Lai atsāktu darbu ar drošām lietotnes funkcijām, atlasiet pogu <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Atpakaļ"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"Aizvērt lietotni"</string>
