@@ -93,7 +93,7 @@
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"ساحر أوز العجيب"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"الفصل ۱۱: مدينة أوز الزمردية العجيبة"</string>
     <string name="font_size_preview_text_body" msgid="6803085337474390845">"على الرغم من احتماء دورثي ورفاقها خلف نظارات خضراء، انبهرت عيونهم للوهلة الأولى بتوهج المدينة العجيبة وتألقها. كانت المنازل الرائعة أمامهم متراصة على الشوارع ومصممة جميعها من الرخام الأخضر المرصع بالزمرّد البرّاق. ساروا على رصيف من الرخام الأخضر نفسه حيث تلتقي المباني الضخمة على صفوف من الزمرد المتلألئ تحت أشعة الشمس الساطعة. كانت ألواح النوافذ الزجاجية خضراء هي أيضًا، حتى أنّ السماء وأشعة الشمس تلوّنت بالأخضر الفاتح. \n\nرأوا الكثير من الرجال والنساء والأطفال يجوبون الشوارع وجميعهم في ثياب خضراء فوق بشرة تميل إلى الأخضر. نظروا إلى دورثي ورفاقها الغريبين بتعجب، في حين أنّ الأطفال اختبأوا وراء أمهاتهم خائفين من الأسد، ولكن لم يتحدث معهم أحد. اصطفّت في الشارع المتاجر الخضراء ولاحظت دورثي أنّ كل ما فيها كان أخضر، من الحلوى الخضراء والفشار الأخضر إلى الأحذية والقبعات والملابس الخضراء. وفي أحد الأركان، وقف رجل يبيع الليموناضة الخضراء ورأت دورثي أنّ الأطفال كانوا يشترون العصير منه بعملة خضراء هي أيضًا. \n\nخلت الشوارع من الأحصنة أو أي نوع آخر من الحيوانات، وكان الرجال ينقلون أمتعتهم في عربات خضراء صغيرة يدفعونها أمامهم. وبدت ملامح السعادة والارتياح على وجوه الجميع."</string>
-    <string name="font_size_save" msgid="8652044574655753921">"موافق"</string>
+    <string name="font_size_save" msgid="8652044574655753921">"حسنًا"</string>
     <string name="sdcard_setting" product="nosdcard" msgid="1533784309105748696">"وحدة تخزين USB"</string>
     <string name="sdcard_setting" product="default" msgid="8398782065765523178">"بطاقة SD"</string>
     <string name="bluetooth" msgid="1564520421786841227">"بلوتوث"</string>
@@ -206,7 +206,7 @@
     <string name="proxy_action_text" msgid="814511434843981413">"تم"</string>
     <string name="proxy_hostname_label" msgid="6798891831427287847">"اسم المضيف للخادم الوكيل"</string>
     <string name="proxy_error" msgid="5036164133669802299">"تنبيه"</string>
-    <string name="proxy_error_dismiss" msgid="883805570485635650">"موافق"</string>
+    <string name="proxy_error_dismiss" msgid="883805570485635650">"حسنًا"</string>
     <string name="proxy_error_invalid_host" msgid="5430640241353307223">"اسم المضيف الذي كتبته غير صالح."</string>
     <string name="proxy_error_invalid_exclusion_list" msgid="4314503082913856333">"لم يتم تنسيق قائمة الاستبعاد التي كتبتها بشكل صحيح. اكتب قائمة مفصولة بفواصل للنطاقات المستبعدة."</string>
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"يلزمك إكمال حقل المنفذ."</string>
@@ -224,7 +224,7 @@
     <string name="radio_info_roaming_label" msgid="3131949337031835485">"تجوال:"</string>
     <string name="radio_info_imei_label" msgid="7300156592358133405">"IMEI:"</string>
     <string name="radio_info_call_redirect_label" msgid="2679891718182753061">"إعادة توجيه الاتصال:"</string>
-    <string name="radio_info_ppp_resets_label" msgid="2785162965440312941">"عدد مرات إعادة تعيين PPP منذ التشغيل:"</string>
+    <string name="radio_info_ppp_resets_label" msgid="2785162965440312941">"عدد مرات إعادة ضبط PPP منذ التشغيل:"</string>
     <string name="radio_info_current_network_label" msgid="5785805819312999094">"الشبكة الحالية:"</string>
     <string name="radio_info_ppp_received_label" msgid="5217391494757374330">"البيانات المستلمة:"</string>
     <string name="radio_info_gsm_service_label" msgid="7488842563230281026">"الخدمة الصوتية:"</string>
@@ -299,7 +299,7 @@
     <string name="sd_card_settings_label" product="default" msgid="1074813865245983607">"بطاقة SD"</string>
     <string name="proxy_settings_label" msgid="7219106162267925123">"إعدادات الخادم الوكيل"</string>
     <string name="cancel" msgid="2582602392048772404">"إلغاء"</string>
-    <string name="okay" msgid="5838476766924989056">"موافق"</string>
+    <string name="okay" msgid="5838476766924989056">"حسنًا"</string>
     <string name="forget" msgid="7735525146062672874">"نسيان"</string>
     <string name="save" msgid="3418211178410498517">"حفظ"</string>
     <string name="done" msgid="5143229467535372339">"تم"</string>
@@ -391,9 +391,9 @@
     <string name="account_settings_title" msgid="7870321267198486578">"الحسابات"</string>
     <string name="security_settings_title" msgid="8228075165942416425">"الأمان"</string>
     <string name="encryption_and_credential_settings_title" msgid="6911729638397745353">"التشفير وبيانات الاعتماد"</string>
-    <string name="encryption_and_credential_settings_summary" product="default" msgid="468749700109808546">"تم تشفير الهاتف"</string>
+    <string name="encryption_and_credential_settings_summary" product="default" msgid="468749700109808546">"تم ترميز الهاتف"</string>
     <string name="decryption_settings_summary" product="default" msgid="7401802133199522441">"الهاتف ليس مشفّرًا."</string>
-    <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"تم تشفير الجهاز"</string>
+    <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"تم ترميز الجهاز"</string>
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"الجهاز ليس مشفرًا."</string>
     <string name="lockscreen_settings_title" msgid="1221505938891948413">"عرض شاشة القفل"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"ما يتم عرضه"</string>
@@ -522,13 +522,13 @@
     <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"لن تتمكن من استخدام بصمات إصبعك لإلغاء تأمين الملف الشخصي للعمل، أو السماح بعمليات الشراء، أو تسجيل الدخول إلى تطبيقات العمل"</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"نعم، إزالة"</string>
     <string name="crypt_keeper_settings_title" msgid="839783588093862748">"التشفير"</string>
-    <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"تشفير الجهاز اللوحي"</string>
-    <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"تشفير الهاتف"</string>
+    <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"ترميز الجهاز اللوحي"</string>
+    <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"ترميز الهاتف"</string>
     <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"مشفّر"</string>
-    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"يمكنك تشفير حساباتك وإعداداتك والتطبيقات التي تم تنزيلها وبياناتها والوسائط والملفات الأخرى. وبعد تشفير جهازك اللوحي، بافتراض أنك قد أعددت قفل الشاشة (باستخدام نقش أو رقم تعريف شخصي أو كلمة مرور)، يجب فتح قفل الشاشة لفك تشفير الجهاز اللوحي في كل مرة تشغله فيها. والوسيلة الأخرى الوحيدة لفك تشفير الجهاز هي إجراء إعادة الضبط على الإعدادات الأصلية، ومحو كل بياناتك.\n\nيستغرق التشفير ساعة أو أكثر. ويجب البدء ببطارية مشحونة وتوصيل الجهاز اللوحي بالشاحن أثناء عملية التشفير. فإذا أوقفت العملية، ستفقد بعض أو كل بياناتك"</string>
-    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"يمكنك تشفير حساباتك وإعداداتك والتطبيقات التي تم تنزيلها وبياناتها والوسائط والملفات الأخرى. وبعد تشفير هاتفك، وبافتراض أنك قد أعددت قفل الشاشة (عبر النقش أو رقم التعريف الشخصي أو كلمة المرور)، يجب فتح قفل الشاشة لفك تشفير الهاتف في كل مرة تشغله فيها. الطريقة الوحيدة الأخرى لفك تشفير الجهاز هي إجراء إعادة الضبط على الإعدادات الأصلية، ومحو كل بياناتك.\n\nيستغرق التشفير ساعة أو أكثر. يجب البدء ببطارية مشحونة وتوصيل الهاتف بالشاحن أثناء عملية التشفير. فإذا أوقفت هذه العملية، ستفقد بعض أو كل البيانات."</string>
-    <string name="crypt_keeper_button_text" product="tablet" msgid="7918671468758813824">"تشفير الجهاز اللوحي"</string>
-    <string name="crypt_keeper_button_text" product="default" msgid="8737394386627318489">"تشفير الهاتف"</string>
+    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"يمكنك ترميز حساباتك وإعداداتك والتطبيقات التي تم تنزيلها وبياناتها والوسائط والملفات الأخرى. وبعد ترميز جهازك اللوحي، بافتراض أنك قد أعددت قفل الشاشة (باستخدام نقش أو رقم تعريف شخصي أو كلمة مرور)، يجب فتح قفل الشاشة لفك ترميز الجهاز اللوحي في كل مرة تشغله فيها. والوسيلة الأخرى الوحيدة لفك ترميز الجهاز هي إجراء إعادة الضبط على الإعدادات الأصلية، ومحو كل بياناتك.\n\nيستغرق الترميز ساعة أو أكثر. ويجب البدء ببطارية مشحونة وتوصيل الجهاز اللوحي بالشاحن أثناء عملية الترميز. فإذا أوقفت العملية، ستفقد بعض أو كل بياناتك"</string>
+    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"يمكنك ترميز حساباتك وإعداداتك والتطبيقات التي تم تنزيلها وبياناتها والوسائط والملفات الأخرى. وبعد ترميز هاتفك، وبافتراض أنك قد أعددت قفل الشاشة (عبر النقش أو رقم التعريف الشخصي أو كلمة المرور)، يجب فتح قفل الشاشة لفك ترميز الهاتف في كل مرة تشغله فيها. الطريقة الوحيدة الأخرى لفك ترميز الجهاز هي إجراء إعادة الضبط على الإعدادات الأصلية، ومحو كل بياناتك.\n\nيستغرق الترميز ساعة أو أكثر. يجب البدء ببطارية مشحونة وتوصيل الهاتف بالشاحن أثناء عملية الترميز. فإذا أوقفت هذه العملية، ستفقد بعض أو كل البيانات."</string>
+    <string name="crypt_keeper_button_text" product="tablet" msgid="7918671468758813824">"ترميز الجهاز اللوحي"</string>
+    <string name="crypt_keeper_button_text" product="default" msgid="8737394386627318489">"ترميز الهاتف"</string>
     <string name="crypt_keeper_low_charge_text" msgid="1422879728632636311">"اشحن البطارية وأعد المحاولة."</string>
     <string name="crypt_keeper_unplugged_text" msgid="6597684068340036200">"صل الشاحن وأعد المحاولة."</string>
     <string name="crypt_keeper_dialog_need_password_title" msgid="8532211509636340535">"ليس هناك رقم تعريف شخصي (PIN) أو كلمة مرور لتأمين الشاشة"</string>
@@ -537,10 +537,10 @@
     <string name="crypt_keeper_final_desc" product="tablet" msgid="2713708841024805586">"لا يمكن التراجع عن عملية التشفير، وفي حالة مقاطعتها، ستفقد البيانات. تستغرق عملية التشفير ساعة أو أكثر، وسيتم خلالها إعادة تشغيل الجهاز اللوحي عدة مرات."</string>
     <string name="crypt_keeper_final_desc" product="default" msgid="2483549885938505746">"لا يمكن التراجع عن عملية التشفير، وفي حالة مقاطعتها، ستفقد البيانات. تستغرق عملية التشفير ساعة أو أكثر، وسيتم خلالها إعادة تشغيل الهاتف عدة مرات."</string>
     <string name="crypt_keeper_setup_title" msgid="5444657765706199408">"التشفير"</string>
-    <string name="crypt_keeper_setup_description" product="tablet" msgid="9129783898699975969">"انتظر حتى يتم تشفير الجهاز اللوحي. اكتمل <xliff:g id="PERCENT">^1</xliff:g>%."</string>
-    <string name="crypt_keeper_setup_description" product="default" msgid="3391750289253411494">"انتظر حتى يتم تشفير هاتفك. اكتمل <xliff:g id="PERCENT">^1</xliff:g>%."</string>
-    <string name="crypt_keeper_setup_time_remaining" product="tablet" msgid="7841271240063858796">"انتظر بينما يتم تشفير جهازك اللوحي. الوقت المتبقي: <xliff:g id="DURATION">^1</xliff:g>"</string>
-    <string name="crypt_keeper_setup_time_remaining" product="default" msgid="8049188590821796173">"انتظر بينما يتم تشفير هاتفك. الوقت المتبقي: <xliff:g id="DURATION">^1</xliff:g>"</string>
+    <string name="crypt_keeper_setup_description" product="tablet" msgid="9129783898699975969">"انتظر حتى يتم ترميز الجهاز اللوحي. اكتمل <xliff:g id="PERCENT">^1</xliff:g>%."</string>
+    <string name="crypt_keeper_setup_description" product="default" msgid="3391750289253411494">"انتظر حتى يتم ترميز هاتفك. اكتمل <xliff:g id="PERCENT">^1</xliff:g>%."</string>
+    <string name="crypt_keeper_setup_time_remaining" product="tablet" msgid="7841271240063858796">"انتظر بينما يتم ترميز جهازك اللوحي. الوقت المتبقي: <xliff:g id="DURATION">^1</xliff:g>"</string>
+    <string name="crypt_keeper_setup_time_remaining" product="default" msgid="8049188590821796173">"انتظر بينما يتم ترميز هاتفك. الوقت المتبقي: <xliff:g id="DURATION">^1</xliff:g>"</string>
     <string name="crypt_keeper_force_power_cycle" product="tablet" msgid="9168213181845231795">"لإلغاء تأمين الجهاز اللوحي، يمكنك إيقافه وتشغيله مرة أخرى."</string>
     <string name="crypt_keeper_force_power_cycle" product="default" msgid="1182690469082263666">"لإلغاء تأمين الهاتف، يمكنك إيقافه وتشغيله مرة أخرى."</string>
     <string name="crypt_keeper_warn_wipe" msgid="700814581500057050">"تحذير: سيتم محو محتوى جهازك بعد فشل <xliff:g id="COUNT">^1</xliff:g> من المحاولات الأخرى في فتح القفل!"</string>
@@ -919,7 +919,7 @@
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"الإشعار عند توفر شبكة عامة عالية الجودة"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"تشغيل اتّصال Wi‑Fi تلقائيًا"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"إعادة تشغيل اتّصال Wi‑Fi بالقرب من الشبكات المحفوظة العالية الجودة، مثل الشبكة المنزلية"</string>
-    <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"غير متاحة نظرًا لإيقاف خدمة الموقع. شغّل خدمة "<annotation id="link">"الموقع"</annotation>"."</string>
+    <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"غير متاحة نظرًا لإيقاف خدمة الموقع. فعِّل خدمة "<annotation id="link">"الموقع"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"غير متاح لأن ميزة \"البحث عن شبكات Wi‑Fi\" غير مفعّلة"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"لاستخدام الميزة، اختر مقدِّم خدمة تقييم شبكة"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"تجنب الاتصالات الضعيفة"</string>
@@ -934,7 +934,7 @@
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"لتحسين دقة تحديد الموقع الجغرافي، يمكنك تفعيل ميزة \"البحث عن شبكات Wi-Fi\" من خلال <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>إعدادات البحث<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"عدم الإظهار مرة أخرى"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"احتفاظ بـ Wi-Fi في وضع السكون"</string>
-    <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"تشغيل Wi‑Fi أثناء وضع السكون"</string>
+    <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"تفعيل Wi-Fi أثناء وضع السكون"</string>
     <string name="wifi_setting_sleep_policy_error" msgid="9029652631829560733">"حدثت مشكلة أثناء تغيير الإعدادات"</string>
     <string name="wifi_suspend_efficiency_title" msgid="5292408676086580527">"تحسين الفعالية"</string>
     <string name="wifi_suspend_optimizations" msgid="8826033336622472222">"تحسين Wi-Fi"</string>
@@ -1133,7 +1133,7 @@
     <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"لا تتم مشاركة اتصال الإنترنت أو المحتوى مع الأجهزة الأخرى"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"تتم مشاركة اتصال الإنترنت على هذا الجهاز اللوحي عبر نقطة الاتصال"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"تتم مشاركة اتصال الإنترنت على هذا الهاتف عبر نقطة الاتصال"</string>
-    <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"يشارك التطبيق المحتوى. لمشاركة اتصال الإنترنت، يجب إيقاف نقطة الاتصال، ثم تشغيلها."</string>
+    <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"يشارك التطبيق المحتوى. لمشاركة اتصال الإنترنت، يجب إيقاف نقطة الاتصال، ثم تفعيلها."</string>
     <string name="wifi_hotspot_no_password_subtext" msgid="5400500962974373706">"لم يتم تعيين كلمة مرور"</string>
     <string name="wifi_hotspot_name_title" msgid="6572202165400226127">"اسم نقطة الاتصال"</string>
     <string name="wifi_hotspot_name_summary_connecting" msgid="5176787959408511889">"جارٍ تفعيل <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>..."</string>
@@ -1194,7 +1194,7 @@
     <string name="all_volume_title" msgid="1750261506951315423">"مستويات الصوت"</string>
     <string name="musicfx_title" msgid="6456079041566773649">"تأثيرات موسيقية"</string>
     <string name="ring_volume_title" msgid="5874791723449821646">"مستوى صوت الرنين"</string>
-    <string name="vibrate_in_silent_title" msgid="2314667015729841220">"اهتزاز عند تشغيل الوضع صامت"</string>
+    <string name="vibrate_in_silent_title" msgid="2314667015729841220">"اهتزاز عند تفعيل الوضع صامت"</string>
     <string name="notification_sound_title" msgid="6812164482799723931">"الصوت التلقائي للإشعارات"</string>
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"نغمة الرنين"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"التنبيه"</string>
@@ -1362,7 +1362,7 @@
     <string name="sim_lock_failed" msgid="7949781515066772755">"لا يمكن تغيير حالة تأمين شريحة SIM.\nيُحتمل أن يكون رقم التعريف الشخصي غير صحيح."</string>
     <string name="sim_pin_disable_failed" msgid="6780973900290546751">"يتعذَّر إيقاف رقم التعريف الشخصي."</string>
     <string name="sim_pin_enable_failed" msgid="804897359922298792">"يتعذَّر تفعيل رقم التعريف الشخصي."</string>
-    <string name="sim_enter_ok" msgid="5103626479976731229">"موافق"</string>
+    <string name="sim_enter_ok" msgid="5103626479976731229">"حسنًا"</string>
     <string name="sim_enter_cancel" msgid="2806801210236824592">"إلغاء"</string>
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"تم العثور على بطاقات SIM متعددة"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"اختر شريحة SIM المفضلة لبيانات الجوّال."</string>
@@ -1641,7 +1641,7 @@
     <string name="error_adding_apn_type" msgid="671634520340569678">"لا يسمح مشغّل شبكة الجوّال بإضافة APN من النوع %s."</string>
     <string name="restore_default_apn" msgid="7195266404077471007">"جارٍ استعادة إعدادات APN التلقائية."</string>
     <string name="menu_restore" msgid="3799288817317293115">"إعادة الضبط على الإعداد التلقائي"</string>
-    <string name="restore_default_apn_completed" msgid="5671734152740058937">"اكتملت إعادة تعيين إعدادات APN التلقائية."</string>
+    <string name="restore_default_apn_completed" msgid="5671734152740058937">"اكتملت إعادة ضبط إعدادات APN التلقائية."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"خيارات إعادة الضبط"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"يمكن إعادة ضبط الشبكة أو التطبيقات أو الجهاز"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"إعادة ضبط شبكة Wi-Fi والجوّال والبلوتوث"</string>
@@ -1654,7 +1654,7 @@
     <string name="reset_network_final_button_text" msgid="345255333127794393">"إعادة ضبط الإعدادات"</string>
     <string name="reset_network_confirm_title" msgid="2432145031070536008">"هل تريد إعادة الضبط؟"</string>
     <string name="network_reset_not_available" msgid="6146655531868016281">"إعادة ضبط الشبكة ليست متاحة لهذا المستخدم"</string>
-    <string name="reset_network_complete_toast" msgid="128225929536005495">"تمت إعادة تعيين إعدادات الشبكة"</string>
+    <string name="reset_network_complete_toast" msgid="128225929536005495">"تمت إعادة ضبط إعدادات الشبكة"</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"يتعذّر محو بيانات شرائح SIM"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"يتعذّر محو بيانات شرائح التي تم تنزيلها بسبب خطأ.\n\nيمكنك إعادة تشغيل الجهاز وإعادة المحاولة."</string>
     <string name="master_clear_title" msgid="1560712943955904673">"محو جميع البيانات (إعادة الضبط على الإعدادات الأصلية)"</string>
@@ -1816,9 +1816,9 @@
     <string name="lockpassword_strong_auth_required_work_pattern" msgid="6861154706098327320">"استخدام نقش للملف الشخصي للعمل لزيادة الأمان"</string>
     <string name="lockpassword_strong_auth_required_work_pin" msgid="6306902249365524526">"إدخال رقم تعريف شخصي للملف الشخصي للعمل لزيادة الأمان"</string>
     <string name="lockpassword_strong_auth_required_work_password" msgid="2917338218971012776">"إدخال كلمة مرور للملف الشخصي للعمل لزيادة الأمان"</string>
-    <string name="lockpassword_confirm_your_pattern_details_frp" msgid="1085862410379709928">"تم إعادة تعيين هاتفك على الإعدادات الأصلية. لاستخدام هذا الهاتف، أدخل النقش السابق."</string>
-    <string name="lockpassword_confirm_your_pin_details_frp" msgid="6849889353126558761">"تم إعادة تعيين هاتفك على الإعدادات الأصلية. لاستخدام هذا الهاتف، أدخل رقم التعريف الشخصي السابق."</string>
-    <string name="lockpassword_confirm_your_password_details_frp" msgid="3239944795659418737">"تم إعادة تعيين هاتفك على الإعدادات الأصلية. لاستخدام هذا الهاتف، أدخل كلمة المرور السابقة."</string>
+    <string name="lockpassword_confirm_your_pattern_details_frp" msgid="1085862410379709928">"تم إعادة ضبط هاتفك على الإعدادات الأصلية. لاستخدام هذا الهاتف، أدخل النقش السابق."</string>
+    <string name="lockpassword_confirm_your_pin_details_frp" msgid="6849889353126558761">"تم إعادة ضبط هاتفك على الإعدادات الأصلية. لاستخدام هذا الهاتف، أدخل رقم التعريف الشخصي السابق."</string>
+    <string name="lockpassword_confirm_your_password_details_frp" msgid="3239944795659418737">"تم إعادة ضبط هاتفك على الإعدادات الأصلية. لاستخدام هذا الهاتف، أدخل كلمة المرور السابقة."</string>
     <string name="lockpassword_confirm_your_pattern_header_frp" msgid="3290569334665839860">"التحقق من النقش"</string>
     <string name="lockpassword_confirm_your_pin_header_frp" msgid="8520474869079710782">"التحقق من رقم التعريف الشخصي"</string>
     <string name="lockpassword_confirm_your_password_header_frp" msgid="7326670978891793470">"التحقق من كلمة المرور"</string>
@@ -1944,7 +1944,7 @@
     <string name="recompute_size" msgid="4290692197892743928">"جارٍ إعادة حساب الحجم..."</string>
     <string name="clear_data_dlg_title" msgid="7388024498687029597">"هل تريد حذف بيانات التطبيق؟"</string>
     <string name="clear_data_dlg_text" msgid="6849657743695013414">"سيتم حذف جميع بيانات هذا التطبيق نهائيًا. ويشمل ذلك جميع الملفات والإعدادات والحسابات وقواعد البيانات وما إلى ذلك."</string>
-    <string name="dlg_ok" msgid="4666570206507476557">"موافق"</string>
+    <string name="dlg_ok" msgid="4666570206507476557">"حسنًا"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"إلغاء"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
     <string name="app_not_found_dlg_text" msgid="8807428608938210212">"لم يتم العثور على التطبيق في قائمة التطبيقات المثبتة."</string>
@@ -2075,7 +2075,7 @@
     <string name="user_dict_settings_add_screen_title" msgid="8164998107273393830">"عبارة"</string>
     <string name="user_dict_settings_add_dialog_more_options" msgid="577584009496650183">"خيارات أكثر"</string>
     <string name="user_dict_settings_add_dialog_less_options" msgid="5678408488188525719">"خيارات أقل"</string>
-    <string name="user_dict_settings_add_dialog_confirm" msgid="7279673661732968137">"موافق"</string>
+    <string name="user_dict_settings_add_dialog_confirm" msgid="7279673661732968137">"حسنًا"</string>
     <string name="user_dict_settings_add_word_option_name" msgid="5310204485783762787">"الكلمة:"</string>
     <string name="user_dict_settings_add_shortcut_option_name" msgid="1494012163016712256">"الاختصار:"</string>
     <string name="user_dict_settings_add_locale_option_name" msgid="6589803829089582686">"اللغة:"</string>
@@ -2286,14 +2286,14 @@
     <string name="enable_service_title" msgid="2746143093464928251">"هل تريد استخدام <xliff:g id="SERVICE">%1$s</xliff:g>؟"</string>
     <string name="capabilities_list_title" msgid="8177719542886123788">"خدمة <xliff:g id="SERVICE">%1$s</xliff:g> تحتاج إلى:"</string>
     <string name="touch_filtered_warning" msgid="3072665526993043879">"نظرًا لأن هناك تطبيقًا يحجب طلب الإذن، لا تستطيع الإعدادات التحقق من ردك."</string>
-    <string name="enable_service_encryption_warning" msgid="3580275420826492351">"في حالة تفعيل <xliff:g id="SERVICE">%1$s</xliff:g>، لن يستخدم جهازك ميزة قفل الشاشة لتحسين تشفير البيانات."</string>
-    <string name="secure_lock_encryption_warning" msgid="8724670910924531152">"لن يستخدم جهازك ميزة قفل الشاشة لتحسين تشفير البيانات، وذلك لأنك قد فعّلت إحدى خدمات إمكانية الوصول."</string>
-    <string name="enable_service_pattern_reason" msgid="7415969807374459848">"نظرًا لأن تشغيل <xliff:g id="SERVICE">%1$s</xliff:g> يؤثر في تشفير البيانات، يجب تأكيد النقش."</string>
-    <string name="enable_service_pin_reason" msgid="2899057249007636608">"نظرًا لأن تشغيل <xliff:g id="SERVICE">%1$s</xliff:g> يؤثر في تشفير البيانات، يجب تأكيد رقم التعريف الشخصي."</string>
-    <string name="enable_service_password_reason" msgid="5210815233227388083">"نظرًا لأن تشغيل <xliff:g id="SERVICE">%1$s</xliff:g> يؤثر في تشفير البيانات، يجب تأكيد كلمة المرور."</string>
+    <string name="enable_service_encryption_warning" msgid="3580275420826492351">"في حالة تفعيل <xliff:g id="SERVICE">%1$s</xliff:g>، لن يستخدم جهازك ميزة قفل الشاشة لتحسين ترميز البيانات."</string>
+    <string name="secure_lock_encryption_warning" msgid="8724670910924531152">"لن يستخدم جهازك ميزة قفل الشاشة لتحسين ترميز البيانات، وذلك لأنك قد فعّلت إحدى خدمات إمكانية الوصول."</string>
+    <string name="enable_service_pattern_reason" msgid="7415969807374459848">"نظرًا لأن تشغيل <xliff:g id="SERVICE">%1$s</xliff:g> يؤثر في ترميز البيانات، يجب تأكيد النقش."</string>
+    <string name="enable_service_pin_reason" msgid="2899057249007636608">"نظرًا لأن تشغيل <xliff:g id="SERVICE">%1$s</xliff:g> يؤثر في ترميز البيانات، يجب تأكيد رقم التعريف الشخصي."</string>
+    <string name="enable_service_password_reason" msgid="5210815233227388083">"نظرًا لأن تشغيل <xliff:g id="SERVICE">%1$s</xliff:g> يؤثر في ترميز البيانات، يجب تأكيد كلمة المرور."</string>
     <string name="accessibility_service_warning" msgid="345702253188068806">"تطلب خدمة <xliff:g id="SERVICE">%1$s</xliff:g> الحصول على تحكم كامل في هذا الجهاز. ويمكن للخدمة قراءة الشاشة والتصرف بالنيابة عن المستخدمين ذوي الاحتياجات المتعلقة بإمكانية الوصول. ولا يناسب هذا المستوى من التحكم معظم التطبيقات."</string>
     <string name="disable_service_title" msgid="6234243399949005825">"هل تريد إيقاف <xliff:g id="SERVICE">%1$s</xliff:g>؟"</string>
-    <string name="disable_service_message" msgid="4250593674885651779">"يؤدي النقر على \"موافق\" إلى إيقاف <xliff:g id="SERVICE">%1$s</xliff:g>."</string>
+    <string name="disable_service_message" msgid="4250593674885651779">"يؤدي النقر على \"حسنًا\" إلى إيقاف <xliff:g id="SERVICE">%1$s</xliff:g>."</string>
     <string name="accessibility_no_services_installed" msgid="6979918129976547334">"لم يتم تثبيت أي خدمات"</string>
     <string name="accessibility_no_service_selected" msgid="3909390566736834080">"لم يتم اختيار أي خدمة"</string>
     <string name="accessibility_service_default_description" msgid="857921874644864502">"لم يتم تقديم أي وصف."</string>
@@ -2776,7 +2776,7 @@
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"ستؤدي إزالة هذا الحساب إلى إزالة جميع رسائله وجهات الاتصال الخاصة به وبياناته الأخرى من الجهاز."</string>
     <string name="remove_account_failed" msgid="491458185327106966">"لا يسمح المشرف بإجراء هذا التغيير"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"لا يمكن المزامنة يدويًا"</string>
-    <string name="cant_sync_dialog_message" msgid="3467126947262857534">"مزامنة هذا العنصر غير مفعّلة في الوقت الحالي. لتغيير هذا الإعداد، شغّل بشكل مؤقت بيانات الخلفية والمزامنة التلقائية."</string>
+    <string name="cant_sync_dialog_message" msgid="3467126947262857534">"مزامنة هذا العنصر غير مفعّلة في الوقت الحالي. لتغيير هذا الإعداد، فعِّل بشكل مؤقت بيانات الخلفية والمزامنة التلقائية."</string>
     <string name="enter_password" msgid="2963496904625715235">"لبدء تشغيل Android، أدخل كلمة المرور"</string>
     <string name="enter_pin" msgid="7140938268709546890">"لبدء تشغيل Android، أدخل رقم التعريف الشخصي"</string>
     <string name="enter_pattern" msgid="1653841963422825336">"لبدء تشغيل Android، ارسم النقش"</string>
@@ -2920,7 +2920,7 @@
     <string name="vpn_forget_long" msgid="8457511440635534478">"نسيان الشبكة الافتراضية الخاصة"</string>
     <string name="vpn_replace_vpn_title" msgid="8517436922021598103">"هل تريد استبدال الشبكة الافتراضية الخاصة الحالية؟"</string>
     <string name="vpn_set_vpn_title" msgid="6483554732067951052">"هل تريد تشغيل الشبكة الافتراضية الخاصة باستمرار؟"</string>
-    <string name="vpn_first_always_on_vpn_message" msgid="7050017738816963855">"عند تشغيل هذا الإعداد، لن تتمكن من الاتصال بالإنترنت إلا بعد أن ينجح اتصال الشبكة الافتراضية الخاصة (VPN)"</string>
+    <string name="vpn_first_always_on_vpn_message" msgid="7050017738816963855">"عند تفعيل هذا الإعداد، لن تتمكن من الاتصال بالإنترنت إلا بعد أن ينجح اتصال الشبكة الافتراضية الخاصة (VPN)"</string>
     <string name="vpn_replace_always_on_vpn_enable_message" msgid="4149931501300203205">"سيتم استبدال شبكتك الافتراضية الخاصة (VPN) الحالية ولن تتمكن من الاتصال بالإنترنت إلا بعد أن ينجح اتصال الشبكة الافتراضية الخاصة (VPN)"</string>
     <string name="vpn_replace_always_on_vpn_disable_message" msgid="4924947523200883088">"أنت متصل حاليًا بشبكة افتراضية خاصة (VPN) مضبوطة على وضع التشغيل الدائم. وإذا اتصلت بشبكة افتراضية خاصة أخرى، فسيتم استبدال شبكتك الافتراضية الخاصة الحالية، كما سيتم إيقاف وضع التشغيل الدائم."</string>
     <string name="vpn_replace_vpn_message" msgid="8009433728523145393">"أنت متصل حاليًا بشبكة افتراضية خاصة (VPN). وإذا اتصلت بشبكة افتراضية خاصة أخرى، فسيتم استبدال شبكتك الافتراضية الخاصة الحالية."</string>
@@ -2931,7 +2931,7 @@
     <string name="vpn_create" msgid="2477570636472897359">"إضافة ملف شخصي لشبكة افتراضية خاصة (VPN)"</string>
     <string name="vpn_menu_edit" msgid="8061437799373333593">"تعديل الملف الشخصي"</string>
     <string name="vpn_menu_delete" msgid="4128305800374946877">"حذف الملف الشخصي"</string>
-    <string name="vpn_menu_lockdown" msgid="6951452279924808089">"شبكة افتراضية خاصة (VPN) دائمة التشغيل"</string>
+    <string name="vpn_menu_lockdown" msgid="6951452279924808089">"شبكة افتراضية خاصة (VPN) دائمة التفعيل"</string>
     <string name="vpn_no_vpns_added" msgid="6616183541896197147">"لم تتم إضافة أي شبكات افتراضية خاصة (VPN)"</string>
     <string name="vpn_always_on_summary" msgid="3639994551631437397">"متابعة الاتصال بشبكة VPN في جميع الأوقات"</string>
     <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"عدم التوافق مع هذا التطبيق"</string>
@@ -2940,7 +2940,7 @@
     <string name="vpn_require_connection_title" msgid="8361434328767853717">"أيتطلب الأمر اتصالاً بشبكة افتراضية خاصة؟"</string>
     <string name="vpn_lockdown_summary" msgid="6770030025737770861">"حدد ملفًا شخصيًا للشبكة الافتراضية الخاصة (VPN) للاتصال الدائم بها. لن يتم السماح بحركة مرور الشبكة إلا عند الاتصال بهذه الشبكة الافتراضية الخاصة."</string>
     <string name="vpn_lockdown_none" msgid="3789288793603394679">"بدون"</string>
-    <string name="vpn_lockdown_config_error" msgid="8761770968704589885">"تتطلب الشبكة الافتراضية الخاصة (VPN) دائمة التشغيل عنوان IP لكل من الخادم ونظام أسماء النطاقات."</string>
+    <string name="vpn_lockdown_config_error" msgid="8761770968704589885">"تتطلب الشبكة الافتراضية الخاصة (VPN) دائمة التفعيل عنوان IP لكل من الخادم ونظام أسماء النطاقات."</string>
     <string name="vpn_no_network" msgid="8313250136194588023">"ليس هناك اتصال بالشبكة. يُرجى إعادة المحاولة لاحقًا."</string>
     <string name="vpn_disconnected" msgid="4597953053220332539">"تم قطع الاتصال بالشبكة الافتراضية الخاصة"</string>
     <string name="vpn_disconnected_summary" msgid="3784118965271376808">"غير متّصل بشبكة"</string>
@@ -3061,7 +3061,7 @@
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"سيتم حذف كل التطبيقات والبيانات في هذه الجلسة."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"إزالة"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"تفعيل المكالمات الهاتفية"</string>
-    <string name="user_enable_calling_sms" msgid="3450252891736718793">"تشغيل المكالمات الهاتفية والرسائل القصيرة SMS"</string>
+    <string name="user_enable_calling_sms" msgid="3450252891736718793">"تفعيل المكالمات الهاتفية والرسائل القصيرة SMS"</string>
     <string name="user_remove_user" msgid="3687544420125911166">"حذف حساب المستخدم"</string>
     <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"هل تريد تفعيل المكالمات الهاتفية؟"</string>
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"ستتم مشاركة سجل المكالمات مع هذا المستخدم."</string>
@@ -3755,7 +3755,7 @@
     <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"السماح للإشعارات التي يتجاهلها وضع \"الرجاء عدم الإزعاج\" بتشغيل الشاشة وإحداث وميض ضوئي"</string>
     <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"السماح للإشعارات التي يتجاهلها وضع \"الرجاء عدم الإزعاج\" بتشغيل الشاشة"</string>
     <string name="notification_app_settings_button" msgid="3651180424198580907">"إعدادات الإشعارات"</string>
-    <string name="suggestion_button_text" msgid="5783566542423813847">"موافق"</string>
+    <string name="suggestion_button_text" msgid="5783566542423813847">"حسنًا"</string>
     <string name="device_feedback" msgid="4042352891448769818">"إرسال تعليقات حول هذا الجهاز"</string>
     <string name="restr_pin_enter_admin_pin" msgid="8577847751493521230">"إدخال رقم التعريف الشخصي للمشرف"</string>
     <string name="switch_on_text" msgid="7100491749799298324">"مفعّل"</string>
@@ -4324,7 +4324,7 @@
       <item quantity="one">يمكن لتطبيق واحد استخدام البيانات غير المقيّدة</item>
     </plurals>
     <string name="special_access_more" msgid="7086690625048471400">"الاطّلاع على المزيد"</string>
-    <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"هل تريد فعلًا مسح بيانات المستخدم والتحويل إلى تشفير الملفات؟"</string>
+    <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"هل تريد فعلًا مسح بيانات المستخدم والتحويل إلى ترميز الملفات؟"</string>
     <string name="button_confirm_convert_fbe" msgid="419832223125147297">"مسح وتحويل"</string>
     <string name="reset_shortcut_manager_throttling" msgid="1912184636360233397">"إعادة ضبط تقييد المعدّل في ShortcutManager"</string>
     <string name="reset_shortcut_manager_throttling_complete" msgid="2932990541160593632">"تمت إعادة ضبط تقييد المعدّل في ShortcutManager."</string>
@@ -4481,9 +4481,9 @@
     </plurals>
     <string name="enterprise_privacy_input_method" msgid="5885916325874284011">"لوحة المفاتيح التلقائية"</string>
     <string name="enterprise_privacy_input_method_name" msgid="439610095825218563">"تعيين على <xliff:g id="APP_LABEL">%s</xliff:g>"</string>
-    <string name="enterprise_privacy_always_on_vpn_device" msgid="2022700916516458213">"تم تشغيل إعداد \"شبكة افتراضية خاصة (VPN) دائمة التشغيل\""</string>
-    <string name="enterprise_privacy_always_on_vpn_personal" msgid="5644065780843002044">"تم تشغيل إعداد \"شبكة افتراضية خاصة (VPN) دائمة التشغيل\" في الملف الشخصي"</string>
-    <string name="enterprise_privacy_always_on_vpn_work" msgid="6443089897985373564">"تم تفعيل \"شبكة افتراضية خاصة (VPN) دائمة التشغيل\" في الملف الشخصي للعمل"</string>
+    <string name="enterprise_privacy_always_on_vpn_device" msgid="2022700916516458213">"تم تفعيل إعداد \"شبكة افتراضية خاصة (VPN) دائمة التفعيل\""</string>
+    <string name="enterprise_privacy_always_on_vpn_personal" msgid="5644065780843002044">"تم تفعيل إعداد \"شبكة افتراضية خاصة (VPN) دائمة التفعيل\" في الملف الشخصي"</string>
+    <string name="enterprise_privacy_always_on_vpn_work" msgid="6443089897985373564">"تم تفعيل \"شبكة افتراضية خاصة (VPN) دائمة التفعيل\" في الملف الشخصي للعمل"</string>
     <string name="enterprise_privacy_global_http_proxy" msgid="3862135895716080830">"تم تعيين الخادم الوكيل HTTP العام"</string>
     <string name="enterprise_privacy_ca_certs_device" msgid="7715658848470643878">"بيانات الاعتماد الموثوقة"</string>
     <string name="enterprise_privacy_ca_certs_personal" msgid="1356447417193483802">"بيانات اعتماد موثوقة في ملفك الشخصي"</string>

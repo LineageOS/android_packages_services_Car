@@ -4505,7 +4505,7 @@
     <string name="media_output_panel_summary_of_playing_device" msgid="7425231720911606911">"Inacheza sasa kwenye <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="wfc_disclaimer_title_text" msgid="3245793509743182243">"Maelezo muhimu"</string>
     <string name="wfc_disclaimer_agree_button_text" msgid="4706101805260434404">"ENDELEA"</string>
-    <string name="wfc_disclaimer_disagree_text" msgid="908289420390194127">"HAPANA, ASANTE"</string>
+    <string name="wfc_disclaimer_disagree_text" msgid="908289420390194127">"HAPANA"</string>
     <string name="wfc_disclaimer_location_title_text" msgid="5696194250838686019">"Eneo"</string>
     <string name="wfc_disclaimer_location_desc_text" msgid="3879710366995108723">"Mtoa huduma wako huenda atachukua eneo lako ili atoe huduma hii.\n\n Tafadhali kagua sera ya faragha ya mtoa huduma wako."</string>
     <string name="forget_passpoint_dialog_message" msgid="3337626966248310367">"Huenda ukapoteza idhini ya kutumia muda au data inayosalia. Wasiliana na mtoa huduma wako kabla hujaondoa."</string>

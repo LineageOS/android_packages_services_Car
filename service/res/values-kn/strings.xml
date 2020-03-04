@@ -72,8 +72,7 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ಊಡಿಕೆ ಘಟನೆಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"ಸಿಎಎನ್ ಬಸ್ ಕೆಟ್ಟಿದೆ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ಬಸ್ ಸ್ಪಂದಿಸುತ್ತಿಲ್ಲ. ಹೆಡ್ ಯುನಿಟ್ ಪೆಟ್ಟಿಗೆಯನ್ನು ಅನ್‌ಪ್ಲಗ್ ಮಾಡಿ ಮತ್ತೆ ಪ್ಲಗ್ ಮಾಡಿ ಕಾರನ್ನು ಪುನರಾರಂಭಿಸಿ"</string>
-    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
-    <skip />
+    <string name="activity_blocked_text" msgid="8088902789540147995">"ಡ್ರೈವ್ ಮಾಡುವಾಗ ನೀವು ಈ ವೈಶಿಷ್ಟ್ಯವನ್ನು ಬಳಸಲಾಗುವುದಿಲ್ಲ"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"ಆಪ್‌ನ ಸುರಕ್ಷೆ ಗುಣಲಕ್ಷಣಗಳನ್ನು ಒಳಗೊಂಡು ಮತ್ತೆ ಪ್ರಾರಂಭಿಸಲು, <xliff:g id="EXIT_BUTTON">%s</xliff:g> ಆಯ್ಕೆ ಮಾಡಿ."</string>
     <string name="exit_button" msgid="5829638404777671253">"ಹಿಂದಕ್ಕೆ"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"ಆ್ಯಪ್ ಮುಚ್ಚಿರಿ"</string>

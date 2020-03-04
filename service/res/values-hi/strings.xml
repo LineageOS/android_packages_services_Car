@@ -72,8 +72,7 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"इनपुट से जुड़े इवेंट प्रबंधित कर सकता है"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\'CAN बस\' काम नहीं कर पा रहा है"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"\'CAN बस\' जवाब नहीं दे रहा है. हेडयूनिट बॉक्स का प्लग निकालकर वापस लगाएं और कार को रीस्टार्ट करें"</string>
-    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
-    <skip />
+    <string name="activity_blocked_text" msgid="8088902789540147995">"आप गाड़ी चलाते समय इस सुविधा का इस्तेमाल नहीं कर सकते"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"सुरक्षित ऐप्लिकेशन सुविधाएं फिर से शुरू करने के लिए, <xliff:g id="EXIT_BUTTON">%s</xliff:g> चुनें."</string>
     <string name="exit_button" msgid="5829638404777671253">"वापस शुरू करें"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"ऐप्लिकेशन बंद करें"</string>

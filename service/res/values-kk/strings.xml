@@ -72,8 +72,7 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Деректерді енгізу оқиғаларын басқаруға болады"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN шинасы істен шықты"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN шинасы жауап бермейді. Негізгі модульді ажыратып, қайта жалғаңыз және көлікті қайта оталдырыңыз"</string>
-    <!-- no translation found for activity_blocked_text (8088902789540147995) -->
-    <skip />
+    <string name="activity_blocked_text" msgid="8088902789540147995">"Бұл функцияны көлік жүргізген кезде пайдалана алмайсыз."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Қолданбаны қауіпсіз күйде қайта іске қосу үшін <xliff:g id="EXIT_BUTTON">%s</xliff:g> түймесін басыңыз."</string>
     <string name="exit_button" msgid="5829638404777671253">"Артқа"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"Қолданбаны жабу"</string>
