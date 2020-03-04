@@ -294,7 +294,7 @@
     <string name="okay" msgid="5838476766924989056">"Në rregull"</string>
     <string name="forget" msgid="7735525146062672874">"Harro"</string>
     <string name="save" msgid="3418211178410498517">"Ruaj"</string>
-    <string name="done" msgid="5143229467535372339">"U krye!"</string>
+    <string name="done" msgid="5143229467535372339">"U krye"</string>
     <string name="apply" msgid="951230399613164126">"Zbato"</string>
     <string name="share" msgid="3567029787293158575">"Ndaj"</string>
     <string name="add" msgid="903114118076816060">"Shto"</string>
@@ -809,7 +809,7 @@
     <string name="wifi_display_details" msgid="6379855523460749126">"Shfaq cilësimet"</string>
     <string name="wifi_display_options_title" msgid="4587264519668872213">"Opsionet e shfaqjes së Wi-Fi"</string>
     <string name="wifi_display_options_forget" msgid="7882982544626742073">"Harro"</string>
-    <string name="wifi_display_options_done" msgid="5922060890309265817">"U krye!"</string>
+    <string name="wifi_display_options_done" msgid="5922060890309265817">"U krye"</string>
     <string name="wifi_display_options_name" msgid="8477627781133827607">"Emri"</string>
     <string name="wifi_band_24ghz" msgid="2973143764653628618">"2,4 GHz"</string>
     <string name="wifi_band_5ghz" msgid="6469832209748522207">"5 GHz"</string>
@@ -2827,7 +2827,7 @@
     <string name="backup_pw_cancel_button_text" msgid="6170984655621611957">"Anulo"</string>
     <string name="additional_system_update_settings_list_item_title" msgid="8674710454802166341">"Përditësime të sistemit"</string>
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"Rrjeti mund të jetë i monitoruar"</string>
-    <string name="done_button" msgid="7652373284597307008">"U krye!"</string>
+    <string name="done_button" msgid="7652373284597307008">"U krye"</string>
     <plurals name="ssl_ca_cert_dialog_title" formatted="false" msgid="7323708984446517980">
       <item quantity="other">Besoji ose hiqi certifikatat</item>
       <item quantity="one">Besoje ose hiqe certifikatën</item>
@@ -3426,7 +3426,7 @@
     <string name="app_notification_row_banned" msgid="2079325338122151677">"I bllokuar"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"Me prioritet"</string>
     <string name="app_notification_row_sensitive" msgid="4919671519227722958">"Delikate"</string>
-    <string name="app_notifications_dialog_done" msgid="5395611029779655968">"U krye!"</string>
+    <string name="app_notifications_dialog_done" msgid="5395611029779655968">"U krye"</string>
     <string name="app_notification_importance_title" msgid="1902794400671001142">"Rëndësia"</string>
     <string name="notification_show_lights_title" msgid="5381920725933228542">"Drita me pulsim"</string>
     <string name="notification_vibrate_title" msgid="8221718258793835282">"Dridhje"</string>

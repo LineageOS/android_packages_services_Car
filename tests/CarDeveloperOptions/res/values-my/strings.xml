@@ -239,7 +239,7 @@
     <string name="ping_test_label" msgid="4759194831308897624">"Ping စမ်းသပ်ခြင်း လုပ်ဆောင်ပါ"</string>
     <string name="radio_info_smsc_label" msgid="4561160340649588034">"SMSC:"</string>
     <string name="radio_info_smsc_update_label" msgid="3992739670219389246">"အပ်ဒိတ်"</string>
-    <string name="radio_info_smsc_refresh_label" msgid="5343925292858337909">"ပြန်လည်ဆန်းသစ်ရန်"</string>
+    <string name="radio_info_smsc_refresh_label" msgid="5343925292858337909">"ပြန်လည်စတင်ရန်"</string>
     <string name="radio_info_toggle_dns_check_label" msgid="3058615074503857400">"DNS စစ်ဆေးမှုခလုတ်နှိပ်ပါ"</string>
     <string name="oem_radio_info_label" msgid="8679815523111164378">"ထုတ်လုပ်သူနှင့် သက်ဆိုင်သော အချက်အလက်/ဆက်တင်များ"</string>
     <string name="band_mode_title" msgid="8180320100446559884">"ရေဒီယိုလိုင်းမုဒ်သို့ သတ်မှတ်ပါ"</string>
@@ -745,7 +745,7 @@
     <string name="bluetooth_error_title" msgid="5718761586633101960"></string>
     <string name="bluetooth_connecting_error_message" msgid="8473359363469518478">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ကို ချိတ်ဆက်မရပါ။"</string>
     <string name="bluetooth_preference_scan_title" msgid="457781003962324807">"စက်များကိုရှာဖွေရန် စကင်ပြုလုပ်နေသည်"</string>
-    <string name="bluetooth_search_for_devices" msgid="6796307228261078451">"ပြန်လည်ဆန်းသစ်ရန်"</string>
+    <string name="bluetooth_search_for_devices" msgid="6796307228261078451">"ပြန်လည်စတင်ရန်"</string>
     <string name="bluetooth_searching_for_devices" msgid="7820814625522702494">"ရှာဖွေနေသည်…"</string>
     <string name="bluetooth_preference_device_settings" msgid="4247085616427015908">"စက်ပစ္စည်း အပြင်အဆင်များ"</string>
     <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"ချိတ်တွဲထားသည့် ကိရိယာ"</string>
@@ -2440,7 +2440,7 @@
     <string name="menu_stats_unplugged" msgid="774132771877485277">"<xliff:g id="UNPLUGGED">%1$s</xliff:g> အားသွင်းကြိုးဖြုတ်စဥ်မှ"</string>
     <string name="menu_stats_last_unplugged" msgid="197591229866380225">"<xliff:g id="UNPLUGGED">%1$s</xliff:g>မှ ကြိုးဖြုတ်ထားသည်"</string>
     <string name="menu_stats_total" msgid="2270006562448894071">"အသုံးပြုမှု စုစုပေါင်း"</string>
-    <string name="menu_stats_refresh" msgid="9017362786647223203">"ပြန်လည်ဆန်းသစ်ရန်"</string>
+    <string name="menu_stats_refresh" msgid="9017362786647223203">"ပြန်လည်စတင်ရန်"</string>
     <string name="process_kernel_label" msgid="4175060316414593760">"Android OS"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"မီဒီယာဆာဗာ"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"အက်ပ်ပိုမိုကောင်းအောင်ပြုခြင်း"</string>
