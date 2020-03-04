@@ -50,6 +50,38 @@ double percentage(uint64_t numer, uint64_t denom) {
     return denom == 0 ? 0.0 : (static_cast<double>(numer) / static_cast<double>(denom)) * 100.0;
 }
 
+struct UidProcessStats {
+    uint64_t uid = 0;
+    uint32_t ioBlockedTasksCnt = 0;
+    uint32_t totalTasksCnt = 0;
+    uint64_t majorFaults = 0;
+};
+
+std::unordered_map<uint32_t, UidProcessStats> getUidProcessStats(
+        const std::vector<ProcessStats>& processStats) {
+    std::unordered_map<uint32_t, UidProcessStats> uidProcessStats;
+    for (const auto& stats : processStats) {
+        if (stats.uid < 0) {
+            continue;
+        }
+        uint32_t uid = static_cast<uint32_t>(stats.uid);
+        if (uidProcessStats.find(uid) == uidProcessStats.end()) {
+            uidProcessStats[uid] = UidProcessStats{.uid = uid};
+        }
+        auto& curUidProcessStats = uidProcessStats[uid];
+        // Top-level process stats has the aggregated major page faults count and this should be
+        // persistent across thread creation/termination. Thus use the value from this field.
+        curUidProcessStats.majorFaults += stats.process.majorFaults;
+        curUidProcessStats.totalTasksCnt += stats.threads.size();
+        // The process state is the same as the main thread state. Thus to avoid double counting
+        // ignore the process state.
+        for (const auto& threadStat : stats.threads) {
+            curUidProcessStats.ioBlockedTasksCnt += threadStat.second.state == "D" ? 1 : 0;
+        }
+    }
+    return uidProcessStats;
+}
+
 }  // namespace
 
 std::string toString(const UidIoPerfData& data) {
@@ -63,7 +95,8 @@ std::string toString(const UidIoPerfData& data) {
         StringAppendF(&buffer, "%" PRIu32 ", %s", stat.userId, stat.packageName.c_str());
         for (int i = 0; i < UID_STATES; ++i) {
             StringAppendF(&buffer, ", %" PRIu64 ", %.2f%%, %" PRIu64 ", %.2f%%", stat.bytes[i],
-                          stat.bytesPercent[i], stat.fsync[i], stat.fsyncPercent[i]);
+                          percentage(stat.bytes[i], data.total[READ_BYTES][i]), stat.fsync[i],
+                          percentage(stat.fsync[i], data.total[FSYNC_COUNT][i]));
         }
         StringAppendF(&buffer, "\n");
     }
@@ -76,7 +109,8 @@ std::string toString(const UidIoPerfData& data) {
         StringAppendF(&buffer, "%" PRIu32 ", %s", stat.userId, stat.packageName.c_str());
         for (int i = 0; i < UID_STATES; ++i) {
             StringAppendF(&buffer, ", %" PRIu64 ", %.2f%%, %" PRIu64 ", %.2f%%", stat.bytes[i],
-                          stat.bytesPercent[i], stat.fsync[i], stat.fsyncPercent[i]);
+                          percentage(stat.bytes[i], data.total[WRITE_BYTES][i]), stat.fsync[i],
+                          percentage(stat.fsync[i], data.total[FSYNC_COUNT][i]));
         }
         StringAppendF(&buffer, "\n");
     }
@@ -86,9 +120,39 @@ std::string toString(const UidIoPerfData& data) {
 std::string toString(const SystemIoPerfData& data) {
     std::string buffer;
     StringAppendF(&buffer, "CPU I/O wait time/percent: %" PRIu64 " / %.2f%%\n", data.cpuIoWaitTime,
-                  data.cpuIoWaitPercent);
+                  percentage(data.cpuIoWaitTime, data.totalCpuTime));
     StringAppendF(&buffer, "Number of I/O blocked processes/percent: %" PRIu32 " / %.2f%%\n",
-                  data.ioBlockedProcessesCnt, data.ioBlockedProcessesPercent);
+                  data.ioBlockedProcessesCnt,
+                  percentage(data.ioBlockedProcessesCnt, data.totalProcessesCnt));
+    return buffer;
+}
+
+std::string toString(const ProcessIoPerfData& data) {
+    std::string buffer;
+    StringAppendF(&buffer, "Number of major page faults since last collection: %" PRIu64 "\n",
+                  data.totalMajorFaults);
+    StringAppendF(&buffer,
+                  "Percentage of change in major page faults since last collection: %.2f%%\n",
+                  data.majorFaultsPercentChange);
+    StringAppendF(&buffer, "Top N major page faults:\n");
+    StringAppendF(&buffer,
+                  "Android User ID, Package Name, Number of major page faults, Percentage of total"
+                  "major page faults\n");
+    for (const auto& stat : data.topNMajorFaults) {
+        StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%\n", stat.userId,
+                      stat.packageName.c_str(), stat.count,
+                      percentage(stat.count, data.totalMajorFaults));
+    }
+    StringAppendF(&buffer, "Top N I/O waiting UIDs:\n");
+    StringAppendF(&buffer,
+                  "Android User ID, Package Name, Number of owned tasks waiting for I/O, "
+                  "Percentage of owned tasks waiting for I/O\n");
+    for (size_t i = 0; i < data.topNIoBlockedUids.size(); ++i) {
+        const auto& stat = data.topNIoBlockedUids[i];
+        StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%\n", stat.userId,
+                      stat.packageName.c_str(), stat.count,
+                      percentage(stat.count, data.topNIoBlockedUidsTotalTaskCnt[i]));
+    }
     return buffer;
 }
 
@@ -178,7 +242,6 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
     UidIoUsage tempUsage = {};
     std::vector<const UidIoUsage*> topNReads(mTopNStatsPerCategory, &tempUsage);
     std::vector<const UidIoUsage*> topNWrites(mTopNStatsPerCategory, &tempUsage);
-    uint64_t total[METRIC_TYPES][UID_STATES] = {{0}};
     std::unordered_set<uint32_t> unmappedUids;
 
     for (const auto& uIt : *usage) {
@@ -189,12 +252,18 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
         if (mUidToPackageNameMapping.find(curUsage.uid) == mUidToPackageNameMapping.end()) {
             unmappedUids.insert(curUsage.uid);
         }
-        total[READ_BYTES][FOREGROUND] += curUsage.ios.metrics[READ_BYTES][FOREGROUND];
-        total[READ_BYTES][BACKGROUND] += curUsage.ios.metrics[READ_BYTES][BACKGROUND];
-        total[WRITE_BYTES][FOREGROUND] += curUsage.ios.metrics[WRITE_BYTES][FOREGROUND];
-        total[WRITE_BYTES][BACKGROUND] += curUsage.ios.metrics[WRITE_BYTES][BACKGROUND];
-        total[FSYNC_COUNT][FOREGROUND] += curUsage.ios.metrics[FSYNC_COUNT][FOREGROUND];
-        total[FSYNC_COUNT][BACKGROUND] += curUsage.ios.metrics[FSYNC_COUNT][BACKGROUND];
+        uidIoPerfData->total[READ_BYTES][FOREGROUND] +=
+                curUsage.ios.metrics[READ_BYTES][FOREGROUND];
+        uidIoPerfData->total[READ_BYTES][BACKGROUND] +=
+                curUsage.ios.metrics[READ_BYTES][BACKGROUND];
+        uidIoPerfData->total[WRITE_BYTES][FOREGROUND] +=
+                curUsage.ios.metrics[WRITE_BYTES][FOREGROUND];
+        uidIoPerfData->total[WRITE_BYTES][BACKGROUND] +=
+                curUsage.ios.metrics[WRITE_BYTES][BACKGROUND];
+        uidIoPerfData->total[FSYNC_COUNT][FOREGROUND] +=
+                curUsage.ios.metrics[FSYNC_COUNT][FOREGROUND];
+        uidIoPerfData->total[FSYNC_COUNT][BACKGROUND] +=
+                curUsage.ios.metrics[FSYNC_COUNT][BACKGROUND];
 
         for (auto it = topNReads.begin(); it != topNReads.end(); ++it) {
             const UidIoUsage* curRead = *it;
@@ -228,27 +297,17 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
             // I/O operations is < |kTopNStatsPerCategory|.
             break;
         }
-        struct UidIoPerfData::Stats stats = {
-            .userId = multiuser_get_user_id(usage->uid),
-            .packageName = std::to_string(usage->uid),
-            .bytes = {usage->ios.metrics[READ_BYTES][FOREGROUND],
-                      usage->ios.metrics[READ_BYTES][BACKGROUND]},
-            .bytesPercent = {percentage(usage->ios.metrics[READ_BYTES][FOREGROUND],
-                                        total[READ_BYTES][FOREGROUND]),
-                             percentage(usage->ios.metrics[READ_BYTES][BACKGROUND],
-                                        total[READ_BYTES][BACKGROUND])},
-            .fsync = {usage->ios.metrics[FSYNC_COUNT][FOREGROUND],
-                      usage->ios.metrics[FSYNC_COUNT][BACKGROUND]},
-            .fsyncPercent = {percentage(usage->ios.metrics[FSYNC_COUNT][FOREGROUND],
-                                        total[FSYNC_COUNT][FOREGROUND]),
-                             percentage(usage->ios.metrics[FSYNC_COUNT][BACKGROUND],
-                                        total[FSYNC_COUNT][BACKGROUND])},
+        UidIoPerfData::Stats stats = {
+                .userId = multiuser_get_user_id(usage->uid),
+                .packageName = std::to_string(usage->uid),
+                .bytes = {usage->ios.metrics[READ_BYTES][FOREGROUND],
+                          usage->ios.metrics[READ_BYTES][BACKGROUND]},
+                .fsync = {usage->ios.metrics[FSYNC_COUNT][FOREGROUND],
+                          usage->ios.metrics[FSYNC_COUNT][BACKGROUND]},
         };
-
         if (mUidToPackageNameMapping.find(usage->uid) != mUidToPackageNameMapping.end()) {
             stats.packageName = mUidToPackageNameMapping[usage->uid];
         }
-
         uidIoPerfData->topNReads.emplace_back(stats);
     }
 
@@ -258,27 +317,17 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
             // I/O operations is < |kTopNStatsPerCategory|.
             break;
         }
-        struct UidIoPerfData::Stats stats = {
-            .userId = multiuser_get_user_id(usage->uid),
-            .packageName = std::to_string(usage->uid),
-            .bytes = {usage->ios.metrics[WRITE_BYTES][FOREGROUND],
-                      usage->ios.metrics[WRITE_BYTES][BACKGROUND]},
-            .bytesPercent = {percentage(usage->ios.metrics[WRITE_BYTES][FOREGROUND],
-                                        total[WRITE_BYTES][FOREGROUND]),
-                             percentage(usage->ios.metrics[WRITE_BYTES][BACKGROUND],
-                                        total[WRITE_BYTES][BACKGROUND])},
-            .fsync = {usage->ios.metrics[FSYNC_COUNT][FOREGROUND],
-                      usage->ios.metrics[FSYNC_COUNT][BACKGROUND]},
-            .fsyncPercent = {percentage(usage->ios.metrics[FSYNC_COUNT][FOREGROUND],
-                                        total[FSYNC_COUNT][FOREGROUND]),
-                             percentage(usage->ios.metrics[FSYNC_COUNT][BACKGROUND],
-                                        total[FSYNC_COUNT][BACKGROUND])},
+        UidIoPerfData::Stats stats = {
+                .userId = multiuser_get_user_id(usage->uid),
+                .packageName = std::to_string(usage->uid),
+                .bytes = {usage->ios.metrics[WRITE_BYTES][FOREGROUND],
+                          usage->ios.metrics[WRITE_BYTES][BACKGROUND]},
+                .fsync = {usage->ios.metrics[FSYNC_COUNT][FOREGROUND],
+                          usage->ios.metrics[FSYNC_COUNT][BACKGROUND]},
         };
-
         if (mUidToPackageNameMapping.find(usage->uid) != mUidToPackageNameMapping.end()) {
             stats.packageName = mUidToPackageNameMapping[usage->uid];
         }
-
         uidIoPerfData->topNWrites.emplace_back(stats);
     }
     return {};
@@ -297,18 +346,108 @@ Result<void> IoPerfCollection::collectSystemIoPerfDataLocked(SystemIoPerfData* s
     }
 
     systemIoPerfData->cpuIoWaitTime = procStatInfo->cpuStats.ioWaitTime;
-    systemIoPerfData->cpuIoWaitPercent =
-            percentage(procStatInfo->cpuStats.ioWaitTime, procStatInfo->totalCpuTime());
+    systemIoPerfData->totalCpuTime = procStatInfo->totalCpuTime();
     systemIoPerfData->ioBlockedProcessesCnt = procStatInfo->ioBlockedProcessesCnt;
-    systemIoPerfData->ioBlockedProcessesPercent =
-            percentage(procStatInfo->ioBlockedProcessesCnt, procStatInfo->totalProcessesCnt());
+    systemIoPerfData->totalProcessesCnt = procStatInfo->totalProcessesCnt();
     return {};
 }
 
 Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
-    ProcessIoPerfData* /*processIoPerfData*/) {
-    // TODO(b/148486340): Implement this method.
-    return Error() << "Unimplemented method";
+        ProcessIoPerfData* processIoPerfData) {
+    if (!mProcPidStat.enabled()) {
+        // Don't return an error to avoid log spamming on every collection. Instead, report this
+        // once in the generated dump.
+        return {};
+    }
+
+    const Result<std::vector<ProcessStats>>& processStats = mProcPidStat.collect();
+    if (!processStats) {
+        return Error() << "Failed to collect process stats: " << processStats.error();
+    }
+
+    const auto& uidProcessStats = getUidProcessStats(*processStats);
+
+    std::unordered_set<uint32_t> unmappedUids;
+    // Fetch only the top N I/O blocked UIDs and UIDs with most major page faults.
+    UidProcessStats temp = {};
+    std::vector<const UidProcessStats*> topNIoBlockedUids(mTopNStatsPerCategory, &temp);
+    std::vector<const UidProcessStats*> topNMajorFaults(mTopNStatsPerCategory, &temp);
+    processIoPerfData->totalMajorFaults = 0;
+    for (const auto& it : uidProcessStats) {
+        const UidProcessStats& curStats = it.second;
+        if (mUidToPackageNameMapping.find(curStats.uid) == mUidToPackageNameMapping.end()) {
+            unmappedUids.insert(curStats.uid);
+        }
+        processIoPerfData->totalMajorFaults += curStats.majorFaults;
+        for (auto it = topNIoBlockedUids.begin(); it != topNIoBlockedUids.end(); ++it) {
+            const UidProcessStats* topStats = *it;
+            if (topStats->ioBlockedTasksCnt > curStats.ioBlockedTasksCnt) {
+                continue;
+            }
+            topNIoBlockedUids.erase(topNIoBlockedUids.end() - 1);
+            topNIoBlockedUids.emplace(it, &curStats);
+            break;
+        }
+        for (auto it = topNMajorFaults.begin(); it != topNMajorFaults.end(); ++it) {
+            const UidProcessStats* topStats = *it;
+            if (topStats->majorFaults > curStats.majorFaults) {
+                continue;
+            }
+            topNMajorFaults.erase(topNMajorFaults.end() - 1);
+            topNMajorFaults.emplace(it, &curStats);
+            break;
+        }
+    }
+
+    const auto& ret = updateUidToPackageNameMapping(unmappedUids);
+    if (!ret) {
+        ALOGW("%s", ret.error().message().c_str());
+    }
+
+    // Convert the top N uid process stats to ProcessIoPerfData.
+    for (const auto& it : topNIoBlockedUids) {
+        if (it->ioBlockedTasksCnt == 0) {
+            // End of non-zero elements. This case occurs when the number of UIDs with I/O blocked
+            // processes is < |kTopNStatsPerCategory|.
+            break;
+        }
+        ProcessIoPerfData::Stats stats = {
+                .userId = multiuser_get_user_id(it->uid),
+                .packageName = std::to_string(it->uid),
+                .count = it->ioBlockedTasksCnt,
+        };
+        if (mUidToPackageNameMapping.find(it->uid) != mUidToPackageNameMapping.end()) {
+            stats.packageName = mUidToPackageNameMapping[it->uid];
+        }
+        processIoPerfData->topNIoBlockedUids.emplace_back(stats);
+        processIoPerfData->topNIoBlockedUidsTotalTaskCnt.emplace_back(it->totalTasksCnt);
+    }
+    for (const auto& it : topNMajorFaults) {
+        if (it->majorFaults == 0) {
+            // End of non-zero elements. This case occurs when the number of UIDs with major faults
+            // is < |kTopNStatsPerCategory|.
+            break;
+        }
+        ProcessIoPerfData::Stats stats = {
+                .userId = multiuser_get_user_id(it->uid),
+                .packageName = std::to_string(it->uid),
+                .count = it->majorFaults,
+        };
+        if (mUidToPackageNameMapping.find(it->uid) != mUidToPackageNameMapping.end()) {
+            stats.packageName = mUidToPackageNameMapping[it->uid];
+        }
+        processIoPerfData->topNMajorFaults.emplace_back(stats);
+    }
+    if (mLastMajorFaults == 0) {
+        processIoPerfData->majorFaultsPercentChange = 0;
+    } else {
+        int64_t increase = processIoPerfData->totalMajorFaults - mLastMajorFaults;
+        processIoPerfData->majorFaultsPercentChange =
+                (static_cast<double>(increase) / static_cast<double>(mLastMajorFaults)) *
+                100.0;
+    }
+    mLastMajorFaults = processIoPerfData->totalMajorFaults;
+    return {};
 }
 
 Result<void> IoPerfCollection::updateUidToPackageNameMapping(
