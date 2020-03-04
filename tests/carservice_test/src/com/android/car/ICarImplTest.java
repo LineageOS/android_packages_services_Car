@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
+import android.automotive.watchdog.ICarWatchdog;
 import android.car.Car;
 import android.content.Context;
 import android.content.res.Resources;
@@ -49,6 +50,7 @@ import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.TimeInterface;
 import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
+import com.android.car.watchdog.CarWatchdogService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -169,7 +171,8 @@ public class ICarImplTest {
         doThrow(new NullPointerException()).when(mContext).getDataDir();
 
         ICarImpl carImpl = new ICarImpl(mContext, mMockVehicle, mFakeSystemInterface,
-                /* errorNotifier= */ null, "MockedCar");
+                /* errorNotifier= */ null, "MockedCar", /* carUserService= */ null,
+                new CarWatchdogService(mContext, new ICarWatchdog.Default()));
         carImpl.init();
         Car mCar = new Car(mContext, carImpl, /* handler= */ null);
 
