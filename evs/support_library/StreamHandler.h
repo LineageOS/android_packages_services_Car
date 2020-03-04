@@ -17,6 +17,7 @@
 #ifndef EVS_VTS_STREAMHANDLER_H
 #define EVS_VTS_STREAMHANDLER_H
 
+#include <condition_variable>
 #include <queue>
 #include <thread>
 #include <shared_mutex>
@@ -154,9 +155,9 @@ private:
     BaseRenderCallback*         mRenderCallback = nullptr;
 
     BaseAnalyzeCallback*        mAnalyzeCallback GUARDED_BY(mAnalyzerLock);
-    bool                        mAnalyzerRunning GUARDED_BY(mAnalyzerLock);
-    std::thread                 mAnalyzeThread;
+    std::atomic<bool>           mAnalyzerRunning;
     std::shared_mutex           mAnalyzerLock;
+    std::condition_variable_any mAnalyzerSignal;
 };
 
 }  // namespace support
