@@ -88,7 +88,8 @@ import java.util.UUID;
  * <li>IHU retrieves the user id and authenticates the user.
  * </ol>
  *
- * @deprecated Unlocking of a trusted device is no longer a supported feature of car service.
+ * @deprecated Unlocking of a trusted device is no longer a supported feature of car service and
+ * these APIs will be removed in the next Android release.
  */
 @Deprecated
 public class CarTrustAgentUnlockService {

@@ -594,7 +594,9 @@ public class CarUserServiceTest {
         mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, mReceiver);
 
         assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_OK);
-        assertThat(mReceiver.getResultData()).isNull();
+        Bundle resultData = mReceiver.getResultData();
+        assertThat(resultData).isNotNull();
+        assertInitialInfoAction(resultData, mGetUserInfoResponse.action);
     }
 
     @Test
@@ -616,7 +618,6 @@ public class CarUserServiceTest {
         assertNoUserFlags(resultData);
         assertNoUserName(resultData);
     }
-
 
     @Test
     public void testGetUserInfo_createUserResponse() throws Exception {

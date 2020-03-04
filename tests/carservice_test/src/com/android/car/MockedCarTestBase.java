@@ -22,6 +22,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 import android.annotation.NonNull;
+import android.automotive.watchdog.ICarWatchdog;
 import android.car.Car;
 import android.car.test.CarTestManager;
 import android.car.test.CarTestManagerBinderWrapper;
@@ -63,6 +64,7 @@ import com.android.car.vehiclehal.test.MockedVehicleHal.DefaultPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.StaticPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
+import com.android.car.watchdog.CarWatchdogService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -81,31 +83,28 @@ import java.util.Map;
  * per test set up that should be done before starting.
  */
 public class MockedCarTestBase {
-    private static final String TAG = MockedCarTestBase.class.getSimpleName();
     static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
     static final long SHORT_WAIT_TIMEOUT_MS = 500;
+    private static final String TAG = MockedCarTestBase.class.getSimpleName();
+    private static final IBinder sCarServiceToken = new Binder();
+    private static boolean sRealCarServiceReleased;
 
     private Car mCar;
     private ICarImpl mCarImpl;
     private MockedVehicleHal mMockedVehicleHal;
     private SystemInterface mFakeSystemInterface;
     private MockResources mResources;
+    private MockedCarTestContext mMockedCarTestContext;
 
     private final List<CarUserService.UserCallback> mUserCallbacks = new ArrayList<>();
     private final CarUserService mCarUserService = mock(CarUserService.class);
-
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
-
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
-
     private final Map<VehiclePropConfigBuilder, VehicleHalPropertyHandler> mHalConfig =
             new HashMap<>();
     private final SparseArray<VehiclePropConfigBuilder> mPropToConfigBuilder = new SparseArray<>();
-
-    private static final IBinder mCarServiceToken = new Binder();
-    private static boolean mRealCarServiceReleased = false;
-
-    private MockedCarTestContext mMockedCarTestContext;
+    private final CarWatchdogService mCarWatchdogService =
+            new CarWatchdogService(getContext(), new ICarWatchdog.Default());
 
     protected synchronized MockedVehicleHal createMockedVehicleHal() {
         return new MockedVehicleHal();
@@ -215,7 +214,7 @@ public class MockedCarTestBase {
         // CarLocalServices service.
         CarLocalServices.removeAllServices();
         mCarImpl = new ICarImpl(mMockedCarTestContext, mMockedVehicleHal, mFakeSystemInterface,
-                /* errorNotifier= */ null , "MockedCar", mCarUserService);
+                /* errorNotifier= */ null , "MockedCar", mCarUserService, mCarWatchdogService);
 
         spyOnInitMockedHal();
         initMockedHal(mCarImpl, false /* no need to release */);
@@ -313,13 +312,13 @@ public class MockedCarTestBase {
 
     /*
      * In order to eliminate interfering with real car service we will disable it. It will be
-     * enabled back in CarTestService when mCarServiceToken will go away (tests finish).
+     * enabled back in CarTestService when sCarServiceToken will go away (tests finish).
      */
     private synchronized static void releaseRealCarService(Context context) throws Exception {
-        if (mRealCarServiceReleased) {
+        if (sRealCarServiceReleased) {
             return;  // We just want to release it once.
         }
-        mRealCarServiceReleased = true;  // To make sure it was called once.
+        sRealCarServiceReleased = true;  // To make sure it was called once.
 
         Object waitForConnection = new Object();
         Car car = android.car.Car.createCar(context, new ServiceConnection() {
@@ -348,7 +347,7 @@ public class MockedCarTestBase {
             assertNotNull(binderWrapper);
 
             CarTestManager mgr = new CarTestManager(car, binderWrapper.binder);
-            mgr.stopCarService(mCarServiceToken);
+            mgr.stopCarService(sCarServiceToken);
         }
     }
 
@@ -519,5 +518,4 @@ public class MockedCarTestBase {
         @Override
         public void switchToFullWakeLock() {}
     }
-
 }

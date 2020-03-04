@@ -57,7 +57,7 @@ public final class UserHalHelper {
      * @throws IllegalArgumentException if type is not valid neither a number
      */
     public static int parseInitialUserInfoRequestType(@NonNull String type) {
-        // TODO(b/146207078): add unit test
+        // TODO(b/150419600): add unit test
         switch(type) {
             case "FIRST_BOOT":
                 return InitialUserInfoRequestType.FIRST_BOOT;
@@ -80,7 +80,7 @@ public final class UserHalHelper {
      * Converts Android user flags to HALs.
      */
     public static int convertFlags(@NonNull UserInfo user) {
-        // TODO(b/146207078): add unit test
+        // TODO(b/150419600): add unit test
         int flags = UserFlags.NONE;
         if (user.id == UserHandle.USER_SYSTEM) {
             flags |= UserFlags.SYSTEM;
