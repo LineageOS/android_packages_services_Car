@@ -47,6 +47,7 @@ public class CarLog {
     public static final String TAG_TEST = "CAR.TEST";
     public static final String TAG_USER = "CAR.USER";
     public static final String TAG_VENDOR_EXT = "CAR.VENDOR_EXT";
+    public static final String TAG_WATCHDOG = "CAR.WATCHDOG";
 
     public static String concatTag(String tagPrefix, Class clazz) {
         String tag = tagPrefix + "." + clazz.getSimpleName();
