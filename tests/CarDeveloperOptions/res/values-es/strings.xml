@@ -324,7 +324,7 @@
     <string name="date_and_time_settings_title_setup_wizard" msgid="1573030770187844365">"Establecer fecha y hora"</string>
     <string name="date_and_time_settings_summary" msgid="4617979434474713417">"Establecer fecha, hora, zona horaria y formatos"</string>
     <string name="date_time_auto" msgid="2679132152303750218">"Usar hora de la red"</string>
-    <string name="zone_auto_title" msgid="5500880975376882488">"Usar zona horaria proporcionada por la red"</string>
+    <string name="zone_auto_title" msgid="5500880975376882488">"Usar la zona horaria proporcionada por la red"</string>
     <string name="date_time_24hour_auto" msgid="7499659679134962547">"Usar la configuración regional predeterminada"</string>
     <string name="date_time_24hour_title" msgid="6209923858891621283">"Formato de 24 horas"</string>
     <string name="date_time_24hour" msgid="1265706705061608742">"Usar formato de 24 horas"</string>
@@ -764,7 +764,7 @@
     <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Desincronizar"</string>
     <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"Desconectar y desincronizar"</string>
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"Opciones…"</string>
-    <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Ajustes avanzados"</string>
+    <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Avanzado"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Ajustes avanzados de Bluetooth"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Si se activa el Bluetooth, tu dispositivo se puede comunicar con otros dispositivos con Bluetooth cercanos"</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Si el Bluetooth está activado, el dispositivo se puede comunicar con otros dispositivos Bluetooth cercanos.\n\nPara mejorar la experiencia de uso del dispositivo, las aplicaciones y los servicios pueden seguir buscando dispositivos cercanos en cualquier momento, aunque el Bluetooth esté desactivado. Esta opción se puede utilizar, por ejemplo, para mejorar los servicios y funciones basados en la ubicación, y puedes cambiarla en los "<annotation id="link">"ajustes de búsqueda"</annotation>"."</string>
@@ -883,7 +883,7 @@
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"Más opciones"</string>
     <string name="wifi_menu_p2p" msgid="4945665601551289791">"Wi-Fi Direct"</string>
     <string name="wifi_menu_scan" msgid="9082691677803181629">"Buscar"</string>
-    <string name="wifi_menu_advanced" msgid="5984484498045511072">"Ajustes avanzados"</string>
+    <string name="wifi_menu_advanced" msgid="5984484498045511072">"Avanzado"</string>
     <string name="wifi_menu_configure" msgid="52192491120701266">"Configurar"</string>
     <string name="wifi_menu_connect" msgid="3984327567173931219">"Conectarse a la red"</string>
     <string name="wifi_menu_remember" msgid="717257200269700641">"Recordar red"</string>
@@ -1070,7 +1070,7 @@
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Banda del punto de acceso"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Utiliza un punto de acceso para crear una red Wi‑Fi que puedan usar otros dispositivos. Los puntos de acceso permiten acceder a Internet con una conexión de datos móviles. Es posible que se apliquen cargos adicionales por el uso de datos."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Las aplicaciones pueden crear un punto de acceso para compartir contenido con dispositivos cercanos."</string>
-    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Desactivar el punto de acceso automáticamente"</string>
+    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Desactivar punto de acceso automáticamente"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"El punto de acceso Wi‑Fi se desactivará si no hay dispositivos conectados"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"Activando zona Wi-Fi…"</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"Desactivando zona Wi-Fi…"</string>
@@ -1128,7 +1128,7 @@
     <string name="notification_volume_title" msgid="6022562909288085275">"Notificación"</string>
     <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"Utilizar volumen de llamada entrante para notificaciones"</string>
     <string name="home_work_profile_not_supported" msgid="6137073723297076818">"No admite perfiles de trabajo"</string>
-    <string name="notification_sound_dialog_title" msgid="6653341809710423276">"Sonido notif. predet."</string>
+    <string name="notification_sound_dialog_title" msgid="6653341809710423276">"Sonido de notificación predeterminado"</string>
     <string name="media_volume_title" msgid="1030438549497800914">"Multimedia"</string>
     <string name="media_volume_summary" msgid="3142433516297061652">"Establecer volumen para música y vídeos"</string>
     <string name="alarm_volume_title" msgid="8902277801531496243">"Alarma"</string>
@@ -2489,8 +2489,8 @@
     <string name="menu_duration_6h" msgid="6169009210638008417">"6 horas"</string>
     <string name="menu_duration_12h" msgid="1435242738163843797">"12 horas"</string>
     <string name="menu_duration_1d" msgid="6476370834372352174">"1 día"</string>
-    <string name="menu_show_system" msgid="6315865548558708248">"Mostrar aplicaciones del sistema"</string>
-    <string name="menu_hide_system" msgid="8457027118873733782">"Ocultar aplicaciones del sistema"</string>
+    <string name="menu_show_system" msgid="6315865548558708248">"Mostrar sistema"</string>
+    <string name="menu_hide_system" msgid="8457027118873733782">"Ocultar sistema"</string>
     <string name="menu_show_percentage" msgid="6983272380729890884">"Mostrar porcentajes"</string>
     <string name="menu_use_uss" msgid="3765054705208926803">"Usar USS"</string>
     <string name="menu_proc_stats_type" msgid="2680179749566186247">"Tipo de estadísticas"</string>
@@ -2531,7 +2531,7 @@
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"Mostrar certificados de CA de confianza"</string>
     <string name="user_credentials" msgid="8365731467650306757">"Credenciales de usuario"</string>
     <string name="user_credentials_summary" msgid="7350223899317423252">"Ver y modificar credenciales almacenadas"</string>
-    <string name="advanced_security_title" msgid="286883005673855845">"Ajustes avanzados"</string>
+    <string name="advanced_security_title" msgid="286883005673855845">"Avanzado"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"Tipo de almacenamiento"</string>
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"Almacenado en hardware"</string>
     <string name="credential_storage_type_software" msgid="1335905150062717150">"Solo software"</string>
@@ -3135,7 +3135,7 @@
     <string name="media_volume_option_title" msgid="3553411883305505682">"Volumen de multimedia"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Volumen de envío"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"Volumen de llamada"</string>
-    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Volumen de la alarma"</string>
+    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Volumen de alarma"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Volumen del tono"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Volumen de notificaciones"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Tono del teléfono"</string>
@@ -3295,7 +3295,7 @@
     <string name="configure_notification_settings" msgid="291914315140851270">"Notificaciones"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"Enviadas recientemente"</string>
     <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Ver las de los últimos 7 días"</string>
-    <string name="advanced_section_header" msgid="984680389373090015">"Ajustes avanzados"</string>
+    <string name="advanced_section_header" msgid="984680389373090015">"Avanzado"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"Notificaciones de trabajo"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"Prioridad de los avisos automáticos"</string>
     <string name="asst_capability_prioritizer_summary" msgid="3525640645743790796">"Silenciar y disminuir el nivel de las notificaciones menos importantes"</string>
@@ -3640,7 +3640,7 @@
     <string name="filter_notif_low_channels" msgid="6859599463135775287">"Categorías: poca importancia"</string>
     <string name="filter_notif_blocked_channels" msgid="6110799550327612670">"Categorías: desactivadas"</string>
     <string name="filter_notif_dnd_channels" msgid="3251570137256371092">"Categorías: prioritarias"</string>
-    <string name="advanced_apps" msgid="6643869089344883537">"Ajustes avanzados"</string>
+    <string name="advanced_apps" msgid="6643869089344883537">"Avanzado"</string>
     <string name="configure_apps" msgid="4066683118857400943">"Configurar aplicaciones"</string>
     <string name="unknown_app" msgid="2312052973570376877">"Aplicación desconocida"</string>
     <string name="app_permissions" msgid="3215958256821756086">"Gestor de permisos"</string>

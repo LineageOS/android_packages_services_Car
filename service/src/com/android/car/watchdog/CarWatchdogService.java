@@ -80,6 +80,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
         if (daemon == null) {
             connectToDaemon(CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY);
+        } else {
+            registerToDaemon(daemon);
         }
     }
 
@@ -91,7 +93,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             mCarWatchdogDaemon = null;
         }
         try {
-            daemon.unregisterClient(mWatchdogClient);
+            daemon.unregisterMediator(mWatchdogClient);
         } catch (RemoteException e) {
             Log.w(TAG_WATCHDOG, "Cannot unregister from car watchdog daemon: " + e);
         }
@@ -173,6 +175,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         synchronized (mLock) {
             mCarWatchdogDaemon = daemon;
         }
+        registerToDaemon(daemon);
+        return true;
+    }
+
+    private void registerToDaemon(ICarWatchdog daemon) {
         try {
             daemon.registerMediator(mWatchdogClient);
         } catch (RemoteException e) {
@@ -182,7 +189,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             // Do nothing.
             Log.w(TAG_WATCHDOG, "Already registered as mediator: " + e);
         }
-        return true;
     }
 
     private void doHealthCheck(int sessionId) {
