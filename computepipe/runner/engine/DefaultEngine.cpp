@@ -130,8 +130,16 @@ Status DefaultEngine::processClientCommand(const proto::ControlCommand& command)
         return Status::SUCCESS;
     }
     if (command.has_death_notification()) {
-        mCurrentPhaseError = std::make_unique<ComponentError>(
-                "ClientInterface", "Client death", mCurrentPhase, false);
+        if (mCurrentPhase == kResetPhase) {
+            /**
+             * The runner is already in reset state, no need to broadcast client death
+             * to components
+             */
+            LOG(INFO) << "client death notification with no configuration";
+            return Status::SUCCESS;
+        }
+        mCurrentPhaseError = std::make_unique<ComponentError>("ClientInterface", "Client death",
+                                                              mCurrentPhase, false);
         mWakeLooper.notify_all();
         return Status::SUCCESS;
     }
