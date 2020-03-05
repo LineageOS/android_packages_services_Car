@@ -30,6 +30,7 @@ android_test {
         "androidx.test.core",
         "androidx.test.ext.junit",
         "androidx.test.rules",
+        "truth-prebuilt",
         "car-frameworks-service",
         "testng",
     ],
