@@ -165,17 +165,19 @@ Status PixelStreamManager::freePacket(int bufferId) {
         return Status::INVALID_ARGUMENT;
     }
 
-    mBuffersReady.push_back(it->second);
-    mBuffersInUse.erase(it);
-
+    it->second.outstandingRefCount -= 1;
+    if (it->second.outstandingRefCount == 0) {
+        mBuffersReady.push_back(it->second.handle);
+        mBuffersInUse.erase(it);
+    }
     return Status::SUCCESS;
 }
 
 void PixelStreamManager::freeAllPackets() {
     std::lock_guard lock(mLock);
 
-    for (auto [bufferId, memHandle] : mBuffersInUse) {
-        mBuffersReady.push_back(memHandle);
+    for (auto [bufferId, buffer] : mBuffersInUse) {
+        mBuffersReady.push_back(buffer.handle);
     }
     mBuffersInUse.clear();
 }
@@ -219,7 +221,12 @@ Status PixelStreamManager::queuePacket(const InputFrame& frame, uint64_t timesta
     // may be more cache efficient if accessing through CPU, so we use that strategy here.
     std::shared_ptr<PixelMemHandle> memHandle = mBuffersReady[mBuffersReady.size() - 1];
     mBuffersReady.resize(mBuffersReady.size() - 1);
-    mBuffersInUse.emplace(memHandle->getBufferId(), memHandle);
+
+    BufferMetadata bufferMetadata;
+    bufferMetadata.outstandingRefCount = 1;
+    bufferMetadata.handle = memHandle;
+
+    mBuffersInUse.emplace(memHandle->getBufferId(), bufferMetadata);
 
     Status status = memHandle->setFrameData(timestamp, frame);
     if (status != Status::SUCCESS) {
@@ -295,6 +302,23 @@ Status PixelStreamManager::handleStopImmediatePhase(const RunnerEvent& e) {
         return SUCCESS;
     }
     return SUCCESS;
+}
+
+std::shared_ptr<MemHandle> PixelStreamManager::clonePacket(std::shared_ptr<MemHandle> handle) {
+    if (!handle) {
+        LOG(ERROR) << "PixelStreamManager - Received null memhandle.";
+        return nullptr;
+    }
+
+    std::lock_guard<std::mutex> lock(mLock);
+    int bufferId = handle->getBufferId();
+    auto it = mBuffersInUse.find(bufferId);
+    if (it == mBuffersInUse.end()) {
+        LOG(ERROR) << "PixelStreamManager - Attempting to clone an already freed packet.";
+        return nullptr;
+    }
+    it->second.outstandingRefCount += 1;
+    return handle;
 }
 
 PixelStreamManager::PixelStreamManager(std::string name, int streamId)

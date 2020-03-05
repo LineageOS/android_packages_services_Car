@@ -17,6 +17,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <vndk/hardware_buffer.h>
+#include <android-base/logging.h>
 
 #include "EventGenerator.h"
 #include "InputFrame.h"
@@ -337,7 +338,52 @@ TEST(PixelStreamManagerTest, EngineReceivesEndOfStreamCallbackOnStoppage) {
     EXPECT_THAT(memHandle->getTimeStamp(), 10);
     EXPECT_THAT(memHandle->getStreamId(), 0);
     EXPECT_EQ(manager->handleStopImmediatePhase(e), Status::SUCCESS);
+    // handleStopImmediatePhase is non-blocking call, so wait for manager to finish freeing the
+    // packets.
+    sleep(1);
 }
+
+TEST(PixelStreamManagerTest, MultipleFreePacketReleasesPacketAfterClone) {
+    int maxInFlightPackets = 1;
+    auto [mockEngine, manager] = CreateStreamManagerAndEngine(maxInFlightPackets);
+
+    DefaultEvent e = DefaultEvent::generateEntryEvent(DefaultEvent::Phase::RUN);
+    ASSERT_EQ(manager->handleExecutionPhase(e), Status::SUCCESS);
+    std::vector<uint8_t> data(16 * 16 * 3, 100);
+    InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &data[0]);
+
+    std::shared_ptr<MemHandle> memHandle;
+    EXPECT_CALL((*mockEngine), dispatchPacket)
+        .Times(2)
+        .WillRepeatedly(testing::DoAll(testing::SaveArg<0>(&memHandle), (Return(Status::SUCCESS))));
+
+    EXPECT_EQ(manager->queuePacket(frame, 10), Status::SUCCESS);
+    sleep(1);
+    ASSERT_NE(memHandle, nullptr);
+    EXPECT_THAT(memHandle->getHardwareBuffer(), ContainsDataFromFrame(&frame));
+    EXPECT_THAT(memHandle->getTimeStamp(), 10);
+    EXPECT_THAT(memHandle->getStreamId(), 0);
+
+    std::shared_ptr<MemHandle> clonedMemHandle = manager->clonePacket(memHandle);
+    ASSERT_NE(clonedMemHandle, nullptr);
+    EXPECT_THAT(clonedMemHandle->getTimeStamp(), 10);
+
+    // Free packet once.
+    EXPECT_THAT(manager->freePacket(memHandle->getBufferId()), Status::SUCCESS);
+
+    // Check that new packet has not been dispatched as the old packet has not been released yet.
+    EXPECT_EQ(manager->queuePacket(frame, 20), Status::SUCCESS);
+    sleep(1);
+    EXPECT_THAT(memHandle->getTimeStamp(), 10);
+
+    // Free packet second time, this should dispatch new packet.
+    EXPECT_THAT(manager->freePacket(memHandle->getBufferId()), Status::SUCCESS);
+    EXPECT_EQ(manager->queuePacket(frame, 30), Status::SUCCESS);
+    sleep(1);
+    ASSERT_NE(memHandle, nullptr);
+    EXPECT_THAT(memHandle->getTimeStamp(), 30);
+}
+
 
 }  // namespace
 }  // namespace stream_manager

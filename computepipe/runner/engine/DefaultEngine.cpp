@@ -25,6 +25,7 @@
 
 #include "ClientInterface.h"
 #include "EventGenerator.h"
+#include "EvsDisplayManager.h"
 #include "InputFrame.h"
 #include "PrebuiltGraph.h"
 
@@ -69,6 +70,8 @@ Status DefaultEngine::setArgs(std::string engine_args) {
     }
     mDisplayStream = std::stoi(engine_args.substr(pos + strlen(kDisplayStreamId)));
     mConfigBuilder.setDebugDisplayStream(mDisplayStream);
+    mDebugDisplayManager = std::make_unique<debug_display_manager::EvsDisplayManager>();
+    mDebugDisplayManager->setArgs(engine_args);
     return Status::SUCCESS;
 }
 
@@ -159,7 +162,7 @@ Status DefaultEngine::freePacket(int bufferId, int streamId) {
  * Methods from PrebuiltEngineInterface
  */
 void DefaultEngine::DispatchPixelData(int streamId, int64_t timestamp, const InputFrame& frame) {
-    LOG(INFO) << "Engine::Received data for pixel stream  " << streamId << " with timestamp "
+    LOG(DEBUG) << "Engine::Received data for pixel stream  " << streamId << " with timestamp "
               << timestamp;
     if (mStreamManagers.find(streamId) == mStreamManagers.end()) {
         LOG(ERROR) << "Engine::Received bad stream id from prebuilt graph";
@@ -169,7 +172,7 @@ void DefaultEngine::DispatchPixelData(int streamId, int64_t timestamp, const Inp
 }
 
 void DefaultEngine::DispatchSerializedData(int streamId, int64_t timestamp, std::string&& output) {
-    LOG(INFO) << "Engine::Received data for stream  " << streamId << " with timestamp " << timestamp;
+    LOG(DEBUG) << "Engine::Received data for stream  " << streamId << " with timestamp " << timestamp;
     if (mStreamManagers.find(streamId) == mStreamManagers.end()) {
         LOG(ERROR) << "Engine::Received bad stream id from prebuilt graph";
         return;
@@ -225,12 +228,25 @@ Status DefaultEngine::broadcastClientConfig() {
     }
     LOG(INFO) << "Engine::Graph configured";
     // TODO add handling for remote graph
+    if (mDebugDisplayManager) {
+        mDebugDisplayManager->setFreePacketCallback(std::bind(
+                &DefaultEngine::freePacket, this, std::placeholders::_1, mDisplayStream));
+
+        ret = mDebugDisplayManager->handleConfigPhase(config);
+        if (ret != Status::SUCCESS) {
+            config.setPhaseState(PhaseState::ABORTED);
+            abortClientConfig(config, true);
+            return ret;
+        }
+    }
+
     ret = mClient->handleConfigPhase(config);
     if (ret != Status::SUCCESS) {
         config.setPhaseState(PhaseState::ABORTED);
         abortClientConfig(config, true);
         return ret;
     }
+
     mCurrentPhase = kConfigPhase;
     return Status::SUCCESS;
 }
@@ -259,6 +275,10 @@ Status DefaultEngine::broadcastStartRun() {
         successfulStreams.push_back(it.first);
     }
     // TODO: send to remote
+    if (mDebugDisplayManager) {
+        (void)mDebugDisplayManager->handleExecutionPhase(runEvent);
+    }
+
     Status ret;
     if (mGraph) {
         LOG(INFO) << "Engine::sending start run to prebuilt";
@@ -275,6 +295,7 @@ Status DefaultEngine::broadcastStartRun() {
             successfulInputs.push_back(it.first);
         }
     }
+
     runEvent = DefaultEvent::generateTransitionCompleteEvent(DefaultEvent::RUN);
     LOG(INFO) << "Engine::sending run transition complete to client";
     ret = mClient->handleExecutionPhase(runEvent);
@@ -287,6 +308,10 @@ Status DefaultEngine::broadcastStartRun() {
         (void)it.second->handleExecutionPhase(runEvent);
     }
     // TODO: send to remote
+    if (mDebugDisplayManager) {
+        (void)mDebugDisplayManager->handleExecutionPhase(runEvent);
+    }
+
     if (mGraph) {
         LOG(INFO) << "Engine::sending run transition complete to prebuilt";
         (void)mGraph->handleExecutionPhase(runEvent);
@@ -294,6 +319,7 @@ Status DefaultEngine::broadcastStartRun() {
             (void)it.second->handleExecutionPhase(runEvent);
         }
     }
+
     LOG(INFO) << "Engine::Running";
     mCurrentPhase = kRunPhase;
     return Status::SUCCESS;
@@ -302,6 +328,9 @@ Status DefaultEngine::broadcastStartRun() {
 void DefaultEngine::broadcastAbortRun(const std::vector<int>& streamIds,
                                       const std::vector<int>& inputIds, bool abortGraph) {
     DefaultEvent runEvent = DefaultEvent::generateAbortEvent(DefaultEvent::RUN);
+    if (mDebugDisplayManager) {
+        (void)mDebugDisplayManager->handleExecutionPhase(runEvent);
+    }
     std::for_each(streamIds.begin(), streamIds.end(), [this, runEvent](int id) {
         (void)this->mStreamManagers[id]->handleExecutionPhase(runEvent);
     });
@@ -318,6 +347,9 @@ void DefaultEngine::broadcastAbortRun(const std::vector<int>& streamIds,
 
 Status DefaultEngine::broadcastStopWithFlush() {
     DefaultEvent runEvent = DefaultEvent::generateEntryEvent(DefaultEvent::STOP_WITH_FLUSH);
+    if (mDebugDisplayManager) {
+        (void)mDebugDisplayManager->handleStopWithFlushPhase(runEvent);
+    }
 
     if (mGraph) {
         for (auto& it : mInputManagers) {
@@ -347,6 +379,9 @@ Status DefaultEngine::broadcastStopComplete() {
         }
         (void)mGraph->handleStopWithFlushPhase(runEvent);
     }
+    if (mDebugDisplayManager) {
+        (void)mDebugDisplayManager->handleStopWithFlushPhase(runEvent);
+    }
     // TODO: send to remote.
     for (auto& it : mStreamManagers) {
         (void)it.second->handleStopWithFlushPhase(runEvent);
@@ -368,6 +403,9 @@ void DefaultEngine::broadcastHalt() {
             (void)mGraph->handleStopImmediatePhase(stopEvent);
         }
     }
+    if (mDebugDisplayManager) {
+        (void)mDebugDisplayManager->handleStopImmediatePhase(stopEvent);
+    }
     // TODO: send to remote if client was source.
     for (auto& it : mStreamManagers) {
         (void)it.second->handleStopImmediatePhase(stopEvent);
@@ -386,6 +424,9 @@ void DefaultEngine::broadcastHalt() {
         if ((mCurrentPhaseError->source.find("PrebuiltGraph") == std::string::npos) && mGraph) {
             (void)mGraph->handleStopImmediatePhase(stopEvent);
         }
+    }
+    if (mDebugDisplayManager) {
+        (void)mDebugDisplayManager->handleStopImmediatePhase(stopEvent);
     }
     for (auto& it : mStreamManagers) {
         (void)it.second->handleStopImmediatePhase(stopEvent);
@@ -408,6 +449,9 @@ void DefaultEngine::broadcastReset() {
     (void)mClient->handleResetPhase(resetEvent);
     if (mGraph) {
         (void)mGraph->handleResetPhase(resetEvent);
+    }
+    if (mDebugDisplayManager) {
+        (void)mDebugDisplayManager->handleResetPhase(resetEvent);
     }
     // TODO: send to remote runner
     mConfigBuilder.reset();
@@ -467,15 +511,25 @@ Status DefaultEngine::populateStreamManagers(const ClientConfig& config) {
 
 Status DefaultEngine::forwardOutputDataToClient(int streamId,
                                                 std::shared_ptr<MemHandle>& dataHandle) {
-    if (streamId == mDisplayStream) {
-        // TODO: dispatch to display
-        if (mConfigBuilder.clientConfigEnablesDisplayStream()) {
-            return mClient->dispatchPacketToClient(streamId, dataHandle);
-        } else {
-            return Status::SUCCESS;
+    if (streamId != mDisplayStream) {
+        return mClient->dispatchPacketToClient(streamId, dataHandle);
+    }
+
+    auto displayMgrPacket = dataHandle;
+    if (mConfigBuilder.clientConfigEnablesDisplayStream()) {
+        if (mStreamManagers.find(streamId) == mStreamManagers.end()) {
+            displayMgrPacket = nullptr;
+        }
+        else {
+            displayMgrPacket = mStreamManagers[streamId]->clonePacket(dataHandle);
+        }
+        Status status = mClient->dispatchPacketToClient(streamId, dataHandle);
+        if (status != Status::SUCCESS) {
+            return status;
         }
     }
-    return mClient->dispatchPacketToClient(streamId, dataHandle);
+    CHECK(mDebugDisplayManager);
+    return mDebugDisplayManager->displayFrame(dataHandle);
 }
 
 Status DefaultEngine::populateInputManagers(const ClientConfig& config) {
