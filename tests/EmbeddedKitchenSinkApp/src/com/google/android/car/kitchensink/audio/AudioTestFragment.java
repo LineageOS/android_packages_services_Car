@@ -21,9 +21,7 @@ import android.car.CarAppFocusManager;
 import android.car.CarAppFocusManager.OnAppFocusChangedListener;
 import android.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
 import android.car.media.CarAudioManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
@@ -34,7 +32,6 @@ import android.media.AudioManager;
 import android.media.HwAudioSource;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import android.view.Display;
@@ -124,41 +121,39 @@ public class AudioTestFragment extends Fragment {
     private void connectCar() {
         mContext = getContext();
         mHandler = new Handler(Looper.getMainLooper());
-        mCar = Car.createCar(mContext, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                mAppFocusManager =
-                        (CarAppFocusManager) mCar.getCarManager(Car.APP_FOCUS_SERVICE);
-                OnAppFocusChangedListener listener = new OnAppFocusChangedListener() {
-                    @Override
-                    public void onAppFocusChanged(int appType, boolean active) {
+        mCar = Car.createCar(mContext, /* handler= */ null,
+                Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, (car, ready) -> {
+                    if (!ready) {
+                        return;
                     }
-                };
-                mAppFocusManager.addFocusListener(listener,
-                        CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-                mAppFocusManager.addFocusListener(listener,
-                        CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
+                    mAppFocusManager =
+                            (CarAppFocusManager) car.getCarManager(Car.APP_FOCUS_SERVICE);
+                    OnAppFocusChangedListener listener = new OnAppFocusChangedListener() {
+                        @Override
+                        public void onAppFocusChanged(int appType, boolean active) {
+                        }
+                    };
+                    mAppFocusManager.addFocusListener(listener,
+                            CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+                    mAppFocusManager.addFocusListener(listener,
+                            CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
 
-                mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
+                    mCarAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
 
-                //take care of zone selection
-                int[] zoneList = mCarAudioManager.getAudioZoneIds();
-                Integer[] zoneArray = Arrays.stream(zoneList).boxed().toArray(Integer[]::new);
-                mZoneAdapter = new ArrayAdapter<>(mContext,
-                        android.R.layout.simple_spinner_item, zoneArray);
-                mZoneAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                mZoneSpinner.setAdapter(mZoneAdapter);
-                mZoneSpinner.setEnabled(true);
+                    //take care of zone selection
+                    int[] zoneList = mCarAudioManager.getAudioZoneIds();
+                    Integer[] zoneArray = Arrays.stream(zoneList).boxed().toArray(Integer[]::new);
+                    mZoneAdapter = new ArrayAdapter<>(mContext,
+                            android.R.layout.simple_spinner_item, zoneArray);
+                    mZoneAdapter.setDropDownViewResource(
+                            android.R.layout.simple_spinner_dropdown_item);
+                    mZoneSpinner.setAdapter(mZoneAdapter);
+                    mZoneSpinner.setEnabled(true);
 
-                if (mCarAudioManager.isDynamicRoutingEnabled()) {
-                    setUpDisplayPlayer();
-                }
-            }
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-            });
-        mCar.connect();
+                    if (mCarAudioManager.isDynamicRoutingEnabled()) {
+                        setUpDisplayPlayer();
+                    }
+                });
     }
 
     private void initializePlayers() {
@@ -217,9 +212,16 @@ public class AudioTestFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
         Log.i(TAG, "onCreateView");
+        View view = inflater.inflate(R.layout.audio, container, false);
+        //Zone Spinner
+        setUpZoneSpinnerView(view);
+
+        //Display layout
+        setUpDisplayLayoutView(view);
+
         connectCar();
         initializePlayers();
-        View view = inflater.inflate(R.layout.audio, container, false);
+
         mAudioManager = (AudioManager) mContext.getSystemService(
                 Context.AUDIO_SERVICE);
         mAudioFocusHandler = new FocusHandler(
@@ -331,35 +333,6 @@ public class AudioTestFragment extends Fragment {
             }
         });
 
-        //Zone Spinner
-        mZoneSpinner = view.findViewById(R.id.zone_spinner);
-        mZoneSpinner.setEnabled(false);
-        mZoneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                handleZoneSelection();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
-
-        mDisplayLayout = view.findViewById(R.id.audio_display_layout);
-
-        mDisplaySpinner = view.findViewById(R.id.display_spinner);
-        mDisplaySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                handleDisplaySelection();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
         // Manage buttons for audio player for displays
         view.findViewById(R.id.button_display_media_play_start).setOnClickListener(v -> {
             startDisplayAudio();
@@ -373,6 +346,37 @@ public class AudioTestFragment extends Fragment {
                 .setOnClickListener(v -> mMusicPlayerForSelectedDisplay.stop());
 
         return view;
+    }
+
+    private void setUpDisplayLayoutView(View view) {
+        mDisplayLayout = view.findViewById(R.id.audio_display_layout);
+
+        mDisplaySpinner = view.findViewById(R.id.display_spinner);
+        mDisplaySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                handleDisplaySelection();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    private void setUpZoneSpinnerView(View view) {
+        mZoneSpinner = view.findViewById(R.id.zone_spinner);
+        mZoneSpinner.setEnabled(false);
+        mZoneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                handleZoneSelection();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
     }
 
     public void handleZoneSelection() {

@@ -21,6 +21,7 @@
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
             android:targetPackage="com.android.car.carservice_unittest"
             android:label="Unit Tests for Car APIs"/>
+    <uses-permission android:name="android.car.permission.CAR_ENROLL_TRUST" />
 
     <application android:label="CarServiceUnitTest"
             android:debuggable="true">

@@ -56,6 +56,7 @@ import com.android.car.vehiclehal.test.MockedVehicleHal.DefaultPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.StaticPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
+import com.android.car.vms.VmsClientManager;
 
 import org.junit.After;
 import org.junit.Before;
@@ -185,6 +186,10 @@ public class MockedCarTestBase {
         return (CarPackageManagerService) mCarImpl.getCarService(Car.PACKAGE_SERVICE);
     }
 
+    public VmsClientManager getVmsClientManager() {
+        return (VmsClientManager) mCarImpl.getCarInternalService(ICarImpl.INTERNAL_VMS_MANAGER);
+    }
+
     protected Context getCarServiceContext() {
         return getContext();
     }
@@ -261,11 +266,10 @@ public class MockedCarTestBase {
         if (mRealCarServiceReleased) {
             return;  // We just want to release it once.
         }
-
         mRealCarServiceReleased = true;  // To make sure it was called once.
 
         Object waitForConnection = new Object();
-        android.car.Car car = android.car.Car.createCar(context, new ServiceConnection() {
+        Car car = android.car.Car.createCar(context, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 synchronized (waitForConnection) {
@@ -287,10 +291,10 @@ public class MockedCarTestBase {
         if (car.isConnected()) {
             Log.i(TAG, "Connected to real car service");
             CarTestManagerBinderWrapper binderWrapper =
-                    (CarTestManagerBinderWrapper) car.getCarManager(android.car.Car.TEST_SERVICE);
+                    (CarTestManagerBinderWrapper) car.getCarManager(Car.TEST_SERVICE);
             assertNotNull(binderWrapper);
 
-            CarTestManager mgr = new CarTestManager(binderWrapper.binder);
+            CarTestManager mgr = new CarTestManager(car, binderWrapper.binder);
             mgr.stopCarService(mCarServiceToken);
         }
     }

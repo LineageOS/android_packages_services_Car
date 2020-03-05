@@ -20,6 +20,7 @@ package android.car.vms;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.app.Service;
+import android.car.Car;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
@@ -35,6 +36,7 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 
 /**
  * API implementation of a Vehicle Map Service publisher client.
@@ -55,6 +57,10 @@ import java.lang.ref.WeakReference;
 public abstract class VmsPublisherClientService extends Service {
     private static final boolean DBG = false;
     private static final String TAG = "VmsPublisherClientService";
+
+    private static final VmsSubscriptionState DEFAULT_SUBSCRIPTIONS =
+            new VmsSubscriptionState(0, Collections.emptySet(),
+                    Collections.emptySet());
 
     private final Object mLock = new Object();
 
@@ -114,7 +120,7 @@ public abstract class VmsPublisherClientService extends Service {
         try {
             mVmsPublisherService.publish(token, layer, publisherId, payload);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            Car.handleRemoteExceptionFromCarService(this, e);
         }
     }
 
@@ -134,7 +140,7 @@ public abstract class VmsPublisherClientService extends Service {
             mVmsPublisherService.setLayersOffering(token, offering);
             VmsOperationRecorder.get().setLayersOffering(offering);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            Car.handleRemoteExceptionFromCarService(this, e);
         }
     }
 
@@ -172,6 +178,7 @@ public abstract class VmsPublisherClientService extends Service {
             publisherId = mVmsPublisherService.getPublisherId(publisherInfo);
             Log.i(TAG, "Assigned publisher ID: " + publisherId);
         } catch (RemoteException e) {
+            // This will crash. To prevent crash, safer invalid return value should be defined.
             throw e.rethrowFromSystemServer();
         }
         VmsOperationRecorder.get().getPublisherId(publisherId);
@@ -191,7 +198,7 @@ public abstract class VmsPublisherClientService extends Service {
         try {
             return mVmsPublisherService.getSubscriptions();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return Car.handleRemoteExceptionFromCarService(this, e, DEFAULT_SUBSCRIPTIONS);
         }
     }
 

@@ -21,6 +21,7 @@ import static java.lang.Integer.toHexString;
 import android.annotation.FloatRange;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -44,7 +45,7 @@ import java.util.function.Consumer;
  * For details about the individual properties, see the descriptions in
  * hardware/interfaces/automotive/vehicle/types.hal
  */
-public class CarPropertyManager implements CarManagerBase {
+public class CarPropertyManager extends CarManagerBase {
     private static final boolean DBG = false;
     private static final String TAG = "CarPropertyManager";
     private static final int MSG_GENERIC_EVENT = 0;
@@ -93,11 +94,12 @@ public class CarPropertyManager implements CarManagerBase {
      * Get an instance of the CarPropertyManager.
      *
      * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
+     * @param car Car instance
      * @param service ICarProperty instance
-     * @param handler The handler to deal with CarPropertyEvent.
      * @hide
      */
-    public CarPropertyManager(@NonNull ICarProperty service, @Nullable Handler handler) {
+    public CarPropertyManager(Car car, @NonNull ICarProperty service) {
+        super(car);
         mService = service;
         try {
             List<CarPropertyConfig> configs = mService.getPropertyList();
@@ -108,11 +110,12 @@ public class CarPropertyManager implements CarManagerBase {
             Log.e(TAG, "getPropertyList exception ", e);
             throw new RuntimeException(e);
         }
-        if (handler == null) {
+        Handler eventHandler = getEventHandler();
+        if (eventHandler == null) {
             mHandler = null;
             return;
         }
-        mHandler = new SingleMessageHandler<CarPropertyEvent>(handler.getLooper(),
+        mHandler = new SingleMessageHandler<CarPropertyEvent>(eventHandler.getLooper(),
             MSG_GENERIC_EVENT) {
             @Override
             protected void handleEvent(CarPropertyEvent event) {
@@ -206,7 +209,7 @@ public class CarPropertyManager implements CarManagerBase {
         try {
             mService.registerListener(propertyId, rate, mCarPropertyEventToService);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
         return true;
     }
@@ -274,7 +277,8 @@ public class CarPropertyManager implements CarManagerBase {
                 try {
                     mService.unregisterListener(propertyId, mCarPropertyEventToService);
                 } catch (RemoteException e) {
-                    throw e.rethrowFromSystemServer();
+                    handleRemoteExceptionFromCarService(e);
+                    // continue for local clean-up
                 }
                 mActivePropertyListener.remove(propertyId);
             } else if (needsServerUpdate) {
@@ -327,7 +331,7 @@ public class CarPropertyManager implements CarManagerBase {
         try {
             return mService.getReadPermission(propId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, "");
         }
     }
 
@@ -346,7 +350,7 @@ public class CarPropertyManager implements CarManagerBase {
         try {
             return mService.getWritePermission(propId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, "");
         }
     }
 
@@ -363,7 +367,7 @@ public class CarPropertyManager implements CarManagerBase {
             return (propValue != null)
                     && (propValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -449,7 +453,7 @@ public class CarPropertyManager implements CarManagerBase {
             }
             return propVal;
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -466,7 +470,7 @@ public class CarPropertyManager implements CarManagerBase {
             CarPropertyValue<E> propVal = mService.getProperty(propId, areaId);
             return propVal;
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -488,7 +492,7 @@ public class CarPropertyManager implements CarManagerBase {
         try {
             mService.setProperty(new CarPropertyValue<>(propId, areaId, val));
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 

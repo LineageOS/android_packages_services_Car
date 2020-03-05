@@ -18,6 +18,7 @@ package com.android.car;
 
 import static java.lang.Integer.toHexString;
 
+import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
@@ -348,6 +349,10 @@ public class CarPropertyService extends ICarProperty.Stub
             return;
         }
         ICarImpl.assertPermission(mContext, mHal.getWritePermission(propId));
+        // need an extra permission for writing display units properties.
+        if (mHal.isDisplayUnitsProperty(propId)) {
+            ICarImpl.assertPermission(mContext, Car.PERMISSION_VENDOR_EXTENSION);
+        }
         mHal.setProperty(prop);
     }
 

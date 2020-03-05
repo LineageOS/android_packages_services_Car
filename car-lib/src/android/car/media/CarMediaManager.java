@@ -29,7 +29,7 @@ import java.util.Map;
  * API for updating and receiving updates to the primary media source in the car.
  * @hide
  */
-public final class CarMediaManager implements CarManagerBase {
+public final class CarMediaManager extends CarManagerBase {
 
     private final ICarMedia mService;
     private Map<MediaSourceChangedListener, ICarMediaSourceListener> mCallbackMap = new HashMap();
@@ -40,7 +40,8 @@ public final class CarMediaManager implements CarManagerBase {
      * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
      * @hide
      */
-    public CarMediaManager(IBinder service) {
+    public CarMediaManager(Car car, IBinder service) {
+        super(car);
         mService = ICarMedia.Stub.asInterface(service);
     }
 
@@ -67,7 +68,7 @@ public final class CarMediaManager implements CarManagerBase {
         try {
             return mService.getMediaSource();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -81,7 +82,7 @@ public final class CarMediaManager implements CarManagerBase {
         try {
             mService.setMediaSource(componentName);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -102,7 +103,7 @@ public final class CarMediaManager implements CarManagerBase {
             mCallbackMap.put(callback, binderCallback);
             mService.registerMediaSourceListener(binderCallback);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -117,12 +118,14 @@ public final class CarMediaManager implements CarManagerBase {
             ICarMediaSourceListener binderCallback = mCallbackMap.remove(callback);
             mService.unregisterMediaSourceListener(binderCallback);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
     /** @hide */
     @Override
     public synchronized void onCarDisconnected() {
+        // TODO(b/142733057) Fix synchronization to use separate mLock
+        mCallbackMap.clear();
     }
 }

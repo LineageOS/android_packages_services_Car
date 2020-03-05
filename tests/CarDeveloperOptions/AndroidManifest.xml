@@ -21,7 +21,6 @@
     <original-package android:name="com.android.car.developeroptions" />
 
     <uses-permission android:name="android.permission.REQUEST_NETWORK_SCORES" />
-    <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />

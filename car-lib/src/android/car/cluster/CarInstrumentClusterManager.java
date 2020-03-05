@@ -17,10 +17,10 @@
 package android.car.cluster;
 
 import android.annotation.SystemApi;
+import android.car.Car;
 import android.car.CarManagerBase;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 
 /**
@@ -35,7 +35,7 @@ import android.os.IBinder;
  */
 @Deprecated
 @SystemApi
-public class CarInstrumentClusterManager implements CarManagerBase {
+public class CarInstrumentClusterManager extends CarManagerBase {
     /**
      * @deprecated use {@link android.car.Car#CATEGORY_NAVIGATION} instead
      *
@@ -101,7 +101,8 @@ public class CarInstrumentClusterManager implements CarManagerBase {
     }
 
     /** @hide */
-    public CarInstrumentClusterManager(IBinder service, Handler handler) {
+    public CarInstrumentClusterManager(Car car, IBinder service) {
+        super(car);
         // No-op
     }
 

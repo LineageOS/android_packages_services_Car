@@ -25,8 +25,6 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
 import android.car.hardware.property.ICarProperty;
-import android.content.Context;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.ArraySet;
 
@@ -58,7 +56,7 @@ import java.util.List;
  */
 @Deprecated
 @SystemApi
-public final class CarCabinManager implements CarManagerBase {
+public final class CarCabinManager extends CarManagerBase {
     private final static boolean DBG = false;
     private final static String TAG = "CarCabinManager";
     private final CarPropertyManager mCarPropertyMgr;
@@ -470,9 +468,10 @@ public final class CarCabinManager implements CarManagerBase {
      * @param handler
      * @hide
      */
-    public CarCabinManager(IBinder service, Context context, Handler handler) {
+    public CarCabinManager(Car car, IBinder service) {
+        super(car);
         ICarProperty mCarPropertyService = ICarProperty.Stub.asInterface(service);
-        mCarPropertyMgr = new CarPropertyManager(mCarPropertyService, handler);
+        mCarPropertyMgr = new CarPropertyManager(car, mCarPropertyService);
     }
 
     /**
@@ -594,6 +593,10 @@ public final class CarCabinManager implements CarManagerBase {
     /** @hide */
     @Override
     public void onCarDisconnected() {
+        // TODO(b/142730969) Fix synchronization to use separate mLock
+        synchronized (this) {
+            mCallbacks.clear();
+        }
         mCarPropertyMgr.onCarDisconnected();
     }
 }

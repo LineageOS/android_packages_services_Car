@@ -24,14 +24,13 @@ import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 
 /**
  * API for providing navigation status for instrument cluster.
  * @hide
  */
 @SystemApi
-public final class CarNavigationStatusManager implements CarManagerBase {
+public final class CarNavigationStatusManager extends CarManagerBase {
     private static final String TAG = CarLibLog.TAG_NAV;
 
     private final IInstrumentClusterNavigation mService;
@@ -40,7 +39,8 @@ public final class CarNavigationStatusManager implements CarManagerBase {
      * Only for CarServiceLoader
      * @hide
      */
-    public CarNavigationStatusManager(IBinder service) {
+    public CarNavigationStatusManager(Car car, IBinder service) {
+        super(car);
         mService = IInstrumentClusterNavigation.Stub.asInterface(service);
     }
 
@@ -67,14 +67,13 @@ public final class CarNavigationStatusManager implements CarManagerBase {
         try {
             mService.onNavigationStateChanged(bundle);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
     /** @hide */
     @Override
     public void onCarDisconnected() {
-        Log.e(TAG, "Car service disconnected");
     }
 
     /** Returns navigation features of instrument cluster */
@@ -83,7 +82,7 @@ public final class CarNavigationStatusManager implements CarManagerBase {
         try {
             return mService.getInstrumentClusterInfo();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 }

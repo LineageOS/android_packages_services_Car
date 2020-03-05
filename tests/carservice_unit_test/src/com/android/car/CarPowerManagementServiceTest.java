@@ -142,6 +142,86 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
     }
 
+    public void testSuspend() throws Exception {
+        final int wakeupTime = 100;
+        initTest(wakeupTime);
+
+        // Start in the ON state
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        // Request suspend
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.CAN_SLEEP));
+        // Verify suspend
+        assertStateReceivedForShutdownOrSleepWithPostpone(
+                PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, wakeupTime);
+    }
+
+    public void testShutdownOnSuspend() throws Exception {
+        final int wakeupTime = 100;
+        initTest(wakeupTime);
+
+        // Start in the ON state
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        // Tell it to shutdown
+        mService.requestShutdownOnNextSuspend();
+        // Request suspend
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.CAN_SLEEP));
+        // Verify shutdown
+        assertStateReceivedForShutdownOrSleepWithPostpone(
+                PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_LONG_MS, wakeupTime);
+        mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
+        // Send the finished signal
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
+        mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
+        // Cancel the shutdown
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.CANCEL_SHUTDOWN, 0));
+        assertStateReceivedForShutdownOrSleepWithPostpone(
+                PowerHalService.SET_SHUTDOWN_CANCELLED, WAIT_TIMEOUT_LONG_MS, 0);
+
+        // Request suspend again
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.CAN_SLEEP));
+        // Verify suspend
+        assertStateReceivedForShutdownOrSleepWithPostpone(
+                PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, wakeupTime);
+    }
+
+    public void testShutdownCancel() throws Exception {
+        final int wakeupTime = 100;
+        initTest(wakeupTime);
+
+        // Start in the ON state
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        // Start shutting down
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY));
+        assertStateReceivedForShutdownOrSleepWithPostpone(
+                PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_LONG_MS, 0);
+        // Cancel the shutdown
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.CANCEL_SHUTDOWN, 0));
+        assertStateReceivedForShutdownOrSleepWithPostpone(
+                PowerHalService.SET_SHUTDOWN_CANCELLED, WAIT_TIMEOUT_LONG_MS, 0);
+        // Go to suspend
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.CAN_SLEEP));
+        assertStateReceivedForShutdownOrSleepWithPostpone(
+                PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, wakeupTime);
+    }
+
     public void testShutdownWithProcessing() throws Exception {
         final int wakeupTime = 100;
         initTest(wakeupTime);
@@ -197,7 +277,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         // second processing after wakeup
         assertFalse(mDisplayInterface.getDisplayState());
         // do not skip user switching part.
-        mService.clearIsBooting();
+        mService.clearIsBootingOrResuming();
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         // user switching should have been requested.

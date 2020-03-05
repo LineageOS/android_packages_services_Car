@@ -1,0 +1,2 @@
+# Allow statsd to pull atoms from car_stats service
+allow statsd carstats_service:service_manager find;

@@ -16,14 +16,12 @@
 package com.google.android.car.kitchensink.volume;
 
 import android.car.Car;
+import android.car.Car.CarServiceLifecycleListener;
 import android.car.media.CarAudioManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -112,20 +110,15 @@ public class VolumeTestFragment extends Fragment {
         public boolean mHasFocus;
     }
 
-    private final ServiceConnection mCarConnectionCallback =
-            new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder binder) {
-                    Log.d(TAG, "Connected to Car Service");
-                    mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
-                    initVolumeInfo();
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                    Log.d(TAG, "Disconnect from Car Service");
-                }
-            };
+    private CarServiceLifecycleListener mCarServiceLifecycleListener = (car, ready) -> {
+        if (!ready) {
+            Log.d(TAG, "Disconnect from Car Service");
+            return;
+        }
+        Log.d(TAG, "Connected to Car Service");
+        mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
+        initVolumeInfo();
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -161,8 +154,8 @@ public class VolumeTestFragment extends Fragment {
         mBalance = v.findViewById(R.id.balance_bar);
         mBalance.setOnSeekBarChangeListener(seekListener);
 
-        mCar = Car.createCar(getActivity(), mCarConnectionCallback);
-        mCar.connect();
+        mCar = Car.createCar(getActivity(), /* handler= */ null,
+                Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mCarServiceLifecycleListener);
         return v;
     }
 
@@ -209,13 +202,5 @@ public class VolumeTestFragment extends Fragment {
             i++;
         }
         mAdapter.refreshVolumes(mVolumeInfos);
-    }
-
-    @Override
-    public void onDestroy() {
-        if (mCar != null) {
-            mCar.disconnect();
-        }
-        super.onDestroy();
     }
 }

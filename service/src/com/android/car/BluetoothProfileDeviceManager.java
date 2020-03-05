@@ -46,6 +46,8 @@ import android.provider.Settings;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.android.internal.annotations.GuardedBy;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,23 +116,30 @@ public class BluetoothProfileDeviceManager {
                         }, new int[] {}));
     }
 
+    // Fixed per-profile information for the profile this object manages
     private final int mProfileId;
     private final String mSettingsKey;
     private final String mProfileConnectionAction;
     private final ParcelUuid[] mProfileUuids;
     private final int[] mProfileTriggers;
+
+    // Central priority list of devices
+    private final Object mPrioritizedDevicesLock = new Object();
+    @GuardedBy("mPrioritizedDevicesLock")
     private ArrayList<BluetoothDevice> mPrioritizedDevices;
 
-    private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothBroadcastReceiver mBluetoothBroadcastReceiver;
-
-    private ICarBluetoothUserService mBluetoothUserProxies;
-
+    // Auto connection process state
     private final Object mAutoConnectLock = new Object();
+    @GuardedBy("mAutoConnectLock")
     private boolean mConnecting = false;
+    @GuardedBy("mAutoConnectLock")
     private int mAutoConnectPriority;
+    @GuardedBy("mAutoConnectLock")
     private ArrayList<BluetoothDevice> mAutoConnectingDevices;
 
+    private final BluetoothAdapter mBluetoothAdapter;
+    private final BluetoothBroadcastReceiver mBluetoothBroadcastReceiver;
+    private final ICarBluetoothUserService mBluetoothUserProxies;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     /**
@@ -313,6 +322,7 @@ public class BluetoothProfileDeviceManager {
         mProfileUuids = bpi.mUuids;
         mProfileTriggers = bpi.mProfileTriggers;
 
+        mBluetoothBroadcastReceiver = new BluetoothBroadcastReceiver();
         mBluetoothAdapter = Objects.requireNonNull(BluetoothAdapter.getDefaultAdapter());
     }
 
@@ -327,7 +337,7 @@ public class BluetoothProfileDeviceManager {
             mAutoConnectPriority = -1;
             mAutoConnectingDevices = null;
         }
-        mBluetoothBroadcastReceiver = new BluetoothBroadcastReceiver();
+
         IntentFilter profileFilter = new IntentFilter();
         profileFilter.addAction(mProfileConnectionAction);
         profileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
@@ -347,7 +357,6 @@ public class BluetoothProfileDeviceManager {
             if (mContext != null) {
                 mContext.unregisterReceiver(mBluetoothBroadcastReceiver);
             }
-            mBluetoothBroadcastReceiver = null;
         }
         cancelAutoConnecting();
         commit();
@@ -392,7 +401,7 @@ public class BluetoothProfileDeviceManager {
             }
         }
 
-        synchronized (this) {
+        synchronized (mPrioritizedDevicesLock) {
             mPrioritizedDevices = devices;
         }
 
@@ -408,7 +417,7 @@ public class BluetoothProfileDeviceManager {
     private boolean commit() {
         StringBuilder sb = new StringBuilder();
         String delimiter = "";
-        synchronized (this) {
+        synchronized (mPrioritizedDevicesLock) {
             for (BluetoothDevice device : mPrioritizedDevices) {
                 sb.append(delimiter);
                 sb.append(device.getAddress());
@@ -434,7 +443,7 @@ public class BluetoothProfileDeviceManager {
             addDevice(device); // No-op if device is already in the priority list
         }
 
-        synchronized (this) {
+        synchronized (mPrioritizedDevicesLock) {
             ArrayList<BluetoothDevice> devices = getDeviceListSnapshot();
             for (BluetoothDevice device : devices) {
                 if (!bondedDevices.contains(device)) {
@@ -451,7 +460,7 @@ public class BluetoothProfileDeviceManager {
      */
     public ArrayList<BluetoothDevice> getDeviceListSnapshot() {
         ArrayList<BluetoothDevice> devices = new ArrayList<>();
-        synchronized (this) {
+        synchronized (mPrioritizedDevicesLock) {
             devices = (ArrayList) mPrioritizedDevices.clone();
         }
         return devices;
@@ -462,12 +471,14 @@ public class BluetoothProfileDeviceManager {
      *
      * @param device - The device you wish to add
      */
-    public synchronized void addDevice(BluetoothDevice device) {
+    public void addDevice(BluetoothDevice device) {
         if (device == null) return;
-        if (mPrioritizedDevices.contains(device)) return;
-        logd("Add device " + device);
-        mPrioritizedDevices.add(device);
-        commit();
+        synchronized (mPrioritizedDevicesLock) {
+            if (mPrioritizedDevices.contains(device)) return;
+            logd("Add device " + device);
+            mPrioritizedDevices.add(device);
+            commit();
+        }
     }
 
     /**
@@ -475,12 +486,14 @@ public class BluetoothProfileDeviceManager {
      *
      * @param device - The device you wish to remove
      */
-    public synchronized void removeDevice(BluetoothDevice device) {
+    public void removeDevice(BluetoothDevice device) {
         if (device == null) return;
-        if (!mPrioritizedDevices.contains(device)) return;
-        logd("Remove device " + device);
-        mPrioritizedDevices.remove(device);
-        commit();
+        synchronized (mPrioritizedDevicesLock) {
+            if (!mPrioritizedDevices.contains(device)) return;
+            logd("Remove device " + device);
+            mPrioritizedDevices.remove(device);
+            commit();
+        }
     }
 
     /**
@@ -489,10 +502,12 @@ public class BluetoothProfileDeviceManager {
      * @param device - The device you want the priority of
      * @return The priority of the device, or -1 if the device is not in the list
      */
-    public synchronized int getDeviceConnectionPriority(BluetoothDevice device) {
+    public int getDeviceConnectionPriority(BluetoothDevice device) {
         if (device == null) return -1;
         logd("Get connection priority of " + device);
-        return mPrioritizedDevices.indexOf(device);
+        synchronized (mPrioritizedDevicesLock) {
+            return mPrioritizedDevices.indexOf(device);
+        }
     }
 
     /**
@@ -505,16 +520,18 @@ public class BluetoothProfileDeviceManager {
      * @param device - The device you want to set the priority of
      * @param priority - The priority you want to the device to have
      */
-    public synchronized void setDeviceConnectionPriority(BluetoothDevice device, int priority) {
-        if (device == null || priority < 0 || priority > mPrioritizedDevices.size()
-                || getDeviceConnectionPriority(device) == priority) return;
-        if (mPrioritizedDevices.contains(device)) {
-            mPrioritizedDevices.remove(device);
-            if (priority > mPrioritizedDevices.size()) priority = mPrioritizedDevices.size();
+    public void setDeviceConnectionPriority(BluetoothDevice device, int priority) {
+        synchronized (mPrioritizedDevicesLock) {
+            if (device == null || priority < 0 || priority > mPrioritizedDevices.size()
+                    || getDeviceConnectionPriority(device) == priority) return;
+            if (mPrioritizedDevices.contains(device)) {
+                mPrioritizedDevices.remove(device);
+                if (priority > mPrioritizedDevices.size()) priority = mPrioritizedDevices.size();
+            }
+            logd("Set connection priority of " + device + " to " + priority);
+            mPrioritizedDevices.add(priority, device);
+            commit();
         }
-        logd("Set connection priority of " + device + " to " + priority);
-        mPrioritizedDevices.add(priority, device);
-        commit();
     }
 
     /**

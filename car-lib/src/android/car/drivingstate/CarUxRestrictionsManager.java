@@ -22,7 +22,6 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -43,7 +42,7 @@ import java.util.List;
  * API to register and get the User Experience restrictions imposed based on the car's driving
  * state.
  */
-public final class CarUxRestrictionsManager implements CarManagerBase {
+public final class CarUxRestrictionsManager extends CarManagerBase {
     private static final String TAG = "CarUxRManager";
     private static final boolean DBG = false;
     private static final boolean VDBG = false;
@@ -80,7 +79,6 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     @Retention(RetentionPolicy.SOURCE)
     public @interface UxRestrictionMode {}
 
-    private final Context mContext;
     private int mDisplayId = Display.INVALID_DISPLAY;
     private final ICarUxRestrictionsManager mUxRService;
     private final EventCallbackHandler mEventCallbackHandler;
@@ -89,10 +87,11 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     private CarUxRestrictionsChangeListenerToService mListenerToService;
 
     /** @hide */
-    public CarUxRestrictionsManager(IBinder service, Context context, Handler handler) {
-        mContext = context;
+    public CarUxRestrictionsManager(Car car, IBinder service) {
+        super(car);
         mUxRService = ICarUxRestrictionsManager.Stub.asInterface(service);
-        mEventCallbackHandler = new EventCallbackHandler(this, handler.getLooper());
+        mEventCallbackHandler = new EventCallbackHandler(this,
+                getEventHandler().getLooper());
     }
 
     /** @hide */
@@ -152,7 +151,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
             // register to the Service to listen for changes.
             mUxRService.registerUxRestrictionsChangeListener(mListenerToService, displayId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -172,7 +171,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         try {
             mUxRService.unregisterUxRestrictionsChangeListener(mListenerToService);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -197,7 +196,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         try {
             return mUxRService.saveUxRestrictionsConfigurationForNextBoot(configs);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -219,7 +218,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         try {
             return mUxRService.getCurrentUxRestrictions(displayId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -233,7 +232,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         try {
             return mUxRService.setRestrictionMode(mode);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -248,7 +247,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         try {
             return mUxRService.getRestrictionMode();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -288,7 +287,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         try {
             return mUxRService.getStagedConfigs();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -304,7 +303,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         try {
             return mUxRService.getConfigs();
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
@@ -399,7 +398,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
             return mDisplayId;
         }
 
-        mDisplayId = mContext.getDisplayId();
+        mDisplayId = getContext().getDisplayId();
         Log.i(TAG, "Context returns display ID " + mDisplayId);
 
         if (mDisplayId == Display.INVALID_DISPLAY) {

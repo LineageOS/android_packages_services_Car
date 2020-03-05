@@ -17,8 +17,6 @@ package com.android.car.hal;
 
 import static com.android.car.CarServiceUtils.toByteArray;
 
-import static java.lang.Integer.toHexString;
-
 import android.car.VehicleAreaType;
 import android.car.vms.IVmsPublisherClient;
 import android.car.vms.IVmsPublisherService;
@@ -43,6 +41,7 @@ import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValues
 import android.hardware.automotive.vehicle.V2_0.VmsOfferingMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsPublisherInformationIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsStartSessionMessageIntegerValuesIndex;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -54,7 +53,6 @@ import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
 
-import com.android.car.CarLog;
 import com.android.car.vms.VmsClientManager;
 
 import java.io.FileDescriptor;
@@ -87,6 +85,7 @@ public class VmsHalService extends HalServiceBase {
     private final int mCoreId;
     private final MessageQueue mMessageQueue;
     private final int mClientMetricsProperty;
+    private final boolean mPropagatePropertyException;
     private volatile boolean mIsSupported = false;
 
     private VmsClientManager mClientManager;
@@ -186,11 +185,7 @@ public class VmsHalService extends HalServiceBase {
             int messageType = msg.what;
             VehiclePropValue vehicleProp = (VehiclePropValue) msg.obj;
             if (DBG) Log.d(TAG, "Sending " + VmsMessageType.toString(messageType) + " message");
-            try {
-                setPropertyValue(vehicleProp);
-            } catch (RemoteException e) {
-                Log.e(TAG, "While sending " + VmsMessageType.toString(messageType));
-            }
+            setPropertyValue(vehicleProp);
             return true;
         }
     }
@@ -199,15 +194,17 @@ public class VmsHalService extends HalServiceBase {
      * Constructor used by {@link VehicleHal}
      */
     VmsHalService(Context context, VehicleHal vehicleHal) {
-        this(context, vehicleHal, SystemClock::uptimeMillis);
+        this(context, vehicleHal, SystemClock::uptimeMillis, (Build.IS_ENG || Build.IS_USERDEBUG));
     }
 
     @VisibleForTesting
-    VmsHalService(Context context, VehicleHal vehicleHal, Supplier<Long> getCoreId) {
+    VmsHalService(Context context, VehicleHal vehicleHal, Supplier<Long> getCoreId,
+            boolean propagatePropertyException) {
         mVehicleHal = vehicleHal;
         mCoreId = (int) (getCoreId.get() % Integer.MAX_VALUE);
         mMessageQueue = new MessageQueue();
         mClientMetricsProperty = getClientMetricsProperty(context);
+        mPropagatePropertyException = propagatePropertyException;
     }
 
     private static int getClientMetricsProperty(Context context) {
@@ -326,8 +323,9 @@ public class VmsHalService extends HalServiceBase {
         VehiclePropValue vehicleProp = null;
         try {
             vehicleProp = mVehicleHal.get(mClientMetricsProperty);
-        } catch (PropertyTimeoutException e) {
-            Log.e(TAG, "Timeout while reading metrics from client");
+        } catch (PropertyTimeoutException | RuntimeException e) {
+            // Failures to retrieve metrics should be non-fatal
+            Log.e(TAG, "While reading metrics from client", e);
         }
         if (vehicleProp == null) {
             if (DBG) Log.d(TAG, "Metrics unavailable");
@@ -395,7 +393,7 @@ public class VmsHalService extends HalServiceBase {
                         Log.e(TAG, "Unexpected message type: " + messageType);
                 }
             } catch (IndexOutOfBoundsException | RemoteException e) {
-                Log.e(TAG, "While handling: " + messageType, e);
+                Log.e(TAG, "While handling " + VmsMessageType.toString(messageType), e);
             }
         }
     }
@@ -425,9 +423,8 @@ public class VmsHalService extends HalServiceBase {
             mSubscriptionStateSequence = -1;
             mAvailableLayersSequence = -1;
 
-            // Enqueue an acknowledgement message
-            mMessageQueue.enqueue(VmsMessageType.START_SESSION,
-                    createStartSessionMessage(mCoreId, clientId));
+            // Send acknowledgement message
+            setPropertyValue(createStartSessionMessage(mCoreId, clientId));
         }
 
         // Notify client manager of connection
@@ -678,7 +675,7 @@ public class VmsHalService extends HalServiceBase {
                         mPublisherService.getSubscriptions()));
     }
 
-    private void setPropertyValue(VehiclePropValue vehicleProp) throws RemoteException {
+    private void setPropertyValue(VehiclePropValue vehicleProp) {
         int messageType = vehicleProp.value.int32Values.get(
                 VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
 
@@ -690,11 +687,11 @@ public class VmsHalService extends HalServiceBase {
 
         try {
             mVehicleHal.set(vehicleProp);
-        } catch (PropertyTimeoutException e) {
-            Log.e(CarLog.TAG_PROPERTY,
-                    "set, property not ready 0x" + toHexString(HAL_PROPERTY_ID));
-            throw new RemoteException(
-                    "Timeout while sending " + VmsMessageType.toString(messageType));
+        } catch (PropertyTimeoutException | RuntimeException e) {
+            Log.e(TAG, "While sending " + VmsMessageType.toString(messageType), e.getCause());
+            if (mPropagatePropertyException) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 

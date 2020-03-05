@@ -19,9 +19,9 @@ package android.car.content.pm;
 import android.annotation.IntDef;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
+import android.car.Car;
 import android.car.CarManagerBase;
 import android.content.ComponentName;
-import android.content.Context;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
@@ -32,7 +32,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Provides car specific API related with package management.
  */
-public final class CarPackageManager implements CarManagerBase {
+public final class CarPackageManager extends CarManagerBase {
     private static final String TAG = "CarPackageManager";
 
     /**
@@ -70,12 +70,11 @@ public final class CarPackageManager implements CarManagerBase {
     public @interface SetPolicyFlags {}
 
     private final ICarPackageManager mService;
-    private final Context mContext;
 
     /** @hide */
-    public CarPackageManager(IBinder service, Context context) {
+    public CarPackageManager(Car car, IBinder service) {
+        super(car);
         mService = ICarPackageManager.Stub.asInterface(service);
-        mContext = context;
     }
 
     /** @hide */
@@ -115,7 +114,7 @@ public final class CarPackageManager implements CarManagerBase {
         try {
             mService.setAppBlockingPolicy(packageName, policy, flags);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -128,7 +127,7 @@ public final class CarPackageManager implements CarManagerBase {
         try {
             mService.restartTask(taskId);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -151,7 +150,7 @@ public final class CarPackageManager implements CarManagerBase {
         try {
             return mService.isActivityBackedBySafeActivity(activityName);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -165,7 +164,7 @@ public final class CarPackageManager implements CarManagerBase {
         try {
             mService.setEnableActivityBlocking(enable);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -181,7 +180,7 @@ public final class CarPackageManager implements CarManagerBase {
         try {
             return mService.isActivityDistractionOptimized(packageName, className);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
@@ -197,7 +196,7 @@ public final class CarPackageManager implements CarManagerBase {
         try {
             return mService.isServiceDistractionOptimized(packageName, className);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 }

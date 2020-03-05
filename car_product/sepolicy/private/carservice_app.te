@@ -12,7 +12,8 @@ set_prop(carservice_app, system_prop)
 # Allow Car Service to register/access itself with ServiceManager
 add_service(carservice_app, carservice_service)
 
-allow carservice_app wifi_service:service_manager find;
+# Allow Car Service to register its stats service with ServiceManager
+add_service(carservice_app, carstats_service)
 
 # Allow Car Service to access certain system services.
 # Keep alphabetically sorted.
@@ -41,6 +42,8 @@ allow carservice_app {
     telecom_service
     uimode_service
     voiceinteraction_service
+    wifi_service
+    wifiscanner_service
 }:service_manager find;
 
 # Read and write /data/data subdirectory.

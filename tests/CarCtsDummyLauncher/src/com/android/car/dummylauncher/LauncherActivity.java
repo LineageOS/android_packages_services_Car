@@ -33,6 +33,7 @@ public class LauncherActivity extends Activity {
 
         View view = getLayoutInflater().inflate(R.layout.launcher_activity, null);
         setContentView(view);
+        reportFullyDrawn();
     }
 }
 

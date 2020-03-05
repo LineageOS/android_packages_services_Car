@@ -297,7 +297,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         if (location == null) {
             logd("Not storing null location");
         } else {
-            logd("Storing location: " + location);
+            logd("Storing location");
             AtomicFile atomicFile = new AtomicFile(getLocationCacheFile());
             FileOutputStream fos = null;
             try {
@@ -437,7 +437,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                 }
             }
         }
-        logd("Injected location " + location + " with result " + success + " on attempt "
+        logd("Injected location with result " + success + " on attempt "
                 + attemptCount);
         if (success) {
             return;
