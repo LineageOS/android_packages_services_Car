@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <future>
 #include <queue>
+#include <string>
 #include <vector>
 
 #include "LooperStub.h"
@@ -444,12 +445,15 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
             << toString(collector->mPeriodicCollection.records[1]);
 
     // #4 Custom collection
-    // TODO(b/148489461): Once dump call is updated to handle start/end custom collection, test
-    // using dump call instead of directly calling the startCustomCollectionLocked or
-    // endCustomCollectionLocked calls.
-    ret = collector->startCustomCollectionLocked(kTestCustomInterval,
-                                                 kTestCustomCollectionDuration);
-    ASSERT_TRUE(ret) << ret.error().message();
+    Vector<String16> args;
+    args.push_back(String16(kStartCustomCollectionFlag));
+    args.push_back(String16(kIntervalFlag));
+    args.push_back(String16(std::to_string(kTestCustomInterval.count()).c_str()));
+    args.push_back(String16(kMaxDurationFlag));
+    args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
+
+    status_t retCode = collector->dump(-1, args);
+    ASSERT_EQ(retCode, OK) << "Failed to start custom collection";
     uidIoStatsStub->push({
             {1009, {.uid = 1009, .ios = {0, 13000, 0, 15000, 0, 100}}},
     });
@@ -580,9 +584,11 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
             << toString(collector->mCustomCollection.records[1]);
 
     // #6 Switch to periodic collection
+    args.clear();
+    args.push_back(String16(kEndCustomCollectionFlag));
     TemporaryFile customDump;
-    ret = collector->endCustomCollectionLocked(customDump.fd);
-    ASSERT_TRUE(ret) << ret.error().message();
+    retCode = collector->dump(customDump.fd, args);
+    ASSERT_EQ(retCode, OK) << "Failed to end custom collection and generate a dump";
     ret = looperStub->pollCache();
     ASSERT_TRUE(ret) << ret.error().message();
 
@@ -748,11 +754,15 @@ TEST(IoPerfCollectionTest, TestCustomCollectionTerminatesAfterMaxDuration) {
     ASSERT_TRUE(ret) << ret.error().message();
 
     // Start custom Collection
-    // TODO(b/148489461): Once dump call is updated to handle start/end custom collection, test
-    // using dump call instead of directly calling the startCustomCollectionLocked or
-    // endCustomCollectionLocked calls.
-    ret = collector->startCustomCollectionLocked(kTestCustomInterval,
-                                                 kTestCustomCollectionDuration);
+    Vector<String16> args;
+    args.push_back(String16(kStartCustomCollectionFlag));
+    args.push_back(String16(kIntervalFlag));
+    args.push_back(String16(std::to_string(kTestCustomInterval.count()).c_str()));
+    args.push_back(String16(kMaxDurationFlag));
+    args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
+
+    status_t retCode = collector->dump(-1, args);
+    ASSERT_EQ(retCode, OK) << "Failed to start custom collection";
     // Maximum custom collection iterations during |kTestCustomCollectionDuration|.
     int maxIterations =
             static_cast<int>(kTestCustomCollectionDuration.count() / kTestCustomInterval.count());
@@ -1223,6 +1233,39 @@ TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit) {
             << "proc pid contents don't match.\nExpected:\n"
             << toString(expectedProcessIoPerfData) << "\nActual:\n"
             << toString(actualProcessIoPerfData);
+}
+
+TEST(IoPerfCollectionTest, TestHandlesInvalidDumpArguments) {
+    sp<IoPerfCollection> collector = new IoPerfCollection();
+    collector->start();
+    Vector<String16> args;
+    args.push_back(String16(kStartCustomCollectionFlag));
+    args.push_back(String16("Invalid flag"));
+    args.push_back(String16("Invalid value"));
+    ASSERT_NE(collector->dump(-1, args), OK);
+
+    args.clear();
+    args.push_back(String16(kStartCustomCollectionFlag));
+    args.push_back(String16(kIntervalFlag));
+    args.push_back(String16("Invalid interval"));
+    ASSERT_NE(collector->dump(-1, args), OK);
+
+    args.clear();
+    args.push_back(String16(kStartCustomCollectionFlag));
+    args.push_back(String16(kMaxDurationFlag));
+    args.push_back(String16("Invalid duration"));
+    ASSERT_NE(collector->dump(-1, args), OK);
+
+    args.clear();
+    args.push_back(String16(kEndCustomCollectionFlag));
+    args.push_back(String16(kMaxDurationFlag));
+    args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
+    ASSERT_NE(collector->dump(-1, args), OK);
+
+    args.clear();
+    args.push_back(String16("Invalid flag"));
+    ASSERT_NE(collector->dump(-1, args), OK);
+    collector->terminate();
 }
 
 }  // namespace watchdog

@@ -19,6 +19,7 @@
 #include "IoPerfCollection.h"
 
 #include <android-base/file.h>
+#include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
 #include <binder/IServiceManager.h>
 #include <cutils/android_filesystem_config.h>
@@ -45,6 +46,7 @@ using android::IServiceManager;
 using android::sp;
 using android::String16;
 using android::base::Error;
+using android::base::ParseUint;
 using android::base::Result;
 using android::base::StringAppendF;
 using android::base::WriteStringToFd;
@@ -88,6 +90,19 @@ std::unordered_map<uint32_t, UidProcessStats> getUidProcessStats(
         }
     }
     return uidProcessStats;
+}
+
+Result<std::chrono::seconds> parseSecondsFlag(Vector<String16> args, size_t pos) {
+    if (args.size() < pos) {
+        return Error() << "Value not provided";
+    }
+
+    uint64_t value;
+    std::string strValue = std::string(String8(args[pos]).string());
+    if (!ParseUint(strValue, &value)) {
+        return Error() << "Invalid value " << args[pos].string() << ", must be an integer";
+    }
+    return std::chrono::seconds(value);
 }
 
 }  // namespace
@@ -284,25 +299,90 @@ Result<void> IoPerfCollection::onBootFinished() {
     return {};
 }
 
-status_t IoPerfCollection::dump(int fd, const Vector<String16>& /*args*/) {
+status_t IoPerfCollection::dump(int fd, const Vector<String16>& args) {
+    if (args.empty()) {
+        const auto& ret = dumpCollection(fd);
+        if (!ret) {
+            ALOGW("%s", ret.error().message().c_str());
+            return ret.error().code();
+        }
+        return OK;
+    }
+
+    if (args[0] == String16(kStartCustomCollectionFlag)) {
+        if (args.size() > 5) {
+            ALOGW("Number of arguments to start custom I/O performance data collection cannot "
+                  "exceed 5");
+            return INVALID_OPERATION;
+        }
+        std::chrono::nanoseconds interval = kCustomCollectionInterval;
+        std::chrono::nanoseconds maxDuration = kCustomCollectionDuration;
+        for (size_t i = 1; i < args.size(); ++i) {
+            if (args[i] == String16(kIntervalFlag)) {
+                const auto& ret = parseSecondsFlag(args, i + 1);
+                if (!ret) {
+                    ALOGW("Failed to parse %s flag: %s", kIntervalFlag,
+                          ret.error().message().c_str());
+                    return FAILED_TRANSACTION;
+                }
+                interval = std::chrono::duration_cast<std::chrono::nanoseconds>(*ret);
+                ++i;
+                continue;
+            }
+            if (args[i] == String16(kMaxDurationFlag)) {
+                const auto& ret = parseSecondsFlag(args, i + 1);
+                if (!ret) {
+                    ALOGW("Failed to parse %su flag: %s", kMaxDurationFlag,
+                          ret.error().message().c_str());
+                    return FAILED_TRANSACTION;
+                }
+                maxDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(*ret);
+                ++i;
+                continue;
+            }
+            ALOGW("Unknown flag %s provided to start custom I/O performance data collection",
+                  String8(args[i]).string());
+            return INVALID_OPERATION;
+        }
+        const auto& ret = startCustomCollection(interval, maxDuration);
+        if (!ret) {
+            ALOGW("%s", ret.error().message().c_str());
+            return ret.error().code();
+        }
+        return OK;
+    }
+
+    if (args[0] == String16(kEndCustomCollectionFlag)) {
+        if (args.size() != 1) {
+            ALOGW("Number of arguments to end custom I/O performance data collection cannot "
+                  "exceed 1");
+        }
+        const auto& ret = endCustomCollection(fd);
+        if (!ret) {
+            ALOGW("%s", ret.error().message().c_str());
+            return ret.error().code();
+        }
+        return OK;
+    }
+
+    ALOGW("Dump arguments start neither with %s nor with %s flags", kStartCustomCollectionFlag,
+          kEndCustomCollectionFlag);
+    return INVALID_OPERATION;
+}
+
+Result<void> IoPerfCollection::dumpCollection(int fd) {
     Mutex::Autolock lock(mMutex);
-
-    // TODO(b/148489461): Parse the arguments and figure out whether to start/end custom collection
-    // or dump the boot-time/periodic collection records.
-
     if (mCurrCollectionEvent == CollectionEvent::TERMINATED) {
         ALOGW("I/O performance data collection not active. Dumping cached data");
         if (!WriteStringToFd("I/O performance data collection not active. Dumping cached data.",
                              fd)) {
-            ALOGW("Failed to write I/O performance collection status");
-            return FAILED_TRANSACTION;
+            return Error(FAILED_TRANSACTION) << "Failed to write I/O performance collection status";
         }
     }
 
     const auto& ret = dumpCollectorsStatusLocked(fd);
     if (!ret) {
-        ALOGW("%s", ret.error().message().c_str());
-        return FAILED_TRANSACTION;
+        return Error(FAILED_TRANSACTION) << ret.error();
     }
 
     if (!WriteStringToFd(StringPrintf("%sI/O performance data reports:\n%sBoot-time collection "
@@ -316,11 +396,10 @@ status_t IoPerfCollection::dump(int fd, const Vector<String16>& /*args*/) {
                          fd) ||
         !WriteStringToFd(toString(mPeriodicCollection), fd) ||
         !WriteStringToFd(kDumpMajorDelimiter, fd)) {
-        ALOGE("Failed to dump the boot-time and periodic collection reports.");
-        return FAILED_TRANSACTION;
+        return Error(FAILED_TRANSACTION)
+                << "Failed to dump the boot-time and periodic collection reports.";
     }
-
-    return OK;
+    return {};
 }
 
 Result<void> IoPerfCollection::dumpCollectorsStatusLocked(int fd) {
@@ -345,20 +424,21 @@ Result<void> IoPerfCollection::dumpCollectorsStatusLocked(int fd) {
     return {};
 }
 
-Result<void> IoPerfCollection::startCustomCollectionLocked(std::chrono::nanoseconds interval,
-                                                           std::chrono::nanoseconds maxDuration) {
+Result<void> IoPerfCollection::startCustomCollection(std::chrono::nanoseconds interval,
+                                                     std::chrono::nanoseconds maxDuration) {
     if (interval < kMinCollectionInterval || maxDuration < kMinCollectionInterval) {
-        return Error() << "Collection interval and maximum duration must be >= "
-                       << std::chrono::duration_cast<std::chrono::milliseconds>(
-                                  kMinCollectionInterval)
-                                  .count()
-                       << " milliseconds.";
+        return Error(INVALID_OPERATION)
+                << "Collection interval and maximum duration must be >= "
+                << std::chrono::duration_cast<std::chrono::milliseconds>(kMinCollectionInterval)
+                           .count()
+                << " milliseconds.";
     }
-
+    Mutex::Autolock lock(mMutex);
     if (mCurrCollectionEvent != CollectionEvent::PERIODIC) {
-        return Error() << "Cannot start a custom collection when the current collection event "
-                       << toString(mCurrCollectionEvent)
-                       << " != " << toString(CollectionEvent::PERIODIC) << "collection event";
+        return Error(INVALID_OPERATION)
+                << "Cannot start a custom collection when "
+                << "the current collection event " << toString(mCurrCollectionEvent)
+                << " != " << toString(CollectionEvent::PERIODIC) << " collection event";
     }
 
     mCustomCollection = {
@@ -376,9 +456,10 @@ Result<void> IoPerfCollection::startCustomCollectionLocked(std::chrono::nanoseco
     return {};
 }
 
-Result<void> IoPerfCollection::endCustomCollectionLocked(int fd) {
+Result<void> IoPerfCollection::endCustomCollection(int fd) {
+    Mutex::Autolock lock(mMutex);
     if (mCurrCollectionEvent != CollectionEvent::CUSTOM) {
-        return Error() << "No custom collection is running";
+        return Error(INVALID_OPERATION) << "No custom collection is running";
     }
 
     mHandlerLooper->removeMessages(this);
@@ -386,7 +467,7 @@ Result<void> IoPerfCollection::endCustomCollectionLocked(int fd) {
 
     const auto& ret = dumpCollectorsStatusLocked(fd);
     if (!ret) {
-        return ret;
+        return Error(FAILED_TRANSACTION) << ret.error();
     }
 
     if (!WriteStringToFd(StringPrintf("%sI/O performance data report for custom collection:\n%s",
@@ -394,7 +475,7 @@ Result<void> IoPerfCollection::endCustomCollectionLocked(int fd) {
                          fd) ||
         !WriteStringToFd(toString(mCustomCollection), fd) ||
         !WriteStringToFd(kDumpMajorDelimiter, fd)) {
-        return Error() << "Failed to write custom collection report.";
+        return Error(FAILED_TRANSACTION) << "Failed to write custom collection report.";
     }
 
     return {};

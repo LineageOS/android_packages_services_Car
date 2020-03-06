@@ -27,6 +27,7 @@
 #include <utils/Looper.h>
 #include <utils/Mutex.h>
 #include <utils/StrongPointer.h>
+#include <utils/Vector.h>
 
 #include <string>
 #include <thread>
@@ -57,6 +58,11 @@ const std::chrono::nanoseconds kMinCollectionInterval = 1s;
 // Default values for the custom collection interval and max_duration.
 const std::chrono::nanoseconds kCustomCollectionInterval = 10s;
 const std::chrono::nanoseconds kCustomCollectionDuration = 30min;
+
+constexpr const char* kStartCustomCollectionFlag = "--start_io";
+constexpr const char* kEndCustomCollectionFlag = "--stop_io";
+constexpr const char* kIntervalFlag = "--interval";
+constexpr const char* kMaxDurationFlag = "--max_duration";
 
 // Performance data collected from the `/proc/uid_io/stats` file.
 struct UidIoPerfData {
@@ -189,6 +195,9 @@ public:
     status_t dump(int fd, const Vector<String16>& args);
 
 private:
+    // Generates a dump from the boot-time and periodic collection events.
+    android::base::Result<void> dumpCollection(int fd);
+
     // Dumps the collectors' status when they are disabled.
     android::base::Result<void> dumpCollectorsStatusLocked(int fd);
 
@@ -198,14 +207,14 @@ private:
     // |maxDuration| is reached, the looper receives a message to end the collection, discards the
     // collected data, and starts the periodic collection. This is needed to ensure the custom
     // collection doesn't run forever when a subsequent |endCustomCollection| call is not received.
-    android::base::Result<void> startCustomCollectionLocked(
+    android::base::Result<void> startCustomCollection(
             std::chrono::nanoseconds interval = kCustomCollectionInterval,
             std::chrono::nanoseconds maxDuration = kCustomCollectionDuration);
 
     // Ends the current custom collection, generates a dump, sends message to looper to start the
     // periodic collection, and returns immediately. Returns an error when there is no custom
     // collection running or when a dump couldn't be generated from the custom collection.
-    android::base::Result<void> endCustomCollectionLocked(int fd);
+    android::base::Result<void> endCustomCollection(int fd);
 
     // Handles the messages received by the lopper.
     void handleMessage(const Message& message) override;
