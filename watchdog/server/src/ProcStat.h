@@ -20,6 +20,7 @@
 #include <android-base/result.h>
 #include <stdint.h>
 #include <utils/Mutex.h>
+#include <utils/RefBase.h>
 
 namespace android {
 namespace automotive {
@@ -43,6 +44,8 @@ struct CpuStats {
 class ProcStatInfo {
 public:
     ProcStatInfo() : cpuStats({}), runnableProcessesCnt(0), ioBlockedProcessesCnt(0) {}
+    ProcStatInfo(CpuStats stats, uint32_t runnableCnt, uint32_t ioBlockedCnt) :
+          cpuStats(stats), runnableProcessesCnt(runnableCnt), ioBlockedProcessesCnt(ioBlockedCnt) {}
     CpuStats cpuStats;
     uint32_t runnableProcessesCnt;
     uint32_t ioBlockedProcessesCnt;
@@ -61,17 +64,21 @@ public:
 };
 
 // Collector/parser for `/proc/stat` file.
-class ProcStat {
+class ProcStat : public RefBase {
 public:
     explicit ProcStat(const std::string& path = kProcStatPath) :
           mLastCpuStats({}), kEnabled(!access(path.c_str(), R_OK)), kPath(path) {}
 
+    virtual ~ProcStat() {}
+
     // Collects proc stat delta since the last collection.
-    android::base::Result<ProcStatInfo> collect();
+    virtual android::base::Result<ProcStatInfo> collect();
 
     // Returns true when the proc stat file is accessible. Otherwise, returns false.
     // Called by IoPerfCollection and tests.
-    bool enabled() { return kEnabled; }
+    virtual bool enabled() { return kEnabled; }
+
+    virtual std::string filePath() { return kProcStatPath; }
 
 private:
     // Reads the contents of |kPath|.

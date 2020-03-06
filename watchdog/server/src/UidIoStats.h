@@ -20,6 +20,7 @@
 #include <android-base/result.h>
 #include <stdint.h>
 #include <utils/Mutex.h>
+#include <utils/RefBase.h>
 
 #include <string>
 #include <unordered_map>
@@ -87,21 +88,23 @@ struct UidIoUsage {
     IoUsage ios = {};
 };
 
-class UidIoStats {
-  public:
-    explicit UidIoStats(const std::string& path = kUidIoStatsPath)
-        : kEnabled(!access(path.c_str(), R_OK)), kPath(path) {}
+class UidIoStats : public RefBase {
+public:
+    explicit UidIoStats(const std::string& path = kUidIoStatsPath) :
+          kEnabled(!access(path.c_str(), R_OK)), kPath(path) {}
+
+    virtual ~UidIoStats() {}
 
     // Collects the I/O usage since the last collection.
-    android::base::Result<std::unordered_map<uint32_t, UidIoUsage>> collect();
+    virtual android::base::Result<std::unordered_map<uint32_t, UidIoUsage>> collect();
 
     // Returns true when the uid_io stats file is accessible. Otherwise, returns false.
     // Called by IoPerfCollection and tests.
-    bool enabled() {
-        return kEnabled;
-    }
+    virtual bool enabled() { return kEnabled; }
 
-  private:
+    virtual std::string filePath() { return kPath; }
+
+private:
     // Reads the contents of |kPath|.
     android::base::Result<std::unordered_map<uint32_t, UidIoStat>> getUidIoStatsLocked() const;
 
