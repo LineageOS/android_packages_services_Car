@@ -482,12 +482,13 @@ public final class CarUserManager extends CarManagerBase {
      */
     @SystemApi
     @TestApi
-    public final class UserLifecycleEvent {
+    public static final class UserLifecycleEvent {
         private final @UserLifecycleEventType int mEventType;
         private final @NonNull UserHandle mUserHandle;
         private final @Nullable UserHandle mPreviousUserHandle;
 
-        private UserLifecycleEvent(@UserLifecycleEventType int eventType,
+        /** @hide */
+        public UserLifecycleEvent(@UserLifecycleEventType int eventType,
                 @NonNull UserHandle from, @Nullable UserHandle to) {
             mEventType = eventType;
             mPreviousUserHandle = from;

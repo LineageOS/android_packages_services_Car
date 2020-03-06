@@ -65,7 +65,7 @@ package android.car.user {
     field public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKING = 3; // 0x3
   }
 
-  public final class CarUserManager.UserLifecycleEvent {
+  public static final class CarUserManager.UserLifecycleEvent {
     method public int getEventType();
     method @Nullable public android.os.UserHandle getPreviousUserHandle();
     method @NonNull public android.os.UserHandle getUserHandle();
