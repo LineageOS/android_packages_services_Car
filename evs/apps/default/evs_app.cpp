@@ -22,6 +22,7 @@
 #include <utils/Log.h>
 
 #include "android-base/macros.h"    // arraysize
+#include "android-base/logging.h"
 
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
@@ -56,7 +57,8 @@ static bool subscribeToVHal(sp<IVehicle> pVnet,
     options.setToExternal(optionsData, arraysize(optionsData));
     StatusCode status = pVnet->subscribe(listener, options);
     if (status != StatusCode::OK) {
-        ALOGW("VHAL subscription for property 0x%08X failed with code %d.", propertyId, status);
+        LOG(WARNING) << "VHAL subscription for property " << static_cast<int32_t>(propertyId)
+                     << " failed with code " << static_cast<int32_t>(status);
         return false;
     }
 
@@ -67,7 +69,7 @@ static bool subscribeToVHal(sp<IVehicle> pVnet,
 // Main entry point
 int main(int argc, char** argv)
 {
-    ALOGI("EVS app starting\n");
+    LOG(INFO) << "EVS app starting";
 
     // Set up default behavior, then check for command line options
     bool useVehicleHal = true;
@@ -101,7 +103,7 @@ int main(int argc, char** argv)
     // Load our configuration information
     ConfigManager config;
     if (!config.initialize("/system/etc/automotive/evs/config.json")) {
-        ALOGE("Missing or improper configuration for the EVS application.  Exiting.");
+        LOG(ERROR) << "Missing or improper configuration for the EVS application.  Exiting.";
         return 1;
     }
 
@@ -115,20 +117,21 @@ int main(int argc, char** argv)
     sp<EvsVehicleListener> pEvsListener = new EvsVehicleListener();
 
     // Get the EVS manager service
-    ALOGI("Acquiring EVS Enumerator");
+    LOG(INFO) << "Acquiring EVS Enumerator";
     android::sp<IEvsEnumerator> pEvs = IEvsEnumerator::getService(evsServiceName);
     if (pEvs.get() == nullptr) {
-        ALOGE("getService(%s) returned NULL.  Exiting.", evsServiceName);
+        LOG(ERROR) << "getService(" << evsServiceName
+                   << ") returned NULL.  Exiting.";
         return 1;
     }
 
     // Request exclusive access to the EVS display
-    ALOGI("Acquiring EVS Display");
+    LOG(INFO) << "Acquiring EVS Display";
 
     // We'll use an available display device.
     android::sp<IEvsDisplay> pDisplay = pEvs->openDisplay_1_1(displayId);
     if (pDisplay.get() == nullptr) {
-        ALOGE("EVS Display unavailable.  Exiting.");
+        LOG(ERROR) << "EVS Display unavailable.  Exiting.";
         return 1;
     }
     config.setActiveDisplayId(displayId);
@@ -136,41 +139,41 @@ int main(int argc, char** argv)
     // Connect to the Vehicle HAL so we can monitor state
     sp<IVehicle> pVnet;
     if (useVehicleHal) {
-        ALOGI("Connecting to Vehicle HAL");
+        LOG(INFO) << "Connecting to Vehicle HAL";
         pVnet = IVehicle::getService();
         if (pVnet.get() == nullptr) {
-            ALOGE("Vehicle HAL getService returned NULL.  Exiting.");
+            LOG(ERROR) << "Vehicle HAL getService returned NULL.  Exiting.";
             return 1;
         } else {
             // Register for vehicle state change callbacks we care about
             // Changes in these values are what will trigger a reconfiguration of the EVS pipeline
             if (!subscribeToVHal(pVnet, pEvsListener, VehicleProperty::GEAR_SELECTION)) {
-                ALOGE("Without gear notification, we can't support EVS.  Exiting.");
+                LOG(ERROR) << "Without gear notification, we can't support EVS.  Exiting.";
                 return 1;
             }
             if (!subscribeToVHal(pVnet, pEvsListener, VehicleProperty::TURN_SIGNAL_STATE)) {
-                ALOGW("Didn't get turn signal notificaitons, so we'll ignore those.");
+                LOG(WARNING) << "Didn't get turn signal notifications, so we'll ignore those.";
             }
         }
     } else {
-        ALOGW("Test mode selected, so not talking to Vehicle HAL");
+        LOG(WARNING) << "Test mode selected, so not talking to Vehicle HAL";
     }
 
     // Configure ourselves for the current vehicle state at startup
-    ALOGI("Constructing state controller");
+    LOG(INFO) << "Constructing state controller";
     EvsStateControl *pStateController = new EvsStateControl(pVnet, pEvs, pDisplay, config);
     if (!pStateController->startUpdateLoop()) {
-        ALOGE("Initial configuration failed.  Exiting.");
+        LOG(ERROR) << "Initial configuration failed.  Exiting.";
         return 1;
     }
 
     // Run forever, reacting to events as necessary
-    ALOGI("Entering running state");
+    LOG(INFO) << "Entering running state";
     pEvsListener->run(pStateController);
 
     // In normal operation, we expect to run forever, but in some error conditions we'll quit.
     // One known example is if another process preempts our registration for our service name.
-    ALOGE("EVS Listener stopped.  Exiting.");
+    LOG(ERROR) << "EVS Listener stopped.  Exiting.";
 
     return 0;
 }

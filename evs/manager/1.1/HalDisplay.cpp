@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <log/log.h>
+#include <android-base/logging.h>
 #include "HalDisplay.h"
 
 namespace android {

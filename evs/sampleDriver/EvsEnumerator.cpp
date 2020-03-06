@@ -58,8 +58,9 @@ bool EvsEnumerator::checkPermission() {
     hardware::IPCThreadState *ipc = hardware::IPCThreadState::self();
     if (AID_AUTOMOTIVE_EVS != ipc->getCallingUid() &&
         AID_ROOT != ipc->getCallingUid()) {
-
-        ALOGE("EVS access denied: pid = %d, uid = %d", ipc->getCallingPid(), ipc->getCallingUid());
+        LOG(ERROR) << "EVS access denied: "
+                   << "pid = " << ipc->getCallingPid()
+                   << ", uid = " << ipc->getCallingUid();
         return false;
     }
 
@@ -69,7 +70,7 @@ bool EvsEnumerator::checkPermission() {
 void EvsEnumerator::EvsUeventThread(std::atomic<bool>& running) {
     int status = uevent_init();
     if (!status) {
-        ALOGE("Failed to initialize uevent handler.");
+        LOG(ERROR) << "Failed to initialize uevent handler.";
         return;
     }
 
@@ -114,7 +115,7 @@ void EvsEnumerator::EvsUeventThread(std::atomic<bool>& running) {
             std::lock_guard<std::mutex> lock(sLock);
             if (cmd_removal) {
                 sCameraList.erase(devpath);
-                ALOGI("%s is removed", devpath.c_str());
+                LOG(INFO) << devpath << " is removed.";
             } else if (cmd_addition) {
                 // NOTE: we are here adding new device without a validation
                 // because it always fails to open, b/132164956.
@@ -130,7 +131,7 @@ void EvsEnumerator::EvsUeventThread(std::atomic<bool>& running) {
                     }
                 }
                 sCameraList.emplace(devpath, cam);
-                ALOGI("%s is added", devpath.c_str());
+                LOG(INFO) << devpath << " is added.";
             } else {
                 // Ignore all other actions including "change".
             }
@@ -144,7 +145,7 @@ void EvsEnumerator::EvsUeventThread(std::atomic<bool>& running) {
 }
 
 EvsEnumerator::EvsEnumerator(sp<IAutomotiveDisplayProxyService> proxyService) {
-    ALOGD("EvsEnumerator created");
+    LOG(DEBUG) << "EvsEnumerator is created.";
 
     if (sConfigManager == nullptr) {
         /* loads and initializes ConfigManager in a separate thread */
@@ -170,7 +171,8 @@ void EvsEnumerator::enumerateCameras() {
     //           For example, this code might be replaced with nothing more than:
     //                   sCameraList.emplace("/dev/video0");
     //                   sCameraList.emplace("/dev/video1");
-    ALOGI("%s: Starting dev/video* enumeration", __FUNCTION__);
+    LOG(INFO) << __FUNCTION__
+              << ": Starting dev/video* enumeration";
     unsigned videoCount   = 0;
     unsigned captureCount = 0;
     DIR* dir = opendir("/dev");
@@ -188,7 +190,7 @@ void EvsEnumerator::enumerateCameras() {
                 deviceName += entry->d_name;
                 videoCount++;
                 if (sCameraList.find(deviceName) != sCameraList.end()) {
-                    ALOGI("%s has been added already.", deviceName.c_str());
+                    LOG(INFO) << deviceName << " has been added already.";
                     captureCount++;
                 } else if(qualifyCaptureDevice(deviceName.c_str())) {
                     sCameraList.emplace(deviceName, deviceName.c_str());
@@ -198,14 +200,16 @@ void EvsEnumerator::enumerateCameras() {
         }
     }
 
-    ALOGI("Found %d qualified video capture devices of %d checked\n", captureCount, videoCount);
+    LOG(INFO) << "Found " << captureCount << " qualified video capture devices "
+              << "of " << videoCount << " checked.";
 }
 
 
 void EvsEnumerator::enumerateDisplays() {
-    ALOGI("%s: Starting display enumeration", __FUNCTION__);
+    LOG(INFO) << __FUNCTION__
+              << ": Starting display enumeration";
     if (!sDisplayProxy) {
-        ALOGE("AutomotiveDisplayProxyService is not available!");
+        LOG(ERROR) << "AutomotiveDisplayProxyService is not available!";
         return;
     }
 
@@ -217,20 +221,21 @@ void EvsEnumerator::enumerateDisplays() {
                 sInternalDisplayId = displayIds[0];
                 for (const auto& id : displayIds) {
                     const auto port = id & 0xF;
-                    ALOGI("Display 0x%lX is detected on the port %ld", (unsigned long)id, (long)port);
+                    LOG(INFO) << "Display " << std::hex << id
+                              << " is detected on the port, " << port;
                     sDisplayPortList.insert_or_assign(port, id);
                 }
             }
         }
     );
 
-    ALOGI("Found %d displays", (int)sDisplayPortList.size());
+    LOG(INFO) << "Found " << sDisplayPortList.size() << " displays";
 }
 
 
 // Methods from ::android::hardware::automotive::evs::V1_0::IEvsEnumerator follow.
 Return<void> EvsEnumerator::getCameraList(getCameraList_cb _hidl_cb)  {
-    ALOGD("getCameraList");
+    LOG(DEBUG) << __FUNCTION__;
     if (!checkPermission()) {
         return Void();
     }
@@ -243,7 +248,7 @@ Return<void> EvsEnumerator::getCameraList(getCameraList_cb _hidl_cb)  {
             if (!sCameraSignal.wait_for(lock,
                                         kEnumerationTimeout,
                                         []{ return sCameraList.size() > 0; })) {
-                ALOGD("Timer expired.  No new device has been added.");
+                LOG(DEBUG) << "Timer expired.  No new device has been added.";
             }
         }
     }
@@ -259,7 +264,7 @@ Return<void> EvsEnumerator::getCameraList(getCameraList_cb _hidl_cb)  {
     }
 
     // Send back the results
-    ALOGD("reporting %zu cameras available", hidlCameras.size());
+    LOG(DEBUG) << "Reporting " << hidlCameras.size() << " cameras available";
     _hidl_cb(hidlCameras);
 
     // HIDL convention says we return Void if we sent our result back via callback
@@ -268,7 +273,7 @@ Return<void> EvsEnumerator::getCameraList(getCameraList_cb _hidl_cb)  {
 
 
 Return<sp<IEvsCamera_1_0>> EvsEnumerator::openCamera(const hidl_string& cameraId) {
-    ALOGD("openCamera");
+    LOG(DEBUG) << __FUNCTION__;
     if (!checkPermission()) {
         return nullptr;
     }
@@ -279,7 +284,7 @@ Return<sp<IEvsCamera_1_0>> EvsEnumerator::openCamera(const hidl_string& cameraId
     // Has this camera already been instantiated by another caller?
     sp<EvsV4lCamera> pActiveCamera = pRecord->activeInstance.promote();
     if (pActiveCamera != nullptr) {
-        ALOGW("Killing previous camera because of new caller");
+        LOG(WARNING) << "Killing previous camera because of new caller";
         closeCamera(pActiveCamera);
     }
 
@@ -293,7 +298,7 @@ Return<sp<IEvsCamera_1_0>> EvsEnumerator::openCamera(const hidl_string& cameraId
 
     pRecord->activeInstance = pActiveCamera;
     if (pActiveCamera == nullptr) {
-        ALOGE("Failed to create new EvsV4lCamera object for %s\n", cameraId.c_str());
+        LOG(ERROR) << "Failed to create new EvsV4lCamera object for " << cameraId;
     }
 
     return pActiveCamera;
@@ -301,10 +306,10 @@ Return<sp<IEvsCamera_1_0>> EvsEnumerator::openCamera(const hidl_string& cameraId
 
 
 Return<void> EvsEnumerator::closeCamera(const ::android::sp<IEvsCamera_1_0>& pCamera) {
-    ALOGD("closeCamera");
+    LOG(DEBUG) << __FUNCTION__;
 
     if (pCamera == nullptr) {
-        ALOGE("Ignoring call to closeCamera with null camera ptr");
+        LOG(ERROR) << "Ignoring call to closeCamera with null camera ptr";
         return Void();
     }
 
@@ -322,7 +327,7 @@ Return<void> EvsEnumerator::closeCamera(const ::android::sp<IEvsCamera_1_0>& pCa
 
 
 Return<sp<IEvsDisplay_1_0>> EvsEnumerator::openDisplay() {
-    ALOGD("openDisplay");
+    LOG(DEBUG) << __FUNCTION__;
     if (!checkPermission()) {
         return nullptr;
     }
@@ -331,7 +336,7 @@ Return<sp<IEvsDisplay_1_0>> EvsEnumerator::openDisplay() {
     // give exclusive access to the new caller.
     sp<EvsGlDisplay> pActiveDisplay = sActiveDisplay.promote();
     if (pActiveDisplay != nullptr) {
-        ALOGW("Killing previous display because of new caller");
+        LOG(WARNING) << "Killing previous display because of new caller";
         closeDisplay(pActiveDisplay);
     }
 
@@ -339,20 +344,21 @@ Return<sp<IEvsDisplay_1_0>> EvsEnumerator::openDisplay() {
     pActiveDisplay = new EvsGlDisplay(sDisplayProxy, sInternalDisplayId);
     sActiveDisplay = pActiveDisplay;
 
-    ALOGD("Returning new EvsGlDisplay object %p", pActiveDisplay.get());
+    LOG(DEBUG) << "Returning new EvsGlDisplay object " << pActiveDisplay.get();
     return pActiveDisplay;
 }
 
 
 Return<void> EvsEnumerator::closeDisplay(const ::android::sp<IEvsDisplay_1_0>& pDisplay) {
-    ALOGD("closeDisplay");
+    LOG(DEBUG) << __FUNCTION__;
 
     // Do we still have a display object we think should be active?
     sp<EvsGlDisplay> pActiveDisplay = sActiveDisplay.promote();
     if (pActiveDisplay == nullptr) {
-        ALOGE("Somehow a display is being destroyed when the enumerator didn't know one existed");
+        LOG(ERROR) << "Somehow a display is being destroyed "
+                   << "when the enumerator didn't know one existed";
     } else if (sActiveDisplay != pDisplay) {
-        ALOGW("Ignoring close of previously orphaned display - why did a client steal?");
+        LOG(WARNING) << "Ignoring close of previously orphaned display - why did a client steal?";
     } else {
         // Drop the active display
         pActiveDisplay->forceShutdown();
@@ -364,7 +370,7 @@ Return<void> EvsEnumerator::closeDisplay(const ::android::sp<IEvsDisplay_1_0>& p
 
 
 Return<EvsDisplayState> EvsEnumerator::getDisplayState()  {
-    ALOGD("getDisplayState");
+    LOG(DEBUG) << __FUNCTION__;
     if (!checkPermission()) {
         return EvsDisplayState::DEAD;
     }
@@ -381,7 +387,7 @@ Return<EvsDisplayState> EvsEnumerator::getDisplayState()  {
 
 // Methods from ::android::hardware::automotive::evs::V1_1::IEvsEnumerator follow.
 Return<void> EvsEnumerator::getCameraList_1_1(getCameraList_1_1_cb _hidl_cb)  {
-    ALOGD("getCameraList_1_1");
+    LOG(DEBUG) << __FUNCTION__;
     if (!checkPermission()) {
         return Void();
     }
@@ -393,7 +399,7 @@ Return<void> EvsEnumerator::getCameraList_1_1(getCameraList_1_1_cb _hidl_cb)  {
             if (!sCameraSignal.wait_for(lock,
                                         kEnumerationTimeout,
                                         []{ return sCameraList.size() > 0; })) {
-                ALOGD("Timer expired.  No new device has been added.");
+                LOG(DEBUG) << "Timer expired.  No new device has been added.";
             }
         }
     }
@@ -456,7 +462,7 @@ Return<void> EvsEnumerator::getCameraList_1_1(getCameraList_1_1_cb _hidl_cb)  {
 
 Return<sp<IEvsCamera_1_1>> EvsEnumerator::openCamera_1_1(const hidl_string& cameraId,
                                                          const Stream& streamCfg) {
-    ALOGD("openCamera_1_1");
+    LOG(DEBUG) << __FUNCTION__;
     if (!checkPermission()) {
         return nullptr;
     }
@@ -464,20 +470,21 @@ Return<sp<IEvsCamera_1_1>> EvsEnumerator::openCamera_1_1(const hidl_string& came
     // Is this a recognized camera id?
     CameraRecord *pRecord = findCameraById(cameraId);
     if (pRecord == nullptr) {
-        ALOGE("%s does not exist!", cameraId.c_str());
+        LOG(ERROR) << cameraId << " does not exist!";
         return nullptr;
     }
 
     // Has this camera already been instantiated by another caller?
     sp<EvsV4lCamera> pActiveCamera = pRecord->activeInstance.promote();
     if (pActiveCamera != nullptr) {
-        ALOGW("Killing previous camera because of new caller");
+        LOG(WARNING) << "Killing previous camera because of new caller";
         closeCamera(pActiveCamera);
     }
 
     // Construct a camera instance for the caller
     if (sConfigManager == nullptr) {
-        ALOGW("ConfigManager is not available.  Given stream configuration is ignored.");
+        LOG(WARNING) << "ConfigManager is not available.  "
+                     << "Given stream configuration is ignored.";
         pActiveCamera = EvsV4lCamera::Create(cameraId.c_str());
     } else {
         pActiveCamera = EvsV4lCamera::Create(cameraId.c_str(),
@@ -486,7 +493,7 @@ Return<sp<IEvsCamera_1_1>> EvsEnumerator::openCamera_1_1(const hidl_string& came
     }
     pRecord->activeInstance = pActiveCamera;
     if (pActiveCamera == nullptr) {
-        ALOGE("Failed to create new EvsV4lCamera object for %s\n", cameraId.c_str());
+        LOG(ERROR) << "Failed to create new EvsV4lCamera object for " << cameraId;
     }
 
     return pActiveCamera;
@@ -513,7 +520,7 @@ Return<void> EvsEnumerator::getDisplayIdList(getDisplayIdList_cb _list_cb) {
 
 
 Return<sp<IEvsDisplay_1_1>> EvsEnumerator::openDisplay_1_1(uint8_t port) {
-    ALOGD("%s", __FUNCTION__);
+    LOG(DEBUG) << __FUNCTION__;
     if (!checkPermission()) {
         return nullptr;
     }
@@ -522,7 +529,7 @@ Return<sp<IEvsDisplay_1_1>> EvsEnumerator::openDisplay_1_1(uint8_t port) {
     // give exclusive access to the new caller.
     sp<EvsGlDisplay> pActiveDisplay = sActiveDisplay.promote();
     if (pActiveDisplay != nullptr) {
-        ALOGW("Killing previous display because of new caller");
+        LOG(WARNING) << "Killing previous display because of new caller";
         closeDisplay(pActiveDisplay);
     }
 
@@ -530,7 +537,7 @@ Return<sp<IEvsDisplay_1_1>> EvsEnumerator::openDisplay_1_1(uint8_t port) {
     pActiveDisplay = new EvsGlDisplay(sDisplayProxy, sDisplayPortList[port]);
     sActiveDisplay = pActiveDisplay;
 
-    ALOGD("Returning new EvsGlDisplay object %p", pActiveDisplay.get());
+    LOG(DEBUG) << "Returning new EvsGlDisplay object " << pActiveDisplay.get();
     return pActiveDisplay;
 }
 
@@ -542,17 +549,18 @@ void EvsEnumerator::closeCamera_impl(const sp<IEvsCamera_1_0>& pCamera,
 
     // Is the display being destroyed actually the one we think is active?
     if (!pRecord) {
-        ALOGE("Asked to close a camera whose name isn't recognized");
+        LOG(ERROR) << "Asked to close a camera whose name isn't recognized";
     } else {
         sp<EvsV4lCamera> pActiveCamera = pRecord->activeInstance.promote();
 
         if (pActiveCamera == nullptr) {
-            ALOGE("Somehow a camera is being destroyed "
-                  "when the enumerator didn't know one existed");
+            LOG(ERROR) << "Somehow a camera is being destroyed "
+                       << "when the enumerator didn't know one existed";
         } else if (pActiveCamera != pCamera) {
             // This can happen if the camera was aggressively reopened,
             // orphaning this previous instance
-            ALOGW("Ignoring close of previously orphaned camera - why did a client steal?");
+            LOG(WARNING) << "Ignoring close of previously orphaned camera "
+                         << "- why did a client steal?";
         } else {
             // Drop the active camera
             pActiveCamera->shutdown();
@@ -597,9 +605,10 @@ bool EvsEnumerator::qualifyCaptureDevice(const char* deviceName) {
     for (int i=0; !found; i++) {
         formatDescription.index = i;
         if (ioctl(fd, VIDIOC_ENUM_FMT, &formatDescription) == 0) {
-            ALOGI("FORMAT 0x%X, type 0x%X, desc %s, flags 0x%X",
-                  formatDescription.pixelformat, formatDescription.type,
-                  formatDescription.description, formatDescription.flags);
+            LOG(INFO) << "Format: 0x" << std::hex << formatDescription.pixelformat
+                      << " Type: 0x" << std::hex << formatDescription.type
+                      << " Desc: " << formatDescription.description
+                      << " Flags: 0x" << std::hex << formatDescription.flags;
             switch (formatDescription.pixelformat)
             {
                 case V4L2_PIX_FMT_YUYV:     found = true; break;
@@ -612,7 +621,8 @@ bool EvsEnumerator::qualifyCaptureDevice(const char* deviceName) {
                 case V4L2_PIX_FMT_XRGB32:   found = true; break;
 #endif // V4L2_PIX_FMT_ARGB32
                 default:
-                    ALOGW("Unsupported, 0x%X", formatDescription.pixelformat);
+                    LOG(WARNING) << "Unsupported, "
+                                 << std::hex << formatDescription.pixelformat;
                     break;
             }
         } else {

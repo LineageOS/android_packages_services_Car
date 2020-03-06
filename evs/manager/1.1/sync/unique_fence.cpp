@@ -22,7 +22,7 @@
 #include <memory>
 #include <string>
 
-#include <cutils/log.h>
+#include <android-base/logging.h>
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wzero-length-array"
@@ -32,6 +32,7 @@
 #pragma clang diagnostic pop
 #endif  // __clang__
 #include <utils/String8.h>
+
 
 constexpr int kWarningTimeout = 2000;
 
@@ -108,7 +109,8 @@ int UniqueFence::Wait(int wait_time_ms) {
 
         String8 dump;
         GetDebugStateDump(dump);
-        ALOGW("Waited on fence %d for %d ms. [%s]", fd_.Get(), kWarningTimeout, dump.string());
+        LOG(WARNING) << "Waited on fence " << fd_.Get()
+                     << " for " << kWarningTimeout << " ms. " << dump.string();
     }
     return sync_wait(fd_.Get(), wait_time_ms);
 }
@@ -128,7 +130,10 @@ UniqueFence UniqueFence::Merge(const char* name, const UniqueFence& fence1,
             // a new name.
             merged_fence.fd_.Reset(sync_merge(name, fence2.fd_.Get(), fence2.fd_.Get()));
         }
-        ALOGE_IF(!merged_fence.fd_, "merging fences: %s", strerror(errno));
+
+        if (!merged_fence.fd_) {
+            PLOG(ERROR) << "Failed to merge fences";
+        }
     }
     return merged_fence;
 }

@@ -22,7 +22,6 @@
 #include <android/hardware/camera/device/3.2/ICameraDevice.h>
 #include <android/frameworks/automotive/display/1.0/IAutomotiveDisplayProxyService.h>
 
-
 #include <unordered_map>
 #include <thread>
 #include <atomic>
