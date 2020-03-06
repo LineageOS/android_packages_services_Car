@@ -163,8 +163,7 @@ Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
 
     if (mRequestedState == EvsDisplayState::DEAD) {
         ALOGE("Rejecting buffer request from object that lost ownership of the display.");
-        BufferDesc_1_0 nullBuff = {};
-        _hidl_cb(nullBuff);
+        _hidl_cb({});
         return Void();
     }
 
@@ -177,8 +176,7 @@ Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
         if (!mGlWrapper.initialize(mDisplayProxy, mDisplayId)) {
             // Report the failure
             ALOGE("Failed to initialize GL display");
-            BufferDesc_1_0 nullBuff = {};
-            _hidl_cb(nullBuff);
+            _hidl_cb({});
             return Void();
         }
 
@@ -201,15 +199,13 @@ Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
         if (result != NO_ERROR) {
             ALOGE("Error %d allocating %d x %d graphics buffer",
                   result, mBuffer.width, mBuffer.height);
-            BufferDesc_1_0 nullBuff = {};
-            _hidl_cb(nullBuff);
+            _hidl_cb({});
             mGlWrapper.shutdown();
             return Void();
         }
         if (!handle) {
             ALOGE("We didn't get a buffer handle back from the allocator");
-            BufferDesc_1_0 nullBuff = {};
-            _hidl_cb(nullBuff);
+            _hidl_cb({});
             mGlWrapper.shutdown();
             return Void();
         }
@@ -227,8 +223,7 @@ Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
         // a previously issued buffer yet (they're behaving badly).
         // NOTE:  We have to make the callback even if we have nothing to provide
         ALOGE("getTargetBuffer called while no buffers available.");
-        BufferDesc_1_0 nullBuff = {};
-        _hidl_cb(nullBuff);
+        _hidl_cb({});
         return Void();
     } else {
         // Mark our buffer as busy
@@ -307,9 +302,7 @@ Return<void> EvsGlDisplay::getDisplayInfo_1_1(getDisplayInfo_1_1_cb _info_cb) {
     if (mDisplayProxy != nullptr) {
         return mDisplayProxy->getDisplayInfo(mDisplayId, _info_cb);
     } else {
-        HwDisplayConfig nullConfig;
-        HwDisplayState  nullState;
-        _info_cb(nullConfig, nullState);
+        _info_cb({}, {});
         return Void();
     }
 }
