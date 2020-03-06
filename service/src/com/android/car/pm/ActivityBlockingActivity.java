@@ -285,6 +285,11 @@ public class ActivityBlockingActivity extends Activity {
                 continue;
             }
 
+            if (!stackInfo.visible) {
+                // ignore stacks that aren't visible
+                continue;
+            }
+
             if (topStackBehindAba == null || topStackBehindAba.position < stackInfo.position) {
                 topStackBehindAba = stackInfo;
             }
