@@ -219,6 +219,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             }
             binder = mCarWatchdogDaemon.asBinder();
         }
+        if (binder == null) {
+            Log.w(TAG_WATCHDOG, "Linking to binder death recipient skipped");
+            return;
+        }
         try {
             binder.linkToDeath(mDeathRecipient, 0);
         } catch (RemoteException e) {
@@ -233,6 +237,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 return;
             }
             binder = mCarWatchdogDaemon.asBinder();
+        }
+        if (binder == null) {
+            Log.w(TAG_WATCHDOG, "Unlinking from binder death recipient skipped");
+            return;
         }
         binder.unlinkToDeath(mDeathRecipient, 0);
     }
