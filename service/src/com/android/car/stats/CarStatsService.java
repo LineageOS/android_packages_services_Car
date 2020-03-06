@@ -99,7 +99,7 @@ public class CarStatsService {
         PullAtomMetadata metadata = new PullAtomMetadata.Builder()
                 .setAdditiveFields(new int[] {5, 6, 7, 8, 9, 10})
                 .build();
-        mStatsManager.registerPullAtomCallback(
+        mStatsManager.setPullAtomCallback(
                 CarStatsLog.VMS_CLIENT_STATS,
                 metadata,
                 BackgroundThread.getExecutor(),
