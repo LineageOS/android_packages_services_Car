@@ -18,14 +18,20 @@
 
 #include "IoPerfCollection.h"
 
+#include <android-base/file.h>
+#include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
 #include <binder/IServiceManager.h>
 #include <cutils/android_filesystem_config.h>
 #include <inttypes.h>
 #include <log/log.h>
+#include <processgroup/sched_policy.h>
 #include <pwd.h>
 
+#include <iomanip>
+#include <limits>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -40,11 +46,15 @@ using android::IServiceManager;
 using android::sp;
 using android::String16;
 using android::base::Error;
+using android::base::ParseUint;
 using android::base::Result;
 using android::base::StringAppendF;
+using android::base::WriteStringToFd;
 using android::content::pm::IPackageManagerNative;
 
 namespace {
+
+const std::string kDumpMajorDelimiter = std::string(100, '-') + "\n";
 
 double percentage(uint64_t numer, uint64_t denom) {
     return denom == 0 ? 0.0 : (static_cast<double>(numer) / static_cast<double>(denom)) * 100.0;
@@ -82,15 +92,30 @@ std::unordered_map<uint32_t, UidProcessStats> getUidProcessStats(
     return uidProcessStats;
 }
 
+Result<std::chrono::seconds> parseSecondsFlag(Vector<String16> args, size_t pos) {
+    if (args.size() < pos) {
+        return Error() << "Value not provided";
+    }
+
+    uint64_t value;
+    std::string strValue = std::string(String8(args[pos]).string());
+    if (!ParseUint(strValue, &value)) {
+        return Error() << "Invalid value " << args[pos].string() << ", must be an integer";
+    }
+    return std::chrono::seconds(value);
+}
+
 }  // namespace
 
 std::string toString(const UidIoPerfData& data) {
     std::string buffer;
-    StringAppendF(&buffer, "Top N Reads:\n");
-    StringAppendF(&buffer,
-                  "Android User ID, Package Name, Foreground Bytes, Foreground Bytes %%, "
-                  "Foreground Fsync, Foreground Fsync %%, Background Bytes, Background Bytes %%, "
-                  "Background Fsync, Background Fsync %%\n");
+    if (data.topNReads.size() > 0) {
+        StringAppendF(&buffer, "\nTop N Reads:\n%s\n", std::string(12, '-').c_str());
+        StringAppendF(&buffer,
+                      "Android User ID, Package Name, Foreground Bytes, Foreground Bytes %%, "
+                      "Foreground Fsync, Foreground Fsync %%, Background Bytes, "
+                      "Background Bytes %%, Background Fsync, Background Fsync %%\n");
+    }
     for (const auto& stat : data.topNReads) {
         StringAppendF(&buffer, "%" PRIu32 ", %s", stat.userId, stat.packageName.c_str());
         for (int i = 0; i < UID_STATES; ++i) {
@@ -100,11 +125,13 @@ std::string toString(const UidIoPerfData& data) {
         }
         StringAppendF(&buffer, "\n");
     }
-    StringAppendF(&buffer, "Top N Writes:\n");
-    StringAppendF(&buffer,
-                  "Android User ID, Package Name, Foreground Bytes, Foreground Bytes %%, "
-                  "Foreground Fsync, Foreground Fsync %%, Background Bytes, Background Bytes %%, "
-                  "Background Fsync, Background Fsync %%\n");
+    if (data.topNWrites.size() > 0) {
+        StringAppendF(&buffer, "\nTop N Writes:\n%s\n", std::string(13, '-').c_str());
+        StringAppendF(&buffer,
+                      "Android User ID, Package Name, Foreground Bytes, Foreground Bytes %%, "
+                      "Foreground Fsync, Foreground Fsync %%, Background Bytes, "
+                      "Background Bytes %%, Background Fsync, Background Fsync %%\n");
+    }
     for (const auto& stat : data.topNWrites) {
         StringAppendF(&buffer, "%" PRIu32 ", %s", stat.userId, stat.packageName.c_str());
         for (int i = 0; i < UID_STATES; ++i) {
@@ -134,19 +161,23 @@ std::string toString(const ProcessIoPerfData& data) {
     StringAppendF(&buffer,
                   "Percentage of change in major page faults since last collection: %.2f%%\n",
                   data.majorFaultsPercentChange);
-    StringAppendF(&buffer, "Top N major page faults:\n");
-    StringAppendF(&buffer,
-                  "Android User ID, Package Name, Number of major page faults, Percentage of total"
-                  "major page faults\n");
+    if (data.topNMajorFaults.size() > 0) {
+        StringAppendF(&buffer, "\nTop N major page faults:\n%s\n", std::string(24, '-').c_str());
+        StringAppendF(&buffer,
+                      "Android User ID, Package Name, Number of major page faults, "
+                      "Percentage of total major page faults\n");
+    }
     for (const auto& stat : data.topNMajorFaults) {
         StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%\n", stat.userId,
                       stat.packageName.c_str(), stat.count,
                       percentage(stat.count, data.totalMajorFaults));
     }
-    StringAppendF(&buffer, "Top N I/O waiting UIDs:\n");
-    StringAppendF(&buffer,
-                  "Android User ID, Package Name, Number of owned tasks waiting for I/O, "
-                  "Percentage of owned tasks waiting for I/O\n");
+    if (data.topNIoBlockedUids.size() > 0) {
+        StringAppendF(&buffer, "\nTop N I/O waiting UIDs:\n%s\n", std::string(23, '-').c_str());
+        StringAppendF(&buffer,
+                      "Android User ID, Package Name, Number of owned tasks waiting for I/O, "
+                      "Percentage of owned tasks waiting for I/O\n");
+    }
     for (size_t i = 0; i < data.topNIoBlockedUids.size(); ++i) {
         const auto& stat = data.topNIoBlockedUids[i];
         StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%\n", stat.userId,
@@ -156,84 +187,407 @@ std::string toString(const ProcessIoPerfData& data) {
     return buffer;
 }
 
-Result<void> IoPerfCollection::start() {
-    Mutex::Autolock lock(mMutex);
-    if (mCurrCollectionEvent != CollectionEvent::NONE) {
-        return Error() << "Cannot start I/O performance collection more than once";
-    }
-    mCurrCollectionEvent = CollectionEvent::BOOT_TIME;
+std::string toString(const IoPerfRecord& record) {
+    std::string buffer;
+    StringAppendF(&buffer, "%s%s%s", toString(record.systemIoPerfData).c_str(),
+                  toString(record.processIoPerfData).c_str(),
+                  toString(record.uidIoPerfData).c_str());
+    return buffer;
+}
 
-    // TODO(b/148486340): Implement this method.
-    return Error() << "Unimplemented method";
+std::string toString(const CollectionInfo& collectionInfo) {
+    std::string buffer;
+    StringAppendF(&buffer, "Number of collections: %zu\n", collectionInfo.records.size());
+    auto interval =
+            std::chrono::duration_cast<std::chrono::seconds>(collectionInfo.interval).count();
+    StringAppendF(&buffer, "Collection interval: %lld second%s\n", interval,
+                  ((interval > 1) ? "s" : ""));
+    for (size_t i = 0; i < collectionInfo.records.size(); ++i) {
+        const auto& record = collectionInfo.records[i];
+        std::stringstream timestamp;
+        timestamp << std::put_time(std::localtime(&record.time), "%c %Z");
+        StringAppendF(&buffer, "Collection %zu: <%s>\n%s\n%s\n", i, timestamp.str().c_str(),
+                      std::string(45, '=').c_str(), toString(record).c_str());
+    }
+    return buffer;
+}
+
+Result<void> IoPerfCollection::start() {
+    {
+        Mutex::Autolock lock(mMutex);
+        if (mCurrCollectionEvent != CollectionEvent::INIT || mCollectionThread.joinable()) {
+            return Error() << "Cannot start I/O performance collection more than once";
+        }
+
+        // TODO(b/148489461): Once |kTopNStatsPerCategory|, |kBoottimeCollectionInterval| and
+        // |kPeriodicCollectionInterval| constants are moved to read-only persistent properties,
+        // read and store them in the collection infos.
+
+        mBoottimeCollection = {
+                .interval = kBoottimeCollectionInterval,
+                .maxCacheSize = std::numeric_limits<std::size_t>::max(),
+                .lastCollectionUptime = 0,
+                .records = {},
+        };
+        mPeriodicCollection = {
+                .interval = kPeriodicCollectionInterval,
+                .maxCacheSize = kPeriodicCollectionBufferSize,
+                .lastCollectionUptime = 0,
+                .records = {},
+        };
+    }
+
+    mCollectionThread = std::thread([&]() {
+        {
+            Mutex::Autolock lock(mMutex);
+            if (mCurrCollectionEvent != CollectionEvent::INIT) {
+                ALOGE("Skipping I/O performance data collection as the current collection event "
+                      "%s != %s",
+                      toString(mCurrCollectionEvent).c_str(),
+                      toString(CollectionEvent::INIT).c_str());
+                return;
+            }
+            mCurrCollectionEvent = CollectionEvent::BOOT_TIME;
+            mBoottimeCollection.lastCollectionUptime = mHandlerLooper->now();
+            mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
+            mHandlerLooper->sendMessage(this, CollectionEvent::BOOT_TIME);
+        }
+        if (set_sched_policy(0, SP_BACKGROUND) != 0) {
+            ALOGW("Failed to set background scheduling priority to I/O performance data collection "
+                  "thread");
+        }
+        bool isCollectionActive = true;
+        // Loop until the collection is not active -- I/O perf collection runs on this thread in a
+        // handler.
+        while (isCollectionActive) {
+            mHandlerLooper->pollAll(/*timeoutMillis=*/-1);
+            Mutex::Autolock lock(mMutex);
+            isCollectionActive = mCurrCollectionEvent != CollectionEvent::TERMINATED;
+        }
+    });
+    return {};
+}
+
+void IoPerfCollection::terminate() {
+    {
+        Mutex::Autolock lock(mMutex);
+        if (mCurrCollectionEvent == CollectionEvent::TERMINATED) {
+            ALOGE("I/O performance data collection was terminated already");
+            return;
+        }
+        ALOGE("Terminating I/O performance data collection");
+        mCurrCollectionEvent = CollectionEvent::TERMINATED;
+    }
+    if (mCollectionThread.joinable()) {
+        mHandlerLooper->removeMessages(this);
+        mHandlerLooper->wake();
+        mCollectionThread.join();
+    }
 }
 
 Result<void> IoPerfCollection::onBootFinished() {
     Mutex::Autolock lock(mMutex);
     if (mCurrCollectionEvent != CollectionEvent::BOOT_TIME) {
-        return Error() << "Current collection event " << toEventString(mCurrCollectionEvent)
-                       << " != " << toEventString(CollectionEvent::BOOT_TIME)
-                       << " collection event";
+        return Error() << "Current I/O performance data collection event "
+                       << toString(mCurrCollectionEvent)
+                       << " != " << toString(CollectionEvent::BOOT_TIME) << " collection event";
     }
-
-    // TODO(b/148486340): Implement this method.
-    return Error() << "Unimplemented method";
+    mHandlerLooper->removeMessages(this);
+    mCurrCollectionEvent = CollectionEvent::PERIODIC;
+    mPeriodicCollection.lastCollectionUptime = mHandlerLooper->now();
+    mHandlerLooper->sendMessage(this, CollectionEvent::PERIODIC);
+    return {};
 }
 
-status_t IoPerfCollection::dump(int /*fd*/) {
-    Mutex::Autolock lock(mMutex);
+status_t IoPerfCollection::dump(int fd, const Vector<String16>& args) {
+    if (args.empty()) {
+        const auto& ret = dumpCollection(fd);
+        if (!ret) {
+            ALOGW("%s", ret.error().message().c_str());
+            return ret.error().code();
+        }
+        return OK;
+    }
 
-    // TODO(b/148486340): Implement this method.
+    if (args[0] == String16(kStartCustomCollectionFlag)) {
+        if (args.size() > 5) {
+            ALOGW("Number of arguments to start custom I/O performance data collection cannot "
+                  "exceed 5");
+            return INVALID_OPERATION;
+        }
+        std::chrono::nanoseconds interval = kCustomCollectionInterval;
+        std::chrono::nanoseconds maxDuration = kCustomCollectionDuration;
+        for (size_t i = 1; i < args.size(); ++i) {
+            if (args[i] == String16(kIntervalFlag)) {
+                const auto& ret = parseSecondsFlag(args, i + 1);
+                if (!ret) {
+                    ALOGW("Failed to parse %s flag: %s", kIntervalFlag,
+                          ret.error().message().c_str());
+                    return FAILED_TRANSACTION;
+                }
+                interval = std::chrono::duration_cast<std::chrono::nanoseconds>(*ret);
+                ++i;
+                continue;
+            }
+            if (args[i] == String16(kMaxDurationFlag)) {
+                const auto& ret = parseSecondsFlag(args, i + 1);
+                if (!ret) {
+                    ALOGW("Failed to parse %su flag: %s", kMaxDurationFlag,
+                          ret.error().message().c_str());
+                    return FAILED_TRANSACTION;
+                }
+                maxDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(*ret);
+                ++i;
+                continue;
+            }
+            ALOGW("Unknown flag %s provided to start custom I/O performance data collection",
+                  String8(args[i]).string());
+            return INVALID_OPERATION;
+        }
+        const auto& ret = startCustomCollection(interval, maxDuration);
+        if (!ret) {
+            ALOGW("%s", ret.error().message().c_str());
+            return ret.error().code();
+        }
+        return OK;
+    }
 
-    // TODO: Report when any of the proc collectors' enabled() method returns false.
+    if (args[0] == String16(kEndCustomCollectionFlag)) {
+        if (args.size() != 1) {
+            ALOGW("Number of arguments to end custom I/O performance data collection cannot "
+                  "exceed 1");
+        }
+        const auto& ret = endCustomCollection(fd);
+        if (!ret) {
+            ALOGW("%s", ret.error().message().c_str());
+            return ret.error().code();
+        }
+        return OK;
+    }
 
+    ALOGW("Dump arguments start neither with %s nor with %s flags", kStartCustomCollectionFlag,
+          kEndCustomCollectionFlag);
     return INVALID_OPERATION;
 }
 
-status_t IoPerfCollection::startCustomCollection(std::chrono::seconds /*interval*/,
-                                                 std::chrono::seconds /*maxDuration*/) {
+Result<void> IoPerfCollection::dumpCollection(int fd) {
+    Mutex::Autolock lock(mMutex);
+    if (mCurrCollectionEvent == CollectionEvent::TERMINATED) {
+        ALOGW("I/O performance data collection not active. Dumping cached data");
+        if (!WriteStringToFd("I/O performance data collection not active. Dumping cached data.",
+                             fd)) {
+            return Error(FAILED_TRANSACTION) << "Failed to write I/O performance collection status";
+        }
+    }
+
+    const auto& ret = dumpCollectorsStatusLocked(fd);
+    if (!ret) {
+        return Error(FAILED_TRANSACTION) << ret.error();
+    }
+
+    if (!WriteStringToFd(StringPrintf("%sI/O performance data reports:\n%sBoot-time collection "
+                                      "report:\n%s\n",
+                                      kDumpMajorDelimiter.c_str(), kDumpMajorDelimiter.c_str(),
+                                      std::string(28, '=').c_str()),
+                         fd) ||
+        !WriteStringToFd(toString(mBoottimeCollection), fd) ||
+        !WriteStringToFd(StringPrintf("%s\nPeriodic collection report:\n%s\n",
+                                      std::string(75, '-').c_str(), std::string(27, '=').c_str()),
+                         fd) ||
+        !WriteStringToFd(toString(mPeriodicCollection), fd) ||
+        !WriteStringToFd(kDumpMajorDelimiter, fd)) {
+        return Error(FAILED_TRANSACTION)
+                << "Failed to dump the boot-time and periodic collection reports.";
+    }
+    return {};
+}
+
+Result<void> IoPerfCollection::dumpCollectorsStatusLocked(int fd) {
+    if (!mUidIoStats->enabled() &&
+        !WriteStringToFd(StringPrintf("UidIoStats collector failed to access the file %s",
+                                      mUidIoStats->filePath().c_str()),
+                         fd)) {
+        return Error() << "Failed to write UidIoStats collector status";
+    }
+    if (!mProcStat->enabled() &&
+        !WriteStringToFd(StringPrintf("ProcStat collector failed to access the file %s",
+                                      mProcStat->filePath().c_str()),
+                         fd)) {
+        return Error() << "Failed to write ProcStat collector status";
+    }
+    if (!mProcPidStat->enabled() &&
+        !WriteStringToFd(StringPrintf("ProcPidStat collector failed to access the directory %s",
+                                      mProcPidStat->dirPath().c_str()),
+                         fd)) {
+        return Error() << "Failed to write ProcPidStat collector status";
+    }
+    return {};
+}
+
+Result<void> IoPerfCollection::startCustomCollection(std::chrono::nanoseconds interval,
+                                                     std::chrono::nanoseconds maxDuration) {
+    if (interval < kMinCollectionInterval || maxDuration < kMinCollectionInterval) {
+        return Error(INVALID_OPERATION)
+                << "Collection interval and maximum duration must be >= "
+                << std::chrono::duration_cast<std::chrono::milliseconds>(kMinCollectionInterval)
+                           .count()
+                << " milliseconds.";
+    }
     Mutex::Autolock lock(mMutex);
     if (mCurrCollectionEvent != CollectionEvent::PERIODIC) {
-        ALOGE(
-            "Cannot start a custom collection when "
-            "the current collection event %s != %s collection event",
-            toEventString(mCurrCollectionEvent).c_str(),
-            toEventString(CollectionEvent::PERIODIC).c_str());
-        return INVALID_OPERATION;
+        return Error(INVALID_OPERATION)
+                << "Cannot start a custom collection when "
+                << "the current collection event " << toString(mCurrCollectionEvent)
+                << " != " << toString(CollectionEvent::PERIODIC) << " collection event";
     }
 
-    // TODO(b/148486340): Implement this method.
-    return INVALID_OPERATION;
+    mCustomCollection = {
+            .interval = interval,
+            .maxCacheSize = std::numeric_limits<std::size_t>::max(),
+            .lastCollectionUptime = mHandlerLooper->now(),
+            .records = {},
+    };
+
+    mHandlerLooper->removeMessages(this);
+    nsecs_t uptime = mHandlerLooper->now() + maxDuration.count();
+    mHandlerLooper->sendMessageAtTime(uptime, this, SwitchEvent::END_CUSTOM_COLLECTION);
+    mCurrCollectionEvent = CollectionEvent::CUSTOM;
+    mHandlerLooper->sendMessage(this, CollectionEvent::CUSTOM);
+    return {};
 }
 
-status_t IoPerfCollection::endCustomCollection(int /*fd*/) {
+Result<void> IoPerfCollection::endCustomCollection(int fd) {
     Mutex::Autolock lock(mMutex);
     if (mCurrCollectionEvent != CollectionEvent::CUSTOM) {
-        ALOGE("No custom collection is running");
-        return INVALID_OPERATION;
+        return Error(INVALID_OPERATION) << "No custom collection is running";
     }
 
-    // TODO(b/148486340): Implement this method.
+    mHandlerLooper->removeMessages(this);
+    mHandlerLooper->sendMessage(this, SwitchEvent::END_CUSTOM_COLLECTION);
 
-    // TODO: Report when any of the proc collectors' enabled() method returns false.
+    const auto& ret = dumpCollectorsStatusLocked(fd);
+    if (!ret) {
+        return Error(FAILED_TRANSACTION) << ret.error();
+    }
 
-    return INVALID_OPERATION;
+    if (!WriteStringToFd(StringPrintf("%sI/O performance data report for custom collection:\n%s",
+                                      kDumpMajorDelimiter.c_str(), kDumpMajorDelimiter.c_str()),
+                         fd) ||
+        !WriteStringToFd(toString(mCustomCollection), fd) ||
+        !WriteStringToFd(kDumpMajorDelimiter, fd)) {
+        return Error(FAILED_TRANSACTION) << "Failed to write custom collection report.";
+    }
+
+    return {};
 }
 
-Result<void> IoPerfCollection::collect() {
-    Mutex::Autolock lock(mMutex);
+void IoPerfCollection::handleMessage(const Message& message) {
+    Result<void> result;
 
-    // TODO(b/148486340): Implement this method.
-    return Error() << "Unimplemented method";
+    switch (message.what) {
+        case static_cast<int>(CollectionEvent::BOOT_TIME):
+            result = processCollectionEvent(CollectionEvent::BOOT_TIME, &mBoottimeCollection);
+            break;
+        case static_cast<int>(CollectionEvent::PERIODIC):
+            result = processCollectionEvent(CollectionEvent::PERIODIC, &mPeriodicCollection);
+            break;
+        case static_cast<int>(CollectionEvent::CUSTOM):
+            result = processCollectionEvent(CollectionEvent::CUSTOM, &mCustomCollection);
+            break;
+        case static_cast<int>(SwitchEvent::END_CUSTOM_COLLECTION): {
+            Mutex::Autolock lock(mMutex);
+            if (mCurrCollectionEvent != CollectionEvent::CUSTOM) {
+                ALOGW("Skipping END_CUSTOM_COLLECTION message as the current collection %s != %s",
+                      toString(mCurrCollectionEvent).c_str(),
+                      toString(CollectionEvent::CUSTOM).c_str());
+                return;
+            }
+            mCustomCollection = {};
+            mHandlerLooper->removeMessages(this);
+            mCurrCollectionEvent = CollectionEvent::PERIODIC;
+            mPeriodicCollection.lastCollectionUptime = mHandlerLooper->now();
+            mHandlerLooper->sendMessage(this, CollectionEvent::PERIODIC);
+            return;
+        }
+        default:
+            result = Error() << "Unknown message: " << message.what;
+    }
+
+    if (!result) {
+        Mutex::Autolock lock(mMutex);
+        ALOGE("Terminating I/O performance data collection: %s", result.error().message().c_str());
+        // DO NOT CALL terminate() as it tries to join the collection thread but this code is
+        // executed on the collection thread. Thus it will result in a deadlock.
+        mCurrCollectionEvent = CollectionEvent::TERMINATED;
+        mHandlerLooper->removeMessages(this);
+        mHandlerLooper->wake();
+    }
+}
+
+Result<void> IoPerfCollection::processCollectionEvent(CollectionEvent event, CollectionInfo* info) {
+    Mutex::Autolock lock(mMutex);
+    // Messages sent to the looper are intrinsically racy such that a message from the previous
+    // collection event may land in the looper after the current collection has already begun. Thus
+    // verify the current collection event before starting the collection.
+    if (mCurrCollectionEvent != event) {
+        ALOGW("Skipping %s collection message on collection event %s", toString(event).c_str(),
+              toString(mCurrCollectionEvent).c_str());
+        return {};
+    }
+    if (info->maxCacheSize == 0) {
+        return Error() << "Maximum cache size for " << toString(event) << " collection cannot be 0";
+    }
+    if (info->interval < kMinCollectionInterval) {
+        return Error()
+                << "Collection interval of "
+                << std::chrono::duration_cast<std::chrono::seconds>(info->interval).count()
+                << " seconds for " << toString(event) << " collection cannot be less than "
+                << std::chrono::duration_cast<std::chrono::seconds>(kMinCollectionInterval).count()
+                << " seconds";
+    }
+    auto ret = collectLocked(info);
+    if (!ret) {
+        return Error() << toString(event) << " collection failed: " << ret.error();
+    }
+    info->lastCollectionUptime += info->interval.count();
+    mHandlerLooper->sendMessageAtTime(info->lastCollectionUptime, this, event);
+    return {};
+}
+
+Result<void> IoPerfCollection::collectLocked(CollectionInfo* collectionInfo) {
+    if (!mUidIoStats->enabled() && !mProcStat->enabled() && !mProcPidStat->enabled()) {
+        return Error() << "No collectors enabled";
+    }
+    IoPerfRecord record{
+            .time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),
+    };
+    auto ret = collectSystemIoPerfDataLocked(&record.systemIoPerfData);
+    if (!ret) {
+        return ret;
+    }
+    ret = collectProcessIoPerfDataLocked(&record.processIoPerfData);
+    if (!ret) {
+        return ret;
+    }
+    ret = collectUidIoPerfDataLocked(&record.uidIoPerfData);
+    if (!ret) {
+        return ret;
+    }
+    if (collectionInfo->records.size() > collectionInfo->maxCacheSize) {
+        collectionInfo->records.erase(collectionInfo->records.begin());  // Erase the oldest record.
+    }
+    collectionInfo->records.emplace_back(record);
+    return {};
 }
 
 Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPerfData) {
-    if (!mUidIoStats.enabled()) {
-        // Don't return an error to avoid log spamming on every collection. Instead, report this
-        // once in the generated dump.
+    if (!mUidIoStats->enabled()) {
+        // Don't return an error to avoid pre-mature termination. Instead, fetch data from other
+        // collectors.
         return {};
     }
 
-    const Result<std::unordered_map<uint32_t, UidIoUsage>>& usage = mUidIoStats.collect();
+    const Result<std::unordered_map<uint32_t, UidIoUsage>>& usage = mUidIoStats->collect();
     if (!usage) {
         return Error() << "Failed to collect uid I/O usage: " << usage.error();
     }
@@ -334,13 +688,13 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
 }
 
 Result<void> IoPerfCollection::collectSystemIoPerfDataLocked(SystemIoPerfData* systemIoPerfData) {
-    if (!mProcStat.enabled()) {
-        // Don't return an error to avoid log spamming on every collection. Instead, report this
-        // once in the generated dump.
+    if (!mProcStat->enabled()) {
+        // Don't return an error to avoid pre-mature termination. Instead, fetch data from other
+        // collectors.
         return {};
     }
 
-    const Result<ProcStatInfo>& procStatInfo = mProcStat.collect();
+    const Result<ProcStatInfo>& procStatInfo = mProcStat->collect();
     if (!procStatInfo) {
         return Error() << "Failed to collect proc stats: " << procStatInfo.error();
     }
@@ -354,13 +708,13 @@ Result<void> IoPerfCollection::collectSystemIoPerfDataLocked(SystemIoPerfData* s
 
 Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
         ProcessIoPerfData* processIoPerfData) {
-    if (!mProcPidStat.enabled()) {
-        // Don't return an error to avoid log spamming on every collection. Instead, report this
-        // once in the generated dump.
+    if (!mProcPidStat->enabled()) {
+        // Don't return an error to avoid pre-mature termination. Instead, fetch data from other
+        // collectors.
         return {};
     }
 
-    const Result<std::vector<ProcessStats>>& processStats = mProcPidStat.collect();
+    const Result<std::vector<ProcessStats>>& processStats = mProcPidStat->collect();
     if (!processStats) {
         return Error() << "Failed to collect process stats: " << processStats.error();
     }
@@ -443,8 +797,7 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
     } else {
         int64_t increase = processIoPerfData->totalMajorFaults - mLastMajorFaults;
         processIoPerfData->majorFaultsPercentChange =
-                (static_cast<double>(increase) / static_cast<double>(mLastMajorFaults)) *
-                100.0;
+                (static_cast<double>(increase) / static_cast<double>(mLastMajorFaults)) * 100.0;
     }
     mLastMajorFaults = processIoPerfData->totalMajorFaults;
     return {};
