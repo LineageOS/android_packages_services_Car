@@ -122,7 +122,7 @@ Result<std::vector<ProcessStats>> ProcPidStat::collect() {
 
     Mutex::Autolock lock(mMutex);
     const auto& processStats = getProcessStatsLocked();
-    if (!processStats) {
+    if (!processStats.ok()) {
         return Error() << processStats.error();
     }
 
@@ -171,7 +171,7 @@ Result<std::unordered_map<uint32_t, ProcessStats>> ProcPidStat::getProcessStatsL
         ProcessStats curStats;
         std::string path = StringPrintf((mPath + kStatFileFormat).c_str(), pid);
         const auto& ret = readPidStatFile(path, &curStats.process);
-        if (!ret) {
+        if (!ret.ok()) {
             // PID may disappear between scanning the directory and parsing the stat file.
             // Thus treat ERR_FILE_OPEN_READ errors as soft errors.
             if (ret.error().code() != ERR_FILE_OPEN_READ) {
@@ -190,7 +190,7 @@ Result<std::unordered_map<uint32_t, ProcessStats>> ProcPidStat::getProcessStatsL
             it->second.process.startTime != curStats.process.startTime || it->second.tgid == -1 ||
             it->second.uid == -1) {
             const auto& ret = getPidStatusLocked(&curStats);
-            if (!ret) {
+            if (!ret.ok()) {
                 if (ret.error().code() != ERR_FILE_OPEN_READ) {
                     return Error() << "Failed to read pid status for pid " << curStats.process.pid
                                    << ": " << ret.error().message().c_str();
@@ -233,7 +233,7 @@ Result<std::unordered_map<uint32_t, ProcessStats>> ProcPidStat::getProcessStatsL
             PidStat curThreadStat = {};
             path = StringPrintf((taskDir + kStatFileFormat).c_str(), tid);
             const auto& ret = readPidStatFile(path, &curThreadStat);
-            if (!ret) {
+            if (!ret.ok()) {
                 if (ret.error().code() != ERR_FILE_OPEN_READ) {
                     return Error() << "Failed to read per-thread stat file: "
                                    << ret.error().message().c_str();

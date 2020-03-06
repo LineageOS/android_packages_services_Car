@@ -234,7 +234,7 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
     }
 
     const Result<std::unordered_map<uint32_t, UidIoUsage>>& usage = mUidIoStats.collect();
-    if (!usage) {
+    if (!usage.ok()) {
         return Error() << "Failed to collect uid I/O usage: " << usage.error();
     }
 
@@ -286,7 +286,7 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
     }
 
     const auto& ret = updateUidToPackageNameMapping(unmappedUids);
-    if (!ret) {
+    if (!ret.ok()) {
         ALOGW("%s", ret.error().message().c_str());
     }
 
@@ -341,7 +341,7 @@ Result<void> IoPerfCollection::collectSystemIoPerfDataLocked(SystemIoPerfData* s
     }
 
     const Result<ProcStatInfo>& procStatInfo = mProcStat.collect();
-    if (!procStatInfo) {
+    if (!procStatInfo.ok()) {
         return Error() << "Failed to collect proc stats: " << procStatInfo.error();
     }
 
@@ -400,7 +400,7 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
     }
 
     const auto& ret = updateUidToPackageNameMapping(unmappedUids);
-    if (!ret) {
+    if (!ret.ok()) {
         ALOGW("%s", ret.error().message().c_str());
     }
 
