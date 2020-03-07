@@ -167,8 +167,7 @@ bool VirtualCamera::notify(const EvsEventDesc& event) {
 
             if (mStream_1_1 == nullptr) {
                 // Send a null frame instead, for v1.0 client
-                BufferDesc_1_0 nullBuff = {};
-                auto result = mStream->deliverFrame(nullBuff);
+                auto result = mStream->deliverFrame({});
                 if (!result.isOk()) {
                     ALOGE("Error delivering end of stream marker");
                 }
@@ -205,12 +204,17 @@ bool VirtualCamera::notify(const EvsEventDesc& event) {
 // Methods from ::android::hardware::automotive::evs::V1_0::IEvsCamera follow.
 Return<void> VirtualCamera::getCameraInfo(getCameraInfo_cb info_cb) {
     // Straight pass through to hardware layer
+    if (mHalCamera.size() > 1) {
+        ALOGE("%s must NOT be called on a logical camera object.", __FUNCTION__);
+        info_cb({});
+        return Void();
+    }
+
     auto halCamera = mHalCamera.begin()->second.promote();
     if (halCamera != nullptr) {
         return halCamera->getHwCamera()->getCameraInfo(info_cb);
     } else {
-        CameraDesc nullCamera = {};
-        info_cb(nullCamera.v1);
+        info_cb({});
         return Void();
     }
 }
@@ -381,6 +385,8 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
 Return<void> VirtualCamera::doneWithFrame(const BufferDesc_1_0& buffer) {
     if (buffer.memHandle == nullptr) {
         ALOGE("ignoring doneWithFrame called with invalid handle");
+    } else if (mFramesHeld.size() > 1) {
+        ALOGE("%s must NOT be called on a logical camera object.", __FUNCTION__);
     } else {
         // Find this buffer in our "held" list
         auto& frameQueue = mFramesHeld.begin()->second;
@@ -430,8 +436,7 @@ Return<void> VirtualCamera::stopVideoStream()  {
             }
         } else {
             // v1.0 client expects a null frame at the end of the stream
-            BufferDesc_1_0 nullBuff = {};
-            auto result = mStream->deliverFrame(nullBuff);
+            auto result = mStream->deliverFrame({});
             if (!result.isOk()) {
                 ALOGE("Error delivering end of stream marker");
             }
@@ -499,6 +504,7 @@ Return<EvsResult> VirtualCamera::setExtendedInfo(uint32_t opaqueIdentifier, int3
 // Methods from ::android::hardware::automotive::evs::V1_1::IEvsCamera follow.
 Return<void> VirtualCamera::getCameraInfo_1_1(getCameraInfo_1_1_cb info_cb) {
     if (mHalCamera.size() > 1) {
+        // Logical camera description is stored in VirtualCamera object.
         info_cb(*mDesc);
         return Void();
     }
@@ -507,8 +513,7 @@ Return<void> VirtualCamera::getCameraInfo_1_1(getCameraInfo_1_1_cb info_cb) {
     auto pHwCamera = mHalCamera.begin()->second.promote();
     if (pHwCamera == nullptr) {
         // Return an empty list
-        CameraDesc nullCamera = {};
-        info_cb(nullCamera);
+        info_cb({});
         return Void();
     }
 
@@ -518,8 +523,7 @@ Return<void> VirtualCamera::getCameraInfo_1_1(getCameraInfo_1_1_cb info_cb) {
         return hwCamera_1_1->getCameraInfo_1_1(info_cb);
     } else {
         // Return an empty list
-        CameraDesc nullCamera = {};
-        info_cb(nullCamera);
+        info_cb({});
         return Void();
     }
 }
@@ -547,8 +551,7 @@ Return<void> VirtualCamera::getPhysicalCameraInfo(const hidl_string& deviceId,
     }
 
     // Return an empty list
-    CameraDesc nullCamera = {};
-    info_cb(nullCamera);
+    info_cb({});
     return Void();
 }
 
@@ -658,8 +661,7 @@ Return<void> VirtualCamera::getParameterList(getParameterList_cb _hidl_cb) {
         ALOGW("Logical camera device does not support %s.", __FUNCTION__);
 
         // Return an empty list
-        hardware::hidl_vec<CameraParam> emptyList;
-        _hidl_cb(emptyList);
+        _hidl_cb({});
         return Void();
     }
 
@@ -669,8 +671,7 @@ Return<void> VirtualCamera::getParameterList(getParameterList_cb _hidl_cb) {
         ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
 
         // Return an empty list
-        hardware::hidl_vec<CameraParam> emptyList;
-        _hidl_cb(emptyList);
+        _hidl_cb({});
         return Void();
     }
 
@@ -683,8 +684,7 @@ Return<void> VirtualCamera::getParameterList(getParameterList_cb _hidl_cb) {
               mHalCamera.begin()->first.c_str());
 
         // Return an empty list
-        hardware::hidl_vec<CameraParam> emptyList;
-        _hidl_cb(emptyList);
+        _hidl_cb({});
         return Void();
     }
 }
@@ -810,6 +810,12 @@ Return<void> VirtualCamera::getExtendedInfo_1_1(uint32_t opaqueIdentifier,
                                                 getExtendedInfo_1_1_cb _hidl_cb) {
     hardware::hidl_vec<uint8_t> values;
     EvsResult status = EvsResult::INVALID_ARG;
+    if (mHalCamera.size() > 1) {
+        ALOGW("Logical camera device does not support %s.", __FUNCTION__);
+        _hidl_cb(status, values);
+        return Void();
+    }
+
     auto pHwCamera = mHalCamera.begin()->second.promote();
     if (pHwCamera == nullptr) {
         ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
