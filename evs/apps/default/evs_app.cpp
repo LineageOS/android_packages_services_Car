@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     bool useVehicleHal = true;
     bool printHelp = false;
     const char* evsServiceName = "default";
-    int displayId = 0;
+    int displayId = 1;
     for (int i=1; i< argc; i++) {
         if (strcmp(argv[i], "--test") == 0) {
             useVehicleHal = false;
@@ -92,9 +92,10 @@ int main(int argc, char** argv)
     }
     if (printHelp) {
         printf("Options include:\n");
-        printf("  --test   Do not talk to Vehicle Hal, but simulate 'reverse' instead\n");
-        printf("  --hw     Bypass EvsManager by connecting directly to EvsEnumeratorHw\n");
-        printf("  --mock   Connect directly to EvsEnumeratorHw-Mock\n");
+        printf("  --test    Do not talk to Vehicle Hal, but simulate 'reverse' instead\n");
+        printf("  --hw      Bypass EvsManager by connecting directly to EvsEnumeratorHw\n");
+        printf("  --mock    Connect directly to EvsEnumeratorHw-Mock\n");
+        printf("  --display Specify the display to use\n");
     }
 
     // Load our configuration information
