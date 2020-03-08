@@ -35,6 +35,18 @@ bool Enumerator::init(const char* hardwareServiceName) {
     // Connect with the underlying hardware enumerator
     mHwEnumerator = IEvsEnumerator::getService(hardwareServiceName);
     bool result = (mHwEnumerator.get() != nullptr);
+    if (result) {
+        // Get an internal display identifier.
+        mHwEnumerator->getDisplayIdList(
+            [this](const auto& displayPorts) {
+                if (displayPorts.size() > 0) {
+                    mInternalDisplayPort = displayPorts[0];
+                } else {
+                    ALOGW("No display is available to EVS service.");
+                }
+            }
+        );
+    }
 
     return result;
 }

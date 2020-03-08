@@ -114,6 +114,7 @@ private:
     static sp<IAutomotiveDisplayProxyService> sDisplayProxy;
     static std::unordered_map<uint8_t,
                               uint64_t>       sDisplayPortList;
+    static uint64_t                           sInternalDisplayId;
 };
 
 } // namespace implementation

@@ -47,6 +47,8 @@ std::condition_variable                                      EvsEnumerator::sCam
 std::unique_ptr<ConfigManager>                               EvsEnumerator::sConfigManager;
 sp<IAutomotiveDisplayProxyService>                           EvsEnumerator::sDisplayProxy;
 std::unordered_map<uint8_t, uint64_t>                        EvsEnumerator::sDisplayPortList;
+uint64_t                                                     EvsEnumerator::sInternalDisplayId;
+
 
 // Constants
 const auto kEnumerationTimeout = 10s;
@@ -209,10 +211,15 @@ void EvsEnumerator::enumerateDisplays() {
 
     sDisplayProxy->getDisplayIdList(
         [](const auto& displayIds) {
-            for (const auto& id : displayIds) {
-                const auto port = id & 0xF;
-                ALOGI("Display 0x%lX is detected on the port %ld", (unsigned long)id, (long)port);
-                sDisplayPortList.insert_or_assign(port, id);
+            // The first entry of the list is the internal display.  See
+            // SurfaceFlinger::getPhysicalDisplayIds() implementation.
+            if (displayIds.size() > 0) {
+                sInternalDisplayId = displayIds[0];
+                for (const auto& id : displayIds) {
+                    const auto port = id & 0xF;
+                    ALOGI("Display 0x%lX is detected on the port %ld", (unsigned long)id, (long)port);
+                    sDisplayPortList.insert_or_assign(port, id);
+                }
             }
         }
     );
@@ -328,10 +335,8 @@ Return<sp<IEvsDisplay_1_0>> EvsEnumerator::openDisplay() {
         closeDisplay(pActiveDisplay);
     }
 
-    // Create a new display interface and return it.  Please note that this
-    // implementation uses whichever display unordered_map::begin() returns.
-    pActiveDisplay = new EvsGlDisplay(sDisplayProxy,
-                                      sDisplayPortList.begin()->second);
+    // Create a new display interface and return it.
+    pActiveDisplay = new EvsGlDisplay(sDisplayProxy, sInternalDisplayId);
     sActiveDisplay = pActiveDisplay;
 
     ALOGD("Returning new EvsGlDisplay object %p", pActiveDisplay.get());
@@ -491,10 +496,15 @@ Return<sp<IEvsCamera_1_1>> EvsEnumerator::openCamera_1_1(const hidl_string& came
 Return<void> EvsEnumerator::getDisplayIdList(getDisplayIdList_cb _list_cb) {
     hidl_vec<uint8_t> ids;
 
-    ids.resize(sDisplayPortList.size());
-    unsigned i = 0;
-    for (const auto& [port, id] : sDisplayPortList) {
-        ids[i++] = port;
+    if (sDisplayPortList.size() > 0) {
+        ids.resize(sDisplayPortList.size());
+        unsigned i = 0;
+        ids[i++] = sInternalDisplayId & 0xF;
+        for (const auto& [port, id] : sDisplayPortList) {
+            if (sInternalDisplayId != id) {
+                ids[i++] = port;
+            }
+        }
     }
 
     _list_cb(ids);
