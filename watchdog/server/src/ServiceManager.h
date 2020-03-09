@@ -19,25 +19,25 @@
 
 #include <android-base/result.h>
 #include <utils/Looper.h>
+#include <utils/StrongPointer.h>
+
+#include "IoPerfCollection.h"
+#include "WatchdogProcessService.h"
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-enum ServiceType {
-    PROCESS_ANR_MONITOR,
-    IO_PERFORMANCE_MONITOR,
-};
-
 class ServiceManager {
 public:
-public:
-    static android::base::Result<void> startService(ServiceType type,
-                                                    const android::sp<Looper>& looper);
+    static android::base::Result<void> startServices(const android::sp<Looper>& looper);
+    static void terminateServices();
 
 private:
     static android::base::Result<void> startProcessAnrMonitor(const android::sp<Looper>& looper);
-    static android::base::Result<void> startIoPerfMonitor();
+    static android::base::Result<void> startIoPerfCollection();
+    static android::sp<WatchdogProcessService> sWatchdogProcessService;
+    static android::sp<IoPerfCollection> sIoPerfCollection;
 };
 
 }  // namespace watchdog
