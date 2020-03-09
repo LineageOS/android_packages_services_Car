@@ -17,7 +17,6 @@
 #define LOG_TAG "carwatchdogd"
 
 #include "ServiceManager.h"
-#include "WatchdogProcessService.h"
 
 #include <binder/IServiceManager.h>
 
@@ -26,36 +25,66 @@ namespace automotive {
 namespace watchdog {
 
 using android::defaultServiceManager;
+using android::sp;
 using android::String16;
 using android::automotive::watchdog::WatchdogProcessService;
 using android::base::Error;
 using android::base::Result;
 
-Result<void> ServiceManager::startService(ServiceType type, const sp<Looper>& looper) {
-    switch (type) {
-        case PROCESS_ANR_MONITOR:
-            return startProcessAnrMonitor(looper);
-        case IO_PERFORMANCE_MONITOR:
-            return startIoPerfMonitor();
-        default:
-            return Error() << "Invalid service type";
+sp<WatchdogProcessService> ServiceManager::sWatchdogProcessService = nullptr;
+sp<IoPerfCollection> ServiceManager::sIoPerfCollection = nullptr;
+
+Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
+    if (sWatchdogProcessService != nullptr || sIoPerfCollection != nullptr) {
+        return Error(INVALID_OPERATION) << "Cannot start services more than once";
+    }
+    auto result = startProcessAnrMonitor(looper);
+    if (!result) {
+        return result;
+    }
+    result = startIoPerfCollection();
+    if (!result) {
+        return result;
+    }
+    return {};
+}
+
+void ServiceManager::terminateServices() {
+    if (sWatchdogProcessService != nullptr) {
+        sWatchdogProcessService->terminate();
+        sWatchdogProcessService = nullptr;
+    }
+    if (sIoPerfCollection != nullptr) {
+        sIoPerfCollection->terminate();
+        sIoPerfCollection = nullptr;
     }
 }
 
 Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
-    sp<WatchdogProcessService> service = new WatchdogProcessService(looper);
+    sWatchdogProcessService = new WatchdogProcessService(looper);
     status_t status =
             defaultServiceManager()
                     ->addService(String16("android.automotive.watchdog.ICarWatchdog/default"),
-                                 service);
+                                 sWatchdogProcessService);
     if (status != OK) {
         return Error(status) << "Failed to start carwatchdog process ANR monitor";
     }
     return {};
 }
 
-Result<void> ServiceManager::startIoPerfMonitor() {
-    return Error() << "Not implemented";
+Result<void> ServiceManager::startIoPerfCollection() {
+    /* TODO(b/148486340): Start I/O performance data collection after the WatchdogBinderMediator
+     *  (b/150291965) is implemented to handle the boot complete so the boot-time collection can be
+     *  switched to periodic collection after boot complete.
+    sp<IoPerfCollection> service = new IoPerfCollection();
+    const auto& result = service.start();
+    if (!result) {
+        return Error(result.error().code())
+                << "Failed to start I/O performance collection: " << result.error();
+    }
+    sIoPerfCollection = service;
+    */
+    return {};
 }
 
 }  // namespace watchdog

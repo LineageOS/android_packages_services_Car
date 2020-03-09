@@ -31,14 +31,13 @@ using android::Looper;
 using android::ProcessState;
 using android::sp;
 using android::automotive::watchdog::ServiceManager;
-using android::automotive::watchdog::ServiceType;
 using android::base::Result;
 
 namespace {
 
 void sigHandler(int sig) {
     IPCThreadState::self()->stopProcess();
-    // TODO(ericjeong): Give services a chance to handle SIGTERM.
+    ServiceManager::terminateServices();
     ALOGW("car watchdog server terminated on receiving signal %d.", sig);
     exit(1);
 }
@@ -67,13 +66,11 @@ int main(int /*argc*/, char** /*argv*/) {
     IPCThreadState::self()->disableBackgroundScheduling(true);
 
     // Start the services
-    ServiceType supportedServices[] = {ServiceType::PROCESS_ANR_MONITOR};
-    for (const auto type : supportedServices) {
-        auto result = ServiceManager::startService(type, looper);
-        if (!result.ok()) {
-            ALOGE("%s", result.error().message().c_str());
-            exit(result.error().code());
-        }
+    const auto& result = ServiceManager::startServices(looper);
+    if (!result) {
+        ALOGE("%s", result.error().message().c_str());
+        ServiceManager::terminateServices();
+        exit(result.error().code());
     }
 
     registerSigHandler();
