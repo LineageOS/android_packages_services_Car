@@ -418,6 +418,8 @@ public class CarPowerManagementServiceTest {
     @Test
     public void testSleepEntryAndWakeUpForProcessing() throws Exception {
         initTest();
+        // Speed up the polling for power state transitions
+        mService.setShutdownTimersForTest(10, 40);
         setUserInfo(10, NO_USER_INFO_FLAGS);
         setUserInfo(11, NO_USER_INFO_FLAGS);
         setCurrentUser(10);
