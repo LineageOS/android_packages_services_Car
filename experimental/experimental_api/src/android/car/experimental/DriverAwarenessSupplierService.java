@@ -24,6 +24,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 /**
  * The supplier for providing a stream of the driver's current situational awareness.
@@ -130,7 +131,8 @@ public abstract class DriverAwarenessSupplierService extends Service {
      * The binder between this service and
      * {@link com.android.experimentalcar.DriverDistractionExperimentalFeatureService}.
      */
-    private class SupplierBinder extends IDriverAwarenessSupplier.Stub {
+    @VisibleForTesting
+    public class SupplierBinder extends IDriverAwarenessSupplier.Stub {
 
         @Override
         public void onReady() {

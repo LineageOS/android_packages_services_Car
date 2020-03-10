@@ -40,6 +40,7 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -189,6 +190,7 @@ public final class DriverDistractionExperimentalFeatureService extends
 
     private final Context mContext;
     private final ITimeSource mTimeSource;
+    private final Looper mLooper;
 
     /**
      * Create an instance of {@link DriverDistractionExperimentalFeatureService}.
@@ -201,6 +203,15 @@ public final class DriverDistractionExperimentalFeatureService extends
             Context context,
             ITimeSource timeSource,
             ITimer timer) {
+        this(context, timeSource, timer, Looper.myLooper());
+    }
+
+    @VisibleForTesting
+    DriverDistractionExperimentalFeatureService(
+            Context context,
+            ITimeSource timeSource,
+            ITimer timer,
+            Looper looper) {
         mContext = context;
         mTimeSource = timeSource;
         mExpiredDriverAwarenessTimer = timer;
@@ -211,6 +222,7 @@ public final class DriverDistractionExperimentalFeatureService extends
         mClientDispatchHandlerThread = new HandlerThread(TAG);
         mClientDispatchHandlerThread.start();
         mClientDispatchHandler = new Handler(mClientDispatchHandlerThread.getLooper());
+        mLooper = looper;
     }
 
     @Override
@@ -220,7 +232,7 @@ public final class DriverDistractionExperimentalFeatureService extends
         ComponentName touchComponent = new ComponentName(mContext,
                 TouchDriverAwarenessSupplier.class);
         TouchDriverAwarenessSupplier touchSupplier = new TouchDriverAwarenessSupplier(mContext,
-                new DriverAwarenessSupplierCallback(touchComponent));
+                new DriverAwarenessSupplierCallback(touchComponent), mLooper);
         addDriverAwarenessSupplier(touchComponent, touchSupplier, /* priority= */ 0);
         touchSupplier.onReady();
 
