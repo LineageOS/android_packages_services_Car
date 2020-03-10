@@ -36,4 +36,8 @@ interface ICarMedia {
     void unregisterMediaSourceListener(in ICarMediaSourceListener callback, int mode);
     /** Retrieve a list of media sources, ordered by most recently used */
     List<ComponentName> getLastMediaSources(int mode);
+    /** Returns whether the browse and playback sources can be changed independently. */
+    boolean isIndependentPlaybackConfig();
+    /** Sets whether the browse and playback sources can be changed independently. */
+    void setIndependentPlaybackConfig(boolean independent);
 }
