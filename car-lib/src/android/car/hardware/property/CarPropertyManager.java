@@ -481,6 +481,8 @@ public class CarPropertyManager extends CarManagerBase {
 
     /**
      * Returns value of a bool property
+     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * non-main thread.
      *
      * @param prop Property ID to get
      * @param area Area of the property to get
@@ -494,6 +496,9 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Returns value of a float property
      *
+     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * non-main thread.
+     *
      * @param prop Property ID to get
      * @param area Area of the property to get
      */
@@ -505,6 +510,8 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Returns value of a integer property
      *
+     * <p> This method may take couple seconds to complete, so it needs to be called form an
+     * non-main thread.
      * @param prop Property ID to get
      * @param area Zone of the property to get
      */
@@ -515,6 +522,9 @@ public class CarPropertyManager extends CarManagerBase {
 
     /**
      * Returns value of a integer array property
+     *
+     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * non-main thread.
      *
      * @param prop Property ID to get
      * @param area Zone of the property to get
@@ -536,6 +546,9 @@ public class CarPropertyManager extends CarManagerBase {
 
     /**
      * Return CarPropertyValue
+     *
+     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * non-main thread.
      *
      * @param clazz The class object for the CarPropertyValue
      * @param propId Property ID to get
@@ -573,6 +586,10 @@ public class CarPropertyManager extends CarManagerBase {
 
     /**
      * Query CarPropertyValue with property id and areaId.
+     *
+     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * non-main thread.
+     *
      * @param propId Property Id
      * @param areaId areaId
      * @param <E> Value type of the property
@@ -601,6 +618,9 @@ public class CarPropertyManager extends CarManagerBase {
      * <p>If multiple clients set a property for the same area id simultaneously, which one takes
      * precedence is undefined. Typically, the last set operation (in the order that they are issued
      * to the car's ECU) overrides the previous set operations.
+     *
+     * <p> This method may take couple seconds to complete, so it needs to be called form an
+     * non-main thread.
      *
      * @param clazz The class object for the CarPropertyValue
      * @param propId Property ID
@@ -640,6 +660,9 @@ public class CarPropertyManager extends CarManagerBase {
      * Modifies a property.  If the property modification doesn't occur, an error event shall be
      * generated and propagated back to the application.
      *
+     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * non-main thread.
+     *
      * @param prop Property ID to modify
      * @param areaId AreaId to apply the modification.
      * @param val Value to set
@@ -651,6 +674,9 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Set float value of property
      *
+     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * non-main thread.
+     *
      * @param prop Property ID to modify
      * @param areaId AreaId to apply the modification
      * @param val Value to set
@@ -661,6 +687,9 @@ public class CarPropertyManager extends CarManagerBase {
 
     /**
      * Set int value of property
+     *
+     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * non-main thread.
      *
      * @param prop Property ID to modify
      * @param areaId AreaId to apply the modification
