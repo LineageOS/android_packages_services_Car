@@ -17,6 +17,7 @@
 package com.android.experimentalcar;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.car.Car;
 import android.car.experimental.DriverAwarenessEvent;
 import android.car.experimental.DriverAwarenessSupplierService;
@@ -44,12 +45,17 @@ public class GazeDriverAwarenessSupplier extends DriverAwarenessSupplierService 
 
     /* Maximum allowable staleness before gaze data should be considered unreliable for attention
      * monitoring, in milliseconds. */
-    private static final long MAX_STALENESS_MILLIS = 500;
+    @VisibleForTesting
+    static final long MAX_STALENESS_MILLIS = 500;
 
-    private final Context mContext;
     private final Object mLock = new Object();
     private final ITimeSource mTimeSource;
-    private final GazeAttentionProcessor.Configuration mConfiguration;
+
+    @GuardedBy("mLock")
+    private GazeAttentionProcessor.Configuration mConfiguration;
+
+    @Nullable
+    private Context mContext;
 
     @GuardedBy("mLock")
     private Car mCar;
@@ -58,18 +64,27 @@ public class GazeDriverAwarenessSupplier extends DriverAwarenessSupplierService 
     private OccupantAwarenessManager mOasManager;
 
     @GuardedBy("mLock")
-    private final GazeAttentionProcessor mProcessor;
+    private GazeAttentionProcessor mProcessor;
 
-    public GazeDriverAwarenessSupplier(Context context) {
-        this(context, new SystemTimeSource());
+    /**
+     * Empty constructor allows system service creation.
+     */
+    public GazeDriverAwarenessSupplier() {
+        this(/* context= */ null, new SystemTimeSource());
     }
 
     @VisibleForTesting
     GazeDriverAwarenessSupplier(Context context, ITimeSource timeSource) {
         mContext = context;
         mTimeSource = timeSource;
-        mConfiguration = loadConfiguration();
-        mProcessor = new GazeAttentionProcessor(mConfiguration);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        if (mContext == null) {
+            mContext = this;
+        }
     }
 
     /**
@@ -90,8 +105,9 @@ public class GazeDriverAwarenessSupplier extends DriverAwarenessSupplierService 
     @Override
     public void onReady() {
         synchronized (mLock) {
+            mConfiguration = loadConfiguration();
+            mProcessor = new GazeAttentionProcessor(mConfiguration);
             mCar = Car.createCar(mContext);
-
             if (mCar != null) {
                 if (mOasManager == null && mCar.isFeatureEnabled(Car.OCCUPANT_AWARENESS_SERVICE)) {
                     mOasManager =
