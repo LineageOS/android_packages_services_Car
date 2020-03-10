@@ -20,6 +20,12 @@ import static com.android.experimentalcar.DriverDistractionExperimentalFeatureSe
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.experimental.CarDriverDistractionManager;
@@ -30,24 +36,50 @@ import android.car.experimental.DriverDistractionChangeEvent;
 import android.car.experimental.IDriverAwarenessSupplier;
 import android.car.experimental.IDriverAwarenessSupplierCallback;
 import android.car.hardware.CarPropertyValue;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.res.Resources;
+import android.hardware.input.InputManager;
+import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.util.Pair;
+import android.view.InputChannel;
+import android.view.InputMonitor;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.rule.ServiceTestRule;
+
+import com.android.internal.annotations.GuardedBy;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DriverDistractionExperimentalFeatureServiceTest {
+
+    private static final String TAG = "Car.DriverDistractionServiceTest";
+
+    private static final String SERVICE_BIND_GAZE_SUPPLIER =
+            "com.android.experimentalcar/.GazeDriverAwarenessSupplier";
 
     private static final long INITIAL_TIME = 1000L;
     private static final long PREFERRED_SUPPLIER_STALENESS = 10L;
@@ -98,6 +130,18 @@ public class DriverDistractionExperimentalFeatureServiceTest {
     @Mock
     private Context mContext;
 
+    @Mock
+    private InputManager mInputManager;
+
+    @Mock
+    private InputMonitor mInputMonitor;
+
+    @Mock
+    private IBinder mIBinder;
+
+    @Rule
+    public final ServiceTestRule serviceRule = new ServiceTestRule();
+
     private DriverDistractionExperimentalFeatureService mService;
     private CarDriverDistractionManager mManager;
     private FakeTimeSource mTimeSource;
@@ -117,6 +161,58 @@ public class DriverDistractionExperimentalFeatureServiceTest {
             mService.release();
         }
         resetChangeEventWait();
+    }
+
+    @Test
+    public void testConfig_servicesCanBeBound() throws Exception {
+        Context realContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+
+        // Get the actual suppliers defined in the config
+        String[] preferredDriverAwarenessSuppliers = realContext.getResources().getStringArray(
+                R.array.preferredDriverAwarenessSuppliers);
+
+        for (String supplierStringName : preferredDriverAwarenessSuppliers) {
+            ComponentName supplierComponent = ComponentName.unflattenFromString(supplierStringName);
+            Class<?> supplerClass = Class.forName(supplierComponent.getClassName());
+            Intent serviceIntent =
+                    new Intent(ApplicationProvider.getApplicationContext(), supplerClass);
+
+            // Bind the service and grab a reference to the binder.
+            IBinder binder = serviceRule.bindService(serviceIntent);
+
+            assertThat(binder instanceof DriverAwarenessSupplierService.SupplierBinder).isTrue();
+        }
+    }
+
+    @Test
+    public void testInit_bindsToServicesInXmlConfig() throws Exception {
+        Context spyContext = spy(InstrumentationRegistry.getInstrumentation().getTargetContext());
+
+        // Mock the config to load a gaze supplier
+        Resources spyResources = spy(spyContext.getResources());
+        doReturn(spyResources).when(spyContext).getResources();
+        doReturn(new String[]{SERVICE_BIND_GAZE_SUPPLIER}).when(spyResources).getStringArray(
+                anyInt());
+
+        // Mock the InputManager that will be used by TouchDriverAwarenessSupplier
+        doReturn(mInputManager).when(spyContext).getSystemService(Context.INPUT_SERVICE);
+        when(mInputManager.monitorGestureInput(any(), anyInt())).thenReturn(mInputMonitor);
+        // InputChannel cannot be mocked because it passes to InputEventReceiver.
+        final InputChannel[] inputChannels = InputChannel.openInputChannelPair(TAG);
+        inputChannels[0].dispose();
+        when(mInputMonitor.getInputChannel()).thenReturn(inputChannels[1]);
+
+        // Create a special context that allows binders to succeed and keeps track of them. Doesn't
+        // actually start the intents / services.
+        ServiceLauncherContext serviceLauncherContext = new ServiceLauncherContext(spyContext);
+        mService = new DriverDistractionExperimentalFeatureService(serviceLauncherContext,
+                mTimeSource, mTimer, spyContext.getMainLooper());
+        mService.init();
+
+        serviceLauncherContext.assertBoundService(SERVICE_BIND_GAZE_SUPPLIER);
+
+        serviceLauncherContext.reset();
+        inputChannels[0].dispose();
     }
 
     @Test
@@ -442,5 +538,52 @@ public class DriverDistractionExperimentalFeatureServiceTest {
                         new DriverAwarenessEvent(time, value),
                         supplier,
                         maxStaleness));
+    }
+
+
+    /** Overrides framework behavior to succeed on binding/starting processes. */
+    public class ServiceLauncherContext extends ContextWrapper {
+        private final Object mLock = new Object();
+
+        @GuardedBy("mLock")
+        private List<Intent> mBoundIntents = new ArrayList<>();
+
+        ServiceLauncherContext(Context base) {
+            super(base);
+        }
+
+        @Override
+        public boolean bindServiceAsUser(Intent service, ServiceConnection conn, int flags,
+                Handler handler, UserHandle user) {
+            synchronized (mLock) {
+                mBoundIntents.add(service);
+            }
+            conn.onServiceConnected(service.getComponent(), mIBinder);
+            return true;
+        }
+
+        @Override
+        public boolean bindServiceAsUser(Intent service, ServiceConnection conn,
+                int flags, UserHandle user) {
+            return bindServiceAsUser(service, conn, flags, null, user);
+        }
+
+        @Override
+        public void unbindService(ServiceConnection conn) {
+            // do nothing
+        }
+
+        void assertBoundService(String service) {
+            synchronized (mLock) {
+                assertThat(mBoundIntents.stream().map(Intent::getComponent).collect(
+                        Collectors.toList())).contains(ComponentName.unflattenFromString(service));
+            }
+        }
+
+        void reset() {
+            synchronized (mLock) {
+                mBoundIntents.clear();
+            }
+        }
     }
 }
