@@ -508,7 +508,7 @@ public class CarUxRestrictionsManagerServiceTest {
         // we manually trigger the event. This event is what eventually triggers the dispatch to
         // ICarDrivingStateChangeListener that was defined above.
         Runnable propertyChangeEventRunnable =
-                () -> drivingStateService.handlePropertyEvent(
+                () -> drivingStateService.handlePropertyEventLocked(
                         new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
                                 new CarPropertyValue<>(
                                         VehiclePropertyIds.PERF_VEHICLE_SPEED, 0, 100f)));
@@ -597,7 +597,7 @@ public class CarUxRestrictionsManagerServiceTest {
         // that CarUxRestrictionsManagerService internally made to CarDrivingStateService in
         // CarUxRestrictionsManagerService#init().
         Runnable propertyChangeEventRunnable =
-                () -> drivingStateService.handlePropertyEvent(
+                () -> drivingStateService.handlePropertyEventLocked(
                         new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
                                 new CarPropertyValue<>(
                                         VehiclePropertyIds.PERF_VEHICLE_SPEED, 0, 100f)));
