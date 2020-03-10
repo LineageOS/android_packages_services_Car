@@ -132,6 +132,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final String PROP_MAX_GARAGE_MODE_DURATION_OVERRIDE =
             "android.car.garagemodeduration";
 
+    // This is a temp work-around to reduce user switching delay after wake-up.
+    private final boolean mSwitchGuestUserBeforeSleep;
+
     private class PowerManagerCallbackList extends RemoteCallbackList<ICarPowerStateListener> {
         /**
          * Old version of {@link #onCallbackDied(E, Object)} that
@@ -163,6 +166,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 .getBoolean(R.bool.config_disableUserSwitchDuringResume);
         sShutdownPrepareTimeMs = resources.getInteger(
                 R.integer.maxGarageModeRunningDurationInSecs) * 1000;
+        mSwitchGuestUserBeforeSleep = resources.getBoolean(
+                R.bool.config_switchGuestUserBeforeGoingSleep);
         if (sShutdownPrepareTimeMs < MIN_MAX_GARAGE_MODE_DURATION_MS) {
             Log.w(CarLog.TAG_POWER,
                     "maxGarageModeRunningDurationInSecs smaller than minimum required, resource:"
@@ -243,6 +248,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         writer.print(",mDisableUserSwitchDuringResume:" + mDisableUserSwitchDuringResume);
         writer.println(",mRebootAfterGarageMode:" + mRebootAfterGarageMode);
         writer.print("mNewGuestName: "); writer.println(mNewGuestName);
+        writer.println("mSwitchGuestUserBeforeSleep:" + mSwitchGuestUserBeforeSleep);
     }
 
     @Override
@@ -371,7 +377,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void handleOn() {
         // If current user is a Guest User, we want to inform CarUserNoticeService not to show
         // notice for current user, and show user notice only for the target user.
-        updateCarUserNoticeServiceIfNecessary();
+        if (!mSwitchGuestUserBeforeSleep) {
+            updateCarUserNoticeServiceIfNecessary();
+        }
 
         // Some OEMs have their own user-switching logic, which may not be coordinated with this
         // code. To avoid contention, we don't switch users when we coming alive. The OEM's code
@@ -404,6 +412,17 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         } catch (Exception e) {
             Log.e(CarLog.TAG_POWER, "Could not switch user on resume: " + e);
         }
+    }
+
+    private void switchUserIfCurrentUserIsGuest() {
+        int currentUserId = ActivityManager.getCurrentUser();
+        UserInfo currentUserInfo = mUserManager.getUserInfo(currentUserId);
+        boolean isGuest = currentUserInfo.isGuest();
+        if (!isGuest) {
+            return;
+        }
+        Log.d(CarLog.TAG_POWER, "Switching into new guest user before going to sleep");
+        doSwitchFromGuestToNewGuest(currentUserInfo);
     }
 
     private void switchUserOnResumeIfNecessary(boolean allowSwitching) {
@@ -457,20 +476,27 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // At this point, target user is a guest - we cannot resume into an ephemeral guest for
         // privacy reasons, so we need to create a new guest and switch to it (even if the OEM
         // doesn't allow switching)
+        if (mSwitchGuestUserBeforeSleep) { // already handled
+            return;
+        }
 
+        doSwitchFromGuestToNewGuest(targetUserInfo);
+    }
 
-        boolean marked = mUserManager.markGuestForDeletion(targetUserId);
+    private void doSwitchFromGuestToNewGuest(UserInfo currentGuest) {
+        boolean marked = mUserManager.markGuestForDeletion(currentGuest.id);
         if (!marked) {
-            Log.w(CarLog.TAG_POWER, "Could not mark guest user " + targetUserId + " for deletion");
+            Log.w(CarLog.TAG_POWER,
+                    "Could not mark guest user " + currentGuest.id + " for deletion");
             return;
         }
 
         UserInfo newGuest = mUserManager.createGuest(mContext, mNewGuestName);
 
         if (newGuest != null) {
-            switchToUser(currentUserId, newGuest.id, "Created new guest");
-            Log.d(CarLog.TAG_POWER, "Removing previous guest " + targetUserId);
-            mUserManager.removeUser(targetUserId);
+            switchToUser(currentGuest.id, newGuest.id, "Created new guest");
+            Log.d(CarLog.TAG_POWER, "Removing previous guest " + currentGuest.id);
+            mUserManager.removeUser(currentGuest.id);
         } else {
             Log.wtf(CarLog.TAG_POWER, "Could not create new guest");
             // TODO(b/146380030): decide whether we should switch to SYSTEM
@@ -618,6 +644,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     new ShutdownProcessingTimerTask(pollingCount),
                     0 /*delay*/,
                     SHUTDOWN_POLLING_INTERVAL_MS);
+        }
+        if (mSwitchGuestUserBeforeSleep) {
+            switchUserIfCurrentUserIsGuest();
         }
     }
 
