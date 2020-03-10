@@ -54,7 +54,7 @@ public class CarAudioZonesHelperLegacyTest {
 
     private static final int INVALID_BUS = -1;
     private final Context mContext = ApplicationProvider.getApplicationContext();
-    private final @XmlRes int mCarVolumeGroups = R.xml.car_volume_groups;
+    private final @XmlRes int mCarVolumeGroups = R.xml.test_car_volume_groups;
 
     @Test
     public void constructor_checksForNoDuplicateBusNumbers() {
