@@ -300,6 +300,7 @@ public final class Car {
      * @hide
      */
     @MandatoryFeature
+    @SystemApi
     public static final String CAR_MEDIA_SERVICE = "car_media";
 
     /**
