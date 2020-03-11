@@ -16,6 +16,8 @@
 
 package com.android.experimentalcar;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -24,10 +26,15 @@ import android.car.experimental.DriverAwarenessEvent;
 import android.car.occupantawareness.GazeDetection;
 import android.car.occupantawareness.OccupantAwarenessDetection;
 import android.content.Context;
+import android.content.Intent;
+import android.os.IBinder;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.ServiceTestRule;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -45,6 +52,9 @@ public class GazeDriverAwarenessSupplierTest {
     private float mDecayRate;
     private FakeTimeSource mTimeSource;
 
+    @Rule
+    public final ServiceTestRule serviceRule = new ServiceTestRule();
+
     @Before
     public void setUp() throws Exception {
         mSpyContext = spy(InstrumentationRegistry.getInstrumentation().getTargetContext());
@@ -60,6 +70,17 @@ public class GazeDriverAwarenessSupplierTest {
 
         mTimeSource = new FakeTimeSource(START_TIME_MILLIS);
         mGazeSupplier = spy(new GazeDriverAwarenessSupplier(mSpyContext, mTimeSource));
+    }
+
+    @Test
+    public void testWithBoundService() throws Exception {
+        Intent serviceIntent =
+                new Intent(ApplicationProvider.getApplicationContext(),
+                        GazeDriverAwarenessSupplier.class);
+
+        // Bind the service and grab a reference to the binder.
+        IBinder binder = serviceRule.bindService(serviceIntent);
+        assertThat(binder instanceof GazeDriverAwarenessSupplier.SupplierBinder).isTrue();
     }
 
     @Test
