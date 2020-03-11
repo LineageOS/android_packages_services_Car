@@ -89,6 +89,9 @@ private:
     // List of camera descriptors of enumerated hw cameras
     std::unordered_map<std::string,
                        CameraDesc>    mCameraDevices;
+
+    // Display port the internal display is connected to.
+    uint8_t                           mInternalDisplayPort;
 };
 
 } // namespace implementation

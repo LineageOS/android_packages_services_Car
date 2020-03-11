@@ -22,7 +22,6 @@
 #include <android/hardware/camera/device/3.2/ICameraDevice.h>
 #include <android/frameworks/automotive/display/1.0/IAutomotiveDisplayProxyService.h>
 
-
 #include <unordered_map>
 #include <thread>
 #include <atomic>
@@ -114,6 +113,7 @@ private:
     static sp<IAutomotiveDisplayProxyService> sDisplayProxy;
     static std::unordered_map<uint8_t,
                               uint64_t>       sDisplayPortList;
+    static uint64_t                           sInternalDisplayId;
 };
 
 } // namespace implementation
