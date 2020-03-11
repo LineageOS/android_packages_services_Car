@@ -16,6 +16,7 @@
 
 #include <unistd.h>
 
+#include <android-base/logging.h>
 #include <hidl/HidlTransportSupport.h>
 #include <utils/Errors.h>
 #include <utils/StrongPointer.h>
@@ -39,29 +40,33 @@ using namespace android;
 
 
 static void startService(const char *hardwareServiceName, const char * managerServiceName) {
-    ALOGI("EVS managed service connecting to hardware service at %s", hardwareServiceName);
+    LOG(INFO) << "EVS managed service connecting to hardware service at " << hardwareServiceName;
     android::sp<Enumerator> service = new Enumerator();
     if (!service->init(hardwareServiceName)) {
-        ALOGE("Failed to connect to hardware service - quitting from registrationThread");
+        LOG(ERROR) << "Failed to connect to hardware service - quitting from registrationThread";
         exit(1);
     }
 
     // Register our service -- if somebody is already registered by our name,
     // they will be killed (their thread pool will throw an exception).
-    ALOGI("EVS managed service is starting as %s", managerServiceName);
+    LOG(INFO) << "EVS managed service is starting as " << managerServiceName;
     status_t status = service->registerAsService(managerServiceName);
     if (status != OK) {
-        ALOGE("Could not register service %s (%d) - quitting from registrationThread",
-              managerServiceName, status);
+        LOG(ERROR) << "Could not register service " << managerServiceName
+                   << " status = " << status << " - quitting from registrationThread";
         exit(2);
     }
 
-    ALOGD("Registration complete");
+    LOG(INFO) << "Registration complete";
 }
 
 
 int main(int argc, char** argv) {
-    ALOGI("EVS manager starting\n");
+    LOG(INFO) << "EVS manager starting";
+
+#ifdef EVS_DEBUG
+    SetMinimumLogSeverity(android::base::DEBUG);
+#endif
 
     // Set up default behavior, then check for command line options
     bool printHelp = false;
@@ -72,7 +77,7 @@ int main(int argc, char** argv) {
         } else if (strcmp(argv[i], "--target") == 0) {
             i++;
             if (i >= argc) {
-                ALOGE("--target <service> was not provided with a service name\n");
+                LOG(ERROR) << "--target <service> was not provided with a service name";
             } else {
                 evsHardwareServiceName = argv[i];
             }
@@ -100,10 +105,10 @@ int main(int argc, char** argv) {
 
     // Send this main thread to become a permanent part of the thread pool.
     // This is not expected to return.
-    ALOGD("Main thread entering thread pool");
+    LOG(INFO) << "Main thread entering thread pool";
     joinRpcThreadpool();
 
     // In normal operation, we don't expect the thread pool to exit
-    ALOGE("EVS Hardware Enumerator is shutting down");
+    LOG(ERROR) << "EVS Hardware Enumerator is shutting down";
     return 1;
 }

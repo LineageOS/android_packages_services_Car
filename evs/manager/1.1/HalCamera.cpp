@@ -18,6 +18,7 @@
 #include "VirtualCamera.h"
 #include "Enumerator.h"
 
+#include <android-base/logging.h>
 #include <ui/GraphicBufferAllocator.h>
 #include <ui/GraphicBufferMapper.h>
 
@@ -41,12 +42,12 @@ sp<VirtualCamera> HalCamera::makeVirtualCamera() {
     sourceCameras.emplace_back(this);
     sp<VirtualCamera> client = new VirtualCamera(sourceCameras);
     if (client == nullptr) {
-        ALOGE("Failed to create client camera object");
+        LOG(ERROR) << "Failed to create client camera object";
         return nullptr;
     }
 
     if (!ownVirtualCamera(client)) {
-        ALOGE("Failed to own a client camera object");
+        LOG(ERROR) << "Failed to own a client camera object";
         client = nullptr;
     }
 
@@ -57,7 +58,7 @@ sp<VirtualCamera> HalCamera::makeVirtualCamera() {
 bool HalCamera::ownVirtualCamera(sp<VirtualCamera> virtualCamera) {
 
     if (virtualCamera == nullptr) {
-        ALOGE("Failed to create virtualCamera camera object");
+        LOG(ERROR) << "Failed to create virtualCamera camera object";
         return false;
     }
 
@@ -85,7 +86,7 @@ bool HalCamera::ownVirtualCamera(sp<VirtualCamera> virtualCamera) {
 void HalCamera::disownVirtualCamera(sp<VirtualCamera> virtualCamera) {
     // Ignore calls with null pointers
     if (virtualCamera.get() == nullptr) {
-        ALOGW("Ignoring disownVirtualCamera call with null pointer");
+        LOG(WARNING) << "Ignoring disownVirtualCamera call with null pointer";
         return;
     }
 
@@ -93,12 +94,12 @@ void HalCamera::disownVirtualCamera(sp<VirtualCamera> virtualCamera) {
     unsigned clientCount = mClients.size();
     mClients.remove(virtualCamera);
     if (clientCount != mClients.size() + 1) {
-        ALOGE("Couldn't find camera in our client list to remove it");
+        LOG(ERROR) << "Couldn't find camera in our client list to remove it";
     }
 
     // Recompute the number of buffers required with the target camera removed from the list
     if (!changeFramesInFlight(0)) {
-        ALOGE("Error when trying to reduce the in flight buffer count");
+        LOG(ERROR) << "Error when trying to reduce the in flight buffer count";
     }
 }
 
@@ -137,7 +138,7 @@ bool HalCamera::changeFramesInFlight(int delta) {
             }
         }
         if (newRecords.size() > (unsigned)bufferCount) {
-            ALOGW("We found more frames in use than requested.");
+            LOG(WARNING) << "We found more frames in use than requested.";
         }
 
         mFrames.swap(newRecords);
@@ -240,7 +241,7 @@ Return<void> HalCamera::doneWithFrame(const BufferDesc_1_0& buffer) {
         }
     }
     if (i == mFrames.size()) {
-        ALOGE("We got a frame back with an ID we don't recognize!");
+        LOG(ERROR) << "We got a frame back with an ID we don't recognize!";
     } else {
         // Are there still clients using this buffer?
         mFrames[i].refCount--;
@@ -263,7 +264,7 @@ Return<void> HalCamera::doneWithFrame(const BufferDesc_1_1& buffer) {
         }
     }
     if (i == mFrames.size()) {
-        ALOGE("We got a frame back with an ID we don't recognize!");
+        LOG(ERROR) << "We got a frame back with an ID we don't recognize!";
     } else {
         // Are there still clients using this buffer?
         mFrames[i].refCount--;
@@ -286,7 +287,7 @@ Return<void> HalCamera::deliverFrame(const BufferDesc_1_0& buffer) {
      * IEvsCameraStream v1.1 interfaces and therefore this method must not be
      * used.
      */
-    ALOGI("A delivered frame from EVS v1.0 HW module is rejected.");
+    LOG(INFO) << "A delivered frame from EVS v1.0 HW module is rejected.";
     mHwCamera->doneWithFrame(buffer);
 
     return Void();
@@ -295,7 +296,7 @@ Return<void> HalCamera::deliverFrame(const BufferDesc_1_0& buffer) {
 
 // Methods from ::android::hardware::automotive::evs::V1_1::IEvsCameraStream follow.
 Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1>& buffer) {
-    ALOGV("Received a frame");
+    LOG(VERBOSE) << "Received a frame";
     // Frames are being forwarded to v1.1 clients only who requested new frame.
     const auto timestamp = buffer[0].timestamp;
     // TODO(b/145750636): For now, we are using a approximately half of 1 seconds / 30 frames = 33ms
@@ -313,11 +314,11 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
                 continue;
             } else if (timestamp - req.timestamp < kThreshold) {
                 // Skip current frame because it arrives too soon.
-                ALOGD("Skips a frame from %s", getId().c_str());
+                LOG(DEBUG) << "Skips a frame from " << getId();
                 mNextRequests->push_back(req);
             } else if (vCam != nullptr && vCam->deliverFrame(buffer[0])) {
                 // Forward a frame and move a timeline.
-                ALOGD("%s forwarded the buffer #%d", getId().c_str(), buffer[0].bufferId);
+                LOG(DEBUG) << getId() << " forwarded the buffer #" << buffer[0].bufferId;
                 mTimelines[(uint64_t)vCam.get()]->BumpTimelineEventCounter();
                 ++frameDeliveriesV1;
             }
@@ -341,8 +342,8 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
     if (frameDeliveries < 1) {
         // If none of our clients could accept the frame, then return it
         // right away.
-        ALOGI("Trivially rejecting frame (%d) from %s with no acceptance",
-              buffer[0].bufferId, getId().c_str());
+        LOG(INFO) << "Trivially rejecting frame (" << buffer[0].bufferId
+                  << ") from " << getId() << " with no acceptance";
         mHwCamera->doneWithFrame_1_1(buffer);
     } else {
         // Add an entry for this frame in our tracking list.
@@ -366,11 +367,11 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
 
 
 Return<void> HalCamera::notify(const EvsEventDesc& event) {
-    ALOGD("Received an event id: %u", event.aType);
+    LOG(DEBUG) << "Received an event id: " << static_cast<int32_t>(event.aType);
     if(event.aType == EvsEventType::STREAM_STOPPED) {
         // This event happens only when there is no more active client.
         if (mStreamState != STOPPING) {
-            ALOGW("Stream stopped unexpectedly");
+            LOG(WARNING) << "Stream stopped unexpectedly";
         }
 
         mStreamState = STOPPED;
@@ -381,7 +382,7 @@ Return<void> HalCamera::notify(const EvsEventDesc& event) {
         sp<VirtualCamera> vCam = client.promote();
         if (vCam != nullptr) {
             if (!vCam->notify(event)) {
-                ALOGI("Failed to forward an event");
+                LOG(INFO) << "Failed to forward an event";
             }
         }
     }
@@ -392,11 +393,12 @@ Return<void> HalCamera::notify(const EvsEventDesc& event) {
 
 Return<EvsResult> HalCamera::setMaster(sp<VirtualCamera> virtualCamera) {
     if (mMaster == nullptr) {
-        ALOGD("%s: %p becomes a master", __FUNCTION__, virtualCamera.get());
+        LOG(DEBUG) << __FUNCTION__
+                   << ": " << virtualCamera.get() << " becomes a master.";
         mMaster = virtualCamera;
         return EvsResult::OK;
     } else {
-        ALOGD("This camera already has a master client.");
+        LOG(INFO) << "This camera already has a master client.";
         return EvsResult::OWNERSHIP_LOST;
     }
 }
@@ -405,18 +407,19 @@ Return<EvsResult> HalCamera::setMaster(sp<VirtualCamera> virtualCamera) {
 Return<EvsResult> HalCamera::forceMaster(sp<VirtualCamera> virtualCamera) {
     sp<VirtualCamera> prevMaster = mMaster.promote();
     if (prevMaster == virtualCamera) {
-        ALOGD("Client %p is already a master client", virtualCamera.get());
+        LOG(DEBUG) << "Client " << virtualCamera.get()
+                   << " is already a master client";
     } else {
         mMaster = virtualCamera;
         if (prevMaster != nullptr) {
-            ALOGD("High priority client %p steals a master role from %p",
-                virtualCamera.get(), prevMaster.get());
+            LOG(INFO) << "High priority client " << virtualCamera.get()
+                      << " steals a master role from " << prevMaster.get();
 
             /* Notify a previous master client the loss of a master role */
             EvsEventDesc event;
             event.aType = EvsEventType::MASTER_RELEASED;
             if (!prevMaster->notify(event)) {
-                ALOGE("Fail to deliver a master role lost notification");
+                LOG(ERROR) << "Fail to deliver a master role lost notification";
             }
         }
     }
@@ -429,7 +432,7 @@ Return<EvsResult> HalCamera::unsetMaster(sp<VirtualCamera> virtualCamera) {
     if (mMaster.promote() != virtualCamera) {
         return EvsResult::INVALID_ARG;
     } else {
-        ALOGD("Unset a master camera client");
+        LOG(INFO) << "Unset a master camera client";
         mMaster = nullptr;
 
         /* Notify other clients that a master role becomes available. */
@@ -437,7 +440,7 @@ Return<EvsResult> HalCamera::unsetMaster(sp<VirtualCamera> virtualCamera) {
         event.aType = EvsEventType::MASTER_RELEASED;
         auto cbResult = this->notify(event);
         if (!cbResult.isOk()) {
-            ALOGE("Fail to deliver a parameter change notification");
+            LOG(ERROR) << "Fail to deliver a parameter change notification";
         }
 
         return EvsResult::OK;
@@ -463,11 +466,11 @@ Return<EvsResult> HalCamera::setParameter(sp<VirtualCamera> virtualCamera,
             event.payload[1] = static_cast<uint32_t>(value);
             auto cbResult = this->notify(event);
             if (!cbResult.isOk()) {
-                ALOGE("Fail to deliver a parameter change notification");
+                LOG(ERROR) << "Fail to deliver a parameter change notification";
             }
         }
     } else {
-        ALOGD("A parameter change request from a non-master client is declined.");
+        LOG(WARNING) << "A parameter change request from a non-master client is declined.";
 
         /* Read a current value of a requested camera parameter */
         getParameter(id, value);

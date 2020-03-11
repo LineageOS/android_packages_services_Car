@@ -112,7 +112,7 @@ static GLuint loadShader(GLenum type, const char *shaderSrc) {
     GLint compiled = 0;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
     if (!compiled) {
-        ALOGE("Error compiling shader\n");
+        LOG(ERROR) << "Error compiling shader";
 
         GLint size = 0;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &size);
@@ -121,7 +121,7 @@ static GLuint loadShader(GLenum type, const char *shaderSrc) {
             // Get and report the error message
             char *infoLog = (char*)malloc(size);
             glGetShaderInfoLog(shader, size, nullptr, infoLog);
-            ALOGE("  msg:\n%s\n", infoLog);
+            LOG(ERROR) << "  msg:" << std::endl << infoLog;
             free(infoLog);
         }
 
@@ -137,20 +137,20 @@ static GLuint loadShader(GLenum type, const char *shaderSrc) {
 static GLuint buildShaderProgram(const char* vtxSrc, const char* pxlSrc) {
     GLuint program = glCreateProgram();
     if (program == 0) {
-        ALOGE("Failed to allocate program object\n");
+        LOG(ERROR) << "Failed to allocate program object";
         return 0;
     }
 
     // Compile the shaders and bind them to this program
     GLuint vertexShader = loadShader(GL_VERTEX_SHADER, vtxSrc);
     if (vertexShader == 0) {
-        ALOGE("Failed to load vertex shader\n");
+        LOG(ERROR) << "Failed to load vertex shader";
         glDeleteProgram(program);
         return 0;
     }
     GLuint pixelShader = loadShader(GL_FRAGMENT_SHADER, pxlSrc);
     if (pixelShader == 0) {
-        ALOGE("Failed to load pixel shader\n");
+        LOG(ERROR) << "Failed to load pixel shader";
         glDeleteProgram(program);
         glDeleteShader(vertexShader);
         return 0;
@@ -164,7 +164,7 @@ static GLuint buildShaderProgram(const char* vtxSrc, const char* pxlSrc) {
     glGetProgramiv(program, GL_LINK_STATUS, &linked);
     if (!linked)
     {
-        ALOGE("Error linking program.\n");
+        LOG(ERROR) << "Error linking program";
         GLint size = 0;
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &size);
         if (size > 0)
@@ -172,7 +172,7 @@ static GLuint buildShaderProgram(const char* vtxSrc, const char* pxlSrc) {
             // Get and report the error message
             char *infoLog = (char*)malloc(size);
             glGetProgramInfoLog(program, size, nullptr, infoLog);
-            ALOGE("  msg:  %s\n", infoLog);
+            LOG(ERROR) << "  msg:  " << infoLog;
             free(infoLog);
         }
 
@@ -189,10 +189,10 @@ static GLuint buildShaderProgram(const char* vtxSrc, const char* pxlSrc) {
 // Main entry point
 bool GlWrapper::initialize(sp<IAutomotiveDisplayProxyService> pWindowProxy,
                            uint64_t displayId) {
-    ALOGD("%s", __FUNCTION__);
+    LOG(DEBUG) << __FUNCTION__;
 
     if (pWindowProxy == nullptr) {
-        ALOGE("Could not get IAutomotiveDisplayProxyService.");
+        LOG(ERROR) << "Could not get IAutomotiveDisplayProxyService.";
         return false;
     }
 
@@ -209,24 +209,24 @@ bool GlWrapper::initialize(sp<IAutomotiveDisplayProxyService> pWindowProxy,
             std::swap(mWidth, mHeight);
         }
 
-        ALOGD("Display resolution is %d x %d", mWidth, mHeight);
+        LOG(DEBUG) << "Display resolution is " << mWidth << " x " << mHeight;
     });
 
     mGfxBufferProducer = pWindowProxy->getIGraphicBufferProducer(displayId);
     if (mGfxBufferProducer == nullptr) {
-        ALOGE("Failed to get IGraphicBufferProducer from IAutomotiveDisplayProxyService.");
+        LOG(ERROR) << "Failed to get IGraphicBufferProducer from IAutomotiveDisplayProxyService.";
         return false;
     }
 
     mSurfaceHolder = getSurfaceFromHGBP(mGfxBufferProducer);
     if (mSurfaceHolder == nullptr) {
-        ALOGE("Failed to get a Surface from HGBP.");
+        LOG(ERROR) << "Failed to get a Surface from HGBP.";
         return false;
     }
 
     mWindow = getNativeWindow(mSurfaceHolder.get());
     if (mWindow == nullptr) {
-        ALOGE("Failed to get a native window from Surface.");
+        LOG(ERROR) << "Failed to get a native window from Surface.";
         return false;
     }
 
@@ -234,14 +234,14 @@ bool GlWrapper::initialize(sp<IAutomotiveDisplayProxyService> pWindowProxy,
     // Set up our OpenGL ES context associated with the default display
     mDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (mDisplay == EGL_NO_DISPLAY) {
-        ALOGE("Failed to get egl display");
+        LOG(ERROR) << "Failed to get egl display";
         return false;
     }
 
     EGLint major = 3;
     EGLint minor = 0;
     if (!eglInitialize(mDisplay, &major, &minor)) {
-        ALOGE("Failed to initialize EGL: %s", getEGLError());
+        LOG(ERROR) << "Failed to initialize EGL: " << getEGLError();
         return false;
     }
 
@@ -260,14 +260,14 @@ bool GlWrapper::initialize(sp<IAutomotiveDisplayProxyService> pWindowProxy,
     EGLint numConfigs = -1;
     eglChooseConfig(mDisplay, config_attribs, &egl_config, 1, &numConfigs);
     if (numConfigs != 1) {
-        ALOGE("Didn't find a suitable format for our display window");
+        LOG(ERROR) << "Didn't find a suitable format for our display window";
         return false;
     }
 
     // Create the EGL render target surface
     mSurface = eglCreateWindowSurface(mDisplay, egl_config, mWindow, nullptr);
     if (mSurface == EGL_NO_SURFACE) {
-        ALOGE("eglCreateWindowSurface failed.");
+        LOG(ERROR) << "eglCreateWindowSurface failed.";
         return false;
     }
 
@@ -277,14 +277,14 @@ bool GlWrapper::initialize(sp<IAutomotiveDisplayProxyService> pWindowProxy,
     const EGLint context_attribs[] = {EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE};
     mContext = eglCreateContext(mDisplay, egl_config, EGL_NO_CONTEXT, context_attribs);
     if (mContext == EGL_NO_CONTEXT) {
-        ALOGE("Failed to create OpenGL ES Context: %s", getEGLError());
+        LOG(ERROR) << "Failed to create OpenGL ES Context: " << getEGLError();
         return false;
     }
 
 
     // Activate our render target for drawing
     if (!eglMakeCurrent(mDisplay, mSurface, mSurface, mContext)) {
-        ALOGE("Failed to make the OpenGL ES Context current: %s", getEGLError());
+        LOG(ERROR) << "Failed to make the OpenGL ES Context current: " << getEGLError();
         return false;
     }
 
@@ -292,14 +292,14 @@ bool GlWrapper::initialize(sp<IAutomotiveDisplayProxyService> pWindowProxy,
     // Create the shader program for our simple pipeline
     mShaderProgram = buildShaderProgram(vertexShaderSource, pixelShaderSource);
     if (!mShaderProgram) {
-        ALOGE("Failed to build shader program: %s", getEGLError());
+        LOG(ERROR) << "Failed to build shader program: " << getEGLError();
         return false;
     }
 
     // Create a GL texture that will eventually wrap our externally created texture surface(s)
     glGenTextures(1, &mTextureMap);
     if (mTextureMap <= 0) {
-        ALOGE("Didn't get a texture handle allocated: %s", getEGLError());
+        LOG(ERROR) << "Didn't get a texture handle allocated: " << getEGLError();
         return false;
     }
 
@@ -339,7 +339,7 @@ void GlWrapper::showWindow(sp<IAutomotiveDisplayProxyService>& pWindowProxy, uin
     if (pWindowProxy != nullptr) {
         pWindowProxy->showWindow(id);
     } else {
-        ALOGE("IAutomotiveDisplayProxyService is not available.");
+        LOG(ERROR) << "IAutomotiveDisplayProxyService is not available.";
     }
 }
 
@@ -348,7 +348,7 @@ void GlWrapper::hideWindow(sp<IAutomotiveDisplayProxyService>& pWindowProxy, uin
     if (pWindowProxy != nullptr) {
         pWindowProxy->hideWindow(id);
     } else {
-        ALOGE("IAutomotiveDisplayProxyService is not available.");
+        LOG(ERROR) << "IAutomotiveDisplayProxyService is not available.";
     }
 }
 
@@ -389,7 +389,7 @@ bool GlWrapper::updateImageTexture(const BufferDesc_1_1& aFrame) {
                 false   /* keep ownership */
         );
         if (pGfxBuffer.get() == nullptr) {
-            ALOGE("Failed to allocate GraphicBuffer to wrap our native handle");
+            LOG(ERROR) << "Failed to allocate GraphicBuffer to wrap our native handle";
             return false;
         }
 
@@ -402,7 +402,7 @@ bool GlWrapper::updateImageTexture(const BufferDesc_1_1& aFrame) {
                                       cbuf,
                                       eglImageAttributes);
         if (mKHRimage == EGL_NO_IMAGE_KHR) {
-            ALOGE("error creating EGLImage: %s", getEGLError());
+            LOG(ERROR) << "Error creating EGLImage: " << getEGLError();
             return false;
         }
 

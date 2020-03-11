@@ -17,12 +17,14 @@
 #include <stdlib.h>
 #include <error.h>
 #include <errno.h>
+#include <iomanip>
 #include <memory.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#include <log/log.h>
+
+#include <android-base/logging.h>
 
 #include "assert.h"
 
@@ -38,7 +40,7 @@ bool VideoCapture::open(const char* deviceName, const int32_t width, const int32
 //    int mDeviceFd = open(deviceName, O_RDWR | O_NONBLOCK, 0);
     mDeviceFd = ::open(deviceName, O_RDWR, 0);
     if (mDeviceFd < 0) {
-        ALOGE("failed to open device %s (%d = %s)", deviceName, errno, strerror(errno));
+        PLOG(ERROR) << "failed to open device " << deviceName;
         return false;
     }
 
@@ -46,35 +48,32 @@ bool VideoCapture::open(const char* deviceName, const int32_t width, const int32
     {
         int result = ioctl(mDeviceFd, VIDIOC_QUERYCAP, &caps);
         if (result  < 0) {
-            ALOGE("failed to get device caps for %s (%d = %s)", deviceName, errno, strerror(errno));
+            PLOG(ERROR) << "failed to get device caps for " << deviceName;
             return false;
         }
     }
 
     // Report device properties
-    ALOGI("Open Device: %s (fd=%d)", deviceName, mDeviceFd);
-    ALOGI("  Driver: %s", caps.driver);
-    ALOGI("  Card: %s", caps.card);
-    ALOGI("  Version: %u.%u.%u",
-            (caps.version >> 16) & 0xFF,
-            (caps.version >> 8)  & 0xFF,
-            (caps.version)       & 0xFF);
-    ALOGI("  All Caps: %08X", caps.capabilities);
-    ALOGI("  Dev Caps: %08X", caps.device_caps);
+    LOG(INFO) << "Open Device: " << deviceName << " (fd = " << mDeviceFd << ")";
+    LOG(INFO) << "  Driver: " << caps.driver;
+    LOG(INFO) << "  Card: " << caps.card;
+    LOG(INFO) << "  Version: " << ((caps.version >> 16) & 0xFF)
+                               << "." << ((caps.version >> 8) & 0xFF)
+                               << "." << (caps.version & 0xFF);
+    LOG(INFO) << "  All Caps: " << std::hex << std::setw(8) << caps.capabilities;
+    LOG(INFO) << "  Dev Caps: " << std::hex << caps.device_caps;
 
     // Enumerate the available capture formats (if any)
-    ALOGI("Supported capture formats:");
+    LOG(INFO) << "Supported capture formats:";
     v4l2_fmtdesc formatDescriptions;
     formatDescriptions.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     for (int i=0; true; i++) {
         formatDescriptions.index = i;
         if (ioctl(mDeviceFd, VIDIOC_ENUM_FMT, &formatDescriptions) == 0) {
-            ALOGI("  %2d: %s 0x%08X 0x%X",
-                   i,
-                   formatDescriptions.description,
-                   formatDescriptions.pixelformat,
-                   formatDescriptions.flags
-            );
+            LOG(INFO) << "  " << std::setw(2) << i
+                      << ": " << formatDescriptions.description
+                      << " " << std::hex << std::setw(8) << formatDescriptions.pixelformat
+                      << " " << std::hex << formatDescriptions.flags;
         } else {
             // No more formats available
             break;
@@ -85,7 +84,7 @@ bool VideoCapture::open(const char* deviceName, const int32_t width, const int32
     if (!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) ||
         !(caps.capabilities & V4L2_CAP_STREAMING)) {
         // Can't do streaming capture.
-        ALOGE("Streaming capture not supported by %s.", deviceName);
+        LOG(ERROR) << "Streaming capture not supported by " << deviceName;
         return false;
     }
 
@@ -95,14 +94,15 @@ bool VideoCapture::open(const char* deviceName, const int32_t width, const int32
     format.fmt.pix.pixelformat = V4L2_PIX_FMT_UYVY;
     format.fmt.pix.width = width;
     format.fmt.pix.height = height;
-    ALOGI("Requesting format %c%c%c%c (0x%08X)",
-          ((char*)&format.fmt.pix.pixelformat)[0],
-          ((char*)&format.fmt.pix.pixelformat)[1],
-          ((char*)&format.fmt.pix.pixelformat)[2],
-          ((char*)&format.fmt.pix.pixelformat)[3],
-          format.fmt.pix.pixelformat);
+    LOG(INFO) << "Requesting format: "
+              << ((char*)&format.fmt.pix.pixelformat)[0]
+              << ((char*)&format.fmt.pix.pixelformat)[1]
+              << ((char*)&format.fmt.pix.pixelformat)[2]
+              << ((char*)&format.fmt.pix.pixelformat)[3]
+              << "(" << std::hex << std::setw(8) << format.fmt.pix.pixelformat << ")";
+
     if (ioctl(mDeviceFd, VIDIOC_S_FMT, &format) < 0) {
-        ALOGE("VIDIOC_S_FMT: %s", strerror(errno));
+        PLOG(ERROR) << "VIDIOC_S_FMT failed";
     }
 
     // Report the current output format
@@ -114,14 +114,12 @@ bool VideoCapture::open(const char* deviceName, const int32_t width, const int32
         mHeight = format.fmt.pix.height;
         mStride = format.fmt.pix.bytesperline;
 
-        ALOGI("Current output format:  fmt=0x%X, %dx%d, pitch=%d",
-               format.fmt.pix.pixelformat,
-               format.fmt.pix.width,
-               format.fmt.pix.height,
-               format.fmt.pix.bytesperline
-        );
+        LOG(INFO) << "Current output format:  "
+                  << "fmt=0x" << std::hex << format.fmt.pix.pixelformat
+                  << ", " << std::dec << format.fmt.pix.width << " x " << format.fmt.pix.height
+                  << ", pitch=" << format.fmt.pix.bytesperline;
     } else {
-        ALOGE("VIDIOC_G_FMT: %s", strerror(errno));
+        PLOG(ERROR) << "VIDIOC_G_FMT failed";
         return false;
     }
 
@@ -135,12 +133,12 @@ bool VideoCapture::open(const char* deviceName, const int32_t width, const int32
 
 
 void VideoCapture::close() {
-    ALOGD("VideoCapture::close");
+    LOG(DEBUG) << __FUNCTION__;
     // Stream should be stopped first!
     assert(mRunMode == STOPPED);
 
     if (isOpen()) {
-        ALOGD("closing video device file handle %d", mDeviceFd);
+        LOG(DEBUG) << "closing video device file handle " << mDeviceFd;
         ::close(mDeviceFd);
         mDeviceFd = -1;
     }
@@ -152,7 +150,7 @@ bool VideoCapture::startStream(std::function<void(VideoCapture*, imageBuffer*, v
     int prevRunMode = mRunMode.fetch_or(RUN);
     if (prevRunMode & RUN) {
         // The background thread is already running, so we can't start a new stream
-        ALOGE("Already in RUN state, so we can't start a new streaming thread");
+        LOG(ERROR) << "Already in RUN state, so we can't start a new streaming thread";
         return false;
     }
 
@@ -162,7 +160,7 @@ bool VideoCapture::startStream(std::function<void(VideoCapture*, imageBuffer*, v
     bufrequest.memory = V4L2_MEMORY_MMAP;
     bufrequest.count = 1;
     if (ioctl(mDeviceFd, VIDIOC_REQBUFS, &bufrequest) < 0) {
-        ALOGE("VIDIOC_REQBUFS: %s", strerror(errno));
+        PLOG(ERROR) << "VIDIOC_REQBUFS failed";
         return false;
     }
 
@@ -172,14 +170,14 @@ bool VideoCapture::startStream(std::function<void(VideoCapture*, imageBuffer*, v
     mBufferInfo.memory   = V4L2_MEMORY_MMAP;
     mBufferInfo.index    = 0;
     if (ioctl(mDeviceFd, VIDIOC_QUERYBUF, &mBufferInfo) < 0) {
-        ALOGE("VIDIOC_QUERYBUF: %s", strerror(errno));
+        PLOG(ERROR) << "VIDIOC_QUERYBUF failed";
         return false;
     }
 
-    ALOGI("Buffer description:");
-    ALOGI("  offset: %d", mBufferInfo.m.offset);
-    ALOGI("  length: %d", mBufferInfo.length);
-    ALOGI("  flags : 0x%X", mBufferInfo.flags);
+    LOG(INFO) << "Buffer description:";
+    LOG(INFO) << "  offset: " << mBufferInfo.m.offset;
+    LOG(INFO) << "  length: " << mBufferInfo.length;
+    LOG(INFO) << "  flags : " << std::hex << mBufferInfo.flags;
 
     // Get a pointer to the buffer contents by mapping into our address space
     mPixelBuffer = mmap(
@@ -191,22 +189,22 @@ bool VideoCapture::startStream(std::function<void(VideoCapture*, imageBuffer*, v
             mBufferInfo.m.offset
     );
     if( mPixelBuffer == MAP_FAILED) {
-        ALOGE("mmap: %s", strerror(errno));
+        PLOG(ERROR) << "mmap() failed";
         return false;
     }
     memset(mPixelBuffer, 0, mBufferInfo.length);
-    ALOGI("Buffer mapped at %p", mPixelBuffer);
+    LOG(INFO) << "Buffer mapped at " << mPixelBuffer;
 
     // Queue the first capture buffer
     if (ioctl(mDeviceFd, VIDIOC_QBUF, &mBufferInfo) < 0) {
-        ALOGE("VIDIOC_QBUF: %s", strerror(errno));
+        PLOG(ERROR) << "VIDIOC_QBUF failed";
         return false;
     }
 
     // Start the video stream
     int type = mBufferInfo.type;
     if (ioctl(mDeviceFd, VIDIOC_STREAMON, &type) < 0) {
-        ALOGE("VIDIOC_STREAMON: %s", strerror(errno));
+        PLOG(ERROR) << "VIDIOC_STREAMON failed";
         return false;
     }
 
@@ -216,7 +214,7 @@ bool VideoCapture::startStream(std::function<void(VideoCapture*, imageBuffer*, v
     // Fire up a thread to receive and dispatch the video frames
     mCaptureThread = std::thread([this](){ collectFrames(); });
 
-    ALOGD("Stream started.");
+    LOG(DEBUG) << "Stream started.";
     return true;
 }
 
@@ -228,7 +226,8 @@ void VideoCapture::stopStream() {
         // The background thread wasn't running, so set the flag back to STOPPED
         mRunMode = STOPPED;
     } else if (prevRunMode & STOPPING) {
-        ALOGE("stopStream called while stream is already stopping.  Reentrancy is not supported!");
+        LOG(ERROR) << "stopStream called while stream is already stopping.  "
+                   << "Reentrancy is not supported!";
         return;
     } else {
         // Block until the background thread is stopped
@@ -239,10 +238,10 @@ void VideoCapture::stopStream() {
         // Stop the underlying video stream (automatically empties the buffer queue)
         int type = mBufferInfo.type;
         if (ioctl(mDeviceFd, VIDIOC_STREAMOFF, &type) < 0) {
-            ALOGE("VIDIOC_STREAMOFF: %s", strerror(errno));
+            PLOG(ERROR) << "VIDIOC_STREAMOFF failed";
         }
 
-        ALOGD("Capture thread stopped.");
+        LOG(DEBUG) << "Capture thread stopped.";
     }
 
     // Unmap the buffers we allocated
@@ -271,7 +270,7 @@ bool VideoCapture::returnFrame() {
 
     // Requeue the buffer to capture the next available frame
     if (ioctl(mDeviceFd, VIDIOC_QBUF, &mBufferInfo) < 0) {
-        ALOGE("VIDIOC_QBUF: %s", strerror(errno));
+        PLOG(ERROR) << "VIDIOC_QBUF failed";
         return false;
     }
 
@@ -285,7 +284,7 @@ void VideoCapture::collectFrames() {
     while (mRunMode == RUN) {
         // Wait for a buffer to be ready
         if (ioctl(mDeviceFd, VIDIOC_DQBUF, &mBufferInfo) < 0) {
-            ALOGE("VIDIOC_DQBUF: %s", strerror(errno));
+            PLOG(ERROR) << "VIDIOC_DQBUF failed";
             break;
         }
 
@@ -298,7 +297,7 @@ void VideoCapture::collectFrames() {
     }
 
     // Mark ourselves stopped
-    ALOGD("VideoCapture thread ending");
+    LOG(DEBUG) << "VideoCapture thread ending";
     mRunMode = STOPPED;
 }
 
@@ -306,8 +305,8 @@ void VideoCapture::collectFrames() {
 int VideoCapture::setParameter(v4l2_control& control) {
     int status = ioctl(mDeviceFd, VIDIOC_S_CTRL, &control);
     if (status < 0) {
-        ALOGE("Failed to program a parameter value (id: 0x%X): %s",
-              control.id, strerror(errno));
+        PLOG(ERROR) << "Failed to program a parameter value "
+                    << "id = " << std::hex << control.id;
     }
 
     return status;
@@ -317,8 +316,9 @@ int VideoCapture::setParameter(v4l2_control& control) {
 int VideoCapture::getParameter(v4l2_control& control) {
     int status = ioctl(mDeviceFd, VIDIOC_G_CTRL, &control);
     if (status < 0) {
-        ALOGE("Failed to read a parameter value (fd: 0x%X, id: 0x%X): %s",
-              mDeviceFd, control.id, strerror(errno));
+        PLOG(ERROR) << "Failed to read a parameter value"
+                    << " fd = " << std::hex << mDeviceFd
+                    << " id = " << control.id;
     }
 
     return status;
