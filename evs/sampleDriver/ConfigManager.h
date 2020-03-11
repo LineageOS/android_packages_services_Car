@@ -24,8 +24,8 @@
 #include <tinyxml2.h>
 
 #include <system/camera_metadata.h>
-#include <log/log.h>
 #include <android/hardware/automotive/evs/1.1/types.h>
+#include <android-base/logging.h>
 
 #include "ConfigManagerUtil.h"
 
@@ -65,7 +65,7 @@ public:
         /* Allocate memory for camera_metadata_t */
         bool allocate(size_t entry_cap, size_t data_cap) {
             if (characteristics != nullptr) {
-                ALOGE("Camera metadata is already allocated");
+                LOG(ERROR) << "Camera metadata is already allocated";
                 return false;
             }
 

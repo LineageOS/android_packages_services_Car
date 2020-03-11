@@ -25,4 +25,5 @@ allow hal_evs_driver self:netlink_kobject_uevent_socket create_socket_perms_no_i
 
 # Allow the driver to use automotive display proxy service
 allow hal_evs_driver automotive_display_service_server:binder call;
+allow hal_evs_driver fwk_automotive_display_hwservice:hwservice_manager find;
 

@@ -17,7 +17,7 @@
 #include "RenderBase.h"
 #include "glError.h"
 
-#include <log/log.h>
+#include <android-base/logging.h>
 #include <ui/GraphicBuffer.h>
 
 // Eventually we shouldn't need this dependency, but for now the
@@ -62,17 +62,17 @@ bool RenderBase::prepareGL() {
     // Set up our OpenGL ES context associated with the default display (though we won't be visible)
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (display == EGL_NO_DISPLAY) {
-        ALOGE("Failed to get egl display");
+        LOG(ERROR) << "Failed to get egl display";
         return false;
     }
 
     EGLint major = 0;
     EGLint minor = 0;
     if (!eglInitialize(display, &major, &minor)) {
-        ALOGE("Failed to initialize EGL: %s", getEGLError());
+        LOG(ERROR) << "Failed to initialize EGL: " << getEGLError();
         return false;
     } else {
-        ALOGI("Intiialized EGL at %d.%d", major, minor);
+        LOG(INFO) << "Intiialized EGL at " << major << "." << minor;
     }
 
 
@@ -80,7 +80,7 @@ bool RenderBase::prepareGL() {
     EGLConfig egl_config;
     EGLint num_configs;
     if (!eglChooseConfig(display, config_attribs, &egl_config, 1, &num_configs)) {
-        ALOGE("eglChooseConfig() failed with error: %s", getEGLError());
+        LOG(ERROR) << "eglChooseConfig() failed with error: " << getEGLError();
         return false;
     }
 
@@ -90,10 +90,10 @@ bool RenderBase::prepareGL() {
     EGLint surface_attribs[] = { EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE };
     sDummySurface = eglCreatePbufferSurface(display, egl_config, surface_attribs);
     if (sDummySurface == EGL_NO_SURFACE) {
-        ALOGE("Failed to create OpenGL ES Dummy surface: %s", getEGLError());
+        LOG(ERROR) << "Failed to create OpenGL ES Dummy surface: " << getEGLError();
         return false;
     } else {
-        ALOGI("Dummy surface looks good!  :)");
+        LOG(INFO) << "Dummy surface looks good!  :)";
     }
 
 
@@ -102,23 +102,23 @@ bool RenderBase::prepareGL() {
     //
     EGLContext context = eglCreateContext(display, egl_config, EGL_NO_CONTEXT, context_attribs);
     if (context == EGL_NO_CONTEXT) {
-        ALOGE("Failed to create OpenGL ES Context: %s", getEGLError());
+        LOG(ERROR) << "Failed to create OpenGL ES Context: " << getEGLError();
         return false;
     }
 
 
     // Activate our render target for drawing
     if (!eglMakeCurrent(display, sDummySurface, sDummySurface, context)) {
-        ALOGE("Failed to make the OpenGL ES Context current: %s", getEGLError());
+        LOG(ERROR) << "Failed to make the OpenGL ES Context current: " << getEGLError();
         return false;
     } else {
-        ALOGI("We made our context current!  :)");
+        LOG(INFO) << "We made our context current!  :)";
     }
 
 
     // Report the extensions available on this implementation
     const char* gl_extensions = (const char*) glGetString(GL_EXTENSIONS);
-    ALOGI("GL EXTENSIONS:\n  %s", gl_extensions);
+    LOG(INFO) << "GL EXTENSIONS:\n  " << gl_extensions;
 
 
     // Reserve handles for the color and depth targets we'll be setting up
@@ -143,7 +143,7 @@ bool RenderBase::attachRenderTarget(const BufferDesc& tgtBuffer) {
         reinterpret_cast<const AHardwareBuffer_Desc *>(&tgtBuffer.buffer.description);
     // Hardcoded to RGBx for now
     if (pDesc->format != HAL_PIXEL_FORMAT_RGBA_8888) {
-        ALOGE("Unsupported target buffer format");
+        LOG(ERROR) << "Unsupported target buffer format";
         return false;
     }
 
@@ -157,7 +157,7 @@ bool RenderBase::attachRenderTarget(const BufferDesc& tgtBuffer) {
                                                      GRALLOC_USAGE_HW_RENDER,
                                                      pDesc->stride);
     if (pGfxBuffer.get() == nullptr) {
-        ALOGE("Failed to allocate GraphicBuffer to wrap image handle");
+        LOG(ERROR) << "Failed to allocate GraphicBuffer to wrap image handle";
         return false;
     }
 
@@ -168,7 +168,7 @@ bool RenderBase::attachRenderTarget(const BufferDesc& tgtBuffer) {
                                   EGL_NATIVE_BUFFER_ANDROID, clientBuf,
                                   eglImageAttributes);
     if (sKHRimage == EGL_NO_IMAGE_KHR) {
-        ALOGE("error creating EGLImage for target buffer: %s", getEGLError());
+        LOG(ERROR) << "Error creating EGLImage for target buffer: " << getEGLError();
         return false;
     }
 
@@ -176,20 +176,20 @@ bool RenderBase::attachRenderTarget(const BufferDesc& tgtBuffer) {
     glBindRenderbuffer(GL_RENDERBUFFER, sColorBuffer);
     glEGLImageTargetRenderbufferStorageOES(GL_RENDERBUFFER, static_cast<GLeglImageOES>(sKHRimage));
     if (eglGetError() != EGL_SUCCESS) {
-        ALOGI("glEGLImageTargetRenderbufferStorageOES => %s", getEGLError());
+        LOG(INFO) << "glEGLImageTargetRenderbufferStorageOES => " << getEGLError();
         return false;
     }
 
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, sColorBuffer);
     if (eglGetError() != EGL_SUCCESS) {
-        ALOGE("glFramebufferRenderbuffer => %s", getEGLError());
+        LOG(ERROR) << "glFramebufferRenderbuffer => " << getEGLError();
         return false;
     }
 
     GLenum checkResult = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (checkResult != GL_FRAMEBUFFER_COMPLETE) {
-        ALOGE("Offscreen framebuffer not configured successfully (%d: %s)",
-              checkResult, getGLFramebufferError());
+        LOG(ERROR) << "Offscreen framebuffer not configured successfully ("
+                   << checkResult << ": " << getGLFramebufferError() << ")";
         return false;
     }
 
