@@ -45,7 +45,6 @@ cc_binary {
         "libcutils",
         "libhardware",
         "libhidlbase",
-        "liblog",
         "libutils",
         "libhardware_legacy",
         "libcamera_metadata",
@@ -81,6 +80,14 @@ cc_binary {
     include_dirs: [
         "frameworks/native/include/",
     ],
+
+    product_variables: {
+        debuggable: {
+            cflags: [
+                "-DEVS_DEBUG",
+            ]
+        }
+    }
 }
 
 prebuilt_etc {

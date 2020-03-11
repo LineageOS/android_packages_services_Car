@@ -16,11 +16,11 @@
 #include "TexWrapper.h"
 #include "glError.h"
 
-#include "log/log.h"
-
 #include <fcntl.h>
 #include <malloc.h>
 #include <png.h>
+
+#include <android-base/logging.h>
 
 
 /* Create an new empty GL texture that will be filled later */
@@ -28,7 +28,7 @@ TexWrapper::TexWrapper() {
     GLuint textureId;
     glGenTextures(1, &textureId);
     if (textureId <= 0) {
-        ALOGE("Didn't get a texture handle allocated: %s", getEGLError());
+        LOG(ERROR) << "Didn't get a texture handle allocated: " << getEGLError();
     } else {
         // Store the basic texture properties
         id = textureId;
