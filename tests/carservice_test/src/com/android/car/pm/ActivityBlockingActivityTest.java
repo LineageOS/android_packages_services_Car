@@ -37,6 +37,7 @@ import android.view.Display;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.Suppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -84,6 +85,8 @@ public class ActivityBlockingActivityTest {
         assertBlockingActivityNotFound();
     }
 
+    // Suppress test to avoid blocking team while b/150491747 is evaluated
+    @Suppress
     @Test
     public void testBlockingActivity_nonDoActivity_isBlocked() throws Exception {
         startNonDoActivity(NonDoActivity.EXTRA_DO_NOTHING);
@@ -108,6 +111,8 @@ public class ActivityBlockingActivityTest {
         assertBlockingActivityNotFound();
     }
 
+    // Suppress test to avoid blocking team while b/150491747 is evaluated
+    @Suppress
     @Test
     public void testBlockingActivity_nonDoFinishesOnResume_noBlockingActivity()
             throws Exception {
@@ -116,6 +121,8 @@ public class ActivityBlockingActivityTest {
         assertBlockingActivityNotFound();
     }
 
+    // Suppress test to avoid blocking team while b/150491747 is evaluated
+    @Suppress
     @Test
     public void testBlockingActivity_nonDoLaunchesDoOnResume_noBlockingActivity()
             throws Exception {
