@@ -26,6 +26,7 @@
 
 #include <android/frameworks/automotive/display/1.0/IAutomotiveDisplayProxyService.h>
 #include <android/hardware/automotive/evs/1.1/types.h>
+#include <android-base/logging.h>
 #include <bufferqueueconverter/BufferQueueConverter.h>
 
 

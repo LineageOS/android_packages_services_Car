@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <log/log.h>
+#include <android-base/logging.h>
 #include <cutils/native_handle.h>
 
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
@@ -98,10 +98,11 @@ const BufferDesc_1_1& StreamHandler::getNewFrame() {
     std::unique_lock<std::mutex> lock(mLock);
 
     if (mHeldBuffer >= 0) {
-        ALOGE("Ignored call for new frame while still holding the old one.");
+        LOG(ERROR) << "Ignored call for new frame while still holding the old one.";
     } else {
         if (mReadyBuffer < 0) {
-            ALOGE("Returning invalid buffer because we don't have any.  Call newFrameAvailable first?");
+            LOG(ERROR) << "Returning invalid buffer because we don't have any.  "
+                       << "Call newFrameAvailable first?";
             mReadyBuffer = 0;   // This is a lie!
         }
 
@@ -119,7 +120,7 @@ void StreamHandler::doneWithFrame(const BufferDesc_1_1& bufDesc_1_1) {
 
     // We better be getting back the buffer we original delivered!
     if ((mHeldBuffer < 0) || (bufDesc_1_1.bufferId != mBuffers[mHeldBuffer].bufferId)) {
-        ALOGE("StreamHandler::doneWithFrame got an unexpected bufDesc_1_1!");
+        LOG(ERROR) << "StreamHandler::doneWithFrame got an unexpected bufDesc_1_1!";
     }
 
     // Send the buffer back to the underlying camera
@@ -134,7 +135,7 @@ void StreamHandler::doneWithFrame(const BufferDesc_1_1& bufDesc_1_1) {
 
 
 Return<void> StreamHandler::deliverFrame(const BufferDesc_1_0& bufDesc_1_0) {
-    ALOGI("Ignores a frame delivered from v1.0 EVS service.");
+    LOG(INFO) << "Ignores a frame delivered from v1.0 EVS service.";
     mCamera->doneWithFrame(bufDesc_1_0);
 
     return Void();
@@ -142,14 +143,15 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc_1_0& bufDesc_1_0) {
 
 
 Return<void> StreamHandler::deliverFrame_1_1(const hidl_vec<BufferDesc_1_1>& buffers) {
-    ALOGD("Received frames from the camera");
+    LOG(DEBUG) << "Received frames from the camera";
 
     // Take the lock to protect our frame slots and running state variable
     std::unique_lock <std::mutex> lock(mLock);
     BufferDesc_1_1 bufDesc = buffers[0];
     if (bufDesc.buffer.nativeHandle.getNativeHandle() == nullptr) {
         // Signal that the last frame has been received and the stream is stopped
-        ALOGW("Invalid null frame (id: 0x%X) is ignored", bufDesc.bufferId);
+        LOG(WARNING) << "Invalid null frame (id: " << std::hex << bufDesc.bufferId
+                     << ") is ignored";
     } else {
         // Do we already have a "ready" frame?
         if (mReadyBuffer >= 0) {
@@ -190,12 +192,13 @@ Return<void> StreamHandler::notify(const EvsEventDesc& event) {
                 // Signal that the last frame has been received and the stream is stopped
                 mRunning = false;
             }
-            ALOGI("Received a STREAM_STOPPED event");
+            LOG(INFO) << "Received a STREAM_STOPPED event";
             break;
         }
 
         case EvsEventType::PARAMETER_CHANGED:
-            ALOGI("Camera parameter 0x%X is set to 0x%X", event.payload[0], event.payload[1]);
+            LOG(INFO) << "Camera parameter " << std::hex << event.payload[0]
+                      << " is set to " << event.payload[1];
             break;
 
         // Below events are ignored in reference implementation.
@@ -204,10 +207,11 @@ Return<void> StreamHandler::notify(const EvsEventDesc& event) {
         case EvsEventType::FRAME_DROPPED:
         [[fallthrough]];
         case EvsEventType::TIMEOUT:
-            ALOGI("Event 0x%X is received but ignored", event.aType);
+            LOG(INFO) << "Event " << std::hex << static_cast<unsigned>(event.aType)
+                      << "is received but ignored.";
             break;
         default:
-            ALOGE("Unknown event id 0x%X", event.aType);
+            LOG(ERROR) << "Unknown event id: " << static_cast<unsigned>(event.aType);
             break;
     }
 

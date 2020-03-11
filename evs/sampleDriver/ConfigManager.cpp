@@ -37,11 +37,10 @@ void ConfigManager::printElementNames(const XMLElement *rootElem,
     const XMLElement *curElem = rootElem;
 
     while (curElem != nullptr) {
-        ALOGV("[ELEM] %s%s", prefix.c_str(), curElem->Name());
+        LOG(VERBOSE) << "[ELEM] " << prefix << curElem->Name();
         const XMLAttribute *curAttr = curElem->FirstAttribute();
         while (curAttr) {
-            ALOGV("[ATTR] %s%s: %s",
-                  prefix.c_str(), curAttr->Name(), curAttr->Value());
+            LOG(VERBOSE) << "[ATTR] " << prefix << curAttr->Name() << ": " << curAttr->Value();
             curAttr = curAttr->Next();
         }
 
@@ -55,7 +54,7 @@ void ConfigManager::printElementNames(const XMLElement *rootElem,
 
 void ConfigManager::readCameraInfo(const XMLElement * const aCameraElem) {
     if (aCameraElem == nullptr) {
-        ALOGW("XML file does not have required camera element");
+        LOG(WARNING) << "XML file does not have required camera element";
         return;
     }
 
@@ -70,7 +69,7 @@ void ConfigManager::readCameraInfo(const XMLElement * const aCameraElem) {
 
             /* read camera device information */
             if (!readCameraDeviceInfo(aCamera, curElem)) {
-                ALOGW("Failed to read a camera information of %s", id);
+                LOG(WARNING) << "Failed to read a camera information of " << id;
                 delete aCamera;
                 continue;
             }
@@ -101,7 +100,7 @@ void ConfigManager::readCameraInfo(const XMLElement * const aCameraElem) {
 
             /* read camera device information */
             if (!readCameraDeviceInfo(aCamera, curElem)) {
-                ALOGW("Failed to read a camera information of %s", id);
+                LOG(WARNING) << "Failed to read a camera information of " << id;
                 delete aCamera;
                 continue;
             }
@@ -113,7 +112,7 @@ void ConfigManager::readCameraInfo(const XMLElement * const aCameraElem) {
             mCameraPosition[pos].emplace(id);
         } else {
             /* ignore other device types */
-            ALOGD("Unknown element %s is ignored", curElem->Name());
+            LOG(DEBUG) << "Unknown element " << curElem->Name() << " is ignored";
         }
 
         curElem = curElem->NextSiblingElement();
@@ -147,8 +146,8 @@ ConfigManager::readCameraDeviceInfo(CameraInfo *aCamera,
 
     /* construct camera_metadata_t */
     if (!constructCameraMetadata(aCamera, totalEntries, totalDataSize)) {
-        ALOGW("Either failed to allocate memory or "
-              "allocated memory was not large enough");
+        LOG(WARNING) << "Either failed to allocate memory or "
+                     << "allocated memory was not large enough";
     }
 
     return true;
@@ -329,12 +328,15 @@ ConfigManager::readCameraMetadata(const XMLElement * const aParamElem,
                 /* TODO(b/140416878): add vendor-defined/custom tag support */
 
                 default:
-                    ALOGW("Parameter %s is not supported",
-                          curElem->FindAttribute("name")->Value());
+                    LOG(WARNING) << "Parameter "
+                                 << curElem->FindAttribute("name")->Value()
+                                 << " is not supported";
                     break;
             }
         } else {
-            ALOGW("Unsupported metadata tag %s found", curElem->FindAttribute("name")->Value());
+            LOG(WARNING) << "Unsupported metadata tag "
+                         << curElem->FindAttribute("name")->Value()
+                         << " is found.";
         }
 
         curElem = curElem->NextSiblingElement("parameter");
@@ -349,7 +351,7 @@ ConfigManager::constructCameraMetadata(CameraInfo *aCamera,
                                        const size_t totalEntries,
                                        const size_t totalDataSize) {
     if (aCamera == nullptr || !aCamera->allocate(totalEntries, totalDataSize)) {
-        ALOGE("Failed to allocate memory for camera metadata");
+        LOG(ERROR) << "Failed to allocate memory for camera metadata";
         return false;
     }
 
@@ -367,7 +369,7 @@ ConfigManager::constructCameraMetadata(CameraInfo *aCamera,
                                             numStreamConfigs * kStreamCfgSz);
 
     if (err) {
-        ALOGE("Failed to add stream configurations to metadata, ignored");
+        LOG(ERROR) << "Failed to add stream configurations to metadata, ignored";
         return false;
     }
 
@@ -379,27 +381,35 @@ ConfigManager::constructCameraMetadata(CameraInfo *aCamera,
                                                 entry.first,
                                                 entry.second);
         if (err) {
-            ALOGE("Failed to add an entry with a tag 0x%X", tag);
+            LOG(ERROR) << "Failed to add an entry with a tag, " << std::hex << tag;
 
             /* may exceed preallocated capacity */
-            ALOGE("Camera metadata has %ld / %ld entries and %ld / %ld bytes are filled",
-                  (long)get_camera_metadata_entry_count(aCamera->characteristics),
-                  (long)get_camera_metadata_entry_capacity(aCamera->characteristics),
-                  (long)get_camera_metadata_data_count(aCamera->characteristics),
-                  (long)get_camera_metadata_data_capacity(aCamera->characteristics));
-            ALOGE("\tCurrent metadata entry requires %ld bytes",
-                  (long)calculate_camera_metadata_entry_data_size(tag, entry.second));
+            LOG(ERROR) << "Camera metadata has "
+                       << get_camera_metadata_entry_count(aCamera->characteristics)
+                       << " / "
+                       << get_camera_metadata_entry_capacity(aCamera->characteristics)
+                       << " entries and "
+                       << get_camera_metadata_data_count(aCamera->characteristics)
+                       << " / "
+                       << get_camera_metadata_data_capacity(aCamera->characteristics)
+                       << " bytes are filled.";
+            LOG(ERROR) << "\tCurrent metadata entry requires "
+                       << calculate_camera_metadata_entry_data_size(tag, entry.second)
+                       << " bytes.";
 
             success = false;
         }
     }
 
-    ALOGV("Camera metadata has %ld / %ld entries and %ld / %ld bytes are filled",
-          (long)get_camera_metadata_entry_count(aCamera->characteristics),
-          (long)get_camera_metadata_entry_capacity(aCamera->characteristics),
-          (long)get_camera_metadata_data_count(aCamera->characteristics),
-          (long)get_camera_metadata_data_capacity(aCamera->characteristics));
-
+    LOG(VERBOSE) << "Camera metadata has "
+                 << get_camera_metadata_entry_count(aCamera->characteristics)
+                 << " / "
+                 << get_camera_metadata_entry_capacity(aCamera->characteristics)
+                 << " entries and "
+                 << get_camera_metadata_data_count(aCamera->characteristics)
+                 << " / "
+                 << get_camera_metadata_data_capacity(aCamera->characteristics)
+                 << " bytes are filled.";
     return success;
 }
 
@@ -426,7 +436,7 @@ void ConfigManager::readSystemInfo(const XMLElement * const aSysElem) {
 
 void ConfigManager::readDisplayInfo(const XMLElement * const aDisplayElem) {
     if (aDisplayElem == nullptr) {
-        ALOGW("XML file does not have required camera element");
+        LOG(WARNING) << "XML file does not have required camera element";
         return;
     }
 
@@ -437,7 +447,7 @@ void ConfigManager::readDisplayInfo(const XMLElement * const aDisplayElem) {
 
         unique_ptr<DisplayInfo> dpy(new DisplayInfo());
         if (dpy == nullptr) {
-            ALOGE("Failed to allocate memory for DisplayInfo");
+            LOG(ERROR) << "Failed to allocate memory for DisplayInfo";
             return;
         }
 
@@ -486,15 +496,15 @@ bool ConfigManager::readConfigDataFromXML() noexcept {
     /* load and parse a configuration file */
     xmlDoc.LoadFile(mConfigFilePath);
     if (xmlDoc.ErrorID() != XML_SUCCESS) {
-        ALOGE("Failed to load and/or parse a configuration file, %s", xmlDoc.ErrorStr());
+        LOG(ERROR) << "Failed to load and/or parse a configuration file, " << xmlDoc.ErrorStr();
         return false;
     }
 
     /* retrieve the root element */
     const XMLElement *rootElem = xmlDoc.RootElement();
     if (strcmp(rootElem->Name(), "configuration")) {
-        ALOGE("A configuration file is not in the required format.  "
-              "See /etc/automotive/evs/evs_configuration.dtd");
+        LOG(ERROR) << "A configuration file is not in the required format.  "
+                   << "See /etc/automotive/evs/evs_configuration.dtd";
         return false;
     }
 
@@ -520,8 +530,9 @@ bool ConfigManager::readConfigDataFromXML() noexcept {
     mConfigCond.notify_all();
 
     const int64_t parsingEnd = android::elapsedRealtimeNano();
-    ALOGI("Parsing configuration file takes %lf (ms)",
-          (double)(parsingEnd - parsingStart) / 1000000.0);
+    LOG(INFO) << "Parsing configuration file takes "
+              << std::scientific << (double)(parsingEnd - parsingStart) / 1000000.0
+              << " ms.";
 
     return true;
 }
@@ -536,7 +547,7 @@ bool ConfigManager::readConfigDataFromBinary() {
 
     srcFile.open(mBinaryFilePath, fstream::in | fstream::binary);
     if (!srcFile) {
-        ALOGE("Failed to open a source binary file, %s", mBinaryFilePath);
+        LOG(ERROR) << "Failed to open a source binary file, " << mBinaryFilePath;
         return false;
     }
 
@@ -545,7 +556,7 @@ bool ConfigManager::readConfigDataFromBinary() {
 
     /* read configuration data into the internal buffer */
     srcFile.read(mBuffer, sizeof(mBuffer));
-    ALOGV("%s: %ld bytes are read", __FUNCTION__, (long)srcFile.gcount());
+    LOG(VERBOSE) << __FUNCTION__ << ": " << srcFile.gcount() << " bytes are read.";
     char *p = mBuffer;
     size_t sz = 0;
 
@@ -565,7 +576,7 @@ bool ConfigManager::readConfigDataFromBinary() {
         unique_ptr<ConfigManager::CameraGroupInfo> aCamera;
         if (aCamera == nullptr ||
             !aCamera->allocate(num_entry, num_data))  {
-            ALOGE("Failed to create new CameraInfo object");
+            LOG(ERROR) << "Failed to create new CameraInfo object";
             mCameraInfo.clear();
             return false;
         }
@@ -657,7 +668,8 @@ bool ConfigManager::readConfigDataFromBinary() {
                     p += count * sizeof(camera_metadata_rational_t);
                     break;
                 default:
-                    ALOGW("Type %d is unknown; data may be corrupted", type);
+                    LOG(WARNING) << "Type " << type << " is unknown; "
+                                 << "data may be corrupted.";
                     break;
             }
         }
@@ -683,7 +695,7 @@ bool ConfigManager::readConfigDataFromBinary() {
         unique_ptr<ConfigManager::CameraInfo> aCamera;
         if (aCamera == nullptr ||
             !aCamera->allocate(num_entry, num_data))  {
-            ALOGE("Failed to create new CameraInfo object");
+            LOG(ERROR) << "Failed to create new CameraInfo object";
             mCameraInfo.clear();
             return false;
         }
@@ -771,7 +783,8 @@ bool ConfigManager::readConfigDataFromBinary() {
                     p += count * sizeof(camera_metadata_rational_t);
                     break;
                 default:
-                    ALOGW("Type %d is unknown; data may be corrupted", type);
+                    LOG(WARNING) << "Type " << type << " is unknown; "
+                                 << "data may be corrupted.";
                     break;
             }
         }
@@ -786,8 +799,9 @@ bool ConfigManager::readConfigDataFromBinary() {
     mConfigCond.notify_all();
 
     int64_t readEnd = android::elapsedRealtimeNano();
-    ALOGI("%s takes %lf (ms)", __FUNCTION__,
-          (double)(readEnd - readStart) / 1000000.0);
+    LOG(INFO) << __FUNCTION__ << " takes "
+              << std::scientific << (double)(readEnd - readStart) / 1000000.0
+              << " ms.";
 
     return true;
 }
@@ -800,7 +814,7 @@ bool ConfigManager::writeConfigDataToBinary() {
 
     outFile.open(mBinaryFilePath, fstream::out | fstream::binary);
     if (!outFile) {
-        ALOGE("Failed to open a destination binary file, %s", mBinaryFilePath);
+        LOG(ERROR) << "Failed to open a destination binary file, " << mBinaryFilePath;
         return false;
     }
 
@@ -812,7 +826,7 @@ bool ConfigManager::writeConfigDataToBinary() {
     outFile.write(reinterpret_cast<const char *>(&sz),
                   sizeof(size_t));
     for (auto&& [camId, camInfo] : mCameraGroups) {
-        ALOGI("Storing camera group %s", camId.c_str());
+        LOG(INFO) << "Storing camera group " << camId;
 
         /* write a camera identifier string */
         outFile.write(reinterpret_cast<const char *>(&camId),
@@ -867,7 +881,7 @@ bool ConfigManager::writeConfigDataToBinary() {
             camera_metadata_entry_t entry;
             for (auto idx = 0; idx < num_entry; ++idx) {
                 if (get_camera_metadata_entry(camInfo->characteristics, idx, &entry)) {
-                    ALOGE("Failed to retrieve camera metadata entry %d", idx);
+                    LOG(ERROR) << "Failed to retrieve camera metadata entry " << idx;
                     outFile.close();
                     return false;
                 }
@@ -902,7 +916,7 @@ bool ConfigManager::writeConfigDataToBinary() {
                     case TYPE_RATIONAL:
                         [[fallthrough]];
                     default:
-                        ALOGW("Type %d is not supported", type);
+                        LOG(WARNING) << "Type " << type << " is not supported.";
                         break;
                 }
             }
@@ -914,7 +928,7 @@ bool ConfigManager::writeConfigDataToBinary() {
     outFile.write(reinterpret_cast<const char *>(&sz),
                   sizeof(size_t));
     for (auto&& [camId, camInfo] : mCameraInfo) {
-        ALOGI("Storing camera %s", camId.c_str());
+        LOG(INFO) << "Storing camera " << camId;
 
         /* write a camera identifier string */
         outFile.write(reinterpret_cast<const char *>(&camId),
@@ -965,7 +979,7 @@ bool ConfigManager::writeConfigDataToBinary() {
             camera_metadata_entry_t entry;
             for (auto idx = 0; idx < num_entry; ++idx) {
                 if (get_camera_metadata_entry(camInfo->characteristics, idx, &entry)) {
-                    ALOGE("Failed to retrieve camera metadata entry %d", idx);
+                    LOG(ERROR) << "Failed to retrieve camera metadata entry " << idx;
                     outFile.close();
                     return false;
                 }
@@ -1000,7 +1014,7 @@ bool ConfigManager::writeConfigDataToBinary() {
                     case TYPE_RATIONAL:
                         [[fallthrough]];
                     default:
-                        ALOGW("Type %d is not supported", type);
+                        LOG(WARNING) << "Type " << type << " is not supported.";
                         break;
                 }
             }
@@ -1009,8 +1023,9 @@ bool ConfigManager::writeConfigDataToBinary() {
 
     outFile.close();
     int64_t writeEnd = android::elapsedRealtimeNano();
-    ALOGI("%s takes %lf (ms)", __FUNCTION__,
-          (double)(writeEnd - writeStart) / 1000000.0);
+    LOG(INFO) << __FUNCTION__ << " takes "
+              << std::scientific << (double)(writeEnd - writeStart) / 1000000.0
+              << " ms.";
 
 
     return true;
@@ -1062,7 +1077,8 @@ ConfigManager::CameraInfo::~CameraInfo() {
             }
 
             default:
-                ALOGW("Tag 0x%X is not supported.  Data may be corrupted?", tag);
+                LOG(WARNING) << "Tag " << std::hex << tag << " is not supported.  "
+                             << "Data may be corrupted?";
                 break;
         }
     }
