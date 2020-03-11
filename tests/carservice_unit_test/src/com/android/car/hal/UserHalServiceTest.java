@@ -361,6 +361,12 @@ public final class UserHalServiceTest {
         assertThat(newUser.flags).isEqualTo(newUserFlags);
     }
 
+    @Test
+    public void testGetUserInfo_twoSuccessfulCalls() throws Exception {
+        testGetUserInfo_successDefault();
+        testGetUserInfo_successDefault();
+    }
+
     /**
      * Asserts the given {@link UsersInfo} is properly represented in the {@link VehiclePropValue}.
      *
