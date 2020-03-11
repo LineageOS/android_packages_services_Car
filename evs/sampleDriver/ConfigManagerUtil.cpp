@@ -19,9 +19,9 @@
 #include <string>
 #include <sstream>
 #include <linux/videodev2.h>
-
-#include <log/log.h>
 #include <system/graphics-base-v1.0.h>
+
+#include <android-base/logging.h>
 
 
 bool ConfigManagerUtil::convertToEvsCameraParam(const string &id,
