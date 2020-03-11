@@ -46,6 +46,18 @@ public class CarPropertyManagerPublicTest {
     private HashSet<Integer> mProps = new HashSet<>();
     private static final String TAG = CarPropertyManagerPublicTest.class.getSimpleName();
     private static final Integer DUMMY_AREA_ID = VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
+    // Dummy values for setter test.
+    private static final int DUMMY_PROPERTY_VALUE_INTEGER = 1;
+    private static final Integer[] DUMMY_PROPERTY_VALUE_INTEGER_ARRAY = new Integer[]{1};
+    private static final float DUMMY_PROPERTY_VALUE_FLOAT = 1.0f;
+    private static final Float[] DUMMY_PROPERTY_VALUE_FLOAT_ARRAY = new Float[]{1.0f};
+    private static final Long DUMMY_PROPERTY_VALUE_LONG = 1L;
+    private static final Long[] DUMMY_PROPERTY_VALUE_LONG_ARRAY = new Long[]{1L};
+    private static final boolean DUMMY_PROPERTY_VALUE_BOOLEAN = true;
+    private static final String DUMMY_PROPERTY_VALUE_STRING = "test";
+    private static final byte[] DUMMY_PROPERTY_VALUE_BYTE_ARRAY = "test".getBytes();
+    private static final Object[] DUMMY_PROPERTY_VALUE_OBJECT_ARRAY = new Object[]{1, "test"};
+
     @Before
     public void setUp() throws Exception  {
         initAllPropertyIds();
@@ -233,4 +245,66 @@ public class CarPropertyManagerPublicTest {
                 + " does not exist in the VHAL implementation.");
     }
 
+    @Test
+    public void testCarPropertyManagerSetter() {
+        for (int propertyId : mProps) {
+            try {
+                // Dummy value may not in the valid range. CarService checks permission
+                // and sends request to VHAL. VHAL checks specific property range.
+                switch (propertyId & VehiclePropertyType.MASK) {
+                    case VehiclePropertyType.BOOLEAN:
+                        mPropertyManager.setBooleanProperty(propertyId, DUMMY_AREA_ID,
+                                DUMMY_PROPERTY_VALUE_BOOLEAN);
+                        break;
+                    case VehiclePropertyType.FLOAT:
+                        mPropertyManager.setFloatProperty(propertyId, DUMMY_AREA_ID,
+                                DUMMY_PROPERTY_VALUE_FLOAT);
+                        break;
+                    case VehiclePropertyType.FLOAT_VEC:
+                        mPropertyManager.setProperty(Float[].class, propertyId, DUMMY_AREA_ID,
+                                DUMMY_PROPERTY_VALUE_FLOAT_ARRAY);
+                        break;
+                    case VehiclePropertyType.INT32:
+                        mPropertyManager.setIntProperty(propertyId, DUMMY_AREA_ID,
+                                DUMMY_PROPERTY_VALUE_INTEGER);
+                        break;
+                    case VehiclePropertyType.INT32_VEC:
+                        mPropertyManager.setProperty(Integer[].class, propertyId, DUMMY_AREA_ID,
+                                DUMMY_PROPERTY_VALUE_INTEGER_ARRAY);
+                        break;
+                    case VehiclePropertyType.INT64:
+                        mPropertyManager.setProperty(Long.class, propertyId, DUMMY_AREA_ID,
+                                DUMMY_PROPERTY_VALUE_LONG);
+                        break;
+                    case VehiclePropertyType.INT64_VEC:
+                        mPropertyManager.setProperty(Long[].class, propertyId, DUMMY_AREA_ID,
+                                DUMMY_PROPERTY_VALUE_LONG_ARRAY);
+                        break;
+                    case VehiclePropertyType.BYTES:
+                        mPropertyManager.setProperty(byte[].class, propertyId, DUMMY_AREA_ID,
+                                DUMMY_PROPERTY_VALUE_BYTE_ARRAY);
+                        break;
+                    case VehiclePropertyType.MIXED:
+                        mPropertyManager.setProperty(Object[].class, propertyId, DUMMY_AREA_ID,
+                                DUMMY_PROPERTY_VALUE_OBJECT_ARRAY);
+                        break;
+                    case VehiclePropertyType.STRING:
+                        mPropertyManager.setProperty(String.class, propertyId, DUMMY_AREA_ID,
+                                DUMMY_PROPERTY_VALUE_STRING);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Invalid value type for property: 0x"
+                                + Integer.toHexString(propertyId));
+                }
+            } catch (IllegalArgumentException e) {
+                assertWithMessage("Set property: 0x" + Integer.toHexString(propertyId)
+                        + " cause an unexpected exception: " + e)
+                        .that(e.getMessage()).contains("does not exist in the vehicle");
+            } catch (Exception e) {
+                assertWithMessage("Get property: 0x" + Integer.toHexString(propertyId)
+                        + " cause an unexpected exception: " + e)
+                        .that(e).isInstanceOf(SecurityException.class);
+            }
+        }
+    }
 }
