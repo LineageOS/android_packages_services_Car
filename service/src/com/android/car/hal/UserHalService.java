@@ -39,8 +39,8 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 
+import com.android.car.hal.UserHalService.HalCallback;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -52,8 +52,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Service used to integrate the OEM's custom user management with Android's.
@@ -66,15 +64,6 @@ public final class UserHalService extends HalServiceBase {
 
     // TODO(b/150413515): STOPSHIP - change to false before R is launched
     private static final boolean DBG = true;
-
-    private static final int REQUEST_TYPE_GET_INITIAL_INFO = 1;
-
-    /** @hide */
-    @IntDef(prefix = { "REQUEST_TYPE_" }, value = {
-            REQUEST_TYPE_GET_INITIAL_INFO
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    @interface RequestType{}
 
     private final Object mLock = new Object();
 
@@ -98,14 +87,8 @@ public final class UserHalService extends HalServiceBase {
     /**
      * Map of callbacks by request id.
      */
-    @GuardedBy("mHandler")
-    private SparseArray<Pair<Class<?>, HalCallback<?>>> mPendingCallbacks = new SparseArray<>();
-
-    /**
-     * Map of request ids by {@link RequestType}.
-     */
     @GuardedBy("mLock")
-    private SparseIntArray mPendingRequests = new SparseIntArray();
+    private SparseArray<Pair<Class<?>, HalCallback<?>>> mPendingCallbacks = new SparseArray<>();
 
     public UserHalService(VehicleHal hal) {
         mHal = hal;
@@ -158,7 +141,7 @@ public final class UserHalService extends HalServiceBase {
     public Collection<VehiclePropConfig> takeSupportedProperties(
             Collection<VehiclePropConfig> allProperties) {
         boolean supported = false;
-        // TODO(b/146207078): increase capacity once it supports more
+        // TODO(b/150413515): increase capacity once it supports more
         SparseArray<VehiclePropConfig> properties = new SparseArray<>(1);
         ArrayList<VehiclePropConfig> taken = new ArrayList<>();
         for (VehiclePropConfig config : allProperties) {
@@ -246,7 +229,7 @@ public final class UserHalService extends HalServiceBase {
         if (DBG) Log.d(TAG, "getInitialInfo(" + requestType + ")");
         Preconditions.checkArgumentPositive(timeoutMs, "timeout must be positive");
         Objects.requireNonNull(usersInfo);
-        // TODO(b/146207078): use helper method to convert request to prop value and check usersInfo
+        // TODO(b/150413515): use helper method to convert request to prop value and check usersInfo
         // is valid
         Objects.requireNonNull(callback);
 
@@ -255,9 +238,9 @@ public final class UserHalService extends HalServiceBase {
         int requestId;
         synchronized (mLock) {
             checkSupportedLocked();
-            if (hasPendingRequestLocked(REQUEST_TYPE_GET_INITIAL_INFO, callback)) return;
-            requestId = addPendingRequestLocked(REQUEST_TYPE_GET_INITIAL_INFO);
-            // TODO(b/146207078): use helper method to convert request to prop value
+            if (hasPendingRequestLocked(InitialUserInfoResponse.class, callback)) return;
+            requestId = mNextRequestId++;
+            // TODO(b/150413515): use helper method to convert request to prop value
             propRequest.value.int32Values.add(requestId);
             propRequest.value.int32Values.add(requestType);
             propRequest.value.int32Values.add(usersInfo.currentUser.userId);
@@ -269,10 +252,8 @@ public final class UserHalService extends HalServiceBase {
                 propRequest.value.int32Values.add(userInfo.flags);
             }
             setTimestamp(propRequest);
+            addPendingRequestLocked(requestId, InitialUserInfoResponse.class, callback);
         }
-        mHandler.sendMessage(obtainMessage(
-                UserHalService::handleAddPendingRequest, this, requestId,
-                InitialUserInfoResponse.class, callback));
 
         mHandler.sendMessageDelayed(obtainMessage(
                 UserHalService::handleCheckIfRequestTimedOut, this, requestId).setWhat(requestId),
@@ -286,7 +267,8 @@ public final class UserHalService extends HalServiceBase {
         }
     }
 
-    private void handleAddPendingRequest(int requestId, @NonNull Class<?> responseClass,
+    @GuardedBy("mLock")
+    private void addPendingRequestLocked(int requestId, @NonNull Class<?> responseClass,
             @NonNull HalCallback<?> callback) {
         if (DBG) {
             Log.d(TAG, "adding pending callback (of type " + responseClass.getName()
@@ -296,30 +278,21 @@ public final class UserHalService extends HalServiceBase {
     }
 
     /**
-     * Checks if there is a pending request of type {@code requestType}, calling {@code callback}
+     * Checks if there is a pending request of type {@code requestClass}, calling {@code callback}
      * with {@link HalCallback#STATUS_CONCURRENT_OPERATION} when there is.
      */
-    private boolean hasPendingRequestLocked(@RequestType int requestType,
-            @NonNull HalCallback<?> callback) {
-        int index = mPendingRequests.indexOfKey(requestType);
-        if (index < 0) return false;
-
-        int requestId = mPendingRequests.valueAt(index);
-        Log.w(TAG, "Already have pending request of type " + requestTypeToString(requestType)
-                + ": id=" + requestId);
-
-        callback.onResponse(HalCallback.STATUS_CONCURRENT_OPERATION, null);
-        return true;
-    }
-
-    /**
-     * Adds a new pending request to the queue, returning its request id.
-     */
     @GuardedBy("mLock")
-    private int addPendingRequestLocked(@RequestType int requestType) {
-        int requestId = mNextRequestId++;
-        mPendingRequests.put(requestType, requestId);
-        return requestId;
+    private boolean hasPendingRequestLocked(@NonNull Class<?> requestClass,
+            @NonNull HalCallback<?> callback) {
+        for (int i = 0; i < mPendingCallbacks.size(); i++) {
+            Pair<Class<?>, HalCallback<?>> pair = mPendingCallbacks.valueAt(i);
+            if (pair.first == requestClass) {
+                Log.w(TAG, "Already have pending request of type " + requestClass);
+                callback.onResponse(HalCallback.STATUS_CONCURRENT_OPERATION, null);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -328,11 +301,13 @@ public final class UserHalService extends HalServiceBase {
     private void handleRemovePendingRequest(int requestId) {
         if (DBG) Log.d(TAG, "Removing pending request #" + requestId);
         mHandler.removeMessages(requestId);
-        mPendingCallbacks.remove(requestId);
+        synchronized (mLock) {
+            mPendingCallbacks.remove(requestId);
+        }
     }
 
     private void handleCheckIfRequestTimedOut(int requestId) {
-        Pair<Class<?>, HalCallback<?>> pair = mPendingCallbacks.get(requestId);
+        Pair<Class<?>, HalCallback<?>> pair = getPendingCallback(requestId);
         if (pair == null) return;
 
         Log.w(TAG, "Request #" + requestId + " timed out");
@@ -340,9 +315,15 @@ public final class UserHalService extends HalServiceBase {
         pair.second.onResponse(HalCallback.STATUS_HAL_RESPONSE_TIMEOUT, null);
     }
 
-    @GuardedBy("mHandle")
+    @Nullable
+    private Pair<Class<?>, HalCallback<?>> getPendingCallback(int requestId) {
+        synchronized (mLock) {
+            return mPendingCallbacks.get(requestId);
+        }
+    }
+
     private void handleOnInitialUserInfoResponse(VehiclePropValue value) {
-        // TODO(b/146207078): record (for dumping()) the last N responses.
+        // TODO(b/150413515): record (for dumping()) the last N responses.
         int requestId = value.value.int32Values.get(0);
         HalCallback<InitialUserInfoResponse> callback = handleGetPendingCallback(requestId,
                 InitialUserInfoResponse.class);
@@ -352,7 +333,7 @@ public final class UserHalService extends HalServiceBase {
         }
         handleRemovePendingRequest(requestId);
         InitialUserInfoResponse response = new InitialUserInfoResponse();
-        // TODO(b/146207078): use helper method to convert prop value to proper response
+        // TODO(b/150413515): use helper method to convert prop value to proper response
         response.requestId = requestId;
         response.action = value.value.int32Values.get(1);
         switch (response.action) {
@@ -379,15 +360,14 @@ public final class UserHalService extends HalServiceBase {
         callback.onResponse(HalCallback.STATUS_OK, response);
     }
 
-    @GuardedBy("mHandle")
     private <T> HalCallback<T> handleGetPendingCallback(int requestId, Class<T> clazz) {
-        Pair<Class<?>, HalCallback<?>> pair = mPendingCallbacks.get(requestId);
+        Pair<Class<?>, HalCallback<?>> pair = getPendingCallback(requestId);
         if (pair == null) return null;
 
         if (pair.first != clazz) {
             Slog.e(TAG, "Invalid callback class for request " + requestId + ": expected" + clazz
                     + ", but got is " + pair.first);
-            // TODO(b/146207078): add unit test for this scenario once it supports other properties
+            // TODO(b/150413515): add unit test for this scenario once it supports other properties
             return null;
         }
         @SuppressWarnings("unchecked")
@@ -419,28 +399,12 @@ public final class UserHalService extends HalServiceBase {
                 writer.printf("%s%s\n", indent, mProperties.valueAt(i));
             }
             writer.printf("next request id: %d\n", mNextRequestId);
-            int size = mPendingRequests.size();
-            if (size == 0) {
-                writer.println("no pending requests");
-            } else {
-                writer.printf("%d pending requests\n", size);
-                for (int i = 0; i < size; i++) {
-                    String type = requestTypeToString(mPendingRequests.keyAt(i));
-                    int requestId = mPendingRequests.valueAt(i);
-                    writer.printf("%s#%d: %s=req_id(%d)\n", indent, i, type, requestId);
-                }
-            }
-        }
 
-        CountDownLatch latch = new CountDownLatch(1);
-        mHandler.sendMessage(obtainMessage(UserHalService::handleDump, this, writer, latch));
-        try {
-            if (!latch.await(500, TimeUnit.SECONDS)) {
-                writer.println("\nTIMED OUT");
+            if (mPendingCallbacks.size() == 0) {
+                writer.println("no pending callbacks");
+            } else {
+                writer.printf("pending callbacks: %s\n", mPendingCallbacks);
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            writer.println("\nINTERRUPTED");
         }
     }
 
@@ -450,25 +414,4 @@ public final class UserHalService extends HalServiceBase {
         writer.printf("%s%s=%s\n", indent, name, value);
     }
 
-    /**
-     * Dumps the state that's guarded by {@code mHandler}.
-     */
-    private void handleDump(@NonNull PrintWriter writer, @NonNull CountDownLatch latch) {
-        if (mPendingCallbacks.size() == 0) {
-            writer.println("no pending callbacks");
-        } else {
-            writer.printf("pending callbacks: %s\n", mPendingCallbacks);
-        }
-        latch.countDown();
-    }
-
-    @NonNull
-    private static String requestTypeToString(@RequestType int type) {
-        switch (type) {
-            case REQUEST_TYPE_GET_INITIAL_INFO:
-                return "TYPE_GET_INITIAL_INFO";
-            default:
-                return "UNKNOWN-" + type;
-        }
-    }
 }
