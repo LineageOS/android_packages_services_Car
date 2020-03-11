@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <android-base/logging.h>
 #include <hwbinder/IPCThreadState.h>
 #include <cutils/android_filesystem_config.h>
 
@@ -30,11 +31,23 @@ using CameraDesc_1_0 = ::android::hardware::automotive::evs::V1_0::CameraDesc;
 using CameraDesc_1_1 = ::android::hardware::automotive::evs::V1_1::CameraDesc;
 
 bool Enumerator::init(const char* hardwareServiceName) {
-    ALOGD("init");
+    LOG(DEBUG) << "init";
 
     // Connect with the underlying hardware enumerator
     mHwEnumerator = IEvsEnumerator::getService(hardwareServiceName);
     bool result = (mHwEnumerator.get() != nullptr);
+    if (result) {
+        // Get an internal display identifier.
+        mHwEnumerator->getDisplayIdList(
+            [this](const auto& displayPorts) {
+                if (displayPorts.size() > 0) {
+                    mInternalDisplayPort = displayPorts[0];
+                } else {
+                    LOG(WARNING) << "No display is available to EVS service.";
+                }
+            }
+        );
+    }
 
     return result;
 }
@@ -44,13 +57,15 @@ bool Enumerator::checkPermission() {
     hardware::IPCThreadState *ipc = hardware::IPCThreadState::self();
     const auto userId = ipc->getCallingUid() / AID_USER_OFFSET;
     const auto appId = ipc->getCallingUid() % AID_USER_OFFSET;
-#ifdef EVS_ALLOW_AID_ROOT
+#ifdef EVS_DEBUG
     if (AID_AUTOMOTIVE_EVS != appId && AID_ROOT != appId && AID_SYSTEM != appId) {
 #else
     if (AID_AUTOMOTIVE_EVS != appId && AID_SYSTEM != appId) {
 #endif
-        ALOGE("EVS access denied?: pid = %d, userId = %d, appId = %d",
-              ipc->getCallingPid(), userId, appId);
+        LOG(ERROR) << "EVS access denied? "
+                   << "pid = " << ipc->getCallingPid()
+                   << ", userId = " << userId
+                   << ", appId = " << appId;
         return false;
     }
 
@@ -62,7 +77,7 @@ bool Enumerator::isLogicalCamera(const camera_metadata_t *metadata) {
     bool found = false;
 
     if (metadata == nullptr) {
-        ALOGE("Metadata is null");
+        LOG(ERROR) << "Metadata is null";
         return found;
     }
 
@@ -72,7 +87,7 @@ bool Enumerator::isLogicalCamera(const camera_metadata_t *metadata) {
                                            &entry);
     if (0 != rc) {
         // No capabilities are found in metadata.
-        ALOGD("%s does not find a target entry", __FUNCTION__);
+        LOG(DEBUG) << __FUNCTION__ << " does not find a target entry";
         return found;
     }
 
@@ -84,7 +99,9 @@ bool Enumerator::isLogicalCamera(const camera_metadata_t *metadata) {
         }
     }
 
-    ALOGE_IF(!found, "%s does not find a logical multi camera cap", __FUNCTION__);
+    if (!found) {
+        LOG(DEBUG) << __FUNCTION__ << " does not find a logical multi camera cap";
+    }
     return found;
 }
 
@@ -92,7 +109,7 @@ bool Enumerator::isLogicalCamera(const camera_metadata_t *metadata) {
 std::unordered_set<std::string> Enumerator::getPhysicalCameraIds(const std::string& id) {
     std::unordered_set<std::string> physicalCameras;
     if (mCameraDevices.find(id) == mCameraDevices.end()) {
-        ALOGE("Queried device %s does not exist!", id.c_str());
+        LOG(ERROR) << "Queried device " << id << " does not exist!";
         return physicalCameras;
     }
 
@@ -101,7 +118,7 @@ std::unordered_set<std::string> Enumerator::getPhysicalCameraIds(const std::stri
     if (!isLogicalCamera(metadata)) {
         // EVS assumes that the device w/o a valid metadata is a physical
         // device.
-        ALOGI("%s is not a logical camera device.", id.c_str());
+        LOG(INFO) << id << " is not a logical camera device.";
         physicalCameras.emplace(id);
         return physicalCameras;
     }
@@ -111,7 +128,7 @@ std::unordered_set<std::string> Enumerator::getPhysicalCameraIds(const std::stri
                                            ANDROID_LOGICAL_MULTI_CAMERA_PHYSICAL_IDS,
                                            &entry);
     if (0 != rc) {
-        ALOGE("No physical camera ID is found for a logical camera device %s!", id.c_str());
+        LOG(ERROR) << "No physical camera ID is found for a logical camera device " << id;
         return physicalCameras;
     }
 
@@ -127,7 +144,8 @@ std::unordered_set<std::string> Enumerator::getPhysicalCameraIds(const std::stri
         }
     }
 
-    ALOGE("%s consists of %d physical camera devices.", id.c_str(), (int)physicalCameras.size());
+    LOG(INFO) << id << " consists of "
+               << physicalCameras.size() << " physical camera devices.";
     return physicalCameras;
 }
 
@@ -150,7 +168,7 @@ Return<void> Enumerator::getCameraList(getCameraList_cb list_cb)  {
 
 
 Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
-    ALOGD("openCamera");
+    LOG(DEBUG) << __FUNCTION__;
     if (!checkPermission()) {
         return nullptr;
     }
@@ -165,11 +183,11 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
             IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera(cameraId))
             .withDefault(nullptr);
         if (device == nullptr) {
-            ALOGE("Failed to open hardware camera %s", cameraId.c_str());
+            LOG(ERROR) << "Failed to open hardware camera " << cameraId;
         } else {
             hwCamera = new HalCamera(device, cameraId);
             if (hwCamera == nullptr) {
-                ALOGE("Failed to allocate camera wrapper object");
+                LOG(ERROR) << "Failed to allocate camera wrapper object";
                 mHwEnumerator->closeCamera(device);
             }
         }
@@ -185,7 +203,8 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
     if (clientCamera != nullptr) {
         mActiveCameras.try_emplace(cameraId, hwCamera);
     } else {
-        ALOGE("Requested camera %s not found or not available", cameraId.c_str());
+        LOG(ERROR) << "Requested camera " << cameraId
+                   << " not found or not available";
     }
 
     // Send the virtual camera object back to the client by strong pointer which will keep it alive
@@ -194,10 +213,10 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
 
 
 Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera_1_0>& clientCamera) {
-    ALOGD("closeCamera");
+    LOG(DEBUG) << __FUNCTION__;
 
     if (clientCamera.get() == nullptr) {
-        ALOGE("Ignoring call with null camera pointer.");
+        LOG(ERROR) << "Ignoring call with null camera pointer.";
         return Void();
     }
 
@@ -230,7 +249,7 @@ Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera_1_0>& client
 // Methods from ::android::hardware::automotive::evs::V1_1::IEvsEnumerator follow.
 Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraId,
                                                       const Stream& streamCfg) {
-    ALOGD("openCamera_1_1");
+    LOG(DEBUG) << __FUNCTION__;
     if (!checkPermission()) {
         return nullptr;
     }
@@ -251,13 +270,13 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
                 IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera_1_1(id, streamCfg))
                 .withDefault(nullptr);
             if (device == nullptr) {
-                ALOGE("Failed to open hardware camera %s", cameraId.c_str());
+                LOG(ERROR) << "Failed to open hardware camera " << cameraId.c_str();
                 success = false;
                 break;
             } else {
                 hwCamera = new HalCamera(device, id, streamCfg);
                 if (hwCamera == nullptr) {
-                    ALOGE("Failed to allocate camera wrapper object");
+                    LOG(ERROR) << "Failed to allocate camera wrapper object";
                     mHwEnumerator->closeCamera(device);
                     success = false;
                     break;
@@ -269,7 +288,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
             sourceCameras.push_back(hwCamera);
         } else {
             if (it->second->getStreamConfig().id != streamCfg.id) {
-                ALOGW("Requested camera is already active in different configuration.");
+                LOG(WARNING) << "Requested camera is already active in different configuration.";
             } else {
                 sourceCameras.push_back(it->second);
             }
@@ -277,7 +296,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
     }
 
     if (sourceCameras.size() < 1) {
-        ALOGE("Failed to open any physical camera device");
+        LOG(ERROR) << "Failed to open any physical camera device";
         return nullptr;
     }
 
@@ -286,7 +305,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
     sp<VirtualCamera> clientCamera = new VirtualCamera(sourceCameras);
     if (clientCamera == nullptr) {
         // TODO: Any resource needs to be cleaned up explicitly?
-        ALOGE("Failed to create a client camera object");
+        LOG(ERROR) << "Failed to create a client camera object";
     } else {
         if (physicalCameras.size() > 1) {
             // VirtualCamera, which represents a logical device, caches its
@@ -299,8 +318,8 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
             if (!hwCamera->ownVirtualCamera(clientCamera)) {
                 // TODO: Remove a referece to this camera from a virtual camera
                 // object.
-                ALOGE("%s failed to own a created proxy camera object.",
-                      hwCamera->getId().c_str());
+                LOG(ERROR) << hwCamera->getId()
+                           << " failed to own a created proxy camera object.";
             }
         }
     }
@@ -311,7 +330,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
 
 
 Return<void> Enumerator::getCameraList_1_1(getCameraList_1_1_cb list_cb)  {
-    ALOGD("getCameraList");
+    LOG(DEBUG) << __FUNCTION__;
     if (!checkPermission()) {
         return Void();
     }
@@ -339,7 +358,7 @@ Return<void> Enumerator::getCameraList_1_1(getCameraList_1_1_cb list_cb)  {
 
 
 Return<sp<IEvsDisplay_1_0>> Enumerator::openDisplay() {
-    ALOGD("openDisplay");
+    LOG(DEBUG) << __FUNCTION__;
 
     if (!checkPermission()) {
         return nullptr;
@@ -353,7 +372,7 @@ Return<sp<IEvsDisplay_1_0>> Enumerator::openDisplay() {
     // Request exclusive access to the EVS display
     sp<IEvsDisplay_1_0> pActiveDisplay = mHwEnumerator->openDisplay();
     if (pActiveDisplay == nullptr) {
-        ALOGE("EVS Display unavailable");
+        LOG(ERROR) << "EVS Display unavailable";
 
         return nullptr;
     }
@@ -371,13 +390,13 @@ Return<sp<IEvsDisplay_1_0>> Enumerator::openDisplay() {
 
 
 Return<void> Enumerator::closeDisplay(const ::android::sp<IEvsDisplay_1_0>& display) {
-    ALOGD("closeDisplay");
+    LOG(DEBUG) << __FUNCTION__;
 
     sp<IEvsDisplay_1_0> pActiveDisplay = mActiveDisplay.promote();
 
     // Drop the active display
     if (display.get() != pActiveDisplay.get()) {
-        ALOGW("Ignoring call to closeDisplay with unrecognized display object.");
+        LOG(WARNING) << "Ignoring call to closeDisplay with unrecognized display object.";
     } else {
         // Pass this request through to the hardware layer
         sp<HalDisplay> halDisplay = reinterpret_cast<HalDisplay *>(pActiveDisplay.get());
@@ -390,7 +409,7 @@ Return<void> Enumerator::closeDisplay(const ::android::sp<IEvsDisplay_1_0>& disp
 
 
 Return<EvsDisplayState> Enumerator::getDisplayState()  {
-    ALOGD("getDisplayState");
+    LOG(DEBUG) << __FUNCTION__;
     if (!checkPermission()) {
         return EvsDisplayState::DEAD;
     }
@@ -409,7 +428,7 @@ Return<EvsDisplayState> Enumerator::getDisplayState()  {
 
 
 Return<sp<IEvsDisplay_1_1>> Enumerator::openDisplay_1_1(uint8_t id) {
-    ALOGD("%s", __FUNCTION__);
+    LOG(DEBUG) << __FUNCTION__;
 
     if (!checkPermission()) {
         return nullptr;
@@ -423,7 +442,7 @@ Return<sp<IEvsDisplay_1_1>> Enumerator::openDisplay_1_1(uint8_t id) {
     // Request exclusive access to the EVS display
     sp<IEvsDisplay_1_1> pActiveDisplay = mHwEnumerator->openDisplay_1_1(id);
     if (pActiveDisplay == nullptr) {
-        ALOGE("EVS Display unavailable");
+        LOG(ERROR) << "EVS Display unavailable";
 
         return nullptr;
     }

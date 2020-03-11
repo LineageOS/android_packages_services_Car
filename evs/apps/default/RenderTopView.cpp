@@ -21,10 +21,10 @@
 #include "shader_simpleTex.h"
 #include "shader_projectedTex.h"
 
-#include <log/log.h>
 #include <math/mat4.h>
 #include <math/vec3.h>
 #include <android/hardware/camera/device/3.2/ICameraDevice.h>
+#include <android-base/logging.h>
 
 using ::android::hardware::camera::device::V3_2::Stream;
 
@@ -112,7 +112,7 @@ RenderTopView::RenderTopView(sp<IEvsEnumerator> enumerator,
 bool RenderTopView::activate() {
     // Ensure GL is ready to go...
     if (!prepareGL()) {
-        ALOGE("Error initializing GL");
+        LOG(ERROR) << "Error initializing GL";
         return false;
     }
 
@@ -121,14 +121,14 @@ bool RenderTopView::activate() {
                                                  pixShader_simpleTexture,
                                                  "simpleTexture");
     if (!mPgmAssets.simpleTexture) {
-        ALOGE("Failed to build shader program");
+        LOG(ERROR) << "Failed to build shader program";
         return false;
     }
     mPgmAssets.projectedTexture = buildShaderProgram(vtxShader_projectedTexture,
                                                     pixShader_projectedTexture,
                                                     "projectedTexture");
     if (!mPgmAssets.projectedTexture) {
-        ALOGE("Failed to build shader program");
+        LOG(ERROR) << "Failed to build shader program";
         return false;
     }
 
@@ -137,7 +137,7 @@ bool RenderTopView::activate() {
     mTexAssets.checkerBoard.reset(createTextureFromPng(
                                   "/system/etc/automotive/evs/LabeledChecker.png"));
     if (!mTexAssets.checkerBoard) {
-        ALOGE("Failed to load checkerboard texture");
+        LOG(ERROR) << "Failed to load checkerboard texture";
         return false;
     }
 
@@ -145,7 +145,7 @@ bool RenderTopView::activate() {
     mTexAssets.carTopView.reset(createTextureFromPng(
                                 "/system/etc/automotive/evs/CarFromTop.png"));
     if (!mTexAssets.carTopView) {
-        ALOGE("Failed to load carTopView texture");
+        LOG(ERROR) << "Failed to load carTopView texture";
         return false;
     }
 
@@ -157,8 +157,8 @@ bool RenderTopView::activate() {
                                          nullptr,
                                          sDisplay));
         if (!cam.tex) {
-            ALOGE("Failed to set up video texture for %s (%s)",
-                  cam.info.cameraId.c_str(), cam.info.function.c_str());
+            LOG(ERROR) << "Failed to set up video texture for " << cam.info.cameraId
+                       << " (" << cam.info.function << ")";
 // TODO:  For production use, we may actually want to fail in this case, but not yet...
 //            return false;
         }
@@ -182,7 +182,7 @@ void RenderTopView::deactivate() {
 bool RenderTopView::drawFrame(const BufferDesc& tgtBuffer) {
     // Tell GL to render to the given buffer
     if (!attachRenderTarget(tgtBuffer)) {
-        ALOGE("Failed to attached render target");
+        LOG(ERROR) << "Failed to attached render target";
         return false;
     }
 
