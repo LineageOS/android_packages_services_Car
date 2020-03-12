@@ -27,7 +27,11 @@ import android.bluetooth.BluetoothProfile;
 import android.car.CarProjectionManager;
 import android.car.input.CarInputHandlingService;
 import android.car.input.CarInputHandlingService.InputFilter;
+import android.car.input.CarInputManager;
+import android.car.input.ICarInput;
+import android.car.input.ICarInputCallback;
 import android.car.input.ICarInputListener;
+import android.car.input.RotaryEvent;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -49,6 +53,7 @@ import android.provider.Settings;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
@@ -59,7 +64,9 @@ import com.android.internal.app.AssistUtils;
 import com.android.internal.app.IVoiceInteractionSessionShowCallback;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
@@ -67,7 +74,8 @@ import java.util.function.Supplier;
 /**
  * CarInputService monitors and handles input event through vehicle HAL.
  */
-public class CarInputService implements CarServiceBase, InputHalService.InputListener {
+public class CarInputService extends ICarInput.Stub
+        implements CarServiceBase, InputHalService.InputListener {
 
     /** An interface to receive {@link KeyEvent}s as they occur. */
     public interface KeyEventListener {
@@ -193,6 +201,8 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     @GuardedBy("mLock")
     private final SetMultimap<Integer, Integer> mHandledKeys = new SetMultimap<>();
 
+    private final InputCaptureClientController mCaptureController;
+
     private final Binder mCallback = new Binder() {
         @Override
         protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) {
@@ -293,6 +303,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             @Nullable ComponentName customInputServiceComponent,
             IntSupplier longPressDelaySupplier) {
         mContext = context;
+        mCaptureController = new InputCaptureClientController(context);
         mInputHalService = inputHalService;
         mTelecomManager = telecomManager;
         mAssistUtils = assistUtils;
@@ -409,8 +420,79 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         if (targetDisplay == InputHalService.DISPLAY_INSTRUMENT_CLUSTER) {
             handleInstrumentClusterKey(event);
         } else {
+            if (mCaptureController.onKeyEvent(CarInputManager.TARGET_DISPLAY_TYPE_MAIN, event)) {
+                return;
+            }
             mMainDisplayHandler.onKeyEvent(event);
         }
+    }
+
+    @Override
+    public void onRotaryEvent(RotaryEvent event, int targetDisplay) {
+        if (!mCaptureController.onRotaryEvent(targetDisplay, event)) {
+            List<KeyEvent> keyEvents = rotaryEventToKeyEvents(event);
+            for (KeyEvent keyEvent : keyEvents) {
+                onKeyEvent(keyEvent, targetDisplay);
+            }
+        }
+    }
+
+    private static List<KeyEvent> rotaryEventToKeyEvents(RotaryEvent event) {
+        int numClicks = event.getNumberOfClicks();
+        int numEvents = numClicks * 2; // up / down per each click
+        boolean clockwise = event.isClockwise();
+        int keyCode;
+        switch (event.getInputType()) {
+            case CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION:
+                keyCode = clockwise
+                        ? KeyEvent.KEYCODE_NAVIGATE_NEXT
+                        : KeyEvent.KEYCODE_NAVIGATE_PREVIOUS;
+                break;
+            case CarInputManager.INPUT_TYPE_ROTARY_VOLUME:
+                keyCode = clockwise
+                        ? KeyEvent.KEYCODE_VOLUME_UP
+                        : KeyEvent.KEYCODE_VOLUME_DOWN;
+                break;
+            default:
+                Log.e(CarLog.TAG_INPUT, "Unknown rotary input type: " + event.getInputType());
+                return Collections.EMPTY_LIST;
+        }
+        ArrayList<KeyEvent> keyEvents = new ArrayList<>(numEvents);
+        for (int i = 0; i < numClicks; i++) {
+            long uptime = event.getUptimeMillisForClick(i);
+            KeyEvent downEvent = createKeyEvent(/* down= */ true, uptime, uptime, keyCode);
+            KeyEvent upEvent = createKeyEvent(/* down= */ false, uptime, uptime, keyCode);
+            keyEvents.add(downEvent);
+            keyEvents.add(upEvent);
+        }
+        return keyEvents;
+    }
+
+    private static KeyEvent createKeyEvent(boolean down, long downTime, long eventTime,
+            int keyCode) {
+        return new KeyEvent(
+                downTime,
+                eventTime,
+                /* action= */ down ? KeyEvent.ACTION_DOWN : KeyEvent.ACTION_UP,
+                keyCode,
+                /* repeat= */ 0,
+                /* metaState= */ 0,
+                /* deviceId= */ 0,
+                /* scancode= */ 0,
+                /* flags= */ 0,
+                InputDevice.SOURCE_CLASS_BUTTON);
+    }
+
+    @Override
+    public int requestInputEventCapture(ICarInputCallback callback, int targetDisplayType,
+            int[] inputTypes, int requestFlags) {
+        return mCaptureController.requestInputEventCapture(callback, targetDisplayType, inputTypes,
+                requestFlags);
+    }
+
+    @Override
+    public void releaseInputEventCapture(ICarInputCallback callback, int targetDisplayType) {
+        mCaptureController.releaseInputEventCapture(callback, targetDisplayType);
     }
 
     private boolean isCustomEventHandler(KeyEvent event, int targetDisplay) {
@@ -605,6 +687,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             writer.println("mCarInputListener: " + mCarInputListener);
         }
         writer.println("Long-press delay: " + mLongPressDelaySupplier.getAsInt() + "ms");
+        mCaptureController.dump(writer);
     }
 
     private boolean bindCarInputService() {
