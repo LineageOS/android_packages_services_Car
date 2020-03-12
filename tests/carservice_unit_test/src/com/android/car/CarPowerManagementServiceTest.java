@@ -403,8 +403,25 @@ public class CarPowerManagementServiceTest {
         verifyWtfNeverLogged();
     }
 
+    /**
+     * This test case tests the same scenario as {@link #testUserSwitchingOnResume_differentUser()},
+     * but indirectly triggering {@code switchUserOnResumeIfNecessary()} through HAL events.
+     */
     @Test
-    @FlakyTest
+    public void testSleepEntryAndWakeUpForProcessing() throws Exception {
+        initTest();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setUserInfo(11, NO_USER_INFO_FLAGS);
+        setCurrentUser(10);
+        setInitialUser(11);
+
+        suspendAndResume();
+
+        verifyUserSwitched(11);
+        verifyWtfNeverLogged();
+    }
+
+    @Test
     public void testUserSwitchingOnResume_differentUser() throws Exception {
         initTest();
         setUserInfo(10, NO_USER_INFO_FLAGS);
@@ -678,7 +695,7 @@ public class CarPowerManagementServiceTest {
         // expects WTF
     }
 
-    private void suspendAndResumeForUserSwitchingTests() throws Exception {
+    private void suspendAndResume() throws Exception {
         Log.d(TAG, "suspend()");
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
@@ -716,6 +733,10 @@ public class CarPowerManagementServiceTest {
         // Since we just woke up from shutdown, wake up time will be 0
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
         assertThat(mDisplayInterface.getDisplayState()).isFalse();
+    }
+
+    private void suspendAndResumeForUserSwitchingTests() throws Exception {
+        mService.switchUserOnResumeIfNecessary(!mDisableUserSwitchDuringResume);
     }
 
     private void registerListenerToService() {
