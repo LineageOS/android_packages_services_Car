@@ -19,7 +19,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include <cutils/log.h>
+#include <android-base/logging.h>
 
 namespace android {
 namespace automotive {
@@ -77,15 +77,18 @@ int UniqueFd::Release() {
 void UniqueFd::InternalClose() {
     if (fd_ >= 0) {
         int err = close(fd_);
-        LOG_ALWAYS_FATAL_IF(err < 0, "Error closing UniqueFd -- %s", strerror(errno));
+        if (err < 0) {
+            PLOG(FATAL) << "Error closing UniqueFd";
+        }
     }
     fd_ = -1;
 }
 
 int UniqueFd::InternalDup() const {
     int new_fd = fd_ >= 0 ? dup(fd_) : fd_;
-    LOG_ALWAYS_FATAL_IF(new_fd < 0 && fd_ >= 0, "Error duplicating UniqueFd -- %s",
-                        strerror(errno));
+    if (new_fd < 0 && fd_ >= 0) {
+        PLOG(FATAL) << "Error duplicating UniqueFd";
+    }
     return new_fd;
 }
 

@@ -31,8 +31,8 @@ cc_binary {
     ],
 
     shared_libs: [
+        "libbase",
         "libcutils",
-        "liblog",
         "libutils",
         "libui",
         "libsync",
@@ -67,7 +67,7 @@ cc_binary {
     product_variables: {
         debuggable: {
             cflags: [
-                "-DEVS_ALLOW_AID_ROOT",
+                "-DEVS_DEBUG",
             ]
         }
     }

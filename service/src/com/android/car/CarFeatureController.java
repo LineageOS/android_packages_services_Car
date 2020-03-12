@@ -145,6 +145,11 @@ public final class CarFeatureController implements CarServiceBase {
         mHandlerThread = new HandlerThread(TAG);
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
+        if (!checkMandatoryFeaturesLocked()) { // mandatory feature missing, force default config
+            mEnabledFeatures.clear();
+            mEnabledFeatures.addAll(MANDATORY_FEATURES);
+            shouldLoadDefaultConfig = true;
+        }
         // Separate if to use this as backup for failure in loadFromConfigFileLocked()
         if (shouldLoadDefaultConfig) {
             parseDefaultConfig();
@@ -178,6 +183,17 @@ public final class CarFeatureController implements CarServiceBase {
     /** Check {@link Car#isFeatureEnabled(String)} */
     public boolean isFeatureEnabled(String featureName) {
         return mEnabledFeatures.contains(featureName);
+    }
+
+    private boolean checkMandatoryFeaturesLocked() {
+        // Ensure that mandatory features are always there
+        for (String feature: MANDATORY_FEATURES) {
+            if (!mEnabledFeatures.contains(feature)) {
+                Log.e(TAG, "Mandatory feature missing in mEnabledFeatures:" + feature);
+                return false;
+            }
+        }
+        return true;
     }
 
     @FeaturerRequestEnum
