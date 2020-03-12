@@ -25,6 +25,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.location.LocationManager;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -33,6 +34,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.android.car.CarServiceBase;
+import com.android.car.R;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -134,6 +136,13 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         writer.println("maxRunningUsers:" + mMaxRunningUsers);
         writer.println("BackgroundUsersToRestart:" + backgroundUsersToRestart);
         writer.println("BackgroundUsersRestarted:" + backgroundUsersRestarted);
+        writer.println("Relevant overlayable  properties");
+        Resources res = mContext.getResources();
+        String indent = "  ";
+        writer.printf("%sowner_name=%s\n", indent,
+                res.getString(com.android.internal.R.string.owner_name));
+        writer.printf("%sdefault_guest_name=%s\n", indent,
+                res.getString(R.string.default_guest_name));
     }
 
     private void updateDefaultUserRestriction() {
