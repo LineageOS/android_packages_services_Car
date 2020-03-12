@@ -20,6 +20,8 @@ import static android.hardware.automotive.vehicle.V2_0.RotaryInputType.ROTARY_IN
 import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.HW_KEY_INPUT;
 import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.HW_ROTARY_INPUT;
 
+import android.car.input.CarInputManager;
+import android.car.input.RotaryEvent;
 import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
 import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
@@ -31,6 +33,7 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 
 import com.android.car.CarLog;
+import com.android.car.CarServiceUtils;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -45,6 +48,7 @@ public class InputHalService extends HalServiceBase {
 
     public static final int DISPLAY_MAIN = VehicleDisplay.MAIN;
     public static final int DISPLAY_INSTRUMENT_CLUSTER = VehicleDisplay.INSTRUMENT_CLUSTER;
+
     private final VehicleHal mHal;
 
     /**
@@ -53,7 +57,10 @@ public class InputHalService extends HalServiceBase {
     private final LongSupplier mUptimeSupplier;
 
     public interface InputListener {
+        /** Called for key event */
         void onKeyEvent(KeyEvent event, int targetDisplay);
+        /** Called for rotary event */
+        void onRotaryEvent(RotaryEvent event, int targetDisplay);
     }
 
     /** The current press state of a key. */
@@ -209,10 +216,15 @@ public class InputHalService extends HalServiceBase {
     }
 
     private void dispatchRotaryInput(InputListener listener, VehiclePropValue value) {
+        int timeValuesIndex = 3;  // remaining values are time deltas in nanoseconds
+        if (value.value.int32Values.size() < timeValuesIndex) {
+            Log.e(CarLog.TAG_INPUT, "Wrong int32 array size for RotaryInput from vhal:"
+                    + value.value.int32Values.size());
+            return;
+        }
         int rotaryInputType = value.value.int32Values.get(0);
         int detentCount = value.value.int32Values.get(1);
         int display = value.value.int32Values.get(2);
-        int intValuesIndex = 3;  // remaining values are time deltas in nanoseconds
         long timestamp = value.timestamp;  // for first detent, uptime nanoseconds
         if (DBG) {
             Log.i(CarLog.TAG_INPUT, new StringBuilder()
@@ -221,42 +233,46 @@ public class InputHalService extends HalServiceBase {
                     .append(", display: ").append(display)
                     .toString());
         }
-
-        int keycode;
+        boolean clockwise = detentCount > 0;
+        detentCount = Math.abs(detentCount);
+        if (detentCount == 0) { // at least there should be one event
+            Log.e(CarLog.TAG_INPUT, "Zero detentCount from vhal, ignore the event");
+            return;
+        }
+        if (display != DISPLAY_MAIN && display != DISPLAY_INSTRUMENT_CLUSTER) {
+            Log.e(CarLog.TAG_INPUT, "Wrong display type for RotaryInput from vhal:"
+                    + display);
+            return;
+        }
+        if (value.value.int32Values.size() != (timeValuesIndex + detentCount - 1)) {
+            Log.e(CarLog.TAG_INPUT, "Wrong int32 array size for RotaryInput from vhal:"
+                    + value.value.int32Values.size());
+            return;
+        }
+        int carInputManagerType;
         switch (rotaryInputType) {
             case ROTARY_INPUT_TYPE_SYSTEM_NAVIGATION:
-                // TODO(depstein): Send rotary events directly to RotaryService.
-                keycode = detentCount > 0
-                        ? KeyEvent.KEYCODE_NAVIGATE_NEXT
-                        : KeyEvent.KEYCODE_NAVIGATE_PREVIOUS;
+                carInputManagerType = CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION;
                 break;
             case ROTARY_INPUT_TYPE_AUDIO_VOLUME:
-                keycode = detentCount > 0
-                        ? KeyEvent.KEYCODE_VOLUME_UP
-                        : KeyEvent.KEYCODE_VOLUME_DOWN;
+                carInputManagerType = CarInputManager.INPUT_TYPE_ROTARY_VOLUME;
                 break;
             default:
                 Log.e(CarLog.TAG_INPUT, "Unknown rotary input type: " + rotaryInputType);
                 return;
         }
 
-        detentCount = Math.abs(detentCount);
-        if (detentCount - 1 != value.value.int32Values.size() - 3) {
-            Log.e(CarLog.TAG_INPUT,
-                    String.format("Prop should include %d time deltas, found %d", detentCount - 1,
-                            value.value.int32Values.size() - 3));
+        long[] timestamps = new long[detentCount];
+        // vhal returns elapsed time while rotary event is using uptime to be in line with KeyEvent.
+        long uptimeToelapsedTimeDelta = CarServiceUtils.getUptimeToElapsedTimeDeltaInMillis();
+        long startUptime = TimeUnit.NANOSECONDS.toMillis(timestamp) - uptimeToelapsedTimeDelta;
+        timestamps[0] = startUptime;
+        for (int i = 0; i < timestamps.length - 1; i++) {
+            timestamps[i + 1] = timestamps[i] + TimeUnit.NANOSECONDS.toMillis(
+                    value.value.int32Values.get(timeValuesIndex + i));
         }
-
-        while (detentCount > 0) {
-            detentCount--;
-            long eventTimeMillis = TimeUnit.NANOSECONDS.toMillis(timestamp);
-            dispatchKeyEvent(listener, KeyEvent.ACTION_DOWN, keycode, display, eventTimeMillis);
-            dispatchKeyEvent(listener, KeyEvent.ACTION_UP, keycode, display, eventTimeMillis);
-            if (intValuesIndex < value.value.int32Values.size()) {
-                timestamp += value.value.int32Values.get(intValuesIndex);
-                intValuesIndex++;
-            }
-        }
+        RotaryEvent event = new RotaryEvent(carInputManagerType, clockwise, timestamps);
+        listener.onRotaryEvent(event, display);
     }
 
     /**
@@ -309,7 +325,7 @@ public class InputHalService extends HalServiceBase {
             }
         }
 
-        KeyEvent event = KeyEvent.obtain(
+        KeyEvent event = new KeyEvent(
                 downTime,
                 eventTime,
                 action,
@@ -319,11 +335,9 @@ public class InputHalService extends HalServiceBase {
                 0 /* deviceId */,
                 0 /* scancode */,
                 0 /* flags */,
-                InputDevice.SOURCE_CLASS_BUTTON,
-                null /* characters */);
+                InputDevice.SOURCE_CLASS_BUTTON);
 
         listener.onKeyEvent(event, display);
-        event.recycle();
     }
 
     @Override
