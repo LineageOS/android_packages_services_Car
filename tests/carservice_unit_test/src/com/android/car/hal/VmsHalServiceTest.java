@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsClient;
@@ -40,6 +41,7 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.os.Handler;
+import android.os.ServiceSpecificException;
 
 import com.android.car.R;
 import com.android.car.test.utils.TemporaryFile;
@@ -1040,7 +1042,8 @@ public class VmsHalServiceTest {
         setUp();
 
         when(mVehicleHal.get(metricsPropertyId))
-                .thenThrow(new PropertyTimeoutException(metricsPropertyId));
+                .thenThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN,
+                        "propertyId: 0x" + Integer.toHexString(metricsPropertyId)));
 
         mHalService.dumpMetrics(new FileDescriptor());
         verify(mVehicleHal).get(metricsPropertyId);
