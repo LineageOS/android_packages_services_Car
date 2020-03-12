@@ -20,6 +20,7 @@ import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.os.UserHandle;
+import android.util.DebugUtils;
 
 import com.android.car.hal.UserHalService.HalCallback;
 import com.android.car.hal.UserHalService.HalCallback.HalCallbackStatus;
@@ -96,6 +97,14 @@ public final class UserHalHelper {
         }
 
         return flags;
+    }
+
+    /**
+     * Gets a user-friendly representation of the user flags.
+     */
+    @NonNull
+    public static String userFlagsToString(int flags) {
+        return DebugUtils.flagsToString(UserFlags.class, "", flags);
     }
 
     private UserHalHelper() {
