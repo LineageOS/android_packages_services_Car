@@ -29,6 +29,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.testng.Assert.assertThrows;
 
+import android.car.hardware.property.VehicleHalStatusCode;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -38,6 +39,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.os.ServiceSpecificException;
 import android.os.UserHandle;
 import android.util.Log;
 
@@ -432,7 +434,8 @@ public final class UserHalServiceTest {
      * Sets the VHAL mock to emulate a property timeout exception upon a call to set a property.
      */
     private void replySetPropertyWithTimeoutException(int prop) throws Exception {
-        doThrow(new PropertyTimeoutException(prop)).when(mVehicleHal).set(isProperty(prop));
+        doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN,
+                "PropId: 0x" + Integer.toHexString(prop))).when(mVehicleHal).set(isProperty(prop));
     }
 
     private void assertInitialUserInfoSetRequest(VehiclePropValue req, int requestType) {
