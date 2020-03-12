@@ -427,7 +427,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void switchUserOnResumeIfNecessary(boolean allowSwitching) {
+    @VisibleForTesting // Ideally it should not be exposed, but it speeds up the unit tests
+    void switchUserOnResumeIfNecessary(boolean allowSwitching) {
         int targetUserId = mCarUserManagerHelper.getInitialUser();
         if (targetUserId == UserHandle.USER_SYSTEM) {
             // API explicitly say it doesn't return USER_SYSTEM
