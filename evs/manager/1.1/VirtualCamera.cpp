@@ -18,6 +18,7 @@
 #include "HalCamera.h"
 #include "Enumerator.h"
 
+#include <android-base/logging.h>
 #include <ui/GraphicBufferAllocator.h>
 #include <ui/GraphicBufferMapper.h>
 
@@ -49,7 +50,7 @@ void VirtualCamera::shutdown() {
     if (mStreamState == RUNNING) {
         // Note that if we hit this case, no terminating frame will be sent to the client,
         // but they're probably already dead anyway.
-        ALOGW("Virtual camera being shutdown while stream is running");
+        LOG(WARNING) << "Virtual camera being shutdown while stream is running";
 
         // Tell the frame delivery pipeline we don't want any more frames
         mStreamState = STOPPING;
@@ -57,12 +58,12 @@ void VirtualCamera::shutdown() {
         for (auto&& [key, hwCamera] : mHalCamera) {
             auto pHwCamera = hwCamera.promote();
             if (pHwCamera == nullptr) {
-                ALOGW("Camera device %s is not alive.", key.c_str());
+                LOG(WARNING) << "Camera device " << key << " is not alive.";
                 continue;
             }
 
             if (mFramesHeld[key].size() > 0) {
-                ALOGW("VirtualCamera destructing with frames in flight.");
+                LOG(WARNING) << "VirtualCamera destructing with frames in flight.";
 
                 // Return to the underlying hardware camera any buffers the client was holding
                 for (auto&& heldBuffer : mFramesHeld[key]) {
@@ -108,12 +109,12 @@ std::vector<sp<HalCamera>> VirtualCamera::getHalCameras() {
 bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
     if (mStreamState == STOPPED) {
         // A stopped stream gets no frames
-        ALOGE("A stopped stream should not get any frames");
+        LOG(ERROR) << "A stopped stream should not get any frames";
         return false;
     } else if (mFramesHeld[bufDesc.deviceId].size() >= mFramesAllowed) {
         // Indicate that we declined to send the frame to the client because they're at quota
-        ALOGI("Skipping new frame as we hold %zu of %u allowed.",
-              mFramesHeld[bufDesc.deviceId].size(), mFramesAllowed);
+        LOG(INFO) << "Skipping new frame as we hold " << mFramesHeld[bufDesc.deviceId].size()
+                  << " of " << mFramesAllowed;
 
         if (mStream_1_1 != nullptr) {
             // Report a frame drop to v1.1 client.
@@ -122,7 +123,7 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
             event.aType = EvsEventType::FRAME_DROPPED;
             auto result = mStream_1_1->notify(event);
             if (!result.isOk()) {
-                ALOGE("Error delivering end of stream event");
+                LOG(ERROR) << "Error delivering end of stream event";
             }
         }
 
@@ -159,7 +160,8 @@ bool VirtualCamera::notify(const EvsEventDesc& event) {
         case EvsEventType::STREAM_STOPPED:
             if (mStreamState != STOPPING) {
                 // Warn if we got an unexpected stream termination
-                ALOGW("Stream unexpectedly stopped, current status 0x%X", mStreamState);
+                LOG(WARNING) << "Stream unexpectedly stopped, current status "
+                             << mStreamState;
             }
 
             // Mark the stream as stopped.
@@ -169,22 +171,23 @@ bool VirtualCamera::notify(const EvsEventDesc& event) {
                 // Send a null frame instead, for v1.0 client
                 auto result = mStream->deliverFrame({});
                 if (!result.isOk()) {
-                    ALOGE("Error delivering end of stream marker");
+                    LOG(ERROR) << "Error delivering end of stream marker";
                 }
             }
             break;
 
         // v1.0 client will ignore all other events.
         case EvsEventType::PARAMETER_CHANGED:
-            ALOGD("A camera parameter 0x%X is set to 0x%X", event.payload[0], event.payload[1]);
+            LOG(DEBUG) << "A camera parameter " << event.payload[0]
+                       << " is set to " << event.payload[1];
             break;
 
         case EvsEventType::MASTER_RELEASED:
-            ALOGD("The master client has been released");
+            LOG(DEBUG) << "The master client has been released";
             break;
 
         default:
-            ALOGE("Unknown event id 0x%X", event.aType);
+            LOG(WARNING) << "Unknown event id " << static_cast<int32_t>(event.aType);
             break;
     }
 
@@ -192,7 +195,7 @@ bool VirtualCamera::notify(const EvsEventDesc& event) {
         // Forward a received event to the v1.1 client
         auto result = mStream_1_1->notify(event);
         if (!result.isOk()) {
-            ALOGE("Failed to forward an event");
+            LOG(ERROR) << "Failed to forward an event";
             return false;
         }
     }
@@ -205,7 +208,8 @@ bool VirtualCamera::notify(const EvsEventDesc& event) {
 Return<void> VirtualCamera::getCameraInfo(getCameraInfo_cb info_cb) {
     // Straight pass through to hardware layer
     if (mHalCamera.size() > 1) {
-        ALOGE("%s must NOT be called on a logical camera object.", __FUNCTION__);
+        LOG(ERROR) << __FUNCTION__
+                   << " must NOT be called on a logical camera object.";
         info_cb({});
         return Void();
     }
@@ -235,8 +239,9 @@ Return<EvsResult> VirtualCamera::setMaxFramesInFlight(uint32_t bufferCount) {
 
         result = pHwCam->changeFramesInFlight(bufferCountChange);
         if (!result) {
-            ALOGE("%s: Failed to change buffer count by %d to %d",
-                  key.c_str(), bufferCountChange, bufferCount);
+            LOG(ERROR) << key
+                       << ": Failed to change buffer count by " << bufferCountChange
+                       << " to " << bufferCount;
             break;
         }
 
@@ -249,7 +254,7 @@ Return<EvsResult> VirtualCamera::setMaxFramesInFlight(uint32_t bufferCount) {
     if (!result) {
         // Rollback changes because we failed to update all cameras
         for (auto&& hwCamera : changedCameras) {
-            ALOGW("Rollback a change on %s", hwCamera->getId().c_str());
+            LOG(WARNING) << "Rollback a change on  " << hwCamera->getId();
             hwCamera->changeFramesInFlight(-bufferCountChange);
         }
 
@@ -265,7 +270,7 @@ Return<EvsResult> VirtualCamera::setMaxFramesInFlight(uint32_t bufferCount) {
 Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCameraStream_1_0>& stream)  {
     // We only support a single stream at a time
     if (mStreamState != STOPPED) {
-        ALOGE("ignoring startVideoStream call when a stream is already running.");
+        LOG(ERROR) << "Ignoring startVideoStream call when a stream is already running.";
         return EvsResult::STREAM_ALREADY_RUNNING;
     }
 
@@ -276,9 +281,9 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
     mStream = stream;
     mStream_1_1 = IEvsCameraStream_1_1::castFrom(stream).withDefault(nullptr);
     if (mStream_1_1 == nullptr) {
-        ALOGI("Start video stream for v1.0 client.");
+        LOG(INFO) << "Start video stream for v1.0 client.";
     } else {
-        ALOGI("Start video stream for v1.1 client.");
+        LOG(INFO) << "Start video stream for v1.1 client.";
     }
 
     mStreamState = RUNNING;
@@ -288,11 +293,12 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
     while (iter != mHalCamera.end()) {
         auto pHwCamera = iter->second.promote();
         if (pHwCamera == nullptr) {
-            ALOGE("Failed to start a video stream on %s", iter->first.c_str());
+            LOG(ERROR) << "Failed to start a video stream on " << iter->first;
             continue;
         }
 
-        ALOGI("%s starts a video stream on %s", __FUNCTION__, iter->first.c_str());
+        LOG(INFO) << __FUNCTION__
+                  << " starts a video stream on " << iter->first;
         Return<EvsResult> result = pHwCamera->clientStreamStarting();
         if ((!result.isOk()) || (result != EvsResult::OK)) {
             // If we failed to start the underlying stream, then we're not actually running
@@ -327,13 +333,13 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
                 for (auto&& [key, hwCamera] : mHalCamera) {
                     auto pHwCamera = hwCamera.promote();
                     if (pHwCamera == nullptr) {
-                        ALOGW("Invalid camera %s is ignored.", key.c_str());
+                        LOG(WARNING) << "Invalid camera " << key << " is ignored.";
                         continue;
                     }
 
                     UniqueFence another = pHwCamera->requestNewFrame(this, lastFrameTimestamp);
                     if (!another) {
-                        ALOGW("%s returned an invalid fence.", key.c_str());
+                        LOG(WARNING) << key << " returned an invalid fence.";
                         continue;
                     }
 
@@ -346,7 +352,7 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
                 if (fence.Wait(kFrameTimeoutMs) < 0) {
                     // TODO(b/145466570): Replace this temporarily camera hang
                     // handler.
-                    ALOGE("%p: Camera hangs? %s", this, strerror(errno));
+                    PLOG(ERROR) << this << ": Camera hangs?";
                     break;
                 } else if (mStreamState == RUNNING) {
                     // Fetch frames and forward to the client
@@ -384,9 +390,10 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
 
 Return<void> VirtualCamera::doneWithFrame(const BufferDesc_1_0& buffer) {
     if (buffer.memHandle == nullptr) {
-        ALOGE("ignoring doneWithFrame called with invalid handle");
+        LOG(ERROR) << "Ignoring doneWithFrame called with invalid handle";
     } else if (mFramesHeld.size() > 1) {
-        ALOGE("%s must NOT be called on a logical camera object.", __FUNCTION__);
+        LOG(ERROR) << __FUNCTION__
+                   << " must NOT be called on a logical camera object.";
     } else {
         // Find this buffer in our "held" list
         auto& frameQueue = mFramesHeld.begin()->second;
@@ -400,7 +407,8 @@ Return<void> VirtualCamera::doneWithFrame(const BufferDesc_1_0& buffer) {
         }
         if (it == frameQueue.end()) {
             // We should always find the frame in our "held" list
-            ALOGE("Ignoring doneWithFrame called with unrecognized frameID %d", buffer.bufferId);
+            LOG(ERROR) << "Ignoring doneWithFrame called with unrecognized frameID "
+                       << buffer.bufferId;
         } else {
             // Take this frame out of our "held" list
             frameQueue.erase(it);
@@ -410,8 +418,9 @@ Return<void> VirtualCamera::doneWithFrame(const BufferDesc_1_0& buffer) {
             if (pHwCamera != nullptr) {
                 pHwCamera->doneWithFrame(buffer);
             } else {
-                ALOGW("Possible memory leak because a device %s is not valid.",
-                      mHalCamera.begin()->first.c_str());
+                LOG(WARNING) << "Possible memory leak because a device "
+                             << mHalCamera.begin()->first
+                             << " is not valid.";
             }
         }
     }
@@ -432,13 +441,13 @@ Return<void> VirtualCamera::stopVideoStream()  {
             event.aType = EvsEventType::STREAM_STOPPED;
             auto result = mStream_1_1->notify(event);
             if (!result.isOk()) {
-                ALOGE("Error delivering end of stream event");
+                LOG(ERROR) << "Error delivering end of stream event";
             }
         } else {
             // v1.0 client expects a null frame at the end of the stream
             auto result = mStream->deliverFrame({});
             if (!result.isOk()) {
-                ALOGE("Error delivering end of stream marker");
+                LOG(ERROR) << "Error delivering end of stream marker";
             }
         }
 
@@ -469,7 +478,7 @@ Return<void> VirtualCamera::stopVideoStream()  {
 
 Return<int32_t> VirtualCamera::getExtendedInfo(uint32_t opaqueIdentifier)  {
     if (mHalCamera.size() > 1) {
-        ALOGW("Logical camera device does not support %s", __FUNCTION__);
+        LOG(WARNING) << "Logical camera device does not support " << __FUNCTION__;
         return 0;
     }
 
@@ -478,7 +487,7 @@ Return<int32_t> VirtualCamera::getExtendedInfo(uint32_t opaqueIdentifier)  {
     if (pHwCamera != nullptr) {
         return pHwCamera->getHwCamera()->getExtendedInfo(opaqueIdentifier);
     } else {
-        ALOGW("%s is invalid.", mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << mHalCamera.begin()->first << " is invalid.";
         return 0;
     }
 }
@@ -486,7 +495,7 @@ Return<int32_t> VirtualCamera::getExtendedInfo(uint32_t opaqueIdentifier)  {
 
 Return<EvsResult> VirtualCamera::setExtendedInfo(uint32_t opaqueIdentifier, int32_t opaqueValue)  {
     if (mHalCamera.size() > 1) {
-        ALOGW("Logical camera device does not support %s", __FUNCTION__);
+        LOG(WARNING) << "Logical camera device does not support " << __FUNCTION__;
         return EvsResult::INVALID_ARG;
     }
 
@@ -495,7 +504,7 @@ Return<EvsResult> VirtualCamera::setExtendedInfo(uint32_t opaqueIdentifier, int3
     if (pHwCamera != nullptr) {
         return pHwCamera->getHwCamera()->setExtendedInfo(opaqueIdentifier, opaqueValue);
     } else {
-        ALOGW("%s is invalid.", mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << mHalCamera.begin()->first << " is invalid.";
         return EvsResult::INVALID_ARG;
     }
 }
@@ -541,13 +550,14 @@ Return<void> VirtualCamera::getPhysicalCameraInfo(const hidl_string& deviceId,
             if (hwCamera_1_1 != nullptr) {
                 return hwCamera_1_1->getCameraInfo_1_1(info_cb);
             } else {
-                ALOGW("Failed to promote HW camera to v1.1.");
+                LOG(WARNING) << "Failed to promote HW camera to v1.1.";
             }
         } else {
-            ALOGW("Camera device %s is not alive.", deviceId.c_str());
+            LOG(WARNING) << "Camera device " << deviceId << " is not alive.";
         }
     } else {
-        ALOGW("Requested device %s does not back this device!", deviceId.c_str());
+        LOG(WARNING) << " Requested device " << deviceId
+                     << " does not back this device.";
     }
 
     // Return an empty list
@@ -561,7 +571,7 @@ Return<EvsResult> VirtualCamera::doneWithFrame_1_1(
 
     for (auto&& buffer : buffers) {
         if (buffer.buffer.nativeHandle == nullptr) {
-            ALOGW("ignoring doneWithFrame called with invalid handle");
+            LOG(WARNING) << "Ignoring doneWithFrame called with invalid handle";
         } else {
             // Find this buffer in our "held" list
             auto it = mFramesHeld[buffer.deviceId].begin();
@@ -574,8 +584,8 @@ Return<EvsResult> VirtualCamera::doneWithFrame_1_1(
             }
             if (it == mFramesHeld[buffer.deviceId].end()) {
                 // We should always find the frame in our "held" list
-                ALOGE("Ignoring doneWithFrame called with unrecognized frameID %d",
-                      buffer.bufferId);
+                LOG(ERROR) << "Ignoring doneWithFrame called with unrecognized frameID "
+                           << buffer.bufferId;
             } else {
                 // Take this frame out of our "held" list
                 mFramesHeld[buffer.deviceId].erase(it);
@@ -585,7 +595,8 @@ Return<EvsResult> VirtualCamera::doneWithFrame_1_1(
                 if (pHwCamera != nullptr) {
                     pHwCamera->doneWithFrame(buffer);
                 } else {
-                    ALOGW("Possible memory leak; %s is not valid.", buffer.deviceId.c_str());
+                    LOG(WARNING) << "Possible memory leak; "
+                                 << buffer.deviceId << " is not valid.";
                 }
             }
         }
@@ -597,7 +608,7 @@ Return<EvsResult> VirtualCamera::doneWithFrame_1_1(
 
 Return<EvsResult> VirtualCamera::setMaster() {
     if (mHalCamera.size() > 1) {
-        ALOGW("Logical camera device does not support %s.", __FUNCTION__);
+        LOG(WARNING) << "Logical camera device does not support " << __FUNCTION__;
         return EvsResult::INVALID_ARG;
     }
 
@@ -605,7 +616,7 @@ Return<EvsResult> VirtualCamera::setMaster() {
     if (pHwCamera != nullptr) {
         return pHwCamera->setMaster(this);
     } else {
-        ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << "Camera device " << mHalCamera.begin()->first << " is not alive.";
         return EvsResult::INVALID_ARG;
     }
 }
@@ -613,12 +624,13 @@ Return<EvsResult> VirtualCamera::setMaster() {
 
 Return<EvsResult> VirtualCamera::forceMaster(const sp<IEvsDisplay_1_0>& display) {
     if (mHalCamera.size() > 1) {
-        ALOGW("Logical camera device does not support %s.", __FUNCTION__);
+        LOG(WARNING) << "Logical camera device does not support " << __FUNCTION__;
         return EvsResult::INVALID_ARG;
     }
 
     if (display.get() == nullptr) {
-        ALOGE("%s: Passed display is invalid", __FUNCTION__);
+        LOG(ERROR) << __FUNCTION__
+                   << ": Passed display is invalid";
         return EvsResult::INVALID_ARG;
     }
 
@@ -626,7 +638,8 @@ Return<EvsResult> VirtualCamera::forceMaster(const sp<IEvsDisplay_1_0>& display)
     if (state == DisplayState::NOT_OPEN ||
         state == DisplayState::DEAD ||
         state >= DisplayState::NUM_STATES) {
-        ALOGE("%s: Passed display is in invalid state", __FUNCTION__);
+        LOG(ERROR) << __FUNCTION__
+                   << ": Passed display is in invalid state";
         return EvsResult::INVALID_ARG;
     }
 
@@ -634,7 +647,7 @@ Return<EvsResult> VirtualCamera::forceMaster(const sp<IEvsDisplay_1_0>& display)
     if (pHwCamera != nullptr) {
         return pHwCamera->forceMaster(this);
     } else {
-        ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << "Camera device " << mHalCamera.begin()->first << " is not alive.";
         return EvsResult::INVALID_ARG;
     }
 }
@@ -642,7 +655,7 @@ Return<EvsResult> VirtualCamera::forceMaster(const sp<IEvsDisplay_1_0>& display)
 
 Return<EvsResult> VirtualCamera::unsetMaster() {
     if (mHalCamera.size() > 1) {
-        ALOGW("Logical camera device does not support %s.", __FUNCTION__);
+        LOG(WARNING) << "Logical camera device does not support " << __FUNCTION__;
         return EvsResult::INVALID_ARG;
     }
 
@@ -650,7 +663,7 @@ Return<EvsResult> VirtualCamera::unsetMaster() {
     if (pHwCamera != nullptr) {
         return pHwCamera->unsetMaster(this);
     } else {
-        ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << "Camera device " << mHalCamera.begin()->first << " is not alive.";
         return EvsResult::INVALID_ARG;
     }
 }
@@ -658,7 +671,7 @@ Return<EvsResult> VirtualCamera::unsetMaster() {
 
 Return<void> VirtualCamera::getParameterList(getParameterList_cb _hidl_cb) {
     if (mHalCamera.size() > 1) {
-        ALOGW("Logical camera device does not support %s.", __FUNCTION__);
+        LOG(WARNING) << "Logical camera device does not support " << __FUNCTION__;
 
         // Return an empty list
         _hidl_cb({});
@@ -668,7 +681,7 @@ Return<void> VirtualCamera::getParameterList(getParameterList_cb _hidl_cb) {
     // Straight pass through to hardware layer
     auto pHwCamera = mHalCamera.begin()->second.promote();
     if (pHwCamera == nullptr) {
-        ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << "Camera device " << mHalCamera.begin()->first << " is not alive.";
 
         // Return an empty list
         _hidl_cb({});
@@ -680,8 +693,8 @@ Return<void> VirtualCamera::getParameterList(getParameterList_cb _hidl_cb) {
     if (hwCamera_1_1 != nullptr) {
         return hwCamera_1_1->getParameterList(_hidl_cb);
     } else {
-        ALOGW("Camera device %s does not support a parameter programming.",
-              mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << "Camera device " << mHalCamera.begin()->first
+                     << " does not support a parameter programming.";
 
         // Return an empty list
         _hidl_cb({});
@@ -693,7 +706,7 @@ Return<void> VirtualCamera::getParameterList(getParameterList_cb _hidl_cb) {
 Return<void> VirtualCamera::getIntParameterRange(CameraParam id,
                                                  getIntParameterRange_cb _hidl_cb) {
     if (mHalCamera.size() > 1) {
-        ALOGW("Logical camera device does not support %s.", __FUNCTION__);
+        LOG(WARNING) << "Logical camera device does not support " << __FUNCTION__;
 
         // Return [0, 0, 0]
         _hidl_cb(0, 0, 0);
@@ -703,7 +716,7 @@ Return<void> VirtualCamera::getIntParameterRange(CameraParam id,
     // Straight pass through to hardware layer
     auto pHwCamera = mHalCamera.begin()->second.promote();
     if (pHwCamera == nullptr) {
-        ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << "Camera device " << mHalCamera.begin()->first << " is not alive.";
 
         // Return [0, 0, 0]
         _hidl_cb(0, 0, 0);
@@ -715,8 +728,8 @@ Return<void> VirtualCamera::getIntParameterRange(CameraParam id,
     if (hwCamera_1_1 != nullptr) {
         return hwCamera_1_1->getIntParameterRange(id, _hidl_cb);
     } else {
-        ALOGW("Camera device %s does not support a parameter programming.",
-              mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << "Camera device " << mHalCamera.begin()->first
+                     << " does not support a parameter programming.";
 
         // Return [0, 0, 0]
         _hidl_cb(0, 0, 0);
@@ -732,14 +745,14 @@ Return<void> VirtualCamera::setIntParameter(CameraParam id,
     hardware::hidl_vec<int32_t> values;
     EvsResult status = EvsResult::INVALID_ARG;
     if (mHalCamera.size() > 1) {
-        ALOGW("Logical camera device does not support %s.", __FUNCTION__);
+        LOG(WARNING) << "Logical camera device does not support " << __FUNCTION__;
         _hidl_cb(status, values);
         return Void();
     }
 
     auto pHwCamera = mHalCamera.begin()->second.promote();
     if (pHwCamera == nullptr) {
-        ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << "Camera device " << mHalCamera.begin()->first << " is not alive.";
         _hidl_cb(status, values);
         return Void();
     }
@@ -759,14 +772,14 @@ Return<void> VirtualCamera::getIntParameter(CameraParam id,
     hardware::hidl_vec<int32_t> values;
     EvsResult status = EvsResult::INVALID_ARG;
     if (mHalCamera.size() > 1) {
-        ALOGW("Logical camera device does not support %s.", __FUNCTION__);
+        LOG(WARNING) << "Logical camera device does not support " << __FUNCTION__;
         _hidl_cb(status, values);
         return Void();
     }
 
     auto pHwCamera = mHalCamera.begin()->second.promote();
     if (pHwCamera == nullptr) {
-        ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << "Camera device " << mHalCamera.begin()->first << " is not alive.";
         _hidl_cb(status, values);
         return Void();
     }
@@ -786,20 +799,20 @@ Return<EvsResult> VirtualCamera::setExtendedInfo_1_1(uint32_t opaqueIdentifier,
                                                      const hidl_vec<uint8_t>& opaqueValue) {
     hardware::hidl_vec<int32_t> values;
     if (mHalCamera.size() > 1) {
-        ALOGW("Logical camera device does not support %s.", __FUNCTION__);
+        LOG(WARNING) << "Logical camera device does not support " << __FUNCTION__;
         return EvsResult::INVALID_ARG;
     }
 
     auto pHwCamera = mHalCamera.begin()->second.promote();
     if (pHwCamera == nullptr) {
-        ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << "Camera device " << mHalCamera.begin()->first << " is not alive.";
         return EvsResult::INVALID_ARG;
     } else {
         auto hwCamera = IEvsCamera_1_1::castFrom(pHwCamera->getHwCamera()).withDefault(nullptr);
         if (hwCamera != nullptr) {
             return hwCamera->setExtendedInfo_1_1(opaqueIdentifier, opaqueValue);
         } else {
-            ALOGE("Underlying hardware camera does not implement v1.1 interfaces.");
+            LOG(ERROR) << "Underlying hardware camera does not implement v1.1 interfaces.";
             return EvsResult::INVALID_ARG;
         }
     }
@@ -811,21 +824,21 @@ Return<void> VirtualCamera::getExtendedInfo_1_1(uint32_t opaqueIdentifier,
     hardware::hidl_vec<uint8_t> values;
     EvsResult status = EvsResult::INVALID_ARG;
     if (mHalCamera.size() > 1) {
-        ALOGW("Logical camera device does not support %s.", __FUNCTION__);
+        LOG(WARNING) << "Logical camera device does not support " << __FUNCTION__;
         _hidl_cb(status, values);
         return Void();
     }
 
     auto pHwCamera = mHalCamera.begin()->second.promote();
     if (pHwCamera == nullptr) {
-        ALOGW("Camera device %s is not alive.", mHalCamera.begin()->first.c_str());
+        LOG(WARNING) << "Camera device " << mHalCamera.begin()->first << " is not alive.";
         _hidl_cb(status, values);
     } else {
         auto hwCamera = IEvsCamera_1_1::castFrom(pHwCamera->getHwCamera()).withDefault(nullptr);
         if (hwCamera != nullptr) {
             hwCamera->getExtendedInfo_1_1(opaqueIdentifier, _hidl_cb);
         } else {
-            ALOGE("Underlying hardware camera does not implement v1.1 interfaces.");
+            LOG(ERROR) << "Underlying hardware camera does not implement v1.1 interfaces.";
             _hidl_cb(status, values);
         }
     }

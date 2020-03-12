@@ -17,11 +17,11 @@
 #include "unique_timeline.h"
 
 #include <errno.h>
-#include <string.h>
 #include <limits>
-
-#include <cutils/log.h>
+#include <string.h>
 #include <sw_sync.h>
+
+#include <android-base/logging.h>
 
 namespace android {
 namespace automotive {
@@ -31,7 +31,9 @@ namespace implementation {
 
 UniqueTimeline::UniqueTimeline(unsigned offset)
       : fd_(sw_sync_timeline_create()), fence_counter_(offset) {
-    LOG_ALWAYS_FATAL_IF(!fd_, "Failed to create a timeline.");
+    if (!fd_) {
+        LOG(FATAL) << "Failed to create a timeline.";
+    }
 }
 
 UniqueTimeline::~UniqueTimeline() {
@@ -51,7 +53,9 @@ bool UniqueTimeline::Supported() {
 
 UniqueFence UniqueTimeline::CreateFence(const char* name) {
     UniqueFence fence(sw_sync_fence_create(fd_.Get(), name, fence_counter_));
-    LOG_ALWAYS_FATAL_IF(!fence, "Cannot create fence -- %s", strerror(errno));
+    if (!fence) {
+        PLOG(FATAL) << "Cannot create fence";
+    }
     return fence;
 }
 
@@ -62,7 +66,9 @@ void UniqueTimeline::BumpTimelineEventCounter() {
 void UniqueTimeline::BumpTimelineEventCounter(unsigned count) {
     timeline_counter_ += count;
     int err = sw_sync_timeline_inc(fd_.Get(), count);
-    LOG_ALWAYS_FATAL_IF(err < 0, "Cannot bump timeline counter -- %s", strerror(errno));
+    if (err < 0) {
+        PLOG(FATAL) << "Cannot bump timeline counter";
+    }
 }
 
 }  // namespace implementation

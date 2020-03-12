@@ -380,11 +380,16 @@ public final class CarUserManager extends CarManagerBase {
     @TestApi
     // TODO(b/144120654): temp method used by CTS; will eventually be refactored to take a listener
     @UserIdInt
-    public int createUser(@Nullable String name) {
+    public int createUser(@Nullable String name, boolean isGuestUser) {
         Log.i(TAG, "createUser()"); // name is PII
         UserManager userManager = getContext().getSystemService(UserManager.class);
-        UserInfo info = userManager.createUser(name, /* flags= */ 0);
-        return info.id;
+
+        if (isGuestUser) {
+            return userManager.createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0)
+                    .id;
+        }
+
+        return userManager.createUser(name, /* flags= */ 0).id;
     }
 
     /** @hide */
