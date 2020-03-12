@@ -35,6 +35,7 @@ import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
@@ -247,6 +248,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 writer.println();
             }
             writer.println("EnablePassengerSupport: " + mEnablePassengerSupport);
+            writer.println("Relevant overlayable  properties");
+            Resources res = mContext.getResources();
+            writer.printf("%sowner_name=%s\n", indent,
+                    res.getString(com.android.internal.R.string.owner_name));
+            writer.printf("%sdefault_guest_name=%s\n", indent,
+                    res.getString(R.string.default_guest_name));
         }
     }
 
