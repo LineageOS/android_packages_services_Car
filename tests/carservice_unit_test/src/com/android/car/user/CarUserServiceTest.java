@@ -33,6 +33,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,6 +47,9 @@ import android.app.IActivityManager;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.settings.CarSettings;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleEvent;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -77,6 +82,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoSession;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -117,6 +124,8 @@ public class CarUserServiceTest {
     @Mock private UserManager mMockedUserManager;
     @Mock private Resources mMockedResources;
     @Mock private Drawable mMockedDrawable;
+    @Mock private UserLifecycleListener mUserLifecycleListener;
+    @Captor private ArgumentCaptor<UserLifecycleEvent> mArgumentCaptor;
 
     private MockitoSession mSession;
     private CarUserService mCarUserService;
@@ -199,6 +208,60 @@ public class CarUserServiceTest {
                         UserManager.DISALLOW_MODIFY_ACCOUNTS,
                         true,
                         UserHandle.of(UserHandle.USER_SYSTEM));
+    }
+
+    @Test
+    public void testAddUserLifecycleListener_checkNullParameter() {
+        assertThrows(NullPointerException.class,
+                () -> mCarUserService.addUserLifecycleListener(null));
+    }
+
+    @Test
+    public void testRemoveUserLifecycleListener_checkNullParameter() {
+        assertThrows(NullPointerException.class,
+                () -> mCarUserService.removeUserLifecycleListener(null));
+    }
+
+    @Test
+    public void testOnSwitchUser_addListenerAndReceiveEvent() {
+        // Arrange
+        mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
+
+        // Act
+        int anyNewUserId = 11;
+        mCarUserService.onSwitchUser(anyNewUserId);
+
+        // Verify
+        verifyListenerOnEventInvoked(anyNewUserId,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+    }
+
+    @Test
+    public void testOnSwitchUser_ensureAllListenersAreNotified() {
+        // Arrange: add two listeners, one to fail on onEvent
+        // Adding the failure listener first.
+        UserLifecycleListener failureListener = mock(UserLifecycleListener.class);
+        doThrow(new RuntimeException("Failed onEvent invocation")).when(
+                failureListener).onEvent(any(UserLifecycleEvent.class));
+        mCarUserService.addUserLifecycleListener(failureListener);
+
+        // Adding the non-failure listener later.
+        mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
+
+        // Act
+        int anyNewUserId = 11;
+        mCarUserService.onSwitchUser(anyNewUserId);
+
+        // Verify
+        verifyListenerOnEventInvoked(anyNewUserId,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+    }
+
+    private void verifyListenerOnEventInvoked(int expectedNewUserId, int expectedEventType) {
+        verify(mUserLifecycleListener).onEvent(mArgumentCaptor.capture());
+        UserLifecycleEvent actualEvent = mArgumentCaptor.getValue();
+        assertThat(actualEvent.getEventType()).isEqualTo(expectedEventType);
+        assertThat(actualEvent.getUserHandle().getIdentifier()).isEqualTo(expectedNewUserId);
     }
 
     /**
