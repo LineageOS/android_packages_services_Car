@@ -352,29 +352,27 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Override
-    public void setUserLockStatus(int userId, int unlocked) {
-        assertCallingFromSystemProcess();
-        mCarUserService.setUserLockStatus(userId, unlocked == 1);
-        mCarMediaService.setUserLockStatus(userId, unlocked == 1);
-    }
-
-    @Override
-    public void onSwitchUser(int userId) {
-        assertCallingFromSystemProcess();
-
-        Log.i(TAG, "Foreground user switched to " + userId);
-        mCarUserService.onSwitchUser(userId);
-    }
-
-    // TODO(b/145689885): this method is currently used just for metrics logging purposes, but we
-    // should fold the other too (onSwitchUser() and setUserLockStatus()) onto it.
-    @Override
     public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
             int toUserId) {
         assertCallingFromSystemProcess();
         Log.i(TAG, "onUserLifecycleEvent(" + CarUserManager.lifecycleEventTypeToString(eventType)
                 + ", " + toUserId + ")");
         mUserMetrics.onEvent(eventType, timestampMs, fromUserId, toUserId);
+        if (eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING) {
+            setUserLockStatus(toUserId);
+        } else if (eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING) {
+            onSwitchUser(toUserId);
+        }
+    }
+
+    private void setUserLockStatus(int userId) {
+        mCarUserService.setUserLockStatus(userId, /* unlocked= */ true);
+        mCarMediaService.setUserLockStatus(userId, /* unlocked= */ true);
+    }
+
+    private void onSwitchUser(int userId) {
+        Log.i(TAG, "Foreground user switched to " + userId);
+        mCarUserService.onSwitchUser(userId);
     }
 
     @Override
@@ -638,8 +636,8 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertAnyPermission(Context context, String... permissions) {
         for (String permission : permissions) {
-            if (context.checkCallingOrSelfPermission(permission) ==
-                    PackageManager.PERMISSION_GRANTED) {
+            if (context.checkCallingOrSelfPermission(permission)
+                    == PackageManager.PERMISSION_GRANTED) {
                 return;
             }
         }
