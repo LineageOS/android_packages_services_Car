@@ -666,7 +666,7 @@ public class ICarImpl extends ICar.Stub {
             return;
         } else if ("--services".equals(args[0])) {
             if (args.length < 2) {
-                writer.print("Must pass services to dump when using --services");
+                writer.println("Must pass services to dump when using --services");
                 return;
             }
             int length = args.length - 1;
