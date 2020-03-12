@@ -247,7 +247,7 @@ public class VmsHalService extends HalServiceBase {
         VehiclePropValue vehicleProp = null;
         try {
             vehicleProp = mVehicleHal.get(mClientMetricsProperty);
-        } catch (PropertyTimeoutException | RuntimeException e) {
+        } catch (RuntimeException e) {
             // Failures to retrieve metrics should be non-fatal
             Log.e(TAG, "While reading metrics from client", e);
         }
@@ -627,7 +627,7 @@ public class VmsHalService extends HalServiceBase {
 
         try {
             mVehicleHal.set(vehicleProp);
-        } catch (PropertyTimeoutException | RuntimeException e) {
+        } catch (RuntimeException e) {
             Log.e(TAG, "While sending " + VmsMessageType.toString(messageType), e);
             if (mPropagatePropertyException) {
                 throw new IllegalStateException(e);

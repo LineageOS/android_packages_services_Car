@@ -78,7 +78,7 @@ class  HalClient {
         mVehicle.unsubscribe(mInternalCallback, prop);
     }
 
-    public void setValue(VehiclePropValue propValue) throws PropertyTimeoutException {
+    public void setValue(VehiclePropValue propValue) {
         int status = invokeRetriable(() -> {
             try {
                 return mVehicle.set(propValue);
@@ -90,22 +90,24 @@ class  HalClient {
 
         if (StatusCode.INVALID_ARG == status) {
             throw new IllegalArgumentException(
-                    String.format("Failed to set value for: 0x%x, areaId: 0x%x",
-                            propValue.prop, propValue.areaId));
-        }
-
-        if (StatusCode.TRY_AGAIN == status) {
-            throw new PropertyTimeoutException(propValue.prop);
+                    String.format("Failed to set value for: 0x%s, areaId: 0x%s",
+                            Integer.toHexString(propValue.prop),
+                            Integer.toHexString(propValue.areaId)));
         }
 
         if (StatusCode.OK != status) {
-            Log.i(CarLog.TAG_HAL, String.format("Failed to set property: 0x%x, areaId: 0x%x, "
-                    + "code: %d", propValue.prop, propValue.areaId, status));
-            throw new ServiceSpecificException(status);
+            Log.i(CarLog.TAG_HAL, String.format(
+                    "Failed to set property: 0x%s, areaId: 0x%s, code: %d",
+                    Integer.toHexString(propValue.prop),
+                    Integer.toHexString(propValue.areaId),
+                    status));
+            throw new ServiceSpecificException(status,
+                    "Failed to set property: 0x" + Integer.toHexString(propValue.prop)
+                            + " in areaId: 0x" + Integer.toHexString(propValue.areaId));
         }
     }
 
-    VehiclePropValue getValue(VehiclePropValue requestedPropValue) throws PropertyTimeoutException {
+    VehiclePropValue getValue(VehiclePropValue requestedPropValue) {
         final ObjectWrapper<VehiclePropValue> valueWrapper = new ObjectWrapper<>();
         int status = invokeRetriable(() -> {
             ValueResult res = internalGet(requestedPropValue);
@@ -117,17 +119,25 @@ class  HalClient {
         int areaId = requestedPropValue.areaId;
         if (StatusCode.INVALID_ARG == status) {
             throw new IllegalArgumentException(
-                    String.format("Failed to get value for: 0x%x, areaId: 0x%x", propId, areaId));
-        }
-
-        if (StatusCode.TRY_AGAIN == status) {
-            throw new PropertyTimeoutException(propId);
+                    String.format("Failed to get value for: 0x%s, areaId: 0x%s",
+                            Integer.toHexString(propId),
+                            Integer.toHexString(areaId)));
         }
 
         if (StatusCode.OK != status || valueWrapper.object == null) {
-            Log.i(CarLog.TAG_HAL, String.format("Failed to get property: 0x%x, areaId: 0x%x, "
-                    + "code: %d", requestedPropValue.prop, requestedPropValue.areaId, status));
-            throw new ServiceSpecificException(status);
+            // If valueWrapper.object is null and status is StatusCode.Ok, change the status to be
+            // NOT_AVAILABLE.
+            if (StatusCode.OK == status) {
+                status = StatusCode.NOT_AVAILABLE;
+            }
+            Log.i(CarLog.TAG_HAL, String.format(
+                    "Failed to get property: 0x%s, areaId: 0x%s, code: %d",
+                    Integer.toHexString(requestedPropValue.prop),
+                    Integer.toHexString(requestedPropValue.areaId),
+                    status));
+            throw new ServiceSpecificException(status,
+                    "Failed to get property: 0x" + Integer.toHexString(requestedPropValue.prop)
+                            + " in areaId: 0x" + Integer.toHexString(requestedPropValue.areaId));
         }
 
         return valueWrapper.object;
