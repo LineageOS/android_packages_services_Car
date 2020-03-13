@@ -529,6 +529,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarUserService;
             case Car.CAR_WATCHDOG_SERVICE:
                 return mCarWatchdogService;
+            case Car.CAR_INPUT_SERVICE:
+                return mCarInputService;
             default:
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {
@@ -666,7 +668,7 @@ public class ICarImpl extends ICar.Stub {
             return;
         } else if ("--services".equals(args[0])) {
             if (args.length < 2) {
-                writer.print("Must pass services to dump when using --services");
+                writer.println("Must pass services to dump when using --services");
                 return;
             }
             int length = args.length - 1;
@@ -726,8 +728,8 @@ public class ICarImpl extends ICar.Stub {
         writer.println("\t  shows this help");
         writer.println("--list");
         writer.println("\t  lists the name of all services");
-        writer.println("--list");
-        writer.println("\t  lists the name of all HAls");
+        writer.println("--list-hals");
+        writer.println("\t  lists the name of all HALs");
         writer.println("--services <SVC1> [SVC2] [SVCN]");
         writer.println("\t  dumps just the specific services, where SVC is just the service class");
         writer.println("\t  name (like CarUserService)");

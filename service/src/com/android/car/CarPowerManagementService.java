@@ -121,6 +121,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final boolean mDisableUserSwitchDuringResume;
     private final CarUserManagerHelper mCarUserManagerHelper;
     private final UserManager mUserManager;    // CarUserManagerHelper is deprecated...
+    private final String mNewGuestName;
 
     // TODO:  Make this OEM configurable.
     private static final int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
@@ -148,13 +149,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public CarPowerManagementService(Context context, PowerHalService powerHal,
             SystemInterface systemInterface, CarUserManagerHelper carUserManagerHelper) {
         this(context, context.getResources(), powerHal, systemInterface, carUserManagerHelper,
-                UserManager.get(context));
+                UserManager.get(context), context.getString(R.string.default_guest_name));
     }
 
     @VisibleForTesting
     CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
             SystemInterface systemInterface, CarUserManagerHelper carUserManagerHelper,
-            UserManager userManager) {
+            UserManager userManager, String newGuestName) {
         mContext = context;
         mHal = powerHal;
         mSystemInterface = systemInterface;
@@ -171,23 +172,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     +  MIN_MAX_GARAGE_MODE_DURATION_MS + "(ms), Ignore resource.");
             mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
         }
-    }
-
-    // TODO: remove?
-    /**
-     * Create a dummy instance for unit testing purpose only. Instance constructed in this way
-     * is not safe as members expected to be non-null are null.
-     */
-    @VisibleForTesting
-    protected CarPowerManagementService() {
-        mContext = null;
-        mHal = null;
-        mSystemInterface = null;
-        mHandlerThread = null;
-        mHandler = new PowerHandler(Looper.getMainLooper());
-        mCarUserManagerHelper = null;
-        mUserManager = null;
-        mDisableUserSwitchDuringResume = true;
+        mNewGuestName = newGuestName;
     }
 
     @VisibleForTesting
@@ -253,6 +238,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public void dump(PrintWriter writer) {
         synchronized (mLock) {
             writer.println("*PowerManagementService*");
+            // TODO: split it in multiple lines
             writer.print("mCurrentState:" + mCurrentState);
             writer.print(",mProcessingStartTime:" + mProcessingStartTime);
             writer.print(",mLastSleepEntryTime:" + mLastSleepEntryTime);
@@ -263,6 +249,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.print(",mShutdownPrepareTimeMs:" + mShutdownPrepareTimeMs);
             writer.print(",mDisableUserSwitchDuringResume:" + mDisableUserSwitchDuringResume);
             writer.println(",mRebootAfterGarageMode:" + mRebootAfterGarageMode);
+            writer.print("mNewGuestName: "); writer.println(mNewGuestName);
         }
     }
 
@@ -427,7 +414,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void switchUserOnResumeIfNecessary(boolean allowSwitching) {
+    @VisibleForTesting // Ideally it should not be exposed, but it speeds up the unit tests
+    void switchUserOnResumeIfNecessary(boolean allowSwitching) {
         int targetUserId = mCarUserManagerHelper.getInitialUser();
         if (targetUserId == UserHandle.USER_SYSTEM) {
             // API explicitly say it doesn't return USER_SYSTEM
@@ -486,7 +474,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             return;
         }
 
-        UserInfo newGuest = mUserManager.createGuest(mContext, targetUserInfo.name);
+        UserInfo newGuest = mUserManager.createGuest(mContext, mNewGuestName);
 
         if (newGuest != null) {
             switchToUser(currentUserId, newGuest.id, "Created new guest");
