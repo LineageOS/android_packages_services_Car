@@ -17,29 +17,24 @@
 package android.automotive.watchdog;
 
 /**
- * Used by ICarWatchdog to describe the device power status.
+ * Used by ICarWatchdog to describe the change type.
  */
 
 @VintfStability
 @Backing(type="int")
-enum PowerCycle {
+enum StateType {
   /**
-   * The system is about to shut down.
+   * Device power status change.
    */
-  POWER_CYCLE_SHUTDOWN,
+  POWER_CYCLE,
 
   /**
-   * The system is being suspended.
+   * User state change.
    */
-  POWER_CYCLE_SUSPEND,
+  USER_STATE,
 
   /**
-   * The system resumes working.
+   * Boot phase change.
    */
-  POWER_CYCLE_RESUME,
-
-  /**
-   * Number of available power cycles.
-   */
-  NUM_POWER_CYLES,
+  BOOT_PHASE,
 }
