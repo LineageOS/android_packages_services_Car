@@ -167,6 +167,10 @@ Status SemanticManager::queuePacket(const InputFrame& /*inputData*/, uint64_t /*
     return Status::ILLEGAL_STATE;
 }
 
+std::shared_ptr<MemHandle> SemanticManager::clonePacket(std::shared_ptr<MemHandle> handle) {
+    return handle;
+}
+
 SemanticManager::SemanticManager(std::string name, int streamId, const proto::PacketType& type)
     : StreamManager(name, type), mStreamId(streamId) {
 }
