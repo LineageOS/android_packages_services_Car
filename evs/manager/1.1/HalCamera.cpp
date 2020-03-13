@@ -69,12 +69,17 @@ bool HalCamera::ownVirtualCamera(sp<VirtualCamera> virtualCamera) {
         return false;
     }
 
-    // Create a timeline
-    // TODO(b/146465074): EVS v1.1 client should use v1.0 frame delivery logic
-    //                    when it fails to create a timeline.
-    {
+    if (mSyncSupported) {
+        // Create a timeline
         std::lock_guard<std::mutex> lock(mFrameMutex);
-        mTimelines[(uint64_t)virtualCamera.get()] = make_unique<UniqueTimeline>(0);
+        auto timeline = make_unique<UniqueTimeline>(0);
+        if (timeline != nullptr) {
+            mTimelines[(uint64_t)virtualCamera.get()] = std::move(timeline);
+        } else {
+            LOG(WARNING) << "Failed to create a timeline. "
+                         << "Client " << std::hex << virtualCamera.get()
+                         << " will use v1.0 frame delivery mechanism.";
+        }
     }
 
     // Add this virtualCamera to our ownership list via weak pointer
@@ -150,6 +155,12 @@ bool HalCamera::changeFramesInFlight(int delta) {
 
 UniqueFence HalCamera::requestNewFrame(sp<VirtualCamera> client,
                                        const int64_t lastTimestamp) {
+    if (!mSyncSupported) {
+        LOG(ERROR) << "This HalCamera does not support a fence-based "
+                   << "frame delivery.";
+        return {};
+    }
+
     FrameRequest req;
     req.client = client;
     req.timestamp = lastTimestamp;
@@ -196,8 +207,10 @@ void HalCamera::clientStreamEnding(sp<VirtualCamera> client) {
             mNextRequests->erase(itReq);
 
             // Signal a pending fence and delete associated timeline.
-            mTimelines[clientId]->BumpTimelineEventCounter();
-            mTimelines.erase(clientId);
+            if (mTimelines.find(clientId) != mTimelines.end()) {
+                mTimelines[clientId]->BumpTimelineEventCounter();
+                mTimelines.erase(clientId);
+            }
         }
 
         auto itCam = mClients.begin();
@@ -303,7 +316,7 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
     //           but this must be derived from current framerate.
     constexpr int64_t kThreshold = 16 * 1e+3; // ms
     unsigned frameDeliveriesV1 = 0;
-    {
+    if (mSyncSupported) {
         std::lock_guard<std::mutex> lock(mFrameMutex);
         std::swap(mCurrentRequests, mNextRequests);
         while (!mCurrentRequests->empty()) {
@@ -325,11 +338,12 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
         }
     }
 
-    // Frames are being forwarded to v1.0 clients always.
+    // Frames are being forwarded to active v1.0 clients and v1.1 clients if we
+    // failed to create a timeline.
     unsigned frameDeliveries = 0;
     for (auto&& client : mClients) {
         sp<VirtualCamera> vCam = client.promote();
-        if (vCam == nullptr || vCam->getVersion() > 0) {
+        if (vCam == nullptr || (mSyncSupported && vCam->getVersion() > 0)) {
             continue;
         }
 
