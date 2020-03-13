@@ -46,6 +46,8 @@ import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
 import android.os.RemoteException;
@@ -58,12 +60,14 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
+import com.android.car.hal.UserHalService.HalCallback;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
+import com.android.car.user.CarUserService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -120,6 +124,8 @@ public class CarPowerManagementServiceTest {
     private UserManager mUserManager;
     @Mock
     private Resources mResources;
+    @Mock
+    private CarUserService mUserService;
 
     // Wakeup time for the test; it's automatically set based on @WakeupTime annotation
     private int mWakeupTime;
@@ -202,7 +208,8 @@ public class CarPowerManagementServiceTest {
                 + ", maxGarageModeRunningDurationInSecs="
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
-                mSystemInterface, mCarUserManagerHelper, mUserManager, NEW_GUEST_NAME);
+                mSystemInterface, mCarUserManagerHelper, mUserManager, mUserService,
+                NEW_GUEST_NAME);
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
         mPowerHal.setSignalListener(mPowerSignalListener);
@@ -694,6 +701,53 @@ public class CarPowerManagementServiceTest {
 
         verifyUserNotSwitched();
         // expects WTF
+    }
+
+    @Test
+    public void testUserSwitchingUsingHal_failure_setTimeout() throws Exception {
+        userSwitchingWhenHalFailsTest(HalCallback.STATUS_HAL_SET_TIMEOUT);
+    }
+
+    @Test
+    public void testUserSwitchingUsingHal_failure_responseTimeout() throws Exception {
+        userSwitchingWhenHalFailsTest(HalCallback.STATUS_HAL_RESPONSE_TIMEOUT);
+    }
+
+    @Test
+    public void testUserSwitchingUsingHal_failure_concurrentOperation() throws Exception {
+        userSwitchingWhenHalFailsTest(HalCallback.STATUS_CONCURRENT_OPERATION);
+    }
+
+    @Test
+    public void testUserSwitchingUsingHal_failure_wrongResponse() throws Exception {
+        userSwitchingWhenHalFailsTest(HalCallback.STATUS_WRONG_HAL_RESPONSE);
+    }
+
+    /**
+     * Tests all scenarios where the HAL.getInitialUserInfo() call failed - the outcome is the
+     * same, it should use the default behavior.
+     */
+    private void userSwitchingWhenHalFailsTest(int status) throws Exception {
+        initTest();
+        enableUserHal();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setUserInfo(11, NO_USER_INFO_FLAGS);
+        setCurrentUser(10);
+        setInitialUser(11);
+        doAnswer((invocation) -> {
+            HalCallback<InitialUserInfoResponse> callback = invocation.getArgument(1);
+            callback.onResponse(status, /* response= */ null);
+            return null;
+        }).when(mUserService).getInitialUserInfo(eq(InitialUserInfoRequestType.RESUME), notNull());
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserSwitched(11);
+        verifyWtfNeverLogged();
+    }
+
+    private void enableUserHal() {
+        when(mUserService.isUserHalSupported()).thenReturn(true);
     }
 
     private void suspendAndResume() throws Exception {
