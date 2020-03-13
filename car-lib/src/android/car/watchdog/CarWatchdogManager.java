@@ -24,11 +24,14 @@ import android.annotation.SystemApi;
 import android.automotive.watchdog.ICarWatchdogClient;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -46,6 +49,8 @@ import java.util.concurrent.Executor;
 public final class CarWatchdogManager extends CarManagerBase {
 
     private static final String TAG = CarWatchdogManager.class.getSimpleName();
+    private static final int INVALID_SESSION_ID = -1;
+    private static final int NUMBER_OF_CONDITIONS_TO_BE_MET = 2;
 
     /** Timeout for services which should be responsive. The length is 3,000 milliseconds. */
     public static final int TIMEOUT_CRITICAL = 0;
@@ -68,11 +73,30 @@ public final class CarWatchdogManager extends CarManagerBase {
 
     private final ICarWatchdogService mService;
     private final ICarWatchdogClientImpl mClientImpl;
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private CarWatchdogClientCallback mRegisteredClient;
     @GuardedBy("mLock")
     private Executor mCallbackExecutor;
+    @GuardedBy("mLock")
+    private SessionInfo mSession = new SessionInfo(INVALID_SESSION_ID, INVALID_SESSION_ID);
+    @GuardedBy("mLock")
+    private int mRemainingConditions;
+
+    private Runnable mMainThreadCheck = () -> {
+        int sessionId;
+        boolean shouldReport;
+        synchronized (mLock) {
+            mRemainingConditions--;
+            sessionId = mSession.currentId;
+            shouldReport = checkConditionLocked();
+        }
+        if (shouldReport) {
+            reportToService(sessionId);
+        }
+    };
 
     /**
      * CarWatchdogClientCallback is implemented by the clients which want to be health-checked by
@@ -184,21 +208,29 @@ public final class CarWatchdogManager extends CarManagerBase {
      * @param client Watchdog client implementing {@link CarWatchdogClientCallback} interface.
      * @param sessionId Session id given by {@link CarWatchdogManager}.
      * @throws IllegalStateException if {@code client} is not registered.
+     * @throws IllegalArgumentException if {@code session Id} is not correct.
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_WATCHDOG)
     public void tellClientAlive(@NonNull CarWatchdogClientCallback client, int sessionId) {
-        // TODO(ericjeong): Need to check if main thread is active regardless of how many clients
-        // are registered.
+        boolean shouldReport;
         synchronized (mLock) {
             if (mRegisteredClient != client) {
                 throw new IllegalStateException(
                         "Cannot report client status. The client has not been registered.");
             }
+            Preconditions.checkArgument(sessionId != -1 && mSession.currentId == sessionId,
+                    "Cannot report client status. "
+                    + "The given session id doesn't match the current one.");
+            if (mSession.lastReportedId == sessionId) {
+                Log.w(TAG, "The given session id is already reported.");
+                return;
+            }
+            mSession.lastReportedId = sessionId;
+            mRemainingConditions--;
+            shouldReport = checkConditionLocked();
         }
-        try {
-            mService.tellClientAlive(mClientImpl, sessionId);
-        } catch (RemoteException e) {
-            handleRemoteExceptionFromCarService(e);
+        if (shouldReport) {
+            reportToService(sessionId);
         }
     }
 
@@ -211,15 +243,55 @@ public final class CarWatchdogManager extends CarManagerBase {
     private void checkClientStatus(int sessionId, int timeout) {
         CarWatchdogClientCallback client;
         Executor executor;
+        mMainHandler.removeCallbacks(mMainThreadCheck);
         synchronized (mLock) {
             if (mRegisteredClient == null) {
                 Log.w(TAG, "Cannot check client status. The client has not been registered.");
                 return;
             }
+            mSession.currentId = sessionId;
             client = mRegisteredClient;
             executor = mCallbackExecutor;
+            mRemainingConditions = NUMBER_OF_CONDITIONS_TO_BE_MET;
         }
-        executor.execute(() -> client.onCheckHealthStatus(sessionId, timeout));
+        // For a car watchdog client to be active, 1) its main thread is active and 2) the client
+        // responds within timeout. When each condition is met, the remaining task counter is
+        // decreased. If the remaining task counter is zero, the client is considered active.
+        // TODO(ericjeong): use a pooled-lambda.
+        mMainHandler.post(mMainThreadCheck);
+        // Call the client callback to check if the client is active.
+        executor.execute(() -> {
+            boolean checkDone = client.onCheckHealthStatus(sessionId, timeout);
+            if (checkDone) {
+                boolean shouldReport;
+                synchronized (mLock) {
+                    if (mSession.lastReportedId == sessionId) {
+                        return;
+                    }
+                    mSession.lastReportedId = sessionId;
+                    mRemainingConditions--;
+                    shouldReport = checkConditionLocked();
+                }
+                if (shouldReport) {
+                    reportToService(sessionId);
+                }
+            }
+        });
+    }
+
+    private boolean checkConditionLocked() {
+        if (mRemainingConditions < 0) {
+            Log.wtf(TAG, "Remaining condition is less than zero: should not happen");
+        }
+        return mRemainingConditions == 0;
+    }
+
+    private void reportToService(int sessionId) {
+        try {
+            mService.tellClientAlive(mClientImpl, sessionId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /** @hide */
@@ -236,6 +308,16 @@ public final class CarWatchdogManager extends CarManagerBase {
             if (manager != null) {
                 manager.checkClientStatus(sessionId, timeout);
             }
+        }
+    }
+
+    private final class SessionInfo {
+        public int currentId;
+        public int lastReportedId;
+
+        SessionInfo(int currentId, int lastReportedId) {
+            this.currentId = currentId;
+            this.lastReportedId = lastReportedId;
         }
     }
 }
