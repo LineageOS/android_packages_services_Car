@@ -160,8 +160,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
             // Update last active user if the switched-to user is a persistent, non-system user.
             final int currentUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
-            if (currentUser > UserHandle.USER_SYSTEM
-                        && mCarUserManagerHelper.isPersistentUser(currentUser)) {
+            if (currentUser > UserHandle.USER_SYSTEM) {
                 mCarUserManagerHelper.setLastActiveUser(currentUser);
             }
         }
