@@ -37,6 +37,7 @@ import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.location.LocationManager;
@@ -47,6 +48,7 @@ import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
+import android.sysprop.CarProperties;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TimingsTraceLog;
@@ -55,6 +57,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
+import com.android.car.hal.UserHalService.HalCallback;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.os.IResultReceiver;
@@ -132,6 +135,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     @GuardedBy("mLockUser")
     private final SparseArray<IResultReceiver> mLifecycleListeners = new SparseArray<>();
+
+    private final int mHalTimeoutMs = CarProperties.user_hal_timeout().orElse(5_000);
 
     /**
      * Interface for callbacks related to user activities.
@@ -248,6 +253,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 writer.println();
             }
             writer.println("EnablePassengerSupport: " + mEnablePassengerSupport);
+            writer.println("User HAL timeout: " + mHalTimeoutMs + "ms");
             writer.println("Relevant overlayable  properties");
             Resources res = mContext.getResources();
             writer.printf("%sowner_name=%s\n", indent,
@@ -532,6 +538,26 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 Log.w(TAG_USER, "Could not send result back to receiver", e);
             }
         });
+    }
+
+    /**
+     * Calls the User HAL to get the initial user info.
+     *
+     * @param requestType type as defined by {@code InitialUserInfoRequestType}.
+     * @param callback callback to receive the results.
+     */
+    public void getInitialUserInfo(int requestType,
+            HalCallback<InitialUserInfoResponse> callback) {
+        Objects.requireNonNull(callback, "callback cannot be null");
+        UsersInfo usersInfo = getUsersInfo();
+        mHal.getInitialUserInfo(requestType, mHalTimeoutMs, usersInfo, callback);
+    }
+
+    /**
+     * Checks if the User HAL is supported.
+     */
+    public boolean isUserHalSupported() {
+        return mHal.isSupported();
     }
 
     // TODO(b/144120654): use helper to generate UsersInfo
