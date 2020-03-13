@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
@@ -23,11 +25,12 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.os.Looper;
 
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.RequiresDevice;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.R;
 
@@ -35,9 +38,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 @RunWith(AndroidJUnit4.class)
 public class CarAudioFocusTest {
-    private static final int TEST_TIMING_TOLERANCE_MS = 100;
+    private static final long TEST_TIMING_TOLERANCE_MS = 100;
+    private static final int TEST_TORELANCE_MAX_ITERATIONS = 5;
     private static final int INTERACTION_REJECT = 0;  // Focus not granted
     private static final int INTERACTION_EXCLUSIVE = 1;  // Focus granted, others loose focus
     private static final int INTERACTION_CONCURRENT = 2;  // Focus granted, others keep focus
@@ -112,8 +119,8 @@ public class CarAudioFocusTest {
 
     @Before
     public void setUp() {
-        Context context = ApplicationProvider.getApplicationContext();
-        mAudioManager = new AudioManager(context);
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        mAudioManager = (AudioManager) context.getSystemService(AudioManager.class);
 
         boolean isDynamicRoutingEnabled = context.getResources().getBoolean(
                 R.bool.audioUseDynamicRouting);
@@ -470,102 +477,131 @@ public class CarAudioFocusTest {
             int interaction,
             int gainType,
             boolean pauseForDucking) throws Exception {
+        final AudioFocusRequest[] focusRequests = new AudioFocusRequest[2];
+        final FocusChangeListener[] focusListeners = new FocusChangeListener[2];
+        try {
+            final FocusChangeListener focusChangeListener1 = new FocusChangeListener();
+            final AudioFocusRequest audioFocusRequest1 = new AudioFocusRequest
+                    .Builder(AudioManager.AUDIOFOCUS_GAIN)
+                    .setAudioAttributes(attributes1)
+                    .setOnAudioFocusChangeListener(focusChangeListener1)
+                    .setForceDucking(false)
+                    .setWillPauseWhenDucked(pauseForDucking)
+                    .build();
+            focusRequests[0] = audioFocusRequest1;
+            focusListeners[0] = focusChangeListener1;
+            final FocusChangeListener focusChangeListener2 = new FocusChangeListener();
+            final AudioFocusRequest audioFocusRequest2 = new AudioFocusRequest
+                    .Builder(gainType)
+                    .setAudioAttributes(attributes2)
+                    .setOnAudioFocusChangeListener(focusChangeListener2)
+                    .setForceDucking(false)
+                    .build();
+            focusRequests[1] = audioFocusRequest2;
+            focusListeners[1] = focusChangeListener2;
 
-        final FocusChangeListener focusChangeListener1 = new FocusChangeListener();
-        final AudioFocusRequest audioFocusRequest1 = new AudioFocusRequest
-                .Builder(AudioManager.AUDIOFOCUS_GAIN)
-                .setAudioAttributes(attributes1)
-                .setOnAudioFocusChangeListener(focusChangeListener1)
-                .setForceDucking(false)
-                .setWillPauseWhenDucked(pauseForDucking)
-                .build();
+            int expectedLoss = 0;
 
-        final FocusChangeListener focusChangeListener2 = new FocusChangeListener();
-        final AudioFocusRequest audioFocusRequest2 = new AudioFocusRequest
-                .Builder(gainType)
-                .setAudioAttributes(attributes2)
-                .setOnAudioFocusChangeListener(focusChangeListener2)
-                .setForceDucking(false)
-                .build();
+            // Each focus gain type will return a different focus lost type
+            switch (gainType) {
+                case AudioManager.AUDIOFOCUS_GAIN:
+                    expectedLoss = AudioManager.AUDIOFOCUS_LOSS;
+                    break;
+                case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT:
+                    expectedLoss = AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
+                    break;
+                case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
+                    expectedLoss = AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
+                    // Note loss or gain will not be sent as both can live concurrently
+                    if (interaction == INTERACTION_CONCURRENT && !pauseForDucking) {
+                        expectedLoss = AudioManager.AUDIOFOCUS_NONE;
+                    }
+                    break;
+            }
 
-        int expectedLoss = 0;
+            int secondRequestResultsExpected = AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
-        // Each focus gain type will return a different focus lost type
-        switch (gainType) {
-            case AudioManager.AUDIOFOCUS_GAIN:
-                expectedLoss = AudioManager.AUDIOFOCUS_LOSS;
-                break;
-            case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT:
-                expectedLoss = AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
-                break;
-            case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
-                expectedLoss = AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
-                // Note loss or gain will not be sent as both can live concurrently
-                if (interaction == INTERACTION_CONCURRENT && !pauseForDucking) {
-                    expectedLoss = AudioManager.AUDIOFOCUS_NONE;
-                }
-                break;
-        }
+            if (interaction == INTERACTION_REJECT) {
+                secondRequestResultsExpected = AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+            }
 
-        int secondRequestResultsExpected = AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
-
-        if (interaction == INTERACTION_REJECT) {
-            secondRequestResultsExpected = AudioManager.AUDIOFOCUS_REQUEST_FAILED;
-        }
-
-        int requestResult = mAudioManager.requestAudioFocus(audioFocusRequest1);
-        String message = "Focus gain request failed  for 1st "
-                + AudioAttributes.usageToString(attributes1.getSystemUsage());
-        assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
-
-        requestResult = mAudioManager.requestAudioFocus(audioFocusRequest2);
-        message = "Focus gain request failed for 2nd "
-                + AudioAttributes.usageToString(attributes2.getSystemUsage());
-        assertEquals(message, secondRequestResultsExpected, requestResult);
-
-        // If the results is rejected for second one we only have to clean up first
-        // as the second focus request is rejected
-        if (interaction == INTERACTION_REJECT) {
-            requestResult = mAudioManager.abandonAudioFocusRequest(audioFocusRequest1);
-            message = "Focus loss request failed for 1st "
+            int requestResult = mAudioManager.requestAudioFocus(audioFocusRequest1);
+            String message = "Focus gain request failed  for 1st "
                     + AudioAttributes.usageToString(attributes1.getSystemUsage());
             assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
-        }
 
-        // If exclusive we expect to lose focus on 1st one
-        // unless we have a concurrent interaction
-        if (interaction == INTERACTION_EXCLUSIVE || interaction == INTERACTION_CONCURRENT) {
-            Thread.sleep(TEST_TIMING_TOLERANCE_MS);
-            message = "Focus change was not dispatched for 1st "
-                    + AudioAttributes.usageToString(ATTR_MEDIA.getSystemUsage());
-            assertEquals(message, expectedLoss,
-                    focusChangeListener1.getFocusChangeAndReset());
+            requestResult = mAudioManager.requestAudioFocus(audioFocusRequest2);
+            message = "Focus gain request failed for 2nd "
+                    + AudioAttributes.usageToString(attributes2.getSystemUsage());
+            assertEquals(message, secondRequestResultsExpected, requestResult);
 
-            requestResult = mAudioManager.abandonAudioFocusRequest(audioFocusRequest2);
-            message = "Focus loss request failed  for 2nd "
-                    + AudioAttributes.usageToString(ATTR_MEDIA.getSystemUsage());
-            assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
-
-            // If the loss was transient then we should have received back on 1st
-            if ((gainType == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
-                    || gainType == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)) {
-
-                // Since ducking and concurrent can exist together
-                // this needs to be skipped as the focus lost is not sent
-                if (!(interaction == INTERACTION_CONCURRENT
-                        && gainType == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)) {
-                    Thread.sleep(TEST_TIMING_TOLERANCE_MS);
-                    message = "Focus change was not dispatched for 1st "
-                            + AudioAttributes.usageToString(ATTR_MEDIA.getSystemUsage());
-                    assertEquals(message, AudioManager.AUDIOFOCUS_GAIN,
-                            focusChangeListener1.getFocusChangeAndReset());
-                }
-                // For concurrent focus interactions still needs to be released
-                message = "Focus loss request failed  for 1st  "
-                        + AudioAttributes.usageToString(attributes1.getSystemUsage());
+            // If the results is rejected for second one we only have to clean up first
+            // as the second focus request is rejected
+            if (interaction == INTERACTION_REJECT) {
                 requestResult = mAudioManager.abandonAudioFocusRequest(audioFocusRequest1);
-                assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED,
-                        requestResult);
+                focusRequests[0] = null;
+                message = "Focus loss request failed for 1st "
+                        + AudioAttributes.usageToString(attributes1.getSystemUsage());
+                assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
+            }
+
+            // If exclusive we expect to lose focus on 1st one
+            // unless we have a concurrent interaction
+            if (interaction == INTERACTION_EXCLUSIVE || interaction == INTERACTION_CONCURRENT) {
+                message = "Focus change was not dispatched for 1st "
+                        + AudioAttributes.usageToString(attributes1.getSystemUsage());
+                boolean shouldStop = false;
+                int counter = 0;
+                while (!shouldStop && counter++ < TEST_TORELANCE_MAX_ITERATIONS) {
+                    boolean gainedFocusLoss = focusChangeListener1.waitForFocusChangeAndAssertFocus(
+                            TEST_TIMING_TOLERANCE_MS, expectedLoss, message);
+                    shouldStop = gainedFocusLoss
+                            || (expectedLoss == AudioManager.AUDIOFOCUS_NONE);
+                }
+                assertThat(shouldStop).isTrue();
+                focusChangeListener1.resetFocusChangeAndWait();
+
+                requestResult = mAudioManager.abandonAudioFocusRequest(audioFocusRequest2);
+                focusRequests[1] = null;
+                message = "Focus loss request failed  for 2nd "
+                        + AudioAttributes.usageToString(attributes2.getSystemUsage());
+                assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
+
+                // If the loss was transient then we should have received back on 1st
+                if ((gainType == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+                        || gainType == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)) {
+
+                    // Since ducking and concurrent can exist together
+                    // this needs to be skipped as the focus lost is not sent
+                    if (!(interaction == INTERACTION_CONCURRENT
+                            && gainType == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)) {
+                        message = "Focus change was not dispatched for 1st "
+                                + AudioAttributes.usageToString(attributes1.getSystemUsage());
+
+                        boolean focusGained = false;
+                        int count = 0;
+                        while (!focusGained && count++ < TEST_TORELANCE_MAX_ITERATIONS) {
+                            focusGained = focusChangeListener1.waitForFocusChangeAndAssertFocus(
+                                    TEST_TIMING_TOLERANCE_MS,
+                                    AudioManager.AUDIOFOCUS_GAIN, message);
+                        }
+                        assertThat(focusGained).isTrue();
+                        focusChangeListener1.resetFocusChangeAndWait();
+                    }
+                    // For concurrent focus interactions still needs to be released
+                    message = "Focus loss request failed  for 1st  "
+                            + AudioAttributes.usageToString(attributes1.getSystemUsage());
+                    requestResult = mAudioManager.abandonAudioFocusRequest(audioFocusRequest1);
+                    focusRequests[0] = null;
+                    assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED,
+                            requestResult);
+                }
+            }
+        } finally {
+            for (AudioFocusRequest focusRequest: focusRequests) {
+                if (focusRequest != null) {
+                    mAudioManager.abandonAudioFocusRequest(focusRequest);
+                }
             }
         }
     }
@@ -578,7 +614,7 @@ public class CarAudioFocusTest {
      */
     private void requestAndLoseFocusForAttribute(AudioAttributes attribute) throws Exception {
         final FocusChangeListener focusChangeListener = new FocusChangeListener();
-        final AudioFocusRequest audioFocusRequest = new AudioFocusRequest
+        AudioFocusRequest audioFocusRequest = new AudioFocusRequest
                 .Builder(AudioManager.AUDIOFOCUS_GAIN)
                 .setAudioAttributes(attribute)
                 .setOnAudioFocusChangeListener(focusChangeListener)
@@ -586,42 +622,61 @@ public class CarAudioFocusTest {
                 .build();
 
 
-        int requestResult = mAudioManager.requestAudioFocus(audioFocusRequest);
-        String message = "Focus gain request failed  for "
-                + AudioAttributes.usageToString(attribute.getSystemUsage());
-        assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
+        try {
+            int requestResult = mAudioManager.requestAudioFocus(audioFocusRequest);
+            String message = "Focus gain request failed  for "
+                    + AudioAttributes.usageToString(attribute.getSystemUsage());
+            assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
 
-        Thread.sleep(TEST_TIMING_TOLERANCE_MS);
-        // Verify no focus changed dispatched
-        message = "Focus change was dispatched for "
-                + AudioAttributes.usageToString(attribute.getSystemUsage());
-        assertEquals(message, AudioManager.AUDIOFOCUS_NONE,
-                focusChangeListener.getFocusChangeAndReset());
+            // Verify no focus changed dispatched
+            message = "Focus change was dispatched for "
+                    + AudioAttributes.usageToString(attribute.getSystemUsage());
 
-        requestResult = mAudioManager.abandonAudioFocusRequest(audioFocusRequest);
-        message = "Focus loss request failed  for "
-                + AudioAttributes.usageToString(attribute.getSystemUsage());
-        assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
+            assertThat(focusChangeListener.waitForFocusChangeAndAssertFocus(
+                    TEST_TIMING_TOLERANCE_MS, AudioManager.AUDIOFOCUS_NONE, message)).isFalse();
+            focusChangeListener.resetFocusChangeAndWait();
+
+            requestResult = mAudioManager.abandonAudioFocusRequest(audioFocusRequest);
+            audioFocusRequest = null;
+            message = "Focus loss request failed  for "
+                    + AudioAttributes.usageToString(attribute.getSystemUsage());
+            assertEquals(message, AudioManager.AUDIOFOCUS_REQUEST_GRANTED, requestResult);
+        } finally {
+            if (audioFocusRequest != null) {
+                mAudioManager.abandonAudioFocusRequest(audioFocusRequest);
+            }
+        }
     }
 
     private static class FocusChangeListener implements AudioManager.OnAudioFocusChangeListener {
-        private final Object mLock = new Object();
+        private final Semaphore mChangeEventSignal = new Semaphore(0);
         private int mFocusChange = AudioManager.AUDIOFOCUS_NONE;
 
-        int getFocusChangeAndReset() {
-            final int change;
-            synchronized (mLock) {
-                change = mFocusChange;
-                mFocusChange = AudioManager.AUDIOFOCUS_NONE;
+        private boolean waitForFocusChangeAndAssertFocus(long timeoutMs, int expectedFocus,
+                String message) {
+            boolean acquired = false;
+            try {
+                acquired = mChangeEventSignal.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
+            } catch (Exception ignored) {
+
             }
-            return change;
+            if (acquired) {
+                assertEquals(message, expectedFocus, mFocusChange);
+            }
+            return acquired;
+        }
+
+        private void resetFocusChangeAndWait() {
+            mFocusChange = AudioManager.AUDIOFOCUS_NONE;
+            mChangeEventSignal.drainPermits();
         }
 
         @Override
         public void onAudioFocusChange(int focusChange) {
-            synchronized (mLock) {
-                mFocusChange = focusChange;
-            }
+            // should be dispatched to main thread.
+            assertThat(Looper.getMainLooper()).isEqualTo(Looper.myLooper());
+            mFocusChange = focusChange;
+            mChangeEventSignal.release();
         }
     }
 }
