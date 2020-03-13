@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "ConfigBuilder.h"
+#include "DebugDisplayManager.h"
 #include "InputManager.h"
 #include "Options.pb.h"
 #include "RunnerEngine.h"
@@ -238,6 +239,10 @@ class DefaultEngine : public RunnerEngine {
      * stream to dump to display for debug purposes
      */
     int32_t mDisplayStream = ClientConfig::kInvalidId;
+    /**
+     * Debug display manager.
+     */
+    std::unique_ptr<debug_display_manager::DebugDisplayManager> mDebugDisplayManager = nullptr;
     /**
      * graph descriptor
      */

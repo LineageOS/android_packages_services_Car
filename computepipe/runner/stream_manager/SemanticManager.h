@@ -67,6 +67,8 @@ class SemanticManager : public StreamManager, StreamManagerInit {
     Status queuePacket(const char* data, const uint32_t size, uint64_t timestamp) override;
     /* Queues an image packet produced by graph stream */
     Status queuePacket(const InputFrame& inputData, uint64_t timestamp) override;
+    /* Make a copy of the packet. */
+    std::shared_ptr<MemHandle> clonePacket(std::shared_ptr<MemHandle> handle) override;
     /* Override handling of Runner Engine Events */
     void notifyEndOfStream();
 
