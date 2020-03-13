@@ -41,7 +41,6 @@ import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
 
-import com.android.car.hal.UserHalService.HalCallback;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
