@@ -242,6 +242,13 @@ public class MockedCarTestBase {
         mMockedVehicleHal.injectError(errorCode, propId, areaId);
     }
 
+    /**
+     * Create new Car instance for testing.
+     */
+    public Car createNewCar() {
+        return new Car(mMockedCarTestContext, mCarImpl, null /* handler */);
+    }
+
     public CarPackageManagerService getPackageManagerService() {
         return (CarPackageManagerService) mCarImpl.getCarService(Car.PACKAGE_SERVICE);
     }
