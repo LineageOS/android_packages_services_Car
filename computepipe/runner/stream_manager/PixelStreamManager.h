@@ -79,6 +79,8 @@ class PixelStreamManager : public StreamManager, StreamManagerInit {
     Status queuePacket(const char* data, const uint32_t size, uint64_t timestamp) override;
     // Queues pixel packet produced by graph stream
     Status queuePacket(const InputFrame& frame, uint64_t timestamp) override;
+    /* Make a copy of the packet. */
+    std::shared_ptr<MemHandle> clonePacket(std::shared_ptr<MemHandle> handle) override;
 
     Status handleExecutionPhase(const RunnerEvent& e) override;
     Status handleStopWithFlushPhase(const RunnerEvent& e) override;
@@ -94,7 +96,13 @@ class PixelStreamManager : public StreamManager, StreamManagerInit {
     int mStreamId;
     uint32_t mMaxInFlightPackets;
     std::shared_ptr<StreamEngineInterface> mEngine;
-    std::map<int, std::shared_ptr<PixelMemHandle>> mBuffersInUse;
+
+    struct BufferMetadata {
+        int outstandingRefCount;
+        std::shared_ptr<PixelMemHandle> handle;
+    };
+
+    std::map<int, BufferMetadata> mBuffersInUse;
     std::vector<std::shared_ptr<PixelMemHandle>> mBuffersReady;
 };
 

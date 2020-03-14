@@ -270,7 +270,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
                 IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera_1_1(id, streamCfg))
                 .withDefault(nullptr);
             if (device == nullptr) {
-                LOG(ERROR) << "Failed to open hardware camera " << cameraId.c_str();
+                LOG(ERROR) << "Failed to open hardware camera " << cameraId;
                 success = false;
                 break;
             } else {
@@ -280,6 +280,13 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
                     mHwEnumerator->closeCamera(device);
                     success = false;
                     break;
+                } else if (!hwCamera->isSyncSupported()) {
+                    LOG(INFO) << id << " does not support a sw_sync.";
+                    if (physicalCameras.size() > 1) {
+                        LOG(ERROR) << "sw_sync is required for logical camera devices.";
+                        success = false;
+                        break;
+                    }
                 }
             }
 
@@ -295,7 +302,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
         }
     }
 
-    if (sourceCameras.size() < 1) {
+    if (!success || sourceCameras.size() < 1) {
         LOG(ERROR) << "Failed to open any physical camera device";
         return nullptr;
     }
