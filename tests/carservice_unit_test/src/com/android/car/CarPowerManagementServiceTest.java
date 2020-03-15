@@ -46,6 +46,8 @@ import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
 import android.os.RemoteException;
@@ -58,12 +60,14 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
+import com.android.car.hal.UserHalService.HalCallback;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
+import com.android.car.user.CarUserService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -98,6 +102,7 @@ public class CarPowerManagementServiceTest {
     private static final long WAIT_TIMEOUT_MS = 2000;
     private static final long WAIT_TIMEOUT_LONG_MS = 5000;
     private static final int NO_USER_INFO_FLAGS = 0;
+    private static final String NEW_GUEST_NAME = "NewestGuestInTheBlock";
 
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
     private final MockSystemStateInterface mSystemStateInterface = new MockSystemStateInterface();
@@ -119,6 +124,8 @@ public class CarPowerManagementServiceTest {
     private UserManager mUserManager;
     @Mock
     private Resources mResources;
+    @Mock
+    private CarUserService mUserService;
 
     // Wakeup time for the test; it's automatically set based on @WakeupTime annotation
     private int mWakeupTime;
@@ -201,7 +208,8 @@ public class CarPowerManagementServiceTest {
                 + ", maxGarageModeRunningDurationInSecs="
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
-                mSystemInterface, mCarUserManagerHelper, mUserManager);
+                mSystemInterface, mCarUserManagerHelper, mUserManager, mUserService,
+                NEW_GUEST_NAME);
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
         mPowerHal.setSignalListener(mPowerSignalListener);
@@ -403,8 +411,25 @@ public class CarPowerManagementServiceTest {
         verifyWtfNeverLogged();
     }
 
+    /**
+     * This test case tests the same scenario as {@link #testUserSwitchingOnResume_differentUser()},
+     * but indirectly triggering {@code switchUserOnResumeIfNecessary()} through HAL events.
+     */
     @Test
-    @FlakyTest
+    public void testSleepEntryAndWakeUpForProcessing() throws Exception {
+        initTest();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setUserInfo(11, NO_USER_INFO_FLAGS);
+        setCurrentUser(10);
+        setInitialUser(11);
+
+        suspendAndResume();
+
+        verifyUserSwitched(11);
+        verifyWtfNeverLogged();
+    }
+
+    @Test
     public void testUserSwitchingOnResume_differentUser() throws Exception {
         initTest();
         setUserInfo(10, NO_USER_INFO_FLAGS);
@@ -452,7 +477,7 @@ public class CarPowerManagementServiceTest {
         setInitialUser(10);
         setCurrentUser(10);
         expectGuestMarkedForDeletionOk(10);
-        expectNewGuestCreated(11, "ElGuesto");
+        expectNewGuestCreated(11);
 
         suspendAndResumeForUserSwitchingTests();
 
@@ -468,7 +493,7 @@ public class CarPowerManagementServiceTest {
         setInitialUser(11);
         setCurrentUser(10);
         expectGuestMarkedForDeletionOk(11);
-        expectNewGuestCreated(12, "ElGuesto");
+        expectNewGuestCreated(12);
 
         suspendAndResumeForUserSwitchingTests();
 
@@ -500,7 +525,7 @@ public class CarPowerManagementServiceTest {
         setInitialUser(11);
         setCurrentUser(10);
         expectGuestMarkedForDeletionOk(11);
-        expectNewGuestCreated(12, "ElGuesto");
+        expectNewGuestCreated(12);
 
         suspendAndResumeForUserSwitchingTests();
 
@@ -588,7 +613,7 @@ public class CarPowerManagementServiceTest {
         setInitialUser(10);
         setCurrentUser(10);
         expectGuestMarkedForDeletionOk(10);
-        expectNewGuestCreated(11, "ElGuesto");
+        expectNewGuestCreated(11);
 
         suspendAndResumeForUserSwitchingTests();
 
@@ -605,7 +630,7 @@ public class CarPowerManagementServiceTest {
         setInitialUser(11);
         setCurrentUser(10);
         expectGuestMarkedForDeletionOk(11);
-        expectNewGuestCreated(12, "ElGuesto");
+        expectNewGuestCreated(12);
 
         suspendAndResumeForUserSwitchingTests();
 
@@ -640,7 +665,7 @@ public class CarPowerManagementServiceTest {
         setInitialUser(11);
         setCurrentUser(10);
         expectGuestMarkedForDeletionOk(11);
-        expectNewGuestCreated(12, "ElGuesto");
+        expectNewGuestCreated(12);
 
         suspendAndResumeForUserSwitchingTests();
 
@@ -678,7 +703,54 @@ public class CarPowerManagementServiceTest {
         // expects WTF
     }
 
-    private void suspendAndResumeForUserSwitchingTests() throws Exception {
+    @Test
+    public void testUserSwitchingUsingHal_failure_setTimeout() throws Exception {
+        userSwitchingWhenHalFailsTest(HalCallback.STATUS_HAL_SET_TIMEOUT);
+    }
+
+    @Test
+    public void testUserSwitchingUsingHal_failure_responseTimeout() throws Exception {
+        userSwitchingWhenHalFailsTest(HalCallback.STATUS_HAL_RESPONSE_TIMEOUT);
+    }
+
+    @Test
+    public void testUserSwitchingUsingHal_failure_concurrentOperation() throws Exception {
+        userSwitchingWhenHalFailsTest(HalCallback.STATUS_CONCURRENT_OPERATION);
+    }
+
+    @Test
+    public void testUserSwitchingUsingHal_failure_wrongResponse() throws Exception {
+        userSwitchingWhenHalFailsTest(HalCallback.STATUS_WRONG_HAL_RESPONSE);
+    }
+
+    /**
+     * Tests all scenarios where the HAL.getInitialUserInfo() call failed - the outcome is the
+     * same, it should use the default behavior.
+     */
+    private void userSwitchingWhenHalFailsTest(int status) throws Exception {
+        initTest();
+        enableUserHal();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setUserInfo(11, NO_USER_INFO_FLAGS);
+        setCurrentUser(10);
+        setInitialUser(11);
+        doAnswer((invocation) -> {
+            HalCallback<InitialUserInfoResponse> callback = invocation.getArgument(1);
+            callback.onResponse(status, /* response= */ null);
+            return null;
+        }).when(mUserService).getInitialUserInfo(eq(InitialUserInfoRequestType.RESUME), notNull());
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserSwitched(11);
+        verifyWtfNeverLogged();
+    }
+
+    private void enableUserHal() {
+        when(mUserService.isUserHalSupported()).thenReturn(true);
+    }
+
+    private void suspendAndResume() throws Exception {
         Log.d(TAG, "suspend()");
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
@@ -716,6 +788,10 @@ public class CarPowerManagementServiceTest {
         // Since we just woke up from shutdown, wake up time will be 0
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
         assertThat(mDisplayInterface.getDisplayState()).isFalse();
+    }
+
+    private void suspendAndResumeForUserSwitchingTests() throws Exception {
+        mService.switchUserOnResumeIfNecessary(!mDisableUserSwitchDuringResume);
     }
 
     private void registerListenerToService() {
@@ -830,11 +906,11 @@ public class CarPowerManagementServiceTest {
         when(mUserManager.markGuestForDeletion(userId)).thenReturn(false);
     }
 
-    private void expectNewGuestCreated(int userId, String name) {
+    private void expectNewGuestCreated(int userId) {
         final UserInfo userInfo = new UserInfo();
         userInfo.id = userId;
-        userInfo.name = name;
-        when(mUserManager.createGuest(notNull(), eq(name))).thenReturn(userInfo);
+        userInfo.name = NEW_GUEST_NAME;
+        when(mUserManager.createGuest(notNull(), eq(NEW_GUEST_NAME))).thenReturn(userInfo);
     }
 
     private void expectNewGuestCreationFailed(String name) {

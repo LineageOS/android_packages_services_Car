@@ -31,8 +31,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,6 +48,9 @@ import android.app.IActivityManager;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.settings.CarSettings;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleEvent;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -67,6 +73,7 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import androidx.test.InstrumentationRegistry;
 
+import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.car.hal.UserHalService.HalCallback;
 import com.android.internal.R;
@@ -77,6 +84,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoSession;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -117,6 +126,9 @@ public class CarUserServiceTest {
     @Mock private UserManager mMockedUserManager;
     @Mock private Resources mMockedResources;
     @Mock private Drawable mMockedDrawable;
+    @Mock private UserLifecycleListener mUserLifecycleListener;
+    @Captor private ArgumentCaptor<UserLifecycleEvent> mLifeCycleEventCaptor;
+    @Captor private ArgumentCaptor<UsersInfo> mUsersInfoCaptor;
 
     private MockitoSession mSession;
     private CarUserService mCarUserService;
@@ -199,6 +211,60 @@ public class CarUserServiceTest {
                         UserManager.DISALLOW_MODIFY_ACCOUNTS,
                         true,
                         UserHandle.of(UserHandle.USER_SYSTEM));
+    }
+
+    @Test
+    public void testAddUserLifecycleListener_checkNullParameter() {
+        assertThrows(NullPointerException.class,
+                () -> mCarUserService.addUserLifecycleListener(null));
+    }
+
+    @Test
+    public void testRemoveUserLifecycleListener_checkNullParameter() {
+        assertThrows(NullPointerException.class,
+                () -> mCarUserService.removeUserLifecycleListener(null));
+    }
+
+    @Test
+    public void testOnSwitchUser_addListenerAndReceiveEvent() {
+        // Arrange
+        mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
+
+        // Act
+        int anyNewUserId = 11;
+        mCarUserService.onSwitchUser(anyNewUserId);
+
+        // Verify
+        verifyListenerOnEventInvoked(anyNewUserId,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+    }
+
+    @Test
+    public void testOnSwitchUser_ensureAllListenersAreNotified() {
+        // Arrange: add two listeners, one to fail on onEvent
+        // Adding the failure listener first.
+        UserLifecycleListener failureListener = mock(UserLifecycleListener.class);
+        doThrow(new RuntimeException("Failed onEvent invocation")).when(
+                failureListener).onEvent(any(UserLifecycleEvent.class));
+        mCarUserService.addUserLifecycleListener(failureListener);
+
+        // Adding the non-failure listener later.
+        mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
+
+        // Act
+        int anyNewUserId = 11;
+        mCarUserService.onSwitchUser(anyNewUserId);
+
+        // Verify
+        verifyListenerOnEventInvoked(anyNewUserId,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+    }
+
+    private void verifyListenerOnEventInvoked(int expectedNewUserId, int expectedEventType) {
+        verify(mUserLifecycleListener).onEvent(mLifeCycleEventCaptor.capture());
+        UserLifecycleEvent actualEvent = mLifeCycleEventCaptor.getValue();
+        assertThat(actualEvent.getEventType()).isEqualTo(expectedEventType);
+        assertThat(actualEvent.getUserHandle().getIdentifier()).isEqualTo(expectedNewUserId);
     }
 
     /**
@@ -643,11 +709,60 @@ public class CarUserServiceTest {
     }
 
     /**
+     * Tests the {@code getUserInfo()} that's used by other services.
+     */
+    @Test
+    public void testGetInitialUserInfo() throws Exception {
+        int requestType = 42;
+        mockCurrentUsers(mAdminUser);
+        HalCallback<InitialUserInfoResponse> callback = (s, r) -> { };
+        mCarUserService.getInitialUserInfo(requestType, callback);
+        verify(mUserHal).getInitialUserInfo(eq(requestType), anyInt(), mUsersInfoCaptor.capture(),
+                same(callback));
+        assertDefaultUsersInfo(mUsersInfoCaptor.getValue(), mAdminUser);
+    }
+
+    @Test
+    public void testGetInitialUserInfo_nullCallback() throws Exception {
+        assertThrows(NullPointerException.class,
+                () -> mCarUserService.getInitialUserInfo(42, null));
+    }
+
+    @Test
+    public void testIsHalSupported() throws Exception {
+        when(mUserHal.isSupported()).thenReturn(true);
+        assertThat(mCarUserService.isUserHalSupported()).isTrue();
+    }
+
+    /**
      * Mock calls that generate a {@code UsersInfo}.
      */
     private void mockCurrentUsers(@NonNull UserInfo user) throws Exception {
         when(mMockedIActivityManager.getCurrentUser()).thenReturn(user);
         when(mMockedUserManager.getUsers()).thenReturn(mExistingUsers);
+    }
+
+    /**
+     * Asserts a {@link UsersInfo} that was created based on {@link #mockCurrentUsers(UserInfo)}.
+     */
+    private void assertDefaultUsersInfo(UsersInfo actual, UserInfo currentUser) {
+        // TODO(b/150413515): figure out why this method is not called in other places
+        assertThat(actual).isNotNull();
+        assertSameUser(actual.currentUser, currentUser);
+        assertThat(actual.numberUsers).isEqualTo(mExistingUsers.size());
+        for (int i = 0; i < actual.numberUsers; i++) {
+            assertSameUser(actual.existingUsers.get(i), mExistingUsers.get(i));
+        }
+
+    }
+
+    private void assertSameUser(android.hardware.automotive.vehicle.V2_0.UserInfo halUser,
+            UserInfo androidUser) {
+        assertThat(halUser.userId).isEqualTo(androidUser.id);
+        assertWithMessage("flags mismatch: hal=%s, android=%s",
+                UserInfo.flagsToString(androidUser.flags),
+                UserHalHelper.userFlagsToString(halUser.flags))
+            .that(halUser.flags).isEqualTo(UserHalHelper.convertFlags(androidUser));
     }
 
     private void mockGetInitialInfo(@UserIdInt int currentUserId,

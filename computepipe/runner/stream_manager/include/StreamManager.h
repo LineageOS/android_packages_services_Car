@@ -62,6 +62,8 @@ class StreamManager : public RunnerComponentInterface {
     State getState() {
         return mState;
     }
+    /* Make a copy of the packet. */
+    virtual std::shared_ptr<MemHandle> clonePacket(std::shared_ptr<MemHandle> handle) = 0;
     /* Frees previously dispatched packet based on bufferID. Once client has confirmed usage */
     virtual Status freePacket(int bufferId) = 0;
     /* Queue's packet produced by graph stream */

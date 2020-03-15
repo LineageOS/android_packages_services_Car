@@ -32,6 +32,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.sysprop.CarProperties;
@@ -40,7 +41,6 @@ import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
 
-import com.android.car.hal.UserHalService.HalCallback;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -261,7 +261,7 @@ public final class UserHalService extends HalServiceBase {
         try {
             if (DBG) Log.d(TAG, "Calling hal.set(): " + propRequest);
             mHal.set(propRequest);
-        } catch (PropertyTimeoutException e) {
+        } catch (ServiceSpecificException e) {
             Log.w(TAG, "Failed to set INITIAL_USER_INFO", e);
             callback.onResponse(HalCallback.STATUS_HAL_SET_TIMEOUT, null);
         }

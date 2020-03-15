@@ -30,10 +30,14 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarUserService;
 import android.car.settings.CarSettings;
 import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleEvent;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.location.LocationManager;
@@ -44,6 +48,7 @@ import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
+import android.sysprop.CarProperties;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TimingsTraceLog;
@@ -52,6 +57,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
+import com.android.car.hal.UserHalService.HalCallback;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.os.IResultReceiver;
@@ -113,10 +119,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @GuardedBy("mLockUser")
     private final ArrayList<Integer> mBackgroundUsersRestartedHere = new ArrayList<>();
 
-    // TODO(b/144120654): mege then
+    // TODO(b/144120654): merge then
     private final CopyOnWriteArrayList<UserCallback> mUserCallbacks = new CopyOnWriteArrayList<>();
 
     private final UserHalService mHal;
+
+    /**
+     * List of listeners to be notified on new user activities events.
+     */
+    private final CopyOnWriteArrayList<UserLifecycleListener>
+            mUserLifecycleListeners = new CopyOnWriteArrayList<>();
 
     /**
      * List of lifecycle listeners by uid.
@@ -124,8 +136,15 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @GuardedBy("mLockUser")
     private final SparseArray<IResultReceiver> mLifecycleListeners = new SparseArray<>();
 
-    // TODO(b/144120654): replace by CarUserManager listener
-    /** Interface for callbacks related to user activities. */
+    private final int mHalTimeoutMs = CarProperties.user_hal_timeout().orElse(5_000);
+
+    /**
+     * Interface for callbacks related to user activities.
+     *
+     * @deprecated {@link UserCallback} will be fully replaced by
+     *             {@link UserLifecycleListener} as part of b/145689885
+     */
+    @Deprecated
     public interface UserCallback {
         /** Gets called when user lock status has been changed. */
         void onUserLockChanged(@UserIdInt int userId, boolean unlocked);
@@ -234,6 +253,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 writer.println();
             }
             writer.println("EnablePassengerSupport: " + mEnablePassengerSupport);
+            writer.println("User HAL timeout: " + mHalTimeoutMs + "ms");
+            writer.println("Relevant overlayable  properties");
+            Resources res = mContext.getResources();
+            writer.printf("%sowner_name=%s\n", indent,
+                    res.getString(com.android.internal.R.string.owner_name));
+            writer.printf("%sdefault_guest_name=%s\n", indent,
+                    res.getString(R.string.default_guest_name));
         }
     }
 
@@ -514,6 +540,26 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         });
     }
 
+    /**
+     * Calls the User HAL to get the initial user info.
+     *
+     * @param requestType type as defined by {@code InitialUserInfoRequestType}.
+     * @param callback callback to receive the results.
+     */
+    public void getInitialUserInfo(int requestType,
+            HalCallback<InitialUserInfoResponse> callback) {
+        Objects.requireNonNull(callback, "callback cannot be null");
+        UsersInfo usersInfo = getUsersInfo();
+        mHal.getInitialUserInfo(requestType, mHalTimeoutMs, usersInfo, callback);
+    }
+
+    /**
+     * Checks if the User HAL is supported.
+     */
+    public boolean isUserHalSupported() {
+        return mHal.isSupported();
+    }
+
     // TODO(b/144120654): use helper to generate UsersInfo
     private UsersInfo getUsersInfo() {
         UserInfo currentUser;
@@ -567,16 +613,44 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return !mUserManager.getUserInfo(userId).isEphemeral();
     }
 
-    /** Adds callback to listen to user activity events. */
+    /**
+     * Adds a new callback to listen to user activity events.
+     *
+     * @deprecated users should rely on {@link UserLifecycleListener} and invoke
+     *             {@link #addUserLifecycleListener} instead
+     */
+    @Deprecated
     public void addUserCallback(@NonNull UserCallback callback) {
         Objects.requireNonNull(callback, "callback cannot be null");
         mUserCallbacks.add(callback);
     }
 
-    /** Removes previously added callback to listen user events. */
+    /**
+     * Removes previously added user callback.
+     *
+     * @deprecated users should rely on {@link UserLifecycleListener} and invoke
+     *             {@link CarUserService#remove]UserLifecycleListener} instead
+     */
+    @Deprecated
     public void removeUserCallback(@NonNull UserCallback callback) {
         Objects.requireNonNull(callback, "callback cannot be null");
         mUserCallbacks.remove(callback);
+    }
+
+    /**
+     * Adds a new {@link UserLifecycleListener} to listen to user activity events.
+     */
+    public void addUserLifecycleListener(@NonNull UserLifecycleListener listener) {
+        Objects.requireNonNull(listener, "listener cannot be null");
+        mUserLifecycleListeners.add(listener);
+    }
+
+    /**
+     * Removes previously added {@link UserLifecycleListener}.
+     */
+    public void removeUserLifecycleListener(@NonNull UserLifecycleListener listener) {
+        Objects.requireNonNull(listener, "listener cannot be null");
+        mUserLifecycleListeners.remove(listener);
     }
 
     /** Adds callback to listen to passenger activity events. */
@@ -802,14 +876,43 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }, "SwitchUser-" + userId + "-Listeners").start();
         }
 
-        Log.i(TAG_USER, "Notifying " + mUserCallbacks.size() + " callbacks");
+        notifyUserLifecycleListeners(t, userId);
+        notifyCallbacks(t, userId);
+    }
+
+    private void notifyUserLifecycleListeners(TimingsTraceLog t,
+            @UserIdInt int userId) {
+        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+            Log.d(TAG_USER, "Notifying " + mUserLifecycleListeners.size()
+                    + " user lifecycle listeners");
+        }
+        // TODO(b/145689885): passing null for `from` parameter until it gets properly replaced
+        //     the expected Binder call.
+        UserLifecycleEvent event = new UserLifecycleEvent(
+                /* eventType= */ CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
+                /* from= */ null, /* to= */ new UserHandle(userId));
+        for (UserLifecycleListener listener : mUserLifecycleListeners) {
+            t.traceBegin("onEvent-" + listener.getClass().getName());
+            try {
+                listener.onEvent(event);
+            } catch (RuntimeException e) {
+                Log.e(TAG_USER,
+                        "Exception raised when invoking onEvent for " + listener, e);
+            }
+            t.traceEnd();
+        }
+    }
+
+    private void notifyCallbacks(TimingsTraceLog t, @UserIdInt int userId) {
+        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+            Log.d(TAG_USER, "Notifying " + mUserCallbacks.size() + " callbacks");
+        }
         for (UserCallback callback : mUserCallbacks) {
             t.traceBegin("onSwitchUser-" + callback.getClass().getName());
             callback.onSwitchUser(userId);
             t.traceEnd();
         }
         t.traceEnd(); // onSwitchUser
-
     }
 
     /**

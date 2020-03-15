@@ -187,7 +187,7 @@ public class ICarImpl extends ICar.Stub {
         mCarOccupantZoneService = new CarOccupantZoneService(serviceContext);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
-                systemInterface, mUserManagerHelper);
+                systemInterface, mUserManagerHelper, mCarUserService);
         if (mFeatureController.isFeatureEnabled(CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE)) {
             mCarUserNoticeService = new CarUserNoticeService(serviceContext);
         } else {
@@ -529,6 +529,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarUserService;
             case Car.CAR_WATCHDOG_SERVICE:
                 return mCarWatchdogService;
+            case Car.CAR_INPUT_SERVICE:
+                return mCarInputService;
             default:
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {

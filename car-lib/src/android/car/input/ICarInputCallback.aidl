@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package android.car.input;
 
-package com.android.car.hal;
-
-import static java.lang.Integer.toHexString;
+import android.car.input.RotaryEvent;
+import android.view.KeyEvent;
 
 /**
- * This exception is raised when IVehicle#get or IVehicle#set returns StatusCode.TRY_AGAIN. This
- * usually happens during boot-up meaning that Vehicle HAL is not ready to get or set that property.
+ * Binder API for Input Service.
+ *
+ * @hide
  */
-class PropertyTimeoutException extends Exception {
-    PropertyTimeoutException(int property) {
-        super("Property 0x" + toHexString(property) + " is not ready yet.");
-    }
+oneway interface ICarInputCallback {
+    void onKeyEvents(int targetDisplayType, in List<KeyEvent> keyEvents) = 1;
+    void onRotaryEvents(int targetDisplayType, in List<RotaryEvent> events) = 2;
+    void onCaptureStateChanged(int targetDisplayType, in int[] activeInputTypes) = 3;
 }

@@ -29,6 +29,7 @@ import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.os.ServiceSpecificException;
 import android.util.Log;
 
 import com.android.car.CarLog;
@@ -282,7 +283,7 @@ public class PowerHalService extends HalServiceBase {
         try {
             mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, 0).to(brightness);
             Log.i(CarLog.TAG_POWER, "send display brightness = " + brightness);
-        } catch (PropertyTimeoutException | IllegalArgumentException e) {
+        } catch (ServiceSpecificException | IllegalArgumentException e) {
             Log.e(CarLog.TAG_POWER, "cannot set DISPLAY_BRIGHTNESS", e);
         }
     }
@@ -294,7 +295,7 @@ public class PowerHalService extends HalServiceBase {
                 mHal.set(VehicleProperty.AP_POWER_STATE_REPORT, 0).to(values);
                 Log.i(CarLog.TAG_POWER, "setPowerState=" + powerStateReportName(state)
                         + " param=" + additionalParam);
-            } catch (PropertyTimeoutException e) {
+            } catch (ServiceSpecificException e) {
                 Log.e(CarLog.TAG_POWER, "cannot set to AP_POWER_STATE_REPORT", e);
             }
         }
@@ -305,7 +306,7 @@ public class PowerHalService extends HalServiceBase {
         int[] state;
         try {
             state = mHal.get(int[].class, VehicleProperty.AP_POWER_STATE_REQ);
-        } catch (PropertyTimeoutException e) {
+        } catch (ServiceSpecificException e) {
             Log.e(CarLog.TAG_POWER, "Cannot get AP_POWER_STATE_REQ", e);
             return null;
         }

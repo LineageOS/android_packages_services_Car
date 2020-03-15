@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.os.Build;
 import android.os.Handler;
@@ -47,8 +48,10 @@ import android.util.Log;
 import com.android.car.am.ContinuousBlankActivity;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
+import com.android.car.hal.UserHalService.HalCallback;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserNoticeService;
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -66,6 +69,9 @@ import java.util.TimerTask;
  */
 public class CarPowerManagementService extends ICarPower.Stub implements
         CarServiceBase, PowerHalService.PowerEventListener {
+
+    // TODO: replace all usage
+    private static final String TAG = CarLog.TAG_POWER;
 
     private final Object mLock = new Object();
     private final Object mSimulationWaitObject = new Object();
@@ -119,8 +125,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mLock")
     private boolean mRebootAfterGarageMode;
     private final boolean mDisableUserSwitchDuringResume;
+
+    // TODO(b/150413515): should depend only on mUserService
     private final CarUserManagerHelper mCarUserManagerHelper;
     private final UserManager mUserManager;    // CarUserManagerHelper is deprecated...
+    private final CarUserService mUserService;
+    private final String mNewGuestName;
 
     // TODO:  Make this OEM configurable.
     private static final int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
@@ -146,15 +156,17 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     public CarPowerManagementService(Context context, PowerHalService powerHal,
-            SystemInterface systemInterface, CarUserManagerHelper carUserManagerHelper) {
+            SystemInterface systemInterface, CarUserManagerHelper carUserManagerHelper,
+            CarUserService carUserService) {
         this(context, context.getResources(), powerHal, systemInterface, carUserManagerHelper,
-                UserManager.get(context));
+                UserManager.get(context), carUserService,
+                context.getString(R.string.default_guest_name));
     }
 
     @VisibleForTesting
     CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
             SystemInterface systemInterface, CarUserManagerHelper carUserManagerHelper,
-            UserManager userManager) {
+            UserManager userManager, CarUserService carUserService, String newGuestName) {
         mContext = context;
         mHal = powerHal;
         mSystemInterface = systemInterface;
@@ -171,23 +183,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     +  MIN_MAX_GARAGE_MODE_DURATION_MS + "(ms), Ignore resource.");
             mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
         }
-    }
-
-    // TODO: remove?
-    /**
-     * Create a dummy instance for unit testing purpose only. Instance constructed in this way
-     * is not safe as members expected to be non-null are null.
-     */
-    @VisibleForTesting
-    protected CarPowerManagementService() {
-        mContext = null;
-        mHal = null;
-        mSystemInterface = null;
-        mHandlerThread = null;
-        mHandler = new PowerHandler(Looper.getMainLooper());
-        mCarUserManagerHelper = null;
-        mUserManager = null;
-        mDisableUserSwitchDuringResume = true;
+        mUserService = carUserService;
+        mNewGuestName = newGuestName;
     }
 
     @VisibleForTesting
@@ -253,6 +250,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public void dump(PrintWriter writer) {
         synchronized (mLock) {
             writer.println("*PowerManagementService*");
+            // TODO: split it in multiple lines
             writer.print("mCurrentState:" + mCurrentState);
             writer.print(",mProcessingStartTime:" + mProcessingStartTime);
             writer.print(",mLastSleepEntryTime:" + mLastSleepEntryTime);
@@ -263,6 +261,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.print(",mShutdownPrepareTimeMs:" + mShutdownPrepareTimeMs);
             writer.print(",mDisableUserSwitchDuringResume:" + mDisableUserSwitchDuringResume);
             writer.println(",mRebootAfterGarageMode:" + mRebootAfterGarageMode);
+            writer.print("mNewGuestName: "); writer.println(mNewGuestName);
         }
     }
 
@@ -427,7 +426,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void switchUserOnResumeIfNecessary(boolean allowSwitching) {
+    @VisibleForTesting // Ideally it should not be exposed, but it speeds up the unit tests
+    void switchUserOnResumeIfNecessary(boolean allowSwitching) {
+        if (mUserService.isUserHalSupported()) {
+            switchUserOnResumeIfNecessaryUsingHal(allowSwitching);
+        } else {
+            switchUserOnResumeIfNecessaryDirectly(allowSwitching);
+        }
+    }
+
+    /**
+     * Switches the initial user directly, without using the User HAL to define the behavior.
+     */
+    private void switchUserOnResumeIfNecessaryDirectly(boolean allowSwitching) {
+
         int targetUserId = mCarUserManagerHelper.getInitialUser();
         if (targetUserId == UserHandle.USER_SYSTEM) {
             // API explicitly say it doesn't return USER_SYSTEM
@@ -486,7 +498,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             return;
         }
 
-        UserInfo newGuest = mUserManager.createGuest(mContext, targetUserInfo.name);
+        UserInfo newGuest = mUserManager.createGuest(mContext, mNewGuestName);
 
         if (newGuest != null) {
             switchToUser(currentUserId, newGuest.id, "Created new guest");
@@ -497,6 +509,48 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             // TODO(b/146380030): decide whether we should switch to SYSTEM
         }
     }
+
+    /**
+     * Switches the initial user by calling the User HAL to define the behavior.
+     */
+    private void switchUserOnResumeIfNecessaryUsingHal(boolean allowSwitching) {
+        Log.i(CarLog.TAG_POWER, "Using User HAL to define initial user behavior");
+        mUserService.getInitialUserInfo(InitialUserInfoRequestType.RESUME,
+                (status, response) -> {
+                    switch (status) {
+                        case HalCallback.STATUS_HAL_RESPONSE_TIMEOUT:
+                        case HalCallback.STATUS_HAL_SET_TIMEOUT:
+                            switchUserOnResumeUserHalFallback("timeout", allowSwitching);
+                            break;
+                        case HalCallback.STATUS_CONCURRENT_OPERATION:
+                            switchUserOnResumeUserHalFallback("concurrent call", allowSwitching);
+                            break;
+                        case HalCallback.STATUS_WRONG_HAL_RESPONSE:
+                            switchUserOnResumeUserHalFallback("wrong response", allowSwitching);
+                            break;
+                        case HalCallback.STATUS_OK:
+                            // TODO(b/150419143): implement
+                            Log.w(TAG, "Status " + status + " Not implemented yet");
+                            switchUserOnResumeIfNecessaryDirectly(allowSwitching);
+                            break;
+                        default:
+                            switchUserOnResumeUserHalFallback("invalid status: " + status,
+                                    allowSwitching);
+                            switchUserOnResumeIfNecessaryDirectly(allowSwitching);
+                    }
+
+                });
+    }
+
+    /**
+     * Switches the initial user directly when the User HAL call failed.
+     */
+    private void switchUserOnResumeUserHalFallback(String reason, boolean allowSwitching) {
+        Log.w(TAG, "Failed to set initial user based on User Hal (" + reason
+                + "); falling back to default behavior");
+        switchUserOnResumeIfNecessaryDirectly(allowSwitching);
+    }
+
 
     private void switchToUser(@UserIdInt int fromUser, @UserIdInt int toUser,
             @Nullable String reason) {
