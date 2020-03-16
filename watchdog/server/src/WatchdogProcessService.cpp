@@ -15,11 +15,12 @@
  */
 
 #define LOG_TAG "carwatchdogd"
-#define DEBUG false
+#define DEBUG true  // TODO(b/151474489): stop ship if true.
 
 #include "WatchdogProcessService.h"
 
 #include <android-base/chrono_utils.h>
+#include <android-base/file.h>
 #include <android-base/stringprintf.h>
 #include <binder/IPCThreadState.h>
 #include <private/android_filesystem_config.h>
@@ -31,14 +32,18 @@ namespace watchdog {
 using std::literals::chrono_literals::operator""s;
 using android::base::Error;
 using android::base::Result;
+using android::base::StringAppendF;
 using android::base::StringPrintf;
+using android::base::WriteStringToFd;
 using android::binder::Status;
 
-static const std::vector<TimeoutLength> kTimeouts = {TimeoutLength::TIMEOUT_CRITICAL,
-                                                     TimeoutLength::TIMEOUT_MODERATE,
-                                                     TimeoutLength::TIMEOUT_NORMAL};
+namespace {
 
-static std::chrono::nanoseconds timeoutToDurationNs(const TimeoutLength& timeout) {
+const std::vector<TimeoutLength> kTimeouts = {TimeoutLength::TIMEOUT_CRITICAL,
+                                              TimeoutLength::TIMEOUT_MODERATE,
+                                              TimeoutLength::TIMEOUT_NORMAL};
+
+std::chrono::nanoseconds timeoutToDurationNs(const TimeoutLength& timeout) {
     switch (timeout) {
         case TimeoutLength::TIMEOUT_CRITICAL:
             return 3s;  // 3s and no buffer time.
@@ -49,7 +54,7 @@ static std::chrono::nanoseconds timeoutToDurationNs(const TimeoutLength& timeout
     }
 }
 
-static Status checkSystemPermission() {
+Status checkSystemPermission() {
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
     if (callingUid != AID_SYSTEM) {
         return Status::fromExceptionCode(Status::EX_SECURITY,
@@ -57,6 +62,8 @@ static Status checkSystemPermission() {
     }
     return Status::ok();
 }
+
+}  // namespace
 
 WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) :
       mHandlerLooper(handlerLooper), mLastSessionId(0) {
@@ -78,12 +85,7 @@ Status WatchdogProcessService::unregisterClient(const sp<ICarWatchdogClient>& cl
     sp<IBinder> binder = asBinder(client);
     // kTimeouts is declared as global static constant to cover all kinds of timeout (CRITICAL,
     // MODERATE, NORMAL).
-    Status status = unregisterClientLocked(kTimeouts, binder);
-    if (!status.isOk()) {
-        ALOGW("Cannot unregister the client: %s", status.exceptionMessage().c_str());
-        return status;
-    }
-    return Status::ok();
+    return unregisterClientLocked(kTimeouts, binder, ClientType::Regular);
 }
 
 Status WatchdogProcessService::registerMediator(const sp<ICarWatchdogClient>& mediator) {
@@ -104,13 +106,7 @@ Status WatchdogProcessService::unregisterMediator(const sp<ICarWatchdogClient>& 
     std::vector<TimeoutLength> timeouts = {TimeoutLength::TIMEOUT_NORMAL};
     sp<IBinder> binder = asBinder(mediator);
     Mutex::Autolock lock(mMutex);
-    status = unregisterClientLocked(timeouts, binder);
-    if (!status.isOk()) {
-        ALOGW("Cannot unregister the mediator. The mediator has not been registered.");
-        return Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                         "The mediator has not been registered.");
-    }
-    return Status::ok();
+    return unregisterClientLocked(timeouts, binder, ClientType::Mediator);
 }
 
 Status WatchdogProcessService::registerMonitor(const sp<ICarWatchdogMonitor>& monitor) {
@@ -131,6 +127,9 @@ Status WatchdogProcessService::registerMonitor(const sp<ICarWatchdogMonitor>& mo
         return Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "The monitor is dead.");
     }
     mMonitor = monitor;
+    if (DEBUG) {
+        ALOGD("Car watchdog monitor is registered");
+    }
     return Status::ok();
 }
 
@@ -148,6 +147,9 @@ Status WatchdogProcessService::unregisterMonitor(const sp<ICarWatchdogMonitor>& 
     sp<IBinder> binder = asBinder(monitor);
     binder->unlinkToDeath(this);
     mMonitor = nullptr;
+    if (DEBUG) {
+        ALOGD("Car watchdog monitor is unregistered");
+    }
     return Status::ok();
 }
 
@@ -173,28 +175,45 @@ Status WatchdogProcessService::tellMediatorAlive(const sp<ICarWatchdogClient>& m
 
 Status WatchdogProcessService::tellDumpFinished(const sp<ICarWatchdogMonitor>& monitor,
                                                 int32_t pid) {
-    // TODO(b/148223510): implement this method.
-    (void)monitor;
-    (void)pid;
+    Mutex::Autolock lock(mMutex);
+    if (mMonitor == nullptr || monitor == nullptr || asBinder(monitor) != asBinder(mMonitor)) {
+        return Status::
+                fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
+                                  "The monitor is not registered or an invalid monitor is given");
+    }
+    ALOGI("Process(pid: %d) has been dumped and killed", pid);
     return Status::ok();
 }
 
 Status WatchdogProcessService::notifyPowerCycleChange(PowerCycle cycle) {
-    // TODO(b/148223510): implement this method.
+    // TODO(b/148884065): implement this method.
     (void)cycle;
     return Status::ok();
 }
 
 Status WatchdogProcessService::notifyUserStateChange(int32_t userId, UserState state) {
-    // TODO(b/148223510): implement this method.
+    // TODO(b/146086037): implement this method.
     (void)userId;
     (void)state;
     return Status::ok();
 }
 
-status_t WatchdogProcessService::dump(int fd, const Vector<String16>&) {
-    // TODO(b/148223510): implement this method.
-    (void)fd;
+status_t WatchdogProcessService::dump(int fd, const Vector<String16>& /*args*/) {
+    Mutex::Autolock lock(mMutex);
+    std::string buffer;
+    WriteStringToFd("CAR WATCHDOG PROCESS SERVICE\n", fd);
+    WriteStringToFd("  Registered clients\n", fd);
+    int count = 1;
+    for (const auto& timeout : kTimeouts) {
+        std::vector<ClientInfo>& clients = mClients[timeout];
+        for (auto it = clients.begin(); it != clients.end(); it++, count++) {
+            WriteStringToFd(StringPrintf("    Client #%d: %s\n", count, it->toString().c_str()),
+                            fd);
+        }
+    }
+    WriteStringToFd(StringPrintf("\n  Monitor registered: %s\n",
+                                 mMonitor == nullptr ? "false" : "true"),
+                    fd);
     return NO_ERROR;
 }
 
@@ -287,9 +306,9 @@ Status WatchdogProcessService::registerClientLocked(const sp<ICarWatchdogClient>
     sp<IBinder> binder = asBinder(client);
     status_t status = binder->linkToDeath(this);
     if (status != OK) {
-        std::string errorStr = StringPrintf("The %s is dead.", clientName);
+        std::string errorStr = StringPrintf("The %s is dead", clientName);
         const char* errorCause = errorStr.c_str();
-        ALOGW("Cannot register the %s. %s", clientName, errorCause);
+        ALOGW("Cannot register the %s: %s", clientName, errorCause);
         return Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, errorCause);
     }
     std::vector<ClientInfo>& clients = mClients[timeout];
@@ -300,20 +319,32 @@ Status WatchdogProcessService::registerClientLocked(const sp<ICarWatchdogClient>
     if (clients.size() == 1) {
         startHealthChecking(timeout);
     }
+    if (DEBUG) {
+        ALOGD("Car watchdog %s(pid: %d, timeout: %d) is registered", clientName, callingPid,
+              timeout);
+    }
     return Status::ok();
 }
 
 Status WatchdogProcessService::unregisterClientLocked(const std::vector<TimeoutLength>& timeouts,
-                                                      sp<IBinder> binder) {
+                                                      sp<IBinder> binder, ClientType clientType) {
+    const char* clientName = clientType == ClientType::Regular ? "client" : "mediator";
     bool result = findClientAndProcessLocked(timeouts, binder,
                                              [&](std::vector<ClientInfo>& clients,
                                                  std::vector<ClientInfo>::const_iterator it) {
                                                  binder->unlinkToDeath(this);
                                                  clients.erase(it);
                                              });
-    return result ? Status::ok()
-                  : Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                              "The client has not been registered.");
+    if (!result) {
+        std::string errorStr = StringPrintf("The %s has not been registered", clientName);
+        const char* errorCause = errorStr.c_str();
+        ALOGW("Cannot unregister the %s: %s", clientName, errorCause);
+        Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, errorCause);
+    }
+    if (DEBUG) {
+        ALOGD("Car watchdog %s is unregistered", clientName);
+    }
+    return Status::ok();
 }
 
 Status WatchdogProcessService::tellClientAliveLocked(const sp<ICarWatchdogClient>& client,
@@ -392,7 +423,9 @@ Result<void> WatchdogProcessService::dumpAndKillAllProcesses(
     // TODO(b/149346622): Change the interface of ICarWatchdogMonitor and follow up here.
     for (auto pid : processesNotResponding) {
         mMonitor->onClientNotResponding(nullptr, pid);
-        ALOGD("Dumping and killing process(%d) is requested.", pid);
+        if (DEBUG) {
+            ALOGD("Dumping and killing process(pid: %d) is requested.", pid);
+        }
     }
     return {};
 }
@@ -403,6 +436,12 @@ int32_t WatchdogProcessService::getNewSessionId() {
         mLastSessionId = 1;
     }
     return mLastSessionId;
+}
+
+std::string WatchdogProcessService::ClientInfo::toString() {
+    std::string buffer;
+    StringAppendF(&buffer, "pid = %d, type = %s", pid, type == Regular ? "Regular" : "Mediator");
+    return buffer;
 }
 
 WatchdogProcessService::MessageHandlerImpl::MessageHandlerImpl(
