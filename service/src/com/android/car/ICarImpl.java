@@ -118,7 +118,6 @@ public class ICarImpl extends ICar.Stub {
     private final PerUserCarServiceHelper mPerUserCarServiceHelper;
     private final CarDiagnosticService mCarDiagnosticService;
     private final CarStorageMonitoringService mCarStorageMonitoringService;
-    private final CarConfigurationService mCarConfigurationService;
     private final CarTrustedDeviceService mCarTrustedDeviceService;
     private final CarMediaService mCarMediaService;
     private final CarUserManagerHelper mUserManagerHelper;
@@ -240,8 +239,6 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarStorageMonitoringService = null;
         }
-        mCarConfigurationService =
-                new CarConfigurationService(serviceContext, new JsonReaderImpl());
         mCarLocationService = new CarLocationService(serviceContext);
         mCarTrustedDeviceService = new CarTrustedDeviceService(serviceContext);
         mCarMediaService = new CarMediaService(serviceContext, mCarUserService);
@@ -296,7 +293,6 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarProjectionService);
         addServiceIfNonNull(allServices, mCarDiagnosticService);
         addServiceIfNonNull(allServices, mCarStorageMonitoringService);
-        allServices.add(mCarConfigurationService);
         addServiceIfNonNull(allServices, mVmsBrokerService);
         allServices.add(mCarTrustedDeviceService);
         allServices.add(mCarMediaService);
@@ -512,8 +508,6 @@ public class ICarImpl extends ICar.Stub {
                 return mCarUXRestrictionsService;
             case Car.OCCUPANT_AWARENESS_SERVICE:
                 return mOccupantAwarenessService;
-            case Car.CAR_CONFIGURATION_SERVICE:
-                return mCarConfigurationService;
             case Car.CAR_TRUST_AGENT_ENROLLMENT_SERVICE:
                 assertTrustAgentEnrollmentPermission(mContext);
                 return mCarTrustedDeviceService.getCarTrustAgentEnrollmentService();

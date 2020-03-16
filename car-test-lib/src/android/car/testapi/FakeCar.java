@@ -25,7 +25,6 @@ import android.car.diagnostic.ICarDiagnostic;
 import android.car.drivingstate.ICarDrivingState;
 import android.car.hardware.power.ICarPower;
 import android.car.media.ICarAudio;
-import android.car.settings.ICarConfigurationManager;
 import android.car.storagemonitoring.ICarStorageMonitoring;
 import android.content.Context;
 import android.os.IBinder;
@@ -138,7 +137,6 @@ public class FakeCar {
         @Mock ICarBluetooth.Stub mCarBluetooth;
         @Mock ICarStorageMonitoring.Stub mCarStorageMonitoring;
         @Mock ICarDrivingState.Stub mCarDrivingState;
-        @Mock ICarConfigurationManager.Stub mCarConfigurationManager;
 
         private final FakeAppFocusService mAppFocus;
         private final FakeCarPropertyService mCarProperty;
@@ -210,8 +208,6 @@ public class FakeCar {
                     return mCarDrivingState;
                 case Car.CAR_UX_RESTRICTION_SERVICE:
                     return mCarUxRestrictionService;
-                case Car.CAR_CONFIGURATION_SERVICE:
-                    return mCarConfigurationManager;
                 default:
                     Log.w(TAG, "getCarService for unknown service:" + serviceName);
                     return null;

@@ -16,7 +16,6 @@ package android.car {
     method public boolean isFeatureEnabled(@NonNull String);
     field public static final String APP_FOCUS_SERVICE = "app_focus";
     field public static final String AUDIO_SERVICE = "audio";
-    field public static final String CAR_CONFIGURATION_SERVICE = "configuration";
     field public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION = "android.media.session.BROWSE_SERVICE";
     field public static final String CAR_EXTRA_MEDIA_COMPONENT = "android.car.intent.extra.MEDIA_COMPONENT";
     field public static final String CAR_INTENT_ACTION_MEDIA_TEMPLATE = "android.car.intent.action.MEDIA_TEMPLATE";
@@ -611,24 +610,6 @@ package android.car.media {
     ctor public CarAudioManager.CarVolumeCallback();
     method public void onGroupVolumeChanged(int, int, int);
     method public void onMasterMuteChanged(int, int);
-  }
-
-}
-
-package android.car.settings {
-
-  @Deprecated public class CarConfigurationManager {
-    method @Deprecated public android.car.settings.SpeedBumpConfiguration getSpeedBumpConfiguration();
-  }
-
-  @Deprecated public final class SpeedBumpConfiguration implements android.os.Parcelable {
-    ctor @Deprecated public SpeedBumpConfiguration(double, double, long);
-    method @Deprecated public int describeContents();
-    method @Deprecated public double getAcquiredPermitsPerSecond();
-    method @Deprecated public double getMaxPermitPool();
-    method @Deprecated public long getPermitFillDelay();
-    method @Deprecated public void writeToParcel(android.os.Parcel, int);
-    field @Deprecated public static final android.os.Parcelable.Creator<android.car.settings.SpeedBumpConfiguration> CREATOR;
   }
 
 }
