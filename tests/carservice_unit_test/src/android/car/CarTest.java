@@ -86,14 +86,6 @@ public class CarTest {
         }
 
         @Override
-        public void setUserLockStatus(int userHandle, int unlocked) {
-        }
-
-        @Override
-        public void onSwitchUser(int userHandle) {
-        }
-
-        @Override
         public boolean isFeatureEnabled(String featureName) {
             return false;
         }
