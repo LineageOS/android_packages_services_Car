@@ -159,9 +159,18 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                     bundle.getInt(CarAudioManager.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID,
                             -1);
             // check if the zone id is within current zones bounds
-            if ((bundleZoneId >= 0)
-                    && (bundleZoneId < mCarAudioService.getAudioZoneIds().length)) {
+            if (mCarAudioService.isAudioZoneIdValid(bundleZoneId)) {
+                if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+                    Log.d(CarLog.TAG_AUDIO,
+                            "getFocusForAudioFocusInfo valid zoneId " + bundleZoneId
+                                    + " with bundle request for client " + afi.getClientId());
+                }
                 zoneId = bundleZoneId;
+            } else {
+                Log.w(CarLog.TAG_AUDIO,
+                        "getFocusForAudioFocusInfo invalid zoneId " + bundleZoneId
+                                + " with bundle request for client " + afi.getClientId()
+                                + ", dispatching focus request to zoneId " + zoneId);
             }
         }
 
