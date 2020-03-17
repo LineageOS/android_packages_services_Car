@@ -243,7 +243,7 @@ public class MockedCarTestBase {
     }
 
     /**
-     * Create new Car instance for testing.
+     * Creates new Car instance for testing.
      */
     public Car createNewCar() {
         return new Car(mMockedCarTestContext, mCarImpl, null /* handler */);

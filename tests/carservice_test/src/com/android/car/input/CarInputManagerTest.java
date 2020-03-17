@@ -49,7 +49,7 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
-public class CarInputManagerTest extends MockedCarTestBase {
+public final class CarInputManagerTest extends MockedCarTestBase {
     private static final String TAG = CarInputManagerTest.class.getSimpleName();
 
     private static final int INVALID_DISPLAY_TYPE = -1;
@@ -63,16 +63,16 @@ public class CarInputManagerTest extends MockedCarTestBase {
 
         private final Object mLock = new Object();
 
-        // Last one in front
+        // Stores passed events. Last one in front
         @GuardedBy("mLock")
         private final LinkedList<Pair<Integer, List<KeyEvent>>> mKeyEvents = new LinkedList<>();
 
-        // Last one in front
+        // Stores passed events. Last one in front
         @GuardedBy("mLock")
         private final LinkedList<Pair<Integer, List<RotaryEvent>>> mRotaryEvents =
                 new LinkedList<>();
 
-        // Last one in front
+        // Stores passed state changes. Last one in front
         @GuardedBy("mLock")
         private final LinkedList<Pair<Integer, int[]>> mStateChanges = new LinkedList<>();
 
@@ -221,21 +221,21 @@ public class CarInputManagerTest extends MockedCarTestBase {
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ALL_INPUTS},
                 CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         //TODO test event
 
         r = mCarInputManager.requestInputEventCapture(mCallback1,
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_FAILED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_FAILED);
 
         carInputManager0.releaseInputEventCapture(CarInputManager.TARGET_DISPLAY_TYPE_MAIN);
 
         r = mCarInputManager.requestInputEventCapture(mCallback1,
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         //TODO test event
     }
@@ -248,7 +248,7 @@ public class CarInputManagerTest extends MockedCarTestBase {
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ALL_INPUTS},
                 CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         injectKeyEvent(true, KeyEvent.KEYCODE_NAVIGATE_NEXT);
         mCallback0.waitForKeyEvent();
@@ -270,7 +270,7 @@ public class CarInputManagerTest extends MockedCarTestBase {
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION},
                 CarInputManager.CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_DELAYED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_DELAYED);
 
         injectRotaryEvent(CarInputManager.TARGET_DISPLAY_TYPE_MAIN, numClicks);
         waitForDispatchToMain();
@@ -301,7 +301,7 @@ public class CarInputManagerTest extends MockedCarTestBase {
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ALL_INPUTS},
                 CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         r = mCarInputManager.requestInputEventCapture(mCallback1,
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
@@ -309,14 +309,14 @@ public class CarInputManagerTest extends MockedCarTestBase {
                         CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION,
                         CarInputManager.INPUT_TYPE_NAVIGATE_KEYS},
                 CarInputManager.CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_DELAYED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_DELAYED);
 
         r = carInputManager0.requestInputEventCapture(mCallback0,
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{
                         CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION,
                         CarInputManager.INPUT_TYPE_DPAD_KEYS}, 0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         waitForDispatchToMain();
         assertLastStateChange(CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
@@ -331,12 +331,12 @@ public class CarInputManagerTest extends MockedCarTestBase {
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ALL_INPUTS},
                 CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         r = mCarInputManager.requestInputEventCapture(mCallback1,
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
     }
 
     @Test
@@ -344,7 +344,7 @@ public class CarInputManagerTest extends MockedCarTestBase {
         int r = createAnotherCarInputManager().requestInputEventCapture(mCallback0,
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         int numClicks = 3;
         injectRotaryEvent(CarInputManager.TARGET_DISPLAY_TYPE_MAIN, numClicks);
@@ -355,7 +355,7 @@ public class CarInputManagerTest extends MockedCarTestBase {
         r = mCarInputManager.requestInputEventCapture(mCallback1,
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_NAVIGATE_KEYS}, 0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         injectKeyEvent(true, KeyEvent.KEYCODE_NAVIGATE_NEXT);
         mCallback1.waitForKeyEvent();
@@ -374,7 +374,7 @@ public class CarInputManagerTest extends MockedCarTestBase {
                 new int[]{
                         CarInputManager.INPUT_TYPE_DPAD_KEYS,
                         CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         injectKeyEvent(true, KeyEvent.KEYCODE_DPAD_CENTER);
         mCallback0.waitForKeyEvent();
@@ -392,7 +392,7 @@ public class CarInputManagerTest extends MockedCarTestBase {
                 new int[]{
                         CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION,
                         CarInputManager.INPUT_TYPE_NAVIGATE_KEYS}, 0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         mCallback1.waitForStateChange();
         assertLastStateChange(CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
@@ -448,14 +448,14 @@ public class CarInputManagerTest extends MockedCarTestBase {
                 new int[]{
                         CarInputManager.INPUT_TYPE_DPAD_KEYS,
                         CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         Log.i(TAG, "requestInputEventCapture callback 1");
         r = carInputManager1.requestInputEventCapture(mCallback1,
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ALL_INPUTS},
                 CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         waitForDispatchToMain();
         assertLastStateChange(CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
@@ -480,14 +480,14 @@ public class CarInputManagerTest extends MockedCarTestBase {
                 new int[]{
                         CarInputManager.INPUT_TYPE_DPAD_KEYS,
                         CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         r = mCarInputManager.requestInputEventCapture(mCallback0,
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{
                         CarInputManager.INPUT_TYPE_DPAD_KEYS,
                         CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         waitForDispatchToMain();
         assertNoStateChange(mCallback0);
@@ -497,7 +497,7 @@ public class CarInputManagerTest extends MockedCarTestBase {
                 new int[]{
                         CarInputManager.INPUT_TYPE_DPAD_KEYS,
                         CarInputManager.INPUT_TYPE_NAVIGATE_KEYS}, 0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         waitForDispatchToMain();
         assertNoStateChange(mCallback0);
@@ -506,7 +506,7 @@ public class CarInputManagerTest extends MockedCarTestBase {
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ALL_INPUTS},
                 CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         waitForDispatchToMain();
         assertNoStateChange(mCallback0);
@@ -515,7 +515,7 @@ public class CarInputManagerTest extends MockedCarTestBase {
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ALL_INPUTS},
                 CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_REQ_RESULT_SUCCEEDED);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         waitForDispatchToMain();
         assertNoStateChange(mCallback0);
