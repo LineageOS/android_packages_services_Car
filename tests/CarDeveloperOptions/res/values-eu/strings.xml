@@ -113,9 +113,9 @@
     <string name="bluetooth_disconnect_all_profiles" product="tablet" msgid="7322773998151831579">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> gailutik deskonektatuko da tableta."</string>
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> gailutik deskonektatuko da gailua."</string>
     <string name="bluetooth_disconnect_dialog_ok" msgid="4183522987246110145">"Deskonektatu"</string>
-    <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"Ez daukazu Bluetooth ezarpenak aldatzeko baimenik."</string>
+    <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"Ez daukazu Bluetooth-aren ezarpenak aldatzeko baimenik."</string>
     <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Parekatu gailu batekin"</string>
-    <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"Bluetooth ezarpenak irekita badaude, inguruko gailuek <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ikusi ahal izango dute."</string>
+    <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"Bluetooth-aren ezarpenak irekita badaude, inguruko gailuek <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ikusi ahal izango dute."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"Telefonoaren Bluetooth helbidea: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"Tabletaren Bluetooth helbidea: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="device" msgid="7639919867088358038">"Gailuaren Bluetooth helbidea: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
@@ -146,10 +146,10 @@
     <string name="bluetooth_ask_enablement_and_discovery" product="default" msgid="507088376226791063">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak Bluetooth konexioa aktibatu eta telefonoa beste gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%2$d</xliff:g> segundoz."</string>
     <string name="bluetooth_ask_enablement_and_discovery_no_name" product="tablet" msgid="1164681893121736219">"Aplikazio batek Bluetooth konexioa aktibatu eta tableta beste gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%1$d</xliff:g> segundoz."</string>
     <string name="bluetooth_ask_enablement_and_discovery_no_name" product="default" msgid="2542247690119921188">"Aplikazio batek Bluetooth konexioa aktibatu eta telefonoa beste gailu batzuen aurrean ikusgai ezarri nahi du <xliff:g id="TIMEOUT">%1$d</xliff:g> segundoz."</string>
-    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="tablet" msgid="7118362102769177771">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak Bluetooth konexioa aktibatu eta tableta beste gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth ezarpenetan alda dezakezu hori geroago."</string>
-    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="default" msgid="2577488464813970727">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak Bluetooth konexioa aktibatu eta telefonoa beste gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth ezarpenetan alda dezakezu hori geroago."</string>
-    <string name="bluetooth_ask_enablement_and_lasting_discovery_no_name" product="tablet" msgid="7083038132794842691">"Aplikazio batek Bluetooth konexioa aktibatu eta tableta beste gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth ezarpenetan alda dezakezu hori geroago."</string>
-    <string name="bluetooth_ask_enablement_and_lasting_discovery_no_name" product="default" msgid="3541668604020109525">"Aplikazio batek Bluetooth konexioa aktibatu eta telefonoa beste gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth ezarpenetan alda dezakezu hori geroago."</string>
+    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="tablet" msgid="7118362102769177771">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak Bluetooth konexioa aktibatu eta tableta beste gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth-aren ezarpenetan alda dezakezu hori geroago."</string>
+    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="default" msgid="2577488464813970727">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak Bluetooth konexioa aktibatu eta telefonoa beste gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth-aren ezarpenetan alda dezakezu hori geroago."</string>
+    <string name="bluetooth_ask_enablement_and_lasting_discovery_no_name" product="tablet" msgid="7083038132794842691">"Aplikazio batek Bluetooth konexioa aktibatu eta tableta beste gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth-aren ezarpenetan alda dezakezu hori geroago."</string>
+    <string name="bluetooth_ask_enablement_and_lasting_discovery_no_name" product="default" msgid="3541668604020109525">"Aplikazio batek Bluetooth konexioa aktibatu eta telefonoa beste gailu batzuen aurrean ikusgai ezarri nahi du. Bluetooth-aren ezarpenetan alda dezakezu hori geroago."</string>
     <string name="bluetooth_turning_on" msgid="6935183036449748493">"Bluetooth-a aktibatzen…"</string>
     <string name="bluetooth_turning_off" msgid="9214026723789756620">"Bluetooth-a desaktibatzen…"</string>
     <string name="bluetooth_connection_permission_request" msgid="2382506002340643398">"Bluetooth bidez konektatzeko eskaera"</string>
@@ -838,7 +838,7 @@
     <string name="wifi_settings_category" msgid="9094716747565527901">"Wi-Fi ezarpenak"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wifia"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"Konfiguratu eta kudeatu hari gabeko sarbide-puntuak"</string>
-    <string name="wifi_select_network" msgid="2541598480767312831">"Hautatu Wi-Fi sarea"</string>
+    <string name="wifi_select_network" msgid="2541598480767312831">"Hautatu wifi-sarea"</string>
     <string name="wifi_starting" msgid="1299466156783469023">"Wi-Fi konexioa aktibatzen…"</string>
     <string name="wifi_stopping" msgid="413711069039939520">"Wi-Fia desaktibatzen…"</string>
     <string name="wifi_error" msgid="5605801874484465557">"Errorea"</string>
@@ -888,7 +888,7 @@
     <string name="wifi_menu_modify" msgid="4080178040721021101">"Aldatu sarea"</string>
     <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Sare erabilgarriak ikusteko, aktibatu wifi-konexioa."</string>
     <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Wi-Fi sareak bilatzen…"</string>
-    <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"Ez duzu Wi-Fi sarea aldatzeko baimenik."</string>
+    <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"Ez duzu wifi-sarea aldatzeko baimenik."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Gehiago"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Konf. automatikoa (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Wifi-sareen bilaketa aktibatu nahi al duzu?"</string>
@@ -928,7 +928,7 @@
     <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"5,0 GHz-ko banda hobetsia"</string>
     <string name="wifi_ap_2G" msgid="5793110086517338494">"2,4 GHz"</string>
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5,0 GHz"</string>
-    <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Aukeratu gutxienez banda bat Wi-Fi sare publikorako:"</string>
+    <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Aukeratu gutxienez banda bat wifi-sare publikorako:"</string>
     <string name="wifi_ip_settings" msgid="4636102290236116946">"IP ezarpenak"</string>
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Pribatutasuna"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Ausaz aukeratutako MACa"</string>
@@ -988,7 +988,7 @@
     <string name="no_internet_access_text" msgid="7093326244145734504">"Sare hau ezin da konektatu Internetera. Konektatuta jarraitu nahi duzu?"</string>
     <string name="partial_connectivity_text" msgid="2142157808079235684">"Baliteke aplikazio eta zerbitzu batzuk ez funtzionatzea konexio mugatua dela eta. Hala ere erabili?"</string>
     <string name="no_internet_access_remember" msgid="1368137189939004202">"Ez galdetu berriro sarea hau bada"</string>
-    <string name="lost_internet_access_title" msgid="1061916948695946130">"Wi-Fi sarea ez dago Internetera konektatuta"</string>
+    <string name="lost_internet_access_title" msgid="1061916948695946130">"Wifi-sarea ez dago Internetera konektatuta"</string>
     <string name="lost_internet_access_text" msgid="8962010031520731813">"Sare mugikorra erabil dezakezu Wi-Fi sareak konexio txarra badu. Agian datuen erabilera ordaindu beharko duzu."</string>
     <string name="lost_internet_access_switch" msgid="9218006455779873700">"Aldatu datu-konexiora"</string>
     <string name="lost_internet_access_cancel" msgid="6577871064062518744">"Jarraitu Wi‑Fi konexioa erabiltzen"</string>
@@ -1065,15 +1065,15 @@
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"<xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g> sarera konekta daitezke beste gailuak"</string>
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Sare publikoaren pasahitza"</string>
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Sarbide-puntuaren banda"</string>
-    <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Erabili sare publikoa beste gailuentzako Wi-Fi sare bat sortzeko. Sare publikoen bidez, Interneteko konexioa ematen da datu-konexioa erabilita. Baliteke datu-konexioa erabiltzeagatiko kostu gehigarriak ordaindu behar izatea."</string>
+    <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Erabili sare publikoa beste gailuentzako wifi-sare bat sortzeko. Sare publikoen bidez, Interneteko konexioa ematen da datu-konexioa erabilita. Baliteke datu-konexioa erabiltzeagatiko kostu gehigarriak ordaindu behar izatea."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Aplikazioek sare publikoak sor ditzakete edukia inguruko gailuekin partekatzeko."</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Desaktibatu automatikoki sare publikoa"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"Wifi-sare publikoa desaktibatu egingo da ez badago gailurik konektatuta"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"Sare publikoa aktibatzen…"</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"Sare publikoa desaktibatzen…"</string>
     <string name="wifi_tether_enabled_subtext" msgid="7534760116478734006">"Aktibatu da <xliff:g id="NETWORK_SSID">%1$s</xliff:g>"</string>
-    <string name="wifi_tether_failed_subtext" msgid="3501001612207106">"Wi-Fi sare publiko eramangarriaren errorea gertatu da"</string>
-    <string name="wifi_tether_configure_ap_text" msgid="4081852770996455902">"Konfiguratu Wi-Fi sare publikoa"</string>
+    <string name="wifi_tether_failed_subtext" msgid="3501001612207106">"wifi-sare publiko eramangarriaren errorea gertatu da"</string>
+    <string name="wifi_tether_configure_ap_text" msgid="4081852770996455902">"Konfiguratu wifi-sare publikoa"</string>
     <string name="wifi_hotspot_configure_ap_text" msgid="1000003286253019522">"Wi‑Fi publikoaren konfigurazioa"</string>
     <string name="wifi_hotspot_configure_ap_text_summary" msgid="2303120188509955656">"AndroidAP WPA2 PSK sare publikoa"</string>
     <string name="wifi_tether_configure_ssid_default" msgid="1722238925876152663">"AndroidSarePublikoa"</string>
@@ -1094,7 +1094,7 @@
   <string-array name="wifi_calling_mode_choices_v2">
     <item msgid="9149346657812979257">"Wifia"</item>
     <item msgid="4421333712484542489">"Datu-konexioa"</item>
-    <item msgid="6007360612667098926">"Wi-Fi sarea soilik"</item>
+    <item msgid="6007360612667098926">"Wifi-sarea soilik"</item>
   </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
@@ -2392,7 +2392,7 @@
     <string name="battery_action_app_settings" msgid="587998773852488539">"Aplikazioaren ezarpenak"</string>
     <string name="battery_action_display" msgid="4887913003634317465">"Pantailaren ezarpenak"</string>
     <string name="battery_action_wifi" msgid="7123520587925323824">"Wi‑Fi ezarpenak"</string>
-    <string name="battery_action_bluetooth" msgid="718594420017519807">"Bluetooth ezarpenak"</string>
+    <string name="battery_action_bluetooth" msgid="718594420017519807">"Bluetooth-aren ezarpenak"</string>
     <string name="battery_desc_voice" msgid="4731966028374974986">"Ahots-deiek erabilitako bateria"</string>
     <string name="battery_desc_standby" product="tablet" msgid="2941777996429933419">"Tableta inaktibo dagoenean erabilitako bateria"</string>
     <string name="battery_desc_standby" product="default" msgid="8889482616564520287">"Telefonoa inaktibo dagoenean erabilitako bateria"</string>
@@ -2591,7 +2591,7 @@
     <string name="sync_active" msgid="1112604707180806364">"Sinkronizazioa aktibo"</string>
     <string name="account_sync_settings_title" msgid="3344538161552327748">"Sinkronizatu"</string>
     <string name="sync_is_failing" msgid="8284618104132302644">"Sinkronizazioak arazoak ditu. Laster egongo da berriro erabilgarri."</string>
-    <string name="add_account_label" msgid="4461298847239641874">"Gehitu kontua"</string>
+    <string name="add_account_label" msgid="4461298847239641874">"Gehitu kontu bat"</string>
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"Laneko profila ez dago oraindik erabilgarri"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"Laneko profila"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Erakundeak kudeatzen du"</string>
@@ -2712,9 +2712,9 @@
     <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"Zehaztu duzun mugara iristean, tabletak desaktibatu egingo du datu-konexioa.\n\nZentzuzko muga bat ezartzea gomendatzen dizugu, datuen erabilera tabletak neurtuko duelako eta litekeena delako operadoreak datuak bestela neurtzea."</string>
     <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"Zehaztu duzun mugara iristean, telefonoak desaktibatu egingo du datu-konexioa.\n\nZentzuzko muga bat ezartzea gomendatzen dizugu, datuen erabilera telefonoak neurtuko duelako eta litekeena delako operadoreak datuak bestela neurtzea."</string>
     <string name="data_usage_restrict_background_title" msgid="3568746530413220844">"Atzeko planoko datuak mugatu?"</string>
-    <string name="data_usage_restrict_background" msgid="995811034744808575">"Atzeko planoan datu-konexioa erabiltzeko aukera mugatzen baduzu, aplikazio eta zerbitzu batzuek ez dute funtzionatuko Wi-Fi sare batera konektatu ezean."</string>
-    <string name="data_usage_restrict_background_multiuser" product="tablet" msgid="6032810839234864814">"Atzeko planoan datu-konexioa erabiltzeko aukera mugatzen baduzu, aplikazio eta zerbitzu batzuek ez dute funtzionatuko Wi-Fi sare batera konektatu ezean.\n\nTabletako erabiltzaile guztiei eragingo die ezarpen honek."</string>
-    <string name="data_usage_restrict_background_multiuser" product="default" msgid="6846901756455789858">"Atzeko planoan datu-konexioa erabiltzeko aukera mugatzen baduzu, aplikazio eta zerbitzu batzuek ez dute funtzionatuko Wi-Fi sare batera konektatu ezean.\n\nTelefonoko erabiltzaile guztiei eragingo die ezarpen honek."</string>
+    <string name="data_usage_restrict_background" msgid="995811034744808575">"Atzeko planoan datu-konexioa erabiltzeko aukera mugatzen baduzu, aplikazio eta zerbitzu batzuek ez dute funtzionatuko wifi-sare batera konektatu ezean."</string>
+    <string name="data_usage_restrict_background_multiuser" product="tablet" msgid="6032810839234864814">"Atzeko planoan datu-konexioa erabiltzeko aukera mugatzen baduzu, aplikazio eta zerbitzu batzuek ez dute funtzionatuko wifi-sare batera konektatu ezean.\n\nTabletako erabiltzaile guztiei eragingo die ezarpen honek."</string>
+    <string name="data_usage_restrict_background_multiuser" product="default" msgid="6846901756455789858">"Atzeko planoan datu-konexioa erabiltzeko aukera mugatzen baduzu, aplikazio eta zerbitzu batzuek ez dute funtzionatuko wifi-sare batera konektatu ezean.\n\nTelefonoko erabiltzaile guztiei eragingo die ezarpen honek."</string>
     <string name="data_usage_sweep_warning" msgid="4646401408698778092"><font size="18">"<xliff:g id="NUMBER">^1</xliff:g>"</font>" "<font size="9">"<xliff:g id="UNIT">^2</xliff:g>"</font>\n<font size="12">"abisua"</font></string>
     <string name="data_usage_sweep_limit" msgid="6101105504557548269"><font size="18">"<xliff:g id="NUMBER">^1</xliff:g>"</font>" "<font size="9">"<xliff:g id="UNIT">^2</xliff:g>"</font>\n<font size="12">"muga"</font></string>
     <string name="data_usage_uninstalled_apps" msgid="4152786786140875769">"Kendutako aplikazioak"</string>
@@ -3113,7 +3113,7 @@
     <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"ez molestatu, ordutegia, jakinarazpenak, blokeatu, isilik, dardara, inaktibo ezarri, lantokia, arreta, soinua, desaktibatu audioa, eguna, asteguna, asteburua, asteguneko gaua, gertaera"</string>
     <string name="keywords_screen_timeout" msgid="4328381362313993666">"pantaila, blokeatzeko denbora, denbora-muga, pantaila blokeatua"</string>
     <string name="keywords_storage_settings" msgid="6422454520424236476">"memoria, cachea, datuak, ezabatu, garbitu, tokia egin, tokia"</string>
-    <string name="keywords_bluetooth_settings" msgid="1152229891590622822">"konektatuta, gailua, aurikularrak, entzungailua, bozgorailua, hari gabekoak, parekatu, aurikular euskarridunak, musika, multimedia-edukia"</string>
+    <string name="keywords_bluetooth_settings" msgid="1152229891590622822">"konektatuta, gailua, aurikularrak, entzungailua, bozgorailua, hari gabekoak, parekatu, musika, multimedia-edukia"</string>
     <string name="keywords_wallpaper" msgid="7665778626293643625">"atzeko planoa, pantaila, pantaila blokeatua, gaia"</string>
     <string name="keywords_assist_input" msgid="8392362788794886564">"lehenetsia, laguntzailea"</string>
     <string name="keywords_default_payment_app" msgid="845369409578423996">"ordaindu, lehenetsia"</string>

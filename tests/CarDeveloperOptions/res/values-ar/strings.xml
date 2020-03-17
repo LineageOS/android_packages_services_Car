@@ -320,7 +320,7 @@
     <string name="roaming" msgid="8860308342135146004">"التجوال"</string>
     <string name="roaming_enable" msgid="2108142024297441116">"الاتصال بخدمات البيانات عند التجوال"</string>
     <string name="roaming_disable" msgid="1915440242079953809">"الاتصال بخدمات البيانات عند التجوال"</string>
-    <string name="roaming_reenable_message" msgid="8388505868655113258">"لقد فقدت اتصال البيانات نظرًا لأنك أوقفت تشغيل تجوال البيانات بشبكتك الرئيسية."</string>
+    <string name="roaming_reenable_message" msgid="8388505868655113258">"لقد فقدت اتصال البيانات نظرًا لأنك أوقفت تفعيل تجوال البيانات بشبكتك الرئيسية."</string>
     <string name="roaming_turn_it_on_button" msgid="4370846458830537578">"تشغيل"</string>
     <string name="roaming_warning" msgid="5488050911277592868">"قد يكلف ذلك رسومًا مرتفعة."</string>
     <string name="roaming_warning_multiuser" product="tablet" msgid="7090388691615686893">"عند السماح بتجوال البيانات، قد تتكلف رسوم تجوال مرتفعة!\n\nيؤثر هذا الإعداد على جميع مستخدمي هذا الجهاز اللوحي."</string>
@@ -910,8 +910,8 @@
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"في وضع الطائرة"</string>
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"الإشعار بوجود شبكات مفتوحة"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"الإشعار عند توفر شبكة عامة عالية الجودة"</string>
-    <string name="wifi_wakeup" msgid="4963732992164721548">"تشغيل اتّصال Wi‑Fi تلقائيًا"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"إعادة تشغيل اتّصال Wi‑Fi بالقرب من الشبكات المحفوظة العالية الجودة، مثل الشبكة المنزلية"</string>
+    <string name="wifi_wakeup" msgid="4963732992164721548">"تفعيل اتّصال Wi‑Fi تلقائيًا"</string>
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"إعادة تفعيل اتّصال Wi‑Fi بالقرب من الشبكات المحفوظة العالية الجودة، مثل الشبكة المنزلية"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"غير متاحة نظرًا لإيقاف خدمة الموقع. فعِّل خدمة "<annotation id="link">"الموقع"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"غير متاح لأن ميزة \"البحث عن شبكات Wi‑Fi\" غير مفعّلة"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"لاستخدام الميزة، اختر مقدِّم خدمة تقييم شبكة"</string>
@@ -939,7 +939,7 @@
     <string name="wifi_add_network" msgid="4094957940791876640">"إضافة شبكة"</string>
     <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"إعدادات Wi-Fi"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_on" msgid="5714892572614655675">"ستتم إعادة تفعيل شبكة Wi‑Fi تلقائيًا"</string>
-    <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"لن تتم إعادة تشغيل اتّصال Wi‑Fi تلقائيًا"</string>
+    <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"لن تتم إعادة تفعيل اتّصال Wi‑Fi تلقائيًا"</string>
     <string name="wifi_access_points" msgid="1647976498906871869">"شبكات Wi-Fi"</string>
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"مزيد من الخيارات"</string>
     <string name="wifi_menu_p2p" msgid="4945665601551289791">"اتصال Wi-Fi مباشر"</string>
@@ -956,7 +956,7 @@
     <string name="wifi_more" msgid="3538241640407382185">"المزيد"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"الإعداد التلقائي (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"هل تريد تفعيل ميزة \"البحث عن شبكات Wi‑Fi\"؟"</string>
-    <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"لتشغيل Wi‑Fi تلقائيًا، يجب أولاً تفعيل ميزة \"البحث عن شبكات Wi‑Fi\"."</string>
+    <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"لتفعيل Wi‑Fi تلقائيًا، يجب أولاً تفعيل ميزة \"البحث عن شبكات Wi‑Fi\"."</string>
     <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"تتيح ميزة \"البحث عن شبكات Wi‑Fi\" للتطبيقات والخدمات إمكانية البحث عن شبكات Wi‑Fi في أي وقت، حتى في حال عدم تفعيل Wi‑Fi. ويمكن استخدام هذه البيانات مثلاً لتحسين الميزات والخدمات المستندة إلى الموقع الجغرافي."</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"تفعيل"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"ميزة \"البحث عن شبكات Wi‑Fi\" مفعّلة"</string>
@@ -1172,14 +1172,14 @@
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"إذا لم تكن شبكة Wi-Fi متاحة، يمكنك استخدام شبكة الجوّال."</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"إذا لم تكن شبكة الجوّال متاحة، يمكنك استخدام شبكة Wi-Fi."</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"يمكنك الاتصال عبر شبكة Wi-Fi. وإذا لم تكن متوفرة، سيتم إنهاء المكالمة."</string>
-    <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"عند تشغيل الاتصال عبر Wi-Fi، يمكن للهاتف توجيه المكالمات عبر شبكة Wi-Fi أو عبر مشغّل شبكة الجوّال، حسب تفضيلك وحسب الإشارة الأقوى. وقبل تفعيل هذه الميزة، يُرجى مراجعة الرسوم  والتفاصيل الأخرى مع مشغّل شبكة الجوّال.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
+    <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"عند تفعيل الاتصال عبر Wi-Fi، يمكن للهاتف توجيه المكالمات عبر شبكة Wi-Fi أو عبر مشغّل شبكة الجوّال، حسب تفضيلك وحسب الإشارة الأقوى. وقبل تفعيل هذه الميزة، يُرجى مراجعة الرسوم  والتفاصيل الأخرى مع مشغّل شبكة الجوّال.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
     <string name="emergency_address_title" msgid="5779915349686787024">"عنوان الطوارئ"</string>
     <string name="emergency_address_summary" msgid="478668478569851714">"يتم اعتباره موقعك الجغرافي عند إجراء مكالمة طوارئ عبر Wi‑Fi"</string>
     <string name="private_dns_help_message" msgid="7633526525131196650"><annotation id="url">"مزيد من المعلومات"</annotation>" عن ميزات نظام أسماء النطاقات الخاص"</string>
     <string name="wifi_calling_pref_managed_by_carrier" msgid="5458050015417972072">"الإعداد تحت إدارة مشغّل شبكة الجوّال"</string>
     <string name="wifi_calling_settings_activation_instructions" msgid="2863642668648110908">"تفعيل الاتصال عبر Wi‑Fi"</string>
-    <string name="wifi_calling_turn_on" msgid="1212277809455062043">"تشغيل الاتصال عبر Wi-Fi"</string>
+    <string name="wifi_calling_turn_on" msgid="1212277809455062043">"تفعيل الاتصال عبر Wi-Fi"</string>
     <string name="wifi_calling_not_supported" msgid="216781767605669775">"لا يوفّر مشغِّل شبكة الجوّال %1$s ميزة \"الاتصال عبر Wi-Fi\""</string>
     <string name="carrier" msgid="3413463182542176886">"مشغّل شبكة جوّال"</string>
     <string name="display_settings_title" msgid="1243571562133261601">"العرض"</string>
@@ -1285,8 +1285,8 @@
     <string name="night_display_temperature_title" msgid="8375126629902616296">"الكثافة"</string>
     <string name="night_display_summary_off" msgid="8850539785332228069">"غير مفعّل / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"لن يتم تفعيل الميزة تلقائيًا على الإطلاق"</string>
-    <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"سيتم التشغيل تلقائيًا في <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"سيتم التشغيل تلقائيًا عند غروب الشمس"</string>
+    <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"سيتم التفعيل تلقائيًا في <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"سيتم التفعيل تلقائيًا عند غروب الشمس"</string>
     <string name="night_display_summary_on" msgid="6580571388791426596">"تم التشغيل / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_on_auto_mode_never" msgid="5461580863060506687">"لن يتم الإيقاف تلقائيًا مطلقًا"</string>
     <string name="night_display_summary_on_auto_mode_custom" msgid="2200631112239399233">"سيتم الإيقاف تلقائيًا عند الساعة <xliff:g id="ID_1">%1$s</xliff:g>"</string>
@@ -1660,7 +1660,7 @@
     <string name="master_clear_desc_also_erases_esim" msgid="4497260499055258773"><li>"شرائح eSIM"</li></string>
     <string name="master_clear_desc_no_cancel_mobile_plan" msgid="6072668588881679461">\n\n"لن يؤدي هذا إلى إلغاء خطة خدمة الجوّال."</string>
     <string name="master_clear_desc_erase_external_storage" product="nosdcard" msgid="2723272952715259307">\n\n"لمحو الموسيقى والصور وبيانات المستخدم الأخرى أيضًا، يجب محو "<b>"وحدة تخزين USB"</b>"."</string>
-    <string name="master_clear_desc_erase_external_storage" product="default" msgid="9003555775524798797">\n\n"لمحو الموسيقى والصور وبيانات المستخدم الأخرى أيضًا، يجب مسح "<b>"بطاقة SD"</b>"."</string>
+    <string name="master_clear_desc_erase_external_storage" product="default" msgid="9003555775524798797">\n\n"لمحو الموسيقى والصور وبيانات المستخدم الأخرى أيضًا، يجب محو "<b>"بطاقة SD"</b>"."</string>
     <string name="erase_external_storage" product="nosdcard" msgid="8989746770347525207">"محو وحدة تخزين USB"</string>
     <string name="erase_external_storage" product="default" msgid="194249742376770215">"محو بطاقة SD"</string>
     <string name="erase_external_storage_description" product="nosdcard" msgid="8020275102431496261">"محو جميع البيانات على وحدة تخزين USB الداخلية، مثل الموسيقى أو الصور"</string>
@@ -1941,7 +1941,7 @@
     <string name="dlg_cancel" msgid="2434951039156262467">"إلغاء"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
     <string name="app_not_found_dlg_text" msgid="8807428608938210212">"لم يتم العثور على التطبيق في قائمة التطبيقات المثبتة."</string>
-    <string name="clear_failed_dlg_text" msgid="8072859778950498232">"تعذّر مسح مساحة تخزين للتطبيق."</string>
+    <string name="clear_failed_dlg_text" msgid="8072859778950498232">"تعذّر محو مساحة تخزين للتطبيق."</string>
     <string name="join_two_items" msgid="3833831843199356403">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g> و<xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
     <string name="join_two_unrelated_items" msgid="8257688498236358394">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g> و<xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
     <string name="computing_size" msgid="2234106107535318136">"جارٍ الحساب..."</string>
@@ -2698,7 +2698,7 @@
     <string name="backup_erase_dialog_title" msgid="8178424339104463014"></string>
     <string name="backup_erase_dialog_message" msgid="8767843355330070902">"هل تريد إيقاف النسخ الاحتياطي لكلمات مرور Wi-Fi والإشارات المرجعية والإعدادات الأخرى وبيانات التطبيقات ومحو جميع النُسخ على خوادم Google؟"</string>
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"هل تريد إيقاف الاحتفاظ بنسخة احتياطية من بيانات الجهاز (مثل كلمات مرور Wi-Fi وسجل المكالمات) وبيانات التطبيقات (مثل الإعدادات والملفات التي تخزنها التطبيقات) بالإضافة إلى محو بيانات جميع النسخ الموجودة على الخوادم البعيدة؟"</string>
-    <string name="fullbackup_data_summary" msgid="406274198094268556">"بإمكانك الاحتفاظ تلقائيًا بنسخة احتياطية من بيانات الجهاز (مثل كلمات مرور Wi-Fi وسجل المكالمات) وبيانات التطبيقات (مثل الإعدادات والملفات التي تخزنها التطبيقات) عن بُعد.\n\nعند تشغيل الاحتفاظ التلقائي بنسخة احتياطية، يتم بشكل دوري حفظ بيانات الجهاز وبيانات التطبيقات عن بُعد. ويمكن أن تكون بيانات التطبيقات أي بيانات تم حفظها في التطبيق (استنادًا إلى إعدادات مطور التطبيق) بما في ذلك البيانات المحتمل أن تكون حساسة مثل جهات الاتصال والرسائل والصور."</string>
+    <string name="fullbackup_data_summary" msgid="406274198094268556">"بإمكانك الاحتفاظ تلقائيًا بنسخة احتياطية من بيانات الجهاز (مثل كلمات مرور Wi-Fi وسجل المكالمات) وبيانات التطبيقات (مثل الإعدادات والملفات التي تخزنها التطبيقات) عن بُعد.\n\nعند تفعيل الاحتفاظ التلقائي بنسخة احتياطية، يتم بشكل دوري حفظ بيانات الجهاز وبيانات التطبيقات عن بُعد. ويمكن أن تكون بيانات التطبيقات أي بيانات تم حفظها في التطبيق (استنادًا إلى إعدادات مطور التطبيق) بما في ذلك البيانات المحتمل أن تكون حساسة مثل جهات الاتصال والرسائل والصور."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"إعدادات مشرف الجهاز"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"تطبيق مشرف الجهاز"</string>
     <string name="remove_device_admin" msgid="4413438593788336400">"إيقاف تطبيق مشرف الجهاز"</string>
@@ -3230,7 +3230,7 @@
     <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"تقييم، لغة، تلقائي، يتحدث، تحدث، تحويل نص إلى كلام، إمكانية الوصول، قارئ شاشة، مكفوف"</string>
     <string name="keywords_date_and_time" msgid="4434079919474174978">"ساعة، عسكرية"</string>
     <string name="keywords_network_reset" msgid="2064330046866583215">"إعادة ضبط، استرداد، المصنع"</string>
-    <string name="keywords_factory_data_reset" msgid="5865739790670615499">"مسح، حذف، استعادة، محو، إزالة، إعادة الضبط على الإعدادات الأصلية"</string>
+    <string name="keywords_factory_data_reset" msgid="5865739790670615499">"محو، حذف، استعادة، محو، إزالة، إعادة الضبط على الإعدادات الأصلية"</string>
     <string name="keywords_printing" msgid="8499167841024606451">"طابعة"</string>
     <string name="keywords_sounds" msgid="9155626618185269312">"صفارة مكبر الصوت، مكبر صوت، مستوى الصوت، كتم الصوت، صامت، صوت، موسيقى"</string>
     <string name="keywords_sounds_and_notifications_interruptions" msgid="7106220678170229900">"ممنوع الإزعاج، ممنوع، المقاطعة، مقاطعة"</string>
@@ -4257,7 +4257,7 @@
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"إضافة بصمة إصبع أخرى"</string>
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"فتح القفل باستخدام إصبع مختلف"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"مفعّل"</string>
-    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"سيتم التشغيل تلقائيًا عند الوصول إلى <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
+    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"سيتم التفعيل تلقائيًا عند الوصول إلى <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"غير مفعّل"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"التفعيل الآن"</string>
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"إيقاف الميزة الآن"</string>
@@ -4542,7 +4542,7 @@
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"مساحة التخزين المستخدمة من أصل <xliff:g id="TOTAL">%1$s</xliff:g>"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"مستخدمة"</string>
-    <string name="clear_instant_app_data" msgid="3673669086522890405">"مسح التطبيق"</string>
+    <string name="clear_instant_app_data" msgid="3673669086522890405">"محو التطبيق"</string>
     <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"هل تريد إزالة هذا التطبيق الفوري؟"</string>
     <string name="launch_instant_app" msgid="5251693061228352333">"فتح"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"الألعاب"</string>
