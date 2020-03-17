@@ -24,9 +24,9 @@ import android.view.KeyEvent;
  * @hide
  */
 interface ICarInput {
-    /** Check {@code CarInputManager.requestInputEventCapture(...)} */
+    /** See {@code CarInputManager.requestInputEventCapture(...)} */
     int requestInputEventCapture(in ICarInputCallback callback, int targetDisplayType,
         in int[] inputTypes, int requestFlags) = 1;
-    /** Check {@code CarInputManager.requestInputEventCapture(...)} */
+    /** See {@code CarInputManager.requestInputEventCapture(...)} */
     void releaseInputEventCapture(in ICarInputCallback callback, int targetDisplayType) = 2;
 }
