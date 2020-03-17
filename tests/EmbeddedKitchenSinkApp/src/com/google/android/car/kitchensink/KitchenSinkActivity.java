@@ -227,13 +227,30 @@ public class KitchenSinkActivity extends FragmentActivity {
      * adb shell am force-stop com.google.android.car.kitchensink
      * adb shell am start -n com.google.android.car.kitchensink/.KitchenSinkActivity \
      *     --es "select" "connectivity"
+     *
+     * Test car watchdog:
+     * adb shell am force-stop com.google.android.car.kitchensink
+     * adb shell am start -n com.google.android.car.kitchensink/.KitchenSinkActivity \
+     *     --es "watchdog" "[timeout] [not_respond_after] [inactive_main_after]"
+     * - timeout: critical | moderate | normal
+     * - not_respond_after: after the given seconds, the client will not respond to car watchdog
+     *                      (-1 for making the client respond always)
+     * - inactive_main_after: after the given seconds, the main thread will not be responsive
+     *                        (-1 for making the main thread responsive always)
      */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Log.i(TAG, "onNewIntent");
         Bundle extras = intent.getExtras();
-        String select = (extras == null) ? null : extras.getString("select");
+        if (extras == null) {
+            return;
+        }
+        String watchdog = extras.getString("watchdog");
+        if (watchdog != null) {
+            CarWatchdogClient.start(getCar(), watchdog);
+        }
+        String select = extras.getString("select");
         if (select != null) {
             mMenuEntries.stream().filter(me -> select.equals(me.getText()))
                     .findAny().ifPresent(me -> me.onClick());
