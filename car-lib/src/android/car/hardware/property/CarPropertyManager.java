@@ -27,6 +27,7 @@ import android.car.CarManagerBase;
 import android.car.VehicleAreaType;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.os.Build;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -56,6 +57,7 @@ public class CarPropertyManager extends CarManagerBase {
     private static final int MSG_GENERIC_EVENT = 0;
     private final SingleMessageHandler<CarPropertyEvent> mHandler;
     private final ICarProperty mService;
+    private final int mAppTargetSdk;
 
     private CarPropertyEventListenerToService mCarPropertyEventToService;
 
@@ -168,6 +170,7 @@ public class CarPropertyManager extends CarManagerBase {
     public CarPropertyManager(Car car, @NonNull ICarProperty service) {
         super(car);
         mService = service;
+        mAppTargetSdk = getContext().getApplicationInfo().targetSdkVersion;
         try {
             List<CarPropertyConfig> configs = mService.getPropertyList();
             for (CarPropertyConfig carPropertyConfig : configs) {
@@ -550,14 +553,36 @@ public class CarPropertyManager extends CarManagerBase {
      * <p> This method may take couple seconds to complete, so it needs to be called from an
      * non-main thread.
      *
+     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
+     * or later than {@link Build.VERSION_CODES#R} will receive the following exceptions when
+     * request is failed.
+     * <ul>
+     *     <li>{@link CarInternalErrorException}
+     *     <li>{@link PropertyAccessDeniedSecurityException}
+     *     <li>{@link PropertyNotAvailableAndRetryException}
+     *     <li>{@link PropertyNotAvailableException}
+     *     <li>{@link IllegalArgumentException}
+     * </ul>
+     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion}
+     * earlier than {@link Build.VERSION_CODES#R} will receive the following exceptions when request
+     * is failed.
+     * <ul>
+     *     <li>{@link IllegalStateException} when there is an error detected in cars.
+     *     <li>{@link IllegalArgumentException} when the property in the areaId is not supplied.
+     * </ul>
+     *
      * @param clazz The class object for the CarPropertyValue
      * @param propId Property ID to get
      * @param areaId Zone of the property to get
+     *
      * @throws {@link CarInternalErrorException} when there is an error detected in cars.
      * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
      * property.
+     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
+     * not available and likely that retrying will be successful.
      * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
      * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     *
      * @return CarPropertyValue. Null if property's id is invalid.
      */
     @SuppressWarnings("unchecked")
@@ -580,6 +605,15 @@ public class CarPropertyManager extends CarManagerBase {
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         } catch (ServiceSpecificException e) {
+            // For pre R apps, throws the old exceptions.
+            if (mAppTargetSdk < Build.VERSION_CODES.R) {
+                if (e.errorCode == VehicleHalStatusCode.STATUS_TRY_AGAIN) {
+                    return null;
+                } else {
+                    throw new IllegalStateException(String.format("Failed to get property: 0x%x, "
+                            + "areaId: 0x%x", propId, areaId));
+                }
+            }
             return handleCarServiceSpecificException(e.errorCode, propId, areaId, null);
         }
     }
@@ -590,14 +624,36 @@ public class CarPropertyManager extends CarManagerBase {
      * <p> This method may take couple seconds to complete, so it needs to be called from an
      * non-main thread.
      *
+     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
+     * or later than {@link Build.VERSION_CODES#R} will receive the following exceptions when
+     * request is failed.
+     * <ul>
+     *     <li>{@link CarInternalErrorException}
+     *     <li>{@link PropertyAccessDeniedSecurityException}
+     *     <li>{@link PropertyNotAvailableAndRetryException}
+     *     <li>{@link PropertyNotAvailableException}
+     *     <li>{@link IllegalArgumentException}
+     * </ul>
+     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion}
+     * earlier than {@link Build.VERSION_CODES#R} will receive the following exceptions when request
+     * is failed.
+     * <ul>
+     *     <li>{@link IllegalStateException} when there is an error detected in cars.
+     *     <li>{@link IllegalArgumentException} when the property in the areaId is not supplied.
+     * </ul>
+     *
      * @param propId Property Id
      * @param areaId areaId
      * @param <E> Value type of the property
+     *
      * @throws {@link CarInternalErrorException} when there is an error detected in cars.
      * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
      * property.
+     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
+     * not available and likely that retrying will be successful.
      * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
      * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     *
      * @return CarPropertyValue. Null if property's id is invalid.
      */
     @Nullable
@@ -608,6 +664,14 @@ public class CarPropertyManager extends CarManagerBase {
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         } catch (ServiceSpecificException e) {
+            if (mAppTargetSdk < Build.VERSION_CODES.R) {
+                if (e.errorCode == VehicleHalStatusCode.STATUS_TRY_AGAIN) {
+                    return null;
+                } else {
+                    throw new IllegalStateException(String.format("Failed to get property: 0x%x, "
+                            + "areaId: 0x%x", propId, areaId));
+                }
+            }
             return handleCarServiceSpecificException(e.errorCode, propId, areaId, null);
         }
     }
@@ -622,6 +686,25 @@ public class CarPropertyManager extends CarManagerBase {
      * <p> This method may take couple seconds to complete, so it needs to be called form an
      * non-main thread.
      *
+     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
+     * or later than {@link Build.VERSION_CODES#R} will receive the following exceptions when
+     * request is failed.
+     * <ul>
+     *     <li>{@link CarInternalErrorException}
+     *     <li>{@link PropertyAccessDeniedSecurityException}
+     *     <li>{@link PropertyNotAvailableAndRetryException}
+     *     <li>{@link PropertyNotAvailableException}
+     *     <li>{@link IllegalArgumentException}
+     * </ul>
+     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion}
+     * earlier than {@link Build.VERSION_CODES#R} will receive the following exceptions when request
+     * is failed.
+     * <ul>
+     *     <li>{@link RuntimeException} when the property is temporarily not available.
+     *     <li>{@link IllegalStateException} when there is an error detected in cars.
+     *     <li>{@link IllegalArgumentException} when the property in the areaId is not supplied
+     * </ul>
+     *
      * @param clazz The class object for the CarPropertyValue
      * @param propId Property ID
      * @param areaId areaId
@@ -629,6 +712,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @param <E> data type of the given property, for example property that was
      * defined as {@code VEHICLE_VALUE_TYPE_INT32} in vehicle HAL could be accessed using
      * {@code Integer.class}.
+     *
      * @throws {@link CarInternalErrorException} when there is an error detected in cars.
      * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
      * property.
@@ -652,6 +736,15 @@ public class CarPropertyManager extends CarManagerBase {
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         } catch (ServiceSpecificException e) {
+            if (mAppTargetSdk < Build.VERSION_CODES.R) {
+                if (e.errorCode == VehicleHalStatusCode.STATUS_TRY_AGAIN) {
+                    throw new RuntimeException(String.format("Failed to set property: 0x%x, "
+                            + "areaId: 0x%x", propId, areaId));
+                } else {
+                    throw new IllegalStateException(String.format("Failed to set property: 0x%x, "
+                            + "areaId: 0x%x", propId, areaId));
+                }
+            }
             handleCarServiceSpecificException(e.errorCode, propId, areaId, null);
         }
     }
@@ -699,6 +792,7 @@ public class CarPropertyManager extends CarManagerBase {
         setProperty(Integer.class, prop, areaId, val);
     }
 
+    // Handles ServiceSpecificException in CarService for R and later version.
     private <T> T handleCarServiceSpecificException(int errorCode, int propId, int areaId,
             T returnValue) {
         switch (errorCode) {

@@ -33,6 +33,7 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.VehicleAreaSeat;
 import android.car.media.CarAudioManager;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
 import android.os.Looper;
@@ -186,6 +187,7 @@ public class CarOccupantZoneServiceTest {
                 .thenReturn(DEFAULT_OCCUPANT_ZONES);
         when(mResources.getStringArray(R.array.config_occupant_display_mapping))
                 .thenReturn(DEFAULT_OCCUPANT_DISPLAY_MAPPING);
+        when(mContext.getApplicationInfo()).thenReturn(new ApplicationInfo());
         // Stored as static: Other tests can leave things behind and fail this test in add call.
         // So just remove as safety guard.
         CarLocalServices.removeServiceForTest(CarPropertyService.class);

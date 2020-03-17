@@ -65,6 +65,7 @@ private:
     struct ClientInfo {
         ClientInfo(const android::sp<ICarWatchdogClient>& client, pid_t pid, ClientType type) :
               client(client), pid(pid), type(type) {}
+        std::string toString();
 
         android::sp<ICarWatchdogClient> client;
         pid_t pid;
@@ -102,11 +103,11 @@ private:
 private:
     void binderDied(const android::wp<IBinder>& who) override;
 
-    binder::Status unregisterClientLocked(const std::vector<TimeoutLength>& timeouts,
-                                          android::sp<IBinder> binder);
-    bool isRegisteredLocked(const android::sp<ICarWatchdogClient>& client);
     binder::Status registerClientLocked(const android::sp<ICarWatchdogClient>& client,
                                         TimeoutLength timeout, ClientType clientType);
+    binder::Status unregisterClientLocked(const std::vector<TimeoutLength>& timeouts,
+                                          android::sp<IBinder> binder, ClientType clientType);
+    bool isRegisteredLocked(const android::sp<ICarWatchdogClient>& client);
     binder::Status tellClientAliveLocked(const android::sp<ICarWatchdogClient>& client,
                                          int32_t sessionId);
     base::Result<void> startHealthChecking(TimeoutLength timeout);
