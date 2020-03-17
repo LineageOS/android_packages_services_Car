@@ -31,6 +31,7 @@ import android.util.Log;
 public class LocationListeners {
 
     private static final String TAG = "CAR.SENSOR.KS.location";
+    private static final String LOC_SENSOR_FORMAT = "%12.8f, %12.8f, %12.8f";
 
     SensorsTestFragment.LocationInfoTextUpdateListener mTextUpdateHandler;
 
@@ -164,7 +165,7 @@ public class LocationListeners {
             int type = event.sensor.getType();
             switch (type) {
                 case Sensor.TYPE_GYROSCOPE:
-                    String gs = String.format("Gyroscope Rad/s: (%6.2f, %6.2f, %6.2f)",
+                    String gs = String.format("Gyroscope Rad/s: (" + LOC_SENSOR_FORMAT + ")",
                             event.values[0], event.values[1], event.values[2]);
                     mTextUpdateHandler.setGyroField(gs);
                     break;
@@ -175,12 +176,12 @@ public class LocationListeners {
                     //                                 mLastAccelerometerData
                     //                                 mLastMagneticFieldData);
                     // SensorManager.getOrientation(mR, orientation);
-                    String ms = String.format("Magnetic uT: (%6.2f, %6.2f, %6.2f)",
+                    String ms = String.format("Magnetic uT: (" + LOC_SENSOR_FORMAT + ")",
                             event.values[0], event.values[1], event.values[2]);
                     mTextUpdateHandler.setMagField(ms);
                     break;
                 case Sensor.TYPE_ACCELEROMETER:
-                    String as = String.format("Accelerometer m/s2: (%6.2f, %6.2f, %6.2f)",
+                    String as = String.format("Accelerometer m/s2: (" + LOC_SENSOR_FORMAT + ")",
                             event.values[0], event.values[1], event.values[2]);
                     mTextUpdateHandler.setAccelField(as);
                     break;
