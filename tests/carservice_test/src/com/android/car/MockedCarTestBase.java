@@ -22,7 +22,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 import android.annotation.NonNull;
-import android.automotive.watchdog.ICarWatchdog;
 import android.car.Car;
 import android.car.test.CarTestManager;
 import android.car.test.CarTestManagerBinderWrapper;
@@ -103,8 +102,7 @@ public class MockedCarTestBase {
     private final Map<VehiclePropConfigBuilder, VehicleHalPropertyHandler> mHalConfig =
             new HashMap<>();
     private final SparseArray<VehiclePropConfigBuilder> mPropToConfigBuilder = new SparseArray<>();
-    private final CarWatchdogService mCarWatchdogService =
-            new CarWatchdogService(getContext(), new ICarWatchdog.Default());
+    private final CarWatchdogService mCarWatchdogService = mock(CarWatchdogService.class);
 
     protected synchronized MockedVehicleHal createMockedVehicleHal() {
         return new MockedVehicleHal();
