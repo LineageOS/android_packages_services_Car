@@ -44,6 +44,7 @@ LOCAL_INSTRUMENTATION_FOR := CarService
 LOCAL_JAVA_LIBRARIES := \
     android.car \
     android.car.userlib \
+    android.car.watchdoglib \
     android.test.runner \
     android.test.base \
     android.test.mock \
