@@ -264,8 +264,8 @@ public class InputHalService extends HalServiceBase {
 
         long[] timestamps = new long[detentCount];
         // vhal returns elapsed time while rotary event is using uptime to be in line with KeyEvent.
-        long uptimeToelapsedTimeDelta = CarServiceUtils.getUptimeToElapsedTimeDeltaInMillis();
-        long startUptime = TimeUnit.NANOSECONDS.toMillis(timestamp) - uptimeToelapsedTimeDelta;
+        long uptimeToElapsedTimeDelta = CarServiceUtils.getUptimeToElapsedTimeDeltaInMillis();
+        long startUptime = TimeUnit.NANOSECONDS.toMillis(timestamp) - uptimeToElapsedTimeDelta;
         timestamps[0] = startUptime;
         for (int i = 0; i < timestamps.length - 1; i++) {
             timestamps[i + 1] = timestamps[i] + TimeUnit.NANOSECONDS.toMillis(
