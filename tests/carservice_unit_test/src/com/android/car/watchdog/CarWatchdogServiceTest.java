@@ -16,27 +16,34 @@
 
 package com.android.car.watchdog;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
+
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 import android.automotive.watchdog.ICarWatchdog;
 import android.automotive.watchdog.ICarWatchdogClient;
 import android.automotive.watchdog.TimeoutLength;
 import android.content.Context;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.util.Log;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockitoSession;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,20 +57,32 @@ import java.util.concurrent.TimeUnit;
 public class CarWatchdogServiceTest {
 
     private static final String TAG = CarWatchdogServiceTest.class.getSimpleName();
+    private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
+            "android.automotive.watchdog.ICarWatchdog/default";
+
+    private final FakeCarWatchdog mFakeCarWatchdog = new FakeCarWatchdog();
 
     @Mock private Context mMockContext;
-    @Mock private IBinder mBinder;
+    @Mock private IBinder mBinder = new Binder();
 
-    private CarWatchdogService mCarWatchdogService;
-    private FakeCarWatchdog mFakeCarWatchdog;
+    private CarWatchdogService mCarWatchdogService = new CarWatchdogService(mMockContext);
+    private MockitoSession mMockSession;
 
     /**
      * Initialize all of the objects with the @Mock annotation.
      */
     @Before
     public void setUpMocks() {
-        mFakeCarWatchdog = new FakeCarWatchdog();
-        mCarWatchdogService = new CarWatchdogService(mMockContext, mFakeCarWatchdog);
+        mMockSession = mockitoSession()
+                .strictness(Strictness.LENIENT)
+                .spyStatic(ServiceManager.class)
+                .startMocking();
+        expectLocalWatchdogDaemon();
+    }
+
+    @After
+    public void tearDown() {
+        mMockSession.finishMocking();
     }
 
     /**
@@ -77,16 +96,9 @@ public class CarWatchdogServiceTest {
         assertThat(mFakeCarWatchdog.gotResponse()).isTrue();
     }
 
-    @Test
-    public void testLinkUnlinkDeathRecipient() {
-        mCarWatchdogService.init();
-        try {
-            verify(mBinder).linkToDeath(any(), anyInt());
-        } catch (RemoteException e) {
-            // Do nothing
-        }
-        mCarWatchdogService.release();
-        verify(mBinder).unlinkToDeath(any(), anyInt());
+    private void expectLocalWatchdogDaemon() {
+        when(ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE)).thenReturn(mBinder);
+        doReturn(mFakeCarWatchdog).when(mBinder).queryLocalInterface(anyString());
     }
 
     // FakeCarWatchdog mimics ICarWatchdog daemon in local process.
