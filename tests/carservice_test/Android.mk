@@ -41,6 +41,7 @@ LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_STATIC_JAVA_LIBRARIES := junit
 # testng imported to use assertThrows, we can remove it once it's ported to JUnit's.
 LOCAL_STATIC_JAVA_LIBRARIES += \
+    android.car.watchdoglib \
     androidx.test.ext.junit \
     androidx.test.rules \
     android.hardware.automotive.vehicle-V2.0-java \
