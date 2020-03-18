@@ -60,9 +60,6 @@ public final class CarInputManager extends CarManagerBase {
          * Capture state for the display has changed due to other client making requests or
          * releasing capture. Client should check {@code activeInputTypes} for which input types
          * are currently captured.
-         *
-         * @param targetDisplayId Display where the event is affected.
-         * @param activeInputTypes Input types captured by this client.
          */
         void onCaptureStateChanged(int targetDisplayId,
                 @NonNull @InputTypeEnum int[] activeInputTypes);
@@ -117,35 +114,47 @@ public final class CarInputManager extends CarManagerBase {
     public static final int INPUT_TYPE_ALL_INPUTS = 1;
 
     /**
-     * This is the group of keys for DPAD.
-     * Included key events are: {@link KeyEvent#KEYCODE_DPAD_UP},
-     * {@link KeyEvent#KEYCODE_DPAD_DOWN}, {@link KeyEvent#KEYCODE_DPAD_LEFT},
-     * {@link KeyEvent#KEYCODE_DPAD_RIGHT}, {@link KeyEvent#KEYCODE_DPAD_CENTER}
-     */
-    public static final int INPUT_TYPE_DPAD_KEYS = 2;
-    /**
-     * This is for NAVIGATE_* keys.
-     */
-    public static final int INPUT_TYPE_NAVIGATE_KEYS = 3;
-    /**
      * This covers rotary input device for navigation.
      */
-    public static final int INPUT_TYPE_ROTARY_NAVIGATION = 4;
+    public static final int INPUT_TYPE_ROTARY_NAVIGATION = 10;
+
     /**
-     * Volume knob
+     * Volume knob.
+     * TODO (b/151666020): This will be only allowed to system apps later.
      *
      * @hide
      */
-    public static final int INPUT_TYPE_ROTARY_VOLUME = 5;
+    public static final int INPUT_TYPE_ROTARY_VOLUME = 11;
+
+    /**
+     * This is the group of keys for DPAD.
+     * Included key events are: {@link KeyEvent#KEYCODE_DPAD_UP},
+     * {@link KeyEvent#KEYCODE_DPAD_DOWN}, {@link KeyEvent#KEYCODE_DPAD_LEFT},
+     * {@link KeyEvent#KEYCODE_DPAD_RIGHT}, {@link KeyEvent#KEYCODE_DPAD_CENTER},
+     * {@link KeyEvent#KEYCODE_DPAD_DOWN_LEFT}, {@link KeyEvent#KEYCODE_DPAD_DOWN_RIGHT},
+     * {@link KeyEvent#KEYCODE_DPAD_UP_LEFT}, {@link KeyEvent#KEYCODE_DPAD_UP_RIGHT}
+     */
+    public static final int INPUT_TYPE_DPAD_KEYS = 100;
+
+    /**
+     * This is for all KEYCODE_NAVIGATE_* keys.
+     */
+    public static final int INPUT_TYPE_NAVIGATE_KEYS = 101;
+
+    /**
+     * This is for all KEYCODE_SYSTEM_NAVIGATE_* keys.
+     */
+    public static final int INPUT_TYPE_SYSTEM_NAVIGATE_KEYS = 102;
 
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(prefix = "INPUT_TYPE_", value = {
             INPUT_TYPE_ALL_INPUTS,
-            INPUT_TYPE_DPAD_KEYS,
-            INPUT_TYPE_NAVIGATE_KEYS,
             INPUT_TYPE_ROTARY_NAVIGATION,
             INPUT_TYPE_ROTARY_VOLUME,
+            INPUT_TYPE_DPAD_KEYS,
+            INPUT_TYPE_NAVIGATE_KEYS,
+            INPUT_TYPE_SYSTEM_NAVIGATE_KEYS
     })
     @Target({ElementType.TYPE_USE})
     public @interface InputTypeEnum {}
@@ -153,29 +162,31 @@ public final class CarInputManager extends CarManagerBase {
     /**
      * The client's request has succeeded and capture will start.
      */
-    public static final int INPUT_CAPTURE_REQ_RESULT_SUCCEEDED = 0;
+    public static final int INPUT_CAPTURE_RESPONSE_SUCCEEDED = 0;
+
     /**
      * The client's request has failed due to higher priority client already capturing. If priority
      * for the clients are the same, last client making request will be allowed to capture.
      */
-    public static final int INPUT_CAPTURE_REQ_RESULT_FAILED = 1;
+    public static final int INPUT_CAPTURE_RESPONSE_FAILED = 1;
+
     /**
      * This is used when client has set {@link #CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT} in
      * {@code requestFlags} and capturing is blocked due to existing higher priority client.
      * When the higher priority client stops capturing, this client can capture events after
      * getting @link CarInputCaptureCallback#onCaptureStateChanged(int, int[])} call.
      */
-    public static final int INPUT_CAPTURE_REQ_RESULT_DELAYED = 2;
+    public static final int INPUT_CAPTURE_RESPONSE_DELAYED = 2;
 
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef(prefix = "INPUT_CAPTURE_REQ_RESULT_", value = {
-            INPUT_CAPTURE_REQ_RESULT_SUCCEEDED,
-            INPUT_CAPTURE_REQ_RESULT_FAILED,
-            INPUT_CAPTURE_REQ_RESULT_DELAYED
+    @IntDef(prefix = "INPUT_CAPTURE_RESPONSE_", value = {
+            INPUT_CAPTURE_RESPONSE_SUCCEEDED,
+            INPUT_CAPTURE_RESPONSE_FAILED,
+            INPUT_CAPTURE_RESPONSE_DELAYED
     })
     @Target({ElementType.TYPE_USE})
-    public @interface InputCaptureReqResultEnum {}
+    public @interface InputCaptureResponseEnum {}
 
     private final ICarInput mService;
     private final ICarInputCallback mServiceCallback = new ICarInputCallbackImpl(this);
@@ -197,20 +208,23 @@ public final class CarInputManager extends CarManagerBase {
     /**
      * Requests capturing of input event for the specified display for all requested input types.
      *
-     * <p>The request can fail if high priority item is holding it. The client can set
+     * <p>The request can fail if a high priority client is holding it. The client can set
      * {@link #CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT} in {@code requestFlags} to wait for the
      * current high priority client to release it.
      *
-     * <p>If only part of input types specified are available, request will either fail (=returns
-     * {@link #INPUT_CAPTURE_REQ_RESULT_FAILED} or returns {@link #INPUT_CAPTURE_REQ_RESULT_DELAYED}
-     * if {@link #CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT} flag is used.
+     * <p>If only some of the input types specified are available, the request will either:
+     * <ul>
+     * <li>fail, returning {@link #INPUT_CAPTURE_RESPONSE_FAILED}, or
+     * <li>be deferred, returning {@link #INPUT_CAPTURE_RESPONSE_DELAYED}, if the
+     * {@link #CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT} flag is used.
+     * </ul>
      *
-     * <p> After {@link #INPUT_CAPTURE_REQ_RESULT_DELAYED} is returned, no input types are captured
-     * until there comes {@link CarInputCaptureCallback#onCaptureStateChanged(int, int[])} call with
-     * valid input types.
+     * <p> After {@link #INPUT_CAPTURE_RESPONSE_DELAYED} is returned, no input types are captured
+     * until the client receives a {@link CarInputCaptureCallback#onCaptureStateChanged(int, int[])}
+     * call with valid input types.
      */
     @RequiresPermission(android.Manifest.permission.MONITOR_INPUT)
-    @InputCaptureReqResultEnum
+    @InputCaptureResponseEnum
     public int requestInputEventCapture(@NonNull CarInputCaptureCallback callback,
             @TargetDisplayTypeEnum int targetDisplayType,
             @NonNull @InputTypeEnum int[] inputTypes,
@@ -222,12 +236,12 @@ public final class CarInputManager extends CarManagerBase {
             return mService.requestInputEventCapture(mServiceCallback, targetDisplayType,
                     inputTypes, requestFlags);
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, INPUT_CAPTURE_REQ_RESULT_FAILED);
+            return handleRemoteExceptionFromCarService(e, INPUT_CAPTURE_RESPONSE_FAILED);
         }
     }
 
     /**
-     * Stop capturing of given display.
+     * Stops capturing of given display.
      */
     public void releaseInputEventCapture(@TargetDisplayTypeEnum int targetDisplayType) {
         CarInputCaptureCallback callback;
