@@ -23,8 +23,6 @@ import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
-import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
-import android.os.RemoteException;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -60,12 +58,12 @@ class CarAudioZonesHelperLegacy {
 
     CarAudioZonesHelperLegacy(Context context, @XmlRes int xmlConfiguration,
             @NonNull List<CarAudioDeviceInfo> carAudioDeviceInfos,
-            @NonNull IAudioControl audioControl) {
+            @NonNull AudioControlWrapper audioControlWrapper) {
         mContext = context;
         mXmlConfiguration = xmlConfiguration;
         mBusToCarAudioDeviceInfo = generateBusToCarAudioDeviceInfo(carAudioDeviceInfos);
 
-        mLegacyAudioContextToBus = loadBusesForLegacyContexts(audioControl);
+        mLegacyAudioContextToBus = loadBusesForLegacyContexts(audioControlWrapper);
     }
 
     /* Loads mapping from {@link CarAudioContext} values to bus numbers
@@ -74,23 +72,18 @@ class CarAudioZonesHelperLegacy {
      * contexts are those defined as part of
      * {@code android.hardware.automotive.audiocontrol.V1_0.ContextNumber}
      *
-     * @param audioControl handle for IAudioControl HAL to fetch bus numbers from
+     * @param audioControl wrapper for IAudioControl HAL interface.
      * @return SparseIntArray mapping from {@link CarAudioContext} to bus number.
      */
-    private static SparseIntArray loadBusesForLegacyContexts(@NonNull IAudioControl audioControl) {
+    private static SparseIntArray loadBusesForLegacyContexts(
+            @NonNull AudioControlWrapper audioControlWrapper) {
         SparseIntArray contextToBus = new SparseIntArray();
 
-        try {
-            for (int legacyContext : LEGACY_CONTEXTS) {
-                int bus = audioControl.getBusForContext(legacyContext);
-                validateBusNumber(legacyContext, bus);
-                contextToBus.put(legacyContext, bus);
-            }
-        } catch (RemoteException e) {
-            Log.e(CarLog.TAG_AUDIO, "Failed to query IAudioControl HAL", e);
-            e.rethrowAsRuntimeException();
+        for (int legacyContext : LEGACY_CONTEXTS) {
+            int bus = audioControlWrapper.getBusForContext(legacyContext);
+            validateBusNumber(legacyContext, bus);
+            contextToBus.put(legacyContext, bus);
         }
-
         return contextToBus;
     }
 

@@ -79,7 +79,6 @@ public final class CarUserManagerHelper {
     private final Context mContext;
     private final UserManager mUserManager;
     private final ActivityManager mActivityManager;
-    private final TestableFrameworkWrapper mTestableFrameworkWrapper;
 
     /**
      * Initializes with a default name for admin users.
@@ -87,15 +86,9 @@ public final class CarUserManagerHelper {
      * @param context Application Context
      */
     public CarUserManagerHelper(Context context) {
-        this(context, new TestableFrameworkWrapper());
-    }
-
-    @VisibleForTesting
-    CarUserManagerHelper(Context context, TestableFrameworkWrapper testableFrameworkWrapper) {
         mContext = context.getApplicationContext();
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mActivityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
-        mTestableFrameworkWrapper = testableFrameworkWrapper;
     }
 
     /**
@@ -137,16 +130,27 @@ public final class CarUserManagerHelper {
      * @return user id of the initial user to boot into on the device.
      */
     public int getInitialUser() {
+        return getInitialUser(/* usesOverrideUserIdProperty= */ true);
+    }
+
+    // TODO(b/151758646): get rid of the public one / add javadoc here once not used externally
+    // anymore
+    @VisibleForTesting
+    int getInitialUser(boolean usesOverrideUserIdProperty) {
+
         List<Integer> allUsers = userInfoListToUserIdList(getAllUsers());
 
-        int bootUserOverride = mTestableFrameworkWrapper.getBootUserOverrideId(BOOT_USER_NOT_FOUND);
+        if (usesOverrideUserIdProperty) {
+            int bootUserOverride = CarProperties.boot_user_override_id()
+                    .orElse(BOOT_USER_NOT_FOUND);
 
-        // If an override user is present and a real user, return it
-        if (bootUserOverride != BOOT_USER_NOT_FOUND
-                && allUsers.contains(bootUserOverride)) {
-            Log.i(TAG, "Boot user id override found for initial user, user id: "
-                    + bootUserOverride);
-            return bootUserOverride;
+            // If an override user is present and a real user, return it
+            if (bootUserOverride != BOOT_USER_NOT_FOUND
+                    && allUsers.contains(bootUserOverride)) {
+                Log.i(TAG, "Boot user id override found for initial user, user id: "
+                        + bootUserOverride);
+                return bootUserOverride;
+            }
         }
 
         // If the last active user is not the SYSTEM user and is a real user, return it
