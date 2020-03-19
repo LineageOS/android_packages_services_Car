@@ -243,7 +243,7 @@ public class CarPowerManagementServiceTest {
         // start with display off
         mSystemInterface.setDisplayState(false);
         mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS);
-        initTest();
+        initTestForUser10();
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
 

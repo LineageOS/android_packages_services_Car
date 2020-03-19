@@ -46,6 +46,12 @@ public class PowerHalService extends HalServiceBase {
     // Set display brightness from 0-100%
     public static final int MAX_BRIGHTNESS = 100;
 
+    private static final int[] SUPPORTED_PROPERTIES = new int[]{
+            AP_POWER_STATE_REQ,
+            AP_POWER_STATE_REPORT,
+            DISPLAY_BRIGHTNESS
+    };
+
     @VisibleForTesting
     public static final int SET_WAIT_FOR_VHAL = VehicleApPowerStateReport.WAIT_FOR_VHAL;
     @VisibleForTesting
@@ -373,19 +379,19 @@ public class PowerHalService extends HalServiceBase {
     }
 
     @Override
-    public Collection<VehiclePropConfig> takeSupportedProperties(
-            Collection<VehiclePropConfig> allProperties) {
+    public int[] getAllSupportedProperties() {
+        return SUPPORTED_PROPERTIES;
+    }
+
+    @Override
+    public void takeProperties(Collection<VehiclePropConfig> properties) {
+        if (properties.isEmpty()) {
+            return;
+        }
         synchronized (mLock) {
-            for (VehiclePropConfig config : allProperties) {
-                switch (config.prop) {
-                    case AP_POWER_STATE_REQ:
-                    case AP_POWER_STATE_REPORT:
-                    case DISPLAY_BRIGHTNESS:
-                        mProperties.put(config.prop, config);
-                        break;
-                }
+            for (VehiclePropConfig config : properties) {
+                mProperties.put(config.prop, config);
             }
-            return new LinkedList<>(mProperties.values());
         }
     }
 

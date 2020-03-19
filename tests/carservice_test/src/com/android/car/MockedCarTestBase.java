@@ -119,7 +119,7 @@ public class MockedCarTestBase {
     protected synchronized void configureMockedHal() {
     }
 
-    protected synchronized void spyOnInitMockedHal() {
+    protected synchronized void spyOnBeforeCarImplInit() {
     }
 
     protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
@@ -211,11 +211,14 @@ public class MockedCarTestBase {
         // This prevents one test failure in tearDown from triggering assertion failure for single
         // CarLocalServices service.
         CarLocalServices.removeAllServices();
+
+        // This should be done here as feature property is accessed inside the constructor.
+        initMockedHal();
         mCarImpl = new ICarImpl(mMockedCarTestContext, mMockedVehicleHal, mFakeSystemInterface,
                 /* errorNotifier= */ null , "MockedCar", mCarUserService, mCarWatchdogService);
 
-        spyOnInitMockedHal();
-        initMockedHal(mCarImpl, false /* no need to release */);
+        spyOnBeforeCarImplInit();
+        mCarImpl.init();
         mCar = new Car(mMockedCarTestContext, mCarImpl, null /* handler */);
     }
 
@@ -252,20 +255,16 @@ public class MockedCarTestBase {
     }
 
     protected synchronized void reinitializeMockedHal() throws Exception {
-        initMockedHal(mCarImpl, true /* release */);
+        mCarImpl.release();
+        initMockedHal();
     }
 
-    private synchronized void initMockedHal(ICarImpl carImpl, boolean release) throws Exception {
-        if (release) {
-            carImpl.release();
-        }
-
+    private synchronized void initMockedHal() throws Exception {
         for (Map.Entry<VehiclePropConfigBuilder, VehicleHalPropertyHandler> entry
                 : mHalConfig.entrySet()) {
             mMockedVehicleHal.addProperty(entry.getKey().build(), entry.getValue());
         }
         mHalConfig.clear();
-        carImpl.init();
     }
 
     protected synchronized VehiclePropConfigBuilder addProperty(int propertyId,

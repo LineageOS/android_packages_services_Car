@@ -34,6 +34,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.android.car.CarServiceUtils;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
@@ -313,12 +314,19 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     @Override
-    public Collection<VehiclePropConfig> takeSupportedProperties(
-            Collection<VehiclePropConfig> allProperties) {
-        List<VehiclePropConfig> taken = new LinkedList<>();
+    public boolean isSupportedProperty(int propId) {
+        return mPropIds.isSupportedProperty(propId);
+    }
+
+    @Override
+    public int[] getAllSupportedProperties() {
+        return CarServiceUtils.EMPTY_INT_ARRAY;
+    }
+
+    @Override
+    public void takeProperties(Collection<VehiclePropConfig> allProperties) {
         for (VehiclePropConfig p : allProperties) {
             if (mPropIds.isSupportedProperty(p.prop)) {
-                taken.add(p);
                 synchronized (mLock) {
                     mPropConfigSparseArray.put(p.prop, p);
                 }
@@ -328,7 +336,8 @@ public class PropertyHalService extends HalServiceBase {
             }
         }
         if (mDbg) {
-            Log.d(TAG, "takeSupportedProperties() took " + taken.size() + " properties");
+            Log.d(TAG, "takeSupportedProperties() took " + allProperties.size()
+                    + " properties");
         }
         // If vehicle hal support to select permission for vendor properties.
         VehiclePropConfig customizePermission;
@@ -339,7 +348,6 @@ public class PropertyHalService extends HalServiceBase {
         if (customizePermission != null) {
             mPropIds.customizeVendorPermission(customizePermission.configArray);
         }
-        return taken;
     }
 
     @Override
