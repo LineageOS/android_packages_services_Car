@@ -33,6 +33,8 @@ import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.userlib.CarUserManagerHelper;
+import android.car.userlib.HalCallback;
+import android.car.userlib.UserHalHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
@@ -55,9 +57,7 @@ import android.util.TimingsTraceLog;
 
 import com.android.car.CarServiceBase;
 import com.android.car.R;
-import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
-import com.android.car.hal.UserHalService.HalCallback;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.os.IResultReceiver;
