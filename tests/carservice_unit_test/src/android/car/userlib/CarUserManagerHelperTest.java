@@ -287,6 +287,11 @@ public class CarUserManagerHelperTest {
                 .isEqualTo(lastActiveUserId);
     }
 
+    @Test
+    public void testGetInitialUser_WithEmptyReturnNull() {
+        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(UserHandle.USER_NULL);
+    }
+
     private UserInfo createUserInfoForId(int id) {
         UserInfo userInfo = new UserInfo();
         userInfo.id = id;
