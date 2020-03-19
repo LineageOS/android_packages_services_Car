@@ -56,8 +56,7 @@ public:
     unsigned getHeight()    { return mHeight; };
 
 private:
-    sp<IAutomotiveDisplayProxyService> mAutomotiveDisplayProxyService;
-    sp<IGraphicBufferProducer>         mGfxBufferProducer;
+    sp<IGraphicBufferProducer>  mGfxBufferProducer;
 
     EGLDisplay                  mDisplay;
     EGLSurface                  mSurface;
