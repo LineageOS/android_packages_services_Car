@@ -48,6 +48,7 @@ import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
 import android.os.RemoteException;
@@ -723,6 +724,11 @@ public class CarPowerManagementServiceTest {
         userSwitchingWhenHalFailsTest(HalCallback.STATUS_WRONG_HAL_RESPONSE);
     }
 
+    @Test
+    public void testUserSwitchingUsingHal_failure_invalidResponse() throws Exception {
+        userSwitchingWhenHalFailsTest(-666);
+    }
+
     /**
      * Tests all scenarios where the HAL.getInitialUserInfo() call failed - the outcome is the
      * same, it should use the default behavior.
@@ -734,16 +740,89 @@ public class CarPowerManagementServiceTest {
         setUserInfo(11, NO_USER_INFO_FLAGS);
         setCurrentUser(10);
         setInitialUser(11);
-        doAnswer((invocation) -> {
-            HalCallback<InitialUserInfoResponse> callback = invocation.getArgument(1);
-            callback.onResponse(status, /* response= */ null);
-            return null;
-        }).when(mUserService).getInitialUserInfo(eq(InitialUserInfoRequestType.RESUME), notNull());
+        setGetUserInfoResponse((c) -> c.onResponse(status, /* response= */ null));
 
         suspendAndResumeForUserSwitchingTests();
 
         verifyUserSwitched(11);
         verifyWtfNeverLogged();
+    }
+
+    @Test
+    public void testUserSwitchingUsingHal_invalidAction() throws Exception {
+        initTest();
+        enableUserHal();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setUserInfo(11, NO_USER_INFO_FLAGS);
+        setCurrentUser(10);
+        setInitialUser(11);
+        InitialUserInfoResponse response = new InitialUserInfoResponse();
+        response.action = -666;
+        setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, response));
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserSwitched(11);
+        verifyWtfNeverLogged();
+    }
+
+    @Test
+    public void testUserSwitchingUsingHal_default_nullResponse() throws Exception {
+        initTest();
+        enableUserHal();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setUserInfo(11, NO_USER_INFO_FLAGS);
+        setCurrentUser(10);
+        setInitialUser(11);
+        setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, /* response= */ null));
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserSwitched(11);
+        verifyWtfNeverLogged();
+    }
+
+    @Test
+    public void testUserSwitchingUsingHal_default_ok() throws Exception {
+        initTest();
+        enableUserHal();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setUserInfo(11, NO_USER_INFO_FLAGS);
+        setCurrentUser(10);
+        setInitialUser(11);
+        InitialUserInfoResponse response = new InitialUserInfoResponse();
+        response.action = InitialUserInfoResponseAction.DEFAULT;
+        setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, response));
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserSwitched(11);
+        verifyWtfNeverLogged();
+    }
+
+    @Test
+    public void testUserSwitchingUsingHal_switch_ok() throws Exception {
+        initTest();
+        enableUserHal();
+        setUserInfo(10, NO_USER_INFO_FLAGS);
+        setUserInfo(11, NO_USER_INFO_FLAGS);
+        setCurrentUser(10);
+        setInitialUser(11);
+        InitialUserInfoResponse response = new InitialUserInfoResponse();
+        response.action = InitialUserInfoResponseAction.SWITCH;
+        setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, response));
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserSwitched(11);
+        verifyWtfNeverLogged();
+    }
+
+    private void setGetUserInfoResponse(Visitor<HalCallback<InitialUserInfoResponse>> visitor) {
+        doAnswer((invocation) -> {
+            HalCallback<InitialUserInfoResponse> callback = invocation.getArgument(1);
+            visitor.visit(callback);
+            return null;
+        }).when(mUserService).getInitialUserInfo(eq(InitialUserInfoRequestType.RESUME), notNull());
     }
 
     private void enableUserHal() {
@@ -1085,7 +1164,12 @@ public class CarPowerManagementServiceTest {
 
     @Retention(RUNTIME)
     @Target({METHOD})
-    public static @interface WakeupTime {
+    private @interface WakeupTime {
         int value();
+    }
+
+    // TODO(b/149099817): move to common code
+    private interface Visitor<T> {
+        void visit(T t);
     }
 }
