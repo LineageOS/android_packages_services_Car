@@ -22,6 +22,7 @@ import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsProviderInfo;
 import android.car.vms.VmsRegistrationInfo;
+import android.os.SharedMemory;
 
 /**
  * Hidden API for communicating with the Vehicle Map Service message broker.
@@ -68,4 +69,10 @@ interface IVmsBrokerService {
         int providerId,
         in VmsLayer layer,
         in byte[] packet) = 7;
+
+    void publishLargePacket(
+        in IBinder token,
+        int providerId,
+        in VmsLayer layer,
+        in SharedMemory packet) = 8;
 }
