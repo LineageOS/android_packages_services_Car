@@ -903,7 +903,6 @@
                  android:allowBackup="false"
                  android:persistent="true">
 
-        <uses-library android:name="android.test.runner" />
         <service android:name=".CarService"
                 android:singleUser="true">
             <intent-filter>
