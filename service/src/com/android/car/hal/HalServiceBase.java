@@ -17,14 +17,14 @@
 package com.android.car.hal;
 
 
-import android.annotation.Nullable;
+import android.annotation.NonNull;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.util.Log;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -37,7 +37,7 @@ public abstract class HalServiceBase {
     private static final String MY_TAG = HalServiceBase.class.getSimpleName();
 
     /** For dispatching events. Kept here to avoid alloc every time */
-    private final LinkedList<VehiclePropValue> mDispatchList = new LinkedList<VehiclePropValue>();
+    private final ArrayList<VehiclePropValue> mDispatchList = new ArrayList<>(1);
 
     final static int NOT_SUPPORTED_PROPERTY = -1;
 
@@ -52,14 +52,34 @@ public abstract class HalServiceBase {
     public abstract void release();
 
     /**
-     * Takes the supported properties from given {@code allProperties} and return List of supported
-     * properties (or {@code null} are supported.
+     * Returns all property IDs this HalService can support. If return value is empty,
+     * {@link #isSupportedProperty(int)} is used to query support for each property.
      */
-    @Nullable
-    public Collection<VehiclePropConfig> takeSupportedProperties(
-            Collection<VehiclePropConfig> allProperties) {
-        return null;
+    @NonNull
+    public abstract int[] getAllSupportedProperties();
+
+    /**
+     * Checks if given {@code propId} is supported.
+     */
+    public boolean isSupportedProperty(int propId) {
+        for (int supported: getAllSupportedProperties()) {
+            if (propId == supported) {
+                return true;
+            }
+        }
+        return false;
     }
+
+    /**
+     * Takes the passed properties. Passed properties are a subset of properties returned from
+     * {@link #getAllSupportedProperties()} and are supported in the current device.
+     *
+     * @param properties properties that are available in this device. This is guaranteed to be
+     *                   supported by the HalService as the list is filtered with
+     *                   {@link #getAllSupportedProperties()} or {@link #isSupportedProperty(int)}.
+     *                   It can be empty if no property is available.
+     */
+    public abstract void takeProperties(@NonNull Collection<VehiclePropConfig> properties);
 
     /**
      * Handles property changes from HAL.

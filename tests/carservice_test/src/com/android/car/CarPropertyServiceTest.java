@@ -93,7 +93,7 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized void spyOnInitMockedHal() {
+    protected synchronized void spyOnBeforeCarImplInit() {
         mService = getCarPropertyService();
         assertThat(mService).isNotNull();
         spyOn(mService);
