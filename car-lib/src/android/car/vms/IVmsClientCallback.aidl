@@ -19,6 +19,7 @@ package android.car.vms;
 import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriptionState;
+import android.os.SharedMemory;
 
 /**
  * Hidden API for sending notifications to Vehicle Map Service clients.
@@ -36,4 +37,9 @@ oneway interface IVmsClientCallback {
         int providerId,
         in VmsLayer layer,
         in byte[] packet) = 2;
+
+    void onLargePacketReceived(
+        int providerId,
+        in VmsLayer layer,
+        in SharedMemory packet) = 3;
 }

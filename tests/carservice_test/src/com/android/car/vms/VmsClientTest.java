@@ -79,6 +79,7 @@ public class VmsClientTest extends MockedCarTestBase {
     private static final VmsLayer LAYER3 = new VmsLayer(3, 1, 1);
 
     private static final byte[] PAYLOAD = {1, 2, 3, 4, 5, 6, 7, 8};
+    private static final byte[] LARGE_PAYLOAD = new byte[16 * 1024]; // 16KB
 
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
@@ -96,6 +97,7 @@ public class VmsClientTest extends MockedCarTestBase {
     @Before
     public void setUpTest() {
         mClientManager = (VmsClientManager) getCar().getCarManager(Car.VEHICLE_MAP_SERVICE);
+        LARGE_PAYLOAD[0] = 123;
     }
 
     @Test
@@ -2376,6 +2378,183 @@ public class VmsClientTest extends MockedCarTestBase {
         awaitTaskCompletion();
         verifyPacketReceived(mClientCallback1, providerId, LAYER1, PAYLOAD);
         verifyPacketReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
+    }
+
+    @Test
+    public void testPublishPacket_Large_UnknownOffering() {
+        VmsClient client = connectVmsClient(mClientCallback1);
+        int providerId = client.registerProvider(PROVIDER_DESC1);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> client.publishPacket(providerId, LAYER1, LARGE_PAYLOAD));
+    }
+
+    @Test
+    public void testPublishPacket_Large_NoSubscribers() {
+        VmsClient client = connectVmsClient(mClientCallback1);
+        int providerId = client.registerProvider(PROVIDER_DESC1);
+        client.setProviderOfferings(providerId, asSet(
+                new VmsLayerDependency(LAYER1)
+        ));
+        connectVmsClient(mClientCallback2);
+
+        client.publishPacket(providerId, LAYER1, LARGE_PAYLOAD);
+
+        awaitTaskCompletion();
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+    }
+
+    @Test
+    public void testPublishPacket_Large_MonitorSubscriber_Enabled() {
+        VmsClient client = connectVmsClient(mClientCallback1);
+        int providerId = client.registerProvider(PROVIDER_DESC1);
+        client.setProviderOfferings(providerId, asSet(
+                new VmsLayerDependency(LAYER1)
+        ));
+        connectVmsClient(mClientCallback2);
+
+        client.setMonitoringEnabled(true);
+        client.publishPacket(providerId, LAYER1, LARGE_PAYLOAD);
+
+        awaitTaskCompletion();
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, LARGE_PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+    }
+
+    @Test
+    public void testPublishPacket_Large_MonitorSubscriber_EnabledAndDisabled() {
+        VmsClient client = connectVmsClient(mClientCallback1);
+        int providerId = client.registerProvider(PROVIDER_DESC1);
+        client.setProviderOfferings(providerId, asSet(
+                new VmsLayerDependency(LAYER1)
+        ));
+        connectVmsClient(mClientCallback2);
+
+        client.setMonitoringEnabled(true);
+        client.setMonitoringEnabled(false);
+        client.publishPacket(providerId, LAYER1, LARGE_PAYLOAD);
+
+        awaitTaskCompletion();
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+    }
+
+    @Test
+    public void testPublishPacket_Large_LayerSubscriber() {
+        VmsClient client = connectVmsClient(mClientCallback1);
+        int providerId = client.registerProvider(PROVIDER_DESC1);
+        client.setProviderOfferings(providerId, asSet(
+                new VmsLayerDependency(LAYER1)
+        ));
+        connectVmsClient(mClientCallback2);
+
+        client.setSubscriptions(asSet(
+                new VmsAssociatedLayer(LAYER1, emptySet())
+        ));
+        client.publishPacket(providerId, LAYER1, LARGE_PAYLOAD);
+
+        awaitTaskCompletion();
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, LARGE_PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+    }
+
+    @Test
+    public void testPublishPacket_Large_LayerSubscriber_Unsubscribe() {
+        VmsClient client = connectVmsClient(mClientCallback1);
+        int providerId = client.registerProvider(PROVIDER_DESC1);
+        client.setProviderOfferings(providerId, asSet(
+                new VmsLayerDependency(LAYER1)
+        ));
+        connectVmsClient(mClientCallback2);
+
+        client.setSubscriptions(asSet(
+                new VmsAssociatedLayer(LAYER1, emptySet())
+        ));
+        client.setSubscriptions(emptySet());
+        client.publishPacket(providerId, LAYER1, LARGE_PAYLOAD);
+
+        awaitTaskCompletion();
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+    }
+
+    @Test
+    public void testPublishPacket_Large_LayerSubscriber_DifferentLayer() {
+        VmsClient client = connectVmsClient(mClientCallback1);
+        int providerId = client.registerProvider(PROVIDER_DESC1);
+        client.setProviderOfferings(providerId, asSet(
+                new VmsLayerDependency(LAYER1)
+        ));
+        connectVmsClient(mClientCallback2);
+
+        client.setSubscriptions(asSet(
+                new VmsAssociatedLayer(LAYER2, emptySet())
+        ));
+        client.publishPacket(providerId, LAYER1, LARGE_PAYLOAD);
+
+        awaitTaskCompletion();
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+    }
+
+    @Test
+    public void testPublishPacket_Large_LayerAndProviderSubscriber() {
+        VmsClient client = connectVmsClient(mClientCallback1);
+        int providerId = client.registerProvider(PROVIDER_DESC1);
+        client.setProviderOfferings(providerId, asSet(
+                new VmsLayerDependency(LAYER1)
+        ));
+        connectVmsClient(mClientCallback2);
+
+        client.setSubscriptions(asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId))
+        ));
+        client.publishPacket(providerId, LAYER1, LARGE_PAYLOAD);
+
+        awaitTaskCompletion();
+        verifyPacketReceived(mClientCallback1, providerId, LAYER1, LARGE_PAYLOAD);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+    }
+
+    @Test
+    public void testPublishPacket_Large_LayerAndProviderSubscriber_Unsubscribe() {
+        VmsClient client = connectVmsClient(mClientCallback1);
+        int providerId = client.registerProvider(PROVIDER_DESC1);
+        client.setProviderOfferings(providerId, asSet(
+                new VmsLayerDependency(LAYER1)
+        ));
+        connectVmsClient(mClientCallback2);
+
+        client.setSubscriptions(asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId))
+        ));
+        client.setSubscriptions(emptySet());
+        client.publishPacket(providerId, LAYER1, LARGE_PAYLOAD);
+
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+    }
+
+    @Test
+    public void testPublishPacket_Large_LayerAndProviderSubscriber_DifferentProvider() {
+        VmsClient client = connectVmsClient(mClientCallback1);
+        int providerId = client.registerProvider(PROVIDER_DESC1);
+        int providerId2 = client.registerProvider(PROVIDER_DESC2);
+        client.setProviderOfferings(providerId, asSet(
+                new VmsLayerDependency(LAYER1)
+        ));
+        connectVmsClient(mClientCallback2);
+
+        client.setSubscriptions(asSet(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId2))
+        ));
+        client.publishPacket(providerId, LAYER1, LARGE_PAYLOAD);
+
+        awaitTaskCompletion();
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
     }
 
     private VmsClient connectVmsClient(VmsClientCallback callback) {
