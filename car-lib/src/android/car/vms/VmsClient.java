@@ -16,6 +16,8 @@
 
 package android.car.vms;
 
+import static android.system.OsConstants.PROT_READ;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
@@ -25,11 +27,14 @@ import android.car.vms.VmsClientManager.VmsClientCallback;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.SharedMemory;
+import android.system.ErrnoException;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
@@ -54,6 +59,7 @@ public final class VmsClient {
             new VmsAvailableLayers(Collections.emptySet(), 0);
     private static final VmsSubscriptionState DEFAULT_SUBSCRIPTIONS =
             new VmsSubscriptionState(0, Collections.emptySet(), Collections.emptySet());
+    private static final int LARGE_PACKET_THRESHOLD = 16 * 1024; // 16 KB
 
     private final IVmsBrokerService mService;
     private final Executor mExecutor;
@@ -236,11 +242,20 @@ public final class VmsClient {
      */
     @RequiresPermission(Car.PERMISSION_VMS_PUBLISHER)
     public void publishPacket(int providerId, @NonNull VmsLayer layer, @NonNull byte[] packet) {
-        if (DBG) Log.d(TAG, "Publishing packet as " + providerId);
         Objects.requireNonNull(layer, "layer cannot be null");
         Objects.requireNonNull(packet, "packet cannot be null");
+        if (DBG) {
+            Log.d(TAG, "Publishing packet as " + providerId + " (" + packet.length + " bytes)");
+        }
         try {
-            mService.publishPacket(mClientToken, providerId, layer, packet);
+            if (packet.length < LARGE_PACKET_THRESHOLD) {
+                mService.publishPacket(mClientToken, providerId, layer, packet);
+            } else {
+                try (SharedMemory largePacket = packetToSharedMemory(packet)) {
+                    mService.publishLargePacket(mClientToken, providerId, layer,
+                            largePacket);
+                }
+            }
         } catch (RemoteException e) {
             Log.e(TAG, "While publishing packet as " + providerId);
             mExceptionHandler.accept(e);
@@ -312,9 +327,25 @@ public final class VmsClient {
 
         @Override
         public void onPacketReceived(int providerId, VmsLayer layer, byte[] packet) {
-            if (DBG) Log.d(TAG, "Received packet from " + providerId + " for: " + layer);
+            if (DBG) {
+                Log.d(TAG, "Received packet from " + providerId + " for: " + layer
+                        + " (" + packet.length + " bytes)");
+            }
             executeCallback((client, callback) ->
                     callback.onPacketReceived(providerId, layer, packet));
+        }
+
+        @Override
+        public void onLargePacketReceived(int providerId, VmsLayer layer, SharedMemory packet) {
+            try (SharedMemory largePacket = packet) {
+                if (DBG) {
+                    Log.d(TAG, "Received large packet from " + providerId + " for: " + layer
+                            + " (" + largePacket.getSize() + " bytes)");
+                }
+                byte[] packetData = sharedMemoryToPacket(largePacket);
+                executeCallback((client, callback) ->
+                        callback.onPacketReceived(providerId, layer, packetData));
+            }
         }
 
         private void executeCallback(BiConsumer<VmsClient, VmsClientCallback> callbackOperation) {
@@ -331,5 +362,52 @@ public final class VmsClient {
                 Binder.restoreCallingIdentity(token);
             }
         }
+    }
+
+    private static SharedMemory packetToSharedMemory(byte[] packet) {
+        SharedMemory shm;
+        try {
+            shm = SharedMemory.create("VmsClient", packet.length);
+        } catch (ErrnoException e) {
+            throw new IllegalStateException("Failed to allocate shared memory", e);
+        }
+
+        ByteBuffer buffer = null;
+        try {
+            buffer = shm.mapReadWrite();
+            buffer.put(packet);
+        } catch (ErrnoException e) {
+            shm.close();
+            throw new IllegalStateException("Failed to create write buffer", e);
+        } finally {
+            if (buffer != null) {
+                SharedMemory.unmap(buffer);
+            }
+        }
+
+        if (!shm.setProtect(PROT_READ)) {
+            shm.close();
+            throw new SecurityException("Failed to set read-only protection on shared memory");
+        }
+
+        return shm;
+    }
+
+    private static byte[] sharedMemoryToPacket(SharedMemory shm) {
+        ByteBuffer buffer;
+        try {
+            buffer = shm.mapReadOnly();
+        } catch (ErrnoException e) {
+            throw new IllegalStateException("Failed to create read buffer", e);
+        }
+
+        byte[] packet;
+        try {
+            packet = new byte[buffer.capacity()];
+            buffer.get(packet);
+        } finally {
+            SharedMemory.unmap(buffer);
+        }
+        return packet;
     }
 }
