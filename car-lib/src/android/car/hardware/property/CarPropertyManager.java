@@ -819,7 +819,9 @@ public class CarPropertyManager extends CarManagerBase {
             long updateTime = event.getCarPropertyValue().getTimestamp();
             int areaId = event.getCarPropertyValue().getAreaId();
             if (!needUpdateForAreaId(areaId, updateTime)) {
-                Log.w(TAG, "dropping old property data");
+                if (DBG) {
+                    Log.w(TAG, "Dropping a stale event: " + event.toString());
+                }
                 return;
             }
             List<CarPropertyEventCallback> listeners;
