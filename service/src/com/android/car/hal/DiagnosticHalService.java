@@ -48,9 +48,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Diagnostic HAL service supporting gathering diagnostic info from VHAL and translating it into
  * higher-level semantic information
  */
-public class DiagnosticHalService extends  HalServiceBase{
+public class DiagnosticHalService extends HalServiceBase {
     static final int OBD2_SELECTIVE_FRAME_CLEAR = 1;
     static final boolean DEBUG = false;
+
+    private static final int[] SUPPORTED_PROPERTIES = new int[]{
+            VehicleProperty.OBD2_LIVE_FRAME,
+            VehicleProperty.OBD2_FREEZE_FRAME,
+            VehicleProperty.OBD2_FREEZE_FRAME_INFO,
+            VehicleProperty.OBD2_FREEZE_FRAME_CLEAR
+    };
+
     private final Object mLock = new Object();
     private final VehicleHal mVehicleHal;
 
@@ -111,13 +119,16 @@ public class DiagnosticHalService extends  HalServiceBase{
     }
 
     @Override
-    public Collection<VehiclePropConfig> takeSupportedProperties(
-            Collection<VehiclePropConfig> allProperties) {
+    public int[] getAllSupportedProperties() {
+        return SUPPORTED_PROPERTIES;
+    }
+
+    @Override
+    public void takeProperties(Collection<VehiclePropConfig> properties) {
         if (DEBUG) {
             Log.d(CarLog.TAG_DIAGNOSTIC, "takeSupportedProperties");
         }
-        LinkedList<VehiclePropConfig> supportedProperties = new LinkedList<VehiclePropConfig>();
-        for (VehiclePropConfig vp : allProperties) {
+        for (VehiclePropConfig vp : properties) {
             int sensorType = getTokenForProperty(vp);
             if (sensorType == NOT_SUPPORTED_PROPERTY) {
                 if (DEBUG) {
@@ -128,13 +139,11 @@ public class DiagnosticHalService extends  HalServiceBase{
                                 .toString());
                 }
             } else {
-                supportedProperties.add(vp);
                 synchronized (mLock) {
                     mSensorTypeToConfig.append(sensorType, vp);
                 }
             }
         }
-        return supportedProperties;
     }
 
     /**

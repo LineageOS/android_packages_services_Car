@@ -104,7 +104,7 @@ public class VmsHalServiceTest {
 
         VehiclePropConfig propConfig = new VehiclePropConfig();
         propConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
-        mHalService.takeSupportedProperties(Collections.singleton(propConfig));
+        mHalService.takeProperties(Collections.singleton(propConfig));
 
         when(mVmsClient.getAvailableLayers()).thenReturn(
                 new VmsAvailableLayers(Collections.emptySet(), 0));
@@ -156,7 +156,7 @@ public class VmsHalServiceTest {
 
         VehiclePropConfig propConfig = new VehiclePropConfig();
         propConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
-        mHalService.takeSupportedProperties(Collections.singleton(propConfig));
+        mHalService.takeProperties(Collections.singleton(propConfig));
 
         when(mVmsClient.getAvailableLayers()).thenReturn(
                 new VmsAvailableLayers(Collections.emptySet(), 0));
@@ -176,9 +176,7 @@ public class VmsHalServiceTest {
 
         VehiclePropConfig otherPropConfig = new VehiclePropConfig();
         otherPropConfig.prop = VehicleProperty.CURRENT_GEAR;
-
-        assertEquals(Collections.singleton(vmsPropConfig),
-                mHalService.takeSupportedProperties(Arrays.asList(otherPropConfig, vmsPropConfig)));
+        mHalService.takeProperties(Arrays.asList(vmsPropConfig));
     }
 
     /**
