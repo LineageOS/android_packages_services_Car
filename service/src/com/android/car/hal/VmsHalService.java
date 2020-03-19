@@ -59,7 +59,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -76,6 +75,9 @@ public class VmsHalService extends HalServiceBase {
     private static final boolean DBG = false;
     private static final String TAG = "VmsHalService";
     private static final int HAL_PROPERTY_ID = VehicleProperty.VEHICLE_MAP_SERVICE;
+    private static final int[] SUPPORTED_PROPERTIES = new int[]{
+            HAL_PROPERTY_ID
+    };
     private static final int NUM_INTEGERS_IN_VMS_LAYER = 3;
     private static final int UNKNOWN_CLIENT_ID = -1;
     private static final byte[] DEFAULT_PUBLISHER_INFO = new byte[0];
@@ -170,17 +172,18 @@ public class VmsHalService extends HalServiceBase {
     }
 
     @Override
-    public Collection<VehiclePropConfig> takeSupportedProperties(
-            Collection<VehiclePropConfig> allProperties) {
-        for (VehiclePropConfig p : allProperties) {
-            if (p.prop == HAL_PROPERTY_ID) {
-                synchronized (mLock) {
-                    mIsSupported = true;
-                }
-                return Collections.singleton(p);
-            }
+    public int[] getAllSupportedProperties() {
+        return SUPPORTED_PROPERTIES;
+    }
+
+    @Override
+    public void takeProperties(Collection<VehiclePropConfig> properties) {
+        if (properties.isEmpty()) {
+            return;
         }
-        return Collections.emptySet();
+        synchronized (mLock) {
+            mIsSupported = true;
+        }
     }
 
     @Override
