@@ -38,6 +38,8 @@ import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -89,6 +91,8 @@ public class ICarImpl extends ICar.Stub {
     public static final String INTERNAL_INPUT_SERVICE = "internal_input";
     public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
             "system_activity_monitoring";
+
+    private static final int INITIAL_VHAL_GET_RETRY = 2;
 
     private final Context mContext;
     private final VehicleHal mHal;
@@ -163,14 +167,25 @@ public class ICarImpl extends ICar.Stub {
         mContext = serviceContext;
         mSystemInterface = systemInterface;
         mHal = new VehicleHal(serviceContext, vehicle);
+        // Do this before any other service components to allow feature check. It should work
+        // even without init. For that, vhal get is retried as it can be too early.
+        VehiclePropValue disabledOptionalFeatureValue = mHal.getIfAvailableOrFailForEarlyStage(
+                    VehicleProperty.DISABLED_OPTIONAL_FEATURES, INITIAL_VHAL_GET_RETRY);
+        String[] disabledFeaturesFromVhal = null;
+        if (disabledOptionalFeatureValue != null) {
+            String disabledFeatures = disabledOptionalFeatureValue.value.stringValue;
+            if (disabledFeatures != null && !disabledFeatures.isEmpty()) {
+                disabledFeaturesFromVhal = disabledFeatures.split(",");
+            }
+        }
+        if (disabledFeaturesFromVhal == null) {
+            disabledFeaturesFromVhal = new String[0];
+        }
         Resources res = mContext.getResources();
         String[] defaultEnabledFeatures = res.getStringArray(
                 R.array.config_allowed_optional_car_features);
-        // Do this before any other service components to allow feature check. It should work
-        // even without init.
-        // TODO (b/144504820) Add vhal plumbing
         mFeatureController = new CarFeatureController(serviceContext, defaultEnabledFeatures,
-                /* disabledFeaturesFromVhal= */ new String[0], mSystemInterface.getSystemCarDir());
+                disabledFeaturesFromVhal , mSystemInterface.getSystemCarDir());
         CarLocalServices.addService(CarFeatureController.class, mFeatureController);
         mVehicleInterfaceName = vehicleInterfaceName;
         mUserManagerHelper = new CarUserManagerHelper(serviceContext);

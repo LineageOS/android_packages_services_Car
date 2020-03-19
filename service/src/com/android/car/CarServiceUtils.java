@@ -30,6 +30,9 @@ import java.util.List;
 /** Utility class */
 public final class CarServiceUtils {
 
+    /** Empty int array */
+    public  static final int[] EMPTY_INT_ARRAY = new int[0];
+
     private static final String PACKAGE_NOT_FOUND = "Package not found:";
 
     /** do not construct. static only */
