@@ -28,6 +28,7 @@ import android.util.AtomicFile;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -134,6 +135,8 @@ public final class CarFeatureController implements CarServiceBase {
         mContext = context;
         mDefaultEnabledFeaturesFromConfig = Arrays.asList(defaultEnabledFeaturesFromConfig);
         mDisabledFeaturesFromVhal = Arrays.asList(disabledFeaturesFromVhal);
+        Log.i(TAG, "mDefaultEnabledFeaturesFromConfig:" + mDefaultEnabledFeaturesFromConfig
+                + ",mDisabledFeaturesFromVhal:" + mDisabledFeaturesFromVhal);
         mEnabledFeatures = new HashSet<>(MANDATORY_FEATURES);
         mFeatureConfigFile = new AtomicFile(new File(dataDir, FEATURE_CONFIG_FILE_NAME), TAG);
         boolean shouldLoadDefaultConfig = !mFeatureConfigFile.exists();
@@ -155,6 +158,11 @@ public final class CarFeatureController implements CarServiceBase {
             parseDefaultConfig();
             dispatchDefaultConfigUpdate();
         }
+    }
+
+    @VisibleForTesting
+    List<String> getDisabledFeaturesFromVhal() {
+        return mDisabledFeaturesFromVhal;
     }
 
     @Override

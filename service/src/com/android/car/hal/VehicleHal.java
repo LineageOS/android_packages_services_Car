@@ -23,6 +23,7 @@ import static com.android.car.CarServiceUtils.toIntArray;
 import static java.lang.Integer.toHexString;
 
 import android.annotation.CheckResult;
+import android.annotation.Nullable;
 import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -38,12 +39,14 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.os.HandlerThread;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import com.google.android.collect.Lists;
@@ -54,10 +57,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -80,15 +81,23 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private final UserHalService mUserHal;
     private DiagnosticHalService mDiagnosticHal = null;
 
+    private final Object mLock = new Object();
+
     /** Might be re-assigned if Vehicle HAL is reconnected. */
     private volatile HalClient mHalClient;
 
     /** Stores handler for each HAL property. Property events are sent to handler. */
+    @GuardedBy("mLock")
     private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<>();
     /** This is for iterating all HalServices with fixed order. */
+    @GuardedBy("mLock")
     private final ArrayList<HalServiceBase> mAllServices = new ArrayList<>();
+    @GuardedBy("mLock")
     private final HashMap<Integer, SubscribeOptions> mSubscribedProperties = new HashMap<>();
+    @GuardedBy("mLock")
     private final HashMap<Integer, VehiclePropConfig> mAllProperties = new HashMap<>();
+
+    @GuardedBy("mLock")
     private final HashMap<Integer, VehiclePropertyEventInfo> mEventLog = new HashMap<>();
 
     // Used by injectVHALEvent for testing purposes.  Delimiter for an array of data
@@ -106,10 +115,10 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mUserHal = new UserHalService(this);
         mAllServices.addAll(Arrays.asList(mPowerHal,
                 mInputHal,
-                mPropertyHal,
                 mDiagnosticHal,
                 mVmsHal,
-                mUserHal));
+                mUserHal,
+                mPropertyHal)); // mPropertyHal should be the last.
 
         mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(), this /*IVehicleCallback*/);
     }
@@ -130,7 +139,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     }
 
     public void vehicleHalReconnected(IVehicle vehicle) {
-        synchronized (this) {
+        synchronized (mLock) {
             mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(),
                     this /*IVehicleCallback*/);
 
@@ -145,37 +154,72 @@ public class VehicleHal extends IVehicleCallback.Stub {
         }
     }
 
-    public void init() {
-        Set<VehiclePropConfig> properties;
+    private void fetchAllPropConfigs() {
+        synchronized (mLock) {
+            if (!mAllProperties.isEmpty()) { // already set
+                Log.i(CarLog.TAG_HAL, "fetchAllPropConfigs already fetched");
+                return;
+            }
+        }
+        ArrayList<VehiclePropConfig> configs;
         try {
-            properties = new HashSet<>(mHalClient.getAllPropConfigs());
+            configs = mHalClient.getAllPropConfigs();
+            if (configs == null || configs.size() == 0) {
+                Log.e(CarLog.TAG_HAL, "getAllPropConfigs returned empty configs");
+                return;
+            }
         } catch (RemoteException e) {
             throw new RuntimeException("Unable to retrieve vehicle property configuration", e);
         }
 
-        synchronized (this) {
+        synchronized (mLock) {
             // Create map of all properties
-            for (VehiclePropConfig p : properties) {
+            for (VehiclePropConfig p : configs) {
+                if (DBG) {
+                    Log.i(CarLog.TAG_HAL, "Add config for prop:" + Integer.toHexString(p.prop)
+                            + " config:" + p);
+                }
                 mAllProperties.put(p.prop, p);
             }
         }
+    }
 
-        for (HalServiceBase service: mAllServices) {
-            Collection<VehiclePropConfig> taken = service.takeSupportedProperties(properties);
-            if (taken == null) {
-                Log.w(CarLog.TAG_HAL, "HalService " + service + " didn't take any property");
-                continue;
-            }
-            if (DBG) {
-                Log.i(CarLog.TAG_HAL, "HalService " + service + " took " + taken.size()
-                        + " properties ");
-            }
-            synchronized (this) {
-                for (VehiclePropConfig p: taken) {
-                    mPropertyHandlers.append(p.prop, service);
+    /**
+     * Inits the vhal configurations.
+     *
+     * <p><Note that {@link #getIfAvailableOrFailForEarlyStage(int, int)}
+     * can be called before {@code init()}.
+     */
+    public void init() {
+        fetchAllPropConfigs();
+
+        // PropertyHalService will take most properties, so make it big enough.
+        ArrayList<VehiclePropConfig> configsForService = new ArrayList<>(mAllServices.size());
+        for (int i = 0; i < mAllServices.size(); i++) {
+            HalServiceBase service = mAllServices.get(i);
+            int[] supportedProps =  service.getAllSupportedProperties();
+            configsForService.clear();
+            synchronized (mLock) {
+                if (supportedProps.length == 0) {
+                    for (Integer propId : mAllProperties.keySet()) {
+                        if (service.isSupportedProperty(propId)) {
+                            VehiclePropConfig config = mAllProperties.get(propId);
+                            mPropertyHandlers.append(propId, service);
+                            configsForService.add(config);
+                        }
+                    }
+                } else {
+                    for (int prop : supportedProps) {
+                        VehiclePropConfig config = mAllProperties.get(prop);
+                        if (config == null) {
+                            continue;
+                        }
+                        mPropertyHandlers.append(prop, service);
+                        configsForService.add(config);
+                    }
                 }
             }
-            properties.removeAll(taken);
+            service.takeProperties(configsForService);
             service.init();
         }
     }
@@ -185,7 +229,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         for (int i = mAllServices.size() - 1; i >= 0; i--) {
             mAllServices.get(i).release();
         }
-        synchronized (this) {
+        synchronized (mLock) {
             for (int p : mSubscribedProperties.keySet()) {
                 try {
                     mHalClient.unsubscribe(p);
@@ -263,7 +307,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
                     + ", property: 0x" + toHexString(property));
         }
         VehiclePropConfig config;
-        synchronized (this) {
+        synchronized (mLock) {
             config = mAllProperties.get(property);
         }
 
@@ -275,7 +319,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
             opts.propId = property;
             opts.sampleRate = samplingRateHz;
             opts.flags = flags;
-            synchronized (this) {
+            synchronized (mLock) {
                 assertServiceOwnerLocked(service, property);
                 mSubscribedProperties.put(property, opts);
             }
@@ -295,14 +339,14 @@ public class VehicleHal extends IVehicleCallback.Stub {
                     + ", property: 0x" + toHexString(property));
         }
         VehiclePropConfig config;
-        synchronized (this) {
+        synchronized (mLock) {
             config = mAllProperties.get(property);
         }
 
         if (config == null) {
             Log.e(CarLog.TAG_HAL, "unsubscribeProperty: property " + property + " does not exist");
         } else if (isPropertySubscribable(config)) {
-            synchronized (this) {
+            synchronized (mLock) {
                 assertServiceOwnerLocked(service, property);
                 mSubscribedProperties.remove(property);
             }
@@ -318,13 +362,48 @@ public class VehicleHal extends IVehicleCallback.Stub {
     }
 
     public boolean isPropertySupported(int propertyId) {
-        return mAllProperties.containsKey(propertyId);
+        synchronized (mLock) {
+            return mAllProperties.containsKey(propertyId);
+        }
     }
 
-    public Collection<VehiclePropConfig> getAllPropConfigs() {
-        return mAllProperties.values();
+    /**
+     * Gets given property with retries.
+     *
+     * <p>If getting the property fails after all retries, it will throw
+     * {@code IllegalStateException}. If the property does not exist, it will simply return
+     * {@code null}.
+     */
+    public @Nullable VehiclePropValue getIfAvailableOrFail(int propertyId, int numberOfRetries) {
+        if (!isPropertySupported(propertyId)) {
+            return null;
+        }
+        VehiclePropValue value;
+        for (int i = 0; i < numberOfRetries; i++) {
+            try {
+                return get(propertyId);
+            } catch (ServiceSpecificException e) {
+                Log.e(CarLog.TAG_HAL, "Cannot get property:" + propertyId, e);
+            }
+        }
+        throw new IllegalStateException("Cannot get property:" + propertyId
+                + " after " + numberOfRetries + " retries");
     }
-    
+
+    /**
+     * This works similar to {@link #getIfAvailableOrFail(int, int)} except that this can be called
+     * before {@code init()} is called.
+     *
+     * <p>This call will check if requested vhal property is supported by querying directly to vhal
+     * and can have worse performance. Use this only for accessing vhal properties before
+     * {@code ICarImpl.init()} phase.
+     */
+    public @Nullable VehiclePropValue getIfAvailableOrFailForEarlyStage(int propertyId,
+            int numberOfRetries) {
+        fetchAllPropConfigs();
+        return getIfAvailableOrFail(propertyId, numberOfRetries);
+    }
+
     public VehiclePropValue get(int propertyId) {
         return get(propertyId, NO_AREA);
     }
@@ -431,7 +510,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
 
     @Override
     public void onPropertyEvent(ArrayList<VehiclePropValue> propValues) {
-        synchronized (this) {
+        synchronized (mLock) {
             for (VehiclePropValue v : propValues) {
                 HalServiceBase service = mPropertyHandlers.get(v.prop);
                 if(service == null) {
@@ -586,7 +665,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
      */
     public void dumpPropertyConfigs(PrintWriter writer, String propId) {
         List<VehiclePropConfig> configList;
-        synchronized (this) {
+        synchronized (mLock) {
             configList = new ArrayList<>(mAllProperties.values());
         }
 
