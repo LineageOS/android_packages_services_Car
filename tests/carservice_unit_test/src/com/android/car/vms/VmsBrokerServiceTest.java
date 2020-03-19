@@ -20,9 +20,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
@@ -42,6 +44,7 @@ import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.SharedMemory;
 import android.os.UserHandle;
 
 import androidx.test.filters.SmallTest;
@@ -49,11 +52,13 @@ import androidx.test.filters.SmallTest;
 import com.android.car.stats.CarStatsService;
 import com.android.car.stats.VmsClientLogger;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
@@ -89,6 +94,7 @@ public class VmsBrokerServiceTest {
     private static final VmsLayer LAYER3 = new VmsLayer(3, 1, 1);
 
     private static final byte[] PAYLOAD = {1, 2, 3, 4, 5, 6, 7, 8};
+    private static final int LARGE_PACKET_SIZE = 54321;
 
     @Mock
     private Context mContext;
@@ -114,9 +120,9 @@ public class VmsBrokerServiceTest {
     @Mock
     private VmsClientLogger mNoSubscribersLog;
 
-
     private final IBinder mClientToken1 = new Binder();
     private final IBinder mClientToken2 = new Binder();
+    private SharedMemory mLargePacket;
 
     private VmsNewBrokerService mBrokerService;
     private int mCallingAppUid;
@@ -137,6 +143,18 @@ public class VmsBrokerServiceTest {
         when(mClientCallback2.asBinder()).thenReturn(mClientBinder2);
 
         mCallingAppUid = TEST_APP_UID1;
+    }
+
+    // Used by PublishLargePacket tests
+    private void setupLargePacket() throws Exception {
+        mLargePacket = Mockito.spy(SharedMemory.create("VmsBrokerServiceTest", LARGE_PACKET_SIZE));
+    }
+
+    @After
+    public void tearDown() {
+        if (mLargePacket != null) {
+            mLargePacket.close();
+        }
     }
 
     @Test
@@ -2787,6 +2805,410 @@ public class VmsBrokerServiceTest {
         verifyPacketReceived(mClientCallback2, providerId, LAYER1, PAYLOAD);
     }
 
+    @Test
+    public void testPublishLargePacket_UnknownClient() throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> mBrokerService.publishLargePacket(
+                        new Binder(), providerId, LAYER1, mLargePacket));
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_UnknownOffering() throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> mBrokerService.publishLargePacket(
+                        mClientToken1, providerId, LAYER1, mLargePacket));
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_UnknownOffering_LegacyClient() throws Exception {
+        setupLargePacket();
+        mBrokerService.registerClient(mClientToken1, mClientCallback1, true);
+
+        mBrokerService.setSubscriptions(mClientToken1, asList(
+                new VmsAssociatedLayer(LAYER1, emptySet())
+        ));
+        mBrokerService.publishLargePacket(mClientToken1, 12345, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mClientLog1).logPacketReceived(LAYER1, LARGE_PACKET_SIZE);
+        verifyLargePacketReceived(mClientCallback1, 12345, LAYER1, mLargePacket);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_NoSubscribers() throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mNoSubscribersLog).logPacketDropped(LAYER1, LARGE_PACKET_SIZE);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_MonitorSubscriber_Enabled() throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.setMonitoringEnabled(mClientToken1, true);
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mClientLog1).logPacketReceived(LAYER1, LARGE_PACKET_SIZE);
+        verifyLargePacketReceived(mClientCallback1, providerId, LAYER1, mLargePacket);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_MonitorSubscriber_EnabledAndDisabled() throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.setMonitoringEnabled(mClientToken1, true);
+        mBrokerService.setMonitoringEnabled(mClientToken1, false);
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mNoSubscribersLog).logPacketDropped(LAYER1, LARGE_PACKET_SIZE);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_LayerSubscriber() throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.setSubscriptions(mClientToken1, asList(
+                new VmsAssociatedLayer(LAYER1, emptySet())
+        ));
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mClientLog1).logPacketReceived(LAYER1, LARGE_PACKET_SIZE);
+        verifyLargePacketReceived(mClientCallback1, providerId, LAYER1, mLargePacket);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_LayerSubscriber_Unsubscribe() throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.setSubscriptions(mClientToken1, asList(
+                new VmsAssociatedLayer(LAYER1, emptySet())
+        ));
+        mBrokerService.setSubscriptions(mClientToken1, asList());
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mNoSubscribersLog).logPacketDropped(LAYER1, LARGE_PACKET_SIZE);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_LayerSubscriber_DifferentLayer() throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.setSubscriptions(mClientToken1, asList(
+                new VmsAssociatedLayer(LAYER2, emptySet())
+        ));
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mNoSubscribersLog).logPacketDropped(LAYER1, LARGE_PACKET_SIZE);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_MultipleLayerSubscribers() throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.setSubscriptions(mClientToken1, asList(
+                new VmsAssociatedLayer(LAYER1, emptySet())
+        ));
+        mBrokerService.setSubscriptions(mClientToken2, asList(
+                new VmsAssociatedLayer(LAYER1, emptySet())
+        ));
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mClientLog1, times(2)).logPacketReceived(LAYER1, LARGE_PACKET_SIZE);
+        verifyLargePacketReceived(mClientCallback1, providerId, LAYER1, mLargePacket);
+        verifyLargePacketReceived(mClientCallback2, providerId, LAYER1, mLargePacket);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_MultipleLayerSubscribers_DifferentProcesses()
+            throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        mCallingAppUid = TEST_APP_UID2;
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.setSubscriptions(mClientToken1, asList(
+                new VmsAssociatedLayer(LAYER1, emptySet())
+        ));
+        mBrokerService.setSubscriptions(mClientToken2, asList(
+                new VmsAssociatedLayer(LAYER1, emptySet())
+        ));
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mClientLog1).logPacketReceived(LAYER1, LARGE_PACKET_SIZE);
+        verify(mClientLog2).logPacketReceived(LAYER1, LARGE_PACKET_SIZE);
+        verifyLargePacketReceived(mClientCallback1, providerId, LAYER1, mLargePacket);
+        verifyLargePacketReceived(mClientCallback2, providerId, LAYER1, mLargePacket);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_LayerAndProviderSubscriber() throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.setSubscriptions(mClientToken1, asList(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId))
+        ));
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mClientLog1).logPacketReceived(LAYER1, LARGE_PACKET_SIZE);
+        verifyLargePacketReceived(mClientCallback1, providerId, LAYER1, mLargePacket);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_LayerAndProviderSubscriber_Unsubscribe() throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.setSubscriptions(mClientToken1, asList(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId))
+        ));
+        mBrokerService.setSubscriptions(mClientToken1, asList());
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mNoSubscribersLog).logPacketDropped(LAYER1, LARGE_PACKET_SIZE);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_LayerAndProviderSubscriber_DifferentProvider()
+            throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+        int providerId2 = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO2);
+
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.setSubscriptions(mClientToken1, asList(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId2))
+        ));
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mNoSubscribersLog).logPacketDropped(LAYER1, LARGE_PACKET_SIZE);
+        verifyNoPacketsReceived(mClientCallback1, providerId, LAYER1);
+        verifyNoPacketsReceived(mClientCallback2, providerId, LAYER1);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_MultipleLayerAndProviderSubscribers() throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.setSubscriptions(mClientToken1, asList(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId))
+        ));
+        mBrokerService.setSubscriptions(mClientToken2, asList(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId))
+        ));
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mClientLog1, times(2)).logPacketReceived(LAYER1, LARGE_PACKET_SIZE);
+        verifyLargePacketReceived(mClientCallback1, providerId, LAYER1, mLargePacket);
+        verifyLargePacketReceived(mClientCallback2, providerId, LAYER1, mLargePacket);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
+    @Test
+    public void testPublishLargePacket_MultipleLayerAndProviderSubscribers_DifferentProcesses()
+            throws Exception {
+        setupLargePacket();
+        registerClient(mClientToken1, mClientCallback1);
+        int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
+
+        mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
+                new VmsLayerDependency(LAYER1)
+        ));
+        mCallingAppUid = TEST_APP_UID2;
+        registerClient(mClientToken2, mClientCallback2);
+
+        mBrokerService.setSubscriptions(mClientToken1, asList(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId))
+        ));
+        mBrokerService.setSubscriptions(mClientToken2, asList(
+                new VmsAssociatedLayer(LAYER1, asSet(providerId))
+        ));
+        mBrokerService.publishLargePacket(mClientToken1, providerId, LAYER1, mLargePacket);
+
+        verify(mClientLog1).logPacketSent(LAYER1, LARGE_PACKET_SIZE);
+        verify(mClientLog1).logPacketReceived(LAYER1, LARGE_PACKET_SIZE);
+        verify(mClientLog2).logPacketReceived(LAYER1, LARGE_PACKET_SIZE);
+        verifyLargePacketReceived(mClientCallback1, providerId, LAYER1, mLargePacket);
+        verifyLargePacketReceived(mClientCallback2, providerId, LAYER1, mLargePacket);
+
+        verify(mLargePacket, atLeastOnce()).getSize();
+        verify(mLargePacket).close();
+        verifyNoMoreInteractions(mLargePacket);
+    }
+
     private void registerClient(IBinder token, IVmsClientCallback callback) {
         mBrokerService.registerClient(token, callback, false);
     }
@@ -2822,12 +3244,18 @@ public class VmsBrokerServiceTest {
             IVmsClientCallback callback,
             int providerId, VmsLayer layer) throws RemoteException {
         verify(callback, never()).onPacketReceived(eq(providerId), eq(layer), any());
+        verify(callback, never()).onLargePacketReceived(eq(providerId), eq(layer), any());
     }
 
     private static void verifyPacketReceived(
             IVmsClientCallback callback,
             int providerId, VmsLayer layer, byte[] payload) throws RemoteException {
         verify(callback).onPacketReceived(providerId, layer, payload);
+    }
+    private static void verifyLargePacketReceived(
+            IVmsClientCallback callback,
+            int providerId, VmsLayer layer, SharedMemory packet) throws RemoteException {
+        verify(callback).onLargePacketReceived(providerId, layer, packet);
     }
 
     private static <T> Set<T> asSet(T... values) {
