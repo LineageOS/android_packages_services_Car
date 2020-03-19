@@ -52,6 +52,8 @@ import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.userlib.CarUserManagerHelper;
+import android.car.userlib.HalCallback;
+import android.car.userlib.UserHalHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
@@ -73,9 +75,7 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import androidx.test.InstrumentationRegistry;
 
-import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
-import com.android.car.hal.UserHalService.HalCallback;
 import com.android.internal.R;
 import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.Preconditions;

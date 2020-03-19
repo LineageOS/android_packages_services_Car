@@ -19,10 +19,10 @@ import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
 
 import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
 
-import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.userlib.HalCallback;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -45,8 +45,6 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -162,40 +160,6 @@ public final class UserHalService extends HalServiceBase {
             mProperties = properties;
         }
         return taken;
-    }
-
-    /**
-     * Callback used on async methods.
-     *
-     * @param <R> response type.
-     */
-    public interface HalCallback<R> {
-
-        int STATUS_OK = 1;
-        int STATUS_HAL_SET_TIMEOUT = 2;
-        int STATUS_HAL_RESPONSE_TIMEOUT = 3;
-        int STATUS_WRONG_HAL_RESPONSE = 4;
-        int STATUS_CONCURRENT_OPERATION = 5;
-
-        /** @hide */
-        @IntDef(prefix = { "STATUS_" }, value = {
-                STATUS_OK,
-                STATUS_HAL_SET_TIMEOUT,
-                STATUS_HAL_RESPONSE_TIMEOUT,
-                STATUS_WRONG_HAL_RESPONSE,
-                STATUS_CONCURRENT_OPERATION
-        })
-        @Retention(RetentionPolicy.SOURCE)
-        @interface HalCallbackStatus{}
-
-        /**
-         * Called when the HAL generated an event responding to that callback (or when an error
-         * occurred).
-         *
-         * @param status status of the request.
-         * @param response HAL response (or {@code null} in case of error).
-         */
-        void onResponse(@HalCallbackStatus int status, @Nullable R response);
     }
 
     /**

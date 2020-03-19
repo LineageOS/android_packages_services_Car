@@ -30,6 +30,8 @@ import static org.mockito.Mockito.verify;
 import static org.testng.Assert.assertThrows;
 
 import android.car.hardware.property.VehicleHalStatusCode;
+import android.car.userlib.HalCallback;
+import android.car.userlib.UserHalHelper;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -42,8 +44,6 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.os.ServiceSpecificException;
 import android.os.UserHandle;
 import android.util.Log;
-
-import com.android.car.hal.UserHalService.HalCallback;
 
 import org.junit.Before;
 import org.junit.Test;
