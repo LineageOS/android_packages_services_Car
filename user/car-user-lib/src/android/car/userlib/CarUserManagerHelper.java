@@ -308,8 +308,6 @@ public final class CarUserManagerHelper {
      * Streamlined version of {@code switchUser()} - should only be called on boot / resume.
      */
     public boolean startForegroundUser(@UserIdInt int userId) {
-        // TODO(b/151973604): add unit test (will be done in a separate CL to avoid merge conflicts
-        // when cherry-picking)
         if (userId == UserHandle.USER_SYSTEM && UserManager.isHeadlessSystemUserMode()) {
             // System User doesn't associate with real person, can not be switched to.
             return false;
