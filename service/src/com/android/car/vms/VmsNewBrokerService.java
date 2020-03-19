@@ -35,6 +35,7 @@ import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.SharedMemory;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
@@ -46,6 +47,7 @@ import com.android.car.stats.CarStatsService;
 import com.android.car.stats.VmsClientLogger;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.FunctionalUtils.ThrowingConsumer;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -195,13 +197,28 @@ public class VmsNewBrokerService extends IVmsBrokerService.Stub implements CarSe
     @Override
     public void publishPacket(IBinder clientToken, int providerId, VmsLayer layer, byte[] packet) {
         assertVmsPublisherPermission(mContext);
+        deliverToSubscribers(clientToken, providerId, layer, packet.length,
+                callback -> callback.onPacketReceived(providerId, layer, packet));
+    }
+
+    @Override
+    public void publishLargePacket(IBinder clientToken, int providerId, VmsLayer layer,
+            SharedMemory packet) {
+        try (SharedMemory largePacket = packet) {
+            assertVmsPublisherPermission(mContext);
+            deliverToSubscribers(clientToken, providerId, layer, packet.getSize(),
+                    callback -> callback.onLargePacketReceived(providerId, layer, largePacket));
+        }
+    }
+
+    private void deliverToSubscribers(IBinder clientToken, int providerId, VmsLayer layer,
+            int packetLength, ThrowingConsumer<IVmsClientCallback> callbackConsumer) {
         VmsClientInfo client = getClient(clientToken);
         if (!client.hasOffering(providerId, layer) && !client.isLegacyClient()) {
             throw new IllegalArgumentException("Client does not offer " + layer + " as "
                     + providerId);
         }
 
-        int packetLength = packet != null ? packet.length : 0;
         mStatsService.getVmsClientLogger(client.getUid())
                 .logPacketSent(layer, packetLength);
 
@@ -222,14 +239,14 @@ public class VmsNewBrokerService extends IVmsBrokerService.Stub implements CarSe
 
         for (VmsClientInfo subscriber : subscribers) {
             try {
-                subscriber.getCallback().onPacketReceived(providerId, layer, packet);
+                callbackConsumer.accept(subscriber.getCallback());
                 mStatsService.getVmsClientLogger(subscriber.getUid())
                         .logPacketReceived(layer, packetLength);
-            } catch (RemoteException ex) {
+            } catch (RuntimeException e) {
                 mStatsService.getVmsClientLogger(subscriber.getUid())
                         .logPacketDropped(layer, packetLength);
                 Log.e(TAG, String.format("Unable to publish to listener: %s",
-                        subscriber.getPackageName()));
+                        subscriber.getPackageName()), e);
             }
         }
     }
