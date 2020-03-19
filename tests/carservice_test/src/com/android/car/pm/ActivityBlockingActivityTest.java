@@ -131,6 +131,8 @@ public class ActivityBlockingActivityTest {
         assertBlockingActivityNotFound();
     }
 
+    // Suppress test to avoid blocking team while b/150491747 is evaluated
+    @Suppress
     @Test
     public void testBlockingActivity_nonDoNoHistory_isBlocked() throws Exception {
         startActivity(toComponentName(getTestContext(), NonDoNoHistoryActivity.class));
