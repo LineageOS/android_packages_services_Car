@@ -124,6 +124,10 @@ class SimpleUploaderAsyncTask extends AsyncTask<Void, Void, Boolean> {
         try {
             // Upload filename is bugreport filename, although, now it contains the audio message.
             String fileName = bugReport.getBugReportFileName();
+            if (Strings.isNullOrEmpty(fileName)) {
+                // Old bugreports don't contain getBugReportFileName, fallback to getFilePath.
+                fileName = new File(bugReport.getFilePath()).getName();
+            }
             try (FileInputStream inputStream = new FileInputStream(tmpBugReportFile)) {
                 StorageObject object = uploadSimple(storage, bugReport, fileName, inputStream);
                 Log.v(TAG, "finished uploading object " + object.getName() + " file " + fileName);

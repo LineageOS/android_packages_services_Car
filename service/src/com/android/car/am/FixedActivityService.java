@@ -28,6 +28,7 @@ import android.app.ActivityManager.StackInfo;
 import android.app.ActivityOptions;
 import android.app.IActivityManager;
 import android.app.IProcessObserver;
+import android.app.Presentation;
 import android.app.TaskStackListener;
 import android.car.hardware.power.CarPowerManager;
 import android.content.BroadcastReceiver;
@@ -38,6 +39,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.hardware.display.DisplayManager;
 import android.net.Uri;
 import android.os.HandlerThread;
 import android.os.RemoteException;
@@ -50,6 +52,8 @@ import android.view.Display;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceUtils;
+import com.android.car.R;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 
@@ -121,6 +125,8 @@ public final class FixedActivityService implements CarServiceBase {
     private final Context mContext;
 
     private final IActivityManager mAm;
+
+    private final DisplayManager mDm;
 
     private final UserManager mUm;
 
@@ -240,6 +246,9 @@ public final class FixedActivityService implements CarServiceBase {
             new SparseArray<>(/* capacity= */ 1); // default to one cluster only case
 
     @GuardedBy("mLock")
+    private final SparseArray<Presentation> mBlockingPresentations = new SparseArray<>(1);
+
+    @GuardedBy("mLock")
     private boolean mEventMonitoringActive;
 
     @GuardedBy("mLock")
@@ -262,6 +271,7 @@ public final class FixedActivityService implements CarServiceBase {
         mContext = context;
         mAm = ActivityManager.getService();
         mUm = context.getSystemService(UserManager.class);
+        mDm = context.getSystemService(DisplayManager.class);
         mHandlerThread.start();
     }
 
@@ -377,8 +387,38 @@ public final class FixedActivityService implements CarServiceBase {
                 }
                 return false;
             }
-            for (int i = 0; i < mRunningActivities.size(); i++) {
-                mRunningActivities.valueAt(i).isVisible = false;
+            for (int i = mRunningActivities.size() - 1; i >= 0; i--) {
+                RunningActivityInfo activityInfo = mRunningActivities.valueAt(i);
+                activityInfo.isVisible = false;
+                if (isUserAllowedToLaunchActivity(activityInfo.userId)) {
+                    continue;
+                }
+                final int displayIdForActivity = mRunningActivities.keyAt(i);
+                if (activityInfo.taskId != INVALID_TASK_ID) {
+                    Log.i(TAG_AM, "Finishing fixed activity on user switching:"
+                            + activityInfo);
+                    try {
+                        mAm.removeTask(activityInfo.taskId);
+                    } catch (RemoteException e) {
+                        Log.e(TAG_AM, "remote exception from AM", e);
+                    }
+                    CarServiceUtils.runOnMain(() -> {
+                        Display display = mDm.getDisplay(displayIdForActivity);
+                        if (display == null) {
+                            Log.e(TAG_AM, "Display not available, cannot launnch window:"
+                                    + displayIdForActivity);
+                            return;
+                        }
+                        Presentation p = new Presentation(mContext, display,
+                                android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+                        p.setContentView(R.layout.activity_continuous_blank);
+                        p.show();
+                        synchronized (mLock) {
+                            mBlockingPresentations.append(displayIdForActivity, p);
+                        }
+                    });
+                }
+                mRunningActivities.removeAt(i);
             }
             for (StackInfo stackInfo : infos) {
                 RunningActivityInfo activityInfo = mRunningActivities.get(stackInfo.displayId);
@@ -407,6 +447,7 @@ public final class FixedActivityService implements CarServiceBase {
                     activityInfo.taskId = INVALID_TASK_ID;
                 }
             }
+
             for (int i = 0; i < mRunningActivities.size(); i++) {
                 RunningActivityInfo activityInfo = mRunningActivities.valueAt(i);
                 long timeSinceLastLaunchMs = now - activityInfo.lastLaunchTimeMs;
@@ -417,7 +458,6 @@ public final class FixedActivityService implements CarServiceBase {
                     continue;
                 }
                 if (!isComponentAvailable(activityInfo.intent.getComponent(),
-                        activityInfo.userId) || !isUserAllowedToLaunchActivity(
                         activityInfo.userId)) {
                     continue;
                 }
@@ -556,6 +596,10 @@ public final class FixedActivityService implements CarServiceBase {
         }
         boolean startMonitoringEvents = false;
         synchronized (mLock) {
+            Presentation p = mBlockingPresentations.removeReturnOld(displayId);
+            if (p != null) {
+                p.dismiss();
+            }
             if (mRunningActivities.size() == 0) {
                 startMonitoringEvents = true;
             }

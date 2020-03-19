@@ -52,6 +52,7 @@ import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
 import com.google.android.car.kitchensink.connectivity.ConnectivityFragment;
 import com.google.android.car.kitchensink.cube.CubesTestFragment;
 import com.google.android.car.kitchensink.diagnostic.DiagnosticTestFragment;
+import com.google.android.car.kitchensink.dialer.DialerTestFragment;
 import com.google.android.car.kitchensink.displayinfo.DisplayInfoFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
 import com.google.android.car.kitchensink.input.InputTestFragment;
@@ -162,7 +163,6 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("alert window", AlertDialogTestFragment.class),
             new FragmentMenuEntry("assistant", CarAssistantFragment.class),
             new FragmentMenuEntry("audio", AudioTestFragment.class),
-
             new FragmentMenuEntry("bluetooth headset", BluetoothHeadsetFragment.class),
             new FragmentMenuEntry("bluetooth messaging test", MapMceTestFragment.class),
             new FragmentMenuEntry("carapi", CarApiTestFragment.class),
@@ -170,6 +170,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("connectivity", ConnectivityFragment.class),
             new FragmentMenuEntry("cubes test", CubesTestFragment.class),
             new FragmentMenuEntry("diagnostic", DiagnosticTestFragment.class),
+            new FragmentMenuEntry("dialer incallservice", DialerTestFragment.class),
             new FragmentMenuEntry("display info", DisplayInfoFragment.class),
             new FragmentMenuEntry("hvac", HvacTestFragment.class),
             new FragmentMenuEntry("inst cluster", InstrumentClusterFragment.class),

@@ -116,7 +116,7 @@ public class VolumeTestFragment extends Fragment {
             return;
         }
         Log.d(TAG, "Connected to Car Service");
-        mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
+        mCarAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
         initVolumeInfo();
     };
 

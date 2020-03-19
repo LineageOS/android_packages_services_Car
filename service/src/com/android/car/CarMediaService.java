@@ -82,8 +82,10 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     // XML configuration options for autoplay on media source change.
     private static final int AUTOPLAY_CONFIG_NEVER = 0;
     private static final int AUTOPLAY_CONFIG_ALWAYS = 1;
-    // This mode uses the last stored playback state to determine whether to resume playback
-    private static final int AUTOPLAY_CONFIG_ADAPTIVE = 2;
+    // This mode uses the current source's last stored playback state to resume playback
+    private static final int AUTOPLAY_CONFIG_RETAIN_PER_SOURCE = 2;
+    // This mode uses the previous source's playback state to resume playback
+    private static final int AUTOPLAY_CONFIG_RETAIN_PREVIOUS = 3;
 
     private final Context mContext;
     private final UserManager mUserManager;
@@ -98,6 +100,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private SessionChangedListener mSessionsListener;
     private int mPlayOnMediaSourceChangedConfig;
     private int mPlayOnBootConfig;
+    private int mCurrentPlaybackState;
 
     private boolean mPendingInit;
     private int mCurrentUser;
@@ -527,8 +530,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mActiveUserMediaController = null;
         mPreviousMediaComponent = mPrimaryMediaComponent;
         mPrimaryMediaComponent = componentName;
-        updateActiveMediaController(mMediaSessionManager
-                .getActiveSessionsForUser(null, ActivityManager.getCurrentUser()));
 
         if (mPrimaryMediaComponent != null && !TextUtils.isEmpty(
                 mPrimaryMediaComponent.flattenToString())) {
@@ -542,6 +543,12 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
         startMediaConnectorService(shouldStartPlayback(mPlayOnMediaSourceChangedConfig),
                 new UserHandle(mCurrentUser));
+        // Reset current playback state for the new source, in the case that the app is in an error
+        // state (e.g. not signed in). This state will be updated from the app callback registered
+        // below, to make sure mCurrentPlaybackState reflects the current source only.
+        mCurrentPlaybackState = PlaybackState.STATE_NONE;
+        updateActiveMediaController(mMediaSessionManager
+                .getActiveSessionsForUser(null, ActivityManager.getCurrentUser()));
     }
 
     private void notifyListeners() {
@@ -718,6 +725,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             return;
         }
         int state = playbackState != null ? playbackState.getState() : PlaybackState.STATE_NONE;
+        mCurrentPlaybackState = state;
         String key = getPlaybackStateKey();
         mSharedPrefs.edit().putInt(key, state).apply();
     }
@@ -768,12 +776,14 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 return false;
             case AUTOPLAY_CONFIG_ALWAYS:
                 return true;
-            case AUTOPLAY_CONFIG_ADAPTIVE:
+            case AUTOPLAY_CONFIG_RETAIN_PER_SOURCE:
                 if (!sharedPrefsInitialized()) {
                     return false;
                 }
                 return mSharedPrefs.getInt(getPlaybackStateKey(), PlaybackState.STATE_NONE)
                         == PlaybackState.STATE_PLAYING;
+            case AUTOPLAY_CONFIG_RETAIN_PREVIOUS:
+                return mCurrentPlaybackState == PlaybackState.STATE_PLAYING;
             default:
                 Log.e(CarLog.TAG_MEDIA, "Unsupported playback configuration: " + config);
                 return false;
