@@ -45,7 +45,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This class implements the binder interface for ICarProperty.aidl to make it easier to create
- * multiple managers that deal with Vehicle Properties.
+ * multiple managers that deal with Vehicle Properties. The property Ids in this class are IDs in
+ * manager level.
  */
 public class CarPropertyService extends ICarProperty.Stub
         implements CarServiceBase, PropertyHalService.PropertyHalListener {
@@ -348,12 +349,7 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public void setProperty(CarPropertyValue prop, ICarPropertyEventListener listener) {
         int propId = prop.getPropertyId();
-        if (mConfigs.get(propId) == null) {
-            // Do not attempt to register an invalid propId
-            Log.e(TAG, "setProperty:  propId is not in config list:0x" + toHexString(propId));
-            return;
-        }
-        ICarImpl.assertPermission(mContext, mHal.getWritePermission(propId));
+        checkPropertyAccessibility(propId);
         // need an extra permission for writing display units properties.
         if (mHal.isDisplayUnitsProperty(propId)) {
             ICarImpl.assertPermission(mContext, Car.PERMISSION_VENDOR_EXTENSION);
@@ -367,6 +363,25 @@ public class CarPropertyService extends ICarProperty.Stub
             }
             updateSetOperationRecorder(propId, prop.getAreaId(), client);
         }
+    }
+
+    // The helper method checks if the vehicle has implemented this property and the property
+    // is accessible or not for platform and client.
+    private void checkPropertyAccessibility(int propId) {
+        // Checks if the car implemented the property or not.
+        if (!mConfigs.containsKey(propId)) {
+            throw new IllegalArgumentException("Property Id: 0x" + Integer.toHexString(propId)
+                    + " does not exist in the vehicle");
+        }
+
+        // Checks if android has permission to write property.
+        String propertyWritePermission = mHal.getWritePermission(propId);
+        if (propertyWritePermission == null) {
+            throw new SecurityException("Platform does not have permission to change value for "
+                    + "property Id: 0x" + Integer.toHexString(propId));
+        }
+        // Checks if the client has the permission.
+        ICarImpl.assertPermission(mContext, propertyWritePermission);
     }
 
     // Updates recorder for set operation.
