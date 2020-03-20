@@ -70,7 +70,7 @@ import com.android.car.trust.CarTrustedDeviceService;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.car.user.UserMetrics;
-import com.android.car.vms.VmsNewBrokerService;
+import com.android.car.vms.VmsBrokerService;
 import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -128,7 +128,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarUserService mCarUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final CarUserNoticeService mCarUserNoticeService;
-    private final VmsNewBrokerService mVmsBrokerService;
+    private final VmsBrokerService mVmsBrokerService;
     private final CarBugreportManagerService mCarBugreportManagerService;
     private final CarStatsService mCarStatsService;
     private final CarExperimentalFeatureServiceController mCarExperimentalFeatureServiceController;
@@ -236,9 +236,8 @@ public class ICarImpl extends ICar.Stub {
                 serviceContext, mCarAudioService, this);
         mCarStatsService = new CarStatsService(serviceContext);
         mCarStatsService.init();
-        if (mFeatureController.isFeatureEnabled(Car.VEHICLE_MAP_SERVICE)
-                || mFeatureController.isFeatureEnabled(Car.VMS_SUBSCRIBER_SERVICE)) {
-            mVmsBrokerService = new VmsNewBrokerService(mContext, mCarStatsService);
+        if (mFeatureController.isFeatureEnabled(Car.VEHICLE_MAP_SERVICE)) {
+            mVmsBrokerService = new VmsBrokerService(mContext, mCarStatsService);
         } else {
             mVmsBrokerService = null;
         }
@@ -279,7 +278,7 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(CarDrivingStateService.class, mCarDrivingStateService);
         CarLocalServices.addService(PerUserCarServiceHelper.class, mPerUserCarServiceHelper);
         CarLocalServices.addService(FixedActivityService.class, mFixedActivityService);
-        CarLocalServices.addService(VmsNewBrokerService.class, mVmsBrokerService);
+        CarLocalServices.addService(VmsBrokerService.class, mVmsBrokerService);
         CarLocalServices.addService(CarOccupantZoneService.class, mCarOccupantZoneService);
 
         // Be careful with order. Service depending on other service should be inited later.
