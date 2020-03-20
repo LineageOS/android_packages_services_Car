@@ -17,6 +17,7 @@
 package com.android.car;
 
 import static android.content.pm.UserInfo.FLAG_EPHEMERAL;
+import static android.os.UserHandle.USER_NULL;
 import static android.os.UserHandle.USER_SYSTEM;
 import static android.os.UserManager.USER_TYPE_FULL_GUEST;
 
@@ -54,6 +55,7 @@ import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
 import android.os.RemoteException;
 import android.os.UserManager;
+import android.sysprop.CarProperties;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
@@ -92,6 +94,7 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -160,6 +163,7 @@ public class CarPowerManagementServiceTest {
         mSession = mockitoSession()
                 .strictness(Strictness.LENIENT)
                 .spyStatic(ActivityManager.class)
+                .spyStatic(CarProperties.class)
                 .spyStatic(Log.class)
                 .startMocking();
         mPowerHal = new MockedPowerHalService(true /*isPowerStateSupported*/,
@@ -563,6 +567,18 @@ public class CarPowerManagementServiceTest {
     }
 
     @Test
+    public void testUserSwitchingOnResume_noInitialInfo() throws Exception {
+        initTest();
+        setInitialUser(USER_NULL);
+        setCurrentUser(10);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserNotSwitched();
+        // expects WTF
+    }
+
+    @Test
     public void testUserSwitchingOnResume_disabledByOEM_differentUser() throws Exception {
         disableUserSwitchingDuringResume();
         initTest();
@@ -815,6 +831,9 @@ public class CarPowerManagementServiceTest {
 
         verifyUserSwitched(11);
         verifyWtfNeverLogged();
+
+        // Make sure HAL was called, otherwise test could pass when the property was not set
+        verify(mUserService).getInitialUserInfo(eq(InitialUserInfoRequestType.RESUME), notNull());
     }
 
     private void setGetUserInfoResponse(Visitor<HalCallback<InitialUserInfoResponse>> visitor) {
@@ -826,6 +845,7 @@ public class CarPowerManagementServiceTest {
     }
 
     private void enableUserHal() {
+        when(CarProperties.user_hal_enabled()).thenReturn(Optional.of(true));
         when(mUserService.isUserHalSupported()).thenReturn(true);
     }
 
