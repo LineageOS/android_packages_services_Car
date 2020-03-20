@@ -362,6 +362,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      * Initiate automatated connecting of devices based on the prioritized device lists for each
      * profile.
      */
+    @Override
     public void connectDevices() {
         enforceBluetoothAdminPermission();
         logd("Connect devices for each profile");
