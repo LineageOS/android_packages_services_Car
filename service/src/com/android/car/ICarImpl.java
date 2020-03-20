@@ -36,6 +36,9 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
+import android.hardware.automotive.vehicle.V2_0.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -51,6 +54,7 @@ import android.os.ShellCommand;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.os.UserManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
@@ -851,6 +855,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_DISABLE_FEATURE = "disable-feature";
         private static final String COMMAND_INJECT_KEY = "inject-key";
         private static final String COMMAND_GET_INITIAL_USER_INFO = "get-initial-user-info";
+        private static final String COMMAND_SWITCH_USER = "switch-user";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -944,12 +949,18 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  down_delay_ms: delay from down to up key event. If not specified,");
             pw.println("\t                 it will be 0");
             pw.println("\t  key_code: int key code defined in android KeyEvent");
+
             pw.printf("\t%s <REQ_TYPE> [--timeout TIMEOUT_MS]\n", COMMAND_GET_INITIAL_USER_INFO);
             pw.println("\t  Calls the Vehicle HAL to get the initial boot info, passing the given");
             pw.println("\t  REQ_TYPE (which could be either FIRST_BOOT, FIRST_BOOT_AFTER_OTA, ");
             pw.println("\t  COLD_BOOT, RESUME, or any numeric value that would be passed 'as-is')");
             pw.println("\t  and an optional TIMEOUT_MS to wait for the HAL response (if not set,");
             pw.println("\t  it will use a  default value).");
+
+            pw.printf("\t%s <USER_ID> [--dry-run] [--timeout TIMEOUT_MS]\n", COMMAND_SWITCH_USER);
+            pw.println("\t  Switches to user USER_ID using the HAL integration.");
+            pw.println("\t  The --dry-run option only calls HAL, without switching the user,");
+            pw.println("\t  while the --timeout defines how long to wait for the HAL response");
         }
 
         private int dumpInvalidArguments(PrintWriter pw) {
@@ -1113,6 +1124,9 @@ public class ICarImpl extends ICar.Stub {
                     break;
                 case COMMAND_GET_INITIAL_USER_INFO:
                     handleGetInitialUserInfo(args, writer);
+                    break;
+                case COMMAND_SWITCH_USER:
+                    handleSwitchUser(args, writer);
                     break;
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
@@ -1297,41 +1311,96 @@ public class ICarImpl extends ICar.Stub {
             userHal.getInitialUserInfo(requestType, timeout, usersInfo, (status, resp) -> {
                 try {
                     Log.d(TAG, "GetUserInfoResponse: status=" + status + ", resp=" + resp);
-                    writer.printf("Status: %s\n", UserHalHelper.halCallbackStatusToString(status));
+                    writer.printf("Call status: %s\n",
+                            UserHalHelper.halCallbackStatusToString(status));
                     if (status != HalCallback.STATUS_OK) {
                         return;
                     }
                     writer.printf("Request id: %d\n", resp.requestId);
-                    writer.printf("Action: ");
-                    switch (resp.action) {
-                        case InitialUserInfoResponseAction.DEFAULT:
-                            writer.println("default");
-                            break;
-                        case InitialUserInfoResponseAction.SWITCH:
-                            writer.printf("switch to user %d\n", resp.userToSwitchOrCreate.userId);
-                            break;
-                        case InitialUserInfoResponseAction.CREATE:
-                            writer.printf("create user: name=%s, flags=%d\n", resp.userNameToCreate,
-                                    resp.userToSwitchOrCreate.flags);
-                            break;
-                        default:
-                            writer.printf("unknown (%d)\n", resp.action);
-                            break;
-                    }
+                    writer.printf("Action: %s\n",
+                            InitialUserInfoResponseAction.toString(resp.action));
                 } finally {
                     latch.countDown();
                 }
             });
+            waitForHal(writer, latch, timeout);
+        }
 
+        private void waitForHal(PrintWriter writer, CountDownLatch latch, int timeoutMs) {
             try {
-                if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
-                    writer.printf("HAL didn't respond in %dms\n", timeout);
+                if (!latch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
+                    writer.printf("HAL didn't respond in %dms\n", timeoutMs);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 writer.println("Interrupted waiting for HAL");
             }
             return;
+        }
+
+        private void handleSwitchUser(String[] args, PrintWriter writer) {
+            if (args.length < 2) {
+                writer.println("Insufficient number of args");
+                return;
+            }
+
+            int targetUserId = Integer.parseInt(args[1]);
+            int timeout = 1_000;
+            boolean dryRun = false;
+
+            for (int i = 2; i < args.length; i++) {
+                String arg = args[i];
+                switch (arg) {
+                    case "--timeout":
+                        timeout = Integer.parseInt(args[++i]);
+                        break;
+                    case "--dry-run":
+                        dryRun = true;
+                        break;
+                    default:
+                        writer.println("Invalid option at index " + i + ": " + arg);
+                        return;
+                }
+            }
+
+            Log.d(TAG, "handleSwitchUser(): target=" + targetUserId + ", dryRun=" + dryRun
+                    + ", timeout=" + timeout);
+
+            if (!dryRun) {
+                writer.println("'Wet' run not supported yet, please use --dry-run");
+                // TODO(b/150409110): implement by calling CarUserManager.switchUser
+                return;
+            }
+
+            UserHalService userHal = mHal.getUserHal();
+            // TODO(b/150413515): use UserHalHelper to populate it with current users
+            UsersInfo usersInfo = new UsersInfo();
+            UserInfo targetUserInfo = new UserInfo();
+            targetUserInfo.userId = targetUserId;
+            // TODO(b/150413515): use UserHalHelper to set user flags
+
+            CountDownLatch latch = new CountDownLatch(1);
+            userHal.switchUser(targetUserInfo, timeout, usersInfo, (status, resp) -> {
+                try {
+                    Log.d(TAG, "SwitchUserResponse: status=" + status + ", resp=" + resp);
+                    writer.printf("Call Status: %s\n",
+                            UserHalHelper.halCallbackStatusToString(status));
+                    if (status != HalCallback.STATUS_OK) {
+                        return;
+                    }
+                    writer.printf("Request id: %d\n", resp.requestId);
+                    writer.printf("Message type: %s\n",
+                            SwitchUserMessageType.toString(resp.messageType));
+                    writer.printf("Switch Status: %s\n", SwitchUserStatus.toString(resp.status));
+                    String errorMessage = resp.errorMessage;
+                    if (!TextUtils.isEmpty(errorMessage)) {
+                        writer.printf("Error message: %s", errorMessage);
+                    }
+                } finally {
+                    latch.countDown();
+                }
+            });
+            waitForHal(writer, latch, timeout);
         }
 
         private void forceDayNightMode(String arg, PrintWriter writer) {
