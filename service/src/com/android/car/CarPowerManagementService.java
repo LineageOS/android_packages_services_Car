@@ -23,12 +23,14 @@ import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPower;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.userlib.CarUserManagerHelper;
+import android.car.userlib.HalCallback;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.os.Build;
 import android.os.Handler;
@@ -48,7 +50,6 @@ import android.util.Log;
 import com.android.car.am.ContinuousBlankActivity;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
-import com.android.car.hal.UserHalService.HalCallback;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
@@ -515,31 +516,38 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     private void switchUserOnResumeIfNecessaryUsingHal(boolean allowSwitching) {
         Log.i(CarLog.TAG_POWER, "Using User HAL to define initial user behavior");
-        mUserService.getInitialUserInfo(InitialUserInfoRequestType.RESUME,
-                (status, response) -> {
-                    switch (status) {
-                        case HalCallback.STATUS_HAL_RESPONSE_TIMEOUT:
-                        case HalCallback.STATUS_HAL_SET_TIMEOUT:
-                            switchUserOnResumeUserHalFallback("timeout", allowSwitching);
-                            break;
-                        case HalCallback.STATUS_CONCURRENT_OPERATION:
-                            switchUserOnResumeUserHalFallback("concurrent call", allowSwitching);
-                            break;
-                        case HalCallback.STATUS_WRONG_HAL_RESPONSE:
-                            switchUserOnResumeUserHalFallback("wrong response", allowSwitching);
-                            break;
-                        case HalCallback.STATUS_OK:
-                            // TODO(b/150419143): implement
-                            Log.w(TAG, "Status " + status + " Not implemented yet");
-                            switchUserOnResumeIfNecessaryDirectly(allowSwitching);
-                            break;
-                        default:
-                            switchUserOnResumeUserHalFallback("invalid status: " + status,
-                                    allowSwitching);
-                            switchUserOnResumeIfNecessaryDirectly(allowSwitching);
+        mUserService.getInitialUserInfo(InitialUserInfoRequestType.RESUME, (status, response) -> {
+            switch (status) {
+                case HalCallback.STATUS_HAL_RESPONSE_TIMEOUT:
+                case HalCallback.STATUS_HAL_SET_TIMEOUT:
+                    switchUserOnResumeUserHalFallback("timeout", allowSwitching);
+                    return;
+                case HalCallback.STATUS_CONCURRENT_OPERATION:
+                    switchUserOnResumeUserHalFallback("concurrent call", allowSwitching);
+                    return;
+                case HalCallback.STATUS_WRONG_HAL_RESPONSE:
+                    switchUserOnResumeUserHalFallback("wrong response", allowSwitching);
+                    return;
+                case HalCallback.STATUS_OK:
+                    if (response == null) {
+                        switchUserOnResumeUserHalFallback("no response", allowSwitching);
+                        return;
                     }
-
-                });
+                    switch (response.action) {
+                        case InitialUserInfoResponseAction.DEFAULT:
+                            Log.i(TAG, "HAL requested default initial user behavior");
+                            switchUserOnResumeIfNecessaryDirectly(allowSwitching);
+                            return;
+                        // TODO(b/150419143): implement others
+                        default:
+                            switchUserOnResumeUserHalFallback(
+                                    "invalid response action: " + response.action, allowSwitching);
+                            return;
+                    }
+                default:
+                    switchUserOnResumeUserHalFallback("invalid status: " + status, allowSwitching);
+            }
+        });
     }
 
     /**

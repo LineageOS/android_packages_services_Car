@@ -19,10 +19,10 @@ import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
 
 import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
 
-import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.userlib.HalCallback;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -45,9 +45,6 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -61,6 +58,10 @@ public final class UserHalService extends HalServiceBase {
     private static final String UNSUPPORTED_MSG = "Vehicle HAL does not support user management";
 
     private static final String TAG = UserHalService.class.getSimpleName();
+
+    private static final int[] SUPPORTED_PROPERTIES = new int[]{
+            INITIAL_USER_INFO
+    };
 
     // TODO(b/150413515): STOPSHIP - change to false before R is launched
     private static final boolean DBG = true;
@@ -97,6 +98,10 @@ public final class UserHalService extends HalServiceBase {
     @Override
     public void init() {
         if (DBG) Log.d(TAG, "init()");
+
+        if (mProperties == null) {
+            return;
+        }
 
         int size = mProperties.size();
         for (int i = 0; i < size; i++) {
@@ -137,65 +142,24 @@ public final class UserHalService extends HalServiceBase {
     }
 
     @Override
-    @Nullable
-    public Collection<VehiclePropConfig> takeSupportedProperties(
-            Collection<VehiclePropConfig> allProperties) {
-        boolean supported = false;
-        // TODO(b/150413515): increase capacity once it supports more
-        SparseArray<VehiclePropConfig> properties = new SparseArray<>(1);
-        ArrayList<VehiclePropConfig> taken = new ArrayList<>();
-        for (VehiclePropConfig config : allProperties) {
-            switch (config.prop) {
-                case INITIAL_USER_INFO:
-                    supported = true;
-                    taken.add(config);
-                    properties.put(config.prop, config);
-                    break;
-            }
-
-        }
-        if (!supported) {
-            Log.w(TAG, UNSUPPORTED_MSG);
-            return null;
-        }
-        synchronized (mLock) {
-            mProperties = properties;
-        }
-        return taken;
+    public int[] getAllSupportedProperties() {
+        return SUPPORTED_PROPERTIES;
     }
 
-    /**
-     * Callback used on async methods.
-     *
-     * @param <R> response type.
-     */
-    public interface HalCallback<R> {
-
-        int STATUS_OK = 1;
-        int STATUS_HAL_SET_TIMEOUT = 2;
-        int STATUS_HAL_RESPONSE_TIMEOUT = 3;
-        int STATUS_WRONG_HAL_RESPONSE = 4;
-        int STATUS_CONCURRENT_OPERATION = 5;
-
-        /** @hide */
-        @IntDef(prefix = { "STATUS_" }, value = {
-                STATUS_OK,
-                STATUS_HAL_SET_TIMEOUT,
-                STATUS_HAL_RESPONSE_TIMEOUT,
-                STATUS_WRONG_HAL_RESPONSE,
-                STATUS_CONCURRENT_OPERATION
-        })
-        @Retention(RetentionPolicy.SOURCE)
-        @interface HalCallbackStatus{}
-
-        /**
-         * Called when the HAL generated an event responding to that callback (or when an error
-         * occurred).
-         *
-         * @param status status of the request.
-         * @param response HAL response (or {@code null} in case of error).
-         */
-        void onResponse(@HalCallbackStatus int status, @Nullable R response);
+    @Override
+    public void takeProperties(Collection<VehiclePropConfig> properties) {
+        if (properties.isEmpty()) {
+            Log.w(TAG, UNSUPPORTED_MSG);
+            return;
+        }
+        // TODO(b/150413515): increase capacity once it supports more
+        SparseArray<VehiclePropConfig> supportedProperties = new SparseArray<>(1);
+        for (VehiclePropConfig config : properties) {
+            supportedProperties.put(config.prop, config);
+        }
+        synchronized (mLock) {
+            mProperties = supportedProperties;
+        }
     }
 
     /**
