@@ -30,7 +30,9 @@ namespace evs {
 namespace V1_1 {
 namespace implementation {
 
+#ifdef EVS_DEBUG
 static bool sDebugFirstFrameDisplayed = false;
+#endif
 
 
 EvsGlDisplay::EvsGlDisplay(sp<IAutomotiveDisplayProxyService> pDisplayProxy, uint64_t displayId)
