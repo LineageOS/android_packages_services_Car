@@ -79,21 +79,27 @@ public final class InitialUserSetter {
         // TODO(b/151758646): implement
     }
 
+    @VisibleForTesting
+    void fallbackDefaultBehavior(@NonNull String reason) {
+        Log.w(TAG, "Falling back to default behavior. Reason: " + reason);
+        executeDefaultBehavior();
+    }
+
     /**
-     * Switches to the given user, falling back to {@link #executeDefaultBehavior()} if it fails.
+     * Switches to the given user, falling back to {@link #fallbackDefaultBehavior(String)} if it
+     * fails.
      */
     public void switchUser(@UserIdInt int userId) {
         if (DBG) Log.d(TAG, "switchUser(): userId= " + userId);
 
-        if (!mHelper.switchToUserId(userId)) {
-            Log.w(TAG, "am.switchUser(" + userId + ") failed; falling back to default behavior");
-            executeDefaultBehavior();
+        if (!mHelper.startForegroundUser(userId)) {
+            fallbackDefaultBehavior("am.switchUser(" + userId + ") failed");
         }
     }
 
     /**
-     * Creates a new user and switches to it, falling back to {@link #executeDefaultBehavior()} if
-     * any of these steps fails.
+     * Creates a new user and switches to it, falling back to
+     * {@link #fallbackDefaultBehavior(String) if any of these steps fails.
      *
      * @param name (optional) name of the new user
      * @param halFlags user flags as defined by Vehicle HAL ({@code UserFlags} enum).
@@ -105,8 +111,7 @@ public final class InitialUserSetter {
         }
 
         if (UserHalHelper.isSystem(halFlags)) {
-            Log.w(TAG, "Cannot create system user");
-            executeDefaultBehavior();
+            fallbackDefaultBehavior("Cannot create system user");
             return;
         }
 
@@ -121,7 +126,7 @@ public final class InitialUserSetter {
                 validAdmin = false;
             }
             if (!validAdmin) {
-                executeDefaultBehavior();
+                fallbackDefaultBehavior("Invalid flags for admin user");
                 return;
             }
         }
@@ -139,10 +144,8 @@ public final class InitialUserSetter {
 
         UserInfo userInfo = mUm.createUser(name, type, flags);
         if (userInfo == null) {
-            Log.w(TAG, "createUser(name=" + safeName(name) + ", flags="
-                    + userFlagsToString(halFlags) + "): failed to create user; falling back to "
-                    + "default behavior");
-            executeDefaultBehavior();
+            fallbackDefaultBehavior("createUser(name=" + safeName(name) + ", flags="
+                    + userFlagsToString(halFlags) + "): failed to create user");
             return;
         }
 
