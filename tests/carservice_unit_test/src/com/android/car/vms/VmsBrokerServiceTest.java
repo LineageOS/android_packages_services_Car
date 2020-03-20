@@ -124,13 +124,13 @@ public class VmsBrokerServiceTest {
     private final IBinder mClientToken2 = new Binder();
     private SharedMemory mLargePacket;
 
-    private VmsNewBrokerService mBrokerService;
+    private VmsBrokerService mBrokerService;
     private int mCallingAppUid;
 
     @Before
     public void setUp() throws Exception {
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
-        mBrokerService = new VmsNewBrokerService(mContext, mStatsService, () -> mCallingAppUid);
+        mBrokerService = new VmsBrokerService(mContext, mStatsService, () -> mCallingAppUid);
 
         when(mPackageManager.getNameForUid(TEST_APP_UID1)).thenReturn(TEST_PACKAGE1);
         when(mPackageManager.getNameForUid(TEST_APP_UID2)).thenReturn(TEST_PACKAGE2);

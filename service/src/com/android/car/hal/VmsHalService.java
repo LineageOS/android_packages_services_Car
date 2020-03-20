@@ -51,7 +51,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.car.CarLocalServices;
-import com.android.car.vms.VmsNewBrokerService;
+import com.android.car.vms.VmsBrokerService;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -344,7 +344,7 @@ public class VmsHalService extends HalServiceBase {
     }
 
     private static VmsClient initVmsClient(Handler handler, VmsClientCallback callback) {
-        VmsNewBrokerService brokerService = CarLocalServices.getService(VmsNewBrokerService.class);
+        VmsBrokerService brokerService = CarLocalServices.getService(VmsBrokerService.class);
         if (brokerService == null) {
             Log.e(TAG, "Broker service is not enabled");
             return null;

@@ -65,9 +65,9 @@ import java.util.stream.Collectors;
  * This service is also responsible for tracking VMS client connections and broadcasting
  * notifications to clients about layer offering or subscription state changes.
  */
-public class VmsNewBrokerService extends IVmsBrokerService.Stub implements CarServiceBase {
+public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServiceBase {
     private static final boolean DBG = false;
-    private static final String TAG = VmsNewBrokerService.class.getSimpleName();
+    private static final String TAG = VmsBrokerService.class.getSimpleName();
 
     private final Context mContext;
     private final PackageManager mPackageManager;
@@ -86,12 +86,12 @@ public class VmsNewBrokerService extends IVmsBrokerService.Stub implements CarSe
     private VmsSubscriptionState mSubscriptionState = new VmsSubscriptionState(0,
             Collections.emptySet(), Collections.emptySet());
 
-    public VmsNewBrokerService(Context context, CarStatsService statsService) {
+    public VmsBrokerService(Context context, CarStatsService statsService) {
         this(context, statsService, Binder::getCallingUid);
     }
 
     @VisibleForTesting
-    VmsNewBrokerService(
+    VmsBrokerService(
             Context context,
             CarStatsService statsService,
             IntSupplier getCallingUid) {
