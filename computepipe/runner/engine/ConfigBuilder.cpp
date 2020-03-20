@@ -57,8 +57,14 @@ ConfigBuilder& ConfigBuilder::updateOptionalConfig(std::string options) {
     return *this;
 }
 
+ConfigBuilder& ConfigBuilder::updateProfilingType(proto::ProfilingType profilingType) {
+    mProfilingType = profilingType;
+    return *this;
+}
+
 ClientConfig ConfigBuilder::emitClientOptions() {
-    return ClientConfig(mInputConfigId, mOffloadId, mTerminationId, mOutputConfig, mOptionalConfig);
+    return ClientConfig(mInputConfigId, mOffloadId, mTerminationId, mOutputConfig, mProfilingType,
+            mOptionalConfig);
 }
 
 ConfigBuilder& ConfigBuilder::reset() {
@@ -66,6 +72,7 @@ ConfigBuilder& ConfigBuilder::reset() {
     mTerminationId = ClientConfig::kInvalidId;
     mOffloadId = ClientConfig::kInvalidId;
     mOutputConfig.clear();
+    mProfilingType = proto::ProfilingType::DISABLED;
     if (mDisplayStream != ClientConfig::kInvalidId) {
         mOutputConfig.emplace(mDisplayStream, 1);
     }
