@@ -15,6 +15,9 @@
  */
 package android.car.userlib;
 
+import static android.car.userlib.UserHalHelper.userFlagsToString;
+import static android.car.userlib.UserHelper.safeName;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -93,17 +96,52 @@ public final class InitialUserSetter {
      * any of these steps fails.
      *
      * @param name (optional) name of the new user
-     * @param halFlags user flags as defined by Vehicle Hal ({@code UserFlags} enum).
+     * @param halFlags user flags as defined by Vehicle HAL ({@code UserFlags} enum).
      */
     public void createUser(@Nullable String name, int halFlags) {
-        // TODO(b/151758646): use library for PII-safe name and flags
-        if (DBG) Log.d(TAG, "createUser()");
+        if (DBG) {
+            Log.d(TAG, "createUser(name=" + safeName(name) + ", flags="
+                    + userFlagsToString(halFlags) + ")");
+        }
 
-        // TODO(b/151758646): set type and flags
-        UserInfo userInfo = mUm.createUser(name, UserManager.USER_TYPE_FULL_SECONDARY, 0);
+        if (UserHalHelper.isSystem(halFlags)) {
+            Log.w(TAG, "Cannot create system user");
+            executeDefaultBehavior();
+            return;
+        }
+
+        if (UserHalHelper.isAdmin(halFlags)) {
+            boolean validAdmin = true;
+            if (UserHalHelper.isGuest(halFlags)) {
+                Log.w(TAG, "Cannot create guest admin");
+                validAdmin = false;
+            }
+            if (UserHalHelper.isEphemeral(halFlags)) {
+                Log.w(TAG, "Cannot create ephemeral admin");
+                validAdmin = false;
+            }
+            if (!validAdmin) {
+                executeDefaultBehavior();
+                return;
+            }
+        }
+        // TODO(b/150413515): decide what to if HAL requested a non-ephemeral guest but framework
+        // sets all guests as ephemeral - should it fail or just warn?
+
+        int flags = UserHalHelper.toUserInfoFlags(halFlags);
+        String type = UserHalHelper.isGuest(halFlags) ? UserManager.USER_TYPE_FULL_GUEST
+                : UserManager.USER_TYPE_FULL_SECONDARY;
+
+        if (DBG) {
+            Log.d(TAG, "calling am.createUser((name=" + safeName(name) + ", type=" + type
+                    + ", flags=" + UserInfo.flagsToString(flags) + ")");
+        }
+
+        UserInfo userInfo = mUm.createUser(name, type, flags);
         if (userInfo == null) {
-            // TODO(b/151758646): use library for PII-safe name and flags on msg
-            Log.w(TAG, "Failed to create user; falling back to default behavior");
+            Log.w(TAG, "createUser(name=" + safeName(name) + ", flags="
+                    + userFlagsToString(halFlags) + "): failed to create user; falling back to "
+                    + "default behavior");
             executeDefaultBehavior();
             return;
         }

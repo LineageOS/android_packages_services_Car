@@ -30,6 +30,8 @@ import static org.mockito.Mockito.verify;
 import static org.testng.Assert.assertThrows;
 
 import android.car.hardware.property.VehicleHalStatusCode;
+import android.car.userlib.HalCallback;
+import android.car.userlib.UserHalHelper;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -43,8 +45,6 @@ import android.os.ServiceSpecificException;
 import android.os.UserHandle;
 import android.util.Log;
 
-import com.android.car.hal.UserHalService.HalCallback;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +54,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -102,7 +102,7 @@ public final class UserHalServiceTest {
     public void setFixtures() {
         mUserHalService = new UserHalService(mVehicleHal);
         mUserHalService
-                .takeSupportedProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO)));
+                .takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO)));
 
         mUser0.userId = 0;
         mUser0.flags = 100;
@@ -121,10 +121,8 @@ public final class UserHalServiceTest {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
 
-        List<VehiclePropConfig> input = Arrays.asList(newConfig(CURRENT_GEAR));
-        Collection<VehiclePropConfig> output = myHalService.takeSupportedProperties(input);
+        myHalService.takeProperties(Collections.EMPTY_LIST);
         assertThat(myHalService.isSupported()).isFalse();
-        assertThat(output).isNull();
     }
 
     @Test
@@ -135,9 +133,8 @@ public final class UserHalServiceTest {
         VehiclePropConfig unsupportedConfig = newConfig(CURRENT_GEAR);
         VehiclePropConfig userInfoConfig = newSubscribableConfig(INITIAL_USER_INFO);
         List<VehiclePropConfig> input = Arrays.asList(unsupportedConfig, userInfoConfig);
-        Collection<VehiclePropConfig> output = myHalService.takeSupportedProperties(input);
+        myHalService.takeProperties(input);
         assertThat(mUserHalService.isSupported()).isTrue();
-        assertThat(output).containsExactly(userInfoConfig);
 
         // Ideally there should be 2 test methods (one for takeSupportedProperties() and one for
         // init()), but on "real life" VehicleHal calls these 2 methods in sequence, and the latter

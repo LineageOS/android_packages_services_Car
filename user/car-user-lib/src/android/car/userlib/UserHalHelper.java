@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.hal;
+package android.car.userlib;
 
 import android.annotation.NonNull;
+import android.car.userlib.HalCallback.HalCallbackStatus;
 import android.content.pm.UserInfo;
+import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.os.UserHandle;
 import android.util.DebugUtils;
 
-import com.android.car.hal.UserHalService.HalCallback;
-import com.android.car.hal.UserHalService.HalCallback.HalCallbackStatus;
+import com.android.internal.util.Preconditions;
 
 /**
  * Provides utility methods for User HAL related functionalities.
@@ -58,7 +59,6 @@ public final class UserHalHelper {
      * @throws IllegalArgumentException if type is not valid neither a number
      */
     public static int parseInitialUserInfoRequestType(@NonNull String type) {
-        // TODO(b/150419600): add unit test
         switch(type) {
             case "FIRST_BOOT":
                 return InitialUserInfoRequestType.FIRST_BOOT;
@@ -81,7 +81,8 @@ public final class UserHalHelper {
      * Converts Android user flags to HALs.
      */
     public static int convertFlags(@NonNull UserInfo user) {
-        // TODO(b/150419600): add unit test
+        Preconditions.checkArgument(user != null, "user cannot be null");
+
         int flags = UserFlags.NONE;
         if (user.id == UserHandle.USER_SYSTEM) {
             flags |= UserFlags.SYSTEM;
@@ -96,6 +97,49 @@ public final class UserHalHelper {
             flags |= UserFlags.EPHEMERAL;
         }
 
+        return flags;
+    }
+
+    /**
+     * Checks if a HAL flag contains {@link UserFlags#SYSTEM}.
+     */
+    public static boolean isSystem(int flags) {
+        return (flags & UserFlags.SYSTEM) != 0;
+    }
+
+    /**
+     * Checks if a HAL flag contains {@link UserFlags#GUEST}.
+     */
+    public static boolean isGuest(int flags) {
+        return (flags & UserFlags.GUEST) != 0;
+    }
+
+    /**
+     * Checks if a HAL flag contains {@link UserFlags#EPHEMERAL}.
+     */
+    public static boolean isEphemeral(int flags) {
+        return (flags & UserFlags.EPHEMERAL) != 0;
+    }
+
+    /**
+     * Checks if a HAL flag contains {@link UserFlags#ADMIN}.
+     */
+    public static boolean isAdmin(int flags) {
+        return (flags & UserFlags.ADMIN) != 0;
+    }
+
+    /**
+     * Converts HAL flags to Android's.
+     */
+    @UserInfoFlag
+    public static int toUserInfoFlags(int halFlags) {
+        int flags = 0;
+        if (isEphemeral(halFlags)) {
+            flags |= UserInfo.FLAG_EPHEMERAL;
+        }
+        if (isAdmin(halFlags)) {
+            flags |= UserInfo.FLAG_ADMIN;
+        }
         return flags;
     }
 
