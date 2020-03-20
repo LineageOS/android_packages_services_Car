@@ -222,6 +222,8 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
                 } catch (RemoteException e) {
                     Log.e(TAG, "Remote Service Exception on ServiceConnection Callback: "
                             + e.getMessage());
+                } catch (java.lang.NullPointerException e) {
+                    Log.e(TAG, "Initialization Failed: " + e.getMessage());
                 }
             }
         }
