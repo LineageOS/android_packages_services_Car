@@ -314,7 +314,6 @@
         <item>diagnostic</item>
         <item>storage_monitoring</item>
         <item>vehicle_map_service</item>
-        <item>vehicle_map_subscriber_service</item>
     </string-array>
 
     <!-- Configuration to enable passenger support.
