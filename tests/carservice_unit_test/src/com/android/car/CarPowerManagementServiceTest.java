@@ -988,11 +988,11 @@ public class CarPowerManagementServiceTest {
     }
 
     private void verifyUserNotSwitched() {
-        verify(mCarUserManagerHelper, never()).switchToUserId(anyInt());
+        verify(mCarUserManagerHelper, never()).startForegroundUser(anyInt());
     }
 
     private void verifyUserSwitched(int userId) {
-        verify(mCarUserManagerHelper, times(1)).switchToUserId(userId);
+        verify(mCarUserManagerHelper, times(1)).startForegroundUser(userId);
     }
 
     private void verifyNoGuestCreated() {
