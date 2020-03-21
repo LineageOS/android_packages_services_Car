@@ -19,10 +19,12 @@ package android.car.userlib;
 import android.Manifest;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
+import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
+import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -300,6 +302,24 @@ public final class CarUserManagerHelper {
             return false;
         }
         return mActivityManager.switchUser(id);
+    }
+
+    /**
+     * Streamlined version of {@code switchUser()} - should only be called on boot / resume.
+     */
+    public boolean startForegroundUser(@UserIdInt int userId) {
+        // TODO(b/151973604): add unit test (will be done in a separate CL to avoid merge conflicts
+        // when cherry-picking)
+        if (userId == UserHandle.USER_SYSTEM && UserManager.isHeadlessSystemUserMode()) {
+            // System User doesn't associate with real person, can not be switched to.
+            return false;
+        }
+        try {
+            return ActivityManager.getService().startUserInForegroundWithListener(userId, null);
+        } catch (RemoteException e) {
+            Log.w(TAG, "failed to start user " + userId, e);
+            return false;
+        }
     }
 
     /**

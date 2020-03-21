@@ -571,7 +571,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         message.append(", switching from ").append(fromUser).append(" to ").append(toUser);
         Log.i(CarLog.TAG_POWER, message.toString());
-        mCarUserManagerHelper.switchToUserId(toUser);
+        mCarUserManagerHelper.startForegroundUser(toUser);
     }
 
     private int getFirstSwitchableUser() {
