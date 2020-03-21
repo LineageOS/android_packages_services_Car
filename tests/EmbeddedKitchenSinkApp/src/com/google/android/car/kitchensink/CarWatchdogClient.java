@@ -40,7 +40,8 @@ public final class CarWatchdogClient {
         @Override
         public boolean onCheckHealthStatus(int sessionId, int timeout) {
             long currentUptime = SystemClock.uptimeMillis();
-            return  mClientConfig.notRespondAfterInMs > currentUptime - mClientStartTime;
+            return mClientConfig.notRespondAfterInMs < 0
+                    || mClientConfig.notRespondAfterInMs > currentUptime - mClientStartTime;
         }
 
         @Override
