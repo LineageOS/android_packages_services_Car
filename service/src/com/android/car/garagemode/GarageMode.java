@@ -74,10 +74,18 @@ class GarageMode {
     @GuardedBy("mLock")
     private int mAdditionalChecksToDo = ADDITIONAL_CHECKS_TO_DO;
     @GuardedBy("mLock")
+    private boolean mIdleCheckerIsRunning;
+    @GuardedBy("mLock")
     private List<String> mPendingJobs = new ArrayList<>();
+
     private final Runnable mRunnable = new Runnable() {
         @Override
         public void run() {
+            if (!mGarageModeActive) {
+                LOG.d("Garage Mode is inactive. Stopping the idle-job checker.");
+                finish();
+                return;
+            }
             int numberRunning = numberOfIdleJobsRunning();
             if (numberRunning > 0) {
                 LOG.d("" + numberRunning + " jobs are still running. Need to wait more ...");
@@ -171,6 +179,8 @@ class GarageMode {
         if (!mGarageModeActive) {
             return outString;
         }
+        outString.add("GarageMode idle checker is " + (mIdleCheckerIsRunning ? "" : "not ")
+                + "running");
         List<String> jobList = new ArrayList<>();
         int numJobs = getListOfIdleJobsRunning(jobList);
         if (numJobs > 0) {
@@ -220,6 +230,13 @@ class GarageMode {
     }
 
     void finish() {
+        synchronized (mLock) {
+            if (!mIdleCheckerIsRunning) {
+                LOG.i("Finishing Garage Mode. Idle checker is not running.");
+                return;
+            }
+            mIdleCheckerIsRunning = false;
+        }
         broadcastSignalToJobScheduler(false);
         CarStatsLogHelper.logGarageModeStop();
         mController.scheduleNextWakeup();
@@ -239,7 +256,11 @@ class GarageMode {
         synchronized (mLock) {
             mGarageModeActive = false;
             stopMonitoringThread();
-            mHandler.removeCallbacks(mRunnable);
+            if (mIdleCheckerIsRunning) {
+                // The idle checker has not completed.
+                // Schedule it now so it completes promptly.
+                mHandler.post(mRunnable);
+            }
             startBackgroundUserStoppingLocked();
         }
     }
@@ -277,6 +298,7 @@ class GarageMode {
 
     private void startMonitoringThread() {
         synchronized (mLock) {
+            mIdleCheckerIsRunning = true;
             mAdditionalChecksToDo = ADDITIONAL_CHECKS_TO_DO;
         }
         mHandler.postDelayed(mRunnable, JOB_SNAPSHOT_INITIAL_UPDATE_MS);
