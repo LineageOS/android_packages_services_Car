@@ -29,10 +29,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
 public final class UserHalHelperTest {
 
     @Test
@@ -90,6 +87,50 @@ public final class UserHalHelperTest {
         assertThat(user.isEphemeral()).isTrue(); // sanity check
         assertThat(user.isGuest()).isTrue(); // sanity check
         assertConvertFlags(UserFlags.GUEST | UserFlags.EPHEMERAL, user);
+    }
+
+    @Test
+    public void testIsSystem() {
+        assertThat(UserHalHelper.isSystem(UserFlags.SYSTEM)).isTrue();
+        assertThat(UserHalHelper.isSystem(UserFlags.SYSTEM | 666)).isTrue();
+        assertThat(UserHalHelper.isSystem(UserFlags.GUEST)).isFalse();
+    }
+
+    @Test
+    public void testIsGuest() {
+        assertThat(UserHalHelper.isGuest(UserFlags.GUEST)).isTrue();
+        assertThat(UserHalHelper.isGuest(UserFlags.GUEST | 666)).isTrue();
+        assertThat(UserHalHelper.isGuest(UserFlags.SYSTEM)).isFalse();
+    }
+
+    @Test
+    public void testIsEphemeral() {
+        assertThat(UserHalHelper.isEphemeral(UserFlags.EPHEMERAL)).isTrue();
+        assertThat(UserHalHelper.isEphemeral(UserFlags.EPHEMERAL | 666)).isTrue();
+        assertThat(UserHalHelper.isEphemeral(UserFlags.GUEST)).isFalse();
+    }
+
+    @Test
+    public void testIsAdmin() {
+        assertThat(UserHalHelper.isAdmin(UserFlags.ADMIN)).isTrue();
+        assertThat(UserHalHelper.isAdmin(UserFlags.ADMIN | 666)).isTrue();
+        assertThat(UserHalHelper.isAdmin(UserFlags.GUEST)).isFalse();
+    }
+
+    @Test
+    public void testToUserInfoFlags() {
+        assertThat(UserHalHelper.toUserInfoFlags(UserFlags.NONE)).isEqualTo(0);
+        assertThat(UserHalHelper.toUserInfoFlags(UserFlags.EPHEMERAL))
+                .isEqualTo(UserInfo.FLAG_EPHEMERAL);
+        assertThat(UserHalHelper.toUserInfoFlags(UserFlags.ADMIN))
+                .isEqualTo(UserInfo.FLAG_ADMIN);
+        assertThat(UserHalHelper.toUserInfoFlags(UserFlags.EPHEMERAL | UserFlags.ADMIN))
+                .isEqualTo(UserInfo.FLAG_EPHEMERAL | UserInfo.FLAG_ADMIN);
+
+        // test flags that should be ignored
+        assertThat(UserHalHelper.toUserInfoFlags(UserFlags.SYSTEM)).isEqualTo(0);
+        assertThat(UserHalHelper.toUserInfoFlags(UserFlags.GUEST)).isEqualTo(0);
+        assertThat(UserHalHelper.toUserInfoFlags(1024)).isEqualTo(0);
     }
 
     private void assertConvertFlags(int expectedFlags, @NonNull UserInfo user) {

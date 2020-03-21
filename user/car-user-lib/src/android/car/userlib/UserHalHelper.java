@@ -18,6 +18,7 @@ package android.car.userlib;
 import android.annotation.NonNull;
 import android.car.userlib.HalCallback.HalCallbackStatus;
 import android.content.pm.UserInfo;
+import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.os.UserHandle;
@@ -96,6 +97,49 @@ public final class UserHalHelper {
             flags |= UserFlags.EPHEMERAL;
         }
 
+        return flags;
+    }
+
+    /**
+     * Checks if a HAL flag contains {@link UserFlags#SYSTEM}.
+     */
+    public static boolean isSystem(int flags) {
+        return (flags & UserFlags.SYSTEM) != 0;
+    }
+
+    /**
+     * Checks if a HAL flag contains {@link UserFlags#GUEST}.
+     */
+    public static boolean isGuest(int flags) {
+        return (flags & UserFlags.GUEST) != 0;
+    }
+
+    /**
+     * Checks if a HAL flag contains {@link UserFlags#EPHEMERAL}.
+     */
+    public static boolean isEphemeral(int flags) {
+        return (flags & UserFlags.EPHEMERAL) != 0;
+    }
+
+    /**
+     * Checks if a HAL flag contains {@link UserFlags#ADMIN}.
+     */
+    public static boolean isAdmin(int flags) {
+        return (flags & UserFlags.ADMIN) != 0;
+    }
+
+    /**
+     * Converts HAL flags to Android's.
+     */
+    @UserInfoFlag
+    public static int toUserInfoFlags(int halFlags) {
+        int flags = 0;
+        if (isEphemeral(halFlags)) {
+            flags |= UserInfo.FLAG_EPHEMERAL;
+        }
+        if (isAdmin(halFlags)) {
+            flags |= UserInfo.FLAG_ADMIN;
+        }
         return flags;
     }
 

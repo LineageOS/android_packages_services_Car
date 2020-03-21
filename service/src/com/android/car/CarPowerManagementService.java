@@ -45,6 +45,7 @@ import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.sysprop.CarProperties;
 import android.util.Log;
 
 import com.android.car.am.ContinuousBlankActivity;
@@ -423,13 +424,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         try {
             switchUserOnResumeIfNecessary(allowUserSwitch);
         } catch (Exception e) {
-            Log.e(CarLog.TAG_POWER, "Could not switch user on resume: " + e);
+            Log.e(CarLog.TAG_POWER, "Could not switch user on resume", e);
         }
     }
 
     @VisibleForTesting // Ideally it should not be exposed, but it speeds up the unit tests
     void switchUserOnResumeIfNecessary(boolean allowSwitching) {
-        if (mUserService.isUserHalSupported()) {
+        if (CarProperties.user_hal_enabled().orElse(false) && mUserService.isUserHalSupported()) {
             switchUserOnResumeIfNecessaryUsingHal(allowSwitching);
         } else {
             switchUserOnResumeIfNecessaryDirectly(allowSwitching);
@@ -440,11 +441,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * Switches the initial user directly, without using the User HAL to define the behavior.
      */
     private void switchUserOnResumeIfNecessaryDirectly(boolean allowSwitching) {
+        Log.i(CarLog.TAG_POWER, "NOT using User HAL to define initial user behavior");
 
         int targetUserId = mCarUserManagerHelper.getInitialUser();
-        if (targetUserId == UserHandle.USER_SYSTEM) {
-            // API explicitly say it doesn't return USER_SYSTEM
-            Log.wtf(CarLog.TAG_POWER, "getInitialUser() returned system user");
+        if (targetUserId == UserHandle.USER_SYSTEM || targetUserId == UserHandle.USER_NULL) {
+            Log.wtf(CarLog.TAG_POWER, "getInitialUser() returned user" + targetUserId);
             return;
         }
         int currentUserId = ActivityManager.getCurrentUser();

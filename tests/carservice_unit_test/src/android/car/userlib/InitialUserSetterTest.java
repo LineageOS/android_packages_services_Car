@@ -15,14 +15,13 @@
  */
 package android.car.userlib;
 
-import static android.os.UserManager.USER_TYPE_FULL_SECONDARY;
-
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.pm.UserInfo;
@@ -83,7 +82,55 @@ public final class InitialUserSetterTest {
     }
 
     @Test
-    public void testCreateUser_createFail() throws Exception {
+    public void testCreateUser_ok_admin() throws Exception {
+        expectCreateFullUser(10, "TheDude", UserInfo.FLAG_ADMIN);
+
+        mSetter.createUser("TheDude", UserFlags.ADMIN);
+
+        verifyUserSwitched(10);
+    }
+
+    @Test
+    public void testCreateUser_ok_ephemeralGuest() throws Exception {
+        expectCreateGuestUser(10, "TheDude", UserInfo.FLAG_EPHEMERAL);
+
+        mSetter.createUser("TheDude", UserFlags.EPHEMERAL | UserFlags.GUEST);
+
+        verifyUserSwitched(10);
+    }
+
+    @Test
+    public void testCreateUser_fail_systemUser() throws Exception {
+        // No need to set expectations - mUm.createUser() won't be called
+
+        mSetter.createUser("TheDude", UserFlags.SYSTEM);
+
+        verifyUserNeverSwitched();
+        verifyDefaultBehaviorFalledBack();
+    }
+
+    @Test
+    public void testCreateUser_fail_guestAdmin() throws Exception {
+        // No need to set expectations - mUm.createUser() won't be called
+
+        mSetter.createUser("TheDude", UserFlags.GUEST | UserFlags.ADMIN);
+
+        verifyUserNeverSwitched();
+        verifyDefaultBehaviorFalledBack();
+    }
+
+    @Test
+    public void testCreateUser_fail_ephemeralAdmin() throws Exception {
+        // No need to set expectations - mUm.createUser() won't be called
+
+        mSetter.createUser("TheDude", UserFlags.EPHEMERAL | UserFlags.ADMIN);
+
+        verifyUserNeverSwitched();
+        verifyDefaultBehaviorFalledBack();
+    }
+
+    @Test
+    public void testCreateUser_fail_createFail() throws Exception {
         // No need to set expectations - mUm.createUser() will return null
 
         mSetter.createUser("TheDude", UserFlags.NONE);
@@ -93,7 +140,7 @@ public final class InitialUserSetterTest {
     }
 
     @Test
-    public void testCreateUser_switchFail() throws Exception {
+    public void testCreateUser_fail_switchFail() throws Exception {
         expectCreateFullUser(10, "TheDude", /* flags= */ 0);
         // No need to set switch expectations - mAm.switchUser() will return false
 
@@ -102,7 +149,6 @@ public final class InitialUserSetterTest {
         verifyDefaultBehaviorFalledBack();
     }
 
-    // TODO(b/151758646): implement all possible flag options
     // TODO(b/151758646): implement default behavior (including override option)
 
     private void expectSwitchUser(int userId) {
@@ -111,8 +157,18 @@ public final class InitialUserSetterTest {
 
     private void expectCreateFullUser(@UserIdInt int userId, @Nullable String name,
             @UserInfoFlag int flags) {
+        expectCreateUserOfType(UserManager.USER_TYPE_FULL_SECONDARY, userId, name, flags);
+    }
+
+    private void expectCreateGuestUser(@UserIdInt int userId, @Nullable String name,
+            @UserInfoFlag int flags) {
+        expectCreateUserOfType(UserManager.USER_TYPE_FULL_GUEST, userId, name, flags);
+    }
+
+    private void expectCreateUserOfType(@NonNull String type, @UserIdInt int userId,
+            @Nullable String name, @UserInfoFlag int flags) {
         UserInfo userInfo = new UserInfo(userId, name, flags);
-        when(mUm.createUser(name, USER_TYPE_FULL_SECONDARY, flags)).thenReturn(userInfo);
+        when(mUm.createUser(name, type, flags)).thenReturn(userInfo);
     }
 
     private void verifyUserSwitched(int userId) {
