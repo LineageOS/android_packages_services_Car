@@ -19,10 +19,12 @@ package android.car.userlib;
 import android.Manifest;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
+import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
+import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -127,7 +129,8 @@ public final class CarUserManagerHelper {
      * If any step fails to retrieve the stored id or the retrieved id does not exist on device,
      * then it will move onto the next step.
      *
-     * @return user id of the initial user to boot into on the device.
+     * @return user id of the initial user to boot into on the device, or
+     * {@link UserHandle#USER_NULL} if there is no user available.
      */
     public int getInitialUser() {
         return getInitialUser(/* usesOverrideUserIdProperty= */ true);
@@ -139,6 +142,10 @@ public final class CarUserManagerHelper {
     int getInitialUser(boolean usesOverrideUserIdProperty) {
 
         List<Integer> allUsers = userInfoListToUserIdList(getAllUsers());
+
+        if (allUsers.isEmpty()) {
+            return UserHandle.USER_NULL;
+        }
 
         if (usesOverrideUserIdProperty) {
             int bootUserOverride = CarProperties.boot_user_override_id()
@@ -295,6 +302,22 @@ public final class CarUserManagerHelper {
             return false;
         }
         return mActivityManager.switchUser(id);
+    }
+
+    /**
+     * Streamlined version of {@code switchUser()} - should only be called on boot / resume.
+     */
+    public boolean startForegroundUser(@UserIdInt int userId) {
+        if (userId == UserHandle.USER_SYSTEM && UserManager.isHeadlessSystemUserMode()) {
+            // System User doesn't associate with real person, can not be switched to.
+            return false;
+        }
+        try {
+            return ActivityManager.getService().startUserInForegroundWithListener(userId, null);
+        } catch (RemoteException e) {
+            Log.w(TAG, "failed to start user " + userId, e);
+            return false;
+        }
     }
 
     /**

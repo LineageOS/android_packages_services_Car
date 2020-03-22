@@ -21,13 +21,16 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSess
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
+import android.app.IActivityManager;
 import android.content.Context;
 import android.content.pm.UserInfo;
+import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -65,6 +68,7 @@ public class CarUserManagerHelperTest {
     @Mock private Context mContext;
     @Mock private UserManager mUserManager;
     @Mock private ActivityManager mActivityManager;
+    @Mock private IActivityManager mIActivityManager;
 
     private static final String TEST_USER_NAME = "testUser";
 
@@ -78,7 +82,9 @@ public class CarUserManagerHelperTest {
     public void setUpMocksAndVariables() {
         mSession = mockitoSession()
                 .strictness(Strictness.LENIENT)
+                .spyStatic(ActivityManager.class)
                 .spyStatic(CarProperties.class)
+                .spyStatic(UserManager.class)
                 .startMocking();
 
         doReturn(mUserManager).when(mContext).getSystemService(Context.USER_SERVICE);
@@ -145,6 +151,52 @@ public class CarUserManagerHelperTest {
                 .when(mUserManager).getUserSwitchability();
         assertThat(mCarUserManagerHelper.switchToUserId(userIdToSwitchTo)).isFalse();
         verify(mActivityManager, never()).switchUser(userIdToSwitchTo);
+    }
+
+    @Test
+    public void testStartForegroundUser_ok() throws Exception {
+        setIActivityManager();
+        doReturn(true).when(mIActivityManager).startUserInForegroundWithListener(10, null);
+
+        assertThat(mCarUserManagerHelper.startForegroundUser(10)).isTrue();
+    }
+
+    @Test
+    public void testStartForegroundUser_fail() {
+        setIActivityManager();
+        // startUserInForegroundWithListener will return false by default
+
+        assertThat(mCarUserManagerHelper.startForegroundUser(10)).isFalse();
+    }
+
+    @Test
+    public void testStartForegroundUser_remoteException() throws Exception {
+        setIActivityManager();
+        doThrow(new RemoteException("DOH!")).when(mIActivityManager)
+                .startUserInForegroundWithListener(10, null);
+
+        assertThat(mCarUserManagerHelper.startForegroundUser(10)).isFalse();
+    }
+
+    @Test
+    public void testStartForegroundUser_nonHeadlessSystemUser() throws Exception {
+        setIActivityManager();
+        setHeadlessSystemUserMode(false);
+        doReturn(true).when(mIActivityManager)
+                .startUserInForegroundWithListener(UserHandle.USER_SYSTEM, null);
+
+        assertThat(mCarUserManagerHelper.startForegroundUser(UserHandle.USER_SYSTEM)).isTrue();
+    }
+
+    @Test
+    public void testStartForegroundUser_headlessSystemUser() throws Exception {
+        setIActivityManager();
+        setHeadlessSystemUserMode(true);
+
+        assertThat(mCarUserManagerHelper.startForegroundUser(UserHandle.USER_SYSTEM)).isFalse();
+
+        verify(mIActivityManager, never()).startUserInForegroundWithListener(UserHandle.USER_SYSTEM,
+                null);
     }
 
     @Test
@@ -287,6 +339,11 @@ public class CarUserManagerHelperTest {
                 .isEqualTo(lastActiveUserId);
     }
 
+    @Test
+    public void testGetInitialUser_WithEmptyReturnNull() {
+        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(UserHandle.USER_NULL);
+    }
+
     private UserInfo createUserInfoForId(int id) {
         UserInfo userInfo = new UserInfo();
         userInfo.id = id;
@@ -308,6 +365,14 @@ public class CarUserManagerHelperTest {
 
     private void setDefaultBootUserOverride(int userId) {
         when(CarProperties.boot_user_override_id()).thenReturn(Optional.of(userId));
+    }
 
+    // Must be called on demand as mocking static methods take more than 1s
+    private void setIActivityManager() {
+        when(ActivityManager.getService()).thenReturn(mIActivityManager);
+    }
+
+    private void setHeadlessSystemUserMode(boolean mode) {
+        when(UserManager.isHeadlessSystemUserMode()).thenReturn(mode);
     }
 }
