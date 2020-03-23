@@ -16,6 +16,8 @@
 package android.car.userlib;
 
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -60,16 +62,17 @@ public final class InitialUserSetterTest {
         mSetter.switchUser(10);
 
         verifyUserSwitched(10);
-        verifyDefaultBehaviorNeverCalled();
+        verifyFallbackDefaultBehaviorNeverCalled();
     }
 
     @Test
     public void testSwitchUser_fail() throws Exception {
-        // No need to set expectations - mAm.switchUser() will return false
+        expectFallbackDefaultBehavior();
+        // No need to set switchUser() expectations - will return false by default
 
         mSetter.switchUser(10);
 
-        verifyDefaultBehaviorFalledBack();
+        verifyFallbackDefaultBehaviorCalled();
     }
 
     @Test
@@ -101,58 +104,63 @@ public final class InitialUserSetterTest {
 
     @Test
     public void testCreateUser_fail_systemUser() throws Exception {
-        // No need to set expectations - mUm.createUser() won't be called
+        expectFallbackDefaultBehavior();
+        // No need to set mUm.createUser() expectation - it shouldn't be called
 
         mSetter.createUser("TheDude", UserFlags.SYSTEM);
 
         verifyUserNeverSwitched();
-        verifyDefaultBehaviorFalledBack();
+        verifyFallbackDefaultBehaviorCalled();
     }
 
     @Test
     public void testCreateUser_fail_guestAdmin() throws Exception {
-        // No need to set expectations - mUm.createUser() won't be called
+        expectFallbackDefaultBehavior();
+        // No need to set mUm.createUser() expectation - it shouldn't be called
 
         mSetter.createUser("TheDude", UserFlags.GUEST | UserFlags.ADMIN);
 
         verifyUserNeverSwitched();
-        verifyDefaultBehaviorFalledBack();
+        verifyFallbackDefaultBehaviorCalled();
     }
 
     @Test
     public void testCreateUser_fail_ephemeralAdmin() throws Exception {
-        // No need to set expectations - mUm.createUser() won't be called
+        expectFallbackDefaultBehavior();
+        // No need to set mUm.createUser() expectation - it shouldn't be called
 
         mSetter.createUser("TheDude", UserFlags.EPHEMERAL | UserFlags.ADMIN);
 
         verifyUserNeverSwitched();
-        verifyDefaultBehaviorFalledBack();
+        verifyFallbackDefaultBehaviorCalled();
     }
 
     @Test
     public void testCreateUser_fail_createFail() throws Exception {
-        // No need to set expectations - mUm.createUser() will return null
+        expectFallbackDefaultBehavior();
+        // No need to set mUm.createUser() expectation - it shouldn't be called
 
         mSetter.createUser("TheDude", UserFlags.NONE);
 
         verifyUserNeverSwitched();
-        verifyDefaultBehaviorFalledBack();
+        verifyFallbackDefaultBehaviorCalled();
     }
 
     @Test
     public void testCreateUser_fail_switchFail() throws Exception {
         expectCreateFullUser(10, "TheDude", /* flags= */ 0);
-        // No need to set switch expectations - mAm.switchUser() will return false
+        expectFallbackDefaultBehavior();
+        // No need to set switchUser() expectations - will return false by default
 
         mSetter.createUser("TheDude", UserFlags.NONE);
 
-        verifyDefaultBehaviorFalledBack();
+        verifyFallbackDefaultBehaviorCalled();
     }
 
     // TODO(b/151758646): implement default behavior (including override option)
 
-    private void expectSwitchUser(int userId) {
-        when(mHelper.switchToUserId(userId)).thenReturn(true);
+    private void expectSwitchUser(@UserIdInt int userId) throws Exception {
+        when(mHelper.startForegroundUser(userId)).thenReturn(true);
     }
 
     private void expectCreateFullUser(@UserIdInt int userId, @Nullable String name,
@@ -171,20 +179,23 @@ public final class InitialUserSetterTest {
         when(mUm.createUser(name, type, flags)).thenReturn(userInfo);
     }
 
-    private void verifyUserSwitched(int userId) {
-        verify(mHelper).switchToUserId(userId);
+    private void expectFallbackDefaultBehavior() {
+        doNothing().when(mSetter).fallbackDefaultBehavior(anyString());
     }
 
-    private void verifyUserNeverSwitched() {
-        verify(mHelper, never()).switchToUserId(anyInt());
+    private void verifyUserSwitched(int userId) throws Exception {
+        verify(mHelper).startForegroundUser(userId);
     }
 
-    private void verifyDefaultBehaviorFalledBack() {
-        verify(mSetter).executeDefaultBehavior();
+    private void verifyUserNeverSwitched() throws Exception {
+        verify(mHelper, never()).startForegroundUser(anyInt());
     }
 
-    private void verifyDefaultBehaviorNeverCalled() {
-        verify(mSetter, never()).executeDefaultBehavior();
+    private void verifyFallbackDefaultBehaviorCalled() {
+        verify(mSetter).fallbackDefaultBehavior(anyString());
     }
 
+    private void verifyFallbackDefaultBehaviorNeverCalled() {
+        verify(mSetter, never()).fallbackDefaultBehavior(anyString());
+    }
 }
