@@ -17,29 +17,14 @@
 package android.automotive.watchdog;
 
 /**
- * Used by ICarWatchdog to describe the device power status.
+ * Used by ICarWatchdog to describe the boot phase.
  */
 
 @VintfStability
 @Backing(type="int")
-enum PowerCycle {
+enum BootPhase {
   /**
-   * The system is about to shut down.
+   * Boot completed and the home application has started.
    */
-  POWER_CYCLE_SHUTDOWN,
-
-  /**
-   * The system is being suspended.
-   */
-  POWER_CYCLE_SUSPEND,
-
-  /**
-   * The system resumes working.
-   */
-  POWER_CYCLE_RESUME,
-
-  /**
-   * Number of available power cycles.
-   */
-  NUM_POWER_CYLES,
+  BOOT_COMPLETED = 1000,
 }
