@@ -18,13 +18,10 @@
 
 #include "ServiceManager.h"
 
-#include <binder/IServiceManager.h>
-
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::defaultServiceManager;
 using android::sp;
 using android::String16;
 using android::automotive::watchdog::WatchdogProcessService;
@@ -33,17 +30,23 @@ using android::base::Result;
 
 sp<WatchdogProcessService> ServiceManager::sWatchdogProcessService = nullptr;
 sp<IoPerfCollection> ServiceManager::sIoPerfCollection = nullptr;
+sp<WatchdogBinderMediator> ServiceManager::sWatchdogBinderMediator = nullptr;
 
 Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
-    if (sWatchdogProcessService != nullptr || sIoPerfCollection != nullptr) {
+    if (sWatchdogProcessService != nullptr || sIoPerfCollection != nullptr ||
+        sWatchdogBinderMediator != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
     }
     auto result = startProcessAnrMonitor(looper);
-    if (!result) {
+    if (!result.ok()) {
         return result;
     }
     result = startIoPerfCollection();
-    if (!result) {
+    if (!result.ok()) {
+        return result;
+    }
+    result = startBinderMediator();
+    if (!result.ok()) {
         return result;
     }
     return {};
@@ -58,32 +61,39 @@ void ServiceManager::terminateServices() {
         sIoPerfCollection->terminate();
         sIoPerfCollection = nullptr;
     }
+    if (sWatchdogBinderMediator != nullptr) {
+        sWatchdogBinderMediator->terminate();
+        sWatchdogBinderMediator = nullptr;
+    }
 }
 
 Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
     sWatchdogProcessService = new WatchdogProcessService(looper);
-    status_t status =
-            defaultServiceManager()
-                    ->addService(String16("android.automotive.watchdog.ICarWatchdog/default"),
-                                 sWatchdogProcessService);
-    if (status != OK) {
-        return Error(status) << "Failed to start carwatchdog process ANR monitor";
-    }
     return {};
 }
 
 Result<void> ServiceManager::startIoPerfCollection() {
-    /* TODO(b/148486340): Start I/O performance data collection after the WatchdogBinderMediator
-     *  (b/150291965) is implemented to handle the boot complete so the boot-time collection can be
-     *  switched to periodic collection after boot complete.
+    /* TODO(b/148486340): Start I/O performance data collection after the boot complete notification
+     * is sent from CarWatchdogService to daemon so the boot-time collection can be switched to
+     * periodic collection after boot complete.
     sp<IoPerfCollection> service = new IoPerfCollection();
     const auto& result = service.start();
-    if (!result) {
+    if (!result.ok()) {
         return Error(result.error().code())
                 << "Failed to start I/O performance collection: " << result.error();
     }
     sIoPerfCollection = service;
     */
+    return {};
+}
+
+Result<void> ServiceManager::startBinderMediator() {
+    sWatchdogBinderMediator = new WatchdogBinderMediator();
+    const auto& result = sWatchdogBinderMediator->init(sWatchdogProcessService, sIoPerfCollection);
+    if (!result.ok()) {
+        return Error(result.error().code())
+                << "Failed to start binder mediator: " << result.error();
+    }
     return {};
 }
 
