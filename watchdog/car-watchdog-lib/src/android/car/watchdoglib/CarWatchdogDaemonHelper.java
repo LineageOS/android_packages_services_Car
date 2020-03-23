@@ -35,6 +35,7 @@ import com.android.internal.annotations.GuardedBy;
 
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.List;
 
 /**
  * Helper class for car watchdog daemon.
@@ -247,22 +248,13 @@ public final class CarWatchdogDaemonHelper {
     }
 
     /**
-     * Tells car watchdog daemon that system power cycle has been changed.
+     * Tells car watchdog daemon that system state has been changed for the specified StateType.
      *
-     * @param cycle System power cycle.
+     * @param StateType Either PowerCycle, UserState, or BootPhase
+     * @param args Args explaining the state change for the specified state type.
      */
-    public void notifyPowerCycleChange(int cycle) throws RemoteException {
-        invokeDaemonMethod((daemon) -> daemon.notifyPowerCycleChange(cycle));
-    }
-
-    /**
-     * Tells car watchdog daemon that user state has been changed.
-     *
-     * @param userId User ID whose state has been changed.
-     * @param state New user state.
-     */
-    public void notifyUserStateChange(int userId, int state) throws RemoteException {
-        invokeDaemonMethod((daemon) -> daemon.notifyUserStateChange(userId, state));
+    public void notifySystemStateChange(int type, List<String> args) throws RemoteException {
+      invokeDaemonMethod((daemon) -> daemon.notifySystemStateChange(type, args));
     }
 
     private void invokeDaemonMethod(Invokable r) throws IllegalArgumentException, RemoteException {

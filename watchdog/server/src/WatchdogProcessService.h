@@ -19,8 +19,16 @@
 
 #include <android-base/result.h>
 #include <android/automotive/watchdog/BnCarWatchdog.h>
+#include <android/automotive/watchdog/PowerCycle.h>
+#include <android/automotive/watchdog/UserState.h>
+#include <binder/IBinder.h>
+#include <binder/Status.h>
+#include <cutils/multiuser.h>
 #include <utils/Looper.h>
 #include <utils/Mutex.h>
+#include <utils/String16.h>
+#include <utils/StrongPointer.h>
+#include <utils/Vector.h>
 
 #include <unordered_map>
 #include <unordered_set>
@@ -30,28 +38,28 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class WatchdogProcessService : public BnCarWatchdog, public IBinder::DeathRecipient {
+class WatchdogProcessService : public IBinder::DeathRecipient {
 public:
     explicit WatchdogProcessService(const android::sp<Looper>& handlerLooper);
 
-    status_t dump(int fd, const Vector<String16>& args) override;
+    virtual android::base::Result<void> dump(int fd, const Vector<String16>& args);
 
-    binder::Status registerClient(const sp<ICarWatchdogClient>& client,
-                                  TimeoutLength timeout) override;
-    binder::Status unregisterClient(const sp<ICarWatchdogClient>& client) override;
-    binder::Status registerMediator(const sp<ICarWatchdogClient>& mediator) override;
-    binder::Status unregisterMediator(const sp<ICarWatchdogClient>& mediator) override;
-    binder::Status registerMonitor(const sp<ICarWatchdogMonitor>& monitor) override;
-    binder::Status unregisterMonitor(const sp<ICarWatchdogMonitor>& monitor) override;
-    binder::Status tellClientAlive(const sp<ICarWatchdogClient>& client,
-                                   int32_t sessionId) override;
-    binder::Status tellMediatorAlive(const sp<ICarWatchdogClient>& mediator,
-                                     const std::vector<int32_t>& clientsNotResponding,
-                                     int32_t sessionId) override;
-    binder::Status tellDumpFinished(const android::sp<ICarWatchdogMonitor>& monitor,
-                                    int32_t pid) override;
-    binder::Status notifyPowerCycleChange(PowerCycle cycle) override;
-    binder::Status notifyUserStateChange(int32_t userId, UserState state) override;
+    virtual binder::Status registerClient(const sp<ICarWatchdogClient>& client,
+                                          TimeoutLength timeout);
+    virtual binder::Status unregisterClient(const sp<ICarWatchdogClient>& client);
+    virtual binder::Status registerMediator(const sp<ICarWatchdogClient>& mediator);
+    virtual binder::Status unregisterMediator(const sp<ICarWatchdogClient>& mediator);
+    virtual binder::Status registerMonitor(const sp<ICarWatchdogMonitor>& monitor);
+    virtual binder::Status unregisterMonitor(const sp<ICarWatchdogMonitor>& monitor);
+    virtual binder::Status tellClientAlive(const sp<ICarWatchdogClient>& client, int32_t sessionId);
+    virtual binder::Status tellMediatorAlive(const sp<ICarWatchdogClient>& mediator,
+                                             const std::vector<int32_t>& clientsNotResponding,
+                                             int32_t sessionId);
+    virtual binder::Status tellDumpFinished(const android::sp<ICarWatchdogMonitor>& monitor,
+                                            int32_t pid);
+    virtual binder::Status notifyPowerCycleChange(PowerCycle cycle);
+    virtual binder::Status notifyUserStateChange(userid_t userId, UserState state);
+    virtual void binderDied(const android::wp<IBinder>& who);
 
     void doHealthCheck(int what);
     void terminate();
@@ -101,8 +109,6 @@ private:
     };
 
 private:
-    void binderDied(const android::wp<IBinder>& who) override;
-
     binder::Status registerClientLocked(const android::sp<ICarWatchdogClient>& client,
                                         TimeoutLength timeout, ClientType clientType);
     binder::Status unregisterClientLocked(const std::vector<TimeoutLength>& timeouts,
