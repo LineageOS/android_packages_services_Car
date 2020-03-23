@@ -22,6 +22,7 @@ import static android.os.UserHandle.USER_SYSTEM;
 import static android.os.UserManager.USER_TYPE_FULL_GUEST;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
@@ -79,11 +80,9 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoSession;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.quality.Strictness;
 
 import java.io.File;
@@ -100,7 +99,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
-@RunWith(MockitoJUnitRunner.class)
 public class CarPowerManagementServiceTest {
     private static final String TAG = CarPowerManagementServiceTest.class.getSimpleName();
     private static final long WAIT_TIMEOUT_MS = 2000;
@@ -165,6 +163,7 @@ public class CarPowerManagementServiceTest {
                 .spyStatic(ActivityManager.class)
                 .spyStatic(CarProperties.class)
                 .spyStatic(Log.class)
+                .initMocks(this)
                 .startMocking();
         mPowerHal = new MockedPowerHalService(true /*isPowerStateSupported*/,
                 true /*isDeepSleepAllowed*/, true /*isTimedWakeupAllowed*/);
@@ -847,7 +846,7 @@ public class CarPowerManagementServiceTest {
     }
 
     private void enableUserHal() {
-        when(CarProperties.user_hal_enabled()).thenReturn(Optional.of(true));
+        doReturn(Optional.of(true)).when(() -> CarProperties.user_hal_enabled());
         when(mUserService.isUserHalSupported()).thenReturn(true);
     }
 
@@ -967,7 +966,7 @@ public class CarPowerManagementServiceTest {
     }
 
     private void setCurrentUser(int userId) {
-        when(ActivityManager.getCurrentUser()).thenReturn(userId);
+        doReturn(userId).when(() -> ActivityManager.getCurrentUser());
     }
 
     private void setUserInfo(int userId, int flags) {
