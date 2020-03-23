@@ -58,8 +58,8 @@
                   android:label="@string/recycler_view"
                   android:parentActivityName="com.android.car.themeplayground.TextSamples">
         </activity>
-        <activity android:name=".PagedRecyclerViewSamples"
-            android:label="@string/paged_recycler_view"
+        <activity android:name=".CarUiRecyclerViewSamples"
+            android:label="@string/car_ui_recycler_view"
             android:parentActivityName="com.android.car.themeplayground.TextSamples">
         </activity>
         <activity android:name=".DefaultThemeSamples"
