@@ -22,7 +22,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-  <com.android.car.apps.common.widget.PagedRecyclerView
+  <com.android.car.ui.recyclerview.CarUiRecyclerView
       android:id="@+id/list"
       android:layout_width="match_parent"
       android:layout_height="match_parent"/>
