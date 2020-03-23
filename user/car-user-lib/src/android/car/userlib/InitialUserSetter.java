@@ -23,6 +23,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.Context;
 import android.content.pm.UserInfo;
+import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.os.UserManager;
 import android.util.Log;
 
@@ -46,17 +47,21 @@ public final class InitialUserSetter {
     // TODO(b/151758646): make sure it's unit tested
     private final boolean mSupportsOverrideUserIdProperty;
 
+    private final String mOwnerName;
+
     public InitialUserSetter(@NonNull Context context, boolean supportsOverrideUserIdProperty) {
         this(new CarUserManagerHelper(context), UserManager.get(context),
+                context.getString(com.android.internal.R.string.owner_name),
                 supportsOverrideUserIdProperty);
     }
 
     @VisibleForTesting
     public InitialUserSetter(@NonNull CarUserManagerHelper helper, @NonNull UserManager um,
-            boolean supportsOverrideUserIdProperty) {
+            @Nullable String ownerName, boolean supportsOverrideUserIdProperty) {
         mHelper = helper;
         mUm = um;
         mSupportsOverrideUserIdProperty = supportsOverrideUserIdProperty;
+        mOwnerName = ownerName;
     }
 
     /**
@@ -75,8 +80,14 @@ public final class InitialUserSetter {
      * </ol>
      */
     public void executeDefaultBehavior() {
-        if (DBG) Log.d(TAG, "executeDefaultBehavior()");
-        // TODO(b/151758646): implement
+        if (!mHelper.hasInitialUser()) {
+            if (DBG) Log.d(TAG, "executeDefaultBehavior(): no initial user, creating it");
+            createUser(mOwnerName, UserFlags.ADMIN);
+        } else {
+            if (DBG) Log.d(TAG, "executeDefaultBehavior(): switching to initial user");
+            int userId = mHelper.getInitialUser(mSupportsOverrideUserIdProperty);
+            switchUser(userId);
+        }
     }
 
     @VisibleForTesting
