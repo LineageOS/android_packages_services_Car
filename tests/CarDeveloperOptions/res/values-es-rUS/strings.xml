@@ -3800,7 +3800,7 @@
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"Aplicaciones"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"Mostrar sobre otras apps"</string>
     <string name="permit_draw_overlay" msgid="9039092257052422344">"Permitir mostrar sobre otras apps"</string>
-    <string name="allow_overlay_description" msgid="6669524816705082807">"Permite que esta app se muestre sobre otras en uso. Es posible que interfiera con el uso de esas apps o cambie afecte su apariencia o el comportamiento."</string>
+    <string name="allow_overlay_description" msgid="6669524816705082807">"Permite que esta app se muestre sobre otras en uso. Es posible que interfiera con el uso de esas apps, afecte su apariencia o modifique el comportamiento."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"rv, procesador de realidad virtual, estéreo, servicio de ayuda"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"sistema, alerta, ventana, cuadro de diálogo, mostrar sobre otras apps"</string>
     <string name="overlay_settings" msgid="3325154759946433666">"Mostrar sobre otras apps"</string>
