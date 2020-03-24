@@ -16,8 +16,8 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.android.car.secondaryhome">
+     xmlns:tools="http://schemas.android.com/tools"
+     package="com.android.car.secondaryhome">
     <!-- System permission to host maps activity -->
     <uses-permission android:name="android.permission.ACTIVITY_EMBEDDING"/>
     <!-- System permission to send events to hosted maps activity -->
@@ -30,31 +30,29 @@
     <!-- System permissions to querry user -->
     <uses-permission android:name="android.permission.MANAGE_USERS"/>
 
-    <application
-        android:label="@string/app_name"
-        tools:replace="android:label">
+    <application android:label="@string/app_name"
+         tools:replace="android:label">
 
-        <activity
-            android:name=".launcher.LauncherActivity"
-            android:label="@string/app_launcher"
-            android:theme="@style/LauncherTheme"
-            android:configChanges="orientation|screenSize|smallestScreenSize|
-                screenLayout|colorMode|density"
-            android:documentLaunchMode="always"
-            android:multiprocess="true">
+        <activity android:name=".launcher.LauncherActivity"
+             android:label="@string/app_launcher"
+             android:theme="@style/LauncherTheme"
+             android:configChanges="orientation|screenSize|smallestScreenSize|                 screenLayout|colorMode|density"
+             android:documentLaunchMode="always"
+             android:multiprocess="true"
+             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
         <service android:name=".launcher.NotificationListener"
-              android:label="@string/notification_service_label"
-              android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
-              android:directBootAware="true">
+             android:label="@string/notification_service_label"
+             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+             android:directBootAware="true"
+             android:exported="true">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService"/>
             </intent-filter>
         </service>
     </application>
 </manifest>
-
