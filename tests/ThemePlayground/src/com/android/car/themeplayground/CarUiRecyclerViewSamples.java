@@ -18,16 +18,14 @@ package com.android.car.themeplayground;
 
 import android.os.Bundle;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
-
-import com.android.car.apps.common.widget.PagedRecyclerView;
+import com.android.car.ui.recyclerview.CarUiRecyclerView;
 
 import java.util.ArrayList;
 
 /**
  * Activity that shows PagedRecyclerView example with dummy data.
  */
-public class PagedRecyclerViewSamples extends AbstractSampleActivity {
+public class CarUiRecyclerViewSamples extends AbstractSampleActivity {
 
     private final ArrayList<String> mData = new ArrayList<>();
     private final int mDataToGenerate = 15;
@@ -37,9 +35,7 @@ public class PagedRecyclerViewSamples extends AbstractSampleActivity {
         super.onCreate(savedInstanceState);
         Utils.onActivityCreateSetTheme(this);
         setContentView(R.layout.paged_recycler_view_samples);
-        PagedRecyclerView recyclerView = findViewById(R.id.list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        CarUiRecyclerView recyclerView = findViewById(R.id.list);
         RecyclerViewAdapter adapter = new RecyclerViewAdapter(generateDummyData());
         recyclerView.setAdapter(adapter);
     }
