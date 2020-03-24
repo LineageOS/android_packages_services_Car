@@ -40,7 +40,6 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Size;
 import android.view.Display;
 import android.view.DisplayInfo;
 import android.view.View;
@@ -229,12 +228,12 @@ public class ActivityBlockingActivity extends Activity {
                 .getWindowInsets()
                 .getInsets(WindowInsets.Type.systemBars());
 
-        Size displaySize = getWindowManager().getCurrentWindowMetrics().getSize();
+        Rect displayBounds = getWindowManager().getCurrentWindowMetrics().getBounds();
 
         int leftX = systemBarInsets.left;
-        int rightX = displaySize.getWidth() - systemBarInsets.right;
+        int rightX = displayBounds.width() - systemBarInsets.right;
         int topY = systemBarInsets.top;
-        int bottomY = displaySize.getHeight() - systemBarInsets.bottom;
+        int bottomY = displayBounds.height() - systemBarInsets.bottom;
 
         return new Rect(leftX, topY, rightX, bottomY);
     }
