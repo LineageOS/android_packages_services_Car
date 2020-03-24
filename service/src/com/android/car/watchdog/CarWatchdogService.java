@@ -97,7 +97,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private int mLastSessionId;
 
     public CarWatchdogService(Context context) {
-        this(context, new CarWatchdogDaemonHelper());
+        this(context, new CarWatchdogDaemonHelper(TAG_WATCHDOG));
     }
 
     @VisibleForTesting
@@ -275,10 +275,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         // and killed at the next response of CarWatchdogService to car watchdog daemon.
         SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
         synchronized (mLock) {
+            // Unhealthy clients are eventually removed from the list through binderDied when they
+            // are killed.
             for (int i = 0; i < pingedClients.size(); i++) {
                 ClientInfo clientInfo = pingedClients.valueAt(i);
                 mClientsNotResponding.add(clientInfo.pid);
-                removeClientLocked(clientInfo.client.asBinder(), timeout);
             }
             mClientCheckInProgress.setValueAt(timeout, false);
         }
@@ -331,16 +332,15 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     @Nullable
-    private ClientInfo removeClientLocked(IBinder clientBinder, int timeout) {
+    private void removeClientLocked(IBinder clientBinder, int timeout) {
         ArrayList<ClientInfo> clients = mClientMap.get(timeout);
         for (int i = 0; i < clients.size(); i++) {
             ClientInfo clientInfo = clients.get(i);
             if (clientBinder == clientInfo.client.asBinder()) {
                 clients.remove(i);
-                return clientInfo;
+                return;
             }
         }
-        return null;
     }
 
     private void reportHealthCheckResult(int sessionId) {
