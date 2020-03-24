@@ -49,6 +49,7 @@ import java.util.concurrent.Executor;
 public final class CarWatchdogManager extends CarManagerBase {
 
     private static final String TAG = CarWatchdogManager.class.getSimpleName();
+    private static final boolean DEBUG = true; // STOPSHIP if true (b/151474489)
     private static final int INVALID_SESSION_ID = -1;
     private static final int NUMBER_OF_CONDITIONS_TO_BE_MET = 2;
 
@@ -172,6 +173,9 @@ public final class CarWatchdogManager extends CarManagerBase {
         }
         try {
             mService.registerClient(mClientImpl, timeout);
+            if (DEBUG) {
+                Log.d(TAG, "Car watchdog client is successfully registered");
+            }
         } catch (RemoteException e) {
             synchronized (mLock) {
                 mRegisteredClient = null;
@@ -197,6 +201,9 @@ public final class CarWatchdogManager extends CarManagerBase {
         }
         try {
             mService.unregisterClient(mClientImpl);
+            if (DEBUG) {
+                Log.d(TAG, "Car watchdog client is successfully unregistered");
+            }
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
