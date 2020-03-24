@@ -22,6 +22,7 @@
 #include <utils/StrongPointer.h>
 
 #include "IoPerfCollection.h"
+#include "WatchdogBinderMediator.h"
 #include "WatchdogProcessService.h"
 
 namespace android {
@@ -36,8 +37,11 @@ public:
 private:
     static android::base::Result<void> startProcessAnrMonitor(const android::sp<Looper>& looper);
     static android::base::Result<void> startIoPerfCollection();
+    static android::base::Result<void> startBinderMediator();
+
     static android::sp<WatchdogProcessService> sWatchdogProcessService;
     static android::sp<IoPerfCollection> sIoPerfCollection;
+    static android::sp<WatchdogBinderMediator> sWatchdogBinderMediator;
 };
 
 }  // namespace watchdog
