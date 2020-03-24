@@ -828,6 +828,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Override
     public boolean setZoneIdForUid(int zoneId, int uid) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        Preconditions.checkArgument(isAudioZoneIdValid(zoneId),
+                "Invalid audio zone id %d", zoneId);
         synchronized (mImplLock) {
             Log.i(CarLog.TAG_AUDIO, "setZoneIdForUid Calling uid "
                     + uid + " mapped to : "
