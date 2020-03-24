@@ -34,6 +34,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.SystemClock;
 import android.util.Log;
 
 import org.junit.After;
@@ -45,6 +46,7 @@ import org.mockito.MockitoSession;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.quality.Strictness;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -59,13 +61,14 @@ public class CarWatchdogServiceTest {
     private static final String TAG = CarWatchdogServiceTest.class.getSimpleName();
     private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
             "android.automotive.watchdog.ICarWatchdog/default";
-
-    private final FakeCarWatchdog mFakeCarWatchdog = new FakeCarWatchdog();
+    private static final long TIMEOUT_CRITICAL_DURATION = 3000L;
+    private static final long TIMEOUT_BUFFER = 50L;
 
     @Mock private Context mMockContext;
     @Mock private IBinder mBinder = new Binder();
 
-    private CarWatchdogService mCarWatchdogService = new CarWatchdogService(mMockContext);
+    private FakeCarWatchdog mFakeCarWatchdog;
+    private CarWatchdogService mCarWatchdogService;
     private MockitoSession mMockSession;
 
     /**
@@ -77,6 +80,8 @@ public class CarWatchdogServiceTest {
                 .strictness(Strictness.LENIENT)
                 .spyStatic(ServiceManager.class)
                 .startMocking();
+        mFakeCarWatchdog = new FakeCarWatchdog();
+        mCarWatchdogService = new CarWatchdogService(mMockContext);
         expectLocalWatchdogDaemon();
     }
 
@@ -96,13 +101,35 @@ public class CarWatchdogServiceTest {
         assertThat(mFakeCarWatchdog.gotResponse()).isTrue();
     }
 
+    @Test
+    public void testClientNotResponding() throws Exception {
+        mCarWatchdogService.init();
+        mFakeCarWatchdog.waitForMediatorResponse();
+        CarWatchdogClient client = new CarWatchdogClient(mCarWatchdogService, false);
+        mCarWatchdogService.registerClient(client, TimeoutLength.TIMEOUT_CRITICAL);
+        mFakeCarWatchdog.checkMediator(2);
+        SystemClock.sleep(TIMEOUT_CRITICAL_DURATION + TIMEOUT_BUFFER);
+        assertThat(mFakeCarWatchdog.getNumberOfKilledClients()).isEqualTo(1);
+    }
+
+    @Test
+    public void testClientResponding() throws Exception {
+        mCarWatchdogService.init();
+        mFakeCarWatchdog.waitForMediatorResponse();
+        CarWatchdogClient client = new CarWatchdogClient(mCarWatchdogService, true);
+        mCarWatchdogService.registerClient(client, TimeoutLength.TIMEOUT_CRITICAL);
+        mFakeCarWatchdog.checkMediator(2);
+        SystemClock.sleep(TIMEOUT_CRITICAL_DURATION + TIMEOUT_BUFFER);
+        assertThat(mFakeCarWatchdog.getNumberOfKilledClients()).isEqualTo(0);
+    }
+
     private void expectLocalWatchdogDaemon() {
         when(ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE)).thenReturn(mBinder);
         doReturn(mFakeCarWatchdog).when(mBinder).queryLocalInterface(anyString());
     }
 
     // FakeCarWatchdog mimics ICarWatchdog daemon in local process.
-    final class FakeCarWatchdog extends ICarWatchdog.Default {
+    private final class FakeCarWatchdog extends ICarWatchdog.Default {
 
         private static final int TEST_SESSION_ID = 11223344;
         private static final int TEN_SECONDS_IN_MS = 10000;
@@ -111,14 +138,19 @@ public class CarWatchdogServiceTest {
         private final List<ICarWatchdogClient> mClients = new ArrayList<>();
         private long mLastPingTimeMs;
         private boolean mGotResponse;
+        private int mNumberOfKilledClients;
         private CountDownLatch mClientResponse = new CountDownLatch(1);
 
-        int getClientCount() {
+        public int getClientCount() {
             return mClients.size();
         }
 
-        boolean gotResponse() {
+        public boolean gotResponse() {
             return mGotResponse;
+        }
+
+        public int getNumberOfKilledClients() {
+            return mNumberOfKilledClients;
         }
 
         void waitForMediatorResponse() throws InterruptedException {
@@ -137,7 +169,7 @@ public class CarWatchdogServiceTest {
             mClients.add(mediator);
             mMainHandler.post(() -> {
                 try {
-                    mediator.checkIfAlive(TEST_SESSION_ID, TimeoutLength.TIMEOUT_NORMAL);
+                    mediator.checkIfAlive(TEST_SESSION_ID, TimeoutLength.TIMEOUT_CRITICAL);
                 } catch (RemoteException e) {
                     // Do nothing.
                 }
@@ -158,7 +190,43 @@ public class CarWatchdogServiceTest {
                     && currentTimeMs < mLastPingTimeMs + TEN_SECONDS_IN_MS) {
                 mGotResponse = true;
             }
+            mNumberOfKilledClients += clientsNotResponding.length;
             mClientResponse.countDown();
+        }
+
+        public void checkMediator(int count) {
+            for (ICarWatchdogClient client : mClients) {
+                try {
+                    client.checkIfAlive(TEST_SESSION_ID, TimeoutLength.TIMEOUT_CRITICAL);
+                } catch (RemoteException e) {
+                    // Ignore.
+                }
+            }
+            if (count > 1) {
+                mMainHandler.postDelayed(() -> checkMediator(count - 1), TIMEOUT_CRITICAL_DURATION);
+            }
+        }
+    }
+
+    private final class CarWatchdogClient extends ICarWatchdogClient.Stub {
+        private final WeakReference<CarWatchdogService> mService;
+        private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+        private final boolean mRespond;
+
+        private CarWatchdogClient(CarWatchdogService service, boolean respond) {
+            mService = new WeakReference<>(service);
+            mRespond = respond;
+        }
+        @Override
+        public void checkIfAlive(int sessionId, int timeout) {
+            Log.i(TAG, "[ERIC] test client's checkIfAlive is called");
+            mMainHandler.post(() -> {
+                CarWatchdogService service = mService.get();
+                if (service != null && mRespond) {
+                    Log.i(TAG, "[ERIC] responding to CarWatchdogService: sessio id = " + sessionId);
+                    service.tellClientAlive(this, sessionId);
+                }
+            });
         }
     }
 }
