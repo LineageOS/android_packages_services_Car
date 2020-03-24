@@ -80,12 +80,12 @@ Status WatchdogProcessService::unregisterClient(const sp<ICarWatchdogClient>& cl
 
 Status WatchdogProcessService::registerMediator(const sp<ICarWatchdogClient>& mediator) {
     Mutex::Autolock lock(mMutex);
-    // Mediator's timeout is always TIMEOUT_NORMAL.
-    return registerClientLocked(mediator, TimeoutLength::TIMEOUT_NORMAL, ClientType::Mediator);
+    // Mediator's timeout is always TIMEOUT_CRITICAL.
+    return registerClientLocked(mediator, TimeoutLength::TIMEOUT_CRITICAL, ClientType::Mediator);
 }
 
 Status WatchdogProcessService::unregisterMediator(const sp<ICarWatchdogClient>& mediator) {
-    std::vector<TimeoutLength> timeouts = {TimeoutLength::TIMEOUT_NORMAL};
+    std::vector<TimeoutLength> timeouts = {TimeoutLength::TIMEOUT_CRITICAL};
     sp<IBinder> binder = BnCarWatchdog::asBinder(mediator);
     Mutex::Autolock lock(mMutex);
     return unregisterClientLocked(timeouts, binder, ClientType::Mediator);
@@ -139,6 +139,18 @@ Status WatchdogProcessService::tellMediatorAlive(const sp<ICarWatchdogClient>& m
     Status status;
     {
         Mutex::Autolock lock(mMutex);
+        if (DEBUG) {
+            std::string buffer;
+            int size = clientsNotResponding.size();
+            if (size != 0) {
+                StringAppendF(&buffer, "%d", clientsNotResponding[0]);
+                for (int i = 1; i < clientsNotResponding.size(); i++) {
+                    StringAppendF(&buffer, ", %d", clientsNotResponding[i]);
+                }
+                ALOGD("Mediator(session: %d) responded with non-responding clients: %s", sessionId,
+                      buffer.c_str());
+            }
+        }
         status = tellClientAliveLocked(mediator, sessionId);
     }
     if (status.isOk()) {
