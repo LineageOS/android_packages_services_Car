@@ -289,9 +289,10 @@ void IoPerfCollection::terminate() {
 Result<void> IoPerfCollection::onBootFinished() {
     Mutex::Autolock lock(mMutex);
     if (mCurrCollectionEvent != CollectionEvent::BOOT_TIME) {
-        return Error() << "Current I/O performance data collection event "
-                       << toString(mCurrCollectionEvent)
-                       << " != " << toString(CollectionEvent::BOOT_TIME) << " collection event";
+        return Error(INVALID_OPERATION)
+                << "Current I/O performance data collection event "
+                << toString(mCurrCollectionEvent) << " != " << toString(CollectionEvent::BOOT_TIME)
+                << " collection event";
     }
     mHandlerLooper->removeMessages(this);
     mCurrCollectionEvent = CollectionEvent::PERIODIC;
@@ -300,21 +301,19 @@ Result<void> IoPerfCollection::onBootFinished() {
     return {};
 }
 
-status_t IoPerfCollection::dump(int fd, const Vector<String16>& args) {
+Result<void> IoPerfCollection::dump(int fd, const Vector<String16>& args) {
     if (args.empty()) {
         const auto& ret = dumpCollection(fd);
         if (!ret) {
-            ALOGW("%s", ret.error().message().c_str());
-            return ret.error().code();
+            return ret;
         }
-        return OK;
+        return {};
     }
 
     if (args[0] == String16(kStartCustomCollectionFlag)) {
         if (args.size() > 5) {
-            ALOGW("Number of arguments to start custom I/O performance data collection cannot "
-                  "exceed 5");
-            return INVALID_OPERATION;
+            return Error(INVALID_OPERATION) << "Number of arguments to start custom "
+                                            << "I/O performance data collection cannot exceed 5";
         }
         std::chrono::nanoseconds interval = kCustomCollectionInterval;
         std::chrono::nanoseconds maxDuration = kCustomCollectionDuration;
@@ -322,9 +321,8 @@ status_t IoPerfCollection::dump(int fd, const Vector<String16>& args) {
             if (args[i] == String16(kIntervalFlag)) {
                 const auto& ret = parseSecondsFlag(args, i + 1);
                 if (!ret) {
-                    ALOGW("Failed to parse %s flag: %s", kIntervalFlag,
-                          ret.error().message().c_str());
-                    return FAILED_TRANSACTION;
+                    return Error(FAILED_TRANSACTION)
+                            << "Failed to parse " << kIntervalFlag << ": " << ret.error();
                 }
                 interval = std::chrono::duration_cast<std::chrono::nanoseconds>(*ret);
                 ++i;
@@ -333,9 +331,8 @@ status_t IoPerfCollection::dump(int fd, const Vector<String16>& args) {
             if (args[i] == String16(kMaxDurationFlag)) {
                 const auto& ret = parseSecondsFlag(args, i + 1);
                 if (!ret) {
-                    ALOGW("Failed to parse %su flag: %s", kMaxDurationFlag,
-                          ret.error().message().c_str());
-                    return FAILED_TRANSACTION;
+                    return Error(FAILED_TRANSACTION)
+                            << "Failed to parse " << kMaxDurationFlag << ": " << ret.error();
                 }
                 maxDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(*ret);
                 ++i;
@@ -343,14 +340,15 @@ status_t IoPerfCollection::dump(int fd, const Vector<String16>& args) {
             }
             ALOGW("Unknown flag %s provided to start custom I/O performance data collection",
                   String8(args[i]).string());
-            return INVALID_OPERATION;
+            return Error(INVALID_OPERATION) << "Unknown flag " << String8(args[i]).string()
+                                            << " provided to start custom I/O performance data "
+                                            << "collection";
         }
         const auto& ret = startCustomCollection(interval, maxDuration);
         if (!ret) {
-            ALOGW("%s", ret.error().message().c_str());
-            return ret.error().code();
+            return ret;
         }
-        return OK;
+        return {};
     }
 
     if (args[0] == String16(kEndCustomCollectionFlag)) {
@@ -360,15 +358,14 @@ status_t IoPerfCollection::dump(int fd, const Vector<String16>& args) {
         }
         const auto& ret = endCustomCollection(fd);
         if (!ret) {
-            ALOGW("%s", ret.error().message().c_str());
-            return ret.error().code();
+            return ret;
         }
-        return OK;
+        return {};
     }
 
-    ALOGW("Dump arguments start neither with %s nor with %s flags", kStartCustomCollectionFlag,
-          kEndCustomCollectionFlag);
-    return INVALID_OPERATION;
+    return Error(INVALID_OPERATION)
+            << "Dump arguments start neither with " << kStartCustomCollectionFlag << " nor with "
+            << kEndCustomCollectionFlag << " flags";
 }
 
 Result<void> IoPerfCollection::dumpCollection(int fd) {

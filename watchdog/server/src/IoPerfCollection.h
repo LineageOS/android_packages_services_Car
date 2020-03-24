@@ -26,6 +26,7 @@
 #include <utils/Errors.h>
 #include <utils/Looper.h>
 #include <utils/Mutex.h>
+#include <utils/String16.h>
 #include <utils/StrongPointer.h>
 #include <utils/Vector.h>
 
@@ -185,14 +186,14 @@ public:
 
     // Ends the boot-time collection, caches boot-time perf records, sends message to the looper to
     // begin the periodic collection, and returns immediately.
-    android::base::Result<void> onBootFinished();
+    virtual android::base::Result<void> onBootFinished();
 
     // Depending the arguments, it either:
     // 1. Generates a dump from the boot-time and periodic collection events.
     // 2. Starts custom collection.
     // 3. Ends custom collection and dumps the collected data.
     // Returns any error observed during the dump generation.
-    status_t dump(int fd, const Vector<String16>& args);
+    virtual android::base::Result<void> dump(int fd, const Vector<String16>& args);
 
 private:
     // Generates a dump from the boot-time and periodic collection events.
