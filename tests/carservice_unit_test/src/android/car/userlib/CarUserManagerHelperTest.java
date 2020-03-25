@@ -337,6 +337,42 @@ public class CarUserManagerHelperTest {
         assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(UserHandle.USER_NULL);
     }
 
+    @Test
+    public void testHasInitialUser_onlyHeadlessSystemUser() {
+        setHeadlessSystemUserMode(true);
+        mockGetUsers(mSystemUser);
+
+        assertThat(mCarUserManagerHelper.hasInitialUser()).isFalse();
+    }
+
+    @Test
+    public void testHasInitialUser_onlyNonHeadlessSystemUser() {
+        setHeadlessSystemUserMode(false);
+        mockGetUsers(mSystemUser);
+
+        assertThat(mCarUserManagerHelper.hasInitialUser()).isTrue();
+    }
+
+    @Test
+    public void testHasInitialUser_hasNormalUser() {
+        setHeadlessSystemUserMode(true);
+        UserInfo normalUser = createUserInfoForId(10);
+        mockGetUsers(mSystemUser, normalUser);
+
+        assertThat(mCarUserManagerHelper.hasInitialUser()).isTrue();
+    }
+
+    @Test
+    public void testHasInitialUser_hasOnlyWorkProfile() {
+        setHeadlessSystemUserMode(true);
+        UserInfo workProfile = createUserInfoForId(10);
+        workProfile.userType = UserManager.USER_TYPE_PROFILE_MANAGED;
+        assertThat(workProfile.isManagedProfile()).isTrue(); // Sanity check
+        mockGetUsers(mSystemUser, workProfile);
+
+        assertThat(mCarUserManagerHelper.hasInitialUser()).isFalse();
+    }
+
     private UserInfo createUserInfoForId(int id) {
         UserInfo userInfo = new UserInfo();
         userInfo.id = id;
