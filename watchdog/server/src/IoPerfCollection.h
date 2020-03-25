@@ -45,21 +45,6 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-// TODO(b/148489461): Replace the below constants (except kCustomCollection* and
-// kMinCollectionInterval constants) with read-only persistent properties.
-const int kTopNStatsPerCategory = 5;
-const std::chrono::nanoseconds kBoottimeCollectionInterval = 1s;
-const std::chrono::nanoseconds kPeriodicCollectionInterval = 10s;
-// Number of periodic collection perf data snapshots to cache in memory.
-const size_t kPeriodicCollectionBufferSize = 180;
-
-// Minimum collection interval between subsequent collections.
-const std::chrono::nanoseconds kMinCollectionInterval = 1s;
-
-// Default values for the custom collection interval and max_duration.
-const std::chrono::nanoseconds kCustomCollectionInterval = 10s;
-const std::chrono::nanoseconds kCustomCollectionDuration = 30min;
-
 constexpr const char* kStartCustomCollectionFlag = "--start_io";
 constexpr const char* kEndCustomCollectionFlag = "--stop_io";
 constexpr const char* kIntervalFlag = "--interval";
@@ -163,7 +148,6 @@ static inline std::string toString(CollectionEvent event) {
 class IoPerfCollection : public MessageHandler {
 public:
     IoPerfCollection() :
-          mTopNStatsPerCategory(kTopNStatsPerCategory),
           mHandlerLooper(new LooperWrapper()),
           mBoottimeCollection({}),
           mPeriodicCollection({}),
@@ -208,9 +192,8 @@ private:
     // |maxDuration| is reached, the looper receives a message to end the collection, discards the
     // collected data, and starts the periodic collection. This is needed to ensure the custom
     // collection doesn't run forever when a subsequent |endCustomCollection| call is not received.
-    android::base::Result<void> startCustomCollection(
-            std::chrono::nanoseconds interval = kCustomCollectionInterval,
-            std::chrono::nanoseconds maxDuration = kCustomCollectionDuration);
+    android::base::Result<void> startCustomCollection(std::chrono::nanoseconds interval,
+                                                      std::chrono::nanoseconds maxDuration);
 
     // Ends the current custom collection, generates a dump, sends message to looper to start the
     // periodic collection, and returns immediately. Returns an error when there is no custom
@@ -260,7 +243,7 @@ private:
     CollectionInfo mBoottimeCollection GUARDED_BY(mMutex);
 
     // Info for the |CollectionEvent::PERIODIC| collection event. The cache size is limited by
-    // |kPeriodicCollectionBufferSize|.
+    // |ro.carwatchdog.periodic_collection_buffer_size|.
     CollectionInfo mPeriodicCollection GUARDED_BY(mMutex);
 
     // Info for the |CollectionEvent::CUSTOM| collection event. The info is cleared at the end of
