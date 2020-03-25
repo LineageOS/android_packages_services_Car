@@ -262,6 +262,11 @@ public abstract class InstrumentClusterRenderingService extends Service {
         if (helper == null) {
             return false;
         }
+        if (mActivityState != null
+                && intent.getBundleExtra(Car.CAR_EXTRA_CLUSTER_ACTIVITY_STATE) == null) {
+            intent = new Intent(intent).putExtra(Car.CAR_EXTRA_CLUSTER_ACTIVITY_STATE,
+                    mActivityState.toBundle());
+        }
         try {
             return helper.startFixedActivityModeForDisplayAndUser(intent, options.toBundle(),
                     userId);
