@@ -176,6 +176,21 @@ public final class CarUserManagerHelper {
         return returnId;
     }
 
+    /**
+     * Checks whether the device has an initial user that can be switched to.
+     */
+    @VisibleForTesting
+    boolean hasInitialUser() {
+        List<UserInfo> allUsers = getAllUsers();
+        for (int i = 0; i < allUsers.size(); i++) {
+            UserInfo user = allUsers.get(i);
+            if (user.isManagedProfile()) continue;
+
+            return true;
+        }
+        return false;
+    }
+
     private List<Integer> userInfoListToUserIdList(List<UserInfo> allUsers) {
         ArrayList<Integer> list = new ArrayList<>(allUsers.size());
         for (UserInfo userInfo : allUsers) {
