@@ -1800,7 +1800,7 @@
     <string name="storage_label" msgid="1109537840103290384">"Emmagatzematge"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"Obrir de manera determinada"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Valors predeterminats"</string>
-    <string name="screen_compatibility_label" msgid="3638271673726075815">"Compatibilitat amb la pantalla"</string>
+    <string name="screen_compatibility_label" msgid="3638271673726075815">"Compatibilitat de la pantalla"</string>
     <string name="permissions_label" msgid="7341733648403464213">"Permisos"</string>
     <string name="cache_header_label" msgid="3202284481380361966">"Memòria cau"</string>
     <string name="clear_cache_btn_text" msgid="107507684844780651">"Esborra memòria cau"</string>
@@ -2561,7 +2561,7 @@
     <string name="backup_erase_dialog_title" msgid="8178424339104463014"></string>
     <string name="backup_erase_dialog_message" msgid="8767843355330070902">"Vols deixar de crear còpies de seguretat de les contrasenyes de Wi-Fi, de les adreces d\'interès, d\'altres opcions i dades d\'aplicacions i, a més, esborrar totes les còpies dels servidors de Google?"</string>
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"Vols deixar de crear còpies de seguretat de les dades del dispositiu (com ara les contrasenyes de Wi-Fi o l\'historial de trucades) i de les aplicacions (com ara les configuracions i els fitxers que desin) i, a més, esborrar totes les còpies dels servidors remots?"</string>
-    <string name="fullbackup_data_summary" msgid="406274198094268556">"Crea còpies de seguretat automàtiques de les dades del dispositiu (com ara les contrasenyes de la Wi-Fi o l\'historial de trucades) i de les aplicacions (com ara les configuracions i els fitxers que desin) de manera remota.\n\nQuan activis les còpies de seguretat automàtiques, les dades dels dispositius i de les aplicacions s\'emmagatzemaran periòdicament de manera remota. Les dades de les aplicacions poden ser qualsevol informació que desin (en funció de la configuració del desenvolupador), incloses les dades potencialment confidencials, com ara contactes, missatges i fotos."</string>
+    <string name="fullbackup_data_summary" msgid="406274198094268556">"Crea còpies de seguretat automàtiques de les dades del dispositiu (com ara les contrasenyes de la Wi-Fi o l\'historial de trucades) i de les aplicacions (com ara les configuracions i els fitxers que desin) de manera remota.\n\nQuan activis les còpies de seguretat automàtiques, les dades dels dispositius i de les aplicacions s\'emmagatzemaran periòdicament de manera remota. Les dades de les aplicacions poden ser qualsevol mena de dada que hagi desat una aplicació (en funció de la configuració del desenvolupador), incloses les dades potencialment confidencials, com ara contactes, missatges i fotos."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Configuració de l\'administrador del dispositiu"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"Aplicació d\'administració del dispositiu"</string>
     <string name="remove_device_admin" msgid="4413438593788336400">"Desactiva aquesta aplicació d\'administració del dispositiu"</string>
