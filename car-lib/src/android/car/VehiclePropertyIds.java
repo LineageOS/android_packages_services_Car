@@ -930,8 +930,17 @@ public final class VehiclePropertyIds {
      * Property to get the initial settings for multi-user management (such as initial user).
      *
      * <p>Doesn't require permission because it's not exposed externally.
+     *
+     * @hide
      */
     public static final int INITIAL_USER_INFO = 299896583;
+
+    /**
+     *  TODO(b/150409110): javadoc, set pemission, etc...
+     *
+     * @hide
+     */
+    public static final int SWITCH_USER = 299896584;
 
     /**
      * Gets a user-friendly representation of a property.
@@ -1204,6 +1213,8 @@ public final class VehiclePropertyIds {
                 return "VEHICLE_SPEED_DISPLAY_UNITS";
             case INITIAL_USER_INFO:
                 return "INITIAL_USER_INFO";
+            case SWITCH_USER:
+                return "SWITCH_USER";
             default:
                 return "0x" + Integer.toHexString(property);
         }
