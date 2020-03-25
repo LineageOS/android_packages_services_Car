@@ -49,7 +49,7 @@ public class CarInstrumentClusterManager extends CarManagerBase {
      * intent's extra thus activity will know information about unobscured area, etc. upon activity
      * creation.
      *
-     * @deprecated use {@link android.car.Car#CATEGORY_NAVIGATION} instead
+     * @deprecated use {@link android.car.Car#CAR_EXTRA_CLUSTER_ACTIVITY_STATE} instead
      *
      * @hide
      */
