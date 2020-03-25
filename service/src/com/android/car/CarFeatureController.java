@@ -133,10 +133,6 @@ public final class CarFeatureController implements CarServiceBase {
     @GuardedBy("mLock")
     private HashSet<String> mAvailableExperimentalFeatures = new HashSet<>();
 
-    private final Runnable mDefaultConfigWriter = () -> {
-        persistToFeatureConfigFile();
-    };
-
     public CarFeatureController(@NonNull Context context,
             @NonNull String[] defaultEnabledFeaturesFromConfig,
             @NonNull String[] disabledFeaturesFromVhal, @NonNull File dataDir) {
@@ -416,8 +412,7 @@ public final class CarFeatureController implements CarServiceBase {
         return true;
     }
 
-    private void persistToFeatureConfigFile() {
-        HashSet<String> features = new HashSet<>(mEnabledFeatures);
+    private void persistToFeatureConfigFile(HashSet<String> features) {
         removeSupportFeatures(features);
         synchronized (mLock) {
             features.removeAll(mPendingDisabledFeatures);
@@ -451,8 +446,9 @@ public final class CarFeatureController implements CarServiceBase {
     }
 
     private void dispatchDefaultConfigUpdate() {
-        mHandler.removeCallbacks(mDefaultConfigWriter);
-        mHandler.post(mDefaultConfigWriter);
+        mHandler.removeCallbacksAndMessages(null);
+        HashSet<String> featuresToPersist = new HashSet<>(mEnabledFeatures);
+        mHandler.post(() -> persistToFeatureConfigFile(featuresToPersist));
     }
 
     private void parseDefaultConfig() {
