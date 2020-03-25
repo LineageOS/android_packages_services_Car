@@ -17,6 +17,7 @@ package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.CURRENT_GEAR;
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
+import static android.car.VehiclePropertyIds.SWITCH_USER;
 import static android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType.COLD_BOOT;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -101,8 +102,9 @@ public final class UserHalServiceTest {
     @Before
     public void setFixtures() {
         mUserHalService = new UserHalService(mVehicleHal);
-        mUserHalService
-                .takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO)));
+        mUserHalService.takeProperties(Arrays.asList(
+                newSubscribableConfig(INITIAL_USER_INFO),
+                newSubscribableConfig(SWITCH_USER)));
 
         mUser0.userId = 0;
         mUser0.flags = 100;
@@ -141,6 +143,13 @@ public final class UserHalServiceTest {
         // depends on the properties set by the former, so it's ok to test both here...
         myHalService.init();
         verify(mVehicleHal).subscribeProperty(myHalService, INITIAL_USER_INFO);
+    }
+
+    @Test
+    public void testSupportedProperties() {
+        assertThat(mUserHalService.getAllSupportedProperties()).asList().containsAllOf(
+                INITIAL_USER_INFO,
+                SWITCH_USER);
     }
 
     @Test
