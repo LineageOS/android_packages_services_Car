@@ -16,6 +16,7 @@
 package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
+import static android.car.VehiclePropertyIds.SWITCH_USER;
 
 import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
 
@@ -25,6 +26,9 @@ import android.car.hardware.property.CarPropertyManager;
 import android.car.userlib.HalCallback;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.hardware.automotive.vehicle.V2_0.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
@@ -60,7 +64,8 @@ public final class UserHalService extends HalServiceBase {
     private static final String TAG = UserHalService.class.getSimpleName();
 
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
-            INITIAL_USER_INFO
+            INITIAL_USER_INFO,
+            SWITCH_USER
     };
 
     // TODO(b/150413515): STOPSHIP - change to false before R is launched
@@ -152,8 +157,8 @@ public final class UserHalService extends HalServiceBase {
             Log.w(TAG, UNSUPPORTED_MSG);
             return;
         }
-        // TODO(b/150413515): increase capacity once it supports more
-        SparseArray<VehiclePropConfig> supportedProperties = new SparseArray<>(1);
+        // TODO(b/150413515): increase capacity as more properties are added
+        SparseArray<VehiclePropConfig> supportedProperties = new SparseArray<>(2);
         for (VehiclePropConfig config : properties) {
             supportedProperties.put(config.prop, config);
         }
@@ -229,6 +234,21 @@ public final class UserHalService extends HalServiceBase {
             Log.w(TAG, "Failed to set INITIAL_USER_INFO", e);
             callback.onResponse(HalCallback.STATUS_HAL_SET_TIMEOUT, null);
         }
+    }
+
+    /**
+     * TODO(b/150409110): javadoc it :-)
+     */
+    public void switchUser(@NonNull UserInfo targetInfo, int timeoutMs,
+            @NonNull UsersInfo usersInfo, @NonNull HalCallback<SwitchUserResponse> callback) {
+        if (DBG) Log.d(TAG, "switchUser(" + targetInfo + ")");
+
+        // TODO(b/150409110): implement
+        SwitchUserResponse response = new SwitchUserResponse();
+        response.messageType = SwitchUserMessageType.VEHICLE_RESPONSE;
+        response.status = SwitchUserStatus.SUCCESS;
+        response.requestId = mNextRequestId++;
+        callback.onResponse(HalCallback.STATUS_OK, response);
     }
 
     @GuardedBy("mLock")

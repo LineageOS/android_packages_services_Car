@@ -44,7 +44,7 @@ LOCAL_STATIC_ANDROID_LIBRARIES += \
     car-service-test-static-lib \
     com.google.android.material_material \
     androidx.appcompat_appcompat \
-    androidx.car_car
+    car-ui-lib
 
 LOCAL_STATIC_JAVA_LIBRARIES += \
     android.hidl.base-V1.0-java \
