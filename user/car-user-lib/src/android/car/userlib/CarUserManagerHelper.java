@@ -21,15 +21,18 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.app.IActivityManager;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.os.RemoteException;
+import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.sysprop.CarProperties;
 import android.util.Log;
+import android.util.TimingsTraceLog;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.UserIcons;
@@ -94,21 +97,14 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Set last active user.
-     *
-     * @param userId last active user id.
+     * Sets the last active user.
      */
-    public void setLastActiveUser(int userId) {
+    public void setLastActiveUser(@UserIdInt int userId) {
         Settings.Global.putInt(
                 mContext.getContentResolver(), Settings.Global.LAST_ACTIVE_USER_ID, userId);
     }
 
-    /**
-     * Get user id for the last active user.
-     *
-     * @return user id of the last active user.
-     */
-    public int getLastActiveUser() {
+    private int getLastActiveUser() {
         return Settings.Global.getInt(
             mContext.getContentResolver(), Settings.Global.LAST_ACTIVE_USER_ID,
             /* default user id= */ UserHandle.USER_SYSTEM);
@@ -179,8 +175,7 @@ public final class CarUserManagerHelper {
     /**
      * Checks whether the device has an initial user that can be switched to.
      */
-    @VisibleForTesting
-    boolean hasInitialUser() {
+    public boolean hasInitialUser() {
         List<UserInfo> allUsers = getAllUsers();
         for (int i = 0; i < allUsers.size(); i++) {
             UserInfo user = allUsers.get(i);
@@ -191,7 +186,7 @@ public final class CarUserManagerHelper {
         return false;
     }
 
-    private List<Integer> userInfoListToUserIdList(List<UserInfo> allUsers) {
+    private static List<Integer> userInfoListToUserIdList(List<UserInfo> allUsers) {
         ArrayList<Integer> list = new ArrayList<>(allUsers.size());
         for (UserInfo userInfo : allUsers) {
             list.add(userInfo.id);
@@ -332,6 +327,38 @@ public final class CarUserManagerHelper {
         } catch (RemoteException e) {
             Log.w(TAG, "failed to start user " + userId, e);
             return false;
+        }
+    }
+
+    @VisibleForTesting
+    void unlockSystemUser() {
+        Log.i(TAG, "unlocking system user");
+        IActivityManager am = ActivityManager.getService();
+
+        TimingsTraceLog t = new TimingsTraceLog(TAG, Trace.TRACE_TAG_SYSTEM_SERVER);
+        t.traceBegin("UnlockSystemUser");
+        try {
+            // This is for force changing state into RUNNING_LOCKED. Otherwise unlock does not
+            // update the state and USER_SYSTEM unlock happens twice.
+            t.traceBegin("am.startUser");
+            boolean started = am.startUserInBackground(UserHandle.USER_SYSTEM);
+            t.traceEnd();
+            if (!started) {
+                Log.w(TAG, "could not restart system user in foreground; trying unlock instead");
+                t.traceBegin("am.unlockUser");
+                boolean unlocked = am.unlockUser(UserHandle.USER_SYSTEM, /* token= */ null,
+                        /* secret= */ null, /* listener= */ null);
+                t.traceEnd();
+                if (!unlocked) {
+                    Log.w(TAG, "could not unlock system user neither");
+                    return;
+                }
+            }
+        } catch (RemoteException e) {
+            // should not happen for local call.
+            Log.wtf("RemoteException from AMS", e);
+        } finally {
+            t.traceEnd();
         }
     }
 
