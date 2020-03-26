@@ -15,9 +15,10 @@
  */
 package android.car.userlib;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -29,6 +30,7 @@ import android.annotation.UserIdInt;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.os.UserHandle;
 import android.os.UserManager;
 
 import org.junit.Before;
@@ -68,16 +70,30 @@ public final class InitialUserSetterTest {
 
         verifyUserSwitched(10);
         verifyFallbackDefaultBehaviorNeverCalled();
+        verifySystemUserUnlocked();
+    }
+
+    @Test
+    public void testSwitchUser_ok_systemUser() throws Exception {
+        expectSwitchUser(UserHandle.USER_SYSTEM);
+
+        mSetter.switchUser(UserHandle.USER_SYSTEM);
+
+        verifyUserSwitched(UserHandle.USER_SYSTEM);
+        verifyFallbackDefaultBehaviorNeverCalled();
+        verifySystemUserNeverUnlocked();
     }
 
     @Test
     public void testSwitchUser_fail() throws Exception {
-        expectFallbackDefaultBehavior();
+
         // No need to set switchUser() expectations - will return false by default
 
         mSetter.switchUser(10);
 
-        verifyFallbackDefaultBehaviorCalled();
+        verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch();
+        verifySystemUserUnlocked();
+        verifyLastActiverUserNevertSet();
     }
 
     @Test
@@ -89,6 +105,7 @@ public final class InitialUserSetterTest {
 
         verifyUserSwitched(10);
         verifyFallbackDefaultBehaviorNeverCalled();
+        verifySystemUserUnlocked();
     }
 
     @Test
@@ -100,6 +117,7 @@ public final class InitialUserSetterTest {
 
         verifyUserSwitched(10);
         verifyFallbackDefaultBehaviorNeverCalled();
+        verifySystemUserUnlocked();
     }
 
     @Test
@@ -111,61 +129,65 @@ public final class InitialUserSetterTest {
 
         verifyUserSwitched(10);
         verifyFallbackDefaultBehaviorNeverCalled();
+        verifySystemUserUnlocked();
     }
 
     @Test
     public void testCreateUser_fail_systemUser() throws Exception {
-        expectFallbackDefaultBehavior();
+
         // No need to set mUm.createUser() expectation - it shouldn't be called
 
         mSetter.createUser("TheDude", UserFlags.SYSTEM);
 
         verifyUserNeverSwitched();
-        verifyFallbackDefaultBehaviorCalled();
+        verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch();
+        verifySystemUserNeverUnlocked();
     }
 
     @Test
     public void testCreateUser_fail_guestAdmin() throws Exception {
-        expectFallbackDefaultBehavior();
+
         // No need to set mUm.createUser() expectation - it shouldn't be called
 
         mSetter.createUser("TheDude", UserFlags.GUEST | UserFlags.ADMIN);
 
         verifyUserNeverSwitched();
-        verifyFallbackDefaultBehaviorCalled();
+        verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch();
     }
 
     @Test
     public void testCreateUser_fail_ephemeralAdmin() throws Exception {
-        expectFallbackDefaultBehavior();
+
         // No need to set mUm.createUser() expectation - it shouldn't be called
 
         mSetter.createUser("TheDude", UserFlags.EPHEMERAL | UserFlags.ADMIN);
 
         verifyUserNeverSwitched();
-        verifyFallbackDefaultBehaviorCalled();
+        verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch();
     }
 
     @Test
     public void testCreateUser_fail_createFail() throws Exception {
-        expectFallbackDefaultBehavior();
+
         // No need to set mUm.createUser() expectation - it shouldn't be called
 
         mSetter.createUser("TheDude", UserFlags.NONE);
 
         verifyUserNeverSwitched();
-        verifyFallbackDefaultBehaviorCalled();
+        verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch();
     }
 
     @Test
     public void testCreateUser_fail_switchFail() throws Exception {
         expectCreateFullUser(10, "TheDude", NO_FLAGS);
-        expectFallbackDefaultBehavior();
+
         // No need to set switchUser() expectations - will return false by default
 
         mSetter.createUser("TheDude", UserFlags.NONE);
 
-        verifyFallbackDefaultBehaviorCalled();
+        verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch();
+        verifySystemUserUnlocked();
+        verifyLastActiverUserNevertSet();
     }
 
     @Test
@@ -178,30 +200,34 @@ public final class InitialUserSetterTest {
 
         verifyUserSwitched(10);
         verifyFallbackDefaultBehaviorNeverCalled();
+        verifySystemUserUnlocked();
     }
 
     @Test
     public void testDefaultBehavior_firstBoot_fail_createUserFailed() throws Exception {
-        expectFallbackDefaultBehavior();
+
         // no need to mock hasInitialUser(), it will return false by default
         // no need to mock createUser(), it will return null by default
 
         mSetter.executeDefaultBehavior();
 
         verifyUserNeverSwitched();
-        verifyFallbackDefaultBehaviorCalled();
+        verifyFallbackDefaultBehaviorCalledFromDefaultBehavior();
+        verifySystemUserNeverUnlocked();
     }
 
     @Test
     public void testDefaultBehavior_firstBoot_fail_switchFailed() throws Exception {
-        expectFallbackDefaultBehavior();
+
         // no need to mock hasInitialUser(), it will return false by default
         expectCreateFullUser(10, OWNER_NAME, UserInfo.FLAG_ADMIN);
         // no need to mock switchUser(), it will return false by default
 
         mSetter.executeDefaultBehavior();
 
-        verifyFallbackDefaultBehaviorCalled();
+        verifyFallbackDefaultBehaviorCalledFromDefaultBehavior();
+        verifySystemUserUnlocked();
+        verifyLastActiverUserNevertSet();
     }
 
     @Test
@@ -214,18 +240,20 @@ public final class InitialUserSetterTest {
         verifyUserSwitched(10);
         verifyFallbackDefaultBehaviorNeverCalled();
         verifyUserNeverCreated();
+        verifySystemUserUnlocked();
     }
 
     @Test
     public void testDefaultBehavior_nonFirstBoot_fail_switchFail() throws Exception {
-        expectFallbackDefaultBehavior();
         expectHasInitialUser(10);
         // no need to mock switchUser(), it will return false by default
 
         mSetter.executeDefaultBehavior();
 
-        verifyFallbackDefaultBehaviorCalled();
+        verifyFallbackDefaultBehaviorCalledFromDefaultBehavior();
         verifyUserNeverCreated();
+        verifySystemUserUnlocked();
+        verifyLastActiverUserNevertSet();
     }
 
     @Test
@@ -243,6 +271,7 @@ public final class InitialUserSetterTest {
         verifyUserSwitched(10);
         verifyFallbackDefaultBehaviorNeverCalled();
         verifyUserNeverCreated();
+        verifySystemUserUnlocked();
     }
 
     private void expectHasInitialUser(@UserIdInt int userId) {
@@ -275,27 +304,41 @@ public final class InitialUserSetterTest {
         when(mUm.createUser(name, type, flags)).thenReturn(userInfo);
     }
 
-    private void expectFallbackDefaultBehavior() {
-        doNothing().when(mSetter).fallbackDefaultBehavior(anyString());
-    }
-
-    private void verifyUserSwitched(int userId) throws Exception {
+    private void verifyUserSwitched(@UserIdInt int userId) throws Exception {
         verify(mHelper).startForegroundUser(userId);
+        verify(mHelper).setLastActiveUser(userId);
     }
 
     private void verifyUserNeverSwitched() throws Exception {
         verify(mHelper, never()).startForegroundUser(anyInt());
+        verifyLastActiverUserNevertSet();
     }
 
     private void verifyUserNeverCreated() {
         verify(mUm, never()).createUser(anyString(), anyString(), anyInt());
     }
 
-    private void verifyFallbackDefaultBehaviorCalled() {
-        verify(mSetter).fallbackDefaultBehavior(anyString());
+    private void verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch() {
+        verify(mSetter).fallbackDefaultBehavior(eq(true), anyString());
+    }
+
+    private void verifyFallbackDefaultBehaviorCalledFromDefaultBehavior() {
+        verify(mSetter).fallbackDefaultBehavior(eq(false), anyString());
     }
 
     private void verifyFallbackDefaultBehaviorNeverCalled() {
-        verify(mSetter, never()).fallbackDefaultBehavior(anyString());
+        verify(mSetter, never()).fallbackDefaultBehavior(anyBoolean(), anyString());
+    }
+
+    private void verifySystemUserUnlocked() {
+        verify(mHelper).unlockSystemUser();
+    }
+
+    private void verifySystemUserNeverUnlocked() {
+        verify(mHelper, never()).unlockSystemUser();
+    }
+
+    private void verifyLastActiverUserNevertSet() {
+        verify(mHelper, never()).setLastActiveUser(anyInt());
     }
 }
