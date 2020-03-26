@@ -80,8 +80,7 @@ public:
 
 class MockICarWatchdogMonitor : public ICarWatchdogMonitor {
 public:
-    MOCK_METHOD(Status, onClientNotResponding, (const sp<ICarWatchdogClient>& client, int32_t pid),
-                (override));
+    MOCK_METHOD(Status, onClientsNotResponding, (const std::vector<int32_t>& pids), (override));
     MOCK_METHOD(IBinder*, onAsBinder, (), (override));
 };
 
