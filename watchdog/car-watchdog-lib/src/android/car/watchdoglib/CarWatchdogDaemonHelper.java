@@ -33,9 +33,9 @@ import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.List;
 
 /**
  * Helper class for car watchdog daemon.
@@ -54,6 +54,7 @@ public final class CarWatchdogDaemonHelper {
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final CopyOnWriteArrayList<OnConnectionChangeListener> mConnectionListeners =
             new CopyOnWriteArrayList<>();
+    private final String mTag;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private @Nullable ICarWatchdog mCarWatchdogDaemon;
@@ -63,7 +64,7 @@ public final class CarWatchdogDaemonHelper {
     private final IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
         @Override
         public void binderDied() {
-            Log.w(TAG, "Car watchdog daemon died: reconnecting");
+            Log.w(mTag, "Car watchdog daemon died: reconnecting");
             unlinkToDeath();
             synchronized (mLock) {
                 mCarWatchdogDaemon = null;
@@ -87,6 +88,14 @@ public final class CarWatchdogDaemonHelper {
     public interface OnConnectionChangeListener {
         /** Gets called when car watchdog daemon is connected or disconnected. */
         void onConnectionChange(boolean connected);
+    }
+
+    public CarWatchdogDaemonHelper() {
+        mTag = TAG;
+    }
+
+    public CarWatchdogDaemonHelper(@NonNull String requestor) {
+        mTag = TAG + "[" + requestor + "]";
     }
 
     /**
@@ -273,12 +282,12 @@ public final class CarWatchdogDaemonHelper {
             synchronized (mLock) {
                 mConnectionInProgress = false;
             }
-            Log.e(TAG, "Cannot reconnect to car watchdog daemon after retrying "
+            Log.e(mTag, "Cannot reconnect to car watchdog daemon after retrying "
                     + CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY + " times");
             return;
         }
         if (makeBinderConnection()) {
-            Log.i(TAG, "Connected to car watchdog daemon");
+            Log.i(mTag, "Connected to car watchdog daemon");
             return;
         }
         mHandler.sendMessageDelayed(obtainMessage(CarWatchdogDaemonHelper::connectToDaemon,
@@ -290,17 +299,17 @@ public final class CarWatchdogDaemonHelper {
         long currentTimeMs = SystemClock.uptimeMillis();
         IBinder binder = ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE);
         if (binder == null) {
-            Log.w(TAG, "Getting car watchdog daemon binder failed");
+            Log.w(mTag, "Getting car watchdog daemon binder failed");
             return false;
         }
         long elapsedTimeMs = SystemClock.uptimeMillis() - currentTimeMs;
         if (elapsedTimeMs > CAR_WATCHDOG_DAEMON_FIND_MARGINAL_TIME_MS) {
-            Log.wtf(TAG, "Finding car watchdog daemon took too long(" + elapsedTimeMs + "ms)");
+            Log.wtf(mTag, "Finding car watchdog daemon took too long(" + elapsedTimeMs + "ms)");
         }
 
         ICarWatchdog daemon = ICarWatchdog.Stub.asInterface(binder);
         if (daemon == null) {
-            Log.w(TAG, "Getting car watchdog daemon interface failed");
+            Log.w(mTag, "Getting car watchdog daemon interface failed");
             return false;
         }
         synchronized (mLock) {
@@ -323,13 +332,13 @@ public final class CarWatchdogDaemonHelper {
             binder = mCarWatchdogDaemon.asBinder();
         }
         if (binder == null) {
-            Log.w(TAG, "Linking to binder death recipient skipped");
+            Log.w(mTag, "Linking to binder death recipient skipped");
             return;
         }
         try {
             binder.linkToDeath(mDeathRecipient, 0);
         } catch (RemoteException e) {
-            Log.w(TAG, "Linking to binder death recipient failed: " + e);
+            Log.w(mTag, "Linking to binder death recipient failed: " + e);
         }
     }
 
@@ -342,7 +351,7 @@ public final class CarWatchdogDaemonHelper {
             binder = mCarWatchdogDaemon.asBinder();
         }
         if (binder == null) {
-            Log.w(TAG, "Unlinking from binder death recipient skipped");
+            Log.w(mTag, "Unlinking from binder death recipient skipped");
             return;
         }
         binder.unlinkToDeath(mDeathRecipient, 0);
