@@ -24,6 +24,7 @@ import android.annotation.UserIdInt;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 
@@ -80,20 +81,30 @@ public final class InitialUserSetter {
      * </ol>
      */
     public void executeDefaultBehavior() {
+        executeDefaultBehavior(/* fallback= */ false);
+    }
+
+    private void executeDefaultBehavior(boolean fallback) {
         if (!mHelper.hasInitialUser()) {
             if (DBG) Log.d(TAG, "executeDefaultBehavior(): no initial user, creating it");
-            createUser(mOwnerName, UserFlags.ADMIN);
+            createUser(mOwnerName, UserFlags.ADMIN, fallback);
         } else {
             if (DBG) Log.d(TAG, "executeDefaultBehavior(): switching to initial user");
             int userId = mHelper.getInitialUser(mSupportsOverrideUserIdProperty);
-            switchUser(userId);
+            switchUser(userId, fallback);
         }
     }
 
+
     @VisibleForTesting
-    void fallbackDefaultBehavior(@NonNull String reason) {
+    void fallbackDefaultBehavior(boolean fallback, @NonNull String reason) {
+        if (!fallback) {
+            // Only log the error
+            Log.w(TAG, reason);
+            return;
+        }
         Log.w(TAG, "Falling back to default behavior. Reason: " + reason);
-        executeDefaultBehavior();
+        executeDefaultBehavior(/* fallback= */ false);
     }
 
     /**
@@ -101,11 +112,22 @@ public final class InitialUserSetter {
      * fails.
      */
     public void switchUser(@UserIdInt int userId) {
+        switchUser(userId, /* fallback= */ true);
+    }
+
+    private void switchUser(@UserIdInt int userId, boolean fallback) {
         if (DBG) Log.d(TAG, "switchUser(): userId= " + userId);
 
-        if (!mHelper.startForegroundUser(userId)) {
-            fallbackDefaultBehavior("am.switchUser(" + userId + ") failed");
+        // If system user is the only user to unlock, it will be handled when boot is complete.
+        if (userId != UserHandle.USER_SYSTEM) {
+            mHelper.unlockSystemUser();
         }
+
+        if (!mHelper.startForegroundUser(userId)) {
+            fallbackDefaultBehavior(fallback, "am.switchUser(" + userId + ") failed");
+            return;
+        }
+        mHelper.setLastActiveUser(userId);
     }
 
     /**
@@ -116,13 +138,17 @@ public final class InitialUserSetter {
      * @param halFlags user flags as defined by Vehicle HAL ({@code UserFlags} enum).
      */
     public void createUser(@Nullable String name, int halFlags) {
+        createUser(name, halFlags, /* fallback= */ true);
+    }
+
+    private void createUser(@Nullable String name, int halFlags, boolean fallback) {
         if (DBG) {
             Log.d(TAG, "createUser(name=" + safeName(name) + ", flags="
                     + userFlagsToString(halFlags) + ")");
         }
 
         if (UserHalHelper.isSystem(halFlags)) {
-            fallbackDefaultBehavior("Cannot create system user");
+            fallbackDefaultBehavior(fallback, "Cannot create system user");
             return;
         }
 
@@ -137,7 +163,7 @@ public final class InitialUserSetter {
                 validAdmin = false;
             }
             if (!validAdmin) {
-                fallbackDefaultBehavior("Invalid flags for admin user");
+                fallbackDefaultBehavior(fallback, "Invalid flags for admin user");
                 return;
             }
         }
@@ -155,12 +181,12 @@ public final class InitialUserSetter {
 
         UserInfo userInfo = mUm.createUser(name, type, flags);
         if (userInfo == null) {
-            fallbackDefaultBehavior("createUser(name=" + safeName(name) + ", flags="
+            fallbackDefaultBehavior(fallback, "createUser(name=" + safeName(name) + ", flags="
                     + userFlagsToString(halFlags) + "): failed to create user");
             return;
         }
 
         if (DBG) Log.d(TAG, "user created: " + userInfo.id);
-        switchUser(userInfo.id);
+        switchUser(userInfo.id, fallback);
     }
 }
