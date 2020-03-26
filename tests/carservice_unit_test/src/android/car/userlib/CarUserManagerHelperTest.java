@@ -18,12 +18,14 @@ package android.car.userlib;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
 import android.app.IActivityManager;
@@ -193,6 +195,26 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
+    public void testUnlockSystemUser_startedOk() throws Exception {
+        when(mIActivityManager.startUserInBackground(UserHandle.USER_SYSTEM)).thenReturn(true);
+
+        mCarUserManagerHelper.unlockSystemUser();
+
+        verify(mIActivityManager, never()).unlockUser(UserHandle.USER_SYSTEM, /* token= */ null,
+                /* secret= */ null, /* listener= */ null);
+    }
+
+    @Test
+    public void testUnlockSystemUser_startFailUnlockedInstead() throws Exception {
+        // No need to set startUserInBackground() expectation as it will return false by default
+
+        mCarUserManagerHelper.unlockSystemUser();
+
+        verify(mIActivityManager).unlockUser(UserHandle.USER_SYSTEM, /* token= */ null,
+                /* secret= */ null, /* listener= */ null);
+    }
+
+    @Test
     public void testGrantAdminPermissions() {
         int userId = 30;
         UserInfo testInfo = createUserInfoForId(userId);
@@ -335,6 +357,42 @@ public class CarUserManagerHelperTest {
     @Test
     public void testGetInitialUser_WithEmptyReturnNull() {
         assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(UserHandle.USER_NULL);
+    }
+
+    @Test
+    public void testHasInitialUser_onlyHeadlessSystemUser() {
+        setHeadlessSystemUserMode(true);
+        mockGetUsers(mSystemUser);
+
+        assertThat(mCarUserManagerHelper.hasInitialUser()).isFalse();
+    }
+
+    @Test
+    public void testHasInitialUser_onlyNonHeadlessSystemUser() {
+        setHeadlessSystemUserMode(false);
+        mockGetUsers(mSystemUser);
+
+        assertThat(mCarUserManagerHelper.hasInitialUser()).isTrue();
+    }
+
+    @Test
+    public void testHasInitialUser_hasNormalUser() {
+        setHeadlessSystemUserMode(true);
+        UserInfo normalUser = createUserInfoForId(10);
+        mockGetUsers(mSystemUser, normalUser);
+
+        assertThat(mCarUserManagerHelper.hasInitialUser()).isTrue();
+    }
+
+    @Test
+    public void testHasInitialUser_hasOnlyWorkProfile() {
+        setHeadlessSystemUserMode(true);
+        UserInfo workProfile = createUserInfoForId(10);
+        workProfile.userType = UserManager.USER_TYPE_PROFILE_MANAGED;
+        assertThat(workProfile.isManagedProfile()).isTrue(); // Sanity check
+        mockGetUsers(mSystemUser, workProfile);
+
+        assertThat(mCarUserManagerHelper.hasInitialUser()).isFalse();
     }
 
     private UserInfo createUserInfoForId(int id) {
