@@ -147,6 +147,7 @@ public final class CarUserManager extends CarManagerBase {
 
     private final Object mLock = new Object();
     private final ICarUserService mService;
+    private final UserManager mUserManager;
 
     @Nullable
     @GuardedBy("mLock")
@@ -159,12 +160,20 @@ public final class CarUserManager extends CarManagerBase {
     /**
      * @hide
      */
-    @VisibleForTesting
     public CarUserManager(@NonNull Car car, @NonNull IBinder service) {
-        super(car);
-        mService = ICarUserService.Stub.asInterface(service);
+        this(car, service, UserManager.get(car.getContext()));
     }
 
+    /**
+     * @hide
+     */
+    @VisibleForTesting
+    public CarUserManager(@NonNull Car car, @NonNull IBinder service,
+            @NonNull UserManager userManager) {
+        super(car);
+        mService = ICarUserService.Stub.asInterface(service);
+        mUserManager = userManager;
+    }
     /**
      * Creates a driver who is a regular user and is allowed to login to the driving occupant zone.
      *
@@ -382,14 +391,13 @@ public final class CarUserManager extends CarManagerBase {
     @UserIdInt
     public int createUser(@Nullable String name, boolean isGuestUser) {
         Log.i(TAG, "createUser()"); // name is PII
-        UserManager userManager = getContext().getSystemService(UserManager.class);
 
         if (isGuestUser) {
-            return userManager.createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0)
+            return mUserManager.createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0)
                     .id;
         }
 
-        return userManager.createUser(name, /* flags= */ 0).id;
+        return mUserManager.createUser(name, /* flags= */ 0).id;
     }
 
     /** @hide */
@@ -397,8 +405,7 @@ public final class CarUserManager extends CarManagerBase {
     // TODO(b/144120654): temp method used by CTS; will eventually be refactored to take a listener
     public void removeUser(@UserIdInt int userId) {
         Log.i(TAG, "removeUser(" + userId + ")");
-        UserManager userManager = getContext().getSystemService(UserManager.class);
-        userManager.removeUser(userId);
+        mUserManager.removeUser(userId);
     }
 
     /**
@@ -478,6 +485,32 @@ public final class CarUserManager extends CarManagerBase {
                             + android.Manifest.permission.INTERACT_ACROSS_USERS_FULL
                             + " permission");
         }
+    }
+
+    /**
+     * Checks if the given {@code userId} represents a valid user.
+     *
+     * <p>A "valid" user:
+     *
+     * <ul>
+     *   <li>Must exist in the device.
+     *   <li>Is not in the process of being deleted.
+     *   <li>Cannot be the {@link UserHandle#isSystem() system} user on devices that use
+     *   {@link UserManager#isHeadlessSystemUserMode() headless system mode}.
+     * </ul>
+     *
+     * @hide
+     */
+    public boolean isValidUser(@UserIdInt int userId) {
+        List<UserInfo> allUsers = mUserManager.getUsers();
+        for (int i = 0; i < allUsers.size(); i++) {
+            UserInfo user = allUsers.get(i);
+            if (user.id == userId && (userId != UserHandle.USER_SYSTEM
+                    || !UserManager.isHeadlessSystemUserMode())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
