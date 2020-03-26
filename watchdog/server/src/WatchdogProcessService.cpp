@@ -53,6 +53,20 @@ std::chrono::nanoseconds timeoutToDurationNs(const TimeoutLength& timeout) {
     }
 }
 
+std::string pidArrayToString(const std::vector<int32_t>& pids) {
+    size_t size = pids.size();
+    if (size == 0) {
+        return "";
+    }
+    std::string buffer;
+    StringAppendF(&buffer, "%d", pids[0]);
+    for (int i = 1; i < size; i++) {
+        int pid = pids[i];
+        StringAppendF(&buffer, ", %d", pid);
+    }
+    return buffer;
+}
+
 }  // namespace
 
 WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) :
@@ -384,11 +398,12 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
             pid_t pid = -1;
             sp<IBinder> binder = BnCarWatchdog::asBinder((*it).client);
             std::vector<TimeoutLength> timeouts = {timeout};
+            // Unhealthy clients are eventually removed from the list through binderDied when they
+            // are killed.
             findClientAndProcessLocked(timeouts, binder,
-                                       [&](std::vector<ClientInfo>& clients,
+                                       [&](std::vector<ClientInfo>& /*clients*/,
                                            std::vector<ClientInfo>::const_iterator it) {
                                            pid = (*it).pid;
-                                           clients.erase(it);
                                        });
             if (pid != -1) {
                 processIds.push_back(pid);
@@ -398,21 +413,29 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
     return dumpAndKillAllProcesses(processIds);
 }
 
-// TODO(ericjeong): do it quickly or do it in a separate thread.
 Result<void> WatchdogProcessService::dumpAndKillAllProcesses(
         const std::vector<int32_t>& processesNotResponding) {
-    Mutex::Autolock lock(mMutex);
-    if (mMonitor == nullptr) {
-        std::string errorMsg = "Cannot dump and kill processes: Monitor is not set";
-        ALOGW("%s", errorMsg.c_str());
-        return Error() << errorMsg;
+    size_t size = processesNotResponding.size();
+    if (size == 0) {
+        return {};
     }
-    // TODO(b/149346622): Change the interface of ICarWatchdogMonitor and follow up here.
-    for (auto pid : processesNotResponding) {
-        mMonitor->onClientNotResponding(nullptr, pid);
-        if (DEBUG) {
-            ALOGD("Dumping and killing process(pid: %d) is requested.", pid);
+    sp<ICarWatchdogMonitor> monitor;
+    {
+        Mutex::Autolock lock(mMutex);
+        if (mMonitor == nullptr) {
+            std::string pidString = pidArrayToString(processesNotResponding);
+            std::string errorMsg =
+                    StringPrintf("Cannot dump and kill processes(pid = %s): Monitor is not set",
+                                 pidString.c_str());
+            ALOGW("%s", errorMsg.c_str());
+            return Error() << errorMsg;
         }
+        monitor = mMonitor;
+    }
+    monitor->onClientsNotResponding(processesNotResponding);
+    if (DEBUG) {
+        std::string pidString = pidArrayToString(processesNotResponding);
+        ALOGD("Dumping and killing processes is requested: %s", pidString.c_str());
     }
     return {};
 }
