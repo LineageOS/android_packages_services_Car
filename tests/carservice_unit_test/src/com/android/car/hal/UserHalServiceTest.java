@@ -43,8 +43,10 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.os.ServiceSpecificException;
+import android.os.SystemClock;
 import android.os.UserHandle;
 import android.util.Log;
+import android.util.Pair;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -189,6 +191,10 @@ public final class UserHalServiceTest {
         callback.assertCalled();
         assertCallbackStatus(callback, HalCallback.STATUS_HAL_SET_TIMEOUT);
         assertThat(callback.response).isNull();
+
+        // Make sure the pending request was removed
+        SystemClock.sleep(INITIAL_USER_CALLBACK_TIMEOUT_TIMEOUT);
+        callback.assertNotCalledAgain();
     }
 
     @Test
@@ -463,6 +469,7 @@ public final class UserHalServiceTest {
 
         private final CountDownLatch mLatch = new CountDownLatch(1);
         private final int mTimeout;
+        private final List<Pair<Integer, R>> mExtraCalls = new ArrayList<>();
 
         public int status;
         public R response;
@@ -476,6 +483,11 @@ public final class UserHalServiceTest {
             Log.d(TAG, "onResponse(): status=" + status + ", response=" +  response);
             this.status = status;
             this.response = response;
+            if (mLatch.getCount() == 0) {
+                Log.e(TAG, "Already responded");
+                mExtraCalls.add(new Pair<>(status, response));
+                return;
+            }
             mLatch.countDown();
         }
 
@@ -487,6 +499,15 @@ public final class UserHalServiceTest {
             if (!mLatch.await(mTimeout, TimeUnit.MILLISECONDS)) {
                 throw new AssertionError("callback not called in " + mTimeout + "ms");
             }
+        }
+
+        /**
+         * Asserts that the callback was not called more than once.
+         */
+        public void assertNotCalledAgain() {
+            if (mExtraCalls.isEmpty()) return;
+            throw new AssertionError("Called " + mExtraCalls.size() + " times more than expected: "
+                    + mExtraCalls);
         }
     }
 
