@@ -141,20 +141,17 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnNullptrDuringInit) {
     sp<WatchdogBinderMediator> mediator = new WatchdogBinderMediator();
     ASSERT_FALSE(mediator->init(nullptr, new MockIoPerfCollection()).ok())
             << "No error returned on nullptr watchdog process service";
-    // TODO(b/148486340): Uncomment I/O perf collection tests here and below after it is enabled in
-    // ServiceManager.
-    /*ASSERT_FALSE(mediator->init(new MockWatchdogProcessService(), nullptr).ok())
+    ASSERT_FALSE(mediator->init(new MockWatchdogProcessService(), nullptr).ok())
             << "No error returned on nullptr I/O perf collection";
-    ASSERT_FALSE(mediator->init(nullptr, nullptr).ok()) << "No error returned on nullptr";*/
+    ASSERT_FALSE(mediator->init(nullptr, nullptr).ok()) << "No error returned on nullptr";
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestHandlesEmptyDumpArgs) {
     EXPECT_CALL(*mMockWatchdogProcessService, dump(-1, _)).WillOnce(Return(Result<void>()));
-    // EXPECT_CALL(*mMockIoPerfCollection, dump(-1, _)).WillOnce(Return(Result<void>()));
+    EXPECT_CALL(*mMockIoPerfCollection, dump(-1, _)).WillOnce(Return(Result<void>()));
     mWatchdogBinderMediator->dump(-1, Vector<String16>());
 }
 
-/*
 TEST_F(WatchdogBinderMediatorTest, TestHandlesStartCustomIoPerfCollection) {
     EXPECT_CALL(*mMockIoPerfCollection, dump(-1, _)).WillOnce(Return(Result<void>()));
 
@@ -169,7 +166,7 @@ TEST_F(WatchdogBinderMediatorTest, TestHandlesStopCustomIoPerfCollection) {
     Vector<String16> args;
     args.push_back(String16(kEndCustomCollectionFlag));
     ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args), OK);
-}*/
+}
 
 TEST_F(WatchdogBinderMediatorTest, TestErrorOnInvalidDumpArgs) {
     Vector<String16> args;
@@ -344,37 +341,23 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnNotifyUserStateChangeWithInvalidAr
     ASSERT_FALSE(status.isOk()) << status;
 }
 
-/*
 TEST_F(WatchdogBinderMediatorTest, TestNotifyBootPhaseChange) {
     setSystemCallingUid();
     StateType type = StateType::BOOT_PHASE;
-    std::vector<std::string> args = {
-            std::to_string(static_cast<int32_t>(BootPhase::BOOT_COMPLETED))};
     EXPECT_CALL(*mMockIoPerfCollection, onBootFinished()).WillOnce(Return(Result<void>()));
-    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
+    Status status = mWatchdogBinderMediator->notifySystemStateChange(
+        type, static_cast<int32_t>(BootPhase::BOOT_COMPLETED), -1);
     ASSERT_TRUE(status.isOk()) << status;
 }
 
-TEST_F(WatchdogBinderMediatorTest, TestErrorOnNotifyBootPhaseChangeWithInvalidArgs) {
-    EXPECT_CALL(*mMockIoPerfCollection, onBootFinished()).Times(0);
+
+TEST_F(WatchdogBinderMediatorTest, TestNotifyBootPhaseChangeWithNonBootCompletedPhase) {
+    setSystemCallingUid();
     StateType type = StateType::BOOT_PHASE;
-    std::vector<std::string> args = {std::to_string(
-                                             static_cast<int32_t>(BootPhase::BOOT_COMPLETED)),
-                                     std::to_string(
-                                             static_cast<int32_t>(BootPhase::BOOT_COMPLETED))};
-    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
-    ASSERT_FALSE(status.isOk()) << status;
-
-    args.clear();
-    args.push_back("-1");
-    status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
-    ASSERT_FALSE(status.isOk()) << status;
-
-    args.clear();
-    args.push_back("invalid_boot_phase");
-    status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
-    ASSERT_FALSE(status.isOk()) << status;
-}*/
+    EXPECT_CALL(*mMockIoPerfCollection, onBootFinished()).Times(0);
+    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, 0, -1);
+    ASSERT_TRUE(status.isOk()) << status;
+}
 
 }  // namespace watchdog
 }  // namespace automotive
