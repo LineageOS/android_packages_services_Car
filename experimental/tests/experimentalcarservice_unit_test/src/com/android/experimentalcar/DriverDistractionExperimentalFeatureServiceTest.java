@@ -17,13 +17,17 @@
 package com.android.experimentalcar;
 
 import static com.android.experimentalcar.DriverDistractionExperimentalFeatureService.DEFAULT_AWARENESS_PERCENTAGE;
+import static com.android.experimentalcar.DriverDistractionExperimentalFeatureService.DISPATCH_THROTTLE_MS;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
@@ -68,6 +72,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -114,6 +119,7 @@ public class DriverDistractionExperimentalFeatureServiceTest {
 
     // stores the last change event from OnDriverDistractionChange call
     private DriverDistractionChangeEvent mLastDistractionEvent;
+    private List<DriverDistractionChangeEvent> mDistractionEventHistory = new ArrayList<>();
     private final Semaphore mChangeEventSignal = new Semaphore(0);
 
     private final CarDriverDistractionManager.OnDriverDistractionChangeListener mChangeListener =
@@ -123,6 +129,7 @@ public class DriverDistractionExperimentalFeatureServiceTest {
                     // should be dispatched to main thread.
                     assertThat(Looper.getMainLooper()).isEqualTo(Looper.myLooper());
                     mLastDistractionEvent = event;
+                    mDistractionEventHistory.add(event);
                     mChangeEventSignal.release();
                 }
             };
@@ -139,20 +146,37 @@ public class DriverDistractionExperimentalFeatureServiceTest {
     @Mock
     private IBinder mIBinder;
 
+    @Mock
+    private Handler mHandler;
+
     @Rule
     public final ServiceTestRule serviceRule = new ServiceTestRule();
 
     private DriverDistractionExperimentalFeatureService mService;
     private CarDriverDistractionManager mManager;
     private FakeTimeSource mTimeSource;
-    private FakeTimer mTimer;
+    private FakeTimer mExpiredAwarenessTimer;
+    private List<Runnable> mQueuedRunnables;
 
     @Before
     public void setUp() throws Exception {
         mTimeSource = new FakeTimeSource(INITIAL_TIME);
-        mTimer = new FakeTimer();
-        mService = new DriverDistractionExperimentalFeatureService(mContext, mTimeSource, mTimer);
+        mExpiredAwarenessTimer = new FakeTimer();
+        // execute all handler posts immediately
+        when(mHandler.post(any())).thenAnswer(i -> {
+            ((Runnable) i.getArguments()[0]).run();
+            return true;
+        });
+        // keep track of runnables with delayed posts
+        mQueuedRunnables = new ArrayList<>();
+        when(mHandler.postDelayed(any(), anyLong())).thenAnswer(i -> {
+            mQueuedRunnables.add(((Runnable) i.getArguments()[0]));
+            return true;
+        });
+        mService = new DriverDistractionExperimentalFeatureService(mContext, mTimeSource,
+                mExpiredAwarenessTimer, Looper.myLooper(), mHandler);
         mManager = new CarDriverDistractionManager(Car.createCar(mContext), mService);
+        mDistractionEventHistory = new ArrayList<>();
     }
 
     @After
@@ -206,7 +230,8 @@ public class DriverDistractionExperimentalFeatureServiceTest {
         // actually start the intents / services.
         ServiceLauncherContext serviceLauncherContext = new ServiceLauncherContext(spyContext);
         mService = new DriverDistractionExperimentalFeatureService(serviceLauncherContext,
-                mTimeSource, mTimer, spyContext.getMainLooper());
+                mTimeSource, mExpiredAwarenessTimer,
+                spyContext.getMainLooper(), mHandler);
         mService.init();
 
         serviceLauncherContext.assertBoundService(SERVICE_BIND_GAZE_SUPPLIER);
@@ -222,7 +247,7 @@ public class DriverDistractionExperimentalFeatureServiceTest {
                 new Pair<>(mFallbackSupplier, mFallbackConfig)));
 
         float firstAwarenessValue = 0.7f;
-        emitEvent(mFallbackSupplier, INITIAL_TIME + 1, firstAwarenessValue);
+        emitDriverAwarenessEvent(mFallbackSupplier, INITIAL_TIME + 1, firstAwarenessValue);
 
         assertThat(getCurrentAwarenessValue()).isEqualTo(firstAwarenessValue);
     }
@@ -236,9 +261,9 @@ public class DriverDistractionExperimentalFeatureServiceTest {
 
         // emit an event from the preferred supplier before the fallback supplier
         float preferredValue = 0.6f;
-        emitEvent(mPreferredSupplier, INITIAL_TIME + 1, preferredValue);
+        emitDriverAwarenessEvent(mPreferredSupplier, INITIAL_TIME + 1, preferredValue);
         float fallbackValue = 0.7f;
-        emitEvent(mFallbackSupplier, INITIAL_TIME + 2, fallbackValue);
+        emitDriverAwarenessEvent(mFallbackSupplier, INITIAL_TIME + 2, fallbackValue);
 
         // even though the fallback supplier has a more recent timestamp, it is not the current
         // since the event from the preferred supplier is still fresh
@@ -251,9 +276,9 @@ public class DriverDistractionExperimentalFeatureServiceTest {
                 new Pair<>(mFallbackSupplier, mFallbackConfig)));
 
         float firstAwarenessValue = 0.7f;
-        emitEvent(mFallbackSupplier, INITIAL_TIME + 1, firstAwarenessValue);
+        emitDriverAwarenessEvent(mFallbackSupplier, INITIAL_TIME + 1, firstAwarenessValue);
         long oldTime = INITIAL_TIME - 100;
-        emitEvent(mFallbackSupplier, oldTime, 0.6f);
+        emitDriverAwarenessEvent(mFallbackSupplier, oldTime, 0.6f);
 
         // the event with the old timestamp shouldn't overwrite the value with a more recent
         // timestamp
@@ -271,20 +296,22 @@ public class DriverDistractionExperimentalFeatureServiceTest {
         // emit an event from the preferred supplier before the fallback supplier
         float preferredSupplierAwarenessValue = 0.6f;
         long preferredSupplierEventTime = INITIAL_TIME + 1;
-        mTimeSource.setElapsedRealtime(preferredSupplierEventTime);
-        emitEvent(mPreferredSupplier, preferredSupplierEventTime, preferredSupplierAwarenessValue);
+        mTimeSource.setTimeMillis(preferredSupplierEventTime);
+        emitDriverAwarenessEvent(mPreferredSupplier, preferredSupplierEventTime,
+                preferredSupplierAwarenessValue);
         float fallbackSuppplierAwarenessValue = 0.7f;
         long fallbackSupplierEventTime = INITIAL_TIME + 2;
-        mTimeSource.setElapsedRealtime(fallbackSupplierEventTime);
-        emitEvent(mFallbackSupplier, fallbackSupplierEventTime, fallbackSuppplierAwarenessValue);
+        mTimeSource.setTimeMillis(fallbackSupplierEventTime);
+        emitDriverAwarenessEvent(mFallbackSupplier, fallbackSupplierEventTime,
+                fallbackSuppplierAwarenessValue);
 
         // the preferred supplier still has a fresh event
         assertThat(getCurrentAwarenessValue()).isEqualTo(preferredSupplierAwarenessValue);
 
         // go into the future
-        mTimeSource.setElapsedRealtime(
+        mTimeSource.setTimeMillis(
                 preferredSupplierEventTime + PREFERRED_SUPPLIER_STALENESS + 1);
-        mTimer.executePendingTask();
+        mExpiredAwarenessTimer.executePendingTask();
 
         // the preferred supplier's data has become stale
         assertThat(getCurrentAwarenessValue()).isEqualTo(fallbackSuppplierAwarenessValue);
@@ -313,8 +340,9 @@ public class DriverDistractionExperimentalFeatureServiceTest {
                 new Pair<>(mFallbackSupplier, mFallbackConfig)));
 
         float firstAwarenessValue = 0.7f;
-        mTimeSource.setElapsedRealtime(INITIAL_TIME + 1);
-        emitEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(), firstAwarenessValue);
+        mTimeSource.setTimeMillis(INITIAL_TIME + 1);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                firstAwarenessValue);
 
         assertThat(mService.getLastDistractionEvent()).isEqualTo(
                 new DriverDistractionChangeEvent.Builder()
@@ -342,6 +370,7 @@ public class DriverDistractionExperimentalFeatureServiceTest {
 
     @Test
     public void testManagerRegister_distractionValueUnchanged_doesNotEmitEvent() throws Exception {
+        setVehicleMoving();
         long eventWaitTimeMs = 300;
 
         mService.setDriverAwarenessSuppliers(Arrays.asList(
@@ -357,11 +386,162 @@ public class DriverDistractionExperimentalFeatureServiceTest {
                         .build());
 
         float firstAwarenessValue = 1.0f;
-        mTimeSource.setElapsedRealtime(INITIAL_TIME + 1);
+        mTimeSource.setTimeMillis(INITIAL_TIME + 1);
         resetChangeEventWait();
-        emitEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(), firstAwarenessValue);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                firstAwarenessValue);
 
         assertThat(waitForCallbackEvent(eventWaitTimeMs)).isFalse();
+    }
+
+    @Test
+    public void testManagerRegister_eventInThrottleWindow_isQueued()
+            throws Exception {
+        setVehicleMoving();
+        long eventWaitTimeMs = 300;
+
+        mService.setDriverAwarenessSuppliers(Collections.singletonList(
+                new Pair<>(mFallbackSupplier, mFallbackConfig)));
+        resetChangeEventWait();
+        mManager.addDriverDistractionChangeListener(mChangeListener);
+        // 0th event: event from registering
+        assertThat(waitForCallbackEvent(eventWaitTimeMs)).isTrue();
+
+        // 1st event: driver awareness changes, and first event is emitted
+        resetChangeEventWait();
+        float firstAwarenessValue = 0.9f;
+        long firstEventTime = INITIAL_TIME + 1;
+        mTimeSource.setTimeMillis(firstEventTime);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                firstAwarenessValue);
+        assertThat(waitForCallbackEvent(eventWaitTimeMs)).isTrue();
+
+        // 2nd event: driver awareness changes within throttle window, so dispatch is scheduled
+        resetChangeEventWait();
+        float secondAwarenessValue = 0.8f;
+        long secondEventTime = INITIAL_TIME + 2;
+        mTimeSource.setTimeMillis(secondEventTime);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                secondAwarenessValue);
+
+        // delayed runnable should be posted to handler in 1 second less than the throttle delay
+        // (since there was 1 second between the two events). No event should have been emitted.
+        verify(mHandler).postDelayed(any(), eq(DISPATCH_THROTTLE_MS - 1));
+        assertThat(waitForCallbackEvent(eventWaitTimeMs)).isFalse();
+
+        // event is emitted once the pending task is run
+        mQueuedRunnables.get(0).run();
+        assertThat(waitForCallbackEvent(eventWaitTimeMs)).isTrue();
+        assertThat(mLastDistractionEvent).isEqualTo(
+                new DriverDistractionChangeEvent.Builder()
+                        .setElapsedRealtimeTimestamp(secondEventTime)
+                        .setAwarenessPercentage(secondAwarenessValue)
+                        .build());
+    }
+
+    @Test
+    public void testManagerRegister_multipleEventsInThrottleWindow_dropsExtraEvents()
+            throws Exception {
+        setVehicleMoving();
+        long eventWaitTimeMs = 300;
+
+        mService.setDriverAwarenessSuppliers(Collections.singletonList(
+                new Pair<>(mFallbackSupplier, mFallbackConfig)));
+        resetChangeEventWait();
+        mManager.addDriverDistractionChangeListener(mChangeListener);
+        // 0th event: event from registering
+        assertThat(waitForCallbackEvent(eventWaitTimeMs)).isTrue();
+
+        // 1st event: driver awareness changes, and first event is emitted
+        resetChangeEventWait();
+        float firstAwarenessValue = 0.9f;
+        long firstEventTime = INITIAL_TIME + 1;
+        mTimeSource.setTimeMillis(firstEventTime);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                firstAwarenessValue);
+        assertThat(waitForCallbackEvent(eventWaitTimeMs)).isTrue();
+
+        // 2nd event: driver awareness changes within throttle window, so dispatch is scheduled
+        resetChangeEventWait();
+        float secondAwarenessValue = 0.8f;
+        long secondEventTime = INITIAL_TIME + 2;
+        mTimeSource.setTimeMillis(secondEventTime);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                secondAwarenessValue);
+        // runnable will be posted in 1 second less than the throttle delay
+        verify(mHandler).postDelayed(any(), eq(DISPATCH_THROTTLE_MS - 1));
+
+        // 3rd event: driver awareness changes within throttle window again, no new schedule
+        float thirdAwarenessValue = 0.7f;
+        long thirdEventTime = INITIAL_TIME + 3;
+        mTimeSource.setTimeMillis(thirdEventTime);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                thirdAwarenessValue);
+        // verify that this was still only called once
+        verify(mHandler).postDelayed(any(), eq(DISPATCH_THROTTLE_MS - 1));
+
+        // neither 2nd or 3rd events should trigger a callback
+        assertThat(waitForCallbackEvent(eventWaitTimeMs)).isFalse();
+    }
+
+    @Test
+    public void testManagerRegister_multipleEventsOutsideThrottleWindow_emitsAllEvents()
+            throws Exception {
+        setVehicleMoving();
+        long eventWaitTimeMs = 300;
+
+        mService.setDriverAwarenessSuppliers(Collections.singletonList(
+                new Pair<>(mFallbackSupplier, mFallbackConfig)));
+        resetChangeEventWait();
+        mManager.addDriverDistractionChangeListener(mChangeListener);
+        // 0th event: event from registering
+        assertThat(waitForCallbackEvent(eventWaitTimeMs)).isTrue();
+
+        // 1st event: driver awareness changes, and first event is emitted
+        resetChangeEventWait();
+        float firstAwarenessValue = 0.9f;
+        long firstEventTime = INITIAL_TIME + DISPATCH_THROTTLE_MS;
+        mTimeSource.setTimeMillis(firstEventTime);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                firstAwarenessValue);
+        assertThat(waitForCallbackEvent(eventWaitTimeMs)).isTrue();
+
+        // 2nd event: outside throttle window, so dispatched
+        resetChangeEventWait();
+        float secondAwarenessValue = 0.8f;
+        long secondEventTime = INITIAL_TIME + DISPATCH_THROTTLE_MS * 2;
+        mTimeSource.setTimeMillis(secondEventTime);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                secondAwarenessValue);
+        assertThat(waitForCallbackEvent(eventWaitTimeMs)).isTrue();
+
+        // 3rd event: outside throttle window, so dispatched
+        resetChangeEventWait();
+        float thirdAwarenessValue = 0.7f;
+        long thirdEventTime = INITIAL_TIME + DISPATCH_THROTTLE_MS * 3;
+        mTimeSource.setTimeMillis(thirdEventTime);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                thirdAwarenessValue);
+        assertThat(waitForCallbackEvent(eventWaitTimeMs)).isTrue();
+
+        // all events should be in history
+        assertThat(mDistractionEventHistory).containsExactly(
+                new DriverDistractionChangeEvent.Builder()
+                        .setElapsedRealtimeTimestamp(INITIAL_TIME)
+                        .setAwarenessPercentage(DEFAULT_AWARENESS_PERCENTAGE)
+                        .build(),
+                new DriverDistractionChangeEvent.Builder()
+                        .setElapsedRealtimeTimestamp(firstEventTime)
+                        .setAwarenessPercentage(firstAwarenessValue)
+                        .build(),
+                new DriverDistractionChangeEvent.Builder()
+                        .setElapsedRealtimeTimestamp(secondEventTime)
+                        .setAwarenessPercentage(secondAwarenessValue)
+                        .build(),
+                new DriverDistractionChangeEvent.Builder()
+                        .setElapsedRealtimeTimestamp(thirdEventTime)
+                        .setAwarenessPercentage(thirdAwarenessValue)
+                        .build());
     }
 
     @Test
@@ -382,9 +562,10 @@ public class DriverDistractionExperimentalFeatureServiceTest {
                         .build());
 
         float firstAwarenessValue = 0.7f;
-        mTimeSource.setElapsedRealtime(INITIAL_TIME + 1);
+        mTimeSource.setTimeMillis(INITIAL_TIME + 1);
         resetChangeEventWait();
-        emitEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(), firstAwarenessValue);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                firstAwarenessValue);
 
         assertThat(waitForCallbackEvent(eventWaitTimeMs)).isTrue();
         assertThat(mLastDistractionEvent).isEqualTo(
@@ -405,9 +586,10 @@ public class DriverDistractionExperimentalFeatureServiceTest {
         mManager.removeDriverDistractionChangeListener(mChangeListener);
 
         float firstAwarenessValue = 0.8f;
-        mTimeSource.setElapsedRealtime(INITIAL_TIME + 1);
+        mTimeSource.setTimeMillis(INITIAL_TIME + 1);
         resetChangeEventWait();
-        emitEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(), firstAwarenessValue);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                firstAwarenessValue);
 
         assertThat(waitForCallbackEvent(eventWaitTimeMs)).isFalse();
     }
@@ -424,8 +606,9 @@ public class DriverDistractionExperimentalFeatureServiceTest {
                 new Pair<>(mFallbackSupplier, mFallbackConfig)));
 
         float firstAwarenessValue = 0.7f;
-        mTimeSource.setElapsedRealtime(INITIAL_TIME + 1);
-        emitEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(), firstAwarenessValue);
+        mTimeSource.setTimeMillis(INITIAL_TIME + 1);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                firstAwarenessValue);
 
         // No new distraction event since required awareness is 0 until a speed change occurs
         assertThat(mService.getLastDistractionEvent()).isEqualTo(
@@ -443,8 +626,9 @@ public class DriverDistractionExperimentalFeatureServiceTest {
                 new Pair<>(mFallbackSupplier, mFallbackConfig)));
 
         float firstAwarenessValue = 0.7f;
-        mTimeSource.setElapsedRealtime(INITIAL_TIME + 1);
-        emitEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(), firstAwarenessValue);
+        mTimeSource.setTimeMillis(INITIAL_TIME + 1);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                firstAwarenessValue);
         mService.handleSpeedEventLocked(
                 new CarPropertyValue<>(VehiclePropertyIds.PERF_VEHICLE_SPEED, 0, 30.0f));
 
@@ -455,10 +639,10 @@ public class DriverDistractionExperimentalFeatureServiceTest {
                         .setAwarenessPercentage(0.7f)
                         .build());
 
-        mTimeSource.setElapsedRealtime(INITIAL_TIME + 2);
+        mTimeSource.setTimeMillis(INITIAL_TIME + 2);
         mService.handleSpeedEventLocked(
                 new CarPropertyValue<>(VehiclePropertyIds.PERF_VEHICLE_SPEED, 0, 20.0f));
-        mTimeSource.setElapsedRealtime(INITIAL_TIME + 3);
+        mTimeSource.setTimeMillis(INITIAL_TIME + 3);
         mService.handleSpeedEventLocked(
                 new CarPropertyValue<>(VehiclePropertyIds.PERF_VEHICLE_SPEED, 0, 40.0f));
 
@@ -477,10 +661,11 @@ public class DriverDistractionExperimentalFeatureServiceTest {
 
         setVehicleMoving();
         float firstAwarenessValue = 0.7f;
-        mTimeSource.setElapsedRealtime(INITIAL_TIME + 1);
-        emitEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(), firstAwarenessValue);
+        mTimeSource.setTimeMillis(INITIAL_TIME + 1);
+        emitDriverAwarenessEvent(mFallbackSupplier, mTimeSource.elapsedRealtime(),
+                firstAwarenessValue);
 
-        mTimeSource.setElapsedRealtime(INITIAL_TIME + 2);
+        mTimeSource.setTimeMillis(INITIAL_TIME + 2);
         setVehicleStopped();
 
         // Awareness percentage is 1.0 since the vehicle is stopped, even though driver awareness
@@ -525,7 +710,7 @@ public class DriverDistractionExperimentalFeatureServiceTest {
      * Handle an event as if it were emitted from the specified supplier with the specified time and
      * value.
      */
-    private void emitEvent(IDriverAwarenessSupplier supplier, long time, float value)
+    private void emitDriverAwarenessEvent(IDriverAwarenessSupplier supplier, long time, float value)
             throws RemoteException {
         long maxStaleness;
         if (supplier == mFallbackSupplier) {
