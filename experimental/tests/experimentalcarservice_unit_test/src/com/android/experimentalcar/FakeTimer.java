@@ -35,6 +35,15 @@ public class FakeTimer implements ITimer {
         mPendingTask = task;
     }
 
+    @Override
+    public void cancel() {
+        // no-op
+    }
+
+    TimerTask getPendingTask() {
+        return mPendingTask;
+    }
+
     /**
      * Immediately execute the scheduled task.
      */

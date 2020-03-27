@@ -36,4 +36,9 @@ public class SystemTimer implements ITimer {
     public void schedule(TimerTask task, long delay) {
         mTimer.schedule(task, delay);
     }
+
+    @Override
+    public void cancel() {
+        mTimer.cancel();
+    }
 }
