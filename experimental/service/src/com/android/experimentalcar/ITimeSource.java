@@ -27,4 +27,9 @@ public interface ITimeSource {
      * See {@link SystemClock#elapsedRealtime()}.
      */
     long elapsedRealtime();
+
+    /**
+     * See {@link SystemClock#uptimeMillis()}.
+     */
+    long uptimeMillis();
 }
