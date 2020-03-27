@@ -45,6 +45,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.input.InputManager;
 import android.os.Handler;
@@ -135,9 +136,6 @@ public class DriverDistractionExperimentalFeatureServiceTest {
             };
 
     @Mock
-    private Context mContext;
-
-    @Mock
     private InputManager mInputManager;
 
     @Mock
@@ -151,6 +149,9 @@ public class DriverDistractionExperimentalFeatureServiceTest {
 
     @Rule
     public final ServiceTestRule serviceRule = new ServiceTestRule();
+
+    private final Context mSpyContext = spy(
+            InstrumentationRegistry.getInstrumentation().getContext());
 
     private DriverDistractionExperimentalFeatureService mService;
     private CarDriverDistractionManager mManager;
@@ -173,10 +174,13 @@ public class DriverDistractionExperimentalFeatureServiceTest {
             mQueuedRunnables.add(((Runnable) i.getArguments()[0]));
             return true;
         });
-        mService = new DriverDistractionExperimentalFeatureService(mContext, mTimeSource,
-                mExpiredAwarenessTimer, Looper.myLooper(), mHandler);
-        mManager = new CarDriverDistractionManager(Car.createCar(mContext), mService);
         mDistractionEventHistory = new ArrayList<>();
+        doReturn(PackageManager.PERMISSION_GRANTED)
+                .when(mSpyContext).checkCallingOrSelfPermission(any());
+        mService = new DriverDistractionExperimentalFeatureService(mSpyContext, mTimeSource,
+                mExpiredAwarenessTimer, Looper.myLooper(), mHandler);
+        // Car must not be created with a mock context (otherwise CarService may crash)
+        mManager = new CarDriverDistractionManager(Car.createCar(mSpyContext), mService);
     }
 
     @After
