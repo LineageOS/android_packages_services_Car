@@ -206,7 +206,7 @@ public class CarUserServiceTest {
     @Test
     public void testDoesNotSetSystemUserRestrictions_IfRestrictionsAlreadySet() {
         putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
-        mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
+        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
         verify(mMockedUserManager, never())
                 .setUserRestriction(
                         UserManager.DISALLOW_MODIFY_ACCOUNTS,
@@ -233,7 +233,7 @@ public class CarUserServiceTest {
 
         // Act
         int anyNewUserId = 11;
-        mCarUserService.onSwitchUser(anyNewUserId);
+        onUserSwitching(anyNewUserId);
 
         // Verify
         verifyListenerOnEventInvoked(anyNewUserId,
@@ -254,7 +254,7 @@ public class CarUserServiceTest {
 
         // Act
         int anyNewUserId = 11;
-        mCarUserService.onSwitchUser(anyNewUserId);
+        onUserSwitching(anyNewUserId);
 
         // Verify
         verifyListenerOnEventInvoked(anyNewUserId,
@@ -274,7 +274,7 @@ public class CarUserServiceTest {
      */
     @Test
     public void testDisableLocationForHeadlessSystemUserOnFirstRun() {
-        mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
+        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
         verify(mLocationManager).setLocationEnabledForUser(
                 /* enabled= */ false, UserHandle.of(UserHandle.USER_SYSTEM));
     }
@@ -289,7 +289,7 @@ public class CarUserServiceTest {
                 NO_USER_INFO_FLAGS);
         doReturn(persistentUser).when(mMockedUserManager).getUserInfo(lastActiveUserId);
 
-        mCarUserService.onSwitchUser(lastActiveUserId);
+        onUserSwitching(lastActiveUserId);
 
         verify(mMockedCarUserManagerHelper).setLastActiveUser(lastActiveUserId);
     }
@@ -299,7 +299,7 @@ public class CarUserServiceTest {
      */
     @Test
     public void testInitializeGuestRestrictions_IfNotAlreadySet() {
-        mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
+        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
         assertThat(getSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET)).isEqualTo(1);
     }
 
@@ -309,14 +309,14 @@ public class CarUserServiceTest {
     @Test
     public void test_DoesNotInitializeGuestRestrictions_IfAlreadySet() {
         putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
-        mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
+        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
         verify(mMockedUserManager, never()).setDefaultGuestRestrictions(any(Bundle.class));
     }
 
     @Test
     public void testRunOnUser0UnlockImmediate() {
         mUser0TaskExecuted = false;
-        mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
+        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
         mCarUserService.runOnUser0Unlock(() -> {
             mUser0TaskExecuted = true;
         });
@@ -330,7 +330,7 @@ public class CarUserServiceTest {
             mUser0TaskExecuted = true;
         });
         assertFalse(mUser0TaskExecuted);
-        mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
+        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
         assertTrue(mUser0TaskExecuted);
     }
 
@@ -359,35 +359,31 @@ public class CarUserServiceTest {
         doReturn(user5Info).when(mMockedUserManager).getUserInfo(user5);
 
         doReturn(user1).when(() -> ActivityManager.getCurrentUser());
-        mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
+        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
         // user 0 should never go to that list.
         assertTrue(mCarUserService.getBackgroundUsersToRestart().isEmpty());
 
-        mCarUserService.setUserLockStatus(user1, true);
+        sendUserUnlockingEvent(user1);
         assertEquals(new Integer[]{user1},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
         // user 2 background, ignore in restart list
-        mCarUserService.setUserLockStatus(user2, true);
-        mCarUserService.setUserLockStatus(user1, false);
+        sendUserUnlockingEvent(user2);
         assertEquals(new Integer[]{user1},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
         doReturn(user3).when(() -> ActivityManager.getCurrentUser());
-        mCarUserService.setUserLockStatus(user3, true);
-        mCarUserService.setUserLockStatus(user2, false);
+        sendUserUnlockingEvent(user3);
         assertEquals(new Integer[]{user3, user1},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
         doReturn(user4Guest).when(() -> ActivityManager.getCurrentUser());
-        mCarUserService.setUserLockStatus(user4Guest, true);
-        mCarUserService.setUserLockStatus(user3, false);
+        sendUserUnlockingEvent(user4Guest);
         assertEquals(new Integer[]{user3, user1},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
         doReturn(user5).when(() -> ActivityManager.getCurrentUser());
-        mCarUserService.setUserLockStatus(user5, true);
-        mCarUserService.setUserLockStatus(user4Guest, false);
+        sendUserUnlockingEvent(user5);
         assertEquals(new Integer[]{user5, user3},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
     }
@@ -410,14 +406,13 @@ public class CarUserServiceTest {
         doReturn(user3Info).when(mMockedUserManager).getUserInfo(user3);
 
         doReturn(user1).when(() -> ActivityManager.getCurrentUser());
-        mCarUserService.setUserLockStatus(UserHandle.USER_SYSTEM, true);
-        mCarUserService.setUserLockStatus(user1, true);
+        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
+        sendUserUnlockingEvent(user1);
         doReturn(user2).when(() -> ActivityManager.getCurrentUser());
-        mCarUserService.setUserLockStatus(user2, true);
-        mCarUserService.setUserLockStatus(user1, false);
+        sendUserUnlockingEvent(user2);
+        sendUserUnlockingEvent(user1);
         doReturn(user3).when(() -> ActivityManager.getCurrentUser());
-        mCarUserService.setUserLockStatus(user3, true);
-        mCarUserService.setUserLockStatus(user2, false);
+        sendUserUnlockingEvent(user3);
 
         assertEquals(new Integer[]{user3, user2},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
@@ -427,7 +422,7 @@ public class CarUserServiceTest {
                 null, null, null);
         assertEquals(new Integer[]{user2},
                 mCarUserService.startAllBackgroundUsers().toArray());
-        mCarUserService.setUserLockStatus(user2, true);
+        sendUserUnlockingEvent(user2);
         assertEquals(new Integer[]{user3, user2},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
@@ -438,7 +433,6 @@ public class CarUserServiceTest {
         assertTrue(mCarUserService.stopBackgroundUser(user2));
         assertEquals(new Integer[]{user3, user2},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
-        mCarUserService.setUserLockStatus(user2, false);
         assertEquals(new Integer[]{user3, user2},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
     }
@@ -965,28 +959,28 @@ public class CarUserServiceTest {
         int actualAction = resultData.getInt(CarUserService.BUNDLE_INITIAL_INFO_ACTION);
         assertWithMessage("wrong request type on bundle extra %s",
                 CarUserService.BUNDLE_INITIAL_INFO_ACTION).that(actualAction)
-            .isEqualTo(expectedAction);
+                .isEqualTo(expectedAction);
     }
 
     private void assertSwitchUserStatus(@NonNull Bundle resultData, int expectedStatus) {
         int actualStatus = resultData.getInt(CarUserManager.BUNDLE_USER_SWITCH_STATUS);
         assertWithMessage("wrong status on bundle extra %s",
                 CarUserManager.BUNDLE_USER_SWITCH_STATUS).that(actualStatus)
-                        .isEqualTo(expectedStatus);
+                .isEqualTo(expectedStatus);
     }
 
     private void assertSwitchUserMessageType(@NonNull Bundle resultData, int expectedType) {
         int actualType = resultData.getInt(CarUserManager.BUNDLE_USER_SWITCH_MSG_TYPE);
         assertWithMessage("wrong message type on bundle extra %s",
                 CarUserManager.BUNDLE_USER_SWITCH_MSG_TYPE).that(actualType)
-                        .isEqualTo(expectedType);
+                .isEqualTo(expectedType);
     }
 
     private void assertSwitchUserErrorMessage(@NonNull Bundle resultData, String expectedMsg) {
         String actualMsg = resultData.getString(CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG);
         assertWithMessage("wrong error message on bundle extra %s",
                 CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG).that(actualMsg)
-                        .isEqualTo(expectedMsg);
+                .isEqualTo(expectedMsg);
     }
 
     static final class FakeCarOccupantZoneService {
@@ -1031,7 +1025,6 @@ public class CarUserServiceTest {
         }
     }
 
-
     // TODO(b/148403316): Refactor to use common fake settings provider
     private void mockSettingsGlobal() {
         when(Settings.Global.putInt(any(), eq(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET),
@@ -1054,6 +1047,16 @@ public class CarUserServiceTest {
         return Settings.Global.getInt(
                 InstrumentationRegistry.getTargetContext().getContentResolver(),
                 key, /* default= */ 0);
+    }
+
+    private void sendUserUnlockingEvent(int userId) {
+        mCarUserService.onUserLifecycleEvent(new UserLifecycleEvent(
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING, userId));
+    }
+
+    private void onUserSwitching(int userId) {
+        mCarUserService.onUserLifecycleEvent(new UserLifecycleEvent(
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, userId));
     }
 
     // TODO(b/149099817): move stuff below to common code
