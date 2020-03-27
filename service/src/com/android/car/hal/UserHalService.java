@@ -231,6 +231,7 @@ public final class UserHalService extends HalServiceBase {
             if (DBG) Log.d(TAG, "Calling hal.set(): " + propRequest);
             mHal.set(propRequest);
         } catch (ServiceSpecificException e) {
+            handleRemovePendingRequest(requestId);
             Log.w(TAG, "Failed to set INITIAL_USER_INFO", e);
             callback.onResponse(HalCallback.STATUS_HAL_SET_TIMEOUT, null);
         }
