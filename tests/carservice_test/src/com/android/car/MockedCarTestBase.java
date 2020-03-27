@@ -21,10 +21,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
-import android.annotation.NonNull;
 import android.car.Car;
 import android.car.test.CarTestManager;
 import android.car.test.CarTestManagerBinderWrapper;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -57,7 +57,6 @@ import com.android.car.systeminterface.TimeInterface;
 import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.user.CarUserService;
-import com.android.car.user.CarUserService.UserCallback;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 import com.android.car.vehiclehal.test.MockedVehicleHal.DefaultPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.StaticPropertyHandler;
@@ -95,7 +94,7 @@ public class MockedCarTestBase {
     private MockResources mResources;
     private MockedCarTestContext mMockedCarTestContext;
 
-    private final List<CarUserService.UserCallback> mUserCallbacks = new ArrayList<>();
+    private final List<UserLifecycleListener> mUserLifecycleListeners = new ArrayList<>();
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
@@ -163,21 +162,6 @@ public class MockedCarTestBase {
         return cn.flattenToString();
     }
 
-    /**
-     * Emulates a call to {@link CarUserService#onSwitchUser(int)} that dispatches
-     * {@link UserCallback#onSwitchUser(int)} to the callbacks whose {@code toString()} method
-     * contains the given {@code filter}.
-     */
-    protected void switchUser(int userId, @NonNull String filter) {
-        Log.d(TAG, "switchUser(" + userId  + ", " + filter + "): callbacks=" + mUserCallbacks);
-        for (UserCallback callback : mUserCallbacks) {
-            if (callback.toString().contains(filter)) {
-                Log.i(TAG, "Notifying " + callback);
-                callback.onSwitchUser(userId);
-            }
-        }
-    }
-
     @Before
     @UiThreadTest
     public void setUp() throws Exception {
@@ -194,18 +178,18 @@ public class MockedCarTestBase {
         configureResourceOverrides((MockResources) mMockedCarTestContext.getResources());
 
         doAnswer((invocation) -> {
-            CarUserService.UserCallback callback = invocation.getArgument(0);
-            Log.d(TAG, "Adding callback: " + callback);
-            mUserCallbacks.add(callback);
+            UserLifecycleListener listener = invocation.getArgument(0);
+            Log.d(TAG, "Adding UserLifecycleListener: " + listener);
+            mUserLifecycleListeners.add(listener);
             return null;
-        }).when(mCarUserService).addUserCallback(any());
+        }).when(mCarUserService).addUserLifecycleListener(any());
 
         doAnswer((invocation) -> {
-            CarUserService.UserCallback callback = invocation.getArgument(0);
-            Log.d(TAG, "Removing callback: " + callback);
-            mUserCallbacks.remove(callback);
+            UserLifecycleListener listener = invocation.getArgument(0);
+            Log.d(TAG, "Removing UserLifecycleListener: " + listener);
+            mUserLifecycleListeners.remove(listener);
             return null;
-        }).when(mCarUserService).removeUserCallback(any());
+        }).when(mCarUserService).removeUserLifecycleListener(any());
 
         // ICarImpl will register new CarLocalServices services.
         // This prevents one test failure in tearDown from triggering assertion failure for single

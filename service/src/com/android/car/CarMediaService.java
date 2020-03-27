@@ -26,6 +26,8 @@ import android.car.media.CarMediaManager.MediaSourceChangedListener;
 import android.car.media.CarMediaManager.MediaSourceMode;
 import android.car.media.ICarMedia;
 import android.car.media.ICarMediaSourceListener;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -171,21 +173,13 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
     };
 
-    private final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
-
-        @Override
-        public void onSwitchUser(int userId) {
-            if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
-                Log.d(CarLog.TAG_MEDIA, "Switched to user " + userId);
-            }
-            maybeInitUser(userId);
+    private final UserLifecycleListener mUserLifecycleListener = event -> {
+        if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
+            Log.d(CarLog.TAG_MEDIA, "CarMediaService.onEvent(" + event + ")");
         }
-
-        @Override
-        public void onUserLockChanged(int userId, boolean unlocked) {
-            // Do Nothing
+        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
+            maybeInitUser(event.getUserHandle().getIdentifier());
         }
-
     };
 
     public CarMediaService(Context context, CarUserService userService) {
@@ -207,7 +201,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         mPackageUpdateFilter.addDataScheme("package");
         mUserService = userService;
-        mUserService.addUserCallback(mUserCallback);
+        mUserService.removeUserLifecycleListener(mUserLifecycleListener);
 
         mPlayOnMediaSourceChangedConfig =
                 mContext.getResources().getInteger(R.integer.config_mediaSourceChangedAutoplay);
@@ -301,7 +295,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     @Override
     public void release() {
         mMediaSessionUpdater.unregisterCallbacks();
-        mUserService.removeUserCallback(mUserCallback);
+        mUserService.removeUserLifecycleListener(mUserLifecycleListener);
     }
 
     @Override

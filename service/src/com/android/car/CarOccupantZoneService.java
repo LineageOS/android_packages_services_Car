@@ -29,6 +29,8 @@ import android.car.ICarOccupantZone;
 import android.car.ICarOccupantZoneCallback;
 import android.car.VehicleAreaSeat;
 import android.car.media.CarAudioManager;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -157,14 +159,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     private final HashMap<Integer, OccupantConfig> mActiveOccupantConfigs = new HashMap<>();
 
     @VisibleForTesting
-    final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
-        @Override
-        public void onUserLockChanged(@UserIdInt int userId, boolean unlocked) {
-            // nothing to do
+    final UserLifecycleListener mUserLifecycleListener = event -> {
+        if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
+            Log.d(CarLog.TAG_MEDIA, "onEvent(" + event + ")");
         }
-
-        @Override
-        public void onSwitchUser(@UserIdInt int userId) {
+        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             handleUserChange();
         }
     };
@@ -185,21 +184,21 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     @VisibleForTesting
     final DisplayManager.DisplayListener mDisplayListener =
             new DisplayManager.DisplayListener() {
-        @Override
-        public void onDisplayAdded(int displayId) {
-            handleDisplayChange();
-        }
+                @Override
+                public void onDisplayAdded(int displayId) {
+                    handleDisplayChange();
+                }
 
-        @Override
-        public void onDisplayRemoved(int displayId) {
-            handleDisplayChange();
-        }
+                @Override
+                public void onDisplayRemoved(int displayId) {
+                    handleDisplayChange();
+                }
 
-        @Override
-        public void onDisplayChanged(int displayId) {
-            // nothing to do
-        }
-    };
+                @Override
+                public void onDisplayChanged(int displayId) {
+                    // nothing to do
+                }
+            };
 
     private final RemoteCallbackList<ICarOccupantZoneCallback> mClientCallbacks =
             new RemoteCallbackList<>();
@@ -234,7 +233,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             handleUserChangesLocked();
         }
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
-        userService.addUserCallback(mUserCallback);
+        userService.addUserLifecycleListener(mUserLifecycleListener);
         userService.addPassengerCallback(mPassengerCallback);
         mDisplayManager.registerDisplayListener(mDisplayListener,
                 new Handler(Looper.getMainLooper()));
@@ -298,7 +297,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                     if (getDisplayForOccupant(ozi.zoneId,
                             CarOccupantZoneManager.DISPLAY_TYPE_MAIN) != Display.INVALID_DISPLAY
                             && ozi.occupantType != CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER) {
-                            return true;
+                        return true;
                     }
                 }
                 return false;
@@ -311,7 +310,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     public void release() {
         mDisplayManager.unregisterDisplayListener(mDisplayListener);
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
-        userService.removeUserCallback(mUserCallback);
+        userService.removeUserLifecycleListener(mUserLifecycleListener);
         userService.removePassengerCallback(mPassengerCallback);
         synchronized (mLock) {
             mOccupantsConfig.clear();
@@ -483,7 +482,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 continue;
             }
             DisplayConfig config =
-                mDisplayConfigs.get(Byte.toUnsignedInt(portAddress));
+                    mDisplayConfigs.get(Byte.toUnsignedInt(portAddress));
             return config;
         }
         return null;
