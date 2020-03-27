@@ -32,6 +32,8 @@ import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.VehicleAreaSeat;
 import android.car.media.CarAudioManager;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
@@ -212,7 +214,7 @@ public class CarOccupantZoneServiceTest {
         doReturn(VehicleAreaSeat.SEAT_ROW_1_LEFT).when(mService).getDriverSeat();
         doReturn(ActivityManager.getCurrentUser()).when(mService).getCurrentUser();
 
-        Car car = new Car(mContext, /* service= */null, /* handler= */ null);
+        Car car = new Car(mContext, /* service= */ null, /* handler= */ null);
         mManager = new CarOccupantZoneManager(car, mService);
     }
 
@@ -454,7 +456,10 @@ public class CarOccupantZoneServiceTest {
 
         final int newUserId = 100;
         doReturn(newUserId).when(mService).getCurrentUser();
-        mService.mUserCallback.onSwitchUser(newUserId);
+        mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
+                /* from= */ null,
+                /* to= */ UserHandle.of(newUserId)));
 
         // key : zone id
         HashMap<Integer, OccupantConfig> configs = mService.getActiveOccupantConfigs();
@@ -670,7 +675,10 @@ public class CarOccupantZoneServiceTest {
 
         final int newUserId = 100;
         doReturn(newUserId).when(mService).getCurrentUser();
-        mService.mUserCallback.onSwitchUser(newUserId);
+        mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
+                /* from= */ null,
+                /* to= */ UserHandle.of(newUserId)));
 
         assertThat(newUserId).isEqualTo(mManager.getUserForOccupant(mZoneDriverLHD));
         //TODO update this after secondary user handling
@@ -689,7 +697,11 @@ public class CarOccupantZoneServiceTest {
         mManager.registerOccupantZoneConfigChangeListener(mChangeListener);
 
         resetConfigChangeEventWait();
-        mService.mUserCallback.onSwitchUser(0); // user id does not matter.
+        mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
+                /* from= */ null,
+                /* to= */ UserHandle.of(0)));  // user id does not matter.
+
         assertThat(waitForConfigChangeEventAndAssertFlag(eventWaitTimeMs,
                 CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER)).isTrue();
 
@@ -700,7 +712,10 @@ public class CarOccupantZoneServiceTest {
 
         resetConfigChangeEventWait();
         mManager.unregisterOccupantZoneConfigChangeListener(mChangeListener);
-        mService.mUserCallback.onSwitchUser(0);
+        mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
+                /* from= */ null,
+                /* to= */ UserHandle.of(0)));
         assertThat(waitForConfigChangeEventAndAssertFlag(eventWaitTimeMs, 0)).isFalse();
     }
 
