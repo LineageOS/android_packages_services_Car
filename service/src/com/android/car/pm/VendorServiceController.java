@@ -19,6 +19,9 @@ package com.android.car.pm;
 import static android.content.Context.BIND_AUTO_CREATE;
 
 import android.app.ActivityManager;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleEvent;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -52,7 +55,7 @@ import java.util.Objects;
  * possible pass {@link #mHandler} when subscribe for callbacks otherwise redirect code to the
  * handler.
  */
-class VendorServiceController implements CarUserService.UserCallback {
+class VendorServiceController implements UserLifecycleListener {
     private static final boolean DBG = true;
 
     private static final int MSG_SWITCH_USER = 1;
@@ -102,14 +105,14 @@ class VendorServiceController implements CarUserService.UserCallback {
         }
 
         mCarUserService = CarLocalServices.getService(CarUserService.class);
-        mCarUserService.addUserCallback(this);
+        mCarUserService.addUserLifecycleListener(this);
 
         startOrBindServicesIfNeeded();
     }
 
     void release() {
         if (mCarUserService != null) {
-            mCarUserService.removeUserCallback(this);
+            mCarUserService.removeUserLifecycleListener(this);
         }
 
         for (ConnectionKey key : mConnections.keySet()) {
@@ -117,6 +120,29 @@ class VendorServiceController implements CarUserService.UserCallback {
         }
         mVendorServiceInfos.clear();
         mConnections.clear();
+    }
+
+    @Override
+    public void onEvent(UserLifecycleEvent event) {
+        if (Log.isLoggable(CarLog.TAG_PACKAGE, Log.DEBUG)) {
+            Log.d(CarLog.TAG_PACKAGE, "onEvent(" + event + ")");
+        }
+        // TODO(b/152069895): Use USER_LIFECYCLE_EVENT_TYPE_UNLOCKED and not care about the
+        //     deprecated unlock=false scenario.
+        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING == event.getEventType()) {
+            Message msg = mHandler.obtainMessage(
+                    MSG_USER_LOCK_CHANGED,
+                    event.getUserHandle().getIdentifier(),
+                    /* unlocked= */ 1);
+            mHandler.executeOrSendMessage(msg);
+        } else if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
+            mHandler.removeMessages(MSG_SWITCH_USER);
+            Message msg = mHandler.obtainMessage(
+                    MSG_SWITCH_USER,
+                    event.getUserHandle().getIdentifier(),
+                    /* unlocked= */ 0);
+            mHandler.executeOrSendMessage(msg);
+        }
     }
 
     private void doSwitchUser(int userId) {
@@ -182,19 +208,6 @@ class VendorServiceController implements CarUserService.UserCallback {
         if (userId > 0) {
             startOrBindServicesForUser(UserHandle.of(userId));
         }
-    }
-
-    @Override
-    public void onUserLockChanged(int userId, boolean unlocked) {
-        Message msg = mHandler.obtainMessage(MSG_USER_LOCK_CHANGED, userId, unlocked ? 1 : 0);
-        mHandler.executeOrSendMessage(msg);
-    }
-
-    @Override
-    public void onSwitchUser(int userId) {
-        mHandler.removeMessages(MSG_SWITCH_USER);
-        Message msg = mHandler.obtainMessage(MSG_SWITCH_USER, userId, 0);
-        mHandler.executeOrSendMessage(msg);
     }
 
     private void startOrBindService(VendorServiceInfo service, UserHandle user) {
