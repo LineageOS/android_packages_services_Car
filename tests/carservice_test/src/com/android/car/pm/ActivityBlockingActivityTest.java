@@ -75,6 +75,8 @@ public class ActivityBlockingActivityTest {
         setDrivingStateParked();
     }
 
+    // Suppress test to avoid blocking team while b/150491747 is evaluated
+    @Suppress
     @Test
     public void testBlockingActivity_doActivity_isNotBlocked() throws Exception {
         startActivity(toComponentName(getTestContext(), DoActivity.class));
@@ -95,6 +97,8 @@ public class ActivityBlockingActivityTest {
                 UI_TIMEOUT_MS)).isNotNull();
     }
 
+    // Suppress test to avoid blocking team while b/150491747 is evaluated
+    @Suppress
     @Test
     public void testBlockingActivity_nonDoFinishesOnCreate_noBlockingActivity()
             throws Exception {
@@ -103,6 +107,8 @@ public class ActivityBlockingActivityTest {
         assertBlockingActivityNotFound();
     }
 
+    // Suppress test to avoid blocking team while b/150491747 is evaluated
+    @Suppress
     @Test
     public void testBlockingActivity_nonDoLaunchesDoOnCreate_noBlockingActivity()
             throws Exception {
