@@ -75,6 +75,11 @@ public final class DriverDistractionExperimentalFeatureService extends
 
     private static final String TAG = "CAR.DriverDistractionService";
 
+    /**
+     * The minimum delay between dispatched distraction events, in milliseconds.
+     */
+    @VisibleForTesting
+    static final long DISPATCH_THROTTLE_MS = 50L;
     private static final float DEFAULT_AWARENESS_VALUE_FOR_LOG = 1.0f;
     private static final float MOVING_REQUIRED_AWARENESS = 1.0f;
     private static final float STATIONARY_REQUIRED_AWARENESS = 0.0f;
@@ -188,22 +193,39 @@ public final class DriverDistractionExperimentalFeatureService extends
     @GuardedBy("mLock")
     private CarPropertyManager mPropertyManager;
 
+    /**
+     * The time that last event was emitted, measured in milliseconds since boot using the {@link
+     * android.os.SystemClock#uptimeMillis()} time-base.
+     */
+    @GuardedBy("mLock")
+    private long mLastDispatchUptimeMillis;
+
+    /**
+     * Whether there is currently a pending dispatch to clients.
+     */
+    @GuardedBy("mLock")
+    private boolean mIsDispatchQueued;
+
     private final Context mContext;
     private final ITimeSource mTimeSource;
     private final Looper mLooper;
 
+    private final Runnable mDispatchCurrentDistractionRunnable = () -> {
+        synchronized (mLock) {
+            // dispatch whatever the current value is at this time in the future
+            dispatchCurrentDistractionEventToClientsLocked(
+                    mCurrentDistractionEvent);
+            mIsDispatchQueued = false;
+        }
+    };
+
     /**
      * Create an instance of {@link DriverDistractionExperimentalFeatureService}.
      *
-     * @param context    the context
-     * @param timeSource the source that provides the current time
-     * @param timer      the timer used for scheduling
+     * @param context the context
      */
-    DriverDistractionExperimentalFeatureService(
-            Context context,
-            ITimeSource timeSource,
-            ITimer timer) {
-        this(context, timeSource, timer, Looper.myLooper());
+    DriverDistractionExperimentalFeatureService(Context context) {
+        this(context, new SystemTimeSource(), new SystemTimer(), Looper.myLooper(), null);
     }
 
     @VisibleForTesting
@@ -211,7 +233,8 @@ public final class DriverDistractionExperimentalFeatureService extends
             Context context,
             ITimeSource timeSource,
             ITimer timer,
-            Looper looper) {
+            Looper looper,
+            Handler clientDispatchHandler) {
         mContext = context;
         mTimeSource = timeSource;
         mExpiredDriverAwarenessTimer = timer;
@@ -221,7 +244,11 @@ public final class DriverDistractionExperimentalFeatureService extends
                 .build();
         mClientDispatchHandlerThread = new HandlerThread(TAG);
         mClientDispatchHandlerThread.start();
-        mClientDispatchHandler = new Handler(mClientDispatchHandlerThread.getLooper());
+        if (clientDispatchHandler == null) {
+            mClientDispatchHandler = new Handler(mClientDispatchHandlerThread.getLooper());
+        } else {
+            mClientDispatchHandler = clientDispatchHandler;
+        }
         mLooper = looper;
     }
 
@@ -269,6 +296,8 @@ public final class DriverDistractionExperimentalFeatureService extends
         logd("release");
         mDistractionClients.kill();
         synchronized (mLock) {
+            mExpiredDriverAwarenessTimer.cancel();
+            mClientDispatchHandler.removeCallbacksAndMessages(null);
             for (ServiceConnection serviceConnection : mServiceConnections) {
                 mContext.unbindService(serviceConnection);
             }
@@ -309,6 +338,9 @@ public final class DriverDistractionExperimentalFeatureService extends
             writer.println("  Timestamp (ms since boot): "
                     + (mCurrentDistractionEvent == null ? "unknown"
                     : mCurrentDistractionEvent.getElapsedRealtimeTimestamp()));
+            writer.println("Dispatch Status:");
+            writer.println("  mLastDispatchUptimeMillis: " + mLastDispatchUptimeMillis);
+            writer.println("  mIsDispatchQueued: " + mIsDispatchQueued);
             writer.println("Change log:");
             for (Utils.TransitionLog log : mTransitionLogs) {
                 writer.println(log);
@@ -494,15 +526,47 @@ public final class DriverDistractionExperimentalFeatureService extends
                 .setAwarenessPercentage(awarenessPercentage)
                 .build();
 
-        // TODO(b/148231321) throttle to emit events at most once every 50ms
-        DriverDistractionChangeEvent changeEvent = mCurrentDistractionEvent;
-        mClientDispatchHandler.post(
-                () -> dispatchCurrentDistractionEventToClientsLocked(changeEvent));
+        long nowUptimeMillis = mTimeSource.uptimeMillis();
+        if (shouldThrottleDispatchEventLocked(nowUptimeMillis)) {
+            scheduleAwarenessDispatchLocked(nowUptimeMillis);
+        } else {
+            // if event doesn't need to be throttled, emit immediately
+            DriverDistractionChangeEvent changeEvent = mCurrentDistractionEvent;
+            mClientDispatchHandler.post(
+                    () -> dispatchCurrentDistractionEventToClientsLocked(changeEvent));
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void scheduleAwarenessDispatchLocked(long uptimeMillis) {
+        if (mIsDispatchQueued) {
+            logd("Dispatch event is throttled and already scheduled.");
+            return;
+        }
+
+        // schedule a dispatch for when throttle window has passed
+        long delayMs = mLastDispatchUptimeMillis + DISPATCH_THROTTLE_MS - uptimeMillis;
+        if (delayMs < 0) {
+            Log.e(TAG, String.format(
+                    "Delay for (%s) calculated to be negative (%s), so dispatching immediately",
+                    mCurrentDistractionEvent, delayMs));
+            delayMs = 0;
+        }
+        logd(String.format("Dispatch event (%s) is throttled. Scheduled to emit in %sms",
+                mCurrentDistractionEvent, delayMs));
+        mIsDispatchQueued = true;
+        mClientDispatchHandler.postDelayed(mDispatchCurrentDistractionRunnable, delayMs);
+    }
+
+    @GuardedBy("mLock")
+    private boolean shouldThrottleDispatchEventLocked(long uptimeMillis) {
+        return uptimeMillis < mLastDispatchUptimeMillis + DISPATCH_THROTTLE_MS;
     }
 
     @GuardedBy("mLock")
     private void dispatchCurrentDistractionEventToClientsLocked(
             DriverDistractionChangeEvent changeEvent) {
+        mLastDispatchUptimeMillis = mTimeSource.uptimeMillis();
         logd("Dispatching event to clients: " + changeEvent);
         int numClients = mDistractionClients.beginBroadcast();
         for (int i = 0; i < numClients; i++) {
