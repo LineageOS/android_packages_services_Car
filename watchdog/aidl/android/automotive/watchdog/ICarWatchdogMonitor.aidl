@@ -23,10 +23,9 @@ oneway interface ICarWatchdogMonitor {
   /**
    * Called when the client has not responded within the given timeout.
    * Watchdog server calls this method, requesting the monitor to dump process information of the
-   * client.
+   * clients.
    *
-   * @param client              Binder object of the client.
-   * @param pid                 Process id of the client.
+   * @param pids                Array of process id of the clients.
    */
-  void onClientNotResponding(in ICarWatchdogClient client, in int pid);
+  void onClientsNotResponding(in int[] pids);
 }

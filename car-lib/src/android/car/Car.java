@@ -1558,7 +1558,7 @@ public final class Car {
     }
 
     /** @hide */
-    Context getContext() {
+    public Context getContext() {
         return mContext;
     }
 

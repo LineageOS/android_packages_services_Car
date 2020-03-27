@@ -66,9 +66,10 @@ public class VehicleHalFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        final boolean retry = true;
         final IVehicle vehicle;
         try {
-            vehicle = Objects.requireNonNull(IVehicle.getService());
+            vehicle = Objects.requireNonNull(IVehicle.getService(retry));
         } catch (RemoteException | RuntimeException e) {
             Log.e(TAG, "unable to retrieve Vehicle HAL service", e);
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());

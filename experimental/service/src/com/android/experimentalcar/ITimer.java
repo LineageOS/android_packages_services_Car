@@ -32,4 +32,9 @@ public interface ITimer {
      * See {@link java.util.Timer#schedule(TimerTask, long)}.
      */
     void schedule(TimerTask task, long delay);
+
+    /**
+     * See {@link java.util.Timer#cancel()}.
+     */
+    void cancel();
 }
