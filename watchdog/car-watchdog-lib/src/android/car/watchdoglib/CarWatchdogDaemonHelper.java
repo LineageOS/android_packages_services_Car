@@ -155,9 +155,9 @@ public final class CarWatchdogDaemonHelper {
      * @param client Car watchdog client to be registered.
      * @param timeout Time within which the client should respond.
      * @throws IllegalArgumentException If the client is already registered.
+     * @throws RemoteException
      */
-    public void registerClient(ICarWatchdogClient client, int timeout)
-            throws IllegalArgumentException, RemoteException {
+    public void registerClient(ICarWatchdogClient client, int timeout) throws RemoteException {
         invokeDaemonMethod((daemon) -> daemon.registerClient(client, timeout));
     }
 
@@ -166,9 +166,9 @@ public final class CarWatchdogDaemonHelper {
      *
      * @param client Car watchdog client to be unregistered.
      * @throws IllegalArgumentException If the client is not registered.
+     * @throws RemoteException
      */
-    public void unregisterClient(ICarWatchdogClient client)
-            throws IllegalArgumentException, RemoteException {
+    public void unregisterClient(ICarWatchdogClient client) throws RemoteException {
         invokeDaemonMethod((daemon) -> daemon.unregisterClient(client));
     }
 
@@ -177,9 +177,9 @@ public final class CarWatchdogDaemonHelper {
      *
      * @param mediator Car watchdog client to be registered.
      * @throws IllegalArgumentException If the mediator is already registered.
+     * @throws RemoteException
      */
-    public void registerMediator(ICarWatchdogClient mediator)
-            throws IllegalArgumentException, RemoteException {
+    public void registerMediator(ICarWatchdogClient mediator) throws RemoteException {
         invokeDaemonMethod((daemon) -> daemon.registerMediator(mediator));
     }
 
@@ -188,9 +188,9 @@ public final class CarWatchdogDaemonHelper {
      *
      * @param mediator Car watchdog client to be unregistered.
      * @throws IllegalArgumentException If the mediator is not registered.
+     * @throws RemoteException
      */
-    public void unregisterMediator(ICarWatchdogClient mediator)
-            throws IllegalArgumentException, RemoteException  {
+    public void unregisterMediator(ICarWatchdogClient mediator)  throws RemoteException {
         invokeDaemonMethod((daemon) -> daemon.unregisterMediator(mediator));
     }
 
@@ -199,9 +199,9 @@ public final class CarWatchdogDaemonHelper {
      *
      * @param monitor Car watchdog monitor to be registered.
      * @throws IllegalArgumentException If there is another monitor registered.
+     * @throws RemoteException
      */
-    public void registerMonitor(ICarWatchdogMonitor monitor)
-            throws IllegalArgumentException, RemoteException  {
+    public void registerMonitor(ICarWatchdogMonitor monitor)  throws RemoteException {
         invokeDaemonMethod((daemon) -> daemon.registerMonitor(monitor));
     }
 
@@ -210,9 +210,9 @@ public final class CarWatchdogDaemonHelper {
      *
      * @param monitor Car watchdog monitor to be unregistered.
      * @throws IllegalArgumentException If the monitor is not registered.
+     * @throws RemoteException
      */
-    public void unregisterMonitor(ICarWatchdogMonitor monitor)
-            throws IllegalArgumentException, RemoteException  {
+    public void unregisterMonitor(ICarWatchdogMonitor monitor) throws RemoteException {
         invokeDaemonMethod((daemon) -> daemon.unregisterMonitor(monitor));
     }
 
@@ -223,9 +223,9 @@ public final class CarWatchdogDaemonHelper {
      * @param sessionId Session ID that car watchdog daemon has given.
      * @throws IllegalArgumentException If the client is not registered,
      *                                  or session ID is not correct.
+     * @throws RemoteException
      */
-    public void tellClientAlive(ICarWatchdogClient client, int sessionId)
-            throws IllegalArgumentException, RemoteException  {
+    public void tellClientAlive(ICarWatchdogClient client, int sessionId) throws RemoteException {
         invokeDaemonMethod((daemon) -> daemon.tellClientAlive(client, sessionId));
     }
 
@@ -237,9 +237,10 @@ public final class CarWatchdogDaemonHelper {
      * @param sessionId Session ID that car watchdog daemon has given.
      * @throws IllegalArgumentException If the client is not registered,
      *                                  or session ID is not correct.
+     * @throws RemoteException
      */
     public void tellMediatorAlive(ICarWatchdogClient mediator, int[] clientsNotResponding,
-            int sessionId) throws IllegalArgumentException, RemoteException {
+            int sessionId) throws RemoteException {
         invokeDaemonMethod(
                 (daemon) -> daemon.tellMediatorAlive(mediator, clientsNotResponding, sessionId));
     }
@@ -250,9 +251,9 @@ public final class CarWatchdogDaemonHelper {
      * @param monitor Car watchdog monitor that dumped process information.
      * @param pid ID of process that has been dumped.
      * @throws IllegalArgumentException If the monitor is not registered.
+     * @throws RemoteException
      */
-    public void tellDumpFinished(ICarWatchdogMonitor monitor, int pid)
-            throws IllegalArgumentException, RemoteException {
+    public void tellDumpFinished(ICarWatchdogMonitor monitor, int pid) throws RemoteException {
         invokeDaemonMethod((daemon) -> daemon.tellDumpFinished(monitor, pid));
     }
 
@@ -261,6 +262,9 @@ public final class CarWatchdogDaemonHelper {
      *
      * @param StateType Either PowerCycle, UserState, or BootPhase
      * @param args Args explaining the state change for the specified state type.
+     * @throws IllegalArgumentException If the args don't match the state type. Refer to the aidl
+     * interface for more information on the args.
+     * @throws RemoteException
      */
     public void notifySystemStateChange(int type, List<String> args) throws RemoteException {
       invokeDaemonMethod((daemon) -> daemon.notifySystemStateChange(type, args));
