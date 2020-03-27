@@ -27,4 +27,9 @@ public class SystemTimeSource implements ITimeSource {
     public long elapsedRealtime() {
         return SystemClock.elapsedRealtime();
     }
+
+    @Override
+    public long uptimeMillis() {
+        return SystemClock.uptimeMillis();
+    }
 }
