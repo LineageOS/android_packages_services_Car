@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.testng.Assert.assertThrows;
 
 import android.car.Car;
@@ -56,6 +58,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test for {@link android.car.hardware.property.CarPropertyManager}
@@ -116,6 +120,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                                                     | VehicleAreaSeat.ROW_2_RIGHT;
     private static final float INIT_TEMP_VALUE = 16f;
     private static final float CHANGED_TEMP_VALUE = 20f;
+    private static final int CALLBACK_SHORT_TIMEOUT_MS = 100; // ms
+
     private CarPropertyManager mManager;
 
     @Rule public TestName mTestName = new TestName();
@@ -125,7 +131,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         super.setUp();
         setUpTargetSdk();
         mManager = (CarPropertyManager) getCar().getCarManager(Car.PROPERTY_SERVICE);
-        Assert.assertNotNull(mManager);
+        assertThat(mManager).isNotNull();
     }
 
     private void setUpTargetSdk() {
@@ -142,12 +148,12 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         for (CarPropertyConfig cfg : configs) {
             switch (cfg.getPropertyId()) {
                 case CUSTOM_SEAT_MIXED_PROP_ID_1:
-                    Assert.assertArrayEquals(CONFIG_ARRAY_1.toArray(),
-                            cfg.getConfigArray().toArray());
+                    assertThat(cfg.getConfigArray()).containsExactlyElementsIn(CONFIG_ARRAY_1)
+                            .inOrder();
                     break;
                 case CUSTOM_GLOBAL_MIXED_PROP_ID_2:
-                    Assert.assertArrayEquals(CONFIG_ARRAY_2.toArray(),
-                            cfg.getConfigArray().toArray());
+                    assertThat(cfg.getConfigArray()).containsExactlyElementsIn(CONFIG_ARRAY_2)
+                            .inOrder();
                     break;
                 case VehiclePropertyIds.HVAC_TEMPERATURE_SET:
                 case PROP_CAUSE_STATUS_CODE_ACCESS_DENIED:
@@ -170,68 +176,51 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 0, EXPECTED_VALUE_1);
         CarPropertyValue<Object[]> result = mManager.getProperty(
                 CUSTOM_SEAT_MIXED_PROP_ID_1, 0);
-        Assert.assertArrayEquals(EXPECTED_VALUE_1, result.getValue());
-
+        assertThat(result.getValue()).isEqualTo(EXPECTED_VALUE_1);
         mManager.setProperty(Object[].class, CUSTOM_GLOBAL_MIXED_PROP_ID_2,
                 0, EXPECTED_VALUE_2);
         result = mManager.getProperty(
                 CUSTOM_GLOBAL_MIXED_PROP_ID_2, 0);
-        Assert.assertArrayEquals(EXPECTED_VALUE_2, result.getValue());
+        assertThat(result.getValue()).isEqualTo(EXPECTED_VALUE_2);
     }
 
     @Test
     public void testGetPropertyConfig() {
         CarPropertyConfig config = mManager.getCarPropertyConfig(CUSTOM_SEAT_MIXED_PROP_ID_1);
-        Assert.assertEquals(CUSTOM_SEAT_MIXED_PROP_ID_1, config.getPropertyId());
+        assertThat(config.getPropertyId()).isEqualTo(CUSTOM_SEAT_MIXED_PROP_ID_1);
         // return null if can not find the propertyConfig for the property.
-        Assert.assertNull(mManager.getCarPropertyConfig(FAKE_PROPERTY_ID));
+        assertThat(mManager.getCarPropertyConfig(FAKE_PROPERTY_ID)).isNull();
     }
 
     @Test
     public void testGetAreaId() {
         int result = mManager.getAreaId(CUSTOM_SEAT_MIXED_PROP_ID_1, VehicleAreaSeat.ROW_1_LEFT);
-        Assert.assertEquals(DRIVER_SIDE_AREA_ID, result);
-
+        assertThat(result).isEqualTo(DRIVER_SIDE_AREA_ID);
         //test for the GLOBAL property
         int globalAreaId =
                 mManager.getAreaId(CUSTOM_GLOBAL_MIXED_PROP_ID_2, VehicleAreaSeat.ROW_1_LEFT);
-        Assert.assertEquals(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, globalAreaId);
-
+        assertThat(globalAreaId).isEqualTo(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
         //test exception
-        try {
-            int areaId = mManager.getAreaId(CUSTOM_SEAT_MIXED_PROP_ID_1,
-                    VehicleAreaSeat.ROW_3_CENTER);
-            Assert.fail("Unexpected areaId: " + areaId);
-        } catch (IllegalArgumentException e) {
-            Log.v(TAG, e.getMessage());
-        }
-
-        try {
-            // test exception
-            int areaIdForFakeProp = mManager.getAreaId(FAKE_PROPERTY_ID,
-                    VehicleAreaSeat.ROW_1_LEFT);
-            Assert.fail("Unexpected areaId for fake property: " + areaIdForFakeProp);
-        } catch (IllegalArgumentException e) {
-            Log.v(TAG, e.getMessage());
-        }
+        assertThrows(IllegalArgumentException.class, () -> mManager.getAreaId(
+                CUSTOM_SEAT_MIXED_PROP_ID_1, VehicleAreaSeat.ROW_3_CENTER));
+        assertThrows(IllegalArgumentException.class, () -> mManager.getAreaId(FAKE_PROPERTY_ID,
+                VehicleAreaSeat.ROW_1_LEFT));
     }
 
     @Test
-    public void testNotReceiveOnErrorEvent() {
-        TestCallback callback = new TestCallback();
+    public void testNotReceiveOnErrorEvent() throws Exception {
+        TestErrorCallback callback = new TestErrorCallback();
         mManager.registerCallback(callback, VehiclePropertyIds.HVAC_TEMPERATURE_SET,
                 CarPropertyManager.SENSOR_RATE_ONCHANGE);
         injectErrorEvent(VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID,
                 CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
         // app never change the value of HVAC_TEMPERATURE_SET, it won't get an error code.
-        SystemClock.sleep(SHORT_WAIT_TIMEOUT_MS);
-        Assert.assertFalse(callback.mReceivedErrorEventWithErrorCode);
-        Assert.assertFalse(callback.mReceivedErrorEventWithOutErrorCode);
+        callback.assertOnErrorEventNotCalled();
     }
 
     @Test
-    public void testReceiveOnErrorEvent() {
-        TestCallback callback = new TestCallback();
+    public void testReceiveOnErrorEvent() throws Exception {
+        TestErrorCallback callback = new TestErrorCallback();
         mManager.registerCallback(callback, VehiclePropertyIds.HVAC_TEMPERATURE_SET,
                 CarPropertyManager.SENSOR_RATE_ONCHANGE);
         mManager.setFloatProperty(
@@ -239,17 +228,17 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 CHANGED_TEMP_VALUE);
         injectErrorEvent(VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID,
                 CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
-        SystemClock.sleep(SHORT_WAIT_TIMEOUT_MS);
-        Assert.assertTrue(callback.mReceivedErrorEventWithErrorCode);
-        Assert.assertEquals(CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN,
-                callback.mErrorCode);
-        Assert.assertFalse(callback.mReceivedErrorEventWithOutErrorCode);
+        callback.assertOnErrorEventCalled();
+        assertThat(callback.mReceivedErrorEventWithErrorCode).isTrue();
+        assertThat(callback.mErrorCode).isEqualTo(
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
+        assertThat(callback.mReceivedErrorEventWithOutErrorCode).isFalse();
     }
 
     @Test
-    public void testNotReceiveOnErrorEventAfterUnregister() {
-        TestCallback callback1 = new TestCallback();
-        TestCallback callback2 = new TestCallback();
+    public void testNotReceiveOnErrorEventAfterUnregister() throws Exception {
+        TestErrorCallback callback1 = new TestErrorCallback();
+        TestErrorCallback callback2 = new TestErrorCallback();
         mManager.registerCallback(callback1, VehiclePropertyIds.HVAC_TEMPERATURE_SET,
                 CarPropertyManager.SENSOR_RATE_ONCHANGE);
         mManager.registerCallback(callback2, VehiclePropertyIds.HVAC_TEMPERATURE_SET,
@@ -260,9 +249,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         mManager.unregisterCallback(callback1, VehiclePropertyIds.HVAC_TEMPERATURE_SET);
         injectErrorEvent(VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID,
                 CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
-        SystemClock.sleep(SHORT_WAIT_TIMEOUT_MS);
-        Assert.assertFalse(callback1.mReceivedErrorEventWithErrorCode);
-        Assert.assertFalse(callback1.mReceivedErrorEventWithOutErrorCode);
+        // callback1 is unregistered
+        callback1.assertOnErrorEventNotCalled();
+        callback2.assertOnErrorEventCalled();
     }
     @Test
     public void testSetterExceptionsInQ() {
@@ -352,13 +341,12 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testOnChangeEventWithSameAreaId() {
+    public void testOnChangeEventWithSameAreaId() throws Exception {
         // init
         mManager.setProperty(Integer.class,
                 CUSTOM_SEAT_INT_PROP_1, DRIVER_SIDE_AREA_ID, 1);
-        TestSequenceCallback callback = new TestSequenceCallback();
+        TestSequenceCallback callback = new TestSequenceCallback(1);
         mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, 0);
-
         VehiclePropValue firstFakeValueDriveSide = new VehiclePropValue();
         firstFakeValueDriveSide.prop = CUSTOM_SEAT_INT_PROP_1;
         firstFakeValueDriveSide.areaId = DRIVER_SIDE_AREA_ID;
@@ -369,27 +357,24 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         secFakeValueDriveSide.areaId = DRIVER_SIDE_AREA_ID;
         secFakeValueDriveSide.value.int32Values.add(3); // 0 in HAL indicate false;
         secFakeValueDriveSide.timestamp = SystemClock.elapsedRealtimeNanos();
-        SystemClock.sleep(100);
-        callback.reset(); // clean up the old events
-
         // inject the new event first
         getMockedVehicleHal().injectEvent(secFakeValueDriveSide);
         // inject the old event
         getMockedVehicleHal().injectEvent(firstFakeValueDriveSide);
-        SystemClock.sleep(100); // waiting for events
+        callback.assertOnChangeEventCalled();
         // Client should only get the new event
-        Assert.assertEquals(3,
-                (int) callback.getLastCarPropertyValue(CUSTOM_SEAT_INT_PROP_1).getValue());
-        Assert.assertEquals(1, callback.getEventCounter());
+        assertThat((int) callback.getLastCarPropertyValue(CUSTOM_SEAT_INT_PROP_1).getValue())
+                .isEqualTo(3);
+        assertThat(callback.getEventCounter()).isEqualTo(1);
 
     }
 
     @Test
-    public void testOnChangeEventWithDifferentAreaId() {
+    public void testOnChangeEventWithDifferentAreaId() throws Exception {
         // init
         mManager.setProperty(Integer.class,
                 CUSTOM_SEAT_INT_PROP_2, DRIVER_SIDE_AREA_ID, 1);
-        TestSequenceCallback callback = new TestSequenceCallback();
+        TestSequenceCallback callback = new TestSequenceCallback(2);
         mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_2, 0);
 
         VehiclePropValue fakeValueDriveSide = new VehiclePropValue();
@@ -403,17 +388,16 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         fakeValuePsgSide.areaId = PASSENGER_SIDE_AREA_ID;
         fakeValuePsgSide.value.int32Values.add(5);
         fakeValuePsgSide.timestamp = SystemClock.elapsedRealtimeNanos();
-        SystemClock.sleep(100);
-        callback.reset();
+
         // inject passenger event before driver event
         getMockedVehicleHal().injectEvent(fakeValuePsgSide);
         getMockedVehicleHal().injectEvent(fakeValueDriveSide);
-        SystemClock.sleep(100);
+        callback.assertOnChangeEventCalled();
 
         // both events should be received by listener
-        Assert.assertEquals(4,
-                (int) callback.getLastCarPropertyValue(CUSTOM_SEAT_INT_PROP_2).getValue());
-        Assert.assertEquals(2, callback.getEventCounter());
+        assertThat((int) callback.getLastCarPropertyValue(CUSTOM_SEAT_INT_PROP_2).getValue())
+                .isEqualTo(4);
+        assertThat(callback.getEventCounter()).isEqualTo(2);
     }
 
     @Override
@@ -503,13 +487,13 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         }
     }
 
-    private static class TestCallback implements CarPropertyManager.CarPropertyEventCallback {
+    private static class TestErrorCallback implements CarPropertyManager.CarPropertyEventCallback {
 
         private static final String CALLBACK_TAG = "ErrorEventTest";
         private boolean mReceivedErrorEventWithErrorCode = false;
         private boolean mReceivedErrorEventWithOutErrorCode = false;
         private int mErrorCode;
-
+        private final CountDownLatch mCountDownLatch = new CountDownLatch(1);
         @Override
         public void onChangeEvent(CarPropertyValue value) {
             Log.d(CALLBACK_TAG, "onChangeEvent: " + value);
@@ -519,6 +503,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         public void onErrorEvent(int propId, int zone) {
             mReceivedErrorEventWithOutErrorCode = true;
             Log.d(CALLBACK_TAG, "onErrorEvent, propId: " + propId + " zone: " + zone);
+            mCountDownLatch.countDown();
         }
 
         @Override
@@ -527,6 +512,21 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             mErrorCode = errorCode;
             Log.d(CALLBACK_TAG, "onErrorEvent, propId: " + propId + " areaId: " + areaId
                     + "errorCode: " + errorCode);
+            mCountDownLatch.countDown();
+        }
+
+        public void assertOnErrorEventCalled() throws InterruptedException {
+            if (!mCountDownLatch.await(CALLBACK_SHORT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Callback is not called in "
+                        + CALLBACK_SHORT_TIMEOUT_MS + " ms.");
+            }
+        }
+
+        public void assertOnErrorEventNotCalled() throws InterruptedException {
+            if (mCountDownLatch.await(CALLBACK_SHORT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Callback is called in " + CALLBACK_SHORT_TIMEOUT_MS
+                        + " ms.");
+            }
         }
     }
 
@@ -534,12 +534,20 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         private ConcurrentHashMap<Integer, CarPropertyValue> mRecorder = new ConcurrentHashMap<>();
         private int mCounter = 0;
-
+        private final CountDownLatch mCountDownLatch;
         @Override
         public void onChangeEvent(CarPropertyValue value) {
             Log.e(TAG, "onChanged get a event " + value);
             mRecorder.put(value.getPropertyId(), value);
-            mCounter++;
+            // Skip initial events
+            if (value.getTimestamp() != 0) {
+                mCounter++;
+                mCountDownLatch.countDown();
+            }
+        }
+
+        TestSequenceCallback(int expectedTimes) {
+            mCountDownLatch = new CountDownLatch(expectedTimes);
         }
 
         @Override
@@ -555,9 +563,11 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             return mCounter;
         }
 
-        public void reset() {
-            mRecorder.clear();
-            mCounter = 0;
+        public void assertOnChangeEventCalled() throws InterruptedException {
+            if (!mCountDownLatch.await(CALLBACK_SHORT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Callback is not called in "
+                        + CALLBACK_SHORT_TIMEOUT_MS + " ms.");
+            }
         }
     }
 
