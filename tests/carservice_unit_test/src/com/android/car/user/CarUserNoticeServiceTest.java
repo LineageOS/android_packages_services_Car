@@ -35,6 +35,9 @@ import android.app.AppOpsManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.settings.CarSettings;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleEvent;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -91,7 +94,7 @@ public class CarUserNoticeServiceTest {
     private ArgumentCaptor<BroadcastReceiver> mDisplayBroadcastReceiver;
 
     @Captor
-    private ArgumentCaptor<CarUserService.UserCallback> mUserCallback;
+    private ArgumentCaptor<UserLifecycleListener> mUserLifecycleListenerArgumentCaptor;
 
     @Captor
     private ArgumentCaptor<CarPowerStateListener> mPowerStateListener;
@@ -132,7 +135,8 @@ public class CarUserNoticeServiceTest {
         doReturn(1).when(mMockPackageManager).getPackageUidAsUser(any(), anyInt());
         mCarUserNoticeService = new CarUserNoticeService(mMockContext, mHandler);
         mCarUserNoticeService.init();
-        verify(mMockCarUserService).addUserCallback(mUserCallback.capture());
+        verify(mMockCarUserService).addUserLifecycleListener(
+                mUserLifecycleListenerArgumentCaptor.capture());
         verify(mMockContext).registerReceiver(mDisplayBroadcastReceiver.capture(),
                 any(IntentFilter.class));
         verify(mCarPowerManager).setListener(mPowerStateListener.capture());
@@ -230,9 +234,12 @@ public class CarUserNoticeServiceTest {
         assertThat(latch.await(10, TimeUnit.SECONDS)).isTrue();
     }
 
-    private void switchUser(int usrId) throws Exception {
-        // Switch User callback
-        mUserCallback.getValue().onSwitchUser(usrId);
+    private void switchUser(int userId) throws Exception {
+        // Notify listeners about user switch.
+        mUserLifecycleListenerArgumentCaptor.getValue().onEvent(new UserLifecycleEvent(
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
+                /* from= */ null,
+                /* to= */ UserHandle.of(userId)));
     }
 
     private CountDownLatch mockBindService() {
