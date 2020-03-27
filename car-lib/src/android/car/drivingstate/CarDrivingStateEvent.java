@@ -84,16 +84,16 @@ public final class CarDrivingStateEvent implements Parcelable {
         dest.writeLong(timeStamp);
     }
 
-    public static final Parcelable.Creator<CarDrivingStateEvent> CREATOR
-            = new Parcelable.Creator<CarDrivingStateEvent>() {
-        public CarDrivingStateEvent createFromParcel(Parcel in) {
-            return new CarDrivingStateEvent(in);
-        }
+    public static final Parcelable.Creator<CarDrivingStateEvent> CREATOR =
+            new Parcelable.Creator<CarDrivingStateEvent>() {
+                public CarDrivingStateEvent createFromParcel(Parcel in) {
+                    return new CarDrivingStateEvent(in);
+                }
 
-        public CarDrivingStateEvent[] newArray(int size) {
-            return new CarDrivingStateEvent[size];
-        }
-    };
+                public CarDrivingStateEvent[] newArray(int size) {
+                    return new CarDrivingStateEvent[size];
+                }
+            };
 
     public CarDrivingStateEvent(int value, long time) {
         eventValue = value;
