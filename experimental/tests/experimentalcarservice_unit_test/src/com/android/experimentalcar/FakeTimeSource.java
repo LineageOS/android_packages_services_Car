@@ -21,24 +21,29 @@ package com.android.experimentalcar;
  */
 public class FakeTimeSource implements ITimeSource {
 
-    private long mElapsedRealtime;
+    private long mTimeMillis;
 
     /**
      * Create an instance of {@link FakeTimeSource} with an initial time.
      */
-    FakeTimeSource(long elapsedRealtime) {
-        mElapsedRealtime = elapsedRealtime;
+    FakeTimeSource(long timeMillis) {
+        mTimeMillis = timeMillis;
     }
 
     /**
-     * Set the value that will be returned {@link #elapsedRealtime()}.
+     * Set the value that will be returned for time getters.
      */
-    void setElapsedRealtime(long elapsedRealtime) {
-        mElapsedRealtime = elapsedRealtime;
+    void setTimeMillis(long elapsedRealtime) {
+        mTimeMillis = elapsedRealtime;
     }
 
     @Override
     public long elapsedRealtime() {
-        return mElapsedRealtime;
+        return mTimeMillis;
+    }
+
+    @Override
+    public long uptimeMillis() {
+        return mTimeMillis;
     }
 }
