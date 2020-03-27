@@ -17,6 +17,8 @@
 package com.android.car;
 
 import android.car.IPerUserCarService;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -55,7 +57,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
         mContext = context;
         mServiceCallbacks = new ArrayList<>();
         mUserService = userService;
-        mUserService.addUserCallback(mUserCallback);
+        mUserService.addUserLifecycleListener(mUserLifecycleListener);
     }
 
     @Override
@@ -69,20 +71,17 @@ public class PerUserCarServiceHelper implements CarServiceBase {
     public void release() {
         synchronized (mServiceBindLock) {
             unbindFromPerUserCarService();
-            mUserService.removeUserCallback(mUserCallback);
+            mUserService.removeUserLifecycleListener(mUserLifecycleListener);
         }
     }
 
-    private final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
-
-        @Override
-        public void onUserLockChanged(int userId, boolean unlocked) {
-            // Do Nothing
+    private final UserLifecycleListener mUserLifecycleListener = event -> {
+        if (DBG) {
+            Log.d(TAG, "onEvent(" + event + ")");
         }
-
-        @Override
-        public void onSwitchUser(int userId) {
+        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             List<ServiceCallback> callbacks;
+            int userId = event.getUserHandle().getIdentifier();
             if (DBG) {
                 Log.d(TAG, "User Switch Happened. New User" + userId);
             }
