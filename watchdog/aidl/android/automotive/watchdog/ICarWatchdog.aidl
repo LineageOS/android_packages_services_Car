@@ -119,11 +119,12 @@ interface ICarWatchdog {
    * The caller should have system UID.
    *
    * @param type                 One of the change types defined in the StateType enum.
-   * @param args                 State change information for the specified type.
+   * @param arg1                 First state change information for the specified type.
+   * @param arg2                 Second state change information for the specified type.
    *
-   * When type is POWER_CYCLE, args should contain the current power cycle of the device.
-   * When type is USER_STATE, args should contain the user ID and current user state.
-   * When type is BOOT_PHASE, args should contain the current boot phase.
+   * When type is POWER_CYCLE, arg1 should contain the current power cycle of the device.
+   * When type is USER_STATE, arg1 and arg2 should contain the user ID and the current user state.
+   * When type is BOOT_PHASE, arg1 should contain the current boot phase.
    */
-  void notifySystemStateChange(in StateType type, in @utf8InCpp List<String> args);
+  void notifySystemStateChange(in StateType type, in int arg1, in int arg2);
 }
