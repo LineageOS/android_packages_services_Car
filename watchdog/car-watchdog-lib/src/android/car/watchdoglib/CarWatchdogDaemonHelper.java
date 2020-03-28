@@ -33,7 +33,6 @@ import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -260,14 +259,16 @@ public final class CarWatchdogDaemonHelper {
     /**
      * Tells car watchdog daemon that system state has been changed for the specified StateType.
      *
-     * @param StateType Either PowerCycle, UserState, or BootPhase
-     * @param args Args explaining the state change for the specified state type.
+     * @param type Either PowerCycle, UserState, or BootPhase
+     * @param arg1 First state change information for the specified state type.
+     * @param arg2 Second state change information for the specified state type.
      * @throws IllegalArgumentException If the args don't match the state type. Refer to the aidl
-     * interface for more information on the args.
+     *                                  interface for more information on the args.
      * @throws RemoteException
      */
-    public void notifySystemStateChange(int type, List<String> args) throws RemoteException {
-      invokeDaemonMethod((daemon) -> daemon.notifySystemStateChange(type, args));
+    public void notifySystemStateChange(int type, int arg1, int arg2)
+            throws IllegalArgumentException, RemoteException {
+        invokeDaemonMethod((daemon) -> daemon.notifySystemStateChange(type, arg1, arg2));
     }
 
     private void invokeDaemonMethod(Invokable r) throws IllegalArgumentException, RemoteException {
