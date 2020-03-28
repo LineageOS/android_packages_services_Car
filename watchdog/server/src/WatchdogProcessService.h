@@ -77,26 +77,11 @@ private:
 
         android::sp<ICarWatchdogClient> client;
         pid_t pid;
+        int sessionId;
         ClientType type;
     };
 
-    struct PingedClient {
-        PingedClient(const android::sp<ICarWatchdogClient>& client, int32_t sessionId) :
-              client(client), sessionId(sessionId) {}
-
-        bool operator==(const PingedClient& other) const { return sessionId == other.sessionId; }
-
-        android::sp<ICarWatchdogClient> client;
-        int32_t sessionId;
-    };
-
-    struct PingedClientHash {
-        std::size_t operator()(const PingedClient& pingedClient) const {
-            return pingedClient.sessionId;
-        }
-    };
-
-    typedef std::unordered_set<PingedClient, PingedClientHash> PingedClientSet;
+    typedef std::unordered_map<int, ClientInfo> PingedClientMap;
 
     class MessageHandlerImpl : public MessageHandler {
     public:
@@ -116,10 +101,11 @@ private:
     bool isRegisteredLocked(const android::sp<ICarWatchdogClient>& client);
     binder::Status tellClientAliveLocked(const android::sp<ICarWatchdogClient>& client,
                                          int32_t sessionId);
-    base::Result<void> startHealthChecking(TimeoutLength timeout);
+    base::Result<void> startHealthCheckingLocked(TimeoutLength timeout);
     base::Result<void> dumpAndKillClientsIfNotResponding(TimeoutLength timeout);
     base::Result<void> dumpAndKillAllProcesses(const std::vector<int32_t>& processesNotResponding);
     int32_t getNewSessionId();
+    bool isWatchdogEnabled();
 
     using Processor =
             std::function<void(std::vector<ClientInfo>&, std::vector<ClientInfo>::const_iterator)>;
@@ -127,12 +113,13 @@ private:
                                     const android::sp<IBinder> binder, const Processor& processor);
 
 private:
-    Mutex mMutex;
     sp<Looper> mHandlerLooper;
     android::sp<MessageHandlerImpl> mMessageHandler;
+    Mutex mMutex;
     std::unordered_map<TimeoutLength, std::vector<ClientInfo>> mClients GUARDED_BY(mMutex);
-    std::unordered_map<TimeoutLength, PingedClientSet> mPingedClients GUARDED_BY(mMutex);
+    std::unordered_map<TimeoutLength, PingedClientMap> mPingedClients GUARDED_BY(mMutex);
     android::sp<ICarWatchdogMonitor> mMonitor GUARDED_BY(mMutex);
+    bool mWatchdogEnabled GUARDED_BY(mMutex);
     // mLastSessionId is accessed only within main thread. No need for mutual-exclusion.
     int32_t mLastSessionId;
 };

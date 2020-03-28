@@ -69,8 +69,7 @@ public:
                                     int32_t pid) override {
         return mWatchdogProcessService->tellDumpFinished(monitor, pid);
     }
-    binder::Status notifySystemStateChange(StateType type,
-                                           const std::vector<std::string>& args) override;
+    binder::Status notifySystemStateChange(StateType type, int32_t arg1, int32_t arg2) override;
 
 protected:
     android::base::Result<void> init(android::sp<WatchdogProcessService> watchdogProcessService,

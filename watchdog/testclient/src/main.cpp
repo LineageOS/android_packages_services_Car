@@ -34,7 +34,7 @@ using android::base::Result;
 
 Result<CommandParam> checkArgument(int argc, char** argv) {
     CommandParam param;
-    if (argc != 4 && argc != 5) {
+    if (argc < 4) {
         return Error() << "Invalid syntax";
     }
     if (strcmp(argv[1], "critical") && strcmp(argv[1], "moderate") && strcmp(argv[1], "normal")) {
@@ -49,22 +49,27 @@ Result<CommandParam> checkArgument(int argc, char** argv) {
     if (!ParseInt(strValue, &param.terminateAfterInSec)) {
         return Error() << "Invalid terminate after time";
     }
-    if (argc == 5) {
-        if (strcmp(argv[4], "--forcedkill")) {
+    param.forcedKill = false;
+    param.verbose = false;
+    for (int i = 4; i < argc; i++) {
+        if (!strcmp(argv[i], "--forcedkill")) {
+            param.forcedKill = true;
+        } else if (!strcmp(argv[i], "--verbose")) {
+            param.verbose = true;
+        } else {
             return Error() << "Invalid option";
         }
-        param.forcedKill = true;
-    } else {
-        param.forcedKill = false;
     }
     return param;
 }
 /**
  * Usage: carwatchdog_testclient [timeout] [inactive_after] [terminate_after] [--forcedkill]
+ *                               [--verbose]
  * timeout: critical|moderate|normal
  * inactive_after: number in seconds. -1 for never being inactive.
  * terminate_after: number in seconds. -1 for running forever.
  * --forcedkill: terminate without unregistering from car watchdog daemon.
+ * --verbose: output verbose logs.
  */
 int main(int argc, char** argv) {
     sp<Looper> looper(Looper::prepare(/*opts=*/0));
@@ -81,7 +86,8 @@ int main(int argc, char** argv) {
         ALOGE("timeout: critical|moderate|normal");
         ALOGE("inactive_after: number in seconds (-1 for never being inactive)");
         ALOGE("terminate_after: number in seconds (-1 for running forever)");
-        ALOGE("--forcedkill: terminate without unregistering from car watchdog daemone");
+        ALOGE("--forcedkill: terminate without unregistering from car watchdog daemon");
+        ALOGE("--verbose: output verbose logs");
         return 1;
     }
     if (!service->initialize(*param)) {
