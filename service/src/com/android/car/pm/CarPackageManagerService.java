@@ -29,6 +29,8 @@ import android.car.content.pm.CarPackageManager;
 import android.car.content.pm.ICarPackageManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -419,7 +421,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             mLock.notifyAll();
         }
         mContext.unregisterReceiver(mPackageParsingEventReceiver);
-        mUserService.removeUserCallback(mUserCallback);
+        mUserService.removeUserLifecycleListener(mUserLifecycleListener);
         mSystemActivityMonitoringService.registerActivityLaunchListener(null);
         for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
             UxRestrictionsListener listener = mUxRestrictionsListeners.valueAt(i);
@@ -427,24 +429,19 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
     }
 
-    private final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
-
-        @Override
-        public void onUserLockChanged(int userId, boolean unlocked) {
-            // Do Nothing
+    private final UserLifecycleListener mUserLifecycleListener = event -> {
+        if (Log.isLoggable(CarLog.TAG_PACKAGE, Log.DEBUG)) {
+            Log.d(CarLog.TAG_PACKAGE, "CarPackageManagerService.onEvent(" + event + ")");
         }
-
-        @Override
-        public void onSwitchUser(int userId) {
-            mHandler.requestParsingInstalledPkgs(0);
+        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
+            CarPackageManagerService.this.mHandler.requestParsingInstalledPkgs(0);
         }
-
     };
 
     // run from HandlerThread
     private void doHandleInit() {
         startAppBlockingPolicies();
-        mUserService.addUserCallback(mUserCallback);
+        mUserService.addUserLifecycleListener(mUserLifecycleListener);
         IntentFilter pkgParseIntent = new IntentFilter();
         for (String action : mPackageManagerActions) {
             pkgParseIntent.addAction(action);
