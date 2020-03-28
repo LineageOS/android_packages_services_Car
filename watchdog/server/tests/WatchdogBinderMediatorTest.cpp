@@ -286,102 +286,61 @@ TEST_F(WatchdogBinderMediatorTest, TestTellDumpFinished) {
 
 TEST_F(WatchdogBinderMediatorTest, TestErrorOnNotifyStateChangeWithNonSystemCallingUid) {
     StateType type = StateType::POWER_CYCLE;
-    std::vector<std::string> args = {
-            std::to_string(static_cast<int32_t>(PowerCycle::POWER_CYCLE_SUSPEND))};
     EXPECT_CALL(*mMockWatchdogProcessService, notifyPowerCycleChange(_)).Times(0);
-    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
+    Status status =
+            mWatchdogBinderMediator
+                    ->notifySystemStateChange(type,
+                                              static_cast<int32_t>(PowerCycle::POWER_CYCLE_SUSPEND),
+                                              -1);
     ASSERT_FALSE(status.isOk()) << status;
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestNotifyPowerCycleChange) {
     setSystemCallingUid();
     StateType type = StateType::POWER_CYCLE;
-    std::vector<std::string> args = {
-            std::to_string(static_cast<int32_t>(PowerCycle::POWER_CYCLE_SUSPEND))};
     EXPECT_CALL(*mMockWatchdogProcessService,
                 notifyPowerCycleChange(PowerCycle::POWER_CYCLE_SUSPEND))
             .WillOnce(Return(Status::ok()));
-    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
+    Status status =
+            mWatchdogBinderMediator
+                    ->notifySystemStateChange(type,
+                                              static_cast<int32_t>(PowerCycle::POWER_CYCLE_SUSPEND),
+                                              -1);
     ASSERT_TRUE(status.isOk()) << status;
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestErrorOnNotifyPowerCycleChangeWithInvalidArgs) {
     EXPECT_CALL(*mMockWatchdogProcessService, notifyPowerCycleChange(_)).Times(0);
     StateType type = StateType::POWER_CYCLE;
-    std::vector<std::string> args = {std::to_string(
-                                             static_cast<int32_t>(PowerCycle::POWER_CYCLE_SUSPEND)),
-                                     std::to_string(
-                                             static_cast<int32_t>(PowerCycle::POWER_CYCLE_RESUME))};
-    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
+
+    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, -1, -1);
     ASSERT_FALSE(status.isOk()) << status;
 
-    args.clear();
-    args.push_back("-1");
-    status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
-    ASSERT_FALSE(status.isOk()) << status;
-
-    args.clear();
-    args.push_back("3000");
-    status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
-    ASSERT_FALSE(status.isOk()) << status;
-
-    args.clear();
-    args.push_back("invalid_power_cycle");
-    status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
+    status = mWatchdogBinderMediator->notifySystemStateChange(type, 3000, -1);
     ASSERT_FALSE(status.isOk()) << status;
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestNotifyUserStateChange) {
     setSystemCallingUid();
     StateType type = StateType::USER_STATE;
-    std::vector<std::string> args = {"234567",
-                                     std::to_string(
-                                             static_cast<int32_t>(UserState::USER_STATE_STOPPED))};
     EXPECT_CALL(*mMockWatchdogProcessService,
                 notifyUserStateChange(234567, UserState::USER_STATE_STOPPED))
             .WillOnce(Return(Status::ok()));
-    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
+    Status status =
+            mWatchdogBinderMediator
+                    ->notifySystemStateChange(type, 234567,
+                                              static_cast<int32_t>(UserState::USER_STATE_STOPPED));
     ASSERT_TRUE(status.isOk()) << status;
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestErrorOnNotifyUserStateChangeWithInvalidArgs) {
     EXPECT_CALL(*mMockWatchdogProcessService, notifyUserStateChange(_, _)).Times(0);
-    StateType type = StateType::POWER_CYCLE;
-    std::vector<std::string> args = {"234567",
-                                     std::to_string(
-                                             static_cast<int32_t>(UserState::USER_STATE_STOPPED)),
-                                     "extra_arg"};
-    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
+    StateType type = StateType::USER_STATE;
+
+    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, 234567, -1);
     ASSERT_FALSE(status.isOk()) << status;
 
-    args.clear();
-    args.push_back("-1");
-    args.push_back(std::to_string(static_cast<int32_t>(UserState::USER_STATE_STOPPED)));
-    status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
-    ASSERT_FALSE(status.isOk()) << status;
-
-    args.clear();
-    args.push_back("invalid_user_id");
-    args.push_back(std::to_string(static_cast<int32_t>(UserState::USER_STATE_STOPPED)));
-    status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
-    ASSERT_FALSE(status.isOk()) << status;
-
-    args.clear();
-    args.push_back("234567");
-    args.push_back("-1");
-    status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
-    ASSERT_FALSE(status.isOk()) << status;
-
-    args.clear();
-    args.push_back("234567");
-    args.push_back("3000");
-    status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
-    ASSERT_FALSE(status.isOk()) << status;
-
-    args.clear();
-    args.push_back("234567");
-    args.push_back("invalid_user_state");
-    status = mWatchdogBinderMediator->notifySystemStateChange(type, args);
+    status = mWatchdogBinderMediator->notifySystemStateChange(type, 234567, 3000);
     ASSERT_FALSE(status.isOk()) << status;
 }
 
