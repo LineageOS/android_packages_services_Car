@@ -35,6 +35,9 @@ import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.hardware.automotive.vehicle.V2_0.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
@@ -69,22 +72,21 @@ public final class UserHalServiceTest {
     private static final String TAG = UserHalServiceTest.class.getSimpleName();
 
     /**
-     * Timeout passed to {@link UserHalService#getInitialUserInfo(int, int, UsersInfo, HalCallback)}
-     * calls.
+     * Timeout passed to {@link UserHalService} methods
      */
-    private static final int INITIAL_USER_TIMEOUT_MS = 20;
+    private static final int TIMEOUT_MS = 20;
 
     /**
      * Timeout for {@link GenericHalCallback#assertCalled()} for tests where the HAL is supposed to
      * return something - it's a short time so it doesn't impact the test duration.
      */
-    private static final int INITIAL_USER_CALLBACK_TIMEOUT_SUCCESS = INITIAL_USER_TIMEOUT_MS + 50;
+    private static final int CALLBACK_TIMEOUT_SUCCESS = TIMEOUT_MS + 50;
 
     /**
      * Timeout for {@link GenericHalCallback#assertCalled()} for tests where the HAL is not supposed
      * to return anything - it's a slightly longer to make sure the test doesn't fail prematurely.
      */
-    private static final int INITIAL_USER_CALLBACK_TIMEOUT_TIMEOUT = INITIAL_USER_TIMEOUT_MS + 500;
+    private static final int CALLBACK_TIMEOUT_TIMEOUT = TIMEOUT_MS + 500;
 
     // Used when crafting a reqquest property - the real value will be set by the mock.
     private static final int REQUEST_ID_PLACE_HOLDER = 42;
@@ -167,7 +169,7 @@ public final class UserHalServiceTest {
     @Test
     public void testGetUserInfo_noUsersInfo() {
         assertThrows(NullPointerException.class,
-                () -> mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS, null,
+                () -> mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS, null,
                         (i, r) -> {
                         }));
     }
@@ -175,7 +177,7 @@ public final class UserHalServiceTest {
     @Test
     public void testGetUserInfo_noCallback() {
         assertThrows(NullPointerException.class,
-                () -> mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS,
+                () -> mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS,
                         mUsersInfo, null));
     }
 
@@ -184,8 +186,8 @@ public final class UserHalServiceTest {
         replySetPropertyWithTimeoutException(INITIAL_USER_INFO);
 
         GenericHalCallback<InitialUserInfoResponse> callback = new GenericHalCallback<>(
-                INITIAL_USER_CALLBACK_TIMEOUT_TIMEOUT);
-        mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS, mUsersInfo,
+                CALLBACK_TIMEOUT_TIMEOUT);
+        mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS, mUsersInfo,
                 callback);
 
         callback.assertCalled();
@@ -193,15 +195,15 @@ public final class UserHalServiceTest {
         assertThat(callback.response).isNull();
 
         // Make sure the pending request was removed
-        SystemClock.sleep(INITIAL_USER_CALLBACK_TIMEOUT_TIMEOUT);
+        SystemClock.sleep(CALLBACK_TIMEOUT_TIMEOUT);
         callback.assertNotCalledAgain();
     }
 
     @Test
     public void testGetUserInfo_halDidNotReply() throws Exception {
         GenericHalCallback<InitialUserInfoResponse> callback = new GenericHalCallback<>(
-                INITIAL_USER_CALLBACK_TIMEOUT_TIMEOUT);
-        mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS, mUsersInfo,
+                CALLBACK_TIMEOUT_TIMEOUT);
+        mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS, mUsersInfo,
                 callback);
 
         callback.assertCalled();
@@ -212,12 +214,12 @@ public final class UserHalServiceTest {
     @Test
     public void testGetUserInfo_secondCallFailWhilePending() throws Exception {
         GenericHalCallback<InitialUserInfoResponse> callback1 = new GenericHalCallback<>(
-                INITIAL_USER_CALLBACK_TIMEOUT_TIMEOUT);
+                CALLBACK_TIMEOUT_TIMEOUT);
         GenericHalCallback<InitialUserInfoResponse> callback2 = new GenericHalCallback<>(
-                INITIAL_USER_CALLBACK_TIMEOUT_TIMEOUT);
-        mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS, mUsersInfo,
+                CALLBACK_TIMEOUT_TIMEOUT);
+        mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS, mUsersInfo,
                 callback1);
-        mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS, mUsersInfo,
+        mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS, mUsersInfo,
                 callback2);
 
         callback1.assertCalled();
@@ -240,8 +242,8 @@ public final class UserHalServiceTest {
                 /* rightRequestId= */ false);
 
         GenericHalCallback<InitialUserInfoResponse> callback = new GenericHalCallback<>(
-                INITIAL_USER_CALLBACK_TIMEOUT_TIMEOUT);
-        mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS, mUsersInfo,
+                CALLBACK_TIMEOUT_TIMEOUT);
+        mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS, mUsersInfo,
                 callback);
 
         callback.assertCalled();
@@ -261,8 +263,8 @@ public final class UserHalServiceTest {
                 INITIAL_USER_INFO, propResponse, /* rightRequestId= */ true);
 
         GenericHalCallback<InitialUserInfoResponse> callback = new GenericHalCallback<>(
-                INITIAL_USER_CALLBACK_TIMEOUT_SUCCESS);
-        mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS, mUsersInfo,
+                CALLBACK_TIMEOUT_SUCCESS);
+        mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS, mUsersInfo,
                 callback);
 
         callback.assertCalled();
@@ -287,8 +289,8 @@ public final class UserHalServiceTest {
                 INITIAL_USER_INFO, propResponse, /* rightRequestId= */ true);
 
         GenericHalCallback<InitialUserInfoResponse> callback = new GenericHalCallback<>(
-                INITIAL_USER_CALLBACK_TIMEOUT_SUCCESS);
-        mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS, mUsersInfo,
+                CALLBACK_TIMEOUT_SUCCESS);
+        mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS, mUsersInfo,
                 callback);
 
         callback.assertCalled();
@@ -320,8 +322,8 @@ public final class UserHalServiceTest {
                 INITIAL_USER_INFO, propResponse, /* rightRequestId= */ true);
 
         GenericHalCallback<InitialUserInfoResponse> callback = new GenericHalCallback<>(
-                INITIAL_USER_CALLBACK_TIMEOUT_SUCCESS);
-        mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS, mUsersInfo,
+                CALLBACK_TIMEOUT_SUCCESS);
+        mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS, mUsersInfo,
                 callback);
 
         callback.assertCalled();
@@ -355,8 +357,8 @@ public final class UserHalServiceTest {
                 INITIAL_USER_INFO, propResponse, /* rightRequestId= */ true);
 
         GenericHalCallback<InitialUserInfoResponse> callback = new GenericHalCallback<>(
-                INITIAL_USER_CALLBACK_TIMEOUT_SUCCESS);
-        mUserHalService.getInitialUserInfo(COLD_BOOT, INITIAL_USER_TIMEOUT_MS, mUsersInfo,
+                CALLBACK_TIMEOUT_SUCCESS);
+        mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS, mUsersInfo,
                 callback);
 
         callback.assertCalled();
@@ -379,6 +381,204 @@ public final class UserHalServiceTest {
     public void testGetUserInfo_twoSuccessfulCalls() throws Exception {
         testGetUserInfo_successDefault();
         testGetUserInfo_successDefault();
+    }
+
+    @Test
+    public void testSwitchUser_invalidTimeout() {
+        assertThrows(IllegalArgumentException.class,
+                () -> mUserHalService.switchUser(mUser10, 0, mUsersInfo, (i, r) -> {
+                }));
+        assertThrows(IllegalArgumentException.class,
+                () -> mUserHalService.switchUser(mUser10, -1, mUsersInfo, (i, r) -> {
+                }));
+    }
+
+    @Test
+    public void testSwitchUser_noUsersInfo() {
+        assertThrows(NullPointerException.class,
+                () -> mUserHalService.switchUser(mUser10, TIMEOUT_MS, null,
+                        (i, r) -> {
+                        }));
+    }
+
+    @Test
+    public void testSwitchUser_noCallback() {
+        assertThrows(NullPointerException.class,
+                () -> mUserHalService.switchUser(mUser10, TIMEOUT_MS,
+                        mUsersInfo, null));
+    }
+
+    @Test
+    public void testSwitchUser_halSetTimedOut() throws Exception {
+        replySetPropertyWithTimeoutException(SWITCH_USER);
+
+        GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
+                CALLBACK_TIMEOUT_TIMEOUT);
+        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+
+        callback.assertCalled();
+        assertCallbackStatus(callback, HalCallback.STATUS_HAL_SET_TIMEOUT);
+        assertThat(callback.response).isNull();
+
+        // Make sure the pending request was removed
+        SystemClock.sleep(CALLBACK_TIMEOUT_TIMEOUT);
+        callback.assertNotCalledAgain();
+    }
+
+    @Test
+    public void testSwitchUser_halDidNotReply() throws Exception {
+        GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
+                CALLBACK_TIMEOUT_TIMEOUT);
+        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+
+        callback.assertCalled();
+        assertCallbackStatus(callback, HalCallback.STATUS_HAL_RESPONSE_TIMEOUT);
+        assertThat(callback.response).isNull();
+    }
+
+    @Test
+    public void testSwitchUser_halReplyWithWrongRequestId() throws Exception {
+        // TODO(b/150419600): use helper method to convert prop value to proper req
+        VehiclePropValue propResponse = new VehiclePropValue();
+        propResponse.prop = SWITCH_USER;
+        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
+
+        replySetPropertyWithOnChangeEvent(SWITCH_USER, propResponse,
+                /* rightRequestId= */ false);
+
+        GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
+                CALLBACK_TIMEOUT_TIMEOUT);
+        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+
+        callback.assertCalled();
+        assertCallbackStatus(callback, HalCallback.STATUS_HAL_RESPONSE_TIMEOUT);
+        assertThat(callback.response).isNull();
+    }
+
+    @Test
+    public void testSwitchUser_halReturnedInvalidMessageType() throws Exception {
+        // TODO(b/150419600): use helper method to convert prop value to proper req
+        VehiclePropValue propResponse = new VehiclePropValue();
+        propResponse.prop = SWITCH_USER;
+        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
+        propResponse.value.int32Values.add(SwitchUserMessageType.VEHICLE_REQUEST);
+        propResponse.value.int32Values.add(SwitchUserStatus.SUCCESS);
+
+        AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
+                SWITCH_USER, propResponse, /* rightRequestId= */ true);
+
+        GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
+                CALLBACK_TIMEOUT_SUCCESS);
+        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+
+        callback.assertCalled();
+
+        // Make sure the arguments were properly converted
+        assertSwitchUserSetRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH, mUser10);
+
+        // Assert response
+        assertCallbackStatus(callback, HalCallback.STATUS_WRONG_HAL_RESPONSE);
+        assertThat(callback.response).isNull();
+    }
+
+    @Test
+    public void testUserSwitch_success() throws Exception {
+        // TODO(b/150419600): use helper method to convert prop value to proper req
+        VehiclePropValue propResponse = new VehiclePropValue();
+        propResponse.prop = SWITCH_USER;
+        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
+        propResponse.value.int32Values.add(SwitchUserMessageType.VEHICLE_RESPONSE);
+        propResponse.value.int32Values.add(SwitchUserStatus.SUCCESS);
+
+        AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
+                SWITCH_USER, propResponse, /* rightRequestId= */ true);
+
+        GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
+                CALLBACK_TIMEOUT_SUCCESS);
+        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+
+        callback.assertCalled();
+
+        // Make sure the arguments were properly converted
+        assertSwitchUserSetRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH, mUser10);
+
+        // Assert response
+        assertCallbackStatus(callback, HalCallback.STATUS_OK);
+        SwitchUserResponse actualResponse = callback.response;
+        assertThat(actualResponse.status).isEqualTo(SwitchUserStatus.SUCCESS);
+        assertThat(actualResponse.messageType).isEqualTo(SwitchUserMessageType.VEHICLE_RESPONSE);
+    }
+
+    @Test
+    public void testUserSwitch_failure() throws Exception {
+        // TODO(b/150419600): use helper method to convert prop value to proper req
+        VehiclePropValue propResponse = new VehiclePropValue();
+        propResponse.prop = SWITCH_USER;
+        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
+        propResponse.value.int32Values.add(SwitchUserMessageType.VEHICLE_RESPONSE);
+        propResponse.value.int32Values.add(SwitchUserStatus.FAILURE);
+
+        AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
+                SWITCH_USER, propResponse, /* rightRequestId= */ true);
+
+        GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
+                CALLBACK_TIMEOUT_SUCCESS);
+        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+
+        callback.assertCalled();
+
+        // Make sure the arguments were properly converted
+        assertSwitchUserSetRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH, mUser10);
+
+        // Assert response
+        assertCallbackStatus(callback, HalCallback.STATUS_OK);
+        SwitchUserResponse actualResponse = callback.response;
+        assertThat(actualResponse.status).isEqualTo(SwitchUserStatus.FAILURE);
+        assertThat(actualResponse.messageType).isEqualTo(SwitchUserMessageType.VEHICLE_RESPONSE);
+    }
+
+    @Test
+    public void testSwitchUser_secondCallFailWhilePending() throws Exception {
+        GenericHalCallback<SwitchUserResponse> callback1 = new GenericHalCallback<>(
+                CALLBACK_TIMEOUT_TIMEOUT);
+        GenericHalCallback<SwitchUserResponse> callback2 = new GenericHalCallback<>(
+                CALLBACK_TIMEOUT_TIMEOUT);
+        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback1);
+        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback2);
+
+        callback1.assertCalled();
+        assertCallbackStatus(callback1, HalCallback.STATUS_HAL_RESPONSE_TIMEOUT);
+        assertThat(callback1.response).isNull();
+
+        callback2.assertCalled();
+        assertCallbackStatus(callback2, HalCallback.STATUS_CONCURRENT_OPERATION);
+        assertThat(callback1.response).isNull();
+    }
+
+    @Test
+    public void testSwitchUser_halReturnedInvalidStatus() throws Exception {
+        // TODO(b/150419600): use helper method to convert prop value to proper req
+        VehiclePropValue propResponse = new VehiclePropValue();
+        propResponse.prop = SWITCH_USER;
+        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
+        propResponse.value.int32Values.add(SwitchUserMessageType.VEHICLE_RESPONSE);
+        propResponse.value.int32Values.add(/*status =*/ 110); // an invalid status
+
+        AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
+                SWITCH_USER, propResponse, /* rightRequestId= */ true);
+
+        GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
+                CALLBACK_TIMEOUT_SUCCESS);
+        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+
+        callback.assertCalled();
+
+        // Make sure the arguments were properly converted
+        assertSwitchUserSetRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH, mUser10);
+
+        // Assert response
+        assertCallbackStatus(callback, HalCallback.STATUS_WRONG_HAL_RESPONSE);
+        assertThat(callback.response).isNull();
     }
 
     /**
@@ -455,7 +655,17 @@ public final class UserHalServiceTest {
         assertUsersInfo(req, mUsersInfo, 2);
     }
 
-    private void assertCallbackStatus(GenericHalCallback<InitialUserInfoResponse> callback,
+    private void assertSwitchUserSetRequest(VehiclePropValue req, int messageType,
+            UserInfo targetUserInfo) {
+        assertThat(req.value.int32Values.get(1)).isEqualTo(messageType);
+        assertWithMessage("targetuser.id mismatch").that(req.value.int32Values.get(2))
+                .isEqualTo(targetUserInfo.userId);
+        assertWithMessage("targetuser.flags mismatch").that(req.value.int32Values.get(3))
+                .isEqualTo(targetUserInfo.flags);
+        assertUsersInfo(req, mUsersInfo, 4);
+    }
+
+    private void assertCallbackStatus(GenericHalCallback callback,
             int expectedStatus) {
         int actualStatus = callback.status;
         if (actualStatus == expectedStatus) return;
