@@ -145,6 +145,65 @@ public final class CarUserManager extends CarManagerBase {
     /** @hide */
     public static final String BUNDLE_PARAM_PREVIOUS_USER_HANDLE = "previous_user";
 
+    /**
+     * {@code int} extra used to represent the user switch status {@link IResultReceiver}
+     * response.
+     *
+     * @hide
+     */
+    public static final String BUNDLE_USER_SWITCH_STATUS = "user_switch.status";
+    /**
+     * {@code int} extra used to represent the user switch message type {@link IResultReceiver}
+     * response.
+     *
+     * @hide
+     */
+    public static final String BUNDLE_USER_SWITCH_MSG_TYPE = "user_switch.messageType";
+    /**
+     * {@code string} extra used to represent the user switch error {@link IResultReceiver}
+     * response.
+     *
+     * @hide
+     */
+    public static final String BUNDLE_USER_SWITCH_ERROR_MSG = "user_switch.errorMessage";
+
+    /**
+     * {@link UserSwitchStatus} called user switch status is unknown.
+     *
+     * @hide
+     */
+    public static final int USER_SWICTH_STATUS_UNKNOWN = 0;
+    /**
+     * {@link UserSwitchStatus} called when user switch is successful for both HAL and Android.
+     *
+     * @hide
+     */
+    public static final int USER_SWICTH_STATUS_SUCCESSFUL = 1;
+    /**
+     * {@link UserSwitchStatus} called when user switch is only successful for Hal but not for
+     * Android. Hal user switch rollover message have been sent.
+     *
+     * @hide
+     */
+    public static final int USER_SWICTH_STATUS_ANDROID_FAILURE = 2;
+    /**
+     * {@link UserSwitchStatus} called when user switch is failed for HAL.
+     * Andrid user switch is not called.
+     *
+     * @hide
+     */
+    public static final int USER_SWICTH_STATUS_HAL_FAILURE = 3;
+
+    /** @hide */
+    @IntDef(prefix = { "USER_SWICTH_STATUS_" }, value = {
+            USER_SWICTH_STATUS_UNKNOWN,
+            USER_SWICTH_STATUS_SUCCESSFUL,
+            USER_SWICTH_STATUS_ANDROID_FAILURE,
+            USER_SWICTH_STATUS_HAL_FAILURE,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface UserSwitchStatus{}
+
     private final Object mLock = new Object();
     private final ICarUserService mService;
     private final UserManager mUserManager;
