@@ -26,6 +26,10 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.automotive.watchdog.ICarWatchdogClient;
+import android.automotive.watchdog.PowerCycle;
+import android.automotive.watchdog.StateType;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.ICarPowerStateListener;
 import android.car.watchdog.ICarWatchdogService;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
 import android.content.Context;
@@ -39,6 +43,8 @@ import android.util.SparseArray;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.android.car.CarLocalServices;
+import com.android.car.CarPowerManagementService;
 import com.android.car.CarServiceBase;
 import com.android.internal.annotations.GuardedBy;
 
@@ -116,6 +122,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
         mCarWatchdogDaemonHelper.addOnConnectionChangeListener(mConnectionListener);
         mCarWatchdogDaemonHelper.connect();
+        subscribePowerCycleChange();
         if (DEBUG) {
             Log.d(TAG, "CarWatchdogService is initialized");
         }
@@ -354,6 +361,54 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     sessionId);
         } catch (RemoteException | IllegalArgumentException | IllegalStateException e) {
             Log.w(TAG, "Cannot respond to car watchdog daemon (sessionId=" + sessionId + "): " + e);
+        }
+    }
+
+    private void subscribePowerCycleChange() {
+        CarPowerManagementService powerService =
+                CarLocalServices.getService(CarPowerManagementService.class);
+        if (powerService == null) {
+            Log.w(TAG, "Cannot get CarPowerManagementService");
+            return;
+        }
+        powerService.registerListener(new ICarPowerStateListener.Stub() {
+            @Override
+            public void onStateChanged(int state) {
+                int powerCycle;
+                switch (state) {
+                    // SHUTDOWN_PREPARE covers suspend and shutdown.
+                    case CarPowerStateListener.SHUTDOWN_PREPARE:
+                        powerCycle = PowerCycle.POWER_CYCLE_SUSPEND;
+                        break;
+                    // ON covers resume.
+                    case CarPowerStateListener.ON:
+                        powerCycle = PowerCycle.POWER_CYCLE_RESUME;
+                        // There might be outdated & incorrect info. We should reset them before
+                        // starting to do health check.
+                        prepareHealthCheck();
+                        break;
+                    default:
+                        return;
+                }
+                try {
+                    mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.POWER_CYCLE,
+                            powerCycle, /* arg2= */ -1);
+                } catch (IllegalArgumentException | RemoteException e) {
+                    Log.w(TAG, "Notifying system state change failed: " + e);
+                }
+                if (DEBUG) {
+                    Log.d(TAG, "Notified car watchdog daemon a power cycle(" + powerCycle + ")");
+                }
+            }
+        });
+    }
+
+    private void prepareHealthCheck() {
+        synchronized (mLock) {
+            for (int timeout : ALL_TIMEOUTS) {
+                SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
+                pingedClients.clear();
+            }
         }
     }
 
