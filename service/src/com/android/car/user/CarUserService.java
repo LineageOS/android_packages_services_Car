@@ -41,6 +41,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.location.LocationManager;
 import android.os.Binder;
@@ -534,6 +535,65 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         Objects.requireNonNull(callback, "callback cannot be null");
         UsersInfo usersInfo = getUsersInfo();
         mHal.getInitialUserInfo(requestType, mHalTimeoutMs, usersInfo, callback);
+    }
+
+    /**
+     * Calls the User HAL to switch user.
+     *
+     * @param targetUser - target user info
+     * @param timeoutMs - timeout for HAL to wait
+     * @param receiver - receiver for the results
+     */
+    public void switchUser(@NonNull UserInfo targetUser, int timeoutMs,
+            @NonNull IResultReceiver receiver) {
+        checkManageUsersPermission("switchUser");
+        UsersInfo usersInfo = getUsersInfo();
+        android.hardware.automotive.vehicle.V2_0.UserInfo halUser =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        halUser.userId = targetUser.id;
+        halUser.flags = UserHalHelper.convertFlags(targetUser);
+        mHal.switchUser(halUser, timeoutMs, usersInfo, (status, resp) -> {
+            Bundle resultData = null;
+            resultData = new Bundle();
+            resultData.putInt(CarUserManager.BUNDLE_USER_SWITCH_STATUS, resp.status);
+            resultData.putInt(CarUserManager.BUNDLE_USER_SWITCH_MSG_TYPE, resp.messageType);
+            int resultStatus = CarUserManager.USER_SWICTH_STATUS_UNKNOWN;
+            if (resp != null) {
+                switch (resp.status) {
+                    case SwitchUserStatus.SUCCESS:
+                        boolean result;
+                        try {
+                            result = mAm.switchUser(targetUser.id);
+                            // TODO(b/150409110): post user switch OK/FAIL to Hal using
+                            // ANDROID_POST_SWITCH
+                            if (result) {
+                                resultStatus = CarUserManager.USER_SWICTH_STATUS_SUCCESSFUL;
+                            } else {
+                                resultStatus = CarUserManager.USER_SWICTH_STATUS_ANDROID_FAILURE;
+                            }
+                        } catch (RemoteException e) {
+                            // ignore
+                            Log.w(TAG_USER,
+                                    "error while switching user " + targetUser.toFullString(), e);
+                        }
+                        break;
+                    case SwitchUserStatus.FAILURE:
+                        // HAL failed to switch user
+                        resultStatus = CarUserManager.USER_SWICTH_STATUS_HAL_FAILURE;
+                        if (resp.errorMessage != null) {
+                            resultData.putString(CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG,
+                                    resp.errorMessage);
+                        }
+                        break;
+                }
+                try {
+                    receiver.send(resultStatus, resultData);
+                } catch (RemoteException e) {
+                    // ignore
+                    Log.w(TAG_USER, "error while sending results", e);
+                }
+            }
+        });
     }
 
     /**
