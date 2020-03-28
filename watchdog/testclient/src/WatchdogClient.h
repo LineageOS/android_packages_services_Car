@@ -33,6 +33,7 @@ struct CommandParam {
     int inactiveAfterInSec;
     int terminateAfterInSec;
     bool forcedKill;
+    bool verbose;
 };
 
 struct HealthCheckSession {
@@ -75,6 +76,7 @@ private:
     ::android::sp<::android::Looper> mHandlerLooper;
     ::android::sp<MessageHandlerImpl> mMessageHandler;
     bool mForcedKill;
+    bool mVerbose;
     ::android::Mutex mMutex;
     std::shared_ptr<ICarWatchdog> mWatchdogServer GUARDED_BY(mMutex);
     std::shared_ptr<ICarWatchdogClient> mTestClient GUARDED_BY(mMutex);

@@ -49,6 +49,9 @@ WatchdogClient::WatchdogClient(const sp<Looper>& handlerLooper) : mHandlerLooper
 }
 
 ndk::ScopedAStatus WatchdogClient::checkIfAlive(int32_t sessionId, TimeoutLength timeout) {
+    if (mVerbose) {
+        ALOGI("Pinged by car watchdog daemon: session id = %d", sessionId);
+    }
     Mutex::Autolock lock(mMutex);
     mHandlerLooper->removeMessages(mMessageHandler, WHAT_CHECK_ALIVE);
     mSession = HealthCheckSession(sessionId, timeout);
@@ -74,6 +77,7 @@ bool WatchdogClient::initialize(const CommandParam& param) {
         mIsClientActive = true;
     }
     mForcedKill = param.forcedKill;
+    mVerbose = param.verbose;
     registerClient(param.timeout);
 
     if (param.inactiveAfterInSec >= 0) {
@@ -115,11 +119,17 @@ void WatchdogClient::respondToWatchdog() {
         ALOGE("Failed to call binder interface: %d", status.getStatus());
         return;
     }
+    if (mVerbose) {
+        ALOGI("Sent response to car watchdog daemon: session id = %d", sessionId);
+    }
 }
 
 void WatchdogClient::becomeInactive() {
     Mutex::Autolock lock(mMutex);
     mIsClientActive = false;
+    if (mVerbose) {
+        ALOGI("Became inactive");
+    }
 }
 
 void WatchdogClient::terminateProcess() {
