@@ -21,6 +21,7 @@
 
 #include <android-base/chrono_utils.h>
 #include <android-base/file.h>
+#include <android-base/properties.h>
 #include <android-base/stringprintf.h>
 #include <binder/IPCThreadState.h>
 
@@ -30,6 +31,7 @@ namespace watchdog {
 
 using std::literals::chrono_literals::operator""s;
 using android::base::Error;
+using android::base::GetProperty;
 using android::base::Result;
 using android::base::StringAppendF;
 using android::base::StringPrintf;
@@ -67,14 +69,22 @@ std::string pidArrayToString(const std::vector<int32_t>& pids) {
     return buffer;
 }
 
+bool isSystemShuttingDown() {
+    std::string sysPowerCtl;
+    std::istringstream tokenStream(GetProperty("sys.powerctl", ""));
+    std::getline(tokenStream, sysPowerCtl, ',');
+    return sysPowerCtl == "reboot" || sysPowerCtl == "shutdown";
+}
+
 }  // namespace
 
 WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) :
       mHandlerLooper(handlerLooper), mLastSessionId(0) {
     mMessageHandler = new MessageHandlerImpl(this);
+    mWatchdogEnabled = true;
     for (const auto& timeout : kTimeouts) {
         mClients.insert(std::make_pair(timeout, std::vector<ClientInfo>()));
-        mPingedClients.insert(std::make_pair(timeout, PingedClientSet()));
+        mPingedClients.insert(std::make_pair(timeout, PingedClientMap()));
     }
 }
 
@@ -187,8 +197,35 @@ Status WatchdogProcessService::tellDumpFinished(const sp<ICarWatchdogMonitor>& m
 }
 
 Status WatchdogProcessService::notifyPowerCycleChange(PowerCycle cycle) {
-    // TODO(b/148884065): implement this method.
-    (void)cycle;
+    std::string buffer;
+    Mutex::Autolock lock(mMutex);
+    bool oldStatus = mWatchdogEnabled;
+    switch (cycle) {
+        case PowerCycle::POWER_CYCLE_SHUTDOWN:
+            mWatchdogEnabled = false;
+            buffer = "SHUTDOWN power cycle";
+            break;
+        case PowerCycle::POWER_CYCLE_SUSPEND:
+            mWatchdogEnabled = false;
+            buffer = "SUSPEND power cycle";
+            break;
+        case PowerCycle::POWER_CYCLE_RESUME:
+            mWatchdogEnabled = true;
+            for (const auto& timeout : kTimeouts) {
+                startHealthCheckingLocked(timeout);
+            }
+            buffer = "RESUME power cycle";
+            break;
+        default:
+            ALOGW("Unsupported power cycle: %d", cycle);
+            return Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
+                                             "The monitor is not registered or an invalid monitor "
+                                             "is given");
+    }
+    ALOGI("Received %s", buffer.c_str());
+    if (oldStatus != mWatchdogEnabled) {
+        ALOGI("Car watchdog is %s", mWatchdogEnabled ? "enabled" : "disabled");
+    }
     return Status::ok();
 }
 
@@ -201,55 +238,65 @@ Status WatchdogProcessService::notifyUserStateChange(userid_t userId, UserState 
 
 Result<void> WatchdogProcessService::dump(int fd, const Vector<String16>& /*args*/) {
     Mutex::Autolock lock(mMutex);
+    const char* indent = "  ";
+    const char* doubleIndent = "    ";
     std::string buffer;
     WriteStringToFd("CAR WATCHDOG PROCESS SERVICE\n", fd);
-    WriteStringToFd("  Registered clients\n", fd);
+    WriteStringToFd(StringPrintf("%sWatchdog enabled: %s\n", indent,
+                                 mWatchdogEnabled ? "true" : "false"),
+                    fd);
+    WriteStringToFd(StringPrintf("%sRegistered clients\n", indent), fd);
     int count = 1;
     for (const auto& timeout : kTimeouts) {
         std::vector<ClientInfo>& clients = mClients[timeout];
         for (auto it = clients.begin(); it != clients.end(); it++, count++) {
-            WriteStringToFd(StringPrintf("    Client #%d: %s\n", count, it->toString().c_str()),
+            WriteStringToFd(StringPrintf("%sClient #%d: %s\n", doubleIndent, count,
+                                         it->toString().c_str()),
                             fd);
         }
     }
-    WriteStringToFd(StringPrintf("\n  Monitor registered: %s\n",
+    WriteStringToFd(StringPrintf("\n%sMonitor registered: %s\n", indent,
                                  mMonitor == nullptr ? "false" : "true"),
+                    fd);
+    WriteStringToFd(StringPrintf("%sisSystemShuttingDown: %s\n", indent,
+                                 isSystemShuttingDown() ? "true" : "false"),
                     fd);
     return {};
 }
 
 void WatchdogProcessService::doHealthCheck(int what) {
     mHandlerLooper->removeMessages(mMessageHandler, what);
+    if (!isWatchdogEnabled()) {
+        return;
+    }
     const TimeoutLength timeout = static_cast<TimeoutLength>(what);
-    std::vector<ClientInfo> clientsToCheck;
-    PingedClientSet& pingedClients = mPingedClients[timeout];
-
     dumpAndKillClientsIfNotResponding(timeout);
 
     /* Generates a temporary/local vector containing clients.
      * Using a local copy may send unnecessary ping messages to clients after they are unregistered.
      * Clients should be able to handle them.
      */
+    std::vector<ClientInfo> clientsToCheck;
+    PingedClientMap& pingedClients = mPingedClients[timeout];
     {
         Mutex::Autolock lock(mMutex);
-        clientsToCheck = mClients[timeout];
         pingedClients.clear();
+        clientsToCheck = mClients[timeout];
+        for (auto& clientInfo : clientsToCheck) {
+            int sessionId = getNewSessionId();
+            clientInfo.sessionId = sessionId;
+            pingedClients.insert(std::make_pair(sessionId, clientInfo));
+        }
     }
 
     for (const auto& clientInfo : clientsToCheck) {
-        int32_t sessionId = getNewSessionId();
-        PingedClient targetClient(clientInfo.client, sessionId);
-        {
-            Mutex::Autolock lock(mMutex);
-            pingedClients.insert(targetClient);
-        }
-        Status status = clientInfo.client->checkIfAlive(sessionId, timeout);
+        Status status = clientInfo.client->checkIfAlive(clientInfo.sessionId, timeout);
         if (!status.isOk()) {
             ALOGW("Sending a ping message to client(pid: %d) failed: %s", clientInfo.pid,
                   status.exceptionMessage().c_str());
             {
                 Mutex::Autolock lock(mMutex);
-                pingedClients.erase(targetClient);
+                pingedClients.erase(clientInfo.sessionId);
             }
         }
     }
@@ -318,7 +365,7 @@ Status WatchdogProcessService::registerClientLocked(const sp<ICarWatchdogClient>
 
     // If the client array becomes non-empty, start health checking.
     if (clients.size() == 1) {
-        startHealthChecking(timeout);
+        startHealthCheckingLocked(timeout);
     }
     if (DEBUG) {
         ALOGD("Car watchdog %s(pid: %d, timeout: %d) is registered", clientName, callingPid,
@@ -350,11 +397,11 @@ Status WatchdogProcessService::unregisterClientLocked(const std::vector<TimeoutL
 
 Status WatchdogProcessService::tellClientAliveLocked(const sp<ICarWatchdogClient>& client,
                                                      int32_t sessionId) {
+    const sp<IBinder> binder = BnCarWatchdog::asBinder(client);
     for (const auto& timeout : kTimeouts) {
-        PingedClientSet& clients = mPingedClients[timeout];
-        PingedClient respondingClient(client, sessionId);
-        PingedClientSet::const_iterator it = clients.find(respondingClient);
-        if (it == clients.cend()) {
+        PingedClientMap& clients = mPingedClients[timeout];
+        PingedClientMap::const_iterator it = clients.find(sessionId);
+        if (it == clients.cend() || binder != BnCarWatchdog::asBinder(it->second.client)) {
             continue;
         }
         clients.erase(it);
@@ -382,7 +429,9 @@ bool WatchdogProcessService::findClientAndProcessLocked(const std::vector<Timeou
     return false;
 }
 
-Result<void> WatchdogProcessService::startHealthChecking(TimeoutLength timeout) {
+Result<void> WatchdogProcessService::startHealthCheckingLocked(TimeoutLength timeout) {
+    PingedClientMap& clients = mPingedClients[timeout];
+    clients.clear();
     int what = static_cast<int>(timeout);
     auto durationNs = timeoutToDurationNs(timeout);
     mHandlerLooper->sendMessageDelayed(durationNs.count(), mMessageHandler, Message(what));
@@ -393,10 +442,10 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
     std::vector<int32_t> processIds;
     {
         Mutex::Autolock lock(mMutex);
-        PingedClientSet& clients = mPingedClients[timeout];
-        for (PingedClientSet::const_iterator it = clients.cbegin(); it != clients.cend(); it++) {
+        PingedClientMap& clients = mPingedClients[timeout];
+        for (PingedClientMap::const_iterator it = clients.cbegin(); it != clients.cend(); it++) {
             pid_t pid = -1;
-            sp<IBinder> binder = BnCarWatchdog::asBinder((*it).client);
+            sp<IBinder> binder = BnCarWatchdog::asBinder(it->second.client);
             std::vector<TimeoutLength> timeouts = {timeout};
             // Unhealthy clients are eventually removed from the list through binderDied when they
             // are killed.
@@ -419,11 +468,11 @@ Result<void> WatchdogProcessService::dumpAndKillAllProcesses(
     if (size == 0) {
         return {};
     }
+    std::string pidString = pidArrayToString(processesNotResponding);
     sp<ICarWatchdogMonitor> monitor;
     {
         Mutex::Autolock lock(mMutex);
         if (mMonitor == nullptr) {
-            std::string pidString = pidArrayToString(processesNotResponding);
             std::string errorMsg =
                     StringPrintf("Cannot dump and kill processes(pid = %s): Monitor is not set",
                                  pidString.c_str());
@@ -432,9 +481,13 @@ Result<void> WatchdogProcessService::dumpAndKillAllProcesses(
         }
         monitor = mMonitor;
     }
+    if (isSystemShuttingDown()) {
+        ALOGI("Skip dumping and killing processes(%s): The system is shutting down",
+              pidString.c_str());
+        return {};
+    }
     monitor->onClientsNotResponding(processesNotResponding);
     if (DEBUG) {
-        std::string pidString = pidArrayToString(processesNotResponding);
         ALOGD("Dumping and killing processes is requested: %s", pidString.c_str());
     }
     return {};
@@ -446,6 +499,11 @@ int32_t WatchdogProcessService::getNewSessionId() {
         mLastSessionId = 1;
     }
     return mLastSessionId;
+}
+
+bool WatchdogProcessService::isWatchdogEnabled() {
+    Mutex::Autolock lock(mMutex);
+    return mWatchdogEnabled;
 }
 
 std::string WatchdogProcessService::ClientInfo::toString() {
