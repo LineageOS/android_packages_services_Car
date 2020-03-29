@@ -64,6 +64,7 @@ import com.google.android.car.kitchensink.property.PropertyTestFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
 import com.google.android.car.kitchensink.storagelifetime.StorageLifetimeFragment;
 import com.google.android.car.kitchensink.storagevolumes.StorageVolumesFragment;
+import com.google.android.car.kitchensink.systemfeatures.SystemFeaturesFragment;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.users.UsersFragment;
 import com.google.android.car.kitchensink.vehiclectrl.VehicleCtrlFragment;
@@ -72,6 +73,7 @@ import com.google.android.car.kitchensink.volume.VolumeTestFragment;
 import com.google.android.car.kitchensink.weblinks.WebLinksTestFragment;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class KitchenSinkActivity extends FragmentActivity {
@@ -179,20 +181,20 @@ public class KitchenSinkActivity extends FragmentActivity {
             // new FragmentMenuEntry("input test", InputTestFragment.class),
             new FragmentMenuEntry("notification", NotificationFragment.class),
             new FragmentMenuEntry("orientation test", OrientationTestFragment.class),
+            new FragmentMenuEntry("package info", PackageInfoFragment.class),
             new FragmentMenuEntry("power test", PowerTestFragment.class),
             new FragmentMenuEntry("projection", ProjectionFragment.class),
             new FragmentMenuEntry("property test", PropertyTestFragment.class),
             new FragmentMenuEntry("sensors", SensorsTestFragment.class),
             new FragmentMenuEntry("storage lifetime", StorageLifetimeFragment.class),
             new FragmentMenuEntry("storage volumes", StorageVolumesFragment.class),
+            new FragmentMenuEntry("system features", SystemFeaturesFragment.class),
             new FragmentMenuEntry("touch test", TouchTestFragment.class),
             new FragmentMenuEntry("users", UsersFragment.class),
-            new FragmentMenuEntry("volume test", VolumeTestFragment.class),
             new FragmentMenuEntry("vehicle ctrl", VehicleCtrlFragment.class),
             new FragmentMenuEntry("vehicle hal", VehicleHalFragment.class),
-            new FragmentMenuEntry("web links", WebLinksTestFragment.class),
-            new FragmentMenuEntry("package info", PackageInfoFragment.class)
-    );
+            new FragmentMenuEntry("volume test", VolumeTestFragment.class),
+            new FragmentMenuEntry("web links", WebLinksTestFragment.class));
 
     private Car mCarApi;
     private CarHvacManager mHvacManager;
@@ -202,6 +204,10 @@ public class KitchenSinkActivity extends FragmentActivity {
     private CarAppFocusManager mCarAppFocusManager;
     private CarProjectionManager mCarProjectionManager;
     private Object mPropertyManagerReady = new Object();
+
+    public KitchenSinkActivity() {
+        mMenuEntries.sort(Comparator.comparing(MenuEntry::getText));
+    }
 
     public CarHvacManager getHvacManager() {
         return mHvacManager;

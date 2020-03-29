@@ -31,6 +31,8 @@ import android.app.IProcessObserver;
 import android.app.Presentation;
 import android.app.TaskStackListener;
 import android.car.hardware.power.CarPowerManager;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -130,16 +132,13 @@ public final class FixedActivityService implements CarServiceBase {
 
     private final UserManager mUm;
 
-    private final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
-        @Override
-        public void onUserLockChanged(@UserIdInt int userId, boolean unlocked) {
-            // Nothing to do
+    private final UserLifecycleListener mUserLifecycleListener = event -> {
+        if (Log.isLoggable(TAG_AM, Log.DEBUG)) {
+            Log.d(TAG_AM, "onEvent(" + event + ")");
         }
-
-        @Override
-        public void onSwitchUser(@UserIdInt int userId) {
-            synchronized (mLock) {
-                mRunningActivities.clear();
+        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
+            synchronized (FixedActivityService.this.mLock) {
+                FixedActivityService.this.mRunningActivities.clear();
             }
         }
     };
@@ -309,7 +308,7 @@ public final class FixedActivityService implements CarServiceBase {
             mCarPowerManager = carPowerManager;
         }
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
-        userService.addUserCallback(mUserCallback);
+        userService.addUserLifecycleListener(mUserLifecycleListener);
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
         filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
@@ -345,7 +344,7 @@ public final class FixedActivityService implements CarServiceBase {
         }
         mHandlerThread.getThreadHandler().removeCallbacks(mActivityCheckRunnable);
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
-        userService.removeUserCallback(mUserCallback);
+        userService.removeUserLifecycleListener(mUserLifecycleListener);
         try {
             mAm.unregisterTaskStackListener(mTaskStackListener);
             mAm.unregisterProcessObserver(mProcessObserver);

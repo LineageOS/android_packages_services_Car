@@ -140,28 +140,14 @@ Status WatchdogBinderMediator::unregisterMonitor(const sp<ICarWatchdogMonitor>& 
     return mWatchdogProcessService->unregisterMonitor(monitor);
 }
 
-Status WatchdogBinderMediator::notifySystemStateChange(StateType type,
-                                                       const std::vector<std::string>& args) {
+Status WatchdogBinderMediator::notifySystemStateChange(StateType type, int32_t arg1, int32_t arg2) {
     Status status = checkSystemPermission();
     if (!status.isOk()) {
         return status;
     }
     switch (type) {
         case StateType::POWER_CYCLE: {
-            if (args.size() != 1) {
-                return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                         StringPrintf("Expected exactly one argument for %s "
-                                                      "change, got %zu",
-                                                      toString(StateType::POWER_CYCLE).c_str(),
-                                                      args.size()));
-            }
-            uint32_t powerCycleArg = 0;
-            if (!ParseUint(args[0], &powerCycleArg)) {
-                return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                         StringPrintf("Failed to parse power cycle argument %s",
-                                                      args[0].c_str()));
-            }
-            auto powerCycle = static_cast<PowerCycle>(powerCycleArg);
+            PowerCycle powerCycle = static_cast<PowerCycle>(static_cast<uint32_t>(arg1));
             if (powerCycle >= PowerCycle::NUM_POWER_CYLES) {
                 return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
                                          StringPrintf("Invalid power cycle %d", powerCycle));
@@ -169,26 +155,8 @@ Status WatchdogBinderMediator::notifySystemStateChange(StateType type,
             return mWatchdogProcessService->notifyPowerCycleChange(powerCycle);
         }
         case StateType::USER_STATE: {
-            if (args.size() != 2) {
-                return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                         StringPrintf("Expected exactly two arguments for %s "
-                                                      "change, got %zu",
-                                                      toString(StateType::USER_STATE).c_str(),
-                                                      args.size()));
-            }
-            userid_t userId = 0;
-            if (!ParseUint(args[0], &userId)) {
-                return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                         StringPrintf("Failed to parse user ID argument %s",
-                                                      args[0].c_str()));
-            }
-            uint32_t userStateArg = 0;
-            if (!ParseUint(args[1], &userStateArg)) {
-                return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                         StringPrintf("Failed to parse user state argument %s",
-                                                      args[0].c_str()));
-            }
-            auto userState = static_cast<UserState>(userStateArg);
+            userid_t userId = static_cast<userid_t>(arg1);
+            UserState userState = static_cast<UserState>(static_cast<uint32_t>(arg2));
             if (userState >= UserState::NUM_USER_STATES) {
                 return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
                                          StringPrintf("Invalid user state %d", userState));
@@ -196,20 +164,8 @@ Status WatchdogBinderMediator::notifySystemStateChange(StateType type,
             return mWatchdogProcessService->notifyUserStateChange(userId, userState);
         }
         case StateType::BOOT_PHASE: {
-            if (args.size() != 1) {
-                return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                         StringPrintf("Expacted exactly one argument for %s "
-                                                      "change, got %zu",
-                                                      toString(StateType::BOOT_PHASE).c_str(),
-                                                      args.size()));
-            }
-            uint32_t phase = 0;
-            if (!ParseUint(args[0], &phase)) {
-                return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                         StringPrintf("Failed to parse boot phase argument %s",
-                                                      args[0].c_str()));
-            }
-            if (static_cast<BootPhase>(phase) >= BootPhase::BOOT_COMPLETED) {
+            BootPhase phase = static_cast<BootPhase>(static_cast<uint32_t>(arg1));
+            if (phase >= BootPhase::BOOT_COMPLETED) {
                 /*auto ret = mIoPerfCollection->onBootFinished();
                 if (!ret.ok()) {
                     return fromExceptionCode(ret.error().code(), ret.error().message());

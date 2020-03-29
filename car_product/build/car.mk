@@ -69,6 +69,8 @@ PRODUCT_BRAND := generic
 PRODUCT_DEVICE := generic
 PRODUCT_NAME := generic_car_no_telephony
 
+PRODUCT_IS_AUTOMOTIVE := true
+
 PRODUCT_PROPERTY_OVERRIDES := \
     ro.config.ringtone=Girtab.ogg \
     ro.config.notification_sound=Tethys.ogg \
