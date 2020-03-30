@@ -81,7 +81,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
         }
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             List<ServiceCallback> callbacks;
-            int userId = event.getUserHandle().getIdentifier();
+            int userId = event.getUserId();
             if (DBG) {
                 Log.d(TAG, "User Switch Happened. New User" + userId);
             }

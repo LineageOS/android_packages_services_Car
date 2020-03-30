@@ -119,7 +119,7 @@ public final class CarUserNoticeService implements CarServiceBase {
                 stopUi(/* clearUiShown= */ true);
                 synchronized (mLock) {
                    // This should be the only place to change user
-                    mUserId = event.getUserHandle().getIdentifier();
+                    mUserId = event.getUserId();
                 }
                 startNoticeUiIfNecessary();
             });

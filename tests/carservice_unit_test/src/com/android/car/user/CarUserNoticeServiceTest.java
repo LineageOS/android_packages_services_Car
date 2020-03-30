@@ -237,9 +237,7 @@ public class CarUserNoticeServiceTest {
     private void switchUser(int userId) throws Exception {
         // Notify listeners about user switch.
         mUserLifecycleListenerArgumentCaptor.getValue().onEvent(new UserLifecycleEvent(
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                /* from= */ null,
-                /* to= */ UserHandle.of(userId)));
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, userId));
     }
 
     private CountDownLatch mockBindService() {

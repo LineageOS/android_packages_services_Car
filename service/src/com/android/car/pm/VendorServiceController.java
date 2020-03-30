@@ -132,14 +132,14 @@ class VendorServiceController implements UserLifecycleListener {
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING == event.getEventType()) {
             Message msg = mHandler.obtainMessage(
                     MSG_USER_LOCK_CHANGED,
-                    event.getUserHandle().getIdentifier(),
+                    event.getUserId(),
                     /* unlocked= */ 1);
             mHandler.executeOrSendMessage(msg);
         } else if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             mHandler.removeMessages(MSG_SWITCH_USER);
             Message msg = mHandler.obtainMessage(
                     MSG_SWITCH_USER,
-                    event.getUserHandle().getIdentifier(),
+                    event.getUserId(),
                     /* unlocked= */ 0);
             mHandler.executeOrSendMessage(msg);
         }
