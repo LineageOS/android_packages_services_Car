@@ -143,7 +143,7 @@ public final class CarUserManager extends CarManagerBase {
     /** @hide */
     public static final String BUNDLE_PARAM_ACTION = "action";
     /** @hide */
-    public static final String BUNDLE_PARAM_PREVIOUS_USER_HANDLE = "previous_user";
+    public static final String BUNDLE_PARAM_PREVIOUS_USER_ID = "previous_user";
 
     private final Object mLock = new Object();
     private final ICarUserService mService;
@@ -418,10 +418,10 @@ public final class CarUserManager extends CarManagerBase {
                 Log.w(TAG, "Received result (" + resultCode + ") without data");
                 return;
             }
-            UserHandle toHandle = new UserHandle(resultCode);
-            UserHandle fromHandle = resultData.getParcelable(BUNDLE_PARAM_PREVIOUS_USER_HANDLE);
+            int from = resultData.getInt(BUNDLE_PARAM_PREVIOUS_USER_ID, UserHandle.USER_NULL);
+            int to = resultCode;
             int eventType = resultData.getInt(BUNDLE_PARAM_ACTION);
-            UserLifecycleEvent event = new UserLifecycleEvent(eventType, fromHandle, toHandle);
+            UserLifecycleEvent event = new UserLifecycleEvent(eventType, from, to);
             ArrayMap<UserLifecycleListener, Executor> listeners;
             synchronized (mLock) {
                 listeners = mListeners;
@@ -522,15 +522,20 @@ public final class CarUserManager extends CarManagerBase {
     @TestApi
     public static final class UserLifecycleEvent {
         private final @UserLifecycleEventType int mEventType;
-        private final @NonNull UserHandle mUserHandle;
-        private final @Nullable UserHandle mPreviousUserHandle;
+        private final @UserIdInt int mUserId;
+        private final @UserIdInt int mPreviousUserId;
 
         /** @hide */
         public UserLifecycleEvent(@UserLifecycleEventType int eventType,
-                @NonNull UserHandle from, @Nullable UserHandle to) {
+                @UserIdInt int from, @UserIdInt int to) {
             mEventType = eventType;
-            mPreviousUserHandle = from;
-            mUserHandle = to;
+            mPreviousUserId = from;
+            mUserId = to;
+        }
+
+        /** @hide */
+        public UserLifecycleEvent(@UserLifecycleEventType int eventType, @UserIdInt int to) {
+            this(eventType, UserHandle.USER_NULL, to);
         }
 
         /**
@@ -549,11 +554,34 @@ public final class CarUserManager extends CarManagerBase {
         }
 
         /**
+         * Gets the id of the user whose event is being reported.
+         *
+         * @hide
+         */
+        @UserIdInt
+        public int getUserId() {
+            return mUserId;
+        }
+
+        /**
          * Gets the handle of the user whose event is being reported.
          */
         @NonNull
         public UserHandle getUserHandle() {
-            return mUserHandle;
+            return UserHandle.of(mUserId);
+        }
+
+        /**
+         * Gets the id of the user being switched from.
+         *
+         * <p>This method returns {@link UserHandle#USER_NULL} for all event types but
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_SWITCHING}.
+         *
+         * @hide
+         */
+        @UserIdInt
+        public int getPreviousUserId() {
+            return mPreviousUserId;
         }
 
         /**
@@ -564,19 +592,19 @@ public final class CarUserManager extends CarManagerBase {
          */
         @Nullable
         public UserHandle getPreviousUserHandle() {
-            return mPreviousUserHandle;
+            return mPreviousUserId == UserHandle.USER_NULL ? null : UserHandle.of(mPreviousUserId);
         }
 
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder("Event[type=")
                     .append(lifecycleEventTypeToString(mEventType));
-            if (mPreviousUserHandle != null) {
+            if (mPreviousUserId != UserHandle.USER_NULL) {
                 builder
-                    .append(",from=").append(mPreviousUserHandle)
-                    .append(",to=").append(mUserHandle);
+                    .append(",from=").append(mPreviousUserId)
+                    .append(",to=").append(mUserId);
             } else {
-                builder.append(",user=").append(mUserHandle);
+                builder.append(",user=").append(mUserId);
             }
 
             return builder.append(']').toString();

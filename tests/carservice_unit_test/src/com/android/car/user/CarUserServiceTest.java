@@ -262,7 +262,7 @@ public class CarUserServiceTest {
         verify(mUserLifecycleListener).onEvent(mLifeCycleEventCaptor.capture());
         UserLifecycleEvent actualEvent = mLifeCycleEventCaptor.getValue();
         assertThat(actualEvent.getEventType()).isEqualTo(expectedEventType);
-        assertThat(actualEvent.getUserHandle().getIdentifier()).isEqualTo(expectedNewUserId);
+        assertThat(actualEvent.getUserId()).isEqualTo(expectedNewUserId);
     }
 
     /**
