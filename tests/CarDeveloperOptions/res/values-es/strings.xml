@@ -535,7 +535,7 @@
     <string name="crypt_keeper_data_corrupt_title" msgid="6561535293845985713">"Descifrado incorrecto"</string>
     <string name="crypt_keeper_data_corrupt_summary" product="tablet" msgid="7018748502706237323">"La contraseña que has introducido es correcta pero, lamentablemente, tus datos están dañados. \n\nPara seguir utilizando el tablet, debes restablecer el estado de fábrica. Al configurar el dispositivo después de este proceso, podrás restaurar los datos incluidos en la copia de seguridad de tu cuenta de Google."</string>
     <string name="crypt_keeper_data_corrupt_summary" product="default" msgid="5798580588985326937">"La contraseña que has introducido es correcta pero, lamentablemente, tus datos están dañados. \n\nPara seguir utilizando el teléfono, debes restablecer el estado de fábrica. Al configurar el dispositivo después de este proceso, podrás restaurar los datos incluidos en la copia de seguridad de tu cuenta de Google."</string>
-    <string name="crypt_keeper_switch_input_method" msgid="4744137470890459582">"Cambiar método de entrada"</string>
+    <string name="crypt_keeper_switch_input_method" msgid="4744137470890459582">"Cambiar método de introducción"</string>
     <string name="suggested_lock_settings_title" msgid="1518155558803371661">"Protege tu teléfono"</string>
     <string name="suggested_lock_settings_summary" product="tablet" msgid="1861066918594412519">"Añade bloqueo de pantalla para proteger el tablet"</string>
     <string name="suggested_lock_settings_summary" product="device" msgid="7127114417250029182">"Añade bloqueo de pantalla para proteger el dispositivo"</string>

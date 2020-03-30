@@ -1070,7 +1070,7 @@
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"एपी बैंड"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"अपने दूसरे डिवाइस के लिए हॉटस्पॉट का इस्तेमाल करके वाई-फ़ाई नेटवर्क बनाएं. हॉटस्पॉट आपके मोबाइल डेटा कनेक्शन के ज़रिए इंटरनेट की सुविधा देता है. मोबाइल डेटा के लिए अतिरिक्त भुगतान करना पड़ सकता है."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"ऐप्लिकेशन आस-पास के डिवाइस से सामग्री शेयर करने के लिए कोई हॉटस्पॉट बना सकते हैं."</string>
-    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"हॉटस्पॉट अपने आप बंद करें"</string>
+    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"हॉटस्पॉट अपने-आप बंद हो जाए"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"कोई डिवाइस कनेक्ट नहीं होने पर, वाई-फ़ाई हॉटस्पॉट बंद हो जाएगा"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"हॉटस्‍पॉट को चालू किया जा रहा है…"</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"हॉटस्‍पॉट को बंद किया जा रहा है…"</string>

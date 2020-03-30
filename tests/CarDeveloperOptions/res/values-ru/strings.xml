@@ -1115,7 +1115,7 @@
     <string name="wifi_tether_configure_ap_text" msgid="4081852770996455902">"Настройка точки доступа Wi-Fi"</string>
     <string name="wifi_hotspot_configure_ap_text" msgid="1000003286253019522">"Настройка точки доступа Wi‑Fi"</string>
     <string name="wifi_hotspot_configure_ap_text_summary" msgid="2303120188509955656">"Точка доступа AndroidAP WPA2 PSK"</string>
-    <string name="wifi_tether_configure_ssid_default" msgid="1722238925876152663">"Хот-спот Android"</string>
+    <string name="wifi_tether_configure_ssid_default" msgid="1722238925876152663">"AndroidHotspot"</string>
     <string name="wifi_calling_settings_title" msgid="626821542308601806">"Звонки по Wi-Fi"</string>
     <string name="wifi_calling_suggestion_title" msgid="1402265373543523970">"Звонки по Wi-Fi"</string>
     <string name="wifi_calling_suggestion_summary" msgid="198402175473169630">"Звоните по Wi-Fi, когда нет сигнала сотовой связи."</string>
@@ -1661,7 +1661,7 @@
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Открыть доступ к интернет-подключению планшета через USB"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Bluetooth-модем"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Открыть доступ к интернет-подключению планшета по Bluetooth"</string>
-    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Открыть доступ к интернет-подключению телефона по Bluetooth"</string>
+    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Открыть доступ к интернет-подключению телефона через Bluetooth"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Доступ к интернет-подключению устройства \"<xliff:g id="DEVICE_NAME">%1$d</xliff:g>\" по Bluetooth открыт"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Макс. число подключаемых устройств: <xliff:g id="MAXCONNECTION">%1$d</xliff:g>"</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"Подключение к <xliff:g id="DEVICE_NAME">%1$s</xliff:g> будет прервано."</string>
