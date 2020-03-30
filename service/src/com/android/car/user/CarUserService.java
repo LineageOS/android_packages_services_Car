@@ -703,12 +703,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public void setUserLockStatus(@UserIdInt int userId, boolean unlocked) {
         TimingsTraceLog t = new TimingsTraceLog(TAG_USER,
                 Trace.TRACE_TAG_SYSTEM_SERVER);
-        // TODO(b/152043575): we should overload the UserLifecycleEvent constructor with a
-        //     /* hidden */ method that takes int userId directly.
-        notifyUserLifecycleListeners(t, new UserLifecycleEvent(
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING,
-                /* from= */ null,
-                /* to= */ UserHandle.of(userId)));
+        notifyUserLifecycleListeners(t,
+                new UserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING, userId));
 
         if (!unlocked) { // nothing else to do when it is locked back.
             return;
@@ -881,7 +877,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     data.putInt(CarUserManager.BUNDLE_PARAM_ACTION,
                             CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
                     // TODO(b/144120654): should pass currentId from CarServiceHelperService so it
-                    // can set BUNDLE_PARAM_PREVIOUS_USER_HANDLE
+                    // can set BUNDLE_PARAM_PREVIOUS_USER_ID (and unit test it)
                     if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
                         Log.d(TAG_USER, "Notifying listener for uid " + uid);
                     }
@@ -897,13 +893,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }, "SwitchUser-" + userId + "-Listeners").start();
         }
 
-        // TODO(b/145689885): passing null for `from` parameter until it gets properly replaced
+        // TODO(b/145689885): not passing `from` parameter until it gets properly replaced
         //     the expected Binder call.
-        // TODO(b/152043575): we should overload the UserLifecycleEvent constructor with a
-        //     /* hidden */ method that takes int userId directly.
-        notifyUserLifecycleListeners(t, new UserLifecycleEvent(
-                /* eventType= */ CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                /* from= */ null, /* to= */ new UserHandle(userId)));
+        notifyUserLifecycleListeners(t,
+                new UserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, userId));
     }
 
     private void notifyUserLifecycleListeners(TimingsTraceLog t, UserLifecycleEvent event) {

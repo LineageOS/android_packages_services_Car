@@ -457,9 +457,7 @@ public class CarOccupantZoneServiceTest {
         final int newUserId = 100;
         doReturn(newUserId).when(mService).getCurrentUser();
         mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                /* from= */ null,
-                /* to= */ UserHandle.of(newUserId)));
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, newUserId));
 
         // key : zone id
         HashMap<Integer, OccupantConfig> configs = mService.getActiveOccupantConfigs();
@@ -676,9 +674,7 @@ public class CarOccupantZoneServiceTest {
         final int newUserId = 100;
         doReturn(newUserId).when(mService).getCurrentUser();
         mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                /* from= */ null,
-                /* to= */ UserHandle.of(newUserId)));
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, newUserId));
 
         assertThat(newUserId).isEqualTo(mManager.getUserForOccupant(mZoneDriverLHD));
         //TODO update this after secondary user handling
@@ -698,9 +694,7 @@ public class CarOccupantZoneServiceTest {
 
         resetConfigChangeEventWait();
         mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                /* from= */ null,
-                /* to= */ UserHandle.of(0)));  // user id does not matter.
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, 0)); // user id does not matter.
 
         assertThat(waitForConfigChangeEventAndAssertFlag(eventWaitTimeMs,
                 CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER)).isTrue();
@@ -713,9 +707,7 @@ public class CarOccupantZoneServiceTest {
         resetConfigChangeEventWait();
         mManager.unregisterOccupantZoneConfigChangeListener(mChangeListener);
         mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                /* from= */ null,
-                /* to= */ UserHandle.of(0)));
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, 0));
         assertThat(waitForConfigChangeEventAndAssertFlag(eventWaitTimeMs, 0)).isFalse();
     }
 
