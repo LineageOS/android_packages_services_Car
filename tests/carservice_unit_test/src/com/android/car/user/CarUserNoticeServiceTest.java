@@ -16,6 +16,7 @@
 
 package com.android.car.user;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -59,18 +60,15 @@ import com.android.car.R;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoSession;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.quality.Strictness;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(MockitoJUnitRunner.class)
 public class CarUserNoticeServiceTest {
 
     @Mock
@@ -116,19 +114,22 @@ public class CarUserNoticeServiceTest {
                 .strictness(Strictness.LENIENT)
                 .startMocking();
 
-        when(CarLocalServices.createCarPowerManager(mMockContext)).thenReturn(mCarPowerManager);
-        when(Settings.Secure.getIntForUser(any(),
+        doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mMockContext));
+        doReturn(mMockCarPowerManagementService)
+                .when(() -> CarLocalServices.getService(CarPowerManagementService.class));
+        doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mMockContext));
+        doReturn(mMockCarUserService)
+                .when(() -> CarLocalServices.getService(CarUserService.class));
+
+        doReturn(1).when(() -> Settings.Secure.getIntForUser(any(),
                 eq(CarSettings.Secure.KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER), anyInt(),
-                anyInt())).thenReturn(1);
+                anyInt()));
 
         doReturn(mMockedResources).when(mMockContext).getResources();
         doReturn(InstrumentationRegistry.getInstrumentation().getTargetContext()
                 .getContentResolver())
                         .when(mMockContext).getContentResolver();
         doReturn("com.foo/.Blah").when(mMockedResources).getString(anyInt());
-        when(CarLocalServices.getService(CarPowerManagementService.class))
-                .thenReturn(mMockCarPowerManagementService);
-        when(CarLocalServices.getService(CarUserService.class)).thenReturn(mMockCarUserService);
         doReturn(mMockPowerManager).when(mMockContext).getSystemService(PowerManager.class);
         doReturn(mMockAppOpsManager).when(mMockContext).getSystemService(AppOpsManager.class);
         doReturn(mMockPackageManager).when(mMockContext).getPackageManager();
