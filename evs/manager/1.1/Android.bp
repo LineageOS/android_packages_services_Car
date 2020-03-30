@@ -70,5 +70,9 @@ cc_binary {
                 "-DEVS_DEBUG",
             ]
         }
-    }
+    },
+
+    vintf_fragments: [
+        "manifest_android.automotive.evs.manager@1.1.xml",
+    ],
 }
