@@ -38,6 +38,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarUxRestrictions;
@@ -47,6 +48,7 @@ import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.display.DisplayManager;
@@ -82,6 +84,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -626,6 +629,30 @@ public class CarUxRestrictionsManagerServiceTest {
         }
     }
 
+    @Test(expected = SecurityException.class)
+    public void testSetRestrictionMode_missingPermission_throwsException() throws Exception {
+        when(mSpyContext.checkCallingOrSelfPermission(
+                Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+        mService.setRestrictionMode(UX_RESTRICTION_MODE_BASELINE);
+    }
+
+    @Test(expected = SecurityException.class)
+    public void testGetRestrictionMode_missingPermission_throwsException() throws Exception {
+        when(mSpyContext.checkCallingOrSelfPermission(
+                Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+        mService.getRestrictionMode();
+    }
+
+    @Test(expected = SecurityException.class)
+    public void testSaveUxRestrictionsConfigurationForNextBoot_missingPermission_throwsException()
+            throws Exception {
+        when(mSpyContext.checkCallingOrSelfPermission(
+                Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+        mService.saveUxRestrictionsConfigurationForNextBoot(new ArrayList<>());
+    }
 
     private CarUxRestrictionsConfiguration createEmptyConfig() {
         return createEmptyConfig(null);
