@@ -87,7 +87,11 @@ cc_binary {
                 "-DEVS_DEBUG",
             ]
         }
-    }
+    },
+
+    vintf_fragments: [
+        "manifest_android.hardware.automotive.evs@1.1.xml",
+    ],
 }
 
 prebuilt_etc {
