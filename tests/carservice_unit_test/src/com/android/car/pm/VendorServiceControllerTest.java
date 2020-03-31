@@ -20,7 +20,9 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
@@ -57,8 +59,10 @@ import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-public class VendorServiceControllerTest {
+public final class VendorServiceControllerTest {
     private static final Long DEFAULT_TIMEOUT_MS = 1000L;
 
     private static final int FG_USER_ID = 13;
@@ -131,14 +135,12 @@ public class VendorServiceControllerTest {
         mockGetCurrentUser(UserHandle.USER_SYSTEM);
         mController.init();
 
-        Thread.sleep(100);
-
         mContext.assertBoundService(SERVICE_BIND_ALL_USERS_ASAP);
         mContext.verifyNoMoreServiceLaunches();
     }
 
     @Test
-    public void systemUserUnlocked() {
+    public void systemUserUnlocked() throws Exception {
         mController.init();
         mContext.reset();
 
@@ -152,7 +154,7 @@ public class VendorServiceControllerTest {
     }
 
     @Test
-    public void fgUserUnlocked() {
+    public void fgUserUnlocked() throws Exception {
         mockGetCurrentUser(UserHandle.USER_SYSTEM);
         mController.init();
         mContext.reset();
@@ -184,6 +186,14 @@ public class VendorServiceControllerTest {
         when(mUserManager.isUserUnlockingOrUnlocked(userId)).thenReturn(true);
     }
 
+    private static void assertServiceBound(List<Intent> intents, String service) {
+        assertWithMessage("Service %s not bound yet", service).that(intents)
+                .hasSize(1);
+        assertWithMessage("Wrong component bound").that(intents.get(0).getComponent())
+                .isEqualTo(ComponentName.unflattenFromString(service));
+        intents.clear();
+    }
+
     /** Overrides framework behavior to succeed on binding/starting processes. */
     public final class ServiceLauncherContext extends ContextWrapper {
         private final Object mLock = new Object();
@@ -192,6 +202,9 @@ public class VendorServiceControllerTest {
         private List<Intent> mBoundIntents = new ArrayList<>();
         @GuardedBy("mLock")
         private List<Intent> mStartedServicesIntents = new ArrayList<>();
+
+        private final CountDownLatch mBoundLatch = new CountDownLatch(1);
+        private final CountDownLatch mStartedLatch = new CountDownLatch(1);
 
         ServiceLauncherContext(Context base) {
             super(base);
@@ -202,6 +215,7 @@ public class VendorServiceControllerTest {
             synchronized (mLock) {
                 mStartedServicesIntents.add(service);
             }
+            mStartedLatch.countDown();
             return service.getComponent();
         }
 
@@ -211,6 +225,7 @@ public class VendorServiceControllerTest {
             synchronized (mLock) {
                 mBoundIntents.add(service);
             }
+            mBoundLatch.countDown();
             conn.onServiceConnected(service.getComponent(), null);
             return true;
         }
@@ -226,21 +241,24 @@ public class VendorServiceControllerTest {
             return mResources;
         }
 
-        void assertBoundService(String service) {
-            synchronized (mLock) {
-                assertThat(mBoundIntents).hasSize(1);
-                assertThat(mBoundIntents.get(0).getComponent())
-                        .isEqualTo(ComponentName.unflattenFromString(service));
-                mBoundIntents.clear();
+        private void await(CountDownLatch latch, String method) throws InterruptedException {
+            if (!latch.await(DEFAULT_TIMEOUT_MS, TimeUnit.MICROSECONDS)) {
+                fail(method + " not called in " + DEFAULT_TIMEOUT_MS + "ms");
             }
         }
 
-        void assertStartedService(String service) {
+        void assertBoundService(String service) throws InterruptedException {
+            await(mBoundLatch, "bind()");
             synchronized (mLock) {
-                assertThat(mStartedServicesIntents).hasSize(1);
-                assertThat(mStartedServicesIntents.get(0).getComponent())
-                        .isEqualTo(ComponentName.unflattenFromString(service));
-                mStartedServicesIntents.clear();
+                assertServiceBound(mBoundIntents, service);
+
+            }
+        }
+
+        void assertStartedService(String service) throws InterruptedException {
+            await(mStartedLatch, "start()");
+            synchronized (mLock) {
+                assertServiceBound(mStartedServicesIntents, service);
             }
         }
 
