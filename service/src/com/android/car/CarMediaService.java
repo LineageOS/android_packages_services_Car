@@ -178,7 +178,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             Log.d(CarLog.TAG_MEDIA, "CarMediaService.onEvent(" + event + ")");
         }
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
-            maybeInitUser(event.getUserHandle().getIdentifier());
+            maybeInitUser(event.getUserId());
         }
     };
 

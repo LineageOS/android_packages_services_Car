@@ -346,10 +346,8 @@ Status WatchdogProcessService::registerClientLocked(const sp<ICarWatchdogClient>
                                                     TimeoutLength timeout, ClientType clientType) {
     const char* clientName = clientType == ClientType::Regular ? "client" : "mediator";
     if (isRegisteredLocked(client)) {
-        std::string errorStr = StringPrintf("The %s is already registered.", clientName);
-        const char* errorCause = errorStr.c_str();
-        ALOGW("Cannot register the %s. %s", clientName, errorCause);
-        return Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, errorCause);
+        ALOGW("Cannot register the %s: the %s is already registered.", clientName, clientName);
+        return Status::ok();
     }
     sp<IBinder> binder = BnCarWatchdog::asBinder(client);
     status_t status = binder->linkToDeath(this);
