@@ -491,6 +491,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public void getInitialUserInfo(int requestType, int timeoutMs,
             @NonNull IResultReceiver receiver) {
         Objects.requireNonNull(receiver, "receiver cannot be null");
+        checkManageUsersPermission("getInitialInfo");
         UsersInfo usersInfo = getUsersInfo();
         mHal.getInitialUserInfo(requestType, timeoutMs, usersInfo, (status, resp) -> {
             try {
@@ -533,6 +534,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public void getInitialUserInfo(int requestType,
             HalCallback<InitialUserInfoResponse> callback) {
         Objects.requireNonNull(callback, "callback cannot be null");
+        checkManageUsersPermission("getInitialUserInfo");
         UsersInfo usersInfo = getUsersInfo();
         mHal.getInitialUserInfo(requestType, mHalTimeoutMs, usersInfo, callback);
     }
