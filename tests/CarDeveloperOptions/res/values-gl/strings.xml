@@ -1571,7 +1571,7 @@
     <string name="reset_network_title" msgid="8944059136930806211">"Restablecer wifi, rede móbil e Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Con esta selección, restableceranse todas as opcións de configuración de rede, entre elas as referentes a:\n\n"<li>"Wifi"</li>\n<li>"Datos móbiles"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Borrar SIM descargadas"</string>
-    <string name="reset_esim_desc" msgid="433226911566802">"Para descargar tarxetas SIM de substitución, ponte en contacto co teu operador. Non se cancelará ningún dos plans de servizos para móbiles que teñas."</string>
+    <string name="reset_esim_desc" msgid="433226911566802">"Para descargar tarxetas SIM de substitución, ponte en contacto co teu operador. Non se cancelará ningún dos plans de servizos móbiles que teñas."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Restablecer configuración"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Queres restablecer toda a configuración de rede? Non se pode desfacer esta acción."</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"Queres restablecer todas as opcións de configuración de rede e borrar as SIM descargadas? Non se pode desfacer esta acción."</string>

@@ -72,7 +72,7 @@
     <!-- no translation found for wifi_signal:1 (7882129634982603782) -->
     <!-- no translation found for wifi_signal:4 (999948812884919584) -->
   <string-array name="data_usage_data_range">
-    <item msgid="8986775481492954015">"Последните 30 дена"</item>
+    <item msgid="8986775481492954015">"Минатите 30 дена"</item>
     <item msgid="3211287705232736964">"Пост. цикл. на корист...."</item>
   </string-array>
   <string-array name="usage_stats_display_order_types">
