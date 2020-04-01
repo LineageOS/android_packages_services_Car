@@ -16,10 +16,8 @@
 
 package com.android.car;
 
-import static android.content.pm.UserInfo.FLAG_EPHEMERAL;
-import static android.os.UserHandle.USER_NULL;
-import static android.os.UserHandle.USER_SYSTEM;
-import static android.os.UserManager.USER_TYPE_FULL_GUEST;
+import static android.car.userlib.InitialUserSetterTest.expectCurrentUser;
+import static android.car.userlib.InitialUserSetterTest.isUserInfo;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -34,18 +32,16 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPowerStateListener;
-import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.HalCallback;
+import android.car.userlib.InitialUserSetter;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
@@ -55,6 +51,7 @@ import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.os.UserManager;
 import android.sysprop.CarProperties;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -104,7 +101,10 @@ public class CarPowerManagementServiceTest {
     private static final long WAIT_TIMEOUT_MS = 2000;
     private static final long WAIT_TIMEOUT_LONG_MS = 5000;
     private static final int NO_USER_INFO_FLAGS = 0;
-    private static final String NEW_GUEST_NAME = "NewestGuestInTheBlock";
+
+    private static final int CURRENT_USER_ID = 42;
+    private static final int CURRENT_GUEST_ID = 108; // must be different than CURRENT_USER_ID;
+    private static final int NEW_GUEST_ID = 666;
 
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
     private final MockSystemStateInterface mSystemStateInterface = new MockSystemStateInterface();
@@ -121,19 +121,16 @@ public class CarPowerManagementServiceTest {
     private CompletableFuture<Void> mFuture;
 
     @Mock
-    private CarUserManagerHelper mCarUserManagerHelper;
-    @Mock
     private UserManager mUserManager;
     @Mock
     private Resources mResources;
     @Mock
     private CarUserService mUserService;
+    @Mock
+    private InitialUserSetter mInitialUserSetter;
 
     // Wakeup time for the test; it's automatically set based on @WakeupTime annotation
     private int mWakeupTime;
-
-    // Value used to set config_disableUserSwitchDuringResume - must be defined before initTest();
-    private boolean mDisableUserSwitchDuringResume;
 
     // Tracks Log.wtf() calls made during code execution / used on verifyWtfNeverLogged()
     // TODO: move mechanism to common code / custom Rule
@@ -178,6 +175,9 @@ public class CarPowerManagementServiceTest {
         doAnswer((invocation) -> {
             return addWtf(invocation);
         }).when(() -> Log.wtf(anyString(), anyString(), notNull()));
+
+        setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
+        setService();
     }
 
     @After
@@ -200,20 +200,16 @@ public class CarPowerManagementServiceTest {
     /**
      * Helper method to create mService and initialize a test case
      */
-    private void initTest() throws Exception {
+    private void setService() throws Exception {
         when(mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs))
                 .thenReturn(900);
-        when(mResources.getBoolean(R.bool.config_disableUserSwitchDuringResume))
-                .thenReturn(mDisableUserSwitchDuringResume);
-
-        Log.i(TAG, "initTest(): overridden overlay properties: "
+        Log.i(TAG, "setService(): overridden overlay properties: "
                 + "config_disableUserSwitchDuringResume="
                 + mResources.getBoolean(R.bool.config_disableUserSwitchDuringResume)
                 + ", maxGarageModeRunningDurationInSecs="
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
-                mSystemInterface, mCarUserManagerHelper, mUserManager, mUserService,
-                NEW_GUEST_NAME);
+                mSystemInterface, mUserManager, mUserService, mInitialUserSetter);
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
         mPowerHal.setSignalListener(mPowerSignalListener);
@@ -224,29 +220,11 @@ public class CarPowerManagementServiceTest {
         assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);
     }
 
-    /**
-     * Same as {@link #initTest()}, but it also assumes the current and initial users are user 10.
-     */
-    private void initTestForUser10() throws Exception {
-        initTest();
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setCurrentUser(10);
-        setInitialUser(10);
-    }
-
-    @Test
-    public void testBootComplete() throws Exception {
-        initTest();
-
-        verifyWtfNeverLogged();
-    }
-
     @Test
     public void testDisplayOn() throws Exception {
         // start with display off
         mSystemInterface.setDisplayState(false);
         mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS);
-        initTestForUser10();
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
 
@@ -258,8 +236,6 @@ public class CarPowerManagementServiceTest {
 
     @Test
     public void testShutdown() throws Exception {
-        initTestForUser10();
-
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isTrue();
@@ -280,8 +256,6 @@ public class CarPowerManagementServiceTest {
 
     @Test
     public void testSuspend() throws Exception {
-        initTestForUser10();
-
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isTrue();
@@ -299,8 +273,6 @@ public class CarPowerManagementServiceTest {
 
     @Test
     public void testShutdownOnSuspend() throws Exception {
-        initTestForUser10();
-
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isTrue();
@@ -336,8 +308,6 @@ public class CarPowerManagementServiceTest {
 
     @Test
     public void testShutdownCancel() throws Exception {
-        initTestForUser10();
-
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isTrue();
@@ -364,8 +334,6 @@ public class CarPowerManagementServiceTest {
 
     @Test
     public void testSleepImmediately() throws Exception {
-        initTestForUser10();
-
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isTrue();
@@ -387,7 +355,6 @@ public class CarPowerManagementServiceTest {
     @WakeupTime(100)
     @FlakyTest
     public void testShutdownWithProcessing() throws Exception {
-        initTestForUser10();
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE, 0));
         assertStateReceivedForShutdownOrSleepWithPostpone(
                 PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
@@ -401,7 +368,6 @@ public class CarPowerManagementServiceTest {
     @Test
     @WakeupTime(100)
     public void testSleepEntryAndWakeup() throws Exception {
-        initTest();
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
         assertStateReceivedForShutdownOrSleepWithPostpone(
@@ -421,239 +387,54 @@ public class CarPowerManagementServiceTest {
      */
     @Test
     public void testSleepEntryAndWakeUpForProcessing() throws Exception {
-        initTest();
+
         // Speed up the polling for power state transitions
         mService.setShutdownTimersForTest(10, 40);
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setUserInfo(11, NO_USER_INFO_FLAGS);
-        setCurrentUser(10);
-        setInitialUser(11);
 
         suspendAndResume();
 
-        verifyUserSwitched(11);
+        verifyDefaultInitilUserBehaviorCalled();
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_noHal() throws Exception {
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyDefaultInitilUserBehaviorCalled();
         verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_differentUser() throws Exception {
-        initTest();
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setUserInfo(11, NO_USER_INFO_FLAGS);
-        setCurrentUser(10);
-        setInitialUser(11);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserSwitched(11);
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_sameUser() throws Exception {
-        initTest();
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setInitialUser(10);
-        setCurrentUser(10);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserNotSwitched();
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_differentEphemeralUser() throws Exception {
-        initTest();
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setUserInfo(11, FLAG_EPHEMERAL);
-        setCurrentUser(10);
-        setInitialUser(11);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserSwitched(11);
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_sameGuest() throws Exception {
-        initTest();
-        setUserInfo(10, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
-        setInitialUser(10);
-        setCurrentUser(10);
-        expectGuestMarkedForDeletionOk(10);
-        expectNewGuestCreated(11);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserRemoved(10);
-        verifyUserSwitched(11);
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_differentGuest() throws Exception {
-        initTest();
-        setUserInfo(11, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
-        setInitialUser(11);
-        setCurrentUser(10);
-        expectGuestMarkedForDeletionOk(11);
-        expectNewGuestCreated(12);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserRemoved(11);
-        verifyUserSwitched(12);
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_guestCreationFailed() throws Exception {
-        initTest();
-        setUserInfo(10, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
-        setInitialUser(10);
-        setCurrentUser(10);
-        expectGuestMarkedForDeletionOk(10);
-        expectNewGuestCreationFailed("ElGuesto");
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserNotSwitched();
-        verifyUserNotRemoved(10);
-        verifyWtfLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_differentPersistentGuest() throws Exception {
-        initTest();
-        setUserInfo(11, "ElGuesto", USER_TYPE_FULL_GUEST, NO_USER_INFO_FLAGS);
-        setInitialUser(11);
-        setCurrentUser(10);
-        expectGuestMarkedForDeletionOk(11);
-        expectNewGuestCreated(12);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserRemoved(11);
-        verifyUserSwitched(12);
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_preDeleteGuestFail() throws Exception {
-        initTest();
-        setUserInfo(10, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
-        setInitialUser(10);
-        setCurrentUser(10);
-        expectGuestMarkedForDeletionFail(10);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserNotSwitched();
-        verifyNoGuestCreated();
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_systemUser() throws Exception {
-        initTest();
-        setInitialUser(USER_SYSTEM);
-        setCurrentUser(10);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserNotSwitched();
-        verifyWtfLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_noInitialInfo() throws Exception {
-        initTest();
-        setInitialUser(USER_NULL);
-        setCurrentUser(10);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserNotSwitched();
-        verifyWtfLogged();
     }
 
     @Test
     public void testUserSwitchingOnResume_disabledByOEM_nonGuest() throws Exception {
-        disableUserSwitchingDuringResume();
-        initTest();
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setCurrentUser(10);
+        setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
+        expectNewGuestCreated(CURRENT_USER_ID, CURRENT_USER_ID);
 
-        suspendAndResumeForUserSwitchingTests();
+        suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
         verifyUserNotSwitched();
-        verifyNoGuestCreated();
         verifyWtfNeverLogged();
     }
 
     @Test
-    public void testUserSwitchingOnResume_disabledByOEM_ephemeralGuest() throws Exception {
-        int existingGuestId = 10;
-        int newGuestId = 11;
-        disableUserSwitchingDuringResume();
-        initTest();
-        setUserInfo(existingGuestId, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
-        setCurrentUser(existingGuestId);
-        expectGuestMarkedForDeletionOk(existingGuestId);
-        expectNewGuestCreated(newGuestId);
+    public void testUserSwitchingOnResume_disabledByOEM_guest() throws Exception {
+        setCurrentUser(CURRENT_GUEST_ID, /* isGuest= */ true);
+        expectNewGuestCreated(CURRENT_GUEST_ID, NEW_GUEST_ID);
 
-        suspendAndResumeForUserSwitchingTests();
+        suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
-        verifyUserSwitched(newGuestId);
+        verifyUserSwitched(NEW_GUEST_ID);
         verifyWtfNeverLogged();
     }
 
     @Test
-    public void testUserSwitchingOnResume_disabledByOEM_nonEphemeralGuest() throws Exception {
-        int existingGuestId = 10;
-        int newGuestId = 11;
-        disableUserSwitchingDuringResume();
-        initTest();
-        setUserInfo(existingGuestId, "ElGuesto", USER_TYPE_FULL_GUEST, /* flags= */ 0);
-        setCurrentUser(existingGuestId);
-        expectGuestMarkedForDeletionOk(existingGuestId);
-        expectNewGuestCreated(newGuestId);
+    public void testUserSwitchingOnResume_disabledByOEM_guestReplacementFails() throws Exception {
+        setCurrentUser(CURRENT_GUEST_ID, /* isGuest= */ true);
+        expectNewGuestCreated(CURRENT_GUEST_ID, UserHandle.USER_NULL);
 
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserSwitched(newGuestId);
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_disabledByOEM_newGuestCreationFailed() throws Exception {
-        disableUserSwitchingDuringResume();
-        initTest();
-        setUserInfo(10, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
-        setCurrentUser(10);
-        expectGuestMarkedForDeletionOk(10);
-        expectNewGuestCreationFailed("ElGuesto");
-
-        suspendAndResumeForUserSwitchingTests();
+        suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
         verifyUserNotSwitched();
-        verifyWtfLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_disabledByOEM_preDeleteGuestFail() throws Exception {
-        disableUserSwitchingDuringResume();
-        initTest();
-        setUserInfo(10, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
-        setCurrentUser(10);
-        expectGuestMarkedForDeletionFail(10);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserNotSwitched();
-        verifyNoGuestCreated();
+        verifyDefaultInitilUserBehaviorCalled();
         verifyWtfNeverLogged();
     }
 
@@ -687,90 +468,86 @@ public class CarPowerManagementServiceTest {
      * same, it should use the default behavior.
      */
     private void userSwitchingWhenHalFailsTest(int status) throws Exception {
-        initTest();
         enableUserHal();
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setUserInfo(11, NO_USER_INFO_FLAGS);
-        setCurrentUser(10);
-        setInitialUser(11);
+
         setGetUserInfoResponse((c) -> c.onResponse(status, /* response= */ null));
 
         suspendAndResumeForUserSwitchingTests();
 
-        verifyUserSwitched(11);
+        verifyDefaultInitilUserBehaviorCalled();
         verifyWtfNeverLogged();
     }
 
     @Test
     public void testUserSwitchingUsingHal_invalidAction() throws Exception {
-        initTest();
         enableUserHal();
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setUserInfo(11, NO_USER_INFO_FLAGS);
-        setCurrentUser(10);
-        setInitialUser(11);
+
         InitialUserInfoResponse response = new InitialUserInfoResponse();
         response.action = -666;
         setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, response));
 
         suspendAndResumeForUserSwitchingTests();
 
-        verifyUserSwitched(11);
+        verifyDefaultInitilUserBehaviorCalled();
         verifyWtfNeverLogged();
     }
 
     @Test
     public void testUserSwitchingUsingHal_default_nullResponse() throws Exception {
-        initTest();
         enableUserHal();
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setUserInfo(11, NO_USER_INFO_FLAGS);
-        setCurrentUser(10);
-        setInitialUser(11);
+
         setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, /* response= */ null));
         suspendAndResumeForUserSwitchingTests();
 
-        verifyUserSwitched(11);
+        verifyDefaultInitilUserBehaviorCalled();
         verifyWtfNeverLogged();
     }
 
     @Test
     public void testUserSwitchingUsingHal_default_ok() throws Exception {
-        initTest();
         enableUserHal();
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setUserInfo(11, NO_USER_INFO_FLAGS);
-        setCurrentUser(10);
-        setInitialUser(11);
+
         InitialUserInfoResponse response = new InitialUserInfoResponse();
         response.action = InitialUserInfoResponseAction.DEFAULT;
         setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, response));
 
         suspendAndResumeForUserSwitchingTests();
 
-        verifyUserSwitched(11);
+        verifyDefaultInitilUserBehaviorCalled();
         verifyWtfNeverLogged();
     }
 
     @Test
-    public void testUserSwitchingUsingHal_switch_ok() throws Exception {
-        initTest();
+    public void testUserSwitchingUsingHal_switch() throws Exception {
         enableUserHal();
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setUserInfo(11, NO_USER_INFO_FLAGS);
-        setCurrentUser(10);
-        setInitialUser(11);
+
         InitialUserInfoResponse response = new InitialUserInfoResponse();
         response.action = InitialUserInfoResponseAction.SWITCH;
+        response.userToSwitchOrCreate.userId = 10;
         setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, response));
 
         suspendAndResumeForUserSwitchingTests();
 
-        verifyUserSwitched(11);
+        verifyUserSwitched(10);
+        verifyDefaultInitilUserBehaviorNeverCalled();
         verifyWtfNeverLogged();
+    }
 
-        // Make sure HAL was called, otherwise test could pass when the property was not set
-        verify(mUserService).getInitialUserInfo(eq(InitialUserInfoRequestType.RESUME), notNull());
+    @Test
+    public void testUserSwitchingUsingHal_create() throws Exception {
+        enableUserHal();
+
+        InitialUserInfoResponse response = new InitialUserInfoResponse();
+        response.action = InitialUserInfoResponseAction.CREATE;
+        response.userToSwitchOrCreate.flags = 42;
+        response.userNameToCreate = "Duffman";
+        setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, response));
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserCreated("Duffman", 42);
+        verifyDefaultInitilUserBehaviorNeverCalled();
+        verifyWtfNeverLogged();
     }
 
     private void setGetUserInfoResponse(Visitor<HalCallback<InitialUserInfoResponse>> visitor) {
@@ -827,7 +604,11 @@ public class CarPowerManagementServiceTest {
     }
 
     private void suspendAndResumeForUserSwitchingTests() throws Exception {
-        mService.switchUserOnResumeIfNecessary(!mDisableUserSwitchDuringResume);
+        mService.switchUserOnResumeIfNecessary(/* allowSwitching= */ true);
+    }
+
+    private void suspendAndResumeForUserSwitchingTestsWhileDisabledByOem() throws Exception {
+        mService.switchUserOnResumeIfNecessary(/* allowSwitching= */ false);
     }
 
     private void registerListenerToService() {
@@ -901,72 +682,40 @@ public class CarPowerManagementServiceTest {
         }
     }
 
-    private void setInitialUser(int userId) {
-        when(mCarUserManagerHelper.getInitialUser()).thenReturn(userId);
-    }
-
-    private void setCurrentUser(int userId) {
-        doReturn(userId).when(() -> ActivityManager.getCurrentUser());
-    }
-
-    private void setUserInfo(int userId, int flags) {
-        setUserInfo(userId, /* name= */ null, /* userType= */ null, flags);
-    }
-
-    private void setUserInfo(int userId, @Nullable String name, @Nullable String userType,
-            int flags) {
+    private void setCurrentUser(int userId, boolean isGuest) {
+        expectCurrentUser(userId);
         final UserInfo userInfo = new UserInfo();
         userInfo.id = userId;
-        userInfo.name = name;
-        userInfo.flags = flags;
-        if (userType != null) {
-            userInfo.userType = userType;
-        }
+        userInfo.userType = isGuest
+                ? UserManager.USER_TYPE_FULL_GUEST
+                : UserManager.USER_TYPE_FULL_SECONDARY;
         Log.v(TAG, "UM.getUserInfo("  + userId + ") will return " + userInfo.toFullString());
         when(mUserManager.getUserInfo(userId)).thenReturn(userInfo);
     }
 
     private void verifyUserNotSwitched() {
-        verify(mCarUserManagerHelper, never()).startForegroundUser(anyInt());
+        verify(mInitialUserSetter, never()).switchUser(anyInt());
     }
 
     private void verifyUserSwitched(int userId) {
-        verify(mCarUserManagerHelper, times(1)).startForegroundUser(userId);
+        verify(mInitialUserSetter).switchUser(userId);
     }
 
-    private void verifyNoGuestCreated() {
-        verify(mUserManager, never()).createGuest(notNull(), anyString());
+    private void expectNewGuestCreated(int existingGuestId, int newGuestId) {
+        when(mInitialUserSetter.replaceGuestIfNeeded(isUserInfo(existingGuestId)))
+                .thenReturn(newGuestId);
     }
 
-    private void expectGuestMarkedForDeletionOk(int userId) {
-        when(mUserManager.markGuestForDeletion(userId)).thenReturn(true);
+    private void verifyDefaultInitilUserBehaviorCalled() {
+        verify(mInitialUserSetter).executeDefaultBehavior();
     }
 
-    private void expectGuestMarkedForDeletionFail(int userId) {
-        when(mUserManager.markGuestForDeletion(userId)).thenReturn(false);
+    private void verifyDefaultInitilUserBehaviorNeverCalled() {
+        verify(mInitialUserSetter, never()).executeDefaultBehavior();
     }
 
-    private void expectNewGuestCreated(int userId) {
-        final UserInfo userInfo = new UserInfo();
-        userInfo.id = userId;
-        userInfo.name = NEW_GUEST_NAME;
-        when(mUserManager.createGuest(notNull(), eq(NEW_GUEST_NAME))).thenReturn(userInfo);
-    }
-
-    private void expectNewGuestCreationFailed(String name) {
-        when(mUserManager.createGuest(notNull(), eq(name))).thenReturn(null);
-    }
-
-    private void verifyUserRemoved(int userId) {
-        verify(mUserManager, times(1)).removeUser(userId);
-    }
-
-    private void verifyUserNotRemoved(int userId) {
-        verify(mUserManager, never()).removeUser(userId);
-    }
-
-    private void disableUserSwitchingDuringResume() {
-        mDisableUserSwitchDuringResume = true;
+    private void verifyUserCreated(String name, int halFlags) {
+        verify(mInitialUserSetter).createUser(name, halFlags);
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {
