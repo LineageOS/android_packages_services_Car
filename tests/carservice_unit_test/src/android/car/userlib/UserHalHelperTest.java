@@ -25,6 +25,8 @@ import android.annotation.NonNull;
 import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.hardware.automotive.vehicle.V2_0.UsersInfo;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.UserHandle;
 import android.os.UserManager;
 
@@ -142,5 +144,64 @@ public final class UserHalHelperTest {
     @Test
     public void testUserFlagsToString() {
         assertThat(UserHalHelper.userFlagsToString(-666)).isNotNull();
+    }
+
+    @Test
+    public void testCreatePropRequest() {
+        int requestId = 1;
+        int requestType = 2;
+        int requestProp = 3;
+        VehiclePropValue propRequest = UserHalHelper.createPropRequest(requestId, requestType,
+                requestProp);
+
+        assertThat(propRequest.value.int32Values)
+                .containsExactly(requestId, requestType)
+                .inOrder();
+        assertThat(propRequest.prop).isEqualTo(requestProp);
+    }
+
+    @Test
+    public void testAddUsersInfo_nullCurrentUser() {
+        VehiclePropValue propRequest = new VehiclePropValue();
+
+        UsersInfo infos = new UsersInfo();
+        infos.currentUser = null;
+        assertThrows(NullPointerException.class, () ->
+                UserHalHelper.addUsersInfo(propRequest, infos));
+    }
+
+    @Test
+    public void testAddUsersInfo_mismatchNumberUsers() {
+        VehiclePropValue propRequest = new VehiclePropValue();
+
+        UsersInfo infos = new UsersInfo();
+        infos.currentUser.userId = 42;
+        infos.currentUser.flags = 1;
+        infos.numberUsers = 1;
+        assertThat(infos.existingUsers).isEmpty();
+        assertThrows(IllegalArgumentException.class, () ->
+                UserHalHelper.addUsersInfo(propRequest, infos));
+    }
+
+    @Test
+    public void testAddUsersInfo_success() {
+        VehiclePropValue propRequest = new VehiclePropValue();
+        propRequest.value.int32Values.add(99);
+
+        UsersInfo infos = new UsersInfo();
+        infos.currentUser.userId = 42;
+        infos.currentUser.flags = 1;
+        infos.numberUsers = 1;
+
+        android.hardware.automotive.vehicle.V2_0.UserInfo userInfo =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        userInfo.userId = 43;
+        userInfo.flags = 1;
+        infos.existingUsers.add(userInfo);
+        UserHalHelper.addUsersInfo(propRequest, infos);
+
+        assertThat(propRequest.value.int32Values)
+                .containsExactly(99, 42, 1, 1, 43, 1)
+                .inOrder();
     }
 }
