@@ -15,6 +15,7 @@
  */
 package com.android.car;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
@@ -443,73 +444,66 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void switchUserOnResumeIfNecessaryDirectly(boolean allowSwitching) {
         Log.i(CarLog.TAG_POWER, "NOT using User HAL to define initial user behavior");
 
+        int currentUserId = ActivityManager.getCurrentUser();
+
+        if (!allowSwitching) {
+            UserInfo currentUserInfo = mUserManager.getUserInfo(currentUserId);
+            switchToNewGuestIfNecessary(currentUserInfo);
+            return;
+        }
+
         int targetUserId = mCarUserManagerHelper.getInitialUser();
         if (targetUserId == UserHandle.USER_SYSTEM || targetUserId == UserHandle.USER_NULL) {
             Log.wtf(CarLog.TAG_POWER, "getInitialUser() returned user" + targetUserId);
             return;
         }
-        int currentUserId = ActivityManager.getCurrentUser();
+
         UserInfo targetUserInfo = mUserManager.getUserInfo(targetUserId);
-        boolean isTargetPersistent = !targetUserInfo.isEphemeral();
-        boolean isTargetGuest = targetUserInfo.isGuest();
-        Log.d(CarLog.TAG_POWER, "getTargetUserId(): current=" + currentUserId
-                + ", target=" + targetUserInfo.toFullString()
-                + ", isTargetPersistent=" + isTargetPersistent + ", isTargetGuest=" + isTargetGuest
-                + ", allowSwitching: " + allowSwitching);
+        if (switchToNewGuestIfNecessary(targetUserInfo)) return;
 
-        if (isTargetPersistent && !isTargetGuest) {
-            if (!allowSwitching) {
-                Log.d(CarLog.TAG_POWER, "Not switching to " + targetUserId
-                        + " because it's not allowed");
-                return;
-            }
-            if (currentUserId == targetUserId) {
-                Log.v(CarLog.TAG_POWER, "no need to switch to (same user) " + currentUserId);
-                return;
-            }
-            // All good - switch to the requested user
-            switchToUser(currentUserId, targetUserId, /* reason= */ null);
+        if (currentUserId == targetUserId) {
+            Log.v(TAG, "no need to switch to (same user) " + currentUserId);
             return;
         }
 
-        if (!isTargetGuest) {
-            // Shouldn't happen (unless OEM is explicitly creating ephemeral users, which
-            // doesn't make much sense), but it doesn't hurt to log...
-            Log.w(CarLog.TAG_POWER, "target user is ephemeral but not a guest: "
-                    + targetUserInfo.toFullString());
-            if (allowSwitching) {
-                switchToUser(currentUserId, targetUserId, /* reason= */ null);
-            }
-            return;
-        } else if (isTargetPersistent) {
-            // TODO(b/146380030): decide whether we should delete it or not
-            // Shouldn't happen neither, but it's not a big deal (guest will be replaced below
-            // anyway), but it's worth logging as well...
-            Log.w(CarLog.TAG_POWER, "target user is a non-ephemeral guest: "
-                    + targetUserInfo.toFullString());
-        }
+        switchToUser(currentUserId, targetUserId, /* reason= */ null);
+
+    }
+
+    /**
+     * Replaces the current user if it's a guest, returning whether it was switched.
+     */
+    private boolean switchToNewGuestIfNecessary(@NonNull UserInfo user) {
+        boolean isGuest = user.isGuest();
+
+        if (!isGuest) return false;
+
+        Log.i(TAG, "User " + user.id + " is a guest; replacing it by a new guest");
 
         // At this point, target user is a guest - we cannot resume into an ephemeral guest for
         // privacy reasons, so we need to create a new guest and switch to it (even if the OEM
         // doesn't allow switching)
 
-
-        boolean marked = mUserManager.markGuestForDeletion(targetUserId);
+        boolean marked = mUserManager.markGuestForDeletion(user.id);
         if (!marked) {
-            Log.w(CarLog.TAG_POWER, "Could not mark guest user " + targetUserId + " for deletion");
-            return;
+            Log.w(TAG, "Could not mark guest user " + user.id + " for deletion");
+            return false;
         }
 
         UserInfo newGuest = mUserManager.createGuest(mContext, mNewGuestName);
 
-        if (newGuest != null) {
-            switchToUser(currentUserId, newGuest.id, "Created new guest");
-            Log.d(CarLog.TAG_POWER, "Removing previous guest " + targetUserId);
-            mUserManager.removeUser(targetUserId);
-        } else {
-            Log.wtf(CarLog.TAG_POWER, "Could not create new guest");
+        if (newGuest == null) {
+            Log.wtf(TAG, "Could not create new guest");
             // TODO(b/146380030): decide whether we should switch to SYSTEM
+            return false;
         }
+
+        switchToUser(user.id, newGuest.id, "Created new guest");
+        Log.d(TAG, "Removing previous guest " + user.id);
+        if (!mUserManager.removeUser(user.id)) {
+            Log.w(TAG, "Failed to remove old guest " + user.toFullString());
+        }
+        return true;
     }
 
     /**
