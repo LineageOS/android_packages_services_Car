@@ -7,3 +7,12 @@ init_daemon_domain(carwatchdogd)
 add_service(carwatchdogd, carwatchdogd_service)
 binder_use(carwatchdogd)
 binder_service(carwatchdogd)
+
+# Read /proc/uid_io/stats
+allow carwatchdogd proc_uid_io_stats:file r_file_perms;
+
+# Read /proc/stat file
+allow carwatchdogd proc_stat:file r_file_perms;
+
+# Find package_native to get uid to package name mapping.
+allow carwatchdogd package_native_service:service_manager find;
