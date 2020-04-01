@@ -59,8 +59,7 @@ Status fromExceptionCode(int32_t exceptionCode, std::string message) {
 
 Result<void> WatchdogBinderMediator::init(sp<WatchdogProcessService> watchdogProcessService,
                                           sp<IoPerfCollection> ioPerfCollection) {
-    // TODO(b/148486340): Uncomment mIoPerfCollection after it is enabled in ServiceManager.
-    if (watchdogProcessService == nullptr /*|| ioPerfCollection == nullptr*/) {
+    if (watchdogProcessService == nullptr || ioPerfCollection == nullptr) {
         return Error(INVALID_OPERATION)
                 << "Must initialize both process and I/O perf collection service before starting "
                 << "carwatchdog binder mediator";
@@ -88,14 +87,14 @@ status_t WatchdogBinderMediator::dump(int fd, const Vector<String16>& args) {
             ALOGW("Failed to dump carwatchdog process service: %s", ret.error().message().c_str());
             return ret.error().code();
         }
-        /*ret = mIoPerfCollection->dump(fd, args);
+        ret = mIoPerfCollection->dump(fd, args);
         if (!ret.ok()) {
             ALOGW("Failed to dump I/O perf collection: %s", ret.error().message().c_str());
             return ret.error().code();
-        }*/
+        }
         return OK;
     }
-    /*if (args[0] == String16(kStartCustomCollectionFlag) ||
+    if (args[0] == String16(kStartCustomCollectionFlag) ||
         args[0] == String16(kEndCustomCollectionFlag)) {
         auto ret = mIoPerfCollection->dump(fd, args);
         std::string mode = args[0] == String16(kStartCustomCollectionFlag) ? "start" : "end";
@@ -105,7 +104,7 @@ status_t WatchdogBinderMediator::dump(int fd, const Vector<String16>& args) {
             return ret.error().code();
         }
         return OK;
-    }*/
+    }
     ALOGW("Invalid dump arguments");
     return INVALID_OPERATION;
 }
@@ -166,10 +165,10 @@ Status WatchdogBinderMediator::notifySystemStateChange(StateType type, int32_t a
         case StateType::BOOT_PHASE: {
             BootPhase phase = static_cast<BootPhase>(static_cast<uint32_t>(arg1));
             if (phase >= BootPhase::BOOT_COMPLETED) {
-                /*auto ret = mIoPerfCollection->onBootFinished();
+                auto ret = mIoPerfCollection->onBootFinished();
                 if (!ret.ok()) {
                     return fromExceptionCode(ret.error().code(), ret.error().message());
-                }*/
+                }
             }
             return Status::ok();
         }
