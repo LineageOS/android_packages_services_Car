@@ -51,7 +51,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({FRAME_TYPE_LIVE, FRAME_TYPE_FREEZE})
-    /** @hide */
     public @interface FrameType {}
 
     /** @hide */
@@ -95,7 +94,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
     }
 
     @Override
-    /** @hide */
     public void onCarDisconnected() {
         synchronized(mActiveListeners) {
             mActiveListeners.clear();
