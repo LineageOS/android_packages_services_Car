@@ -34,7 +34,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -717,6 +716,13 @@ public class CarUserServiceTest {
     }
 
     @Test
+    public void testGetInitialUserInfo_validReceiver_invalidPermission() throws Exception {
+        mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
+        assertThrows(SecurityException.class,
+                () -> mCarUserService.getInitialUserInfo(42, 108, mReceiver));
+    }
+
+    @Test
     public void testGetUserInfo_defaultResponse() throws Exception {
         mockCurrentUsers(mAdminUser);
 
@@ -795,6 +801,13 @@ public class CarUserServiceTest {
     }
 
     @Test
+    public void testGetInitialUserInfo_invalidPermission() throws Exception {
+        mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
+        assertThrows(SecurityException.class,
+                () -> mCarUserService.getInitialUserInfo(42, (s, r) -> { }));
+    }
+
+    @Test
     public void testIsHalSupported() throws Exception {
         when(mUserHal.isSupported()).thenReturn(true);
         assertThat(mCarUserService.isUserHalSupported()).isTrue();
@@ -808,12 +821,8 @@ public class CarUserServiceTest {
         when(mMockedUserManager.getUsers()).thenReturn(mExistingUsers);
     }
 
-    private void mockAmSwitchUser(@NonNull UserInfo user, boolean result) {
-        try {
-            when(mMockedIActivityManager.switchUser(eq(user.id))).thenReturn(result);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+    private void mockAmSwitchUser(@NonNull UserInfo user, boolean result) throws Exception {
+        when(mMockedIActivityManager.switchUser(eq(user.id))).thenReturn(result);
     }
 
     private void mockGetInitialInfo(@UserIdInt int currentUserId,
