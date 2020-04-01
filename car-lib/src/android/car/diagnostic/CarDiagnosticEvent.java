@@ -542,7 +542,6 @@ public final class CarDiagnosticEvent implements Parcelable {
         public static final int CLOSED_LOOP_BUT_FEEDBACK_FAULT = 16;
 
         @Retention(RetentionPolicy.SOURCE)
-        /** @hide */
         @IntDef({
             OPEN_INSUFFICIENT_ENGINE_TEMPERATURE,
             CLOSED_LOOP,
@@ -550,7 +549,6 @@ public final class CarDiagnosticEvent implements Parcelable {
             OPEN_SYSTEM_FAILURE,
             CLOSED_LOOP_BUT_FEEDBACK_FAULT
         })
-        /** @hide */
         public @interface Status {}
     }
 
@@ -567,14 +565,12 @@ public final class CarDiagnosticEvent implements Parcelable {
         public static final int PUMP_ON_FOR_DIAGNOSTICS = 8;
 
         @Retention(RetentionPolicy.SOURCE)
-        /** @hide */
         @IntDef({
             UPSTREAM,
             DOWNSTREAM_OF_CATALYCIC_CONVERTER,
             FROM_OUTSIDE_OR_OFF,
             PUMP_ON_FOR_DIAGNOSTICS
         })
-        /** @hide */
         public @interface Status {}
     }
 
@@ -611,7 +607,6 @@ public final class CarDiagnosticEvent implements Parcelable {
         public static final int BIFUEL_RUNNING_DIESEL = 23;
 
         @Retention(RetentionPolicy.SOURCE)
-        /** @hide */
         @IntDef({
             NOT_AVAILABLE,
             GASOLINE,
@@ -638,7 +633,6 @@ public final class CarDiagnosticEvent implements Parcelable {
             HYBRID_REGENERATIVE,
             BIFUEL_RUNNING_DIESEL
         })
-        /** @hide */
         public @interface Type {}
     }
 
