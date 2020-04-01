@@ -71,12 +71,17 @@ private:
     };
 
     struct ClientInfo {
-        ClientInfo(const android::sp<ICarWatchdogClient>& client, pid_t pid, ClientType type) :
-              client(client), pid(pid), type(type) {}
+        ClientInfo(const android::sp<ICarWatchdogClient>& client, pid_t pid, userid_t userId,
+                   ClientType type) :
+              client(client),
+              pid(pid),
+              userId(userId),
+              type(type) {}
         std::string toString();
 
         android::sp<ICarWatchdogClient> client;
         pid_t pid;
+        userid_t userId;
         int sessionId;
         ClientType type;
     };
@@ -118,6 +123,7 @@ private:
     Mutex mMutex;
     std::unordered_map<TimeoutLength, std::vector<ClientInfo>> mClients GUARDED_BY(mMutex);
     std::unordered_map<TimeoutLength, PingedClientMap> mPingedClients GUARDED_BY(mMutex);
+    std::unordered_set<userid_t> mStoppedUserId GUARDED_BY(mMutex);
     android::sp<ICarWatchdogMonitor> mMonitor GUARDED_BY(mMutex);
     bool mWatchdogEnabled GUARDED_BY(mMutex);
     // mLastSessionId is accessed only within main thread. No need for mutual-exclusion.

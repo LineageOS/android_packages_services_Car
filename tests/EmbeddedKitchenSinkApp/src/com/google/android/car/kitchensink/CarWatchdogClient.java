@@ -39,6 +39,9 @@ public final class CarWatchdogClient {
     private final CarWatchdogClientCallback mClientCallback = new CarWatchdogClientCallback() {
         @Override
         public boolean onCheckHealthStatus(int sessionId, int timeout) {
+            if (mClientConfig.verbose) {
+                Log.i(TAG, "onCheckHealthStatus: session id =  " + sessionId);
+            }
             long currentUptime = SystemClock.uptimeMillis();
             return mClientConfig.notRespondAfterInMs < 0
                     || mClientConfig.notRespondAfterInMs > currentUptime - mClientStartTime;
@@ -72,7 +75,8 @@ public final class CarWatchdogClient {
 
     private static ClientConfig parseCommand(String command) {
         String[] tokens = command.split("[ ]+");
-        if (tokens.length != 3) {
+        int paramCount = tokens.length;
+        if (paramCount != 3 && paramCount != 4) {
             throw new IllegalArgumentException("invalid command syntax");
         }
         int timeout;
@@ -101,9 +105,23 @@ public final class CarWatchdogClient {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("time for \"inactive main after\" is not number");
         }
+        boolean verbose = false;
+        if (paramCount == 4) {
+            switch (tokens[3]) {
+                case "true":
+                    verbose = true;
+                    break;
+                case "false":
+                    verbose = false;
+                    break;
+                default:
+                    throw new IllegalArgumentException("invalid verbose value: " + tokens[3]);
+            }
+        }
         Log.i(TAG, "CarWatchdogClient command: timeout = " + tokens[0] + ", notRespondingAfter = "
-                + notRespondAfterInSec + ", inactiveMainAfter = " + inactiveMainAfterInSec);
-        return new ClientConfig(timeout, inactiveMainAfterInSec, notRespondAfterInSec);
+                + notRespondAfterInSec + ", inactiveMainAfter = " + inactiveMainAfterInSec
+                + ", verbose = " + verbose);
+        return new ClientConfig(timeout, inactiveMainAfterInSec, notRespondAfterInSec, verbose);
     }
 
     private CarWatchdogClient(Car car, ClientConfig config) {
@@ -121,6 +139,9 @@ public final class CarWatchdogClient {
             Handler handler = new Handler(Looper.getMainLooper());
             handler.postDelayed(() -> {
                 try {
+                    if (mClientConfig.verbose) {
+                        Log.i(TAG, "Main thread gets inactive");
+                    }
                     Thread.sleep(getTimeForInactiveMain(mClientConfig.timeout));
                 } catch (InterruptedException e) {
                     // Ignore
@@ -148,11 +169,14 @@ public final class CarWatchdogClient {
         public int timeout;
         public long inactiveMainAfterInMs;
         public long notRespondAfterInMs;
+        public boolean verbose;
 
-        ClientConfig(int timeout, int inactiveMainAfterInSec, int notRespondAfterInSec) {
+        ClientConfig(int timeout, int inactiveMainAfterInSec, int notRespondAfterInSec,
+                boolean verbose) {
             this.timeout = timeout;
             inactiveMainAfterInMs = inactiveMainAfterInSec * 1000L;
             notRespondAfterInMs = notRespondAfterInSec * 1000L;
+            this.verbose = verbose;
         }
     }
 }
