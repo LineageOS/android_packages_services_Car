@@ -16,14 +16,15 @@
 
 package com.android.car.pm;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
+import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.ComponentName;
@@ -48,19 +49,16 @@ import com.android.internal.annotations.GuardedBy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoSession;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(MockitoJUnitRunner.class)
 public class VendorServiceControllerTest {
-    private VendorServiceController mController;
     private static final Long DEFAULT_TIMEOUT_MS = 1000L;
 
     private static final int FG_USER_ID = 13;
@@ -88,6 +86,7 @@ public class VendorServiceControllerTest {
     private ServiceLauncherContext mContext;
     private CarUserManagerHelper mUserManagerHelper;
     private CarUserService mCarUserService;
+    private VendorServiceController mController;
 
     @Before
     public void setUp() {
@@ -107,10 +106,6 @@ public class VendorServiceControllerTest {
         UserInfo persistentFgUser = new UserInfo(FG_USER_ID, "persistent user", 0);
         when(mUserManager.getUserInfo(FG_USER_ID)).thenReturn(persistentFgUser);
 
-        // Let's pretend system is not fully loaded, current user is system.
-        when(ActivityManager.getCurrentUser()).thenReturn(UserHandle.USER_SYSTEM);
-        // ..and by default all users are locked
-        mockUserUnlock(UserHandle.USER_ALL, false /* unlock */);
         when(mResources.getStringArray(com.android.car.R.array.config_earlyStartupServices))
                 .thenReturn(FAKE_SERVICES);
     }
@@ -132,7 +127,8 @@ public class VendorServiceControllerTest {
     }
 
     @Test
-    public void init_systemUser() throws InterruptedException {
+    public void init_systemUser() throws Exception {
+        mockGetCurrentUser(UserHandle.USER_SYSTEM);
         mController.init();
 
         Thread.sleep(100);
@@ -147,7 +143,7 @@ public class VendorServiceControllerTest {
         mContext.reset();
 
         // Unlock system user
-        mockUserUnlock(UserHandle.USER_SYSTEM, true);
+        mockUserUnlock(UserHandle.USER_SYSTEM);
         runOnMainThreadAndWaitForIdle(() -> mCarUserService.setUserLockStatus(
                 UserHandle.USER_SYSTEM, true));
 
@@ -157,11 +153,12 @@ public class VendorServiceControllerTest {
 
     @Test
     public void fgUserUnlocked() {
+        mockGetCurrentUser(UserHandle.USER_SYSTEM);
         mController.init();
         mContext.reset();
 
         // Switch user to foreground
-        when(ActivityManager.getCurrentUser()).thenReturn(FG_USER_ID);
+        mockGetCurrentUser(FG_USER_ID);
         runOnMainThreadAndWaitForIdle(() -> mCarUserService.onSwitchUser(FG_USER_ID));
 
         // Expect only services with ASAP trigger to be started
@@ -169,31 +166,26 @@ public class VendorServiceControllerTest {
         mContext.verifyNoMoreServiceLaunches();
 
         // Unlock foreground user
-        mockUserUnlock(FG_USER_ID, true);
+        mockUserUnlock(FG_USER_ID);
         runOnMainThreadAndWaitForIdle(() -> mCarUserService.setUserLockStatus(FG_USER_ID, true));
 
         mContext.assertBoundService(SERVICE_BIND_FG_USER_UNLOCKED);
         mContext.verifyNoMoreServiceLaunches();
     }
 
-    private void runOnMainThreadAndWaitForIdle(Runnable r) {
+    private static void runOnMainThreadAndWaitForIdle(Runnable r) {
         Handler.getMain().runWithScissors(r, DEFAULT_TIMEOUT_MS);
         // Run empty runnable to make sure that all posted handlers are done.
         Handler.getMain().runWithScissors(() -> { }, DEFAULT_TIMEOUT_MS);
     }
 
-    private void mockUserUnlock(int userId, boolean unlock) {
-        if (UserHandle.USER_ALL == userId) {
-            when(mUserManager.isUserUnlockingOrUnlocked(any())).thenReturn(unlock);
-            when(mUserManager.isUserUnlockingOrUnlocked(anyInt())).thenReturn(unlock);
-        } else {
-            when(mUserManager.isUserUnlockingOrUnlocked(userId)).thenReturn(unlock);
-            when(mUserManager.isUserUnlockingOrUnlocked(UserHandle.of(userId))).thenReturn(unlock);
-        }
+    private void mockUserUnlock(@UserIdInt int userId) {
+        when(mUserManager.isUserUnlockingOrUnlocked(isUser(userId))).thenReturn(true);
+        when(mUserManager.isUserUnlockingOrUnlocked(userId)).thenReturn(true);
     }
 
     /** Overrides framework behavior to succeed on binding/starting processes. */
-    public class ServiceLauncherContext extends ContextWrapper {
+    public final class ServiceLauncherContext extends ContextWrapper {
         private final Object mLock = new Object();
 
         @GuardedBy("mLock")
@@ -271,9 +263,35 @@ public class VendorServiceControllerTest {
         public Object getSystemService(String name) {
             if (Context.USER_SERVICE.equals(name)) {
                 return mUserManager;
-            } else {
-                return super.getSystemService(name);
             }
+            return super.getSystemService(name);
+        }
+    }
+
+    // TODO(b/149099817): move stuff below to common code
+
+    private static void mockGetCurrentUser(@UserIdInt int userId) {
+        doReturn(userId).when(() -> ActivityManager.getCurrentUser());
+    }
+
+    /**
+     * Custom Mockito matcher to check if a {@link UserHandle} has the given {@code userId}.
+     */
+    public static UserHandle isUser(@UserIdInt int userId) {
+        return argThat(new UserHandleMatcher(userId));
+    }
+
+    private static class UserHandleMatcher implements ArgumentMatcher<UserHandle> {
+
+        public final @UserIdInt int userId;
+
+        private UserHandleMatcher(@UserIdInt int userId) {
+            this.userId = userId;
+        }
+
+        @Override
+        public boolean matches(UserHandle argument) {
+            return argument != null && argument.getIdentifier() == userId;
         }
     }
 }

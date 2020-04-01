@@ -18,6 +18,7 @@ package android.car.annotation;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import java.lang.annotation.Retention;
@@ -25,7 +26,7 @@ import java.lang.annotation.Target;
 
 /**
  * This is for experimental features. Note that experimental feature will not be allowed for user
- * build and experiental features will not be part of car API. But this annotation is provided
+ * build and experimental features will not be part of car API. But this annotation is provided
  * to mark it in separate library, which will be typically static library.
  *
  * <p>Note that experimental feature can become official feature later.
@@ -33,6 +34,6 @@ import java.lang.annotation.Target;
  * @hide
  */
 @Retention(SOURCE)
-@Target({ANNOTATION_TYPE, FIELD})
+@Target({ANNOTATION_TYPE, FIELD, TYPE})
 public @interface ExperimentalFeature {
 }
