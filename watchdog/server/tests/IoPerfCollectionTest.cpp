@@ -954,33 +954,6 @@ TEST(IoPerfCollectionTest, TestUidIOStatsLessThanTopNStatsLimit) {
         << toString(actualUidIoPerfData);
 }
 
-TEST(IoPerfCollectionTest, TestProcUidIoStatsContentsFromDevice) {
-    // TODO(b/148486340): Enable the test after appropriate SELinux privileges are available to
-    // read the proc file.
-    /*IoPerfCollection collector;
-    ASSERT_TRUE(collector.mUidIoStats->enabled()) << "/proc/uid_io/stats file is inaccessible";
-
-    struct UidIoPerfData perfData = {};
-    const auto& ret = collector.collectUidIoPerfDataLocked(&perfData);
-    ASSERT_RESULT_OK(ret);
-    // The below check should pass because the /proc/uid_io/stats file should have at least
-    // |mTopNStatsPerCategory| entries since bootup.
-    EXPECT_EQ(perfData.topNReads.size(), collector.mTopNStatsPerCategory);
-    EXPECT_EQ(perfData.topNWrites.size(), collector.mTopNStatsPerCategory);
-
-    int numMappedAppUid = 0;
-    int numMappedSysUid = 0;
-    for (const auto& it : collector.mUidToPackageNameMapping)  {
-        if (it.first >= AID_APP_START) {
-            ++numMappedAppUid;
-        } else {
-            ++numMappedSysUid;
-        }
-    }
-    EXPECT_GT(numMappedAppUid, 0);
-    EXPECT_GT(numMappedSysUid, 0);*/
-}
-
 TEST(IoPerfCollectionTest, TestValidProcStatFile) {
     constexpr char firstSnapshot[] =
             "cpu  6200 5700 1700 3100 1100 5200 3900 0 0 0\n"
