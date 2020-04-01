@@ -44,12 +44,14 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CarUxRestrictionsManagerTest {
-    @Rule public MockitoRule rule = MockitoJUnit.rule();
+    @Rule
+    public MockitoRule rule = MockitoJUnit.rule();
 
     CarUxRestrictionsManager mCarUxRestrictionsManager;
     CarUxRestrictionsController mCarUxRestrictionsController;
 
-    @Mock OnUxRestrictionsChangedListener mListener;
+    @Mock
+    OnUxRestrictionsChangedListener mListener;
 
     @Before
     public void setUp() {
@@ -63,15 +65,16 @@ public class CarUxRestrictionsManagerTest {
     }
 
     @Test
-    public void getRestrictionMode_noRestrictionsSet_noRestrictionsPresent() {
-        assertThat(mCarUxRestrictionsManager.getRestrictionMode()).isEqualTo(0);
+    public void getRestrictions_noRestrictionsSet_noRestrictionsPresent() {
+        assertThat(mCarUxRestrictionsManager.getCurrentCarUxRestrictions().getActiveRestrictions())
+                .isEqualTo(CarUxRestrictions.UX_RESTRICTIONS_BASELINE);
     }
 
     @Test
     public void setUxRestrictions_restrictionsRegistered() throws RemoteException {
         mCarUxRestrictionsController.setUxRestrictions(CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO);
 
-        assertThat(mCarUxRestrictionsManager.getRestrictionMode())
+        assertThat(mCarUxRestrictionsManager.getCurrentCarUxRestrictions().getActiveRestrictions())
                 .isEqualTo(CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO);
     }
 
@@ -81,8 +84,8 @@ public class CarUxRestrictionsManagerTest {
                 .setUxRestrictions(CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
         mCarUxRestrictionsController.clearUxRestrictions();
 
-        assertThat(mCarUxRestrictionsManager.getRestrictionMode())
-                .isEqualTo(0);
+        assertThat(mCarUxRestrictionsManager.getCurrentCarUxRestrictions().getActiveRestrictions())
+                .isEqualTo(CarUxRestrictions.UX_RESTRICTIONS_BASELINE);
     }
 
     @Test
