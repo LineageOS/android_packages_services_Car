@@ -120,8 +120,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                                                     | VehicleAreaSeat.ROW_2_RIGHT;
     private static final float INIT_TEMP_VALUE = 16f;
     private static final float CHANGED_TEMP_VALUE = 20f;
-    private static final int CALLBACK_SHORT_TIMEOUT_MS = 100; // ms
-
+    private static final int CALLBACK_SHORT_TIMEOUT_MS = 250; // ms
+    // Wait for CarPropertyManager register/unregister listener
+    private static final long WAIT_FOR_NO_EVENTS = 50;
     private CarPropertyManager mManager;
 
     @Rule public TestName mTestName = new TestName();
@@ -212,6 +213,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         TestErrorCallback callback = new TestErrorCallback();
         mManager.registerCallback(callback, VehiclePropertyIds.HVAC_TEMPERATURE_SET,
                 CarPropertyManager.SENSOR_RATE_ONCHANGE);
+        callback.assertRegisterCompleted();
         injectErrorEvent(VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID,
                 CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
         // app never change the value of HVAC_TEMPERATURE_SET, it won't get an error code.
@@ -223,6 +225,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         TestErrorCallback callback = new TestErrorCallback();
         mManager.registerCallback(callback, VehiclePropertyIds.HVAC_TEMPERATURE_SET,
                 CarPropertyManager.SENSOR_RATE_ONCHANGE);
+        callback.assertRegisterCompleted();
         mManager.setFloatProperty(
                 VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID,
                 CHANGED_TEMP_VALUE);
@@ -238,15 +241,17 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     @Test
     public void testNotReceiveOnErrorEventAfterUnregister() throws Exception {
         TestErrorCallback callback1 = new TestErrorCallback();
-        TestErrorCallback callback2 = new TestErrorCallback();
         mManager.registerCallback(callback1, VehiclePropertyIds.HVAC_TEMPERATURE_SET,
                 CarPropertyManager.SENSOR_RATE_ONCHANGE);
+        callback1.assertRegisterCompleted();
+        TestErrorCallback callback2 = new TestErrorCallback();
         mManager.registerCallback(callback2, VehiclePropertyIds.HVAC_TEMPERATURE_SET,
                 CarPropertyManager.SENSOR_RATE_ONCHANGE);
         mManager.setFloatProperty(
                 VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID,
                 CHANGED_TEMP_VALUE);
         mManager.unregisterCallback(callback1, VehiclePropertyIds.HVAC_TEMPERATURE_SET);
+        SystemClock.sleep(WAIT_FOR_NO_EVENTS);
         injectErrorEvent(VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID,
                 CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
         // callback1 is unregistered
@@ -347,6 +352,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 CUSTOM_SEAT_INT_PROP_1, DRIVER_SIDE_AREA_ID, 1);
         TestSequenceCallback callback = new TestSequenceCallback(1);
         mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, 0);
+        callback.assertRegisterCompleted();
+
         VehiclePropValue firstFakeValueDriveSide = new VehiclePropValue();
         firstFakeValueDriveSide.prop = CUSTOM_SEAT_INT_PROP_1;
         firstFakeValueDriveSide.areaId = DRIVER_SIDE_AREA_ID;
@@ -376,7 +383,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 CUSTOM_SEAT_INT_PROP_2, DRIVER_SIDE_AREA_ID, 1);
         TestSequenceCallback callback = new TestSequenceCallback(2);
         mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_2, 0);
-
+        callback.assertRegisterCompleted();
         VehiclePropValue fakeValueDriveSide = new VehiclePropValue();
         fakeValueDriveSide.prop = CUSTOM_SEAT_INT_PROP_2;
         fakeValueDriveSide.areaId = DRIVER_SIDE_AREA_ID;
@@ -493,17 +500,19 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         private boolean mReceivedErrorEventWithErrorCode = false;
         private boolean mReceivedErrorEventWithOutErrorCode = false;
         private int mErrorCode;
-        private final CountDownLatch mCountDownLatch = new CountDownLatch(1);
+        private final CountDownLatch mEventsCountDownLatch = new CountDownLatch(1);
+        private final CountDownLatch mRegisterCountDownLatch = new CountDownLatch(2);
         @Override
         public void onChangeEvent(CarPropertyValue value) {
             Log.d(CALLBACK_TAG, "onChangeEvent: " + value);
+            mRegisterCountDownLatch.countDown();
         }
 
         @Override
         public void onErrorEvent(int propId, int zone) {
             mReceivedErrorEventWithOutErrorCode = true;
             Log.d(CALLBACK_TAG, "onErrorEvent, propId: " + propId + " zone: " + zone);
-            mCountDownLatch.countDown();
+            mEventsCountDownLatch.countDown();
         }
 
         @Override
@@ -512,19 +521,26 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             mErrorCode = errorCode;
             Log.d(CALLBACK_TAG, "onErrorEvent, propId: " + propId + " areaId: " + areaId
                     + "errorCode: " + errorCode);
-            mCountDownLatch.countDown();
+            mEventsCountDownLatch.countDown();
         }
 
         public void assertOnErrorEventCalled() throws InterruptedException {
-            if (!mCountDownLatch.await(CALLBACK_SHORT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+            if (!mEventsCountDownLatch.await(CALLBACK_SHORT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
                 throw new IllegalStateException("Callback is not called in "
                         + CALLBACK_SHORT_TIMEOUT_MS + " ms.");
             }
         }
 
         public void assertOnErrorEventNotCalled() throws InterruptedException {
-            if (mCountDownLatch.await(CALLBACK_SHORT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+            if (mEventsCountDownLatch.await(CALLBACK_SHORT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
                 throw new IllegalStateException("Callback is called in " + CALLBACK_SHORT_TIMEOUT_MS
+                        + " ms.");
+            }
+        }
+
+        public void assertRegisterCompleted() throws InterruptedException {
+            if (!mRegisterCountDownLatch.await(CALLBACK_SHORT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Register failed in " + CALLBACK_SHORT_TIMEOUT_MS
                         + " ms.");
             }
         }
@@ -534,20 +550,22 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         private ConcurrentHashMap<Integer, CarPropertyValue> mRecorder = new ConcurrentHashMap<>();
         private int mCounter = 0;
-        private final CountDownLatch mCountDownLatch;
+        private final CountDownLatch mEventsCountDownLatch;
+        private final CountDownLatch mRegisterCountDownLatch = new CountDownLatch(2);
         @Override
         public void onChangeEvent(CarPropertyValue value) {
             Log.e(TAG, "onChanged get a event " + value);
             mRecorder.put(value.getPropertyId(), value);
+            mRegisterCountDownLatch.countDown();
             // Skip initial events
             if (value.getTimestamp() != 0) {
                 mCounter++;
-                mCountDownLatch.countDown();
+                mEventsCountDownLatch.countDown();
             }
         }
 
         TestSequenceCallback(int expectedTimes) {
-            mCountDownLatch = new CountDownLatch(expectedTimes);
+            mEventsCountDownLatch = new CountDownLatch(expectedTimes);
         }
 
         @Override
@@ -564,9 +582,16 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         }
 
         public void assertOnChangeEventCalled() throws InterruptedException {
-            if (!mCountDownLatch.await(CALLBACK_SHORT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+            if (!mEventsCountDownLatch.await(CALLBACK_SHORT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
                 throw new IllegalStateException("Callback is not called in "
                         + CALLBACK_SHORT_TIMEOUT_MS + " ms.");
+            }
+        }
+
+        public void assertRegisterCompleted() throws InterruptedException {
+            if (!mRegisterCountDownLatch.await(CALLBACK_SHORT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Register failed in " + CALLBACK_SHORT_TIMEOUT_MS
+                        + " ms.");
             }
         }
     }
