@@ -73,17 +73,13 @@ Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
 }
 
 Result<void> ServiceManager::startIoPerfCollection() {
-    /* TODO(b/148486340): Start I/O performance data collection after the boot complete notification
-     * is sent from CarWatchdogService to daemon so the boot-time collection can be switched to
-     * periodic collection after boot complete.
     sp<IoPerfCollection> service = new IoPerfCollection();
-    const auto& result = service.start();
+    const auto& result = service->start();
     if (!result.ok()) {
         return Error(result.error().code())
                 << "Failed to start I/O performance collection: " << result.error();
     }
     sIoPerfCollection = service;
-    */
     return {};
 }
 
