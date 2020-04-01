@@ -521,7 +521,7 @@ public class CarPowerManagementServiceTest {
 
         verifyUserNotSwitched();
         verifyUserNotRemoved(10);
-        // expects WTF
+        verifyWtfLogged();
     }
 
     @Test
@@ -564,7 +564,7 @@ public class CarPowerManagementServiceTest {
         suspendAndResumeForUserSwitchingTests();
 
         verifyUserNotSwitched();
-        // expects WTF
+        verifyWtfLogged();
     }
 
     @Test
@@ -576,130 +576,15 @@ public class CarPowerManagementServiceTest {
         suspendAndResumeForUserSwitchingTests();
 
         verifyUserNotSwitched();
-        // expects WTF
+        verifyWtfLogged();
     }
 
     @Test
-    public void testUserSwitchingOnResume_disabledByOEM_differentUser() throws Exception {
+    public void testUserSwitchingOnResume_disabledByOEM_nonGuest() throws Exception {
         disableUserSwitchingDuringResume();
         initTest();
         setUserInfo(10, NO_USER_INFO_FLAGS);
-        setUserInfo(11, NO_USER_INFO_FLAGS);
         setCurrentUser(10);
-        setInitialUser(11);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserNotSwitched();
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_disabledByOEM_sameUser() throws Exception {
-        disableUserSwitchingDuringResume();
-        initTest();
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setInitialUser(10);
-        setCurrentUser(10);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserNotSwitched();
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_disabledByOEM_differentEphemeralUser() throws Exception {
-        disableUserSwitchingDuringResume();
-        initTest();
-        setUserInfo(10, NO_USER_INFO_FLAGS);
-        setUserInfo(11, FLAG_EPHEMERAL);
-        setCurrentUser(10);
-        setInitialUser(11);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserNotSwitched();
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_disabledByOEM_sameGuest() throws Exception {
-        disableUserSwitchingDuringResume();
-        initTest();
-        setUserInfo(10, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
-        setInitialUser(10);
-        setCurrentUser(10);
-        expectGuestMarkedForDeletionOk(10);
-        expectNewGuestCreated(11);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserRemoved(10);
-        verifyUserSwitched(11);
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_disabledByOEM_differentGuest() throws Exception {
-        disableUserSwitchingDuringResume();
-        initTest();
-        setUserInfo(11, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
-        setInitialUser(11);
-        setCurrentUser(10);
-        expectGuestMarkedForDeletionOk(11);
-        expectNewGuestCreated(12);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserRemoved(11);
-        verifyUserSwitched(12);
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_disabledByOEM_guestCreationFailed() throws Exception {
-        disableUserSwitchingDuringResume();
-        initTest();
-        setUserInfo(10, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
-        setInitialUser(10);
-        setCurrentUser(10);
-        expectGuestMarkedForDeletionOk(10);
-        expectNewGuestCreationFailed("ElGuesto");
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserNotSwitched();
-        verifyUserNotRemoved(10);
-        // expects WTF
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_disabledByOEM_differentPersistentGuest()
-            throws Exception {
-        disableUserSwitchingDuringResume();
-        initTest();
-        setUserInfo(11, "ElGuesto", USER_TYPE_FULL_GUEST, NO_USER_INFO_FLAGS);
-        setInitialUser(11);
-        setCurrentUser(10);
-        expectGuestMarkedForDeletionOk(11);
-        expectNewGuestCreated(12);
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserRemoved(11);
-        verifyUserSwitched(12);
-        verifyWtfNeverLogged();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_disabledByOEM_preDeleteGuestFail() throws Exception {
-        disableUserSwitchingDuringResume();
-        initTest();
-        setUserInfo(10, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
-        setInitialUser(10);
-        setCurrentUser(10);
-        expectGuestMarkedForDeletionFail(10);
 
         suspendAndResumeForUserSwitchingTests();
 
@@ -709,16 +594,67 @@ public class CarPowerManagementServiceTest {
     }
 
     @Test
-    public void testUserSwitchingOnResume_disabledByOEM_systemUser() throws Exception {
+    public void testUserSwitchingOnResume_disabledByOEM_ephemeralGuest() throws Exception {
+        int existingGuestId = 10;
+        int newGuestId = 11;
         disableUserSwitchingDuringResume();
         initTest();
-        setInitialUser(USER_SYSTEM);
+        setUserInfo(existingGuestId, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
+        setCurrentUser(existingGuestId);
+        expectGuestMarkedForDeletionOk(existingGuestId);
+        expectNewGuestCreated(newGuestId);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserSwitched(newGuestId);
+        verifyWtfNeverLogged();
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_disabledByOEM_nonEphemeralGuest() throws Exception {
+        int existingGuestId = 10;
+        int newGuestId = 11;
+        disableUserSwitchingDuringResume();
+        initTest();
+        setUserInfo(existingGuestId, "ElGuesto", USER_TYPE_FULL_GUEST, /* flags= */ 0);
+        setCurrentUser(existingGuestId);
+        expectGuestMarkedForDeletionOk(existingGuestId);
+        expectNewGuestCreated(newGuestId);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserSwitched(newGuestId);
+        verifyWtfNeverLogged();
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_disabledByOEM_newGuestCreationFailed() throws Exception {
+        disableUserSwitchingDuringResume();
+        initTest();
+        setUserInfo(10, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
         setCurrentUser(10);
+        expectGuestMarkedForDeletionOk(10);
+        expectNewGuestCreationFailed("ElGuesto");
 
         suspendAndResumeForUserSwitchingTests();
 
         verifyUserNotSwitched();
-        // expects WTF
+        verifyWtfLogged();
+    }
+
+    @Test
+    public void testUserSwitchingOnResume_disabledByOEM_preDeleteGuestFail() throws Exception {
+        disableUserSwitchingDuringResume();
+        initTest();
+        setUserInfo(10, "ElGuesto", USER_TYPE_FULL_GUEST, FLAG_EPHEMERAL);
+        setCurrentUser(10);
+        expectGuestMarkedForDeletionFail(10);
+
+        suspendAndResumeForUserSwitchingTests();
+
+        verifyUserNotSwitched();
+        verifyNoGuestCreated();
+        verifyWtfNeverLogged();
     }
 
     @Test
@@ -952,6 +888,10 @@ public class CarPowerManagementServiceTest {
                         .append(": ").append(mWtfs);
                 fail(msg.toString());
         }
+    }
+
+    private void verifyWtfLogged() {
+        assertThat(mWtfs).isNotEmpty();
     }
 
     private static void waitForSemaphore(Semaphore semaphore, long timeoutMs)
