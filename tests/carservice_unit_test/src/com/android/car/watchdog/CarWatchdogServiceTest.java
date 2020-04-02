@@ -28,6 +28,7 @@ import android.automotive.watchdog.ICarWatchdog;
 import android.automotive.watchdog.ICarWatchdogClient;
 import android.automotive.watchdog.TimeoutLength;
 import android.content.Context;
+import android.content.pm.UserInfo;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -35,6 +36,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
+import android.os.UserManager;
 
 import org.junit.After;
 import org.junit.Before;
@@ -42,6 +44,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoSession;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.quality.Strictness;
 
@@ -63,7 +66,8 @@ public class CarWatchdogServiceTest {
             "android.automotive.watchdog.ICarWatchdog/default";
 
     @Mock private Context mMockContext;
-    @Mock private IBinder mBinder = new Binder();
+    @Mock private UserManager mUserManager;
+    @Spy private IBinder mBinder = new Binder();
 
     private FakeCarWatchdog mFakeCarWatchdog;
     private CarWatchdogService mCarWatchdogService;
@@ -75,12 +79,15 @@ public class CarWatchdogServiceTest {
     @Before
     public void setUpMocks() {
         mMockSession = mockitoSession()
+                .initMocks(this)
                 .strictness(Strictness.LENIENT)
                 .spyStatic(ServiceManager.class)
+                .spyStatic(UserManager.class)
                 .startMocking();
         mFakeCarWatchdog = new FakeCarWatchdog();
         mCarWatchdogService = new CarWatchdogService(mMockContext);
         expectLocalWatchdogDaemon();
+        expectNoUsers();
     }
 
     @After
@@ -103,6 +110,11 @@ public class CarWatchdogServiceTest {
     private void expectLocalWatchdogDaemon() {
         when(ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE)).thenReturn(mBinder);
         doReturn(mFakeCarWatchdog).when(mBinder).queryLocalInterface(anyString());
+    }
+
+    private void expectNoUsers() {
+        doReturn(mUserManager).when(mMockContext).getSystemService(Context.USER_SERVICE);
+        doReturn(new ArrayList<UserInfo>()).when(mUserManager).getUsers();
     }
 
     // FakeCarWatchdog mimics ICarWatchdog daemon in local process.

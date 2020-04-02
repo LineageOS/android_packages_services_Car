@@ -52,10 +52,10 @@ public class VehiclePropertyType {
             FLOAT,
             FLOAT_VEC,
             BYTES,
-            /**
+            /*
              * Any combination of scalar or vector types. The exact format must be
              * provided in the description of the property.
-            */
+             */
             MIXED,
             MASK
     })
