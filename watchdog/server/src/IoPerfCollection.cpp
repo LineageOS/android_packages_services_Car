@@ -18,6 +18,7 @@
 
 #include "IoPerfCollection.h"
 
+#include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
@@ -53,6 +54,19 @@ using android::base::WriteStringToFd;
 using android::content::pm::IPackageManagerNative;
 
 namespace {
+
+const int32_t kDefaultTopNStatsPerCategory = 5;
+const std::chrono::seconds kDefaultBoottimeCollectionInterval = 1s;
+const std::chrono::seconds kDefaultPeriodicCollectionInterval = 10s;
+// Number of periodic collection perf data snapshots to cache in memory.
+const int32_t kDefaultPeriodicCollectionBufferSize = 180;
+
+// Minimum collection interval between subsequent collections.
+const std::chrono::nanoseconds kMinCollectionInterval = 1s;
+
+// Default values for the custom collection interval and max_duration.
+const std::chrono::nanoseconds kCustomCollectionInterval = 10s;
+const std::chrono::nanoseconds kCustomCollectionDuration = 30min;
 
 const std::string kDumpMajorDelimiter = std::string(100, '-') + "\n";
 
@@ -219,20 +233,28 @@ Result<void> IoPerfCollection::start() {
             return Error(INVALID_OPERATION)
                     << "Cannot start I/O performance collection more than once";
         }
-
-        // TODO(b/148489461): Once |kTopNStatsPerCategory|, |kBoottimeCollectionInterval| and
-        // |kPeriodicCollectionInterval| constants are moved to read-only persistent properties,
-        // read and store them in the collection infos.
-
+        mTopNStatsPerCategory = static_cast<int>(
+                sysprop::topNStatsPerCategory().value_or(kDefaultTopNStatsPerCategory));
+        std::chrono::nanoseconds boottimeCollectionInterval =
+                std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::seconds(sysprop::boottimeCollectionInterval().value_or(
+                                kDefaultBoottimeCollectionInterval.count())));
+        std::chrono::nanoseconds periodicCollectionInterval =
+                std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::seconds(sysprop::periodicCollectionInterval().value_or(
+                                kDefaultPeriodicCollectionInterval.count())));
+        size_t periodicCollectionBufferSize =
+                static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
+                        kDefaultPeriodicCollectionBufferSize));
         mBoottimeCollection = {
-                .interval = kBoottimeCollectionInterval,
+                .interval = boottimeCollectionInterval,
                 .maxCacheSize = std::numeric_limits<std::size_t>::max(),
                 .lastCollectionUptime = 0,
                 .records = {},
         };
         mPeriodicCollection = {
-                .interval = kPeriodicCollectionInterval,
-                .maxCacheSize = kPeriodicCollectionBufferSize,
+                .interval = periodicCollectionInterval,
+                .maxCacheSize = periodicCollectionBufferSize,
                 .lastCollectionUptime = 0,
                 .records = {},
         };
@@ -646,7 +668,7 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
     for (const auto& usage : topNReads) {
         if (usage->ios.isZero()) {
             // End of non-zero usage records. This case occurs when the number of UIDs with active
-            // I/O operations is < |kTopNStatsPerCategory|.
+            // I/O operations is < |ro.carwatchdog.top_n_stats_per_category|.
             break;
         }
         UidIoPerfData::Stats stats = {
@@ -666,7 +688,7 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
     for (const auto& usage : topNWrites) {
         if (usage->ios.isZero()) {
             // End of non-zero usage records. This case occurs when the number of UIDs with active
-            // I/O operations is < |kTopNStatsPerCategory|.
+            // I/O operations is < |ro.carwatchdog.top_n_stats_per_category|.
             break;
         }
         UidIoPerfData::Stats stats = {
@@ -760,7 +782,7 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
     for (const auto& it : topNIoBlockedUids) {
         if (it->ioBlockedTasksCnt == 0) {
             // End of non-zero elements. This case occurs when the number of UIDs with I/O blocked
-            // processes is < |kTopNStatsPerCategory|.
+            // processes is < |ro.carwatchdog.top_n_stats_per_category|.
             break;
         }
         ProcessIoPerfData::Stats stats = {
@@ -777,7 +799,7 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
     for (const auto& it : topNMajorFaults) {
         if (it->majorFaults == 0) {
             // End of non-zero elements. This case occurs when the number of UIDs with major faults
-            // is < |kTopNStatsPerCategory|.
+            // is < |ro.carwatchdog.top_n_stats_per_category|.
             break;
         }
         ProcessIoPerfData::Stats stats = {
