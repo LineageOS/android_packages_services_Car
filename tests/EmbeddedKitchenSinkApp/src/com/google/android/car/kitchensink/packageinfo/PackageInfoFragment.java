@@ -59,6 +59,7 @@ public final class PackageInfoFragment extends Fragment{
     private static final boolean DEBUG = true;
     private static final int PACKAGE_FLAGS = PackageManager.GET_META_DATA
             | PackageManager.GET_ACTIVITIES | PackageManager.GET_SERVICES
+            | PackageManager.GET_PROVIDERS | PackageManager.GET_RECEIVERS
             | PackageManager.GET_PERMISSIONS | PackageManager.GET_SIGNATURES;
     private static final List<String> IMPORTANT_PERMISSIONS = Arrays.asList(
             "android.permission.INTERACT_ACROSS_USERS",
@@ -96,10 +97,7 @@ public final class PackageInfoFragment extends Fragment{
     private void refreshPackages() {
         List<PackageInfo> packages = new ArrayList<PackageInfo>();
         try {
-            packages = mPackageManager.getInstalledPackagesAsUser(PackageManager.GET_META_DATA
-                    | PackageManager.GET_ACTIVITIES | PackageManager.GET_SERVICES
-                    | PackageManager.GET_PERMISSIONS | PackageManager.GET_SIGNATURES,
-                    mUserToShow.id);
+            packages = mPackageManager.getInstalledPackagesAsUser(PACKAGE_FLAGS, mUserToShow.id);
             if (DEBUG) {
                 Log.d(TAG, "total packages found: " + packages.size());
             }
