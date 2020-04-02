@@ -15,4 +15,4 @@
 service carwatchdogd /system/bin/carwatchdogd
     class core
     user system
-    group system
+    group system readproc
