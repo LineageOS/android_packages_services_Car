@@ -56,6 +56,9 @@ cc_library {
         "src/ProcStat.cpp",
         "src/UidIoStats.cpp",
     ],
+    whole_static_libs: [
+        "libwatchdog_properties",
+    ],
     export_include_dirs: [
         "src",
     ],
