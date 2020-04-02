@@ -383,7 +383,10 @@ public class ActivityBlockingActivity extends Activity {
         super.onDestroy();
         mCar.disconnect();
         mUxRManager.unregisterListener();
-        mToggleDebug.getViewTreeObserver().removeOnGlobalLayoutListener(mOnGlobalLayoutListener);
+        if (mToggleDebug != null) {
+            mToggleDebug.getViewTreeObserver().removeOnGlobalLayoutListener(
+                    mOnGlobalLayoutListener);
+        }
         mCar.disconnect();
     }
 

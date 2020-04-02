@@ -37,12 +37,15 @@ import android.view.Display;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.Suppress;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -50,13 +53,17 @@ public class ActivityBlockingActivityTest {
     private static final String ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID =
             "com.android.car:id/blocking_text";
 
-    private static final int UI_TIMEOUT_MS = 2000;
-    private static final int NOT_FOUND_UI_TIMEOUT_MS = 1000;
+    // cf_x86_auto is very slow, so uses very long timeout.
+    private static final int UI_TIMEOUT_MS = 20_000;
+    private static final int NOT_FOUND_UI_TIMEOUT_MS = 10_000;
     private static final long ACTIVITY_TIMEOUT_MS = 5000;
 
     private CarDrivingStateManager mCarDrivingStateManager;
 
     private UiDevice mDevice;
+
+    // NOTE: Assume there is only one testing Activity.
+    private static final AtomicReference<TempActivity> sTestingActivity = new AtomicReference<>();
 
     @Before
     public void setUp() throws Exception {
@@ -73,10 +80,13 @@ public class ActivityBlockingActivityTest {
     @After
     public void tearDown() throws Exception {
         setDrivingStateParked();
+
+        TempActivity testingActivity = sTestingActivity.get();
+        if (testingActivity != null) {
+            testingActivity.finishCompletely();
+        }
     }
 
-    // Suppress test to avoid blocking team while b/150491747 is evaluated
-    @Suppress
     @Test
     public void testBlockingActivity_doActivity_isNotBlocked() throws Exception {
         startActivity(toComponentName(getTestContext(), DoActivity.class));
@@ -87,8 +97,6 @@ public class ActivityBlockingActivityTest {
         assertBlockingActivityNotFound();
     }
 
-    // Suppress test to avoid blocking team while b/150491747 is evaluated
-    @Suppress
     @Test
     public void testBlockingActivity_nonDoActivity_isBlocked() throws Exception {
         startNonDoActivity(NonDoActivity.EXTRA_DO_NOTHING);
@@ -97,8 +105,6 @@ public class ActivityBlockingActivityTest {
                 UI_TIMEOUT_MS)).isNotNull();
     }
 
-    // Suppress test to avoid blocking team while b/150491747 is evaluated
-    @Suppress
     @Test
     public void testBlockingActivity_nonDoFinishesOnCreate_noBlockingActivity()
             throws Exception {
@@ -107,8 +113,6 @@ public class ActivityBlockingActivityTest {
         assertBlockingActivityNotFound();
     }
 
-    // Suppress test to avoid blocking team while b/150491747 is evaluated
-    @Suppress
     @Test
     public void testBlockingActivity_nonDoLaunchesDoOnCreate_noBlockingActivity()
             throws Exception {
@@ -117,8 +121,6 @@ public class ActivityBlockingActivityTest {
         assertBlockingActivityNotFound();
     }
 
-    // Suppress test to avoid blocking team while b/150491747 is evaluated
-    @Suppress
     @Test
     public void testBlockingActivity_nonDoFinishesOnResume_noBlockingActivity()
             throws Exception {
@@ -127,8 +129,6 @@ public class ActivityBlockingActivityTest {
         assertBlockingActivityNotFound();
     }
 
-    // Suppress test to avoid blocking team while b/150491747 is evaluated
-    @Suppress
     @Test
     public void testBlockingActivity_nonDoLaunchesDoOnResume_noBlockingActivity()
             throws Exception {
@@ -137,8 +137,6 @@ public class ActivityBlockingActivityTest {
         assertBlockingActivityNotFound();
     }
 
-    // Suppress test to avoid blocking team while b/150491747 is evaluated
-    @Suppress
     @Test
     public void testBlockingActivity_nonDoNoHistory_isBlocked() throws Exception {
         startActivity(toComponentName(getTestContext(), NonDoNoHistoryActivity.class));
@@ -148,8 +146,8 @@ public class ActivityBlockingActivityTest {
     }
 
     private void assertBlockingActivityNotFound() {
-        assertThat(mDevice.wait(Until.findObject(By.res(ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID)),
-                NOT_FOUND_UI_TIMEOUT_MS)).isNull();
+        assertThat(mDevice.wait(Until.gone(By.res(ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID)),
+                NOT_FOUND_UI_TIMEOUT_MS)).isNotNull();
     }
 
     private void startActivity(ComponentName name) {
@@ -246,10 +244,23 @@ public class ActivityBlockingActivityTest {
 
     /** Activity that closes itself after some timeout to clean up the screen. */
     public static class TempActivity extends Activity {
+        private final CountDownLatch mDestroyed = new CountDownLatch(1);
         @Override
-        protected void onResume() {
-            super.onResume();
-            getMainThreadHandler().postDelayed(this::finish, ACTIVITY_TIMEOUT_MS);
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            sTestingActivity.set(this);
+        }
+
+        @Override
+        protected void onDestroy() {
+            sTestingActivity.set(null);
+            super.onDestroy();
+            mDestroyed.countDown();
+        }
+
+        void finishCompletely() throws InterruptedException {
+            finish();
+            mDestroyed.await(ACTIVITY_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         }
     }
 
