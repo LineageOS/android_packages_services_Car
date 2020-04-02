@@ -257,7 +257,9 @@
     <string name="sms_connect" translatable="false">Connect</string>
     <string name="sms_disconnect" translatable="false">Disconnect</string>
     <string name="sms_send_message" translatable="false">Send</string>
-    <string name="sms_new_message_button" translatable="false">Send new message</string>
+    <string name="sms_new_message_button" translatable="false">Send new message (Short)</string>
+    <string name="mms_new_message_button" translatable="false">Send new message (Long)</string>
+    <string name="reset_message_counter_button" translatable="false">Reset message counter</string>
     <string name="sms_notifications" translatable="false">Toggle Notifications</string>
     <string name="sms_listing_button" translatable="false">List SMS</string>
     <string name="sms_listing_label_folder" translatable="false">Folder</string>
