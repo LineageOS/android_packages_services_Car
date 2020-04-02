@@ -179,6 +179,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             maybeInitUser(event.getUserId());
+        } else if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING == event.getEventType()) {
+            onUserUnlock(event.getUserId());
         }
     };
 
@@ -201,7 +203,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         mPackageUpdateFilter.addDataScheme("package");
         mUserService = userService;
-        mUserService.removeUserLifecycleListener(mUserLifecycleListener);
+        mUserService.addUserLifecycleListener(mUserLifecycleListener);
 
         mPlayOnMediaSourceChangedConfig =
                 mContext.getResources().getInteger(R.integer.config_mediaSourceChangedAutoplay);
@@ -402,33 +404,23 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
     }
 
-    /**
-     * Sets user lock / unlocking status on main thread. This is coming from system server through
-     * ICar binder call.
-     *
-     * @param userHandle Handle of user
-     * @param unlocked   unlocked (=true) or locked (=false)
-     */
-    public void setUserLockStatus(int userHandle, boolean unlocked) {
-        mMainHandler.post(new Runnable() {
-            @Override
-            public void run() {
+    // TODO(b/153115826): this method was used to be called from the ICar binder thread, but it's
+    // now called by UserCarService. Currently UserCarServie is calling every listener in one
+    // non-main thread, but it's not clear how the final behavior will be. So, for now it's ok
+    // to post it to mMainHandler, but once b/145689885 is fixed, we might not need it.
+    private void onUserUnlock(int userId) {
+        mMainHandler.post(() -> {
+            // No need to handle system user, non current foreground user.
+            if (userId == UserHandle.USER_SYSTEM
+                    || userId != ActivityManager.getCurrentUser()) {
+                return;
+            }
+            if (mPendingInit) {
+                initUser(userId);
+                mPendingInit = false;
                 if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
                     Log.d(CarLog.TAG_MEDIA,
-                            "User " + userHandle + " is " + (unlocked ? "unlocked" : "locked"));
-                }
-                // Nothing else to do when it is locked back.
-                if (!unlocked) {
-                    return;
-                }
-                // No need to handle system user, non current foreground user.
-                if (userHandle == UserHandle.USER_SYSTEM
-                        || userHandle != ActivityManager.getCurrentUser()) {
-                    return;
-                }
-                if (mPendingInit) {
-                    initUser(userHandle);
-                    mPendingInit = false;
+                            "User " + userId + " is now unlocked");
                 }
             }
         });
