@@ -227,7 +227,11 @@ private:
     // Retrieves package manager from the default service manager.
     android::base::Result<void> retrievePackageManager();
 
+    // Top N per-UID stats per category.
     int mTopNStatsPerCategory;
+
+    // Top N per-process stats per subcategory.
+    int mTopNStatsPerSubcategory;
 
     // Thread on which the actual collection happens.
     std::thread mCollectionThread;
