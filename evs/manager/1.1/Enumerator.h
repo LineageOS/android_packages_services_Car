@@ -100,6 +100,7 @@ private:
     void cmdDump(int fd, const hidl_vec<hidl_string>& options);
     void cmdHelp(int fd);
     void cmdList(int fd, const hidl_vec<hidl_string>& options);
+    void cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options);
 };
 
 } // namespace implementation

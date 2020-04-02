@@ -516,11 +516,14 @@ void Enumerator::cmdDump(int fd, const hidl_vec<hidl_string>& options) {
         dprintf(fd, "No option is given");
         return;
     }
-    std::string option = options[0];
+
+    const std::string option = options[0];
     if (EqualsIgnoreCase(option, "--help")) {
         cmdHelp(fd);
     } else if (EqualsIgnoreCase(option, "--list")) {
         cmdList(fd, options);
+    } else if (EqualsIgnoreCase(option, "--dump")) {
+        cmdDumpDevice(fd, options);
     } else {
         dprintf(fd, "Invalid option: %s\n", option.c_str());
     }
@@ -532,11 +535,14 @@ void Enumerator::cmdHelp(int fd) {
     dprintf(fd, "--help: shows this help.\n");
     dprintf(fd, "--list [camera|display]: list camera or display devices "
                 "available to EVS manager.\n");
+    dprintf(fd, "--dump [camera|display] <device id>: "
+                "show current status of the target device or all devices "
+                "when no device is given.\n");
 }
 
 
 void Enumerator::cmdList(int fd, const hidl_vec<hidl_string>& options) {
-    std::string option = options[1];
+    const std::string option = options[1];
     if (EqualsIgnoreCase(option, "camera")) {
         dprintf(fd, "Camera devices available to EVS service:\n");
         if (mCameraDevices.size() < 1) {
@@ -571,6 +577,29 @@ void Enumerator::cmdList(int fd, const hidl_vec<hidl_string>& options) {
         }
     } else {
         dprintf(fd, "Invalid list command option: %s\n", option.c_str());
+    }
+}
+
+
+void Enumerator::cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options) {
+    const std::string category = options[1];
+    if (EqualsIgnoreCase(category, "camera")) {
+        const bool dumpAll = options.size() < 3;
+        std::string deviceId = "";
+        if (!dumpAll) {
+            deviceId = options[2];
+        }
+
+        for (auto& [id, ptr] : mActiveCameras) {
+            if (!dumpAll && !EqualsIgnoreCase(id, deviceId)) {
+                continue;
+            }
+            ptr->dump(fd);
+        }
+    } else if (EqualsIgnoreCase(category, "display")) {
+        dprintf(fd, "Not implemented yet\n");
+    } else {
+        dprintf(fd, "Invalid list command option: %s\n", category.c_str());
     }
 }
 
