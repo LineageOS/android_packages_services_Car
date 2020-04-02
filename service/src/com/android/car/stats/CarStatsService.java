@@ -159,6 +159,7 @@ public class CarStatsService {
             StatsEvent e = StatsEvent.newBuilder()
                     .setAtomId(atomTag)
                     .writeInt(entry.getUid())
+                    .addBooleanAnnotation(CarStatsLog.ANNOTATION_ID_IS_UID, true)
 
                     .writeInt(entry.getLayerType())
                     .writeInt(entry.getLayerChannel())
