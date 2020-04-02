@@ -24,6 +24,7 @@ import android.car.CarFeatures;
 import android.car.ICar;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -352,24 +353,15 @@ public class ICarImpl extends ICar.Stub {
     public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
             int toUserId) {
         assertCallingFromSystemProcess();
-        Log.i(TAG, "onUserLifecycleEvent(" + CarUserManager.lifecycleEventTypeToString(eventType)
-                + ", " + toUserId + ")");
-        mUserMetrics.onEvent(eventType, timestampMs, fromUserId, toUserId);
+        Log.i(TAG, "onUserLifecycleEvent("
+                + CarUserManager.lifecycleEventTypeToString(eventType) + ", " + toUserId + ")");
+        mCarUserService.onUserLifecycleEvent(new UserLifecycleEvent(eventType, toUserId));
         if (eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING) {
-            setUserLockStatus(toUserId);
-        } else if (eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING) {
-            onSwitchUser(toUserId);
+            // TODO(b/145689885): CarMediaService should implement UserLifecycleListener,
+            //     eliminiating the need for this check.
+            mCarMediaService.setUserLockStatus(toUserId, /* unlocked= */ true);
         }
-    }
-
-    private void setUserLockStatus(int userId) {
-        mCarUserService.setUserLockStatus(userId, /* unlocked= */ true);
-        mCarMediaService.setUserLockStatus(userId, /* unlocked= */ true);
-    }
-
-    private void onSwitchUser(int userId) {
-        Log.i(TAG, "Foreground user switched to " + userId);
-        mCarUserService.onSwitchUser(userId);
+        mUserMetrics.onEvent(eventType, timestampMs, fromUserId, toUserId);
     }
 
     @Override

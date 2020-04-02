@@ -693,26 +693,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
     }
 
-    /**
-     * Sets user lock/unlocking status. This is coming from system server through ICar binder call.
-     *
-     * @param userId User id whoes lock status is changed.
-     * @param unlocked Unlocked (={@code true}) or locked (={@code false}).
-     *
-     * @deprecated TODO(b/151895715): method to be folded into onUserLifecycleEvent
-     */
-    @Deprecated
-    public void setUserLockStatus(@UserIdInt int userId, boolean unlocked) {
-        TimingsTraceLog t = new TimingsTraceLog(TAG_USER,
-                Trace.TRACE_TAG_SYSTEM_SERVER);
-        notifyUserLifecycleListeners(t,
+    private void unlockUser(@UserIdInt int userId) {
+        TimingsTraceLog t = new TimingsTraceLog(TAG_USER, Trace.TRACE_TAG_SYSTEM_SERVER);
+        notifyUserLifecycleListeners(
                 new UserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING, userId));
-
-        if (!unlocked) { // nothing else to do when it is locked back.
-            return;
-        }
-
-        t.traceBegin("setUserLockStatus-UnlockTasks-" + userId);
+        t.traceBegin("UnlockTasks-" + userId);
         ArrayList<Runnable> tasks = null;
         synchronized (mLockUser) {
             if (userId == UserHandle.USER_SYSTEM) {
@@ -720,7 +705,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     updateDefaultUserRestriction();
                     tasks = new ArrayList<>(mUser0UnlockTasks);
                     mUser0UnlockTasks.clear();
-                    mUser0Unlocked = unlocked;
+                    mUser0Unlocked = true;
                 }
             } else { // none user0
                 Integer user = userId;
@@ -836,13 +821,82 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * Called when new foreground user started to boot.
-     *
-     * @param userId User id of new user.
-     * @deprecated TODO(b/151895715): method to be folded into onUserLifecycleEvent
+     * Notifies all registered {@link UserLifecycleListener} with the event passed as argument.
      */
-    @Deprecated
-    public void onSwitchUser(@UserIdInt int userId) {
+    public void onUserLifecycleEvent(UserLifecycleEvent event) {
+        int userId = event.getUserId();
+        if (event.getEventType() == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING) {
+            onSwitchUser(userId);
+        } else if (event.getEventType() == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING) {
+            unlockUser(userId);
+        }
+
+        // TODO(b/144120654): right now just the app listeners are running in the background so the
+        // CTS tests pass (as otherwise they might fail if a car service callback takes too long),
+        // but once we refactor the car service callback into lifecycle listeners, we should use a
+        // proper thread management (like a Threadpool / executor);
+
+        // Notify all user listeners
+        notifyUserLifecycleListeners(event);
+
+        // Notify all app listeners
+        notifyAppLifecycleListeners(event);
+    }
+
+    private void notifyAppLifecycleListeners(UserLifecycleEvent event) {
+        int listenersSize = mLifecycleListeners.size();
+        if (listenersSize == 0) {
+            Log.i(TAG_USER, "No app listener to be notified");
+            return;
+        }
+        new Thread(() -> {
+            // Must use a different TimingsTraceLog because it's another thread
+            TimingsTraceLog t = new TimingsTraceLog(TAG_USER, Trace.TRACE_TAG_SYSTEM_SERVER);
+            Log.i(TAG_USER, "Notifying " + listenersSize + " app listeners");
+            int userId = event.getUserId();
+            for (int i = 0; i < listenersSize; i++) {
+                int uid = mLifecycleListeners.keyAt(i);
+                IResultReceiver listener = mLifecycleListeners.valueAt(i);
+                t.traceBegin("notify-" + event.getEventType() + "-app-listener-" + uid);
+                Bundle data = new Bundle();
+                data.putInt(CarUserManager.BUNDLE_PARAM_ACTION, event.getEventType());
+                // TODO(b/144120654): should pass currentId from CarServiceHelperService so it
+                // can set BUNDLE_PARAM_PREVIOUS_USER_ID (and unit test it)
+                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                    Log.d(TAG_USER, "Notifying listener for uid " + uid);
+                }
+                try {
+                    listener.send(userId, data);
+                } catch (RemoteException e) {
+                    Log.e(TAG_USER, "Error calling lifecycle listener", e);
+                } finally {
+                    t.traceEnd();
+                }
+            }
+        }, "SwitchUser-" + event.getUserId() + "-Listeners").start();
+    }
+
+    private void notifyUserLifecycleListeners(UserLifecycleEvent event) {
+        TimingsTraceLog t = new TimingsTraceLog(TAG_USER, Trace.TRACE_TAG_SYSTEM_SERVER);
+        if (mUserLifecycleListeners.isEmpty()) {
+            Log.i(TAG_USER, "Not notifying internal UserLifecycleListeners");
+            return;
+        }
+        t.traceBegin("notifyInternalUserLifecycleListeners");
+        for (UserLifecycleListener listener : mUserLifecycleListeners) {
+            t.traceBegin("notify-" + event.getEventType() + "-listener-" + listener);
+            try {
+                listener.onEvent(event);
+            } catch (RuntimeException e) {
+                Log.e(TAG_USER,
+                        "Exception raised when invoking onEvent for " + listener, e);
+            }
+            t.traceEnd();
+        }
+        t.traceEnd();
+    }
+
+    private void onSwitchUser(@UserIdInt int userId) {
         Log.i(TAG_USER, "onSwitchUser() callback for user " + userId);
         TimingsTraceLog t = new TimingsTraceLog(TAG_USER, Trace.TRACE_TAG_SYSTEM_SERVER);
         t.traceBegin("onSwitchUser-" + userId);
@@ -857,63 +911,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             setupPassengerUser();
             startFirstPassenger(userId);
         }
-
-        // TODO(b/144120654): right now just the app listeners are running in the background so the
-        // CTS tests pass (as otherwise they might fail if a car service callback takes too long),
-        // but once we refactor the car service callback into lifecycle listeners, we should use a
-        // proper thread management (like a Threadpool / executor);
-
-        int listenersSize = mLifecycleListeners.size();
-        if (listenersSize == 0) {
-            Log.i(TAG_USER, "Not notifying app listeners");
-        } else {
-            new Thread(() -> {
-                // Must use a different TimingsTraceLog because it's another thread
-                TimingsTraceLog t2 = new TimingsTraceLog(TAG_USER, Trace.TRACE_TAG_SYSTEM_SERVER);
-                Log.i(TAG_USER, "Notifying " + listenersSize + " listeners");
-                for (int i = 0; i < listenersSize; i++) {
-                    int uid = mLifecycleListeners.keyAt(i);
-                    IResultReceiver listener = mLifecycleListeners.valueAt(i);
-                    t2.traceBegin("notify-listener-" + uid);
-                    Bundle data = new Bundle();
-                    data.putInt(CarUserManager.BUNDLE_PARAM_ACTION,
-                            CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
-                    // TODO(b/144120654): should pass currentId from CarServiceHelperService so it
-                    // can set BUNDLE_PARAM_PREVIOUS_USER_ID (and unit test it)
-                    if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                        Log.d(TAG_USER, "Notifying listener for uid " + uid);
-                    }
-                    try {
-                        listener.send(userId, data);
-                    } catch (RemoteException e) {
-                        Log.e(TAG_USER, "Error calling lifecycle listener", e);
-                    } finally {
-                        t2.traceEnd();
-                    }
-                }
-
-            }, "SwitchUser-" + userId + "-Listeners").start();
-        }
-
-        // TODO(b/145689885): not passing `from` parameter until it gets properly replaced
-        //     the expected Binder call.
-        notifyUserLifecycleListeners(t,
-                new UserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, userId));
-    }
-
-    private void notifyUserLifecycleListeners(TimingsTraceLog t, UserLifecycleEvent event) {
-        t.traceBegin("notifyInternalUserLifecycleListeners");
-        for (UserLifecycleListener listener : mUserLifecycleListeners) {
-            t.traceBegin("onEvent-" + listener.getClass().getSimpleName());
-            try {
-                listener.onEvent(event);
-            } catch (RuntimeException e) {
-                Log.e(TAG_USER,
-                        "Exception raised when invoking onEvent for " + listener, e);
-            }
-            t.traceEnd();
-        }
-        t.traceEnd();
     }
 
     /**
