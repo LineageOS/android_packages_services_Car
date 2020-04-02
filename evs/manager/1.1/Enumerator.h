@@ -71,6 +71,9 @@ public:
     Return<void> closeUltrasonicsArray(
             const ::android::sp<IEvsUltrasonicsArray>& evsUltrasonicsArray) override;
 
+    // Methods from ::android.hidl.base::V1_0::IBase follow.
+    Return<void> debug(const hidl_handle& fd, const hidl_vec<hidl_string>& options) override;
+
     // Implementation details
     bool init(const char* hardwareServiceName);
 
@@ -92,6 +95,11 @@ private:
 
     // Display port the internal display is connected to.
     uint8_t                           mInternalDisplayPort;
+
+    // LSHAL dump
+    void cmdDump(int fd, const hidl_vec<hidl_string>& options);
+    void cmdHelp(int fd);
+    void cmdList(int fd, const hidl_vec<hidl_string>& options);
 };
 
 } // namespace implementation
