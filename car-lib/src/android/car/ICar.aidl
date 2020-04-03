@@ -56,6 +56,15 @@ interface ICar {
      */
     oneway void getInitialUserInfo(int requestType, int timeoutMs, in IBinder receiver) = 3;
 
+    /**
+     * Sets the initial user after boot.
+     *
+     * @param userId - the id of the initial user
+     */
+    // TODO(b/150413515): should pass UserInfo instead, but for some reason passing the whole
+    // UserInfo through a raw binder transaction on CarServiceHelper is not working.
+    oneway void setInitialUser(int userId) = 4;
+
     // Methods below start on 11 to make it easier to add more oneway methods above
     IBinder getCarService(in String serviceName) = 11;
     int getCarConnectionType() = 12;
