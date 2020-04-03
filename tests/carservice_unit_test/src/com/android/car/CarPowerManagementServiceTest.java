@@ -393,14 +393,14 @@ public class CarPowerManagementServiceTest {
 
         suspendAndResume();
 
-        verifyDefaultInitilUserBehaviorCalled();
+        verifyDefaultInitialUserBehaviorCalled();
     }
 
     @Test
     public void testUserSwitchingOnResume_noHal() throws Exception {
         suspendAndResumeForUserSwitchingTests();
 
-        verifyDefaultInitilUserBehaviorCalled();
+        verifyDefaultInitialUserBehaviorCalled();
         verifyWtfNeverLogged();
     }
 
@@ -434,7 +434,7 @@ public class CarPowerManagementServiceTest {
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
         verifyUserNotSwitched();
-        verifyDefaultInitilUserBehaviorCalled();
+        verifyDefaultInitialUserBehaviorCalled();
         verifyWtfNeverLogged();
     }
 
@@ -474,7 +474,7 @@ public class CarPowerManagementServiceTest {
 
         suspendAndResumeForUserSwitchingTests();
 
-        verifyDefaultInitilUserBehaviorCalled();
+        verifyDefaultInitialUserBehaviorCalled();
         verifyWtfNeverLogged();
     }
 
@@ -488,7 +488,7 @@ public class CarPowerManagementServiceTest {
 
         suspendAndResumeForUserSwitchingTests();
 
-        verifyDefaultInitilUserBehaviorCalled();
+        verifyDefaultInitialUserBehaviorCalled();
         verifyWtfNeverLogged();
     }
 
@@ -499,7 +499,7 @@ public class CarPowerManagementServiceTest {
         setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, /* response= */ null));
         suspendAndResumeForUserSwitchingTests();
 
-        verifyDefaultInitilUserBehaviorCalled();
+        verifyDefaultInitialUserBehaviorCalled();
         verifyWtfNeverLogged();
     }
 
@@ -513,7 +513,7 @@ public class CarPowerManagementServiceTest {
 
         suspendAndResumeForUserSwitchingTests();
 
-        verifyDefaultInitilUserBehaviorCalled();
+        verifyDefaultInitialUserBehaviorCalled();
         verifyWtfNeverLogged();
     }
 
@@ -706,7 +706,7 @@ public class CarPowerManagementServiceTest {
                 .thenReturn(newGuestId);
     }
 
-    private void verifyDefaultInitilUserBehaviorCalled() {
+    private void verifyDefaultInitialUserBehaviorCalled() {
         verify(mInitialUserSetter).executeDefaultBehavior();
     }
 
