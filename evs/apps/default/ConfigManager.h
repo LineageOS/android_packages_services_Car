@@ -89,6 +89,8 @@ public:
     }
     const std::vector<DisplayInfo>& getDisplays() const { return mDisplays; };
     const DisplayInfo& getActiveDisplay() const { return mDisplays[mActiveDisplayId]; };
+    void  useExternalMemory(bool flag) { mUseExternalMemory = flag; }
+    bool  getUseExternalMemory() const { return mUseExternalMemory; }
 
 private:
     // Camera information
@@ -97,6 +99,9 @@ private:
     // Display information
     std::vector<DisplayInfo> mDisplays;
     int mActiveDisplayId;
+
+    // Memory management
+    bool mUseExternalMemory;
 
     // Car body information (assumes front wheel steering and origin at center of rear axel)
     // Note that units aren't specified and don't matter as long as all length units are consistent

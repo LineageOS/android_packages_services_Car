@@ -21,16 +21,73 @@
 
 #include <android-base/logging.h>
 #include <cutils/native_handle.h>
+#include <ui/GraphicBufferAllocator.h>
 
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 
 
-StreamHandler::StreamHandler(android::sp <IEvsCamera> pCamera) :
-    mCamera(pCamera)
-{
-    // We rely on the camera having at least two buffers available since we'll hold one and
-    // expect the camera to be able to capture a new image in the background.
-    pCamera->setMaxFramesInFlight(2);
+buffer_handle_t memHandle = nullptr;
+StreamHandler::StreamHandler(android::sp <IEvsCamera> pCamera,
+                             uint32_t numBuffers,
+                             bool useOwnBuffers,
+                             int32_t width,
+                             int32_t height)
+    : mCamera(pCamera),
+      mUseOwnBuffers(useOwnBuffers) {
+    if (!useOwnBuffers) {
+        // We rely on the camera having at least two buffers available since we'll hold one and
+        // expect the camera to be able to capture a new image in the background.
+        pCamera->setMaxFramesInFlight(numBuffers);
+    } else {
+        mOwnBuffers.resize(numBuffers);
+
+        // Acquire the graphics buffer allocator
+        android::GraphicBufferAllocator &alloc(android::GraphicBufferAllocator::get());
+        const auto usage = GRALLOC_USAGE_HW_TEXTURE |
+                           GRALLOC_USAGE_SW_READ_RARELY |
+                           GRALLOC_USAGE_SW_WRITE_OFTEN;
+        const auto format = HAL_PIXEL_FORMAT_RGBA_8888;
+        for (auto i = 0; i < numBuffers; ++i) {
+            unsigned pixelsPerLine;
+            android::status_t result = alloc.allocate(width,
+                                                      height,
+                                                      format,
+                                                      1,
+                                                      usage,
+                                                      &memHandle,
+                                                      &pixelsPerLine,
+                                                      0,
+                                                      "EvsApp");
+            if (result != android::NO_ERROR) {
+                LOG(ERROR) << __FUNCTION__ << " failed to allocate memory.";
+            } else {
+                BufferDesc_1_1 buf;
+                AHardwareBuffer_Desc* pDesc =
+                    reinterpret_cast<AHardwareBuffer_Desc *>(&buf.buffer.description);
+                pDesc->width = 640;
+                pDesc->height = 360;
+                pDesc->layers = 1;
+                pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
+                pDesc->usage = GRALLOC_USAGE_HW_TEXTURE |
+                               GRALLOC_USAGE_SW_READ_RARELY |
+                               GRALLOC_USAGE_SW_WRITE_OFTEN;
+                pDesc->stride = pixelsPerLine;
+                buf.buffer.nativeHandle = memHandle;
+                buf.bufferId = i;   // Unique number to identify this buffer
+                mOwnBuffers[i] = buf;
+            }
+        }
+
+        int delta = 0;
+        EvsResult result = EvsResult::OK;
+        pCamera->importExternalBuffers(mOwnBuffers,
+                                       [&](auto _result, auto _delta) {
+                                           result = _result;
+                                           delta = _delta;
+                                       });
+
+        LOG(INFO) << delta << " buffers are imported by EVS.";
+    }
 }
 
 
@@ -42,6 +99,15 @@ void StreamHandler::shutdown()
     // At this point, the receiver thread is no longer running, so we can safely drop
     // our remote object references so they can be freed
     mCamera = nullptr;
+
+    if (mUseOwnBuffers) {
+        android::GraphicBufferAllocator &alloc(android::GraphicBufferAllocator::get());
+        for (auto& b : mOwnBuffers) {
+            alloc.free(b.buffer.nativeHandle);
+        }
+
+        mOwnBuffers.resize(0);
+    }
 }
 
 
