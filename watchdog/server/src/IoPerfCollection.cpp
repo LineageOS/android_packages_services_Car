@@ -314,10 +314,14 @@ void IoPerfCollection::terminate() {
 Result<void> IoPerfCollection::onBootFinished() {
     Mutex::Autolock lock(mMutex);
     if (mCurrCollectionEvent != CollectionEvent::BOOT_TIME) {
-        return Error(INVALID_OPERATION)
-                << "Current I/O performance data collection event "
-                << toString(mCurrCollectionEvent) << " != " << toString(CollectionEvent::BOOT_TIME)
-                << " collection event";
+        // This case happens when either the I/O perf collection has prematurely terminated before
+        // boot complete notification is received or multiple boot complete notifications are
+        // received. In either case don't return error as this will lead to runtime exception and
+        // cause system to boot loop.
+        ALOGE("Current I/O performance data collection event %s != %s",
+                toString(mCurrCollectionEvent).c_str(),
+                toString(CollectionEvent::BOOT_TIME).c_str());
+        return {};
     }
     mHandlerLooper->removeMessages(this);
     mCurrCollectionEvent = CollectionEvent::PERIODIC;
