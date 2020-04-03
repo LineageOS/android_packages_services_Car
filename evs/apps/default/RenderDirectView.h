@@ -35,7 +35,8 @@ using ::android::hardware::camera::device::V3_2::Stream;
 class RenderDirectView: public RenderBase {
 public:
     RenderDirectView(sp<IEvsEnumerator> enumerator,
-                     const CameraDesc& camDesc);
+                     const CameraDesc& camDesc,
+                     const ConfigManager& config);
 
     virtual bool activate() override;
     virtual void deactivate() override;
@@ -46,6 +47,7 @@ protected:
     sp<IEvsEnumerator>              mEnumerator;
     ConfigManager::CameraInfo       mCameraInfo;
     CameraDesc                      mCameraDesc;
+    const ConfigManager&            mConfig;
 
     std::unique_ptr<VideoTex>       mTexture;
 
