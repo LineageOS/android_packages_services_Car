@@ -56,6 +56,7 @@ using android::content::pm::IPackageManagerNative;
 namespace {
 
 const int32_t kDefaultTopNStatsPerCategory = 5;
+const int32_t kDefaultTopNStatsPerSubcategory = 3;
 const std::chrono::seconds kDefaultBoottimeCollectionInterval = 1s;
 const std::chrono::seconds kDefaultPeriodicCollectionInterval = 10s;
 // Number of periodic collection perf data snapshots to cache in memory.
@@ -235,6 +236,8 @@ Result<void> IoPerfCollection::start() {
         }
         mTopNStatsPerCategory = static_cast<int>(
                 sysprop::topNStatsPerCategory().value_or(kDefaultTopNStatsPerCategory));
+        mTopNStatsPerSubcategory = static_cast<int>(
+                sysprop::topNStatsPerSubcategory().value_or(kDefaultTopNStatsPerSubcategory));
         std::chrono::nanoseconds boottimeCollectionInterval =
                 std::chrono::duration_cast<std::chrono::nanoseconds>(
                         std::chrono::seconds(sysprop::boottimeCollectionInterval().value_or(
