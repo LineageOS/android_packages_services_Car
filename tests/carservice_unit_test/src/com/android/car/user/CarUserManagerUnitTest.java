@@ -25,9 +25,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
+import android.car.ICarUserService;
 import android.car.user.CarUserManager;
 import android.content.pm.UserInfo;
-import android.os.IBinder;
 import android.os.UserManager;
 
 import org.junit.After;
@@ -46,7 +46,7 @@ public final class CarUserManagerUnitTest {
     @Mock
     private Car mCar;
     @Mock
-    private IBinder mService;
+    private ICarUserService mService;
     @Mock
     private UserManager mUserManager;
 
