@@ -285,6 +285,11 @@ public class ActivityBlockingActivity extends Activity {
                 continue;
             }
 
+            if (!stackInfo.visible) {
+                // ignore stacks that aren't visible
+                continue;
+            }
+
             if (topStackBehindAba == null || topStackBehindAba.position < stackInfo.position) {
                 topStackBehindAba = stackInfo;
             }
@@ -378,7 +383,10 @@ public class ActivityBlockingActivity extends Activity {
         super.onDestroy();
         mCar.disconnect();
         mUxRManager.unregisterListener();
-        mToggleDebug.getViewTreeObserver().removeOnGlobalLayoutListener(mOnGlobalLayoutListener);
+        if (mToggleDebug != null) {
+            mToggleDebug.getViewTreeObserver().removeOnGlobalLayoutListener(
+                    mOnGlobalLayoutListener);
+        }
         mCar.disconnect();
     }
 
