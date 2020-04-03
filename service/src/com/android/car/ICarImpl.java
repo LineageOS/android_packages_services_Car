@@ -185,7 +185,7 @@ public class ICarImpl extends ICar.Stub {
         mCarOccupantZoneService = new CarOccupantZoneService(serviceContext);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
-                systemInterface, mUserManagerHelper, mCarUserService);
+                systemInterface, mCarUserService);
         if (mFeatureController.isFeatureEnabled(CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE)) {
             mCarUserNoticeService = new CarUserNoticeService(serviceContext);
         } else {
