@@ -211,17 +211,17 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     public CarUserManager(@NonNull Car car, @NonNull IBinder service) {
-        this(car, service, UserManager.get(car.getContext()));
+        this(car, ICarUserService.Stub.asInterface(service), UserManager.get(car.getContext()));
     }
 
     /**
      * @hide
      */
     @VisibleForTesting
-    public CarUserManager(@NonNull Car car, @NonNull IBinder service,
+    public CarUserManager(@NonNull Car car, @NonNull ICarUserService service,
             @NonNull UserManager userManager) {
         super(car);
-        mService = ICarUserService.Stub.asInterface(service);
+        mService = service;
         mUserManager = userManager;
     }
     /**
