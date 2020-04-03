@@ -15,13 +15,22 @@
 module: "android.automotive.watchdog.sysprop"
 owner: Platform
 
-# Top N statistics per category collected by the performance data collector.
+# Top N per-UID statistics/category collected by the performance data collector.
 prop {
     api_name: "topNStatsPerCategory"
     type: Integer
     scope: Internal
     access: Readonly
     prop_name: "ro.carwatchdog.top_n_stats_per_category"
+}
+
+# Top N per-process statistics/category collected by the performance data collector.
+prop {
+    api_name: "topNStatsPerSubcategory"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.top_n_stats_per_subcategory"
 }
 
 # Interval in seconds between consecutive boot-time performance data collections.
