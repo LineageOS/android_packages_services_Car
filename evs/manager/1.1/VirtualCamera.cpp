@@ -865,6 +865,34 @@ Return<void> VirtualCamera::getExtendedInfo_1_1(uint32_t opaqueIdentifier,
 }
 
 
+Return<void>
+VirtualCamera::importExternalBuffers(const hidl_vec<BufferDesc_1_1>& buffers,
+                                     importExternalBuffers_cb _hidl_cb) {
+    if (mHalCamera.size() > 1) {
+        LOG(WARNING) << "Logical camera device does not support " << __FUNCTION__;
+        _hidl_cb(EvsResult::UNDERLYING_SERVICE_ERROR, 0);
+        return {};
+    }
+
+    auto pHwCamera = mHalCamera.begin()->second.promote();
+    if (pHwCamera == nullptr) {
+        LOG(WARNING) << "Camera device " << mHalCamera.begin()->first << " is not alive.";
+        _hidl_cb(EvsResult::UNDERLYING_SERVICE_ERROR, 0);
+        return {};
+    }
+
+    int delta = 0;
+    if (!pHwCamera->changeFramesInFlight(buffers, &delta)) {
+        LOG(ERROR) << "Failed to add extenral capture buffers.";
+        _hidl_cb(EvsResult::UNDERLYING_SERVICE_ERROR, 0);
+        return {};
+    }
+
+    mFramesAllowed += delta;
+    _hidl_cb(EvsResult::OK, delta);
+    return {};
+}
+
 } // namespace implementation
 } // namespace V1_1
 } // namespace evs

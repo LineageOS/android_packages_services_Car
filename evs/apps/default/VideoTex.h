@@ -37,7 +37,8 @@ class VideoTex: public TexWrapper {
     friend VideoTex* createVideoTexture(sp<IEvsEnumerator> pEnum,
                                         const char *evsCameraId,
                                         std::unique_ptr<Stream> streamCfg,
-                                        EGLDisplay glDisplay);
+                                        EGLDisplay glDisplay,
+                                        bool useExternalMemory);
 
 public:
     VideoTex() = delete;
@@ -64,6 +65,7 @@ private:
 VideoTex* createVideoTexture(sp<IEvsEnumerator> pEnum,
                              const char * deviceName,
                              std::unique_ptr<Stream> streamCfg,
-                             EGLDisplay glDisplay);
+                             EGLDisplay glDisplay,
+                             bool useExternalMemory = false);
 
 #endif // VIDEOTEX_H

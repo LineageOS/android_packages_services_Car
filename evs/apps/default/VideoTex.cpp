@@ -136,7 +136,8 @@ bool VideoTex::refresh() {
 VideoTex* createVideoTexture(sp<IEvsEnumerator> pEnum,
                              const char* evsCameraId,
                              std::unique_ptr<Stream> streamCfg,
-                             EGLDisplay glDisplay) {
+                             EGLDisplay glDisplay,
+                             bool useExternalMemory) {
     // Set up the camera to feed this texture
     sp<IEvsCamera> pCamera = nullptr;
     if (streamCfg != nullptr) {
@@ -153,7 +154,11 @@ VideoTex* createVideoTexture(sp<IEvsEnumerator> pEnum,
     }
 
     // Initialize the stream that will help us update this texture's contents
-    sp<StreamHandler> pStreamHandler = new StreamHandler(pCamera);
+    sp<StreamHandler> pStreamHandler = new StreamHandler(pCamera,
+                                                         2,     // number of buffers
+                                                         useExternalMemory,
+                                                         streamCfg->width,
+                                                         streamCfg->height);
     if (pStreamHandler.get() == nullptr) {
         LOG(ERROR) << "Failed to allocate FrameHandler";
         return nullptr;
