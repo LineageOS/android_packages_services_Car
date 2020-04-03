@@ -76,6 +76,7 @@ int main(int argc, char** argv)
     bool printHelp = false;
     const char* evsServiceName = "default";
     int displayId = 1;
+    bool useExternalMemory = false;
     for (int i=1; i< argc; i++) {
         if (strcmp(argv[i], "--test") == 0) {
             useVehicleHal = false;
@@ -87,6 +88,8 @@ int main(int argc, char** argv)
             printHelp = true;
         } else if (strcmp(argv[i], "--display") == 0) {
             displayId = std::stoi(argv[++i]);
+        } else if (strcmp(argv[i], "--extmem") == 0) {
+            useExternalMemory = true;
         } else {
             printf("Ignoring unrecognized command line arg '%s'\n", argv[i]);
             printHelp = true;
@@ -98,6 +101,7 @@ int main(int argc, char** argv)
         printf("  --hw      Bypass EvsManager by connecting directly to EvsEnumeratorHw\n");
         printf("  --mock    Connect directly to EvsEnumeratorHw-Mock\n");
         printf("  --display Specify the display to use\n");
+        printf("  --extmem  Application allocates buffers to capture camera frames\n");
     }
 
     // Load our configuration information
@@ -135,6 +139,7 @@ int main(int argc, char** argv)
         return 1;
     }
     config.setActiveDisplayId(displayId);
+    config.useExternalMemory(useExternalMemory);
 
     // Connect to the Vehicle HAL so we can monitor state
     sp<IVehicle> pVnet;
