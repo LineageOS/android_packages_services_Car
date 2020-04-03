@@ -48,7 +48,11 @@ class StreamHandler : public IEvsCameraStream {
 public:
     virtual ~StreamHandler() { shutdown(); };
 
-    StreamHandler(android::sp <IEvsCamera> pCamera);
+    StreamHandler(android::sp <IEvsCamera> pCamera,
+                  uint32_t numBuffers = 2,
+                  bool useOwnBuffers = false,
+                  int32_t width = 640,
+                  int32_t height = 360);
     void shutdown();
 
     bool startStream();
@@ -83,6 +87,8 @@ private:
     BufferDesc                  mBuffers[2];
     int                         mHeldBuffer = -1;   // Index of the one currently held by the client
     int                         mReadyBuffer = -1;  // Index of the newest available buffer
+    hidl_vec<BufferDesc_1_1>    mOwnBuffers;
+    bool                        mUseOwnBuffers;
 };
 
 
