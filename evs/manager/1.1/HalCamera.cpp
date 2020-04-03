@@ -153,6 +153,58 @@ bool HalCamera::changeFramesInFlight(int delta) {
 }
 
 
+bool HalCamera::changeFramesInFlight(const hidl_vec<BufferDesc_1_1>& buffers,
+                                     int* delta) {
+    // Return immediately if a list is empty.
+    if (buffers.size() < 1) {
+        LOG(DEBUG) << "No external buffers to add.";
+        return true;
+    }
+
+    // Walk all our clients and count their currently required frames
+    auto bufferCount = 0;
+    for (auto&& client :  mClients) {
+        sp<VirtualCamera> virtCam = client.promote();
+        if (virtCam != nullptr) {
+            bufferCount += virtCam->getAllowedBuffers();
+        }
+    }
+
+    EvsResult status = EvsResult::OK;
+    // Ask the hardware for the resulting buffer count
+    mHwCamera->importExternalBuffers(buffers,
+                                     [&](auto result, auto added) {
+                                         status = result;
+                                         *delta = added;
+                                     });
+    if (status != EvsResult::OK) {
+        LOG(ERROR) << "Failed to add external capture buffers.";
+        return false;
+    }
+
+    bufferCount += *delta;
+
+    // Update the size of our array of outstanding frame records
+    std::vector<FrameRecord> newRecords;
+    newRecords.reserve(bufferCount);
+
+    // Copy and compact the old records that are still active
+    for (const auto& rec : mFrames) {
+        if (rec.refCount > 0) {
+            newRecords.emplace_back(rec);
+        }
+    }
+
+    if (newRecords.size() > (unsigned)bufferCount) {
+        LOG(WARNING) << "We found more frames in use than requested.";
+    }
+
+    mFrames.swap(newRecords);
+
+    return true;
+}
+
+
 UniqueFence HalCamera::requestNewFrame(sp<VirtualCamera> client,
                                        const int64_t lastTimestamp) {
     if (!mSyncSupported) {

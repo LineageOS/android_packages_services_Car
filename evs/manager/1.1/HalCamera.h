@@ -79,6 +79,8 @@ public:
     std::string         getId()             { return mId; }
     Stream&             getStreamConfig()   { return mStreamConfig; }
     bool                changeFramesInFlight(int delta);
+    bool                changeFramesInFlight(const hardware::hidl_vec<BufferDesc_1_1>& buffers,
+                                             int* delta);
     UniqueFence         requestNewFrame(sp<VirtualCamera> virtualCamera,
                                         const int64_t timestamp);
 
