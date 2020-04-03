@@ -16,6 +16,7 @@
 
 #include "IoPerfCollection.h"
 
+#include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <cutils/android_filesystem_config.h>
 
@@ -172,6 +173,25 @@ TEST(IoPerfCollectionTest, TestCollectionStartAndTerminate) {
     ASSERT_TRUE(collector->mCollectionThread.joinable()) << "Collection thread not created";
     ASSERT_FALSE(collector->start())
             << "No error returned when collector was started more than once";
+    ASSERT_TRUE(sysprop::topNStatsPerCategory().has_value());
+    ASSERT_EQ(collector->mTopNStatsPerCategory, sysprop::topNStatsPerCategory().value());
+
+    ASSERT_TRUE(sysprop::boottimeCollectionInterval().has_value());
+    ASSERT_EQ(std::chrono::duration_cast<std::chrono::seconds>(
+                      collector->mBoottimeCollection.interval)
+                      .count(),
+              sysprop::boottimeCollectionInterval().value());
+
+    ASSERT_TRUE(sysprop::topNStatsPerCategory().has_value());
+    ASSERT_EQ(std::chrono::duration_cast<std::chrono::seconds>(
+                      collector->mPeriodicCollection.interval)
+                      .count(),
+              sysprop::periodicCollectionInterval().value());
+
+    ASSERT_TRUE(sysprop::periodicCollectionBufferSize().has_value());
+    ASSERT_EQ(collector->mPeriodicCollection.maxCacheSize,
+              sysprop::periodicCollectionBufferSize().value());
+
     collector->terminate();
     ASSERT_FALSE(collector->mCollectionThread.joinable()) << "Collection thread did not terminate";
 }
@@ -1198,6 +1218,7 @@ TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit) {
     ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
 
     IoPerfCollection collector;
+    collector.mTopNStatsPerCategory = 5;
     collector.mProcPidStat = new ProcPidStat(prodDir.path);
     struct ProcessIoPerfData actualProcessIoPerfData = {};
     ret = collector.collectProcessIoPerfDataLocked(&actualProcessIoPerfData);
