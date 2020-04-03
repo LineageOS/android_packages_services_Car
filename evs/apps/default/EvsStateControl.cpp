@@ -303,7 +303,8 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
         if (mCameraList[desiredState].size() == 1) {
             // We have a camera assigned to this state for direct view.
             mDesiredRenderer = std::make_unique<RenderDirectView>(mEvs,
-                                                                  mCameraDescList[desiredState][0]);
+                                                                  mCameraDescList[desiredState][0],
+                                                                  mConfig);
             if (!mDesiredRenderer) {
                 LOG(ERROR) << "Failed to construct direct renderer.  Skipping state change.";
                 return false;

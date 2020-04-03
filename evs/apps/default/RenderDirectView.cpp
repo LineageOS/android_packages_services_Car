@@ -42,9 +42,11 @@ const size_t kStreamCfgSz = sizeof(RawStreamConfig);
 
 
 RenderDirectView::RenderDirectView(sp<IEvsEnumerator> enumerator,
-                                   const CameraDesc& camDesc) :
+                                   const CameraDesc& camDesc,
+                                   const ConfigManager& config) :
     mEnumerator(enumerator),
-    mCameraDesc(camDesc) {
+    mCameraDesc(camDesc),
+    mConfig(config) {
     /* Nothing to do */
 }
 
@@ -113,7 +115,8 @@ bool RenderDirectView::activate() {
     mTexture.reset(createVideoTexture(mEnumerator,
                                       mCameraDesc.v1.cameraId.c_str(),
                                       foundCfg ? std::move(targetCfg) : nullptr,
-                                      sDisplay));
+                                      sDisplay,
+                                      mConfig.getUseExternalMemory()));
     if (!mTexture) {
         LOG(ERROR) << "Failed to set up video texture for " << mCameraDesc.v1.cameraId;
 // TODO:  For production use, we may actually want to fail in this case, but not yet...
