@@ -3031,8 +3031,8 @@
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"datagebruik"</string>
     <string name="network_dashboard_summary_hotspot" msgid="3928610802321995214">"hotspot"</string>
     <string name="connected_devices_dashboard_title" msgid="7795222675849060444">"Verbonden apparaten"</string>
-    <string name="connected_devices_dashboard_summary" msgid="1072664369515033179">"Bluetooth, rijmodus, NFC"</string>
-    <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"Bluetooth, rijmodus"</string>
+    <string name="connected_devices_dashboard_summary" msgid="1072664369515033179">"Bluetooth, rijstand, NFC"</string>
+    <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"Bluetooth, rijstand"</string>
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"Bluetooth, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"Bluetooth"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"Apps en meldingen"</string>

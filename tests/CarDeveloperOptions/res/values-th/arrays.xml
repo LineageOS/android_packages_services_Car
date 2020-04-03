@@ -401,7 +401,7 @@
     <item msgid="1008268820118852416">"ถือว่าไม่มีการวัดปริมาณอินเทอร์เน็ต"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"ใช้ที่อยู่ MAC แบบสุ่ม (ค่าเริ่มต้น)"</item>
+    <item msgid="6545683814310036454">"ใช้ MAC แบบสุ่ม (ค่าเริ่มต้น)"</item>
     <item msgid="214234417308375326">"ใช้ที่อยู่ MAC ของอุปกรณ์"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">

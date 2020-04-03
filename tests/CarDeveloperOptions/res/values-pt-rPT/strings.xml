@@ -2018,7 +2018,7 @@
     <string name="onscreen_keyboard_settings_summary" msgid="148763210673670769">"Definições do teclado no ecrã"</string>
     <string name="builtin_keyboard_settings_title" msgid="3683883402326039724">"Teclado físico"</string>
     <string name="builtin_keyboard_settings_summary" msgid="6498739864479285932">"Definições do teclado físico"</string>
-    <string name="gadget_picker_title" msgid="9146981887780645322">"Escolher miniaplicação"</string>
+    <string name="gadget_picker_title" msgid="9146981887780645322">"Escolher gadget"</string>
     <string name="widget_picker_title" msgid="5424689728810684439">"Escolher widget"</string>
     <string name="allow_bind_app_widget_activity_allow_bind_title" msgid="8168110035319637326">"Criar widget e permitir o acesso?"</string>
     <string name="allow_bind_app_widget_activity_allow_bind" msgid="2782554863244412872">"Depois de criar o widget, <xliff:g id="WIDGET_HOST_NAME">%1$s</xliff:g> pode aceder a todos os dados apresentados."</string>
