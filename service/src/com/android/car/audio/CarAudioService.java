@@ -263,6 +263,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
 
             mCarVolumeCallbackHandler.release();
+
+            if (mHalAudioFocus != null) {
+                mHalAudioFocus.unregisterFocusListener();
+            }
+            mAudioControlWrapper = null;
         }
     }
 
@@ -295,11 +300,15 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                         callingId,
                         mUidToZoneMap.get(callingId));
             }
-            //Print focus handler info
+
             writer.println();
             mFocusHandler.dump("\t", writer);
 
+            writer.println();
+            getAudioControlWrapperLocked().dump("\t", writer);
+
             if (mHalAudioFocus != null) {
+                writer.println();
                 mHalAudioFocus.dump("\t", writer);
             } else {
                 writer.println("\tNo HalAudioFocus instance\n");
