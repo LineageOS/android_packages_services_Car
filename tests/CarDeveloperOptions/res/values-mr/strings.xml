@@ -2618,7 +2618,7 @@
     <string name="sync_one_time_sync" msgid="6005174168405784256">"आता संकालित करण्यासाठी टॅप करा<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
-    <string name="sync_calendar" msgid="6573708019827519372">"कॅलेंडर"</string>
+    <string name="sync_calendar" msgid="6573708019827519372">"Calendar"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"संपर्क"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google सिंकामध्ये स्वागत आहे!"</font>" \nतुम्ही जेथे आहात तेथून आपल्या संपर्क, भेटी आणि अधिक मध्ये प्रवेश करण्याची अनुमती देण्यासाठी डेटा सिंक करण्याकरिता एक Google दृष्टिकोन."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"अ‍ॅप सिंक सेटिंग्ज"</string>

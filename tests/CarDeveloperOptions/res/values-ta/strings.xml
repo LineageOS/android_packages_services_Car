@@ -2617,7 +2617,7 @@
     <string name="sync_one_time_sync" msgid="6005174168405784256">"இப்போது ஒத்திசைக்க, தட்டவும்<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
-    <string name="sync_calendar" msgid="6573708019827519372">"கேலெண்டர்"</string>
+    <string name="sync_calendar" msgid="6573708019827519372">"Calendar"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"தொடர்புகள்"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google ஒத்திசைவுக்கு வரவேற்கிறோம்!"</font>" \nநீங்கள் எங்கிருந்தாலும் உங்கள் தொடர்புகள், அப்பாயிண்ட்மெண்ட்டுகள் மற்றும் பலவற்றுக்கான அணுகலை அனுமதிப்பதற்காக Google தரவை ஒத்திசைக்கிறது."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"ஆப்ஸ் ஒத்திசைவு அமைப்பு"</string>

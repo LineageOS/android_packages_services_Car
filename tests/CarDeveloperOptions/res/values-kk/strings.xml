@@ -3034,8 +3034,8 @@
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"дерек шығыны"</string>
     <string name="network_dashboard_summary_hotspot" msgid="3928610802321995214">"хотспот"</string>
     <string name="connected_devices_dashboard_title" msgid="7795222675849060444">"Жалғанған құрылғылар"</string>
-    <string name="connected_devices_dashboard_summary" msgid="1072664369515033179">"Bluetooth, көлік жүргізу режимі, NFC"</string>
-    <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"Bluetooth, көлік жүргізу режимі"</string>
+    <string name="connected_devices_dashboard_summary" msgid="1072664369515033179">"Bluetooth, автокөлік режимі, NFC"</string>
+    <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"Bluetooth, автокөлік режимі"</string>
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"Bluetooth, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"Bluetooth"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"Қолданбалар мен хабарландырулар"</string>
