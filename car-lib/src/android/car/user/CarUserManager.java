@@ -39,6 +39,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.sysprop.CarProperties;
 import android.util.ArrayMap;
 import android.util.Log;
 
@@ -49,6 +50,7 @@ import com.android.internal.os.IResultReceiver;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -61,6 +63,7 @@ import java.util.concurrent.Executor;
 public final class CarUserManager extends CarManagerBase {
 
     private static final String TAG = CarUserManager.class.getSimpleName();
+    private static final int HAL_TIMEOUT_MS = CarProperties.user_hal_timeout().orElse(5_000);
 
     // TODO(b/144120654): STOPSHIP - set to false
     private static final boolean DBG = true;
@@ -159,38 +162,39 @@ public final class CarUserManager extends CarManagerBase {
     public static final String BUNDLE_USER_SWITCH_ERROR_MSG = "user_switch.errorMessage";
 
     /**
-     * {@link UserSwitchStatus} called user switch status is unknown.
-     *
-     * @hide
-     */
-    public static final int USER_SWICTH_STATUS_UNKNOWN = 0;
-    /**
      * {@link UserSwitchStatus} called when user switch is successful for both HAL and Android.
      *
      * @hide
      */
-    public static final int USER_SWICTH_STATUS_SUCCESSFUL = 1;
+    public static final int USER_SWITCH_STATUS_SUCCESSFUL = 1;
     /**
      * {@link UserSwitchStatus} called when user switch is only successful for Hal but not for
      * Android. Hal user switch rollover message have been sent.
      *
      * @hide
      */
-    public static final int USER_SWICTH_STATUS_ANDROID_FAILURE = 2;
+    public static final int USER_SWITCH_STATUS_ANDROID_FAILURE = 2;
     /**
-     * {@link UserSwitchStatus} called when user switch is failed for HAL.
-     * Andrid user switch is not called.
+     * {@link UserSwitchStatus} called when user switch is failed for HAL. User switch for Android
+     * is not called.
      *
      * @hide
      */
-    public static final int USER_SWICTH_STATUS_HAL_FAILURE = 3;
+    public static final int USER_SWITCH_STATUS_HAL_FAILURE = 3;
+    /**
+     * {@link UserSwitchStatus} called when user switch is failed for HAL for some internal error.
+     * User switch for Android is not called.
+     *
+     * @hide
+     */
+    public static final int USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE = 4;
 
     /** @hide */
-    @IntDef(prefix = { "USER_SWICTH_STATUS_" }, value = {
-            USER_SWICTH_STATUS_UNKNOWN,
-            USER_SWICTH_STATUS_SUCCESSFUL,
-            USER_SWICTH_STATUS_ANDROID_FAILURE,
-            USER_SWICTH_STATUS_HAL_FAILURE,
+    @IntDef(prefix = { "USER_SWITCH_STATUS_" }, value = {
+            USER_SWITCH_STATUS_SUCCESSFUL,
+            USER_SWITCH_STATUS_ANDROID_FAILURE,
+            USER_SWITCH_STATUS_HAL_FAILURE,
+            USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface UserSwitchStatus{}
@@ -224,6 +228,33 @@ public final class CarUserManager extends CarManagerBase {
         mService = service;
         mUserManager = userManager;
     }
+
+    /**
+     * Switches user to the target user.
+     *
+     * @param targetUserId User id to switch to.
+     * @param listener listener to be called asynchronously with user switch results
+     *
+     * @hide
+     */
+    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    public void switchUser(@UserIdInt int targetUserId, @NonNull UserSwitchListener listener) {
+        try {
+            Objects.requireNonNull(listener);
+            IResultReceiver callback = new IResultReceiver.Stub() {
+                @Override
+                public void send(@UserSwitchStatus int status, Bundle resultData)
+                        throws RemoteException {
+                    UserSwitchResult result = new UserSwitchResult(status, resultData);
+                    listener.onResult(result);
+                }
+            };
+            mService.switchUser(targetUserId, HAL_TIMEOUT_MS, callback);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
     /**
      * Adds a listener for {@link UserLifecycleEvent user lifecycle events}.
      *
@@ -550,5 +581,58 @@ public final class CarUserManager extends CarManagerBase {
          * Called to notify the given {@code event}.
          */
         void onEvent(@NonNull UserLifecycleEvent event);
+    }
+
+    /**
+     * User switch results.
+     *
+     * @hide
+     */
+    public final class UserSwitchResult {
+        @UserSwitchStatus
+        private final int mStatus;
+        @Nullable
+        private final String mErrorMessage;
+
+        private UserSwitchResult(@UserSwitchStatus int status, Bundle resultData) {
+            mStatus = status;
+            mErrorMessage = resultData.getString(CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG, null);
+        }
+
+        /**
+         * Gets the user switch result status.
+         *
+         * @return either {@link CarUserManager#USER_SWITCH_STATUS_SUCCESSFUL},
+         *         {@link CarUserManager#USER_SWITCH_STATUS_ANDROID_FAILURE},
+         *         {@link CarUserManager#USER_SWITCH_STATUS_HAL_FAILURE}, or
+         *         {@link CarUserManager#USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE}.
+         */
+        @UserSwitchStatus
+        public int getStatus() {
+            return mStatus;
+        }
+
+        /**
+         * Gets the error message, if any.
+         */
+        @Nullable
+        public String getErrorMessage() {
+            return mErrorMessage;
+        }
+    }
+
+    /**
+     * Listener for Android User switch results.
+     *
+     * <p>
+     * Should be passed using {@link CarUserManager#switchUser(int , UserSwitchListener)}.
+     *
+     * @hide
+     */
+    public interface UserSwitchListener {
+        /**
+         * Called to notify the user switch result.
+         */
+        void onResult(@NonNull UserSwitchResult result);
     }
 }

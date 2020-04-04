@@ -2053,7 +2053,7 @@
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Ampliar presionando tres veces"</string>
     <string name="accessibility_screen_magnification_navbar_title" msgid="400655612610761242">"Ampliar con el botón"</string>
     <string name="accessibility_screen_magnification_state_navbar_gesture" msgid="1863831350878995600">"Ampliar con el botón y al presionar tres veces"</string>
-    <string name="accessibility_preference_magnification_summary" msgid="753307741814376312">"Ampliar la pantalla"</string>
+    <string name="accessibility_preference_magnification_summary" msgid="753307741814376312">"Amplía la pantalla"</string>
     <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"Presiona tres veces para ampliar"</string>
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"Presiona un botón para ampliar"</string>
     <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"Para ampliar"</b>", presiona la pantalla 3 veces rápidamente \n"<ul><li>"Arrastra 2 o más dedos para desplazarte."</li>\n<li>"Pellizca con 2 o más dedos para ajustar el zoom."</li></ul>\n\n<b>"Para hacer zoom de manera temporal"</b>", presiona la pantalla 3 veces rápidamente y mantén presionado la última vez.\n"<ul><li>"Arrastra el dedo para moverte por la pantalla."</li>\n<li>"Levanta el dedo para alejar la imagen."</li></ul>\n\n"No se puede ampliar el teclado ni la barra de navegación."</string>

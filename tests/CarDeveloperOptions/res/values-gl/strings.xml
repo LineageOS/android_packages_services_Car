@@ -396,7 +396,7 @@
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Engadiuse a cara"</string>
     <string name="security_settings_face_preference_summary_none" msgid="8427755590493904386">"Toca e configura a autenticación facial"</string>
     <string name="security_settings_face_preference_title" msgid="2630071872604654381">"Autenticación facial"</string>
-    <string name="security_settings_face_enroll_introduction_accessibility" msgid="1563255314851533140">"Usar configur. de accesibilidade"</string>
+    <string name="security_settings_face_enroll_introduction_accessibility" msgid="1563255314851533140">"Usar axustes de accesibilidade"</string>
     <string name="security_settings_face_enroll_introduction_accessibility_diversity" msgid="1130222333285509856"></string>
     <string name="security_settings_face_enroll_introduction_accessibility_vision" msgid="356568621735811168"></string>
     <string name="security_settings_face_enroll_introduction_cancel" msgid="4190924649721437238">"Cancelar"</string>
@@ -764,7 +764,7 @@
     <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Desincronizar"</string>
     <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"Desconectar e desincronizar"</string>
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"Opcións..."</string>
-    <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Config. avanzada"</string>
+    <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Axustes avanzada"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Bluetooth avanzado"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Co Bluetooth activado, o dispositivo pode comunicarse con outros dispositivos Bluetooth próximos."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Cando o Bluetooth está activado, o dispositivo pode comunicarse con outros dispositivos Bluetooth das proximidades.\n\nPara mellorar a experiencia de uso do dispositivo, as aplicacións e os servizos poden seguir buscando dispositivos próximos en calquera momento, mesmo cando o Bluetooth está desactivado. Esta opción pode utilizarse, por exemplo, para mellorar as funcións e os servizos baseados na localización. Podes cambiar esta opción na "<annotation id="link">"configuración de busca"</annotation>"."</string>
@@ -883,7 +883,7 @@
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"Máis opcións"</string>
     <string name="wifi_menu_p2p" msgid="4945665601551289791">"Wi‑Fi Direct"</string>
     <string name="wifi_menu_scan" msgid="9082691677803181629">"Explorar"</string>
-    <string name="wifi_menu_advanced" msgid="5984484498045511072">"Config. avanzada"</string>
+    <string name="wifi_menu_advanced" msgid="5984484498045511072">"Axustes avanzada"</string>
     <string name="wifi_menu_configure" msgid="52192491120701266">"Configurar"</string>
     <string name="wifi_menu_connect" msgid="3984327567173931219">"Conectar coa rede"</string>
     <string name="wifi_menu_remember" msgid="717257200269700641">"Lembrar rede"</string>
@@ -893,7 +893,7 @@
     <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Buscando redes wifi..."</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"Non tes permiso para cambiar a rede wifi."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Máis"</string>
-    <string name="wifi_setup_wps" msgid="6730131677695521321">"Config. automática (WPS)"</string>
+    <string name="wifi_setup_wps" msgid="6730131677695521321">"Axustes automática (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Queres activar a busca de redes wifi?"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Para activar a wifi automaticamente, primeiro debes activar a busca de redes wifi."</string>
     <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"A busca de redes wifi permite que as aplicacións e os servizos busquen estas redes en calquera momento, mesmo se este tipo de conexión está desactivado. Esta opción pode utilizarse, por exemplo, para mellorar as funcións e os servizos baseados na localización."</string>
@@ -1463,7 +1463,7 @@
     <string name="storage_wizard_init_external_summary" msgid="6993815290050489327">"Para migrar fotos e outros contidos multimedia entre dispositivos."</string>
     <string name="storage_wizard_init_internal_title" msgid="8750856962785644870">"Usar como almacenamento interno"</string>
     <string name="storage_wizard_init_internal_summary" msgid="4510546464921608029">"Para almacenar calquera cousa só neste dispositivo, incluídas as aplicacións e as fotos. É necesario formatar para evitar que funcione con outros dispositivos."</string>
-    <string name="storage_wizard_format_confirm_title" msgid="7785358616068633439">"Formatar como almacenam. interno"</string>
+    <string name="storage_wizard_format_confirm_title" msgid="7785358616068633439">"Formatar como almacenaxe interna"</string>
     <string name="storage_wizard_format_confirm_body" msgid="4107762933332992624">"Esta acción esixe que se formate a <xliff:g id="NAME_0">^1</xliff:g> para que estea protexida. \n\nDespois de formatala, esta <xliff:g id="NAME_1">^1</xliff:g> só funcionará neste dispositivo. \n\n"<b>"Ao formatar borraranse todos os datos almacenados actualmente na <xliff:g id="NAME_2">^1</xliff:g>."</b>" Para evitar perder os datos, considera a posibilidade de facer unha copia de seguranza."</string>
     <string name="storage_wizard_format_confirm_public_title" msgid="5866830103788091426">"Formatar como almacen. portátil"</string>
     <string name="storage_wizard_format_confirm_public_body" msgid="1451308701654703353">"Esta acción esixe que se formate a <xliff:g id="NAME_0">^1</xliff:g>. \n\n"<b>"O formatado borra todos os datos actualmente almacenados en <xliff:g id="NAME_1">^1</xliff:g>."</b>" Para evitar perder os datos, pensa na posibilidade de facer unha copia de seguranza."</string>
@@ -2539,7 +2539,7 @@
     <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"Instalada para a VPN e as aplicacións"</string>
     <string name="credential_for_wifi" msgid="2903295786961726388">"Instalada para a wifi"</string>
     <string name="credentials_reset_hint" msgid="3484350477764088169">"Queres eliminar todos os contidos?"</string>
-    <string name="credentials_erased" msgid="7287088033523869085">"Almacenam. credenciais borrado"</string>
+    <string name="credentials_erased" msgid="7287088033523869085">"Almacenaxe credenciais borrada"</string>
     <string name="credentials_not_erased" msgid="9137227570738627637">"Imposible borrar almacen. credenciais"</string>
     <string name="usage_access_title" msgid="7981321142726540574">"Apps con acceso de uso"</string>
     <string name="emergency_tone_title" msgid="130211364025984428">"Sinal de marcación de emerxencia"</string>

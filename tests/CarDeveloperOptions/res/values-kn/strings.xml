@@ -2617,7 +2617,7 @@
     <string name="sync_one_time_sync" msgid="6005174168405784256">"ಈಗ ಸಿಂಕ್ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
-    <string name="sync_calendar" msgid="6573708019827519372">"ಕ್ಯಾಲೆಂಡರ್"</string>
+    <string name="sync_calendar" msgid="6573708019827519372">"Calendar"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"ಸಂಪರ್ಕಗಳು"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google ಸಿಂಕ್‌ಗೆ ಸ್ವಾಗತ!"</font>" \nನಿಮ್ಮ ಸಂಪರ್ಕಗಳು, ಪೂರ್ವನಿಗದಿಗಳು, ಮತ್ತು ನೀವು ಎಲ್ಲಿದ್ದೀರೋ ಅಲ್ಲಿಂದಲೇ ಇನ್ನಷ್ಟನ್ನು ಪ್ರವೇಶಿಸಲು ಅನುಮತಿಸಲು ಡೇಟಾವನ್ನು ಸಿಂಕ್‌ ಮಾಡಲು Google ನ ಒಂದು ತೊಡಗುವಿಕೆಯಾಗಿದೆ."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"ಅಪ್ಲಿಕೇಶನ್ ಸಿಂಕ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>

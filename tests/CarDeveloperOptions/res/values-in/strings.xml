@@ -749,7 +749,7 @@
     <string name="bluetooth_searching_for_devices" msgid="7820814625522702494">"Menelusuri..."</string>
     <string name="bluetooth_preference_device_settings" msgid="4247085616427015908">"Setelan perangkat"</string>
     <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"Perangkat yang disandingkan"</string>
-    <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"Sambungan internet"</string>
+    <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"Koneksi internet"</string>
     <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"Keyboard"</string>
     <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"Kontak dan histori panggilan"</string>
     <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"Sandingkan dengan perangkat ini?"</string>
@@ -782,8 +782,8 @@
     <string name="bluetooth_disconnect_headset_profile" msgid="8384028101155317339">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> akan dilepas sambungannya dari audio handsfree."</string>
     <string name="bluetooth_disconnect_hid_profile" msgid="6964226087090465662">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> akan dilepas sambungannya dari perangkat masukan."</string>
     <string name="bluetooth_disconnect_pan_user_profile" msgid="5523689915196343097">"Akses Internet melalui <xliff:g id="DEVICE_NAME">%1$s</xliff:g> akan diputus."</string>
-    <string name="bluetooth_disconnect_pan_nap_profile" product="tablet" msgid="8145126793699232403">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> akan diputus dari berbagi sambungan internet tablet ini."</string>
-    <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> akan diputus dari berbagi sambungan internet ponsel ini."</string>
+    <string name="bluetooth_disconnect_pan_nap_profile" product="tablet" msgid="8145126793699232403">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> akan diputus dari berbagi koneksi internet tablet ini."</string>
+    <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> akan diputus dari berbagi koneksi internet ponsel ini."</string>
     <string name="bluetooth_device_advanced_title" msgid="5752155558126694036">"Perangkat Bluetooth yang disandingkan"</string>
     <string name="bluetooth_device_advanced_online_mode_title" msgid="7665622268007450665">"Sambungkan"</string>
     <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"Sambungkan ke perangkat Bluetooth"</string>
@@ -791,7 +791,7 @@
     <string name="bluetooth_device_advanced_rename_device" msgid="2270087843175307865">"Ganti nama"</string>
     <string name="bluetooth_device_advanced_enable_opp_title" msgid="8258863155491651198">"Izinkan transfer file masuk"</string>
     <string name="bluetooth_pan_user_profile_summary_connected" msgid="5934228955175911807">"Terhubung ke perangkat untuk akses internet"</string>
-    <string name="bluetooth_pan_nap_profile_summary_connected" msgid="3103296701913705646">"Berbagi sambungan internet lokal dengan perangkat"</string>
+    <string name="bluetooth_pan_nap_profile_summary_connected" msgid="3103296701913705646">"Berbagi koneksi internet lokal dengan perangkat"</string>
     <string name="bluetooth_dock_settings" msgid="3193180757893817101">"Setelan Dok"</string>
     <string name="bluetooth_dock_settings_title" msgid="4444650787249778130">"Gunakan dok untuk audio"</string>
     <string name="bluetooth_dock_settings_headset" msgid="6043070852100434218">"Sebagai pengeras suara telepon"</string>
@@ -856,7 +856,7 @@
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Untuk menggunakan, pilih penyedia rating jaringan"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"Hindari sambungan buruk"</string>
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"Jangan gunakan jaringan Wi-Fi, kecuali sambungan internetnya kuat"</string>
-    <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"Hanya gunakan jaringan yang memiliki sambungan internet kuat"</string>
+    <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"Hanya gunakan jaringan yang memiliki koneksi internet kuat"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"Sambungkan ke jaringan terbuka"</string>
     <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"Otomatis sambungkan ke jaringan publik berkualitas tinggi"</string>
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Untuk menggunakan, pilih penyedia rating jaringan"</string>
@@ -1058,17 +1058,17 @@
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"Apakah Anda ingin membatalkan undangan untuk tersambung dengan <xliff:g id="PEER_NAME">%1$s</xliff:g>?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"Lupakan grup ini?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Hotspot Wi‑Fi"</string>
-    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Tidak berbagi sambungan internet atau konten dengan perangkat lain"</string>
-    <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"Berbagi sambungan internet tablet ini melalui hotspot"</string>
-    <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"Berbagi sambungan internet ponsel ini melalui hotspot"</string>
-    <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"Aplikasi membagikan konten. Untuk membagikan sambungan internet, nonaktifkan hotspot lalu aktifkan kembali"</string>
+    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Tidak berbagi koneksi internet atau konten dengan perangkat lain"</string>
+    <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"Berbagi koneksi internet tablet ini melalui hotspot"</string>
+    <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"Berbagi koneksi internet ponsel ini melalui hotspot"</string>
+    <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"Aplikasi membagikan konten. Untuk membagikan koneksi internet, nonaktifkan hotspot lalu aktifkan kembali"</string>
     <string name="wifi_hotspot_no_password_subtext" msgid="5400500962974373706">"Sandi tidak disetel"</string>
     <string name="wifi_hotspot_name_title" msgid="6572202165400226127">"Nama hotspot"</string>
     <string name="wifi_hotspot_name_summary_connecting" msgid="5176787959408511889">"Mengaktifkan <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>..."</string>
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"Perangkat lainnya dapat terhubung ke <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>"</string>
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Sandi hotspot"</string>
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"AP Band"</string>
-    <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Gunakan hotspot untuk membuat jaringan Wi‑Fi bagi perangkat Anda yang lain. Hotspot menyediakan sambungan internet menggunakan koneksi data seluler Anda. Biaya data seluler tambahan mungkin berlaku."</string>
+    <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Gunakan hotspot untuk membuat jaringan Wi‑Fi bagi perangkat Anda yang lain. Hotspot menyediakan koneksi internet menggunakan koneksi data seluler Anda. Biaya data seluler tambahan mungkin berlaku."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Aplikasi dapat membuat hotspot untuk berbagi konten dengan perangkat di sekitar."</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Nonaktifkan hotspot secara otomatis"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"Hotspot Wi-Fi akan dinonaktifkan jika tidak ada perangkat yang terhubung"</string>
@@ -1619,15 +1619,15 @@
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Tidak dapat tethering atau menggunakan hotspot portabel saat Penghemat Kuota Internet aktif"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"Tethering USB"</string>
-    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Bagikan sambungan internet ponsel melalui USB"</string>
-    <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Bagikan sambungan internet tablet melalui USB"</string>
+    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Bagikan koneksi internet ponsel melalui USB"</string>
+    <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Bagikan koneksi internet tablet melalui USB"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Tethering bluetooth"</string>
-    <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Bagikan sambungan internet tablet melalui Bluetooth"</string>
-    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Bagikan sambungan internet ponsel melalui Bluetooth"</string>
-    <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Berbagi sambungan internet <xliff:g id="DEVICE_NAME">%1$d</xliff:g> ini melalui Bluetooth"</string>
+    <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Bagikan koneksi internet tablet melalui Bluetooth"</string>
+    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Bagikan koneksi internet ponsel melalui Bluetooth"</string>
+    <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Berbagi koneksi internet <xliff:g id="DEVICE_NAME">%1$d</xliff:g> ini melalui Bluetooth"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Tidak dapat menambatkan ke lebih dari <xliff:g id="MAXCONNECTION">%1$d</xliff:g> perangkat."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> akan dilepas dari penambatan."</string>
-    <string name="tethering_footer_info" msgid="8019555174339154124">"Gunakan hotspot dan tethering untuk menyediakan sambungan internet bagi perangkat lain melalui koneksi kuota seluler Anda. Aplikasi juga dapat membuat hotspot untuk berbagi konten dengan perangkat sekitar."</string>
+    <string name="tethering_footer_info" msgid="8019555174339154124">"Gunakan hotspot dan tethering untuk menyediakan koneksi internet bagi perangkat lain melalui koneksi kuota seluler Anda. Aplikasi juga dapat membuat hotspot untuk berbagi konten dengan perangkat sekitar."</string>
     <string name="tethering_help_button_text" msgid="7653022000284543996">"Bantuan"</string>
     <string name="network_settings_title" msgid="8516526011407061679">"Jaringan seluler"</string>
     <string name="manage_mobile_plan_title" msgid="3312016665522553062">"Paket seluler"</string>
@@ -1638,8 +1638,8 @@
     <string name="network_scorer_picker_title" msgid="1691073966560952916">"Penyedia rating jaringan"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Tidak ada"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Ubah Wi-Fi Assistant?"</string>
-    <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Gunakan <xliff:g id="NEW_APP">%1$s</xliff:g> sebagai ganti <xliff:g id="CURRENT_APP">%2$s</xliff:g> untuk mengelola sambungan jaringan?"</string>
-    <string name="network_scorer_change_active_no_previous_dialog_text" msgid="6394483538843474495">"Gunakan <xliff:g id="NEW_APP">%s</xliff:g> untuk mengelola sambungan jaringan?"</string>
+    <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Gunakan <xliff:g id="NEW_APP">%1$s</xliff:g> sebagai ganti <xliff:g id="CURRENT_APP">%2$s</xliff:g> untuk mengelola koneksi jaringan?"</string>
+    <string name="network_scorer_change_active_no_previous_dialog_text" msgid="6394483538843474495">"Gunakan <xliff:g id="NEW_APP">%s</xliff:g> untuk mengelola koneksi jaringan?"</string>
     <string name="mobile_unknown_sim_operator" msgid="872589370085135817">"Operator SIM tidak dikenal"</string>
     <string name="mobile_no_provisioning_url" msgid="3216517414902166131">"<xliff:g id="OPERATOR">%1$s</xliff:g> tidak punya situs web penyediaanyang dikenal"</string>
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"Masukkan kartu SIM dan mulai ulang"</string>
@@ -2776,8 +2776,8 @@
     <string name="vpn_forget_long" msgid="8457511440635534478">"Lupakan VPN"</string>
     <string name="vpn_replace_vpn_title" msgid="8517436922021598103">"Ganti VPN yang sudah ada?"</string>
     <string name="vpn_set_vpn_title" msgid="6483554732067951052">"Setel VPN selalu aktif?"</string>
-    <string name="vpn_first_always_on_vpn_message" msgid="7050017738816963855">"Jika setelan ini diaktifkan, sambungan internet hanya akan tersedia setelah VPN berhasil terhubung"</string>
-    <string name="vpn_replace_always_on_vpn_enable_message" msgid="4149931501300203205">"VPN yang sudah ada akan digantikan, dan sambungan internet hanya akan tersedia setelah VPN berhasil terhubung"</string>
+    <string name="vpn_first_always_on_vpn_message" msgid="7050017738816963855">"Jika setelan ini diaktifkan, koneksi internet hanya akan tersedia setelah VPN berhasil terhubung"</string>
+    <string name="vpn_replace_always_on_vpn_enable_message" msgid="4149931501300203205">"VPN yang sudah ada akan digantikan, dan koneksi internet hanya akan tersedia setelah VPN berhasil terhubung"</string>
     <string name="vpn_replace_always_on_vpn_disable_message" msgid="4924947523200883088">"Anda sudah terhubung ke VPN selalu aktif. Jika Anda terhubung ke VPN yang berbeda, VPN yang sudah ada akan digantikan, dan mode selalu aktif akan dinonaktifkan."</string>
     <string name="vpn_replace_vpn_message" msgid="8009433728523145393">"Anda sudah terhubung ke VPN. Jika Anda terhubung ke VPN yang berbeda, VPN yang sudah ada akan digantikan."</string>
     <string name="vpn_turn_on" msgid="2334736319093953055">"Aktifkan"</string>
@@ -2797,7 +2797,7 @@
     <string name="vpn_lockdown_summary" msgid="6770030025737770861">"Pilih profil VPN untuk tetap tersambung. Lalu lintas jaringan hanya akan diperbolehkan jika tersambung ke VPN ini."</string>
     <string name="vpn_lockdown_none" msgid="3789288793603394679">"Tidak ada"</string>
     <string name="vpn_lockdown_config_error" msgid="8761770968704589885">"VPN selalu aktif membutuhkan alamat IP baik untuk server serta DNS."</string>
-    <string name="vpn_no_network" msgid="8313250136194588023">"Tidak ada sambungan jaringan. Coba lagi nanti."</string>
+    <string name="vpn_no_network" msgid="8313250136194588023">"Tidak ada koneksi jaringan. Coba lagi nanti."</string>
     <string name="vpn_disconnected" msgid="4597953053220332539">"Terputus dari VPN"</string>
     <string name="vpn_disconnected_summary" msgid="3784118965271376808">"Tidak ada"</string>
     <string name="vpn_missing_cert" msgid="2713254242731992902">"Sertifikat tidak ditemukan. Coba edit profil."</string>
@@ -3046,7 +3046,7 @@
     <string name="app_default_dashboard_title" msgid="6575301028225232193">"Aplikasi default"</string>
     <string name="system_dashboard_summary" msgid="6582464466735779394">"Bahasa, gestur, waktu, pencadangan"</string>
     <string name="search_results_title" msgid="4160717656435503940">"Setelan"</string>
-    <string name="keywords_wifi" msgid="8477688080895466846">"wifi, wi-fi, sambungan jaringan, internet, nirkabel, data, wi fi"</string>
+    <string name="keywords_wifi" msgid="8477688080895466846">"wifi, wi-fi, koneksi jaringan, internet, nirkabel, data, wi fi"</string>
     <string name="keywords_wifi_notify_open_networks" msgid="1031260564121854773">"Notifikasi Wi‑Fi, notifikasi wi‑fi"</string>
     <string name="keywords_auto_brightness" msgid="5007188989783072428">"Kecerahan otomatis"</string>
     <string name="keywords_vibrate_on_touch" msgid="3615173661462446877">"Hentikan getaran, ketukan, keyboard"</string>
@@ -4461,7 +4461,7 @@
     <string name="bluetooth_right_name" msgid="8356091262762973801">"Kanan"</string>
     <string name="bluetooth_middle_name" msgid="1489185200445352103">"Casing"</string>
     <string name="settings_panel_title" msgid="8181989386118232534">"Panel Setelan"</string>
-    <string name="internet_connectivity_panel_title" msgid="341712994620215750">"Sambungan Internet"</string>
+    <string name="internet_connectivity_panel_title" msgid="341712994620215750">"Koneksi Internet"</string>
     <string name="volume_connectivity_panel_title" msgid="4998755371496690971">"Volume"</string>
     <string name="mobile_data_ap_mode_disabled" msgid="2452716524753472885">"Tidak tersedia selama mode pesawat"</string>
     <string name="force_desktop_mode" msgid="6973100177551040740">"Paksa mode desktop"</string>

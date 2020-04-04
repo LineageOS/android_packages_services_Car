@@ -22,13 +22,24 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSess
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.notNull;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertThrows;
 
+import android.annotation.NonNull;
 import android.car.Car;
 import android.car.ICarUserService;
 import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserSwitchListener;
+import android.car.user.CarUserManager.UserSwitchResult;
 import android.content.pm.UserInfo;
+import android.os.Bundle;
+import android.os.RemoteException;
 import android.os.UserManager;
+
+import com.android.internal.os.IResultReceiver;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,9 +57,9 @@ public final class CarUserManagerUnitTest {
     @Mock
     private Car mCar;
     @Mock
-    private ICarUserService mService;
-    @Mock
     private UserManager mUserManager;
+    @Mock
+    private ICarUserService mService;
 
     private MockitoSession mSession;
     private CarUserManager mMgr;
@@ -105,6 +116,38 @@ public final class CarUserManagerUnitTest {
         assertThat(mMgr.isValidUser(666)).isFalse();
     }
 
+    @Test
+    public void testSwitchUser_Success() throws Exception {
+        MyUserSwitchListener listener = new MyUserSwitchListener();
+        Bundle resultData = new Bundle();
+        String errorString = "Error String";
+        resultData.putString(CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG, errorString);
+        mockCarUserServiceSwitchUser(CarUserManager.USER_SWITCH_STATUS_SUCCESSFUL, resultData);
+        mMgr.switchUser(11, listener);
+        UserSwitchResult result = listener.getResult();
+        assertThat(result.getStatus()).isEqualTo(CarUserManager.USER_SWITCH_STATUS_SUCCESSFUL);
+        assertThat(result.getErrorMessage()).isEqualTo(errorString);
+    }
+
+    @Test
+    public void testSwitchUser_nullListener() throws Exception {
+        MyUserSwitchListener listener = null;
+        Bundle resultData = new Bundle();
+        String errorString = "Error String";
+        resultData.putString(CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG, errorString);
+        assertThrows(NullPointerException.class, () -> mMgr.switchUser(11, listener));
+    }
+
+    private void mockCarUserServiceSwitchUser(int userSwitchStatusSuccessful, Bundle resultData)
+            throws RemoteException {
+        // TODO(b/149099817): create common method to answer a IResultReceiver call
+        doAnswer((invocation) -> {
+            IResultReceiver callback = (IResultReceiver) invocation.getArguments()[2];
+            callback.send(userSwitchStatusSuccessful, resultData);
+            return null;
+        }).when(mService).switchUser(anyInt(), anyInt(), notNull());
+    }
+
     private void setExistingUsers(int... userIds) {
         List<UserInfo> users = toUserInfoList(userIds);
         when(mUserManager.getUsers()).thenReturn(users);
@@ -126,4 +169,16 @@ public final class CarUserManagerUnitTest {
         doReturn(mode).when(() -> UserManager.isHeadlessSystemUserMode());
     }
 
+    private static final class MyUserSwitchListener implements UserSwitchListener {
+        private UserSwitchResult mResult;
+
+        @Override
+        public void onResult(@NonNull UserSwitchResult result) {
+            mResult = result;
+        }
+
+        public UserSwitchResult getResult() {
+            return mResult;
+        }
+    }
 }
